@@ -361,6 +361,28 @@ class TimedCacheTest
         Assertions.assertEquals(0, timedCache.getSize());
     }
 
+    @Test
+    void testEmptyCache()
+    {
+        final TimedCache<String, String> empty = TimedCache.emptyCache();
+
+        Assertions.assertEquals("value1", empty.compute("key1", (key, val) -> "value1"));
+        Assertions.assertTrue(empty.computeIfAbsent("key2", key -> "value2").isEmpty());
+        Assertions.assertTrue(empty.computeIfPresent("key2", (key, val) -> "value2_2").isEmpty());
+
+        Assertions.assertEquals("value3", empty.put("key3", "value3"));
+        Assertions.assertTrue(empty.putIfAbsent("key4", "value4").isEmpty());
+        Assertions.assertTrue(empty.putIfPresent("key4", "value4_2").isEmpty());
+
+        Assertions.assertEquals(0, empty.getSize());
+        Assertions.assertTrue(empty.get("key1").isEmpty());
+        Assertions.assertNull(empty.getRaw("key1"));
+        Assertions.assertTrue(empty.remove("key1").isEmpty());
+
+        empty.shutDown();
+        Assertions.assertThrows(IllegalStateException.class, () -> empty.put("a", "b"));
+    }
+
     /**
      * Sleeps the thread for a defined amount of time.
      * <p>
