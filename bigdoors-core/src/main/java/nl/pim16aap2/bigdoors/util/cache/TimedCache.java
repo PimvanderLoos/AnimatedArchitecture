@@ -264,24 +264,26 @@ public class TimedCache<K, V>
 
     /**
      * See {@link ConcurrentHashMap#computeIfAbsent(Object, Function)}.
-     *
-     * @return If no value existed in the map or the existing entry timed out, an empty optional is returned.
-     * <p>
-     * If a valid mapping existed for the provided key, an optional containing the mapped value is returned.
      */
-    public Optional<V> computeIfAbsent(K key, Function<K, V> mappingFunction)
+    public V computeIfAbsent(K key, Function<K, V> mappingFunction)
     {
         validateState();
-        final AtomicReference<@Nullable V> returnValue = new AtomicReference<>();
-        Util.requireNonNull(cache.compute(key, (k, tValue) ->
+        final AtomicReference<V> returnValue = new AtomicReference<>();
+        cache.compute(key, (k, tValue) ->
         {
-            if (tValue == null || tValue.timedOut())
-                return timedValueCreator.apply(mappingFunction.apply(k));
+            @Nullable V innerValue;
+            if (tValue == null || tValue.timedOut() || (innerValue = tValue.getValue(refresh)) == null)
+            {
+                innerValue = Util.requireNonNull(mappingFunction.apply(k),
+                                                 "Computed TimedCache value for key: \"" + key + "\"");
+                returnValue.set(innerValue);
+                return timedValueCreator.apply(innerValue);
+            }
 
-            returnValue.set(tValue.getValue(refresh));
+            returnValue.set(innerValue);
             return tValue;
-        }), "Computed TimedCache value for key: \"" + key + "\"");
-        return Optional.ofNullable(returnValue.get());
+        });
+        return Util.requireNonNull(returnValue.get(), "Computed TimedCache value for key: \"" + key + "\"");
     }
 
     /**
@@ -540,10 +542,10 @@ public class TimedCache<K, V>
         }
 
         @Override
-        public Optional<V> computeIfAbsent(K key, Function<K, V> mappingFunction)
+        public V computeIfAbsent(K key, Function<K, V> mappingFunction)
         {
             validateState();
-            return Optional.empty();
+            return mappingFunction.apply(key);
         }
 
         @Override

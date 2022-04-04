@@ -222,23 +222,29 @@ class TimedCacheTest
         final TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
                                                                        null, false, false, false);
 
-        // Make sure inserting a new item properly returns an empty optional.
-        Assertions.assertFalse(timedCache.computeIfAbsent("key", (k) -> "value").isPresent());
+        // Make sure inserting a new item properly returns the new value
+        Assertions.assertEquals("value0", timedCache.computeIfAbsent("key", (k) -> "value0"));
         // Ensure the value was actually inserted properly.
-        optionalEquals(timedCache.get("key"), "value");
+        optionalEquals(timedCache.get("key"), "value0");
 
         // Make sure that calling the method again returns the proper result.
-        Assertions.assertTrue(timedCache.computeIfAbsent("key", (k) -> "value").isPresent());
+        Assertions.assertEquals("value0", timedCache.computeIfAbsent("key", (k) -> "value0"));
         // Make sure that the entry isn't duplicated.
         Assertions.assertEquals(1, timedCache.getSize());
 
         // Make sure that trying to insert a different value for an existing key doesn't do anything.
-        optionalEquals(timedCache.computeIfAbsent("key", (k) -> "newVal"), "value");
+        Assertions.assertEquals("value0", timedCache.computeIfAbsent("key", (k) -> "newVal1"));
 
         // Make sure that we can insert new values again once the entry has timed out.
         clock.addMillis(110);
-        Assertions.assertFalse(timedCache.computeIfAbsent("key", (k) -> "newVal").isPresent());
+        Assertions.assertEquals("newVal", timedCache.computeIfAbsent("key", (k) -> "newVal"));
         optionalEquals(timedCache.get("key"), "newVal");
+
+        // No null allowed!
+        //noinspection ConstantConditions
+        Assertions.assertThrows(NullPointerException.class, () -> timedCache.computeIfAbsent("key_npe", (k) -> null));
+        //noinspection ConstantConditions
+        Assertions.assertThrows(NullPointerException.class, () -> timedCache.computeIfAbsent(null, (k) -> "value"));
     }
 
     @Test
@@ -367,7 +373,7 @@ class TimedCacheTest
         final TimedCache<String, String> empty = TimedCache.emptyCache();
 
         Assertions.assertEquals("value1", empty.compute("key1", (key, val) -> "value1"));
-        Assertions.assertTrue(empty.computeIfAbsent("key2", key -> "value2").isEmpty());
+        Assertions.assertEquals("value2", empty.computeIfAbsent("key2", key -> "value2"));
         Assertions.assertTrue(empty.computeIfPresent("key2", (key, val) -> "value2_2").isEmpty());
 
         Assertions.assertEquals("value3", empty.put("key3", "value3"));
