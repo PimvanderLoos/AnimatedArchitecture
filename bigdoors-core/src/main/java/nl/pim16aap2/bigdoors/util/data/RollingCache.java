@@ -30,7 +30,7 @@ import java.util.function.Consumer;
  *     The type of data to store.
  * @author Pim
  */
-public final class RollingStack<T> extends AbstractCollection<T> implements Iterable<T>
+public final class RollingCache<T> extends AbstractCollection<T> implements Iterable<T>
 {
     @Getter(AccessLevel.PACKAGE)
     private final int limit;
@@ -43,7 +43,7 @@ public final class RollingStack<T> extends AbstractCollection<T> implements Iter
     @Getter(AccessLevel.PACKAGE)
     private int modCount = 0;
 
-    public RollingStack(int limit)
+    public RollingCache(int limit)
     {
         if (limit <= 0)
             throw new IllegalArgumentException("Limit of rolling stack must be greater than 0!");
@@ -59,9 +59,9 @@ public final class RollingStack<T> extends AbstractCollection<T> implements Iter
     }
 
     @Override
-    public StackIterator iterator()
+    public RollingIterator iterator()
     {
-        return new StackIterator();
+        return new RollingIterator();
     }
 
     /**
@@ -172,9 +172,9 @@ public final class RollingStack<T> extends AbstractCollection<T> implements Iter
     }
 
     @Override
-    public StackSpliterator spliterator()
+    public RollingSpliterator spliterator()
     {
-        return new StackSpliterator(modCount, 0, size);
+        return new RollingSpliterator(modCount, 0, size);
     }
 
     /**
@@ -353,7 +353,7 @@ public final class RollingStack<T> extends AbstractCollection<T> implements Iter
             throw new ConcurrentModificationException();
     }
 
-    private final class StackIterator implements Iterator<T>
+    private final class RollingIterator implements Iterator<T>
     {
         private int expectedModCount = modCount;
         private int index = -1;
@@ -384,7 +384,7 @@ public final class RollingStack<T> extends AbstractCollection<T> implements Iter
             if (index < 0)
                 throw new IllegalStateException();
 
-            RollingStack.this.remove(index);
+            RollingCache.this.remove(index);
             expectedModCount = modCount;
             --remaining;
         }
@@ -396,7 +396,7 @@ public final class RollingStack<T> extends AbstractCollection<T> implements Iter
         }
     }
 
-    @AllArgsConstructor final class StackSpliterator implements Spliterator<T>
+    @AllArgsConstructor final class RollingSpliterator implements Spliterator<T>
     {
         private int expectedModCount;
         private int index;
@@ -428,7 +428,7 @@ public final class RollingStack<T> extends AbstractCollection<T> implements Iter
         }
 
         @Override
-        public @Nullable StackSpliterator trySplit()
+        public @Nullable RollingCache.RollingSpliterator trySplit()
         {
             final int halfRemaining = remaining / 2;
             if (halfRemaining == 0)
@@ -440,7 +440,7 @@ public final class RollingStack<T> extends AbstractCollection<T> implements Iter
             index = index + halfRemaining;
             remaining = remaining - halfRemaining;
 
-            return new StackSpliterator(expectedModCount, oldCursor, halfRemaining);
+            return new RollingSpliterator(expectedModCount, oldCursor, halfRemaining);
         }
 
         @Override
