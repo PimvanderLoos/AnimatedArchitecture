@@ -37,7 +37,7 @@
         <dependency.version.maven-compiler>3.10.1</dependency.version.maven-compiler>
         <dependency.version.maven-shade>3.3.0</dependency.version.maven-shade>
         <dependency.version.maven-jar>3.2.2</dependency.version.maven-jar>
-        <dependency.version.maven-clean>3.1.0</dependency.version.maven-clean>
+        <dependency.version.maven-clean>3.2.0</dependency.version.maven-clean>
         <dependency.version.maven-dependency>3.3.0</dependency.version.maven-dependency>
         <dependency.version.maven-resources>3.2.0</dependency.version.maven-resources>
         <dependency.version.maven-install>3.0.0-M1</dependency.version.maven-install>
