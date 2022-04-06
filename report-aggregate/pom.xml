@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>report-aggregate</artifactId>
+    <description>Simple module used for aggregating test reports across all other modules.</description>
+    <packaging>jar</packaging>
+    <version>1</version>
+
+    <parent>
+        <artifactId>bigdoors-parent</artifactId>
+        <groupId>nl.pim16aap2.bigdoors</groupId>
+        <version>1</version>
+    </parent>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>bigdoors-core</artifactId>
+            <version>1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>doors-bigdoor</artifactId>
+            <version>1</version>
+        </dependency>
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>doors-clock</artifactId>
+            <version>1</version>
+        </dependency>
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>doors-drawbridge</artifactId>
+            <version>1</version>
+        </dependency>
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>doors-elevator</artifactId>
+            <version>1</version>
+        </dependency>
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>doors-flag</artifactId>
+            <version>1</version>
+        </dependency>
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>doors-garagedoor</artifactId>
+            <version>1</version>
+        </dependency>
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>doors-portcullis</artifactId>
+            <version>1</version>
+        </dependency>
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>doors-revolvingdoor</artifactId>
+            <version>1</version>
+        </dependency>
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>doors-slidingdoor</artifactId>
+            <version>1</version>
+        </dependency>
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>doors-windmill</artifactId>
+            <version>1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>spigot-core</artifactId>
+            <version>1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>spigot-util</artifactId>
+            <version>1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2</groupId>
+            <artifactId>util</artifactId>
+            <version>1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2</groupId>
+            <artifactId>test-util</artifactId>
+            <version>1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>bigdoors-integration-test</artifactId>
+            <version>1</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${dependency.version.jacoco}</version>
+                <executions>
+                    <execution>
+                        <id>report-aggregate</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report-aggregate</goal>
+                        </goals>
+                    </execution>
+
+                    <execution>
+                        <id>merge-results</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>merge</goal>
+                        </goals>
+                        <configuration>
+                            <fileSets>
+                                <fileSet>
+                                    <directory>${project.build.directory}</directory>
+                                    <includes>
+                                        <include>*.exec</include>
+                                    </includes>
+                                </fileSet>
+                            </fileSets>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
