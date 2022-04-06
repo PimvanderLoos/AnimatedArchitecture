@@ -57,4 +57,4 @@ jobs:
           branch: gh-pages
           folder: target/site/apidocs
           target-folder: javadoc
-        if: github.ref == 'refs/heads/master'
+        if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
