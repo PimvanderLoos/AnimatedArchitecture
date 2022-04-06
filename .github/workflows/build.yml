@@ -50,12 +50,11 @@ jobs:
           name: BigDoors-Spigot
           path: bigdoors-spigot/spigot-core/target/BigDoors-Spigot.jar
 
-
+      # Publish java doc page when a commit/PR is pushed/merged to master
       - name: Deploy Javadoc
         uses: JamesIves/github-pages-deploy-action@v4.2.5
         with:
           branch: gh-pages
           folder: target/site/apidocs
           target-folder: javadoc
-        #if: github.ref == 'refs/heads/master'
-
+        if: github.ref == 'refs/heads/master'
