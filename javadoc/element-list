@@ -1,5 +1,6 @@
 nl.pim16aap2.bigdoors.annotations
 nl.pim16aap2.bigdoors.api
+nl.pim16aap2.bigdoors.api.animatedblock
 nl.pim16aap2.bigdoors.api.debugging
 nl.pim16aap2.bigdoors.api.factories
 nl.pim16aap2.bigdoors.api.restartable
