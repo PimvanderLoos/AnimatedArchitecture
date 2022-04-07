@@ -5,8 +5,6 @@ import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.NMS.CustomCraftFallingBlock;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory;
 import nl.pim16aap2.bigDoors.NMS.NMSBlock;
-import nl.pim16aap2.bigDoors.events.DoorEventToggle.ToggleType;
-import nl.pim16aap2.bigDoors.events.DoorEventToggleEnd;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocation;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationEast;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationNorth;
@@ -27,7 +25,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.List;
 
 public class CylindricalMover extends BlockMover
 {
@@ -41,7 +39,6 @@ public class CylindricalMover extends BlockMover
     private final int tickRate;
     private double endStepSum;
     private double multiplier;
-    private final boolean instantOpen;
     private double startStepSum;
     private final RotateDirection rotDirection;
     private final Location pointOpposite;
@@ -50,8 +47,6 @@ public class CylindricalMover extends BlockMover
     private final int yMax, zMin, zMax;
     private final DoorDirection currentDirection;
     private final Location turningPoint;
-    private final ArrayList<MyBlockData> savedBlocks = new ArrayList<>();
-    private final AtomicBoolean blocksPlaced = new AtomicBoolean(false);
     private int endCount = 0;
     private BukkitRunnable animationRunnable;
 
@@ -59,7 +54,7 @@ public class CylindricalMover extends BlockMover
     public CylindricalMover(BigDoors plugin, World world, int qCircleLimit, RotateDirection rotDirection, double time,
         Location pointOpposite, DoorDirection currentDirection, Door door, boolean instantOpen, double multiplier)
     {
-        super(plugin, door);
+        super(plugin, door, instantOpen);
         this.rotDirection = rotDirection;
         this.currentDirection = currentDirection;
         this.plugin = plugin;
@@ -68,7 +63,6 @@ public class CylindricalMover extends BlockMover
         this.pointOpposite = pointOpposite;
         turningPoint = door.getEngine();
         fabf = plugin.getFABF();
-        this.instantOpen = instantOpen;
         stepMultiplier = rotDirection == RotateDirection.CLOCKWISE ? -1 : 1;
 
         xMin = Math.min(turningPoint.getBlockX(), pointOpposite.getBlockX());
@@ -94,6 +88,11 @@ public class CylindricalMover extends BlockMover
     private void createAnimatedBlocks()
     {
         savedBlocks.ensureCapacity(door.getBlockCount());
+
+        // This will reserve a bit too much memory, but not enough to worry about.
+        final List<NMSBlock> edges =
+            new ArrayList<>(Math.min(door.getBlockCount(),
+                                     (xMax - xMin + 1) * 2 + (yMax - yMin + 1) * 2 + (zMax - zMin + 1) * 2));
 
         int xAxis = turningPoint.getBlockX();
         do
@@ -169,9 +168,12 @@ public class CylindricalMover extends BlockMover
 
                         savedBlocks.add(new MyBlockData(mat, matByte, fBlock, radius, materialData,
                                                         block2 == null ? block : block2, canRotate, startLocation));
+
+                        if (xAxis == xMin || xAxis == xMax ||
+                            yAxis == yMin || yAxis == yMax ||
+                            zAxis == zMin || zAxis == zMax)
+                            edges.add(block);
                     }
-                    else
-                        savedBlocks.add(new MyBlockData(Material.AIR));
                 }
                 zAxis += dz;
             }
@@ -206,12 +208,11 @@ public class CylindricalMover extends BlockMover
 
         // This is only supported on 1.13
         if (BigDoors.isOnFlattenedVersion())
-            for (MyBlockData mbd : savedBlocks)
-            {
-                NMSBlock block = mbd.getBlock();
-                if (block != null && Util.isAllowedBlock(mbd.getMat()))
-                    block.deleteOriginalBlock();
-            }
+        {
+            savedBlocks.forEach(myBlockData -> myBlockData.getBlock().deleteOriginalBlock(false));
+            // Update the physics around the edges after we've removed all our blocks.
+            edges.forEach(block -> block.deleteOriginalBlock(true));
+        }
 
         savedBlocks.trimToSize();
 
@@ -230,81 +231,12 @@ public class CylindricalMover extends BlockMover
         this.putBlocks(onDisable);
     }
 
-    // Put the door blocks back, but change their state now.
-    @SuppressWarnings("deprecation")
     @Override
     public synchronized void putBlocks(boolean onDisable)
     {
-        if (blocksPlaced.getAndSet(true))
-            return;
-
-        for (MyBlockData savedBlock : savedBlocks)
-        {
-            /*
-             * 0-3: Vertical oak, spruce, birch, then jungle 4-7: East/west oak, spruce,
-             * birch, jungle 8-11: North/south oak, spruce, birch, jungle 12-15: Uses oak,
-             * spruce, birch, jungle bark texture on all six faces
-             */
-
-            Material mat = savedBlock.getMat();
-
-            if (!mat.equals(Material.AIR))
-            {
-                byte matByte = savedBlock.getBlockByte();
-
-                Location newPos = gnl.getNewLocation(savedBlock.getRadius(), savedBlock.getStartX(),
-                                                     savedBlock.getStartY(), savedBlock.getStartZ());
-
-                if (!instantOpen)
-                    savedBlock.getFBlock().remove();
-
-                if (!savedBlock.getMat().equals(Material.AIR))
-                {
-                    if (BigDoors.isOnFlattenedVersion())
-                    {
-                        savedBlock.getBlock().putBlock(newPos);
-                        Block b = world.getBlockAt(newPos);
-                        BlockState bs = b.getState();
-                        bs.update();
-                    }
-                    else
-                    {
-                        Block b = world.getBlockAt(newPos);
-                        MaterialData matData = savedBlock.getMatData();
-                        matData.setData(matByte);
-
-                        b.setType(mat);
-                        BlockState bs = b.getState();
-                        bs.setData(matData);
-                        bs.update();
-                    }
-                }
-            }
-        }
-
-        // Tell the door object it has been opened and what its new coordinates are.
-        updateCoords(door, currentDirection, rotDirection, -1, false);
-        toggleOpen(door);
-
-        if (!onDisable)
-        {
-            int delay = buttonDelay(endCount)
-                + Math.min(plugin.getMinimumDoorDelay(), plugin.getConfigLoader().coolDown() * 20);
-            new BukkitRunnable()
-            {
-                @Override
-                public void run()
-                {
-                    plugin.getCommander().setDoorAvailable(door.getDoorUID());
-                    Bukkit.getPluginManager()
-                        .callEvent(new DoorEventToggleEnd(door, (door.isOpen() ? ToggleType.OPEN : ToggleType.CLOSE),
-                                                          instantOpen));
-
-                    if (door.isOpen())
-                        plugin.getAutoCloseScheduler().scheduleAutoClose(door, time, instantOpen);
-                }
-            }.runTaskLater(plugin, delay);
-        }
+        super.putBlocks(onDisable, time, endCount,
+                        gnl::getNewLocation,
+                        () -> updateCoords(door, currentDirection, rotDirection, -1, false));
     }
 
     // Method that takes care of the rotation aspect.
@@ -507,12 +439,6 @@ public class CylindricalMover extends BlockMover
         else if (matData == 3 || matData == 7)
             matData = (byte) (matData - 2);
         return matData;
-    }
-
-    // Toggle the open status of a drawbridge.
-    private void toggleOpen(Door door)
-    {
-        door.setOpenStatus(!door.isOpen());
     }
 
     // Update the coordinates of a door based on its location, direction it's

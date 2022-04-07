@@ -9,6 +9,7 @@ import net.bytebuddy.implementation.MethodDelegation;
 import net.bytebuddy.implementation.StubMethod;
 import net.bytebuddy.implementation.bind.annotation.FieldValue;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
+import net.bytebuddy.implementation.bind.annotation.This;
 import net.bytebuddy.implementation.bytecode.assign.Assigner;
 import nl.pim16aap2.bigDoors.NMS.NMSBlock;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
@@ -27,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Objects;
 import java.util.Set;
 
 import static net.bytebuddy.implementation.MethodCall.construct;
@@ -65,6 +67,8 @@ final class NMSBlockClassGenerator extends ClassGenerator
         findMethod().inClass(IGeneratedNMSBlock.class).withName("generated$retrieveBlockData").get();
     public static final Method METHOD_SET_BLOCK_DATA =
         findMethod().inClass(IGeneratedNMSBlock.class).withName("generated$setBlockData").get();
+    public static final Method METHOD_SET_BLOCK_TYPE =
+        findMethod().inClass(IGeneratedNMSBlock.class).withName("generated$setBlockType").get();
     public static final Method METHOD_TO_STRING =
         findMethod().inClass(Object.class).withName("toString").get();
     public static final Method METHOD_ROTATE_UP_DOWN_NS =
@@ -78,7 +82,7 @@ final class NMSBlockClassGenerator extends ClassGenerator
     public static final Method METHOD_CAN_ROTATE =
         findMethod().inClass(NMSBlock.class).withName("canRotate").get();
     public static final Method METHOD_DELETE_ORIGINAL_BLOCK =
-        findMethod().inClass(NMSBlock.class).withName("deleteOriginalBlock").get();
+        findMethod().inClass(NMSBlock.class).withName("deleteOriginalBlock").withParameters(boolean.class).get();
     public static final Method METHOD_PUT_BLOCK =
         findMethod().inClass(NMSBlock.class).withName("putBlock").get();
 
@@ -90,6 +94,7 @@ final class NMSBlockClassGenerator extends ClassGenerator
     public static final String METHOD_ROTATE_UP_DOWN_NS_IMPL = "generated$rotateBlockUpDown";
     public static final String METHOD_ROTATE = "generated$rotateBlockMethod";
     public static final String METHOD_ROTATE_CYLINDRICAL = "generated$rotateBlockCylindrical";
+    public static final String METHOD_DELETE_ORIGINAL_BLOCK_PRIVATE = "generated$deleteOriginalBlock";
 
     public NMSBlockClassGenerator(@NotNull String mappingsVersion)
         throws Exception
@@ -120,6 +125,7 @@ final class NMSBlockClassGenerator extends ClassGenerator
         builder = addFields(builder);
         builder = addCTor(builder);
         builder = addBasicMethods(builder);
+        builder = addDeleteOriginalBlockMethods(builder);
         builder = addPutBlockMethod(builder);
         builder = addRotateBlockMethod(builder);
         builder = addRotateBlockUpDownMethodNorthSouth(builder);
@@ -282,6 +288,27 @@ final class NMSBlockClassGenerator extends ClassGenerator
         return builder;
     }
 
+    private DynamicType.Builder<?> addDeleteOriginalBlockMethods(DynamicType.Builder<?> builder)
+    {
+        builder = builder
+            .define(METHOD_SET_BLOCK_TYPE)
+            .intercept(invoke(methodSetBlockType)
+                           .onMethodCall(invoke(methodLocationGetBlock).onField(FIELD_LOCATION))
+                           .withArgument(0)
+                           .withArgument(1));
+
+        builder = builder
+            .defineMethod(METHOD_DELETE_ORIGINAL_BLOCK_PRIVATE, void.class, Modifier.PRIVATE)
+            .withParameters(IGeneratedNMSBlock.class, boolean.class)
+            .intercept(MethodDelegation.to(DeleteOriginalBlock.class));
+
+        builder = builder
+            .define(METHOD_DELETE_ORIGINAL_BLOCK)
+            .intercept(invoke(named(METHOD_DELETE_ORIGINAL_BLOCK_PRIVATE)).withThis().withArgument(0));
+
+        return builder;
+    }
+
     private DynamicType.Builder<?> addBasicMethods(DynamicType.Builder<?> builder)
     {
         builder = builder
@@ -327,11 +354,7 @@ final class NMSBlockClassGenerator extends ClassGenerator
                                                               .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC));
         builder = builder.define(METHOD_SET_BLOCK_DATA)
                          .intercept(invoke(methodSetBlockData).onArgument(0).withArgument(1));
-        builder = builder
-            .define(METHOD_DELETE_ORIGINAL_BLOCK)
-            .intercept(invoke(methodSetBlockType)
-                           .onMethodCall(invoke(methodLocationGetBlock).onField(FIELD_LOCATION))
-                           .with(Material.AIR));
+
 
         return builder;
     }
@@ -409,6 +432,8 @@ final class NMSBlockClassGenerator extends ClassGenerator
         org.bukkit.block.data.BlockData generated$retrieveBlockData(Block otherBlock);
 
         void generated$setBlockData(Block otherBlock, BlockData newData);
+
+        void generated$setBlockType(Material mat, boolean applyPhysics);
     }
 
     public interface IRotateBlock
@@ -433,6 +458,24 @@ final class NMSBlockClassGenerator extends ClassGenerator
     {
         @RuntimeType
         void intercept(BlockData blockData);
+    }
+
+    public static class DeleteOriginalBlock
+    {
+        private static final Material RESET_MATERIAL = Objects.requireNonNull(XMaterial.CAVE_AIR.parseMaterial());
+
+        public static void deleteOriginalBlock(@This IGeneratedNMSBlock origin, boolean applyPhysics)
+        {
+            if (!applyPhysics)
+            {
+                origin.generated$setBlockType(Material.AIR, false);
+            }
+            else
+            {
+                origin.generated$setBlockType(RESET_MATERIAL, false);
+                origin.generated$setBlockType(Material.AIR, true);
+            }
+        }
     }
 
     public interface IUpdateMultipleFacing

@@ -1,7 +1,14 @@
 package nl.pim16aap2.bigDoors.NMS;
 
-import java.util.Set;
-
+import com.cryptomorin.xseries.XMaterial;
+import net.minecraft.server.v1_16_R3.Block;
+import net.minecraft.server.v1_16_R3.BlockPosition;
+import net.minecraft.server.v1_16_R3.BlockRotatable;
+import net.minecraft.server.v1_16_R3.EnumBlockRotation;
+import net.minecraft.server.v1_16_R3.EnumDirection.EnumAxis;
+import net.minecraft.server.v1_16_R3.IBlockData;
+import net.minecraft.server.v1_16_R3.Item;
+import nl.pim16aap2.bigDoors.util.RotateDirection;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -12,15 +19,7 @@ import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_16_R3.block.CraftBlock;
 import org.bukkit.craftbukkit.v1_16_R3.block.data.CraftBlockData;
 
-import net.minecraft.server.v1_16_R3.Block;
-import net.minecraft.server.v1_16_R3.BlockPosition;
-import net.minecraft.server.v1_16_R3.BlockRotatable;
-import net.minecraft.server.v1_16_R3.EnumBlockRotation;
-import net.minecraft.server.v1_16_R3.EnumDirection.EnumAxis;
-import net.minecraft.server.v1_16_R3.IBlockData;
-import net.minecraft.server.v1_16_R3.Item;
-import nl.pim16aap2.bigDoors.util.RotateDirection;
-import com.cryptomorin.xseries.XMaterial;
+import java.util.Set;
 
 public class NMSBlock_V1_16_R3 extends net.minecraft.server.v1_16_R3.BlockBase implements NMSBlock
 {
@@ -161,9 +160,17 @@ public class NMSBlock_V1_16_R3 extends net.minecraft.server.v1_16_R3.BlockBase i
     }
 
     @Override
-    public void deleteOriginalBlock()
+    public void deleteOriginalBlock(boolean applyPhysics)
     {
-        loc.getWorld().getBlockAt(loc).setType(Material.AIR);
+        if (!applyPhysics)
+        {
+            loc.getWorld().getBlockAt(loc).setType(Material.AIR, applyPhysics);
+        }
+        else
+        {
+            loc.getWorld().getBlockAt(loc).setType(Material.CAVE_AIR, false);
+            loc.getWorld().getBlockAt(loc).setType(Material.AIR, true);
+        }
     }
 
     @Override
