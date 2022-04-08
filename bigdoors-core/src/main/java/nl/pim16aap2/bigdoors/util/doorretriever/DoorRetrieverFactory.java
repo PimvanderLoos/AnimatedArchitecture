@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.util.doorretriever;
 
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.commands.ICommandSender;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
@@ -23,22 +24,25 @@ public final class DoorRetrieverFactory
     private final DatabaseManager databaseManager;
     private final IConfigLoader config;
     private final DoorSpecificationManager doorSpecificationManager;
+    private final DoorFinderCache doorFinderCache;
 
     @Inject
-    public DoorRetrieverFactory(DatabaseManager databaseManager, IConfigLoader config,
-                                DoorSpecificationManager doorSpecificationManager)
+    public DoorRetrieverFactory(
+        DatabaseManager databaseManager, IConfigLoader config, DoorSpecificationManager doorSpecificationManager,
+        DoorFinderCache doorFinderCache)
     {
         this.databaseManager = databaseManager;
         this.config = config;
         this.doorSpecificationManager = doorSpecificationManager;
+        this.doorFinderCache = doorFinderCache;
     }
 
     /**
-     * Creates a new {@link DoorRetrieverFactory} from its ID.
+     * Creates a new {@link DoorRetriever} from its ID.
      *
      * @param doorID
      *     The identifier (name or UID) of the door.
-     * @return The new {@link DoorRetrieverFactory}.
+     * @return The new {@link DoorRetriever}.
      */
     public DoorRetriever of(String doorID)
     {
@@ -49,11 +53,11 @@ public final class DoorRetrieverFactory
     }
 
     /**
-     * Creates a new {@link DoorRetrieverFactory} from its UID.
+     * Creates a new {@link DoorRetriever} from its UID.
      *
      * @param doorUID
      *     The UID of the door.
-     * @return The new {@link DoorRetrieverFactory}.
+     * @return The new {@link DoorRetriever}.
      */
     public DoorRetriever of(long doorUID)
     {
@@ -61,11 +65,11 @@ public final class DoorRetrieverFactory
     }
 
     /**
-     * Creates a new {@link DoorRetrieverFactory} from the door object itself.
+     * Creates a new {@link DoorRetriever} from the door object itself.
      *
      * @param door
      *     The door object itself.
-     * @return The new {@link DoorRetrieverFactory}.
+     * @return The new {@link DoorRetriever}.
      */
     public DoorRetriever of(AbstractDoor door)
     {
@@ -73,23 +77,52 @@ public final class DoorRetrieverFactory
     }
 
     /**
-     * Creates a new {@link DoorRetrieverFactory} from a door that is being retrieved.
+     * Creates a new {@link DoorRetriever} from a door that is being retrieved.
      *
      * @param door
      *     The door that is being retrieved.
-     * @return The new {@link DoorRetrieverFactory}.
+     * @return The new {@link DoorRetriever}.
      */
     public DoorRetriever of(CompletableFuture<Optional<AbstractDoor>> door)
     {
         return DoorRetrieverFactory.ofDoor(door);
     }
 
+
     /**
-     * Creates a new {@link DoorRetrieverFactory} from the door object itself.
+     * Gets the {@link DoorFinder} to find doors from partial string matches.
+     * <p>
+     * If a {@link DoorFinder} already exists for this
+     *
+     * @param commandSender
+     *     The command sender (e.g. player) that is responsible for searching for the door.
+     * @param input
+     *     The input to use as search query.
+     * @param mode
+     *     The mode to use for obtaining a {@link DoorFinder} instance. Defaults to {@link DoorFinderMode#USE_CACHE}.
+     * @return The {@link DoorFinder} instance.
+     */
+    public DoorFinder search(ICommandSender commandSender, String input, DoorFinderMode mode)
+    {
+        return mode == DoorFinderMode.USE_CACHE ?
+               doorFinderCache.getDoorFinder(commandSender, input) :
+               new DoorFinder(this, databaseManager, commandSender, input);
+    }
+
+    /**
+     * See {@link #search(ICommandSender, String, DoorFinderMode)}.
+     */
+    public DoorFinder search(ICommandSender commandSender, String input)
+    {
+        return search(commandSender, input, DoorFinderMode.USE_CACHE);
+    }
+
+    /**
+     * Creates a new {@link DoorRetriever} from the door object itself.
      *
      * @param door
      *     The door object itself.
-     * @return The new {@link DoorRetrieverFactory}.
+     * @return The new {@link DoorRetriever}.
      */
     public static DoorRetriever ofDoor(@Nullable AbstractDoor door)
     {
@@ -97,11 +130,11 @@ public final class DoorRetrieverFactory
     }
 
     /**
-     * Creates a new {@link DoorRetrieverFactory} from a door that is still being retrieved.
+     * Creates a new {@link DoorRetriever} from a door that is still being retrieved.
      *
      * @param door
      *     The future door.
-     * @return The new {@link DoorRetrieverFactory}.
+     * @return The new {@link DoorRetriever}.
      */
     public static DoorRetriever ofDoor(CompletableFuture<Optional<AbstractDoor>> door)
     {
@@ -109,14 +142,32 @@ public final class DoorRetrieverFactory
     }
 
     /**
-     * Creates a new {@link DoorRetrieverFactory} from a list of doors.
+     * Creates a new {@link DoorRetriever} from a list of doors.
      *
      * @param doors
      *     The doors.
-     * @return The new {@link DoorRetrieverFactory}.
+     * @return The new {@link DoorRetriever}.
      */
     public static DoorRetriever ofDoors(List<AbstractDoor> doors)
     {
         return new DoorRetriever.DoorListRetriever(doors);
+    }
+
+    /**
+     * Represents different ways a door finder can be instantiated.
+     */
+    public enum DoorFinderMode
+    {
+        /**
+         * Re-use a cached door finder if possible. If no cached version is available, a new one will be instantiated.
+         */
+        USE_CACHE,
+
+        /**
+         * Create a new instance of the finder regardless of whether a cached mapping exists.
+         * <p>
+         * The new instance is not added to the cache.
+         */
+        NEW_INSTANCE
     }
 }
