@@ -2,6 +2,8 @@ package nl.pim16aap2.bigdoors.util.doorretriever;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.ToString;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.commands.ICommandSender;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
@@ -11,17 +13,22 @@ import nl.pim16aap2.bigdoors.util.data.RollingCache;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import java.time.Duration;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 /**
@@ -33,6 +40,7 @@ import java.util.stream.Collectors;
  *
  * @author Pim
  */
+@Flogger
 public final class DoorFinder
 {
     /**
@@ -50,13 +58,13 @@ public final class DoorFinder
     @GuardedBy("this")
     private final RollingCache<HistoryItem> history = new RollingCache<>(3);
     @GuardedBy("this")
-    private final List<Runnable> delayedOperations = new ArrayList<>();
+    private final Deque<String> postponedInputs = new ArrayDeque<>();
     @GuardedBy("this")
     private @Nullable List<MinimalDoorDescription> cache;
     @GuardedBy("this")
     private String lastInput;
     @GuardedBy("this")
-    private @Nullable CompletableFuture<Void> searcher = null;
+    private @Nullable CompletableFuture<List<MinimalDoorDescription>> searcher = null;
 
     DoorFinder(
         DoorRetrieverFactory doorRetrieverFactory, DatabaseManager databaseManager, ICommandSender commandSender,
@@ -73,7 +81,7 @@ public final class DoorFinder
     {
         if (input.length() <= lastInput.length())
         {
-            if (input.equals(lastInput))
+            if (input.equalsIgnoreCase(lastInput))
                 return this;
             rollBack(input);
         }
@@ -190,7 +198,7 @@ public final class DoorFinder
         List<MinimalDoorDescription> lst, String lastInput, boolean fullMatch)
     {
         if (fullMatch)
-            return lst.stream().filter(desc -> desc.id.equals(lastInput)).toList();
+            return lst.stream().filter(desc -> desc.id.equalsIgnoreCase(lastInput)).toList();
         return lst;
     }
 
@@ -205,8 +213,14 @@ public final class DoorFinder
     @GuardedBy("this")
     void rollBack(String input)
     {
+        if (cache == null)
+        {
+            rollBackDelayedOperations(input);
+            return;
+        }
+
         final int index = inputHistoryIndex(input);
-        if (index == -1)
+        if (index < 0)
         {
             restartSearch(input);
             return;
@@ -215,12 +229,52 @@ public final class DoorFinder
         Util.requireNonNull(cache, "Cache");
         // Remove all items that are newer than the
         // item from the history.
-        for (int idx = 0; idx < index; ++idx)
+        for (int idx = history.size() - 1; idx >= index; --idx)
         {
             final HistoryItem removed = history.removeLast();
             cache.addAll(removed.getItems());
+            lastInput = removed.input;
         }
         updateCache(input);
+    }
+
+    /**
+     * Tries to roll back postponed inputs (See {@link #postponedInputs}).
+     * <p>
+     * This can be used to roll back the inputs before they have been applied, which happens if more inputs are supplied
+     * before the cache has been seeded.
+     *
+     * @param input
+     *     The current input to try to roll back to.
+     */
+    @GuardedBy("this")
+    void rollBackDelayedOperations(String input)
+    {
+        while (!postponedInputs.isEmpty())
+        {
+            final String postponedInput = postponedInputs.peekLast();
+            if (!startsWith(postponedInput, input))
+                postponedInputs.removeLast();
+            else
+                break;
+        }
+
+        if (postponedInputs.isEmpty())
+            restartSearch(input);
+        else if (!input.equalsIgnoreCase(postponedInputs.peekLast()))
+            postponedInputs.addLast(input);
+    }
+
+    /**
+     * @param base
+     *     The base String to use.
+     * @param test
+     *     The String to compare against the base String.
+     * @return True if the test String has the base string as its base.
+     */
+    boolean startsWith(String base, String test)
+    {
+        return test.toLowerCase(Locale.ROOT).startsWith(base.toLowerCase(Locale.ROOT));
     }
 
     /**
@@ -231,19 +285,19 @@ public final class DoorFinder
      * @return The index of the item in the history or -1 if it could not be found.
      */
     @GuardedBy("this")
-    int inputHistoryIndex(String input)
+    private int inputHistoryIndex(String input)
     {
-        for (int idx = 0; idx < history.size(); ++idx)
-            if (input.startsWith(history.get(idx).getInput()))
+        for (int idx = history.size() - 1; idx >= 0; --idx)
+            if (startsWith(history.get(idx).getInput(), input))
                 return idx;
         return -1;
     }
 
     @GuardedBy("this")
-    void updateCache(String input)
+    private void updateCache(String input)
     {
         if (cache == null)
-            this.delayedOperations.add(() -> applyFilter(input));
+            this.postponedInputs.addLast(input);
         else
             applyFilter(input);
     }
@@ -257,12 +311,12 @@ public final class DoorFinder
         cache = Objects.requireNonNull(filtered.get(true));
     }
 
-    private synchronized void setCache(List<MinimalDoorDescription> lst)
+    private synchronized void setCache(List<MinimalDoorDescription> lst, String input)
     {
         this.cache = lst;
-        for (final var op : delayedOperations)
-            op.run();
-        delayedOperations.clear();
+        history.add(new HistoryItem(input, Collections.emptyList()));
+        while (!postponedInputs.isEmpty())
+            applyFilter(postponedInputs.removeFirst());
         this.searcher = null;
         synchronized (msg)
         {
@@ -280,10 +334,22 @@ public final class DoorFinder
     {
         if (searcher != null)
             searcher.cancel(true);
-        delayedOperations.clear();
+        postponedInputs.clear();
         this.cache = null;
         this.history.clear();
-        this.searcher = getNewDoorIdentifiers(input).thenAccept(this::setCache);
+        this.lastInput = input;
+        this.searcher = getNewDoorIdentifiers(input);
+        this.searcher.thenAccept(lst -> this.setCache(lst, input))
+                     .exceptionally(
+                         t ->
+                         {
+                             // It can happen that the searcher was cancelled because it received incompatible
+                             // input before finishing. This isn't important.
+                             final Level lvl = t.getCause() instanceof CancellationException ?
+                                               Level.FINEST : Level.SEVERE;
+                             log.at(lvl).withCause(t).log();
+                             return null;
+                         });
     }
 
     private CompletableFuture<List<MinimalDoorDescription>> getNewDoorIdentifiers(String input)
@@ -292,13 +358,20 @@ public final class DoorFinder
         return databaseManager.getIdentifiersFromPartial(input, commandSender.getPlayer().orElse(null)).thenApply(
             ids ->
             {
-                final List<MinimalDoorDescription> descriptions = new ArrayList<>(ids.size());
-                for (final var id : ids)
+                try
                 {
-                    final String targetId = isNumerical ? String.valueOf(id.uid()) : id.name();
-                    descriptions.add(new MinimalDoorDescription(id.uid(), targetId));
+                    final List<MinimalDoorDescription> descriptions = new ArrayList<>(ids.size());
+                    for (final var id : ids)
+                    {
+                        final String targetId = isNumerical ? String.valueOf(id.uid()) : id.name();
+                        descriptions.add(new MinimalDoorDescription(id.uid(), targetId));
+                    }
+                    return descriptions;
                 }
-                return descriptions;
+                catch (CancellationException e)
+                {
+                    throw new CancellationException();
+                }
             });
     }
 
@@ -326,7 +399,7 @@ public final class DoorFinder
     private static List<MinimalDoorDescription> getFullMatch(
         Collection<MinimalDoorDescription> descriptions, String matchTo)
     {
-        return descriptions.stream().filter(desc -> desc.id.equals(matchTo)).toList();
+        return descriptions.stream().filter(desc -> desc.id.equalsIgnoreCase(matchTo)).toList();
     }
 
     private synchronized boolean isCacheSet()
@@ -348,7 +421,7 @@ public final class DoorFinder
                 {
                     synchronized (msg)
                     {
-                        final long deadline = System.nanoTime() + Duration.ofSeconds(5).toNanos();
+                        final long deadline = System.nanoTime() + Duration.ofSeconds(DEFAULT_TIMEOUT).toNanos();
                         while (System.nanoTime() < deadline && !isCacheSet())
                         {
                             final long waitTime = Duration.ofNanos(deadline - System.nanoTime()).toMillis();
@@ -379,6 +452,7 @@ public final class DoorFinder
 
     @Getter
     @AllArgsConstructor
+    @ToString
     static final class HistoryItem
     {
         private final String input;
