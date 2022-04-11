@@ -226,7 +226,6 @@ public final class DoorFinder
             return;
         }
 
-        Util.requireNonNull(cache, "Cache");
         // Remove all items that are newer than the
         // item from the history.
         for (int idx = history.size() - 1; idx >= index; --idx)
@@ -293,6 +292,15 @@ public final class DoorFinder
         return -1;
     }
 
+    /**
+     * Updates the cache using the provided input.
+     * <p>
+     * If the cache is already available, the input will be used to immediately filter the current cache. If the cache
+     * does not exist yet, the input will be stored as postponed input and applied when the cache becomes available.
+     *
+     * @param input
+     *     The input to use for updating the cache.
+     */
     @GuardedBy("this")
     private void updateCache(String input)
     {
@@ -302,7 +310,19 @@ public final class DoorFinder
             applyFilter(input);
     }
 
-    synchronized void applyFilter(String input)
+    /**
+     * Applies a filter to the current cache.
+     * <p>
+     * Items that are removed from the cache are moved into {@link #history} using the new input as its key.
+     * <p>
+     * Note that this method assumes that the cache already exists! If it might not, use {@link #updateCache(String)}
+     * instead.
+     *
+     * @param input
+     *     The new input. All cache entries whose identifiers do not start with this String are removed from the cache.
+     */
+    @GuardedBy("this")
+    private void applyFilter(String input)
     {
         final Map<Boolean, List<MinimalDoorDescription>> filtered =
             Util.requireNonNull(cache, "Cache").stream()
@@ -311,13 +331,25 @@ public final class DoorFinder
         cache = Objects.requireNonNull(filtered.get(true));
     }
 
+    /**
+     * Sets the cache to a new list.
+     * <p>
+     * After setting the value, a new history item is created and all postponed inputs stored in {@link
+     * #postponedInputs} are applied.
+     * <p>
+     * Once the new cache value has been processed, all threads waiting for {@link #msg} are notified.
+     *
+     * @param lst
+     *     The new list to use as cache.
+     * @param input
+     *     The input used to create the cache. This will be used for the first history item.
+     */
     private synchronized void setCache(List<MinimalDoorDescription> lst, String input)
     {
         this.cache = lst;
         history.add(new HistoryItem(input, Collections.emptyList()));
         while (!postponedInputs.isEmpty())
             applyFilter(postponedInputs.removeFirst());
-        this.searcher = null;
         synchronized (msg)
         {
             msg.notifyAll();
@@ -332,7 +364,7 @@ public final class DoorFinder
      */
     private synchronized void restartSearch(String input)
     {
-        if (searcher != null)
+        if (searcher != null && !searcher.isDone())
             searcher.cancel(true);
         postponedInputs.clear();
         this.cache = null;
@@ -352,57 +384,85 @@ public final class DoorFinder
                          });
     }
 
+    /**
+     * Retrieves a new set of door identifiers from the database.
+     *
+     * @param input
+     *     The input to use as search query in the database. This can be its (partial) name or its (partial) UID.
+     * @return The new set of door identifiers.
+     */
     private CompletableFuture<List<MinimalDoorDescription>> getNewDoorIdentifiers(String input)
     {
         final boolean isNumerical = Util.parseLong(input).isPresent();
         return databaseManager.getIdentifiersFromPartial(input, commandSender.getPlayer().orElse(null)).thenApply(
             ids ->
             {
-                try
+                final List<MinimalDoorDescription> descriptions = new ArrayList<>(ids.size());
+                for (final var id : ids)
                 {
-                    final List<MinimalDoorDescription> descriptions = new ArrayList<>(ids.size());
-                    for (final var id : ids)
-                    {
-                        final String targetId = isNumerical ? String.valueOf(id.uid()) : id.name();
-                        descriptions.add(new MinimalDoorDescription(id.uid(), targetId));
-                    }
-                    return descriptions;
+                    final String targetId = isNumerical ? String.valueOf(id.uid()) : id.name();
+                    descriptions.add(new MinimalDoorDescription(id.uid(), targetId));
                 }
-                catch (CancellationException e)
-                {
-                    throw new CancellationException();
-                }
+                return descriptions;
             });
     }
 
+    /**
+     * Extracts a set of identifiers from descriptions. Only the identifiers being used in the finder are used, so these
+     * can refer either to the UIDs or the names of the doors (though never a mix).
+     *
+     * @param descriptions
+     *     The descriptions from which to extract the identifiers.
+     * @param lastInput
+     *     The last available input to compare the identifiers to. If this value is provided, only identifiers that
+     *     fully match this value are included.
+     * @return The identifiers as extracted from the provided descriptions.
+     */
     private static Set<String> getIdentifiers(
         Collection<MinimalDoorDescription> descriptions, @Nullable String lastInput)
     {
         if (lastInput != null)
-            return new LinkedHashSet<>(getFullMatch(descriptions, lastInput))
+            return new LinkedHashSet<>(getFullMatches(descriptions, lastInput))
                 .stream().map(MinimalDoorDescription::id).collect(Collectors.toSet());
-        final LinkedHashSet<String> ids = new LinkedHashSet<>();
+        final LinkedHashSet<String> ids = new LinkedHashSet<>(descriptions.size());
         descriptions.forEach(desc -> ids.add(desc.id));
         return ids;
     }
 
+    /**
+     * Extracts a set of UIDs from descriptions.
+     *
+     * @param descriptions
+     *     The descriptions from which to extract the UIDs.
+     * @param lastInput
+     *     The last available input to compare the identifiers to. If this value is provided, only the UIDs of the
+     *     associated identifiers that fully match this value are included.
+     * @return The UIDs as extracted from the provided descriptions.
+     */
     private static Set<Long> getUIDs(Collection<MinimalDoorDescription> descriptions, @Nullable String lastInput)
     {
         if (lastInput != null)
-            return new LinkedHashSet<>(getFullMatch(descriptions, lastInput))
+            return new LinkedHashSet<>(getFullMatches(descriptions, lastInput))
                 .stream().map(MinimalDoorDescription::uid).collect(Collectors.toSet());
         final LinkedHashSet<Long> ids = new LinkedHashSet<>();
         descriptions.forEach(desc -> ids.add(desc.uid));
         return ids;
     }
 
-    private static List<MinimalDoorDescription> getFullMatch(
+    /**
+     * @param descriptions
+     *     The descriptions for which to get the entries that fully match the target.
+     * @param matchTo
+     *     The target String to compare the identifiers of the entries to.
+     * @return A list of minimal descriptions whose entries match the target String.
+     */
+    private static List<MinimalDoorDescription> getFullMatches(
         Collection<MinimalDoorDescription> descriptions, String matchTo)
     {
         return descriptions.stream().filter(desc -> desc.id.equalsIgnoreCase(matchTo)).toList();
     }
 
-    private synchronized boolean isCacheSet()
+    private synchronized boolean isCacheAvailable()
     {
         return cache != null;
     }
@@ -422,13 +482,13 @@ public final class DoorFinder
                     synchronized (msg)
                     {
                         final long deadline = System.nanoTime() + Duration.ofSeconds(DEFAULT_TIMEOUT).toNanos();
-                        while (System.nanoTime() < deadline && !isCacheSet())
+                        while (System.nanoTime() < deadline && !isCacheAvailable())
                         {
                             final long waitTime = Duration.ofNanos(deadline - System.nanoTime()).toMillis();
                             if (waitTime > 0)
                                 msg.wait(waitTime);
                         }
-                        if (!isCacheSet() || System.nanoTime() > deadline)
+                        if (!isCacheAvailable() || System.nanoTime() > deadline)
                             throw new TimeoutException("Timed out waiting for list of door descriptions.");
                     }
 
