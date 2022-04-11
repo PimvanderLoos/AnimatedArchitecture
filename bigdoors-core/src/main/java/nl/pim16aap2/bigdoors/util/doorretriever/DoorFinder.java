@@ -326,7 +326,7 @@ public final class DoorFinder
     {
         final Map<Boolean, List<MinimalDoorDescription>> filtered =
             Util.requireNonNull(cache, "Cache").stream()
-                .collect(Collectors.partitioningBy(desc -> desc.id.startsWith(input)));
+                .collect(Collectors.partitioningBy(desc -> startsWith(input, desc.id)));
         history.add(new HistoryItem(input, Objects.requireNonNull(filtered.get(false))));
         cache = Objects.requireNonNull(filtered.get(true));
     }
@@ -508,6 +508,11 @@ public final class DoorFinder
                 }
             });
         return result.exceptionally(t -> Util.exceptionally(t, Collections.emptyList()));
+    }
+
+    synchronized List<String> getPostponedInputs()
+    {
+        return new ArrayList<>(postponedInputs);
     }
 
     @Getter
