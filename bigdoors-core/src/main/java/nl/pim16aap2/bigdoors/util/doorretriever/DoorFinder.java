@@ -271,7 +271,7 @@ public final class DoorFinder
      *     The String to compare against the base String.
      * @return True if the test String has the base string as its base.
      */
-    boolean startsWith(String base, String test)
+    static boolean startsWith(String base, String test)
     {
         return test.toLowerCase(Locale.ROOT).startsWith(base.toLowerCase(Locale.ROOT));
     }

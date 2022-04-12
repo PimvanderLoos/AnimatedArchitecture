@@ -72,6 +72,19 @@ class DoorFinderTest
     }
 
     @Test
+    void startsWith()
+    {
+        Assertions.assertTrue(DoorFinder.startsWith("a", "ab"));
+        Assertions.assertTrue(DoorFinder.startsWith("A", "ab"));
+        Assertions.assertTrue(DoorFinder.startsWith("a", "Ab"));
+        Assertions.assertTrue(DoorFinder.startsWith("a", "A"));
+
+        Assertions.assertFalse(DoorFinder.startsWith("ab", "A"));
+        Assertions.assertFalse(DoorFinder.startsWith("ab", "bA"));
+        Assertions.assertFalse(DoorFinder.startsWith("a", ""));
+    }
+
+    @Test
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     void testBasic()
         throws ExecutionException, InterruptedException
@@ -151,7 +164,6 @@ class DoorFinderTest
         setDatabaseIdentifierResults(uids, names);
 
         final DoorFinder doorFinder = new DoorFinder(doorRetrieverFactory, databaseManager, commandSender, "M");
-        doorFinder.processInput("My");
         Mockito.verify(databaseManager, Mockito.times(1)).getIdentifiersFromPartial(Mockito.anyString(), Mockito.any());
         Assertions.assertTrue(doorFinder.getDoorUIDs().isPresent());
         Assertions.assertEquals(Set.of("MyDoor", "MyPortcullis", "MyDrawbridge"),
@@ -167,12 +179,6 @@ class DoorFinderTest
                                 doorFinder.getDoorIdentifiersIfAvailable().get());
 
         doorFinder.processInput("T");
-        Mockito.verify(databaseManager, Mockito.times(2)).getIdentifiersFromPartial(Mockito.anyString(), Mockito.any());
-        // Somewhat counterintuitively, searching for "T", will result in _all_ names being in the returned set.
-        // This happens because we don't filter in the method that retrieves the identifiers from the database;
-        // the database can take care of that.
-        Assertions.assertEquals(names, new ArrayList<>(doorFinder.getDoorIdentifiersIfAvailable().get()));
-        doorFinder.processInput("Th");
         Mockito.verify(databaseManager, Mockito.times(2)).getIdentifiersFromPartial(Mockito.anyString(), Mockito.any());
         Assertions.assertEquals(Set.of("TheirFlag"), doorFinder.getDoorIdentifiersIfAvailable().get());
     }
@@ -200,7 +206,6 @@ class DoorFinderTest
         setDatabaseIdentifierResults(uids, names);
 
         final DoorFinder doorFinder = new DoorFinder(doorRetrieverFactory, databaseManager, commandSender, "M");
-        doorFinder.processInput("My");
 
         Assertions.assertTrue(doorFinder.getDoorUIDs(true).isPresent());
         Assertions.assertTrue(doorFinder.getDoorUIDs(true).get().isEmpty());
@@ -241,7 +246,6 @@ class DoorFinderTest
             });
 
         final DoorFinder doorFinder = new DoorFinder(doorRetrieverFactory, databaseManager, commandSender, "M");
-        doorFinder.processInput("My");
 
         // Only idx=3 is excluded.
         Assertions.assertEquals(doors.subList(0, 3), doorFinder.getDoors().get(1, TimeUnit.SECONDS));
@@ -266,8 +270,19 @@ class DoorFinderTest
         Mockito.when(databaseManager.getIdentifiersFromPartial(Mockito.anyString(), Mockito.any())).thenAnswer(
             invocation ->
             {
-                final boolean useName = Util.parseLong(invocation.getArgument(0, String.class)).isEmpty();
-                final List<DoorIdentifier> identifiers = createDoorIdentifiers(uids, names, useName);
+                final String input = invocation.getArgument(0, String.class);
+                final boolean useNames = Util.parseLong(invocation.getArgument(0, String.class)).isEmpty();
+                final ArrayList<DoorIdentifier> identifiers = new ArrayList<>(uids.size());
+                final List<?> idSource = useNames ? names : uids;
+                for (int idx = 0; idx < uids.size(); ++idx)
+                {
+                    final String identifier = String.valueOf(idSource.get(idx));
+                    System.out.printf("Identifier: %s, input: %s, startsWith: %s\n",
+                                      identifier, input, DoorFinder.startsWith(input, identifier));
+                    if (DoorFinder.startsWith(input, identifier))
+                        identifiers.add(new DoorIdentifier(uids.get(idx), identifier));
+                }
+                identifiers.trimToSize();
                 return CompletableFuture.completedFuture(identifiers);
             });
     }
