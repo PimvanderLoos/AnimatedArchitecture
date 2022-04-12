@@ -22,6 +22,8 @@ class UtilTest
         Assertions.assertTrue(Util.isNumerical("1"));
         Assertions.assertTrue(Util.isNumerical("9999999"));
 
+        Assertions.assertFalse(Util.isNumerical(null));
+        Assertions.assertFalse(Util.isNumerical(""));
         Assertions.assertFalse(Util.isNumerical("-"));
         Assertions.assertFalse(Util.isNumerical("1-"));
         Assertions.assertFalse(Util.isNumerical("a"));

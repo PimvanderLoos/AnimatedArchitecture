@@ -219,8 +219,11 @@ public final class Util
         return str.map(Util::parseLong).orElse(OptionalLong.empty());
     }
 
-    public static boolean isNumerical(String str)
+    public static boolean isNumerical(@Nullable String str)
     {
+        if (str == null || str.isEmpty())
+            return false;
+
         for (int idx = 0; idx < str.length(); ++idx)
         {
             final char ch = str.charAt(idx);
