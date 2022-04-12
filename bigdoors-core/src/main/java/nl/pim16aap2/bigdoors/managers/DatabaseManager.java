@@ -657,7 +657,11 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      */
     public CompletableFuture<List<DoorIdentifier>> getIdentifiersFromPartial(String input, @Nullable IPPlayer player)
     {
-        throw new UnsupportedOperationException("Not implemented!");
+        return CompletableFuture.supplyAsync(() -> player == null ?
+                                                   db.getPartialIdentifiers(input) :
+                                                   db.getPartialIdentifiers(input, player),
+                                             threadPool)
+                                .exceptionally(t -> Util.exceptionally(t, Collections.emptyList()));
     }
 
     /**

@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.storage;
 import com.google.common.flogger.LogSiteStackTrace;
 import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
+import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
@@ -19,6 +20,7 @@ import nl.pim16aap2.bigdoors.doors.drawbridge.DoorTypeDrawbridge;
 import nl.pim16aap2.bigdoors.doors.drawbridge.Drawbridge;
 import nl.pim16aap2.bigdoors.doors.portcullis.DoorTypePortcullis;
 import nl.pim16aap2.bigdoors.doors.portcullis.Portcullis;
+import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
@@ -37,6 +39,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.lang.reflect.Field;
@@ -185,11 +188,21 @@ public class SQLiteJDBCDriverConnectionTest
         registerDoorTypes();
         insertDoors();
         verifyDoors();
+        partialIdentifiersFromName();
         auxiliaryMethods();
         modifyDoors();
 
         testDoorTypes();
         failures();
+
+        insertBulkDoors();
+        partialIdentifiersFromId();
+    }
+
+    private void insertBulkDoors()
+    {
+        for (int idx = 0; idx < 10; ++idx)
+            Assertions.assertTrue(storage.insert(door3).isPresent());
     }
 
     /**
@@ -218,8 +231,7 @@ public class SQLiteJDBCDriverConnectionTest
         List<AbstractDoor> test = storage.getDoors(door.getPrimeOwner().pPlayerData().getUUID(), door.getName());
         Assertions.assertEquals(1, test.size());
 
-        if (!door.getPrimeOwner().equals(test.get(0).getPrimeOwner()))
-            Assertions.fail("DOOR OWNERS DO NOT MATCH!");
+        Assertions.assertEquals(door.getPrimeOwner(), test.get(0).getPrimeOwner());
 
         if (!door.equals(test.get(0)))
             Assertions.fail(
@@ -235,6 +247,32 @@ public class SQLiteJDBCDriverConnectionTest
         testRetrieval(door1);
         testRetrieval(door2);
         testRetrieval(door3);
+    }
+
+    public void partialIdentifiersFromName()
+    {
+        Assertions.assertEquals(List.of(new DatabaseManager.DoorIdentifier(2, "popular_door_name"),
+                                        new DatabaseManager.DoorIdentifier(3, "popular_door_name")),
+                                storage.getPartialIdentifiers("popular_"));
+
+        final IPPlayer player1 = createPlayer(PLAYER_DATA_1);
+        Assertions.assertEquals(List.of(new DatabaseManager.DoorIdentifier(2, "popular_door_name")),
+                                storage.getPartialIdentifiers("popular_", player1));
+    }
+
+    public void partialIdentifiersFromId()
+    {
+        Assertions.assertEquals(List.of(new DatabaseManager.DoorIdentifier(1, "random_door_name"),
+                                        new DatabaseManager.DoorIdentifier(15, "popular_door_name"),
+                                        new DatabaseManager.DoorIdentifier(16, "popular_door_name"),
+                                        new DatabaseManager.DoorIdentifier(17, "popular_door_name"),
+                                        new DatabaseManager.DoorIdentifier(18, "popular_door_name"),
+                                        new DatabaseManager.DoorIdentifier(19, "popular_door_name")),
+                                storage.getPartialIdentifiers("1"));
+
+        final IPPlayer player1 = createPlayer(PLAYER_DATA_1);
+        Assertions.assertEquals(List.of(new DatabaseManager.DoorIdentifier(1, "random_door_name")),
+                                storage.getPartialIdentifiers("1", player1));
     }
 
     /**
@@ -580,5 +618,15 @@ public class SQLiteJDBCDriverConnectionTest
                                               .isLocked(false).openDir(RotateDirection.UP)
                                               .primeOwner(new DoorOwner(3, 0, PLAYER_DATA_2)).build(),
                                blocksToMove, autoClose, autoOpen);
+    }
+
+    private static IPPlayer createPlayer(PPlayerData data)
+    {
+        final IPPlayer player = Mockito.mock(IPPlayer.class);
+        Mockito.when(player.getName()).thenReturn(data.getName());
+        Mockito.when(player.getUUID()).thenReturn(data.getUUID());
+        Mockito.when(player.getPPlayerData()).thenReturn(data);
+        Mockito.when(player.getLocation()).thenReturn(Optional.empty());
+        return player;
     }
 }
