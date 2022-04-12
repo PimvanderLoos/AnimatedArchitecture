@@ -393,14 +393,13 @@ public final class DoorFinder
      */
     private CompletableFuture<List<MinimalDoorDescription>> getNewDoorIdentifiers(String input)
     {
-        final boolean isNumerical = Util.parseLong(input).isPresent();
         return databaseManager.getIdentifiersFromPartial(input, commandSender.getPlayer().orElse(null)).thenApply(
             ids ->
             {
                 final List<MinimalDoorDescription> descriptions = new ArrayList<>(ids.size());
                 for (final var id : ids)
                 {
-                    final String targetId = isNumerical ? String.valueOf(id.uid()) : id.name();
+                    final String targetId = Util.isNumerical(input) ? String.valueOf(id.uid()) : id.name();
                     descriptions.add(new MinimalDoorDescription(id.uid(), targetId));
                 }
                 return descriptions;

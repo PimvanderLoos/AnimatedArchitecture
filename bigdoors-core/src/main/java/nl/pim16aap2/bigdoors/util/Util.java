@@ -219,6 +219,19 @@ public final class Util
         return str.map(Util::parseLong).orElse(OptionalLong.empty());
     }
 
+    public static boolean isNumerical(String str)
+    {
+        for (int idx = 0; idx < str.length(); ++idx)
+        {
+            final char ch = str.charAt(idx);
+            if (idx == 0 && str.length() > 1 && ch == '-')
+                continue;
+            if (ch < '0' || ch > '9')
+                return false;
+        }
+        return true;
+    }
+
     /**
      * See {@link #getDistanceToDoor(IPLocation, AbstractDoor)}.
      * <p>
