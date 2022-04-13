@@ -202,6 +202,7 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     @SuppressWarnings({"FieldCanBeLocal", "unused", "PMD.SingularField"})
     private final WorldListener worldListener;
 
+    @Getter
     private final CommandListener commandListener;
 
     BigDoorsSpigotPlatform(BigDoorsSpigotComponent bigDoorsSpigotComponent, BigDoorsPlugin plugin)
@@ -286,21 +287,6 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     {
         safeGetter(BigDoorsSpigotComponent::getDebuggableRegistry).registerDebuggable(restartableHolder);
         getAnimationHookManager().registerFactory(safeGetter(BigDoorsSpigotComponent::getAudioAnimationHookFactory));
-
-        init();
-    }
-
-    private void init()
-        throws InitializationException
-    {
-        try
-        {
-            commandListener.init();
-        }
-        catch (Exception e)
-        {
-            throw new InitializationException("Failed to initialize command listener!", e);
-        }
     }
 
     @SuppressWarnings("NullAway") // NullAway doesn't like nullable in functional interfaces

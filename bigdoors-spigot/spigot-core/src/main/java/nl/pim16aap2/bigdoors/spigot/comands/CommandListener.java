@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.spigot.comands;
 import cloud.commandframework.ArgumentDescription;
 import cloud.commandframework.Command;
 import cloud.commandframework.arguments.standard.IntegerArgument;
+import cloud.commandframework.arguments.standard.StringArgument;
 import cloud.commandframework.bukkit.BukkitCommandManager;
 import cloud.commandframework.bukkit.CloudBukkitCapabilities;
 import cloud.commandframework.bukkit.parsers.PlayerArgument;
@@ -15,9 +16,12 @@ import cloud.commandframework.paper.PaperCommandManager;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.format.NamedTextColor;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.commands.ICommandSender;
+import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PPlayerSpigot;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -40,21 +44,28 @@ public final class CommandListener
     private final ILocalizer localizer;
     private final CommandFactory commandFactory;
     private final DoorRetrieverFactory doorRetrieverFactory;
+    private final DoorTypeManager doorTypeManager;
     private volatile @Nullable BukkitCommandManager<ICommandSender> manager;
     private boolean asyncCompletions = false;
     private @Nullable BukkitAudiences bukkitAudiences;
     private @Nullable MinecraftHelp<ICommandSender> minecraftHelp;
     private @Nullable CommandConfirmationManager<ICommandSender> confirmationManager;
+    private final RestartableHolder restartableHolder;
+    private final DoorTypeParser doorTypeParser;
 
     @Inject//
     CommandListener(
         JavaPlugin plugin, ILocalizer localizer, CommandFactory commandFactory,
-        DoorRetrieverFactory doorRetrieverFactory)
+        DoorRetrieverFactory doorRetrieverFactory, DoorTypeManager doorTypeManager,
+        RestartableHolder restartableHolder, DoorTypeParser doorTypeParser)
     {
         this.plugin = plugin;
         this.localizer = localizer;
         this.commandFactory = commandFactory;
         this.doorRetrieverFactory = doorRetrieverFactory;
+        this.doorTypeManager = doorTypeManager;
+        this.restartableHolder = restartableHolder;
+        this.doorTypeParser = doorTypeParser;
     }
 
     // IntelliJ struggles to understand that the manager cannot be null.
@@ -242,7 +253,25 @@ public final class CommandListener
         BukkitCommandManager<ICommandSender> manager,
         Command.Builder<ICommandSender> builder)
     {
-
+        manager.command(
+            builder.literal("newdoor")
+                   .meta(CommandMeta.DESCRIPTION, localizer.getMessage("commands.new_door.description"))
+                   .permission("bigdoors.user.newdoor")
+                   .argument(new DoorTypeArgument(true, "doorType", "BigDoor", null, ArgumentDescription.empty(),
+                                                  doorTypeParser))
+                   .argument(StringArgument.<ICommandSender>newBuilder("doorName").asOptional().build())
+                   .argument(IntegerArgument.<ICommandSender>newBuilder("permissionLevel")
+                                            .withMin(0).withMax(2).asOptional()
+                                            .withDefaultDescription(ArgumentDescription.of(localizer.getMessage(
+                                                "commands.new_door.param.permission_level.description"))).build())
+                   .handler(
+                       commandContext ->
+                       {
+                           final DoorType doorType = commandContext.get("doorType");
+                           final @Nullable String doorName = commandContext.getOrDefault("doorName", null);
+                           commandFactory.newNewDoor(commandContext.getSender(), doorType, doorName).run();
+                       })
+        );
     }
 
     private void initCmdRemoveOwner(
