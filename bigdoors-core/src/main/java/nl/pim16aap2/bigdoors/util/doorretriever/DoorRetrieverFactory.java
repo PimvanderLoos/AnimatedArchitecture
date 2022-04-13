@@ -88,7 +88,6 @@ public final class DoorRetrieverFactory
         return DoorRetrieverFactory.ofDoor(door);
     }
 
-
     /**
      * Gets the {@link DoorFinder} to find doors from partial string matches.
      * <p>
@@ -100,13 +99,24 @@ public final class DoorRetrieverFactory
      *     The input to use as search query.
      * @param mode
      *     The mode to use for obtaining a {@link DoorFinder} instance. Defaults to {@link DoorFinderMode#USE_CACHE}.
+     * @param maxPermission
+     *     The maximum permission (inclusive) of the door owner of the doors to find. Does not apply if the command
+     *     sender is not a player. Defaults to 0.
      * @return The {@link DoorFinder} instance.
      */
-    public DoorFinder search(ICommandSender commandSender, String input, DoorFinderMode mode)
+    public DoorFinder search(ICommandSender commandSender, String input, DoorFinderMode mode, int maxPermission)
     {
         return mode == DoorFinderMode.USE_CACHE ?
-               doorFinderCache.getDoorFinder(commandSender, input) :
-               new DoorFinder(this, databaseManager, commandSender, input);
+               doorFinderCache.getDoorFinder(commandSender, input, maxPermission) :
+               new DoorFinder(this, databaseManager, commandSender, input, maxPermission);
+    }
+
+    /**
+     * See {@link #search(ICommandSender, String, DoorFinderMode)}.
+     */
+    public DoorFinder search(ICommandSender commandSender, String input, int maxPermission)
+    {
+        return search(commandSender, input, DoorFinderMode.USE_CACHE, maxPermission);
     }
 
     /**
@@ -115,6 +125,14 @@ public final class DoorRetrieverFactory
     public DoorFinder search(ICommandSender commandSender, String input)
     {
         return search(commandSender, input, DoorFinderMode.USE_CACHE);
+    }
+
+    /**
+     * See {@link #search(ICommandSender, String, DoorFinderMode, int)}.
+     */
+    public DoorFinder search(ICommandSender commandSender, String input, DoorFinderMode mode)
+    {
+        return search(commandSender, input, mode, 0);
     }
 
     /**

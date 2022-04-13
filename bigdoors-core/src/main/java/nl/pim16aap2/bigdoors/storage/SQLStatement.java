@@ -97,29 +97,14 @@ public enum SQLStatement
         """
     ),
 
-    GET_IDENTIFIERS_FROM_PARTIAL_NAME_MATCH(
-        """
-        SELECT id, name
-        FROM DoorBase
-        WHERE name like ? || '%';
-        """
-    ),
-
-    GET_IDENTIFIERS_FROM_PARTIAL_UID_MATCH(
-        """
-        SELECT id, name
-        FROM DoorBase
-        WHERE id like ? || '%';
-        """
-    ),
-
     GET_IDENTIFIERS_FROM_PARTIAL_NAME_MATCH_WITH_OWNER(
         """
         SELECT D.id, D.name
         FROM DoorBase AS D
         INNER JOIN DoorOwnerPlayer AS O ON D.id = O.doorUID
         INNER JOIN Player AS P ON O.playerID = P.id
-        WHERE D.name like ? || '%' AND P.playerUUID = ?;
+        WHERE D.name like ? || '%' AND O.permission <= ? AND (? IS NULL OR P.playerUUID IS ?)
+        GROUP BY D.id;
         """
     ),
 
@@ -129,7 +114,8 @@ public enum SQLStatement
         FROM DoorBase AS D
         INNER JOIN DoorOwnerPlayer AS O ON D.id = O.doorUID
         INNER JOIN Player AS P ON O.playerID = P.id
-        WHERE D.id like ? || '%' AND P.playerUUID = ?;
+        WHERE D.id like ? || '%' AND O.permission <= ? AND (? IS NULL OR P.playerUUID IS ?)
+        GROUP BY D.id;
         """
     ),
 

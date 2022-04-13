@@ -480,33 +480,22 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    public List<DatabaseManager.DoorIdentifier> getPartialIdentifiers(String input, IPPlayer player)
+    public List<DatabaseManager.DoorIdentifier> getPartialIdentifiers(
+        String input, @Nullable IPPlayer player, int maxPermission)
     {
-        if (Util.isNumerical(input))
-            return executeQuery(SQLStatement.GET_IDENTIFIERS_FROM_PARTIAL_UID_MATCH_WITH_OWNER
-                                    .constructPPreparedStatement()
-                                    .setNextLong(Long.parseLong(input))
-                                    .setNextString(player.getUUID().toString()),
-                                this::collectIdentifiers, Collections.emptyList());
-        return executeQuery(SQLStatement.GET_IDENTIFIERS_FROM_PARTIAL_NAME_MATCH_WITH_OWNER
-                                .constructPPreparedStatement()
-                                .setNextString(input)
-                                .setNextString(player.getUUID().toString()),
-                            this::collectIdentifiers, Collections.emptyList());
-    }
+        final PPreparedStatement query = Util.isNumerical(input) ?
+                                         SQLStatement.GET_IDENTIFIERS_FROM_PARTIAL_UID_MATCH_WITH_OWNER
+                                             .constructPPreparedStatement().setNextLong(Long.parseLong(input)) :
+                                         SQLStatement.GET_IDENTIFIERS_FROM_PARTIAL_NAME_MATCH_WITH_OWNER
+                                             .constructPPreparedStatement().setNextString(input);
 
-    @Override
-    public List<DatabaseManager.DoorIdentifier> getPartialIdentifiers(String input)
-    {
-        if (Util.isNumerical(input))
-            return executeQuery(SQLStatement.GET_IDENTIFIERS_FROM_PARTIAL_UID_MATCH
-                                    .constructPPreparedStatement()
-                                    .setNextLong(Long.parseLong(input)),
-                                this::collectIdentifiers, Collections.emptyList());
-        return executeQuery(SQLStatement.GET_IDENTIFIERS_FROM_PARTIAL_NAME_MATCH
-                                .constructPPreparedStatement()
-                                .setNextString(input),
-                            this::collectIdentifiers, Collections.emptyList());
+        query.setNextInt(maxPermission);
+
+        final @Nullable String uuid = player == null ? null : player.getUUID().toString();
+        query.setNextString(uuid);
+        query.setNextString(uuid);
+
+        return executeQuery(query, this::collectIdentifiers, Collections.emptyList());
     }
 
     private List<DatabaseManager.DoorIdentifier> collectIdentifiers(ResultSet resultSet)

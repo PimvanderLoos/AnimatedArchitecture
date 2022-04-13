@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.storage;
 
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.functional.CheckedTriConsumer;
+import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -69,7 +70,7 @@ public class PPreparedStatement
         for (int idx = 0; idx < (actions.length - skipCount); ++idx)
         {
             final Action<?> action = actions[idx];
-            if (action == null)
+            if (action == null || action.obj == null)
                 result = result.replaceFirst("[?]", "NULL");
             else if (action.obj instanceof Number)
                 result = result.replaceFirst("[?]", action.obj.toString());
@@ -374,7 +375,7 @@ public class PPreparedStatement
      *
      * @return This {@link PPreparedStatement}.
      */
-    public PPreparedStatement setNextString(String obj)
+    public PPreparedStatement setNextString(@Nullable String obj)
     {
         return setString(currentIDX, obj);
     }
@@ -384,7 +385,7 @@ public class PPreparedStatement
      *
      * @return This {@link PPreparedStatement}.
      */
-    public PPreparedStatement setString(int idx, String obj)
+    public PPreparedStatement setString(int idx, @Nullable String obj)
     {
         currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action<>(PreparedStatement::setString, idx - skipCount, obj);
@@ -422,7 +423,7 @@ public class PPreparedStatement
      *
      * @return This {@link PPreparedStatement}.
      */
-    public PPreparedStatement setNextDate(Date obj)
+    public PPreparedStatement setNextDate(@Nullable Date obj)
     {
         return setDate(currentIDX, obj);
     }
@@ -432,7 +433,7 @@ public class PPreparedStatement
      *
      * @return This {@link PPreparedStatement}.
      */
-    public PPreparedStatement setDate(int idx, Date obj)
+    public PPreparedStatement setDate(int idx, @Nullable Date obj)
     {
         currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action<>(PreparedStatement::setDate, idx - skipCount, obj);
@@ -446,7 +447,7 @@ public class PPreparedStatement
      *
      * @return This {@link PPreparedStatement}.
      */
-    public PPreparedStatement setNextTime(Time obj)
+    public PPreparedStatement setNextTime(@Nullable Time obj)
     {
         return setTime(currentIDX, obj);
     }
@@ -456,7 +457,7 @@ public class PPreparedStatement
      *
      * @return This {@link PPreparedStatement}.
      */
-    public PPreparedStatement setTime(int idx, Time obj)
+    public PPreparedStatement setTime(int idx, @Nullable Time obj)
     {
         currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action<>(PreparedStatement::setTime, idx - skipCount, obj);
@@ -470,7 +471,7 @@ public class PPreparedStatement
      *
      * @return This {@link PPreparedStatement}.
      */
-    public PPreparedStatement setNextTimestamp(Timestamp obj)
+    public PPreparedStatement setNextTimestamp(@Nullable Timestamp obj)
     {
         return setTimestamp(currentIDX, obj);
     }
@@ -480,7 +481,7 @@ public class PPreparedStatement
      *
      * @return This {@link PPreparedStatement}.
      */
-    public PPreparedStatement setTimestamp(int idx, Timestamp obj)
+    public PPreparedStatement setTimestamp(int idx, @Nullable Timestamp obj)
     {
         currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action<>(PreparedStatement::setTimestamp, idx - skipCount, obj);
@@ -494,7 +495,7 @@ public class PPreparedStatement
      *
      * @return This {@link PPreparedStatement}.
      */
-    public PPreparedStatement setNextObject(Object obj)
+    public PPreparedStatement setNextObject(@Nullable Object obj)
     {
         return setObject(currentIDX, obj);
     }
@@ -504,10 +505,34 @@ public class PPreparedStatement
      *
      * @return This {@link PPreparedStatement}.
      */
-    public PPreparedStatement setObject(int idx, Object obj)
+    public PPreparedStatement setObject(int idx, @Nullable Object obj)
     {
         currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action<>(PreparedStatement::setObject, idx - skipCount, obj);
+        return this;
+    }
+
+    /**
+     * See {@link PreparedStatement#setNull(int, int)}.
+     * <p>
+     * The index used is simply the one following from the previous set action.
+     *
+     * @return This {@link PPreparedStatement}.
+     */
+    public PPreparedStatement setNextNull(int sqlType)
+    {
+        return setNull(currentIDX, sqlType);
+    }
+
+    /**
+     * See {@link PreparedStatement#setNull(int, int)}
+     *
+     * @return This {@link PPreparedStatement}.
+     */
+    public PPreparedStatement setNull(int idx, int sqlType)
+    {
+        currentIDX = idx + 1;
+        actions[getRealIndex(idx)] = new Action<>(PreparedStatement::setNull, idx - skipCount, sqlType);
         return this;
     }
 
@@ -520,7 +545,8 @@ public class PPreparedStatement
      *     The type of the data to set.
      * @author Pim
      */
-    private record Action<T>(CheckedTriConsumer<PreparedStatement, Integer, T, SQLException> fun, int idx, T obj)
+    private record Action<T>(CheckedTriConsumer<PreparedStatement, Integer, @Nullable T, SQLException> fun, int idx,
+                             @Nullable T obj)
     {
         /**
          * Applies the {@link #obj} at the given {@link #idx} in the provided {@link PreparedStatement}.
@@ -529,6 +555,7 @@ public class PPreparedStatement
          *     The PreparedStatement to use for setting the
          * @throws SQLException
          */
+        @SuppressWarnings({"ConstantConditions", "NullAway"})
         private void applyOn(PreparedStatement ps)
             throws SQLException
         {

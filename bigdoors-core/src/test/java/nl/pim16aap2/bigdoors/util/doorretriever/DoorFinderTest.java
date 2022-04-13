@@ -21,7 +21,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static nl.pim16aap2.bigdoors.managers.DatabaseManager.DoorIdentifier;
+import static org.mockito.ArgumentMatchers.eq;
 
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 @Timeout(value = 2)
 class DoorFinderTest
 {
@@ -41,11 +43,31 @@ class DoorFinderTest
     }
 
     @Test
+    void propagateMaxPermission()
+    {
+        final CompletableFuture<List<DoorIdentifier>> databaseResult = new CompletableFuture<>();
+        Mockito.when(databaseManager.getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.anyInt()))
+               .thenReturn(databaseResult);
+
+        new DoorFinder(doorRetrieverFactory, databaseManager, commandSender, "M");
+        Mockito.verify(databaseManager, Mockito.times(1))
+               .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), eq(0));
+
+        new DoorFinder(doorRetrieverFactory, databaseManager, commandSender, "M", 1);
+        Mockito.verify(databaseManager, Mockito.times(1))
+               .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), eq(1));
+
+        new DoorFinder(doorRetrieverFactory, databaseManager, commandSender, "M", 2);
+        Mockito.verify(databaseManager, Mockito.times(1))
+               .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), eq(2));
+    }
+
+    @Test
     void testDelayedResults()
         throws InterruptedException
     {
         final CompletableFuture<List<DoorIdentifier>> databaseResult = new CompletableFuture<>();
-        Mockito.when(databaseManager.getIdentifiersFromPartial(Mockito.anyString(), Mockito.any()))
+        Mockito.when(databaseManager.getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.anyInt()))
                .thenReturn(databaseResult);
 
         final DoorFinder doorFinder = new DoorFinder(doorRetrieverFactory, databaseManager, commandSender, "M");
@@ -102,7 +124,8 @@ class DoorFinderTest
         Assertions.assertEquals(Set.of("MyDoor", "MyDrawbridge"), doorFinder.getDoorIdentifiersIfAvailable().get());
         Assertions.assertEquals(Set.of("MyDoor", "MyDrawbridge"), doorFinder.getDoorIdentifiers().get());
         Assertions.assertEquals(Set.of(0L, 2L), doorFinder.getDoorUIDs().get());
-        Mockito.verify(databaseManager, Mockito.times(1)).getIdentifiersFromPartial(Mockito.anyString(), Mockito.any());
+        Mockito.verify(databaseManager, Mockito.times(1))
+               .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.anyInt());
     }
 
     @Test
@@ -112,7 +135,8 @@ class DoorFinderTest
         final List<String> names = List.of("MyDoor", "MyPortcullis", "MyDrawbridge", "TheirFlag");
         final List<DoorIdentifier> identifiers = createDoorIdentifiers(uids, names, true);
         final CompletableFuture<List<DoorIdentifier>> output = new CompletableFuture<>();
-        Mockito.when(databaseManager.getIdentifiersFromPartial(Mockito.anyString(), Mockito.any())).thenReturn(output);
+        Mockito.when(databaseManager.getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.anyInt()))
+               .thenReturn(output);
 
         final DoorFinder doorFinder = new DoorFinder(doorRetrieverFactory, databaseManager, commandSender, "M");
         doorFinder.processInput("My");
@@ -125,7 +149,8 @@ class DoorFinderTest
         Assertions.assertFalse(doorFinder.getDoorUIDs().isEmpty());
         Assertions.assertEquals(Set.of("MyDoor", "MyDrawbridge"), doorFinder.getDoorIdentifiersIfAvailable().get());
 
-        Mockito.verify(databaseManager, Mockito.times(1)).getIdentifiersFromPartial(Mockito.anyString(), Mockito.any());
+        Mockito.verify(databaseManager, Mockito.times(1))
+               .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.anyInt());
     }
 
     @Test
@@ -135,7 +160,8 @@ class DoorFinderTest
         final List<String> names = List.of("MyDoor", "MyPortcullis", "MyDrawbridge", "TheirFlag");
         final List<DoorIdentifier> identifiers = createDoorIdentifiers(uids, names, true);
         final CompletableFuture<List<DoorIdentifier>> output = new CompletableFuture<>();
-        Mockito.when(databaseManager.getIdentifiersFromPartial(Mockito.anyString(), Mockito.any())).thenReturn(output);
+        Mockito.when(databaseManager.getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.anyInt()))
+               .thenReturn(output);
 
         final DoorFinder doorFinder = new DoorFinder(doorRetrieverFactory, databaseManager, commandSender, "M");
         doorFinder.processInput("My");
@@ -153,7 +179,8 @@ class DoorFinderTest
         Assertions.assertFalse(doorFinder.getDoorUIDs().isEmpty());
         Assertions.assertEquals(Set.of("TheirFlag"), doorFinder.getDoorIdentifiersIfAvailable().get());
 
-        Mockito.verify(databaseManager, Mockito.times(2)).getIdentifiersFromPartial(Mockito.anyString(), Mockito.any());
+        Mockito.verify(databaseManager, Mockito.times(2))
+               .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.anyInt());
     }
 
     @Test
@@ -164,22 +191,26 @@ class DoorFinderTest
         setDatabaseIdentifierResults(uids, names);
 
         final DoorFinder doorFinder = new DoorFinder(doorRetrieverFactory, databaseManager, commandSender, "M");
-        Mockito.verify(databaseManager, Mockito.times(1)).getIdentifiersFromPartial(Mockito.anyString(), Mockito.any());
+        Mockito.verify(databaseManager, Mockito.times(1))
+               .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.anyInt());
         Assertions.assertTrue(doorFinder.getDoorUIDs().isPresent());
         Assertions.assertEquals(Set.of("MyDoor", "MyPortcullis", "MyDrawbridge"),
                                 doorFinder.getDoorIdentifiersIfAvailable().get());
 
         doorFinder.processInput("MyD");
-        Mockito.verify(databaseManager, Mockito.times(1)).getIdentifiersFromPartial(Mockito.anyString(), Mockito.any());
+        Mockito.verify(databaseManager, Mockito.times(1))
+               .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.anyInt());
         Assertions.assertEquals(Set.of("MyDoor", "MyDrawbridge"), doorFinder.getDoorIdentifiersIfAvailable().get());
 
         doorFinder.processInput("M");
-        Mockito.verify(databaseManager, Mockito.times(1)).getIdentifiersFromPartial(Mockito.anyString(), Mockito.any());
+        Mockito.verify(databaseManager, Mockito.times(1))
+               .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.anyInt());
         Assertions.assertEquals(Set.of("MyDoor", "MyDrawbridge", "MyPortcullis"),
                                 doorFinder.getDoorIdentifiersIfAvailable().get());
 
         doorFinder.processInput("T");
-        Mockito.verify(databaseManager, Mockito.times(2)).getIdentifiersFromPartial(Mockito.anyString(), Mockito.any());
+        Mockito.verify(databaseManager, Mockito.times(2))
+               .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.anyInt());
         Assertions.assertEquals(Set.of("TheirFlag"), doorFinder.getDoorIdentifiersIfAvailable().get());
     }
 
@@ -194,7 +225,8 @@ class DoorFinderTest
         doorFinder.processInput("10");
         Assertions.assertTrue(doorFinder.getDoorIdentifiersIfAvailable().isPresent());
         Assertions.assertEquals(Set.of("100", "101"), doorFinder.getDoorIdentifiersIfAvailable().get());
-        Mockito.verify(databaseManager, Mockito.times(1)).getIdentifiersFromPartial(Mockito.anyString(), Mockito.any());
+        Mockito.verify(databaseManager, Mockito.times(1))
+               .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.anyInt());
     }
 
     @Test
@@ -216,7 +248,8 @@ class DoorFinderTest
         Assertions.assertEquals(Set.of("MyDoor"), doorFinder.getDoorIdentifiersIfAvailable(true).get());
         Assertions.assertEquals(Set.of("MyDoor"), doorFinder.getDoorIdentifiers(true).get());
 
-        Mockito.verify(databaseManager, Mockito.times(1)).getIdentifiersFromPartial(Mockito.anyString(), Mockito.any());
+        Mockito.verify(databaseManager, Mockito.times(1))
+               .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.anyInt());
     }
 
     @Test
@@ -267,7 +300,8 @@ class DoorFinderTest
     private void setDatabaseIdentifierResults(List<Long> uids, List<String> names)
     {
         Assertions.assertEquals(uids.size(), names.size());
-        Mockito.when(databaseManager.getIdentifiersFromPartial(Mockito.anyString(), Mockito.any())).thenAnswer(
+        Mockito.when(databaseManager.getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(),
+                                                               Mockito.anyInt())).thenAnswer(
             invocation ->
             {
                 final String input = invocation.getArgument(0, String.class);
@@ -277,8 +311,6 @@ class DoorFinderTest
                 for (int idx = 0; idx < uids.size(); ++idx)
                 {
                     final String identifier = String.valueOf(idSource.get(idx));
-                    System.out.printf("Identifier: %s, input: %s, startsWith: %s\n",
-                                      identifier, input, DoorFinder.startsWith(input, identifier));
                     if (DoorFinder.startsWith(input, identifier))
                         identifiers.add(new DoorIdentifier(uids.get(idx), identifier));
                 }

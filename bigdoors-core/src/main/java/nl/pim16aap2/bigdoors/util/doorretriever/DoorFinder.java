@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.commands.ICommandSender;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
@@ -53,6 +54,7 @@ public final class DoorFinder
     private final DoorRetrieverFactory doorRetrieverFactory;
     private final DatabaseManager databaseManager;
     private final ICommandSender commandSender;
+    private final int maxPermission;
     private final Object msg = new Object();
 
     @GuardedBy("this")
@@ -68,13 +70,21 @@ public final class DoorFinder
 
     DoorFinder(
         DoorRetrieverFactory doorRetrieverFactory, DatabaseManager databaseManager, ICommandSender commandSender,
-        String input)
+        String input, int maxPermission)
     {
         this.doorRetrieverFactory = doorRetrieverFactory;
         this.databaseManager = databaseManager;
         this.commandSender = commandSender;
         lastInput = input;
+        this.maxPermission = maxPermission;
         restartSearch(input);
+    }
+
+    DoorFinder(
+        DoorRetrieverFactory doorRetrieverFactory, DatabaseManager databaseManager, ICommandSender commandSender,
+        String input)
+    {
+        this(doorRetrieverFactory, databaseManager, commandSender, input, 0);
     }
 
     synchronized DoorFinder processInput(String input)
@@ -393,7 +403,8 @@ public final class DoorFinder
      */
     private CompletableFuture<List<MinimalDoorDescription>> getNewDoorIdentifiers(String input)
     {
-        return databaseManager.getIdentifiersFromPartial(input, commandSender.getPlayer().orElse(null)).thenApply(
+        final @Nullable IPPlayer player = commandSender.getPlayer().orElse(null);
+        return databaseManager.getIdentifiersFromPartial(input, player, maxPermission).thenApply(
             ids ->
             {
                 final List<MinimalDoorDescription> descriptions = new ArrayList<>(ids.size());

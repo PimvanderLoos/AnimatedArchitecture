@@ -655,12 +655,10 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      *     The player that should own the doors. May be null to disregard ownership.
      * @return All {@link DoorIdentifier}s that start with the provided input.
      */
-    public CompletableFuture<List<DoorIdentifier>> getIdentifiersFromPartial(String input, @Nullable IPPlayer player)
+    public CompletableFuture<List<DoorIdentifier>> getIdentifiersFromPartial(
+        String input, @Nullable IPPlayer player, int maxPermission)
     {
-        return CompletableFuture.supplyAsync(() -> player == null ?
-                                                   db.getPartialIdentifiers(input) :
-                                                   db.getPartialIdentifiers(input, player),
-                                             threadPool)
+        return CompletableFuture.supplyAsync(() -> db.getPartialIdentifiers(input, player, maxPermission), threadPool)
                                 .exceptionally(t -> Util.exceptionally(t, Collections.emptyList()));
     }
 

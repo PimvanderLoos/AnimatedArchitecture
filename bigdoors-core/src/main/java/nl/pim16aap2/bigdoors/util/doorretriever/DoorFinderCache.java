@@ -36,17 +36,20 @@ import java.time.Duration;
      *     The {@link ICommandSender} for which to retrieve or instantiate a {@link DoorFinder}.
      * @param input
      *     The input search query to process.
+     * @param maxPermission
+     *     The maximum permission (inclusive) of the door owner of the doors to find. Does not apply if the command
+     *     sender is not a player.
      * @return The {@link DoorFinder} mapped for the provided {@link ICommandSender}.
      */
-    public DoorFinder getDoorFinder(ICommandSender commandSender, String input)
+    DoorFinder getDoorFinder(ICommandSender commandSender, String input, int maxPermission)
     {
         return cache.compute(commandSender, (sender, finder) ->
-            finder == null ? newInstance(sender, input) : finder.processInput(input));
+            finder == null ? newInstance(sender, input, maxPermission) : finder.processInput(input));
     }
 
-    private DoorFinder newInstance(ICommandSender commandSender, String input)
+    private DoorFinder newInstance(ICommandSender commandSender, String input, int maxPermission)
     {
-        return new DoorFinder(doorRetrieverFactoryProvider.get(), databaseManager, commandSender, input);
+        return new DoorFinder(doorRetrieverFactoryProvider.get(), databaseManager, commandSender, input, maxPermission);
     }
 
     @Override

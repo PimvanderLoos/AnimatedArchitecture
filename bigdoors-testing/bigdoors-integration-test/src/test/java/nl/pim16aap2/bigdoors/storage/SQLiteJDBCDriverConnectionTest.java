@@ -253,11 +253,11 @@ public class SQLiteJDBCDriverConnectionTest
     {
         Assertions.assertEquals(List.of(new DatabaseManager.DoorIdentifier(2, "popular_door_name"),
                                         new DatabaseManager.DoorIdentifier(3, "popular_door_name")),
-                                storage.getPartialIdentifiers("popular_"));
+                                storage.getPartialIdentifiers("popular_", null, 99));
 
         final IPPlayer player1 = createPlayer(PLAYER_DATA_1);
         Assertions.assertEquals(List.of(new DatabaseManager.DoorIdentifier(2, "popular_door_name")),
-                                storage.getPartialIdentifiers("popular_", player1));
+                                storage.getPartialIdentifiers("popular_", player1, 99));
     }
 
     public void partialIdentifiersFromId()
@@ -268,11 +268,11 @@ public class SQLiteJDBCDriverConnectionTest
                                         new DatabaseManager.DoorIdentifier(17, "popular_door_name"),
                                         new DatabaseManager.DoorIdentifier(18, "popular_door_name"),
                                         new DatabaseManager.DoorIdentifier(19, "popular_door_name")),
-                                storage.getPartialIdentifiers("1"));
+                                storage.getPartialIdentifiers("1", null, 99));
 
         final IPPlayer player1 = createPlayer(PLAYER_DATA_1);
         Assertions.assertEquals(List.of(new DatabaseManager.DoorIdentifier(1, "random_door_name")),
-                                storage.getPartialIdentifiers("1", player1));
+                                storage.getPartialIdentifiers("1", player1, 99));
     }
 
     /**
