@@ -71,8 +71,10 @@ class SetOpenDirectionDelayedTest
         final Provider<CommandFactory> commandFactoryProvider = (Provider<CommandFactory>) Mockito.mock(Provider.class);
         Mockito.when(commandFactoryProvider.get()).thenReturn(commandFactory);
 
-        setOpenDirectionDelayed = new SetOpenDirectionDelayed(
-            delayedCommandInputManager, localizer, commandFactoryProvider, inputRequestFactory);
+        final DelayedCommand.Context context =
+            new DelayedCommand.Context(delayedCommandInputManager, localizer,
+                                       Mockito.mock(IConfigLoader.class), commandFactoryProvider);
+        setOpenDirectionDelayed = new SetOpenDirectionDelayed(context, inputRequestFactory);
 
         final DoorRetrieverFactory doorRetrieverFactory = new DoorRetrieverFactory(
             Mockito.mock(DatabaseManager.class),
