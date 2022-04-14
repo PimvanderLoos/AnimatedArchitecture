@@ -149,8 +149,7 @@ public final class CommandListener
     }
 
     private void initCmdAddOwner(
-        BukkitCommandManager<ICommandSender> manager,
-        Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
         manager.command(
             builder.literal("addowner")
@@ -160,7 +159,7 @@ public final class CommandListener
                                               asyncCompletions, doorRetrieverFactory, 1))
                    .argument(PlayerArgument.of("newOwner"))
                    .argument(IntegerArgument.<ICommandSender>newBuilder("permissionLevel")
-                                            .withMin(0).withMax(2).asOptional()
+                                            .withMin(1).withMax(2).asOptionalWithDefault(2)
                                             .withDefaultDescription(ArgumentDescription.of(localizer.getMessage(
                                                 "commands.add_owner.param.permission_level.description"))).build())
                    .handler(
@@ -175,22 +174,29 @@ public final class CommandListener
     }
 
     private void initCmdCancel(
-        BukkitCommandManager<ICommandSender> manager,
-        Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
-
+        manager.command(
+            builder.literal("cancel")
+                   .meta(CommandMeta.DESCRIPTION, localizer.getMessage("commands.cancel.description"))
+                   .permission("bigdoors.user.base")
+                   .handler(commandContext -> commandFactory.newCancel(commandContext.getSender()))
+        );
     }
 
     private void initCmdConfirm(
-        BukkitCommandManager<ICommandSender> manager,
-        Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
-
+        manager.command(
+            builder.literal("confirm")
+                   .meta(CommandMeta.DESCRIPTION, localizer.getMessage("commands.confirm.description"))
+                   .permission("bigdoors.user.base")
+                   .handler(commandContext -> commandFactory.newConfirm(commandContext.getSender()))
+        );
     }
 
     private void initCmdDebug(
-        BukkitCommandManager<ICommandSender> manager,
-        Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
         manager.command(
             builder.literal("debug")
@@ -201,57 +207,61 @@ public final class CommandListener
     }
 
     private void initCmdDelete(
-        BukkitCommandManager<ICommandSender> manager,
-        Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
 
     }
 
     private void initCmdInfo(
-        BukkitCommandManager<ICommandSender> manager,
-        Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
 
     }
 
     private void initCmdInspectPowerBlock(
-        BukkitCommandManager<ICommandSender> manager,
-        Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
 
     }
 
     private void initCmdListDoors(
-        BukkitCommandManager<ICommandSender> manager,
-        Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
 
     }
 
     private void initCmdLock(
-        BukkitCommandManager<ICommandSender> manager,
-        Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
 
     }
 
     private void initCmdMenu(
-        BukkitCommandManager<ICommandSender> manager,
-        Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
-
+        manager.command(
+            builder.literal("menu")
+                   .meta(CommandMeta.DESCRIPTION, localizer.getMessage("commands.menu.description"))
+                   .permission("bigdoors.user.menu")
+                   .argument(PlayerArgument.<ICommandSender>newBuilder("targetPlayer").asOptional())
+                   .handler(commandContext ->
+                            {
+                                final @Nullable IPPlayer targetPlayer =
+                                    commandContext.contains("targetPlayer") ?
+                                    new PPlayerSpigot(commandContext.get("targetPlayer")) : null;
+                                commandFactory.newMenu(commandContext.getSender(), targetPlayer);
+                            })
+        );
     }
 
     private void initCmdMovePowerBlock(
-        BukkitCommandManager<ICommandSender> manager,
-        Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
 
     }
 
     private void initCmdNewDoor(
-        BukkitCommandManager<ICommandSender> manager,
-        Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
         manager.command(
             builder.literal("newdoor")
@@ -275,73 +285,86 @@ public final class CommandListener
     }
 
     private void initCmdRemoveOwner(
-        BukkitCommandManager<ICommandSender> manager,
-        Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
-
+        manager.command(
+            builder.literal("removeowner")
+                   .meta(CommandMeta.DESCRIPTION, localizer.getMessage("commands.remove_owner.descriptions"))
+                   .permission("bigdoors.user.removeowner")
+                   .argument(new DoorArgument(true, "doorRetriever", "MyDoor", null, ArgumentDescription.empty(),
+                                              asyncCompletions, doorRetrieverFactory, 1))
+                   .argument(PlayerArgument.of("targetPlayer"))
+                   .handler(commandContext ->
+                            {
+                                final DoorRetriever retriever = commandContext.get("doorRetriever");
+                                final IPPlayer targetPlayer = new PPlayerSpigot(commandContext.get("targetPlayer"));
+                                commandFactory.newRemoveOwner(commandContext.getSender(), retriever, targetPlayer);
+                            })
+        );
     }
 
     private void initCmdRestart(
-        BukkitCommandManager<ICommandSender> manager,
-        Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
-
+        manager.command(
+            builder.literal("restart")
+                   .meta(CommandMeta.DESCRIPTION, localizer.getMessage("commands.restart.description"))
+                   .permission("bigdoors.admin.restart")
+                   .handler(commandContext -> commandFactory.newRestart(commandContext.getSender()))
+        );
     }
 
     private void initCmdSetAutoCloseTime(
-        BukkitCommandManager<ICommandSender> manager,
-        Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
 
     }
 
     private void initCmdSetBlocksToMove(
-        BukkitCommandManager<ICommandSender> manager,
-        Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
 
     }
 
     private void initCmdSetName(
-        BukkitCommandManager<ICommandSender> manager,
-        Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
 
     }
 
     private void initCmdSetOpenDirection(
-        BukkitCommandManager<ICommandSender> manager,
-        Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
-
+//        commandFactory.newSetOpenDirection()
     }
 
     private void initCmdSpecify(
-        BukkitCommandManager<ICommandSender> manager,
-        Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
 
     }
 
     private void initCmdStopDoors(
-        BukkitCommandManager<ICommandSender> manager,
-        Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
 
     }
 
     private void initCmdToggle(
-        BukkitCommandManager<ICommandSender> manager,
-        Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
 
     }
 
     private void initCmdVersion(
-        BukkitCommandManager<ICommandSender> manager,
-        Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
-
+        manager.command(
+            builder.literal("version")
+                   .meta(CommandMeta.DESCRIPTION, localizer.getMessage("commands.version.description"))
+                   .permission("bigdoors.admin.version")
+                   .handler(commandContext -> commandFactory.newVersion(commandContext.getSender()))
+        );
     }
 
     private BukkitCommandManager<ICommandSender> newManager()

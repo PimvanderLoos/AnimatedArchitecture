@@ -17,6 +17,9 @@ import java.util.List;
 import java.util.Queue;
 import java.util.function.BiFunction;
 
+/**
+ * Represents a type of argument in a command used to specify a door.
+ */
 public class DoorArgument extends CommandArgument<ICommandSender, DoorRetriever>
 {
     public DoorArgument(

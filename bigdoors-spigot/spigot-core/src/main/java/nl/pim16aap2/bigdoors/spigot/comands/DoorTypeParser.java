@@ -20,6 +20,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Queue;
 
+/**
+ * Represents an argument parser that can be used to retrieve and suggest door types.
+ *
+ * @author Pim
+ */
 public class DoorTypeParser implements ArgumentParser<ICommandSender, DoorType>, IRestartable
 {
     private final DoorTypeManager doorTypeManager;
