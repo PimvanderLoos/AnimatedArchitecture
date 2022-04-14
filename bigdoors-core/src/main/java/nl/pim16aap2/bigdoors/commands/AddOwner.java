@@ -23,7 +23,7 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class AddOwner extends DoorTargetCommand
 {
-    private static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.ADD_OWNER;
+    public static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.ADD_OWNER;
 
     /**
      * The default value to use for {@link #targetPermissionLevel} when none is specified.
@@ -46,8 +46,9 @@ public class AddOwner extends DoorTargetCommand
     private final DatabaseManager databaseManager;
 
     @AssistedInject //
-    AddOwner(@Assisted ICommandSender commandSender, ILocalizer localizer, @Assisted DoorRetriever doorRetriever,
-             @Assisted IPPlayer targetPlayer, @Assisted int targetPermissionLevel, DatabaseManager databaseManager)
+    AddOwner(
+        @Assisted ICommandSender commandSender, ILocalizer localizer, @Assisted DoorRetriever doorRetriever,
+        @Assisted IPPlayer targetPlayer, @Assisted int targetPermissionLevel, DatabaseManager databaseManager)
     {
         super(commandSender, localizer, doorRetriever, DoorAttribute.ADD_OWNER);
         this.targetPlayer = targetPlayer;
@@ -297,16 +298,18 @@ public class AddOwner extends DoorTargetCommand
          *     The permission level of the new owner's ownership. 1 = admin, 2 = user.
          * @return See {@link BaseCommand#run()}.
          */
-        AddOwner newAddOwner(ICommandSender commandSender, DoorRetriever doorRetriever,
-                             IPPlayer targetPlayer, int targetPermissionLevel);
+        AddOwner newAddOwner(
+            ICommandSender commandSender, DoorRetriever doorRetriever,
+            IPPlayer targetPlayer, int targetPermissionLevel);
 
         /**
          * See {@link #newAddOwner(ICommandSender, DoorRetriever, IPPlayer, int)}.
          * <p>
          * The default permission node defined by {@link AddOwner#DEFAULT_PERMISSION_LEVEL} is used.
          */
-        default AddOwner newAddOwner(ICommandSender commandSender, DoorRetriever doorRetriever,
-                                     IPPlayer targetPlayer)
+        default AddOwner newAddOwner(
+            ICommandSender commandSender, DoorRetriever doorRetriever,
+            IPPlayer targetPlayer)
         {
             return newAddOwner(commandSender, doorRetriever, targetPlayer, AddOwner.DEFAULT_PERMISSION_LEVEL);
         }

@@ -22,13 +22,14 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class SetAutoCloseTime extends DoorTargetCommand
 {
-    private static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.SET_AUTO_CLOSE_TIME;
+    public static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.SET_AUTO_CLOSE_TIME;
 
     private final int autoCloseTime;
 
     @AssistedInject //
-    SetAutoCloseTime(@Assisted ICommandSender commandSender, ILocalizer localizer,
-                     @Assisted DoorRetriever doorRetriever, @Assisted int autoCloseTime)
+    SetAutoCloseTime(
+        @Assisted ICommandSender commandSender, ILocalizer localizer,
+        @Assisted DoorRetriever doorRetriever, @Assisted int autoCloseTime)
     {
         super(commandSender, localizer, doorRetriever, DoorAttribute.AUTO_CLOSE_TIMER);
         this.autoCloseTime = autoCloseTime;
@@ -155,7 +156,8 @@ public class SetAutoCloseTime extends DoorTargetCommand
          *     The new auto-close time value.
          * @return See {@link BaseCommand#run()}.
          */
-        SetAutoCloseTime newSetAutoCloseTime(ICommandSender commandSender,
-                                             DoorRetriever doorRetriever, int autoCloseTime);
+        SetAutoCloseTime newSetAutoCloseTime(
+            ICommandSender commandSender,
+            DoorRetriever doorRetriever, int autoCloseTime);
     }
 }

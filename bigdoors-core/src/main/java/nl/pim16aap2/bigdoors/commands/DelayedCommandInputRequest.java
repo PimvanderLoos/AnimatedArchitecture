@@ -99,11 +99,15 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      *     The class of the input object that is expected.
      */
     @AssistedInject //
-    DelayedCommandInputRequest(@Assisted long timeout, @Assisted ICommandSender commandSender,
-                               @Assisted CommandDefinition commandDefinition,
-                               @Assisted Function<T, CompletableFuture<Boolean>> executor,
-                               @Assisted Supplier<String> initMessageSupplier, @Assisted Class<T> inputClass,
-                               ILocalizer localizer, DelayedCommandInputManager delayedCommandInputManager)
+    DelayedCommandInputRequest(
+        @Assisted long timeout,
+        @Assisted ICommandSender commandSender,
+        @Assisted CommandDefinition commandDefinition,
+        @Assisted Function<T, CompletableFuture<Boolean>> executor,
+        @Assisted Supplier<String> initMessageSupplier,
+        @Assisted Class<T> inputClass,
+        ILocalizer localizer,
+        DelayedCommandInputManager delayedCommandInputManager)
     {
         super(timeout);
         this.commandSender = commandSender;
@@ -181,9 +185,10 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     @AssistedFactory
     public interface IFactory<T>
     {
-        DelayedCommandInputRequest<T> create(long timeout, ICommandSender commandSender,
-                                             CommandDefinition commandDefinition,
-                                             Function<T, CompletableFuture<Boolean>> executor,
-                                             Supplier<String> initMessageSupplier, Class<T> inputClass);
+        DelayedCommandInputRequest<T> create(
+            long timeout, ICommandSender commandSender,
+            CommandDefinition commandDefinition,
+            Function<T, CompletableFuture<Boolean>> executor,
+            Supplier<String> initMessageSupplier, Class<T> inputClass);
     }
 }

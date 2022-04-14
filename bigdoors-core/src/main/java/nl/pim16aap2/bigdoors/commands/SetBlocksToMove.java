@@ -22,13 +22,14 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class SetBlocksToMove extends DoorTargetCommand
 {
-    private static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.SET_BLOCKS_TO_MOVE;
+    public static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.SET_BLOCKS_TO_MOVE;
 
     private final int blocksToMove;
 
     @AssistedInject //
-    SetBlocksToMove(@Assisted ICommandSender commandSender, ILocalizer localizer,
-                    @Assisted DoorRetriever doorRetriever, @Assisted int blocksToMove)
+    SetBlocksToMove(
+        @Assisted ICommandSender commandSender, ILocalizer localizer,
+        @Assisted DoorRetriever doorRetriever, @Assisted int blocksToMove)
     {
         super(commandSender, localizer, doorRetriever, DoorAttribute.BLOCKS_TO_MOVE);
         this.blocksToMove = blocksToMove;
@@ -155,8 +156,9 @@ public class SetBlocksToMove extends DoorTargetCommand
          *     The new blocks-to-move distance.
          * @return See {@link BaseCommand#run()}.
          */
-        SetBlocksToMove newSetBlocksToMove(ICommandSender commandSender,
-                                           DoorRetriever doorRetriever,
-                                           int blocksToMove);
+        SetBlocksToMove newSetBlocksToMove(
+            ICommandSender commandSender,
+            DoorRetriever doorRetriever,
+            int blocksToMove);
     }
 }

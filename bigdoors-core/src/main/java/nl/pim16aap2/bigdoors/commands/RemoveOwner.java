@@ -24,14 +24,15 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class RemoveOwner extends DoorTargetCommand
 {
-    private static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.REMOVE_OWNER;
+    public static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.REMOVE_OWNER;
 
     private final IPPlayer targetPlayer;
     private final DatabaseManager databaseManager;
 
     @AssistedInject //
-    RemoveOwner(@Assisted ICommandSender commandSender, ILocalizer localizer, @Assisted DoorRetriever doorRetriever,
-                @Assisted IPPlayer targetPlayer, DatabaseManager databaseManager)
+    RemoveOwner(
+        @Assisted ICommandSender commandSender, ILocalizer localizer, @Assisted DoorRetriever doorRetriever,
+        @Assisted IPPlayer targetPlayer, DatabaseManager databaseManager)
     {
         super(commandSender, localizer, doorRetriever, DoorAttribute.REMOVE_OWNER);
         this.targetPlayer = targetPlayer;
@@ -189,7 +190,8 @@ public class RemoveOwner extends DoorTargetCommand
          *     The co-owner that is requested to be removed.
          * @return See {@link BaseCommand#run()}.
          */
-        RemoveOwner newRemoveOwner(ICommandSender commandSender, DoorRetriever doorRetriever,
-                                   IPPlayer targetPlayer);
+        RemoveOwner newRemoveOwner(
+            ICommandSender commandSender, DoorRetriever doorRetriever,
+            IPPlayer targetPlayer);
     }
 }
