@@ -23,12 +23,6 @@ public class SetOpenDirectionDelayed extends DelayedCommand<RotateDirection>
     }
 
     @Override
-    protected String getNotWaitingMessage()
-    {
-        return localizer.getMessage("commands.set_open_direction.delayed.not_waiting");
-    }
-
-    @Override
     protected CompletableFuture<Boolean> delayedInputExecutor(
         ICommandSender commandSender, DoorRetriever doorRetriever, RotateDirection openDir)
     {
@@ -38,26 +32,6 @@ public class SetOpenDirectionDelayed extends DelayedCommand<RotateDirection>
     @Override
     protected String inputRequestMessage(ICommandSender commandSender, DoorRetriever doorRetriever)
     {
-        if (!doorRetriever.isAvailable())
-            return localizer.getMessage("commands.set_open_direction.delayed.init");
-
-        final var sb = new StringBuilder(localizer.getMessage("commands.set_open_direction.delayed.init_header"))
-            .append('\n');
-
-        final var futureDoor = doorRetriever.getDoor();
-        if (!futureDoor.isDone())
-            throw new IllegalStateException("Door that should be available is not done!");
-        final var optionalDoor = futureDoor.join();
-        if (optionalDoor.isEmpty())
-            throw new IllegalStateException("Door that should be available is not present!");
-
-        final var directions = optionalDoor.get().getDoorType().getValidOpenDirections();
-        for (int idx = 0; idx < directions.size(); ++idx)
-        {
-            sb.append(localizer.getMessage(directions.get(idx).getLocalizationKey()));
-            if (idx < directions.size() - 1)
-                sb.append(", ");
-        }
-        return sb.toString();
+        return localizer.getMessage("commands.set_open_direction.delayed.init");
     }
 }

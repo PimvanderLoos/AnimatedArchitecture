@@ -21,12 +21,6 @@ public class AddOwnerDelayed extends DelayedCommand<AddOwnerDelayed.DelayedInput
     }
 
     @Override
-    protected String getNotWaitingMessage()
-    {
-        return localizer.getMessage("commands.add_owner.delayed.not_waiting");
-    }
-
-    @Override
     protected CompletableFuture<Boolean> delayedInputExecutor(
         ICommandSender commandSender, DoorRetriever doorRetriever, DelayedInput delayedInput)
     {
@@ -37,13 +31,13 @@ public class AddOwnerDelayed extends DelayedCommand<AddOwnerDelayed.DelayedInput
     @Override
     protected String inputRequestMessage(ICommandSender commandSender, DoorRetriever doorRetriever)
     {
-        return localizer.getMessage("commands.add_owner.init");
+        return localizer.getMessage("commands.add_owner.delayed.init");
     }
 
     /**
-     * Represents the data that can be provided as delayed input for this command. See {@link
-     * #runDelayed(ICommandSender, DoorRetriever)} and {@link #delayedInputExecutor(ICommandSender, DoorRetriever,
-     * DelayedInput)}.
+     * Represents the data that can be provided as delayed input for this command. See
+     * {@link #runDelayed(ICommandSender, DoorRetriever)} and
+     * {@link #delayedInputExecutor(ICommandSender, DoorRetriever, DelayedInput)}.
      */
     public static final class DelayedInput
     {
@@ -58,8 +52,8 @@ public class AddOwnerDelayed extends DelayedCommand<AddOwnerDelayed.DelayedInput
          *     the command sender is allowed to add/remove co-owners at both the old and the new target permission
          *     level.
          * @param targetPermissionLevel
-         *     The permission level of the new owner's ownership. 1 = admin, 2 = user. Defaults to {@link
-         *     AddOwner#DEFAULT_PERMISSION_LEVEL}.
+         *     The permission level of the new owner's ownership. 1 = admin, 2 = user. Defaults to
+         *     {@link AddOwner#DEFAULT_PERMISSION_LEVEL}.
          */
         public DelayedInput(IPPlayer targetPlayer, int targetPermissionLevel)
         {

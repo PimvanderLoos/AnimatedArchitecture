@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.util.Constants;
@@ -10,6 +11,7 @@ import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
 
 /**
  * Represents a delayed command.
@@ -24,6 +26,7 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author Pim
  */
+@Flogger
 public abstract class DelayedCommand<T>
 {
     protected final DelayedCommandInputManager delayedCommandInputManager;
@@ -62,6 +65,10 @@ public abstract class DelayedCommand<T>
      */
     public CompletableFuture<Boolean> runDelayed(ICommandSender commandSender, DoorRetriever doorRetriever)
     {
+        log.at(Level.FINEST)
+           .log("Creating delayed command for command '%s' with command sender: '%s' for DoorRetriever: %s",
+                getCommandDefinition(), commandSender, doorRetriever);
+
         final int commandTimeout = Constants.COMMAND_WAITER_TIMEOUT;
         return inputRequestFactory.create(commandTimeout, commandSender, getCommandDefinition(),
                                           delayedInput -> delayedInputExecutor(commandSender, doorRetriever,
@@ -71,8 +78,8 @@ public abstract class DelayedCommand<T>
     }
 
     /**
-     * Provides the delayed input if there is currently an active {@link DelayedCommandInputRequest} for the {@link
-     * ICommandSender}. After processing the input, the new command will be executed immediately.
+     * Provides the delayed input if there is currently an active {@link DelayedCommandInputRequest} for the
+     * {@link ICommandSender}. After processing the input, the new command will be executed immediately.
      * <p>
      * If no active {@link DelayedCommandInputRequest} can be found for the command sender, the command sender will be
      * informed about it (e.g. "We are not waiting for a command!").
@@ -86,13 +93,17 @@ public abstract class DelayedCommand<T>
      */
     public CompletableFuture<Boolean> provideDelayedInput(ICommandSender commandSender, T data)
     {
+        log.at(Level.FINEST)
+           .log("Providing delayed command data for command '%s' with command sender: '%s' and data: '%s'",
+                getCommandDefinition(), commandSender, data);
+
         return delayedCommandInputManager
             .getInputRequest(commandSender)
             .map(request -> request.provide(data))
             .orElseGet(
                 () ->
                 {
-                    commandSender.sendMessage(getNotWaitingMessage());
+                    commandSender.sendMessage(localizer.getMessage("commands.base.error.not_waiting"));
                     return CompletableFuture.completedFuture(false);
                 });
     }
@@ -100,15 +111,10 @@ public abstract class DelayedCommand<T>
     protected abstract CommandDefinition getCommandDefinition();
 
     /**
-     * @return The message to send to the user when they are trying to provide input while we are not waiting for any.
-     */
-    protected abstract String getNotWaitingMessage();
-
-    /**
      * The method that is run once delayed input is received.
      * <p>
-     * It processes the new input and executes the command using the previously-provided data (see {@link
-     * #runDelayed(ICommandSender, DoorRetriever)}).
+     * It processes the new input and executes the command using the previously-provided data (see
+     * {@link #runDelayed(ICommandSender, DoorRetriever)}).
      *
      * @param commandSender
      *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its

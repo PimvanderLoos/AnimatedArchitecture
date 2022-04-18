@@ -58,11 +58,19 @@ public class CommandFactory
     private final ListDoors.IFactory listDoorsFactory;
 
     @Getter
+    private final AddOwnerDelayed addOwnerDelayed;
+    @Getter
+    private final RemoveOwnerDelayed removeOwnerDelayed;
+    @Getter
+    private final SetAutoCloseTimeDelayed setAutoCloseTimeDelayed;
+    @Getter
     private final SetOpenDirectionDelayed setOpenDirectionDelayed;
+    @Getter
+    private final SetBlocksToMoveDelayed setBlocksToMoveDelayed;
 
     @Inject //
     CommandFactory(
-        AddOwner.IFactory addOwnerFactory,
+        AddOwner.IFactory addOwnerFactory, AddOwnerDelayed addOwnerDelayed,
         Cancel.IFactory cancelFactory,
         Confirm.IFactory confirmFactory,
         Debug.IFactory debugFactory, Menu.IFactory menuFactory,
@@ -73,10 +81,10 @@ public class CommandFactory
         Lock.IFactory lockFactory,
         MovePowerBlock.IFactory movePowerBlockFactory,
         NewDoor.IFactory newDoorFactory,
-        RemoveOwner.IFactory removeOwnerFactory,
+        RemoveOwner.IFactory removeOwnerFactory, RemoveOwnerDelayed removeOwnerDelayed,
         Restart.IFactory restartFactory,
-        SetAutoCloseTime.IFactory setAutoCloseTimeFactory,
-        SetBlocksToMove.IFactory setBlocksToMoveFactory,
+        SetAutoCloseTime.IFactory setAutoCloseTimeFactory, SetAutoCloseTimeDelayed setAutoCloseTimeDelayed,
+        SetBlocksToMove.IFactory setBlocksToMoveFactory, SetBlocksToMoveDelayed setBlocksToMoveDelayed,
         SetName.IFactory setNameFactory,
         SetOpenDirection.IFactory setOpenDirectionFactory, SetOpenDirectionDelayed setOpenDirectionDelayed,
         Specify.IFactory specifyFactory,
@@ -107,5 +115,9 @@ public class CommandFactory
         this.movePowerBlockFactory = movePowerBlockFactory;
         this.newDoorFactory = newDoorFactory;
         this.listDoorsFactory = listDoorsFactory;
+        this.addOwnerDelayed = addOwnerDelayed;
+        this.removeOwnerDelayed = removeOwnerDelayed;
+        this.setAutoCloseTimeDelayed = setAutoCloseTimeDelayed;
+        this.setBlocksToMoveDelayed = setBlocksToMoveDelayed;
     }
 }

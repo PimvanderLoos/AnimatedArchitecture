@@ -34,7 +34,6 @@ class SetOpenDirectionDelayedTest
     DelayedCommandInputManager delayedCommandInputManager;
 
     @Mock ICommandSender commandSender0;
-    @Mock ICommandSender commandSender1;
 
     @Mock AbstractDoor door0;
     @Mock AbstractDoor door1;
@@ -72,8 +71,7 @@ class SetOpenDirectionDelayedTest
         Mockito.when(commandFactoryProvider.get()).thenReturn(commandFactory);
 
         final DelayedCommand.Context context =
-            new DelayedCommand.Context(delayedCommandInputManager, localizer,
-                                       Mockito.mock(IConfigLoader.class), commandFactoryProvider);
+            new DelayedCommand.Context(delayedCommandInputManager, localizer, commandFactoryProvider);
         setOpenDirectionDelayed = new SetOpenDirectionDelayed(context, inputRequestFactory);
 
         final DoorRetrieverFactory doorRetrieverFactory = new DoorRetrieverFactory(
@@ -112,6 +110,6 @@ class SetOpenDirectionDelayedTest
     void notWaiting()
     {
         setOpenDirectionDelayed.provideDelayedInput(commandSender0, RotateDirection.UP);
-        Mockito.verify(commandSender0, Mockito.times(1)).sendMessage("commands.set_open_direction.delayed.not_waiting");
+        Mockito.verify(commandSender0, Mockito.times(1)).sendMessage("commands.base.error.not_waiting");
     }
 }
