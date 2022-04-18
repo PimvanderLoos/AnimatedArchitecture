@@ -47,8 +47,8 @@ public class AddOwnerDelayed extends DelayedCommand<AddOwnerDelayed.DelayedInput
      */
     public static final class DelayedInput
     {
-        IPPlayer targetPlayer;
-        int targetPermissionLevel;
+        private final IPPlayer targetPlayer;
+        private final int targetPermissionLevel;
 
         /**
          * @param targetPlayer

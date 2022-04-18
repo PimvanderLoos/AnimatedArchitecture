@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.util.Constants;
@@ -29,7 +28,6 @@ public abstract class DelayedCommand<T>
 {
     protected final DelayedCommandInputManager delayedCommandInputManager;
     protected final ILocalizer localizer;
-    private final IConfigLoader configLoader;
     protected final Provider<CommandFactory> commandFactory;
     protected final DelayedCommandInputRequest.IFactory<T> inputRequestFactory;
     private final Class<T> delayedInputClz;
@@ -41,7 +39,6 @@ public abstract class DelayedCommand<T>
     {
         this.delayedCommandInputManager = context.delayedCommandInputManager;
         this.localizer = context.localizer;
-        this.configLoader = context.configLoader;
         this.commandFactory = context.commandFactory;
         this.inputRequestFactory = inputRequestFactory;
         this.delayedInputClz = delayedInputClz;
@@ -138,21 +135,18 @@ public abstract class DelayedCommand<T>
 
     static final class Context
     {
-        final DelayedCommandInputManager delayedCommandInputManager;
-        final ILocalizer localizer;
-        final IConfigLoader configLoader;
-        final Provider<CommandFactory> commandFactory;
+        private final DelayedCommandInputManager delayedCommandInputManager;
+        private final ILocalizer localizer;
+        private final Provider<CommandFactory> commandFactory;
 
         @Inject
         public Context(
             DelayedCommandInputManager delayedCommandInputManager,
             ILocalizer localizer,
-            IConfigLoader configLoader,
             Provider<CommandFactory> commandFactory)
         {
             this.delayedCommandInputManager = delayedCommandInputManager;
             this.localizer = localizer;
-            this.configLoader = configLoader;
             this.commandFactory = commandFactory;
         }
     }
