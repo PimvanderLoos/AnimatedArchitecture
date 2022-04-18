@@ -32,7 +32,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '18'
           cache: 'maven'
 
       - name: Build the project and run static analysis tools.

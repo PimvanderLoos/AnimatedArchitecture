@@ -11,7 +11,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <lombok.encoding>UTF-8</lombok.encoding>
-        <maven.compiler.release>17</maven.compiler.release>
+        <maven.compiler.release>18</maven.compiler.release>
 
         <dependency.version.jcalculator>1.8</dependency.version.jcalculator>
         <dependency.version.flogger>0.7.4</dependency.version.flogger>
