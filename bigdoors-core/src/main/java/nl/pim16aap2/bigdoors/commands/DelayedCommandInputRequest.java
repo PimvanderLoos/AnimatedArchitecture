@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import com.google.common.flogger.StackSize;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -99,11 +98,15 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      *     The class of the input object that is expected.
      */
     @AssistedInject //
-    DelayedCommandInputRequest(@Assisted long timeout, @Assisted ICommandSender commandSender,
-                               @Assisted CommandDefinition commandDefinition,
-                               @Assisted Function<T, CompletableFuture<Boolean>> executor,
-                               @Assisted Supplier<String> initMessageSupplier, @Assisted Class<T> inputClass,
-                               ILocalizer localizer, DelayedCommandInputManager delayedCommandInputManager)
+    DelayedCommandInputRequest(
+        @Assisted long timeout,
+        @Assisted ICommandSender commandSender,
+        @Assisted CommandDefinition commandDefinition,
+        @Assisted Function<T, CompletableFuture<Boolean>> executor,
+        @Assisted Supplier<String> initMessageSupplier,
+        @Assisted Class<T> inputClass,
+        ILocalizer localizer,
+        DelayedCommandInputManager delayedCommandInputManager)
     {
         super(timeout);
         this.commandSender = commandSender;
@@ -175,15 +178,15 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      */
     private void log()
     {
-        log.at(Level.FINEST).withStackTrace(StackSize.FULL).log("Started delayed input request for command: %s", this);
+        log.at(Level.FINEST).log("Started delayed input request for command: %s", this);
     }
 
     @AssistedFactory
     public interface IFactory<T>
     {
-        DelayedCommandInputRequest<T> create(long timeout, ICommandSender commandSender,
-                                             CommandDefinition commandDefinition,
-                                             Function<T, CompletableFuture<Boolean>> executor,
-                                             Supplier<String> initMessageSupplier, Class<T> inputClass);
+        DelayedCommandInputRequest<T> create(
+            long timeout, ICommandSender commandSender, CommandDefinition commandDefinition,
+            Function<T, CompletableFuture<Boolean>> executor, Supplier<String> initMessageSupplier,
+            Class<T> inputClass);
     }
 }

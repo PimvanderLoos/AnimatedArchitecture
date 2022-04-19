@@ -24,104 +24,20 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class RemoveOwner extends DoorTargetCommand
 {
-    private static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.REMOVE_OWNER;
+    public static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.REMOVE_OWNER;
 
     private final IPPlayer targetPlayer;
     private final DatabaseManager databaseManager;
 
     @AssistedInject //
-    RemoveOwner(@Assisted ICommandSender commandSender, ILocalizer localizer, @Assisted DoorRetriever doorRetriever,
-                @Assisted IPPlayer targetPlayer, DatabaseManager databaseManager)
+    RemoveOwner(
+        @Assisted ICommandSender commandSender, ILocalizer localizer, @Assisted DoorRetriever doorRetriever,
+        @Assisted IPPlayer targetPlayer, DatabaseManager databaseManager)
     {
         super(commandSender, localizer, doorRetriever, DoorAttribute.REMOVE_OWNER);
         this.targetPlayer = targetPlayer;
         this.databaseManager = databaseManager;
     }
-
-    // TODO: Re-implement
-//    /**
-//     * Executes the {@link RemoveOwner} command without a known {@link #targetPlayer}.
-//     * <p>
-//     * These missing values will be retrieved using a {@link DelayedCommandInputRequest}. The player will be asked to
-//     * use the  {@link RemoveOwner} command (again, if needed) to supply the missing data.
-//     * <p>
-//     * These missing data can be supplied using {@link #provideDelayedInput(ICommandSender, IPLogger,
-//     ILocalizer, IPPlayer)}.
-//     *
-//     * @param commandSender
-//     *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
-//     *     execution.
-//     * @param doorRetriever
-//     *     A {@link DoorRetrieverFactory} that references the target door.
-//     * @return See {@link BaseCommand#run()}.
-//     */
-//    public static CompletableFuture<Boolean> runDelayed(ICommandSender commandSender, IPLogger logger,
-//                                                        ILocalizer localizer,
-//                                                        DoorRetriever doorRetriever)
-//    {
-//        final int commandTimeout = Constants.COMMAND_WAITER_TIMEOUT;
-//        return new DelayedCommandInputRequest<>(commandTimeout, commandSender, COMMAND_DEFINITION, logger, localizer,
-//                                                delayedInput -> delayedInputExecutor(commandSender, logger, localizer,
-//                                                                                     doorRetriever, delayedInput),
-//                                                () -> RemoveOwner.inputRequestMessage(localizer), IPPlayer.class)
-//            .getCommandOutput();
-//    }
-//
-//    /**
-//     * Provides the delayed input if there is currently an active {@link DelayedCommandInputRequest} for the {@link
-//     * ICommandSender}.
-//     * <p>
-//     * If no active {@link DelayedCommandInputRequest} can be found for the command sender, the command sender will be
-//     * informed about it.
-//     *
-//     * @param commandSender
-//     *     The {@link ICommandSender} for which to look for an active {@link DelayedCommandInputRequest} that can be
-//     *     fulfilled.
-//     * @param targetPlayer
-//     *     The target player to attempt to remove as co-owner of this door.
-//     * @return See {@link BaseCommand#run()}.
-//     */
-//    public static CompletableFuture<Boolean> provideDelayedInput(ICommandSender commandSender, IPLogger logger,
-//                                                                 ILocalizer localizer,
-//                                                                 IPPlayer targetPlayer)
-//    {
-//        return delayedCommandInputManager().getInputRequest(commandSender)
-//                                           .map(request -> request.provide(targetPlayer))
-//                                           .orElse(CompletableFuture.completedFuture(false));
-//    }
-//
-//    /**
-//     * The method that is run once delayed input is received.
-//     * <p>
-//     * It processes the new input and executes the command using the previously-provided data (see {@link
-//     * #runDelayed(ICommandSender, IPLogger, ILocalizer, DoorRetriever)}).
-//     *
-//     * @param commandSender
-//     *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
-//     *     execution.
-//     * @param doorRetriever
-//     *     A {@link DoorRetrieverFactory} that references the target door.
-//     * @param targetPlayer
-//     *     The target player to attempt to remove as co-owner.
-//     * @return See {@link BaseCommand#run()}.
-//     */
-//    private static CompletableFuture<Boolean> delayedInputExecutor(ICommandSender commandSender, IPLogger logger,
-//                                                                   ILocalizer localizer,
-//                                                                   DoorRetriever doorRetriever,
-//                                                                   IPPlayer targetPlayer)
-//    {
-//        return new RemoveOwner(commandSender, logger, localizer, doorRetriever, targetPlayer).run();
-//    }
-//
-//    /**
-//     * Retrieves the message that will be sent to the command sender after initialization of a delayed input request.
-//     *
-//     * @return The init message for the delayed input request.
-//     */
-//    private static String inputRequestMessage(ILocalizer localizer)
-//    {
-//        return localizer.getMessage("commands.remove_owner.init");
-//    }
 
     @Override
     public CommandDefinition getCommand()
@@ -189,7 +105,7 @@ public class RemoveOwner extends DoorTargetCommand
          *     The co-owner that is requested to be removed.
          * @return See {@link BaseCommand#run()}.
          */
-        RemoveOwner newRemoveOwner(ICommandSender commandSender, DoorRetriever doorRetriever,
-                                   IPPlayer targetPlayer);
+        RemoveOwner newRemoveOwner(
+            ICommandSender commandSender, DoorRetriever doorRetriever, IPPlayer targetPlayer);
     }
 }

@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
+import lombok.Getter;
 import lombok.experimental.Delegate;
 
 import javax.inject.Inject;
@@ -56,17 +57,40 @@ public class CommandFactory
     @Delegate
     private final ListDoors.IFactory listDoorsFactory;
 
+    @Getter
+    private final AddOwnerDelayed addOwnerDelayed;
+    @Getter
+    private final RemoveOwnerDelayed removeOwnerDelayed;
+    @Getter
+    private final SetAutoCloseTimeDelayed setAutoCloseTimeDelayed;
+    @Getter
+    private final SetOpenDirectionDelayed setOpenDirectionDelayed;
+    @Getter
+    private final SetBlocksToMoveDelayed setBlocksToMoveDelayed;
+
     @Inject //
-    CommandFactory(AddOwner.IFactory addOwnerFactory, Info.IFactory infoFactory,
-                   SetBlocksToMove.IFactory setBlocksToMoveFactory, Confirm.IFactory confirmFactory,
-                   InspectPowerBlock.IFactory inspectPowerBlockFactory, Restart.IFactory restartFactory,
-                   Version.IFactory versionFactory, Cancel.IFactory cancelFactory, Delete.IFactory deleteFactory,
-                   Specify.IFactory specifyFactory, Debug.IFactory debugFactory, Menu.IFactory menuFactory,
-                   RemoveOwner.IFactory removeOwnerFactory, SetAutoCloseTime.IFactory setAutoCloseTimeFactory,
-                   Toggle.IFactory toggleFactory, SetOpenDirection.IFactory setOpenDirectionFactory,
-                   StopDoors.IFactory stopDoorsFactory, Lock.IFactory lockFactory, SetName.IFactory setNameFactory,
-                   MovePowerBlock.IFactory movePowerBlockFactory, NewDoor.IFactory newDoorFactory,
-                   ListDoors.IFactory listDoorsFactory)
+    CommandFactory(
+        AddOwner.IFactory addOwnerFactory, AddOwnerDelayed addOwnerDelayed,
+        Cancel.IFactory cancelFactory,
+        Confirm.IFactory confirmFactory,
+        Debug.IFactory debugFactory, Menu.IFactory menuFactory,
+        Delete.IFactory deleteFactory,
+        Info.IFactory infoFactory,
+        InspectPowerBlock.IFactory inspectPowerBlockFactory,
+        ListDoors.IFactory listDoorsFactory,
+        Lock.IFactory lockFactory,
+        MovePowerBlock.IFactory movePowerBlockFactory,
+        NewDoor.IFactory newDoorFactory,
+        RemoveOwner.IFactory removeOwnerFactory, RemoveOwnerDelayed removeOwnerDelayed,
+        Restart.IFactory restartFactory,
+        SetAutoCloseTime.IFactory setAutoCloseTimeFactory, SetAutoCloseTimeDelayed setAutoCloseTimeDelayed,
+        SetBlocksToMove.IFactory setBlocksToMoveFactory, SetBlocksToMoveDelayed setBlocksToMoveDelayed,
+        SetName.IFactory setNameFactory,
+        SetOpenDirection.IFactory setOpenDirectionFactory, SetOpenDirectionDelayed setOpenDirectionDelayed,
+        Specify.IFactory specifyFactory,
+        StopDoors.IFactory stopDoorsFactory,
+        Toggle.IFactory toggleFactory,
+        Version.IFactory versionFactory)
     {
         this.addOwnerFactory = addOwnerFactory;
         this.infoFactory = infoFactory;
@@ -74,6 +98,7 @@ public class CommandFactory
         this.confirmFactory = confirmFactory;
         this.inspectPowerBlockFactory = inspectPowerBlockFactory;
         this.restartFactory = restartFactory;
+        this.setOpenDirectionDelayed = setOpenDirectionDelayed;
         this.versionFactory = versionFactory;
         this.cancelFactory = cancelFactory;
         this.deleteFactory = deleteFactory;
@@ -90,5 +115,9 @@ public class CommandFactory
         this.movePowerBlockFactory = movePowerBlockFactory;
         this.newDoorFactory = newDoorFactory;
         this.listDoorsFactory = listDoorsFactory;
+        this.addOwnerDelayed = addOwnerDelayed;
+        this.removeOwnerDelayed = removeOwnerDelayed;
+        this.setAutoCloseTimeDelayed = setAutoCloseTimeDelayed;
+        this.setBlocksToMoveDelayed = setBlocksToMoveDelayed;
     }
 }

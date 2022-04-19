@@ -124,6 +124,7 @@ public sealed abstract class DoorRetriever
      *
      * @author Pim
      */
+    @ToString
     @AllArgsConstructor
     static final class DoorNameRetriever extends DoorRetriever
     {
@@ -245,6 +246,12 @@ public sealed abstract class DoorRetriever
         private final @Nullable AbstractDoor door;
 
         @Override
+        public boolean isAvailable()
+        {
+            return door != null;
+        }
+
+        @Override
         public CompletableFuture<Optional<AbstractDoor>> getDoor()
         {
             return CompletableFuture.completedFuture(Optional.ofNullable(door));
@@ -263,12 +270,18 @@ public sealed abstract class DoorRetriever
      *
      * @author Pim
      */
+    @ToString
     @AllArgsConstructor()
-    @ToString(doNotUseGetters = true)
     @EqualsAndHashCode(callSuper = false, doNotUseGetters = true)
     static final class DoorListRetriever extends DoorRetriever
     {
         private final List<AbstractDoor> doors;
+
+        @Override
+        public boolean isAvailable()
+        {
+            return true;
+        }
 
         @Override
         public CompletableFuture<Optional<AbstractDoor>> getDoor()
@@ -315,6 +328,12 @@ public sealed abstract class DoorRetriever
     static final class FutureDoorRetriever extends DoorRetriever
     {
         private final CompletableFuture<Optional<AbstractDoor>> futureDoor;
+
+        @Override
+        public boolean isAvailable()
+        {
+            return futureDoor.isDone() && !futureDoor.isCancelled() && !futureDoor.isCompletedExceptionally();
+        }
 
         @Override
         public CompletableFuture<Optional<AbstractDoor>> getDoor()
