@@ -24,6 +24,7 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PPlayerSpigot;
+import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
@@ -38,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 import static net.kyori.adventure.text.Component.text;
 
 @Singleton
-public final class CommandListener
+public final class CommandManager
 {
     private final JavaPlugin plugin;
     private final ILocalizer localizer;
@@ -52,12 +53,13 @@ public final class CommandListener
     private @Nullable CommandConfirmationManager<ICommandSender> confirmationManager;
     private final RestartableHolder restartableHolder;
     private final DoorTypeParser doorTypeParser;
+    private final DirectionParser directionParser;
 
     @Inject//
-    CommandListener(
+    CommandManager(
         JavaPlugin plugin, ILocalizer localizer, CommandFactory commandFactory,
         DoorRetrieverFactory doorRetrieverFactory, DoorTypeManager doorTypeManager,
-        RestartableHolder restartableHolder, DoorTypeParser doorTypeParser)
+        RestartableHolder restartableHolder, DoorTypeParser doorTypeParser, DirectionParser directionParser)
     {
         this.plugin = plugin;
         this.localizer = localizer;
@@ -66,6 +68,7 @@ public final class CommandListener
         this.doorTypeManager = doorTypeManager;
         this.restartableHolder = restartableHolder;
         this.doorTypeParser = doorTypeParser;
+        this.directionParser = directionParser;
     }
 
     // IntelliJ struggles to understand that the manager cannot be null.
@@ -180,7 +183,7 @@ public final class CommandListener
             builder.literal("cancel")
                    .meta(CommandMeta.DESCRIPTION, localizer.getMessage("commands.cancel.description"))
                    .permission("bigdoors.user.base")
-                   .handler(commandContext -> commandFactory.newCancel(commandContext.getSender()))
+                   .handler(commandContext -> commandFactory.newCancel(commandContext.getSender()).run())
         );
     }
 
@@ -191,7 +194,7 @@ public final class CommandListener
             builder.literal("confirm")
                    .meta(CommandMeta.DESCRIPTION, localizer.getMessage("commands.confirm.description"))
                    .permission("bigdoors.user.base")
-                   .handler(commandContext -> commandFactory.newConfirm(commandContext.getSender()))
+                   .handler(commandContext -> commandFactory.newConfirm(commandContext.getSender()).run())
         );
     }
 
@@ -227,7 +230,19 @@ public final class CommandListener
     private void initCmdListDoors(
         BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
-
+        manager.command(
+            builder.literal("listdoors")
+                   .meta(CommandMeta.DESCRIPTION, localizer.getMessage("commands.list_doors.description"))
+                   .permission("bigdoors.user.base")
+                   .argument(StringArgument.optional("doorName"))
+                   .handler(commandContext ->
+                            {
+                                final @Nullable String doorName = commandContext.getOrDefault("doorName", null);
+                                final @Nullable DoorRetriever retriever =
+                                    doorName == null ? null : doorRetrieverFactory.of(doorName);
+                                commandFactory.newListDoors(commandContext.getSender(), retriever).run();
+                            })
+        );
     }
 
     private void initCmdLock(
@@ -249,7 +264,7 @@ public final class CommandListener
                                 final @Nullable IPPlayer targetPlayer =
                                     commandContext.contains("targetPlayer") ?
                                     new PPlayerSpigot(commandContext.get("targetPlayer")) : null;
-                                commandFactory.newMenu(commandContext.getSender(), targetPlayer);
+                                commandFactory.newMenu(commandContext.getSender(), targetPlayer).run();
                             })
         );
     }
@@ -267,7 +282,7 @@ public final class CommandListener
             builder.literal("newdoor")
                    .meta(CommandMeta.DESCRIPTION, localizer.getMessage("commands.new_door.description"))
                    .permission("bigdoors.user.newdoor")
-                   .argument(new DoorTypeArgument(true, "doorType", "BigDoor", null, ArgumentDescription.empty(),
+                   .argument(new DoorTypeArgument(true, "doorType", "", null, ArgumentDescription.empty(),
                                                   doorTypeParser))
                    .argument(StringArgument.<ICommandSender>newBuilder("doorName").asOptional().build())
                    .argument(IntegerArgument.<ICommandSender>newBuilder("permissionLevel")
@@ -291,14 +306,15 @@ public final class CommandListener
             builder.literal("removeowner")
                    .meta(CommandMeta.DESCRIPTION, localizer.getMessage("commands.remove_owner.descriptions"))
                    .permission("bigdoors.user.removeowner")
-                   .argument(new DoorArgument(true, "doorRetriever", "MyDoor", null, ArgumentDescription.empty(),
+                   .argument(new DoorArgument(true, "doorRetriever", "", null, ArgumentDescription.empty(),
                                               asyncCompletions, doorRetrieverFactory, 1))
                    .argument(PlayerArgument.of("targetPlayer"))
                    .handler(commandContext ->
                             {
                                 final DoorRetriever retriever = commandContext.get("doorRetriever");
                                 final IPPlayer targetPlayer = new PPlayerSpigot(commandContext.get("targetPlayer"));
-                                commandFactory.newRemoveOwner(commandContext.getSender(), retriever, targetPlayer);
+                                commandFactory.newRemoveOwner(commandContext.getSender(), retriever, targetPlayer)
+                                              .run();
                             })
         );
     }
@@ -310,7 +326,7 @@ public final class CommandListener
             builder.literal("restart")
                    .meta(CommandMeta.DESCRIPTION, localizer.getMessage("commands.restart.description"))
                    .permission("bigdoors.admin.restart")
-                   .handler(commandContext -> commandFactory.newRestart(commandContext.getSender()))
+                   .handler(commandContext -> commandFactory.newRestart(commandContext.getSender()).run())
         );
     }
 
@@ -329,13 +345,40 @@ public final class CommandListener
     private void initCmdSetName(
         BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
-
+        manager.command(
+            builder.literal("setname")
+                   .meta(CommandMeta.DESCRIPTION, localizer.getMessage("commands.set_name.description"))
+                   .permission("bigdoors.user.base")
+                   .argument(StringArgument.of("name"))
+                   .handler(commandContext -> commandFactory.newSetName(commandContext.getSender(),
+                                                                        commandContext.get("name")).run())
+        );
     }
 
     private void initCmdSetOpenDirection(
         BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
-//        commandFactory.newSetOpenDirection()
+        manager.command(
+            builder.literal("setopendirection")
+                   .meta(CommandMeta.DESCRIPTION, localizer.getMessage("commands.set_open_direction.description"))
+                   .permission("bigdoors.user.base")
+                   .argument(new DoorArgument(false, "door", "", null, ArgumentDescription.empty(), asyncCompletions,
+                                              doorRetrieverFactory, 1))
+                   .argument(new DirectionArgument(true, "direction", "", null,
+                                                   ArgumentDescription.empty(), directionParser))
+                   .handler(commandContext ->
+                            {
+                                final RotateDirection direction = commandContext.get("direction");
+                                final ICommandSender commandSender = commandContext.getSender();
+                                final @Nullable DoorRetriever doorRetriever = commandContext.getOrDefault("door", null);
+
+                                if (doorRetriever != null)
+                                    commandFactory.newSetOpenDirection(commandSender, doorRetriever, direction).run();
+                                else
+                                    commandFactory.getSetOpenDirectionDelayed()
+                                                  .provideDelayedInput(commandSender, direction);
+                            })
+        );
     }
 
     private void initCmdSpecify(
@@ -353,7 +396,15 @@ public final class CommandListener
     private void initCmdToggle(
         BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
-
+        manager.command(
+            builder.literal("toggledoor", "toggle")
+                   .meta(CommandMeta.DESCRIPTION, localizer.getMessage("commands.toggle.description"))
+                   .permission("bigdoors.user.toggle")
+                   .argument(new DoorArgument(true, "door", "", null, ArgumentDescription.empty(), asyncCompletions,
+                                              doorRetrieverFactory, 2))
+                   .handler(commandContext -> commandFactory.newToggle(commandContext.getSender(),
+                                                                       commandContext.get("door")).run())
+        );
     }
 
     private void initCmdVersion(
@@ -363,7 +414,7 @@ public final class CommandListener
             builder.literal("version")
                    .meta(CommandMeta.DESCRIPTION, localizer.getMessage("commands.version.description"))
                    .permission("bigdoors.admin.version")
-                   .handler(commandContext -> commandFactory.newVersion(commandContext.getSender()))
+                   .handler(commandContext -> commandFactory.newVersion(commandContext.getSender()).run())
         );
     }
 

@@ -38,7 +38,7 @@ import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
-import nl.pim16aap2.bigdoors.spigot.comands.CommandListener;
+import nl.pim16aap2.bigdoors.spigot.comands.CommandManager;
 import nl.pim16aap2.bigdoors.spigot.compatiblity.ProtectionCompatManagerModule;
 import nl.pim16aap2.bigdoors.spigot.compatiblity.ProtectionCompatManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
@@ -117,7 +117,7 @@ interface BigDoorsSpigotComponent
 
     JavaPlugin getBigDoorsJavaPlugin();
 
-    CommandListener getCommandListener();
+    CommandManager getCommandListener();
 
     RestartableHolder getRestartableHolder();
 

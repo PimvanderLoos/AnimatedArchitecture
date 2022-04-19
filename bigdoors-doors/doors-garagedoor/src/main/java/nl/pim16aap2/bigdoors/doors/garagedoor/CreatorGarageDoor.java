@@ -80,7 +80,7 @@ public class CreatorGarageDoor extends Creator
     }
 
     @Override
-    protected List<RotateDirection> getValidOpenDirections()
+    public List<RotateDirection> getValidOpenDirections()
     {
         if (isOpen)
             return getDoorType().getValidOpenDirections();

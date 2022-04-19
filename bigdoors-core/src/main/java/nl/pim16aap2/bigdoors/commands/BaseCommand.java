@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import com.google.common.flogger.StackSize;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
@@ -217,12 +216,12 @@ public abstract class BaseCommand
      */
     private void log()
     {
-        log.at(Level.FINEST).withStackTrace(StackSize.FULL).log("Running command %s: %s", getCommand().getName(), this);
+        log.at(Level.FINEST).log("Running command %s: %s", getCommand().getName(), this);
     }
 
     /**
-     * Attempts to get an {@link DoorBase} based on the provided {@link DoorRetrieverFactory} and the current {@link
-     * ICommandSender}.
+     * Attempts to get an {@link DoorBase} based on the provided {@link DoorRetrieverFactory} and the current
+     * {@link ICommandSender}.
      * <p>
      * If no door is found, the {@link ICommandSender} will be informed.
      *
@@ -245,8 +244,8 @@ public abstract class BaseCommand
     }
 
     /**
-     * Checks if the {@link ICommandSender} has the required permissions to use this command. See {@link
-     * CommandDefinition#getUserPermission()} and {@link CommandDefinition#getAdminPermission()}.
+     * Checks if the {@link ICommandSender} has the required permissions to use this command. See
+     * {@link CommandDefinition#getUserPermission()} and {@link CommandDefinition#getAdminPermission()}.
      *
      * @return A pair of booleans that indicates whether the user has access to the user and admin permission nodes
      * respectively. For both, true indicates that they do have access to the node and false that they do not.

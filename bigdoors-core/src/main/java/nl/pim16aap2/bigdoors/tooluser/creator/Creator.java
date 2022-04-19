@@ -571,7 +571,7 @@ public abstract class Creator extends ToolUser
      *
      * @return The list of valid open directions for this type given its current physical dimensions.
      */
-    protected List<RotateDirection> getValidOpenDirections()
+    public List<RotateDirection> getValidOpenDirections()
     {
         return getDoorType().getValidOpenDirections();
     }
