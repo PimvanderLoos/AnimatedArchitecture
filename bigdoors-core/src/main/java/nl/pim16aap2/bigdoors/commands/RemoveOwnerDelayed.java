@@ -19,7 +19,7 @@ public class RemoveOwnerDelayed extends DelayedCommand<IPPlayer>
     @Override
     protected CommandDefinition getCommandDefinition()
     {
-        return SetAutoCloseTime.COMMAND_DEFINITION;
+        return RemoveOwner.COMMAND_DEFINITION;
     }
 
     @Override
