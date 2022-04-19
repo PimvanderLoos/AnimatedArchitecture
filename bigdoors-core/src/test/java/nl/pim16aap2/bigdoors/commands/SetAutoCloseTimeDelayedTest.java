@@ -5,7 +5,6 @@ import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 import org.junit.jupiter.api.AfterEach;
@@ -28,12 +27,12 @@ import static org.mockito.AdditionalAnswers.delegatesTo;
 
 @Timeout(1)
 @SuppressWarnings("unused")
-class SetOpenDirectionDelayedTest
+class SetAutoCloseTimeDelayedTest
 {
     @Spy DelayedCommandInputManager delayedCommandInputManager =
         new DelayedCommandInputManager(Mockito.mock(DebuggableRegistry.class));
     @Mock ILocalizer localizer;
-    @Mock DelayedCommandInputRequest.IFactory<RotateDirection> inputRequestFactory;
+    @Mock DelayedCommandInputRequest.IFactory<Integer> inputRequestFactory;
     @InjectMocks DelayedCommand.Context context;
 
     @Mock CommandFactory commandFactory;
@@ -46,7 +45,7 @@ class SetOpenDirectionDelayedTest
     DoorRetriever doorRetriever;
     @InjectMocks DoorRetrieverFactory doorRetrieverFactory;
 
-    @Mock SetOpenDirection setOpenDirection;
+    @Mock SetAutoCloseTime setAutoCloseTime;
 
     AutoCloseable openMocks;
 
@@ -61,10 +60,10 @@ class SetOpenDirectionDelayedTest
 
         doorRetriever = doorRetrieverFactory.of(door);
 
-        Mockito.when(setOpenDirection.run()).thenReturn(CompletableFuture.completedFuture(true));
+        Mockito.when(setAutoCloseTime.run()).thenReturn(CompletableFuture.completedFuture(true));
 
-        Mockito.when(commandFactory.newSetOpenDirection(Mockito.any(), Mockito.any(), Mockito.any()))
-               .thenReturn(setOpenDirection);
+        Mockito.when(commandFactory.newSetAutoCloseTime(Mockito.any(), Mockito.any(), Mockito.anyInt()))
+               .thenReturn(setAutoCloseTime);
     }
 
     @AfterEach
@@ -78,17 +77,15 @@ class SetOpenDirectionDelayedTest
     @SneakyThrows
     void normal()
     {
-        final SetOpenDirectionDelayed setOpenDirectionDelayed =
-            new SetOpenDirectionDelayed(context, inputRequestFactory);
+        final SetAutoCloseTimeDelayed setAutoCloseTimeDelayed =
+            new SetAutoCloseTimeDelayed(context, inputRequestFactory);
 
-        final CompletableFuture<Boolean> result0 = setOpenDirectionDelayed.runDelayed(commandSender, doorRetriever);
-        final CompletableFuture<Boolean> result1 = setOpenDirectionDelayed.provideDelayedInput(commandSender,
-                                                                                               RotateDirection.UP);
+        final CompletableFuture<Boolean> result0 = setAutoCloseTimeDelayed.runDelayed(commandSender, doorRetriever);
+        final CompletableFuture<Boolean> result1 = setAutoCloseTimeDelayed.provideDelayedInput(commandSender, 10);
 
         Assertions.assertTrue(result0.get());
         Assertions.assertTrue(result1.get());
 
-        Mockito.verify(commandFactory, Mockito.times(1))
-               .newSetOpenDirection(commandSender, doorRetriever, RotateDirection.UP);
+        Mockito.verify(commandFactory, Mockito.times(1)).newSetAutoCloseTime(commandSender, doorRetriever, 10);
     }
 }

@@ -11,6 +11,7 @@ import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import java.util.logging.Level;
 
 /**
@@ -42,7 +43,7 @@ public abstract class DelayedCommand<T>
     {
         this.delayedCommandInputManager = context.delayedCommandInputManager;
         this.localizer = context.localizer;
-        this.commandFactory = context.commandFactory;
+        this.commandFactory = context.commandFactoryProvider;
         this.inputRequestFactory = inputRequestFactory;
         this.delayedInputClz = delayedInputClz;
     }
@@ -71,10 +72,29 @@ public abstract class DelayedCommand<T>
 
         final int commandTimeout = Constants.COMMAND_WAITER_TIMEOUT;
         return inputRequestFactory.create(commandTimeout, commandSender, getCommandDefinition(),
-                                          delayedInput -> delayedInputExecutor(commandSender, doorRetriever,
-                                                                               delayedInput),
+                                          getExecutor(commandSender, doorRetriever),
                                           () -> inputRequestMessage(commandSender, doorRetriever), delayedInputClz)
                                   .getCommandOutput();
+    }
+
+    private Function<T, CompletableFuture<Boolean>> getExecutor(
+        ICommandSender commandSender, DoorRetriever doorRetriever)
+    {
+        return delayedInput ->
+        {
+            try
+            {
+                return delayedInputExecutor(commandSender, doorRetriever, delayedInput);
+            }
+            catch (Exception e)
+            {
+                log.at(Level.SEVERE).withCause(e)
+                   .log("Failed to executed delayed command '%s' for command sender '%s' with input '%s'",
+                        this, commandSender, delayedInput);
+                e.printStackTrace();
+                return CompletableFuture.completedFuture(false);
+            }
+        };
     }
 
     /**
@@ -103,6 +123,9 @@ public abstract class DelayedCommand<T>
             .orElseGet(
                 () ->
                 {
+                    log.at(Level.SEVERE)
+                       .log("'%s' tried to issue delayed command input '%s' without active command waiter!",
+                            commandSender, data);
                     commandSender.sendMessage(localizer.getMessage("commands.base.error.not_waiting"));
                     return CompletableFuture.completedFuture(false);
                 });
@@ -143,17 +166,17 @@ public abstract class DelayedCommand<T>
     {
         private final DelayedCommandInputManager delayedCommandInputManager;
         private final ILocalizer localizer;
-        private final Provider<CommandFactory> commandFactory;
+        private final Provider<CommandFactory> commandFactoryProvider;
 
         @Inject
         public Context(
             DelayedCommandInputManager delayedCommandInputManager,
             ILocalizer localizer,
-            Provider<CommandFactory> commandFactory)
+            Provider<CommandFactory> commandFactoryProvider)
         {
             this.delayedCommandInputManager = delayedCommandInputManager;
             this.localizer = localizer;
-            this.commandFactory = commandFactory;
+            this.commandFactoryProvider = commandFactoryProvider;
         }
     }
 }

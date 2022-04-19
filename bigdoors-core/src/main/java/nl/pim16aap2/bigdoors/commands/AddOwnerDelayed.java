@@ -1,5 +1,8 @@
 package nl.pim16aap2.bigdoors.commands;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
 
@@ -39,6 +42,9 @@ public class AddOwnerDelayed extends DelayedCommand<AddOwnerDelayed.DelayedInput
      * {@link #runDelayed(ICommandSender, DoorRetriever)} and
      * {@link #delayedInputExecutor(ICommandSender, DoorRetriever, DelayedInput)}.
      */
+    @ToString
+    @EqualsAndHashCode
+    @Getter
     public static final class DelayedInput
     {
         private final IPPlayer targetPlayer;
@@ -61,6 +67,9 @@ public class AddOwnerDelayed extends DelayedCommand<AddOwnerDelayed.DelayedInput
             this.targetPermissionLevel = targetPermissionLevel;
         }
 
+        /**
+         * See {@link #DelayedInput(IPPlayer, int)}.
+         */
         public DelayedInput(IPPlayer targetPlayer)
         {
             this(targetPlayer, AddOwner.DEFAULT_PERMISSION_LEVEL);

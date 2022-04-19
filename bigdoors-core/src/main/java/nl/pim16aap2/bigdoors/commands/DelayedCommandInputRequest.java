@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import com.google.common.flogger.StackSize;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -179,7 +178,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      */
     private void log()
     {
-        log.at(Level.FINEST).withStackTrace(StackSize.FULL).log("Started delayed input request for command: %s", this);
+        log.at(Level.FINEST).log("Started delayed input request for command: %s", this);
     }
 
     @AssistedFactory
