@@ -31,7 +31,7 @@ public class AddOwnerDelayed extends DelayedCommand<AddOwnerDelayed.DelayedInput
     @Override
     protected String inputRequestMessage(ICommandSender commandSender, DoorRetriever doorRetriever)
     {
-        return localizer.getMessage("commands.add_owner.delayed.init");
+        return localizer.getMessage("commands.add_owner.init");
     }
 
     /**

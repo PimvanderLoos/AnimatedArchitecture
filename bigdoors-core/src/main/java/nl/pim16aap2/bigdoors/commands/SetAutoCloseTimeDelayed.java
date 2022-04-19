@@ -31,6 +31,6 @@ public class SetAutoCloseTimeDelayed extends DelayedCommand<Integer>
     @Override
     protected String inputRequestMessage(ICommandSender commandSender, DoorRetriever doorRetriever)
     {
-        return localizer.getMessage("commands.set_auto_close_time.delayed.init");
+        return localizer.getMessage("commands.set_auto_close_time.init");
     }
 }

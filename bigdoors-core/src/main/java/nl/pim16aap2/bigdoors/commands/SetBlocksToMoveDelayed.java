@@ -31,6 +31,6 @@ public class SetBlocksToMoveDelayed extends DelayedCommand<Integer>
     @Override
     protected String inputRequestMessage(ICommandSender commandSender, DoorRetriever doorRetriever)
     {
-        return localizer.getMessage("commands.set_blocks_to_move.delayed.init");
+        return localizer.getMessage("commands.set_blocks_to_move.init");
     }
 }
