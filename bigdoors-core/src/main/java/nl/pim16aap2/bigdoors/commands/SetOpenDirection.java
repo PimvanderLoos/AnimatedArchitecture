@@ -73,8 +73,6 @@ public class SetOpenDirection extends DoorTargetCommand
          * @return See {@link BaseCommand#run()}.
          */
         SetOpenDirection newSetOpenDirection(
-            ICommandSender commandSender,
-            DoorRetriever doorRetriever,
-            RotateDirection rotateDirection);
+            ICommandSender commandSender, DoorRetriever doorRetriever, RotateDirection rotateDirection);
     }
 }

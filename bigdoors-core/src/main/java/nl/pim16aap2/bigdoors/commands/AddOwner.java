@@ -149,8 +149,8 @@ public class AddOwner extends DoorTargetCommand
          * @return See {@link BaseCommand#run()}.
          */
         AddOwner newAddOwner(
-            ICommandSender commandSender, DoorRetriever doorRetriever,
-            IPPlayer targetPlayer, int targetPermissionLevel);
+            ICommandSender commandSender, DoorRetriever doorRetriever, IPPlayer targetPlayer,
+            int targetPermissionLevel);
 
         /**
          * See {@link #newAddOwner(ICommandSender, DoorRetriever, IPPlayer, int)}.
@@ -158,8 +158,7 @@ public class AddOwner extends DoorTargetCommand
          * The default permission node defined by {@link AddOwner#DEFAULT_PERMISSION_LEVEL} is used.
          */
         default AddOwner newAddOwner(
-            ICommandSender commandSender, DoorRetriever doorRetriever,
-            IPPlayer targetPlayer)
+            ICommandSender commandSender, DoorRetriever doorRetriever, IPPlayer targetPlayer)
         {
             return newAddOwner(commandSender, doorRetriever, targetPlayer, AddOwner.DEFAULT_PERMISSION_LEVEL);
         }

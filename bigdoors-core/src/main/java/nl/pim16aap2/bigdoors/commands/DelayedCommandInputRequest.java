@@ -186,9 +186,8 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     public interface IFactory<T>
     {
         DelayedCommandInputRequest<T> create(
-            long timeout, ICommandSender commandSender,
-            CommandDefinition commandDefinition,
-            Function<T, CompletableFuture<Boolean>> executor,
-            Supplier<String> initMessageSupplier, Class<T> inputClass);
+            long timeout, ICommandSender commandSender, CommandDefinition commandDefinition,
+            Function<T, CompletableFuture<Boolean>> executor, Supplier<String> initMessageSupplier,
+            Class<T> inputClass);
     }
 }

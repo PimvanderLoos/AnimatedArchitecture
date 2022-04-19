@@ -106,7 +106,6 @@ public class RemoveOwner extends DoorTargetCommand
          * @return See {@link BaseCommand#run()}.
          */
         RemoveOwner newRemoveOwner(
-            ICommandSender commandSender, DoorRetriever doorRetriever,
-            IPPlayer targetPlayer);
+            ICommandSender commandSender, DoorRetriever doorRetriever, IPPlayer targetPlayer);
     }
 }

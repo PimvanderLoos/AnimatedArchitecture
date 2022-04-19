@@ -72,8 +72,6 @@ public class SetBlocksToMove extends DoorTargetCommand
          * @return See {@link BaseCommand#run()}.
          */
         SetBlocksToMove newSetBlocksToMove(
-            ICommandSender commandSender,
-            DoorRetriever doorRetriever,
-            int blocksToMove);
+            ICommandSender commandSender, DoorRetriever doorRetriever, int blocksToMove);
     }
 }

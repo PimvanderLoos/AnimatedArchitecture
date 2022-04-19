@@ -71,7 +71,6 @@ public class SetAutoCloseTime extends DoorTargetCommand
          * @return See {@link BaseCommand#run()}.
          */
         SetAutoCloseTime newSetAutoCloseTime(
-            ICommandSender commandSender,
-            DoorRetriever doorRetriever, int autoCloseTime);
+            ICommandSender commandSender, DoorRetriever doorRetriever, int autoCloseTime);
     }
 }
