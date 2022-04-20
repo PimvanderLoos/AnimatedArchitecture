@@ -8,6 +8,8 @@ import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
+import nl.pim16aap2.bigdoors.commands.CommandFactory;
+import nl.pim16aap2.bigdoors.commands.SetOpenDirectionDelayed;
 import nl.pim16aap2.bigdoors.doors.DoorBaseBuilder;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
@@ -18,6 +20,7 @@ import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,10 +52,15 @@ class CreatorTest
     @Mock
     private LimitsManager limitsManager;
 
+    @Mock
+    private CommandFactory commandFactory;
+
+    private AutoCloseable mocks;
+
     @BeforeEach
     void init()
     {
-        MockitoAnnotations.openMocks(this);
+        mocks = MockitoAnnotations.openMocks(this);
 
         final DoorType doorType = Mockito.mock(DoorType.class);
 
@@ -71,12 +79,20 @@ class CreatorTest
         UnitTestUtil.setField(Creator.class, creator, "doorBaseBuilder", Mockito.mock(DoorBaseBuilder.class));
         UnitTestUtil.setField(Creator.class, creator, "databaseManager", Mockito.mock(DatabaseManager.class));
         UnitTestUtil.setField(Creator.class, creator, "economyManager", economyManager);
+        UnitTestUtil.setField(Creator.class, creator, "commandFactory", commandFactory);
 
         UnitTestUtil.setField(ToolUser.class, creator, "player", player);
         UnitTestUtil.setField(ToolUser.class, creator, "localizer", initLocalizer());
         UnitTestUtil.setField(ToolUser.class, creator, "protectionCompatManager", protectionCompatManager);
         UnitTestUtil.setField(ToolUser.class, creator, "bigDoorsToolUtil", Mockito.mock(IBigDoorsToolUtil.class));
         UnitTestUtil.setField(ToolUser.class, creator, "localizer", initLocalizer());
+    }
+
+    @AfterEach
+    void cleanup()
+        throws Exception
+    {
+        mocks.close();
     }
 
     @Test
@@ -207,6 +223,9 @@ class CreatorTest
     @Test
     void testOpenDirectionStep()
     {
+        Mockito.when(commandFactory.getSetOpenDirectionDelayed())
+               .thenReturn(Mockito.mock(SetOpenDirectionDelayed.class));
+
         final DoorType doorType = Mockito.mock(DoorType.class);
         final Set<RotateDirection> validOpenDirections = EnumSet.of(RotateDirection.EAST, RotateDirection.WEST);
         Mockito.when(doorType.getValidOpenDirections()).thenReturn(validOpenDirections);

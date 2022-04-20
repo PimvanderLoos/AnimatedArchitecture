@@ -31,6 +31,10 @@ public class Step implements IStep
     private final String messageKey;
 
     @ToString.Exclude
+    @Getter
+    private final @Nullable Runnable stepPreparation;
+
+    @ToString.Exclude
     private final List<Supplier<String>> messageVariablesRetrievers;
 
     @ToString.Exclude
@@ -82,6 +86,7 @@ public class Step implements IStep
         private @Nullable StepExecutor stepExecutor = null;
         private @Nullable List<Supplier<String>> messageVariablesRetrievers = null;
         private @Nullable Supplier<List<String>> flatMessageVariablesRetrievers = null;
+        private @Nullable Runnable stepPreparation;
         private boolean waitForUserInput = true;
         private @Nullable String messageKey = null;
         private @Nullable Supplier<Boolean> skipCondition = null;
@@ -96,6 +101,12 @@ public class Step implements IStep
         public Factory implicitNextStep(boolean implicitNextStep)
         {
             this.implicitNextStep = implicitNextStep;
+            return this;
+        }
+
+        public Factory stepPreparation(Runnable prepareStep)
+        {
+            this.stepPreparation = prepareStep;
             return this;
         }
 
@@ -154,7 +165,7 @@ public class Step implements IStep
             if (flatMessageVariablesRetrievers == null)
                 flatMessageVariablesRetrievers = Collections::emptyList;
 
-            return new Step(localizer, name, stepExecutor, messageKey, messageVariablesRetrievers,
+            return new Step(localizer, name, stepExecutor, messageKey, stepPreparation, messageVariablesRetrievers,
                             flatMessageVariablesRetrievers, waitForUserInput, skipCondition, implicitNextStep);
         }
     }

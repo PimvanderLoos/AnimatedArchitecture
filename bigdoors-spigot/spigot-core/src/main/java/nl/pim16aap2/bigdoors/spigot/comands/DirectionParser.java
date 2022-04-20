@@ -32,8 +32,8 @@ public class DirectionParser implements ArgumentParser<ICommandSender, RotateDir
 {
     private final ToolUserManager toolUserManager;
     private final ILocalizer localizer;
-    private Map<String, RotateDirection> suggestions = new LinkedHashMap<>(RotateDirection.values().length);
-    private Map<RotateDirection, String> invertedSuggestions = new EnumMap<>(RotateDirection.class);
+    private final Map<String, RotateDirection> suggestions = new LinkedHashMap<>(RotateDirection.values().length);
+    private final Map<RotateDirection, String> invertedSuggestions = new EnumMap<>(RotateDirection.class);
 
     @Inject DirectionParser(ToolUserManager toolUserManager, ILocalizer localizer)
     {
@@ -48,7 +48,7 @@ public class DirectionParser implements ArgumentParser<ICommandSender, RotateDir
         {
             final String name = rotateDirection.name().toLowerCase(Locale.ROOT);
             final String localized = localizer.getMessage("constants.rotate_direction." + name);
-            suggestions.put(localized, rotateDirection);
+            suggestions.put(localized.toLowerCase(Locale.ROOT), rotateDirection);
             invertedSuggestions.put(rotateDirection, localized);
         }
     }
@@ -74,9 +74,8 @@ public class DirectionParser implements ArgumentParser<ICommandSender, RotateDir
     {
         final Stream<String> suggestionsStream =
             Objects.requireNonNullElseGet(tryRetrieveGuidedSuggestions(commandContext),
-                                          () -> suggestions.keySet().stream());
-
-        return suggestionsStream.filter(val -> input.toLowerCase(Locale.ROOT).startsWith(val)).toList();
+                                          () -> invertedSuggestions.values().stream());
+        return suggestionsStream.filter(val -> val.startsWith(input.toLowerCase(Locale.ROOT))).toList();
     }
 
     private @Nullable Stream<String> tryRetrieveGuidedSuggestions(
@@ -90,8 +89,7 @@ public class DirectionParser implements ArgumentParser<ICommandSender, RotateDir
         if (!(toolUser instanceof Creator creator))
             return null;
 
-        return creator.getValidOpenDirections().stream()
-                      .map(dir -> dir.name().toLowerCase(Locale.ROOT));
+        return creator.getValidOpenDirections().stream().map(invertedSuggestions::get);
     }
 }
 

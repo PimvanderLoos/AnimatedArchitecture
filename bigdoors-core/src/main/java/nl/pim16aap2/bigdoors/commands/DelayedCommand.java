@@ -3,15 +3,18 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
+import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.delayedinput.DelayedInputRequest;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
+import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 
 /**
@@ -46,6 +49,35 @@ public abstract class DelayedCommand<T>
         this.commandFactory = context.commandFactoryProvider;
         this.inputRequestFactory = inputRequestFactory;
         this.delayedInputClz = delayedInputClz;
+    }
+
+    /**
+     * Starts the (new) {@link DelayedInputRequest} for this delayed command.
+     * <p>
+     * The {@link DelayedCommandInputRequest} will be used to retrieve the values that are required to execute the
+     * command. The player will be asked to use the command (again, if needed) to supply the missing data.
+     * <p>
+     * These missing data can be supplied using {@link #provideDelayedInput(ICommandSender, T)}. Once the data are
+     * supplied, the command will be executed.
+     *
+     * @param commandSender
+     *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
+     *     execution.
+     * @param creator
+     *     A {@link Creator} that will wait for the input.
+     */
+    public CompletableFuture<Boolean> runDelayed(
+        ICommandSender commandSender, Creator creator, Function<T, CompletableFuture<Boolean>> executor,
+        @Nullable Supplier<String> initMessageSupplier)
+    {
+        log.at(Level.FINEST)
+           .log("Creating delayed command for command '%s' with command sender: '%s' for Creator: %s",
+                getCommandDefinition(), commandSender, creator);
+
+        final int commandTimeout = Constants.COMMAND_WAITER_TIMEOUT;
+        return inputRequestFactory.create(commandTimeout, commandSender, getCommandDefinition(),
+                                          wrapExecutor(commandSender, executor), initMessageSupplier, delayedInputClz)
+                                  .getCommandOutput();
     }
 
     /**
@@ -97,6 +129,26 @@ public abstract class DelayedCommand<T>
         };
     }
 
+    private Function<T, CompletableFuture<Boolean>> wrapExecutor(
+        ICommandSender commandSender, Function<T, CompletableFuture<Boolean>> executor)
+    {
+        return delayedInput ->
+        {
+            try
+            {
+                return executor.apply(delayedInput);
+            }
+            catch (Exception e)
+            {
+                log.at(Level.SEVERE).withCause(e)
+                   .log("Delayed command '%s' failed to provide data for command sender '%s' with input '%s'",
+                        this, commandSender, delayedInput);
+                e.printStackTrace();
+                return CompletableFuture.completedFuture(false);
+            }
+        };
+    }
+
     /**
      * Provides the delayed input if there is currently an active {@link DelayedCommandInputRequest} for the
      * {@link ICommandSender}. After processing the input, the new command will be executed immediately.
@@ -109,7 +161,7 @@ public abstract class DelayedCommand<T>
      *     fulfilled.
      * @param data
      *     The data specified by the user.
-     * @return See {@link BaseCommand#run()}.
+     * @return See {@link Creator#handleInput(Object)}.
      */
     public CompletableFuture<Boolean> provideDelayedInput(ICommandSender commandSender, T data)
     {
@@ -162,7 +214,7 @@ public abstract class DelayedCommand<T>
      */
     protected abstract String inputRequestMessage(ICommandSender commandSender, DoorRetriever doorRetriever);
 
-    static final class Context
+    public static final class Context
     {
         private final DelayedCommandInputManager delayedCommandInputManager;
         private final ILocalizer localizer;

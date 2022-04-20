@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.api.IEconomyManager;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorBaseBuilder;
@@ -37,6 +38,7 @@ import java.util.Locale;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 /**
@@ -55,6 +57,8 @@ public abstract class Creator extends ToolUser
     protected final DatabaseManager databaseManager;
 
     protected final IEconomyManager economyManager;
+
+    protected final CommandFactory commandFactory;
 
     /**
      * The name of the door that is to be created.
@@ -179,6 +183,7 @@ public abstract class Creator extends ToolUser
         doorBaseBuilder = context.getDoorBaseBuilder();
         databaseManager = context.getDatabaseManager();
         economyManager = context.getEconomyManager();
+        commandFactory = context.getCommandFactory();
 
         player.sendMessage(localizer.getMessage("creator.base.init"));
 
@@ -216,6 +221,7 @@ public abstract class Creator extends ToolUser
         factorySetOpenDir =
             new Step.Factory(localizer, "SET_OPEN_DIRECTION")
                 .stepExecutor(new StepExecutorOpenDirection(this::completeSetOpenDirStep))
+                .stepPreparation(this::prepareSetOpenDirection)
                 .messageKey("creator.base.set_open_dir")
                 .messageVariableRetrievers(
                     () -> getValidOpenDirections().stream()
@@ -234,6 +240,15 @@ public abstract class Creator extends ToolUser
             new Step.Factory(localizer, "COMPLETE_CREATION_PROCESS")
                 .stepExecutor(new StepExecutorVoid(this::completeCreationProcess))
                 .waitForUserInput(false);
+    }
+
+    /**
+     * Prepares the step that sets the open direction.
+     */
+    protected void prepareSetOpenDirection()
+    {
+        commandFactory.getSetOpenDirectionDelayed().runDelayed(getPlayer(), this, direction ->
+            CompletableFuture.completedFuture(handleInput(direction)), null);
     }
 
     /**
@@ -405,6 +420,7 @@ public abstract class Creator extends ToolUser
         if (!getValidOpenDirections().contains(direction))
         {
             getPlayer().sendMessage(localizer.getMessage("creator.base.error.invalid_option", direction.name()));
+            prepareSetOpenDirection();
             return false;
         }
         openDir = direction;
@@ -544,10 +560,9 @@ public abstract class Creator extends ToolUser
         if (distanceLimit.isPresent() &&
             (distance = cuboid.getCenter().getDistance(pos)) > distanceLimit.getAsInt())
         {
-            getPlayer().sendMessage(localizer
-                                        .getMessage("creator.base.error.powerblock_too_far",
-                                                    DECIMAL_FORMAT.format(distance),
-                                                    Integer.toString(distanceLimit.getAsInt())));
+            getPlayer().sendMessage(localizer.getMessage("creator.base.error.powerblock_too_far",
+                                                         DECIMAL_FORMAT.format(distance),
+                                                         Integer.toString(distanceLimit.getAsInt())));
             return false;
         }
 

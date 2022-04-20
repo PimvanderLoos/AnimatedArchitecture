@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -51,6 +52,41 @@ class CreatorFullTest extends CreatorTestsUtil
                      UnitTestUtil.getLocation(powerblock, world),
                      openDirection,
                      true);
+    }
+
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
+    @Test
+    void delayedOpenDirectionInput()
+    {
+        rotationPoint = new Cuboid(min, max).getCenterBlock();
+        openDirection = RotateDirection.NORTH;
+
+        doorType = Mockito.mock(DoorType.class);
+        Mockito.when(doorType.getValidOpenDirections())
+               .thenReturn(EnumSet.of(RotateDirection.NORTH, RotateDirection.SOUTH));
+
+        final var door = Mockito.mock(AbstractDoor.class);
+        Mockito.when(door.getDoorType()).thenReturn(doorType);
+
+        final var creator = new CreatorTestImpl(context, player, door);
+
+        setEconomyEnabled(true);
+        setEconomyPrice(12.34);
+        setBuyDoor(true);
+
+        applySteps(creator,
+                   doorName,
+                   UnitTestUtil.getLocation(min, world),
+                   UnitTestUtil.getLocation(max, world),
+                   UnitTestUtil.getLocation(rotationPoint, world),
+                   UnitTestUtil.getLocation(powerblock, world));
+
+        Assertions.assertFalse(delayedCommandInputManager.getInputRequest(player).get()
+                                                         .provide(RotateDirection.EAST).join());
+        Assertions.assertTrue(delayedCommandInputManager.getInputRequest(player).get()
+                                                        .provide(openDirection).join());
+
+        testCreation(creator, door, true);
     }
 
     private static class CreatorTestImpl extends Creator

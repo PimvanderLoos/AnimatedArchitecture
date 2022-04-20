@@ -10,7 +10,6 @@ import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -24,11 +23,10 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class ListDoors extends BaseCommand
 {
-    private final @Nullable DoorRetriever doorRetriever;
+    private final DoorRetriever doorRetriever;
 
     @AssistedInject //
-    ListDoors(
-        @Assisted ICommandSender commandSender, ILocalizer localizer, @Nullable @Assisted DoorRetriever doorRetriever)
+    ListDoors(@Assisted ICommandSender commandSender, ILocalizer localizer, @Assisted DoorRetriever doorRetriever)
     {
         super(commandSender, localizer);
         this.doorRetriever = doorRetriever;
@@ -81,11 +79,6 @@ public class ListDoors extends BaseCommand
          *     A {@link DoorRetrieverFactory} representing any number of {@link DoorBase}s.
          * @return See {@link BaseCommand#run()}.
          */
-        ListDoors newListDoors(ICommandSender commandSender, @Nullable DoorRetriever doorRetriever);
-
-        default ListDoors newListDoors(ICommandSender commandSender)
-        {
-            return newListDoors(commandSender, null);
-        }
+        ListDoors newListDoors(ICommandSender commandSender, DoorRetriever doorRetriever);
     }
 }

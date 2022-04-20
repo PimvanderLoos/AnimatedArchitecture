@@ -13,6 +13,7 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.delayedinput.DelayedInputRequest;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
@@ -63,7 +64,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      */
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private final Supplier<String> initMessageSupplier;
+    private final @Nullable Supplier<String> initMessageSupplier;
 
     /**
      * The class of the input object that is expected.
@@ -103,7 +104,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
         @Assisted ICommandSender commandSender,
         @Assisted CommandDefinition commandDefinition,
         @Assisted Function<T, CompletableFuture<Boolean>> executor,
-        @Assisted Supplier<String> initMessageSupplier,
+        @Assisted @Nullable Supplier<String> initMessageSupplier,
         @Assisted Class<T> inputClass,
         ILocalizer localizer,
         DelayedCommandInputManager delayedCommandInputManager)
@@ -123,8 +124,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     private void init()
     {
         delayedCommandInputManager.register(commandSender, this);
-        final var initMessage = initMessageSupplier.get();
-        //noinspection ConstantConditions
+        final @Nullable String initMessage = initMessageSupplier == null ? null : initMessageSupplier.get();
         if (initMessage != null && !initMessage.isBlank())
             commandSender.sendMessage(initMessage);
     }
@@ -146,7 +146,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      *     The input object to provide.
      * @return When the input is of the correct type, {@link #commandOutput} is returned, otherwise false.
      */
-    CompletableFuture<Boolean> provide(Object input)
+    public CompletableFuture<Boolean> provide(Object input)
     {
         if (!inputClass.isInstance(input))
         {
@@ -186,7 +186,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     {
         DelayedCommandInputRequest<T> create(
             long timeout, ICommandSender commandSender, CommandDefinition commandDefinition,
-            Function<T, CompletableFuture<Boolean>> executor, Supplier<String> initMessageSupplier,
+            Function<T, CompletableFuture<Boolean>> executor, @Nullable Supplier<String> initMessageSupplier,
             Class<T> inputClass);
     }
 }

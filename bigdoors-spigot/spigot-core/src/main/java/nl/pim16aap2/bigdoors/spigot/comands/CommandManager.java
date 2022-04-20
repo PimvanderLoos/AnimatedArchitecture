@@ -16,12 +16,10 @@ import cloud.commandframework.paper.PaperCommandManager;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.format.NamedTextColor;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.commands.ICommandSender;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PPlayerSpigot;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -34,6 +32,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import static net.kyori.adventure.text.Component.text;
@@ -45,30 +44,24 @@ public final class CommandManager
     private final ILocalizer localizer;
     private final CommandFactory commandFactory;
     private final DoorRetrieverFactory doorRetrieverFactory;
-    private final DoorTypeManager doorTypeManager;
     private volatile @Nullable BukkitCommandManager<ICommandSender> manager;
     private boolean asyncCompletions = false;
-    private @Nullable BukkitAudiences bukkitAudiences;
-    private @Nullable MinecraftHelp<ICommandSender> minecraftHelp;
-    private @Nullable CommandConfirmationManager<ICommandSender> confirmationManager;
-    private final RestartableHolder restartableHolder;
+    private final BukkitAudiences bukkitAudiences;
     private final DoorTypeParser doorTypeParser;
     private final DirectionParser directionParser;
 
     @Inject//
     CommandManager(
         JavaPlugin plugin, ILocalizer localizer, CommandFactory commandFactory,
-        DoorRetrieverFactory doorRetrieverFactory, DoorTypeManager doorTypeManager,
-        RestartableHolder restartableHolder, DoorTypeParser doorTypeParser, DirectionParser directionParser)
+        DoorRetrieverFactory doorRetrieverFactory, DoorTypeParser doorTypeParser, DirectionParser directionParser)
     {
         this.plugin = plugin;
         this.localizer = localizer;
         this.commandFactory = commandFactory;
         this.doorRetrieverFactory = doorRetrieverFactory;
-        this.doorTypeManager = doorTypeManager;
-        this.restartableHolder = restartableHolder;
         this.doorTypeParser = doorTypeParser;
         this.directionParser = directionParser;
+        this.bukkitAudiences = BukkitAudiences.create(plugin);
     }
 
     // IntelliJ struggles to understand that the manager cannot be null.
@@ -80,12 +73,6 @@ public final class CommandManager
             throw new IllegalStateException("Trying to instantiate Cloud manage again!");
         manager = Util.requireNonNull(newManager(), "Cloud manager");
 
-        this.bukkitAudiences = BukkitAudiences.create(plugin);
-        this.minecraftHelp = new MinecraftHelp<>(
-            "/bigdoors help",
-            sender -> this.bukkitAudiences.sender(SpigotAdapter.unwrapCommandSender(sender)),
-            manager
-        );
         if (manager.queryCapability(CloudBukkitCapabilities.BRIGADIER))
             manager.registerBrigadier();
 
@@ -95,14 +82,14 @@ public final class CommandManager
             asyncCompletions = true;
         }
 
-        this.confirmationManager = new CommandConfirmationManager<>(
+        final CommandConfirmationManager<ICommandSender> confirmationManager = new CommandConfirmationManager<>(
             30L, TimeUnit.SECONDS,
             context -> context.getCommandContext().getSender().sendMessage(
                 ChatColor.RED + "Confirmation required. Confirm using /bigdoors confirm."),
             sender -> sender.sendMessage(ChatColor.RED + "You don't have any pending commands.")
         );
 
-        this.confirmationManager.registerConfirmationProcessor(this.manager);
+        confirmationManager.registerConfirmationProcessor(this.manager);
 
         new MinecraftExceptionHandler<ICommandSender>()
             .withInvalidSyntaxHandler()
@@ -125,6 +112,7 @@ public final class CommandManager
     {
         final Command.Builder<ICommandSender> builder = manager.commandBuilder("bigdoors");
 
+        initCmdHelp(manager, builder);
         initCmdAddOwner(manager, builder);
         initCmdCancel(manager, builder);
         initCmdConfirm(manager, builder);
@@ -149,6 +137,24 @@ public final class CommandManager
         initCmdVersion(manager, builder);
 
         builder.build();
+    }
+
+    private void initCmdHelp(
+        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+    {
+        final MinecraftHelp<ICommandSender> minecraftHelp = new MinecraftHelp<>(
+            "/bigdoors help",
+            sender -> this.bukkitAudiences.sender(SpigotAdapter.unwrapCommandSender(sender)),
+            manager
+        );
+
+        manager.command(
+            builder.literal("help")
+                   .argument(StringArgument.optional("query", StringArgument.StringMode.GREEDY))
+                   .handler(context ->
+                                minecraftHelp.queryCommands(Objects.requireNonNull(context.getOrDefault("query", "")),
+                                                            context.getSender()))
+        );
     }
 
     private void initCmdAddOwner(
@@ -238,8 +244,10 @@ public final class CommandManager
                    .handler(commandContext ->
                             {
                                 final @Nullable String doorName = commandContext.getOrDefault("doorName", null);
-                                final @Nullable DoorRetriever retriever =
-                                    doorName == null ? null : doorRetrieverFactory.of(doorName);
+                                if (doorName == null)
+                                    throw new UnsupportedOperationException("Not implemented!"); // TODO: Implement this
+
+                                final DoorRetriever retriever = doorRetrieverFactory.of(doorName);
                                 commandFactory.newListDoors(commandContext.getSender(), retriever).run();
                             })
         );
@@ -261,9 +269,11 @@ public final class CommandManager
                    .argument(PlayerArgument.<ICommandSender>newBuilder("targetPlayer").asOptional())
                    .handler(commandContext ->
                             {
-                                final @Nullable IPPlayer targetPlayer =
+                                final IPPlayer targetPlayer =
                                     commandContext.contains("targetPlayer") ?
-                                    new PPlayerSpigot(commandContext.get("targetPlayer")) : null;
+                                    new PPlayerSpigot(commandContext.get("targetPlayer")) :
+                                    commandContext.getSender().getPlayer()
+                                                  .orElseThrow(IllegalArgumentException::new);
                                 commandFactory.newMenu(commandContext.getSender(), targetPlayer).run();
                             })
         );
@@ -362,10 +372,10 @@ public final class CommandManager
             builder.literal("setopendirection")
                    .meta(CommandMeta.DESCRIPTION, localizer.getMessage("commands.set_open_direction.description"))
                    .permission("bigdoors.user.base")
-                   .argument(new DoorArgument(false, "door", "", null, ArgumentDescription.empty(), asyncCompletions,
-                                              doorRetrieverFactory, 1))
                    .argument(new DirectionArgument(true, "direction", "", null,
                                                    ArgumentDescription.empty(), directionParser))
+                   .argument(new DoorArgument(false, "door", "", null, ArgumentDescription.empty(), asyncCompletions,
+                                              doorRetrieverFactory, 1))
                    .handler(commandContext ->
                             {
                                 final RotateDirection direction = commandContext.get("direction");

@@ -10,7 +10,7 @@ import java.util.concurrent.CompletableFuture;
 @Singleton
 public class SetOpenDirectionDelayed extends DelayedCommand<RotateDirection>
 {
-    @Inject SetOpenDirectionDelayed(
+    @Inject public SetOpenDirectionDelayed(
         Context context, DelayedCommandInputRequest.IFactory<RotateDirection> inputRequestFactory)
     {
         super(context, inputRequestFactory, RotateDirection.class);

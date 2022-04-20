@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.tooluser.step;
 
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutor;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -33,6 +34,11 @@ public interface IStep
     boolean waitForUserInput();
 
     /**
+     * @return The action to be taken to prepare this step, if any.
+     */
+    @Nullable Runnable getStepPreparation();
+
+    /**
      * Gets the {@link StepExecutor} for the current step.
      *
      * @return The {@link StepExecutor} for the current step.
@@ -47,8 +53,8 @@ public interface IStep
     boolean skip();
 
     /**
-     * Checks if this step should 'automatically' proceed to the next step if the result of running the {@link
-     * #getStepExecutor()} is true.
+     * Checks if this step should 'automatically' proceed to the next step if the result of running the
+     * {@link #getStepExecutor()} is true.
      * <p>
      * See {@link StepExecutor#apply(Object)}.
      *

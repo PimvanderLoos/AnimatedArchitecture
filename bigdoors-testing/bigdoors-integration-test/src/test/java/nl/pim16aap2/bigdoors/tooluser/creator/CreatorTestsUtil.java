@@ -14,11 +14,16 @@ import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
+import nl.pim16aap2.bigdoors.commands.CommandFactory;
+import nl.pim16aap2.bigdoors.commands.DelayedCommand;
+import nl.pim16aap2.bigdoors.commands.DelayedCommandInputRequest;
+import nl.pim16aap2.bigdoors.commands.SetOpenDirectionDelayed;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorBaseBuilder;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
@@ -96,9 +101,15 @@ public class CreatorTestsUtil
     @Mock
     protected DebuggableRegistry debuggableRegistry;
 
+    @Mock
+    protected CommandFactory commandFactory;
+
     protected IPLocationFactory locationFactory = new TestPLocationFactory();
 
     protected ToolUser.Context context;
+
+    protected DelayedCommandInputManager delayedCommandInputManager =
+        new DelayedCommandInputManager(Mockito.mock(DebuggableRegistry.class));
 
     private AutoCloseable mocks;
 
@@ -143,7 +154,10 @@ public class CreatorTestsUtil
         doorBaseBuilder = new DoorBaseBuilder(doorBaseIFactory);
 
         context = new ToolUser.Context(doorBaseBuilder, localizer, toolUserManager, databaseManager,
-                                       limitsManager, economyManager, protectionCompatManager, bigDoorsToolUtil);
+                                       limitsManager, economyManager, protectionCompatManager, bigDoorsToolUtil,
+                                       commandFactory);
+
+        initCommands();
 
         initPlayer();
 
@@ -167,6 +181,22 @@ public class CreatorTestsUtil
         Mockito.when(configLoader.maxDoorCount()).thenReturn(OptionalInt.empty());
         Mockito.when(configLoader.maxPowerBlockDistance()).thenReturn(OptionalInt.empty());
         Mockito.when(configLoader.maxBlocksToMove()).thenReturn(OptionalInt.empty());
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private void initCommands()
+        throws NoSuchMethodException
+    {
+        final AssistedFactoryMocker<DelayedCommandInputRequest, DelayedCommandInputRequest.IFactory> assistedFactory =
+            new AssistedFactoryMocker<>(DelayedCommandInputRequest.class, DelayedCommandInputRequest.IFactory.class)
+                .setMock(ILocalizer.class, localizer)
+                .setMock(DelayedCommandInputManager.class, delayedCommandInputManager);
+
+        final var commandContext = new DelayedCommand.Context(delayedCommandInputManager, localizer,
+                                                              () -> commandFactory);
+        final SetOpenDirectionDelayed setOpenDirectionDelayed =
+            new SetOpenDirectionDelayed(commandContext, assistedFactory.getFactory());
+        Mockito.when(commandFactory.getSetOpenDirectionDelayed()).thenReturn(setOpenDirectionDelayed);
     }
 
     @AfterEach
@@ -204,8 +234,7 @@ public class CreatorTestsUtil
                               .build();
     }
 
-    @SneakyThrows
-    public void testCreation(Creator creator, AbstractDoor actualDoor, Object... input)
+    public void applySteps(Creator creator, Object... input)
     {
         for (int idx = 0; idx < input.length; ++idx)
         {
@@ -216,7 +245,12 @@ public class CreatorTestsUtil
             Assertions.assertTrue(creator.handleInput(obj),
                                   String.format("IDX: %d, Input: %s, Step: %s", idx, obj, stepName));
         }
+    }
 
+    @SneakyThrows
+    public void testCreation(Creator creator, AbstractDoor actualDoor, Object... input)
+    {
+        applySteps(creator, input);
         Mockito.verify(creator.getPlayer(), Mockito.never()).sendMessage("Door creation was cancelled!");
         Mockito.verify(databaseManager).addDoor(actualDoor, player);
     }
