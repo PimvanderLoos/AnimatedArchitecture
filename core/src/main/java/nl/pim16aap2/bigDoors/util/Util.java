@@ -549,7 +549,7 @@ public final class Util
         if (xmat.equals(XMaterial.LIGHTNING_ROD) || xmat.equals(XMaterial.REDSTONE_WIRE) ||
             mat.toString().endsWith("BUTTON") || xmat.equals(XMaterial.REPEATER) ||
             mat.toString().endsWith("RAIL") || xmat.equals(XMaterial.TRIPWIRE_HOOK) ||
-            mat.toString().endsWith("_DOOR") || mat.toString().endsWith("_HEAD") ||
+            mat.toString().endsWith("DOOR") || mat.toString().endsWith("_HEAD") ||
             mat.toString().endsWith("_SIGN") || mat.toString().endsWith("_BANNER") ||
             xmat.equals(XMaterial.WALL_TORCH) || xmat.equals(XMaterial.SOUL_WALL_TORCH) ||
             xmat.equals(XMaterial.REDSTONE_WALL_TORCH) || xmat.equals(XMaterial.VINE) ||
@@ -586,6 +586,9 @@ public final class Util
 
         if (name.contains("POLISHED") || name.contains("SMOOTH") || name.contains("BRICKS") || name.contains("DEEPSLATE"))
             return true;
+
+        if (name.endsWith("TRAPDOOR"))
+            return BigDoors.getMCVersion().isAtLeast(BigDoors.MCVersion.v1_18);
 
         if (name.endsWith("BANNER") || name.endsWith("SHULKER_BOX") || name.endsWith("DOOR") ||
             name.endsWith("BED") || name.endsWith("SIGN") || name.endsWith("HEAD") || name.endsWith("SKULL"))
