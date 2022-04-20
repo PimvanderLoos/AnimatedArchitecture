@@ -16,9 +16,10 @@ import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 
 @Flogger
@@ -31,14 +32,14 @@ public class CreatorClock extends Creator
     /**
      * The valid open directions when the door is positioned along the north/south axis.
      */
-    private static final List<RotateDirection> NORTH_SOUTH_AXIS_OPEN_DIRS = new ArrayList<>(
-        Arrays.asList(RotateDirection.EAST, RotateDirection.WEST));
+    private static final Set<RotateDirection> NORTH_SOUTH_AXIS_OPEN_DIRS =
+        EnumSet.of(RotateDirection.EAST, RotateDirection.WEST);
 
     /**
      * The valid open directions when the door is positioned along the east/west axis.
      */
-    private static final List<RotateDirection> EAST_WEST_AXIS_OPEN_DIRS = new ArrayList<>(
-        Arrays.asList(RotateDirection.NORTH, RotateDirection.SOUTH));
+    private static final Set<RotateDirection> EAST_WEST_AXIS_OPEN_DIRS =
+        EnumSet.of(RotateDirection.NORTH, RotateDirection.SOUTH);
 
     private boolean northSouthAligned;
 
@@ -147,7 +148,7 @@ public class CreatorClock extends Creator
     }
 
     @Override
-    public List<RotateDirection> getValidOpenDirections()
+    public Set<RotateDirection> getValidOpenDirections()
     {
         if (isOpen)
             return getDoorType().getValidOpenDirections();

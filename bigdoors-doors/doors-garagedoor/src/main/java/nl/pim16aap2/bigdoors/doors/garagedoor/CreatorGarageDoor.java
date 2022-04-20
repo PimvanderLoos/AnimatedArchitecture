@@ -12,9 +12,10 @@ import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 public class CreatorGarageDoor extends Creator
 {
@@ -23,14 +24,14 @@ public class CreatorGarageDoor extends Creator
     /**
      * The valid open directions when the door is positioned along the north/south axis.
      */
-    private static final List<RotateDirection> NORTH_SOUTH_AXIS_OPEN_DIRS = new ArrayList<>(
-        Arrays.asList(RotateDirection.EAST, RotateDirection.WEST));
+    private static final Set<RotateDirection> NORTH_SOUTH_AXIS_OPEN_DIRS =
+        EnumSet.of(RotateDirection.EAST, RotateDirection.WEST);
 
     /**
      * The valid open directions when the door is positioned along the east/west axis.
      */
-    private static final List<RotateDirection> EAST_WEST_AXIS_OPEN_DIRS = new ArrayList<>(
-        Arrays.asList(RotateDirection.NORTH, RotateDirection.SOUTH));
+    private static final Set<RotateDirection> EAST_WEST_AXIS_OPEN_DIRS =
+        EnumSet.of(RotateDirection.NORTH, RotateDirection.SOUTH);
 
     private boolean northSouthAligned;
 
@@ -80,7 +81,7 @@ public class CreatorGarageDoor extends Creator
     }
 
     @Override
-    public List<RotateDirection> getValidOpenDirections()
+    public Set<RotateDirection> getValidOpenDirections()
     {
         if (isOpen)
             return getDoorType().getValidOpenDirections();
@@ -95,9 +96,9 @@ public class CreatorGarageDoor extends Creator
     }
 
     @Override
-    protected boolean completeSetOpenDirStep(String str)
+    protected boolean completeSetOpenDirStep(RotateDirection direction)
     {
-        if (super.completeSetOpenDirStep(str))
+        if (super.completeSetOpenDirStep(direction))
         {
             // This may seem counter-intuitive, but if it's positioned along the north/south axis,
             // then it can only open in east/west direction, because there isn't any space in the other

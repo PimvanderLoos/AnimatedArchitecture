@@ -33,6 +33,9 @@ public class Step implements IStep
     @ToString.Exclude
     private final List<Supplier<String>> messageVariablesRetrievers;
 
+    @ToString.Exclude
+    private final Supplier<List<String>> flatMessageVariablesRetrievers;
+
     private final boolean waitForUserInput;
 
     @ToString.Exclude
@@ -64,6 +67,7 @@ public class Step implements IStep
     {
         final List<String> variables = new ArrayList<>(messageVariablesRetrievers.size());
         messageVariablesRetrievers.forEach(fun -> variables.add(fun.get()));
+        variables.addAll(flatMessageVariablesRetrievers.get());
 
         Object[] variablesArr = new String[variables.size()];
         variablesArr = variables.toArray(variablesArr);
@@ -77,6 +81,7 @@ public class Step implements IStep
         private final String name;
         private @Nullable StepExecutor stepExecutor = null;
         private @Nullable List<Supplier<String>> messageVariablesRetrievers = null;
+        private @Nullable Supplier<List<String>> flatMessageVariablesRetrievers = null;
         private boolean waitForUserInput = true;
         private @Nullable String messageKey = null;
         private @Nullable Supplier<Boolean> skipCondition = null;
@@ -112,6 +117,12 @@ public class Step implements IStep
             return this;
         }
 
+        public Factory messageVariableRetrievers(Supplier<List<String>> messageVariablesRetrievers)
+        {
+            flatMessageVariablesRetrievers = messageVariablesRetrievers;
+            return this;
+        }
+
         public Factory skipCondition(Supplier<Boolean> skipCondition)
         {
             this.skipCondition = skipCondition;
@@ -140,9 +151,11 @@ public class Step implements IStep
 
             if (messageVariablesRetrievers == null)
                 messageVariablesRetrievers = Collections.emptyList();
+            if (flatMessageVariablesRetrievers == null)
+                flatMessageVariablesRetrievers = Collections::emptyList;
 
             return new Step(localizer, name, stepExecutor, messageKey, messageVariablesRetrievers,
-                            waitForUserInput, skipCondition, implicitNextStep);
+                            flatMessageVariablesRetrievers, waitForUserInput, skipCondition, implicitNextStep);
         }
     }
 }

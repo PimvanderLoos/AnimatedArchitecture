@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 
 /**
@@ -27,11 +28,11 @@ class CreatorFullTest extends CreatorTestsUtil
     void runThroughProcess()
     {
         rotationPoint = new Cuboid(min, max).getCenterBlock();
-        openDirection = RotateDirection.UP;
+        openDirection = RotateDirection.NORTH;
 
         doorType = Mockito.mock(DoorType.class);
         Mockito.when(doorType.getValidOpenDirections())
-               .thenReturn(Arrays.asList(RotateDirection.NORTH, RotateDirection.SOUTH));
+               .thenReturn(EnumSet.of(RotateDirection.NORTH, RotateDirection.SOUTH));
 
         final var door = Mockito.mock(AbstractDoor.class);
         Mockito.when(door.getDoorType()).thenReturn(doorType);
@@ -48,7 +49,7 @@ class CreatorFullTest extends CreatorTestsUtil
                      UnitTestUtil.getLocation(max, world),
                      UnitTestUtil.getLocation(rotationPoint, world),
                      UnitTestUtil.getLocation(powerblock, world),
-                     "0",
+                     openDirection,
                      true);
     }
 

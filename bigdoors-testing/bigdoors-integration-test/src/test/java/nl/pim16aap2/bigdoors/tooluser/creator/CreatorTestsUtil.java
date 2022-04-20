@@ -31,6 +31,7 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.testing.AssistedFactoryMocker;
 import org.jetbrains.annotations.Nullable;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Answers;
@@ -99,6 +100,8 @@ public class CreatorTestsUtil
 
     protected ToolUser.Context context;
 
+    private AutoCloseable mocks;
+
     private void initPlayer()
     {
         final var uuid = UUID.fromString("f373bb8d-dd2d-496e-a9c5-f9a0c45b2db5");
@@ -126,7 +129,7 @@ public class CreatorTestsUtil
     @SneakyThrows
     protected void beforeEach()
     {
-        MockitoAnnotations.openMocks(this);
+        mocks = MockitoAnnotations.openMocks(this);
 
         localizer = UnitTestUtil.initLocalizer();
         limitsManager = new LimitsManager(permissionsManager, configLoader);
@@ -153,10 +156,10 @@ public class CreatorTestsUtil
             (Answer<CompletableFuture<Optional<AbstractDoor>>>) invocation ->
                 CompletableFuture.completedFuture(Optional.of((AbstractDoor) invocation.getArguments()[0])));
 
-//        Mockito.when(databaseManager.addDoor(ArgumentMatchers.any(AbstractDoor.class), Mockito.any(IPPlayer.class)))
-//               .thenAnswer((Answer<CompletableFuture<DatabaseManager.DoorInsertResult>>) invocation ->
-//                   CompletableFuture.completedFuture(new DatabaseManager.DoorInsertResult(
-//                       Optional.of(invocation.getArgument(0, AbstractDoor.class)), false)));
+        Mockito.when(databaseManager.addDoor(ArgumentMatchers.any(AbstractDoor.class), Mockito.any(IPPlayer.class)))
+               .thenAnswer((Answer<CompletableFuture<DatabaseManager.DoorInsertResult>>) invocation ->
+                   CompletableFuture.completedFuture(new DatabaseManager.DoorInsertResult(
+                       Optional.of(invocation.getArgument(0, AbstractDoor.class)), false)));
 
         Mockito.when(permissionsManager.hasPermission(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(true);
 
@@ -164,6 +167,13 @@ public class CreatorTestsUtil
         Mockito.when(configLoader.maxDoorCount()).thenReturn(OptionalInt.empty());
         Mockito.when(configLoader.maxPowerBlockDistance()).thenReturn(OptionalInt.empty());
         Mockito.when(configLoader.maxBlocksToMove()).thenReturn(OptionalInt.empty());
+    }
+
+    @AfterEach
+    void cleanup()
+        throws Exception
+    {
+        mocks.close();
     }
 
     protected void setEconomyEnabled(boolean status)

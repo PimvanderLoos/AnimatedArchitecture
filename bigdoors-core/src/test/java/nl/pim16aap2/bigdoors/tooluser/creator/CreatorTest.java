@@ -27,11 +27,11 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.List;
+import java.util.EnumSet;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
+import java.util.Set;
 
 import static nl.pim16aap2.bigdoors.UnitTestUtil.*;
 
@@ -208,22 +208,20 @@ class CreatorTest
     void testOpenDirectionStep()
     {
         final DoorType doorType = Mockito.mock(DoorType.class);
-        final List<RotateDirection> validOpenDirections = Arrays.asList(RotateDirection.EAST, RotateDirection.WEST);
+        final Set<RotateDirection> validOpenDirections = EnumSet.of(RotateDirection.EAST, RotateDirection.WEST);
         Mockito.when(doorType.getValidOpenDirections()).thenReturn(validOpenDirections);
 
         Mockito.when(creator.getDoorType()).thenReturn(doorType);
 
-        Assertions.assertFalse(creator.completeSetOpenDirStep("-1"));
-        Assertions.assertTrue(creator.completeSetOpenDirStep("0"));
-        Assertions.assertTrue(creator.completeSetOpenDirStep("1"));
-        Assertions.assertFalse(creator.completeSetOpenDirStep("2"));
-
-        Assertions.assertFalse(creator.completeSetOpenDirStep("NORTH"));
-        Assertions.assertTrue(creator.completeSetOpenDirStep("EAST"));
-        Assertions.assertFalse(creator.completeSetOpenDirStep("SOUTH"));
-        Assertions.assertTrue(creator.completeSetOpenDirStep("WEST"));
-
-        Assertions.assertFalse(creator.completeSetOpenDirStep(""));
+        Assertions.assertFalse(creator.completeSetOpenDirStep(RotateDirection.NONE));
+        Assertions.assertFalse(creator.completeSetOpenDirStep(RotateDirection.NORTH));
+        Assertions.assertTrue(creator.completeSetOpenDirStep(RotateDirection.EAST));
+        Assertions.assertFalse(creator.completeSetOpenDirStep(RotateDirection.SOUTH));
+        Assertions.assertTrue(creator.completeSetOpenDirStep(RotateDirection.WEST));
+        Assertions.assertFalse(creator.completeSetOpenDirStep(RotateDirection.CLOCKWISE));
+        Assertions.assertFalse(creator.completeSetOpenDirStep(RotateDirection.COUNTERCLOCKWISE));
+        Assertions.assertFalse(creator.completeSetOpenDirStep(RotateDirection.UP));
+        Assertions.assertFalse(creator.completeSetOpenDirStep(RotateDirection.DOWN));
     }
 
     @Test

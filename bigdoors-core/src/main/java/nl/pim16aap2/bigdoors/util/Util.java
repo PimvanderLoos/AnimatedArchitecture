@@ -77,6 +77,14 @@ public final class Util
      */
     private static final Pattern LOCALE_FILE_PATTERN = Pattern.compile("^[\\w-]+\\.properties");
 
+    /**
+     * A valid door name.
+     * <p>
+     * All letters "a-zA-Z" are allowed as well as "-" and '_'. Numbers are allowed as well, but only if there are
+     * non-number characters in the name as well. For example, '0_MyDoor-0' is allowed, but '0' is not.
+     */
+    private static final Pattern VALID_DOOR_NAME = Pattern.compile("^\\w*[a-zA-Z_-]+\\w*$");
+
     static
     {
         for (final var pbf : PBlockFace.values())
@@ -287,8 +295,8 @@ public final class Util
      *     The search predicate to use.
      * @param <T>
      *     The type of objects stored in the {@link Iterable}.
-     * @return The value in the {@link Iterable} object for which the search function returns true, otherwise {@link
-     * Optional#empty()}.
+     * @return The value in the {@link Iterable} object for which the search function returns true, otherwise
+     * {@link Optional#empty()}.
      */
     public <T> Optional<T> searchIterable(Iterable<T> iterable, Predicate<T> searchPred)
     {
@@ -319,8 +327,8 @@ public final class Util
      *
      * @param pBlockFace
      *     The {@link PBlockFace}.
-     * @return The {@link RotateDirection} equivalent of a {@link PBlockFace} if it exists and otherwise {@link
-     * RotateDirection#NONE}.
+     * @return The {@link RotateDirection} equivalent of a {@link PBlockFace} if it exists and otherwise
+     * {@link RotateDirection#NONE}.
      */
     public static RotateDirection getRotateDirection(PBlockFace pBlockFace)
     {
@@ -332,8 +340,8 @@ public final class Util
      *
      * @param rotateDirection
      *     The {@link RotateDirection}.
-     * @return The {@link PBlockFace} equivalent of a {@link RotateDirection} if it exists and otherwise {@link
-     * PBlockFace#NONE}.
+     * @return The {@link PBlockFace} equivalent of a {@link RotateDirection} if it exists and otherwise
+     * {@link PBlockFace#NONE}.
      */
     public static PBlockFace getPBlockFace(RotateDirection rotateDirection)
     {
@@ -441,7 +449,7 @@ public final class Util
         if (name == null || name.isBlank())
             return false;
 
-        return Util.parseLong(name).isEmpty() && Util.parseDouble(name).isEmpty();
+        return VALID_DOOR_NAME.matcher(name).matches();
     }
 
     /**

@@ -22,8 +22,10 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
@@ -49,8 +51,9 @@ public abstract class AbstractDoor implements IDoor
     protected final DoorOpeningHelper doorOpeningHelper;
 
 
-    protected AbstractDoor(DoorBase doorBase, ILocalizer localizer, DoorRegistry doorRegistry,
-                           AutoCloseScheduler autoCloseScheduler, DoorOpeningHelper doorOpeningHelper)
+    protected AbstractDoor(
+        DoorBase doorBase, ILocalizer localizer, DoorRegistry doorRegistry,
+        AutoCloseScheduler autoCloseScheduler, DoorOpeningHelper doorOpeningHelper)
     {
         serializer = getDoorType().getDoorSerializer();
         this.doorBase = doorBase;
@@ -123,9 +126,30 @@ public abstract class AbstractDoor implements IDoor
     @SuppressWarnings("unused")
     public RotateDirection cycleOpenDirection()
     {
-        final List<RotateDirection> validOpenDirections = getDoorType().getValidOpenDirections();
-        final int currentIdx = Math.max(0, validOpenDirections.indexOf(getOpenDir()));
-        return validOpenDirections.get((currentIdx + 1) % validOpenDirections.size());
+        final Set<RotateDirection> validOpenDirections = getDoorType().getValidOpenDirections();
+        final RotateDirection currentDir = getOpenDir();
+
+        @Nullable RotateDirection first = null;
+        final Iterator<RotateDirection> it = validOpenDirections.iterator();
+        while (it.hasNext())
+        {
+            final RotateDirection dir = it.next();
+            if (first == null)
+                first = dir;
+
+            if (dir != currentDir)
+                continue;
+
+            if (it.hasNext())
+                return it.next();
+            break;
+        }
+        if (first != null)
+            return first;
+        log.at(Level.FINE)
+           .log("Failed to cycle open direction for door of type '%s' with open dir '%s' given valid directions '%s'",
+                getDoorType(), currentDir, validOpenDirections);
+        return RotateDirection.NONE;
     }
 
     /**
@@ -151,14 +175,14 @@ public abstract class AbstractDoor implements IDoor
      *     The {@link BlockMover.Context} to run the block mover in.
      * @return The {@link BlockMover} for doorBase class.
      */
-    protected abstract BlockMover constructBlockMover(BlockMover.Context context, DoorActionCause cause, double time,
-                                                      boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
-                                                      DoorActionType actionType)
+    protected abstract BlockMover constructBlockMover(
+        BlockMover.Context context, DoorActionCause cause, double time, boolean skipAnimation, Cuboid newCuboid,
+        IPPlayer responsible, DoorActionType actionType)
         throws Exception;
 
     /**
-     * Attempts to toggle a door. Think twice before using doorBase method. Instead, please look at {@link
-     * DoorToggleRequestBuilder}.
+     * Attempts to toggle a door. Think twice before using doorBase method. Instead, please look at
+     * {@link DoorToggleRequestBuilder}.
      *
      * @param cause
      *     What caused doorBase action.
@@ -178,9 +202,9 @@ public abstract class AbstractDoor implements IDoor
      */
     // TODO: Simplify this method.
     @SuppressWarnings({"unused", "squid:S1172"}) // messageReceiver isn't used yet, but it will be.
-    final synchronized DoorToggleResult toggle(DoorActionCause cause, IMessageable messageReceiver,
-                                               IPPlayer responsible, double time, boolean skipAnimation,
-                                               DoorActionType actionType)
+    final synchronized DoorToggleResult toggle(
+        DoorActionCause cause, IMessageable messageReceiver, IPPlayer responsible, double time, boolean skipAnimation,
+        DoorActionType actionType)
     {
         if (!doorOpeningHelper.isMainThread())
         {

@@ -25,7 +25,6 @@ class CreatorPortcullisTest extends CreatorTestsUtil
     {
         rotationPoint = new Cuboid(min, max).getCenterBlock();
         openDirection = RotateDirection.UP;
-        String openDirectionName = "0";
 
         setEconomyEnabled(true);
         setEconomyPrice(12.34);
@@ -38,7 +37,7 @@ class CreatorPortcullisTest extends CreatorTestsUtil
                      min.toLocation(locationFactory, world),
                      max.toLocation(locationFactory, world),
                      powerblock.toLocation(locationFactory, world),
-                     openDirectionName,
+                     openDirection,
                      blocksToMove,
                      true);
     }
