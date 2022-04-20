@@ -8,11 +8,18 @@
 
     <parent>
         <groupId>nl.pim16aap2.bigdoors</groupId>
-        <artifactId>bigdoors-parent</artifactId>
+        <artifactId>bigdoors-testing</artifactId>
         <version>1</version>
     </parent>
 
     <dependencies>
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>bigdoors-integration-test-lib</artifactId>
+            <version>1</version>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>test-util</artifactId>
@@ -122,27 +129,44 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>${dependency.version.jacoco}</version>
-            </plugin>
-
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${dependency.version.maven-compiler}</version>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>${dependency.version.maven-jar}</version>
                 <configuration>
                     <classesDirectory>src</classesDirectory>
+                    <classifier>integration-test</classifier>
                     <excludes>
                         <exclude>**</exclude>
                     </excludes>
                 </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Do not install this module, as there's no output jar -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-install</id>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

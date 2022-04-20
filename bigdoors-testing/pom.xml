@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>bigdoors-testing</artifactId>
+    <packaging>pom</packaging>
+
+    <parent>
+        <artifactId>bigdoors-parent</artifactId>
+        <groupId>nl.pim16aap2.bigdoors</groupId>
+        <version>1</version>
+    </parent>
+
+    <modules>
+        <module>bigdoors-integration-test-lib</module>
+        <module>bigdoors-integration-test</module>
+    </modules>
+</project>

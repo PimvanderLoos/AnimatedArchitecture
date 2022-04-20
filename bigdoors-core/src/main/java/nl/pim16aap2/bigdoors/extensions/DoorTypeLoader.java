@@ -40,8 +40,8 @@ public final class DoorTypeLoader extends Restartable
     private boolean successfulInit;
 
     @Inject
-    public DoorTypeLoader(RestartableHolder holder, DoorTypeManager doorTypeManager,
-                          @Named("pluginBaseDirectory") Path dataDirectory)
+    public DoorTypeLoader(
+        RestartableHolder holder, DoorTypeManager doorTypeManager, @Named("pluginBaseDirectory") Path dataDirectory)
     {
         super(holder);
         this.doorTypeManager = doorTypeManager;
@@ -146,8 +146,8 @@ public final class DoorTypeLoader extends Restartable
     }
 
     /**
-     * Attempts to load and register all jars in the default directory, which is the base plugin directory + {@link
-     * Constants#BIGDOORS_EXTENSIONS_FOLDER_NAME}.
+     * Attempts to load and register all jars in the default directory, which is the base plugin directory +
+     * {@link Constants#BIGDOORS_EXTENSIONS_FOLDER_NAME}.
      * <p>
      * See also {@link #loadDoorTypesFromDirectory(Path)}.
      */

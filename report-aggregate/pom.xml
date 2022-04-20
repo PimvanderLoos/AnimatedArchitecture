@@ -100,12 +100,6 @@
             <artifactId>test-util</artifactId>
             <version>1</version>
         </dependency>
-
-        <dependency>
-            <groupId>nl.pim16aap2.bigdoors</groupId>
-            <artifactId>bigdoors-integration-test</artifactId>
-            <version>1</version>
-        </dependency>
     </dependencies>
 
     <build>
