@@ -29,6 +29,7 @@
         <dependency.version.mockito>4.4.0</dependency.version.mockito>
         <dependency.version.junit>5.8.2</dependency.version.junit>
         <dependency.version.surefire>3.0.0-M6</dependency.version.surefire>
+        <dependency.version.failsafe>3.0.0-M6</dependency.version.failsafe>
         <dependency.version.jacoco>0.8.8</dependency.version.jacoco>
         <dependency.version.maven-build-helper>3.3.0</dependency.version.maven-build-helper>
         <dependency.version.maven-compiler>3.10.1</dependency.version.maven-compiler>
@@ -53,9 +54,9 @@
         <module>bigdoors-core</module>
         <module>bigdoors-spigot</module>
         <module>bigdoors-doors</module>
-        <module>bigdoors-integration-test</module>
         <module>utilities</module>
         <module>report-aggregate</module>
+        <module>bigdoors-testing</module>
     </modules>
 
     <repositories>
