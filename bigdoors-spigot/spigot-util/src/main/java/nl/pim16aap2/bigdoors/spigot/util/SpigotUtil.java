@@ -5,10 +5,8 @@ import lombok.Setter;
 import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import java.util.EnumMap;
@@ -111,27 +109,6 @@ public final class SpigotUtil
             return ret;
 
         throw new IllegalStateException("Failing to find mapping for lockFace: " + bf);
-    }
-
-    /**
-     * Play a sound for all players in a range of 15 blocks around the provided location.
-     *
-     * @param loc
-     *     The location of the sound.
-     * @param sound
-     *     The name of the sound.
-     * @param volume
-     *     The volume
-     * @param pitch
-     *     The pitch
-     */
-    public static void playSound(Location loc, String sound, float volume, float pitch)
-    {
-        if (loc.getWorld() == null)
-            return;
-        for (final Entity ent : loc.getWorld().getNearbyEntities(loc, 15, 15, 15))
-            if (ent instanceof Player player)
-                player.playSound(loc, sound, volume, pitch);
     }
 
     /**
