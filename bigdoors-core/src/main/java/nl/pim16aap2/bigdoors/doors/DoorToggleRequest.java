@@ -51,13 +51,12 @@ public class DoorToggleRequest
     private final IPExecutor executor;
 
     @AssistedInject
-    public DoorToggleRequest(@Assisted DoorRetriever doorRetriever,
-                             @Assisted DoorActionCause doorActionCause, @Assisted IMessageable messageReceiver,
-                             @Assisted @Nullable IPPlayer responsible, @Assisted double time,
-                             @Assisted boolean skipAnimation, @Assisted DoorActionType doorActionType,
-                             ILocalizer localizer, DoorActivityManager doorActivityManager,
-                             AutoCloseScheduler autoCloseScheduler, IPPlayerFactory playerFactory,
-                             IPExecutor executor)
+    public DoorToggleRequest(
+        @Assisted DoorRetriever doorRetriever, @Assisted DoorActionCause doorActionCause,
+        @Assisted IMessageable messageReceiver, @Assisted @Nullable IPPlayer responsible, @Assisted double time,
+        @Assisted boolean skipAnimation, @Assisted DoorActionType doorActionType, ILocalizer localizer,
+        DoorActivityManager doorActivityManager, AutoCloseScheduler autoCloseScheduler, IPPlayerFactory playerFactory,
+        IPExecutor executor)
     {
         this.doorRetriever = doorRetriever;
         this.doorActionCause = doorActionCause;
@@ -97,13 +96,12 @@ public class DoorToggleRequest
 
         if (executor.isMainThread())
             return CompletableFuture.completedFuture(execute(door, actualResponsible));
-        return executor.supplyOnMainThread(() -> execute(door, actualResponsible));
+        return executor.scheduleOnMainThread(() -> execute(door, actualResponsible));
     }
 
     private DoorToggleResult execute(AbstractDoor door, IPPlayer responsible)
     {
-        if (!executor.isMainThread())
-            throw new IllegalThreadStateException("Doors must be animated from the main thread!");
+        executor.assertMainThread();
         return door.toggle(doorActionCause, messageReceiver, responsible, time, skipAnimation, doorActionType);
     }
 
@@ -127,8 +125,8 @@ public class DoorToggleRequest
     @AssistedFactory
     public interface IFactory
     {
-        DoorToggleRequest create(DoorRetriever doorRetriever, DoorActionCause doorActionCause,
-                                 IMessageable messageReceiver, @Nullable IPPlayer responsible, double time,
-                                 boolean skipAnimation, DoorActionType doorActionType);
+        DoorToggleRequest create(
+            DoorRetriever doorRetriever, DoorActionCause doorActionCause, IMessageable messageReceiver,
+            @Nullable IPPlayer responsible, double time, boolean skipAnimation, DoorActionType doorActionType);
     }
 }

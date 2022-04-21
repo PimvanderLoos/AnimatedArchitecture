@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.util.implementations.pexecutor;
 
 import nl.pim16aap2.bigdoors.api.IPExecutor;
+import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -30,15 +31,15 @@ public final class PExecutorSpigot implements IPExecutor
     }
 
     @Override
-    public <T> CompletableFuture<T> supplyOnMainThread(Supplier<T> supplier)
+    public <T> CompletableFuture<T> scheduleOnMainThread(Supplier<T> supplier)
     {
         final CompletableFuture<T> result = new CompletableFuture<>();
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> result.complete(supplier.get()));
-        return result;
+        return result.exceptionally(Util::exceptionally);
     }
 
     @Override
-    public void runOnMainThread(Runnable runnable)
+    public void scheduleOnMainThread(Runnable runnable)
     {
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, runnable);
     }

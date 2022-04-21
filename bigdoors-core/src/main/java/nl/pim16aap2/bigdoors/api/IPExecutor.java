@@ -18,15 +18,42 @@ public interface IPExecutor
      *     A function returning the value to be used to complete the returned IMainThreadExecutor.
      * @return The result of the action.
      */
-    <T> CompletableFuture<T> supplyOnMainThread(Supplier<T> supplier);
+    <T> CompletableFuture<T> scheduleOnMainThread(Supplier<T> supplier);
+
+    /**
+     * Ensures a supplier is run on the main thread.
+     * <p>
+     * When called from the main thread, it will be executed immediately. When called from another thread, the supplier
+     * is scheduled to run on the next tick of the main thread instead.
+     *
+     * @return The result of the action.
+     */
+    default <T> CompletableFuture<T> runOnMainThread(Supplier<T> supplier)
+    {
+        if (isMainThread())
+            return CompletableFuture.completedFuture(supplier.get());
+        else
+            return scheduleOnMainThread(supplier);
+    }
 
     /**
      * Schedules an action to be run on the main thread.
-     *
-     * @param runnable
-     *     The action to run.
      */
-    void runOnMainThread(Runnable runnable);
+    void scheduleOnMainThread(Runnable runnable);
+
+    /**
+     * Ensures a runnable is run on the main thread.
+     * <p>
+     * When called from the main thread, it will be executed immediately. When called from another thread, the supplier
+     * is scheduled to run on the next tick of the main thread instead.
+     */
+    default void runOnMainThread(Runnable runnable)
+    {
+        if (isMainThread())
+            runnable.run();
+        else
+            scheduleOnMainThread(runnable);
+    }
 
     /**
      * Schedules a task to be run on the main thread.
@@ -174,5 +201,17 @@ public interface IPExecutor
     default boolean isMainThread()
     {
         return isMainThread(Thread.currentThread().getId());
+    }
+
+    /**
+     * Asserts that this method was called from the main thread. See {@link #isMainThread()}.
+     *
+     * @throws IllegalStateException
+     *     When called from any thread that is not that main thread.
+     */
+    default void assertMainThread()
+    {
+        if (!isMainThread())
+            throw new IllegalThreadStateException();
     }
 }

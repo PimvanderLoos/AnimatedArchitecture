@@ -228,11 +228,11 @@ public abstract class AbstractDoor implements IDoor
         if (!doorOpeningHelper.canBreakBlocksBetweenLocs(this, newCuboid.get(), responsible))
             return doorOpeningHelper.abort(this, DoorToggleResult.NO_PERMISSION, cause, responsible, messageReceiver);
 
-        final CompletableFuture<Boolean> scheduled =
+        final boolean scheduled =
             doorOpeningHelper.registerBlockMover(doorBase, this, cause, time, skipAnimation,
                                                  newCuboid.get(), responsible, actionType);
 
-        if (!scheduled.join())
+        if (!scheduled)
             return DoorToggleResult.ERROR;
 
         final IDoorEventToggleStart toggleStartEvent =

@@ -32,7 +32,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 /**
@@ -56,11 +55,11 @@ public final class DoorOpeningHelper
     private final IDoorEventCaller doorEventCaller;
 
     @Inject //
-    DoorOpeningHelper(ILocalizer localizer, DoorActivityManager doorActivityManager, DoorTypeManager doorTypeManager,
-                      IConfigLoader config, IBlockAnalyzer blockAnalyzer, IPLocationFactory locationFactory,
-                      IProtectionCompatManager protectionCompatManager, IGlowingBlockSpawner glowingBlockSpawner,
-                      IBigDoorsEventFactory bigDoorsEventFactory, IPExecutor executor,
-                      IDoorEventCaller doorEventCaller)
+    DoorOpeningHelper(
+        ILocalizer localizer, DoorActivityManager doorActivityManager, DoorTypeManager doorTypeManager,
+        IConfigLoader config, IBlockAnalyzer blockAnalyzer, IPLocationFactory locationFactory,
+        IProtectionCompatManager protectionCompatManager, IGlowingBlockSpawner glowingBlockSpawner,
+        IBigDoorsEventFactory bigDoorsEventFactory, IPExecutor executor, IDoorEventCaller doorEventCaller)
     {
         this.localizer = localizer;
         this.doorActivityManager = doorActivityManager;
@@ -88,8 +87,8 @@ public final class DoorOpeningHelper
      *     Who is responsible for the action.
      * @return The result.
      */
-    DoorToggleResult abort(IDoor door, DoorToggleResult result, DoorActionCause cause, IPPlayer responsible,
-                           IMessageable messageReceiver)
+    DoorToggleResult abort(
+        IDoor door, DoorToggleResult result, DoorActionCause cause, IPPlayer responsible, IMessageable messageReceiver)
     {
         log.at(Level.FINE).log("Aborted toggle for door %d because of %s. Toggle Reason: %s, Responsible: %s",
                                door.getDoorUID(), result.name(), cause.name(), responsible.asString());
@@ -111,12 +110,13 @@ public final class DoorOpeningHelper
     }
 
     /**
-     * See {@link IBigDoorsEventFactory#createTogglePrepareEvent(AbstractDoor, DoorActionCause, DoorActionType,
-     * IPPlayer, double, boolean, Cuboid)}.
+     * See
+     * {@link IBigDoorsEventFactory#createTogglePrepareEvent(AbstractDoor, DoorActionCause, DoorActionType, IPPlayer,
+     * double, boolean, Cuboid)}.
      */
-    IDoorEventTogglePrepare callTogglePrepareEvent(AbstractDoor door, DoorActionCause cause,
-                                                   DoorActionType actionType, IPPlayer responsible, double time,
-                                                   boolean skipAnimation, Cuboid newCuboid)
+    IDoorEventTogglePrepare callTogglePrepareEvent(
+        AbstractDoor door, DoorActionCause cause, DoorActionType actionType, IPPlayer responsible, double time,
+        boolean skipAnimation, Cuboid newCuboid)
     {
         final IDoorEventTogglePrepare event =
             bigDoorsEventFactory.createTogglePrepareEvent(door, cause, actionType, responsible,
@@ -126,12 +126,13 @@ public final class DoorOpeningHelper
     }
 
     /**
-     * See {@link IBigDoorsEventFactory#createToggleStartEvent(AbstractDoor, DoorActionCause, DoorActionType, IPPlayer,
+     * See
+     * {@link IBigDoorsEventFactory#createToggleStartEvent(AbstractDoor, DoorActionCause, DoorActionType, IPPlayer,
      * double, boolean, Cuboid)}.
      */
-    IDoorEventToggleStart callToggleStartEvent(AbstractDoor door, DoorActionCause cause, DoorActionType actionType,
-                                               IPPlayer responsible, double time, boolean skipAnimation,
-                                               Cuboid newCuboid)
+    IDoorEventToggleStart callToggleStartEvent(
+        AbstractDoor door, DoorActionCause cause, DoorActionType actionType, IPPlayer responsible, double time,
+        boolean skipAnimation, Cuboid newCuboid)
     {
         final IDoorEventToggleStart event =
             bigDoorsEventFactory.createToggleStartEvent(door, cause, actionType, responsible,
@@ -146,14 +147,18 @@ public final class DoorOpeningHelper
     }
 
     /**
-     * Registers a new block mover on the main thread.
+     * Registers a new block mover. Must be called from the main thread.
+     *
+     * @throws IllegalStateException
+     *     When called from a thread that is not the main thread.
      */
-    CompletableFuture<Boolean> registerBlockMover(DoorBase doorBase, AbstractDoor abstractDoor, DoorActionCause cause,
-                                                  double time, boolean skipAnimation, Cuboid newCuboid,
-                                                  IPPlayer responsible, DoorActionType actionType)
+    boolean registerBlockMover(
+        DoorBase doorBase, AbstractDoor abstractDoor, DoorActionCause cause, double time, boolean skipAnimation,
+        Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
     {
-        return executor.supplyOnMainThread(() -> doorBase.registerBlockMover(abstractDoor, cause, time, skipAnimation,
-                                                                             newCuboid, responsible, actionType));
+        executor.assertMainThread();
+        return doorBase.registerBlockMover(abstractDoor, cause, time, skipAnimation,
+                                           newCuboid, responsible, actionType);
     }
 
     /**
@@ -163,7 +168,6 @@ public final class DoorOpeningHelper
     {
         return executor.isMainThread();
     }
-
 
     /**
      * Checks if the owner of a door can break blocks between 2 positions.
@@ -241,8 +245,8 @@ public final class DoorOpeningHelper
     }
 
     /**
-     * Gets the number of blocks this door can move in the given direction. If set, it won't go further than {@link
-     * nl.pim16aap2.bigdoors.doors.doorarchetypes.IDiscreteMovement#getBlocksToMove()}.
+     * Gets the number of blocks this door can move in the given direction. If set, it won't go further than
+     * {@link nl.pim16aap2.bigdoors.doors.doorarchetypes.IDiscreteMovement#getBlocksToMove()}.
      * <p>
      * TODO: This isn't used anywhere? Perhaps either centralize its usage or remove it.
      *
