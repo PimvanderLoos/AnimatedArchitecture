@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.util.implementations;
 
+import com.google.common.flogger.StackSize;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.commands.CommandDefinition;
@@ -18,6 +20,7 @@ import java.util.logging.Level;
  *
  * @author Pim
  */
+@Flogger
 public final class PPlayerSpigot implements IPPlayer
 {
     private final Player spigotPlayer;
@@ -36,7 +39,9 @@ public final class PPlayerSpigot implements IPPlayer
     @Override
     public boolean hasProtectionBypassPermission()
     {
-        throw new UnsupportedOperationException("Method not implemented!");
+        // TODO: IMPLEMENT THIS
+        log.at(Level.SEVERE).withStackTrace(StackSize.FULL).log("Method not implemented!");
+        return true;
     }
 
     @Override
@@ -63,14 +68,16 @@ public final class PPlayerSpigot implements IPPlayer
     public int getDoorSizeLimit()
     {
         // TODO: IMPLEMENT THIS
-        throw new UnsupportedOperationException("Method not implemented!");
+        log.at(Level.SEVERE).withStackTrace(StackSize.FULL).log("Method not implemented!");
+        return Integer.MAX_VALUE;
     }
 
     @Override
     public int getDoorCountLimit()
     {
         // TODO: IMPLEMENT THIS
-        throw new UnsupportedOperationException("Method not implemented!");
+        log.at(Level.SEVERE).withStackTrace(StackSize.FULL).log("Method not implemented!");
+        return Integer.MAX_VALUE;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.doors;
 
+import com.google.common.flogger.StackSize;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
@@ -375,8 +376,9 @@ public final class DoorOpeningHelper
 
     private boolean chunksLoaded(@SuppressWarnings({"unused", "squid:S1172"}) IDoor door)
     {
-        // TODO: Implement this.
-        throw new UnsupportedOperationException("NOT IMPLEMENTED!");
+        // TODO: IMPLEMENT THIS
+        log.at(Level.SEVERE).withStackTrace(StackSize.FULL).log("Method not implemented!");
+        return true;
     }
 
     /**
