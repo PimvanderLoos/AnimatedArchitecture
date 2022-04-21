@@ -121,7 +121,7 @@ public class NMSBlock_V1_15_R1 extends Block implements IAnimatedBlockData
 
     @Override
     @Synchronized("blockDataLock")
-    public void rotateBlock(RotateDirection rotDir)
+    public boolean rotateBlock(RotateDirection rotDir)
     {
         final BlockData bd = bukkitBlockData;
         // When rotating stairs vertically, they need to be rotated twice, as they cannot point up/down.
@@ -136,8 +136,9 @@ public class NMSBlock_V1_15_R1 extends Block implements IAnimatedBlockData
         else if (bd instanceof MultipleFacing multipleFacing)
             rotateMultipleFacing(multipleFacing, rotDir);
         else
-            return;
+            return false;
         constructBlockDataFromBukkit();
+        return true;
     }
 
     /**

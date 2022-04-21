@@ -49,9 +49,8 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
      *     The player who opened this door.
      */
     public BridgeMover(
-        Context context, double time, T door, RotateDirection rotateDirection, boolean skipAnimation,
-        double multiplier, IPPlayer player, Cuboid newCuboid, DoorActionCause cause,
-        DoorActionType actionType)
+        Context context, double time, T door, RotateDirection rotateDirection, boolean skipAnimation, double multiplier,
+        IPPlayer player, Cuboid newCuboid, DoorActionCause cause, DoorActionType actionType)
         throws Exception
     {
         super(context, door, time, skipAnimation, rotateDirection, player, newCuboid, cause, actionType);
@@ -132,7 +131,7 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
             this.respawnBlocks();
 
         for (final IAnimatedBlock animatedBlock : animatedBlocks)
-            animatedBlock.teleport(getGoalPos(stepSum, animatedBlock));
+            movementMethod.apply(animatedBlock, getGoalPos(stepSum, animatedBlock));
     }
 
     @Override

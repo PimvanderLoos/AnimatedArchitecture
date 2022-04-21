@@ -22,8 +22,9 @@ public interface IAnimatedBlockData
      *
      * @param rotDir
      *     The {@link RotateDirection} to rotate this block in.
+     * @return True if the block was rotated.
      */
-    void rotateBlock(RotateDirection rotDir);
+    boolean rotateBlock(RotateDirection rotDir);
 
     /**
      * Places the block at a given location.

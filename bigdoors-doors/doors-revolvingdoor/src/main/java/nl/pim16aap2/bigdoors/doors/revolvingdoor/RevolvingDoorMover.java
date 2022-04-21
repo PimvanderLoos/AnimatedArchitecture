@@ -35,9 +35,8 @@ public class RevolvingDoorMover extends BlockMover
 
     @SuppressWarnings("unused")
     public RevolvingDoorMover(
-        Context context, AbstractDoor door, double time, double multiplier,
-        RotateDirection rotateDirection, IPPlayer player, int quarterCircles,
-        DoorActionCause cause, Cuboid newCuboid, DoorActionType actionType)
+        Context context, AbstractDoor door, double time, double multiplier, RotateDirection rotateDirection,
+        IPPlayer player, int quarterCircles, DoorActionCause cause, Cuboid newCuboid, DoorActionType actionType)
         throws Exception
     {
         super(context, door, 30, false, RotateDirection.NONE, player, newCuboid, cause, actionType);
@@ -132,7 +131,7 @@ public class RevolvingDoorMover extends BlockMover
         final double stepSum = step * ticks;
 
         for (final IAnimatedBlock animatedBlock : animatedBlocks)
-            animatedBlock.teleport(getGoalPos.apply(animatedBlock, stepSum));
+            movementMethod.apply(animatedBlock, getGoalPos.apply(animatedBlock, stepSum));
     }
 
     @Override

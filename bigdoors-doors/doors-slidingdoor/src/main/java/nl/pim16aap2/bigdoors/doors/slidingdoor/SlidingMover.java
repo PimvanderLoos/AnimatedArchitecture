@@ -33,8 +33,8 @@ public class SlidingMover extends BlockMover
 
     public SlidingMover(
         Context context, AbstractDoor door, double time, boolean skipAnimation, int blocksToMove,
-        RotateDirection openDirection, double multiplier, IPPlayer player, Cuboid newCuboid,
-        DoorActionCause cause, DoorActionType actionType)
+        RotateDirection openDirection, double multiplier, IPPlayer player, Cuboid newCuboid, DoorActionCause cause,
+        DoorActionType actionType)
         throws Exception
     {
         super(context, door, time, skipAnimation, openDirection, player, newCuboid, cause, actionType);
@@ -116,6 +116,6 @@ public class SlidingMover extends BlockMover
 
         final double stepSum = step * ticks;
         for (final IAnimatedBlock animatedBlock : animatedBlocks)
-            animatedBlock.teleport(getGoalPos(animatedBlock, stepSum));
+            movementMethod.apply(animatedBlock, getGoalPos(animatedBlock, stepSum));
     }
 }

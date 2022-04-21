@@ -45,7 +45,8 @@ public class BigDoorMover extends BlockMover
         final int zLen = Math.abs(door.getMaximum().z() - door.getMinimum().z());
         final int doorLength = Math.max(xLen, zLen) + 1;
         final double[] vars = Util.calculateTimeAndTickRate(doorLength, time, multiplier, 3.7);
-        super.time = vars[0];
+//        super.time = vars[0];
+        super.time = 10;
 
         init();
         super.startAnimation();
@@ -69,7 +70,7 @@ public class BigDoorMover extends BlockMover
         final Vector3Dd startLocation = animatedBlock.getStartPosition();
         final IPLocation finalLoc = getNewLocation(animatedBlock.getRadius(), startLocation.x(),
                                                    startLocation.y(), startLocation.z());
-        return new Vector3Dd(finalLoc.getBlockX() + 0.5, finalLoc.getBlockY(), finalLoc.getBlockZ() + 0.5);
+        return new Vector3Dd(finalLoc.getBlockX(), finalLoc.getBlockY(), finalLoc.getBlockZ());
     }
 
     @Override
@@ -83,17 +84,8 @@ public class BigDoorMover extends BlockMover
         final double sin = Math.sin(stepSum);
 
         for (final IAnimatedBlock animatedBlock : animatedBlocks)
-            animatedBlock.teleport(
-                getGoalPos(cos, sin, animatedBlock.getStartX(), animatedBlock.getStartY(),
-                           animatedBlock.getStartZ()));
+            movementMethod.apply(animatedBlock, getGoalPos(animatedBlock, cos, sin));
     }
-
-
-    private Vector3Dd getGoalPos(double angle, double startX, double startY, double startZ)
-    {
-        return getGoalPos(Math.cos(angle), Math.sin(angle), startX, startY, startZ);
-    }
-
 
     private Vector3Dd getGoalPos(double cos, double sin, double startX, double startY, double startZ)
     {
@@ -104,6 +96,16 @@ public class BigDoorMover extends BlockMover
         final double changeZ = translatedX * sin + translatedZ * cos;
 
         return new Vector3Dd(rotationCenter.x() + changeX, startY, rotationCenter.z() + changeZ);
+    }
+
+    private Vector3Dd getGoalPos(double angle, double startX, double startY, double startZ)
+    {
+        return getGoalPos(Math.cos(angle), Math.sin(angle), startX, startY, startZ);
+    }
+
+    private Vector3Dd getGoalPos(IAnimatedBlock animatedBlock, double cos, double sin)
+    {
+        return getGoalPos(cos, sin, animatedBlock.getStartX(), animatedBlock.getStartY(), animatedBlock.getStartZ());
     }
 
     @Override

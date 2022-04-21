@@ -39,15 +39,13 @@ public final class AnimatedBlockFactory_V1_15_R1 implements IAnimatedBlockFactor
             return Optional.empty();
 
         final double offset = bottom ? 0.010_001 : 0;
-        final IPLocation spawnLoc = loc.add(loc.getBlockX() + 0.5,
-                                            loc.getBlockY() - 0.020 + offset,
-                                            loc.getBlockZ() + 0.5);
+        final IPLocation spawnLoc = loc.add(0.5, offset - 0.020, 0.5);
 
         final boolean placementDeferred = BlockAnalyzer_V1_15_R1.placeOnSecondPassStatic(material);
 
         final var animatedBlock = new nl.pim16aap2.bigdoors.spigot.v1_15_R1
-            .CustomEntityFallingBlock_V1_15_R1(loc.getWorld(), bukkitWorld, spawnLoc.getBlockX(), spawnLoc.getBlockY(),
-                                               spawnLoc.getBlockZ(), radius, startAngle, placementDeferred);
+            .CustomEntityFallingBlock_V1_15_R1(loc.getWorld(), bukkitWorld, spawnLoc.getX(), spawnLoc.getY(),
+                                               spawnLoc.getZ(), radius, startAngle, placementDeferred);
 
         animatedBlock.setCustomName(CraftChatMessage.fromStringOrNull(Constants.BIGDOORS_ENTITY_NAME));
         animatedBlock.setCustomNameVisible(false);

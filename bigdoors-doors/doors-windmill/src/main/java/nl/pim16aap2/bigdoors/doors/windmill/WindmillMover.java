@@ -25,8 +25,8 @@ public class WindmillMover<T extends AbstractDoor & IHorizontalAxisAligned> exte
     private double step;
 
     public WindmillMover(
-        Context context, T door, double time, double multiplier, RotateDirection rotateDirection,
-        IPPlayer player, DoorActionCause cause, DoorActionType actionType)
+        Context context, T door, double time, double multiplier, RotateDirection rotateDirection, IPPlayer player,
+        DoorActionCause cause, DoorActionType actionType)
         throws Exception
     {
         super(context, time, door, rotateDirection, false, multiplier, player, door.getCuboid(), cause, actionType);
@@ -56,7 +56,7 @@ public class WindmillMover<T extends AbstractDoor & IHorizontalAxisAligned> exte
     {
         final double stepSum = step * ticks;
         for (final IAnimatedBlock animatedBlock : animatedBlocks)
-            animatedBlock.teleport(getGoalPos(stepSum, animatedBlock));
+            movementMethod.apply(animatedBlock, getGoalPos(stepSum, animatedBlock));
     }
 
     @Override

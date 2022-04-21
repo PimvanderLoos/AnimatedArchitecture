@@ -69,6 +69,8 @@ public abstract class BlockMover
     @ToString.Exclude
     private final ISoundEngine soundEngine;
 
+    protected MovementMethod movementMethod = MovementMethod.VELOCITY;
+
     @Getter
     protected double time;
 
@@ -194,10 +196,8 @@ public abstract class BlockMover
     private void applyRotationOnCurrentThread()
     {
         for (final IAnimatedBlock animatedBlock : animatedBlocks)
-        {
-            animatedBlock.getAnimatedBlockData().rotateBlock(openDirection);
-            animatedBlock.respawn();
-        }
+            if (animatedBlock.getAnimatedBlockData().rotateBlock(openDirection))
+                animatedBlock.respawn();
     }
 
     /**
@@ -407,7 +407,7 @@ public abstract class BlockMover
         animatedBlock.kill();
         animatedBlock.getAnimatedBlockData()
                      .putBlock(getNewLocation(animatedBlock.getRadius(), animatedBlock.getStartX(),
-                                              animatedBlock.getStartY(), animatedBlock.getStartZ()));
+                                              Math.round(animatedBlock.getStartY()), animatedBlock.getStartZ()));
     }
 
     /**
@@ -520,5 +520,46 @@ public abstract class BlockMover
             this.executor = executor;
             this.animatedBlockFactory = animatedBlockFactory;
         }
+    }
+
+    /**
+     * Represents the different ways in which an animated block can be moved.
+     */
+    @SuppressWarnings("unused")
+    public abstract static class MovementMethod
+    {
+        /**
+         * The animated blocks are moved in the direction of the goal position by applying a velocity along the vector
+         * between the current and the target positions.
+         * <p>
+         * When this method is used, animated blocks will always lag slightly behind the target position, and they
+         * generally tend to move slightly towards the center of any rotation (so corners will be rounded, circles
+         * slightly smaller).
+         */
+        public static final MovementMethod VELOCITY = new MovementMethod()
+        {
+            @Override
+            public void apply(IAnimatedBlock animatedBlock, Vector3Dd goalPos)
+            {
+                animatedBlock.setVelocity(goalPos.subtract(animatedBlock.getCurrentPosition()).multiply(0.101));
+            }
+        };
+
+        /**
+         * Teleports the animated blocks directly to their target positions.
+         */
+        public static final MovementMethod TELEPORT = new MovementMethod()
+        {
+            @Override
+            public void apply(IAnimatedBlock animatedBlock, Vector3Dd goalPos)
+            {
+                animatedBlock.teleport(goalPos);
+            }
+        };
+
+        /**
+         * Moves an animated block to a given goal position using the specified method.
+         */
+        public abstract void apply(IAnimatedBlock animatedBlock, Vector3Dd goalPos);
     }
 }

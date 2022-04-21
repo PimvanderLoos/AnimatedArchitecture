@@ -50,8 +50,8 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
     protected final int angleDirectionMultiplier;
 
     public ClockMover(
-        Context context, T door, RotateDirection rotateDirection, IPPlayer player,
-        DoorActionCause cause, DoorActionType actionType)
+        Context context, T door, RotateDirection rotateDirection, IPPlayer player, DoorActionCause cause,
+        DoorActionType actionType)
         throws Exception
     {
         super(context, door, 0.0D, 0.0D, rotateDirection, player, cause, actionType);
@@ -113,7 +113,7 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
                     continue;
 
                 final double timeAngle = hourArm ? hourAngle : minuteAngle;
-                animatedBlock.teleport(getGoalPos(timeAngle, animatedBlock));
+                movementMethod.apply(animatedBlock, getGoalPos(timeAngle, animatedBlock));
             }
     }
 

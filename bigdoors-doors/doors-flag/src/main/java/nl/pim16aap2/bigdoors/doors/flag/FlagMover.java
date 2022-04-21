@@ -26,8 +26,8 @@ public class FlagMover extends BlockMover
     private final double waveSpeed;
 
     public FlagMover(
-        Context context, double time, Flag door, double multiplier, IPPlayer player,
-        DoorActionCause cause, DoorActionType actionType)
+        Context context, double time, Flag door, double multiplier, IPPlayer player, DoorActionCause cause,
+        DoorActionType actionType)
         throws Exception
     {
         super(context, door, time, false, RotateDirection.NONE, player, door.getCuboid(), cause, actionType);
@@ -125,7 +125,7 @@ public class FlagMover extends BlockMover
     protected void executeAnimationStep(int ticks)
     {
         for (final IAnimatedBlock animatedBlock : animatedBlocks)
-            animatedBlock.teleport(getGoalPos.apply(animatedBlock, ticks));
+            movementMethod.apply(animatedBlock, getGoalPos.apply(animatedBlock, ticks));
     }
 
     @Override
