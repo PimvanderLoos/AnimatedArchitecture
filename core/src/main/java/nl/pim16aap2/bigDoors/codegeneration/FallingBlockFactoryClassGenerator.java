@@ -147,13 +147,15 @@ public class FallingBlockFactoryClassGenerator extends ClassGenerator
         final MethodCall createBlockData = (MethodCall)
             invoke(methodGetMyBlockData).onArgument(1).withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC);
 
-        final MethodCall createEntity = construct(entityFallingBlockClassGenerator.getGeneratedConstructor())
-            .withMethodCall(invoke(methodLocationGetWorld).onArgument(0))
-            .withMethodCall(invoke(methodLocationGetX).onArgument(0))
-            .withMethodCall(invoke(methodLocationGetY).onArgument(0))
-            .withMethodCall(invoke(methodLocationGetZ).onArgument(0))
-            .withMethodCall(createBlockData)
-            .withField(FIELD_MOVE_TYPE_VALUES);
+        final MethodCall createEntity =
+            ((MethodCall) construct(entityFallingBlockClassGenerator.getGeneratedConstructor())
+                .withMethodCall(invoke(methodLocationGetWorld).onArgument(0))
+                    .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC))
+                .withMethodCall(invoke(methodLocationGetX).onArgument(0))
+                .withMethodCall(invoke(methodLocationGetY).onArgument(0))
+                .withMethodCall(invoke(methodLocationGetZ).onArgument(0))
+                .withMethodCall(createBlockData)
+                .withField(FIELD_MOVE_TYPE_VALUES);
 
         final MethodCall createCraftFallingBlock = (MethodCall)
             construct(craftFallingBlockClassGenerator.getGeneratedConstructor())

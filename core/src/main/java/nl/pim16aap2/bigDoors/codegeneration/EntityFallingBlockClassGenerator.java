@@ -13,7 +13,6 @@ import net.bytebuddy.implementation.bind.annotation.This;
 import net.bytebuddy.implementation.bytecode.assign.Assigner;
 import net.bytebuddy.matcher.ElementMatchers;
 import nl.pim16aap2.bigDoors.NMS.CustomEntityFallingBlock;
-import org.bukkit.World;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,12 +37,12 @@ import static nl.pim16aap2.bigDoors.reflection.ReflectionBuilder.findMethod;
 final class EntityFallingBlockClassGenerator extends ClassGenerator
 {
     private static final @NotNull Class<?>[] CONSTRUCTOR_PARAMETER_TYPES =
-        new Class<?>[]{World.class, double.class, double.class, double.class,
+        new Class<?>[]{classCraftWorld, double.class, double.class, double.class,
                        classIBlockData, asArrayType(classEnumMoveType)};
 
     public static final String FIELD_BLOCK = "generated$block";
-    public static final String FIELD_BUKKIT_WORLD = "generated$bukkitWorld";
     public static final String FIELD_MOVE_TYPE_VALUES = "generated$enumMoveTypeValues";
+    public static final String FIELD_CRAFT_WORLD = "generated$craftWorld";
 
     public static final String METHOD_MULTIPLY_VEC = "generated$multiplyVec";
     public static final String METHOD_NAME_LOAD_DATA_CONDITIONAL = methodLoadData.getName() + "$conditional";
@@ -124,7 +123,7 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
             .defineField(fieldNoClip.getName(), fieldNoClip.getType(), Visibility.PROTECTED)
             .defineField(fieldTileEntityData.getName(), fieldTileEntityData.getType(), Visibility.PROTECTED)
             .defineField(FIELD_BLOCK, classIBlockData, Visibility.PRIVATE)
-            .defineField(FIELD_BUKKIT_WORLD, org.bukkit.World.class, Visibility.PRIVATE)
+            .defineField(FIELD_CRAFT_WORLD, classCraftWorld, Visibility.PRIVATE)
             .defineField(FIELD_MOVE_TYPE_VALUES, asArrayType(classEnumMoveType), Visibility.PRIVATE);
     }
 
@@ -136,17 +135,16 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
         final FieldLocator.Factory entityTypeLocatorFactory =
             new FieldLocator.ForExactType.Factory(new TypeDescription.ForLoadedType(classEntityTypes));
 
-
         return builder
             .defineConstructor(Visibility.PUBLIC)
             .withParameters(getConstructorArgumentTypes())
             .intercept(invoke(cTorPublicNMSFallingBlockEntity)
-                           .withField(entityTypeLocatorFactory,fieldEntityTypeFallingBlock.getName())
+                           .withField(entityTypeLocatorFactory, fieldEntityTypeFallingBlock.getName())
                            .withMethodCall(worldCast).andThen(
 
                 FieldAccessor.ofField(FIELD_BLOCK).setsArgumentAt(4)).andThen(
                 invoke(methodSetPosition).withArgument(1, 2, 3)).andThen(
-                FieldAccessor.ofField(FIELD_BUKKIT_WORLD).setsArgumentAt(0)).andThen(
+                FieldAccessor.ofField(FIELD_CRAFT_WORLD).setsArgumentAt(0)).andThen(
                 FieldAccessor.ofField(FIELD_MOVE_TYPE_VALUES).setsArgumentAt(5)).andThen(
                 FieldAccessor.of(fieldTicksLived).setsValue(0)).andThen(
                 FieldAccessor.of(fieldHurtEntities).setsValue(false)).andThen(
@@ -165,8 +163,8 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
     {
         return builder
             .defineMethod(METHOD_SPAWN, boolean.class, Visibility.PUBLIC)
-            .intercept(invoke(methodNMSAddEntity)
-                           .onField(fieldNMSWorld)
+            .intercept(invoke(methodCraftAddEntityToWorld)
+                           .onField(FIELD_CRAFT_WORLD)
                            .with(MethodCall.ArgumentLoader.ForThisReference.Factory.INSTANCE)
                            .with(CreatureSpawnEvent.SpawnReason.CUSTOM)
                            .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC)

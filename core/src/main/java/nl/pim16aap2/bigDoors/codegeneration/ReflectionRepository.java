@@ -9,6 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.material.MaterialData;
 
 import java.lang.reflect.Array;
@@ -92,6 +93,7 @@ final class ReflectionRepository
     public static final Method methodLocY;
     public static final Method methodLocZ;
     public static final Method methodNMSAddEntity;
+    public static final Method methodCraftAddEntityToWorld;
     public static final Method methodAppendEntityCrashReport;
     public static final Method methodCrashReportAppender;
     public static final Method methodNBTTagCompoundSet;
@@ -309,9 +311,11 @@ final class ReflectionRepository
         methodArrayGetIdx = findMethod().inClass(Array.class).withName("get")
                                         .withParameters(Object.class, int.class).get();
         methodGetClass = findMethod().inClass(Object.class).withName("getClass").get();
+        methodCraftAddEntityToWorld = findMethod().inClass(classCraftWorld).withReturnType(void.class)
+            .withParameters(classNMSEntity, CreatureSpawnEvent.SpawnReason.class).get();
         methodGetIBlockDataHolderState = ReflectionASMAnalyzers
-            .getGetIBlockDataHolderStateMethod(classCraftBlockData, classBlockStateEnum, classIBlockData,
-                                               classIBlockState, classIBlockDataHolder);
+        .getGetIBlockDataHolderStateMethod(classCraftBlockData, classBlockStateEnum, classIBlockData,
+                                           classIBlockState, classIBlockDataHolder);
         methodNMSAddEntity = ReflectionASMAnalyzers.getNMSAddEntityMethod(classNMSWorldServer, classNMSEntity);
         methodIsAir = ReflectionASMAnalyzers.getIsAirMethod(methodTick, classIBlockData, classBlockData);
         methodDie = ReflectionASMAnalyzers.getCraftEntityDelegationMethod(classCraftEntity, classNMSEntity);
@@ -341,7 +345,6 @@ final class ReflectionRepository
                                    .withModifiers(Modifier.PUBLIC).get();
         fieldBlockRotatableAxis = findField().inClass(classBlockRotatable).ofType(classEnumBlockState)
                                              .withModifiers(Modifier.PUBLIC, Modifier.FINAL, Modifier.STATIC).get();
-
 
         fieldsVec3D = Collections.unmodifiableList(
             ReflectionBuilder.findField().inClass(classVec3D).allOfType(double.class)
