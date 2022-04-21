@@ -58,8 +58,8 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
     }
 
     @Override
-    public Optional<IGlowingBlock> spawnGlowingBlock(IPPlayer player, IPWorld world, int time, TimeUnit timeUnit,
-                                                     double x, double y, double z, PColor pColor)
+    public Optional<IGlowingBlock> spawnGlowingBlock(
+        IPPlayer player, IPWorld world, int time, TimeUnit timeUnit, double x, double y, double z, PColor pColor)
     {
         if (scoreboard == null)
         {
