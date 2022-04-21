@@ -412,8 +412,9 @@ public final class CommandManager
                    .permission("bigdoors.user.toggle")
                    .argument(new DoorArgument(true, "door", "", null, ArgumentDescription.empty(), asyncCompletions,
                                               doorRetrieverFactory, 2))
-                   .handler(commandContext -> commandFactory.newToggle(commandContext.getSender(),
-                                                                       commandContext.get("door")).run())
+                   .handler(commandContext ->
+                                commandFactory.newToggle(commandContext.getSender(),
+                                                         commandContext.<DoorRetriever>get("door")).run())
         );
     }
 
