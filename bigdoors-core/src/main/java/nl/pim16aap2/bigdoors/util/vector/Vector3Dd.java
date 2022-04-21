@@ -116,7 +116,7 @@ public record Vector3Dd(double x, double y, double z) implements Vector3DUtil.IV
     @CheckReturnValue @Contract(pure = true)
     public Vector3Dd subtract(Vector3Dd other)
     {
-        return new Vector3Dd(other.x, other.y, other.z);
+        return subtract(other.x, other.y, other.z);
     }
 
     /**
@@ -129,7 +129,7 @@ public record Vector3Dd(double x, double y, double z) implements Vector3DUtil.IV
     @CheckReturnValue @Contract(pure = true)
     public Vector3Dd subtract(Vector3Di other)
     {
-        return new Vector3Dd(other.x(), other.y(), other.z());
+        return subtract(other.x(), other.y(), other.z());
     }
 
     /**
@@ -142,7 +142,7 @@ public record Vector3Dd(double x, double y, double z) implements Vector3DUtil.IV
     @CheckReturnValue @Contract(pure = true)
     public Vector3Dd subtract(double val)
     {
-        return add(val, val, val);
+        return subtract(val, val, val);
     }
 
 
@@ -201,6 +201,7 @@ public record Vector3Dd(double x, double y, double z) implements Vector3DUtil.IV
     {
         return multiply(val, val, val);
     }
+
 
     /**
      * Divides the current values with values.

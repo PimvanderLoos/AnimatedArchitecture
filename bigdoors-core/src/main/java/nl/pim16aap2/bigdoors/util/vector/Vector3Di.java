@@ -101,7 +101,7 @@ public record Vector3Di(int x, int y, int z) implements Vector3DUtil.IVector3D
     @CheckReturnValue @Contract(pure = true)
     public Vector3Di subtract(Vector3Di other)
     {
-        return new Vector3Di(other.x, other.y, other.z);
+        return subtract(other.x, other.y, other.z);
     }
 
     /**
@@ -114,7 +114,7 @@ public record Vector3Di(int x, int y, int z) implements Vector3DUtil.IVector3D
     @CheckReturnValue @Contract(pure = true)
     public Vector3Di subtract(int val)
     {
-        return add(val, val, val);
+        return subtract(val, val, val);
     }
 
 
@@ -222,8 +222,8 @@ public record Vector3Di(int x, int y, int z) implements Vector3DUtil.IVector3D
     }
 
     /**
-     * Divides the x and y values of the current {@link Vector3Di} with the x, y, and z values of the provided {@link
-     * Vector3Di}.
+     * Divides the x and y values of the current {@link Vector3Di} with the x, y, and z values of the provided
+     * {@link Vector3Di}.
      *
      * @param other
      *     The other {@link Vector3Di} to use as divisor for the current x and the y values.
@@ -267,8 +267,8 @@ public record Vector3Di(int x, int y, int z) implements Vector3DUtil.IVector3D
     }
 
     /**
-     * Divides the x and y values of the current {@link Vector3Di} with the x, y, and z values of the provided {@link
-     * Vector3Dd}.
+     * Divides the x and y values of the current {@link Vector3Di} with the x, y, and z values of the provided
+     * {@link Vector3Dd}.
      *
      * @param other
      *     The other {@link Vector3Dd} to use as divisor for the current x and the y values.

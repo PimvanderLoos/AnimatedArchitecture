@@ -112,7 +112,7 @@ public record Vector2Dd(double x, double y)
     @CheckReturnValue @Contract(pure = true)
     public Vector2Dd subtract(Vector2Dd other)
     {
-        return new Vector2Dd(other.x, other.y);
+        return subtract(other.x, other.y);
     }
 
     /**
@@ -125,7 +125,7 @@ public record Vector2Dd(double x, double y)
     @CheckReturnValue @Contract(pure = true)
     public Vector2Dd subtract(Vector2Di other)
     {
-        return new Vector2Dd(other.x(), other.y());
+        return subtract(other.x(), other.y());
     }
 
     /**
@@ -138,7 +138,7 @@ public record Vector2Dd(double x, double y)
     @CheckReturnValue @Contract(pure = true)
     public Vector2Dd subtract(double val)
     {
-        return add(val, val);
+        return subtract(val, val);
     }
 
 
@@ -212,8 +212,8 @@ public record Vector2Dd(double x, double y)
     }
 
     /**
-     * Divides the x and y values of the current {@link Vector2Dd} with the x and the y values of the provided {@link
-     * Vector2Dd}.
+     * Divides the x and y values of the current {@link Vector2Dd} with the x and the y values of the provided
+     * {@link Vector2Dd}.
      *
      * @param other
      *     The other {@link Vector2Dd} to use as divisor for the current x and the y values.
@@ -226,8 +226,8 @@ public record Vector2Dd(double x, double y)
     }
 
     /**
-     * Divides the x and y values of the current {@link Vector2Dd} with the x and the y values of the provided {@link
-     * Vector2Di}.
+     * Divides the x and y values of the current {@link Vector2Dd} with the x and the y values of the provided
+     * {@link Vector2Di}.
      *
      * @param other
      *     The other {@link Vector2Di} to use as divisor for the current x and the y values.
