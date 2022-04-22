@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.function.BiFunction;
 
@@ -22,15 +23,17 @@ import java.util.function.BiFunction;
  */
 public class DoorArgument extends CommandArgument<ICommandSender, DoorRetriever>
 {
+    @lombok.Builder
     public DoorArgument(
-        boolean required, String name, String defaultValue,
+        boolean required, String name, @Nullable String defaultValue,
         @Nullable BiFunction<CommandContext<ICommandSender>, String, List<String>> suggestionsProvider,
-        ArgumentDescription defaultDescription, boolean asyncSuggestions, DoorRetrieverFactory doorRetrieverFactory,
-        int maxPermission)
+        @Nullable ArgumentDescription defaultDescription, boolean asyncSuggestions,
+        DoorRetrieverFactory doorRetrieverFactory, int maxPermission)
     {
         super(required, name,
               new DoorArgument.DoorArgumentParser(asyncSuggestions, doorRetrieverFactory, maxPermission),
-              defaultValue, DoorRetriever.class, suggestionsProvider, defaultDescription);
+              Objects.requireNonNullElse(defaultValue, ""), DoorRetriever.class, suggestionsProvider,
+              Objects.requireNonNullElse(defaultDescription, ArgumentDescription.empty()));
     }
 
     public static final class DoorArgumentParser implements ArgumentParser<ICommandSender, DoorRetriever>

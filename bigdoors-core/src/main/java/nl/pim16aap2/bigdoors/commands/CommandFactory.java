@@ -10,7 +10,7 @@ import javax.inject.Inject;
  *
  * @author Pim
  */
-public class CommandFactory
+public final class CommandFactory
 {
     @Delegate
     private final AddOwner.IFactory addOwnerFactory;

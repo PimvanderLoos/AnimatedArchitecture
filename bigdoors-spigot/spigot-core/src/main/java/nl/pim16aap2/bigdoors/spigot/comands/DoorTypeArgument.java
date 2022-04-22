@@ -8,15 +8,18 @@ import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiFunction;
 
 public class DoorTypeArgument extends CommandArgument<ICommandSender, DoorType>
 {
+    @lombok.Builder
     public DoorTypeArgument(
-        boolean required, String name, String defaultValue,
+        boolean required, String name, @Nullable String defaultValue,
         @Nullable BiFunction<CommandContext<ICommandSender>, String, List<String>> suggestionsProvider,
-        ArgumentDescription defaultDescription, DoorTypeParser parser)
+        @Nullable ArgumentDescription defaultDescription, DoorTypeParser parser)
     {
-        super(required, name, parser, defaultValue, DoorType.class, suggestionsProvider, defaultDescription);
+        super(required, name, parser, Objects.requireNonNullElse(defaultValue, ""), DoorType.class, suggestionsProvider,
+              Objects.requireNonNullElse(defaultDescription, ArgumentDescription.empty()));
     }
 }

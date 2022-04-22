@@ -25,8 +25,9 @@ public class InspectPowerBlock extends BaseCommand
     private final PowerBlockInspector.IFactory inspectPowerBlockFactory;
 
     @AssistedInject //
-    InspectPowerBlock(@Assisted ICommandSender commandSender, ILocalizer localizer,
-                      ToolUserManager toolUserManager, PowerBlockInspector.IFactory inspectPowerBlockFactory)
+    InspectPowerBlock(
+        @Assisted ICommandSender commandSender, ILocalizer localizer,
+        ToolUserManager toolUserManager, PowerBlockInspector.IFactory inspectPowerBlockFactory)
     {
         super(commandSender, localizer);
         this.toolUserManager = toolUserManager;
@@ -36,7 +37,7 @@ public class InspectPowerBlock extends BaseCommand
     @Override
     public CommandDefinition getCommand()
     {
-        return CommandDefinition.INSPECT_POWERBLOCK;
+        return CommandDefinition.INSPECT_POWER_BLOCK;
     }
 
     @Override

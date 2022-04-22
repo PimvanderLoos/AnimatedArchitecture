@@ -29,8 +29,9 @@ public class MovePowerBlock extends DoorTargetCommand
     private final PowerBlockRelocator.IFactory powerBlockRelocatorFactory;
 
     @AssistedInject //
-    MovePowerBlock(@Assisted ICommandSender commandSender, ILocalizer localizer, @Assisted DoorRetriever doorRetriever,
-                   ToolUserManager toolUserManager, PowerBlockRelocator.IFactory powerBlockRelocatorFactory)
+    MovePowerBlock(
+        @Assisted ICommandSender commandSender, ILocalizer localizer, @Assisted DoorRetriever doorRetriever,
+        ToolUserManager toolUserManager, PowerBlockRelocator.IFactory powerBlockRelocatorFactory)
     {
         super(commandSender, localizer, doorRetriever, DoorAttribute.RELOCATE_POWERBLOCK);
         this.toolUserManager = toolUserManager;
@@ -40,7 +41,7 @@ public class MovePowerBlock extends DoorTargetCommand
     @Override
     public CommandDefinition getCommand()
     {
-        return CommandDefinition.MOVE_POWERBLOCK;
+        return CommandDefinition.MOVE_POWER_BLOCK;
     }
 
     @Override
@@ -70,7 +71,8 @@ public class MovePowerBlock extends DoorTargetCommand
          *     A {@link DoorRetrieverFactory} representing the {@link DoorBase} for which the powerblock will be moved.
          * @return See {@link BaseCommand#run()}.
          */
-        MovePowerBlock newMovePowerBlock(ICommandSender commandSender,
-                                         DoorRetriever doorRetriever);
+        MovePowerBlock newMovePowerBlock(
+            ICommandSender commandSender,
+            DoorRetriever doorRetriever);
     }
 }
