@@ -17,7 +17,6 @@ import cloud.commandframework.paper.PaperCommandManager;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.format.NamedTextColor;
 import nl.pim16aap2.bigdoors.commands.CommandDefinition;
-import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.commands.ICommandSender;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
@@ -40,7 +39,6 @@ public final class CommandManager
 {
     private final JavaPlugin plugin;
     private final ILocalizer localizer;
-    private final CommandFactory commandFactory;
     private final DoorRetrieverFactory doorRetrieverFactory;
     private volatile @Nullable BukkitCommandManager<ICommandSender> manager;
     private boolean asyncCompletions = false;
@@ -51,13 +49,11 @@ public final class CommandManager
 
     @Inject//
     CommandManager(
-        JavaPlugin plugin, ILocalizer localizer, CommandFactory commandFactory,
-        DoorRetrieverFactory doorRetrieverFactory, DoorTypeParser doorTypeParser, DirectionParser directionParser,
-        CommandExecutor executor)
+        JavaPlugin plugin, ILocalizer localizer, DoorRetrieverFactory doorRetrieverFactory,
+        DoorTypeParser doorTypeParser, DirectionParser directionParser, CommandExecutor executor)
     {
         this.plugin = plugin;
         this.localizer = localizer;
-        this.commandFactory = commandFactory;
         this.doorRetrieverFactory = doorRetrieverFactory;
         this.doorTypeParser = doorTypeParser;
         this.directionParser = directionParser;
@@ -161,7 +157,7 @@ public final class CommandManager
     private Command.Builder<ICommandSender> baseInit(
         Command.Builder<ICommandSender> builder, CommandDefinition cmd, String descriptionKey)
     {
-        return builder.literal(cmd.getName().toLowerCase(Locale.ROOT))
+        return builder.literal(cmd.getName().replace("_", "").toLowerCase(Locale.ROOT))
                       .permission(cmd.getLowestPermission())
                       .meta(CommandMeta.DESCRIPTION, localizer.getMessage(descriptionKey));
     }

@@ -30,6 +30,8 @@ class CommandExecutor
         this.doorRetrieverFactory = doorRetrieverFactory;
     }
 
+    // NullAway doesn't see the @Nullable on permissionLevel. Not sure if this is because of Lombok or NullAway.
+    @SuppressWarnings("NullAway")
     void addOwner(CommandContext<ICommandSender> context)
     {
         final IPPlayer newOwner = context.get("newOwner");
@@ -65,17 +67,19 @@ class CommandExecutor
 
     void delete(CommandContext<ICommandSender> context)
     {
-
+        final DoorRetriever doorRetriever = context.get("doorRetriever");
+        commandFactory.newDelete(context.getSender(), doorRetriever).run();
     }
 
     void info(CommandContext<ICommandSender> context)
     {
-
+        final DoorRetriever doorRetriever = context.get("doorRetriever");
+        commandFactory.newInfo(context.getSender(), doorRetriever).run();
     }
 
     void inspectPowerBlock(CommandContext<ICommandSender> context)
     {
-
+        commandFactory.newInspectPowerBlock(context.getSender()).run();
     }
 
     void listDoors(CommandContext<ICommandSender> context)
@@ -91,7 +95,9 @@ class CommandExecutor
 
     void lock(CommandContext<ICommandSender> context)
     {
-
+        final DoorRetriever doorRetriever = context.get("doorRetriever");
+        final boolean lockStatus = context.get("lockStatus");
+        commandFactory.newLock(context.getSender(), doorRetriever, lockStatus).run();
     }
 
     void menu(CommandContext<ICommandSender> context)
@@ -109,10 +115,11 @@ class CommandExecutor
 
     void movePowerBlock(CommandContext<ICommandSender> context)
     {
-
+        final DoorRetriever doorRetriever = context.get("doorRetriever");
+        commandFactory.newMovePowerBlock(context.getSender(), doorRetriever).run();
     }
 
-    // NullAway doesn't see the @Nullable on permissionLevel. Not sure if this is because of Lombok or NullAway.
+    // NullAway doesn't see the @Nullable on doorName. Not sure if this is because of Lombok or NullAway.
     @SuppressWarnings("NullAway")
     void newDoor(CommandContext<ICommandSender> context)
     {
@@ -123,9 +130,9 @@ class CommandExecutor
 
     void removeOwner(CommandContext<ICommandSender> context)
     {
-        final DoorRetriever retriever = context.get("doorRetriever");
+        final DoorRetriever doorRetriever = context.get("doorRetriever");
         final IPPlayer targetPlayer = new PPlayerSpigot(context.get("targetPlayer"));
-        commandFactory.newRemoveOwner(context.getSender(), retriever, targetPlayer).run();
+        commandFactory.newRemoveOwner(context.getSender(), doorRetriever, targetPlayer).run();
     }
 
     void restart(CommandContext<ICommandSender> context)
@@ -135,12 +142,26 @@ class CommandExecutor
 
     void setAutoCloseTime(CommandContext<ICommandSender> context)
     {
+        final int autoCloseTime = context.get("autoCloseTime");
+        final @Nullable DoorRetriever doorRetriever = nullable(context, "doorRetriever");
 
+        final ICommandSender commandSender = context.getSender();
+        if (doorRetriever != null)
+            commandFactory.newSetAutoCloseTime(commandSender, doorRetriever, autoCloseTime).run();
+        else
+            commandFactory.getSetAutoCloseTimeDelayed().provideDelayedInput(commandSender, autoCloseTime);
     }
 
     void setBlocksToMove(CommandContext<ICommandSender> context)
     {
+        final int blocksToMove = context.get("blocksToMove");
+        final @Nullable DoorRetriever doorRetriever = nullable(context, "doorRetriever");
 
+        final ICommandSender commandSender = context.getSender();
+        if (doorRetriever != null)
+            commandFactory.newSetBlocksToMove(commandSender, doorRetriever, blocksToMove).run();
+        else
+            commandFactory.getSetBlocksToMoveDelayed().provideDelayedInput(commandSender, blocksToMove);
     }
 
     void setName(CommandContext<ICommandSender> context)
@@ -162,12 +183,12 @@ class CommandExecutor
 
     void specify(CommandContext<ICommandSender> context)
     {
-
+        throw new UnsupportedOperationException("Not implemented!");
     }
 
     void stopDoors(CommandContext<ICommandSender> context)
     {
-
+        commandFactory.newStopDoors(context.getSender()).run();
     }
 
     void toggle(CommandContext<ICommandSender> context)
