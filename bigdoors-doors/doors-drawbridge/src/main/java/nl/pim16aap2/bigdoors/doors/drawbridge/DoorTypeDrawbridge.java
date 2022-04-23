@@ -1,6 +1,8 @@
 package nl.pim16aap2.bigdoors.doors.drawbridge;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.audio.AudioDescription;
+import nl.pim16aap2.bigdoors.audio.AudioSet;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
@@ -15,6 +17,10 @@ public final class DoorTypeDrawbridge extends DoorType
     private static final int TYPE_VERSION = 1;
 
     private static final DoorTypeDrawbridge INSTANCE = new DoorTypeDrawbridge();
+
+    private static final AudioSet AUDIO_SET = new AudioSet(
+        new AudioDescription("bd.drawbridge-rattling", 0.8f, 0.7f, 750),
+        new AudioDescription("bd.closing-vault-door", 0.2f, 0.15f, 750));
 
     private DoorTypeDrawbridge()
     {
@@ -43,5 +49,11 @@ public final class DoorTypeDrawbridge extends DoorType
     public Class<? extends AbstractDoor> getDoorClass()
     {
         return Drawbridge.class;
+    }
+
+    @Override
+    public AudioSet getAudioSet()
+    {
+        return AUDIO_SET;
     }
 }

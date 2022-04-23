@@ -4,6 +4,7 @@ import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
+import nl.pim16aap2.bigdoors.audio.IAudioPlayer;
 import nl.pim16aap2.bigdoors.commands.DelayedCommandInputRequest;
 import nl.pim16aap2.bigdoors.commands.IPServer;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
@@ -42,6 +43,11 @@ public interface IBigDoorsPlatform
      * @return The build id of BigDoors that is currently running.
      */
     String getVersion();
+
+    /**
+     * @return The amount of time (in milliseconds) each ticks takes on this platform under normal operation.
+     */
+    int getTickTime();
 
     /**
      * Gets the instance of the {@link IBigDoorsToolUtil} for this platform.
@@ -86,11 +92,11 @@ public interface IBigDoorsPlatform
     IConfigLoader getBigDoorsConfig();
 
     /**
-     * Gets the instance of the {@link ISoundEngine} for this platform.
+     * Gets the instance of the {@link IAudioPlayer} for this platform.
      *
-     * @return The instance of the {@link ISoundEngine} for this platform.
+     * @return The instance of the {@link IAudioPlayer} for this platform.
      */
-    ISoundEngine getSoundEngine();
+    IAudioPlayer getAudioPlayer();
 
     /**
      * Gets the instance of the {@link IBlockAnalyzer} for this platform.

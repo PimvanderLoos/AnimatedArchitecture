@@ -2,14 +2,12 @@ package nl.pim16aap2.bigdoors.doors.garagedoor;
 
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.api.PSound;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
-import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -95,14 +93,12 @@ public class GarageDoorMover extends BlockMover
     }
 
     /**
-     * Used for initializing variables such as {@link #endCount} and {@link #soundActive}.
+     * Used for initializing variables such as {@link #endCount}.
      */
     protected void init()
     {
         super.endCount = (int) (20 * super.time);
         step = (blocksToMove + 0.5f) / super.endCount;
-        super.soundActive = new PSoundDescription(PSound.DRAWBRIDGE_RATTLING, 0.8f, 0.7f);
-        super.soundFinish = new PSoundDescription(PSound.THUD, 0.2f, 0.15f);
     }
 
     private Vector3Dd getVectorUp(IAnimatedBlock animatedBlock, double stepSum)

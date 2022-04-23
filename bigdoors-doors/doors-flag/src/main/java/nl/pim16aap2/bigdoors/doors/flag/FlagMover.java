@@ -49,7 +49,7 @@ public class FlagMover extends BlockMover
     }
 
     /**
-     * Used for initializing variables such as {@link #endCount} and {@link #soundActive}.
+     * Used for initializing variables such as {@link #endCount}.
      */
     protected void init()
     {

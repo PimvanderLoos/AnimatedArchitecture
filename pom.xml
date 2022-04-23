@@ -14,6 +14,7 @@
         <maven.compiler.release>18</maven.compiler.release>
 
         <dependency.version.jcalculator>1.8</dependency.version.jcalculator>
+        <dependency.version.gson>2.9.0</dependency.version.gson>
         <dependency.version.flogger>0.7.4</dependency.version.flogger>
         <dependency.version.slf4j>1.7.36</dependency.version.slf4j>
         <dependency.version.logback>1.2.11</dependency.version.logback>
@@ -158,6 +159,13 @@
         </dependency>
 
         <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>${dependency.version.gson}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
             <version>${dependency.version.annotations}</version>
@@ -186,6 +194,13 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
             <version>${dependency.version.mockito}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.jimfs</groupId>
+            <artifactId>jimfs</artifactId>
+            <version>${dependency.version.jimfs}</version>
             <scope>test</scope>
         </dependency>
 

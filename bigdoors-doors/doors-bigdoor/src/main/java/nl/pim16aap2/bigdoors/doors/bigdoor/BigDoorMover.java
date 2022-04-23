@@ -3,14 +3,12 @@ package nl.pim16aap2.bigdoors.doors.bigdoor;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.api.PSound;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
@@ -53,15 +51,13 @@ public class BigDoorMover extends BlockMover
     }
 
     /**
-     * Used for initializing variables such as {@link #endCount} and {@link #soundActive}.
+     * Used for initializing variables such as {@link #endCount}.
      */
     protected void init()
     {
         super.endCount = (int) (20 * super.time) + 1;
         step = angle / super.endCount;
         halfEndCount = super.endCount / 2;
-        super.soundActive = new PSoundDescription(PSound.DRAGGING, 0.8f, 0.7f);
-        super.soundFinish = new PSoundDescription(PSound.THUD, 0.2f, 0.15f);
     }
 
     @Override

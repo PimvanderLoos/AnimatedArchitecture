@@ -15,13 +15,13 @@ import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPermissionsManager;
 import nl.pim16aap2.bigdoors.api.IPowerBlockRedstoneManager;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
-import nl.pim16aap2.bigdoors.api.ISoundEngine;
 import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
+import nl.pim16aap2.bigdoors.audio.IAudioPlayer;
 import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.commands.IPServer;
 import nl.pim16aap2.bigdoors.extensions.DoorTypeLoader;
@@ -67,6 +67,9 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     private final RestartableHolder restartableHolder;
 
     @Getter
+    private final int tickTime = 50;
+
+    @Getter
     private final IBigDoorsToolUtil bigDoorsToolUtil;
 
     @Getter
@@ -85,7 +88,7 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     private final IConfigLoader bigDoorsConfig;
 
     @Getter
-    private final ISoundEngine soundEngine;
+    private final IAudioPlayer audioPlayer;
 
     @Getter
     private final IBlockAnalyzer blockAnalyzer;
@@ -256,7 +259,7 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
         worldListener = safeGetter(BigDoorsSpigotComponent::getWorldListener);
         glowingBlockSpawner = safeGetter(BigDoorsSpigotComponent::getIGlowingBlockSpawner);
         pServer = safeGetter(BigDoorsSpigotComponent::getIPServer);
-        soundEngine = safeGetter(BigDoorsSpigotComponent::getISoundEngine);
+        audioPlayer = safeGetter(BigDoorsSpigotComponent::getIAudioPlayer);
         messagingInterface = safeGetter(BigDoorsSpigotComponent::getIMessagingInterface);
         messageableServer = safeGetter(BigDoorsSpigotComponent::getMessageable);
         bigDoorsToolUtil = safeGetter(BigDoorsSpigotComponent::getBigDoorsToolUtilSpigot);
@@ -266,7 +269,19 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
         doorTypeLoader = safeGetter(BigDoorsSpigotComponent::getDoorTypeLoader);
         restartableHolder = safeGetter(BigDoorsSpigotComponent::getRestartableHolder);
 
+        initPlatform();
+    }
+
+    /**
+     * Initializes stuff that doesn't need to happen in the constructor. E.g. registering hooks.
+     *
+     * @throws InitializationException
+     */
+    private void initPlatform()
+        throws InitializationException
+    {
         safeGetter(BigDoorsSpigotComponent::getDebuggableRegistry).registerDebuggable(restartableHolder);
+        getAnimationHookManager().registerFactory(safeGetter(BigDoorsSpigotComponent::getAudioAnimationHookFactory));
     }
 
     @SuppressWarnings("NullAway") // NullAway doesn't like nullable in functional interfaces
@@ -306,5 +321,4 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     {
         return plugin.getDescription().getVersion();
     }
-
 }
