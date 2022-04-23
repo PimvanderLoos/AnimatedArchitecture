@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.extensions;
 
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
@@ -36,15 +37,18 @@ public final class DoorTypeLoader extends Restartable
     private @Nullable DoorTypeClassLoader doorTypeClassLoader;
 
     private final DoorTypeManager doorTypeManager;
+    private final IConfigLoader configLoader;
     private final Path extensionsDirectory;
     private boolean successfulInit;
 
     @Inject
     public DoorTypeLoader(
-        RestartableHolder holder, DoorTypeManager doorTypeManager, @Named("pluginBaseDirectory") Path dataDirectory)
+        RestartableHolder holder, DoorTypeManager doorTypeManager, IConfigLoader configLoader,
+        @Named("pluginBaseDirectory") Path dataDirectory)
     {
         super(holder);
         this.doorTypeManager = doorTypeManager;
+        this.configLoader = configLoader;
         extensionsDirectory = dataDirectory.resolve(Constants.BIGDOORS_EXTENSIONS_FOLDER_NAME);
     }
 
@@ -84,7 +88,7 @@ public final class DoorTypeLoader extends Restartable
         return false;
     }
 
-    private Optional<DoorTypeInitializer.TypeInfo> getDoorTypeInfo(Path file)
+    private Optional<DoorTypeInfo> getDoorTypeInfo(Path file)
     {
         log.at(Level.FINE).log("Attempting to load DoorType from jar: %s", file);
         if (!file.toString().endsWith(".jar"))
@@ -142,7 +146,7 @@ public final class DoorTypeLoader extends Restartable
             return Optional.empty();
         }
 
-        return Optional.of(new DoorTypeInitializer.TypeInfo(typeName, version, className, file, dependencies));
+        return Optional.of(new DoorTypeInfo(typeName, version, className, file, dependencies));
     }
 
     /**
@@ -174,7 +178,7 @@ public final class DoorTypeLoader extends Restartable
             return Collections.emptyList();
         }
 
-        final List<DoorTypeInitializer.TypeInfo> typeInfoList = new ArrayList<>();
+        final List<DoorTypeInfo> typeInfoList = new ArrayList<>();
 
         try (Stream<Path> walk = Files.walk(directory, 1, FileVisitOption.FOLLOW_LINKS))
         {
@@ -186,8 +190,8 @@ public final class DoorTypeLoader extends Restartable
             log.at(Level.SEVERE).withCause(e).log();
         }
 
-        final List<DoorType> types = new DoorTypeInitializer(typeInfoList, doorTypeClassLoader,
-                                                             doorTypeManager).loadDoorTypes();
+        final List<DoorType> types =
+            new DoorTypeInitializer(typeInfoList, doorTypeClassLoader, configLoader.debug()).loadDoorTypes();
         doorTypeManager.registerDoorTypes(types);
         return types;
     }

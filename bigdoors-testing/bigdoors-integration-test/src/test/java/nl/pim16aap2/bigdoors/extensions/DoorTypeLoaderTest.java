@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.extensions;
 
+import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import org.junit.jupiter.api.AfterEach;
@@ -7,6 +8,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.io.File;
@@ -22,12 +24,16 @@ class DoorTypeLoaderTest
     @Mock
     private DoorTypeManager doorTypeManager;
 
+    @Mock
+    private IConfigLoader configLoader;
+
     private AutoCloseable mocks;
 
     @BeforeEach
     public void init()
     {
         mocks = MockitoAnnotations.openMocks(this);
+        Mockito.when(configLoader.debug()).thenReturn(true);
     }
 
     @AfterEach
@@ -47,7 +53,7 @@ class DoorTypeLoaderTest
                     .resolve("DoorTypes").toAbsolutePath().toString();
         final int inputCount = Objects.requireNonNull(new File(extensionsPath).list()).length;
 
-        final var doorTypeLoader = new DoorTypeLoader(restartableHolder, doorTypeManager, basePath);
+        final var doorTypeLoader = new DoorTypeLoader(restartableHolder, doorTypeManager, configLoader, basePath);
         doorTypeLoader.initialize();
         Assertions.assertEquals(inputCount, doorTypeLoader.loadDoorTypesFromDirectory(Path.of(extensionsPath)).size());
     }
