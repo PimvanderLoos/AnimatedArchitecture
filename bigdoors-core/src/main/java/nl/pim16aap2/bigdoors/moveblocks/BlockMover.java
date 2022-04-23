@@ -10,12 +10,15 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.ISoundEngine;
 import nl.pim16aap2.bigdoors.api.PSound;
+import nl.pim16aap2.bigdoors.api.animatedblock.AnimationContext;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
+import nl.pim16aap2.bigdoors.api.animatedblock.IAnimationHook;
 import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
+import nl.pim16aap2.bigdoors.managers.AnimationHookManager;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -27,7 +30,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.logging.Level;
+
+import static nl.pim16aap2.bigdoors.api.animatedblock.IAnimation.AnimationState;
 
 /**
  * Represents a class that animates blocks.
@@ -69,6 +75,9 @@ public abstract class BlockMover
     @ToString.Exclude
     private final ISoundEngine soundEngine;
 
+    @ToString.Exclude
+    private final AnimationHookManager animationHookManager;
+
     protected MovementMethod movementMethod = MovementMethod.VELOCITY;
 
     @Getter
@@ -98,6 +107,8 @@ public abstract class BlockMover
     private volatile boolean hasStarted = false;
 
     protected @Nullable TimerTask moverTask = null;
+
+    private @Nullable List<IAnimationHook<IAnimatedBlock>> hooks;
 
     protected int moverTaskID = 0;
 
@@ -146,6 +157,7 @@ public abstract class BlockMover
         animatedBlockFactory = context.getAnimatedBlockFactory();
         locationFactory = context.getLocationFactory();
         soundEngine = context.getSoundEngine();
+        animationHookManager = context.getAnimationHookManager();
 
         if (!context.getExecutor().isMainThread(Thread.currentThread().getId()))
             throw new Exception("BlockMovers must be called on the main thread!");
@@ -220,7 +232,7 @@ public abstract class BlockMover
     /**
      * Respawns all blocks. This is executed on the main thread.
      */
-    protected void respawnBlocks()
+    protected final void respawnBlocks()
     {
         executor.runSync(this::respawnBlocksOnCurrentThread);
     }
@@ -239,6 +251,9 @@ public abstract class BlockMover
             throw new IllegalStateException("Trying to start an animation again!");
         hasStarted = true;
 
+        final Animation<IAnimatedBlock> animation = new Animation<>(endCount, door.getCuboid(), animatedBlocks);
+        final AnimationContext animationContext = new AnimationContext(door.getDoorType(), door, animation);
+
         try
         {
             for (int xAxis = xMin; xAxis <= xMax; ++xAxis)
@@ -248,7 +263,8 @@ public abstract class BlockMover
                         final IPLocation location = locationFactory.create(world, xAxis, yAxis, zAxis);
                         final boolean bottom = (yAxis == yMin);
                         animatedBlockFactory.create(location, getRadius(xAxis, yAxis, zAxis),
-                                                    getStartAngle(xAxis, yAxis, zAxis), bottom)
+                                                    getStartAngle(xAxis, yAxis, zAxis), bottom,
+                                                    animationContext)
                                             .ifPresent(animatedBlocks::add);
                     }
         }
@@ -262,10 +278,14 @@ public abstract class BlockMover
         for (final IAnimatedBlock animatedBlock : animatedBlocks)
             animatedBlock.getAnimatedBlockData().deleteOriginalBlock();
 
-        if (skipAnimation || animatedBlocks.isEmpty())
+        final boolean animationSkipped = skipAnimation || animatedBlocks.isEmpty();
+        animation.setState(animationSkipped ? AnimationState.SKIPPED : AnimationState.ACTIVE);
+        this.hooks = animationHookManager.instantiateHooks(animation);
+
+        if (animationSkipped)
             putBlocks(false);
         else
-            animateEntities();
+            animateEntities(animation);
     }
 
     /**
@@ -286,17 +306,30 @@ public abstract class BlockMover
      */
     protected abstract void executeAnimationStep(int ticks);
 
+    private void executeAnimationStep(int counter, Animation<IAnimatedBlock> animation)
+    {
+        executeAnimationStep(counter);
+
+        animation.setRegion(getAnimationRegion());
+        animation.setState(AnimationState.ACTIVE);
+    }
+
     /**
      * Gracefully stops the animation: Freeze any animated blocks, kill the animation task and place the blocks in their
      * new location.
      */
-    private synchronized void stopAnimation()
+    private synchronized void stopAnimation(Animation<IAnimatedBlock> animation)
     {
+        animation.setRegion(getAnimationRegion());
+        animation.setState(AnimationState.FINISHING);
+
         if (soundFinish != null)
             playSound(soundFinish);
 
         for (final IAnimatedBlock animatedBlock : animatedBlocks)
             animatedBlock.setVelocity(new Vector3Dd(0D, 0D, 0D));
+
+        forEachHook("onAnimationEnding", IAnimationHook::onAnimationEnding);
 
         executor.runSync(() -> putBlocks(false));
         if (moverTask == null)
@@ -305,6 +338,9 @@ public abstract class BlockMover
             return;
         }
         executor.cancel(moverTask, moverTaskID);
+
+        animation.setState(AnimationState.COMPLETED);
+        animation.setRegion(door.getCuboid());
     }
 
     /**
@@ -320,9 +356,13 @@ public abstract class BlockMover
     /**
      * Runs the animation of the animated blocks.
      */
-    private synchronized void animateEntities()
+    private synchronized void animateEntities(Animation<IAnimatedBlock> animation)
     {
         prepareAnimation();
+
+        if (hooks != null)
+            hooks.forEach(IAnimationHook::onPrepare);
+        forEachHook("onPrepare", IAnimationHook::onPrepare);
 
         moverTask = new TimerTask()
         {
@@ -335,6 +375,7 @@ public abstract class BlockMover
             {
                 if (startTime == null)
                     startTime = System.nanoTime();
+                forEachHook("onPreAnimationStep", IAnimationHook::onPreAnimationStep);
                 ++counter;
 
                 if (soundActive != null && counter % PSound.getDuration(soundActive.sound()) == 0)
@@ -351,9 +392,11 @@ public abstract class BlockMover
                     respawnBlocks();
 
                 if (counter > endCount)
-                    stopAnimation();
+                    stopAnimation(animation);
                 else
-                    executeAnimationStep(counter);
+                    executeAnimationStep(counter, animation);
+                animation.setStepsExecuted(counter);
+                forEachHook("onPostAnimationStep", IAnimationHook::onPostAnimationStep);
             }
         };
         moverTaskID = executor.runAsyncRepeated(moverTask, 14, 1);
@@ -438,6 +481,8 @@ public abstract class BlockMover
 
         animatedBlocks.clear();
 
+        forEachHook("onAnimationCompleted", IAnimationHook::onAnimationCompleted);
+
         if (onDisable)
             return;
 
@@ -497,6 +542,57 @@ public abstract class BlockMover
         return door;
     }
 
+    private Cuboid getAnimationRegion()
+    {
+        double xMin = Double.MAX_VALUE;
+        double yMin = Double.MAX_VALUE;
+        double zMin = Double.MAX_VALUE;
+
+        double xMax = Double.MIN_VALUE;
+        double yMax = Double.MIN_VALUE;
+        double zMax = Double.MIN_VALUE;
+
+        for (final IAnimatedBlock animatedBlock : animatedBlocks)
+        {
+            final Vector3Dd pos = animatedBlock.getPosition();
+            if (pos.x() < xMin)
+                xMin = pos.x();
+            else if (pos.x() > xMax)
+                xMax = pos.x();
+
+            if (pos.y() < yMin)
+                yMin = pos.y();
+            else if (pos.y() > yMax)
+                yMax = pos.y();
+
+            if (pos.z() < zMin)
+                zMin = pos.z();
+            else if (pos.z() > zMax)
+                zMax = pos.z();
+        }
+        return Cuboid.of(new Vector3Dd(xMin, yMin, zMin), new Vector3Dd(xMax, yMax, zMax), Cuboid.RoundingMode.OUTWARD);
+    }
+
+    private void forEachHook(String actionName, Consumer<IAnimationHook<IAnimatedBlock>> call)
+    {
+        if (hooks == null)
+            return;
+
+        for (final IAnimationHook<IAnimatedBlock> hook : hooks)
+        {
+            log.at(Level.FINEST).log("Executing '%s' for hook '%s'!", actionName, hook.getName());
+            try
+            {
+                call.accept(hook);
+            }
+            catch (Exception e)
+            {
+                log.at(Level.SEVERE).withCause(e)
+                   .log("Failed to execute '%s' for hook '%s'!", actionName, hook.getName());
+            }
+        }
+    }
+
     @Getter(AccessLevel.PACKAGE)
     public static final class Context
     {
@@ -506,12 +602,13 @@ public abstract class BlockMover
         private final ISoundEngine soundEngine;
         private final IPExecutor executor;
         private final IAnimatedBlockFactory animatedBlockFactory;
+        private final AnimationHookManager animationHookManager;
 
         @Inject
         public Context(
             DoorActivityManager doorActivityManager, AutoCloseScheduler autoCloseScheduler,
             IPLocationFactory locationFactory, ISoundEngine soundEngine, IPExecutor executor,
-            IAnimatedBlockFactory animatedBlockFactory)
+            IAnimatedBlockFactory animatedBlockFactory, AnimationHookManager animationHookManager)
         {
             this.doorActivityManager = doorActivityManager;
             this.autoCloseScheduler = autoCloseScheduler;
@@ -519,6 +616,7 @@ public abstract class BlockMover
             this.soundEngine = soundEngine;
             this.executor = executor;
             this.animatedBlockFactory = animatedBlockFactory;
+            this.animationHookManager = animationHookManager;
         }
     }
 

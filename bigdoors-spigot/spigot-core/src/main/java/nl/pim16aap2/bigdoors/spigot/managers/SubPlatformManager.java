@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.spigot.managers;
 
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
+import nl.pim16aap2.bigdoors.managers.AnimatedBlockHookManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsPlugin;
 import nl.pim16aap2.bigdoors.spigot.util.api.IBigDoorsSpigotSubPlatform;
 import nl.pim16aap2.bigdoors.spigot.v1_15_R1.BigDoorsSpigotSubPlatform_V1_15_R1;
@@ -34,7 +35,7 @@ public final class SubPlatformManager
      *     on an unsupported version.
      */
     @Inject
-    public SubPlatformManager(BigDoorsPlugin bigDoorsPlugin)
+    public SubPlatformManager(BigDoorsPlugin bigDoorsPlugin, AnimatedBlockHookManager animatedBlockHookManager)
     {
         serverVersion = Bukkit.getServer().getClass().getPackage().getName();
 
@@ -45,7 +46,7 @@ public final class SubPlatformManager
             final String versionStringTmp = serverVersion.split("\\.")[3];
             versionTmp = Version.parseVersion(versionStringTmp);
             if (versionTmp != Version.UNSUPPORTED_VERSION)
-                spigotPlatformTmp = versionTmp.getPlatform();
+                spigotPlatformTmp = versionTmp.getPlatform(animatedBlockHookManager);
         }
         catch (ArrayIndexOutOfBoundsException | IllegalArgumentException e)
         {
@@ -110,7 +111,8 @@ public final class SubPlatformManager
         UNSUPPORTED_VERSION
             {
                 @Override
-                public @Nullable IBigDoorsSpigotSubPlatform getPlatform()
+                public @Nullable IBigDoorsSpigotSubPlatform getPlatform(
+                    AnimatedBlockHookManager animatedBlockHookManager)
                 {
                     return null;
                 }
@@ -118,9 +120,9 @@ public final class SubPlatformManager
         V1_15_R1
             {
                 @Override
-                public IBigDoorsSpigotSubPlatform getPlatform()
+                public IBigDoorsSpigotSubPlatform getPlatform(AnimatedBlockHookManager animatedBlockHookManager)
                 {
-                    return new BigDoorsSpigotSubPlatform_V1_15_R1();
+                    return new BigDoorsSpigotSubPlatform_V1_15_R1(animatedBlockHookManager);
                 }
             },
         ;
@@ -128,7 +130,8 @@ public final class SubPlatformManager
         /**
          * @return The instance of the {@link IBigDoorsSpigotSubPlatform} for this {@link Version}.
          */
-        public abstract @Nullable IBigDoorsSpigotSubPlatform getPlatform()
+        public abstract @Nullable IBigDoorsSpigotSubPlatform getPlatform(
+            AnimatedBlockHookManager animatedBlockHookManager)
             throws UnsupportedOperationException;
 
         public static Version parseVersion(String version)

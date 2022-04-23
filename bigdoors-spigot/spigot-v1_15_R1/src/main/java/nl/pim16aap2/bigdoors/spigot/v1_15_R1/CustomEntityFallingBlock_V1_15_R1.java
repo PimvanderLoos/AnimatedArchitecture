@@ -4,6 +4,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.extern.flogger.Flogger;
 import net.minecraft.server.v1_15_R1.BlockPosition;
 import net.minecraft.server.v1_15_R1.Blocks;
 import net.minecraft.server.v1_15_R1.CrashReportSystemDetails;
@@ -19,7 +20,10 @@ import net.minecraft.server.v1_15_R1.Vec3D;
 import net.minecraft.server.v1_15_R1.WorldServer;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.api.animatedblock.AnimationContext;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
+import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlockHook;
+import nl.pim16aap2.bigdoors.managers.AnimatedBlockHookManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.api.IAnimatedBlockSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PLocationSpigot;
@@ -33,12 +37,17 @@ import org.bukkit.craftbukkit.v1_15_R1.util.CraftMagicNumbers;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.logging.Level;
+
 /**
  * V1_15_R1 implementation of {@link IAnimatedBlock}.
  *
  * @author Pim
  * @see IAnimatedBlock
  */
+@Flogger
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_15_R1.EntityFallingBlock
@@ -61,12 +70,15 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     @Getter
     private final org.bukkit.World bukkitWorld;
     @Getter
+    private final AnimationContext context;
+    @Getter
     private final float radius;
     @Getter
     private final float startAngle;
     @Getter
     private final boolean placementDeferred;
     private final IPWorld pWorld;
+    private final List<IAnimatedBlockHook> hooks;
     @ToString.Exclude
     private @Nullable PlayerChunkMap.EntityTracker tracker;
     @ToString.Exclude
@@ -82,7 +94,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
 
     public CustomEntityFallingBlock_V1_15_R1(
         IPWorld pWorld, World world, double d0, double d1, double d2, float radius, float startAngle,
-        boolean placementDeferred)
+        boolean placementDeferred, AnimationContext context, AnimatedBlockHookManager animatedBlockHookManager)
         throws Exception
     {
         super(EntityTypes.FALLING_BLOCK, ((CraftWorld) world).getHandle());
@@ -91,6 +103,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         this.radius = radius;
         this.startAngle = startAngle;
         this.placementDeferred = placementDeferred;
+        this.context = context;
         worldServer = ((CraftWorld) bukkitWorld).getHandle();
         // Do not round x and z because they are at half blocks; Given x;z 10;5, the block will be spawned at
         // 10.5;5.5. Rounding it would retrieve the blocks at 11;6.
@@ -113,6 +126,8 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
 
         noclip = true;
         a(new BlockPosition(this));
+
+        this.hooks = animatedBlockHookManager.instantiateHooks(this);
     }
 
     @Override
@@ -121,6 +136,8 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         for (final Entity ent : passengers)
             ent.stopRiding();
         dead = true;
+        this.worldServer.removeEntity(this);
+        forEachHook("onDie", IAnimatedBlockHook::onDie);
     }
 
     @Override
@@ -130,6 +147,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         tracker = Util.requireNonNull(worldServer.getChunkProvider().playerChunkMap.trackedEntities.get(getId()),
                                       "entity tracker");
         dead = false;
+        forEachHook("onSpawn", IAnimatedBlockHook::onSpawn);
     }
 
     @Override
@@ -146,6 +164,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         currentPosition = newPosition;
         // Update current and last x/y/z values in entity class.
         f(newPosition.x(), newPosition.y(), newPosition.z());
+        forEachHook("onMoved", hook -> hook.onMoved(newPosition));
     }
 
     @Override
@@ -168,6 +187,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         if (tracker != null)
             tracker.broadcast(tpPacket);
 
+        forEachHook("onTeleport", hook -> hook.onTeleport(newPosition));
         cyclePositions(newPosition);
 
         return true;
@@ -191,6 +211,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         if (dead)
             return;
 
+        forEachHook("preTick", IAnimatedBlockHook::preTick);
         if (animatedBlockData.getMyBlockData().isAir())
             die();
         else
@@ -205,6 +226,24 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
                 die();
 
             cyclePositions(newLocation);
+        }
+        forEachHook("postTick", IAnimatedBlockHook::postTick);
+    }
+
+    private void forEachHook(String actionName, Consumer<IAnimatedBlockHook> call)
+    {
+        for (final IAnimatedBlockHook hook : hooks)
+        {
+            log.at(Level.FINEST).log("Executing '%s' for hook '%s'!", actionName, hook.getName());
+            try
+            {
+                call.accept(hook);
+            }
+            catch (Exception e)
+            {
+                log.at(Level.SEVERE).withCause(e)
+                   .log("Failed to execute '%s' for hook '%s'!", actionName, hook.getName());
+            }
         }
     }
 

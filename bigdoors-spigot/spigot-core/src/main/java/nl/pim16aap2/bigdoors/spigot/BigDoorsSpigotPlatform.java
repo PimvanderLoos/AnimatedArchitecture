@@ -27,6 +27,8 @@ import nl.pim16aap2.bigdoors.commands.IPServer;
 import nl.pim16aap2.bigdoors.extensions.DoorTypeLoader;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.localization.LocalizationManager;
+import nl.pim16aap2.bigdoors.managers.AnimatedBlockHookManager;
+import nl.pim16aap2.bigdoors.managers.AnimationHookManager;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
@@ -134,6 +136,12 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     private final DelayedCommandInputManager delayedCommandInputManager;
 
     @Getter
+    private final AnimatedBlockHookManager animatedBlockHookManager;
+
+    @Getter
+    private final AnimationHookManager animationHookManager;
+
+    @Getter
     private final PowerBlockManager powerBlockManager;
 
     @Getter
@@ -227,6 +235,8 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
         doorTypeManager = safeGetter(BigDoorsSpigotComponent::getDoorTypeManager);
         toolUserManager = safeGetter(BigDoorsSpigotComponent::getToolUserManager);
         delayedCommandInputManager = safeGetter(BigDoorsSpigotComponent::getDelayedCommandInputManager);
+        animatedBlockHookManager = safeGetter(BigDoorsSpigotComponent::getAnimatedBlockHookManager);
+        animationHookManager = safeGetter(BigDoorsSpigotComponent::getAnimationHookManager);
 
         pLocationFactory = safeGetter(BigDoorsSpigotComponent::getIPLocationFactory);
         pWorldFactory = safeGetter(BigDoorsSpigotComponent::getIPWorldFactory);
