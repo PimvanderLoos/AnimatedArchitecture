@@ -74,9 +74,10 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      *     The {@link IStorage} to use for all database calls.
      */
     @Inject
-    public DatabaseManager(RestartableHolder restartableHolder, IStorage storage, DoorRegistry doorRegistry,
-                           Lazy<PowerBlockManager> powerBlockManager, IBigDoorsEventFactory bigDoorsEventFactory,
-                           IDoorEventCaller doorEventCaller, DebuggableRegistry debuggableRegistry)
+    public DatabaseManager(
+        RestartableHolder restartableHolder, IStorage storage, DoorRegistry doorRegistry,
+        Lazy<PowerBlockManager> powerBlockManager, IBigDoorsEventFactory bigDoorsEventFactory,
+        IDoorEventCaller doorEventCaller, DebuggableRegistry debuggableRegistry)
     {
         super(restartableHolder);
         db = storage;
@@ -487,8 +488,8 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      *     The level of ownership.
      * @return The future result of the operation.
      */
-    public CompletableFuture<ActionResult> addOwner(AbstractDoor door, IPPlayer player, int permission,
-                                                    @Nullable IPPlayer responsible)
+    public CompletableFuture<ActionResult> addOwner(
+        AbstractDoor door, IPPlayer player, int permission, @Nullable IPPlayer responsible)
     {
         if (permission < 1 || permission > 2)
             return CompletableFuture.completedFuture(ActionResult.FAIL);
@@ -560,8 +561,8 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      *     This may be null.
      * @return The future result of the operation.
      */
-    public CompletableFuture<ActionResult> removeOwner(AbstractDoor door, IPPlayer player,
-                                                       @Nullable IPPlayer responsible)
+    public CompletableFuture<ActionResult> removeOwner(
+        AbstractDoor door, IPPlayer player, @Nullable IPPlayer responsible)
     {
         return removeOwner(door, player.getUUID(), responsible);
     }
@@ -593,8 +594,8 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      *     This may be null.
      * @return The future result of the operation.
      */
-    public CompletableFuture<ActionResult> removeOwner(AbstractDoor door, UUID playerUUID,
-                                                       @Nullable IPPlayer responsible)
+    public CompletableFuture<ActionResult> removeOwner(
+        AbstractDoor door, UUID playerUUID, @Nullable IPPlayer responsible)
     {
         final Optional<DoorOwner> doorOwner = door.getDoorOwner(playerUUID);
         if (doorOwner.isEmpty())
@@ -640,6 +641,25 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     {
         return CompletableFuture.supplyAsync(() -> db.syncDoorData(doorBase, typeData), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
+    }
+
+    /**
+     * Retrieves all {@link DoorIdentifier}s that start with the provided input.
+     * <p>
+     * For example, this method can retrieve the identifiers "1", "10", "11", "100", etc from an input of "1" or
+     * "MyDoor", "MyPortcullis", "MyOtherDoor", etc from an input of "My".
+     *
+     * @param input
+     *     The partial identifier to look for.
+     * @param player
+     *     The player that should own the doors. May be null to disregard ownership.
+     * @return All {@link DoorIdentifier}s that start with the provided input.
+     */
+    public CompletableFuture<List<DoorIdentifier>> getIdentifiersFromPartial(
+        String input, @Nullable IPPlayer player, int maxPermission)
+    {
+        return CompletableFuture.supplyAsync(() -> db.getPartialIdentifiers(input, player, maxPermission), threadPool)
+                                .exceptionally(t -> Util.exceptionally(t, Collections.emptyList()));
     }
 
     /**
@@ -763,6 +783,23 @@ public final class DatabaseManager extends Restartable implements IDebuggable
         public boolean cancelled()
         {
             return cancelled;
+        }
+    }
+
+    @AllArgsConstructor @EqualsAndHashCode @ToString
+    public static final class DoorIdentifier
+    {
+        private final long uid;
+        private final String name;
+
+        public long uid()
+        {
+            return uid;
+        }
+
+        public String name()
+        {
+            return name;
         }
     }
 }

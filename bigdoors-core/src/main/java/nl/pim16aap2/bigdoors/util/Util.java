@@ -20,6 +20,7 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Locale;
@@ -216,6 +217,22 @@ public final class Util
     public static OptionalLong parseLong(Optional<String> str)
     {
         return str.map(Util::parseLong).orElse(OptionalLong.empty());
+    }
+
+    public static boolean isNumerical(@Nullable String str)
+    {
+        if (str == null || str.isEmpty())
+            return false;
+
+        for (int idx = 0; idx < str.length(); ++idx)
+        {
+            final char ch = str.charAt(idx);
+            if (idx == 0 && str.length() > 1 && ch == '-')
+                continue;
+            if (ch < '0' || ch > '9')
+                return false;
+        }
+        return true;
     }
 
     /**
@@ -726,6 +743,59 @@ public final class Util
     public static double[] calculateTimeAndTickRate(int doorSize, double time, double speedMultiplier, double baseSpeed)
     {
         return new double[0];
+    }
+
+    /**
+     * Flattens a list of lists into a single list.
+     *
+     * @param lists
+     *     The list of lists.
+     * @param <T>
+     *     The type of data in the nested lists.
+     * @return The flattened list.
+     */
+    public static <T> List<T> flattenLists(List<List<T>> lists)
+    {
+        final List<T> ret = new ArrayList<>();
+        lists.forEach(ret::addAll);
+        return ret;
+    }
+
+    /**
+     * See {@link #getAllCompletableFutureResults(CompletableFuture[])}.
+     */
+    public static <T> CompletableFuture<List<T>> getAllCompletableFutureResults(
+        Collection<CompletableFuture<T>> futures)
+    {
+        //noinspection unchecked
+        return getAllCompletableFutureResults(futures.toArray(new CompletableFuture[0]));
+    }
+
+    /**
+     * Gets a completable future that contains a list of results obtained from the input futures.
+     * <p>
+     * The result will wait for each of the futures to complete and once all of them have completed gather the results
+     * and return the list.
+     *
+     * @param futures
+     *     The completable futures whose results to collect into a list.
+     * @param <T>
+     *     The type of data.
+     * @return The list of results obtained from the completable futures in the same order as provided.
+     */
+    @SafeVarargs
+    public static <T> CompletableFuture<List<T>> getAllCompletableFutureResults(CompletableFuture<T>... futures)
+    {
+        final CompletableFuture<Void> result = CompletableFuture.allOf(futures);
+        return result.thenApply(ignored ->
+                                {
+                                    final List<T> ret = new ArrayList<>(futures.length);
+                                    for (final CompletableFuture<T> future : futures)
+                                    {
+                                        ret.add(future.join());
+                                    }
+                                    return ret;
+                                }).exceptionally(throwable -> exceptionally(throwable, Collections.emptyList()));
     }
 
     /**

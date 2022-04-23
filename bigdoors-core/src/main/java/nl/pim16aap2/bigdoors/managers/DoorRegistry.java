@@ -56,8 +56,9 @@ public final class DoorRegistry extends Restartable implements IDebuggable
      *     How long to keep stuff in the cache.
      */
 //    @IBuilder // These parameters aren't implemented atm, so there's no point in having this ctor/builder.
-    private DoorRegistry(RestartableHolder restartableHolder, DebuggableRegistry debuggableRegistry,
-                         int concurrencyLevel, int initialCapacity, Duration cacheExpiry)
+    private DoorRegistry(
+        RestartableHolder restartableHolder, DebuggableRegistry debuggableRegistry,
+        int concurrencyLevel, int initialCapacity, Duration cacheExpiry)
     {
         super(restartableHolder);
         this.concurrencyLevel = concurrencyLevel;
@@ -169,12 +170,15 @@ public final class DoorRegistry extends Restartable implements IDebuggable
     @Initializer
     private void init()
     {
-        doorCache = TimedCache.<Long, AbstractDoor>builder()
-                              .cleanup(Duration.ofMinutes(5))
-                              .softReference(true)
-                              .keepAfterTimeOut(true)
-                              .duration(cacheExpiry)
-                              .build();
+        if (cacheExpiry.isNegative())
+            doorCache = TimedCache.emptyCache();
+        else
+            doorCache = TimedCache.<Long, AbstractDoor>builder()
+                                  .cleanup(Duration.ofMinutes(5))
+                                  .softReference(true)
+                                  .keepAfterTimeOut(true)
+                                  .duration(cacheExpiry)
+                                  .build();
     }
 
     @Override

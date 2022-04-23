@@ -59,6 +59,8 @@ import java.util.logging.Level;
 @Flogger
 public class TimedCache<K, V>
 {
+    private static final Clock DEFAULT_CLOCK = Clock.systemUTC();
+
     /**
      * The actual data structure all values are cached in.
      */
@@ -110,21 +112,26 @@ public class TimedCache<K, V>
      */
     private volatile boolean alive = true;
 
-    TimedCache(Clock clock, Duration duration, @Nullable Duration cleanup, boolean softReference,
-               boolean refresh, boolean keepAfterTimeOut)
+    TimedCache(Clock clock, long timeOut, boolean softReference, boolean refresh, boolean keepAfterTimeOut)
     {
         this.clock = clock;
         this.refresh = refresh;
         this.keepAfterTimeOut = keepAfterTimeOut;
+        this.timeOut = timeOut;
+        timedValueCreator = softReference ? this::createTimedSoftValue : this::createTimedValue;
+    }
 
-        timeOut = duration.toMillis();
+    TimedCache(
+        Clock clock, Duration duration, @Nullable Duration cleanup, boolean softReference,
+        boolean refresh, boolean keepAfterTimeOut)
+    {
+        this(clock, duration.toMillis(), softReference, refresh, keepAfterTimeOut);
+
         final long cleanupMillis = cleanup == null ? 0 : cleanup.toMillis();
 
         if (timeOut == 0 && (!softReference || cleanupMillis == 0))
             throw new IllegalArgumentException("A duration of zero is only allowed in combination with soft " +
                                                    "reference and a non-zero cleanup duration!");
-
-        timedValueCreator = softReference ? this::createTimedSoftValue : this::createTimedValue;
         setupCleanupTask(cleanupMillis);
     }
 
@@ -134,7 +141,7 @@ public class TimedCache<K, V>
      * @throws IllegalStateException
      *     When this cache is not alive.
      */
-    private void validateState()
+    protected void validateState()
     {
         if (!alive)
             throw new IllegalStateException("Trying to interact with TimedCache object that has been shut down!");
@@ -173,10 +180,27 @@ public class TimedCache<K, V>
      *     When this is true, values in the cache
      */
     @Builder
-    protected TimedCache(Duration duration, @Nullable Duration cleanup, boolean softReference, boolean refresh,
-                         boolean keepAfterTimeOut)
+    protected TimedCache(
+        Duration duration, @Nullable Duration cleanup, boolean softReference, boolean refresh,
+        boolean keepAfterTimeOut)
     {
-        this(Clock.systemUTC(), duration, cleanup, softReference, refresh, keepAfterTimeOut);
+        this(DEFAULT_CLOCK, duration, cleanup, softReference, refresh, keepAfterTimeOut);
+    }
+
+    /**
+     * Returns a new 'cache' that does not cache any values.
+     * <p>
+     * Any calls to getter methods will return null or empty optionals and any put methods will not do anything.
+     *
+     * @param <K>
+     *     The type of the keys of the values.
+     * @param <V>
+     *     The type of the values.
+     * @return The new not-cache.
+     */
+    public static <K, V> TimedCache<K, V> emptyCache()
+    {
+        return new EmptyCache<>();
     }
 
     /**
@@ -240,24 +264,26 @@ public class TimedCache<K, V>
 
     /**
      * See {@link ConcurrentHashMap#computeIfAbsent(Object, Function)}.
-     *
-     * @return If no value existed in the map or the existing entry timed out, an empty optional is returned.
-     * <p>
-     * If a valid mapping existed for the provided key, an optional containing the mapped value is returned.
      */
-    public Optional<V> computeIfAbsent(K key, Function<K, V> mappingFunction)
+    public V computeIfAbsent(K key, Function<K, V> mappingFunction)
     {
         validateState();
-        final AtomicReference<@Nullable V> returnValue = new AtomicReference<>();
-        Util.requireNonNull(cache.compute(key, (k, tValue) ->
+        final AtomicReference<V> returnValue = new AtomicReference<>();
+        cache.compute(key, (k, tValue) ->
         {
-            if (tValue == null || tValue.timedOut())
-                return timedValueCreator.apply(mappingFunction.apply(k));
+            @Nullable V innerValue;
+            if (tValue == null || tValue.timedOut() || (innerValue = tValue.getValue(refresh)) == null)
+            {
+                innerValue = Util.requireNonNull(mappingFunction.apply(k),
+                                                 "Computed TimedCache value for key: \"" + key + "\"");
+                returnValue.set(innerValue);
+                return timedValueCreator.apply(innerValue);
+            }
 
-            returnValue.set(tValue.getValue(refresh));
+            returnValue.set(innerValue);
             return tValue;
-        }), "Computed TimedCache value for key: \"" + key + "\"");
-        return Optional.ofNullable(returnValue.get());
+        });
+        return Util.requireNonNull(returnValue.get(), "Computed TimedCache value for key: \"" + key + "\"");
     }
 
     /**
@@ -477,5 +503,98 @@ public class TimedCache<K, V>
         log.at(Level.FINEST).withStackTrace(StackSize.FULL).log("Shutting down TimedCache normally!");
         cache.clear();
         taskTimer.cancel();
+    }
+
+    /**
+     * Represents a special case of the timed cache that does not cache any values.
+     *
+     * @param <K>
+     *     The type of the keys (that are not cached)
+     * @param <V>
+     *     The type of the values (that are not cached).
+     */
+    static class EmptyCache<K, V> extends TimedCache<K, V>
+    {
+        EmptyCache()
+        {
+            super(DEFAULT_CLOCK, 0, false, false, false);
+        }
+
+        @Override
+        public V put(K key, V value)
+        {
+            validateState();
+            return value;
+        }
+
+        @Override
+        public Optional<V> putIfPresent(K key, V value)
+        {
+            validateState();
+            return Optional.empty();
+        }
+
+        @Override
+        public Optional<V> putIfAbsent(K key, V value)
+        {
+            validateState();
+            return Optional.empty();
+        }
+
+        @Override
+        public V computeIfAbsent(K key, Function<K, V> mappingFunction)
+        {
+            validateState();
+            return mappingFunction.apply(key);
+        }
+
+        @Override
+        public Optional<V> computeIfPresent(K key, BiFunction<K, @Nullable V, V> remappingFunction)
+        {
+            validateState();
+            return Optional.empty();
+        }
+
+        @Override
+        @SuppressWarnings("NullAway") // NullAway doesn't like nullable in the BiFunction
+        public V compute(K key, BiFunction<K, @Nullable V, V> mappingFunction)
+        {
+            validateState();
+            return mappingFunction.apply(key, null);
+        }
+
+        @Override
+        public Optional<V> remove(K key)
+        {
+            validateState();
+            return Optional.empty();
+        }
+
+        @Override
+        public Optional<V> get(K key)
+        {
+            validateState();
+            return Optional.empty();
+        }
+
+        @Override
+        public boolean containsKey(K key)
+        {
+            validateState();
+            return false;
+        }
+
+        @Override
+        protected Optional<V> getValue(@Nullable AbstractTimedValue<V> entry)
+        {
+            validateState();
+            return Optional.empty();
+        }
+
+        @Override
+        public void clear()
+        {
+            validateState();
+        }
     }
 }

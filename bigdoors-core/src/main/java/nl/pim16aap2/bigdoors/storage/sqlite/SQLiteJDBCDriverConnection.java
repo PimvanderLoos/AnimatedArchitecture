@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.storage.sqlite;
 import com.google.common.flogger.StackSize;
 import lombok.Getter;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
@@ -13,6 +14,7 @@ import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorBaseBuilder;
 import nl.pim16aap2.bigdoors.doors.DoorSerializer;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.storage.IStorage;
@@ -102,9 +104,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      *     The file to store the database in.
      */
     @Inject
-    public SQLiteJDBCDriverConnection(@Named("databaseFile") Path dbFile, DoorBaseBuilder doorBaseBuilder,
-                                      DoorRegistry doorRegistry, DoorTypeManager doorTypeManager,
-                                      IPWorldFactory worldFactory, DebuggableRegistry debuggableRegistry)
+    public SQLiteJDBCDriverConnection(
+        @Named("databaseFile") Path dbFile, DoorBaseBuilder doorBaseBuilder, DoorRegistry doorRegistry,
+        DoorTypeManager doorTypeManager, IPWorldFactory worldFactory, DebuggableRegistry debuggableRegistry)
     {
         this.dbFile = dbFile;
         this.doorBaseBuilder = doorBaseBuilder;
@@ -475,6 +477,35 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                                  .setNextBytes(typeData)
 
                                  .setNextLong(doorBase.getDoorUID())) > 0;
+    }
+
+    @Override
+    public List<DatabaseManager.DoorIdentifier> getPartialIdentifiers(
+        String input, @Nullable IPPlayer player, int maxPermission)
+    {
+        final PPreparedStatement query = Util.isNumerical(input) ?
+                                         SQLStatement.GET_IDENTIFIERS_FROM_PARTIAL_UID_MATCH_WITH_OWNER
+                                             .constructPPreparedStatement().setNextLong(Long.parseLong(input)) :
+                                         SQLStatement.GET_IDENTIFIERS_FROM_PARTIAL_NAME_MATCH_WITH_OWNER
+                                             .constructPPreparedStatement().setNextString(input);
+
+        query.setNextInt(maxPermission);
+
+        final @Nullable String uuid = player == null ? null : player.getUUID().toString();
+        query.setNextString(uuid);
+        query.setNextString(uuid);
+
+        return executeQuery(query, this::collectIdentifiers, Collections.emptyList());
+    }
+
+    private List<DatabaseManager.DoorIdentifier> collectIdentifiers(ResultSet resultSet)
+        throws SQLException
+    {
+        final List<DatabaseManager.DoorIdentifier> ret = new ArrayList<>();
+
+        while (resultSet.next())
+            ret.add(new DatabaseManager.DoorIdentifier(resultSet.getLong("id"), resultSet.getString("name")));
+        return ret;
     }
 
     private void insertOrIgnorePlayer(Connection conn, PPlayerData playerData)
@@ -1060,9 +1091,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      * @return The {@link ResultSet} of the query, or null in case an error occurred.
      */
     @Contract(" _, _, !null -> !null;")
-    private @Nullable <T> T executeQuery(PPreparedStatement pPreparedStatement,
-                                         CheckedFunction<ResultSet, T, Exception> fun,
-                                         @Nullable T fallback)
+    private @Nullable <T> T executeQuery(
+        PPreparedStatement pPreparedStatement, CheckedFunction<ResultSet, T, Exception> fun, @Nullable T fallback)
     {
         try
         {
@@ -1095,8 +1125,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      * @return The {@link ResultSet} of the query, or null in case an error occurred.
      */
     @SuppressWarnings("unused") @Contract(" _, _, !null -> !null;")
-    private @Nullable <T> T executeBatchQuery(PPreparedStatement pPreparedStatement,
-                                              CheckedFunction<ResultSet, T, Exception> fun, @Nullable T fallback)
+    private @Nullable <T> T executeBatchQuery(
+        PPreparedStatement pPreparedStatement, CheckedFunction<ResultSet, T, Exception> fun, @Nullable T fallback)
     {
         try
         {
@@ -1135,8 +1165,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      * @return The {@link ResultSet} of the query, or null in case an error occurred.
      */
     @Contract(" _, _, _, !null -> !null")
-    private @Nullable <T> T executeQuery(Connection conn, PPreparedStatement pPreparedStatement,
-                                         CheckedFunction<ResultSet, T, Exception> fun, @Nullable T fallback)
+    private @Nullable <T> T executeQuery(
+        Connection conn, PPreparedStatement pPreparedStatement, CheckedFunction<ResultSet, T, Exception> fun,
+        @Nullable T fallback)
     {
         logStatement(pPreparedStatement);
         try (PreparedStatement ps = pPreparedStatement.construct(conn);
@@ -1182,8 +1213,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      * @return The result of the Function.
      */
     @Contract(" _, !null, _ -> !null")
-    private @Nullable <T> T execute(CheckedFunction<Connection, T, Exception> fun, @Nullable T fallback,
-                                    FailureAction failureAction)
+    private @Nullable <T> T execute(
+        CheckedFunction<Connection, T, Exception> fun, @Nullable T fallback,
+        FailureAction failureAction)
     {
         try
         {

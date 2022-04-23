@@ -97,6 +97,28 @@ public enum SQLStatement
         """
     ),
 
+    GET_IDENTIFIERS_FROM_PARTIAL_NAME_MATCH_WITH_OWNER(
+        """
+        SELECT D.id, D.name
+        FROM DoorBase AS D
+        INNER JOIN DoorOwnerPlayer AS O ON D.id = O.doorUID
+        INNER JOIN Player AS P ON O.playerID = P.id
+        WHERE D.name like ? || '%' AND O.permission <= ? AND (? IS NULL OR P.playerUUID IS ?)
+        GROUP BY D.id;
+        """
+    ),
+
+    GET_IDENTIFIERS_FROM_PARTIAL_UID_MATCH_WITH_OWNER(
+        """
+        SELECT D.id, D.name
+        FROM DoorBase AS D
+        INNER JOIN DoorOwnerPlayer AS O ON D.id = O.doorUID
+        INNER JOIN Player AS P ON O.playerID = P.id
+        WHERE D.id like ? || '%' AND O.permission <= ? AND (? IS NULL OR P.playerUUID IS ?)
+        GROUP BY D.id;
+        """
+    ),
+
     UPDATE_PLAYER_DATA(
         """
         UPDATE Player SET

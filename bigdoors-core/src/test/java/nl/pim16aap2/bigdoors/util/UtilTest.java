@@ -15,6 +15,24 @@ class UtilTest
         testChunkId(new Vector2Di(-6, -9));
     }
 
+    @Test
+    void isNumerical()
+    {
+        Assertions.assertTrue(Util.isNumerical("-1"));
+        Assertions.assertTrue(Util.isNumerical("1"));
+        Assertions.assertTrue(Util.isNumerical("9999999"));
+
+        Assertions.assertFalse(Util.isNumerical(null));
+        Assertions.assertFalse(Util.isNumerical(""));
+        Assertions.assertFalse(Util.isNumerical("-"));
+        Assertions.assertFalse(Util.isNumerical("1-"));
+        Assertions.assertFalse(Util.isNumerical("a"));
+        Assertions.assertFalse(Util.isNumerical(":"));
+        Assertions.assertFalse(Util.isNumerical("/"));
+        Assertions.assertFalse(Util.isNumerical("99999999 "));
+        Assertions.assertFalse(Util.isNumerical("99999999a"));
+    }
+
     private static void testChunkId(Vector2Di chunkCoords)
     {
         final long chunkId = Util.getChunkId(chunkCoords);

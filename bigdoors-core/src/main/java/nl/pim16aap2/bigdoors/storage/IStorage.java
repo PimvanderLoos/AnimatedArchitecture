@@ -1,11 +1,14 @@
 package nl.pim16aap2.bigdoors.storage;
 
+import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.IBitFlag;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -248,6 +251,23 @@ public interface IStorage
      * @return True if the update was successful.
      */
     boolean syncDoorData(DoorBase doorBase, byte[] typeData);
+
+    /**
+     * Retrieves all {@link DatabaseManager.DoorIdentifier}s that start with the provided input.
+     * <p>
+     * For example, this method can retrieve the identifiers "1", "10", "11", "100", etc from an input of "1" or
+     * "MyDoor", "MyPortcullis", "MyOtherDoor", etc from an input of "My".
+     *
+     * @param input
+     *     The partial identifier to look for.
+     * @param player
+     *     The player that should own the doors. May be null to disregard ownership.
+     * @param maxPermission
+     *     The maximum level of ownership (inclusive) this player has over the doors.
+     * @return All {@link DatabaseManager.DoorIdentifier}s that start with the provided input.
+     */
+    List<DatabaseManager.DoorIdentifier> getPartialIdentifiers(
+        String input, @Nullable IPPlayer player, int maxPermission);
 
     /**
      * Deletes a {@link DoorType} and all {@link AbstractDoor}s of this type from the database.

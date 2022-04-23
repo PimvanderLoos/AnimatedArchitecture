@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.commands.ICommandSender;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
@@ -38,7 +39,7 @@ public sealed abstract class DoorRetriever
     }
 
     /**
-     * Gets the door that is referenced by this {@link DoorRetrieverFactory} if exactly 1 door matches the description.
+     * Gets the door that is referenced by this {@link DoorRetriever} if exactly 1 door matches the description.
      * <p>
      * In case the door is referenced by its name, there may be more than one match (names are not unique). When this
      * happens, no doors are returned.
@@ -48,8 +49,8 @@ public sealed abstract class DoorRetriever
     public abstract CompletableFuture<Optional<AbstractDoor>> getDoor();
 
     /**
-     * Gets the door that is referenced by this {@link DoorRetrieverFactory} and owned by the provided player if exactly
-     * 1 door matches the description.
+     * Gets the door that is referenced by this {@link DoorRetriever} and owned by the provided player if exactly 1 door
+     * matches the description.
      * <p>
      * In case the door is referenced by its name, there may be more than one match (names are not unique). When this
      * happens, no doors are returned.
@@ -59,6 +60,22 @@ public sealed abstract class DoorRetriever
      * @return The {@link AbstractDoor} if it can be found.
      */
     public abstract CompletableFuture<Optional<AbstractDoor>> getDoor(IPPlayer player);
+
+    /**
+     * Gets the door referenced by this {@link DoorRetriever}.
+     * <p>
+     * If the {@link ICommandSender} is a player, see {@link #getDoor(IPPlayer)}, otherwise see {@link #getDoor()}.
+     *
+     * @param commandSender
+     *     The {@link ICommandSender} for whom to retrieve the doors.
+     * @return The door referenced by this {@link DoorRetriever}.
+     */
+    public CompletableFuture<Optional<AbstractDoor>> getDoor(ICommandSender commandSender)
+    {
+        if (commandSender instanceof IPPlayer player)
+            return getDoor(player);
+        return getDoor();
+    }
 
     /**
      * Attempts to retrieve a door from its specification (see {@link #getDoor(IPPlayer)}).
@@ -71,8 +88,8 @@ public sealed abstract class DoorRetriever
      *
      * @param player
      *     The player for whom to get the door.
-     * @return The door as specified by this {@link DoorRetrieverFactory} and with user input in case more than one
-     * match was found.
+     * @return The door as specified by this {@link DoorRetriever} and with user input in case more than one match was
+     * found.
      */
     // TODO: Implement the interactive system.
     public CompletableFuture<Optional<AbstractDoor>> getDoorInteractive(IPPlayer player)
@@ -81,9 +98,9 @@ public sealed abstract class DoorRetriever
     }
 
     /**
-     * Gets all doors referenced by this {@link DoorRetrieverFactory}.
+     * Gets all doors referenced by this {@link DoorRetriever}.
      *
-     * @return All doors referenced by this {@link DoorRetrieverFactory}.
+     * @return All doors referenced by this {@link DoorRetriever}.
      */
     public CompletableFuture<List<AbstractDoor>> getDoors()
     {
@@ -91,16 +108,32 @@ public sealed abstract class DoorRetriever
     }
 
     /**
-     * Gets all doors referenced by this {@link DoorRetrieverFactory} where the provided player is a (co)owner of with
-     * any permission level.
+     * Gets all doors referenced by this {@link DoorRetriever} where the provided player is a (co)owner of with any
+     * permission level.
      *
      * @param player
      *     The {@link IPPlayer} that owns all matching doors.
-     * @return All doors referenced by this {@link DoorRetrieverFactory}.
+     * @return All doors referenced by this {@link DoorRetriever}.
      */
     public CompletableFuture<List<AbstractDoor>> getDoors(IPPlayer player)
     {
         return optionalToList(getDoor(player));
+    }
+
+    /**
+     * Gets all doors referenced by this {@link DoorRetriever}.
+     * <p>
+     * If the {@link ICommandSender} is a player, see {@link #getDoors(IPPlayer)}, otherwise see {@link #getDoors()}.
+     *
+     * @param commandSender
+     *     The {@link ICommandSender} for whom to retrieve the doors.
+     * @return The doors referenced by this {@link DoorRetriever}.
+     */
+    public CompletableFuture<List<AbstractDoor>> getDoors(ICommandSender commandSender)
+    {
+        if (commandSender instanceof IPPlayer player)
+            return getDoors(player);
+        return getDoors();
     }
 
     /**
@@ -118,7 +151,7 @@ public sealed abstract class DoorRetriever
     }
 
     /**
-     * Represents a {@link DoorRetrieverFactory} that references a door by its name.
+     * Represents a {@link DoorRetriever} that references a door by its name.
      * <p>
      * Because names are not unique, a single name may reference more than 1 door (even for a single player).
      *
@@ -205,7 +238,7 @@ public sealed abstract class DoorRetriever
     }
 
     /**
-     * Represents a {@link DoorRetrieverFactory} that references a door by its UID.
+     * Represents a {@link DoorRetriever} that references a door by its UID.
      * <p>
      * Because the UID is always unique (by definition), this can never reference more than 1 door.
      *
@@ -234,7 +267,7 @@ public sealed abstract class DoorRetriever
     }
 
     /**
-     * Represents a {@link DoorRetrieverFactory} that references a door by the object itself.
+     * Represents a {@link DoorRetriever} that references a door by the object itself.
      *
      * @author Pim
      */
@@ -266,7 +299,7 @@ public sealed abstract class DoorRetriever
     }
 
     /**
-     * Represents a {@link DoorRetrieverFactory} that references a list of doors by the object themselves.
+     * Represents a {@link DoorRetriever} that references a list of doors by the object themselves.
      *
      * @author Pim
      */
@@ -318,7 +351,7 @@ public sealed abstract class DoorRetriever
     }
 
     /**
-     * Represents a {@link DoorRetrieverFactory} that references a future optional door directly.
+     * Represents a {@link DoorRetriever} that references a future optional door directly.
      *
      * @author Pim
      */

@@ -19,7 +19,6 @@ import java.time.Duration;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 import java.util.logging.Level;
 
 /**
@@ -78,8 +77,7 @@ public final class HeadManager extends Restartable
 
         return CompletableFuture
             .supplyAsync(() -> headMapNN.computeIfAbsent(playerUUID,
-                                                         (p) -> createItemStack(playerUUID, displayName))
-                                        .flatMap(Function.identity()))
+                                                         (p) -> createItemStack(playerUUID, displayName)))
             .exceptionally(Util::exceptionallyOptional);
     }
 
