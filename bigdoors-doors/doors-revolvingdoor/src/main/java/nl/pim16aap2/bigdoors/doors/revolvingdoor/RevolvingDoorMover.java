@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.doors.revolvingdoor;
 
-import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -9,6 +8,7 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 
 import java.util.function.BiFunction;
@@ -63,13 +63,13 @@ public class RevolvingDoorMover extends BlockMover
     }
 
     /**
-     * Used for initializing variables such as {@link #endCount}.
+     * Used for initializing variables such as {@link #animationDuration}.
      */
     protected void init()
     {
-        super.endCount = (int) (20.0 * super.time * quarterCircles);
-        step = (Math.PI / 2.0 * quarterCircles) / super.endCount * -1.0;
-        endStepSum = super.endCount * step;
+        super.animationDuration = (int) (20.0 * super.time * quarterCircles);
+        step = (Math.PI / 2.0 * quarterCircles) / super.animationDuration * -1.0;
+        endStepSum = super.animationDuration * step;
     }
 
     private Vector3Dd getGoalPosClockwise(double radius, double startAngle, double startY, double stepSum)
@@ -100,25 +100,16 @@ public class RevolvingDoorMover extends BlockMover
     }
 
     @Override
-    protected IPLocation getNewLocation(double radius, double xAxis, double yAxis, double zAxis)
+    protected Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
     {
         // TODO: Redo all this, it's too hacky.
-        final double startAngle = getStartAngle((int) xAxis, (int) yAxis, (int) zAxis);
-        Vector3Dd newPos;
-        if (rotateDirection == RotateDirection.CLOCKWISE)
-            newPos = getGoalPosClockwise(radius, startAngle, yAxis, endStepSum);
-        else
-            newPos = getGoalPosCounterClockwise(radius, startAngle, yAxis, endStepSum);
-        return locationFactory.create(world, newPos.x(), newPos.y(), newPos.z());
-    }
+        final double startAngle = getStartAngle((int) startLocation.xD(),
+                                                (int) startLocation.yD(),
+                                                (int) startLocation.zD());
 
-    @Override
-    protected Vector3Dd getFinalPosition(IAnimatedBlock animatedBlock)
-    {
-        final Vector3Dd startLocation = animatedBlock.getStartPosition();
-        final IPLocation finalLoc = getNewLocation(animatedBlock.getRadius(), startLocation.x(),
-                                                   startLocation.y(), startLocation.z());
-        return new Vector3Dd(finalLoc.getBlockX() + 0.5, finalLoc.getBlockY(), finalLoc.getBlockZ() + 0.5);
+        if (rotateDirection == RotateDirection.CLOCKWISE)
+            return getGoalPosClockwise(radius, startAngle, startLocation.yD(), endStepSum);
+        return getGoalPosCounterClockwise(radius, startAngle, startLocation.yD(), endStepSum);
     }
 
     @Override

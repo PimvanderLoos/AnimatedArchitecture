@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.doors.drawbridge;
 
-import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -13,6 +12,7 @@ import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.functional.TriFunction;
+import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 
 /**
@@ -91,13 +91,13 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
     }
 
     /**
-     * Used for initializing variables such as {@link #endCount}.
+     * Used for initializing variables such as {@link #animationDuration}.
      */
     protected void init()
     {
-        super.endCount = (int) (20 * super.time);
-        step = angle / super.endCount;
-        halfEndCount = super.endCount / 2;
+        super.animationDuration = (int) (20 * super.time);
+        step = angle / super.animationDuration;
+        halfEndCount = super.animationDuration / 2;
     }
 
     protected Vector3Dd getGoalPos(double angle, double x, double y, double z)
@@ -107,14 +107,13 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
 
     protected Vector3Dd getGoalPos(double angle, IAnimatedBlock animatedBlock)
     {
-        return getGoalPos(angle, animatedBlock.getStartX(), animatedBlock.getStartY(),
-                          animatedBlock.getStartZ());
+        return getGoalPos(angle, animatedBlock.getStartX(), animatedBlock.getStartY(), animatedBlock.getStartZ());
     }
 
     @Override
-    protected Vector3Dd getFinalPosition(IAnimatedBlock animatedBlock)
+    protected Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
     {
-        return getGoalPos(angle, animatedBlock);
+        return getGoalPos(angle, startLocation.xD(), startLocation.yD(), startLocation.zD());
     }
 
     @Override
@@ -139,12 +138,6 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
         final double deltaB =
             northSouth ? (door.getRotationPoint().x() - xAxis) : (door.getRotationPoint().z() - zAxis);
         return (float) Math.sqrt(Math.pow(deltaA, 2) + Math.pow(deltaB, 2));
-    }
-
-    @Override
-    protected IPLocation getNewLocation(double radius, double xAxis, double yAxis, double zAxis)
-    {
-        return locationFactory.create(world, getGoalPos(angle, xAxis, yAxis, zAxis));
     }
 
     @Override

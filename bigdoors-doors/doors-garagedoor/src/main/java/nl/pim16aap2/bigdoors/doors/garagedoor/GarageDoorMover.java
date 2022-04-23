@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.doors.garagedoor;
 
-import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
@@ -9,6 +8,7 @@ import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
@@ -93,12 +93,12 @@ public class GarageDoorMover extends BlockMover
     }
 
     /**
-     * Used for initializing variables such as {@link #endCount}.
+     * Used for initializing variables such as {@link #animationDuration}.
      */
     protected void init()
     {
-        super.endCount = (int) (20 * super.time);
-        step = (blocksToMove + 0.5f) / super.endCount;
+        super.animationDuration = (int) (20 * super.time);
+        step = (blocksToMove + 0.5f) / super.animationDuration;
     }
 
     private Vector3Dd getVectorUp(IAnimatedBlock animatedBlock, double stepSum)
@@ -198,7 +198,7 @@ public class GarageDoorMover extends BlockMover
     }
 
     @Override
-    protected IPLocation getNewLocation(double radius, double xAxis, double yAxis, double zAxis)
+    protected Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
     {
         double newX;
         double newY;
@@ -206,15 +206,15 @@ public class GarageDoorMover extends BlockMover
 
         if (!door.isOpen())
         {
-            newX = xAxis + (1 + yLen - radius) * directionVec.x();
+            newX = startLocation.xD() + (1 + yLen - radius) * directionVec.x();
             newY = resultHeight;
-            newZ = zAxis + (1 + yLen - radius) * directionVec.z();
+            newZ = startLocation.zD() + (1 + yLen - radius) * directionVec.z();
         }
         else
         {
             if (directionVec.x() == 0)
             {
-                newX = xAxis;
+                newX = startLocation.xD();
                 newY = door.getMaximum().y() - (zLen - radius);
                 newZ = door.getRotationPoint().z();
             }
@@ -222,27 +222,14 @@ public class GarageDoorMover extends BlockMover
             {
                 newX = door.getRotationPoint().x();
                 newY = door.getMaximum().y() - (xLen - radius);
-                newZ = zAxis;
+                newZ = startLocation.zD();
             }
             newY -= 2;
-        }
-        return locationFactory.create(world, newX, newY, newZ);
-    }
 
-    @Override
-    protected Vector3Dd getFinalPosition(IAnimatedBlock animatedBlock)
-    {
-        final Vector3Dd startLocation = animatedBlock.getStartPosition();
-        final IPLocation finalLoc = getNewLocation(animatedBlock.getRadius(), startLocation.x(),
-                                                   startLocation.y(), startLocation.z());
-        double addX = 0;
-        double addZ = 0;
-        if (door.isOpen()) // The offset isn't needed when going up.
-        {
-            addX = northSouth ? 0 : 0.5f;
-            addZ = northSouth ? 0.5f : 0;
+            newX += northSouth ? 0 : 0.5f;
+            newZ += northSouth ? 0.5f : 0;
         }
-        return new Vector3Dd(finalLoc.getX() + addX, finalLoc.getY(), finalLoc.getZ() + addZ);
+        return new Vector3Dd(newX, newY, newZ);
     }
 
     @Override

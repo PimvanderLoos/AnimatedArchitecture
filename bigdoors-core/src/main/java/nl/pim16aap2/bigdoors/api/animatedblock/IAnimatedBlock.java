@@ -128,6 +128,11 @@ public interface IAnimatedBlock
     Vector3Dd getStartPosition();
 
     /**
+     * @return The position where the block will be placed after the animation finishes.
+     */
+    Vector3Dd getFinalPosition();
+
+    /**
      * @return The x-coordinate of the location the block was first spawned at.
      */
     double getStartX();

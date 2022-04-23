@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.managers.AnimatedBlockHookManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -34,7 +35,8 @@ public final class AnimatedBlockFactory_V1_15_R1 implements IAnimatedBlockFactor
 
     @Override
     public Optional<IAnimatedBlock> create(
-        IPLocation loc, float radius, float startAngle, boolean bottom, AnimationContext context)
+        IPLocation loc, float radius, float startAngle, boolean bottom, AnimationContext context,
+        Vector3Dd finalPosition)
         throws Exception
     {
         final Location spigotLocation = SpigotAdapter.getBukkitLocation(loc);
@@ -45,14 +47,14 @@ public final class AnimatedBlockFactory_V1_15_R1 implements IAnimatedBlockFactor
             return Optional.empty();
 
         final double offset = bottom ? 0.010_001 : 0;
-        final IPLocation spawnLoc = loc.add(0.5, offset - 0.020, 0.5);
+        final IPLocation spawnLoc = loc.add(0, offset - 0.020, 0);
 
         final boolean placementDeferred = BlockAnalyzer_V1_15_R1.placeOnSecondPassStatic(material);
 
         final var animatedBlock = new nl.pim16aap2.bigdoors.spigot.v1_15_R1
             .CustomEntityFallingBlock_V1_15_R1(loc.getWorld(), bukkitWorld, spawnLoc.getX(), spawnLoc.getY(),
                                                spawnLoc.getZ(), radius, startAngle, placementDeferred,
-                                               context, animatedBlockHookManager);
+                                               context, animatedBlockHookManager, finalPosition);
 
         animatedBlock.setCustomName(CraftChatMessage.fromStringOrNull(Constants.BIGDOORS_ENTITY_NAME));
         animatedBlock.setCustomNameVisible(false);

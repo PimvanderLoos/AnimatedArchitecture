@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.doors.slidingdoor;
 
-import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -9,6 +8,7 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import org.jetbrains.annotations.Nullable;
 
@@ -68,27 +68,18 @@ public class SlidingMover extends BlockMover
     }
 
     /**
-     * Used for initializing variables such as {@link #endCount}.
+     * Used for initializing variables such as {@link #animationDuration}.
      */
     protected void init()
     {
-        super.endCount = (int) (20 * super.time);
-        step = ((double) blocksToMove) / ((double) super.endCount);
+        super.animationDuration = (int) (20 * super.time);
+        step = ((double) blocksToMove) / ((double) super.animationDuration);
     }
 
     @Override
-    protected IPLocation getNewLocation(double radius, double xAxis, double yAxis, double zAxis)
+    protected Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
     {
-        return locationFactory.create(world, xAxis + moveX, yAxis, zAxis + moveZ);
-    }
-
-    @Override
-    protected Vector3Dd getFinalPosition(IAnimatedBlock animatedBlock)
-    {
-        final Vector3Dd startLocation = animatedBlock.getStartPosition();
-        final IPLocation finalLoc = getNewLocation(animatedBlock.getRadius(), startLocation.x(),
-                                                   startLocation.y(), startLocation.z());
-        return new Vector3Dd(finalLoc.getBlockX() + 0.5, finalLoc.getBlockY(), finalLoc.getBlockZ() + 0.5);
+        return Vector3Dd.of(startLocation).add(moveX, 0, moveZ);
     }
 
     @Override
@@ -101,7 +92,9 @@ public class SlidingMover extends BlockMover
 
     protected Vector3Dd getGoalPos(IAnimatedBlock animatedBlock, double stepSum)
     {
-        return animatedBlock.getStartPosition().add(northSouth ? 0 : stepSum, 0, northSouth ? stepSum : 0);
+        return animatedBlock.getStartPosition().add(northSouth ? 0 : stepSum,
+                                                    0,
+                                                    northSouth ? stepSum : 0);
     }
 
     @Override

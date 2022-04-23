@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
@@ -20,6 +19,7 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.managers.AnimationHookManager;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import org.jetbrains.annotations.Nullable;
 
@@ -108,9 +108,15 @@ public abstract class BlockMover
     protected int moverTaskID = 0;
 
     /**
-     * The tick at which to stop the animation.
+     * The duration of the animation measured in ticks.
      */
-    protected int endCount = -1;
+    protected int animationDuration = -1;
+
+    /**
+     * The duration (measured in ticks) of the final step executed after the animation has ended. This step is used to
+     * move the animated blocks to their final positions gracefully.
+     */
+    protected int finishDuration = 30;
 
     protected final Cuboid newCuboid;
 
@@ -217,13 +223,15 @@ public abstract class BlockMover
      */
     protected synchronized void startAnimation()
     {
-        if (endCount < 0)
-            throw new IllegalStateException("Trying to start an animation with invalid endCount value: " + endCount);
+        if (animationDuration < 0)
+            throw new IllegalStateException("Trying to start an animation with invalid endCount value: " +
+                                                animationDuration);
         if (hasStarted)
             throw new IllegalStateException("Trying to start an animation again!");
         hasStarted = true;
 
-        final Animation<IAnimatedBlock> animation = new Animation<>(endCount, door.getCuboid(), animatedBlocks, door);
+        final Animation<IAnimatedBlock> animation = new Animation<>(animationDuration, door.getCuboid(), animatedBlocks,
+                                                                    door);
         final AnimationContext animationContext = new AnimationContext(door.getDoorType(), door, animation);
 
         try
@@ -232,12 +240,17 @@ public abstract class BlockMover
                 for (int yAxis = yMin; yAxis <= yMax; ++yAxis)
                     for (int zAxis = zMin; zAxis <= zMax; ++zAxis)
                     {
-                        final IPLocation location = locationFactory.create(world, xAxis, yAxis, zAxis);
+                        final IPLocation location = locationFactory.create(world, xAxis + 0.5, yAxis, zAxis + 0.5);
                         final boolean bottom = (yAxis == yMin);
-                        animatedBlockFactory.create(location, getRadius(xAxis, yAxis, zAxis),
-                                                    getStartAngle(xAxis, yAxis, zAxis), bottom,
-                                                    animationContext)
-                                            .ifPresent(animatedBlocks::add);
+                        final float radius = getRadius(xAxis, yAxis, zAxis);
+                        final float startAngle = getStartAngle(xAxis, yAxis, zAxis);
+                        final Vector3Dd startPosition = new Vector3Dd(xAxis + 0.5, yAxis, zAxis + 0.5);
+                        final Vector3Dd finalPosition = getFinalPosition(startPosition, radius);
+
+
+                        animatedBlockFactory
+                            .create(location, radius, startAngle, bottom, animationContext, finalPosition)
+                            .ifPresent(animatedBlocks::add);
                     }
         }
         catch (Exception e)
@@ -261,14 +274,13 @@ public abstract class BlockMover
     }
 
     /**
-     * Gets the final position of an {@link IAnimatedBlock}.
-     *
-     * @param animatedBlock
-     *     The {@link IAnimatedBlock}.
+     * @param startLocation
+     *     The start location of a block.
+     * @param radius
+     *     The radius of the block to the rotation point.
      * @return The final position of an {@link IAnimatedBlock}.
      */
-    @SuppressWarnings("unused")
-    protected abstract Vector3Dd getFinalPosition(IAnimatedBlock animatedBlock);
+    protected abstract Vector3Dd getFinalPosition(IVector3D startLocation, float radius);
 
     /**
      * Runs a single step of the animation.
@@ -287,13 +299,36 @@ public abstract class BlockMover
     }
 
     /**
+     * Runs a single step of the animation after the actual animation has completed.
+     * <p>
+     * This should be used to finish up the animation by moving the animated blocks to their final positions
+     * gracefully.
+     *
+     * @param counter
+     *     The number of ticks since the animation started.
+     */
+    protected void executeFinishingStep(@SuppressWarnings("unused") int counter)
+    {
+        for (final IAnimatedBlock animatedBlock : animatedBlocks)
+            movementMethod.apply(animatedBlock, animatedBlock.getFinalPosition());
+    }
+
+    private void executeFinishingStep(int counter, Animation<IAnimatedBlock> animation)
+    {
+        executeFinishingStep(counter);
+
+        animation.setRegion(getAnimationRegion());
+        animation.setState(AnimationState.FINISHING);
+    }
+
+    /**
      * Gracefully stops the animation: Freeze any animated blocks, kill the animation task and place the blocks in their
      * new location.
      */
     private synchronized void stopAnimation(Animation<IAnimatedBlock> animation)
     {
         animation.setRegion(getAnimationRegion());
-        animation.setState(AnimationState.FINISHING);
+        animation.setState(AnimationState.STOPPING);
 
         for (final IAnimatedBlock animatedBlock : animatedBlocks)
             animatedBlock.setVelocity(new Vector3Dd(0D, 0D, 0D));
@@ -328,6 +363,7 @@ public abstract class BlockMover
     private synchronized void animateEntities(Animation<IAnimatedBlock> animation)
     {
         prepareAnimation();
+        final int stopCount = animationDuration + Math.max(0, finishDuration);
 
         if (hooks != null)
             hooks.forEach(IAnimationHook::onPrepare);
@@ -357,8 +393,10 @@ public abstract class BlockMover
                 if (counter % 12_500 == 0)
                     respawnBlocks();
 
-                if (counter > endCount)
+                if (counter > stopCount)
                     stopAnimation(animation);
+                else if (counter > animationDuration)
+                    executeFinishingStep(counter, animation);
                 else
                     executeAnimationStep(counter, animation);
                 animation.setStepsExecuted(counter);
@@ -414,9 +452,7 @@ public abstract class BlockMover
             return;
 
         animatedBlock.kill();
-        animatedBlock.getAnimatedBlockData()
-                     .putBlock(getNewLocation(animatedBlock.getRadius(), animatedBlock.getStartX(),
-                                              Math.round(animatedBlock.getStartY()), animatedBlock.getStartZ()));
+        animatedBlock.getAnimatedBlockData().putBlock(animatedBlock.getFinalPosition());
     }
 
     /**
@@ -472,21 +508,6 @@ public abstract class BlockMover
         door.setCoordinates(newCuboid);
         door.syncData();
     }
-
-    /**
-     * Gets the new location of a block from its old coordinates.
-     *
-     * @param radius
-     *     The radius of the block.
-     * @param xAxis
-     *     The old x-coordinate of the block.
-     * @param yAxis
-     *     The old y-coordinate of the block.
-     * @param zAxis
-     *     The old z-coordinate of the block.
-     * @return The new Location of the block.
-     */
-    protected abstract IPLocation getNewLocation(double radius, double xAxis, double yAxis, double zAxis);
 
     /**
      * Gets the UID of the {@link AbstractDoor} being moved.
@@ -559,7 +580,7 @@ public abstract class BlockMover
         }
     }
 
-    @Getter(AccessLevel.PACKAGE)
+    @Getter
     public static final class Context
     {
         private final DoorActivityManager doorActivityManager;
@@ -590,6 +611,7 @@ public abstract class BlockMover
      * Represents the different ways in which an animated block can be moved.
      */
     @SuppressWarnings("unused")
+    @ToString
     public abstract static class MovementMethod
     {
         /**
@@ -600,7 +622,7 @@ public abstract class BlockMover
          * generally tend to move slightly towards the center of any rotation (so corners will be rounded, circles
          * slightly smaller).
          */
-        public static final MovementMethod VELOCITY = new MovementMethod()
+        public static final MovementMethod VELOCITY = new MovementMethod("VELOCITY")
         {
             @Override
             public void apply(IAnimatedBlock animatedBlock, Vector3Dd goalPos)
@@ -612,7 +634,7 @@ public abstract class BlockMover
         /**
          * Teleports the animated blocks directly to their target positions.
          */
-        public static final MovementMethod TELEPORT = new MovementMethod()
+        public static final MovementMethod TELEPORT = new MovementMethod("TELEPORT")
         {
             @Override
             public void apply(IAnimatedBlock animatedBlock, Vector3Dd goalPos)
@@ -620,6 +642,18 @@ public abstract class BlockMover
                 animatedBlock.teleport(goalPos);
             }
         };
+
+        private final String name;
+
+        protected MovementMethod(String name)
+        {
+            this.name = name;
+        }
+
+        public String name()
+        {
+            return name;
+        }
 
         /**
          * Moves an animated block to a given goal position using the specified method.

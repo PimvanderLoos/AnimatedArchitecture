@@ -11,8 +11,24 @@ import org.jetbrains.annotations.Contract;
  * @author Pim
  */
 @SuppressWarnings("unused")
-public record Vector3Dd(double x, double y, double z) implements Vector3DUtil.IVector3D
+public record Vector3Dd(double x, double y, double z) implements IVector3D
 {
+    public Vector3Dd(IVector3D other)
+    {
+        this(other.xD(), other.yD(), other.zD());
+    }
+
+    /**
+     * @param other
+     *     A {@link IVector3D} to retrieve as {@link Vector3Dd}
+     * @return A {@link Vector3Dd} representing the provided {@link IVector3D}. If the provided {@link IVector3D} was
+     * already of this type, the same instance is returned.
+     */
+    public static Vector3Dd of(IVector3D other)
+    {
+        return other instanceof Vector3Dd vec3d ? vec3d : new Vector3Dd(other);
+    }
+
     /**
      * Creates a new integer-based 3d vector from this double-based 3d vector.
      * <p>
@@ -304,7 +320,7 @@ public record Vector3Dd(double x, double y, double z) implements Vector3DUtil.IV
      * @return A new {@link Vector3Dd} rotated around the pivot point.
      */
     @CheckReturnValue @Contract(pure = true)
-    public Vector3Dd rotateAroundXAxis(Vector3DUtil.IVector3D pivotPoint, double radians)
+    public Vector3Dd rotateAroundXAxis(IVector3D pivotPoint, double radians)
     {
         return Vector3DUtil.rotateAroundXAxis(this, pivotPoint, radians);
     }
@@ -319,7 +335,7 @@ public record Vector3Dd(double x, double y, double z) implements Vector3DUtil.IV
      * @return A new {@link Vector3Dd} rotated around the pivot point.
      */
     @CheckReturnValue @Contract(pure = true)
-    public Vector3Dd rotateAroundYAxis(Vector3DUtil.IVector3D pivotPoint, double radians)
+    public Vector3Dd rotateAroundYAxis(IVector3D pivotPoint, double radians)
     {
         return Vector3DUtil.rotateAroundYAxis(this, pivotPoint, radians);
     }
@@ -334,7 +350,7 @@ public record Vector3Dd(double x, double y, double z) implements Vector3DUtil.IV
      * @return A new {@link Vector3Dd} rotated around the pivot point.
      */
     @CheckReturnValue @Contract(pure = true)
-    public Vector3Dd rotateAroundZAxis(Vector3DUtil.IVector3D pivotPoint, double radians)
+    public Vector3Dd rotateAroundZAxis(IVector3D pivotPoint, double radians)
     {
         return Vector3DUtil.rotateAroundZAxis(this, pivotPoint, radians);
     }
@@ -355,5 +371,11 @@ public record Vector3Dd(double x, double y, double z) implements Vector3DUtil.IV
     public double zD()
     {
         return z;
+    }
+
+    @Override
+    public Vector3Dd floor()
+    {
+        return new Vector3Dd(Math.floor(x), Math.floor(y), Math.floor(z));
     }
 }

@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.doors.windmill;
 
-import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -11,6 +10,7 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 
 /**
@@ -35,20 +35,14 @@ public class WindmillMover<T extends AbstractDoor & IHorizontalAxisAligned> exte
     @Override
     protected void init()
     {
-        super.endCount = (int) (20 * 20 * super.time);
+        super.animationDuration = (int) (20 * 20 * super.time);
         step = (Math.PI / 2.0) / (20.0f * super.time * 2.0f);
     }
 
     @Override
-    protected IPLocation getNewLocation(double radius, double xAxis, double yAxis, double zAxis)
+    protected Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
     {
-        return locationFactory.create(world, xAxis, yAxis, zAxis);
-    }
-
-    @Override
-    protected Vector3Dd getFinalPosition(IAnimatedBlock animatedBlock)
-    {
-        return animatedBlock.getStartPosition();
+        return Vector3Dd.of(startLocation);
     }
 
     @Override

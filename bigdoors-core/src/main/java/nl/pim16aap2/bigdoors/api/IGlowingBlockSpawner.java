@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.api;
 
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.util.IGlowingBlock;
+import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,11 +29,11 @@ public interface IGlowingBlockSpawner
      *     The unit of the <code>time</code>. Note that one tick is 50ms, so that is the absolute lowest value possible!
      *     Any values less than that will mean nothing is spawned.
      * @param x
-     *     The x-coordinate of the glowing block. An offset of 0.5 is applied to make it align by default.
+     *     The x-coordinate of the glowing block.
      * @param y
      *     The y-coordinate of the glowing block.
      * @param z
-     *     The z-coordinate of the glowing block. An offset of 0.5 is applied to make it align by default.
+     *     The z-coordinate of the glowing block.
      * @param color
      *     The color of the outline.
      * @return The {@link IGlowingBlock} that was spawned.
@@ -50,11 +51,11 @@ public interface IGlowingBlockSpawner
      * @param time
      *     How long the glowing block will be visible (in seconds).
      * @param x
-     *     The x-coordinate of the glowing block. An offset of 0.5 is applied to make it align by default.
+     *     The x-coordinate of the glowing block.
      * @param y
      *     The y-coordinate of the glowing block.
      * @param z
-     *     The z-coordinate of the glowing block. An offset of 0.5 is applied to make it align by default.
+     *     The z-coordinate of the glowing block.
      * @param color
      *     The color of the outline.
      * @return The {@link IGlowingBlock} that was spawned.
@@ -73,16 +74,38 @@ public interface IGlowingBlockSpawner
      * @param world
      *     The world in which the glowing block will be spawned
      * @param time
+     *     How long the glowing block will be visible (in seconds).
+     * @param position
+     *     The position to spawn the glowing block at.
+     * @param color
+     *     The color of the outline.
+     * @return The {@link IGlowingBlock} that was spawned.
+     */
+    default Optional<IGlowingBlock> spawnGlowingBlock(
+        IPPlayer player, IPWorld world, IVector3D position, int time, PColor color)
+    {
+        return spawnGlowingBlock(player, world, time, TimeUnit.SECONDS, position.xD(),
+                                 position.yD(), position.zD(), color);
+    }
+
+    /**
+     * Spawns a glowing block.
+     *
+     * @param player
+     *     The player who will see the glowing block.
+     * @param world
+     *     The world in which the glowing block will be spawned
+     * @param time
      *     How long the glowing block will be visible.
      * @param timeUnit
      *     The unit of the <code>time</code>. Note that one tick is 50ms, so that is the absolute lowest value possible!
      *     Any values less than that will mean nothing is spawned.
      * @param x
-     *     The x-coordinate of the glowing block. An offset of 0.5 is applied to make it align by default.
+     *     The x-coordinate of the glowing block.
      * @param y
      *     The y-coordinate of the glowing block.
      * @param z
-     *     The z-coordinate of the glowing block. An offset of 0.5 is applied to make it align by default.
+     *     The z-coordinate of the glowing block.
      * @return The {@link IGlowingBlock} that was spawned.
      */
     default Optional<IGlowingBlock> spawnGlowingBlock(
@@ -101,11 +124,11 @@ public interface IGlowingBlockSpawner
      * @param time
      *     How long the glowing block will be visible (in seconds).
      * @param x
-     *     The x-coordinate of the glowing block. An offset of 0.5 is applied to make it align by default.
+     *     The x-coordinate of the glowing block.
      * @param y
      *     The y-coordinate of the glowing block.
      * @param z
-     *     The z-coordinate of the glowing block. An offset of 0.5 is applied to make it align by default.
+     *     The z-coordinate of the glowing block.
      * @return The {@link IGlowingBlock} that was spawned.
      */
     default Optional<IGlowingBlock> spawnGlowingBlock(
@@ -164,14 +187,14 @@ public interface IGlowingBlockSpawner
         final List<IGlowingBlock> ret = new ArrayList<>(4);
         final IPWorld world = abstractDoor.getWorld();
 
-        spawnGlowingBlock(player, world, 15, abstractDoor.getPowerBlock().x() + 0.5, abstractDoor.getPowerBlock().y(),
+        spawnGlowingBlock(player, world, 10, abstractDoor.getPowerBlock().x() + 0.5, abstractDoor.getPowerBlock().y(),
                           abstractDoor.getPowerBlock().z() + 0.5, PColor.GOLD);
-        spawnGlowingBlock(player, world, 15, abstractDoor.getRotationPoint().x() + 0.5,
+        spawnGlowingBlock(player, world, 10, abstractDoor.getRotationPoint().x() + 0.5,
                           abstractDoor.getRotationPoint().y(),
                           abstractDoor.getRotationPoint().z() + 0.5, PColor.DARK_PURPLE);
-        spawnGlowingBlock(player, world, 15, abstractDoor.getMinimum().x() + 0.5, abstractDoor.getMinimum().y(),
+        spawnGlowingBlock(player, world, 10, abstractDoor.getMinimum().x() + 0.5, abstractDoor.getMinimum().y(),
                           abstractDoor.getMinimum().z() + 0.5, PColor.BLUE);
-        spawnGlowingBlock(player, world, 15, abstractDoor.getMaximum().x() + 0.5, abstractDoor.getMaximum().y(),
+        spawnGlowingBlock(player, world, 10, abstractDoor.getMaximum().x() + 0.5, abstractDoor.getMaximum().y(),
                           abstractDoor.getMaximum().z() + 0.5, PColor.RED);
         return ret;
     }

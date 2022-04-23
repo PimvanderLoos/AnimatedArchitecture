@@ -91,10 +91,12 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
 
     private final IPLocation startLocation;
     private final Vector3Dd startPosition;
+    private final Vector3Dd finalPosition;
 
     public CustomEntityFallingBlock_V1_15_R1(
         IPWorld pWorld, World world, double d0, double d1, double d2, float radius, float startAngle,
-        boolean placementDeferred, AnimationContext context, AnimatedBlockHookManager animatedBlockHookManager)
+        boolean placementDeferred, AnimationContext context, AnimatedBlockHookManager animatedBlockHookManager,
+        Vector3Dd finalPosition)
         throws Exception
     {
         super(EntityTypes.FALLING_BLOCK, ((CraftWorld) world).getHandle());
@@ -104,6 +106,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         this.startAngle = startAngle;
         this.placementDeferred = placementDeferred;
         this.context = context;
+        this.finalPosition = finalPosition;
         worldServer = ((CraftWorld) bukkitWorld).getHandle();
         // Do not round x and z because they are at half blocks; Given x;z 10;5, the block will be spawned at
         // 10.5;5.5. Rounding it would retrieve the blocks at 11;6.
@@ -372,6 +375,12 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     public Vector3Dd getStartPosition()
     {
         return startPosition;
+    }
+
+    @Override
+    public Vector3Dd getFinalPosition()
+    {
+        return finalPosition;
     }
 
     @Override
