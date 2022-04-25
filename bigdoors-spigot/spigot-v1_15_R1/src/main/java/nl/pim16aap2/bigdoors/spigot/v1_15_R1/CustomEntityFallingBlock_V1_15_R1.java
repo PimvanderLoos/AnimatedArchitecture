@@ -14,7 +14,6 @@ import net.minecraft.server.v1_15_R1.GameProfileSerializer;
 import net.minecraft.server.v1_15_R1.IBlockData;
 import net.minecraft.server.v1_15_R1.NBTTagCompound;
 import net.minecraft.server.v1_15_R1.PacketPlayOutEntity;
-import net.minecraft.server.v1_15_R1.PacketPlayOutSpawnEntity;
 import net.minecraft.server.v1_15_R1.PlayerChunkMap;
 import net.minecraft.server.v1_15_R1.Vec3D;
 import net.minecraft.server.v1_15_R1.WorldServer;
@@ -37,7 +36,9 @@ import org.bukkit.craftbukkit.v1_15_R1.util.CraftMagicNumbers;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Field;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
@@ -53,6 +54,25 @@ import java.util.logging.Level;
 public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_15_R1.EntityFallingBlock
     implements IAnimatedBlockSpigot
 {
+    private static final @Nullable AtomicInteger ENTITY_COUNT;
+
+    static
+    {
+        @Nullable AtomicInteger entityCountTmp = null;
+        try
+        {
+            final Field f = Entity.class.getDeclaredField("entityCount");
+            f.setAccessible(true);
+            entityCountTmp = (AtomicInteger) f.get(null);
+        }
+        catch (Exception e)
+        {
+            log.at(Level.SEVERE).withCause(e)
+               .log("Could not find entityCount field. Animations will be unable to rotate!");
+        }
+        ENTITY_COUNT = entityCountTmp;
+    }
+
     // ticksLived is also a field in NMS.EntityFallingBlock. However, we want to override that on purpose.
     @SuppressWarnings("squid:S2387")
     @Setter
@@ -143,22 +163,32 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         forEachHook("onDie", IAnimatedBlockHook::onDie);
     }
 
-    @Override
-    public synchronized void spawn()
+    private void spawn0()
     {
-        ((org.bukkit.craftbukkit.v1_15_R1.CraftWorld) bukkitWorld).getHandle().addEntity(this, SpawnReason.CUSTOM);
+        worldServer.addEntity(this, SpawnReason.CUSTOM);
         tracker = Util.requireNonNull(worldServer.getChunkProvider().playerChunkMap.trackedEntities.get(getId()),
                                       "entity tracker");
         dead = false;
+    }
+
+    @Override
+    public synchronized void spawn()
+    {
+        spawn0();
         forEachHook("onSpawn", IAnimatedBlockHook::onSpawn);
     }
 
     @Override
     public synchronized void respawn()
     {
-        // TODO: Ensure that this works as intended.
-        Util.requireNonNull(tracker, "EntityTracker").broadcast(new PacketPlayOutSpawnEntity(this));
-        dead = false;
+        if (ENTITY_COUNT == null)
+            return;
+
+        // First remove the entity.
+        worldServer.removeEntity(this);
+        // Update the current id.
+        this.e(ENTITY_COUNT.incrementAndGet());
+        spawn0();
     }
 
     private synchronized void cyclePositions(Vector3Dd newPosition)
