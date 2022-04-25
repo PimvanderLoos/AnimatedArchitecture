@@ -109,6 +109,12 @@ public class DelayedInputRequest<T>
                     {
                         return Optional.<T>empty();
                     }
+                    catch (InterruptedException e)
+                    {
+                        exceptionally = true;
+                        Thread.currentThread().interrupt();
+                        return Optional.<T>empty();
+                    }
                     catch (Exception e)
                     {
                         exceptionally = true;

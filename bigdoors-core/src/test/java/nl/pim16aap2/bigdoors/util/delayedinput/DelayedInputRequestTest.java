@@ -2,15 +2,12 @@ package nl.pim16aap2.bigdoors.util.delayedinput;
 
 import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.testing.AssertionsUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Field;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 class DelayedInputRequestTest
@@ -100,7 +97,12 @@ class DelayedInputRequestTest
     void testStatusTimedOut()
     {
         final DelayedInputRequestImpl request = new DelayedInputRequestImpl(1, TimeUnit.MILLISECONDS);
-        request.getInputResult().get(1, TimeUnit.SECONDS);
+        final long startTime = System.nanoTime();
+        request.getInputResult().get(2, TimeUnit.SECONDS);
+        final long duration = System.nanoTime() - startTime;
+        // Ensure it took Much less than the 'allowed' 2 seconds.
+        Assertions.assertTrue(duration < Duration.ofSeconds(1).toNanos());
+
         Assertions.assertEquals(DelayedInputRequest.Status.TIMED_OUT, request.getStatus());
         Assertions.assertFalse(request.success());
         Assertions.assertFalse(request.cancelled());
@@ -121,37 +123,6 @@ class DelayedInputRequestTest
         Assertions.assertFalse(request.cancelled());
         Assertions.assertFalse(request.timedOut());
         Assertions.assertFalse(request.exceptionally());
-        Assertions.assertTrue(request.completed());
-    }
-
-    @Test
-    @SneakyThrows
-    void testStatusException()
-    {
-        final Field f = DelayedInputRequest.class.getDeclaredField("input");
-        f.setAccessible(true);
-        final DelayedInputRequestImpl request = new DelayedInputRequestImpl(1, TimeUnit.SECONDS);
-
-        @SuppressWarnings("unchecked") //
-        final CompletableFuture<String> input = (CompletableFuture<String>) f.get(request);
-
-        input.completeExceptionally(new RuntimeException("ExceptionTest!"));
-
-        AssertionsUtil.assertThrowablesLogged(() -> request.getInputResult().get(1, TimeUnit.SECONDS),
-                                              // Logged by the inputResult's exception handler.
-                                              CompletionException.class,
-                                              // waitForResult fails because waiting for input failed.
-                                              RuntimeException.class,
-                                              // blockingWaitForInput fails its retrieval exceptionally
-                                              ExecutionException.class,
-                                              // Root exception that was thrown by completing the request exceptionally.
-                                              RuntimeException.class);
-
-        Assertions.assertEquals(DelayedInputRequest.Status.EXCEPTION, request.getStatus());
-        Assertions.assertFalse(request.success());
-        Assertions.assertFalse(request.cancelled());
-        Assertions.assertFalse(request.timedOut());
-        Assertions.assertTrue(request.exceptionally());
         Assertions.assertTrue(request.completed());
     }
 
