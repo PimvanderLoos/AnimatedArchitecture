@@ -41,6 +41,10 @@ public interface IAnimatedBlockData
 
     /**
      * Deletes the block at the original location.
+     *
+     * @param applyPhysics
+     *     True to apply physics when removing this block. When this is false, stuff like torches that are attached to
+     *     this block will not be broken upon removal of this block.
      */
-    void deleteOriginalBlock();
+    void deleteOriginalBlock(boolean applyPhysics);
 }

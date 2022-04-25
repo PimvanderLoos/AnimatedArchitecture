@@ -96,7 +96,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     @Getter
     private final float startAngle;
     @Getter
-    private final boolean placementDeferred;
+    private final boolean onEdge;
     private final IPWorld pWorld;
     private final List<IAnimatedBlockHook> hooks;
     @ToString.Exclude
@@ -115,7 +115,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
 
     public CustomEntityFallingBlock_V1_15_R1(
         IPWorld pWorld, World world, double d0, double d1, double d2, float radius, float startAngle,
-        boolean placementDeferred, AnimationContext context, AnimatedBlockHookManager animatedBlockHookManager,
+        boolean onEdge, AnimationContext context, AnimatedBlockHookManager animatedBlockHookManager,
         Vector3Dd finalPosition)
         throws Exception
     {
@@ -124,7 +124,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         bukkitWorld = world;
         this.radius = radius;
         this.startAngle = startAngle;
-        this.placementDeferred = placementDeferred;
+        this.onEdge = onEdge;
         this.context = context;
         this.finalPosition = finalPosition;
         worldServer = ((CraftWorld) bukkitWorld).getHandle();

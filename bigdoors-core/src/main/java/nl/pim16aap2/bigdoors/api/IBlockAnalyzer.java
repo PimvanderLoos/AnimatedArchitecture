@@ -9,19 +9,6 @@ package nl.pim16aap2.bigdoors.api;
 public interface IBlockAnalyzer
 {
     /**
-     * Checks if placement of this block should be deferred to the second pass or not.
-     * <p>
-     * See {@link PBlockData#isPlacementDeferred()}
-     * <p>
-     * This method assume
-     *
-     * @param location
-     *     The location of the block.
-     * @return True if this block should be placed on the second pass, false otherwise.
-     */
-    boolean placeOnSecondPass(IPLocation location);
-
-    /**
      * Check if a block if air or liquid (water, lava).
      *
      * @param location
@@ -50,14 +37,6 @@ public interface IBlockAnalyzer
          * The material is blacklisted and cannot in any way be used as an animated block.
          */
         BLACKLISTED,
-
-        /**
-         * The material represents a secondary block. It cannot exist on its own. It must be broken before the block it
-         * depends on and placed after.
-         * <p>
-         * For example: Torches.
-         */
-        GREYLISTED,
 
         /**
          * This material is allowed.

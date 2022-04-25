@@ -26,6 +26,8 @@ public interface IAnimatedBlockFactory
      *     The starting angle of the block to the rotation point.
      * @param bottom
      *     True if this is the lowest block of the object to move.
+     * @param onEdge
+     *     True if this animated block is on the edge of the cuboid being animated.
      * @param finalPosition
      *     The final position of the block. This is the place where the block will be placed after the animation
      *     finishes.
@@ -34,7 +36,7 @@ public interface IAnimatedBlockFactory
      * @return The {@link IAnimatedBlock} that was constructed if it could be constructed.
      */
     Optional<IAnimatedBlock> create(
-        IPLocation loc, float radius, float startAngle, boolean bottom, AnimationContext context,
+        IPLocation loc, float radius, float startAngle, boolean bottom, boolean onEdge, AnimationContext context,
         Vector3Dd finalPosition)
         throws Exception;
 }

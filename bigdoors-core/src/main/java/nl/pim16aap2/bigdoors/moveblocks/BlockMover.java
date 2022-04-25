@@ -85,7 +85,7 @@ public abstract class BlockMover
     protected RotateDirection openDirection;
 
     @ToString.Exclude
-    protected List<IAnimatedBlock> animatedBlocks;
+    protected ArrayList<IAnimatedBlock> animatedBlocks;
 
     protected int xMin;
 
@@ -160,7 +160,7 @@ public abstract class BlockMover
         this.skipAnimation = skipAnimation;
         this.openDirection = openDirection;
         this.player = player;
-        animatedBlocks = new ArrayList<>();
+        animatedBlocks = new ArrayList<>(door.getBlockCount());
         this.newCuboid = newCuboid;
         this.cause = cause;
         this.actionType = actionType;
@@ -238,9 +238,14 @@ public abstract class BlockMover
         try
         {
             for (int xAxis = xMin; xAxis <= xMax; ++xAxis)
-                for (int yAxis = yMin; yAxis <= yMax; ++yAxis)
+                for (int yAxis = yMax; yAxis >= yMin; --yAxis)
                     for (int zAxis = zMin; zAxis <= zMax; ++zAxis)
                     {
+                        final boolean onEdge =
+                            xAxis == xMin || xAxis == xMax ||
+                                yAxis == yMin || yAxis == yMax ||
+                                zAxis == zMin || zAxis == zMax;
+
                         final IPLocation location = locationFactory.create(world, xAxis + 0.5, yAxis, zAxis + 0.5);
                         final boolean bottom = (yAxis == yMin);
                         final float radius = getRadius(xAxis, yAxis, zAxis);
@@ -249,7 +254,7 @@ public abstract class BlockMover
                         final Vector3Dd finalPosition = getFinalPosition(startPosition, radius);
 
                         animatedBlockFactory
-                            .create(location, radius, startAngle, bottom, animationContext, finalPosition)
+                            .create(location, radius, startAngle, bottom, onEdge, animationContext, finalPosition)
                             .ifPresent(animatedBlocks::add);
                     }
         }
@@ -260,7 +265,9 @@ public abstract class BlockMover
             return;
         }
 
-        if (!removeOriginalBlocks())
+        animatedBlocks.trimToSize();
+
+        if (!tryRemoveOriginalBlocks(false) || !tryRemoveOriginalBlocks(true))
             return;
 
         final boolean animationSkipped = skipAnimation || animatedBlocks.isEmpty();
@@ -279,16 +286,20 @@ public abstract class BlockMover
      * If an exception is thrown while removing the original blocks, the process is finished using
      * {@link #handleInitFailure()}.
      *
+     * @param edgePass
+     *     True to do a pass over the edges specifically.
      * @return True if the original blocks could be spawned. If something went wrong and the process had to be aborted,
      * false is returned instead.
      */
-    private boolean removeOriginalBlocks()
+    private boolean tryRemoveOriginalBlocks(boolean edgePass)
     {
-        for (IAnimatedBlock animatedBlock : animatedBlocks)
+        for (final IAnimatedBlock animatedBlock : animatedBlocks)
         {
             try
             {
-                animatedBlock.getAnimatedBlockData().deleteOriginalBlock();
+                if (edgePass && !animatedBlock.isOnEdge())
+                    continue;
+                animatedBlock.getAnimatedBlockData().deleteOriginalBlock(edgePass);
             }
             catch (Exception e)
             {
@@ -309,7 +320,7 @@ public abstract class BlockMover
      */
     private void handleInitFailure()
     {
-        for (IAnimatedBlock animatedBlock : animatedBlocks)
+        for (final IAnimatedBlock animatedBlock : animatedBlocks)
         {
             try
             {
@@ -509,17 +520,9 @@ public abstract class BlockMover
 
     /**
      * Places the block of an {@link IAnimatedBlock}.
-     *
-     * @param animatedBlock
-     *     The {@link IAnimatedBlock}.
-     * @param firstPass
-     *     Whether this is the first pass. See {@link IAnimatedBlock#isPlacementDeferred()};
      */
-    private void putSavedBlock(IAnimatedBlock animatedBlock, boolean firstPass)
+    private void putSavedBlock(IAnimatedBlock animatedBlock)
     {
-        if (animatedBlock.isPlacementDeferred() && firstPass)
-            return;
-
         animatedBlock.kill();
         animatedBlock.getAnimatedBlockData().putBlock(animatedBlock.getFinalPosition());
     }
@@ -539,13 +542,8 @@ public abstract class BlockMover
         if (isFinished.getAndSet(true))
             return;
 
-        // First do the first pass, placing all blocks such as stone, dirt, etc.
         for (final IAnimatedBlock animatedBlock : animatedBlocks)
-            putSavedBlock(animatedBlock, true);
-
-        // Then do the second pass, placing all blocks such as torches, etc.
-        for (final IAnimatedBlock animatedBlock : animatedBlocks)
-            putSavedBlock(animatedBlock, false);
+            putSavedBlock(animatedBlock);
 
         // Tell the door object it has been opened and what its new coordinates are.
         updateCoords(door);
