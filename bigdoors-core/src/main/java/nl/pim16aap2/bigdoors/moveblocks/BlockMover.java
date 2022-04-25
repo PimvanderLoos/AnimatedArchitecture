@@ -21,6 +21,7 @@ import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -247,7 +248,6 @@ public abstract class BlockMover
                         final Vector3Dd startPosition = new Vector3Dd(xAxis + 0.5, yAxis, zAxis + 0.5);
                         final Vector3Dd finalPosition = getFinalPosition(startPosition, radius);
 
-
                         animatedBlockFactory
                             .create(location, radius, startAngle, bottom, animationContext, finalPosition)
                             .ifPresent(animatedBlocks::add);
@@ -256,12 +256,12 @@ public abstract class BlockMover
         catch (Exception e)
         {
             log.at(Level.SEVERE).withCause(e).log();
-            doorActivityManager.processFinishedBlockMover(this, false);
+            handleInitFailure();
             return;
         }
 
-        for (final IAnimatedBlock animatedBlock : animatedBlocks)
-            animatedBlock.getAnimatedBlockData().deleteOriginalBlock();
+        if (!removeOriginalBlocks())
+            return;
 
         final boolean animationSkipped = skipAnimation || animatedBlocks.isEmpty();
         animation.setState(animationSkipped ? AnimationState.SKIPPED : AnimationState.ACTIVE);
@@ -271,6 +271,68 @@ public abstract class BlockMover
             putBlocks(false);
         else
             animateEntities(animation);
+    }
+
+    /**
+     * Tries to remove the original blocks of all blocks in {@link #animatedBlocks}.
+     * <p>
+     * If an exception is thrown while removing the original blocks, the process is finished using
+     * {@link #handleInitFailure()}.
+     *
+     * @return True if the original blocks could be spawned. If something went wrong and the process had to be aborted,
+     * false is returned instead.
+     */
+    private boolean removeOriginalBlocks()
+    {
+        for (IAnimatedBlock animatedBlock : animatedBlocks)
+        {
+            try
+            {
+                animatedBlock.getAnimatedBlockData().deleteOriginalBlock();
+            }
+            catch (Exception e)
+            {
+                log.at(Level.SEVERE).withCause(e)
+                   .log("Failed to remove original block. Trying to restore blocks now...");
+                handleInitFailure();
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Handles initialization failure.
+     * <p>
+     * This means that this block mover will be unregistered, that living animated blocks will be killed, and that we
+     * will attempt to restore blocks to their original positions.
+     */
+    private void handleInitFailure()
+    {
+        for (IAnimatedBlock animatedBlock : animatedBlocks)
+        {
+            try
+            {
+                animatedBlock.kill();
+            }
+            catch (Exception e)
+            {
+                log.at(Level.SEVERE).withCause(e).log("Failed to kill animated block: %s", animatedBlock);
+            }
+            try
+            {
+                final Vector3Dd startPos = animatedBlock.getStartPosition();
+                final Vector3Di goalPos = new Vector3Di((int) startPos.x(),
+                                                        (int) Math.round(startPos.y()),
+                                                        (int) startPos.z());
+                animatedBlock.getAnimatedBlockData().putBlock(goalPos);
+            }
+            catch (Exception e)
+            {
+                log.at(Level.SEVERE).withCause(e).log("Failed to restore block: %s", animatedBlock);
+            }
+        }
+        doorActivityManager.processFinishedBlockMover(this, false);
     }
 
     /**
@@ -362,13 +424,20 @@ public abstract class BlockMover
      */
     private synchronized void animateEntities(Animation<IAnimatedBlock> animation)
     {
-        prepareAnimation();
-        final int stopCount = animationDuration + Math.max(0, finishDuration);
+        try
+        {
+            prepareAnimation();
+        }
+        catch (Exception e)
+        {
+            log.at(Level.SEVERE).withCause(e).log("Failed to prepare animation!");
+            handleInitFailure();
+            return;
+        }
 
-        if (hooks != null)
-            hooks.forEach(IAnimationHook::onPrepare);
         forEachHook("onPrepare", IAnimationHook::onPrepare);
 
+        final int stopCount = animationDuration + Math.max(0, finishDuration);
         moverTask = new TimerTask()
         {
             private int counter = 0;
