@@ -128,6 +128,11 @@ public interface IAnimatedBlock
     Vector3Dd getStartPosition();
 
     /**
+     * @return The position where the block will be placed after the animation finishes.
+     */
+    Vector3Dd getFinalPosition();
+
+    /**
      * @return The x-coordinate of the location the block was first spawned at.
      */
     double getStartX();
@@ -153,16 +158,9 @@ public interface IAnimatedBlock
     float getRadius();
 
     /**
-     * Checks if placement of this block should be deferred to the second pass or not.
-     * <p>
-     * On the first pass, "standalone" blocks such as stone will be placed, while other blocks such as torches, will be
-     * skipped.
-     * <p>
-     * On the second pass, all the other blocks will be placed. This makes sure that torches aren't just dropped.
-     *
-     * @return True if this block should be placed on the second pass, otherwise false.
+     * @return True if this animated block is on the edge of the cuboid being animated.
      */
-    boolean isPlacementDeferred();
+    boolean isOnEdge();
 
     enum TeleportMode
     {

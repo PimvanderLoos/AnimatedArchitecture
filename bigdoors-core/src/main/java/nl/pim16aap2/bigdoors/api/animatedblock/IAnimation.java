@@ -73,9 +73,15 @@ public interface IAnimation<T extends IAnimatedBlock>
         ACTIVE,
 
         /**
-         * The animation has finished and the animated blocks are in the process of finishing up.
+         * The animation is in the process of finishing up. This means that the animated blocks are being moved to their
+         * final positions.
          */
         FINISHING,
+
+        /**
+         * The animation has finished and the animated blocks are about to be placed down as normal blocks.
+         */
+        STOPPING,
 
         /**
          * The animation has completed; there are no animated blocks left.

@@ -14,7 +14,6 @@ import net.minecraft.server.v1_15_R1.GameProfileSerializer;
 import net.minecraft.server.v1_15_R1.IBlockData;
 import net.minecraft.server.v1_15_R1.NBTTagCompound;
 import net.minecraft.server.v1_15_R1.PacketPlayOutEntity;
-import net.minecraft.server.v1_15_R1.PacketPlayOutSpawnEntity;
 import net.minecraft.server.v1_15_R1.PlayerChunkMap;
 import net.minecraft.server.v1_15_R1.Vec3D;
 import net.minecraft.server.v1_15_R1.WorldServer;
@@ -37,7 +36,9 @@ import org.bukkit.craftbukkit.v1_15_R1.util.CraftMagicNumbers;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Field;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
@@ -53,6 +54,25 @@ import java.util.logging.Level;
 public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_15_R1.EntityFallingBlock
     implements IAnimatedBlockSpigot
 {
+    private static final @Nullable AtomicInteger ENTITY_COUNT;
+
+    static
+    {
+        @Nullable AtomicInteger entityCountTmp = null;
+        try
+        {
+            final Field f = Entity.class.getDeclaredField("entityCount");
+            f.setAccessible(true);
+            entityCountTmp = (AtomicInteger) f.get(null);
+        }
+        catch (Exception e)
+        {
+            log.at(Level.SEVERE).withCause(e)
+               .log("Could not find entityCount field. Animations will be unable to rotate!");
+        }
+        ENTITY_COUNT = entityCountTmp;
+    }
+
     // ticksLived is also a field in NMS.EntityFallingBlock. However, we want to override that on purpose.
     @SuppressWarnings("squid:S2387")
     @Setter
@@ -76,7 +96,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     @Getter
     private final float startAngle;
     @Getter
-    private final boolean placementDeferred;
+    private final boolean onEdge;
     private final IPWorld pWorld;
     private final List<IAnimatedBlockHook> hooks;
     @ToString.Exclude
@@ -91,10 +111,12 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
 
     private final IPLocation startLocation;
     private final Vector3Dd startPosition;
+    private final Vector3Dd finalPosition;
 
     public CustomEntityFallingBlock_V1_15_R1(
         IPWorld pWorld, World world, double d0, double d1, double d2, float radius, float startAngle,
-        boolean placementDeferred, AnimationContext context, AnimatedBlockHookManager animatedBlockHookManager)
+        boolean onEdge, AnimationContext context, AnimatedBlockHookManager animatedBlockHookManager,
+        Vector3Dd finalPosition)
         throws Exception
     {
         super(EntityTypes.FALLING_BLOCK, ((CraftWorld) world).getHandle());
@@ -102,8 +124,9 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         bukkitWorld = world;
         this.radius = radius;
         this.startAngle = startAngle;
-        this.placementDeferred = placementDeferred;
+        this.onEdge = onEdge;
         this.context = context;
+        this.finalPosition = finalPosition;
         worldServer = ((CraftWorld) bukkitWorld).getHandle();
         // Do not round x and z because they are at half blocks; Given x;z 10;5, the block will be spawned at
         // 10.5;5.5. Rounding it would retrieve the blocks at 11;6.
@@ -140,22 +163,32 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         forEachHook("onDie", IAnimatedBlockHook::onDie);
     }
 
-    @Override
-    public synchronized void spawn()
+    private void spawn0()
     {
-        ((org.bukkit.craftbukkit.v1_15_R1.CraftWorld) bukkitWorld).getHandle().addEntity(this, SpawnReason.CUSTOM);
+        worldServer.addEntity(this, SpawnReason.CUSTOM);
         tracker = Util.requireNonNull(worldServer.getChunkProvider().playerChunkMap.trackedEntities.get(getId()),
                                       "entity tracker");
         dead = false;
+    }
+
+    @Override
+    public synchronized void spawn()
+    {
+        spawn0();
         forEachHook("onSpawn", IAnimatedBlockHook::onSpawn);
     }
 
     @Override
     public synchronized void respawn()
     {
-        // TODO: Ensure that this works as intended.
-        Util.requireNonNull(tracker, "EntityTracker").broadcast(new PacketPlayOutSpawnEntity(this));
-        dead = false;
+        if (ENTITY_COUNT == null)
+            return;
+
+        // First remove the entity.
+        worldServer.removeEntity(this);
+        // Update the current id.
+        this.e(ENTITY_COUNT.incrementAndGet());
+        spawn0();
     }
 
     private synchronized void cyclePositions(Vector3Dd newPosition)
@@ -372,6 +405,12 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     public Vector3Dd getStartPosition()
     {
         return startPosition;
+    }
+
+    @Override
+    public Vector3Dd getFinalPosition()
+    {
+        return finalPosition;
     }
 
     @Override

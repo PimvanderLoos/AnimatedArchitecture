@@ -11,6 +11,7 @@ import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.WorldTime;
+import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 
 import java.util.function.Function;
@@ -63,7 +64,7 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
     @Override
     protected void init()
     {
-        super.endCount = 40_000;
+        super.animationDuration = 40_000;
     }
 
     /**
@@ -87,9 +88,9 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
     }
 
     @Override
-    protected Vector3Dd getFinalPosition(IAnimatedBlock animatedBlock)
+    protected Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
     {
-        return animatedBlock.getStartPosition();
+        return Vector3Dd.of(startLocation);
     }
 
     @Override

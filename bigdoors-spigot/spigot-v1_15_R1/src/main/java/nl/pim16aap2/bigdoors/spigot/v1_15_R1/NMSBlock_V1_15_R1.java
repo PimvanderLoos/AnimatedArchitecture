@@ -7,14 +7,16 @@ import net.minecraft.server.v1_15_R1.Block;
 import net.minecraft.server.v1_15_R1.BlockPosition;
 import net.minecraft.server.v1_15_R1.IBlockData;
 import net.minecraft.server.v1_15_R1.WorldServer;
-import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlockData;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Axis;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
@@ -41,6 +43,7 @@ public class NMSBlock_V1_15_R1 extends Block implements IAnimatedBlockData
     @SuppressWarnings("unused") // Appears unused, but it's referenced in annotations.
     private final Object blockDataLock = new Object();
     private final WorldServer worldServer;
+    private final World bukkitWorld;
 
     @GuardedBy("blockDataLock")
     private IBlockData blockData;
@@ -70,6 +73,7 @@ public class NMSBlock_V1_15_R1 extends Block implements IAnimatedBlockData
     {
         super(newBlockInfo(worldServer.getWorld(), new BlockPosition(x, y, z)));
         this.worldServer = worldServer;
+        this.bukkitWorld = worldServer.getWorld();
 
         loc = new Location(worldServer.getWorld(), x, y, z);
 
@@ -141,18 +145,23 @@ public class NMSBlock_V1_15_R1 extends Block implements IAnimatedBlockData
         return true;
     }
 
-    /**
-     * Places the block at a given location.
-     *
-     * @param loc
-     *     The location where the block will be placed.
-     */
     @Override
     @Synchronized("blockDataLock")
-    public void putBlock(IPLocation loc)
+    public void putBlock(Vector3Di position)
     {
-        final BlockPosition blockPosition = new BlockPosition(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+        putBlock(new BlockPosition(position.x(), position.y(), position.z()));
+    }
 
+    @Override
+    @Synchronized("blockDataLock")
+    public void putBlock(Vector3Dd position)
+    {
+        putBlock(new BlockPosition(position.x(), position.y(), position.z()));
+    }
+
+    @GuardedBy("blockDataLock")
+    private void putBlock(BlockPosition blockPosition)
+    {
         final IBlockData old = worldServer.getType(blockPosition);
 
         // Place the block, and don't apply physics.
@@ -327,8 +336,16 @@ public class NMSBlock_V1_15_R1 extends Block implements IAnimatedBlockData
     }
 
     @Override
-    public void deleteOriginalBlock()
+    public void deleteOriginalBlock(boolean applyPhysics)
     {
-        loc.getBlock().setType(Material.AIR);
+        if (!applyPhysics)
+        {
+            bukkitWorld.getBlockAt(loc).setType(Material.AIR, false);
+        }
+        else
+        {
+            bukkitWorld.getBlockAt(loc).setType(Material.CAVE_AIR, false);
+            bukkitWorld.getBlockAt(loc).setType(Material.AIR, true);
+        }
     }
 }

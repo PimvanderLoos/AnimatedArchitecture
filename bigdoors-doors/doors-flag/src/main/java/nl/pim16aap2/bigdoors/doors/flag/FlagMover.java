@@ -1,12 +1,12 @@
 package nl.pim16aap2.bigdoors.doors.flag;
 
-import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 
 import java.util.function.BiFunction;
@@ -49,11 +49,11 @@ public class FlagMover extends BlockMover
     }
 
     /**
-     * Used for initializing variables such as {@link #endCount}.
+     * Used for initializing variables such as {@link #animationDuration}.
      */
     protected void init()
     {
-        super.endCount = 200;
+        super.animationDuration = 200;
     }
 
     /**
@@ -110,15 +110,9 @@ public class FlagMover extends BlockMover
     }
 
     @Override
-    protected IPLocation getNewLocation(double radius, double xAxis, double yAxis, double zAxis)
+    protected Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
     {
-        return locationFactory.create(world, xAxis, yAxis, zAxis);
-    }
-
-    @Override
-    protected Vector3Dd getFinalPosition(IAnimatedBlock animatedBlock)
-    {
-        return animatedBlock.getStartPosition();
+        return Vector3Dd.of(startLocation);
     }
 
     @Override

@@ -1,7 +1,8 @@
 package nl.pim16aap2.bigdoors.api.animatedblock;
 
-import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
 /**
  * Represents an NMS block.
@@ -27,15 +28,23 @@ public interface IAnimatedBlockData
     boolean rotateBlock(RotateDirection rotDir);
 
     /**
-     * Places the block at a given location.
-     *
      * @param loc
-     *     The location where the block will be placed.
+     *     The position where the block will be placed.
      */
-    void putBlock(IPLocation loc);
+    void putBlock(Vector3Di loc);
+
+    /**
+     * @param loc
+     *     The position where the block will be placed.
+     */
+    void putBlock(Vector3Dd loc);
 
     /**
      * Deletes the block at the original location.
+     *
+     * @param applyPhysics
+     *     True to apply physics when removing this block. When this is false, stuff like torches that are attached to
+     *     this block will not be broken upon removal of this block.
      */
-    void deleteOriginalBlock();
+    void deleteOriginalBlock(boolean applyPhysics);
 }

@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Contract;
  * @author Pim
  */
 @SuppressWarnings("unused")
-public record Vector3Di(int x, int y, int z) implements Vector3DUtil.IVector3D
+public record Vector3Di(int x, int y, int z) implements IVector3D
 {
     /**
      * Creates a new double-based 3d vector from this integer-based 3d vector.
@@ -320,7 +320,7 @@ public record Vector3Di(int x, int y, int z) implements Vector3DUtil.IVector3D
      * @return A new {@link Vector3Di} rotated around the pivot point.
      */
     @CheckReturnValue @Contract(pure = true)
-    public Vector3Di rotateAroundXAxis(Vector3DUtil.IVector3D pivotPoint, double radians)
+    public Vector3Di rotateAroundXAxis(IVector3D pivotPoint, double radians)
     {
         return fromDouble(Vector3DUtil.rotateAroundXAxis(this, pivotPoint, radians));
     }
@@ -335,7 +335,7 @@ public record Vector3Di(int x, int y, int z) implements Vector3DUtil.IVector3D
      * @return A new {@link Vector3Di} rotated around the pivot point.
      */
     @CheckReturnValue @Contract(pure = true)
-    public Vector3Di rotateAroundYAxis(Vector3DUtil.IVector3D pivotPoint, double radians)
+    public Vector3Di rotateAroundYAxis(IVector3D pivotPoint, double radians)
     {
         return fromDouble(Vector3DUtil.rotateAroundYAxis(this, pivotPoint, radians));
     }
@@ -350,7 +350,7 @@ public record Vector3Di(int x, int y, int z) implements Vector3DUtil.IVector3D
      * @return A new {@link Vector3Di} rotated around the pivot point.
      */
     @CheckReturnValue @Contract(pure = true)
-    public Vector3Di rotateAroundZAxis(Vector3DUtil.IVector3D pivotPoint, double radians)
+    public Vector3Di rotateAroundZAxis(IVector3D pivotPoint, double radians)
     {
         return fromDouble(Vector3DUtil.rotateAroundZAxis(this, pivotPoint, radians));
     }
@@ -377,5 +377,11 @@ public record Vector3Di(int x, int y, int z) implements Vector3DUtil.IVector3D
     public double zD()
     {
         return z;
+    }
+
+    @Override
+    public Vector3Di floor()
+    {
+        return this;
     }
 }

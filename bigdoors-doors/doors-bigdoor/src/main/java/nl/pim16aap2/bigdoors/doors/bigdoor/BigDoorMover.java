@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.doors.bigdoor;
 
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -11,6 +10,7 @@ import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 
 import java.util.logging.Level;
@@ -44,29 +44,26 @@ public class BigDoorMover extends BlockMover
         final int doorLength = Math.max(xLen, zLen) + 1;
         final double[] vars = Util.calculateTimeAndTickRate(doorLength, time, multiplier, 3.7);
 //        super.time = vars[0];
-        super.time = 10;
+        super.time = 3;
 
         init();
         super.startAnimation();
     }
 
     /**
-     * Used for initializing variables such as {@link #endCount}.
+     * Used for initializing variables such as {@link #animationDuration}.
      */
     protected void init()
     {
-        super.endCount = (int) (20 * super.time) + 1;
-        step = angle / super.endCount;
-        halfEndCount = super.endCount / 2;
+        super.animationDuration = (int) (20 * super.time) + 1;
+        step = angle / super.animationDuration;
+        halfEndCount = super.animationDuration / 2;
     }
 
     @Override
-    protected Vector3Dd getFinalPosition(IAnimatedBlock animatedBlock)
+    protected Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
     {
-        final Vector3Dd startLocation = animatedBlock.getStartPosition();
-        final IPLocation finalLoc = getNewLocation(animatedBlock.getRadius(), startLocation.x(),
-                                                   startLocation.y(), startLocation.z());
-        return new Vector3Dd(finalLoc.getBlockX(), finalLoc.getBlockY(), finalLoc.getBlockZ());
+        return getGoalPos(angle, startLocation.xD(), startLocation.yD(), startLocation.zD());
     }
 
     @Override
@@ -102,12 +99,6 @@ public class BigDoorMover extends BlockMover
     private Vector3Dd getGoalPos(IAnimatedBlock animatedBlock, double cos, double sin)
     {
         return getGoalPos(cos, sin, animatedBlock.getStartX(), animatedBlock.getStartY(), animatedBlock.getStartZ());
-    }
-
-    @Override
-    protected IPLocation getNewLocation(double radius, double xAxis, double yAxis, double zAxis)
-    {
-        return locationFactory.create(world, getGoalPos(angle, xAxis, yAxis, zAxis));
     }
 
     @Override

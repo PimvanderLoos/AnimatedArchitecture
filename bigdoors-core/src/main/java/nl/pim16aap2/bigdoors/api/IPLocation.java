@@ -149,6 +149,12 @@ public interface IPLocation
         return new Vector3Di(getBlockX(), getBlockY(), getBlockZ());
     }
 
+    @CheckReturnValue @Contract(pure = true)
+    default Vector3Dd getPositionDouble()
+    {
+        return new Vector3Dd(getX(), getY(), getZ());
+    }
+
     /**
      * Gets the position (so no world) in integers as a String.
      *

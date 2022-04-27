@@ -45,8 +45,9 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
     private final Map<PColor, Team> teams;
     private final Player player;
 
-    public GlowingBlock_V1_15_R1(Player player, World world, PColor pColor,
-                                 double x, double y, double z, Map<PColor, Team> teams)
+    public GlowingBlock_V1_15_R1(
+        Player player, World world, PColor pColor,
+        double x, double y, double z, Map<PColor, Team> teams)
     {
         this.player = player;
         this.teams = teams;
@@ -104,7 +105,7 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
 
         final PlayerConnection playerConnection = playerConnectionOpt.get();
 
-        glowingBlockEntity.setLocation(x + 0.5, y, z + 0.5, 0, 0);
+        glowingBlockEntity.setLocation(x, y, z, 0, 0);
         glowingBlockEntity.setHeadRotation(0);
         glowingBlockEntity.setInvisible(true);
         glowingBlockEntity.setInvulnerable(true);
@@ -149,8 +150,9 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
     public static class Factory implements IGlowingBlockFactory
     {
         @Override
-        public Optional<IGlowingBlock> createGlowingBlock(Player player, World world, PColor pColor,
-                                                          double x, double y, double z, Map<PColor, Team> teams)
+        public Optional<IGlowingBlock> createGlowingBlock(
+            Player player, World world, PColor pColor,
+            double x, double y, double z, Map<PColor, Team> teams)
         {
             try
             {

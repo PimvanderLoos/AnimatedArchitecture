@@ -21,7 +21,6 @@ import java.util.Set;
 public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
 {
     private static final Set<Material> WHITELIST = EnumSet.noneOf(Material.class);
-    private static final Set<Material> GREYLIST = EnumSet.noneOf(Material.class);
     private static final Set<Material> BLACKLIST = EnumSet.noneOf(Material.class);
 
     static
@@ -33,8 +32,6 @@ public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
                 WHITELIST.add(mat);
             else if (result == MaterialStatus.BLACKLISTED)
                 BLACKLIST.add(mat);
-            else if (result == MaterialStatus.GREYLISTED)
-                GREYLIST.add(mat);
             else if (result == MaterialStatus.UNMAPPED)
             {
                 Bukkit.getLogger().warning("Material \"" + mat.name() + "\" is not mapped! Please contact pim16aap2!");
@@ -57,7 +54,6 @@ public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
 
         switch (mat)
         {
-            //<editor-fold defaultstate="collapsed" desc="isWhitelisted">
             case ACACIA_FENCE:
             case ACACIA_FENCE_GATE:
             case ACACIA_LEAVES:
@@ -442,10 +438,6 @@ public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
             case YELLOW_STAINED_GLASS_PANE:
             case YELLOW_TERRACOTTA:
             case YELLOW_WOOL:
-                return MaterialStatus.WHITELISTED;
-
-
-            //<editor-fold defaultstate="collapsed" desc="isGreylisted">
             case ACACIA_BUTTON:
             case ACACIA_DOOR:
             case ACACIA_PRESSURE_PLATE:
@@ -470,27 +462,18 @@ public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
             case BIRCH_SIGN:
             case BIRCH_TRAPDOOR:
             case BIRCH_WALL_SIGN:
-            case BLACK_BANNER:
-            case BLACK_BED:
             case BLACK_CARPET:
             case BLACK_CONCRETE_POWDER:
-            case BLACK_WALL_BANNER:
-            case BLUE_BANNER:
-            case BLUE_BED:
             case BLUE_CARPET:
             case BLUE_CONCRETE_POWDER:
             case BLUE_ORCHID:
-            case BLUE_WALL_BANNER:
             case BRAIN_CORAL:
             case BRAIN_CORAL_BLOCK:
             case BRAIN_CORAL_FAN:
             case BRAIN_CORAL_WALL_FAN:
-            case BROWN_BANNER:
-            case BROWN_BED:
             case BROWN_CARPET:
             case BROWN_CONCRETE_POWDER:
             case BROWN_MUSHROOM:
-            case BROWN_WALL_BANNER:
             case BUBBLE_COLUMN:
             case BUBBLE_CORAL:
             case BUBBLE_CORAL_BLOCK:
@@ -505,13 +488,8 @@ public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
             case COMPARATOR:
             case CONDUIT:
             case CORNFLOWER:
-            case CREEPER_HEAD:
-            case CREEPER_WALL_HEAD:
-            case CYAN_BANNER:
-            case CYAN_BED:
             case CYAN_CARPET:
             case CYAN_CONCRETE_POWDER:
-            case CYAN_WALL_BANNER:
             case DAMAGED_ANVIL:
             case DANDELION:
             case DARK_OAK_BUTTON:
@@ -544,23 +522,15 @@ public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
             case DEAD_TUBE_CORAL_WALL_FAN:
             case DETECTOR_RAIL:
             case DRAGON_EGG:
-            case DRAGON_HEAD:
-            case DRAGON_WALL_HEAD:
             case FERN:
             case FIRE_CORAL:
             case FIRE_CORAL_BLOCK:
             case FIRE_CORAL_FAN:
             case FIRE_CORAL_WALL_FAN:
-            case GRAY_BANNER:
-            case GRAY_BED:
             case GRAY_CARPET:
             case GRAY_CONCRETE_POWDER:
-            case GRAY_WALL_BANNER:
-            case GREEN_BANNER:
-            case GREEN_BED:
             case GREEN_CARPET:
             case GREEN_CONCRETE_POWDER:
-            case GREEN_WALL_BANNER:
             case HEAVY_WEIGHTED_PRESSURE_PLATE:
             case HORN_CORAL:
             case HORN_CORAL_BLOCK:
@@ -581,30 +551,18 @@ public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
             case LANTERN:
             case LARGE_FERN:
             case LEVER:
-            case LIGHT_BLUE_BANNER:
-            case LIGHT_BLUE_BED:
             case LIGHT_BLUE_CARPET:
             case LIGHT_BLUE_CONCRETE_POWDER:
-            case LIGHT_BLUE_WALL_BANNER:
-            case LIGHT_GRAY_BANNER:
-            case LIGHT_GRAY_BED:
             case LIGHT_GRAY_CARPET:
             case LIGHT_GRAY_CONCRETE_POWDER:
-            case LIGHT_GRAY_WALL_BANNER:
             case LIGHT_WEIGHTED_PRESSURE_PLATE:
             case LILAC:
             case LILY_OF_THE_VALLEY:
             case LILY_PAD:
-            case LIME_BANNER:
-            case LIME_BED:
             case LIME_CARPET:
             case LIME_CONCRETE_POWDER:
-            case LIME_WALL_BANNER:
-            case MAGENTA_BANNER:
-            case MAGENTA_BED:
             case MAGENTA_CARPET:
             case MAGENTA_CONCRETE_POWDER:
-            case MAGENTA_WALL_BANNER:
             case MELON_STEM:
             case MUSHROOM_STEM:
             case NETHER_WART:
@@ -615,40 +573,25 @@ public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
             case OAK_SIGN:
             case OAK_TRAPDOOR:
             case OAK_WALL_SIGN:
-            case ORANGE_BANNER:
-            case ORANGE_BED:
             case ORANGE_CARPET:
             case ORANGE_CONCRETE_POWDER:
             case ORANGE_TULIP:
-            case ORANGE_WALL_BANNER:
             case OXEYE_DAISY:
             case PEONY:
-            case PINK_BANNER:
-            case PINK_BED:
             case PINK_CARPET:
             case PINK_CONCRETE_POWDER:
             case PINK_TULIP:
-            case PINK_WALL_BANNER:
-            case PISTON_HEAD:
-            case PLAYER_HEAD:
-            case PLAYER_WALL_HEAD:
             case POPPY:
             case POTATOES:
             case POWERED_RAIL:
             case PUMPKIN_STEM:
-            case PURPLE_BANNER:
-            case PURPLE_BED:
             case PURPLE_CARPET:
             case PURPLE_CONCRETE_POWDER:
-            case PURPLE_WALL_BANNER:
             case RAIL:
-            case RED_BANNER:
-            case RED_BED:
             case RED_CONCRETE_POWDER:
             case RED_MUSHROOM:
             case RED_SAND:
             case RED_TULIP:
-            case RED_WALL_BANNER:
             case REDSTONE_TORCH:
             case REDSTONE_WALL_TORCH:
             case REDSTONE_WIRE:
@@ -659,8 +602,6 @@ public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
             case SEA_LANTERN:
             case SEA_PICKLE:
             case SEAGRASS:
-            case SKELETON_SKULL:
-            case SKELETON_WALL_SKULL:
             case SNOW:
             case SPRUCE_BUTTON:
             case SPRUCE_DOOR:
@@ -671,8 +612,6 @@ public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
             case SPRUCE_WALL_SIGN:
             case STONE_BUTTON:
             case STONE_PRESSURE_PLATE:
-            case STRUCTURE_BLOCK:
-            case STRUCTURE_VOID:
             case SUGAR_CANE:
             case SUNFLOWER:
             case SWEET_BERRY_BUSH:
@@ -689,26 +628,14 @@ public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
             case VINE:
             case WALL_TORCH:
             case WHEAT:
-            case WHITE_BANNER:
-            case WHITE_BED:
             case WHITE_CARPET:
             case WHITE_CONCRETE_POWDER:
             case WHITE_TULIP:
-            case WHITE_WALL_BANNER:
             case WITHER_ROSE:
-            case WITHER_SKELETON_SKULL:
-            case WITHER_SKELETON_WALL_SKULL:
-            case YELLOW_BANNER:
-            case YELLOW_BED:
             case YELLOW_CARPET:
             case YELLOW_CONCRETE_POWDER:
-            case YELLOW_WALL_BANNER:
-            case ZOMBIE_HEAD:
-            case ZOMBIE_WALL_HEAD:
-                return MaterialStatus.GREYLISTED;
+                return MaterialStatus.WHITELISTED;
 
-
-            //<editor-fold defaultstate="collapsed" desc="isBlacklisted">
             case AIR:
             case BARREL:
             case BLAST_FURNACE:
@@ -742,6 +669,69 @@ public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
             case TRAPPED_CHEST:
             case VOID_AIR:
             case WATER:
+            case BLACK_BANNER:
+            case BLACK_BED:
+            case BLACK_WALL_BANNER:
+            case BLUE_BANNER:
+            case BLUE_BED:
+            case BLUE_WALL_BANNER:
+            case BROWN_BANNER:
+            case BROWN_BED:
+            case BROWN_WALL_BANNER:
+            case CREEPER_HEAD:
+            case CREEPER_WALL_HEAD:
+            case CYAN_BANNER:
+            case CYAN_BED:
+            case CYAN_WALL_BANNER:
+            case DRAGON_HEAD:
+            case DRAGON_WALL_HEAD:
+            case GRAY_BANNER:
+            case GRAY_BED:
+            case GRAY_WALL_BANNER:
+            case GREEN_BANNER:
+            case GREEN_BED:
+            case GREEN_WALL_BANNER:
+            case LIGHT_BLUE_BANNER:
+            case LIGHT_BLUE_BED:
+            case LIGHT_BLUE_WALL_BANNER:
+            case LIGHT_GRAY_BANNER:
+            case LIGHT_GRAY_BED:
+            case LIGHT_GRAY_WALL_BANNER:
+            case LIME_BANNER:
+            case LIME_BED:
+            case LIME_WALL_BANNER:
+            case MAGENTA_BANNER:
+            case MAGENTA_BED:
+            case MAGENTA_WALL_BANNER:
+            case ORANGE_BANNER:
+            case ORANGE_BED:
+            case ORANGE_WALL_BANNER:
+            case PINK_BANNER:
+            case PINK_BED:
+            case PINK_WALL_BANNER:
+            case PISTON_HEAD:
+            case PLAYER_HEAD:
+            case PLAYER_WALL_HEAD:
+            case PURPLE_BANNER:
+            case PURPLE_BED:
+            case PURPLE_WALL_BANNER:
+            case RED_BANNER:
+            case RED_BED:
+            case RED_WALL_BANNER:
+            case SKELETON_SKULL:
+            case SKELETON_WALL_SKULL:
+            case STRUCTURE_BLOCK:
+            case STRUCTURE_VOID:
+            case WHITE_BANNER:
+            case WHITE_BED:
+            case WHITE_WALL_BANNER:
+            case WITHER_SKELETON_SKULL:
+            case WITHER_SKELETON_WALL_SKULL:
+            case YELLOW_BANNER:
+            case YELLOW_BED:
+            case YELLOW_WALL_BANNER:
+            case ZOMBIE_HEAD:
+            case ZOMBIE_WALL_HEAD:
                 return MaterialStatus.BLACKLISTED;
             default:
                 return MaterialStatus.UNMAPPED;
@@ -758,14 +748,6 @@ public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
     private static Material getMaterial(IPLocation location)
     {
         return SpigotAdapter.getBukkitLocation(location).getBlock().getType();
-    }
-
-    /**
-     * See {@link #placeOnSecondPass(IPLocation)}.
-     */
-    public static boolean placeOnSecondPassStatic(Material mat)
-    {
-        return GREYLIST.contains(mat);
     }
 
     /**
@@ -786,14 +768,6 @@ public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
     }
 
     /**
-     * See {@link #placeOnSecondPass(IPLocation)}.
-     */
-    public static boolean placeOnSecondPassStatic(IPLocation location)
-    {
-        return placeOnSecondPassStatic(getMaterial(location));
-    }
-
-    /**
      * See {@link #isAirOrLiquid(IPLocation)}.
      */
     public static boolean isAirOrLiquidStatic(IPLocation location)
@@ -809,12 +783,6 @@ public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
     public static boolean isAllowedBlockStatic(IPLocation location)
     {
         return isAllowedBlockStatic(getMaterial(location));
-    }
-
-    @Override
-    public boolean placeOnSecondPass(IPLocation location)
-    {
-        return placeOnSecondPassStatic(location);
     }
 
     @Override

@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.doors.portcullis;
 
-import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -9,6 +8,7 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import org.jetbrains.annotations.Nullable;
 
@@ -59,21 +59,18 @@ public class VerticalMover extends BlockMover
     }
 
     /**
-     * Used for initializing variables such as {@link #endCount}.
+     * Used for initializing variables such as {@link #animationDuration}.
      */
     protected void init()
     {
-        super.endCount = (int) (20 * super.time);
-        step = ((double) blocksToMove) / ((double) super.endCount);
+        super.animationDuration = (int) (20 * super.time);
+        step = ((double) blocksToMove) / ((double) super.animationDuration);
     }
 
     @Override
-    protected Vector3Dd getFinalPosition(IAnimatedBlock animatedBlock)
+    protected Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
     {
-        final Vector3Dd startLocation = animatedBlock.getStartPosition();
-        final IPLocation finalLoc = getNewLocation(animatedBlock.getRadius(), startLocation.x(),
-                                                   startLocation.y(), startLocation.z());
-        return new Vector3Dd(finalLoc.getBlockX() + 0.5, finalLoc.getBlockY(), finalLoc.getBlockZ() + 0.5);
+        return Vector3Dd.of(startLocation).add(0, blocksToMove, 0);
     }
 
     @Override
@@ -118,11 +115,5 @@ public class VerticalMover extends BlockMover
         final double stepSum = step * ticks;
         for (final IAnimatedBlock animatedBlock : animatedBlocks)
             movementMethod.apply(animatedBlock, getGoalPos(animatedBlock, stepSum));
-    }
-
-    @Override
-    protected IPLocation getNewLocation(double radius, double xAxis, double yAxis, double zAxis)
-    {
-        return locationFactory.create(world, xAxis, yAxis + blocksToMove, zAxis);
     }
 }
