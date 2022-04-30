@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.util.data;
+package nl.pim16aap2.bigdoors.data.cache;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

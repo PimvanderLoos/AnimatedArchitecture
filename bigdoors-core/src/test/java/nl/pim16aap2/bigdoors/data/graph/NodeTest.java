@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.util.graph;
+package nl.pim16aap2.bigdoors.data.graph;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

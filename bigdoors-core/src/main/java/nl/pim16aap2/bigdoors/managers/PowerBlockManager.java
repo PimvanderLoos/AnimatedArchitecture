@@ -4,10 +4,10 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
+import nl.pim16aap2.bigdoors.data.cache.timed.TimedCache;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.cache.TimedCache;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
@@ -87,8 +87,9 @@ public final class PowerBlockManager extends Restartable
      * @return All {@link DoorBase}s that have a powerblock at a location in a world.
      */
     // TODO: Try to have about 50% less CompletableFuture here.
-    public CompletableFuture<List<CompletableFuture<Optional<AbstractDoor>>>> doorsFromPowerBlockLoc(Vector3Di loc,
-                                                                                                     String worldName)
+    public CompletableFuture<List<CompletableFuture<Optional<AbstractDoor>>>> doorsFromPowerBlockLoc(
+        Vector3Di loc,
+        String worldName)
     {
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
@@ -310,8 +311,8 @@ public final class PowerBlockManager extends Restartable
         /**
          * Map that contains all power blocks in this chunk.
          * <p>
-         * Key: Hashed locations (in chunk-space coordinates), {@link Util#simpleChunkSpaceLocationhash(int, int,
-         * int)}.
+         * Key: Hashed locations (in chunk-space coordinates),
+         * {@link Util#simpleChunkSpaceLocationhash(int, int, int)}.
          * <p>
          * Value: List of UIDs of all doors whose power block occupy this space.
          */

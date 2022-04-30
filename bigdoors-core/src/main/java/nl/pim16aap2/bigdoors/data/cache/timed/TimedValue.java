@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package nl.pim16aap2.bigdoors.util.cache;
+package nl.pim16aap2.bigdoors.data.cache.timed;
 
 import org.jetbrains.annotations.Nullable;
 
