@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package nl.pim16aap2.bigdoors.util.cache;
+package nl.pim16aap2.bigdoors.data.cache.timed;
 
 import com.google.common.flogger.StackSize;
 import lombok.Builder;
@@ -57,7 +57,7 @@ import java.util.logging.Level;
  * @author Pim
  */
 @Flogger
-public class TimedCache<K, V>
+public sealed class TimedCache<K, V>
 {
     private static final Clock DEFAULT_CLOCK = Clock.systemUTC();
 
@@ -427,8 +427,8 @@ public class TimedCache<K, V>
     }
 
     /**
-     * Creates a new {@link TimedValue}. This method should not be called directly. Instead, use to {@link
-     * #timedValueCreator}.
+     * Creates a new {@link TimedValue}. This method should not be called directly. Instead, use to
+     * {@link #timedValueCreator}.
      *
      * @param val
      *     The value to wrap in an {@link AbstractTimedValue}.
@@ -440,8 +440,8 @@ public class TimedCache<K, V>
     }
 
     /**
-     * Creates a new {@link TimedSoftValue}. This method should not be called directly. Instead, use to {@link
-     * #timedValueCreator}.
+     * Creates a new {@link TimedSoftValue}. This method should not be called directly. Instead, use to
+     * {@link #timedValueCreator}.
      *
      * @param val
      *     The value to wrap in an {@link AbstractTimedValue}.
@@ -513,7 +513,7 @@ public class TimedCache<K, V>
      * @param <V>
      *     The type of the values (that are not cached).
      */
-    static class EmptyCache<K, V> extends TimedCache<K, V>
+    static final class EmptyCache<K, V> extends TimedCache<K, V>
     {
         EmptyCache()
         {

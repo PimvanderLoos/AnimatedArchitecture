@@ -3,8 +3,8 @@ package nl.pim16aap2.bigdoors.util.doorretriever;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.commands.ICommandSender;
+import nl.pim16aap2.bigdoors.data.cache.timed.TimedCache;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
-import nl.pim16aap2.bigdoors.util.cache.TimedCache;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -29,8 +29,8 @@ import java.time.Duration;
     /**
      * Gets the {@link DoorFinder} for the given {@link ICommandSender} and the given input.
      * <p>
-     * If no door finder exists yet, a new one will be instantiated. If one does exist for the given {@link
-     * ICommandSender}, the existing one will be updated to process
+     * If no door finder exists yet, a new one will be instantiated. If one does exist for the given
+     * {@link ICommandSender}, the existing one will be updated to process
      *
      * @param commandSender
      *     The {@link ICommandSender} for which to retrieve or instantiate a {@link DoorFinder}.

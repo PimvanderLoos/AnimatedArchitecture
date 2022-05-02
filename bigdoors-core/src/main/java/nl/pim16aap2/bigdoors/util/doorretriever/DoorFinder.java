@@ -6,10 +6,10 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.commands.ICommandSender;
+import nl.pim16aap2.bigdoors.data.cache.RollingCache;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.data.RollingCache;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
@@ -36,8 +36,8 @@ import java.util.stream.Collectors;
  * Represents a class that can be used to retrieve doors when only partial data is provided.
  * <p>
  * For example, given a set of doors with the names "myDoor", "myPortcullis", "flagThatIsMine", this can be used to
- * retrieve "myDoor" and "myPortcullis" from a search input of "my" (provided both doors are owned by the {@link
- * ICommandSender} responsible for the search request.)
+ * retrieve "myDoor" and "myPortcullis" from a search input of "my" (provided both doors are owned by the
+ * {@link ICommandSender} responsible for the search request.)
  *
  * @author Pim
  */
@@ -344,8 +344,8 @@ public final class DoorFinder
     /**
      * Sets the cache to a new list.
      * <p>
-     * After setting the value, a new history item is created and all postponed inputs stored in {@link
-     * #postponedInputs} are applied.
+     * After setting the value, a new history item is created and all postponed inputs stored in
+     * {@link #postponedInputs} are applied.
      * <p>
      * Once the new cache value has been processed, all threads waiting for {@link #msg} are notified.
      *

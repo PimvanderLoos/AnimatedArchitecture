@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package nl.pim16aap2.bigdoors.util.cache;
+package nl.pim16aap2.bigdoors.data.cache.timed;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -57,9 +57,9 @@ class TimedSoftValue<T> extends AbstractTimedValue<T>
      * @param timeOut
      *     The amount of time (in milliseconds) before this entry expires.
      * @param keepAfterTimeOut
-     *     Whether to wait until the garbage collector has reclaimed the item. When this is true, {@link
-     *     #canBeEvicted()} won't return true until the value has both timed out and been reclaimed and {@link
-     *     #getValue(boolean)} will return the value for the same duration.
+     *     Whether to wait until the garbage collector has reclaimed the item. When this is true,
+     *     {@link #canBeEvicted()} won't return true until the value has both timed out and been reclaimed and
+     *     {@link #getValue(boolean)} will return the value for the same duration.
      *     <p>
      *     When this is false, {@link #canBeEvicted()} will return true as soon as the value has timed out, regardless
      *     of whether it may still be available. Similarly, {@link #getValue(boolean)} will return null after the value

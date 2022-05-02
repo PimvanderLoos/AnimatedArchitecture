@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.extensions;
 
 import lombok.SneakyThrows;
+import nl.pim16aap2.bigdoors.data.graph.DirectedAcyclicGraph;
 import nl.pim16aap2.bigdoors.doors.DoorSerializer;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import nl.pim16aap2.bigdoors.util.graph.DirectedAcyclicGraph;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

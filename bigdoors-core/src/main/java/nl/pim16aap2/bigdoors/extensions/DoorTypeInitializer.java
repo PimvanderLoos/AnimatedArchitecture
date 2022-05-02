@@ -3,10 +3,10 @@ package nl.pim16aap2.bigdoors.extensions;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.bigdoors.data.graph.DirectedAcyclicGraph;
+import nl.pim16aap2.bigdoors.data.graph.Node;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.graph.DirectedAcyclicGraph;
-import nl.pim16aap2.bigdoors.util.graph.Node;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -38,8 +38,8 @@ final class DoorTypeInitializer
      * @param doorTypeClassLoader
      *     The class loader in which to load the door types.
      * @param debug
-     *     Whether to enable debugging. Enabling this will enable failFast mode for the graph. See {@link
-     *     DirectedAcyclicGraph#DirectedAcyclicGraph(boolean)}.
+     *     Whether to enable debugging. Enabling this will enable failFast mode for the graph. See
+     *     {@link DirectedAcyclicGraph#DirectedAcyclicGraph(boolean)}.
      */
     DoorTypeInitializer(List<DoorTypeInfo> doorTypeInfoList, IDoorTypeClassLoader doorTypeClassLoader, boolean debug)
     {
@@ -127,8 +127,9 @@ final class DoorTypeInitializer
         node.getAllChildren().forEach(child -> child.getObj().setLoadFailure(loadResult));
     }
 
-    static void addDependenciesToGraph(DirectedAcyclicGraph<Loadable> graph, Map<String, Loadable> loadables,
-                                       Loadable loadable)
+    static void addDependenciesToGraph(
+        DirectedAcyclicGraph<Loadable> graph, Map<String, Loadable> loadables,
+        Loadable loadable)
     {
         final DoorTypeInfo info = loadable.getDoorTypeInfo();
         final List<DoorTypeInfo.Dependency> dependencies = info.getDependencies();
@@ -203,8 +204,8 @@ final class DoorTypeInitializer
     }
 
     /**
-     * Wrapper class for {@link DoorTypeInfo} with a hashCode and equals method that only uses {@link
-     * DoorTypeInfo#getTypeName()}.
+     * Wrapper class for {@link DoorTypeInfo} with a hashCode and equals method that only uses
+     * {@link DoorTypeInfo#getTypeName()}.
      */
     @ToString
     static class Loadable
