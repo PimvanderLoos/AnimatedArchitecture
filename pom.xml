@@ -23,7 +23,7 @@
         <dependency.version.lombok-plugin>1.18.20.0</dependency.version.lombok-plugin>
         <dependency.version.errorprone>2.13.1</dependency.version.errorprone>
         <dependency.version.nullaway>0.9.6</dependency.version.nullaway>
-        <dependency.version.checker-framework>3.21.4</dependency.version.checker-framework>
+        <dependency.version.checker-framework>3.22.0</dependency.version.checker-framework>
         <dependency.version.checkstyle>10.2</dependency.version.checkstyle>
         <dependency.version.pmd>3.16.0</dependency.version.pmd>
         <dependency.version.dagger>2.41</dependency.version.dagger>
