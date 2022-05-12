@@ -75,5 +75,6 @@ for i in "${!VERSIONS[@]}"; do
 done
 sem --wait
 
+./installDependencies.sh "$BUILD_DIR"
 
-echo "All versions have been built! Feel free to remove the $BUILD_DIR directory now!"
+echo "The environment has been set up! Feel free to remove the $BUILD_DIR directory now!"
