@@ -10,7 +10,6 @@ import nl.pim16aap2.bigDoors.reflection.ReflectionBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
@@ -78,16 +77,23 @@ public final class FallbackGeneratorManager
     }
 
     private static @NotNull String getMappingsVersion()
-        throws IllegalAccessException, InvocationTargetException
     {
-        final Method methodGetMappingsVersion = ReflectionBuilder.findMethod().inClass(classCraftMagicNumbers)
-                                                                 .withName("getMappingsVersion")
-                                                                 .withoutParameters().get();
-        final Field instanceField = ReflectionBuilder.findField().inClass(classCraftMagicNumbers)
-                                                     .withName("INSTANCE").get();
+        try
+        {
+            final Method methodGetMappingsVersion = ReflectionBuilder.findMethod().inClass(classCraftMagicNumbers)
+                                                                     .withName("getMappingsVersion")
+                                                                     .withoutParameters().get();
+            final Field instanceField = ReflectionBuilder.findField().inClass(classCraftMagicNumbers)
+                                                         .withName("INSTANCE").get();
 
-        final Object craftMagicNumbersInstance = instanceField.get(null);
-        return Objects.requireNonNull((String) methodGetMappingsVersion.invoke(craftMagicNumbersInstance),
-                                      "Failed to find the current mappings version!");
+            final Object craftMagicNumbersInstance = instanceField.get(null);
+            return Objects.requireNonNull((String) methodGetMappingsVersion.invoke(craftMagicNumbersInstance),
+                                          "Failed to find the current mappings version!");
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return "UNMAPPED";
+        }
     }
 }
