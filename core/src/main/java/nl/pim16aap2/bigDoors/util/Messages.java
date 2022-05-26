@@ -4,9 +4,11 @@ import nl.pim16aap2.bigDoors.BigDoors;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -29,13 +31,15 @@ public class Messages
         messageMap.clear();
 
         locale = plugin.getLocale();
-        textFile = new File(plugin.getDataFolder(), locale + ".txt");
+
+        final String fileName = locale.endsWith(".txt") ? locale : (locale + ".txt");
+        textFile = new File(plugin.getDataFolder(), fileName);
         readFile();
     }
 
     private void writeDefaultFile()
     {
-        File defaultFile = new File(plugin.getDataFolder(), "en_US.txt");
+        final File defaultFile = new File(plugin.getDataFolder(), "en_US.txt");
         if (defaultFile.exists() && !defaultFile.setWritable(true))
             plugin.getMyLogger().myLogger(Level.SEVERE, "Failed to make file \"" + defaultFile + "\" writable!");
 
@@ -49,7 +53,8 @@ public class Messages
     {
         writeDefaultFile();
 
-        try (BufferedReader br = new BufferedReader(new FileReader(textFile)))
+        try (BufferedReader br =
+                 new BufferedReader(new InputStreamReader(new FileInputStream(textFile), StandardCharsets.UTF_8)))
         {
             String sCurrentLine;
 
