@@ -27,7 +27,7 @@
         <dependency.version.checkstyle>10.2</dependency.version.checkstyle>
         <dependency.version.pmd>3.16.0</dependency.version.pmd>
         <dependency.version.dagger>2.42</dependency.version.dagger>
-        <dependency.version.mockito>4.5.1</dependency.version.mockito>
+        <dependency.version.mockito>4.6.0</dependency.version.mockito>
         <dependency.version.junit>5.8.2</dependency.version.junit>
         <dependency.version.surefire>3.0.0-M6</dependency.version.surefire>
         <dependency.version.failsafe>3.0.0-M6</dependency.version.failsafe>
