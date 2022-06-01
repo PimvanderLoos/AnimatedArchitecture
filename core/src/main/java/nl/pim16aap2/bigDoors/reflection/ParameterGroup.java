@@ -38,9 +38,10 @@ public class ParameterGroup
     // Copy constructor
     public ParameterGroup(@NotNull ParameterGroup other)
     {
+        Objects.requireNonNull(other, "Copy constructor cannot copy from null!");
+
         final List<Parameter> tmpList = new ArrayList<>(other.parameters.size());
-        Objects.requireNonNull(other, "Copy constructor cannot copy from null!").parameters
-            .forEach(parameter -> tmpList.add(new Parameter(parameter)));
+        other.parameters.forEach(parameter -> tmpList.add(new Parameter(parameter)));
 
         this.parameters = Collections.unmodifiableList(tmpList);
         this.requiredCount = other.requiredCount;
