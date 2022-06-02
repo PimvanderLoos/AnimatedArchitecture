@@ -3,6 +3,7 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 import com.cryptomorin.xseries.XMaterial;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
+import nl.pim16aap2.bigDoors.events.DoorEventAutoToggle;
 import nl.pim16aap2.bigDoors.events.DoorEventToggle;
 import nl.pim16aap2.bigDoors.events.DoorEventToggleEnd;
 import nl.pim16aap2.bigDoors.util.MyBlockData;
@@ -151,7 +152,7 @@ public abstract class BlockMover
         coordinateUpdater.run();
         toggleOpen(door);
 
-        if (!onDisable)
+        if (!onDisable && canAutoToggle(door))
         {
             int delay = buttonDelay(endCount)
                 + Math.min(plugin.getMinimumDoorDelay(), plugin.getConfigLoader().coolDown() * 20);
@@ -170,6 +171,16 @@ public abstract class BlockMover
                 }
             }.runTaskLater(plugin, delay);
         }
+    }
+
+    private boolean canAutoToggle(Door door)
+    {
+        if (door.getAutoClose() <= 0)
+            return false;
+
+        final DoorEventAutoToggle preparationEvent = new DoorEventAutoToggle(door);
+        Bukkit.getPluginManager().callEvent(preparationEvent);
+        return !preparationEvent.isCancelled();
     }
 
     protected void toggleOpen(Door door)

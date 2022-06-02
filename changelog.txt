@@ -3,6 +3,7 @@ Alpha 0.1.8.38
 - Allow certain types of attached blocks (e.g. torches, rails, plants, redstone, etc) to be part of doors on 1.18+.
 - Add support for Java 19.
 - Added hook for Konquest. Thanks, Sy, for the suggestion!
+- Added DoorEventAutoToggle to allow other plugins (BDO) to cancel the autoCloseTimer.
 
 Alpha 0.1.8.37
 - Add support for Minecraft 1.18.2. Massive thanks to Bonn2 for helping me test this!
