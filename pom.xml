@@ -29,7 +29,7 @@
         <dependency.version.dagger>2.42</dependency.version.dagger>
         <dependency.version.mockito>4.6.1</dependency.version.mockito>
         <dependency.version.junit>5.8.2</dependency.version.junit>
-        <dependency.version.surefire>3.0.0-M6</dependency.version.surefire>
+        <dependency.version.surefire>3.0.0-M7</dependency.version.surefire>
         <dependency.version.failsafe>3.0.0-M6</dependency.version.failsafe>
         <dependency.version.jacoco>0.8.8</dependency.version.jacoco>
         <dependency.version.maven-build-helper>3.3.0</dependency.version.maven-build-helper>
