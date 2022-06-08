@@ -12,12 +12,6 @@
     </parent>
 
     <repositories>
-        <!-- bStats -->
-        <repository>
-            <id>CodeMC</id>
-            <url>https://repo.codemc.org/repository/maven-public</url>
-        </repository>
-
         <!-- WorldGuard -->
         <repository>
             <id>sk89q-repo</id>
