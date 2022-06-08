@@ -22,9 +22,10 @@
         <dependency.version.maven-compiler>3.8.1</dependency.version.maven-compiler>
         <dependency.version.maven-shade>3.2.4</dependency.version.maven-shade>
         <dependency.version.surefire>3.0.0-M5</dependency.version.surefire>
-        <dependency.version.bytebuddy>1.12.9</dependency.version.bytebuddy>
-        <dependency.version.mockito>4.0.0</dependency.version.mockito>
-        <dependency.version.junit>5.8.1</dependency.version.junit>
+        <dependency.version.bytebuddy>1.12.10</dependency.version.bytebuddy>
+        <dependency.version.asm>9.3</dependency.version.asm>
+        <dependency.version.mockito>4.5.1</dependency.version.mockito>
+        <dependency.version.junit>5.8.2</dependency.version.junit>
         <dependency.version.xseries>8.7.1</dependency.version.xseries>
     </properties>
 
