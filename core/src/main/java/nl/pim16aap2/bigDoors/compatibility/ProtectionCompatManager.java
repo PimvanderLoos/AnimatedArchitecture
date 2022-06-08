@@ -116,7 +116,7 @@ public class ProtectionCompatManager implements Listener
      * @return An online {@link Player}. Either fake or real.
      * @see FakePlayerCreator
      */
-    private Player getPlayer(UUID playerUUID, String playerName, World world)
+    private @Nullable Player getPlayer(UUID playerUUID, String playerName, World world)
     {
         Player player = Bukkit.getPlayer(playerUUID);
         if (player == null)
@@ -139,7 +139,10 @@ public class ProtectionCompatManager implements Listener
         if (protectionCompats.isEmpty())
             return null;
 
-        Player fakePlayer = getPlayer(playerUUID, playerName, loc.getWorld());
+        final @Nullable Player fakePlayer = getPlayer(playerUUID, playerName, loc.getWorld());
+        if (fakePlayer == null)
+            return "InvalidFakePlayer";
+
         if (canByPass(fakePlayer))
             return null;
 
@@ -167,8 +170,7 @@ public class ProtectionCompatManager implements Listener
      *                   online.
      * @param loc1       The start {@link Location} to check.
      * @param loc2       The end {@link Location} to check.
-     * @return The name of the {@link IProtectionCompat} that objects, if any, or
-     *         null if allowed by all compats.
+     * @return The name of the {@link IProtectionCompat} that objects, if any, or null if allowed by all compats.
      */
     public String canBreakBlocksBetweenLocs(UUID playerUUID, String playerName, World world, Location loc1,
                                             Location loc2)
@@ -176,7 +178,10 @@ public class ProtectionCompatManager implements Listener
         if (protectionCompats.isEmpty())
             return null;
 
-        Player fakePlayer = getPlayer(playerUUID, playerName, world);
+        final @Nullable Player fakePlayer = getPlayer(playerUUID, playerName, world);
+        if (fakePlayer == null)
+            return "InvalidFakePlayer";
+
         if (canByPass(fakePlayer))
             return null;
 
