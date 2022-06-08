@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigDoors.compatibility;
 
 import nl.pim16aap2.bigDoors.BigDoors;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -57,11 +58,13 @@ class FakePlayerInstantiator
                                                "net.minecraft.server.level.PlayerInteractManager").get();
         classGameProfile = findClass("com.mojang.authlib.GameProfile").get();
 
+        final @Nullable Class<?> classProfilePublicKey =
+            findClass("net.minecraft.world.entity.player.ProfilePublicKey").setNullable().get();
         cTorEntityPlayerConstructor = findConstructor()
             .inClass(classEntityPlayer)
             .withParameters(parameterBuilder()
                                 .withRequiredParameters(classMinecraftServer, classWorldServer, classGameProfile)
-                                .withOptionalParameters(classPlayerInteractManager)).get();
+                                .withOptionalParameters(classPlayerInteractManager, classProfilePublicKey)).get();
 
         // "getBukkitEntity" will return several matches all dumped into the EntityPlayer class by the compiler.
         // We can just get the first method and everything will be fine.
@@ -90,7 +93,8 @@ class FakePlayerInstantiator
                                 .withOptionalParameters(classNMSWorld)).setNullable().get();
     }
 
-    Player getFakePlayer(OfflinePlayer oPlayer, String playerName, World world)
+
+    public @Nullable Player getFakePlayer(OfflinePlayer oPlayer, String playerName, World world)
     {
         if (oPlayer == null || world == null)
             return null;
@@ -107,15 +111,22 @@ class FakePlayerInstantiator
             Object worldServer = methodGetHandle.invoke(craftServer);
             Object minecraftServer = methodGetServer.invoke(worldServer);
 
+            Bukkit.broadcastMessage("CREATING FAKE PLAYER!");
             final Object ePlayer;
             if (cTorPlayerInteractManager == null)
-                ePlayer = cTorEntityPlayerConstructor.newInstance(minecraftServer, worldServer, gProfile);
+            {
+                if (cTorEntityPlayerConstructor.getParameterCount() == 2)
+                    ePlayer = cTorEntityPlayerConstructor
+                        .newInstance(minecraftServer, worldServer, gProfile);
+                else
+                    ePlayer = cTorEntityPlayerConstructor
+                        .newInstance(minecraftServer, worldServer, gProfile, null);
+            }
             else
             {
-                Object playerInteractManager = cTorPlayerInteractManager.newInstance(worldServer);
-
-                ePlayer = cTorEntityPlayerConstructor.newInstance(minecraftServer, worldServer, gProfile,
-                                                                  playerInteractManager);
+                final Object playerInteractManager = cTorPlayerInteractManager.newInstance(worldServer);
+                ePlayer = cTorEntityPlayerConstructor
+                    .newInstance(minecraftServer, worldServer, gProfile, playerInteractManager);
             }
 
             fieldUuid.set(ePlayer, oPlayer.getUniqueId());

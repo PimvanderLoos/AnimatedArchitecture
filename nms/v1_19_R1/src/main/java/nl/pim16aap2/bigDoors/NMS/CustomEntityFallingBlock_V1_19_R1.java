@@ -3,6 +3,8 @@ package nl.pim16aap2.bigDoors.NMS;
 import net.minecraft.CrashReportSystemDetails;
 import net.minecraft.nbt.GameProfileSerializer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.level.EntityPlayer;
+import net.minecraft.server.level.PlayerInteractManager;
 import net.minecraft.server.level.WorldServer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityTypes;
@@ -35,6 +37,8 @@ public class CustomEntityFallingBlock_V1_19_R1 extends EntityFallingBlock implem
         super.aq = false;
         super.Q = true;
         this.e(true);
+        PlayerInteractManager x;
+        EntityPlayer y;
 //        this.g(new Vec3D(0.0D, 0.0D, 0.0D));
 //        this.a((new BlockPosition(this.dc(), this.de(), this.di())));
         spawn();
