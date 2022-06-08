@@ -17,7 +17,7 @@ import javax.inject.Singleton;
  *
  * @author Pim
  */
-public class AudioAnimationHook implements IAnimationHook<IAnimatedBlock>
+public final class AudioAnimationHook implements IAnimationHook<IAnimatedBlock>
 {
     private final IAnimation<IAnimatedBlock> animation;
     private final IAudioPlayer audioPlayer;
