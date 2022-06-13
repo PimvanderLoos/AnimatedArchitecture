@@ -152,7 +152,10 @@ public abstract class BlockMover
         coordinateUpdater.run();
         toggleOpen(door);
 
-        if (!onDisable && canAutoToggle(door))
+        if (onDisable)
+            return;
+
+        if (canAutoToggle(door))
         {
             int delay = buttonDelay(endCount)
                 + Math.min(plugin.getMinimumDoorDelay(), plugin.getConfigLoader().coolDown() * 20);
@@ -171,6 +174,8 @@ public abstract class BlockMover
                 }
             }.runTaskLater(plugin, delay);
         }
+        else
+            plugin.getCommander().setDoorAvailable(door.getDoorUID());
     }
 
     private boolean canAutoToggle(Door door)
