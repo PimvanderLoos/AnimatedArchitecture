@@ -26,7 +26,7 @@
         <dependency.version.asm>9.3</dependency.version.asm>
         <dependency.version.mockito>4.5.1</dependency.version.mockito>
         <dependency.version.junit>5.8.2</dependency.version.junit>
-        <dependency.version.xseries>8.7.1</dependency.version.xseries>
+        <dependency.version.xseries>dc501b6c90</dependency.version.xseries>
     </properties>
 
     <repositories>
@@ -45,7 +45,7 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.github.cryptomorin</groupId>
+                <groupId>com.github.PimvanderLoos</groupId>
                 <artifactId>XSeries</artifactId>
                 <version>${dependency.version.xseries}</version>
                 <scope>provided</scope>

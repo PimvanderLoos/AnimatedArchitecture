@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigDoors.compatibility;
 
 import nl.pim16aap2.bigDoors.BigDoors;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -111,7 +110,6 @@ class FakePlayerInstantiator
             Object worldServer = methodGetHandle.invoke(craftServer);
             Object minecraftServer = methodGetServer.invoke(worldServer);
 
-            Bukkit.broadcastMessage("CREATING FAKE PLAYER!");
             final Object ePlayer;
             if (cTorPlayerInteractManager == null)
             {

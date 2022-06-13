@@ -32,7 +32,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.github.cryptomorin</groupId>
+            <groupId>com.github.PimvanderLoos</groupId>
             <artifactId>XSeries</artifactId>
             <scope>provided</scope>
         </dependency>
