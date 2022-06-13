@@ -498,15 +498,29 @@ public final class Util
         }
     }
 
+    private static @Nullable XMaterial matchXMaterial(Material mat)
+    {
+        try
+        {
+            return XMaterial.matchXMaterial(mat);
+        }
+        catch (Exception e)
+        {
+            BigDoors.get().getMyLogger().warn("Could not determine material of mat: " + mat.name());
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public static boolean isAirOrWater(Material mat)
     {
-        final XMaterial xMat = XMaterial.matchXMaterial(mat);
+        final @Nullable XMaterial xMat = matchXMaterial(mat);
         return xMat == XMaterial.AIR || xMat == XMaterial.CAVE_AIR || xMat == XMaterial.WATER || xMat == XMaterial.LAVA;
     }
 
     /**
      * Checks if a given material can be overwritten by a door toggle.
-     *
+     * <p>
      * For example, air and water can be overwritten, but stuff like snow might be as well.
      *
      * @param mat The material to check.
@@ -517,11 +531,24 @@ public final class Util
         return DESTROYLIST.contains(mat);
     }
 
-    // Logs, stairs and glass panes can rotate, but they don't rotate in exactly the
-    // same way.
+    // Certain materials can rotate, but they don't rotate in exactly the same way.
     public static int canRotate(Material mat)
     {
-        XMaterial xmat = XMaterial.matchXMaterial(mat.toString()).orElse(null);
+        if (mat.toString().endsWith("STAIRS"))
+            return 2;
+        if (mat.toString().endsWith("_WALL"))
+            return 5;
+        if (mat.toString().endsWith("BUTTON") || mat.toString().endsWith("RAIL") ||
+            mat.toString().endsWith("DOOR") || mat.toString().endsWith("_HEAD") ||
+            mat.toString().endsWith("_SIGN") || mat.toString().endsWith("_BANNER") ||
+            mat.toString().endsWith("FENCE_GATE"))
+            return 8;
+
+        // Panes only have to rotate on 1.13+. On versions before, rotating it only changes its color...
+        if ((BigDoors.isOnFlattenedVersion()) && (mat.toString().endsWith("GLASS_PANE")))
+            return 3;
+
+        final @Nullable XMaterial xmat = matchXMaterial(mat);
         if (xmat == null)
             return 0;
 
@@ -529,16 +556,8 @@ public final class Util
             xmat.equals(XMaterial.DARK_OAK_LOG) || xmat.equals(XMaterial.JUNGLE_LOG) ||
             xmat.equals(XMaterial.OAK_LOG) || xmat.equals(XMaterial.SPRUCE_LOG))
             return 1;
-        if (mat.toString().endsWith("STAIRS"))
-            return 2;
-        // Panes only have to rotate on 1.13+.
-        // On versions before, rotating it only changes its color...
-        if ((BigDoors.isOnFlattenedVersion()) && (mat.toString().endsWith("GLASS_PANE")))
-            return 3;
         if (xmat.equals(XMaterial.ANVIL))
             return 4;
-        if (mat.toString().endsWith("_WALL"))
-            return 5;
         if (xmat.equals(XMaterial.STRIPPED_ACACIA_LOG) || xmat.equals(XMaterial.STRIPPED_BIRCH_LOG) ||
             xmat.equals(XMaterial.STRIPPED_SPRUCE_LOG) || xmat.equals(XMaterial.STRIPPED_DARK_OAK_LOG) ||
             xmat.equals(XMaterial.STRIPPED_JUNGLE_LOG) || xmat.equals(XMaterial.STRIPPED_OAK_LOG) ||
@@ -547,10 +566,7 @@ public final class Util
         if (xmat.equals(XMaterial.END_ROD))
             return 7;
         if (xmat.equals(XMaterial.LIGHTNING_ROD) || xmat.equals(XMaterial.REDSTONE_WIRE) ||
-            mat.toString().endsWith("BUTTON") || xmat.equals(XMaterial.REPEATER) ||
-            mat.toString().endsWith("RAIL") || xmat.equals(XMaterial.TRIPWIRE_HOOK) ||
-            mat.toString().endsWith("DOOR") || mat.toString().endsWith("_HEAD") ||
-            mat.toString().endsWith("_SIGN") || mat.toString().endsWith("_BANNER") ||
+            xmat.equals(XMaterial.REPEATER) || xmat.equals(XMaterial.TRIPWIRE_HOOK) ||
             xmat.equals(XMaterial.WALL_TORCH) || xmat.equals(XMaterial.SOUL_WALL_TORCH) ||
             xmat.equals(XMaterial.REDSTONE_WALL_TORCH) || xmat.equals(XMaterial.VINE) ||
             xmat.equals(XMaterial.COMPARATOR) || xmat.equals(XMaterial.LADDER) ||
@@ -584,7 +600,8 @@ public final class Util
         if (name.endsWith("SLAB") || name.endsWith("STAIRS") || name.endsWith("WALL"))
             return true;
 
-        if (name.contains("POLISHED") || name.contains("SMOOTH") || name.contains("BRICKS") || name.contains("DEEPSLATE"))
+        if (name.contains("POLISHED") || name.contains("SMOOTH") ||
+            name.contains("BRICKS") || name.contains("DEEPSLATE"))
             return true;
 
         if (name.endsWith("TRAPDOOR"))
@@ -598,12 +615,9 @@ public final class Util
             name.endsWith("SAPLING") || name.endsWith("TORCH") || name.endsWith("RAIL") || name.endsWith("TULIP"))
             return BigDoors.getMCVersion().isAtLeast(BigDoors.MCVersion.v1_18);
 
-        XMaterial xmat = XMaterial.matchXMaterial(name).orElse(null);
+        final @Nullable XMaterial xmat = matchXMaterial(mat);
         if (xmat == null)
-        {
-            BigDoors.get().getMyLogger().warn("Could not determine material of mat: " + name);
             return false;
-        }
 
         switch (xmat)
         {
