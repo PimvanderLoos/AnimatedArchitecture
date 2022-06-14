@@ -571,7 +571,8 @@ public final class Util
             xmat.equals(XMaterial.REDSTONE_WALL_TORCH) || xmat.equals(XMaterial.VINE) ||
             xmat.equals(XMaterial.COMPARATOR) || xmat.equals(XMaterial.LADDER) ||
             xmat.equals(XMaterial.LEVER) || xmat.equals(XMaterial.BIG_DRIPLEAF) ||
-            xmat.equals(XMaterial.BIG_DRIPLEAF_STEM) || xmat.equals(XMaterial.SMALL_DRIPLEAF))
+            xmat.equals(XMaterial.BIG_DRIPLEAF_STEM) || xmat.equals(XMaterial.SMALL_DRIPLEAF) ||
+            xmat.equals(XMaterial.SCULK_VEIN))
             return 8;
         return 0;
     }
@@ -729,6 +730,8 @@ public final class Util
         case BEEHIVE:
         case BEE_NEST:
             /* 1.15 end */
+
+        case FROGSPAWN:
 
             return false;
         default:
