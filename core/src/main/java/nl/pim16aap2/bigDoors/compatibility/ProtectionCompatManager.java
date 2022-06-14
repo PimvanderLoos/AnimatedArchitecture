@@ -184,6 +184,8 @@ public class ProtectionCompatManager implements Listener
 
         if (canByPass(fakePlayer))
             return null;
+        if (protectionCompats.isEmpty())
+            return null;
 
         loc1 = loc1.clone();
         loc2 = loc2.clone();
@@ -192,6 +194,7 @@ public class ProtectionCompatManager implements Listener
         loc2.setWorld(world);
 
         for (IProtectionCompat compat : protectionCompats)
+        {
             try
             {
                 if (!compat.canBreakBlocksBetweenLocs(fakePlayer, loc1, loc2))
@@ -200,10 +203,11 @@ public class ProtectionCompatManager implements Listener
             catch (Exception e)
             {
                 plugin.getMyLogger()
-                    .warn("Failed to use \"" + compat.getName() + "\"! Please send this error to pim16aap2:");
+                      .warn("Failed to use \"" + compat.getName() + "\"! Please send this error to pim16aap2:");
                 e.printStackTrace();
                 plugin.getMyLogger().logMessageToLogFile(Util.throwableToString(e));
             }
+        }
         return null;
     }
 

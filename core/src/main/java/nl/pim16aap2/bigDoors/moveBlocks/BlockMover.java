@@ -4,7 +4,6 @@ import com.cryptomorin.xseries.XMaterial;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.events.DoorEventAutoToggle;
-import nl.pim16aap2.bigDoors.events.DoorEventToggle;
 import nl.pim16aap2.bigDoors.events.DoorEventToggleEnd;
 import nl.pim16aap2.bigDoors.util.MyBlockData;
 import nl.pim16aap2.bigDoors.util.MyBlockFace;
@@ -26,6 +25,8 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static nl.pim16aap2.bigDoors.events.DoorEventToggle.ToggleType;
 
 public abstract class BlockMover
 {
@@ -100,8 +101,7 @@ public abstract class BlockMover
      * toggle of a button doesn't toggle the door again.
      *
      * @param endCount The number of ticks the animation took.
-     * @return The number of ticks to wait before a button cannot toggle the door
-     *         again.
+     * @return The number of ticks to wait before a button cannot toggle the door again.
      */
     public int buttonDelay(final int endCount)
     {
@@ -155,32 +155,31 @@ public abstract class BlockMover
         if (onDisable)
             return;
 
-        if (canAutoToggle(door))
+        new BukkitRunnable()
         {
-            int delay = buttonDelay(endCount)
-                + Math.min(plugin.getMinimumDoorDelay(), plugin.getConfigLoader().coolDown() * 20);
-            new BukkitRunnable()
+            @Override
+            public void run()
             {
-                @Override
-                public void run()
-                {
-                    plugin.getCommander().setDoorAvailable(door.getDoorUID());
-                    Bukkit.getPluginManager()
-                          .callEvent(new DoorEventToggleEnd(door, (door.isOpen() ? DoorEventToggle.ToggleType.OPEN : DoorEventToggle.ToggleType.CLOSE),
-                                                            instantOpen));
+                plugin.getCommander().setDoorAvailable(door.getDoorUID());
 
-                    if (door.isOpen())
-                        plugin.getAutoCloseScheduler().scheduleAutoClose(door, time, instantOpen);
-                }
-            }.runTaskLater(plugin, delay);
-        }
-        else
-            plugin.getCommander().setDoorAvailable(door.getDoorUID());
+                final ToggleType toggleType = door.isOpen() ? ToggleType.OPEN : ToggleType.CLOSE;
+                Bukkit.getPluginManager().callEvent(new DoorEventToggleEnd(door, toggleType, instantOpen));
+
+                if (canAutoToggle(door))
+                    plugin.getAutoCloseScheduler().scheduleAutoClose(door, time, instantOpen);
+            }
+        }.runTaskLater(plugin, getDelay(endCount));
+    }
+
+    private int getDelay(int endCount)
+    {
+        return buttonDelay(endCount) + Math.min(plugin.getMinimumDoorDelay(),
+                                                plugin.getConfigLoader().coolDown() * 20);
     }
 
     private boolean canAutoToggle(Door door)
     {
-        if (door.getAutoClose() <= 0)
+        if (!door.isOpen() || door.getAutoClose() <= 0)
             return false;
 
         final DoorEventAutoToggle preparationEvent = new DoorEventAutoToggle(door);

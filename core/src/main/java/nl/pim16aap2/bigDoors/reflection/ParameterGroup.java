@@ -38,9 +38,10 @@ public class ParameterGroup
     // Copy constructor
     public ParameterGroup(@NotNull ParameterGroup other)
     {
+        Objects.requireNonNull(other, "Copy constructor cannot copy from null!");
+
         final List<Parameter> tmpList = new ArrayList<>(other.parameters.size());
-        Objects.requireNonNull(other, "Copy constructor cannot copy from null!").parameters
-            .forEach(parameter -> tmpList.add(new Parameter(parameter)));
+        other.parameters.forEach(parameter -> tmpList.add(new Parameter(parameter)));
 
         this.parameters = Collections.unmodifiableList(tmpList);
         this.requiredCount = other.requiredCount;
@@ -159,11 +160,18 @@ public class ParameterGroup
          * @return The instance of the current parameter group.
          */
         @Contract("_ -> this")
-        public ParameterGroup.Builder withRequiredParameters(@NotNull Class<?>... types)
+        public ParameterGroup.Builder withRequiredParameters(Class<?>... types)
         {
-            for (@NotNull Class<?> type : types)
+            Objects.requireNonNull(types);
+
+            for (Class<?> type : types)
+            {
+                if (type == null)
+                    continue;
+
                 parameters.add(new Parameter(type, false));
-            requiredCount += types.length;
+                ++requiredCount;
+            }
             return this;
         }
 
@@ -176,10 +184,13 @@ public class ParameterGroup
          * @return The instance of the current parameter group.
          */
         @Contract("_ -> this")
-        public ParameterGroup.Builder withOptionalParameters(@NotNull Class<?>... types)
+        public ParameterGroup.Builder withOptionalParameters(Class<?>... types)
         {
+            Objects.requireNonNull(types);
+
             for (Class<?> type : types)
-                parameters.add(new Parameter(type, true));
+                if (type != null)
+                    parameters.add(new Parameter(type, true));
             return this;
         }
 
