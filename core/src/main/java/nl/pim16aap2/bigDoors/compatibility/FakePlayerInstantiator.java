@@ -113,7 +113,7 @@ class FakePlayerInstantiator
             final Object ePlayer;
             if (cTorPlayerInteractManager == null)
             {
-                if (cTorEntityPlayerConstructor.getParameterCount() == 2)
+                if (cTorEntityPlayerConstructor.getParameterCount() == 3)
                     ePlayer = cTorEntityPlayerConstructor
                         .newInstance(minecraftServer, worldServer, gProfile);
                 else
