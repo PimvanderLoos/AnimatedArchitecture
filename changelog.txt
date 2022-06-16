@@ -1,3 +1,6 @@
+Alpha 0.1.8.39
+- Fix issue with protection hooks for offline players on MC 1.17.x and 1.18.x caused by a failure to correctly count to 3.
+
 Alpha 0.1.8.38
 - Add support for Minecraft 1.19.
 - Fixed bottom row of blocks sometimes lagging behind the rest of the door when dragging over other blocks (BigDoor, SlidingDoor).
