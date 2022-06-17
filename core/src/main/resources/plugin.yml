@@ -1,6 +1,6 @@
 name: BigDoors
 main: nl.pim16aap2.bigDoors.BigDoors
-version: Alpha 0.1.8.39
+version: Alpha 0.1.8.40
 author: pim16aap2
 api-version: 1.13
 loadbefore: [ PlotSquared ]
