@@ -136,13 +136,13 @@ public class BigDoors extends JavaPlugin implements Listener
         instance = this;
         logFile = new File(getDataFolder(), "log.txt");
         logger = new MyLogger(this, logFile);
+        initLegacyMaterials();
     }
 
     @Override
     public void onEnable()
     {
         updateManager = new UpdateManager(this);
-
         buildNumber = readBuildNumber();
         overrideVersion();
 
@@ -907,6 +907,18 @@ public class BigDoors extends JavaPlugin implements Listener
     public int getMinimumDoorDelay()
     {
         return MINIMUMDOORDELAY;
+    }
+
+    private void initLegacyMaterials()
+    {
+        try
+        {
+            Class.forName("org.bukkit.craftbukkit." + BigDoors.get().getPackageVersion() + ".legacy.CraftLegacy");
+        }
+        catch (ClassNotFoundException e)
+        {
+            // ignore
+        }
     }
 
     /**

@@ -1,5 +1,5 @@
 Alpha 0.1.8.40
--
+- Force legacy materials stuff to run on init to avoid slowdowns later on. Thanks, YoshiiKun_, for the report!
 
 Alpha 0.1.8.39
 - Fix issue with protection hooks for offline players on MC 1.17.x and 1.18.x caused by a failure to correctly count to 3.
