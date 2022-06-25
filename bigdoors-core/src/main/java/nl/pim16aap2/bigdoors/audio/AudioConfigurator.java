@@ -161,6 +161,8 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
             return defaultSet;
         }
 
+        // NullAway currently does not work well with nullable annotations in generics.
+        @SuppressWarnings("NullAway")
         Map<DoorType, @Nullable AudioSet> sets()
         {
             return sets;
