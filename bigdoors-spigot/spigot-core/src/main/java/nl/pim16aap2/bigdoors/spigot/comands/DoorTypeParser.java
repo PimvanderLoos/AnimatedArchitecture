@@ -75,12 +75,13 @@ public class DoorTypeParser implements ArgumentParser<ICommandSender, DoorType>,
     public synchronized void initialize()
     {
         final Collection<DoorType> types = doorTypeManager.getEnabledDoorTypes();
-        this.suggestions = new LinkedHashMap<>(2 * types.size());
-        types.forEach(type ->
-                      {
-                          suggestions.put(type.getFullName(), type);
-                          suggestions.put(localizer.getMessage(type.getLocalizationKey()), type);
-                      });
+        this.suggestions = new LinkedHashMap<>(types.size());
+        types.forEach(type -> suggestions.put(format(type), type));
+    }
+
+    private String format(DoorType type)
+    {
+        return localizer.getMessage(type.getLocalizationKey()).toLowerCase(Locale.ENGLISH).replaceAll("\\s+", "");
     }
 
     @Override
