@@ -7,7 +7,6 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.util.Util;
-import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
@@ -56,8 +55,8 @@ public final class UpdateChecker
 
         for (int i = 0; i < Math.min(firstSplit.length, secondSplit.length); i++)
         {
-            final int currentValue = NumberUtils.toInt(firstSplit[i]);
-            final int newestValue = NumberUtils.toInt(secondSplit[i]);
+            final int currentValue = Integer.parseInt(firstSplit[i]);
+            final int newestValue = Integer.parseInt(secondSplit[i]);
 
             if (newestValue > currentValue)
                 return second;
