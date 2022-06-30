@@ -2,9 +2,9 @@ package nl.pim16aap2.bigdoors.spigot;
 
 import dagger.BindsInstance;
 import dagger.Component;
+import nl.pim16aap2.bigdoors.api.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
-import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
@@ -153,7 +153,7 @@ interface BigDoorsSpigotComponent
 
     VaultManager getVaultManager();
 
-    IGlowingBlockSpawner getIGlowingBlockSpawner();
+    GlowingBlockSpawner getIGlowingBlockSpawner();
 
     LimitsManager getLimitsManager();
 

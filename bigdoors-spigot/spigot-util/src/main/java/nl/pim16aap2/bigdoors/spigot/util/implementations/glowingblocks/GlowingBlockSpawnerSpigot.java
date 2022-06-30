@@ -3,12 +3,12 @@ package nl.pim16aap2.bigdoors.spigot.util.implementations.glowingblocks;
 import com.google.common.flogger.StackSize;
 import lombok.Getter;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
+import nl.pim16aap2.bigdoors.api.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.PColor;
-import nl.pim16aap2.bigdoors.api.restartable.Restartable;
+import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
@@ -27,16 +27,16 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.time.Duration;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 @Singleton
 @Flogger
-public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpawner
+public class GlowingBlockSpawnerSpigot extends GlowingBlockSpawner implements IRestartable
 {
     @Getter
     private final Map<PColor, Team> teams = new EnumMap<>(PColor.class);
@@ -50,16 +50,17 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
     private final IPExecutor executor;
 
     @Inject
-    public GlowingBlockSpawner(RestartableHolder holder, IGlowingBlockFactory glowingBlockFactory, IPExecutor executor)
+    public GlowingBlockSpawnerSpigot(
+        RestartableHolder holder, IGlowingBlockFactory glowingBlockFactory, IPExecutor executor)
     {
-        super(holder);
         this.glowingBlockFactory = glowingBlockFactory;
         this.executor = executor;
+        holder.registerRestartable(this);
     }
 
     @Override
     public Optional<IGlowingBlock> spawnGlowingBlock(
-        IPPlayer player, IPWorld world, int time, TimeUnit timeUnit, double x, double y, double z, PColor pColor)
+        IPPlayer player, IPWorld world, Duration duration, double x, double y, double z, PColor pColor)
     {
         if (scoreboard == null)
         {
@@ -74,11 +75,10 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
             return Optional.empty();
         }
 
-        final long ticks = TimeUnit.MILLISECONDS.convert(time, timeUnit) / 50;
+        final long ticks = SpigotUtil.durationToTicks(duration);
         if (ticks < 5)
         {
-            log.at(Level.SEVERE).withCause(new IllegalArgumentException("Invalid duration of " + time + " " +
-                                                                            timeUnit.name() + " provided! ")).log();
+            log.at(Level.SEVERE).withStackTrace(StackSize.FULL).log("Invalid duration of %d ticks!", ticks);
             return Optional.empty();
         }
 

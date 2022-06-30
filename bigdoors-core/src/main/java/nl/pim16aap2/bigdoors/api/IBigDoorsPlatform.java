@@ -113,11 +113,11 @@ public interface IBigDoorsPlatform
     IPExecutor getPExecutor();
 
     /**
-     * Gets the {@link IGlowingBlockSpawner} for the current platform.
+     * Gets the {@link GlowingBlockSpawner} for the current platform.
      *
-     * @return The {@link IGlowingBlockSpawner} for the current platform.
+     * @return The {@link GlowingBlockSpawner} for the current platform.
      */
-    IGlowingBlockSpawner getGlowingBlockSpawner();
+    GlowingBlockSpawner getGlowingBlockSpawner();
 
     /**
      * Gets the {@link ILocalizer} used to localize strings.

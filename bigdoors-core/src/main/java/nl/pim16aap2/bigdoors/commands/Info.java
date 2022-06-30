@@ -4,7 +4,7 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
+import nl.pim16aap2.bigdoors.api.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
@@ -13,6 +13,7 @@ import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -23,11 +24,12 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class Info extends DoorTargetCommand
 {
-    private final IGlowingBlockSpawner glowingBlockSpawner;
+    private final GlowingBlockSpawner glowingBlockSpawner;
 
     @AssistedInject //
-    Info(@Assisted ICommandSender commandSender, ILocalizer localizer,
-         @Assisted DoorRetriever doorRetriever, IGlowingBlockSpawner glowingBlockSpawner)
+    Info(
+        @Assisted ICommandSender commandSender, ILocalizer localizer,
+        @Assisted DoorRetriever doorRetriever, GlowingBlockSpawner glowingBlockSpawner)
     {
         super(commandSender, localizer, doorRetriever, DoorAttribute.INFO);
         this.glowingBlockSpawner = glowingBlockSpawner;
@@ -51,7 +53,7 @@ public class Info extends DoorTargetCommand
     {
         if (!(getCommandSender() instanceof IPPlayer))
             return;
-        glowingBlockSpawner.spawnGlowingBlocks(doorBase, (IPPlayer) getCommandSender());
+        glowingBlockSpawner.spawnGlowingBlocks(doorBase, (IPPlayer) getCommandSender(), Duration.ofSeconds(3));
     }
 
     @AssistedFactory
