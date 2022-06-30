@@ -9,6 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 
+import java.time.Duration;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -50,6 +51,29 @@ public final class SpigotUtil
     private SpigotUtil()
     {
         // Utility class
+    }
+
+    /**
+     * Gets the number of ticks required to cover a duration.
+     * <p>
+     * For example, given a tick duration of 50ms, any duration > 0 ms and <= 50ms will return 1 tick.
+     * <p>
+     * If the duration is negative or zero, 0 is returned.
+     *
+     * @param duration
+     *     The duration.
+     * @return The number of ticks required to cover the duration.
+     */
+    public static long durationToTicks(Duration duration)
+    {
+        if (duration.isNegative() || duration.isZero())
+            return 0;
+
+        final long millis = duration.toMillis();
+        long ticks = millis / 50;
+        if (millis % 50 != 0)
+            ++ticks;
+        return ticks;
     }
 
     /**

@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.doors;
 
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.bigdoors.api.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
-import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -31,6 +31,7 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.logging.Level;
 
@@ -49,7 +50,7 @@ public final class DoorOpeningHelper
     private final IBlockAnalyzer blockAnalyzer;
     private final IPLocationFactory locationFactory;
     private final IProtectionCompatManager protectionCompatManager;
-    private final IGlowingBlockSpawner glowingBlockSpawner;
+    private final GlowingBlockSpawner glowingBlockSpawner;
     private final IBigDoorsEventFactory bigDoorsEventFactory;
     private final IPExecutor executor;
     private final IDoorEventCaller doorEventCaller;
@@ -58,7 +59,7 @@ public final class DoorOpeningHelper
     DoorOpeningHelper(
         ILocalizer localizer, DoorActivityManager doorActivityManager, DoorTypeManager doorTypeManager,
         IConfigLoader config, IBlockAnalyzer blockAnalyzer, IPLocationFactory locationFactory,
-        IProtectionCompatManager protectionCompatManager, IGlowingBlockSpawner glowingBlockSpawner,
+        IProtectionCompatManager protectionCompatManager, GlowingBlockSpawner glowingBlockSpawner,
         IBigDoorsEventFactory bigDoorsEventFactory, IPExecutor executor, IDoorEventCaller doorEventCaller)
     {
         this.localizer = localizer;
@@ -236,7 +237,8 @@ public final class DoorOpeningHelper
                             return false;
 
                         glowingBlockSpawner
-                            .spawnGlowingBlock(player, world, 4, xAxis + 0.5, yAxis, zAxis + 0.5, PColor.RED);
+                            .builder().forPlayer(player).withColor(PColor.RED).forDuration(Duration.ofSeconds(4))
+                            .atPosition(xAxis + 0.5, yAxis, zAxis + 0.5).inWorld(world).build();
                         isEmpty = false;
                     }
                 }

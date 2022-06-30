@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.spigot.util.implementations.glowingblocks;
 
 import dagger.Binds;
 import dagger.Module;
-import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
+import nl.pim16aap2.bigdoors.api.GlowingBlockSpawner;
 
 import javax.inject.Singleton;
 
@@ -11,5 +11,5 @@ public abstract class GlowingBlockSpawnerModule
 {
     @Binds
     @Singleton
-    public abstract IGlowingBlockSpawner getGlowingBlockSpawner(GlowingBlockSpawner spawner);
+    public abstract GlowingBlockSpawner getGlowingBlockSpawner(GlowingBlockSpawnerSpigot spawner);
 }

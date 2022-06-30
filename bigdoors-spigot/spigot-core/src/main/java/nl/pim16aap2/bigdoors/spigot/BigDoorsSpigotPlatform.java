@@ -2,13 +2,13 @@ package nl.pim16aap2.bigdoors.spigot;
 
 import lombok.Getter;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.bigdoors.api.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IEconomyManager;
-import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
@@ -97,7 +97,7 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     private final IPExecutor pExecutor;
 
     @Getter
-    private final IGlowingBlockSpawner glowingBlockSpawner;
+    private final GlowingBlockSpawner glowingBlockSpawner;
 
     @Getter
     private final ILocalizer localizer;

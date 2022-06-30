@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.commands;
 
 import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
-import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
+import nl.pim16aap2.bigdoors.api.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
@@ -31,7 +31,7 @@ class InfoTest
     private DoorRetriever doorRetriever;
 
     @Mock
-    private IGlowingBlockSpawner glowingBlockSpawner;
+    private GlowingBlockSpawner glowingBlockSpawner;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private Info.IFactory factory;
@@ -60,7 +60,8 @@ class InfoTest
     {
         final IPServer server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
         Assertions.assertTrue(factory.newInfo(server, doorRetriever).run().get(1, TimeUnit.SECONDS));
-        Mockito.verify(glowingBlockSpawner, Mockito.never()).spawnGlowingBlocks(Mockito.any(), Mockito.any());
+        Mockito.verify(glowingBlockSpawner, Mockito.never())
+               .spawnGlowingBlocks(Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.verify(server).sendMessage(door.toString());
     }
 
@@ -73,18 +74,20 @@ class InfoTest
 
         initCommandSenderPermissions(player, true, false);
         Assertions.assertTrue(factory.newInfo(player, doorRetriever).run().get(1, TimeUnit.SECONDS));
-        Mockito.verify(glowingBlockSpawner, Mockito.never()).spawnGlowingBlocks(Mockito.any(), Mockito.any());
+        Mockito.verify(glowingBlockSpawner, Mockito.never())
+               .spawnGlowingBlocks(Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.verify(player, Mockito.never()).sendMessage(doorString);
 
         initCommandSenderPermissions(player, true, true);
         Assertions.assertTrue(factory.newInfo(player, doorRetriever).run().get(1, TimeUnit.SECONDS));
-        Mockito.verify(glowingBlockSpawner).spawnGlowingBlocks(Mockito.any(), Mockito.any());
+        Mockito.verify(glowingBlockSpawner).spawnGlowingBlocks(Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.verify(player).sendMessage(doorString);
 
         initCommandSenderPermissions(player, true, false);
         Mockito.when(door.getDoorOwner(player)).thenReturn(Optional.of(doorOwner0));
         Assertions.assertTrue(factory.newInfo(player, doorRetriever).run().get(1, TimeUnit.SECONDS));
-        Mockito.verify(glowingBlockSpawner, Mockito.times(2)).spawnGlowingBlocks(Mockito.any(), Mockito.any());
+        Mockito.verify(glowingBlockSpawner, Mockito.times(2))
+               .spawnGlowingBlocks(Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.verify(player, Mockito.times(2)).sendMessage(doorString);
     }
 

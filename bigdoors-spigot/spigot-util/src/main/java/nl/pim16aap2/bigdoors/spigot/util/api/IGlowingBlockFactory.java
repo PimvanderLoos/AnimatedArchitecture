@@ -22,6 +22,6 @@ public interface IGlowingBlockFactory
      *     The teams to use for colors.
      * @return The {@link IGlowingBlock} that was spawned.
      */
-    Optional<IGlowingBlock> createGlowingBlock(Player player, World world, PColor pColor, double x, double y, double z,
-                                               Map<PColor, Team> teams);
+    Optional<IGlowingBlock> createGlowingBlock(
+        Player player, World world, PColor pColor, double x, double y, double z, Map<PColor, Team> teams);
 }
