@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.api.debugging.IDebuggable;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.localization.LocalizationUtil;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
-import nl.pim16aap2.bigdoors.spigot.compatiblity.ProtectionCompat;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.ConfigReaderSpigot;
 import nl.pim16aap2.bigdoors.util.ConfigEntry;
@@ -28,7 +27,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -58,7 +56,6 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
 
     private final Set<Material> powerBlockTypes = EnumSet.noneOf(Material.class);
     private final Set<Material> materialBlacklist = EnumSet.noneOf(Material.class);
-    private final Map<ProtectionCompat, Boolean> hooksMap = new EnumMap<>(ProtectionCompat.class);
     @ToString.Exclude
     private final List<ConfigEntry<?>> configEntries = new ArrayList<>();
     private final Map<DoorType, String> doorPrices;
@@ -91,8 +88,9 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
      *     The Spigot core.
      */
     @Inject
-    public ConfigLoaderSpigot(JavaPlugin plugin, DoorTypeManager doorTypeManager,
-                              @Named("pluginBaseDirectory") Path baseDir, DebuggableRegistry debuggableRegistry)
+    public ConfigLoaderSpigot(
+        JavaPlugin plugin, DoorTypeManager doorTypeManager,
+        @Named("pluginBaseDirectory") Path baseDir, DebuggableRegistry debuggableRegistry)
     {
         this.plugin = plugin;
         this.doorTypeManager = doorTypeManager;
@@ -194,10 +192,6 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
                 "raising these values won't have any effect.",
             "To use the default values, set them to \"0.0\" or \"1.0\" (without quotation marks).",
             "Note that everything is optimized for default values, so it's recommended to leave this setting as-is."};
-        final String[] compatibilityHooksComment = {
-            "Enable or disable compatibility hooks for certain plugins. " +
-                "If the plugins aren't installed, these options do nothing.",
-            "When enabled, doors cannot be opened or created in areas not owned by the door's owner."};
         final String[] coolDownComment = {
             "Cool-down on using doors. Time is measured in seconds."};
         final String[] cacheTimeoutComment = {
@@ -264,16 +258,6 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
         downloadDelay = addNewConfigEntry(config, "downloadDelay", 1_440, downloadDelayComment,
                                           (Integer x) -> Math.min(10_080, x)) * 60L;
         allowStats = addNewConfigEntry(config, "allowStats", true, allowStatsComment);
-
-        int idx = 0;
-        for (final ProtectionCompat compat : ProtectionCompat.values())
-        {
-            final String name = ProtectionCompat.getName(compat).toLowerCase(Locale.ENGLISH);
-            final boolean isEnabled = (boolean) config.get(name, false);
-            addNewConfigEntry(config, ProtectionCompat.getName(compat), false,
-                              ((idx++ == 0) ? compatibilityHooksComment : null));
-            hooksMap.put(compat, isEnabled);
-        }
 
         String localeStr = addNewConfigEntry(config, "locale", "root", localeComment);
         // "root" isn't actually a valid country that can be used by a Locale.
@@ -352,8 +336,9 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
      *     The comment to accompany the option in the config.
      * @return The value as read from the config file if it exists or the default value.
      */
-    private <T> T addNewConfigEntry(IConfigReader config, String optionName, T defaultValue,
-                                    String @Nullable ... comment)
+    private <T> T addNewConfigEntry(
+        IConfigReader config, String optionName, T defaultValue,
+        String @Nullable ... comment)
     {
         final ConfigEntry<T> option = new ConfigEntry<>(config, optionName, defaultValue, comment);
         configEntries.add(option);
@@ -377,8 +362,9 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
      *     Function to use to verify the validity of a value and change it if necessary.
      * @return The value as read from the config file if it exists or the default value.
      */
-    private <T> T addNewConfigEntry(IConfigReader config, String optionName, T defaultValue, String[] comment,
-                                    ConfigEntry.ITestValue<T> verifyValue)
+    private <T> T addNewConfigEntry(
+        IConfigReader config, String optionName, T defaultValue, String[] comment,
+        ConfigEntry.ITestValue<T> verifyValue)
     {
         final ConfigEntry<T> option = new ConfigEntry<>(config, optionName, defaultValue, comment, verifyValue);
         configEntries.add(option);
@@ -527,18 +513,6 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
     public Set<Material> powerBlockTypes()
     {
         return powerBlockTypes;
-    }
-
-    /**
-     * Checks if a {@link ProtectionCompat} is enabled or not.
-     *
-     * @param hook
-     *     The {@link ProtectionCompat}.
-     * @return True if this {@link ProtectionCompat} is enabled.
-     */
-    public boolean isHookEnabled(ProtectionCompat hook)
-    {
-        return hooksMap.getOrDefault(hook, false);
     }
 
     /**

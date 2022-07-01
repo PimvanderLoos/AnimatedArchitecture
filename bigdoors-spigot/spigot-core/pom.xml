@@ -11,14 +11,6 @@
         <version>1</version>
     </parent>
 
-    <repositories>
-        <!-- WorldGuard -->
-        <repository>
-            <id>sk89q-repo</id>
-            <url>https://maven.enginehub.org/repo/</url>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
@@ -51,36 +43,6 @@
             <version>3.0.0</version>
             <scope>compile</scope>
             <optional>true</optional>
-        </dependency>
-
-        <!-- Lands -->
-        <dependency>
-            <groupId>com.github.Angeschossen</groupId>
-            <artifactId>LandsAPI</artifactId>
-            <version>4.3.3.0</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- GriefPrevention -->
-        <dependency>
-            <groupId>com.github.TechFortress</groupId>
-            <artifactId>GriefPrevention</artifactId>
-            <version>16.17.1</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.sk89q.worldguard</groupId>
-            <artifactId>worldguard-bukkit</artifactId>
-            <version>7.0.6</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.sk89q.worldedit</groupId>
-            <artifactId>worldedit-bukkit</artifactId>
-            <version>7.2.6-SNAPSHOT</version>
-            <scope>provided</scope>
         </dependency>
 
         <!-- Vault -->
