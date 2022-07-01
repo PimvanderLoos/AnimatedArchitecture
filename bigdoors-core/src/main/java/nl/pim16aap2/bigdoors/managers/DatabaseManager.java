@@ -117,8 +117,8 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Inserts a {@link AbstractDoor} into the database and assumes that the door was NOT created by an {@link
-     * IPPlayer}. See {@link #addDoor(AbstractDoor, IPPlayer)}.
+     * Inserts a {@link AbstractDoor} into the database and assumes that the door was NOT created by an
+     * {@link IPPlayer}. See {@link #addDoor(AbstractDoor, IPPlayer)}.
      *
      * @param newDoor
      *     The new {@link AbstractDoor}.
@@ -187,8 +187,8 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Removes a {@link AbstractDoor} from the database and assumes that the door was NOT deleted by an {@link
-     * IPPlayer}. See {@link #deleteDoor(AbstractDoor, IPPlayer)}.
+     * Removes a {@link AbstractDoor} from the database and assumes that the door was NOT deleted by an
+     * {@link IPPlayer}. See {@link #deleteDoor(AbstractDoor, IPPlayer)}.
      *
      * @param door
      *     The door.
@@ -531,6 +531,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
             {
                 final var event = factoryMethod.apply(bigDoorsEventFactory);
                 doorEventCaller.callDoorEvent(event);
+                log.at(Level.SEVERE).log("Event %s was%s cancelled!", event, (event.isCancelled() ? "" : " not"));
                 return event.isCancelled();
             });
     }
@@ -764,8 +765,8 @@ public final class DatabaseManager extends Restartable implements IDebuggable
          */
         private final Optional<AbstractDoor> door;
         /**
-         * Whether the insertion was cancelled. An insertion may be cancelled if some listener cancels the {@link
-         * IDoorPrepareCreateEvent} event.
+         * Whether the insertion was cancelled. An insertion may be cancelled if some listener cancels the
+         * {@link IDoorPrepareCreateEvent} event.
          */
         private final boolean cancelled;
 
