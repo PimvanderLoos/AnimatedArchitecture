@@ -70,10 +70,10 @@ public final class CommandManager
             throw new IllegalStateException("Trying to instantiate Cloud manage again!");
         manager = Util.requireNonNull(newManager(), "Cloud manager");
 
-        if (manager.queryCapability(CloudBukkitCapabilities.BRIGADIER))
+        if (manager.hasCapability(CloudBukkitCapabilities.BRIGADIER))
             manager.registerBrigadier();
 
-        if (manager.queryCapability(CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION))
+        if (manager.hasCapability(CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION))
         {
             ((PaperCommandManager<ICommandSender>) manager).registerAsynchronousCompletions();
             asyncCompletions = true;

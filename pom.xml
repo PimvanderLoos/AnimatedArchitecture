@@ -16,9 +16,9 @@
         <dependency.version.jcalculator>1.8</dependency.version.jcalculator>
         <dependency.version.gson>2.9.1</dependency.version.gson>
         <dependency.version.cloud>1.7.0</dependency.version.cloud>
-        <dependency.version.adventure-api>4.11.0</dependency.version.adventure-api>
+        <dependency.version.adventure-api>4.9.3</dependency.version.adventure-api>
         <dependency.version.adventure-bukkit>4.1.1</dependency.version.adventure-bukkit>
-        <dependency.version.commodore>2.0</dependency.version.commodore>
+        <dependency.version.commodore>1.9</dependency.version.commodore>
         <dependency.version.flogger>0.7.4</dependency.version.flogger>
         <dependency.version.slf4j>1.7.36</dependency.version.slf4j>
         <dependency.version.logback>1.2.11</dependency.version.logback>
