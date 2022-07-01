@@ -110,6 +110,7 @@ public final class CommandManager
         final Command.Builder<ICommandSender> builder = manager.commandBuilder("bigdoors");
 
         initCmdHelp(manager, builder);
+
         initCmdAddOwner(manager, builder);
         initCmdCancel(manager, builder);
         initCmdConfirm(manager, builder);
