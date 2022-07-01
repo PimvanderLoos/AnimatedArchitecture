@@ -28,7 +28,7 @@ jobs:
           versions: 1.15.2
 
       # Now set up the actual JDK we'll use for the project itself.
-      - name: Set up JDK 17
+      - name: Set up JDK 18
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
@@ -36,7 +36,10 @@ jobs:
           cache: 'maven'
 
       - name: Build the project and run static analysis tools.
-        run: mvn --batch-mode clean -P=errorprone test package checkstyle:checkstyle pmd:check site
+        run: mvn --batch-mode clean -P=errorprone test package checkstyle:checkstyle pmd:check
+
+      - name: Build the documentation site
+        run: mvn --batch-mode site
 
       - name: Upload doortypes
         uses: actions/upload-artifact@v3
