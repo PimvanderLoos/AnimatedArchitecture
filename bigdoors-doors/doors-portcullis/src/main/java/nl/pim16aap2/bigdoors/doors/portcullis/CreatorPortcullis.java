@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.OptionalInt;
+import java.util.concurrent.CompletableFuture;
 
 public class CreatorPortcullis extends Creator
 {
@@ -38,6 +39,7 @@ public class CreatorPortcullis extends Creator
         final Step stepBlocksToMove = new Step.Factory(localizer, "SET_BLOCKS_TO_MOVE")
             .messageKey("creator.portcullis.set_blocks_to_move")
             .stepExecutor(new StepExecutorInteger(this::setBlocksToMove))
+            .stepPreparation(this::prepareSetBlocksToMove)
             .waitForUserInput(true).construct();
 
         return Arrays.asList(factorySetName.construct(),
@@ -48,6 +50,15 @@ public class CreatorPortcullis extends Creator
                              stepBlocksToMove,
                              factoryConfirmPrice.construct(),
                              factoryCompleteProcess.messageKey("creator.portcullis.success").construct());
+    }
+
+    /**
+     * Prepares the step that sets the number of blocks to move.
+     */
+    protected void prepareSetBlocksToMove()
+    {
+        commandFactory.getSetBlocksToMoveDelayed().runDelayed(getPlayer(), this, blocks ->
+            CompletableFuture.completedFuture(handleInput(blocks)), null);
     }
 
     protected boolean setBlocksToMove(int blocksToMove)
