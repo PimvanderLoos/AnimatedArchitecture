@@ -17,6 +17,7 @@ import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.commands.DelayedCommand;
 import nl.pim16aap2.bigdoors.commands.DelayedCommandInputRequest;
+import nl.pim16aap2.bigdoors.commands.SetBlocksToMoveDelayed;
 import nl.pim16aap2.bigdoors.commands.SetOpenDirectionDelayed;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
@@ -197,6 +198,10 @@ public class CreatorTestsUtil
         final SetOpenDirectionDelayed setOpenDirectionDelayed =
             new SetOpenDirectionDelayed(commandContext, assistedFactory.getFactory());
         Mockito.when(commandFactory.getSetOpenDirectionDelayed()).thenReturn(setOpenDirectionDelayed);
+
+        final SetBlocksToMoveDelayed setBlocksToMoveDelayed =
+            new SetBlocksToMoveDelayed(commandContext, assistedFactory.getFactory());
+        Mockito.when(commandFactory.getSetBlocksToMoveDelayed()).thenReturn(setBlocksToMoveDelayed);
     }
 
     @AfterEach
