@@ -84,12 +84,9 @@ class CommandExecutor
 
     void listDoors(CommandContext<ICommandSender> context)
     {
-        final @Nullable String doorName = context.getOrDefault("doorName", null);
-        if (doorName == null)
-            // TODO: Implement this
-            throw new UnsupportedOperationException("Not implemented!");
-
-        final DoorRetriever retriever = doorRetrieverFactory.of(doorName);
+        final @Nullable String query = context.<String>getOptional("doorName").orElse("");
+        final DoorRetriever retriever = doorRetrieverFactory.search(
+            context.getSender(), query, DoorRetrieverFactory.DoorFinderMode.NEW_INSTANCE).asRetriever(false);
         commandFactory.newListDoors(context.getSender(), retriever).run();
     }
 

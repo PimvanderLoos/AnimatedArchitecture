@@ -172,11 +172,31 @@ public final class DoorFinder
     }
 
     /**
-     * See {@link #getDoors(boolean)}.
+     * See {@link #getDoors(boolean)}, with fullMatch set to false.
      */
     public CompletableFuture<List<AbstractDoor>> getDoors()
     {
         return getDoors(false);
+    }
+
+    /**
+     * See {@link #getDoors(boolean)}.
+     * <p>
+     * Returns the result as a {@link DoorRetriever}.
+     */
+    public DoorRetriever asRetriever(boolean fullMatch)
+    {
+        return DoorRetrieverFactory.ofDoors(getDoors(fullMatch));
+    }
+
+    /**
+     * See {@link #getDoors()}.
+     * <p>
+     * Returns the result as a {@link DoorRetriever}.
+     */
+    public DoorRetriever asRetriever()
+    {
+        return DoorRetrieverFactory.ofDoors(getDoors());
     }
 
     /**
