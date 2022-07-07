@@ -18,38 +18,12 @@ import java.util.Objects;
 public final class ColorScheme
 {
     private final Map<TextType, TextComponent> styleMap;
-    private final @Nullable String defaultDisable;
     private final TextComponent defaultStyle;
 
-    ColorScheme(
-        Map<TextType, TextComponent> styleMap, @Nullable String defaultDisable, @Nullable TextComponent defaultStyle)
+    ColorScheme(Map<TextType, TextComponent> styleMap, @Nullable TextComponent defaultStyle)
     {
         this.styleMap = styleMap;
-        this.defaultDisable = defaultDisable;
         this.defaultStyle = defaultStyle == null ? TextComponent.EMPTY : defaultStyle;
-    }
-
-    /**
-     * Updates the style for a given {@link TextType}.
-     *
-     * @param type
-     *     The {@link TextType} for which to update its style.
-     * @param style
-     *     The new style to use. When set to null, the default style will be used.
-     * @return The current {@link ColorScheme} instance.
-     */
-    @Contract("_, _-> this")
-    public ColorScheme setStyle(TextType type, @Nullable TextComponent style)
-    {
-        final TextComponent newStyle;
-        if (style == null)
-            newStyle = defaultStyle;
-        else if (defaultDisable != null && !"".equals(style.getOn()) && "".equals(style.getOff()))
-            newStyle = new TextComponent(style.getOn(), defaultDisable);
-        else
-            newStyle = style;
-        styleMap.put(type, newStyle);
-        return this;
     }
 
     /**
@@ -181,7 +155,7 @@ public final class ColorScheme
         public ColorScheme build()
         {
             prepareBuild(styleMap, defaultDisable);
-            return new ColorScheme(styleMap, defaultDisable, defaultStyle);
+            return new ColorScheme(styleMap, defaultStyle);
         }
 
         /**

@@ -1,8 +1,6 @@
 package nl.pim16aap2.bigdoors.text;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,7 +14,6 @@ import java.util.function.BiFunction;
  * @author Pim
  */
 @SuppressWarnings("unused")
-@RequiredArgsConstructor
 public class Text
 {
     /**
@@ -44,6 +41,11 @@ public class Text
      * {@link #styledSections}.
      */
     private int styledSize = 0;
+
+    public Text(ColorScheme colorScheme)
+    {
+        this.colorScheme = colorScheme;
+    }
 
     // CopyConstructor
     public Text(Text other)
@@ -283,7 +285,6 @@ public class Text
      *
      * @author Pim
      */
-    @AllArgsConstructor
     @Getter
     private static class StyledSection
     {
@@ -297,6 +298,13 @@ public class Text
             startIndex = other.startIndex;
             length = other.length;
             style = other.style;
+        }
+
+        public StyledSection(int startIndex, int length, TextComponent style)
+        {
+            this.startIndex = startIndex;
+            this.length = length;
+            this.style = style;
         }
 
         int getEnd()
