@@ -4,7 +4,7 @@ import lombok.ToString;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.IdentityHashMap;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -52,7 +52,7 @@ public final class ColorScheme
     @ToString
     public static class ColorSchemeBuilder
     {
-        private final Map<TextType, TextComponent> styleMap = new IdentityHashMap<>();
+        private final Map<TextType, TextComponent> styleMap = new EnumMap<>(TextType.class);
 
         private @Nullable TextComponent defaultStyle = null;
 

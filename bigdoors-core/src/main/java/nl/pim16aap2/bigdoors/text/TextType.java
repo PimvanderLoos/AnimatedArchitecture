@@ -6,12 +6,9 @@ package nl.pim16aap2.bigdoors.text;
  *
  * @author Pim
  */
-@SuppressWarnings("InstantiationOfUtilityClass")
-public final class TextType
+public enum TextType
 {
-    public static final TextType ERROR = new TextType();
-
-    public static final TextType INFO = new TextType();
-
-    public static final TextType HIGHLIGHT = new TextType();
+    ERROR,
+    INFO,
+    HIGHLIGHT,
 }
