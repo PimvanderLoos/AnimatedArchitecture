@@ -16,6 +16,7 @@ import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_17_R1;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_18_R1;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_18_R2;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_19_R1;
+import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_19_R1_1;
 import nl.pim16aap2.bigDoors.codegeneration.FallbackGeneratorManager;
 import nl.pim16aap2.bigDoors.compatibility.FakePlayerCreator;
 import nl.pim16aap2.bigDoors.compatibility.ProtectionCompatManager;
@@ -745,6 +746,9 @@ public class BigDoors extends JavaPlugin implements Listener
             return false;
         }
 
+        final String[] split = Bukkit.getBukkitVersion().split("-")[0].split("\\.");
+        final int minorVersion = Util.parseInt(split.length > 2 ? split[2] : null).orElse(0);
+
         fabf = null;
         switch (version)
         {
@@ -765,9 +769,7 @@ public class BigDoors extends JavaPlugin implements Listener
                 fabf = new FallingBlockFactory_V1_13_R1();
                 break;
             case "v1_13_R2":
-                String[] split = Bukkit.getBukkitVersion().split("-")[0].split("\\.");
-                final int minorVersion = Util.parseInt(split.length > 2 ? split[2] : null).orElse(-1);
-                if (minorVersion == -1)
+                if (minorVersion == 0)
                 {
                     logger.severe("Failed to parse minor version from: \"" + Bukkit.getBukkitVersion() + "\"");
                     return false;
@@ -804,7 +806,10 @@ public class BigDoors extends JavaPlugin implements Listener
                 fabf = new FallingBlockFactory_V1_18_R2();
                 break;
             case "v1_19_R1":
-                fabf = new FallingBlockFactory_V1_19_R1();
+                if (minorVersion == 0)
+                    fabf = new FallingBlockFactory_V1_19_R1();
+                else
+                    fabf = new FallingBlockFactory_V1_19_R1_1();
                 break;
             default:
                 if (config.allowCodeGeneration())
@@ -817,9 +822,8 @@ public class BigDoors extends JavaPlugin implements Listener
 
     private int readBuildNumber()
     {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass()
-                                                                                  .getResourceAsStream(
-                                                                                      "/build.number"))))
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+            getClass().getResourceAsStream("/build.number"))))
         {
             for (int idx = 0; idx != 2; ++idx)
                 reader.readLine();
