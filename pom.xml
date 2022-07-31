@@ -24,7 +24,7 @@
         <dependency.version.errorprone>2.13.1</dependency.version.errorprone>
         <dependency.version.nullaway>0.9.8</dependency.version.nullaway>
         <dependency.version.checker-framework>3.23.0</dependency.version.checker-framework>
-        <dependency.version.checkstyle>10.3.1</dependency.version.checkstyle>
+        <dependency.version.checkstyle>10.3.2</dependency.version.checkstyle>
         <dependency.version.pmd>3.17.0</dependency.version.pmd>
         <dependency.version.dagger>2.43.1</dependency.version.dagger>
         <dependency.version.mockito>4.6.1</dependency.version.mockito>
