@@ -22,7 +22,7 @@ jobs:
           cache: 'maven'
 
       - name: Compile Minecraft Spigot
-        uses: SpraxDev/Action-SpigotMC@v4.0.0
+        uses: SpraxDev/Action-SpigotMC@v4.1.0
         with:
           # Comma-separated list of MC versions to compile.
           versions: 1.15.2
