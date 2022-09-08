@@ -25,7 +25,7 @@
         <dependency.version.nullaway>0.9.10</dependency.version.nullaway>
         <dependency.version.checker-framework>3.24.0</dependency.version.checker-framework>
         <dependency.version.checkstyle>10.3.3</dependency.version.checkstyle>
-        <dependency.version.pmd>3.17.0</dependency.version.pmd>
+        <dependency.version.pmd>3.19.0</dependency.version.pmd>
         <dependency.version.dagger>2.43.2</dependency.version.dagger>
         <dependency.version.mockito>4.7.0</dependency.version.mockito>
         <dependency.version.junit>5.9.0</dependency.version.junit>
