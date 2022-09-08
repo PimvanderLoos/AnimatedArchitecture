@@ -16,11 +16,11 @@ import org.bukkit.entity.Player;
 
 // Adapted from:
 // https://github.com/bloodmc/GriefDefender/blob/e281231d874d78def944e748f6b49057a516b3db/bukkit/src/main/java/com/griefdefender/listener/BlockEventHandler.java#L533
-public class GriefDefenderProtectionCompat implements IProtectionCompat
+public class GriefDefender1ProtectionCompat implements IProtectionCompat
 {
     private final GriefDefenderPlugin griefDefenderPlugin = GriefDefenderPlugin.getInstance();
 
-    public GriefDefenderProtectionCompat(@SuppressWarnings("unused") HookContext hookContext)
+    public GriefDefender1ProtectionCompat(@SuppressWarnings("unused") HookContext hookContext)
     {
     }
 
