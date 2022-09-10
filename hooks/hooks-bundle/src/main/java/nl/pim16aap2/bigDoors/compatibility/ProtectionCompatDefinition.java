@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigDoors.compatibility;
 
+import org.bukkit.Bukkit;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -41,6 +43,7 @@ public abstract class ProtectionCompatDefinition implements IProtectionCompatDef
             case "6.":
                 return PlotSquared6ProtectionCompat.class;
             default:
+                logUnsupportedVersion("PlotSquared", version);
                 return null;
             }
         }
@@ -59,7 +62,10 @@ public abstract class ProtectionCompatDefinition implements IProtectionCompatDef
             else if (version.startsWith("6."))
                 return WorldGuard6ProtectionCompat.class;
             else
+            {
+                logUnsupportedVersion("WorldGuard", version);
                 return null;
+            }
         }
     };
 
@@ -95,7 +101,15 @@ public abstract class ProtectionCompatDefinition implements IProtectionCompatDef
         @Override
         public Class<? extends IProtectionCompat> getClass(String version)
         {
-            return GriefDefenderProtectionCompat.class;
+            if (version.startsWith("1"))
+                return GriefDefender1ProtectionCompat.class;
+            else if (version.startsWith("2"))
+                return GriefDefender2ProtectionCompat.class;
+            else
+            {
+                logUnsupportedVersion("GriefDefender", version);
+                return null;
+            }
         }
     };
 
@@ -116,6 +130,11 @@ public abstract class ProtectionCompatDefinition implements IProtectionCompatDef
     private ProtectionCompatDefinition(final String name)
     {
         this.name = name;
+    }
+
+    private static void logUnsupportedVersion(String hook, String version)
+    {
+        Bukkit.getLogger().severe("[BigDoors] No hook exists for '" + hook + "' version '" + version + "'");
     }
 
     @Override
