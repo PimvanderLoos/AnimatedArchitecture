@@ -1,56 +1,49 @@
 package nl.pim16aap2.bigDoors.compatibility;
 
 import com.cryptomorin.xseries.XMaterial;
-import com.griefdefender.GriefDefenderPlugin;
-import com.griefdefender.api.Tristate;
-import com.griefdefender.api.claim.TrustTypes;
-import com.griefdefender.api.permission.flag.Flags;
-import com.griefdefender.claim.GDClaim;
-import com.griefdefender.permission.GDPermissionManager;
-import com.griefdefender.permission.flag.GDFlags;
+import com.griefdefender.api.Core;
+import com.griefdefender.api.GriefDefender;
+import com.griefdefender.api.User;
+import com.griefdefender.api.claim.Claim;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-// Adapted from:
-// https://github.com/bloodmc/GriefDefender/blob/e281231d874d78def944e748f6b49057a516b3db/bukkit/src/main/java/com/griefdefender/listener/BlockEventHandler.java#L533
-public class GriefDefenderProtectionCompat implements IProtectionCompat
+public class GriefDefender2ProtectionCompat implements IProtectionCompat
 {
-    private final GriefDefenderPlugin griefDefenderPlugin = GriefDefenderPlugin.getInstance();
+    private final Core griefDefender = GriefDefender.getCore();
 
-    public GriefDefenderProtectionCompat(@SuppressWarnings("unused") HookContext hookContext)
+    public GriefDefender2ProtectionCompat(@SuppressWarnings("unused") HookContext hookContext)
     {
     }
 
     private boolean enabledInWorldChecks(World world)
     {
-        if (!GDFlags.BLOCK_BREAK)
-            return false;
-        return griefDefenderPlugin.claimsEnabledForWorld(world.getUID());
+        return GriefDefender.getCore().isEnabled(world.getUID());
     }
 
     private boolean isTypeBlockIgnored(Location loc)
     {
         final Block block = loc.getBlock();
         final Material type = block.getType();
-        if (type.equals(XMaterial.AIR.parseMaterial()) || type.equals(XMaterial.CAVE_AIR.parseMaterial()) ||
-            type.equals(XMaterial.VOID_AIR.parseMaterial()))
-            return true;
-        return GriefDefenderPlugin.isTargetIdBlacklisted(Flags.BLOCK_BREAK.getName(), block, loc.getWorld().getUID());
+        return type.equals(XMaterial.AIR.parseMaterial()) ||
+            type.equals(XMaterial.CAVE_AIR.parseMaterial()) ||
+            type.equals(XMaterial.VOID_AIR.parseMaterial());
     }
 
     private boolean checkLocation(Player player, Location loc)
     {
         if (isTypeBlockIgnored(loc))
             return true;
-        final GDClaim targetClaim = griefDefenderPlugin.dataStore.getClaimAt(loc);
-        final Tristate result = GDPermissionManager.getInstance()
-                                                   .getFinalPermission(null, loc, targetClaim, Flags.BLOCK_BREAK,
-                                                                       player, loc.getBlock(), player,
-                                                                       TrustTypes.BUILDER, true);
-        return result != Tristate.FALSE;
+
+        final Claim targetClaim = griefDefender.getClaimAt(loc);
+        if (targetClaim == null || targetClaim.isWilderness())
+            return true;
+
+        final User wrappedPlayer = GriefDefender.getCore().getUser(player.getUniqueId());
+        return targetClaim.canBreak(player, loc, wrappedPlayer);
     }
 
     @Override
@@ -85,12 +78,12 @@ public class GriefDefenderProtectionCompat implements IProtectionCompat
     @Override
     public boolean success()
     {
-        return griefDefenderPlugin != null;
+        return griefDefender != null;
     }
 
     @Override
     public String getName()
     {
-        return GriefDefenderPlugin.MOD_ID;
+        return "GriefDefender";
     }
 }

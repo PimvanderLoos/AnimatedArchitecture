@@ -54,7 +54,13 @@
 
         <dependency>
             <groupId>nl.pim16aap2.BigDoors</groupId>
-            <artifactId>hook-griefdefender</artifactId>
+            <artifactId>hook-griefdefender-1</artifactId>
+            <version>0.1.8.41-ALPHA</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>nl.pim16aap2.BigDoors</groupId>
+            <artifactId>hook-griefdefender-2</artifactId>
             <version>0.1.8.41-ALPHA</version>
             <scope>compile</scope>
         </dependency>
