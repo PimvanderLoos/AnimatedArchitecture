@@ -122,8 +122,8 @@ public abstract class Creator extends ToolUser
     protected Step.Factory factorySetFirstPos;
 
     /**
-     * IFactory for the {@link IStep} that sets the second position of the area of the door, thus completing the {@link
-     * Cuboid}.
+     * IFactory for the {@link IStep} that sets the second position of the area of the door, thus completing the
+     * {@link Cuboid}.
      * <p>
      * Don't forget to set the message before using it!
      */
@@ -522,8 +522,8 @@ public abstract class Creator extends ToolUser
     }
 
     /**
-     * Gets the price of the door based on its volume. If the door is free because the price is <= 0 or the {@link
-     * nl.pim16aap2.bigdoors.api.IEconomyManager} is disabled, the price will be empty.
+     * Gets the price of the door based on its volume. If the door is free because the price is <= 0 or the
+     * {@link nl.pim16aap2.bigdoors.api.IEconomyManager} is disabled, the price will be empty.
      *
      * @return The price of the door if a positive price could be found.
      */
@@ -566,8 +566,8 @@ public abstract class Creator extends ToolUser
     }
 
     /**
-     * Gets the list of valid open directions for this type. It returns a subset of {@link
-     * DoorType#getValidOpenDirections()} based on the current physical aspects of the {@link AbstractDoor}.
+     * Gets the list of valid open directions for this type. It returns a subset of
+     * {@link DoorType#getValidOpenDirections()} based on the current physical aspects of the {@link AbstractDoor}.
      *
      * @return The list of valid open directions for this type given its current physical dimensions.
      */
@@ -655,7 +655,7 @@ public abstract class Creator extends ToolUser
 
         MyDecimalFormat()
         {
-            decimalFormat = new DecimalFormat("0", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
+            decimalFormat = new DecimalFormat("0", DecimalFormatSymbols.getInstance());
             decimalFormat.setMaximumFractionDigits(2);
         }
 

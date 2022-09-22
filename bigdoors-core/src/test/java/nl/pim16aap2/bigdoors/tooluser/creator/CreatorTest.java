@@ -187,7 +187,7 @@ class CreatorTest
         Mockito.doReturn(OptionalDouble.of(price)).when(creator).getPrice();
         Mockito.doReturn(false).when(creator).buyDoor();
         Assertions.assertTrue(creator.confirmPrice(true));
-        Mockito.verify(player).sendMessage("creator.base.error.insufficient_funds " + price);
+        Mockito.verify(player).sendMessage(String.format("creator.base.error.insufficient_funds %.2f", price));
 
         Mockito.doReturn(true).when(creator).buyDoor();
         Assertions.assertTrue(creator.confirmPrice(true));
