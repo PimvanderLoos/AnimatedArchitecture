@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.storage;
 
 import com.google.common.flogger.LogSiteStackTrace;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
@@ -43,6 +44,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.lang.reflect.Field;
+import java.nio.file.FileSystemException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -51,6 +53,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Slf4j
 public class SQLiteJDBCDriverConnectionTest
 {
     /**
@@ -151,7 +154,11 @@ public class SQLiteJDBCDriverConnectionTest
     public static void cleanup()
     {
         final Path finishedDB = DB_FILE.resolveSibling(DB_FILE.getFileName() + ".FINISHED");
-        Files.move(DB_FILE, finishedDB, StandardCopyOption.REPLACE_EXISTING);
+        try {
+            Files.move(DB_FILE, finishedDB, StandardCopyOption.REPLACE_EXISTING);
+        } catch (FileSystemException exception) {
+            log.error("Failed to move database file to finished file. This is a Windows-Only Error and can be ignored.", exception);
+        }
 
         Files.deleteIfExists(DB_FILE_BACKUP);
     }
