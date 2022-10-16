@@ -215,6 +215,15 @@ public class Commander
         return addDoor(newDoor, player, 0);
     }
 
+    private void onDoorDelete(@Nullable Door door)
+    {
+        if (door == null)
+            return;
+        plugin.getPBCache().invalidate(door.getPowerBlockChunkHash());
+        if (plugin.getConfigLoader().refundOnDelete())
+            plugin.getVaultManager().refundDoor(door);
+    }
+
     public boolean removeDoor(Player player, long doorUID)
     {
         if (!hasPermissionForAction(player, doorUID, DoorAttribute.DELETE))
@@ -225,13 +234,12 @@ public class Commander
 
     public void removeDoor(long doorUID)
     {
-        long hash = db.removeDoor(doorUID);
-        plugin.getPBCache().invalidate(hash);
+        onDoorDelete(db.removeDoor(doorUID));
     }
 
     public void removeDoorsFromWorld(World world)
     {
-        db.removeDoorsFromWorld(world).forEach(hash -> plugin.getPBCache().invalidate(hash));
+        db.removeDoorsFromWorld(world).forEach(this::onDoorDelete);
     }
 
     // Returns the number of doors owner by a player and with a specific name, if

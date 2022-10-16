@@ -785,9 +785,12 @@ public class SQLiteJDBCDriverConnection
     }
 
     // Remove a door with a given ID.
-    public long removeDoor(final long doorID)
+    public @Nullable Door removeDoor(final long doorID)
     {
-        long hash = 0;
+        final @Nullable Door door = getDoor(null, doorID);
+        if (door == null)
+            return null;
+
         Connection conn = null;
         try
         {
@@ -798,7 +801,6 @@ public class SQLiteJDBCDriverConnection
             ResultSet rs0 = ps0.executeQuery();
             if (rs0.next())
             {
-                hash = rs0.getLong("chunkHash");
                 String deleteDoor = "DELETE FROM doors WHERE id = '" + doorID + "';";
                 PreparedStatement ps = conn.prepareStatement(deleteDoor);
                 ps.executeUpdate();
@@ -812,6 +814,7 @@ public class SQLiteJDBCDriverConnection
         catch (SQLException | NullPointerException e)
         {
             plugin.getMyLogger().logMessageToLogFile("271: " + Util.throwableToString(e));
+            return null;
         }
         finally
         {
@@ -824,28 +827,18 @@ public class SQLiteJDBCDriverConnection
                 logMessage("311", e);
             }
         }
-        return hash;
+        return door;
     }
 
     // Remove all doors from a given world.
-    public List<Long> removeDoorsFromWorld(final World world)
+    public List<Door> removeDoorsFromWorld(final World world)
     {
-        List<Long> hashes = new ArrayList<>();
+        final List<Door> doors = getDoorsInWorld(world);
         Connection conn = null;
         try
         {
             conn = getConnection();
             conn.setAutoCommit(false);
-
-            PreparedStatement ps0 = conn.prepareStatement("SELECT chunkHash doors WHERE world = ?;");
-            ps0.setString(1, world.getUID().toString());
-            ResultSet rs0 = ps0.executeQuery();
-
-            while (rs0.next())
-                hashes.add(rs0.getLong("chunkHash"));
-
-            ps0.close();
-            rs0.close();
 
             PreparedStatement ps = conn.prepareStatement("DELETE FROM doors WHERE world = ?;");
             ps.setString(1, world.getUID().toString());
@@ -858,6 +851,7 @@ public class SQLiteJDBCDriverConnection
         catch (SQLException | NullPointerException e)
         {
             plugin.getMyLogger().logMessageToLogFile("271: " + Util.throwableToString(e));
+            return Collections.emptyList();
         }
         finally
         {
@@ -870,51 +864,7 @@ public class SQLiteJDBCDriverConnection
                 logMessage("807", e);
             }
         }
-        return hashes;
-    }
-
-    // Remove a door with a given name, owned by a certain player.
-    public void removeDoor(final String playerUUID, final String doorName)
-    {
-        Connection conn = null;
-        try
-        {
-            conn = getConnection();
-            long playerID = getPlayerID(conn, playerUUID);
-            if (playerID == -1)
-                return;
-
-            // Select all doors from the sqlUnion table that have the previously found
-            // player as owner.
-            PreparedStatement ps2 = conn
-                .prepareStatement("SELECT * FROM sqlUnion WHERE playerID = '" + playerID + "';");
-            ResultSet rs2 = ps2.executeQuery();
-            while (rs2.next())
-            {
-                // Delete all doors with the provided name owned by the provided player.
-                PreparedStatement ps3 = conn.prepareStatement("DELETE FROM doors WHERE id = '"
-                    + rs2.getInt(UNION_DOOR_ID) + "' AND name = '" + doorName + "';");
-                ps3.executeUpdate();
-                ps3.close();
-            }
-            ps2.close();
-            rs2.close();
-        }
-        catch (SQLException | NullPointerException e)
-        {
-            logMessage("343", e);
-        }
-        finally
-        {
-            try
-            {
-                conn.close();
-            }
-            catch (SQLException | NullPointerException e)
-            {
-                logMessage("353", e);
-            }
-        }
+        return doors;
     }
 
     // Get Door from a doorID.

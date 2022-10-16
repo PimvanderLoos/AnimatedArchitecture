@@ -36,6 +36,14 @@ public final class VaultManager implements IPermissionsManager
         vaultEnabled = setupEconomy() && setupPermissions();
     }
 
+    public void refundDoor(Door door)
+    {
+        if (!vaultEnabled || !plugin.getConfigLoader().refundOnDelete())
+            return;
+        final double price = getPrice(door.getType(), door.getBlockCount());
+        economy.depositPlayer(Bukkit.getOfflinePlayer(door.getPrimeOwner()), door.getWorld().getName(), price);
+    }
+
     public boolean buyDoor(final Player player, final DoorType type, final int blockCount)
     {
         if (!vaultEnabled)
@@ -200,11 +208,6 @@ public final class VaultManager implements IPermissionsManager
             plugin.getMyLogger().logMessageToLogFile(Util.throwableToString(e));
         }
         return true;
-    }
-
-    private boolean withdrawPlayer(final Player player, final String worldName, final double amount)
-    {
-        return withdrawPlayer(Bukkit.getOfflinePlayer(player.getUniqueId()), worldName, amount);
     }
 
     private boolean setupEconomy()

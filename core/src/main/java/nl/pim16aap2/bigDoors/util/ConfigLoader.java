@@ -83,6 +83,7 @@ public class ConfigLoader
     private Set<Material> destroyList;
 
     private String doorPrice, drawbridgePrice, portcullisPrice, slidingDoorPrice;
+    private boolean refundOnDelete;
 
     private final ArrayList<ConfigOption> configOptionsList;
     public static boolean DEBUG = false;
@@ -191,6 +192,7 @@ public class ConfigLoader
                                    "Furthermore, you can use these operators: -, +, *, /, sqrt(), ^, %, min(a,b), max(a,b), abs(), log(a), ln(a), e, pi, and parentheses.",
                                    "For example: \"doorPrice='max(10, sqrt(16)^4/100*blockCount)'\" would return 10 for a blockCount of 0 to 3 and 10.24 for a blockCount of 4.",
                                    "You must always put the formula or simple value or whatever in quotation marks! Also, these settings do nothing if Vault isn't installed!" };
+        String[] refundOnDeleteComment = { "Whether to refund the price of the door when it is deleted. This uses the price that is currently configured for it." };
         String[] commandWaiterTimeoutComment = { "Amount of time (measured in seconds) until a command waiter times out.",
                                                  "Don't forget to update the language file if you change this!" };
         String[] maxBlocksToMoveComment = { "The maximum number of blocks a door can move. This only applies to doors that move in a straight line (e.g. sliding door).",
@@ -797,5 +799,10 @@ public class ConfigLoader
     public int getSoundRange()
     {
         return soundRange;
+    }
+
+    public boolean refundOnDelete()
+    {
+        return refundOnDelete;
     }
 }
