@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigDoors;
 
+import nl.pim16aap2.bigDoors.events.DoorDeleteEvent;
 import nl.pim16aap2.bigDoors.moveBlocks.BlockMover;
 import nl.pim16aap2.bigDoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigDoors.util.DoorAttribute;
@@ -219,6 +220,8 @@ public class Commander
     {
         if (door == null)
             return;
+
+        Bukkit.getPluginManager().callEvent(new DoorDeleteEvent(door));
         plugin.getPBCache().invalidate(door.getPowerBlockChunkHash());
         if (plugin.getConfigLoader().refundOnDelete())
             plugin.getVaultManager().refundDoor(door);
