@@ -87,6 +87,13 @@ public abstract class ProtectionCompatDefinition implements IProtectionCompatDef
         }
     };
 
+    public static final IProtectionCompatDefinition MEDIEVAL_FACTIONS = new ProtectionCompatDefinition("MedievalFactions") {
+        @Override public Class<? extends IProtectionCompat> getClass(String version)
+        {
+            return MedievalFactionsProtectionCompat.class;
+        }
+    };
+
     public static final IProtectionCompatDefinition REDPROTECT = new ProtectionCompatDefinition("RedProtect")
     {
         @Override
@@ -123,7 +130,7 @@ public abstract class ProtectionCompatDefinition implements IProtectionCompatDef
     };
 
     public static final List<IProtectionCompatDefinition> DEFAULT_COMPAT_DEFINITIONS = Collections.unmodifiableList(
-        Arrays.asList(TOWNY, PLOTSQUARED, WORLDGUARD, GRIEFPREVENTION, LANDS, REDPROTECT, GRIEF_DEFENDER, KONQUEST));
+        Arrays.asList(TOWNY, PLOTSQUARED, WORLDGUARD, GRIEFPREVENTION, LANDS, MEDIEVAL_FACTIONS, REDPROTECT, GRIEF_DEFENDER, KONQUEST));
 
     private final String name;
 
