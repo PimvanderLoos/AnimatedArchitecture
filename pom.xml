@@ -377,7 +377,6 @@
                             <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
                         </sourceDirectories>
                         <configLocation>${user.dir}/checkstyle/checkstyle.xml</configLocation>
-                        <encoding>UTF-8</encoding>
                         <consoleOutput>true</consoleOutput>
                         <failsOnError>true</failsOnError>
                         <linkXRef>true</linkXRef>
