@@ -29,6 +29,8 @@
 
         <module>hook-lands</module>
 
+        <module>hook-medieval-factions</module>
+
         <module>hook-towny</module>
 
         <module>hook-world-guard-7</module>
