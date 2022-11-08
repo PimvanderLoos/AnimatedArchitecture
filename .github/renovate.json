@@ -1,5 +1,29 @@
 {
   "extends": [
     "config:base"
+  ],
+  "ignoreDeps": [
+    "nl.pim16aap2:util",
+    "nl.pim16aap2:test-util",
+    "nl.pim16aap2:utilities",
+    "nl.pim16aap2.bigdoors:bigdoors-testing",
+    "nl.pim16aap2.bigdoors:bigdoors-integration-test-lib",
+    "nl.pim16aap2.bigdoors:bigdoors-parent",
+    "nl.pim16aap2.bigdoors:bigdoors-core",
+    "nl.pim16aap2.bigdoors:bigdoors-spigot",
+    "nl.pim16aap2.bigdoors:spigot-core",
+    "nl.pim16aap2.bigdoors:spigot-v1_15_R1",
+    "nl.pim16aap2.bigdoors:spigot-util",
+    "nl.pim16aap2.bigdoors:bigdoors-doors",
+    "nl.pim16aap2.bigdoors:doors-clock",
+    "nl.pim16aap2.bigdoors:doors-elevator",
+    "nl.pim16aap2.bigdoors:doors-flag",
+    "nl.pim16aap2.bigdoors:doors-garagedoor",
+    "nl.pim16aap2.bigdoors:doors-revolvingdoor",
+    "nl.pim16aap2.bigdoors:doors-slidingdoor",
+    "nl.pim16aap2.bigdoors:doors-drawbridge",
+    "nl.pim16aap2.bigdoors:doors-windmill",
+    "nl.pim16aap2.bigdoors:doors-portcullis",
+    "nl.pim16aap2.bigdoors:doors-bigdoor"
   ]
 }
