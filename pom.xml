@@ -21,7 +21,7 @@
         <dependency.version.annotations>23.0.0</dependency.version.annotations>
         <dependency.version.lombok>1.18.24</dependency.version.lombok>
         <dependency.version.lombok-plugin>1.18.20.0</dependency.version.lombok-plugin>
-        <dependency.version.errorprone>2.13.1</dependency.version.errorprone>
+        <dependency.version.errorprone>2.16</dependency.version.errorprone>
         <dependency.version.nullaway>0.10.4</dependency.version.nullaway>
         <dependency.version.checker-framework>3.27.0</dependency.version.checker-framework>
         <dependency.version.checkstyle>10.4</dependency.version.checkstyle>
@@ -567,7 +567,7 @@
                                 <release>${maven.compiler.release}</release>
                                 <compilerArgs>
                                     <arg>-XDcompilePolicy=simple</arg>
-                                    <arg>-Xplugin:ErrorProne -XepExcludedPaths:.*/(target|test)/.* -XepDisableWarningsInGeneratedCode -Xep:NullAway:ERROR -XepOpt:NullAway:AnnotatedPackages=nl.pim16aap2</arg>
+                                    <arg>-Xplugin:ErrorProne -XepExcludedPaths:.*/(target|test)/.* -XepDisableWarningsInGeneratedCode -Xep:NullAway:ERROR -Xep:NullableOnContainingClass:OFF -XepOpt:NullAway:AnnotatedPackages=nl.pim16aap2</arg>
                                     <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
                                     <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
                                     <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
