@@ -340,6 +340,9 @@ public class ConfigLoader
         slidingDoorPrice = config.getString("slidingDoorPrice", "0");
         configOptionsList.add(new ConfigOption("slidingDoorPrice", slidingDoorPrice, null));
 
+        refundOnDelete = config.getBoolean("refundOnDelete", false);
+        configOptionsList.add(new ConfigOption("refundOnDelete", refundOnDelete, refundOnDeleteComment));
+
         commandWaiterTimeout = config.getInt("commandWaiterTimeout", 40);
         configOptionsList
             .add(new ConfigOption("commandWaiterTimeout", commandWaiterTimeout, commandWaiterTimeoutComment));
