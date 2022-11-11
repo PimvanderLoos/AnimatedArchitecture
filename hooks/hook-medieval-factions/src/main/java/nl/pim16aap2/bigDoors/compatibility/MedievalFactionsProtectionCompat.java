@@ -1,17 +1,20 @@
 package nl.pim16aap2.bigDoors.compatibility;
 
-import dansplugins.factionsystem.MedievalFactions;
-import dansplugins.factionsystem.data.PersistentData;
-import dansplugins.factionsystem.objects.domain.ClaimedChunk;
-import dansplugins.factionsystem.utils.InteractionAccessChecker;
+import com.dansplugins.factionsystem.MedievalFactions;
+import com.dansplugins.factionsystem.area.MfBlockPosition;
+import com.dansplugins.factionsystem.claim.MfClaimedChunk;
+import com.dansplugins.factionsystem.faction.MfFaction;
+import com.dansplugins.factionsystem.player.MfPlayer;
+import com.dansplugins.factionsystem.service.Services;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nullable;
+
 /**
- * Compatibility hook for Medieval Factions:
- * https://www.spigotmc.org/resources/medieval-factions.79941/
+ * Compatibility hook for <a href="https://www.spigotmc.org/resources/medieval-factions.79941/">Medieval Factions</a>.
  *
  * @see IProtectionCompat
  * @author Pim
@@ -20,29 +23,55 @@ public class MedievalFactionsProtectionCompat implements IProtectionCompat
 {
     private final HookContext hookContext;
     private final MedievalFactions medievalFactions;
+    private final Services services;
 
     public MedievalFactionsProtectionCompat(HookContext hookContext)
     {
         this.hookContext = hookContext;
-        this.medievalFactions = MedievalFactions.getInstance();
+        this.medievalFactions = (MedievalFactions) Bukkit.getPluginManager().getPlugin("MedievalFactions");
+        this.services = medievalFactions == null ? null : medievalFactions.getServices();
+    }
+
+    /**
+     * Checks if a location intersects with a gate in some way. Intersects here is counted as the location either
+     * referring to a block that is part of the gate or a to a block that triggers the gate.
+     *
+     * @param loc The location to check.
+     * @return True if the location intersects with the gate.
+     */
+    private boolean locationIntersectsWithGate(Location loc)
+    {
+        final @Nullable MfBlockPosition blockPosition = MfBlockPosition.Companion.fromBukkitLocation(loc);
+        if (blockPosition == null)
+            return false;
+        return services.getGateService().getGatesAt(blockPosition).size() > 0 ||
+            services.getGateService().getGatesByTrigger(blockPosition).size() > 0;
     }
 
     // Adapted from:
-    // https://github.com/Dans-Plugins/Medieval-Factions/blob/dcf8ecbad2f1f032750a47cffb9f6185fd9641ee/src/main/java/dansplugins/factionsystem/eventhandlers/InteractionHandler.java#L53
+    // https://github.com/Dans-Plugins/Medieval-Factions/blob/52b139604da95e3e1d9ca77746d9f50a9de019ad/src/main/kotlin/com/dansplugins/factionsystem/listener/BlockBreakListener.kt#L16
     @Override
     public boolean canBreakBlock(Player player, Location loc)
     {
-        final PersistentData data = PersistentData.getInstance();
-        final ClaimedChunk chunk = data.getChunkDataAccessor().getClaimedChunk(loc.getChunk());
-
-        if (InteractionAccessChecker.getInstance().shouldEventBeCancelled(chunk, player))
+        if (locationIntersectsWithGate(loc))
             return false;
 
-        final Block block = loc.getBlock();
-        if (data.isBlockInGate(block, player))
+        final @Nullable MfClaimedChunk claim = services.getClaimService().getClaim(loc.getChunk());
+        if (claim == null)
+            return true;
+
+        final @Nullable MfFaction faction = services.getFactionService().getFactionByFactionId(claim.getFactionId());
+        if (faction == null)
+            return true;
+
+        final @Nullable MfPlayer mfPlayer = services.getPlayerService().getPlayerByBukkitPlayer(player);
+        if (mfPlayer == null)
             return false;
 
-        return !data.isBlockLocked(block) || data.getLockedBlock(block).getOwner().equals(player.getUniqueId());
+        if (services.getClaimService().isInteractionAllowedForPlayerInChunk(mfPlayer.getId(), claim))
+            return true;
+
+        return mfPlayer.isBypassEnabled() && player.hasPermission("mf.bypass");
     }
 
     @Override
