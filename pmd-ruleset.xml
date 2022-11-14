@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <ruleset name="Custom Rules" xmlns="https://pmd.sourceforge.io/ruleset/2.0.0">
+    <description>PMD Ruleset</description>
 
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#abstractclasswithoutabstractmethod -->
     <rule ref="category/java/bestpractices.xml/AbstractClassWithoutAbstractMethod"/>
@@ -176,24 +177,8 @@
             <property name="allowExceptionNameRegex" value="^(ignored|expected)$"/>
         </properties>
     </rule>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#emptyfinallyblock -->
-    <rule ref="category/java/errorprone.xml/EmptyFinallyBlock"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#emptyifstmt -->
-    <rule ref="category/java/errorprone.xml/EmptyIfStmt"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#emptyinitializer -->
-    <rule ref="category/java/errorprone.xml/EmptyInitializer"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#emptystatementblock -->
-    <rule ref="category/java/errorprone.xml/EmptyStatementBlock"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#emptystatementnotinloop -->
     <rule ref="category/java/errorprone.xml/EmptyStatementNotInLoop"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#emptyswitchstatements -->
-    <rule ref="category/java/errorprone.xml/EmptySwitchStatements"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#emptysynchronizedblock -->
-    <rule ref="category/java/errorprone.xml/EmptySynchronizedBlock"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#emptytryblock -->
-    <rule ref="category/java/errorprone.xml/EmptyTryBlock"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#emptywhilestmt -->
-    <rule ref="category/java/errorprone.xml/EmptyWhileStmt"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#equalsnull -->
     <rule ref="category/java/errorprone.xml/EqualsNull"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#idempotentoperations -->
