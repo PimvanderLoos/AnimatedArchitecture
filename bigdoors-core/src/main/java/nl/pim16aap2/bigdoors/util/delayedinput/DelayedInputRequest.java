@@ -7,11 +7,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.Optional;
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 
 /**
@@ -23,16 +23,16 @@ import java.util.logging.Level;
 @Flogger
 public class DelayedInputRequest<T>
 {
+    private final Lock lock = new ReentrantLock();
+    private final Condition inputCondition = lock.newCondition();
+
     /**
      * The result of this input request.
      */
     @Getter(AccessLevel.PROTECTED)
     private final CompletableFuture<Optional<T>> inputResult;
 
-    /**
-     * The completable future that waits for the delayed input.
-     */
-    private final CompletableFuture<@Nullable T> input = new CompletableFuture<>();
+    private @Nullable T value;
 
     /**
      * Keeps track of whether the request timed out.
@@ -43,6 +43,10 @@ public class DelayedInputRequest<T>
      * Keeps track of whether the request completed with an exception.
      */
     private volatile boolean exceptionally = false;
+
+    private volatile boolean isCancelled = false;
+
+    private volatile boolean isDone = false;
 
     /**
      * Instantiates a new {@link DelayedInputRequest}.
@@ -66,28 +70,9 @@ public class DelayedInputRequest<T>
      * @param timeout
      *     The amount of time to wait before cancelling the request.
      */
-    @SuppressWarnings("unused")
     protected DelayedInputRequest(Duration timeout)
     {
         this(timeout.toMillis(), TimeUnit.MILLISECONDS);
-    }
-
-    /**
-     * Instantiates a new {@link DelayedInputRequest}.
-     *
-     * @param timeout
-     *     The timeout (in ms) to wait before giving up. Must be larger than 0.
-     */
-    protected DelayedInputRequest(long timeout)
-    {
-        this(timeout, TimeUnit.MILLISECONDS);
-    }
-
-    @SuppressWarnings("NullAway") // NullAway doesn't like @Nullable in the input's generics.
-    private Optional<T> blockingWaitForInput(long timeout)
-        throws ExecutionException, InterruptedException, TimeoutException
-    {
-        return Optional.ofNullable(input.get(timeout, TimeUnit.MILLISECONDS));
     }
 
     private CompletableFuture<Optional<T>> waitForResult(long timeout)
@@ -96,18 +81,13 @@ public class DelayedInputRequest<T>
             .supplyAsync(
                 () ->
                 {
+                    lock.lock();
                     try
                     {
-                        return blockingWaitForInput(timeout);
-                    }
-                    catch (TimeoutException e)
-                    {
-                        timedOut = true;
-                        return Optional.<T>empty();
-                    }
-                    catch (CancellationException e)
-                    {
-                        return Optional.<T>empty();
+                        if (!this.isDone && !inputCondition.await(timeout, TimeUnit.MILLISECONDS))
+                            this.timedOut = true;
+                        this.isDone = true;
+                        return Optional.ofNullable(value);
                     }
                     catch (InterruptedException e)
                     {
@@ -119,6 +99,10 @@ public class DelayedInputRequest<T>
                     {
                         exceptionally = true;
                         throw new RuntimeException(e);
+                    }
+                    finally
+                    {
+                        lock.unlock();
                     }
                 })
             .thenApply(
@@ -143,9 +127,21 @@ public class DelayedInputRequest<T>
      * <p>
      * See {@link #completed()}.
      */
-    public final synchronized void cancel()
+    public final void cancel()
     {
-        inputResult.cancel(true);
+        lock.lock();
+        try
+        {
+            if (this.isDone)
+                return;
+            this.isCancelled = true;
+            this.isDone = true;
+            this.inputCondition.signal();
+        }
+        finally
+        {
+            lock.unlock();
+        }
     }
 
     /**
@@ -158,10 +154,22 @@ public class DelayedInputRequest<T>
      * @param value
      *     The new value.
      */
-    @SuppressWarnings("NullAway")
-    public final synchronized void set(@Nullable T value)
+    public final void set(@Nullable T value)
     {
-        input.complete(value);
+        lock.lock();
+        try
+        {
+            if (this.isDone)
+                throw new IllegalStateException(
+                    String.format("Trying to provide value '%s', but already received value '%s'!", value, this.value));
+            this.isDone = true;
+            this.value = value;
+            inputCondition.signal();
+        }
+        finally
+        {
+            lock.unlock();
+        }
     }
 
     /**
@@ -180,7 +188,7 @@ public class DelayedInputRequest<T>
      */
     public boolean cancelled()
     {
-        return inputResult.isCancelled();
+        return isCancelled;
     }
 
     /**
@@ -190,7 +198,7 @@ public class DelayedInputRequest<T>
      */
     public boolean completed()
     {
-        return inputResult.isDone();
+        return isDone;
     }
 
     /**
@@ -220,7 +228,7 @@ public class DelayedInputRequest<T>
      */
     public boolean success()
     {
-        return completed() && !cancelled() && !timedOut() && !exceptionally();
+        return getStatus() == Status.COMPLETED;
     }
 
     /**
@@ -228,15 +236,23 @@ public class DelayedInputRequest<T>
      *
      * @return The current status of this request.
      */
-    public synchronized Status getStatus()
+    public Status getStatus()
     {
-        if (cancelled())
-            return Status.CANCELLED;
-        if (timedOut())
-            return Status.TIMED_OUT;
-        if (exceptionally())
-            return Status.EXCEPTION;
-        return completed() ? Status.COMPLETED : Status.WAITING;
+        lock.lock();
+        try
+        {
+            if (isCancelled)
+                return Status.CANCELLED;
+            if (timedOut)
+                return Status.TIMED_OUT;
+            if (exceptionally)
+                return Status.EXCEPTION;
+            return isDone ? Status.COMPLETED : Status.WAITING;
+        }
+        finally
+        {
+            lock.unlock();
+        }
     }
 
     /**
