@@ -26,7 +26,7 @@
         <dependency.version.checker-framework>3.27.0</dependency.version.checker-framework>
         <dependency.version.checkstyle>10.4</dependency.version.checkstyle>
         <dependency.version.pmd>3.19.0</dependency.version.pmd>
-        <dependency.version.dagger>2.44.1</dependency.version.dagger>
+        <dependency.version.dagger>2.44.2</dependency.version.dagger>
         <dependency.version.mockito>4.9.0</dependency.version.mockito>
         <dependency.version.junit>5.9.1</dependency.version.junit>
         <dependency.version.surefire>3.0.0-M7</dependency.version.surefire>
