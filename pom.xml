@@ -377,7 +377,7 @@
                         <sourceDirectories>
                             <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
                         </sourceDirectories>
-                        <configLocation>${user.dir}/checkstyle/checkstyle.xml</configLocation>
+                        <configLocation>${user.dir}/coderules/checkstyle.xml</configLocation>
                         <consoleOutput>true</consoleOutput>
                         <failsOnError>true</failsOnError>
                         <linkXRef>true</linkXRef>
@@ -490,7 +490,7 @@
                     <version>${dependency.version.pmd}</version>
                     <configuration>
                         <rulesets>
-                            <ruleset>${user.dir}/pmd-ruleset.xml</ruleset>
+                            <ruleset>${user.dir}/coderules/pmd-ruleset.xml</ruleset>
                         </rulesets>
                         <linkXRef>true</linkXRef>
                         <failOnViolation>true</failOnViolation>
