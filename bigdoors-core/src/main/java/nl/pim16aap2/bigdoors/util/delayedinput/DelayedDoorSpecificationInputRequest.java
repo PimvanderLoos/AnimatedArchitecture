@@ -23,10 +23,11 @@ public final class DelayedDoorSpecificationInputRequest extends DelayedInputRequ
     private final IPPlayer player;
     private final DoorSpecificationManager doorSpecificationManager;
 
-    private DelayedDoorSpecificationInputRequest(Duration timeout, List<AbstractDoor> options, IPPlayer player,
-                                                 DoorSpecificationManager doorSpecificationManager)
+    private DelayedDoorSpecificationInputRequest(
+        Duration timeout, List<AbstractDoor> options, IPPlayer player,
+        DoorSpecificationManager doorSpecificationManager)
     {
-        super(timeout.toMillis());
+        super(timeout);
         this.options = options;
         this.player = player;
         this.doorSpecificationManager = doorSpecificationManager;
@@ -59,9 +60,9 @@ public final class DelayedDoorSpecificationInputRequest extends DelayedInputRequ
      *     The player that is asked to make a choice.
      * @return The specified door if the user specified a valid one. Otherwise, an empty Optional.
      */
-    public static CompletableFuture<Optional<AbstractDoor>> get(Duration timeout, List<AbstractDoor> options,
-                                                                IPPlayer player,
-                                                                DoorSpecificationManager doorSpecificationManager)
+    public static CompletableFuture<Optional<AbstractDoor>> get(
+        Duration timeout, List<AbstractDoor> options, IPPlayer player,
+        DoorSpecificationManager doorSpecificationManager)
     {
         if (options.size() == 1)
             return CompletableFuture.completedFuture(Optional.of(options.get(0)));

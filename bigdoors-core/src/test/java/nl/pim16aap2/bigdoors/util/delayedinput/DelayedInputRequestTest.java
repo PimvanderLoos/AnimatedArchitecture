@@ -40,7 +40,7 @@ class DelayedInputRequestTest
         final CompletableFuture<Optional<String>> output = request.getInputResult();
 
         request.set(firstInput);
-        request.set(secondInput);
+        Assertions.assertThrows(IllegalStateException.class, () -> request.set(secondInput));
 
         final Optional<String> result = output.get(100, TimeUnit.MILLISECONDS);
 
