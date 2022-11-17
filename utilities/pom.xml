@@ -15,6 +15,10 @@
         <version>1</version>
     </parent>
 
+    <properties>
+        <project.root-dir>${project.basedir}/..</project.root-dir>
+    </properties>
+
     <modules>
         <module>test-util</module>
         <module>util</module>

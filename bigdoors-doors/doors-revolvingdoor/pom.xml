@@ -10,6 +10,7 @@
         <typeName>RevolvingDoor</typeName>
         <version>1</version>
         <TypeDependencies>bigdoor(1;1)</TypeDependencies>
+        <project.root-dir>${project.basedir}/../..</project.root-dir>
     </properties>
 
     <parent>

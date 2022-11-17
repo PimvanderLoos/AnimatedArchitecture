@@ -12,6 +12,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <lombok.encoding>UTF-8</lombok.encoding>
         <maven.compiler.release>19</maven.compiler.release>
+        <project.root-dir>${project.basedir}</project.root-dir>
+        <delombok.source>${project.build.sourceDirectory}</delombok.source>
+        <delombok.output>${project.root-dir}/delombok</delombok.output>
 
         <dependency.version.jcalculator>1.10</dependency.version.jcalculator>
         <dependency.version.gson>2.10.1</dependency.version.gson>
@@ -253,47 +256,46 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>${dependency.version.maven-clean}</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>${delombok.output}</directory>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok-maven-plugin</artifactId>
+                <version>${dependency.version.lombok-plugin}</version>
+                <configuration>
+                    <sourceDirectory>${delombok.source}</sourceDirectory>
+                    <outputDirectory>${delombok.output}</outputDirectory>
+                    <addOutputDirectory>false</addOutputDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>delombok</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>delombok</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.projectlombok</groupId>
+                        <artifactId>lombok</artifactId>
+                        <version>${dependency.version.lombok}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
                 <version>${dependency.version.maven-site}</version>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>${dependency.version.maven-javadoc}</version>
-                <executions>
-                    <execution>
-                        <id>generate-javadoc</id>
-                        <goals>
-                            <goal>javadoc</goal>
-                        </goals>
-                        <phase>package</phase>
-                    </execution>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <quiet>true</quiet>
-                    <failOnError>false</failOnError>
-                    <additionalOptions>-Xdoclint:none</additionalOptions>
-                    <sourceFileExcludes>
-                        <!-- Exclude Dagger2 files -->
-                        <exclude>**/*_Impl.java</exclude>
-                        <exclude>**/*_MembersInjector.java</exclude>
-                        <exclude>**/*Dagger*Component.java</exclude>
-                        <exclude>**/*Dagger*Component$Builder.java</exclude>
-                        <exclude>**/*Module_*.java</exclude>
-                        <exclude>**/*_Factory.java</exclude>
-                    </sourceFileExcludes>
-                </configuration>
             </plugin>
 
             <plugin>
@@ -690,8 +692,9 @@
                 </reportSets>
                 <configuration>
                     <quiet>true</quiet>
-                    <failOnError>false</failOnError>
-                    <additionalOptions>-Xdoclint:none</additionalOptions>
+                    <failOnError>true</failOnError>
+                    <doclint>none</doclint>
+                    <sourcepath>${delombok.output}</sourcepath>
                     <sourceFileExcludes>
                         <!-- Exclude Dagger2 files -->
                         <exclude>**/*_Impl.java</exclude>

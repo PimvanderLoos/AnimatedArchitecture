@@ -14,6 +14,10 @@
         <version>1</version>
     </parent>
 
+    <properties>
+        <project.root-dir>${project.basedir}/../..</project.root-dir>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.github.PimvanderLoos</groupId>

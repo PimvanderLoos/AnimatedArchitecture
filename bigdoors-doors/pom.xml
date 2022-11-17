@@ -34,6 +34,7 @@
     </dependencies>
 
     <properties>
+        <project.root-dir>${project.basedir}/..</project.root-dir>
         <mainClass>UNDEFINED</mainClass>
         <typeName>UNDEFINED</typeName>
         <version>UNDEFINED</version>
