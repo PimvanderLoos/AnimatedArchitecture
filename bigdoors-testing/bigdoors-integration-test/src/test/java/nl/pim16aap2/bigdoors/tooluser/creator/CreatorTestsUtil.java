@@ -153,10 +153,10 @@ public class CreatorTestsUtil
             (Answer<CompletableFuture<Optional<AbstractDoor>>>) invocation ->
                 CompletableFuture.completedFuture(Optional.of((AbstractDoor) invocation.getArguments()[0])));
 
-//        Mockito.when(databaseManager.addDoor(ArgumentMatchers.any(AbstractDoor.class), Mockito.any(IPPlayer.class)))
-//               .thenAnswer((Answer<CompletableFuture<DatabaseManager.DoorInsertResult>>) invocation ->
-//                   CompletableFuture.completedFuture(new DatabaseManager.DoorInsertResult(
-//                       Optional.of(invocation.getArgument(0, AbstractDoor.class)), false)));
+        Mockito.when(databaseManager.addDoor(ArgumentMatchers.any(AbstractDoor.class), Mockito.any(IPPlayer.class)))
+               .thenAnswer((Answer<CompletableFuture<DatabaseManager.DoorInsertResult>>) invocation ->
+                   CompletableFuture.completedFuture(new DatabaseManager.DoorInsertResult(
+                       Optional.of(invocation.getArgument(0, AbstractDoor.class)), false)));
 
         Mockito.when(permissionsManager.hasPermission(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(true);
 
