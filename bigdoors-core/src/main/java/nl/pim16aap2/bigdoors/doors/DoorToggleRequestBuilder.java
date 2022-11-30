@@ -8,7 +8,6 @@ import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
-import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
@@ -32,9 +31,10 @@ public class DoorToggleRequestBuilder
     private final IPPlayerFactory playerFactory;
 
     @Inject
-    public DoorToggleRequestBuilder(DoorToggleRequest.IFactory doorToggleRequestFactory,
-                                    @Named("MessageableServer") IMessageable messageableServer,
-                                    IPPlayerFactory playerFactory)
+    public DoorToggleRequestBuilder(
+        DoorToggleRequest.IFactory doorToggleRequestFactory,
+        @Named("MessageableServer") IMessageable messageableServer,
+        IPPlayerFactory playerFactory)
     {
         this.doorToggleRequestFactory = doorToggleRequestFactory;
         this.messageableServer = messageableServer;

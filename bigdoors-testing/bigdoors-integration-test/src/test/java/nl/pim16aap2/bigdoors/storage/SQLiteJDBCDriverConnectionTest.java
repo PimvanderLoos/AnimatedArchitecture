@@ -27,7 +27,7 @@ import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.testimplementations.TestPWorld;
 import nl.pim16aap2.bigdoors.testimplementations.TestPWorldFactory;
-import nl.pim16aap2.bigdoors.util.DoorOwner;
+import nl.pim16aap2.bigdoors.doors.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -154,10 +154,14 @@ public class SQLiteJDBCDriverConnectionTest
     public static void cleanup()
     {
         final Path finishedDB = DB_FILE.resolveSibling(DB_FILE.getFileName() + ".FINISHED");
-        try {
+        try
+        {
             Files.move(DB_FILE, finishedDB, StandardCopyOption.REPLACE_EXISTING);
-        } catch (FileSystemException exception) {
-            log.error("Failed to move database file to finished file. This is a Windows-Only Error and can be ignored.", exception);
+        }
+        catch (FileSystemException exception)
+        {
+            log.error("Failed to move database file to finished file. This is a Windows-Only Error and can be ignored.",
+                      exception);
         }
 
         Files.deleteIfExists(DB_FILE_BACKUP);

@@ -20,7 +20,7 @@ import nl.pim16aap2.bigdoors.events.IDoorEventCaller;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareCreateEvent;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareDeleteEvent;
 import nl.pim16aap2.bigdoors.storage.IStorage;
-import nl.pim16aap2.bigdoors.util.DoorOwner;
+import nl.pim16aap2.bigdoors.doors.DoorOwner;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
@@ -117,8 +117,8 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Inserts a {@link AbstractDoor} into the database and assumes that the door was NOT created by an {@link
-     * IPPlayer}. See {@link #addDoor(AbstractDoor, IPPlayer)}.
+     * Inserts a {@link AbstractDoor} into the database and assumes that the door was NOT created by an
+     * {@link IPPlayer}. See {@link #addDoor(AbstractDoor, IPPlayer)}.
      *
      * @param newDoor
      *     The new {@link AbstractDoor}.
@@ -187,8 +187,8 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Removes a {@link AbstractDoor} from the database and assumes that the door was NOT deleted by an {@link
-     * IPPlayer}. See {@link #deleteDoor(AbstractDoor, IPPlayer)}.
+     * Removes a {@link AbstractDoor} from the database and assumes that the door was NOT deleted by an
+     * {@link IPPlayer}. See {@link #deleteDoor(AbstractDoor, IPPlayer)}.
      *
      * @param door
      *     The door.
@@ -764,8 +764,8 @@ public final class DatabaseManager extends Restartable implements IDebuggable
          */
         private final Optional<AbstractDoor> door;
         /**
-         * Whether the insertion was cancelled. An insertion may be cancelled if some listener cancels the {@link
-         * IDoorPrepareCreateEvent} event.
+         * Whether the insertion was cancelled. An insertion may be cancelled if some listener cancels the
+         * {@link IDoorPrepareCreateEvent} event.
          */
         private final boolean cancelled;
 

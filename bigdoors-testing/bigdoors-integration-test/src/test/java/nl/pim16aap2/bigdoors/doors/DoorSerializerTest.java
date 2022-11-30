@@ -12,7 +12,6 @@ import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.testimplementations.TestPWorld;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.testing.AssistedFactoryMocker;
@@ -177,9 +176,10 @@ class DoorSerializerTest
         }
 
         @Override
-        protected BlockMover constructBlockMover(BlockMover.Context context, DoorActionCause cause,
-                                                 double time, boolean skipAnimation, Cuboid newCuboid,
-                                                 IPPlayer responsible, DoorActionType actionType)
+        protected BlockMover constructBlockMover(
+            BlockMover.Context context, DoorActionCause cause,
+            double time, boolean skipAnimation, Cuboid newCuboid,
+            IPPlayer responsible, DoorActionType actionType)
         {
             return null;
         }
@@ -192,8 +192,9 @@ class DoorSerializerTest
         @Getter
         private final int subclassTestValue;
 
-        public TestDoorSubType(DoorBase doorBase, String testName, boolean isCoolType, int blockTestCount,
-                               int subclassTestValue)
+        public TestDoorSubType(
+            DoorBase doorBase, String testName, boolean isCoolType, int blockTestCount,
+            int subclassTestValue)
         {
             super(doorBase, testName, isCoolType, blockTestCount);
 

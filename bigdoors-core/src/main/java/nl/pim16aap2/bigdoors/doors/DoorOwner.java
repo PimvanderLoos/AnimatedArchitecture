@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.util;
+package nl.pim16aap2.bigdoors.doors;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;

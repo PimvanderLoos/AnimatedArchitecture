@@ -16,8 +16,6 @@ import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.DoorOwner;
-import nl.pim16aap2.bigdoors.util.DoorToggleResult;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
@@ -49,8 +47,9 @@ public abstract class AbstractDoor implements IDoor
     protected final DoorOpeningHelper doorOpeningHelper;
 
 
-    protected AbstractDoor(DoorBase doorBase, ILocalizer localizer, DoorRegistry doorRegistry,
-                           AutoCloseScheduler autoCloseScheduler, DoorOpeningHelper doorOpeningHelper)
+    protected AbstractDoor(
+        DoorBase doorBase, ILocalizer localizer, DoorRegistry doorRegistry,
+        AutoCloseScheduler autoCloseScheduler, DoorOpeningHelper doorOpeningHelper)
     {
         serializer = getDoorType().getDoorSerializer();
         this.doorBase = doorBase;
@@ -151,14 +150,15 @@ public abstract class AbstractDoor implements IDoor
      *     The {@link BlockMover.Context} to run the block mover in.
      * @return The {@link BlockMover} for doorBase class.
      */
-    protected abstract BlockMover constructBlockMover(BlockMover.Context context, DoorActionCause cause, double time,
-                                                      boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
-                                                      DoorActionType actionType)
+    protected abstract BlockMover constructBlockMover(
+        BlockMover.Context context, DoorActionCause cause, double time,
+        boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
+        DoorActionType actionType)
         throws Exception;
 
     /**
-     * Attempts to toggle a door. Think twice before using doorBase method. Instead, please look at {@link
-     * DoorToggleRequestBuilder}.
+     * Attempts to toggle a door. Think twice before using doorBase method. Instead, please look at
+     * {@link DoorToggleRequestBuilder}.
      *
      * @param cause
      *     What caused doorBase action.
@@ -178,9 +178,10 @@ public abstract class AbstractDoor implements IDoor
      */
     // TODO: Simplify this method.
     @SuppressWarnings({"unused", "squid:S1172"}) // messageReceiver isn't used yet, but it will be.
-    final synchronized DoorToggleResult toggle(DoorActionCause cause, IMessageable messageReceiver,
-                                               IPPlayer responsible, double time, boolean skipAnimation,
-                                               DoorActionType actionType)
+    final synchronized DoorToggleResult toggle(
+        DoorActionCause cause, IMessageable messageReceiver,
+        IPPlayer responsible, double time, boolean skipAnimation,
+        DoorActionType actionType)
     {
         if (!doorOpeningHelper.isMainThread())
         {

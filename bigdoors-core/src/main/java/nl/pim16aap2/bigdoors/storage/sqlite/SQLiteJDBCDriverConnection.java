@@ -21,7 +21,7 @@ import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.storage.PPreparedStatement;
 import nl.pim16aap2.bigdoors.storage.SQLStatement;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.DoorOwner;
+import nl.pim16aap2.bigdoors.doors.DoorOwner;
 import nl.pim16aap2.bigdoors.util.IBitFlag;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -538,8 +538,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     /**
-     * Attempts to construct a subclass of {@link DoorBase} from a ResultSet containing all data pertaining the {@link
-     * DoorBase} (as stored in the "DoorBase" table), as well as the owner (name, UUID, permission) and the
+     * Attempts to construct a subclass of {@link DoorBase} from a ResultSet containing all data pertaining the
+     * {@link DoorBase} (as stored in the "DoorBase" table), as well as the owner (name, UUID, permission) and the
      * typeTableName.
      *
      * @param doorBaseRS
@@ -1017,8 +1017,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     /**
-     * Executes an update defined by a {@link PPreparedStatement} and returns the generated key index. See {@link
-     * Statement#RETURN_GENERATED_KEYS}.
+     * Executes an update defined by a {@link PPreparedStatement} and returns the generated key index. See
+     * {@link Statement#RETURN_GENERATED_KEYS}.
      *
      * @param pPreparedStatement
      *     The {@link PPreparedStatement}.
@@ -1045,8 +1045,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     /**
-     * Executes an update defined by a {@link PPreparedStatement} and returns the generated key index. See {@link
-     * Statement#RETURN_GENERATED_KEYS}.
+     * Executes an update defined by a {@link PPreparedStatement} and returns the generated key index. See
+     * {@link Statement#RETURN_GENERATED_KEYS}.
      *
      * @param conn
      *     A connection to the database.
