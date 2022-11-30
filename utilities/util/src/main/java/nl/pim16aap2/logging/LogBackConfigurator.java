@@ -199,8 +199,8 @@ public class LogBackConfigurator
     /**
      * Checks if file logging should be enabled.
      * <p>
-     * File logging should be enabled when {@link #logFile} is not null and can be used for logging. See {@link
-     * #ensureLogFileExists(Path)}.
+     * File logging should be enabled when {@link #logFile} is not null and can be used for logging. See
+     * {@link #ensureLogFileExists(Path)}.
      *
      * @return True if file logging should be enabled.
      */
@@ -214,7 +214,7 @@ public class LogBackConfigurator
         }
         catch (IOException | UnsupportedOperationException e)
         {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failed to enable file logging!", e);
         }
         return true;
     }
@@ -232,7 +232,10 @@ public class LogBackConfigurator
         throws IOException
     {
         if (!Files.isRegularFile(file))
+        {
+            Files.createDirectories(file.getParent());
             Files.createFile(file);
+        }
 
         if (!Files.isWritable(file) && !file.toFile().setWritable(true))
             throw new IOException("Failed to make file \"" + file + "\" writable! Is it a directory?");

@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
@@ -39,9 +40,9 @@ public final class LocalizationManager extends Restartable implements ILocalizat
     private @Nullable LocalizationGenerator patchGenerator;
 
     @Inject
-    public LocalizationManager(RestartableHolder restartableHolder, @Named("localizationBaseDir") Path baseDir,
-                               @Named("localizationBaseName") String baseName, IConfigLoader configLoader,
-                               DoorTypeManager doorTypeManager)
+    public LocalizationManager(
+        RestartableHolder restartableHolder, @Named("localizationBaseDir") Path baseDir,
+        @Named("localizationBaseName") String baseName, IConfigLoader configLoader, DoorTypeManager doorTypeManager)
     {
         super(restartableHolder);
         this.baseDir = baseDir;
@@ -98,14 +99,19 @@ public final class LocalizationManager extends Restartable implements ILocalizat
             final Map<LocaleFile, Map<String, String>> patches = new HashMap<>(patchFiles.size());
             patchFiles.forEach(localeFile -> patches.put(localeFile, localizationPatcher.getPatches(localeFile)));
 
+            final String patchedName = baseName + "_patched";
+
             final int patchCount = patches.values().stream().mapToInt(Map::size).sum();
             if (patchCount == 0)
+            {
+                Files.deleteIfExists(baseDir.resolve(patchedName + ".bundle"));
                 return;
+            }
 
             if (patchGenerator == null)
             {
-                patchGenerator = new LocalizationGenerator(baseDir, baseName + "_patched");
-                localizer.updateBundleLocation(baseDir, baseName + "_patched");
+                patchGenerator = new LocalizationGenerator(baseDir, patchedName);
+                localizer.updateBundleLocation(baseDir, patchedName);
             }
 
             // Satisfy NullAway, as it doesn't realize that targetGenerator cannot be null here.
