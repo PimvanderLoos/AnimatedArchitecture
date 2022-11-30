@@ -14,13 +14,14 @@ import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorOwner;
+import nl.pim16aap2.bigdoors.doors.PermissionLevel;
 import nl.pim16aap2.bigdoors.events.ICancellableBigDoorsEvent;
 import nl.pim16aap2.bigdoors.events.IDoorCreatedEvent;
 import nl.pim16aap2.bigdoors.events.IDoorEventCaller;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareCreateEvent;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareDeleteEvent;
 import nl.pim16aap2.bigdoors.storage.IStorage;
-import nl.pim16aap2.bigdoors.doors.DoorOwner;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
@@ -309,7 +310,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      *     The maximum level of ownership (inclusive) this player has over the {@link AbstractDoor}s.
      * @return All {@link AbstractDoor} owned by a player with a specific name.
      */
-    public CompletableFuture<List<AbstractDoor>> getDoors(UUID playerUUID, String name, int maxPermission)
+    public CompletableFuture<List<AbstractDoor>> getDoors(UUID playerUUID, String name, PermissionLevel maxPermission)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoors(playerUUID, name, maxPermission), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
@@ -462,7 +463,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
 
     /**
      * Adds a player as owner to a {@link AbstractDoor} at a given level of ownership and assumes that the door was NOT
-     * deleted by an {@link * IPPlayer}. See {@link #addOwner(AbstractDoor, IPPlayer, int, IPPlayer)}.
+     * deleted by an {@link IPPlayer}. See {@link #addOwner(AbstractDoor, IPPlayer, PermissionLevel, IPPlayer)}.
      *
      * @param door
      *     The {@link AbstractDoor}.
@@ -472,7 +473,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      *     The level of ownership.
      * @return The future result of the operation.
      */
-    public CompletableFuture<ActionResult> addOwner(AbstractDoor door, IPPlayer player, int permission)
+    public CompletableFuture<ActionResult> addOwner(AbstractDoor door, IPPlayer player, PermissionLevel permission)
     {
         return addOwner(door, player, permission, null);
     }
@@ -489,9 +490,9 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      * @return The future result of the operation.
      */
     public CompletableFuture<ActionResult> addOwner(
-        AbstractDoor door, IPPlayer player, int permission, @Nullable IPPlayer responsible)
+        AbstractDoor door, IPPlayer player, PermissionLevel permission, @Nullable IPPlayer responsible)
     {
-        if (permission < 1 || permission > 2)
+        if (permission.getValue() < 1 || permission == PermissionLevel.NO_PERMISSION)
             return CompletableFuture.completedFuture(ActionResult.FAIL);
 
         final var newOwner = new DoorOwner(door.getDoorUID(), permission, player.getPPlayerData());
@@ -604,7 +605,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
                                    playerUUID, door.getDoorUID());
             return CompletableFuture.completedFuture(ActionResult.FAIL);
         }
-        if (doorOwner.get().permission() == 0)
+        if (doorOwner.get().permission() == PermissionLevel.CREATOR)
         {
             log.at(Level.FINE).log("Trying to remove player: %s from door: %d, but the player is the prime owner! " +
                                        "This is not allowed!",
@@ -647,7 +648,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      * Retrieves all {@link DoorIdentifier}s that start with the provided input.
      * <p>
      * For example, this method can retrieve the identifiers "1", "10", "11", "100", etc from an input of "1" or
-     * "MyDoor", "MyPortcullis", "MyOtherDoor", etc from an input of "My".
+     * "MyDoor", "MyPortcullis", "MyOtherDoor", etc. from an input of "My".
      *
      * @param input
      *     The partial identifier to look for.
@@ -656,7 +657,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      * @return All {@link DoorIdentifier}s that start with the provided input.
      */
     public CompletableFuture<List<DoorIdentifier>> getIdentifiersFromPartial(
-        String input, @Nullable IPPlayer player, int maxPermission)
+        String input, @Nullable IPPlayer player, PermissionLevel maxPermission)
     {
         return CompletableFuture.supplyAsync(() -> db.getPartialIdentifiers(input, player, maxPermission), threadPool)
                                 .exceptionally(t -> Util.exceptionally(t, Collections.emptyList()));

@@ -45,7 +45,7 @@ class DoorSerializerTest
         final String doorName = "randomDoorName";
         final Vector3Di zeroPos = new Vector3Di(0, 0, 0);
         final PPlayerData playerData = new PPlayerData(UUID.randomUUID(), "player", -1, -1, true, true);
-        final DoorOwner doorOwner = new DoorOwner(1, 0, playerData);
+        final DoorOwner doorOwner = new DoorOwner(1, PermissionLevel.CREATOR, playerData);
 
         doorBase = factory.builder().uid(1).name(doorName).cuboid(new Cuboid(zeroPos, zeroPos)).rotationPoint(zeroPos)
                           .powerBlock(zeroPos).world(new TestPWorld("worldName")).isOpen(false).isLocked(false)

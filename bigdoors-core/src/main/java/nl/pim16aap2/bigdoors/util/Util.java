@@ -478,7 +478,7 @@ public final class Util
     public static boolean hasPermissionForAction(UUID uuid, AbstractDoor door, DoorAttribute attribute)
     {
         return door.getDoorOwner(uuid)
-                   .map(doorOwner -> doorOwner.permission() <= DoorAttribute.getPermissionLevel(attribute))
+                   .map(doorOwner -> doorOwner.permission().isLowerThanOrEquals(attribute.getPermissionLevel()))
                    .orElse(false);
     }
 

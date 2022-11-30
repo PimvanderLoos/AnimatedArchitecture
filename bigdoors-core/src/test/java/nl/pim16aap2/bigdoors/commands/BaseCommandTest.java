@@ -4,8 +4,8 @@ import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.doors.DoorAttribute;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,14 +56,14 @@ class BaseCommandTest
         final IPPlayer player = Mockito.mock(IPPlayer.class, Answers.CALLS_REAL_METHODS);
         UnitTestUtil.setField(BaseCommand.class, baseCommand, "commandSender", player);
 
-        Mockito.when(door.getDoorOwner(player)).thenReturn(Optional.of(doorOwner3));
+        Mockito.when(door.getDoorOwner(player)).thenReturn(Optional.of(doorOwnerNoPerm));
         Assertions.assertFalse(baseCommand.hasAccessToAttribute(door, DoorAttribute.DELETE, false));
         Assertions.assertTrue(baseCommand.hasAccessToAttribute(door, DoorAttribute.DELETE, true));
 
-        Mockito.when(door.getDoorOwner(player)).thenReturn(Optional.of(doorOwner1));
+        Mockito.when(door.getDoorOwner(player)).thenReturn(Optional.of(doorOwnerAdmin));
         Assertions.assertFalse(baseCommand.hasAccessToAttribute(door, DoorAttribute.DELETE, false));
 
-        Mockito.when(door.getDoorOwner(player)).thenReturn(Optional.of(doorOwner0));
+        Mockito.when(door.getDoorOwner(player)).thenReturn(Optional.of(doorOwnerCreator));
         Assertions.assertTrue(baseCommand.hasAccessToAttribute(door, DoorAttribute.DELETE, false));
     }
 

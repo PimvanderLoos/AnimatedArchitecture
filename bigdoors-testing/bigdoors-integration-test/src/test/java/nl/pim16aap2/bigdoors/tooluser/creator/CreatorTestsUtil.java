@@ -17,6 +17,8 @@ import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorBaseBuilder;
+import nl.pim16aap2.bigdoors.doors.DoorOwner;
+import nl.pim16aap2.bigdoors.doors.PermissionLevel;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
@@ -26,7 +28,6 @@ import nl.pim16aap2.bigdoors.testimplementations.TestPLocationFactory;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.doors.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.testing.AssistedFactoryMocker;
@@ -108,7 +109,7 @@ public class CreatorTestsUtil
 
         playerData = new PPlayerData(uuid, name, doorSizeLimit, doorCountLimit, true, true);
 
-        doorOwner = new DoorOwner(-1, 0, playerData);
+        doorOwner = new DoorOwner(-1, PermissionLevel.CREATOR, playerData);
 
         Mockito.when(player.getUUID()).thenReturn(uuid);
         Mockito.when(player.getName()).thenReturn(name);

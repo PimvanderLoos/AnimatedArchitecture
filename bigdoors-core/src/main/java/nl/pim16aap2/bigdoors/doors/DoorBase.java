@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.doors;
 
+import com.google.common.flogger.StackSize;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -245,12 +246,11 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     @Override
     protected void addOwner(UUID uuid, DoorOwner doorOwner)
     {
-        if (doorOwner.permission() == 0)
+        if (doorOwner.permission() == PermissionLevel.CREATOR)
         {
-            log.at(Level.SEVERE).withCause(new IllegalArgumentException(
-                "Failed to add owner: " + doorOwner.pPlayerData() + " as owner to door: " +
-                    getDoorUID() +
-                    " because a permission level of 0 is not allowed!")).log();
+            log.at(Level.SEVERE).withStackTrace(StackSize.FULL)
+               .log("Failed to add Owner '%s' as owner to door: %d because a permission level of 0 is not allowed!",
+                    doorOwner.pPlayerData(), getDoorUID());
             return;
         }
         doorOwners.put(uuid, doorOwner);

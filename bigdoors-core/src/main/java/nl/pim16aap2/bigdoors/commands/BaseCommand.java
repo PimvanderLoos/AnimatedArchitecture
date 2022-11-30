@@ -6,10 +6,10 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorAttribute;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
-import nl.pim16aap2.bigdoors.doors.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 
@@ -81,7 +81,7 @@ public abstract class BaseCommand
 
         return commandSender.getPlayer()
                             .flatMap(door::getDoorOwner)
-                            .map(doorOwner -> doorOwner.permission() <= doorAttribute.getPermissionLevel())
+                            .map(doorOwner -> doorAttribute.canAccessWith(doorOwner.permission()))
                             .orElse(false);
     }
 

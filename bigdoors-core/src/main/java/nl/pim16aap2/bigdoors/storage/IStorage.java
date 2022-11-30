@@ -4,9 +4,10 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorOwner;
+import nl.pim16aap2.bigdoors.doors.PermissionLevel;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
-import nl.pim16aap2.bigdoors.doors.DoorOwner;
 import nl.pim16aap2.bigdoors.util.IBitFlag;
 import org.jetbrains.annotations.Nullable;
 
@@ -195,7 +196,7 @@ public interface IStorage
      *     The maximum level of ownership (inclusive) this player has over the doors.
      * @return All the doors with the given name, owned the player with at least a certain permission level.
      */
-    List<AbstractDoor> getDoors(UUID playerUUID, String doorName, int maxPermission);
+    List<AbstractDoor> getDoors(UUID playerUUID, String doorName, PermissionLevel maxPermission);
 
     /**
      * Gets all the doors owned by a given player with at least a certain permission level.
@@ -206,7 +207,7 @@ public interface IStorage
      *     The maximum level of ownership (inclusive) this player has over the doors.
      * @return All the doors owned by the player with at least a certain permission level.
      */
-    List<AbstractDoor> getDoors(UUID playerUUID, int maxPermission);
+    List<AbstractDoor> getDoors(UUID playerUUID, PermissionLevel maxPermission);
 
     /**
      * Gets a map of location hashes and their connected powerblocks for all doors in a chunk.
@@ -255,8 +256,8 @@ public interface IStorage
     /**
      * Retrieves all {@link DatabaseManager.DoorIdentifier}s that start with the provided input.
      * <p>
-     * For example, this method can retrieve the identifiers "1", "10", "11", "100", etc from an input of "1" or
-     * "MyDoor", "MyPortcullis", "MyOtherDoor", etc from an input of "My".
+     * For example, this method can retrieve the identifiers "1", "10", "11", "100", etc. from an input of "1" or
+     * "MyDoor", "MyPortcullis", "MyOtherDoor", etc. from an input of "My".
      *
      * @param input
      *     The partial identifier to look for.
@@ -267,7 +268,7 @@ public interface IStorage
      * @return All {@link DatabaseManager.DoorIdentifier}s that start with the provided input.
      */
     List<DatabaseManager.DoorIdentifier> getPartialIdentifiers(
-        String input, @Nullable IPPlayer player, int maxPermission);
+        String input, @Nullable IPPlayer player, PermissionLevel maxPermission);
 
     /**
      * Deletes a {@link DoorType} and all {@link AbstractDoor}s of this type from the database.
@@ -282,7 +283,7 @@ public interface IStorage
     boolean deleteDoorType(DoorType doorType);
 
     /**
-     * Removes an owner of a door. Note that the original creator (= permission level 0) can never be removed.
+     * Removes an owner of a door. Note that the original creator can never be removed.
      *
      * @param doorUID
      *     The UID of the door to modify.
@@ -305,7 +306,7 @@ public interface IStorage
      *     The level of ownership the player will have over the door.
      * @return True if the update was successful.
      */
-    boolean addOwner(long doorUID, PPlayerData player, int permission);
+    boolean addOwner(long doorUID, PPlayerData player, PermissionLevel permission);
 
     /**
      * Gets the flag value of various boolean properties of a {@link AbstractDoor}.

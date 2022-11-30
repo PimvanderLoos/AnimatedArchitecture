@@ -12,7 +12,9 @@ import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorBaseBuilder;
+import nl.pim16aap2.bigdoors.doors.DoorOwner;
 import nl.pim16aap2.bigdoors.doors.DoorSerializer;
+import nl.pim16aap2.bigdoors.doors.PermissionLevel;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
@@ -21,7 +23,6 @@ import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.storage.PPreparedStatement;
 import nl.pim16aap2.bigdoors.storage.SQLStatement;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.doors.DoorOwner;
 import nl.pim16aap2.bigdoors.util.IBitFlag;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -48,6 +49,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -353,9 +355,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                                                        doorBaseRS.getInt("countLimit"),
                                                        doorBaseRS.getLong("permissions"));
 
-        final DoorOwner primeOwner = new DoorOwner(doorUID,
-                                                   doorBaseRS.getInt("permission"),
-                                                   playerData);
+        final DoorOwner primeOwner = new DoorOwner(
+            doorUID, Objects.requireNonNull(PermissionLevel.fromValue(doorBaseRS.getInt("permission"))), playerData);
 
         final Map<UUID, DoorOwner> doorOwners = getOwnersOfDoor(doorUID);
         final DoorBase doorData = doorBaseBuilder.builder().uid(doorUID).name(name).cuboid(new Cuboid(min, max))
@@ -481,7 +482,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
     @Override
     public List<DatabaseManager.DoorIdentifier> getPartialIdentifiers(
-        String input, @Nullable IPPlayer player, int maxPermission)
+        String input, @Nullable IPPlayer player, PermissionLevel maxPermission)
     {
         final PPreparedStatement query = Util.isNumerical(input) ?
                                          SQLStatement.GET_IDENTIFIERS_FROM_PARTIAL_UID_MATCH_WITH_OWNER
@@ -489,7 +490,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                                          SQLStatement.GET_IDENTIFIERS_FROM_PARTIAL_NAME_MATCH_WITH_OWNER
                                              .constructPPreparedStatement().setNextString(input);
 
-        query.setNextInt(maxPermission);
+        query.setNextInt(maxPermission.getValue());
 
         final @Nullable String uuid = player == null ? null : player.getUUID().toString();
         query.setNextString(uuid);
@@ -655,19 +656,19 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    public List<AbstractDoor> getDoors(UUID playerUUID, String doorName, int maxPermission)
+    public List<AbstractDoor> getDoors(UUID playerUUID, String doorName, PermissionLevel maxPermission)
     {
         return executeQuery(SQLStatement.GET_NAMED_DOORS_OWNED_BY_PLAYER.constructPPreparedStatement()
                                                                         .setString(1, playerUUID.toString())
                                                                         .setString(2, doorName)
-                                                                        .setInt(3, maxPermission),
+                                                                        .setInt(3, maxPermission.getValue()),
                             this::getDoors, Collections.emptyList());
     }
 
     @Override
     public List<AbstractDoor> getDoors(UUID playerUUID, String name)
     {
-        return getDoors(playerUUID, name, 0);
+        return getDoors(playerUUID, name, PermissionLevel.CREATOR);
     }
 
     @Override
@@ -679,18 +680,18 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    public List<AbstractDoor> getDoors(UUID playerUUID, int maxPermission)
+    public List<AbstractDoor> getDoors(UUID playerUUID, PermissionLevel maxPermission)
     {
         return executeQuery(SQLStatement.GET_DOORS_OWNED_BY_PLAYER_WITH_LEVEL.constructPPreparedStatement()
                                                                              .setString(1, playerUUID.toString())
-                                                                             .setInt(2, maxPermission),
+                                                                             .setInt(2, maxPermission.getValue()),
                             this::getDoors, Collections.emptyList());
     }
 
     @Override
     public List<AbstractDoor> getDoors(UUID playerUUID)
     {
-        return getDoors(playerUUID, 0);
+        return getDoors(playerUUID, PermissionLevel.CREATOR);
     }
 
     @Override
@@ -800,20 +801,26 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                                                         resultSet.getInt("countLimit"),
                                                         resultSet.getLong("permissions"));
 
-                                    ret.put(uuid, new DoorOwner(resultSet.getLong("doorUID"),
-                                                                resultSet.getInt("permission"),
-                                                                playerData));
+                                    ret.put(uuid, new DoorOwner(
+                                        resultSet.getLong("doorUID"),
+                                        Objects.requireNonNull(
+                                            PermissionLevel.fromValue(resultSet.getInt("permission"))),
+                                        playerData));
                                 }
                                 return ret;
                             }, new HashMap<>(0));
     }
 
     @Override
-    public boolean addOwner(long doorUID, PPlayerData player, int permission)
+    public boolean addOwner(long doorUID, PPlayerData player, PermissionLevel permission)
     {
         // permission level 0 is reserved for the creator, and negative values are not allowed.
-        if (permission < 1)
+        if (permission.getValue() < 1 || permission == PermissionLevel.NO_PERMISSION)
+        {
+            log.at(Level.INFO).withStackTrace(StackSize.FULL)
+               .log("Cannot add co-owner with permission level %d", permission.getValue());
             return false;
+        }
 
         return executeTransaction(
             conn ->
@@ -831,14 +838,15 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                                                             .setLong(2, doorUID),
                     rs ->
                     {
-                        final SQLStatement statement = (rs.next() && (rs.getInt("permission") != permission)) ?
-                                                       SQLStatement.UPDATE_DOOR_OWNER_PERMISSION :
-                                                       SQLStatement.INSERT_DOOR_OWNER;
+                        final SQLStatement statement =
+                            (rs.next() && (rs.getInt("permission") != permission.getValue())) ?
+                            SQLStatement.UPDATE_DOOR_OWNER_PERMISSION :
+                            SQLStatement.INSERT_DOOR_OWNER;
 
                         return
                             executeUpdate(conn, statement
                                 .constructPPreparedStatement()
-                                .setInt(1, permission)
+                                .setInt(1, permission.getValue())
                                 .setLong(2, playerID)
                                 .setLong(3, doorUID)) > 0;
                     }, false);
