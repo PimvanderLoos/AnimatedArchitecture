@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.api.factories;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorOwner;
 import nl.pim16aap2.bigdoors.events.IBigDoorsEvent;
 import nl.pim16aap2.bigdoors.events.IDoorCreatedEvent;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareAddOwnerEvent;
@@ -15,7 +16,6 @@ import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleEnd;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleStart;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.doors.DoorOwner;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -108,8 +108,7 @@ public interface IBigDoorsEventFactory
      *     The {@link IPPlayer} responsible for the action, if a player was responsible for it.
      */
     IDoorPrepareAddOwnerEvent createDoorPrepareAddOwnerEvent(
-        AbstractDoor door, DoorOwner newOwner,
-        @Nullable IPPlayer responsible);
+        AbstractDoor door, DoorOwner newOwner, @Nullable IPPlayer responsible);
 
     /**
      * Constructs a new {@link IDoorPrepareAddOwnerEvent} and assumes it was not added by an {@link IPPlayer}.
@@ -138,8 +137,7 @@ public interface IBigDoorsEventFactory
      *     The {@link IPPlayer} responsible for the action, if a player was responsible for it.
      */
     IDoorPrepareRemoveOwnerEvent createDoorPrepareRemoveOwnerEvent(
-        AbstractDoor door, DoorOwner removedOwner,
-        @Nullable IPPlayer responsible);
+        AbstractDoor door, DoorOwner removedOwner, @Nullable IPPlayer responsible);
 
     /**
      * Constructs a new {@link IDoorPrepareRemoveOwnerEvent} and assumes the owner was not removed by an
@@ -170,8 +168,7 @@ public interface IBigDoorsEventFactory
      *     The {@link IPPlayer} responsible for the action, if a player was responsible for it.
      */
     IDoorPrepareLockChangeEvent createDoorPrepareLockChangeEvent(
-        AbstractDoor door, boolean newLockStatus,
-        @Nullable IPPlayer responsible);
+        AbstractDoor door, boolean newLockStatus, @Nullable IPPlayer responsible);
 
     /**
      * Constructs a new {@link IDoorPrepareLockChangeEvent} and assumes it was not added by an {@link IPPlayer}.
@@ -210,8 +207,7 @@ public interface IBigDoorsEventFactory
      *     The {@link Cuboid} representing the area the door will take up after the toggle.
      */
     IDoorEventTogglePrepare createTogglePrepareEvent(
-        AbstractDoor door, DoorActionCause cause,
-        DoorActionType actionType, IPPlayer responsible, double time,
+        AbstractDoor door, DoorActionCause cause, DoorActionType actionType, IPPlayer responsible, double time,
         boolean skipAnimation, Cuboid newCuboid);
 
     /**
@@ -235,9 +231,8 @@ public interface IBigDoorsEventFactory
      *     The {@link Cuboid} representing the area the door will take up after the toggle.
      */
     IDoorEventToggleStart createToggleStartEvent(
-        AbstractDoor door, DoorActionCause cause, DoorActionType actionType,
-        IPPlayer responsible, double time, boolean skipAnimation,
-        Cuboid newCuboid);
+        AbstractDoor door, DoorActionCause cause, DoorActionType actionType, IPPlayer responsible, double time,
+        boolean skipAnimation, Cuboid newCuboid);
 
     /**
      * Constructs a {@link IDoorEventToggleEnd}.
@@ -258,6 +253,6 @@ public interface IBigDoorsEventFactory
      *     If true, the door will skip the animation and open instantly.
      */
     IDoorEventToggleEnd createToggleEndEvent(
-        AbstractDoor door, DoorActionCause cause, DoorActionType actionType,
-        IPPlayer responsible, double time, boolean skipAnimation);
+        AbstractDoor door, DoorActionCause cause, DoorActionType actionType, IPPlayer responsible, double time,
+        boolean skipAnimation);
 }
