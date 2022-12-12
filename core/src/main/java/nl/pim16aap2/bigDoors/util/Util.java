@@ -506,8 +506,8 @@ public final class Util
         }
         catch (Exception e)
         {
-            BigDoors.get().getMyLogger().warn("Could not determine material of mat: " + mat.name());
-            e.printStackTrace();
+            BigDoors.get().getMyLogger().warn("Could not determine material of mat: " + mat.name() +
+                                                  ". Reason: " + e.getMessage());
             return null;
         }
     }
