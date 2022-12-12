@@ -167,15 +167,16 @@ public class BigDoors extends JavaPlugin implements Listener
         {
             if (!getConfigLoader().unsafeMode())
             {
-                String error = "This plugin is disabled because it is running in an invalid environment: "
-                    + disableReason.get();
+                String error = "This plugin is disabled because it is running in an invalid environment: '"
+                    + disableReason.get() +
+                    "'. This can be bypassed in the config if you are feeling adventurous (unsafeMode).";
                 logger.logMessage(error, true, true);
                 setDisabled(error);
                 return;
             }
             else if (config.unsafeModeNotification())
-                loginMessages.add("You are trying to load this plugin in an unsupported environment: \""
-                                      + disableReason.get() + "\"!!!");
+                loginMessages.add("You are trying to load this plugin in an unsupported environment: '"
+                                      + disableReason.get() + "'. This may cause issues!");
         }
 
         logger.logMessageToLogFile("Starting BigDoors version: " + getDescription().getVersion());
