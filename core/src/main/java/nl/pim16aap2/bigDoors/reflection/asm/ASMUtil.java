@@ -183,7 +183,7 @@ public final class ASMUtil
         return cv.replacementVisitor;
     }
 
-    private static ClassReader getClassReader(Class<?> clz)
+    public static ClassReader getClassReader(Class<?> clz)
         throws IOException
     {
         final String classAsPath = getClassName(clz) + ".class";

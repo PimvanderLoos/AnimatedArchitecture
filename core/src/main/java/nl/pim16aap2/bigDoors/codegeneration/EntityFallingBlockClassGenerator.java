@@ -20,6 +20,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collections;
+import java.util.Objects;
 
 import static net.bytebuddy.implementation.FixedValue.value;
 import static net.bytebuddy.implementation.MethodCall.construct;
@@ -111,7 +112,6 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
         builder = addAuxiliaryMethods(builder);
         builder = addTickMethod(builder);
         builder = addCrashReportMethod(builder);
-
         finishBuilder(builder);
     }
 
@@ -213,12 +213,25 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
                     baseObject.generated$loadTileEntityData(compound);
             }, ILoadDataDelegation.class));
 
+        final MethodCall deserializedInvocation;
+        if (methodIBlockDataDeserializer.getParameterCount() == 1)
+        {
+            deserializedInvocation = invoke(methodIBlockDataDeserializer)
+                .withMethodCall(invoke(methodNBTTagCompoundGetCompound).onArgument(0).with("BlockState"));
+        }
+        else if (methodIBlockDataDeserializer.getParameterCount() == 2)
+        {
+            Objects.requireNonNull(methodWorldReaderHolderLookup);
+            deserializedInvocation = invoke(methodIBlockDataDeserializer)
+                .withMethodCall(invoke(methodWorldReaderHolderLookup).onField(fieldNMSWorld).with(objectRegistryBlock))
+                .withMethodCall(invoke(methodNBTTagCompoundGetCompound).onArgument(0).with("BlockState"));
+        }
+        else
+            throw new IllegalStateException("Method IBlockDataDeserializer has unexpected number of parameters!");
+
         builder = builder
             .define(methodLoadData)
-            .intercept(invoke(methodIBlockDataDeserializer)
-                           .withMethodCall(invoke(methodNBTTagCompoundGetCompound)
-                                               .onArgument(0).with("BlockState"))
-                           .setsField(named(FIELD_BLOCK)).andThen(
+            .intercept(deserializedInvocation.setsField(named(FIELD_BLOCK)).andThen(
                     invoke(methodNBTTagCompoundGetInt)
                         .onArgument(0).with("Time").setsField(fieldTicksLived)).andThen(
                     invoke(named(METHOD_NAME_LOAD_DATA_CONDITIONAL))
