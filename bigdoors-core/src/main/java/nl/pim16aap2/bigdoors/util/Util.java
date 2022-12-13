@@ -6,6 +6,7 @@ import lombok.val;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Contract;
@@ -287,8 +288,8 @@ public final class Util
      *     The search predicate to use.
      * @param <T>
      *     The type of objects stored in the {@link Iterable}.
-     * @return The value in the {@link Iterable} object for which the search function returns true, otherwise {@link
-     * Optional#empty()}.
+     * @return The value in the {@link Iterable} object for which the search function returns true, otherwise
+     * {@link Optional#empty()}.
      */
     public <T> Optional<T> searchIterable(Iterable<T> iterable, Predicate<T> searchPred)
     {
@@ -319,8 +320,8 @@ public final class Util
      *
      * @param pBlockFace
      *     The {@link PBlockFace}.
-     * @return The {@link RotateDirection} equivalent of a {@link PBlockFace} if it exists and otherwise {@link
-     * RotateDirection#NONE}.
+     * @return The {@link RotateDirection} equivalent of a {@link PBlockFace} if it exists and otherwise
+     * {@link RotateDirection#NONE}.
      */
     public static RotateDirection getRotateDirection(PBlockFace pBlockFace)
     {
@@ -332,8 +333,8 @@ public final class Util
      *
      * @param rotateDirection
      *     The {@link RotateDirection}.
-     * @return The {@link PBlockFace} equivalent of a {@link RotateDirection} if it exists and otherwise {@link
-     * PBlockFace#NONE}.
+     * @return The {@link PBlockFace} equivalent of a {@link RotateDirection} if it exists and otherwise
+     * {@link PBlockFace#NONE}.
      */
     public static PBlockFace getPBlockFace(RotateDirection rotateDirection)
     {
@@ -477,7 +478,7 @@ public final class Util
     public static boolean hasPermissionForAction(UUID uuid, AbstractDoor door, DoorAttribute attribute)
     {
         return door.getDoorOwner(uuid)
-                   .map(doorOwner -> doorOwner.permission() <= DoorAttribute.getPermissionLevel(attribute))
+                   .map(doorOwner -> doorOwner.permission().isLowerThanOrEquals(attribute.getPermissionLevel()))
                    .orElse(false);
     }
 

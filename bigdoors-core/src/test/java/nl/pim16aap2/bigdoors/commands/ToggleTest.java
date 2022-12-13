@@ -100,7 +100,7 @@ class ToggleTest
         Mockito.verify(doorToggleRequestFactory).create(doorRetriever, DoorActionCause.PLAYER, commandSender,
                                                         commandSender, 0.0D, false, DoorActionType.TOGGLE);
 
-        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(CommandTestingUtil.doorOwner0));
+        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(CommandTestingUtil.doorOwnerCreator));
         toggle.executeCommand(new PermissionsStatus(true, false)).get(1, TimeUnit.SECONDS);
         Mockito.verify(doorToggleRequestFactory, Mockito.times(2)).create(doorRetriever, DoorActionCause.PLAYER,
                                                                           commandSender, commandSender,

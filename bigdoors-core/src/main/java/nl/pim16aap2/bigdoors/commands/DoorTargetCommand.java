@@ -5,7 +5,7 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.util.DoorAttribute;
+import nl.pim16aap2.bigdoors.doors.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
 
@@ -27,8 +27,9 @@ public abstract class DoorTargetCommand extends BaseCommand
 
     private final DoorAttribute doorAttribute;
 
-    protected DoorTargetCommand(ICommandSender commandSender, ILocalizer localizer,
-                                DoorRetriever doorRetriever, DoorAttribute doorAttribute)
+    protected DoorTargetCommand(
+        ICommandSender commandSender, ILocalizer localizer,
+        DoorRetriever doorRetriever, DoorAttribute doorAttribute)
     {
         super(commandSender, localizer);
         this.doorRetriever = doorRetriever;

@@ -13,7 +13,9 @@ import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorBaseBuilder;
+import nl.pim16aap2.bigdoors.doors.DoorOwner;
 import nl.pim16aap2.bigdoors.doors.DoorSerializer;
+import nl.pim16aap2.bigdoors.doors.PermissionLevel;
 import nl.pim16aap2.bigdoors.doors.bigdoor.BigDoor;
 import nl.pim16aap2.bigdoors.doors.bigdoor.DoorTypeBigDoor;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.ITimerToggleable;
@@ -27,7 +29,6 @@ import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.testimplementations.TestPWorld;
 import nl.pim16aap2.bigdoors.testimplementations.TestPWorldFactory;
-import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -154,10 +155,14 @@ public class SQLiteJDBCDriverConnectionTest
     public static void cleanup()
     {
         final Path finishedDB = DB_FILE.resolveSibling(DB_FILE.getFileName() + ".FINISHED");
-        try {
+        try
+        {
             Files.move(DB_FILE, finishedDB, StandardCopyOption.REPLACE_EXISTING);
-        } catch (FileSystemException exception) {
-            log.error("Failed to move database file to finished file. This is a Windows-Only Error and can be ignored.", exception);
+        }
+        catch (FileSystemException exception)
+        {
+            log.error("Failed to move database file to finished file. This is a Windows-Only Error and can be ignored.",
+                      exception);
         }
 
         Files.deleteIfExists(DB_FILE_BACKUP);
@@ -260,11 +265,11 @@ public class SQLiteJDBCDriverConnectionTest
     {
         Assertions.assertEquals(List.of(new DatabaseManager.DoorIdentifier(2, "popular_door_name"),
                                         new DatabaseManager.DoorIdentifier(3, "popular_door_name")),
-                                storage.getPartialIdentifiers("popular_", null, 99));
+                                storage.getPartialIdentifiers("popular_", null, PermissionLevel.NO_PERMISSION));
 
         final IPPlayer player1 = createPlayer(PLAYER_DATA_1);
         Assertions.assertEquals(List.of(new DatabaseManager.DoorIdentifier(2, "popular_door_name")),
-                                storage.getPartialIdentifiers("popular_", player1, 99));
+                                storage.getPartialIdentifiers("popular_", player1, PermissionLevel.NO_PERMISSION));
     }
 
     public void partialIdentifiersFromId()
@@ -275,11 +280,11 @@ public class SQLiteJDBCDriverConnectionTest
                                         new DatabaseManager.DoorIdentifier(17, "popular_door_name"),
                                         new DatabaseManager.DoorIdentifier(18, "popular_door_name"),
                                         new DatabaseManager.DoorIdentifier(19, "popular_door_name")),
-                                storage.getPartialIdentifiers("1", null, 99));
+                                storage.getPartialIdentifiers("1", null, PermissionLevel.NO_PERMISSION));
 
         final IPPlayer player1 = createPlayer(PLAYER_DATA_1);
         Assertions.assertEquals(List.of(new DatabaseManager.DoorIdentifier(1, "random_door_name")),
-                                storage.getPartialIdentifiers("1", player1, 99));
+                                storage.getPartialIdentifiers("1", player1, PermissionLevel.NO_PERMISSION));
     }
 
     /**
@@ -312,45 +317,47 @@ public class SQLiteJDBCDriverConnectionTest
         UnitTestUtil.optionalEquals(1, storage.getDoor(1L), (door) -> door.getDoorOwners().size());
 
         // Try adding playerData2 as owner of door 2.
-        Assertions.assertTrue(storage.addOwner(2L, PLAYER_DATA_2, 1));
+        Assertions.assertTrue(storage.addOwner(2L, PLAYER_DATA_2, PermissionLevel.ADMIN));
 
         // Try adding player 1 as owner of door 2, while player 1 is already the creator! This is not allowed.
-        Assertions.assertFalse(storage.addOwner(2L, PLAYER_DATA_1, 0));
+        Assertions.assertFalse(storage.addOwner(2L, PLAYER_DATA_1, PermissionLevel.CREATOR));
 
         // Try adding player 2 as owner of door 2, while player 1 is already the creator! This is not allowed.
-        Assertions.assertFalse(storage.addOwner(2L, PLAYER_DATA_2, 0));
+        Assertions.assertFalse(storage.addOwner(2L, PLAYER_DATA_2, PermissionLevel.CREATOR));
 
         // Try adding a player that is not in the database yet as owner.
         UnitTestUtil.optionalEquals(1, storage.getDoor(1L), (door) -> door.getDoorOwners().size());
-        Assertions.assertTrue(storage.addOwner(1L, PLAYER_DATA_3, 1));
+        Assertions.assertTrue(storage.addOwner(1L, PLAYER_DATA_3, PermissionLevel.ADMIN));
         UnitTestUtil.optionalEquals(2, storage.getDoor(1L), (door) -> door.getDoorOwners().size());
 
         // Verify the permission level of player 2 over door 2.
-        UnitTestUtil.optionalEquals(1, storage.getDoor(2L),
+        UnitTestUtil.optionalEquals(PermissionLevel.ADMIN, storage.getDoor(2L),
                                     (door) -> door.getDoorOwner(PLAYER_DATA_2.getUUID()).map(DoorOwner::permission)
-                                                  .orElse(-1));
+                                                  .orElse(PermissionLevel.NO_PERMISSION));
         // Verify there are only 2 owners of door 2 (player 1 didn't get copied).
         UnitTestUtil.optionalEquals(2, storage.getDoor(2L), (door) -> door.getDoorOwners().size());
 
         // Verify that player 2 is the creator of exactly 1 door.
-        Assertions.assertEquals(1, storage.getDoors(PLAYER_DATA_2.getUUID(), 0).size());
+        Assertions.assertEquals(1, storage.getDoors(PLAYER_DATA_2.getUUID(), PermissionLevel.CREATOR).size());
 
         // Verify that player 2 is owner with permission level <= 1 of exactly 2 doors (door 3 (0) and door 2 (1)).
-        Assertions.assertEquals(2, storage.getDoors(PLAYER_DATA_2.getUUID(), 1).size());
+        Assertions.assertEquals(2, storage.getDoors(PLAYER_DATA_2.getUUID(), PermissionLevel.ADMIN).size());
 
         // Verify that player 2 is owner with permission level <= 1 of exactly 2 doors,
         // with the name shared between doors 2 and 3.
-        Assertions.assertEquals(2, storage.getDoors(PLAYER_DATA_2.getUUID(), DOORS_2_3_NAME, 1).size());
+        Assertions.assertEquals(2, storage.getDoors(PLAYER_DATA_2.getUUID(), DOORS_2_3_NAME, PermissionLevel.ADMIN)
+                                          .size());
 
         // Verify that player 2 is owner with permission level <= 1 of exactly 1 door,
         // with the name shared between doors 2 and 3.
-        Assertions.assertEquals(1, storage.getDoors(PLAYER_DATA_2.getUUID(), DOORS_2_3_NAME, 0).size());
+        Assertions.assertEquals(1, storage.getDoors(PLAYER_DATA_2.getUUID(), DOORS_2_3_NAME, PermissionLevel.CREATOR)
+                                          .size());
 
         // Verify that adding an existing owner overrides the permission level.
-        Assertions.assertTrue(storage.addOwner(2L, PLAYER_DATA_2, 2));
-        UnitTestUtil.optionalEquals(2, storage.getDoor(2L),
+        Assertions.assertTrue(storage.addOwner(2L, PLAYER_DATA_2, PermissionLevel.USER));
+        UnitTestUtil.optionalEquals(PermissionLevel.USER, storage.getDoor(2L),
                                     (door) -> door.getDoorOwner(PLAYER_DATA_2.getUUID()).map(DoorOwner::permission)
-                                                  .orElse(-1));
+                                                  .orElse(PermissionLevel.NO_PERMISSION));
 
         // Remove player 2 as owner of door 2.
         Assertions.assertTrue(storage.removeOwner(2L, PLAYER_DATA_2.getUUID()));
@@ -362,7 +369,8 @@ public class SQLiteJDBCDriverConnectionTest
 
         // Verify that after deletion of player 2 as owner, player 2 is now owner with permission level <= 1
         // of exactly 1 door, with the name shared between doors 2 and 3. This will be door 3.
-        Assertions.assertEquals(1, storage.getDoors(PLAYER_DATA_2.getUUID(), DOORS_2_3_NAME, 1).size());
+        Assertions.assertEquals(1, storage.getDoors(PLAYER_DATA_2.getUUID(), DOORS_2_3_NAME, PermissionLevel.ADMIN)
+                                          .size());
 
         // Verify that player 1 is owner of exactly 1 door with the name shared between doors 2 and 3.
         Assertions.assertEquals(1, storage.getDoors(PLAYER_DATA_1.getUUID(), DOORS_2_3_NAME).size());
@@ -593,7 +601,8 @@ public class SQLiteJDBCDriverConnectionTest
                                            .uid(1).name(DOOR_1_NAME).cuboid(min, max).rotationPoint(rotationPoint)
                                            .powerBlock(powerBlock)
                                            .world(WORLD).isOpen(false).isLocked(false).openDir(RotateDirection.EAST)
-                                           .primeOwner(new DoorOwner(1, 0, PLAYER_DATA_1)).build(),
+                                           .primeOwner(new DoorOwner(1, PermissionLevel.CREATOR, PLAYER_DATA_1))
+                                           .build(),
                             autoClose, autoOpen);
 
 
@@ -608,7 +617,8 @@ public class SQLiteJDBCDriverConnectionTest
                                               .uid(2).name(DOORS_2_3_NAME).cuboid(min, max).rotationPoint(rotationPoint)
                                               .powerBlock(powerBlock).world(WORLD).isOpen(false)
                                               .isLocked(false).openDir(RotateDirection.NONE)
-                                              .primeOwner(new DoorOwner(2, 0, PLAYER_DATA_1)).build(),
+                                              .primeOwner(new DoorOwner(2, PermissionLevel.CREATOR, PLAYER_DATA_1))
+                                              .build(),
                                autoClose, autoOpen, modeUp);
 
 
@@ -623,7 +633,8 @@ public class SQLiteJDBCDriverConnectionTest
                                               .uid(3).name(DOORS_2_3_NAME).cuboid(min, max).rotationPoint(rotationPoint)
                                               .powerBlock(powerBlock).world(WORLD).isOpen(false)
                                               .isLocked(false).openDir(RotateDirection.UP)
-                                              .primeOwner(new DoorOwner(3, 0, PLAYER_DATA_2)).build(),
+                                              .primeOwner(new DoorOwner(3, PermissionLevel.CREATOR, PLAYER_DATA_2))
+                                              .build(),
                                blocksToMove, autoClose, autoOpen);
     }
 

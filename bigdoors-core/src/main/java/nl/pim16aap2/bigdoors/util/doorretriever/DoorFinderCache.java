@@ -4,6 +4,7 @@ import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.commands.ICommandSender;
 import nl.pim16aap2.bigdoors.data.cache.timed.TimedCache;
+import nl.pim16aap2.bigdoors.doors.PermissionLevel;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 
 import javax.inject.Inject;
@@ -41,13 +42,13 @@ import java.time.Duration;
      *     sender is not a player.
      * @return The {@link DoorFinder} mapped for the provided {@link ICommandSender}.
      */
-    DoorFinder getDoorFinder(ICommandSender commandSender, String input, int maxPermission)
+    DoorFinder getDoorFinder(ICommandSender commandSender, String input, PermissionLevel maxPermission)
     {
         return cache.compute(commandSender, (sender, finder) ->
             finder == null ? newInstance(sender, input, maxPermission) : finder.processInput(input));
     }
 
-    private DoorFinder newInstance(ICommandSender commandSender, String input, int maxPermission)
+    private DoorFinder newInstance(ICommandSender commandSender, String input, PermissionLevel maxPermission)
     {
         return new DoorFinder(doorRetrieverFactoryProvider.get(), databaseManager, commandSender, input, maxPermission);
     }

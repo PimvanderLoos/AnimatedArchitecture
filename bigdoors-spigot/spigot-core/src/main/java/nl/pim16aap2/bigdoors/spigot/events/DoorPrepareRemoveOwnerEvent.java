@@ -6,7 +6,7 @@ import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareRemoveOwnerEvent;
-import nl.pim16aap2.bigdoors.util.DoorOwner;
+import nl.pim16aap2.bigdoors.doors.DoorOwner;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

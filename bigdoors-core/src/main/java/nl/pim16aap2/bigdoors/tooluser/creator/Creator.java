@@ -10,6 +10,8 @@ import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorBaseBuilder;
+import nl.pim16aap2.bigdoors.doors.DoorOwner;
+import nl.pim16aap2.bigdoors.doors.PermissionLevel;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
@@ -22,7 +24,6 @@ import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorPLocation;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorString;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorVoid;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.Limit;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -241,7 +242,7 @@ public abstract class Creator extends ToolUser
     protected final DoorBase constructDoorData()
     {
         final long doorUID = -1;
-        final var owner = new DoorOwner(doorUID, 0, getPlayer().getPPlayerData());
+        final var owner = new DoorOwner(doorUID, PermissionLevel.CREATOR, getPlayer().getPPlayerData());
 
         return doorBaseBuilder
             .builder()

@@ -6,10 +6,10 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorAttribute;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
-import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 
@@ -81,7 +81,7 @@ public abstract class BaseCommand
 
         return commandSender.getPlayer()
                             .flatMap(door::getDoorOwner)
-                            .map(doorOwner -> doorOwner.permission() <= doorAttribute.getPermissionLevel())
+                            .map(doorOwner -> doorAttribute.canAccessWith(doorOwner.permission()))
                             .orElse(false);
     }
 
@@ -222,8 +222,8 @@ public abstract class BaseCommand
     }
 
     /**
-     * Attempts to get an {@link DoorBase} based on the provided {@link DoorRetrieverFactory} and the current {@link
-     * ICommandSender}.
+     * Attempts to get an {@link DoorBase} based on the provided {@link DoorRetrieverFactory} and the current
+     * {@link ICommandSender}.
      * <p>
      * If no door is found, the {@link ICommandSender} will be informed.
      *
@@ -246,8 +246,8 @@ public abstract class BaseCommand
     }
 
     /**
-     * Checks if the {@link ICommandSender} has the required permissions to use this command. See {@link
-     * CommandDefinition#getUserPermission()} and {@link CommandDefinition#getAdminPermission()}.
+     * Checks if the {@link ICommandSender} has the required permissions to use this command. See
+     * {@link CommandDefinition#getUserPermission()} and {@link CommandDefinition#getAdminPermission()}.
      *
      * @return A pair of booleans that indicates whether the user has access to the user and admin permission nodes
      * respectively. For both, true indicates that they do have access to the node and false that they do not.

@@ -79,11 +79,11 @@ class RemoveOwnerTest
         Assertions.assertFalse(removeOwner.isAllowed(door, true));
 
         // Removing the level0 owner is not allowed even with bypass enabled!
-        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwner0));
+        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwnerCreator));
         Assertions.assertFalse(removeOwner.isAllowed(door, true));
 
         // Removing level>0 owners IS allowed with bypass even if
-        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwner1));
+        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwnerAdmin));
         Assertions.assertTrue(removeOwner.isAllowed(door, true));
     }
 
@@ -92,11 +92,11 @@ class RemoveOwnerTest
     {
         final RemoveOwner removeOwner = factory.newRemoveOwner(commandSender, doorRetriever, target);
 
-        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner0));
-        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwner1));
+        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwnerCreator));
+        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwnerAdmin));
         Assertions.assertTrue(removeOwner.isAllowed(door, false));
 
-        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwner2));
+        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwnerUser));
         Assertions.assertTrue(removeOwner.isAllowed(door, false));
     }
 
@@ -105,26 +105,26 @@ class RemoveOwnerTest
     {
         final RemoveOwner removeOwner = factory.newRemoveOwner(commandSender, doorRetriever, target);
 
-        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwner0));
-        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner0));
+        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwnerCreator));
+        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwnerCreator));
         Assertions.assertFalse(removeOwner.isAllowed(door, false));
 
-        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner1));
+        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwnerAdmin));
         Assertions.assertFalse(removeOwner.isAllowed(door, false));
 
-        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner1));
+        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwnerAdmin));
         Assertions.assertFalse(removeOwner.isAllowed(door, false));
 
-        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwner1));
+        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwnerAdmin));
         Assertions.assertFalse(removeOwner.isAllowed(door, false));
 
-        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwner2));
+        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwnerUser));
         Assertions.assertTrue(removeOwner.isAllowed(door, false));
 
-        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwner2));
+        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwnerUser));
         Assertions.assertTrue(removeOwner.isAllowed(door, false));
 
-        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner2));
+        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwnerUser));
         Assertions.assertFalse(removeOwner.isAllowed(door, true));
 
         Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.empty());
@@ -157,8 +157,8 @@ class RemoveOwnerTest
     @SneakyThrows
     void testDatabaseInteraction()
     {
-        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner0));
-        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwner1));
+        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwnerCreator));
+        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwnerAdmin));
 
         final CompletableFuture<Boolean> result = factory.newRemoveOwner(commandSender, doorRetriever, target).run();
         Assertions.assertTrue(result.get(1, TimeUnit.SECONDS));

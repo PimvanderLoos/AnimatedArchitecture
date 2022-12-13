@@ -8,7 +8,7 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.util.DoorAttribute;
+import nl.pim16aap2.bigdoors.doors.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 

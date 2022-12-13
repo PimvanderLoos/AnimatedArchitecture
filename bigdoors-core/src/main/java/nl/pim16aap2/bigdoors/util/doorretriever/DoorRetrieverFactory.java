@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.util.doorretriever;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.commands.ICommandSender;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.PermissionLevel;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -101,10 +102,11 @@ public final class DoorRetrieverFactory
      *     The mode to use for obtaining a {@link DoorFinder} instance. Defaults to {@link DoorFinderMode#USE_CACHE}.
      * @param maxPermission
      *     The maximum permission (inclusive) of the door owner of the doors to find. Does not apply if the command
-     *     sender is not a player. Defaults to 0.
+     *     sender is not a player. Defaults to {@link PermissionLevel#CREATOR}.
      * @return The {@link DoorFinder} instance.
      */
-    public DoorFinder search(ICommandSender commandSender, String input, DoorFinderMode mode, int maxPermission)
+    public DoorFinder search(
+        ICommandSender commandSender, String input, DoorFinderMode mode, PermissionLevel maxPermission)
     {
         return mode == DoorFinderMode.USE_CACHE ?
                doorFinderCache.getDoorFinder(commandSender, input, maxPermission) :
@@ -114,7 +116,7 @@ public final class DoorRetrieverFactory
     /**
      * See {@link #search(ICommandSender, String, DoorFinderMode)}.
      */
-    public DoorFinder search(ICommandSender commandSender, String input, int maxPermission)
+    public DoorFinder search(ICommandSender commandSender, String input, PermissionLevel maxPermission)
     {
         return search(commandSender, input, DoorFinderMode.USE_CACHE, maxPermission);
     }
@@ -128,11 +130,11 @@ public final class DoorRetrieverFactory
     }
 
     /**
-     * See {@link #search(ICommandSender, String, DoorFinderMode, int)}.
+     * See {@link #search(ICommandSender, String, DoorFinderMode, PermissionLevel)}.
      */
     public DoorFinder search(ICommandSender commandSender, String input, DoorFinderMode mode)
     {
-        return search(commandSender, input, mode, 0);
+        return search(commandSender, input, mode, PermissionLevel.CREATOR);
     }
 
     /**

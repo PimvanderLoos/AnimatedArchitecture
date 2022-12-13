@@ -20,7 +20,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.doorOwner0;
+import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.doorOwnerCreator;
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initCommandSenderPermissions;
 
 class InfoTest
@@ -84,7 +84,7 @@ class InfoTest
         Mockito.verify(player).sendMessage(doorString);
 
         initCommandSenderPermissions(player, true, false);
-        Mockito.when(door.getDoorOwner(player)).thenReturn(Optional.of(doorOwner0));
+        Mockito.when(door.getDoorOwner(player)).thenReturn(Optional.of(doorOwnerCreator));
         Assertions.assertTrue(factory.newInfo(player, doorRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(glowingBlockSpawner, Mockito.times(2))
                .spawnGlowingBlocks(Mockito.any(), Mockito.any(), Mockito.any());

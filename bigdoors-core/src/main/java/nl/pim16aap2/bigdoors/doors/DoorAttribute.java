@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.util;
+package nl.pim16aap2.bigdoors.doors;
 
 
 import lombok.Getter;
@@ -13,79 +13,79 @@ public enum DoorAttribute
     /**
      * (Un)lock the door.
      */
-    LOCK(2),
+    LOCK(PermissionLevel.USER),
 
     /**
      * Toggle the door. If it is currently opened, it will be closed. If it is currently closed, it will be opened
      * instead.
      */
-    TOGGLE(2),
+    TOGGLE(PermissionLevel.USER),
 
     /**
      * Turns a door on or off. When on, the door will rotate until turned off or until the chunks are unloaded.
      */
-    SWITCH(2),
+    SWITCH(PermissionLevel.USER),
 
     /**
      * Get the info of the door.
      */
-    INFO(2),
+    INFO(PermissionLevel.USER),
 
     /**
      * Delete the door.
      */
-    DELETE(0),
+    DELETE(PermissionLevel.CREATOR),
 
     /**
      * Relocate the power block.
      */
-    RELOCATE_POWERBLOCK(1),
+    RELOCATE_POWERBLOCK(PermissionLevel.ADMIN),
 
     /**
      * The auto close timer of this door. i.e. the amount of time it will wait before automatically closing.
      */
-    AUTO_CLOSE_TIMER(1),
+    AUTO_CLOSE_TIMER(PermissionLevel.ADMIN),
 
     /**
      * The open direction of a door.
      */
-    OPEN_DIRECTION(2),
+    OPEN_DIRECTION(PermissionLevel.USER),
 
     /**
      * The number of blocks an animated will try to move.
      */
-    BLOCKS_TO_MOVE(1),
+    BLOCKS_TO_MOVE(PermissionLevel.ADMIN),
 
     /**
      * Add an owner.
      */
-    ADD_OWNER(1),
+    ADD_OWNER(PermissionLevel.ADMIN),
 
     /**
      * Remove an owner.
      */
-    REMOVE_OWNER(1);
+    REMOVE_OWNER(PermissionLevel.ADMIN);
 
     /**
-     * The minimum level of ownership (0 = highest) required to access an attribute.
+     * The minimum level of ownership required to access an attribute.
      */
     @Getter
-    private final int permissionLevel;
+    private final PermissionLevel permissionLevel;
 
-    DoorAttribute(int permissionLevel)
+    DoorAttribute(PermissionLevel permissionLevel)
     {
         this.permissionLevel = permissionLevel;
     }
 
     /**
-     * Gets the minimum level of ownership (0 = highest) required to access a door's attribute.
+     * Checks if a given permission level has access to this attribute.
      *
-     * @param atr
-     *     The attribute for which the permission level will be retrieved.
-     * @return The minimum level of ownership (0 = highest) required to access a door's attribute.
+     * @param permissionLevel
+     *     The permission level to check.
+     * @return True if the given permission level has access to this attribute.
      */
-    public static int getPermissionLevel(DoorAttribute atr)
+    public boolean canAccessWith(PermissionLevel permissionLevel)
     {
-        return atr.permissionLevel;
+        return permissionLevel.isLowerThanOrEquals(getPermissionLevel());
     }
 }
