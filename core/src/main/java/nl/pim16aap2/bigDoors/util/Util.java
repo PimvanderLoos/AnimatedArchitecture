@@ -69,18 +69,32 @@ public final class Util
         BLACKLIST.addAll(configLoader.getBlacklist());
         DESTROYLIST.addAll(configLoader.getDestroyList());
 
+        final boolean mcMMO = checkMcMMO();
+
         for (Material mat : Material.values())
         {
             if (WHITELIST.contains(mat))
                 continue;
-            if (!Util.isAllowedBlockBackDoor(mat))
+            if ((mcMMO && isOre(mat)) ||
+                (!Util.isAllowedBlockBackDoor(mat)))
                 BLACKLIST.add(mat);
         }
+
+        System.out.println("BLACKLIST: " + BLACKLIST);
 
         DESTROYLIST.add(Material.AIR);
         final @Nullable Material caveAir = XMaterial.CAVE_AIR.parseMaterial();
         if (caveAir != null)
             DESTROYLIST.add(caveAir);
+    }
+
+    private static boolean checkMcMMO()
+    {
+        final boolean mcMMO = Bukkit.getPluginManager().isPluginEnabled("mcMMO");
+        if (mcMMO)
+            BigDoors.get().getMyLogger().warn("mcMMO detected! All ores are blacklisted to avoid item duplication! " +
+                                                  "This can be overridden in the config.");
+        return mcMMO;
     }
 
     public static boolean isPosInCuboid(Location pos, Location min, Location max)
@@ -588,6 +602,14 @@ public final class Util
         if (isAirOrWater(mat))
             return false;
         return WHITELIST.contains(mat) || !BLACKLIST.contains(mat);
+    }
+
+    public static boolean isOre(Material mat)
+    {
+        final @Nullable XMaterial xMat = matchXMaterial(mat);
+        if (xMat == null)
+            return false;
+        return xMat == XMaterial.ANCIENT_DEBRIS || xMat.name().endsWith("_ORE");
     }
 
     // Certain blocks don't work in doors, so don't allow their usage.
