@@ -19,13 +19,13 @@
 
         <dependency.version.annotations>23.0.0</dependency.version.annotations>
         <dependency.version.jcalculator>1.8</dependency.version.jcalculator>
-        <dependency.version.maven-compiler>3.8.1</dependency.version.maven-compiler>
-        <dependency.version.maven-shade>3.2.4</dependency.version.maven-shade>
-        <dependency.version.surefire>3.0.0-M5</dependency.version.surefire>
-        <dependency.version.bytebuddy>1.12.10</dependency.version.bytebuddy>
-        <dependency.version.asm>9.3</dependency.version.asm>
-        <dependency.version.mockito>4.5.1</dependency.version.mockito>
-        <dependency.version.junit>5.8.2</dependency.version.junit>
+        <dependency.version.maven-compiler>3.10.1</dependency.version.maven-compiler>
+        <dependency.version.maven-shade>3.4.1</dependency.version.maven-shade>
+        <dependency.version.surefire>3.0.0-M7</dependency.version.surefire>
+        <dependency.version.bytebuddy>1.12.19</dependency.version.bytebuddy>
+        <dependency.version.asm>9.4</dependency.version.asm>
+        <dependency.version.mockito>4.9.0</dependency.version.mockito>
+        <dependency.version.junit>5.9.1</dependency.version.junit>
         <dependency.version.xseries>0ec2708c61</dependency.version.xseries>
     </properties>
 
