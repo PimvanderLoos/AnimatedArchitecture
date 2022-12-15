@@ -26,7 +26,7 @@
         <dependency.version.asm>9.3</dependency.version.asm>
         <dependency.version.mockito>4.5.1</dependency.version.mockito>
         <dependency.version.junit>5.8.2</dependency.version.junit>
-        <dependency.version.xseries>bf8bc2c34b</dependency.version.xseries>
+        <dependency.version.xseries>0ec2708c61</dependency.version.xseries>
     </properties>
 
     <repositories>

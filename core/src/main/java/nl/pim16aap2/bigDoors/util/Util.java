@@ -80,8 +80,6 @@ public final class Util
                 BLACKLIST.add(mat);
         }
 
-        System.out.println("BLACKLIST: " + BLACKLIST);
-
         DESTROYLIST.add(Material.AIR);
         final @Nullable Material caveAir = XMaterial.CAVE_AIR.parseMaterial();
         if (caveAir != null)
