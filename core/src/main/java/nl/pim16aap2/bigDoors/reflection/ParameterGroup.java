@@ -136,6 +136,14 @@ public class ParameterGroup
     }
 
     /**
+     * Creates a new builder for this class.
+     */
+    public static Builder builder()
+    {
+        return new Builder();
+    }
+
+    /**
      * Represents a builder for {@link ParameterGroup}s.
      */
     public static class Builder

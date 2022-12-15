@@ -2,6 +2,7 @@ package nl.pim16aap2.bigDoors.codegeneration;
 
 import com.cryptomorin.xseries.XMaterial;
 import nl.pim16aap2.bigDoors.BigDoors;
+import nl.pim16aap2.bigDoors.reflection.ParameterGroup;
 import nl.pim16aap2.bigDoors.reflection.ReflectionBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -12,11 +13,13 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.material.MaterialData;
 
+import javax.annotation.Nullable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -52,6 +55,11 @@ final class ReflectionRepository
     public static final Class<?> classCraftBlockData;
     public static final Class<?> classBlockStateEnum;
     public static final Class<?> classEntityTypes;
+    public static final @Nullable Class<?> classHolderGetter;
+    public static final @Nullable Class<?> classRegistries;
+    public static final Class<?> classResourceKey;
+    public static final Class<?> classIWorldReader; // net.minecraft.world.level.LevelReader
+    public static final @Nullable Class<?> classHolderLookup;
 
     public static final Class<?> classEnumBlockState;
     public static final Class<?> classEnumMoveType;
@@ -129,6 +137,8 @@ final class ReflectionRepository
     public static final Method methodEnumOrdinal;
     public static final Method methodArrayGetIdx;
     public static final Method methodGetClass;
+    public static final @Nullable Method methodWorldReaderHolderLookup;
+    private static final @Nullable Method methodRegistriesRegisterNew;
 
     public static final Field fieldTileEntityData;
     public static final Field fieldTicksLived;
@@ -137,6 +147,8 @@ final class ReflectionRepository
     public static final Field fieldEntityTypeFallingBlock;
 
     public static final List<Field> fieldsVec3D;
+
+    public static final @Nullable Object objectRegistryBlock;
 
     static
     {
@@ -188,7 +200,11 @@ final class ReflectionRepository
         classEnumBlockState = findClass(nmsBase + "BlockStateEnum",
                                         "net.minecraft.world.level.block.state.properties.BlockStateEnum").get();
         classEntityTypes = findClass("net.minecraft.world.entity.EntityTypes").get();
-
+        classHolderGetter = findClass("net.minecraft.core.HolderGetter").setNullable().get();
+        classRegistries = findClass("net.minecraft.core.registries.Registries").setNullable().get();
+        classResourceKey = findClass("net.minecraft.resources.ResourceKey").get();
+        classIWorldReader = findClass("net.minecraft.world.level.IWorldReader").get();
+        classHolderLookup = findClass("net.minecraft.core.HolderLookup").setNullable().get();
 
         cTorPrivateNMSFallingBlockEntity =
             findConstructor().inClass(classEntityFallingBlock)
@@ -262,18 +278,27 @@ final class ReflectionRepository
                                                  .withReturnType(classNBTTagCompound)
                                                  .withModifiers(Modifier.PUBLIC, Modifier.STATIC)
                                                  .withParameters(classIBlockData).get();
-        methodIBlockDataDeserializer = findMethod().inClass(classGameProfileSerializer)
-                                                   .withReturnType(classIBlockData)
-                                                   .withModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                                                   .withParameters(classNBTTagCompound).get();
+        methodIBlockDataDeserializer =
+            findMethod().inClass(classGameProfileSerializer)
+                        .withReturnType(classIBlockData)
+                        .withModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                        .withParameters(ParameterGroup.builder()
+                                                      .withOptionalParameters(classHolderGetter == null ?
+                                                                              new Class<?>[0] :
+                                                                              new Class<?>[]{classHolderGetter})
+                                                      .withRequiredParameters(classNBTTagCompound).construct()).get();
         methodCraftBockDataFromNMSBlockData = findMethod().inClass(classCraftBlockData).withName("fromData")
                                                           .withParameters(classIBlockData).get();
         methodBlockBaseGetItem = findMethod().inClass(classBlockBase).withReturnType(classNMSItem)
                                              .withoutParameters()
                                              .withModifiers(Modifier.ABSTRACT, Modifier.PUBLIC).get();
+        // In 1.19.3, there are 2 methods that fit this lookup. They both do basically the same thing
+        // and for our use-case, it doesn't matter which one we use.
         methodSetIBlockDataHolderState = ReflectionBuilder.findMethod().inClass(classIBlockDataHolder)
+                                                          .findMultiple().atLeast(1).atMost(2)
                                                           .withReturnType(Object.class)
-                                                          .withParameters(classIBlockState, Comparable.class).get();
+                                                          .withParameters(classIBlockState, Comparable.class)
+                                                          .get().get(0);
         methodCraftMagicNumbersGetMaterial = findMethod()
             .inClass(classCraftMagicNumbers).withName("getMaterial").withParameters(classIBlockData).get();
         methodGetItemType = findMethod().inClass(MaterialData.class).withName("getItemType").get();
@@ -333,10 +358,24 @@ final class ReflectionRepository
         methodLocY = locationMethods[1];
         methodLocZ = locationMethods[2];
 
+        if (classRegistries == null)
+        {
+            methodRegistriesRegisterNew = null;
+            objectRegistryBlock = null;
+            methodWorldReaderHolderLookup = null;
+        }
+        else
+        {
+            methodRegistriesRegisterNew = findMethod().inClass(classRegistries).withReturnType(classResourceKey)
+                                                      .withParameters(String.class).get();
+            methodRegistriesRegisterNew.setAccessible(true);
+            objectRegistryBlock = invoke(methodRegistriesRegisterNew, null, "block");
+            methodWorldReaderHolderLookup = findMethod().inClass(classIWorldReader).withReturnType(classHolderLookup)
+                                                        .withParameters(classResourceKey).setNullable().get();
+        }
+
         fieldEntityTypeFallingBlock = ReflectionASMAnalyzers.getEntityTypeFallingBlock(classEntityTypes,
                                                                                        cTorPrivateNMSFallingBlockEntity);
-
-
         fieldTileEntityData = findField().inClass(classEntityFallingBlock).ofType(classNBTTagCompound)
                                          .withModifiers(Modifier.PUBLIC).get();
         fieldTicksLived = findField().inClass(classEntityFallingBlock).ofType(int.class)
@@ -359,5 +398,21 @@ final class ReflectionRepository
     public static Class<?> asArrayType(Class<?> clz)
     {
         return Array.newInstance(clz, 0).getClass();
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    private static <T> T invoke(Method method, @Nullable Object source, Object... params)
+    {
+        method.setAccessible(true);
+        try
+        {
+            //noinspection unchecked
+            return (T) method.invoke(source, params);
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException("Could not invoke method '" + method + "' on source: '" + source +
+                                           "' with params: " + Arrays.toString(params), e);
+        }
     }
 }

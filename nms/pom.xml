@@ -29,11 +29,12 @@
         <module>v1_18_R2</module>
         <module>v1_19_R1</module>
         <module>v1_19_R1_1</module>
+        <module>v1_19_R2</module>
     </modules>
 
     <dependencies>
         <dependency>
-            <groupId>com.github.cryptomorin</groupId>
+            <groupId>com.github.PimvanderLoos</groupId>
             <artifactId>XSeries</artifactId>
             <scope>provided</scope>
         </dependency>

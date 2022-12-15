@@ -1,4 +1,5 @@
 Alpha 0.1.8.41
+- Add support for MC 1.19.3.
 - Add support for GriefDefender v2. Thanks, haroldrc, for the heads-up!
 - Add support for Medieval Factions 5. Thanks, OGVampire, for the suggestion!
 - Add config option to refund doors on delete. Thanks, LoneTiger, for the suggestion!
