@@ -21,8 +21,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.PimvanderLoos</groupId>
+            <groupId>${dependency.xseries.groupid}</groupId>
             <artifactId>XSeries</artifactId>
+            <version>${dependency.xseries.version}</version>
             <scope>provided</scope>
         </dependency>
 

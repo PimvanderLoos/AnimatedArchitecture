@@ -27,7 +27,8 @@
         <dependency.maven-shade.version>3.4.1</dependency.maven-shade.version>
         <dependency.mockito.version>4.9.0</dependency.mockito.version>
         <dependency.surefire.version>3.0.0-M7</dependency.surefire.version>
-        <dependency.xseries.version>0ec2708c61</dependency.xseries.version>
+        <dependency.xseries.version>9.2.0</dependency.xseries.version>
+        <dependency.xseries.groupid>com.github.cryptomorin</dependency.xseries.groupid>
     </properties>
 
     <repositories>
@@ -46,7 +47,7 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.github.PimvanderLoos</groupId>
+                <groupId>${dependency.xseries.groupid}</groupId>
                 <artifactId>XSeries</artifactId>
                 <version>${dependency.xseries.version}</version>
                 <scope>provided</scope>

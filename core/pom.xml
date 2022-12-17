@@ -152,7 +152,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.PimvanderLoos</groupId>
+            <groupId>${dependency.xseries.groupid}</groupId>
             <artifactId>XSeries</artifactId>
             <version>${dependency.xseries.version}</version>
             <scope>compile</scope>
@@ -294,7 +294,7 @@
                     </relocations>
                     <filters>
                         <filter>
-                            <artifact>com.github.PimvanderLoos:XSeries</artifact>
+                            <artifact>${dependency.xseries.groupid}:XSeries</artifact>
                             <includes>
                                 <include>com/cryptomorin/xseries/XMaterial*</include>
                             </includes>
