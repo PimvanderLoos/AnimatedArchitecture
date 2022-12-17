@@ -17,16 +17,17 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
 
-        <dependency.version.annotations>23.0.0</dependency.version.annotations>
-        <dependency.version.jcalculator>1.8</dependency.version.jcalculator>
-        <dependency.version.maven-compiler>3.10.1</dependency.version.maven-compiler>
-        <dependency.version.maven-shade>3.4.1</dependency.version.maven-shade>
-        <dependency.version.surefire>3.0.0-M7</dependency.version.surefire>
-        <dependency.version.bytebuddy>1.12.19</dependency.version.bytebuddy>
-        <dependency.version.asm>9.4</dependency.version.asm>
-        <dependency.version.mockito>4.9.0</dependency.version.mockito>
-        <dependency.version.junit>5.9.1</dependency.version.junit>
-        <dependency.version.xseries>0ec2708c61</dependency.version.xseries>
+        <dependency.annotations.version>23.0.0</dependency.annotations.version>
+        <dependency.asm.version>9.4</dependency.asm.version>
+        <dependency.bytebuddy.version>1.12.19</dependency.bytebuddy.version>
+        <dependency.jcalculator.version>1.8</dependency.jcalculator.version>
+        <dependency.jsr305.version>3.0.2</dependency.jsr305.version>
+        <dependency.junit.version>5.9.1</dependency.junit.version>
+        <dependency.maven-compiler.version>3.10.1</dependency.maven-compiler.version>
+        <dependency.maven-shade.version>3.4.1</dependency.maven-shade.version>
+        <dependency.mockito.version>4.9.0</dependency.mockito.version>
+        <dependency.surefire.version>3.0.0-M7</dependency.surefire.version>
+        <dependency.xseries.version>0ec2708c61</dependency.xseries.version>
     </properties>
 
     <repositories>
@@ -47,7 +48,7 @@
             <dependency>
                 <groupId>com.github.PimvanderLoos</groupId>
                 <artifactId>XSeries</artifactId>
-                <version>${dependency.version.xseries}</version>
+                <version>${dependency.xseries.version}</version>
                 <scope>provided</scope>
             </dependency>
         </dependencies>
@@ -57,14 +58,14 @@
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
-            <version>3.0.2</version>
+            <version>${dependency.jsr305.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>${dependency.version.annotations}</version>
+            <version>${dependency.annotations.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

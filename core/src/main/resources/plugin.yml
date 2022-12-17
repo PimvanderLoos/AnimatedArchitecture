@@ -6,7 +6,7 @@ api-version: 1.13
 loadbefore: [ PlotSquared ]
 softdepend: [ WorldGuard, Vault, GriefPrevention, Towny, Lands, RedProtect, Geyser-Spigot, ViaRewind, GriefDefender, MedievalFactions, mcMMO ]
 libraries:
-  - net.bytebuddy:byte-buddy:${dependency.version.bytebuddy}
+  - net.bytebuddy:byte-buddy:${dependency.bytebuddy.version}
 commands:
   bigdoors:
     description: Base command

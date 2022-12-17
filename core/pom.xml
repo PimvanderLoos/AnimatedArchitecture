@@ -154,33 +154,33 @@
         <dependency>
             <groupId>com.github.PimvanderLoos</groupId>
             <artifactId>XSeries</artifactId>
-            <version>${dependency.version.xseries}</version>
+            <version>${dependency.xseries.version}</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>net.bytebuddy</groupId>
             <artifactId>byte-buddy</artifactId>
-            <version>${dependency.version.bytebuddy}</version>
+            <version>${dependency.bytebuddy.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm</artifactId>
-            <version>${dependency.version.asm}</version>
+            <version>${dependency.asm.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm-commons</artifactId>
-            <version>${dependency.version.asm}</version>
+            <version>${dependency.asm.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm-util</artifactId>
-            <version>${dependency.version.asm}</version>
+            <version>${dependency.asm.version}</version>
             <scope>compile</scope>
         </dependency>
 
@@ -205,33 +205,33 @@
         <dependency>
             <groupId>com.github.PimvanderLoos</groupId>
             <artifactId>JCalculator</artifactId>
-            <version>${dependency.version.jcalculator}</version>
+            <version>${dependency.jcalculator.version}</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>${dependency.version.junit}</version>
+            <version>${dependency.junit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>${dependency.version.junit}</version>
+            <version>${dependency.junit.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>${dependency.version.mockito}</version>
+            <version>${dependency.mockito.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
-            <version>${dependency.version.mockito}</version>
+            <version>${dependency.mockito.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -261,7 +261,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${dependency.version.maven-compiler}</version>
+                <version>${dependency.maven-compiler.version}</version>
                 <configuration>
                     <encoding>UTF-8</encoding>
                     <source>${maven.compiler.source}</source>
@@ -272,7 +272,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>${dependency.version.maven-shade}</version>
+                <version>${dependency.maven-shade.version}</version>
                 <configuration>
                     <relocations>
                         <relocation>
@@ -314,7 +314,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${dependency.version.surefire}</version>
+                <version>${dependency.surefire.version}</version>
                 <configuration>
                     <trimStackTrace>false</trimStackTrace>
                     <useFile>false</useFile>
