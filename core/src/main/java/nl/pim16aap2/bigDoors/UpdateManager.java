@@ -8,7 +8,9 @@ import nl.pim16aap2.bigDoors.util.Util;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  *
@@ -17,11 +19,11 @@ import java.io.IOException;
 public final class UpdateManager
 {
     private final BigDoors plugin;
-    private boolean downloadUpdates = false;
-    private boolean announceUpdateCheck = true;
-    private boolean updateDownloaded = false;
+    private volatile boolean downloadUpdates = false;
+    private volatile boolean announceUpdateCheck = true;
+    private volatile boolean updateDownloaded = false;
 
-    private UpdateChecker updater;
+    private final UpdateChecker updater;
     private BukkitTask updateRunner = null;
 
     public UpdateManager(final BigDoors plugin)
@@ -30,9 +32,9 @@ public final class UpdateManager
         updater = UpdateChecker.init(plugin);
     }
 
-    public void setEnabled(boolean newDownloadUpdates, boolean announceUpdateCheck)
+    public void setEnabled(boolean downloadUpdates, boolean announceUpdateCheck)
     {
-        downloadUpdates = newDownloadUpdates;
+        this.downloadUpdates = downloadUpdates;
         this.announceUpdateCheck = announceUpdateCheck;
         initUpdater();
     }
@@ -42,11 +44,18 @@ public final class UpdateManager
         return updateDownloaded;
     }
 
-    public String getNewestVersion()
+    public @Nullable String getNewestVersion()
     {
         if (updater.getLastResult() == null)
             return null;
         return updater.getLastResult().getNewestVersion();
+    }
+
+    private @Nullable String getNewestVersionChangelog()
+    {
+        if (updater.getLastResult() == null)
+            return null;
+        return updater.getLastResult().getChangelog();
     }
 
     public boolean updateAvailable()
@@ -66,10 +75,52 @@ public final class UpdateManager
         return false;
     }
 
+    private void announceUpdate()
+    {
+        final @Nullable String newestVersion = getNewestVersion();
+        StringBuilder sb = new StringBuilder("A new update is available: ").append(newestVersion).append('!');
+
+        int lineWidth = 80;
+        final StringBuilder changelogBuilder = new StringBuilder();
+        final @Nullable String changelog = getNewestVersionChangelog();
+        if (changelog != null)
+        {
+            for (final String item : changelog.split("\\r\\n"))
+            {
+                if (item.length() > lineWidth)
+                    lineWidth = item.length();
+                changelogBuilder.append(item).append('\n');
+            }
+            changelogBuilder.append('\n');
+            lineWidth = Math.min(lineWidth + 4, 160);
+        }
+
+        final String title = " [BigDoors " + newestVersion + "] ";
+        final char[] starsArr = new char[(int) Math.ceil((lineWidth - title.length()) / 2.0D)];
+        Arrays.fill(starsArr, '*');
+        final String stars = new String(starsArr);
+        final String header = stars + title + stars;
+
+        sb.append("\n\n")
+          .append(header)
+          .append('\n')
+          .append(changelogBuilder)
+          .append("Please update:\n  https://www.spigotmc.org/resources/big-doors.58669/")
+          .append('\n');
+
+        final char[] footer = new char[header.length()];
+        Arrays.fill(footer, '*');
+        sb.append(footer)
+          .append('\n');
+
+        plugin.getMyLogger().info(sb.toString());
+    }
+
     public void checkForUpdates()
     {
         if (announceUpdateCheck)
             plugin.getMyLogger().info("Checking for updates...");
+
         updater.requestUpdateCheck().whenCompleteAsync((result, throwable) ->
         {
             boolean updateAvailable = updateAvailable();
@@ -80,7 +131,7 @@ public final class UpdateManager
                 return;
             }
 
-            plugin.getMyLogger().info("A new update is available: " + plugin.getUpdateManager().getNewestVersion());
+            announceUpdate();
 
             if (downloadUpdates && result.getAge() >= plugin.getConfigLoader().downloadDelay())
             {

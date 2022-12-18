@@ -10,6 +10,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import javax.annotation.Nullable;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +31,7 @@ import java.util.regex.Pattern;
 /**
  * A utility class to assist in checking for updates for plugins uploaded to
  * <a href="https://github.com">GitHub</a>. Before any members of this class are
- * accessed, {@link #init(JavaPlugin)} must be invoked by the plugin,
+ * accessed, {@link #init(BigDoors)} must be invoked by the plugin,
  * preferrably in its {@link JavaPlugin#onEnable()} method, though that is not a
  * requirement.
  *
@@ -125,7 +126,7 @@ public final class UpdateChecker
                 iSReader.close();
                 reader.close();
 
-                final JsonElement element = new JsonParser().parse("[" + jsonStr.toString() + "]");
+                final JsonElement element = new JsonParser().parse("[" + jsonStr + "]");
                 if (!element.isJsonArray())
                     return new UpdateResult(UpdateReason.INVALID_JSON);
 
@@ -161,10 +162,12 @@ public final class UpdateChecker
                 // is higher than the latest available version.
                 else if (highest.equals(current))
                     return new UpdateResult(current.equals(available) ? UpdateReason.UP_TO_DATE :
-                        UpdateReason.UNRELEASED_VERSION, current, age, jarUrl, hashUrl);
+                        UpdateReason.UNRELEASED_VERSION, current, age, jarUrl, hashUrl,
+                        getFromObjAsString(latestRelease, "body"), getFromObjAsString(latestRelease, "html_url"));
 
                 else if (highest.equals(available))
-                    return new UpdateResult(UpdateReason.NEW_UPDATE, highest, age, jarUrl, hashUrl);
+                    return new UpdateResult(UpdateReason.NEW_UPDATE, highest, age, jarUrl, hashUrl,
+                        getFromObjAsString(latestRelease, "body"), getFromObjAsString(latestRelease, "html_url"));
             }
             catch (IOException e)
             {
@@ -198,6 +201,29 @@ public final class UpdateChecker
             return null;
 
         return matcher.group().split("\\.");
+    }
+
+    /**
+     * Retrieves a member from a {@link JsonObject} as String.
+     *
+     * @param jsonObject The object from which to get a member.
+     * @param memberName The name of the member in the json object to return as String.
+     * @return Null if the member does not exist or cannot be returned as String.
+     */
+    private @Nullable String getFromObjAsString(JsonObject jsonObject, String memberName)
+    {
+        try
+        {
+            final @Nullable JsonElement member = jsonObject.get(memberName);
+            if (member == null)
+                return null;
+            return member.getAsString();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**
@@ -242,8 +268,8 @@ public final class UpdateChecker
             throw new IOException("Failed to save file!");
 
         final String currentChecksum = Util.getSHA256(updateFile);
-        final boolean downloadSuccessfull = checksum.equals(currentChecksum);
-        if (!downloadSuccessfull)
+        final boolean downloadSuccessfully = checksum.equals(currentChecksum);
+        if (!downloadSuccessfully)
         {
             plugin.getMyLogger().severe("Checksum of downloaded file did not match expected checksum!");
             plugin.getMyLogger().severe("Expected: " + checksum);
@@ -251,7 +277,7 @@ public final class UpdateChecker
             updateFile.delete();
         }
 
-        return downloadSuccessfull;
+        return downloadSuccessfully;
     }
 
     /**
@@ -284,7 +310,7 @@ public final class UpdateChecker
     }
 
     /**
-     * Gets the initialized instance of UpdateChecker. If {@link #init(JavaPlugin)}
+     * Gets the initialized instance of UpdateChecker. If {@link #init(BigDoors)}
      * has not yet been invoked, this method will throw an exception.
      *
      * @return the UpdateChecker instance
@@ -298,7 +324,7 @@ public final class UpdateChecker
 
     /**
      * Checks whether the UpdateChecker has been initialized or not (if
-     * {@link #init(JavaPlugin)} has been invoked) and {@link #get()} is safe to
+     * {@link #init(BigDoors)} has been invoked) and {@link #get()} is safe to
      * use.
      *
      * @return true if initialized, false otherwise
@@ -311,8 +337,7 @@ public final class UpdateChecker
     /**
      * Gets the difference in seconds between a given time and the current time.
      *
-     * @param updateTime A moment in time to compare the current time to. Must be
-     *                   ISO 8601.
+     * @param time A moment in time to compare the current time to. Must be ISO 8601.
      * @return The difference in seconds between a given time and the current time.
      */
     private static long getAgeInSeconds(final String time)
@@ -327,7 +352,7 @@ public final class UpdateChecker
      * schemes.
      */
     @FunctionalInterface
-    public static interface VersionScheme
+    public interface VersionScheme
     {
 
         /**
@@ -339,14 +364,14 @@ public final class UpdateChecker
          * @param second the second version to check
          * @return the greater of the two versions. null if unsupported version schemes
          */
-        public String compareVersions(String first, String second);
+        String compareVersions(String first, String second);
 
     }
 
     /**
      * A constant reason for the result of {@link UpdateResult}.
      */
-    public static enum UpdateReason
+    public enum UpdateReason
     {
 
         /**
@@ -392,7 +417,7 @@ public final class UpdateChecker
         UNSUPPORTED_VERSION_SCHEME,
 
         /**
-         * The plugin is up to date with the version released on SpigotMC's resources
+         * The plugin is up-to-date with the version released on SpigotMC's resources
          * section.
          */
         UP_TO_DATE
@@ -410,19 +435,23 @@ public final class UpdateChecker
         private final long age;
         private final String url;
         private final String hashURL;
+        private final @Nullable String changelog;
+        private final @Nullable String htmlUrl;
 
         { // An actual use for initializer blocks. This is madness!
             lastResult = this;
         }
 
         private UpdateResult(final UpdateReason reason, final String newestVersion, final long age, final String url,
-            final String hashURL)
+            final String hashURL, final @Nullable String changelog, final @Nullable String htmlUrl)
         {
             this.reason = reason;
             this.newestVersion = newestVersion;
             this.age = age;
             this.url = url;
             this.hashURL = hashURL;
+            this.changelog = changelog;
+            this.htmlUrl = htmlUrl;
         }
 
         private UpdateResult(final UpdateReason reason)
@@ -435,6 +464,8 @@ public final class UpdateChecker
             age = -1;
             url = "";
             hashURL = "";
+            changelog = null;
+            htmlUrl = null;
         }
 
         /**
@@ -447,10 +478,19 @@ public final class UpdateChecker
             return reason;
         }
 
+        public @Nullable String getChangelog()
+        {
+            return changelog;
+        }
+        public @Nullable String getHtmlUrl()
+        {
+            return htmlUrl;
+        }
+
         /**
-         * Checks whether or not this result requires the user to update.
+         * Checks whether this result requires the user to update.
          *
-         * @return true if requires update, false otherwise
+         * @return true if an update is required, false otherwise.
          */
         public boolean requiresUpdate()
         {
