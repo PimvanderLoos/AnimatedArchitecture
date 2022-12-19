@@ -4,6 +4,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.doors.PermissionLevel;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
 import org.jetbrains.annotations.Nullable;
 
@@ -50,7 +51,7 @@ public class AddOwnerDelayed extends DelayedCommand<AddOwnerDelayed.DelayedInput
     public static final class DelayedInput
     {
         private final IPPlayer targetPlayer;
-        private final int targetPermissionLevel;
+        private final PermissionLevel targetPermissionLevel;
 
         /**
          * @param targetPlayer
@@ -60,18 +61,18 @@ public class AddOwnerDelayed extends DelayedCommand<AddOwnerDelayed.DelayedInput
          *     the command sender is allowed to add/remove co-owners at both the old and the new target permission
          *     level.
          * @param targetPermissionLevel
-         *     The permission level of the new owner's ownership. 1 = admin, 2 = user. Defaults to
+         *     The permission level of the new owner's ownership. Defaults to
          *     {@link AddOwner#DEFAULT_PERMISSION_LEVEL}.
          */
-        public DelayedInput(IPPlayer targetPlayer, @Nullable Integer targetPermissionLevel)
+        public DelayedInput(IPPlayer targetPlayer, @Nullable PermissionLevel targetPermissionLevel)
         {
             this.targetPlayer = targetPlayer;
-            this.targetPermissionLevel = Objects.requireNonNullElse(targetPermissionLevel,
-                                                                    AddOwner.DEFAULT_PERMISSION_LEVEL);
+            this.targetPermissionLevel =
+                Objects.requireNonNullElse(targetPermissionLevel, AddOwner.DEFAULT_PERMISSION_LEVEL);
         }
 
         /**
-         * See {@link #DelayedInput(IPPlayer, Integer)}.
+         * See {@link #DelayedInput(IPPlayer, PermissionLevel)}.
          */
         public DelayedInput(IPPlayer targetPlayer)
         {

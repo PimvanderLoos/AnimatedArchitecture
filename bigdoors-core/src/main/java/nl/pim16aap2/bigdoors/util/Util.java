@@ -6,6 +6,7 @@ import lombok.val;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Contract;
@@ -485,7 +486,7 @@ public final class Util
     public static boolean hasPermissionForAction(UUID uuid, AbstractDoor door, DoorAttribute attribute)
     {
         return door.getDoorOwner(uuid)
-                   .map(doorOwner -> doorOwner.permission() <= DoorAttribute.getPermissionLevel(attribute))
+                   .map(doorOwner -> doorOwner.permission().isLowerThanOrEquals(attribute.getPermissionLevel()))
                    .orElse(false);
     }
 

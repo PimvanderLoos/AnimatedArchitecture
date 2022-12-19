@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.commands.ICommandSender;
 import nl.pim16aap2.bigdoors.data.cache.RollingCache;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.PermissionLevel;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.util.Util;
 
@@ -54,7 +55,7 @@ public final class DoorFinder
     private final DoorRetrieverFactory doorRetrieverFactory;
     private final DatabaseManager databaseManager;
     private final ICommandSender commandSender;
-    private final int maxPermission;
+    private final PermissionLevel maxPermission;
     private final Object msg = new Object();
 
     @GuardedBy("this")
@@ -70,7 +71,7 @@ public final class DoorFinder
 
     DoorFinder(
         DoorRetrieverFactory doorRetrieverFactory, DatabaseManager databaseManager, ICommandSender commandSender,
-        String input, int maxPermission)
+        String input, PermissionLevel maxPermission)
     {
         this.doorRetrieverFactory = doorRetrieverFactory;
         this.databaseManager = databaseManager;
@@ -84,7 +85,7 @@ public final class DoorFinder
         DoorRetrieverFactory doorRetrieverFactory, DatabaseManager databaseManager, ICommandSender commandSender,
         String input)
     {
-        this(doorRetrieverFactory, databaseManager, commandSender, input, 0);
+        this(doorRetrieverFactory, databaseManager, commandSender, input, PermissionLevel.CREATOR);
     }
 
     synchronized DoorFinder processInput(String input)

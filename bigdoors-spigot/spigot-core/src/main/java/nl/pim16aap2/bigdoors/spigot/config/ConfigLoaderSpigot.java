@@ -6,6 +6,7 @@ import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IConfigReader;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.debugging.IDebuggable;
+import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.localization.LocalizationUtil;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
@@ -47,7 +48,9 @@ import java.util.logging.Level;
 @Flogger
 public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
 {
+    @ToString.Exclude
     private final JavaPlugin plugin;
+    @ToString.Exclude
     private final DoorTypeManager doorTypeManager;
     private final Path baseDir;
 
@@ -60,6 +63,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
     private final List<ConfigEntry<?>> configEntries = new ArrayList<>();
     private final Map<DoorType, String> doorPrices;
     private final Map<DoorType, Double> doorMultipliers;
+    @ToString.Exclude
     private final String header;
 
     private int coolDown;
@@ -89,7 +93,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
      */
     @Inject
     public ConfigLoaderSpigot(
-        JavaPlugin plugin, DoorTypeManager doorTypeManager,
+        RestartableHolder restartableHolder, JavaPlugin plugin, DoorTypeManager doorTypeManager,
         @Named("pluginBaseDirectory") Path baseDir, DebuggableRegistry debuggableRegistry)
     {
         this.plugin = plugin;
@@ -100,6 +104,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
 
         header = "Config file for BigDoors. Don't forget to make a backup before making changes!";
 
+        restartableHolder.registerRestartable(this);
         debuggableRegistry.registerDebuggable(this);
     }
 
@@ -383,7 +388,6 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
                 Files.createDirectories(baseDir);
 
             final Path configFile = baseDir.resolve("config.yml");
-
             if (!Files.isRegularFile(configFile))
                 Files.createFile(configFile);
 

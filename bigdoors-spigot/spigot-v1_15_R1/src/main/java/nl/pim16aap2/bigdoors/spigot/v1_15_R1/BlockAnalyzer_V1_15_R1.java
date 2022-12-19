@@ -1,15 +1,16 @@
 package nl.pim16aap2.bigdoors.spigot.v1_15_R1;
 
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 
 import javax.inject.Singleton;
 import java.util.EnumSet;
 import java.util.Set;
+import java.util.logging.Level;
 
 /**
  * Represents a class that can perform basic analysis on blocks, such as if they're empty, blacklisted, and/or
@@ -18,6 +19,7 @@ import java.util.Set;
  * @author Pim
  */
 @Singleton
+@Flogger
 public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
 {
     private static final Set<Material> WHITELIST = EnumSet.noneOf(Material.class);
@@ -34,7 +36,8 @@ public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
                 BLACKLIST.add(mat);
             else if (result == MaterialStatus.UNMAPPED)
             {
-                Bukkit.getLogger().warning("Material \"" + mat.name() + "\" is not mapped! Please contact pim16aap2!");
+                if (!mat.name().startsWith("LEGACY_"))
+                    log.at(Level.WARNING).log("Material %s is not mapped!", mat);
                 BLACKLIST.add(mat);
             }
         }

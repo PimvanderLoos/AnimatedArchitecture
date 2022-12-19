@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.events;
 
-import nl.pim16aap2.bigdoors.util.DoorOwner;
+import nl.pim16aap2.bigdoors.doors.DoorOwner;
 
 /**
  * Represents the event where a new owner is added to a door.

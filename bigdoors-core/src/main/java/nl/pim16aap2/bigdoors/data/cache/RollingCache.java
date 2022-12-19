@@ -428,7 +428,7 @@ public final class RollingCache<T> extends AbstractCollection<T> implements Iter
         }
 
         @Override
-        public @Nullable RollingCache.RollingSpliterator trySplit()
+        public @Nullable RollingCache<T>.RollingSpliterator trySplit()
         {
             final int halfRemaining = remaining / 2;
             if (halfRemaining == 0)

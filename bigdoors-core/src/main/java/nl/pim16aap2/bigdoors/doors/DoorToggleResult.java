@@ -1,7 +1,6 @@
-package nl.pim16aap2.bigdoors.util;
+package nl.pim16aap2.bigdoors.doors;
 
 import lombok.Getter;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 
 /**

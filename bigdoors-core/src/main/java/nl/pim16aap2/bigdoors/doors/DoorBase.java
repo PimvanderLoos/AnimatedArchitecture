@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.doors;
 
+import com.google.common.flogger.StackSize;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -23,7 +24,6 @@ import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.Limit;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -130,16 +130,17 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     private final Provider<BlockMover.Context> blockMoverContextProvider;
 
     @AssistedInject //
-    DoorBase(@Assisted long doorUID, @Assisted String name, @Assisted Cuboid cuboid,
-             @Assisted("rotationPoint") Vector3Di rotationPoint, @Assisted("powerBlock") Vector3Di powerBlock,
-             @Assisted IPWorld world, @Assisted("isOpen") boolean isOpen, @Assisted("isLocked") boolean isLocked,
-             @Assisted RotateDirection openDir, @Assisted DoorOwner primeOwner,
-             @Assisted @Nullable Map<UUID, DoorOwner> doorOwners, ILocalizer localizer,
-             DatabaseManager databaseManager, DoorRegistry doorRegistry, DoorActivityManager doorActivityManager,
-             LimitsManager limitsManager, AutoCloseScheduler autoCloseScheduler, DoorOpeningHelper doorOpeningHelper,
-             DoorToggleRequestBuilder doorToggleRequestBuilder, IPPlayerFactory playerFactory,
-             IDoorEventCaller doorEventCaller, Provider<BlockMover.Context> blockMoverContextProvider,
-             IPExecutor executor)
+    DoorBase(
+        @Assisted long doorUID, @Assisted String name, @Assisted Cuboid cuboid,
+        @Assisted("rotationPoint") Vector3Di rotationPoint, @Assisted("powerBlock") Vector3Di powerBlock,
+        @Assisted IPWorld world, @Assisted("isOpen") boolean isOpen, @Assisted("isLocked") boolean isLocked,
+        @Assisted RotateDirection openDir, @Assisted DoorOwner primeOwner,
+        @Assisted @Nullable Map<UUID, DoorOwner> doorOwners, ILocalizer localizer,
+        DatabaseManager databaseManager, DoorRegistry doorRegistry, DoorActivityManager doorActivityManager,
+        LimitsManager limitsManager, AutoCloseScheduler autoCloseScheduler, DoorOpeningHelper doorOpeningHelper,
+        DoorToggleRequestBuilder doorToggleRequestBuilder, IPPlayerFactory playerFactory,
+        IDoorEventCaller doorEventCaller, Provider<BlockMover.Context> blockMoverContextProvider,
+        IPExecutor executor)
     {
         this.doorUID = doorUID;
         this.name = name;
@@ -206,8 +207,8 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     /**
      * Gets a full copy of this {@link DoorBase}.
      * <p>
-     * A full copy includes a full copy of {@link #doorOwners}. If this is not needed, consider using {@link
-     * #getPartialSnapshot()} instead as it will be faster.
+     * A full copy includes a full copy of {@link #doorOwners}. If this is not needed, consider using
+     * {@link #getPartialSnapshot()} instead as it will be faster.
      *
      * @return A full copy of this {@link DoorBase}.
      */
@@ -219,8 +220,8 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     /**
      * Gets a full copy of this {@link DoorBase}.
      * <p>
-     * A partial copy does not include the {@link #doorOwners}. If these are needed, consider using {@link
-     * #getFullSnapshot()} instead.
+     * A partial copy does not include the {@link #doorOwners}. If these are needed, consider using
+     * {@link #getFullSnapshot()} instead.
      *
      * @return A partial copy of this {@link DoorBase}.
      */
@@ -245,12 +246,11 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     @Override
     protected void addOwner(UUID uuid, DoorOwner doorOwner)
     {
-        if (doorOwner.permission() == 0)
+        if (doorOwner.permission() == PermissionLevel.CREATOR)
         {
-            log.at(Level.SEVERE).withCause(new IllegalArgumentException(
-                "Failed to add owner: " + doorOwner.pPlayerData() + " as owner to door: " +
-                    getDoorUID() +
-                    " because a permission level of 0 is not allowed!")).log();
+            log.at(Level.SEVERE).withStackTrace(StackSize.FULL)
+               .log("Failed to add Owner '%s' as owner to door: %d because a permission level of 0 is not allowed!",
+                    doorOwner.pPlayerData(), getDoorUID());
             return;
         }
         doorOwners.put(uuid, doorOwner);
@@ -420,9 +420,10 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
      * @return True when everything went all right, otherwise false.
      */
     // TODO: Move to DoorOpeningHelper.
-    synchronized boolean registerBlockMover(AbstractDoor abstractDoor, DoorActionCause cause, double time,
-                                            boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
-                                            DoorActionType actionType)
+    synchronized boolean registerBlockMover(
+        AbstractDoor abstractDoor, DoorActionCause cause, double time,
+        boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
+        DoorActionType actionType)
     {
         if (!executor.isMainThread(Thread.currentThread().getId()))
         {
@@ -472,9 +473,10 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     @AssistedFactory
     public interface IFactory
     {
-        DoorBase create(long doorUID, String name, Cuboid cuboid, @Assisted("rotationPoint") Vector3Di rotationPoint,
-                        @Assisted("powerBlock") Vector3Di powerBlock, @Assisted IPWorld world,
-                        @Assisted("isOpen") boolean isOpen, @Assisted("isLocked") boolean isLocked,
-                        RotateDirection openDir, DoorOwner primeOwner, @Nullable Map<UUID, DoorOwner> doorOwners);
+        DoorBase create(
+            long doorUID, String name, Cuboid cuboid, @Assisted("rotationPoint") Vector3Di rotationPoint,
+            @Assisted("powerBlock") Vector3Di powerBlock, @Assisted IPWorld world,
+            @Assisted("isOpen") boolean isOpen, @Assisted("isLocked") boolean isLocked,
+            RotateDirection openDir, DoorOwner primeOwner, @Nullable Map<UUID, DoorOwner> doorOwners);
     }
 }

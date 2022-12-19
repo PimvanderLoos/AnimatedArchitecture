@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.doors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
@@ -249,7 +248,7 @@ public interface IDoor
     /**
      * Gets the dimensions of this door.
      * <p>
-     * If a door has a min and max X value of 120, for example, it would have a X-dimension of 0. If the min X value is
+     * If a door has a min and max X value of 120, for example, it would have an X-dimension of 0. If the min X value is
      * 119 instead, it would have an X-dimension of 1.
      *
      * @return The dimensions of this door.

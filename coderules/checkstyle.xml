@@ -21,7 +21,7 @@
 
     <module name="TreeWalker">
         <module name="SuppressionXpathFilter">
-            <property name="file" value="checkstyle/checkstyle-suppressions.xml"/>
+            <property name="file" value="coderules/checkstyle-suppressions.xml"/>
             <property name="optional" value="false"/>
         </module>
 

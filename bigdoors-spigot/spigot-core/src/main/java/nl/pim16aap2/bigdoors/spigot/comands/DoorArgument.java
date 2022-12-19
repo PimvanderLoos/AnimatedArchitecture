@@ -7,6 +7,7 @@ import cloud.commandframework.arguments.parser.ArgumentParser;
 import cloud.commandframework.context.CommandContext;
 import cloud.commandframework.exceptions.parsing.NoInputProvidedException;
 import nl.pim16aap2.bigdoors.commands.ICommandSender;
+import nl.pim16aap2.bigdoors.doors.PermissionLevel;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 import org.jetbrains.annotations.Nullable;
@@ -28,7 +29,7 @@ public class DoorArgument extends CommandArgument<ICommandSender, DoorRetriever>
         boolean required, String name, @Nullable String defaultValue,
         @Nullable BiFunction<CommandContext<ICommandSender>, String, List<String>> suggestionsProvider,
         @Nullable ArgumentDescription defaultDescription, boolean asyncSuggestions,
-        DoorRetrieverFactory doorRetrieverFactory, int maxPermission)
+        DoorRetrieverFactory doorRetrieverFactory, PermissionLevel maxPermission)
     {
         super(required, name,
               new DoorArgument.DoorArgumentParser(asyncSuggestions, doorRetrieverFactory, maxPermission),
@@ -40,10 +41,10 @@ public class DoorArgument extends CommandArgument<ICommandSender, DoorRetriever>
     {
         private final DoorRetrieverFactory doorRetrieverFactory;
         private final boolean asyncSuggestions;
-        private final int maxPermission;
+        private final PermissionLevel maxPermission;
 
         public DoorArgumentParser(
-            boolean asyncSuggestions, DoorRetrieverFactory doorRetrieverFactory, int maxPermission)
+            boolean asyncSuggestions, DoorRetrieverFactory doorRetrieverFactory, PermissionLevel maxPermission)
         {
             this.asyncSuggestions = asyncSuggestions;
             this.doorRetrieverFactory = doorRetrieverFactory;

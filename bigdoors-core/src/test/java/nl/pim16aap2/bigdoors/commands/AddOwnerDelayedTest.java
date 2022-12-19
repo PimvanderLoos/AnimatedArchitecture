@@ -4,6 +4,7 @@ import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.PermissionLevel;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
@@ -64,7 +65,7 @@ class AddOwnerDelayedTest
 
         Mockito.when(addOwner.run()).thenReturn(CompletableFuture.completedFuture(true));
 
-        Mockito.when(commandFactory.newAddOwner(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyInt()))
+        Mockito.when(commandFactory.newAddOwner(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                .thenReturn(addOwner);
     }
 
@@ -89,6 +90,6 @@ class AddOwnerDelayedTest
         Assertions.assertTrue(result1.get());
 
         Mockito.verify(commandFactory, Mockito.times(1))
-               .newAddOwner(commandSender, doorRetriever, input.getTargetPlayer(), 2);
+               .newAddOwner(commandSender, doorRetriever, input.getTargetPlayer(), PermissionLevel.USER);
     }
 }

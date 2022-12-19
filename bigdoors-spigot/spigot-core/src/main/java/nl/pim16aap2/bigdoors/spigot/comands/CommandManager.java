@@ -18,6 +18,7 @@ import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.format.NamedTextColor;
 import nl.pim16aap2.bigdoors.commands.CommandDefinition;
 import nl.pim16aap2.bigdoors.commands.ICommandSender;
+import nl.pim16aap2.bigdoors.doors.PermissionLevel;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -170,12 +171,12 @@ public final class CommandManager
             baseInit(builder, CommandDefinition.ADD_OWNER, "commands.add_owner.description")
                 .argument(PlayerArgument.of("newOwner"))
                 .argument(IntegerArgument
-                              .<ICommandSender>newBuilder("permissionLevel")
+                              .<ICommandSender>builder("permissionLevel")
                               .withMin(1).withMax(2).asOptionalWithDefault(2)
                               .withDefaultDescription(ArgumentDescription.of(
                                   localizer.getMessage("commands.add_owner.param.permission_level.description")))
                               .build())
-                .argument(defaultDoorArgument(false, 1).build())
+                .argument(defaultDoorArgument(false, PermissionLevel.ADMIN).build())
                 .handler(executor::addOwner)
         );
     }
@@ -212,7 +213,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.DELETE, "commands.delete.description")
-                .argument(defaultDoorArgument(true, 1).build())
+                .argument(defaultDoorArgument(true, PermissionLevel.ADMIN).build())
                 .handler(executor::delete)
         );
     }
@@ -222,7 +223,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.INFO, "commands.info.description")
-                .argument(defaultDoorArgument(true, 2).build())
+                .argument(defaultDoorArgument(true, PermissionLevel.USER).build())
                 .handler(executor::info)
         );
     }
@@ -261,7 +262,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.MENU, "commands.menu.description")
-                .argument(PlayerArgument.<ICommandSender>newBuilder("targetPlayer").asOptional())
+                .argument(PlayerArgument.<ICommandSender>builder("targetPlayer").asOptional())
                 .handler(executor::menu)
         );
     }
@@ -271,7 +272,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.MOVE_POWER_BLOCK, "commands.move_power_block.description")
-                .argument(defaultDoorArgument(true, 1).build())
+                .argument(defaultDoorArgument(true, PermissionLevel.ADMIN).build())
                 .handler(executor::movePowerBlock)
         );
     }
@@ -282,7 +283,7 @@ public final class CommandManager
         manager.command(
             baseInit(builder, CommandDefinition.NEW_DOOR, "commands.new_door.description")
                 .argument(defaultDoorTypeArgument(true).build())
-                .argument(StringArgument.<ICommandSender>newBuilder("doorName").asOptional().build())
+                .argument(StringArgument.<ICommandSender>builder("doorName").asOptional().build())
                 .handler(executor::newDoor)
         );
     }
@@ -292,7 +293,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.REMOVE_OWNER, "commands.remove_owner.description")
-                .argument(defaultDoorArgument(true, 1).build())
+                .argument(defaultDoorArgument(true, PermissionLevel.ADMIN).build())
                 .argument(PlayerArgument.of("targetPlayer"))
                 .handler(executor::removeOwner)
         );
@@ -313,7 +314,7 @@ public final class CommandManager
         manager.command(
             baseInit(builder, CommandDefinition.SET_AUTO_CLOSE_TIME, "commands.set_auto_close_time.description")
                 .argument(IntegerArgument.of("autoCloseTime"))
-                .argument(defaultDoorArgument(false, 1).build())
+                .argument(defaultDoorArgument(false, PermissionLevel.ADMIN).build())
                 .handler(executor::setAutoCloseTime)
         );
     }
@@ -324,7 +325,7 @@ public final class CommandManager
         manager.command(
             baseInit(builder, CommandDefinition.SET_BLOCKS_TO_MOVE, "commands.set_blocks_to_move.description")
                 .argument(IntegerArgument.of("blocksToMove"))
-                .argument(defaultDoorArgument(false, 1).build())
+                .argument(defaultDoorArgument(false, PermissionLevel.ADMIN).build())
                 .handler(executor::setBlocksToMove)
         );
     }
@@ -345,7 +346,7 @@ public final class CommandManager
         manager.command(
             baseInit(builder, CommandDefinition.SET_OPEN_DIR, "commands.set_open_direction.description")
                 .argument(defaultDirectionArgument(true).build())
-                .argument(defaultDoorArgument(false, 1).build())
+                .argument(defaultDoorArgument(false, PermissionLevel.ADMIN).build())
                 .handler(executor::setOpenDirection)
         );
     }
@@ -373,7 +374,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.TOGGLE, "commands.toggle.description")
-                .argument(defaultDoorArgument(true, 2).build())
+                .argument(defaultDoorArgument(true, PermissionLevel.USER).build())
                 .handler(executor::toggle)
         );
     }
@@ -387,7 +388,7 @@ public final class CommandManager
         );
     }
 
-    private DoorArgument.DoorArgumentBuilder defaultDoorArgument(boolean required, int maxPermission)
+    private DoorArgument.DoorArgumentBuilder defaultDoorArgument(boolean required, PermissionLevel maxPermission)
     {
         return DoorArgument.builder().required(required).name("doorRetriever")
                            .asyncSuggestions(asyncCompletions)

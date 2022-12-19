@@ -6,11 +6,12 @@ import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorAttribute;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorOwner;
+import nl.pim16aap2.bigdoors.doors.PermissionLevel;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
-import nl.pim16aap2.bigdoors.util.DoorAttribute;
-import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 
@@ -65,8 +66,8 @@ public class RemoveOwner extends DoorTargetCommand
         }
 
         // Assume a permission level of 0 in case the command sender is not an owner but DOES have bypass access.
-        final int ownerPermission = doorOwner.map(DoorOwner::permission).orElse(0);
-        if (ownerPermission > DoorAttribute.getPermissionLevel(DoorAttribute.REMOVE_OWNER))
+        final PermissionLevel ownerPermission = doorOwner.map(DoorOwner::permission).orElse(PermissionLevel.CREATOR);
+        if (!DoorAttribute.REMOVE_OWNER.canAccessWith(ownerPermission))
         {
             getCommandSender().sendMessage(localizer.getMessage("commands.remove_owner.error.not_allowed"));
             return false;
@@ -81,10 +82,10 @@ public class RemoveOwner extends DoorTargetCommand
             return false;
         }
 
-        if (targetDoorOwner.get().permission() <= ownerPermission)
+        if (targetDoorOwner.get().permission().isLowerThanOrEquals(ownerPermission))
         {
             getCommandSender()
-                .sendMessage(localizer.getMessage("commands.remove_owner.error.cannot_remove_higher_permission"));
+                .sendMessage(localizer.getMessage("commands.remove_owner.error.cannot_remove_lower_permission"));
             return false;
         }
         return true;

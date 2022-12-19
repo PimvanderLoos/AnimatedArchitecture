@@ -31,11 +31,6 @@ public final class Constants
     public static final int MINIMUM_DOOR_DELAY = 10;
 
     /**
-     * The permission node that allows a player to bypass all compatibility hooks.
-     */
-    public static final String COMPAT_BYPASS_PERMISSION = "bigdoors.admin.bypass_compats";
-
-    /**
      * The name of this plugin.
      */
     public static final String PLUGIN_NAME = "BigDoors";
@@ -43,7 +38,7 @@ public final class Constants
     /**
      * The directory where all the extensions are loaded from.
      */
-    public static final String BIGDOORS_EXTENSIONS_FOLDER_NAME = "Extensions";
+    public static final String BIGDOORS_EXTENSIONS_FOLDER_NAME = "extensions";
 
     /**
      * The amount of time (in seconds) a user has to complete the door creation process.

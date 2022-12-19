@@ -17,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -109,7 +110,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
         ILocalizer localizer,
         DelayedCommandInputManager delayedCommandInputManager)
     {
-        super(timeout);
+        super(timeout, TimeUnit.MILLISECONDS);
         this.commandSender = commandSender;
         this.commandDefinition = commandDefinition;
         this.localizer = localizer;

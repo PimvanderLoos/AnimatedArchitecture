@@ -21,7 +21,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.doorOwner0;
+import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.doorOwnerCreator;
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initCommandSenderPermissions;
 
 class DeleteTest
@@ -87,7 +87,7 @@ class DeleteTest
         Mockito.verify(databaseManager, Mockito.never()).deleteDoor(door, commandSender);
 
         // Has user permission, and is owner, so allowed.
-        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner0));
+        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwnerCreator));
         Assertions.assertTrue(factory.newDelete(commandSender, doorRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(databaseManager, Mockito.times(1)).deleteDoor(door, commandSender);
 

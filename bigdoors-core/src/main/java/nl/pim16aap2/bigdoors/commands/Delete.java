@@ -8,7 +8,7 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
-import nl.pim16aap2.bigdoors.util.DoorAttribute;
+import nl.pim16aap2.bigdoors.doors.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 
@@ -25,8 +25,9 @@ public class Delete extends DoorTargetCommand
     private final DatabaseManager databaseManager;
 
     @AssistedInject //
-    Delete(@Assisted ICommandSender commandSender, ILocalizer localizer,
-           @Assisted DoorRetriever doorRetriever, DatabaseManager databaseManager)
+    Delete(
+        @Assisted ICommandSender commandSender, ILocalizer localizer,
+        @Assisted DoorRetriever doorRetriever, DatabaseManager databaseManager)
     {
         super(commandSender, localizer, doorRetriever, DoorAttribute.DELETE);
         this.databaseManager = databaseManager;
