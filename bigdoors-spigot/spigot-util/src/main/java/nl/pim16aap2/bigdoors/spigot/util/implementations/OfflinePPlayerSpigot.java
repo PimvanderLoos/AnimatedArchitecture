@@ -6,6 +6,7 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.commands.CommandDefinition;
 import nl.pim16aap2.bigdoors.commands.PermissionsStatus;
+import nl.pim16aap2.bigdoors.text.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.Nullable;
@@ -42,6 +43,15 @@ public final class OfflinePPlayerSpigot implements IPPlayer
     @Override
     @Deprecated
     public void sendMessage(Level level, String message)
+    {
+    }
+
+    /**
+     * Calling this method has no effect, as there is no player to send the message to.
+     */
+    @Override
+    @Deprecated
+    public void sendMessage(Level level, Text text)
     {
     }
 

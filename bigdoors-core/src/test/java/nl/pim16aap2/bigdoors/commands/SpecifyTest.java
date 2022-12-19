@@ -58,12 +58,12 @@ class SpecifyTest
         final String input = "newDoor";
         Assertions.assertTrue(factory.newSpecify(commandSender, input).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(doorSpecificationManager).handleInput(commandSender, input);
-        Mockito.verify(commandSender, Mockito.never()).sendMessage(Mockito.any());
+        Mockito.verify(commandSender, Mockito.never()).sendMessage(Mockito.anyString());
 
         // Test again, but now the command sender is not an active tool user.
         Mockito.when(doorSpecificationManager.handleInput(Mockito.any(), Mockito.any())).thenReturn(false);
         Assertions.assertTrue(factory.newSpecify(commandSender, input).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(doorSpecificationManager, Mockito.times(2)).handleInput(commandSender, input);
-        Mockito.verify(commandSender).sendMessage(Mockito.any());
+        Mockito.verify(commandSender).sendMessage(Mockito.anyString());
     }
 }

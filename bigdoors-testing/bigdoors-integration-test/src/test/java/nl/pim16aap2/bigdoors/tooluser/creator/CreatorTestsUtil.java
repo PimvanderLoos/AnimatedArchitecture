@@ -13,6 +13,7 @@ import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.commands.DelayedCommand;
@@ -157,7 +158,7 @@ public class CreatorTestsUtil
 
         context = new ToolUser.Context(doorBaseBuilder, localizer, toolUserManager, databaseManager,
                                        limitsManager, economyManager, protectionCompatManager, bigDoorsToolUtil,
-                                       commandFactory);
+                                       commandFactory, ITextFactory.getSimpleTextFactory());
 
         initCommands();
 

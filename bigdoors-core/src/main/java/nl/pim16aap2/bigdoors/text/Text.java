@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.text;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
@@ -14,12 +15,12 @@ import java.util.function.BiFunction;
  * @author Pim
  */
 @SuppressWarnings("unused")
+@EqualsAndHashCode
 public class Text
 {
     /**
      * The {@link ColorScheme} used to add styles to sections of this text.
      */
-    @Getter
     private final ColorScheme colorScheme;
 
     /**

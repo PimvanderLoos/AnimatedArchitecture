@@ -11,4 +11,5 @@ public enum TextType
     ERROR,
     INFO,
     HIGHLIGHT,
+    SUCCESS,
 }

@@ -10,6 +10,7 @@ import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.doors.DoorBaseBuilder;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
@@ -331,13 +332,14 @@ public abstract class ToolUser
         private final IProtectionCompatManager protectionCompatManager;
         private final IBigDoorsToolUtil bigDoorsToolUtil;
         private final CommandFactory commandFactory;
+        private final ITextFactory textFactory;
 
         @Inject
         public Context(
             DoorBaseBuilder doorBaseBuilder, ILocalizer localizer, ToolUserManager toolUserManager,
             DatabaseManager databaseManager, LimitsManager limitsManager, IEconomyManager economyManager,
             IProtectionCompatManager protectionCompatManager, IBigDoorsToolUtil bigDoorsToolUtil,
-            CommandFactory commandFactory)
+            CommandFactory commandFactory, ITextFactory textFactory)
         {
             this.doorBaseBuilder = doorBaseBuilder;
             this.localizer = localizer;
@@ -348,6 +350,12 @@ public abstract class ToolUser
             this.protectionCompatManager = protectionCompatManager;
             this.bigDoorsToolUtil = bigDoorsToolUtil;
             this.commandFactory = commandFactory;
+            this.textFactory = textFactory;
+        }
+
+        public ITextFactory getTextFactory()
+        {
+            return textFactory;
         }
     }
 }

@@ -71,12 +71,12 @@ class ConfirmTest
         Assertions.assertTrue(factory.newConfirm(commandSender).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(toolUserManager).getToolUser(uuid);
         Mockito.verify(toolUser).handleInput(true);
-        Mockito.verify(commandSender, Mockito.never()).sendMessage(Mockito.any());
+        Mockito.verify(commandSender, Mockito.never()).sendMessage(Mockito.anyString());
 
         Mockito.when(toolUserManager.getToolUser(Mockito.any(UUID.class))).thenReturn(Optional.empty());
         Assertions.assertTrue(factory.newConfirm(commandSender).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(toolUserManager, Mockito.times(2)).getToolUser(uuid);
         Mockito.verify(toolUser).handleInput(true);
-        Mockito.verify(commandSender).sendMessage(Mockito.any());
+        Mockito.verify(commandSender).sendMessage(Mockito.anyString());
     }
 }

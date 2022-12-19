@@ -33,8 +33,8 @@ public final class SpigotAdapter
     /**
      * Converts an {@link IPWorld} object to a {@link World} object.
      * <p>
-     * If the {@link IPLocation} is an {@link PWorldSpigot}, only a simple cast is performed. Otherwise, a new {@link
-     * World} is constructed.
+     * If the {@link IPLocation} is an {@link PWorldSpigot}, only a simple cast is performed. Otherwise, a new
+     * {@link World} is constructed.
      *
      * @param pWorld
      *     The BigDoors world.
@@ -50,8 +50,8 @@ public final class SpigotAdapter
     /**
      * Converts an {@link IPLocation} object to a {@link Location} object.
      * <p>
-     * If the {@link IPLocation} is an {@link PLocationSpigot}, only a simple cast is performed. Otherwise, a new {@link
-     * Location} is constructed.
+     * If the {@link IPLocation} is an {@link PLocationSpigot}, only a simple cast is performed. Otherwise, a new
+     * {@link Location} is constructed.
      *
      * @param pLocation
      *     The BigDoors location.
