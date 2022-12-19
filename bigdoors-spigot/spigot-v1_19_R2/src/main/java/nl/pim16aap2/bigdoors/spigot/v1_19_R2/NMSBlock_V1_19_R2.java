@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.spigot.v1_19_R1;
+package nl.pim16aap2.bigdoors.spigot.v1_19_R2;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.Synchronized;
@@ -24,21 +24,21 @@ import org.bukkit.block.data.MultipleFacing;
 import org.bukkit.block.data.Orientable;
 import org.bukkit.block.data.Waterlogged;
 import org.bukkit.block.data.type.Stairs;
-import org.bukkit.craftbukkit.v1_19_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_19_R1.block.data.CraftBlockData;
+import org.bukkit.craftbukkit.v1_19_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_19_R2.block.data.CraftBlockData;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 import java.util.logging.Level;
 
 /**
- * v1_19_R1 implementation of {@link IAnimatedBlockData}.
+ * v1_19_R2 implementation of {@link IAnimatedBlockData}.
  *
  * @author Pim
  * @see IAnimatedBlockData
  */
 @Flogger
-public class NMSBlock_V1_19_R1 extends Block implements IAnimatedBlockData
+public class NMSBlock_V1_19_R2 extends Block implements IAnimatedBlockData
 {
     @SuppressWarnings("unused") // Appears unused, but it's referenced in annotations.
     private final Object blockDataLock = new Object();
@@ -57,7 +57,7 @@ public class NMSBlock_V1_19_R1 extends Block implements IAnimatedBlockData
     }
 
     /**
-     * Constructs a {@link NMSBlock_V1_19_R1}. Wraps the NMS block found in the given world at the provided
+     * Constructs a {@link NMSBlock_V1_19_R2}. Wraps the NMS block found in the given world at the provided
      * coordinates.
      *
      * @param worldServer
@@ -69,7 +69,7 @@ public class NMSBlock_V1_19_R1 extends Block implements IAnimatedBlockData
      * @param z
      *     The z coordinate of the NMS block.
      */
-    NMSBlock_V1_19_R1(WorldServer worldServer, int x, int y, int z)
+    NMSBlock_V1_19_R2(WorldServer worldServer, int x, int y, int z)
     {
         super(newBlockInfo(worldServer.getWorld(), new BlockPosition(x, y, z)));
         this.worldServer = worldServer;
@@ -85,7 +85,7 @@ public class NMSBlock_V1_19_R1 extends Block implements IAnimatedBlockData
     }
 
     /**
-     * Gets the NMS BlockData from the current {@link NMSBlock_V1_19_R1#bukkitBlockData}
+     * Gets the NMS BlockData from the current {@link NMSBlock_V1_19_R2#bukkitBlockData}
      */
     @Synchronized("blockDataLock")
     private void constructBlockDataFromBukkit()

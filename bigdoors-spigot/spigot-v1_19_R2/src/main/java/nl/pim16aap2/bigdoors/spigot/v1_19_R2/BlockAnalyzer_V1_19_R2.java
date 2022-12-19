@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.spigot.v1_19_R1;
+package nl.pim16aap2.bigdoors.spigot.v1_19_R2;
 
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.IPLocation;
@@ -18,7 +18,7 @@ import java.util.Set;
  * @author Pim
  */
 @Singleton
-public final class BlockAnalyzer_V1_19_R1 implements IBlockAnalyzer
+public final class BlockAnalyzer_V1_19_R2 implements IBlockAnalyzer
 {
     private static final Set<Material> WHITELIST = EnumSet.noneOf(Material.class);
     private static final Set<Material> BLACKLIST = EnumSet.noneOf(Material.class);

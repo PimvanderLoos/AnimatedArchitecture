@@ -18,7 +18,7 @@
 
     <modules>
         <module>spigot-v1_15_R1</module>
-        <module>spigot-v1_19_R1</module>
+        <module>spigot-v1_19_R2</module>
         <module>spigot-core</module>
         <module>spigot-util</module>
     </modules>

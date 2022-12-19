@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.spigot.v1_19_R1;
+package nl.pim16aap2.bigdoors.spigot.v1_19_R2;
 
 import lombok.Getter;
 import lombok.extern.flogger.Flogger;
@@ -16,8 +16,8 @@ import nl.pim16aap2.bigdoors.spigot.util.api.IGlowingBlockFactory;
 import nl.pim16aap2.bigdoors.util.IGlowingBlock;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_19_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_19_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_19_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Team;
 import org.jetbrains.annotations.Nullable;
@@ -27,13 +27,13 @@ import java.util.Optional;
 import java.util.logging.Level;
 
 /**
- * v1_19_R1 implementation of {@link IGlowingBlock}.
+ * v1_19_R2 implementation of {@link IGlowingBlock}.
  *
  * @author Pim
  * @see IGlowingBlock
  */
 @Flogger
-public class GlowingBlock_V1_19_R1 implements IGlowingBlock
+public class GlowingBlock_V1_19_R2 implements IGlowingBlock
 {
     private final EntityMagmaCube glowingBlockEntity;
     @Getter
@@ -44,15 +44,14 @@ public class GlowingBlock_V1_19_R1 implements IGlowingBlock
     private final Map<PColor, Team> teams;
     private final Player player;
 
-    public GlowingBlock_V1_19_R1(
-        Player player, World world, PColor pColor,
-        double x, double y, double z, Map<PColor, Team> teams)
+    public GlowingBlock_V1_19_R2(
+        Player player, World world, PColor pColor, double x, double y, double z, Map<PColor, Team> teams)
     {
         this.player = player;
         this.teams = teams;
 
-        glowingBlockEntity = new EntityMagmaCube(EntityTypes.aa, ((CraftWorld) world).getHandle());
-        entityId = glowingBlockEntity.ae();
+        glowingBlockEntity = new EntityMagmaCube(EntityTypes.ab, ((CraftWorld) world).getHandle());
+        entityId = glowingBlockEntity.ah();
         spawn(pColor, x, y, z);
     }
 
@@ -112,13 +111,13 @@ public class GlowingBlock_V1_19_R1 implements IGlowingBlock
         glowingBlockEntity.b(6, true); // setSharedFlag(), tag: Glowing
         glowingBlockEntity.b(5, true); // setSharedFlag(), tag: Invisible
         glowingBlockEntity.a(2, true); // setSize()
-        team.addEntry(glowingBlockEntity.cq()); // getStringUUID()
+        team.addEntry(glowingBlockEntity.ct()); // getStringUUID()
 
         final PacketPlayOutSpawnEntity spawnGlowingBlock = new PacketPlayOutSpawnEntity(glowingBlockEntity);
         playerConnection.a(spawnGlowingBlock);
 
         final PacketPlayOutEntityMetadata entityMetadata =
-            new PacketPlayOutEntityMetadata(glowingBlockEntity.ae(), glowingBlockEntity.ai(), false);
+            new PacketPlayOutEntityMetadata(glowingBlockEntity.ah(), glowingBlockEntity.al().c());
         playerConnection.a(entityMetadata);
         alive = true;
     }
@@ -159,7 +158,7 @@ public class GlowingBlock_V1_19_R1 implements IGlowingBlock
         {
             try
             {
-                final GlowingBlock_V1_19_R1 block = new GlowingBlock_V1_19_R1(player, world, pColor, x, y, z, teams);
+                final GlowingBlock_V1_19_R2 block = new GlowingBlock_V1_19_R2(player, world, pColor, x, y, z, teams);
                 return block.alive ? Optional.of(block) : Optional.empty();
             }
             catch (Exception | ExceptionInInitializerError e)
@@ -180,6 +179,6 @@ public class GlowingBlock_V1_19_R1 implements IGlowingBlock
     @Override
     public boolean equals(Object obj)
     {
-        return obj instanceof GlowingBlock_V1_19_R1 other && this.entityId == other.entityId;
+        return obj instanceof GlowingBlock_V1_19_R2 other && this.entityId == other.entityId;
     }
 }

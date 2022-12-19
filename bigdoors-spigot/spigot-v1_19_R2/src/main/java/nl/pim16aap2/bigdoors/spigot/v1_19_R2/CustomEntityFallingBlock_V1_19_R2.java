@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.spigot.v1_19_R1;
+package nl.pim16aap2.bigdoors.spigot.v1_19_R2;
 
 import com.google.common.flogger.StackSize;
 import lombok.EqualsAndHashCode;
@@ -7,6 +7,7 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import net.minecraft.CrashReportSystemDetails;
 import net.minecraft.core.BlockPosition;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.GameProfileSerializer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.protocol.game.PacketPlayOutEntity;
@@ -34,8 +35,8 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_19_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_19_R1.util.CraftMagicNumbers;
+import org.bukkit.craftbukkit.v1_19_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_19_R2.util.CraftMagicNumbers;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,7 +45,7 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 
 /**
- * v1_19_R1 implementation of {@link IAnimatedBlock}.
+ * v1_19_R2 implementation of {@link IAnimatedBlock}.
  *
  * @author Pim
  * @see IAnimatedBlock
@@ -52,10 +53,10 @@ import java.util.logging.Level;
 @Flogger
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class CustomEntityFallingBlock_V1_19_R1 extends EntityFallingBlock implements IAnimatedBlockSpigot
+public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implements IAnimatedBlockSpigot
 {
     @Getter
-    private final NMSBlock_V1_19_R1 animatedBlockData;
+    private final NMSBlock_V1_19_R2 animatedBlockData;
     @Getter
     private final org.bukkit.World bukkitWorld;
     @Getter
@@ -84,12 +85,12 @@ public class CustomEntityFallingBlock_V1_19_R1 extends EntityFallingBlock implem
     private final Vector3Dd startPosition;
     private final Vector3Dd finalPosition;
 
-    public CustomEntityFallingBlock_V1_19_R1(
+    public CustomEntityFallingBlock_V1_19_R2(
         IPWorld pWorld, World world, double posX, double posY, double posZ, float radius, float startAngle,
         boolean onEdge, AnimationContext context, AnimatedBlockHookManager animatedBlockHookManager,
         Vector3Dd finalPosition)
     {
-        super(EntityTypes.E, ((CraftWorld) world).getHandle());
+        super(EntityTypes.F, ((CraftWorld) world).getHandle());
         this.pWorld = pWorld;
         bukkitWorld = world;
         this.radius = radius;
@@ -101,23 +102,20 @@ public class CustomEntityFallingBlock_V1_19_R1 extends EntityFallingBlock implem
         // Do not round x and z because they are at half blocks; Given x;z 10;5, the block will be spawned at
         // 10.5;5.5. Rounding it would retrieve the blocks at 11;6.
         this.animatedBlockData =
-            new NMSBlock_V1_19_R1(worldServer, (int) Math.floor(posX), (int) Math.round(posY), (int) Math.floor(posZ));
+            new NMSBlock_V1_19_R2(worldServer, (int) Math.floor(posX), (int) Math.round(posY), (int) Math.floor(posZ));
         this.startLocation = new PLocationSpigot(new Location(bukkitWorld, posX, posY, posZ));
         this.startPosition = new Vector3Dd(startLocation.getX(), startLocation.getY(), startLocation.getZ());
 
         previousPosition = new Vector3Dd(posX, posY, posZ);
         currentPosition = previousPosition;
 
-        this.e(posX, posY, posZ);
-        this.t = posX;
-        this.u = posY;
-        this.v = posZ;
-        this.e(true); // setNoGravity
-        this.f(new Vec3D(0.0D, 0.0D, 0.0D));
-        this.a(new BlockPosition(this.dg(), this.di(), this.dm()));
+        this.f(posX, posY, posZ);
         super.b = 0;
         super.aq = false;
         super.Q = true;
+        this.e(true);
+        this.f(new Vec3D(0.0D, 0.0D, 0.0D));
+        this.a(new BlockPosition(this.dk(), this.dm(), this.dq()));
 
         setEntityInLevelCallback();
 
@@ -136,14 +134,14 @@ public class CustomEntityFallingBlock_V1_19_R1 extends EntityFallingBlock implem
             @Override
             public void a() // onMove
             {
-                CustomEntityFallingBlock_V1_19_R1.this.entityInLevelCallback.a();
+                CustomEntityFallingBlock_V1_19_R2.this.entityInLevelCallback.a();
             }
 
             @Override
             public void a(RemovalReason removalReason) // onRemove
             {
-                CustomEntityFallingBlock_V1_19_R1.this.entityInLevelCallback.a(removalReason);
-                CustomEntityFallingBlock_V1_19_R1.this.handleDeath();
+                CustomEntityFallingBlock_V1_19_R2.this.entityInLevelCallback.a(removalReason);
+                CustomEntityFallingBlock_V1_19_R2.this.handleDeath();
             }
         });
     }
@@ -159,7 +157,7 @@ public class CustomEntityFallingBlock_V1_19_R1 extends EntityFallingBlock implem
 
     private synchronized void handleDeath()
     {
-        this.cJ().forEach(Entity::p); // Remove passengers
+        this.cN().forEach(Entity::q); // Remove passengers
         forEachHook("onDie", IAnimatedBlockHook::onDie);
     }
 
@@ -167,7 +165,7 @@ public class CustomEntityFallingBlock_V1_19_R1 extends EntityFallingBlock implem
     public synchronized void spawn()
     {
         worldServer.addFreshEntity(this, SpawnReason.CUSTOM);
-        tracker = Util.requireNonNull(worldServer.k().a.K.get(ae()), "entity tracker");
+        tracker = Util.requireNonNull(worldServer.k().a.L.get(getEntityId()), "entity tracker");
         dw(); // Mark alive
 
         forEachHook("onSpawn", IAnimatedBlockHook::onSpawn);
@@ -211,7 +209,7 @@ public class CustomEntityFallingBlock_V1_19_R1 extends EntityFallingBlock implem
         final short relZ = (short) ((int) MathHelper.c(deltaZ * 4096.0));
 
         final PacketPlayOutEntity.PacketPlayOutRelEntityMove tpPacket =
-            new PacketPlayOutEntity.PacketPlayOutRelEntityMove(ae(), relX, relY, relZ, false);
+            new PacketPlayOutEntity.PacketPlayOutRelEntityMove(getEntityId(), relX, relY, relZ, false);
 
         if (tracker != null)
             tracker.a(tpPacket);
@@ -223,22 +221,22 @@ public class CustomEntityFallingBlock_V1_19_R1 extends EntityFallingBlock implem
     }
 
     @Override
-    public synchronized void k()
+    public synchronized void l()
     {
         if (!isAlive())
             return;
 
         forEachHook("preTick", IAnimatedBlockHook::preTick);
         if (animatedBlockData.getMyBlockData().h())
-            ah();
+            kill();
         else
         {
             final Vec3D mot = super.de();
             if (Math.abs(mot.c) < 0.001 && Math.abs(mot.d) < 0.001 && Math.abs(mot.e) < 0.001)
                 return;
 
-            if (b > 12_000)
-                ah();
+            if (getTicksAlive() > 12_000)
+                kill();
 
             final Vector3Dd newLocation = currentPosition.add(mot.c, mot.d, mot.e);
             cyclePositions(newLocation);
@@ -279,7 +277,7 @@ public class CustomEntityFallingBlock_V1_19_R1 extends EntityFallingBlock implem
     @Override
     protected void a(NBTTagCompound nbttagcompound)
     {
-        animatedBlockData.setBlockData(GameProfileSerializer.c(nbttagcompound.p("BlockState")));
+        animatedBlockData.setBlockData(GameProfileSerializer.a(this.s.a(Registries.e), nbttagcompound.p("BlockState")));
         b = nbttagcompound.h("Time");
 
         if (nbttagcompound.b("TileEntityData", 10))
@@ -327,13 +325,13 @@ public class CustomEntityFallingBlock_V1_19_R1 extends EntityFallingBlock implem
     @Override
     public void kill()
     {
-        ah();
+        aj();
     }
 
     @Override
     public IPLocation getPLocation()
     {
-        return SpigotAdapter.wrapLocation(new Location(bukkitWorld, dg(), di(), dm(), dr(), dt()));
+        return SpigotAdapter.wrapLocation(new Location(bukkitWorld, dk(), dm(), dq(), dv(), dx()));
     }
 
     @Override
@@ -389,5 +387,15 @@ public class CustomEntityFallingBlock_V1_19_R1 extends EntityFallingBlock implem
     public double getStartZ()
     {
         return startLocation.getZ();
+    }
+
+    private int getEntityId()
+    {
+        return super.ah();
+    }
+
+    private int getTicksAlive()
+    {
+        return super.b;
     }
 }
