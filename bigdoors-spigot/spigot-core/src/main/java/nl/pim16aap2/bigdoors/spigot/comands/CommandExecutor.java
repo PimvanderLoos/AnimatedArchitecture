@@ -8,9 +8,8 @@ import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.commands.ICommandSender;
 import nl.pim16aap2.bigdoors.doors.PermissionLevel;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import nl.pim16aap2.bigdoors.spigot.util.implementations.PPlayerSpigot;
+import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 import org.bukkit.entity.Player;
@@ -18,7 +17,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.OptionalInt;
 
 @Singleton
 @Flogger
@@ -35,30 +33,12 @@ class CommandExecutor
         this.doorRetrieverFactory = doorRetrieverFactory;
     }
 
-    private @Nullable PermissionLevel parsePermissionLevel(@Nullable String permissionStr)
-    {
-        if (permissionStr == null)
-            return null;
-
-        final @Nullable PermissionLevel permissionLevel;
-
-        final OptionalInt permissionInt = Util.parseInt(permissionStr);
-        if (permissionInt.isPresent())
-            permissionLevel = PermissionLevel.fromValue(permissionInt.getAsInt());
-        else
-            permissionLevel = PermissionLevel.fromName(permissionStr);
-
-        if (permissionLevel == null)
-            log.atInfo().log("Unable to parse permission level: '{}'", permissionInt);
-        return permissionLevel;
-    }
-
     // NullAway doesn't see the @Nullable on permissionLevel. Not sure if this is because of Lombok or NullAway.
     @SuppressWarnings("NullAway")
     void addOwner(CommandContext<ICommandSender> context)
     {
-        final IPPlayer newOwner = context.get("newOwner");
-        final @Nullable PermissionLevel permissionLevel = parsePermissionLevel(nullable(context, "permissionLevel"));
+        final IPPlayer newOwner = SpigotAdapter.wrapPlayer(context.get("newOwner"));
+        final @Nullable PermissionLevel permissionLevel = nullable(context, "permissionLevel");
         final @Nullable DoorRetriever doorRetriever = nullable(context, "doorRetriever");
 
         final ICommandSender commandSender = context.getSender();
@@ -126,7 +106,7 @@ class CommandExecutor
         final ICommandSender commandSender = context.getSender();
         final IPPlayer targetPlayer;
         if (player != null)
-            targetPlayer = new PPlayerSpigot(player);
+            targetPlayer = SpigotAdapter.wrapPlayer(player);
         else
             targetPlayer = commandSender.getPlayer().orElseThrow(IllegalArgumentException::new);
 
@@ -151,7 +131,7 @@ class CommandExecutor
     void removeOwner(CommandContext<ICommandSender> context)
     {
         final DoorRetriever doorRetriever = context.get("doorRetriever");
-        final IPPlayer targetPlayer = new PPlayerSpigot(context.get("targetPlayer"));
+        final IPPlayer targetPlayer = SpigotAdapter.wrapPlayer(context.get("targetPlayer"));
         commandFactory.newRemoveOwner(context.getSender(), doorRetriever, targetPlayer).run();
     }
 

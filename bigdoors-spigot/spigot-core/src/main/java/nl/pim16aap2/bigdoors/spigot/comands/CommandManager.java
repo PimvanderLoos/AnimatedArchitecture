@@ -170,10 +170,14 @@ public final class CommandManager
         manager.command(
             baseInit(builder, CommandDefinition.ADD_OWNER, "commands.add_owner.description")
                 .argument(PlayerArgument.of("newOwner"))
-                .argument(IntegerArgument
-                              .<ICommandSender>builder("permissionLevel")
-                              .withMin(1).withMax(2).asOptionalWithDefault(2)
-                              .withDefaultDescription(ArgumentDescription.of(
+                .argument(PermissionLevelArgument
+                              .builder()
+                              .name("permissionLevel")
+                              .required(true)
+                              .minimumLevel(PermissionLevel.ADMIN)
+                              .maximumLevel(PermissionLevel.USER)
+                              .localizer(localizer)
+                              .defaultDescription(ArgumentDescription.of(
                                   localizer.getMessage("commands.add_owner.param.permission_level.description")))
                               .build())
                 .argument(defaultDoorArgument(false, PermissionLevel.ADMIN).build())
