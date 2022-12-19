@@ -1,9 +1,12 @@
 package nl.pim16aap2.bigdoors;
 
 import lombok.SneakyThrows;
+import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IPLocation;
+import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.text.Text;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -12,6 +15,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -182,8 +186,9 @@ public class UnitTestUtil
      * @param <T>
      *     The type of the throwable wrapped inside the RuntimeException.
      */
-    public static <T extends Throwable> void assertWrappedThrows(Class<T> expectedType, Executable executable,
-                                                                 boolean deepSearch)
+    public static <T extends Throwable> void assertWrappedThrows(
+        Class<T> expectedType, Executable executable,
+        boolean deepSearch)
     {
         RuntimeException rte = Assertions.assertThrows(RuntimeException.class, executable);
         if (deepSearch)
@@ -250,5 +255,22 @@ public class UnitTestUtil
             ret[idx] = (T) obj;
         }
         return ret;
+    }
+
+    /**
+     * Creates a new mock of an {@link IPPlayer}.
+     * <p>
+     * The {@link IPPlayer#sendMessage(Text)} method is redirected to {@link IPPlayer#sendMessage(String)} using
+     * {@link Text#toPlainString()}. This makes it easier to check if any messages have been sent.
+     */
+    public static <T extends IMessageable> T redirectSendMessageText(T messageable)
+    {
+        Mockito.doAnswer((Answer<Void>) invocation ->
+        {
+            messageable.sendMessage(invocation.getArgument(0, Text.class).toPlainString());
+            //noinspection DataFlowIssue
+            return null;
+        }).when(messageable).sendMessage(Mockito.any(Text.class));
+        return messageable;
     }
 }

@@ -6,11 +6,12 @@ import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorAttribute;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.events.IDoorEventCaller;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.doors.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 
@@ -32,10 +33,11 @@ public class Lock extends DoorTargetCommand
 
     @AssistedInject //
     Lock(
-        @Assisted ICommandSender commandSender, ILocalizer localizer, @Assisted DoorRetriever doorRetriever,
+        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
+        @Assisted DoorRetriever doorRetriever,
         @Assisted boolean lockedStatus, IDoorEventCaller doorEventCaller, IBigDoorsEventFactory bigDoorsEventFactory)
     {
-        super(commandSender, localizer, doorRetriever, DoorAttribute.LOCK);
+        super(commandSender, localizer, textFactory, doorRetriever, DoorAttribute.LOCK);
         this.lockedStatus = lockedStatus;
         this.doorEventCaller = doorEventCaller;
         this.bigDoorsEventFactory = bigDoorsEventFactory;

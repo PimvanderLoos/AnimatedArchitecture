@@ -5,6 +5,7 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
@@ -29,11 +30,12 @@ public class NewDoor extends BaseCommand
     private final Provider<Creator.Context> creatorContextProvider;
 
     @AssistedInject //
-    NewDoor(@Assisted ICommandSender commandSender, ILocalizer localizer, @Assisted DoorType doorType,
-            @Assisted @Nullable String doorName, ToolUserManager toolUserManager,
-            Provider<Creator.Context> creatorContextProvider)
+    NewDoor(
+        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
+        @Assisted DoorType doorType, @Assisted @Nullable String doorName, ToolUserManager toolUserManager,
+        Provider<Creator.Context> creatorContextProvider)
     {
-        super(commandSender, localizer);
+        super(commandSender, localizer, textFactory);
         this.doorType = doorType;
         this.doorName = doorName;
         this.toolUserManager = toolUserManager;

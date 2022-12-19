@@ -1,6 +1,8 @@
 package nl.pim16aap2.bigdoors.commands;
 
+import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
@@ -13,6 +15,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.mockito.Answers;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -37,9 +40,11 @@ class DelayedCommandTest
         new DelayedCommandInputManager(Mockito.mock(DebuggableRegistry.class));
     @Mock ILocalizer localizer;
     @Mock DelayedCommandInputRequest.IFactory<Object> inputRequestFactory;
+    @Spy ITextFactory textFactory = ITextFactory.getSimpleTextFactory();
     @InjectMocks DelayedCommand.Context context;
 
-    @Mock ICommandSender commandSender;
+    @Mock(answer = Answers.CALLS_REAL_METHODS)
+    ICommandSender commandSender;
 
     DoorRetriever doorRetriever;
     @Mock AbstractDoor door;
@@ -53,6 +58,7 @@ class DelayedCommandTest
     void init()
     {
         openMocks = MockitoAnnotations.openMocks(this);
+        UnitTestUtil.redirectSendMessageText(commandSender);
 
         Mockito.when(localizer.getMessage(Mockito.anyString(), ArgumentMatchers.<String>any())).thenAnswer(
             invocation -> invocation.getArgument(0, String.class));
@@ -127,6 +133,7 @@ class DelayedCommandTest
                 invocation.getArgument(4),
                 invocation.getArgument(5),
                 localizer,
+                ITextFactory.getSimpleTextFactory(),
                 delayedCommandInputManager));
     }
 

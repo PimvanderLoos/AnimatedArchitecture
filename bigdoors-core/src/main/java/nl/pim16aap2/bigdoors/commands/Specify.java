@@ -5,8 +5,10 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
+import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.util.delayedinput.DelayedInputRequest;
 
 import java.util.concurrent.CompletableFuture;
@@ -23,10 +25,11 @@ public class Specify extends BaseCommand
     private final DoorSpecificationManager doorSpecificationManager;
 
     @AssistedInject //
-    Specify(@Assisted ICommandSender commandSender, ILocalizer localizer,
-            @Assisted String input, DoorSpecificationManager doorSpecificationManager)
+    Specify(
+        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
+        @Assisted String input, DoorSpecificationManager doorSpecificationManager)
     {
-        super(commandSender, localizer);
+        super(commandSender, localizer, textFactory);
         this.input = input;
         this.doorSpecificationManager = doorSpecificationManager;
     }
@@ -48,8 +51,8 @@ public class Specify extends BaseCommand
     protected CompletableFuture<Boolean> executeCommand(PermissionsStatus permissions)
     {
         if (!doorSpecificationManager.handleInput((IPPlayer) getCommandSender(), input))
-            getCommandSender().sendMessage(localizer
-                                               .getMessage("commands.base.error.no_pending_process"));
+            getCommandSender().sendMessage(textFactory, TextType.ERROR,
+                                           localizer.getMessage("commands.base.error.no_pending_process"));
         return CompletableFuture.completedFuture(true);
     }
 

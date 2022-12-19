@@ -17,6 +17,7 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
+import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import org.jetbrains.annotations.Nullable;
@@ -41,6 +42,8 @@ public abstract class ToolUser
     protected final IProtectionCompatManager protectionCompatManager;
 
     protected final IBigDoorsToolUtil bigDoorsToolUtil;
+
+    protected final ITextFactory textFactory;
 
     /**
      * The {@link Procedure} that this {@link ToolUser} will go through.
@@ -71,6 +74,7 @@ public abstract class ToolUser
         toolUserManager = context.getToolUserManager();
         protectionCompatManager = context.getProtectionCompatManager();
         bigDoorsToolUtil = context.getBigDoorsToolUtil();
+        textFactory = context.getTextFactory();
 
         init();
 
@@ -141,7 +145,7 @@ public abstract class ToolUser
         playerHasStick = true;
 
         if (messageKey != null)
-            getPlayer().sendMessage(localizer.getMessage(messageKey));
+            getPlayer().sendMessage(textFactory, TextType.SUCCESS, localizer.getMessage(messageKey));
     }
 
     /**
@@ -208,7 +212,7 @@ public abstract class ToolUser
         catch (Exception e)
         {
             log.at(Level.SEVERE).withCause(e).log("Failed to apply input %s to ToolUser %s", obj, this);
-            getPlayer().sendMessage(localizer.getMessage("constants.error.generic"));
+            getPlayer().sendMessage(textFactory, TextType.ERROR, localizer.getMessage("constants.error.generic"));
             abort();
             return false;
         }
@@ -258,7 +262,7 @@ public abstract class ToolUser
         if (message.isEmpty())
             log.at(Level.WARNING).log("Missing translation for step: %s", getProcedure().getCurrentStepName());
         else
-            getPlayer().sendMessage(message);
+            getPlayer().sendMessage(textFactory, TextType.INFO, message);
     }
 
     /**
@@ -289,7 +293,8 @@ public abstract class ToolUser
             {
                 log.at(Level.FINE).log("Blocked access to cuboid %s for player %s! Reason: %s",
                                        loc, getPlayer(), compat);
-                getPlayer().sendMessage(localizer.getMessage("tool_user.base.error.no_permission_for_location"));
+                getPlayer().sendMessage(textFactory, TextType.ERROR,
+                                        localizer.getMessage("tool_user.base.error.no_permission_for_location"));
             });
         return result.isEmpty();
     }
@@ -315,7 +320,8 @@ public abstract class ToolUser
             {
                 log.at(Level.FINE).log("Blocked access to cuboid %s for player %s in world %s. Reason: %s",
                                        cuboid, getPlayer(), world, compat);
-                getPlayer().sendMessage(localizer.getMessage("tool_user.base.error.no_permission_for_location"));
+                getPlayer().sendMessage(textFactory, TextType.ERROR,
+                                        localizer.getMessage("tool_user.base.error.no_permission_for_location"));
             });
         return result.isEmpty();
     }

@@ -6,7 +6,9 @@ import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatformProvider;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.text.TextType;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -21,9 +23,11 @@ public class Version extends BaseCommand
     private final IBigDoorsPlatformProvider platformProvider;
 
     @AssistedInject //
-    Version(@Assisted ICommandSender commandSender, ILocalizer localizer, IBigDoorsPlatformProvider platformProvider)
+    Version(
+        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
+        IBigDoorsPlatformProvider platformProvider)
     {
-        super(commandSender, localizer);
+        super(commandSender, localizer, textFactory);
         this.platformProvider = platformProvider;
     }
 
@@ -37,8 +41,9 @@ public class Version extends BaseCommand
     protected CompletableFuture<Boolean> executeCommand(PermissionsStatus permissions)
     {
         // TODO: Localization
-        getCommandSender().sendMessage(
-            platformProvider.getPlatform().map(IBigDoorsPlatform::getVersion).orElse("NULL"));
+        getCommandSender().sendMessage(textFactory, TextType.ERROR,
+                                       platformProvider.getPlatform().map(IBigDoorsPlatform::getVersion)
+                                                       .orElse("NULL"));
         return CompletableFuture.completedFuture(true);
     }
 

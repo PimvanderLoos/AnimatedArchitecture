@@ -5,8 +5,10 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
+import nl.pim16aap2.bigdoors.text.TextType;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -24,9 +26,11 @@ public class Confirm extends BaseCommand
     private final ToolUserManager toolUserManager;
 
     @AssistedInject //
-    Confirm(@Assisted ICommandSender commandSender, ILocalizer localizer, ToolUserManager toolUserManager)
+    Confirm(
+        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
+        ToolUserManager toolUserManager)
     {
-        super(commandSender, localizer);
+        super(commandSender, localizer, textFactory);
         this.toolUserManager = toolUserManager;
     }
 
@@ -49,7 +53,8 @@ public class Confirm extends BaseCommand
         if (toolUser.isPresent())
             toolUser.get().handleInput(true);
         else
-            getCommandSender().sendMessage(localizer.getMessage("commands.confirm.error.no_confirmation_request"));
+            getCommandSender().sendMessage(textFactory, TextType.ERROR,
+                                           localizer.getMessage("commands.confirm.error.no_confirmation_request"));
 
         return CompletableFuture.completedFuture(true);
     }

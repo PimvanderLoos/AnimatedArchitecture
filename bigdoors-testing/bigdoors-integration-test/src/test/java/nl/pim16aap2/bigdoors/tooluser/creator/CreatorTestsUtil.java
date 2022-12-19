@@ -196,6 +196,7 @@ public class CreatorTestsUtil
                 .setMock(DelayedCommandInputManager.class, delayedCommandInputManager);
 
         final var commandContext = new DelayedCommand.Context(delayedCommandInputManager, localizer,
+                                                              ITextFactory.getSimpleTextFactory(),
                                                               () -> commandFactory);
         final SetOpenDirectionDelayed setOpenDirectionDelayed =
             new SetOpenDirectionDelayed(commandContext, assistedFactory.getFactory());

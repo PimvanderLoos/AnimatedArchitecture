@@ -4,11 +4,13 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorAttribute;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.doors.DoorAttribute;
+import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 
@@ -28,10 +30,10 @@ public class SetAutoCloseTime extends DoorTargetCommand
 
     @AssistedInject //
     SetAutoCloseTime(
-        @Assisted ICommandSender commandSender, ILocalizer localizer,
+        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
         @Assisted DoorRetriever doorRetriever, @Assisted int autoCloseTime)
     {
-        super(commandSender, localizer, doorRetriever, DoorAttribute.AUTO_CLOSE_TIMER);
+        super(commandSender, localizer, textFactory, doorRetriever, DoorAttribute.AUTO_CLOSE_TIMER);
         this.autoCloseTime = autoCloseTime;
     }
 
@@ -46,7 +48,8 @@ public class SetAutoCloseTime extends DoorTargetCommand
     {
         if (!(door instanceof ITimerToggleable))
         {
-            getCommandSender().sendMessage(localizer.getMessage("commands.set_auto_close_time.error.invalid_door_type",
+            getCommandSender().sendMessage(textFactory, TextType.ERROR,
+                                           localizer.getMessage("commands.set_auto_close_time.error.invalid_door_type",
                                                                 door.getBasicInfo()));
             return CompletableFuture.completedFuture(true);
         }

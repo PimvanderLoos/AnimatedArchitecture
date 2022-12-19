@@ -4,6 +4,7 @@ import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
@@ -50,6 +51,7 @@ class InfoTest
         Mockito.when(factory.newInfo(Mockito.any(ICommandSender.class),
                                      Mockito.any(DoorRetriever.class)))
                .thenAnswer(invoc -> new Info(invoc.getArgument(0, ICommandSender.class), localizer,
+                                             ITextFactory.getSimpleTextFactory(),
                                              invoc.getArgument(1, DoorRetriever.class),
                                              glowingBlockSpawner));
     }
@@ -58,7 +60,9 @@ class InfoTest
     @SneakyThrows
     void testServer()
     {
-        final IPServer server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
+        final IPServer server =
+            UnitTestUtil.redirectSendMessageText(Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS));
+
         Assertions.assertTrue(factory.newInfo(server, doorRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(glowingBlockSpawner, Mockito.never())
                .spawnGlowingBlocks(Mockito.any(), Mockito.any(), Mockito.any());
@@ -69,7 +73,9 @@ class InfoTest
     @SneakyThrows
     void testPlayer()
     {
-        final IPPlayer player = Mockito.mock(IPPlayer.class, Answers.CALLS_REAL_METHODS);
+        final IPPlayer player =
+            UnitTestUtil.redirectSendMessageText(Mockito.mock(IPPlayer.class, Answers.CALLS_REAL_METHODS));
+
         final String doorString = door.toString();
 
         initCommandSenderPermissions(player, true, false);

@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
 import org.junit.jupiter.api.Assertions;
@@ -18,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 class SpecifyTest
 {
-    @Mock
+    @Mock(answer = Answers.CALLS_REAL_METHODS)
     private IPPlayer commandSender;
 
     @Mock
@@ -31,6 +32,7 @@ class SpecifyTest
     void init()
     {
         MockitoAnnotations.openMocks(this);
+        UnitTestUtil.redirectSendMessageText(commandSender);
 
         CommandTestingUtil.initCommandSenderPermissions(commandSender, true, true);
 
@@ -38,6 +40,7 @@ class SpecifyTest
 
         Mockito.when(factory.newSpecify(Mockito.any(ICommandSender.class), Mockito.anyString()))
                .thenAnswer(invoc -> new Specify(invoc.getArgument(0, ICommandSender.class), localizer,
+                                                ITextFactory.getSimpleTextFactory(),
                                                 invoc.getArgument(1, String.class), doorSpecificationManager));
     }
 

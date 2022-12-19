@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
@@ -36,6 +37,7 @@ class ListDoorsTest
     void init()
     {
         MockitoAnnotations.openMocks(this);
+        UnitTestUtil.redirectSendMessageText(playerCommandSender);
 
         final int size = 3;
         doors = new ArrayList<>(size);
@@ -47,6 +49,7 @@ class ListDoorsTest
         Mockito.when(factory.newListDoors(Mockito.any(ICommandSender.class),
                                           Mockito.any(DoorRetriever.class)))
                .thenAnswer(invoc -> new ListDoors(invoc.getArgument(0, ICommandSender.class), localizer,
+                                                  ITextFactory.getSimpleTextFactory(),
                                                   invoc.getArgument(1, DoorRetriever.class)));
     }
 

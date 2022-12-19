@@ -5,6 +5,8 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
@@ -23,10 +25,11 @@ public class Cancel extends BaseCommand
     private final DoorSpecificationManager doorSpecificationManager;
 
     @AssistedInject //
-    Cancel(@Assisted ICommandSender commandSender, nl.pim16aap2.bigdoors.localization.ILocalizer localizer,
-           ToolUserManager toolUserManager, DoorSpecificationManager doorSpecificationManager)
+    Cancel(
+        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
+        ToolUserManager toolUserManager, DoorSpecificationManager doorSpecificationManager)
     {
-        super(commandSender, localizer);
+        super(commandSender, localizer, textFactory);
         this.toolUserManager = toolUserManager;
         this.doorSpecificationManager = doorSpecificationManager;
     }

@@ -5,8 +5,10 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
+import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 
@@ -25,10 +27,11 @@ public class SetName extends BaseCommand
     private final ToolUserManager toolUserManager;
 
     @AssistedInject //
-    SetName(@Assisted ICommandSender commandSender, ILocalizer localizer, @Assisted String name,
-            ToolUserManager toolUserManager)
+    SetName(
+        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory, @Assisted String name,
+        ToolUserManager toolUserManager)
     {
-        super(commandSender, localizer);
+        super(commandSender, localizer, textFactory);
         this.name = name;
         this.toolUserManager = toolUserManager;
     }
@@ -53,7 +56,8 @@ public class SetName extends BaseCommand
         if (tu.isPresent() && tu.get() instanceof Creator)
             return CompletableFuture.completedFuture(tu.get().handleInput(name));
 
-        getCommandSender().sendMessage(localizer.getMessage("commands.base.error.no_pending_process"));
+        getCommandSender().sendMessage(textFactory, TextType.ERROR,
+                                       localizer.getMessage("commands.base.error.no_pending_process"));
         return CompletableFuture.completedFuture(true);
     }
 

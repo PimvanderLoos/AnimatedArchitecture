@@ -8,9 +8,11 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
+import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.delayedinput.DelayedInputRequest;
 import org.jetbrains.annotations.Nullable;
@@ -53,6 +55,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     @EqualsAndHashCode.Exclude
     private final ILocalizer localizer;
 
+    private final ITextFactory textFactory;
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private final DelayedCommandInputManager delayedCommandInputManager;
@@ -108,12 +111,14 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
         @Assisted @Nullable Supplier<String> initMessageSupplier,
         @Assisted Class<T> inputClass,
         ILocalizer localizer,
+        ITextFactory textFactory,
         DelayedCommandInputManager delayedCommandInputManager)
     {
         super(timeout, TimeUnit.MILLISECONDS);
         this.commandSender = commandSender;
         this.commandDefinition = commandDefinition;
         this.localizer = localizer;
+        this.textFactory = textFactory;
         this.delayedCommandInputManager = delayedCommandInputManager;
         this.initMessageSupplier = initMessageSupplier;
         this.inputClass = inputClass;
@@ -127,7 +132,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
         delayedCommandInputManager.register(commandSender, this);
         final @Nullable String initMessage = initMessageSupplier == null ? null : initMessageSupplier.get();
         if (initMessage != null && !initMessage.isBlank())
-            commandSender.sendMessage(initMessage);
+            commandSender.sendMessage(textFactory, TextType.INFO, initMessage);
     }
 
     private CompletableFuture<Boolean> constructOutput(Function<T, CompletableFuture<Boolean>> executor)
@@ -166,11 +171,13 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     {
         delayedCommandInputManager.deregister(commandSender, this);
         if (getStatus() == Status.TIMED_OUT)
-            commandSender.sendMessage(localizer.getMessage("commands.base.error.timed_out",
+            commandSender.sendMessage(textFactory, TextType.ERROR,
+                                      localizer.getMessage("commands.base.error.timed_out",
                                                            commandDefinition.getName().toLowerCase(Locale.ENGLISH)));
 
         if (getStatus() == Status.CANCELLED)
-            commandSender.sendMessage(localizer.getMessage("commands.base.error.cancelled",
+            commandSender.sendMessage(textFactory, TextType.ERROR,
+                                      localizer.getMessage("commands.base.error.cancelled",
                                                            commandDefinition.getName().toLowerCase(Locale.ENGLISH)));
     }
 

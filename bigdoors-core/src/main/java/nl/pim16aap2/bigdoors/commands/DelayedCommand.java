@@ -1,8 +1,10 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
+import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.delayedinput.DelayedInputRequest;
@@ -12,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import javax.inject.Singleton;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -35,6 +38,7 @@ public abstract class DelayedCommand<T>
 {
     protected final DelayedCommandInputManager delayedCommandInputManager;
     protected final ILocalizer localizer;
+    protected final ITextFactory textFactory;
     protected final Provider<CommandFactory> commandFactory;
     protected final DelayedCommandInputRequest.IFactory<T> inputRequestFactory;
     private final Class<T> delayedInputClz;
@@ -49,6 +53,7 @@ public abstract class DelayedCommand<T>
         this.commandFactory = context.commandFactoryProvider;
         this.inputRequestFactory = inputRequestFactory;
         this.delayedInputClz = delayedInputClz;
+        this.textFactory = context.textFactory;
     }
 
     /**
@@ -178,7 +183,8 @@ public abstract class DelayedCommand<T>
                     log.at(Level.SEVERE)
                        .log("'%s' tried to issue delayed command input '%s' without active command waiter!",
                             commandSender, data);
-                    commandSender.sendMessage(localizer.getMessage("commands.base.error.not_waiting"));
+                    commandSender.sendMessage(textFactory, TextType.ERROR,
+                                              localizer.getMessage("commands.base.error.not_waiting"));
                     return CompletableFuture.completedFuture(false);
                 });
     }
@@ -214,20 +220,24 @@ public abstract class DelayedCommand<T>
      */
     protected abstract String inputRequestMessage(ICommandSender commandSender, DoorRetriever doorRetriever);
 
+    @Singleton
     public static final class Context
     {
         private final DelayedCommandInputManager delayedCommandInputManager;
         private final ILocalizer localizer;
+        private final ITextFactory textFactory;
         private final Provider<CommandFactory> commandFactoryProvider;
 
         @Inject
         public Context(
             DelayedCommandInputManager delayedCommandInputManager,
             ILocalizer localizer,
+            ITextFactory textFactory,
             Provider<CommandFactory> commandFactoryProvider)
         {
             this.delayedCommandInputManager = delayedCommandInputManager;
             this.localizer = localizer;
+            this.textFactory = textFactory;
             this.commandFactoryProvider = commandFactoryProvider;
         }
     }

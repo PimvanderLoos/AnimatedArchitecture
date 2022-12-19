@@ -5,9 +5,11 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 
@@ -26,9 +28,11 @@ public class ListDoors extends BaseCommand
     private final DoorRetriever doorRetriever;
 
     @AssistedInject //
-    ListDoors(@Assisted ICommandSender commandSender, ILocalizer localizer, @Assisted DoorRetriever doorRetriever)
+    ListDoors(
+        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
+        @Assisted DoorRetriever doorRetriever)
     {
-        super(commandSender, localizer);
+        super(commandSender, localizer, textFactory);
         this.doorRetriever = doorRetriever;
     }
 
@@ -54,7 +58,8 @@ public class ListDoors extends BaseCommand
     {
         if (doors.isEmpty())
         {
-            getCommandSender().sendMessage(localizer.getMessage("commands.list_doors.error.no_doors_found"));
+            getCommandSender().sendMessage(textFactory, TextType.ERROR,
+                                           localizer.getMessage("commands.list_doors.error.no_doors_found"));
             return;
         }
 
@@ -62,7 +67,7 @@ public class ListDoors extends BaseCommand
             localizer.getMessage("commands.list_doors.door_list_header")).append('\n');
         for (final var door : doors)
             sb.append("  ").append(door.getBasicInfo()).append('\n');
-        getCommandSender().sendMessage(sb.toString());
+        getCommandSender().sendMessage(textFactory, TextType.INFO, sb.toString());
     }
 
     @AssistedFactory

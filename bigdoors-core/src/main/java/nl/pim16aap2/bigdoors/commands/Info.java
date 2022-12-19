@@ -6,10 +6,12 @@ import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorAttribute;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.doors.DoorAttribute;
+import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 
@@ -28,10 +30,10 @@ public class Info extends DoorTargetCommand
 
     @AssistedInject //
     Info(
-        @Assisted ICommandSender commandSender, ILocalizer localizer,
+        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
         @Assisted DoorRetriever doorRetriever, GlowingBlockSpawner glowingBlockSpawner)
     {
-        super(commandSender, localizer, doorRetriever, DoorAttribute.INFO);
+        super(commandSender, localizer, textFactory, doorRetriever, DoorAttribute.INFO);
         this.glowingBlockSpawner = glowingBlockSpawner;
     }
 
@@ -44,7 +46,7 @@ public class Info extends DoorTargetCommand
     @Override
     protected CompletableFuture<Boolean> performAction(AbstractDoor door)
     {
-        getCommandSender().sendMessage(door.toString());
+        getCommandSender().sendMessage(textFactory, TextType.INFO, door.toString());
         highlightBlocks(door);
         return CompletableFuture.completedFuture(true);
     }

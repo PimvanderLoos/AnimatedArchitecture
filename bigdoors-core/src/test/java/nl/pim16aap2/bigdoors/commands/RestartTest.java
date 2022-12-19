@@ -4,6 +4,7 @@ import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatformProvider;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +36,7 @@ class RestartTest
     void beforeEach()
     {
         MockitoAnnotations.openMocks(this);
+        UnitTestUtil.redirectSendMessageText(commandSender);
 
         Mockito.when(platformProvider.getPlatform()).thenReturn(Optional.of(platform));
 
@@ -42,7 +44,7 @@ class RestartTest
 
         Mockito.when(factory.newRestart(Mockito.any(ICommandSender.class)))
                .thenAnswer(invoc -> new Restart(invoc.getArgument(0, ICommandSender.class),
-                                                localizer, platformProvider));
+                                                localizer, ITextFactory.getSimpleTextFactory(), platformProvider));
     }
 
     @Test

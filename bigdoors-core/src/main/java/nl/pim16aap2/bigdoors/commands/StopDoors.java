@@ -4,6 +4,7 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
 
@@ -20,9 +21,11 @@ public class StopDoors extends BaseCommand
     private final DoorActivityManager doorActivityManager;
 
     @AssistedInject //
-    StopDoors(@Assisted ICommandSender commandSender, ILocalizer localizer, DoorActivityManager doorActivityManager)
+    StopDoors(
+        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
+        DoorActivityManager doorActivityManager)
     {
-        super(commandSender, localizer);
+        super(commandSender, localizer, textFactory);
         this.doorActivityManager = doorActivityManager;
     }
 

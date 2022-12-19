@@ -4,11 +4,13 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorAttribute;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.IDiscreteMovement;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.doors.DoorAttribute;
+import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 
@@ -28,10 +30,10 @@ public class SetBlocksToMove extends DoorTargetCommand
 
     @AssistedInject //
     SetBlocksToMove(
-        @Assisted ICommandSender commandSender, ILocalizer localizer,
+        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
         @Assisted DoorRetriever doorRetriever, @Assisted int blocksToMove)
     {
-        super(commandSender, localizer, doorRetriever, DoorAttribute.BLOCKS_TO_MOVE);
+        super(commandSender, localizer, textFactory, doorRetriever, DoorAttribute.BLOCKS_TO_MOVE);
         this.blocksToMove = blocksToMove;
     }
 
@@ -46,9 +48,10 @@ public class SetBlocksToMove extends DoorTargetCommand
     {
         if (!(door instanceof IDiscreteMovement))
         {
-            getCommandSender().sendMessage(localizer
-                                               .getMessage("commands.set_blocks_to_move.error.invalid_door_type",
-                                                           door.getBasicInfo()));
+            getCommandSender()
+                .sendMessage(textFactory, TextType.ERROR,
+                             localizer.getMessage("commands.set_blocks_to_move.error.invalid_door_type",
+                                                  door.getBasicInfo()));
             return CompletableFuture.completedFuture(true);
         }
 

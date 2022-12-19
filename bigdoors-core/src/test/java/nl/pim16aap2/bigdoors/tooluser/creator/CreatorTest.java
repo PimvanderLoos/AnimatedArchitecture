@@ -15,7 +15,6 @@ import nl.pim16aap2.bigdoors.doors.DoorBaseBuilder;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
-import nl.pim16aap2.bigdoors.text.Text;
 import nl.pim16aap2.bigdoors.tooluser.Procedure;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.util.Cuboid;
@@ -30,7 +29,6 @@ import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.stubbing.Answer;
 
 import java.lang.reflect.Field;
 import java.util.EnumSet;
@@ -64,18 +62,12 @@ class CreatorTest
     void init()
     {
         mocks = MockitoAnnotations.openMocks(this);
+        UnitTestUtil.redirectSendMessageText(player);
 
         final DoorType doorType = Mockito.mock(DoorType.class);
 
         Mockito.when(creator.getDoorType()).thenReturn(doorType);
         Mockito.when(economyManager.isEconomyEnabled()).thenReturn(true);
-
-        Mockito.doAnswer((Answer<Void>) invocation ->
-        {
-            player.sendMessage(invocation.getArgument(0, Text.class).toPlainString());
-            //noinspection DataFlowIssue
-            return null;
-        }).when(player).sendMessage(Mockito.any(Text.class));
 
         final IProtectionCompatManager protectionCompatManager = Mockito.mock(IProtectionCompatManager.class);
         Mockito.when(protectionCompatManager.canBreakBlock(Mockito.any(), Mockito.any())).thenReturn(Optional.empty());
@@ -84,7 +76,6 @@ class CreatorTest
                .thenReturn(Optional.empty());
 
         UnitTestUtil.setField(Creator.class, creator, "limitsManager", limitsManager);
-        UnitTestUtil.setField(Creator.class, creator, "textFactory", ITextFactory.getSimpleTextFactory());
         UnitTestUtil.setField(Creator.class, creator, "doorBaseBuilder", Mockito.mock(DoorBaseBuilder.class));
         UnitTestUtil.setField(Creator.class, creator, "databaseManager", Mockito.mock(DatabaseManager.class));
         UnitTestUtil.setField(Creator.class, creator, "economyManager", economyManager);
@@ -92,9 +83,9 @@ class CreatorTest
 
         UnitTestUtil.setField(ToolUser.class, creator, "player", player);
         UnitTestUtil.setField(ToolUser.class, creator, "localizer", initLocalizer());
+        UnitTestUtil.setField(ToolUser.class, creator, "textFactory", ITextFactory.getSimpleTextFactory());
         UnitTestUtil.setField(ToolUser.class, creator, "protectionCompatManager", protectionCompatManager);
         UnitTestUtil.setField(ToolUser.class, creator, "bigDoorsToolUtil", Mockito.mock(IBigDoorsToolUtil.class));
-        UnitTestUtil.setField(ToolUser.class, creator, "localizer", initLocalizer());
     }
 
     @AfterEach
@@ -339,7 +330,6 @@ class CreatorTest
 
         setField("world", world);
         setField("cuboid", cuboid);
-
 
         // World mismatch, so not allowed
         Assertions.assertFalse(creator.completeSetRotationPointStep(getLocation(1, 1, 1)));

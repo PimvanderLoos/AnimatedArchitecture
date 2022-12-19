@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorAttribute;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
@@ -142,5 +143,6 @@ class BaseCommandTest
     {
         UnitTestUtil.setField(BaseCommand.class, baseCommand, "commandSender", commandSender);
         UnitTestUtil.setField(BaseCommand.class, baseCommand, "localizer", localizer);
+        UnitTestUtil.setField(BaseCommand.class, baseCommand, "textFactory", ITextFactory.getSimpleTextFactory());
     }
 }

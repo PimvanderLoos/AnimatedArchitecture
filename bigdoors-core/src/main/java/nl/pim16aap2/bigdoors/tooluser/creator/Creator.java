@@ -7,7 +7,6 @@ import nl.pim16aap2.bigdoors.api.IEconomyManager;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
-import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
@@ -61,8 +60,6 @@ public abstract class Creator extends ToolUser
     protected final IEconomyManager economyManager;
 
     protected final CommandFactory commandFactory;
-
-    protected final ITextFactory textFactory;
 
     /**
      * The name of the door that is to be created.
@@ -188,7 +185,6 @@ public abstract class Creator extends ToolUser
         databaseManager = context.getDatabaseManager();
         economyManager = context.getEconomyManager();
         commandFactory = context.getCommandFactory();
-        textFactory = context.getTextFactory();
 
         player.sendMessage(textFactory, TextType.INFO, localizer.getMessage("creator.base.init"));
 

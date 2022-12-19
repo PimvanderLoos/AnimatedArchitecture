@@ -4,6 +4,7 @@ import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.IDoorEventCaller;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareLockChangeEvent;
@@ -44,6 +45,7 @@ class LockTest
     void init()
     {
         MockitoAnnotations.openMocks(this);
+        UnitTestUtil.redirectSendMessageText(commandSender);
 
         initCommandSenderPermissions(commandSender, true, true);
         Mockito.when(door.isDoorOwner(Mockito.any(UUID.class))).thenReturn(true);
@@ -62,6 +64,7 @@ class LockTest
                                      Mockito.any(DoorRetriever.class),
                                      Mockito.anyBoolean()))
                .thenAnswer(invoc -> new Lock(invoc.getArgument(0, ICommandSender.class), localizer,
+                                             ITextFactory.getSimpleTextFactory(),
                                              invoc.getArgument(1, DoorRetriever.class),
                                              invoc.getArgument(2, Boolean.class), Mockito.mock(IDoorEventCaller.class),
                                              eventFactory));

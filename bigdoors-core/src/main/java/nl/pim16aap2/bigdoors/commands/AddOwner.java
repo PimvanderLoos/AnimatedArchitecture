@@ -5,6 +5,7 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorAttribute;
 import nl.pim16aap2.bigdoors.doors.DoorOwner;
@@ -49,11 +50,11 @@ public class AddOwner extends DoorTargetCommand
 
     @AssistedInject //
     AddOwner(
-        @Assisted ICommandSender commandSender, ILocalizer localizer, @Assisted DoorRetriever doorRetriever,
-        @Assisted IPPlayer targetPlayer, @Assisted @Nullable PermissionLevel targetPermissionLevel,
-        DatabaseManager databaseManager)
+        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
+        @Assisted DoorRetriever doorRetriever, @Assisted IPPlayer targetPlayer,
+        @Assisted @Nullable PermissionLevel targetPermissionLevel, DatabaseManager databaseManager)
     {
-        super(commandSender, localizer, doorRetriever, DoorAttribute.ADD_OWNER);
+        super(commandSender, localizer, textFactory, doorRetriever, DoorAttribute.ADD_OWNER);
         this.targetPlayer = targetPlayer;
         this.targetPermissionLevel = targetPermissionLevel == null ? DEFAULT_PERMISSION_LEVEL : targetPermissionLevel;
         this.databaseManager = databaseManager;

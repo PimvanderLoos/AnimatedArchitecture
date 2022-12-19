@@ -8,12 +8,14 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorAttribute;
 import nl.pim16aap2.bigdoors.doors.DoorToggleRequestBuilder;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.doors.DoorAttribute;
+import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
 
 import javax.inject.Named;
@@ -41,11 +43,12 @@ public class Toggle extends BaseCommand
 
     @AssistedInject //
     Toggle(
-        @Assisted ICommandSender commandSender, ILocalizer localizer, @Assisted DoorActionType doorActionType,
+        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
+        @Assisted DoorActionType doorActionType,
         @Assisted double time, DoorToggleRequestBuilder doorToggleRequestBuilder,
         @Named("MessageableServer") IMessageable messageableServer, @Assisted DoorRetriever... doorRetrievers)
     {
-        super(commandSender, localizer);
+        super(commandSender, localizer, textFactory);
         this.doorActionType = doorActionType;
         this.time = time;
         this.doorToggleRequestBuilder = doorToggleRequestBuilder;
@@ -59,7 +62,8 @@ public class Toggle extends BaseCommand
         if (doorRetrievers.length > 0)
             return true;
 
-        getCommandSender().sendMessage(localizer.getMessage("commands.toggle.error.not_enough_doors"));
+        getCommandSender().sendMessage(textFactory, TextType.ERROR,
+                                       localizer.getMessage("commands.toggle.error.not_enough_doors"));
         return false;
     }
 
@@ -101,15 +105,17 @@ public class Toggle extends BaseCommand
     {
         if (!hasAccessToAttribute(door, DoorAttribute.TOGGLE, hasBypassPermission))
         {
-            getCommandSender().sendMessage(localizer.getMessage("commands.toggle.error.no_access",
-                                                                door.getBasicInfo()));
+            getCommandSender()
+                .sendMessage(textFactory, TextType.ERROR,
+                             localizer.getMessage("commands.toggle.error.no_access", door.getBasicInfo()));
             log.at(Level.FINE).log("%s has no access for command %s for door %s!", getCommandSender(), this, door);
             return;
         }
         if (!canToggle(door))
         {
-            getCommandSender().sendMessage(localizer.getMessage("commands.toggle.error.cannot_toggle",
-                                                                door.getBasicInfo()));
+            getCommandSender()
+                .sendMessage(textFactory, TextType.ERROR,
+                             localizer.getMessage("commands.toggle.error.cannot_toggle", door.getBasicInfo()));
             log.at(Level.FINER).log("Blocked action for command %s for door %s by %s", this, door, getCommandSender());
             return;
         }

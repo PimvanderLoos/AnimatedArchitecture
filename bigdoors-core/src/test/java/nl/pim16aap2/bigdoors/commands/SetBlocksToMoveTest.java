@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.IDiscreteMovement;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
@@ -37,6 +38,7 @@ class SetBlocksToMoveTest
     void init()
     {
         MockitoAnnotations.openMocks(this);
+        UnitTestUtil.redirectSendMessageText(commandSender);
 
         door = Mockito.mock(AbstractDoor.class, Mockito.withSettings().extraInterfaces(IDiscreteMovement.class));
         Mockito.when(door.syncData()).thenReturn(CompletableFuture.completedFuture(true));
@@ -50,8 +52,8 @@ class SetBlocksToMoveTest
                                                 Mockito.any(DoorRetriever.class),
                                                 Mockito.anyInt()))
                .thenAnswer(invoc -> new SetBlocksToMove(invoc.getArgument(0, ICommandSender.class), localizer,
-                                                        invoc.getArgument(1,
-                                                                          DoorRetriever.class),
+                                                        ITextFactory.getSimpleTextFactory(),
+                                                        invoc.getArgument(1, DoorRetriever.class),
                                                         invoc.getArgument(2, Integer.class)));
     }
 

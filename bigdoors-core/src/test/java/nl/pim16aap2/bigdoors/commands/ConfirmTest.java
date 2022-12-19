@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
@@ -42,6 +43,7 @@ class ConfirmTest
         uuid = UUID.randomUUID();
 
         MockitoAnnotations.openMocks(this);
+        UnitTestUtil.redirectSendMessageText(commandSender);
 
         initCommandSenderPermissions(commandSender, true, true);
         Mockito.when(commandSender.getUUID()).thenReturn(uuid);
@@ -51,7 +53,7 @@ class ConfirmTest
 
         Mockito.when(factory.newConfirm(Mockito.any(ICommandSender.class)))
                .thenAnswer(invoc -> new Confirm(invoc.getArgument(0, ICommandSender.class),
-                                                localizer, toolUserManager));
+                                                localizer, ITextFactory.getSimpleTextFactory(), toolUserManager));
     }
 
     @Test
