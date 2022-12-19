@@ -22,64 +22,21 @@ public interface IMessageable
     /**
      * Sends a message to this object.
      *
-     * @param level
-     *     The level of the message, if applicable. Regular users, for example, should never see this.
      * @param message
      *     The message to send. This may or may not contain color codes.
      */
-    void sendMessage(Level level, String message);
-
-    /**
-     * Sends a message to this object. If this target supports levels, {@link Level#INFO} will be used.
-     *
-     * @param message
-     *     The message to send. This may or may not contain color codes.
-     */
-    default void sendMessage(String message)
-    {
-        sendMessage(Level.INFO, message);
-    }
+    void sendMessage(String message);
 
     /**
      * Sends a message to this object.
      *
-     * @param level
-     *     The level of the message, if applicable. Regular users, for example, should never see this.
-     * @param text
-     *     The message to send.
-     */
-    void sendMessage(Level level, Text text);
-
-    /**
-     * Sends a message to this object. If this target supports levels, {@link Level#INFO} will be used.
-     *
      * @param text
      *     The message to send. This may or may not contain color codes.
      */
-    default void sendMessage(Text text)
-    {
-        sendMessage(Level.INFO, text);
-    }
+    void sendMessage(Text text);
 
     /**
      * Sends a message to this object.
-     *
-     * @param level
-     *     The level of the message, if applicable. Regular users, for example, should never see this.
-     * @param textFactory
-     *     The {@link ITextFactory} to use for creating the {@link Text} object.
-     * @param textType
-     *     The {@link TextType} to use for the message to send.
-     * @param message
-     *     The message to send.
-     */
-    default void sendMessage(Level level, ITextFactory textFactory, TextType textType, String message)
-    {
-        sendMessage(level, textFactory.newText().add(message, textType));
-    }
-
-    /**
-     * Sends a message to this object. If this target supports levels, {@link Level#INFO} will be used.
      *
      * @param textFactory
      *     The {@link ITextFactory} to use for creating the {@link Text} object.
@@ -90,7 +47,7 @@ public interface IMessageable
      */
     default void sendMessage(ITextFactory textFactory, TextType textType, String message)
     {
-        sendMessage(Level.INFO, textFactory, textType, message);
+        sendMessage(textFactory.newText().add(message, textType));
     }
 
     /**
@@ -104,15 +61,15 @@ public interface IMessageable
         }
 
         @Override
-        public void sendMessage(Level level, String message)
+        public void sendMessage(String message)
         {
             log.at(Level.FINEST).log("Sent to black hole: %s", message);
         }
 
         @Override
-        public void sendMessage(Level level, Text text)
+        public void sendMessage(Text text)
         {
-            sendMessage(level, text.toPlainString());
+            sendMessage(text.toPlainString());
         }
     }
 }

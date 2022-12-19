@@ -13,7 +13,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.logging.Level;
 
 /**
  * Represents an implementation of {@link IPPlayer} for the Spigot platform.
@@ -42,7 +41,7 @@ public final class OfflinePPlayerSpigot implements IPPlayer
      */
     @Override
     @Deprecated
-    public void sendMessage(Level level, String message)
+    public void sendMessage(String message)
     {
     }
 
@@ -51,7 +50,7 @@ public final class OfflinePPlayerSpigot implements IPPlayer
      */
     @Override
     @Deprecated
-    public void sendMessage(Level level, Text text)
+    public void sendMessage(Text text)
     {
     }
 

@@ -94,13 +94,13 @@ public final class PPlayerSpigot implements IPPlayer
     }
 
     @Override
-    public void sendMessage(Level level, String message)
+    public void sendMessage(String message)
     {
         spigotPlayer.sendMessage(message);
     }
 
     @Override
-    public void sendMessage(Level level, Text text)
+    public void sendMessage(Text text)
     {
         spigotPlayer.sendMessage(text.toString());
     }
