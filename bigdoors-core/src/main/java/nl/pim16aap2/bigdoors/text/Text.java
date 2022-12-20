@@ -1,12 +1,11 @@
 package nl.pim16aap2.bigdoors.text;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiFunction;
 
 /**
@@ -15,7 +14,6 @@ import java.util.function.BiFunction;
  * @author Pim
  */
 @SuppressWarnings("unused")
-@EqualsAndHashCode
 public class Text
 {
     /**
@@ -110,28 +108,28 @@ public class Text
 
         for (final StyledSection section : styledSections)
         {
-            if (section.getStartIndex() >= end)
+            if (section.startIndex() >= end)
                 break;
 
-            if (section.getEnd() < start)
+            if (section.end() < start)
                 continue;
 
-            int length = section.getLength();
+            int length = section.length();
 
-            int startIdx = section.getStartIndex() - start;
+            int startIdx = section.startIndex() - start;
             if (startIdx < 0)
             {
                 length += startIdx;
                 startIdx = 0;
             }
 
-            if (section.getEnd() > end)
-                length -= (section.getEnd() - end);
+            if (section.end() > end)
+                length -= (section.end() - end);
 
             if (length <= 0)
                 continue;
 
-            newText.styledSections.add(new StyledSection(startIdx, length, section.getStyle()));
+            newText.styledSections.add(new StyledSection(startIdx, length, section.style()));
         }
 
         return newText;
@@ -169,7 +167,7 @@ public class Text
         {
             final TextComponent style = colorScheme.getStyle(type);
             styledSections.add(new StyledSection(stringBuilder.length(), text.length(), style));
-            styledSize += style.getOn().length() + style.getOff().length();
+            styledSize += style.on().length() + style.off().length();
         }
         return append(text);
     }
@@ -189,6 +187,7 @@ public class Text
         styledSections = appendSections(other.getLength(), other.styledSections, styledSections,
                                         (section, offset) -> new StyledSection(section.startIndex + offset,
                                                                                section.length, section.style));
+        this.styledSize += other.styledSize;
         stringBuilder.insert(0, other.stringBuilder);
         return this;
     }
@@ -257,10 +256,10 @@ public class Text
             // If there are any parts without any styles.
             if (section.startIndex > lastIdx)
                 sb.append(stringBuilder.substring(lastIdx, section.startIndex));
-            final int end = section.getEnd();
-            sb.append(section.getStyle().getOn())
-              .append(stringBuilder.substring(section.getStartIndex(), end))
-              .append(section.getStyle().getOff());
+            final int end = section.end();
+            sb.append(section.style().on())
+              .append(stringBuilder.substring(section.startIndex(), end))
+              .append(section.style().off());
             lastIdx = end;
         }
 
@@ -281,34 +280,46 @@ public class Text
         return stringBuilder.toString();
     }
 
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (obj == this)
+            return true;
+        if (!(obj instanceof Text other))
+            return false;
+        return this.getLength() == other.getLength() &&
+            this.getStyledLength() == other.getStyledLength() &&
+            Objects.equals(this.colorScheme, other.colorScheme) &&
+            Objects.equals(this.styledSections, other.styledSections) &&
+            Objects.equals(this.toPlainString(), other.toPlainString());
+    }
+
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int hashCode = 1;
+        hashCode = hashCode * prime + this.colorScheme.hashCode();
+        hashCode = hashCode * prime + this.styledSections.hashCode();
+        hashCode = hashCode * prime + this.toPlainString().hashCode();
+
+        return hashCode;
+    }
+
     /**
      * Represents a section in a text that is associated with a certain style.
      *
      * @author Pim
      */
-    @Getter
-    private static class StyledSection
+    private record StyledSection(int startIndex, int length, TextComponent style)
     {
-        private final int startIndex;
-        private final int length;
-        private final TextComponent style;
-
         // Copy constructor
         public StyledSection(final StyledSection other)
         {
-            startIndex = other.startIndex;
-            length = other.length;
-            style = other.style;
+            this(other.startIndex, other.length, other.style);
         }
 
-        public StyledSection(int startIndex, int length, TextComponent style)
-        {
-            this.startIndex = startIndex;
-            this.length = length;
-            this.style = style;
-        }
-
-        int getEnd()
+        int end()
         {
             return startIndex + length;
         }

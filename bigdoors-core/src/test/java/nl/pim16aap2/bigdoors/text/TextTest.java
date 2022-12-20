@@ -51,13 +51,17 @@ class TextTest
     }
 
     @Test
-    void add()
+    void append()
     {
         final Text textA = new Text(colorScheme).append("abcdef");
-        final Text textB = new Text(colorScheme).append("ghifjk");
+        final Text textB = new Text(colorScheme).append("ghifjk", TextType.INFO);
 
-        Assertions.assertEquals("abcdefghifjk", textA.append(textB).toPlainString());
-        Assertions.assertEquals("ghifjkghifjk", textB.append(textB).toString());
+        final Text result = new Text(textA).append(textB);
+
+        Assertions.assertEquals("abcdefghifjk", result.toPlainString());
+        Assertions.assertEquals("abcdef~~ghifjk||", result.toString());
+        Assertions.assertEquals(12, result.getLength());
+        Assertions.assertEquals(16, result.getStyledLength());
     }
 
     @Test
@@ -66,7 +70,13 @@ class TextTest
         final Text textA = new Text(colorScheme).append("abc", TextType.ERROR);
         final Text textB = new Text(colorScheme).append("def", TextType.INFO);
 
-        Assertions.assertEquals("~~def||!abc?", textA.prepend(textB).toString());
+        final Text result = new Text(textA).prepend(textB);
+
+        Assertions.assertEquals(result, new Text(textB).append(textA));
+        Assertions.assertEquals("~~def||!abc?", result.toString());
+        Assertions.assertEquals("defabc", result.toPlainString());
+        Assertions.assertEquals(6, result.getLength());
+        Assertions.assertEquals(12, result.getStyledLength());
     }
 
     @Test
@@ -86,5 +96,50 @@ class TextTest
 
         final Text textAB = new Text(textA).append(textB);
         Assertions.assertEquals("abcdef", textAB.toPlainString());
+        Assertions.assertEquals("!abc?~~def||", textAB.toString());
+    }
+
+    @Test
+    void testEquals()
+    {
+        final Text textA = new Text(colorScheme);
+        final Text textB = new Text(colorScheme);
+
+        textA.append("A", TextType.INFO);
+        textB.append("B", TextType.ERROR);
+
+        textA.append("B", TextType.ERROR);
+        textB.prepend(new Text(colorScheme).append("A", TextType.INFO));
+        Assertions.assertEquals(textA, textB);
+
+        final Text textC = new Text(textA).append("C", TextType.HIGHLIGHT);
+        final Text textD = new Text(textB).append("C", TextType.INFO);
+        Assertions.assertNotEquals(textC, textD);
+
+        final Text textE = new Text(textA).append("C");
+        final Text textF = new Text(textB).append("D");
+        Assertions.assertNotEquals(textE, textF);
+    }
+
+    @Test
+    void testHashCode()
+    {
+        final Text textA = new Text(colorScheme);
+        final Text textB = new Text(colorScheme);
+
+        textA.append("A", TextType.INFO);
+        textB.append("B", TextType.ERROR);
+
+        textA.append("B", TextType.ERROR);
+        textB.prepend(new Text(colorScheme).append("A", TextType.INFO));
+        Assertions.assertEquals(textA.hashCode(), textB.hashCode());
+
+        final Text textC = new Text(textA).append("C", TextType.HIGHLIGHT);
+        final Text textD = new Text(textB).append("C", TextType.INFO);
+        Assertions.assertNotEquals(textC.hashCode(), textD.hashCode());
+
+        final Text textE = new Text(textA).append("C");
+        final Text textF = new Text(textB).append("D");
+        Assertions.assertNotEquals(textE.hashCode(), textF.hashCode());
     }
 }

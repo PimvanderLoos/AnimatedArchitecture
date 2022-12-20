@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.text;
 
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
@@ -15,6 +16,7 @@ import java.util.Objects;
  */
 @SuppressWarnings("unused")
 @ToString
+@EqualsAndHashCode
 public final class ColorScheme
 {
     private final Map<TextType, TextComponent> styleMap;
@@ -175,8 +177,8 @@ public final class ColorScheme
                 {
                     final TextComponent component = entry.getValue();
                     // If 'on' is set, but off isn't,
-                    if ((!"".equals(component.getOn())) && "".equals(component.getOff()))
-                        styleMap.put(entry.getKey(), new TextComponent(component.getOn(), defaultDisable));
+                    if ((!"".equals(component.on())) && "".equals(component.off()))
+                        styleMap.put(entry.getKey(), new TextComponent(component.on(), defaultDisable));
                 }
         }
     }
