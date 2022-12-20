@@ -5,8 +5,10 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.commands.ICommandSender;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -170,6 +172,12 @@ public sealed abstract class DoorRetriever
         @ToString.Exclude
         private DoorSpecificationManager doorSpecificationManager;
 
+        @ToString.Exclude
+        private ILocalizer localizer;
+
+        @ToString.Exclude
+        private ITextFactory textFactory;
+
         private final String name;
 
         @Override
@@ -211,7 +219,7 @@ public sealed abstract class DoorRetriever
                         return CompletableFuture.completedFuture(Optional.empty());
 
                     final Duration timeOut = Duration.ofSeconds(config.specificationTimeout());
-                    return DelayedDoorSpecificationInputRequest.get(timeOut, doorList, player,
+                    return DelayedDoorSpecificationInputRequest.get(timeOut, doorList, player, localizer, textFactory,
                                                                     doorSpecificationManager);
 
                 }).exceptionally(Util::exceptionallyOptional);

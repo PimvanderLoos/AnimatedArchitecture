@@ -106,7 +106,7 @@ public class Text
 
         final String string = stringBuilder.substring(start, end);
         final Text newText = new Text(colorScheme);
-        newText.add(string);
+        newText.append(string);
 
         for (final StyledSection section : styledSections)
         {
@@ -145,7 +145,7 @@ public class Text
      * @return The current {@link Text} instance.
      */
     @Contract("_ -> this")
-    public Text add(String text)
+    public Text append(String text)
     {
         stringBuilder.append(text);
         styledSize += text.length();
@@ -163,7 +163,7 @@ public class Text
      * @return The current {@link Text} instance.
      */
     @Contract("_, _ -> this")
-    public Text add(String text, @Nullable TextType type)
+    public Text append(String text, @Nullable TextType type)
     {
         if (type != null)
         {
@@ -171,7 +171,7 @@ public class Text
             styledSections.add(new StyledSection(stringBuilder.length(), text.length(), style));
             styledSize += style.getOn().length() + style.getOff().length();
         }
-        return add(text);
+        return append(text);
     }
 
     /**
@@ -231,7 +231,7 @@ public class Text
      * @return The current {@link Text} instance.
      */
     @Contract("_ -> this")
-    public Text add(Text other)
+    public Text append(Text other)
     {
         if (other.stringBuilder.length() == 0)
             return this;

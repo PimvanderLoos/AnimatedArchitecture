@@ -331,6 +331,7 @@ public abstract class ToolUser
     {
         private final DoorBaseBuilder doorBaseBuilder;
         private final ILocalizer localizer;
+        private final ITextFactory textFactory;
         private final ToolUserManager toolUserManager;
         private final DatabaseManager databaseManager;
         private final LimitsManager limitsManager;
@@ -338,14 +339,13 @@ public abstract class ToolUser
         private final IProtectionCompatManager protectionCompatManager;
         private final IBigDoorsToolUtil bigDoorsToolUtil;
         private final CommandFactory commandFactory;
-        private final ITextFactory textFactory;
 
         @Inject
         public Context(
-            DoorBaseBuilder doorBaseBuilder, ILocalizer localizer, ToolUserManager toolUserManager,
-            DatabaseManager databaseManager, LimitsManager limitsManager, IEconomyManager economyManager,
-            IProtectionCompatManager protectionCompatManager, IBigDoorsToolUtil bigDoorsToolUtil,
-            CommandFactory commandFactory, ITextFactory textFactory)
+            DoorBaseBuilder doorBaseBuilder, ILocalizer localizer, ITextFactory textFactory,
+            ToolUserManager toolUserManager, DatabaseManager databaseManager, LimitsManager limitsManager,
+            IEconomyManager economyManager, IProtectionCompatManager protectionCompatManager,
+            IBigDoorsToolUtil bigDoorsToolUtil, CommandFactory commandFactory)
         {
             this.doorBaseBuilder = doorBaseBuilder;
             this.localizer = localizer;

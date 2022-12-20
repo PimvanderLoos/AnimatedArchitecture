@@ -13,6 +13,7 @@ import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.IDoorEventCaller;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
@@ -44,6 +45,7 @@ import java.util.logging.Level;
 public final class DoorOpeningHelper
 {
     private final ILocalizer localizer;
+    private final ITextFactory textFactory;
     private final DoorActivityManager doorActivityManager;
     private final DoorTypeManager doorTypeManager;
     private final IConfigLoader config;
@@ -57,12 +59,21 @@ public final class DoorOpeningHelper
 
     @Inject //
     DoorOpeningHelper(
-        ILocalizer localizer, DoorActivityManager doorActivityManager, DoorTypeManager doorTypeManager,
-        IConfigLoader config, IBlockAnalyzer blockAnalyzer, IPLocationFactory locationFactory,
-        IProtectionCompatManager protectionCompatManager, GlowingBlockSpawner glowingBlockSpawner,
-        IBigDoorsEventFactory bigDoorsEventFactory, IPExecutor executor, IDoorEventCaller doorEventCaller)
+        ILocalizer localizer,
+        ITextFactory textFactory,
+        DoorActivityManager doorActivityManager,
+        DoorTypeManager doorTypeManager,
+        IConfigLoader config,
+        IBlockAnalyzer blockAnalyzer,
+        IPLocationFactory locationFactory,
+        IProtectionCompatManager protectionCompatManager,
+        GlowingBlockSpawner glowingBlockSpawner,
+        IBigDoorsEventFactory bigDoorsEventFactory,
+        IPExecutor executor,
+        IDoorEventCaller doorEventCaller)
     {
         this.localizer = localizer;
+        this.textFactory = textFactory;
         this.doorActivityManager = doorActivityManager;
         this.doorTypeManager = doorTypeManager;
         this.config = config;
@@ -103,7 +114,8 @@ public final class DoorOpeningHelper
         if (!result.equals(DoorToggleResult.NO_PERMISSION))
         {
             if (messageReceiver instanceof IPPlayer)
-                messageReceiver.sendMessage(localizer.getMessage(result.getLocalizationKey(), door.getName()));
+                messageReceiver
+                    .sendError(textFactory, localizer.getMessage(result.getLocalizationKey(), door.getName()));
             else
                 log.at(Level.INFO).log("Failed to toggle door: %d, reason: %s", door.getDoorUID(), result.name());
         }

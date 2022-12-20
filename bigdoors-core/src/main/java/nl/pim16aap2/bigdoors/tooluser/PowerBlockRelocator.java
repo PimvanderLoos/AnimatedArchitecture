@@ -48,7 +48,8 @@ public class PowerBlockRelocator extends ToolUser
     {
         if (!loc.getWorld().equals(door.getWorld()))
         {
-            getPlayer().sendMessage(localizer.getMessage("tool_user.powerblock_relocator.error.world_mismatch"));
+            getPlayer().sendError(textFactory,
+                                  localizer.getMessage("tool_user.powerblock_relocator.error.world_mismatch"));
             return false;
         }
 
@@ -71,15 +72,16 @@ public class PowerBlockRelocator extends ToolUser
         {
             log.at(Level.SEVERE).withCause(
                 new NullPointerException("newLoc is null, which should not be possible at this point!")).log();
-            getPlayer().sendMessage(localizer.getMessage("constants.error.generic"));
+            getPlayer().sendError(textFactory, localizer.getMessage("constants.error.generic"));
         }
         else if (door.getPowerBlock().equals(newLoc.getPosition()))
-            getPlayer().sendMessage(localizer.getMessage("tool_user.powerblock_relocator.error.location_unchanged"));
+            getPlayer().sendError(textFactory,
+                                  localizer.getMessage("tool_user.powerblock_relocator.error.location_unchanged"));
         else
         {
             door.setPowerBlockPosition(newLoc.getPosition());
             door.syncData();
-            getPlayer().sendMessage(localizer.getMessage("tool_user.powerblock_relocator.success"));
+            getPlayer().sendSuccess(textFactory, localizer.getMessage("tool_user.powerblock_relocator.success"));
         }
         return true;
     }

@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.text.Text;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -35,11 +34,5 @@ public interface IPServer extends ICommandSender
     default CompletableFuture<PermissionsStatus> hasPermission(CommandDefinition command)
     {
         return CompletableFuture.completedFuture(new PermissionsStatus(true, true));
-    }
-
-    @Override
-    default void sendMessage(Text text)
-    {
-        sendMessage(text.toPlainString());
     }
 }

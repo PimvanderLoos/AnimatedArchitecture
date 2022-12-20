@@ -14,7 +14,7 @@ class TextTest
     @Test
     void subsection()
     {
-        final Text text = new Text(colorScheme).add("123456789", TextType.HIGHLIGHT);
+        final Text text = new Text(colorScheme).append("123456789", TextType.HIGHLIGHT);
 
         Assertions.assertEquals("123", text.subsection(0, 3).toPlainString());
         Assertions.assertEquals("456", text.subsection(3, 6).toPlainString());
@@ -30,9 +30,9 @@ class TextTest
     void styledSubsection()
     {
         final Text text = new Text(colorScheme)
-            .add("123", TextType.ERROR)
-            .add("456", TextType.INFO)
-            .add("789", TextType.HIGHLIGHT);
+            .append("123", TextType.ERROR)
+            .append("456", TextType.INFO)
+            .append("789", TextType.HIGHLIGHT);
 
         Assertions.assertEquals("!1?", text.subsection(0, 1).toString());
         Assertions.assertEquals("!123?~~4||", text.subsection(0, 4).toString());
@@ -45,26 +45,26 @@ class TextTest
         final Text textA = new Text(colorScheme);
         final Text textB = new Text(colorScheme);
 
-        textA.add("abc", TextType.ERROR);
-        textB.add("def", TextType.INFO);
-        Assertions.assertEquals("!abc?~~def||", textA.add(textB).toString());
+        textA.append("abc", TextType.ERROR);
+        textB.append("def", TextType.INFO);
+        Assertions.assertEquals("!abc?~~def||", textA.append(textB).toString());
     }
 
     @Test
     void add()
     {
-        final Text textA = new Text(colorScheme).add("abcdef");
-        final Text textB = new Text(colorScheme).add("ghifjk");
+        final Text textA = new Text(colorScheme).append("abcdef");
+        final Text textB = new Text(colorScheme).append("ghifjk");
 
-        Assertions.assertEquals("abcdefghifjk", textA.add(textB).toPlainString());
-        Assertions.assertEquals("ghifjkghifjk", textB.add(textB).toString());
+        Assertions.assertEquals("abcdefghifjk", textA.append(textB).toPlainString());
+        Assertions.assertEquals("ghifjkghifjk", textB.append(textB).toString());
     }
 
     @Test
     void prepend()
     {
-        final Text textA = new Text(colorScheme).add("abc", TextType.ERROR);
-        final Text textB = new Text(colorScheme).add("def", TextType.INFO);
+        final Text textA = new Text(colorScheme).append("abc", TextType.ERROR);
+        final Text textB = new Text(colorScheme).append("def", TextType.INFO);
 
         Assertions.assertEquals("~~def||!abc?", textA.prepend(textB).toString());
     }
@@ -75,8 +75,8 @@ class TextTest
         final Text textA = new Text(colorScheme);
         final Text textB = new Text(colorScheme);
 
-        textA.add("abc", TextType.ERROR);
-        textB.add("def", TextType.INFO);
+        textA.append("abc", TextType.ERROR);
+        textB.append("def", TextType.INFO);
 
         Assertions.assertEquals(3, textA.getLength());
         Assertions.assertEquals(3 + 2, textA.getStyledLength()); // +2 for the style.
@@ -84,7 +84,7 @@ class TextTest
         Assertions.assertEquals(3, textB.getLength());
         Assertions.assertEquals(3 + 4, textB.getStyledLength()); // +4 for the style.
 
-        final Text textAB = new Text(textA).add(textB);
+        final Text textAB = new Text(textA).append(textB);
         Assertions.assertEquals("abcdef", textAB.toPlainString());
     }
 }

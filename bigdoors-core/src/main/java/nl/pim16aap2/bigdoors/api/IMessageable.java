@@ -23,7 +23,7 @@ public interface IMessageable
      * Sends a message to this object.
      *
      * @param message
-     *     The message to send. This may or may not contain color codes.
+     *     The message to send. Use {@link #sendMessage(Text)} if you want to apply colors and styles.
      */
     void sendMessage(String message);
 
@@ -31,7 +31,7 @@ public interface IMessageable
      * Sends a message to this object.
      *
      * @param text
-     *     The message to send. This may or may not contain color codes.
+     *     The message to send. This may or may not contain formatting.
      */
     void sendMessage(Text text);
 
@@ -47,7 +47,46 @@ public interface IMessageable
      */
     default void sendMessage(ITextFactory textFactory, TextType textType, String message)
     {
-        sendMessage(textFactory.newText().add(message, textType));
+        sendMessage(textFactory.newText().append(message, textType));
+    }
+
+    /**
+     * Sends an error message to this object.
+     *
+     * @param textFactory
+     *     The {@link ITextFactory} to use for creating the {@link Text} object.
+     * @param message
+     *     The error message to send.
+     */
+    default void sendError(ITextFactory textFactory, String message)
+    {
+        sendMessage(textFactory, TextType.ERROR, message);
+    }
+
+    /**
+     * Sends a success message to this object.
+     *
+     * @param textFactory
+     *     The {@link ITextFactory} to use for creating the {@link Text} object.
+     * @param message
+     *     The success message to send.
+     */
+    default void sendSuccess(ITextFactory textFactory, String message)
+    {
+        sendMessage(textFactory, TextType.SUCCESS, message);
+    }
+
+    /**
+     * Sends a info message to this object.
+     *
+     * @param textFactory
+     *     The {@link ITextFactory} to use for creating the {@link Text} object.
+     * @param message
+     *     The info message to send.
+     */
+    default void sendInfo(ITextFactory textFactory, String message)
+    {
+        sendMessage(textFactory, TextType.INFO, message);
     }
 
     /**

@@ -72,8 +72,9 @@ public class AddOwner extends DoorTargetCommand
         if (targetPermissionLevel != PermissionLevel.CREATOR && targetPermissionLevel != PermissionLevel.NO_PERMISSION)
             return true;
 
-        getCommandSender().sendMessage(localizer.getMessage("commands.add_owner.error.invalid_target_permission",
-                                                            targetPermissionLevel));
+        getCommandSender()
+            .sendError(textFactory, localizer.getMessage("commands.add_owner.error.invalid_target_permission",
+                                                         targetPermissionLevel));
         return false;
     }
 
@@ -94,7 +95,8 @@ public class AddOwner extends DoorTargetCommand
         {
             if (existingPermission == PermissionLevel.CREATOR)
             {
-                getCommandSender().sendMessage(localizer.getMessage("commands.add_owner.error.targeting_prime_owner"));
+                getCommandSender().sendError(textFactory,
+                                             localizer.getMessage("commands.add_owner.error.targeting_prime_owner"));
                 return false;
             }
             return true;
@@ -103,28 +105,29 @@ public class AddOwner extends DoorTargetCommand
         final var doorOwner = getCommandSender().getPlayer().flatMap(door::getDoorOwner);
         if (doorOwner.isEmpty())
         {
-            getCommandSender().sendMessage(localizer.getMessage("commands.add_owner.error.not_an_owner"));
+            getCommandSender().sendError(textFactory, localizer.getMessage("commands.add_owner.error.not_an_owner"));
             return false;
         }
 
         final PermissionLevel executorPermission = doorOwner.get().permission();
         if (!DoorAttribute.ADD_OWNER.canAccessWith(doorOwner.get().permission()))
         {
-            getCommandSender().sendMessage(localizer.getMessage("commands.add_owner.error.not_allowed"));
+            getCommandSender().sendError(textFactory, localizer.getMessage("commands.add_owner.error.not_allowed"));
             return false;
         }
 
         if (targetPermissionLevel.isLowerThanOrEquals(executorPermission))
         {
-            getCommandSender().sendMessage(
-                localizer.getMessage("commands.add_owner.error.cannot_assign_below_self"));
+            getCommandSender().sendError(textFactory,
+                                         localizer.getMessage("commands.add_owner.error.cannot_assign_below_self"));
             return false;
         }
 
         if (existingPermission.isLowerThanOrEquals(executorPermission) || existingPermission == targetPermissionLevel)
         {
-            getCommandSender().sendMessage(localizer.getMessage("commands.add_owner.error.target_already_owner",
-                                                                targetPlayer.asString()));
+            getCommandSender()
+                .sendError(textFactory, localizer.getMessage("commands.add_owner.error.target_already_owner",
+                                                             targetPlayer.asString()));
             return false;
         }
 

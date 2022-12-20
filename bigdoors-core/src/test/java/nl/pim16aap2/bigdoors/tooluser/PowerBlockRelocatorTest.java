@@ -5,6 +5,7 @@ import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -43,6 +44,7 @@ class PowerBlockRelocatorTest
     void init()
     {
         MockitoAnnotations.openMocks(this);
+        UnitTestUtil.redirectSendMessageText(player);
 
         Mockito.when(door.getWorld()).thenReturn(world);
         Mockito.when(door.getPowerBlock()).thenReturn(currentPowerBlockLoc);
@@ -58,6 +60,7 @@ class PowerBlockRelocatorTest
         Mockito.when(context.getProtectionCompatManager()).thenReturn(compatManager);
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
         Mockito.when(context.getLocalizer()).thenReturn(localizer);
+        Mockito.when(context.getTextFactory()).thenReturn(ITextFactory.getSimpleTextFactory());
 
         Mockito.when(factory.create(Mockito.any(IPPlayer.class), Mockito.any(AbstractDoor.class)))
                .thenAnswer(invoc -> new PowerBlockRelocator(context, invoc.getArgument(0, IPPlayer.class),

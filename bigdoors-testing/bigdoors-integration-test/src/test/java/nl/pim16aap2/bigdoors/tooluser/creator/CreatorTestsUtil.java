@@ -137,6 +137,8 @@ public class CreatorTestsUtil
         Mockito.when(player.getLocation()).thenReturn(Optional.empty());
 
         Mockito.when(player.getPPlayerData()).thenReturn(playerData);
+
+        UnitTestUtil.redirectSendMessageText(player);
     }
 
     @BeforeEach
@@ -156,9 +158,9 @@ public class CreatorTestsUtil
                 .getFactory();
         doorBaseBuilder = new DoorBaseBuilder(doorBaseIFactory);
 
-        context = new ToolUser.Context(doorBaseBuilder, localizer, toolUserManager, databaseManager,
-                                       limitsManager, economyManager, protectionCompatManager, bigDoorsToolUtil,
-                                       commandFactory, ITextFactory.getSimpleTextFactory());
+        context = new ToolUser.Context(
+            doorBaseBuilder, localizer, ITextFactory.getSimpleTextFactory(), toolUserManager, databaseManager,
+            limitsManager, economyManager, protectionCompatManager, bigDoorsToolUtil, commandFactory);
 
         initCommands();
 

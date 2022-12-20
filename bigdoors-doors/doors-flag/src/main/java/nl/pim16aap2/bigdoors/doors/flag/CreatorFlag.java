@@ -66,7 +66,7 @@ public class CreatorFlag extends Creator
             return super.setSecondPos(loc);
         }
 
-        getPlayer().sendMessage(localizer.getMessage("creator.base.second_pos_not_2d"));
+        getPlayer().sendError(textFactory, localizer.getMessage("creator.base.second_pos_not_2d"));
         return false;
     }
 
@@ -80,7 +80,7 @@ public class CreatorFlag extends Creator
             (loc.getBlockZ() == cuboid.getMin().z() || loc.getBlockZ() == cuboid.getMax().z()))
             return super.completeSetRotationPointStep(loc);
 
-        getPlayer().sendMessage(localizer.getMessage("creator.base.position_not_in_corner"));
+        getPlayer().sendError(textFactory, localizer.getMessage("creator.base.position_not_in_corner"));
         return false;
     }
 
