@@ -427,6 +427,8 @@ public abstract class BlockMover
      */
     protected void prepareAnimation()
     {
+        if (!executor.isMainThread())
+            throw new IllegalStateException("Animated blocks must be spawned on the main thread!");
         animatedBlocks.forEach(IAnimatedBlock::spawn);
     }
 

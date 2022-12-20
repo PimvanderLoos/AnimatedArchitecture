@@ -5,6 +5,7 @@ import lombok.Synchronized;
 import lombok.extern.flogger.Flogger;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.server.level.WorldServer;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBase;
 import net.minecraft.world.level.block.state.IBlockData;
@@ -38,7 +39,7 @@ import java.util.logging.Level;
  * @see IAnimatedBlockData
  */
 @Flogger
-public class NMSBlock_V1_19_R2 extends Block implements IAnimatedBlockData
+public class NMSBlock_V1_19_R2 extends BlockBase implements IAnimatedBlockData
 {
     @SuppressWarnings("unused") // Appears unused, but it's referenced in annotations.
     private final Object blockDataLock = new Object();
@@ -348,5 +349,17 @@ public class NMSBlock_V1_19_R2 extends Block implements IAnimatedBlockData
             bukkitWorld.getBlockAt(loc).setType(Material.CAVE_AIR, false);
             bukkitWorld.getBlockAt(loc).setType(Material.AIR, true);
         }
+    }
+
+    @Override
+    public Item l()
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    protected Block p()
+    {
+        throw new UnsupportedOperationException();
     }
 }

@@ -73,7 +73,8 @@ public final class CommandManager
             throw new IllegalStateException("Trying to instantiate Cloud manage again!");
         manager = Util.requireNonNull(newManager(), "Cloud manager");
 
-        if (manager.hasCapability(CloudBukkitCapabilities.BRIGADIER))
+        if (manager.hasCapability(CloudBukkitCapabilities.BRIGADIER) &&
+            manager.hasCapability(CloudBukkitCapabilities.COMMODORE_BRIGADIER))
             manager.registerBrigadier();
 
         if (manager.hasCapability(CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION))

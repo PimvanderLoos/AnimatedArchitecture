@@ -17,6 +17,7 @@ import net.minecraft.server.level.WorldServer;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.EnumMoveType;
 import net.minecraft.world.entity.item.EntityFallingBlock;
 import net.minecraft.world.level.block.state.IBlockData;
 import net.minecraft.world.level.entity.EntityInLevelCallback;
@@ -117,8 +118,6 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
         this.f(new Vec3D(0.0D, 0.0D, 0.0D));
         this.a(new BlockPosition(this.dk(), this.dm(), this.dq()));
 
-        setEntityInLevelCallback();
-
         this.hooks = animatedBlockHookManager.instantiateHooks(this);
     }
 
@@ -167,6 +166,7 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
         worldServer.addFreshEntity(this, SpawnReason.CUSTOM);
         tracker = Util.requireNonNull(worldServer.k().a.L.get(getEntityId()), "entity tracker");
         dw(); // Mark alive
+        setEntityInLevelCallback();
 
         forEachHook("onSpawn", IAnimatedBlockHook::onSpawn);
     }
@@ -189,8 +189,10 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
     {
         previousPosition = currentPosition;
         currentPosition = newPosition;
+
         // Update current and last x/y/z values in entity class.
-        f(newPosition.x(), newPosition.y(), newPosition.z());
+        p(newPosition.x(), newPosition.y(), newPosition.z()); // setPosRaw
+
         forEachHook("onMoved", hook -> hook.onMoved(newPosition));
     }
 
@@ -226,7 +228,6 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
         if (!isAlive())
             return;
 
-        forEachHook("preTick", IAnimatedBlockHook::preTick);
         if (animatedBlockData.getMyBlockData().h())
             kill();
         else
@@ -238,8 +239,8 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
             if (getTicksAlive() > 12_000)
                 kill();
 
-            final Vector3Dd newLocation = currentPosition.add(mot.c, mot.d, mot.e);
-            cyclePositions(newLocation);
+            a(EnumMoveType.a, di());
+            cyclePositions(getRawCurrentLocation());
         }
         forEachHook("postTick", IAnimatedBlockHook::postTick);
     }
@@ -328,6 +329,11 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
         aj();
     }
 
+    private Vector3Dd getRawCurrentLocation()
+    {
+        return new Vector3Dd(dk(), dm(), dq());
+    }
+
     @Override
     public IPLocation getPLocation()
     {
@@ -350,7 +356,8 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
     @Override
     public void setVelocity(Vector3Dd vector)
     {
-        n(vector.x(), vector.y(), vector.z());
+        f(new Vec3D(vector.x(), vector.y(), vector.z()));
+        D = true;
     }
 
     @Override
