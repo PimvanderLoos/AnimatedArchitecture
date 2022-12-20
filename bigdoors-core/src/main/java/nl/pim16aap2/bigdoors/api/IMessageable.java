@@ -22,14 +22,6 @@ public interface IMessageable
     /**
      * Sends a message to this object.
      *
-     * @param message
-     *     The message to send. Use {@link #sendMessage(Text)} if you want to apply colors and styles.
-     */
-    void sendMessage(String message);
-
-    /**
-     * Sends a message to this object.
-     *
      * @param text
      *     The message to send. This may or may not contain formatting.
      */
@@ -100,15 +92,9 @@ public interface IMessageable
         }
 
         @Override
-        public void sendMessage(String message)
-        {
-            log.at(Level.FINEST).log("Sent to black hole: %s", message);
-        }
-
-        @Override
         public void sendMessage(Text text)
         {
-            sendMessage(text.toPlainString());
+            log.at(Level.FINEST).log("Sent to black hole: %s", text.toPlainString());
         }
     }
 }

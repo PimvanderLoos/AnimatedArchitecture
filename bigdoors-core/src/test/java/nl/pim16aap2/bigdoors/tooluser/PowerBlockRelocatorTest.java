@@ -44,7 +44,6 @@ class PowerBlockRelocatorTest
     void init()
     {
         MockitoAnnotations.openMocks(this);
-        UnitTestUtil.redirectSendMessageText(player);
 
         Mockito.when(door.getWorld()).thenReturn(world);
         Mockito.when(door.getPowerBlock()).thenReturn(currentPowerBlockLoc);
@@ -75,7 +74,7 @@ class PowerBlockRelocatorTest
         Mockito.when(location.getWorld()).thenReturn(Mockito.mock(IPWorld.class));
 
         Assertions.assertFalse(relocator.moveToLoc(location));
-        Mockito.verify(player).sendMessage("tool_user.powerblock_relocator.error.world_mismatch");
+        Mockito.verify(player).sendMessage(UnitTestUtil.toText("tool_user.powerblock_relocator.error.world_mismatch"));
 
         Mockito.when(location.getWorld()).thenReturn(Mockito.mock(IPWorld.class));
     }

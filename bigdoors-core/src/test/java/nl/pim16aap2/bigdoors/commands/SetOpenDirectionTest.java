@@ -43,7 +43,6 @@ class SetOpenDirectionTest
     void init()
     {
         MockitoAnnotations.openMocks(this);
-        UnitTestUtil.redirectSendMessageText(commandSender);
 
         Mockito.when(door.syncData()).thenReturn(CompletableFuture.completedFuture(true));
         Mockito.when(door.getDoorType()).thenReturn(doorType);

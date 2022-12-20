@@ -38,7 +38,6 @@ class SetBlocksToMoveTest
     void init()
     {
         MockitoAnnotations.openMocks(this);
-        UnitTestUtil.redirectSendMessageText(commandSender);
 
         door = Mockito.mock(AbstractDoor.class, Mockito.withSettings().extraInterfaces(IDiscreteMovement.class));
         Mockito.when(door.syncData()).thenReturn(CompletableFuture.completedFuture(true));

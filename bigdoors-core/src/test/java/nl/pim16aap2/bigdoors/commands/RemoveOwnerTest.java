@@ -47,8 +47,6 @@ class RemoveOwnerTest
     void beforeEach()
     {
         MockitoAnnotations.openMocks(this);
-        UnitTestUtil.redirectSendMessageText(commandSender);
-        UnitTestUtil.redirectSendMessageText(target);
 
         initCommandSenderPermissions(commandSender, true, true);
 

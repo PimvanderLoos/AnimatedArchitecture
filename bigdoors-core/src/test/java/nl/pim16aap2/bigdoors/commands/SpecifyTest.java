@@ -6,6 +6,7 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
+import nl.pim16aap2.bigdoors.text.Text;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,7 +33,6 @@ class SpecifyTest
     void init()
     {
         MockitoAnnotations.openMocks(this);
-        UnitTestUtil.redirectSendMessageText(commandSender);
 
         CommandTestingUtil.initCommandSenderPermissions(commandSender, true, true);
 
@@ -61,12 +61,12 @@ class SpecifyTest
         final String input = "newDoor";
         Assertions.assertTrue(factory.newSpecify(commandSender, input).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(doorSpecificationManager).handleInput(commandSender, input);
-        Mockito.verify(commandSender, Mockito.never()).sendMessage(Mockito.anyString());
+        Mockito.verify(commandSender, Mockito.never()).sendMessage(Mockito.any(Text.class));
 
         // Test again, but now the command sender is not an active tool user.
         Mockito.when(doorSpecificationManager.handleInput(Mockito.any(), Mockito.any())).thenReturn(false);
         Assertions.assertTrue(factory.newSpecify(commandSender, input).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(doorSpecificationManager, Mockito.times(2)).handleInput(commandSender, input);
-        Mockito.verify(commandSender).sendMessage(Mockito.anyString());
+        Mockito.verify(commandSender).sendMessage(Mockito.any(Text.class));
     }
 }

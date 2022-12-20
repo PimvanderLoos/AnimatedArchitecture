@@ -55,8 +55,6 @@ class AddOwnerTest
     void init()
     {
         MockitoAnnotations.openMocks(this);
-        UnitTestUtil.redirectSendMessageText(commandSender);
-        UnitTestUtil.redirectSendMessageText(target);
 
         localizer = UnitTestUtil.initLocalizer();
 

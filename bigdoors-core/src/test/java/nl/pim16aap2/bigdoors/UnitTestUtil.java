@@ -1,10 +1,9 @@
 package nl.pim16aap2.bigdoors;
 
 import lombok.SneakyThrows;
-import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IPLocation;
-import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.text.Text;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
@@ -15,7 +14,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -258,19 +256,16 @@ public class UnitTestUtil
     }
 
     /**
-     * Creates a new mock of an {@link IPPlayer}.
+     * Creates a new un-styled {@link Text} object from an input String.
      * <p>
-     * The {@link IPPlayer#sendMessage(Text)} method is redirected to {@link IPPlayer#sendMessage(String)} using
-     * {@link Text#toPlainString()}. This makes it easier to check if any messages have been sent.
+     * The created Text is not mocked and can be used as a normal Text object.
+     *
+     * @param string
+     *     The string to use to create a new Text object.
+     * @return The new Text object.
      */
-    public static <T extends IMessageable> T redirectSendMessageText(T messageable)
+    public static Text toText(String string)
     {
-        Mockito.doAnswer((Answer<Void>) invocation ->
-        {
-            messageable.sendMessage(invocation.getArgument(0, Text.class).toPlainString());
-            //noinspection DataFlowIssue
-            return null;
-        }).when(messageable).sendMessage(Mockito.any(Text.class));
-        return messageable;
+        return ITextFactory.getSimpleTextFactory().newText().append(string);
     }
 }

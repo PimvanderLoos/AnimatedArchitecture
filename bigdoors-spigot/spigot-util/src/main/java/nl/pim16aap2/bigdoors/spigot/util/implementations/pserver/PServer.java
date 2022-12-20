@@ -23,14 +23,8 @@ public class PServer implements IPServer
     }
 
     @Override
-    public void sendMessage(String message)
-    {
-        log.at(Level.INFO).log("%s", message);
-    }
-
-    @Override
     public void sendMessage(Text text)
     {
-        sendMessage(text.toPlainString());
+        log.at(Level.INFO).log("%s", text.toPlainString());
     }
 }

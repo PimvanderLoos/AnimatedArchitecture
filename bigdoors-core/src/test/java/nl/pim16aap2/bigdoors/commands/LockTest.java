@@ -45,7 +45,6 @@ class LockTest
     void init()
     {
         MockitoAnnotations.openMocks(this);
-        UnitTestUtil.redirectSendMessageText(commandSender);
 
         initCommandSenderPermissions(commandSender, true, true);
         Mockito.when(door.isDoorOwner(Mockito.any(UUID.class))).thenReturn(true);

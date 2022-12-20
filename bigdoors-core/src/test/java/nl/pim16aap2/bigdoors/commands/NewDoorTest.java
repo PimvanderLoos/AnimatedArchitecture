@@ -42,7 +42,6 @@ class NewDoorTest
     void init()
     {
         MockitoAnnotations.openMocks(this);
-        UnitTestUtil.redirectSendMessageText(commandSender);
 
         initCommandSenderPermissions(commandSender, true, true);
 

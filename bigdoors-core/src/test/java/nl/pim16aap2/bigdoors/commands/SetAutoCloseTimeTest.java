@@ -39,7 +39,6 @@ class SetAutoCloseTimeTest
     void init()
     {
         MockitoAnnotations.openMocks(this);
-        UnitTestUtil.redirectSendMessageText(commandSender);
 
         door = Mockito.mock(AbstractDoor.class,
                             Mockito.withSettings().extraInterfaces(ITimerToggleable.class));

@@ -37,7 +37,6 @@ class ListDoorsTest
     void init()
     {
         MockitoAnnotations.openMocks(this);
-        UnitTestUtil.redirectSendMessageText(playerCommandSender);
 
         final int size = 3;
         doors = new ArrayList<>(size);
@@ -62,16 +61,19 @@ class ListDoorsTest
         // No doors will be found, because the command sender is not an owner of any them.
         CommandTestingUtil.initCommandSenderPermissions(playerCommandSender, true, false);
         Assertions.assertTrue(factory.newListDoors(playerCommandSender, retriever).run().get(1, TimeUnit.SECONDS));
-        Mockito.verify(playerCommandSender).sendMessage("commands.list_doors.error.no_doors_found");
+        Mockito.verify(playerCommandSender)
+               .sendMessage(UnitTestUtil.toText("commands.list_doors.error.no_doors_found"));
 
         // Run it again, but now do so with admin permissions enabled.
         // As a result, we should NOT get the "No doors found!" message again.
         CommandTestingUtil.initCommandSenderPermissions(playerCommandSender, true, true);
         Assertions.assertTrue(factory.newListDoors(playerCommandSender, retriever).run().get(1, TimeUnit.SECONDS));
-        Mockito.verify(playerCommandSender).sendMessage("commands.list_doors.error.no_doors_found");
+        Mockito.verify(playerCommandSender)
+               .sendMessage(UnitTestUtil.toText("commands.list_doors.error.no_doors_found"));
 
 
         Assertions.assertTrue(factory.newListDoors(serverCommandSender, retriever).run().get(1, TimeUnit.SECONDS));
-        Mockito.verify(serverCommandSender, Mockito.never()).sendMessage("commands.list_doors.error.no_doors_found");
+        Mockito.verify(serverCommandSender, Mockito.never())
+               .sendMessage(UnitTestUtil.toText("commands.list_doors.error.no_doors_found"));
     }
 }

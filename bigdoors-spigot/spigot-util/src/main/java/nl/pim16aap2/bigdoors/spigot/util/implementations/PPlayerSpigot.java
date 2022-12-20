@@ -94,12 +94,6 @@ public final class PPlayerSpigot implements IPPlayer
     }
 
     @Override
-    public void sendMessage(String message)
-    {
-        spigotPlayer.sendMessage(message);
-    }
-
-    @Override
     public void sendMessage(Text text)
     {
         spigotPlayer.sendMessage(text.toString());

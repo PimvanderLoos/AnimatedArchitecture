@@ -58,7 +58,6 @@ class DelayedCommandTest
     void init()
     {
         openMocks = MockitoAnnotations.openMocks(this);
-        UnitTestUtil.redirectSendMessageText(commandSender);
 
         Mockito.when(localizer.getMessage(Mockito.anyString(), ArgumentMatchers.<String>any())).thenAnswer(
             invocation -> invocation.getArgument(0, String.class));
@@ -80,7 +79,8 @@ class DelayedCommandTest
         final DelayedCommandImpl delayedCommand = new DelayedCommandImpl(context, inputRequestFactory, delayedFunction);
 
         delayedCommand.runDelayed(commandSender, doorRetriever);
-        Mockito.verify(commandSender, Mockito.times(1)).sendMessage(DelayedCommandImpl.INPUT_REQUEST_MSG);
+        Mockito.verify(commandSender, Mockito.times(1))
+               .sendMessage(UnitTestUtil.toText(DelayedCommandImpl.INPUT_REQUEST_MSG));
         Mockito.verify(inputRequestFactory, Mockito.times(1)).create(
             Mockito.anyLong(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.verify(delayedFunction, Mockito.never()).apply(Mockito.any(), Mockito.any(), Mockito.any());
@@ -90,7 +90,8 @@ class DelayedCommandTest
         Mockito.verify(delayedFunction, Mockito.times(1)).apply(commandSender, doorRetriever, input);
 
         delayedCommand.provideDelayedInput(commandSender, new Object());
-        Mockito.verify(commandSender, Mockito.times(1)).sendMessage("commands.base.error.not_waiting");
+        Mockito.verify(commandSender, Mockito.times(1))
+               .sendMessage(UnitTestUtil.toText("commands.base.error.not_waiting"));
     }
 
     @Test
@@ -99,7 +100,8 @@ class DelayedCommandTest
         final DelayedCommandImpl delayedCommand = new DelayedCommandImpl(context, inputRequestFactory, delayedFunction);
 
         delayedCommand.provideDelayedInput(commandSender, new Object());
-        Mockito.verify(commandSender, Mockito.times(1)).sendMessage("commands.base.error.not_waiting");
+        Mockito.verify(commandSender, Mockito.times(1))
+               .sendMessage(UnitTestUtil.toText("commands.base.error.not_waiting"));
     }
 
     @Test

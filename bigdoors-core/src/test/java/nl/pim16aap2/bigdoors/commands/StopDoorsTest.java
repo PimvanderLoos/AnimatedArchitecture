@@ -31,7 +31,6 @@ class StopDoorsTest
     void init()
     {
         MockitoAnnotations.openMocks(this);
-        UnitTestUtil.redirectSendMessageText(commandSender);
 
         CommandTestingUtil.initCommandSenderPermissions(commandSender, true, true);
 

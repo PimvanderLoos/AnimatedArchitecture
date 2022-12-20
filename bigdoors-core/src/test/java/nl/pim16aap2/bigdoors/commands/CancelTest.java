@@ -45,7 +45,6 @@ class CancelTest
         final UUID uuid = UUID.randomUUID();
 
         MockitoAnnotations.openMocks(this);
-        UnitTestUtil.redirectSendMessageText(commandSender);
 
         initCommandSenderPermissions(commandSender, true, true);
         Mockito.when(commandSender.getUUID()).thenReturn(uuid);

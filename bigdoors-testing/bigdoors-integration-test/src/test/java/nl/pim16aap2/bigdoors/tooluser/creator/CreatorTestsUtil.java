@@ -137,8 +137,6 @@ public class CreatorTestsUtil
         Mockito.when(player.getLocation()).thenReturn(Optional.empty());
 
         Mockito.when(player.getPPlayerData()).thenReturn(playerData);
-
-        UnitTestUtil.redirectSendMessageText(player);
     }
 
     @BeforeEach
@@ -261,7 +259,8 @@ public class CreatorTestsUtil
     public void testCreation(Creator creator, AbstractDoor actualDoor, Object... input)
     {
         applySteps(creator, input);
-        Mockito.verify(creator.getPlayer(), Mockito.never()).sendMessage("Door creation was cancelled!");
+        Mockito.verify(creator.getPlayer(), Mockito.never())
+               .sendMessage(UnitTestUtil.toText("Door creation was cancelled!"));
         Mockito.verify(databaseManager).addDoor(actualDoor, player);
     }
 }

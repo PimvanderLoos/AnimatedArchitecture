@@ -50,7 +50,6 @@ class MovePowerBlockTest
         final UUID uuid = UUID.randomUUID();
 
         MockitoAnnotations.openMocks(this);
-        UnitTestUtil.redirectSendMessageText(commandSender);
 
         initCommandSenderPermissions(commandSender, true, true);
         doorRetriever = DoorRetrieverFactory.ofDoor(door);

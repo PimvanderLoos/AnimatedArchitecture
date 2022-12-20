@@ -37,7 +37,6 @@ class DelayedCommandInputRequestTest
     void init()
     {
         MockitoAnnotations.openMocks(this);
-        UnitTestUtil.redirectSendMessageText(commandSender);
 
         LogInspector.get().clearHistory();
         localizer = UnitTestUtil.initLocalizer();

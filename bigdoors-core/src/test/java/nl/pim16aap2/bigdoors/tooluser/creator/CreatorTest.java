@@ -37,8 +37,6 @@ import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.Set;
 
-import static nl.pim16aap2.bigdoors.UnitTestUtil.*;
-
 class CreatorTest
 {
     @Mock(answer = Answers.CALLS_REAL_METHODS)
@@ -62,7 +60,6 @@ class CreatorTest
     void init()
     {
         mocks = MockitoAnnotations.openMocks(this);
-        UnitTestUtil.redirectSendMessageText(player);
 
         final DoorType doorType = Mockito.mock(DoorType.class);
 
@@ -82,7 +79,7 @@ class CreatorTest
         UnitTestUtil.setField(Creator.class, creator, "commandFactory", commandFactory);
 
         UnitTestUtil.setField(ToolUser.class, creator, "player", player);
-        UnitTestUtil.setField(ToolUser.class, creator, "localizer", initLocalizer());
+        UnitTestUtil.setField(ToolUser.class, creator, "localizer", UnitTestUtil.initLocalizer());
         UnitTestUtil.setField(ToolUser.class, creator, "textFactory", ITextFactory.getSimpleTextFactory());
         UnitTestUtil.setField(ToolUser.class, creator, "protectionCompatManager", protectionCompatManager);
         UnitTestUtil.setField(ToolUser.class, creator, "bigDoorsToolUtil", Mockito.mock(IBigDoorsToolUtil.class));
@@ -101,7 +98,7 @@ class CreatorTest
         final String input = "1";
         // Numerical names are not allowed.
         Assertions.assertFalse(creator.completeNamingStep(input));
-        Mockito.verify(player).sendMessage("creator.base.error.invalid_name " + input);
+        Mockito.verify(player).sendMessage(UnitTestUtil.toText("creator.base.error.invalid_name " + input));
 
         Assertions.assertTrue(creator.completeNamingStep("newDoor"));
         Mockito.verify(creator).giveTool();
@@ -110,7 +107,7 @@ class CreatorTest
     @Test
     void testFirstLocation()
     {
-        final IPLocation loc = getLocation(12.7, 128, 56.12);
+        final IPLocation loc = UnitTestUtil.getLocation(12.7, 128, 56.12);
 
         Mockito.doReturn(false).when(creator).playerHasAccessToLocation(Mockito.any());
         // No access to location
@@ -125,11 +122,11 @@ class CreatorTest
     @Test
     void testWorldMatch()
     {
-        final IPWorld world = getWorld();
+        final IPWorld world = UnitTestUtil.getWorld();
         final String worldName = world.worldName();
         setField("world", world);
 
-        final IPWorld secondWorld = getWorld();
+        final IPWorld secondWorld = UnitTestUtil.getWorld();
         // Different world, so no match!
         Assertions.assertFalse(creator.verifyWorldMatch(Mockito.mock(IPWorld.class)));
 
@@ -149,7 +146,7 @@ class CreatorTest
     {
         Mockito.doReturn(false).when(creator).playerHasAccessToLocation(Mockito.any());
 
-        final IPWorld world = getWorld();
+        final IPWorld world = UnitTestUtil.getWorld();
 
         final Vector3Di vec1 = new Vector3Di(12, 128, 56);
         final Vector3Di vec2 = vec1.add(10, 10, 10);
@@ -158,7 +155,7 @@ class CreatorTest
         setField("firstPos", vec1);
         setField("world", world);
 
-        final IPLocation loc = getLocation(vec2, world);
+        final IPLocation loc = UnitTestUtil.getLocation(vec2, world);
 
         // Not allowed, because no access to location
         Assertions.assertFalse(creator.setSecondPos(loc));
@@ -168,8 +165,9 @@ class CreatorTest
                .thenReturn(OptionalInt.of(cuboid.getVolume() - 1));
         // Not allowed, because the selected area is too big.
         Assertions.assertFalse(creator.setSecondPos(loc));
-        Mockito.verify(player).sendMessage(String.format("creator.base.error.area_too_big %d %d",
-                                                         cuboid.getVolume(), cuboid.getVolume() - 1));
+        Mockito.verify(player)
+               .sendMessage(UnitTestUtil.toText(String.format("creator.base.error.area_too_big %d %d",
+                                                              cuboid.getVolume(), cuboid.getVolume() - 1)));
 
         Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any()))
                .thenReturn(OptionalInt.of(cuboid.getVolume() + 1));
@@ -191,19 +189,20 @@ class CreatorTest
         Mockito.doReturn(procedure).when(creator).getProcedure();
 
         Assertions.assertTrue(creator.confirmPrice(false));
-        Mockito.verify(player).sendMessage("creator.base.error.creation_cancelled");
+        Mockito.verify(player).sendMessage(UnitTestUtil.toText("creator.base.error.creation_cancelled"));
 
         Mockito.doReturn(OptionalDouble.empty()).when(creator).getPrice();
         Mockito.doReturn(false).when(creator).buyDoor();
 
         Assertions.assertTrue(creator.confirmPrice(true));
-        Mockito.verify(player).sendMessage("creator.base.error.insufficient_funds 0");
+        Mockito.verify(player).sendMessage(UnitTestUtil.toText("creator.base.error.insufficient_funds 0"));
 
         double price = 123.41;
         Mockito.doReturn(OptionalDouble.of(price)).when(creator).getPrice();
         Mockito.doReturn(false).when(creator).buyDoor();
         Assertions.assertTrue(creator.confirmPrice(true));
-        Mockito.verify(player).sendMessage(String.format("creator.base.error.insufficient_funds %.2f", price));
+        Mockito.verify(player)
+               .sendMessage(UnitTestUtil.toText(String.format("creator.base.error.insufficient_funds %.2f", price)));
 
         Mockito.doReturn(true).when(creator).buyDoor();
         Assertions.assertTrue(creator.confirmPrice(true));
@@ -285,19 +284,19 @@ class CreatorTest
     {
         Mockito.doNothing().when(creator).abort();
 
-        final IPWorld world = getWorld();
+        final IPWorld world = UnitTestUtil.getWorld();
 
         final Vector3Di cuboidMin = new Vector3Di(10, 20, 30);
         final Vector3Di cuboidMax = new Vector3Di(40, 50, 60);
         final Cuboid cuboid = new Cuboid(cuboidMin, cuboidMax);
 
-        final IPLocation outsideCuboid = getLocation(70, 80, 90, world);
-        final IPLocation insideCuboid = getLocation(25, 35, 45, world);
+        final IPLocation outsideCuboid = UnitTestUtil.getLocation(70, 80, 90, world);
+        final IPLocation insideCuboid = UnitTestUtil.getLocation(25, 35, 45, world);
 
         setField("cuboid", cuboid);
         setField("world", world);
 
-        Assertions.assertFalse(creator.completeSetPowerBlockStep(getLocation(0, 1, 2)));
+        Assertions.assertFalse(creator.completeSetPowerBlockStep(UnitTestUtil.getLocation(0, 1, 2)));
 
         Mockito.doReturn(false).when(creator).playerHasAccessToLocation(Mockito.any());
         Assertions.assertFalse(creator.completeSetPowerBlockStep(outsideCuboid));
@@ -305,15 +304,16 @@ class CreatorTest
         Mockito.doReturn(true).when(creator).playerHasAccessToLocation(Mockito.any());
         Assertions.assertFalse(creator.completeSetPowerBlockStep(insideCuboid));
 
-        Mockito.verify(player).sendMessage("creator.base.error.powerblock_inside_door");
+        Mockito.verify(player).sendMessage(UnitTestUtil.toText("creator.base.error.powerblock_inside_door"));
 
         final double distance = cuboid.getCenter().getDistance(outsideCuboid.getPosition());
         final int lowLimit = (int) (distance - 1);
         Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any())).thenReturn(OptionalInt.of(lowLimit));
 
         Assertions.assertFalse(creator.completeSetPowerBlockStep(outsideCuboid));
-        Mockito.verify(player).sendMessage(String.format("creator.base.error.powerblock_too_far %.2f %d",
-                                                         distance, lowLimit));
+        Mockito.verify(player)
+               .sendMessage(UnitTestUtil.toText(String.format("creator.base.error.powerblock_too_far %.2f %d",
+                                                              distance, lowLimit)));
 
         Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any())).thenReturn(OptionalInt.of(lowLimit + 10));
         Assertions.assertTrue(creator.completeSetPowerBlockStep(outsideCuboid));
@@ -322,7 +322,7 @@ class CreatorTest
     @Test
     void testCompleteSetRotationPointStep()
     {
-        final IPWorld world = getWorld();
+        final IPWorld world = UnitTestUtil.getWorld();
 
         final Vector3Di cuboidMin = new Vector3Di(10, 20, 30);
         final Vector3Di cuboidMax = new Vector3Di(40, 50, 60);
@@ -332,18 +332,18 @@ class CreatorTest
         setField("cuboid", cuboid);
 
         // World mismatch, so not allowed
-        Assertions.assertFalse(creator.completeSetRotationPointStep(getLocation(1, 1, 1)));
+        Assertions.assertFalse(creator.completeSetRotationPointStep(UnitTestUtil.getLocation(1, 1, 1)));
 
         Mockito.doReturn(false).when(creator).playerHasAccessToLocation(Mockito.any());
         // Location not allowed
-        Assertions.assertFalse(creator.completeSetRotationPointStep(getLocation(1, 1, 1, world)));
+        Assertions.assertFalse(creator.completeSetRotationPointStep(UnitTestUtil.getLocation(1, 1, 1, world)));
 
         Mockito.doReturn(true).when(creator).playerHasAccessToLocation(Mockito.any());
         // Point too far away
-        Assertions.assertFalse(creator.completeSetRotationPointStep(getLocation(1, 1, 1, world)));
-        Mockito.verify(player).sendMessage("creator.base.error.invalid_rotation_point");
+        Assertions.assertFalse(creator.completeSetRotationPointStep(UnitTestUtil.getLocation(1, 1, 1, world)));
+        Mockito.verify(player).sendMessage(UnitTestUtil.toText("creator.base.error.invalid_rotation_point"));
 
-        Assertions.assertTrue(creator.completeSetRotationPointStep(getLocation(11, 21, 31, world)));
+        Assertions.assertTrue(creator.completeSetRotationPointStep(UnitTestUtil.getLocation(11, 21, 31, world)));
     }
 
     @SneakyThrows

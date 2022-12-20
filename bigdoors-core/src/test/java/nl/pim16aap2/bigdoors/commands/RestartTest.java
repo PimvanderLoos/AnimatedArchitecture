@@ -36,7 +36,6 @@ class RestartTest
     void beforeEach()
     {
         MockitoAnnotations.openMocks(this);
-        UnitTestUtil.redirectSendMessageText(commandSender);
 
         Mockito.when(platformProvider.getPlatform()).thenReturn(Optional.of(platform));
 

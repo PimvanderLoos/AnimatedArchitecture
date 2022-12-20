@@ -41,15 +41,6 @@ public final class OfflinePPlayerSpigot implements IPPlayer
      */
     @Override
     @Deprecated
-    public void sendMessage(String message)
-    {
-    }
-
-    /**
-     * Calling this method has no effect, as there is no player to send the message to.
-     */
-    @Override
-    @Deprecated
     public void sendMessage(Text text)
     {
     }
