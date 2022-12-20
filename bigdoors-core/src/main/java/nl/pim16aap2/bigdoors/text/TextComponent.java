@@ -16,4 +16,14 @@ package nl.pim16aap2.bigdoors.text;
 public record TextComponent(String on, String off)
 {
     public static final TextComponent EMPTY = new TextComponent("", "");
+
+    /**
+     * Checks if this text component is empty.
+     *
+     * @return True if both the on and off strings are empty (i.e. size = 0).
+     */
+    boolean isEmpty()
+    {
+        return on.isEmpty() && off.isEmpty();
+    }
 }

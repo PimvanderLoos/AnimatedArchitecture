@@ -166,8 +166,11 @@ public class Text
         if (type != null)
         {
             final TextComponent style = colorScheme.getStyle(type);
-            styledSections.add(new StyledSection(stringBuilder.length(), text.length(), style));
-            styledSize += style.on().length() + style.off().length();
+            if (!style.isEmpty())
+            {
+                styledSections.add(new StyledSection(stringBuilder.length(), text.length(), style));
+                styledSize += style.on().length() + style.off().length();
+            }
         }
         return append(text);
     }
