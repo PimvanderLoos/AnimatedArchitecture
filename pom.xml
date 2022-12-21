@@ -458,6 +458,14 @@
                                 <pattern>nl.pim16aap2.util</pattern>
                                 <shadedPattern>nl.pim16aap2.bigdoors.lib.util</shadedPattern>
                             </relocation>
+                            <relocation>
+                                <pattern>org.apiguardian</pattern>
+                                <shadedPattern>nl.pim16aap2.bigdoors.lib.apiguardian</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>com.mojang.brigadier</pattern>
+                                <shadedPattern>nl.pim16aap2.bigdoors.lib.brigadier</shadedPattern>
+                            </relocation>
                         </relocations>
                     </configuration>
                     <executions>
