@@ -6,8 +6,10 @@ import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.PermissionLevel;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
+import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 public class AddOwnerDelayed extends DelayedCommand<AddOwnerDelayed.DelayedInput>
@@ -62,10 +64,11 @@ public class AddOwnerDelayed extends DelayedCommand<AddOwnerDelayed.DelayedInput
          *     The permission level of the new owner's ownership. Defaults to
          *     {@link AddOwner#DEFAULT_PERMISSION_LEVEL}.
          */
-        public DelayedInput(IPPlayer targetPlayer, PermissionLevel targetPermissionLevel)
+        public DelayedInput(IPPlayer targetPlayer, @Nullable PermissionLevel targetPermissionLevel)
         {
             this.targetPlayer = targetPlayer;
-            this.targetPermissionLevel = targetPermissionLevel;
+            this.targetPermissionLevel =
+                Objects.requireNonNullElse(targetPermissionLevel, AddOwner.DEFAULT_PERMISSION_LEVEL);
         }
 
         /**
@@ -73,7 +76,7 @@ public class AddOwnerDelayed extends DelayedCommand<AddOwnerDelayed.DelayedInput
          */
         public DelayedInput(IPPlayer targetPlayer)
         {
-            this(targetPlayer, AddOwner.DEFAULT_PERMISSION_LEVEL);
+            this(targetPlayer, null);
         }
     }
 }

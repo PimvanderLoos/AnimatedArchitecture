@@ -10,8 +10,10 @@ import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * This class represents a type of Door. "Door" in this case, refers to any kind of animated object, so not necessarily
@@ -68,22 +70,22 @@ public abstract class DoorType
      * @return A list of all valid {@link RotateDirection} for this given type.
      */
     @Getter
-    private final List<RotateDirection> validOpenDirections;
+    private final Set<RotateDirection> validOpenDirections;
 
     private volatile @Nullable DoorSerializer<?> doorSerializer;
 
     /**
-     * Constructs a new {@link DoorType}. Don't forget to also register it using {@link
-     * nl.pim16aap2.bigdoors.managers.DoorTypeManager#registerDoorType(DoorType)}.
+     * Constructs a new {@link DoorType}. Don't forget to also register it using
+     * {@link nl.pim16aap2.bigdoors.managers.DoorTypeManager#registerDoorType(DoorType)}.
      *
      * @param pluginName
      *     The name of the plugin that owns this {@link DoorType}.
      * @param simpleName
      *     The 'simple' name of this {@link DoorType}. E.g. "Flag", or "Windmill".
      * @param typeVersion
-     *     The version of this {@link DoorType}. Note that changing the version results in a completely new {@link
-     *     DoorType}, as far as the database is concerned. This fact can be used if the parameters of the constructor
-     *     for this type need to be changed.
+     *     The version of this {@link DoorType}. Note that changing the version results in a completely new
+     *     {@link DoorType}, as far as the database is concerned. This fact can be used if the parameters of the
+     *     constructor for this type need to be changed.
      */
     protected DoorType(
         String pluginName, String simpleName, int typeVersion, List<RotateDirection> validOpenDirections,
@@ -92,7 +94,8 @@ public abstract class DoorType
         this.pluginName = pluginName;
         this.simpleName = simpleName.toLowerCase(Locale.ENGLISH);
         this.typeVersion = typeVersion;
-        this.validOpenDirections = validOpenDirections;
+        this.validOpenDirections =
+            validOpenDirections.isEmpty() ? EnumSet.noneOf(RotateDirection.class) : EnumSet.copyOf(validOpenDirections);
         this.localizationKey = localizationKey;
         fullName = String.format("%s_%s_%d", getPluginName(), getSimpleName(), getTypeVersion())
                          .toLowerCase(Locale.ENGLISH);

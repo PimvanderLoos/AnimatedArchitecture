@@ -174,6 +174,18 @@ public final class DoorRetrieverFactory
     }
 
     /**
+     * Creates a new {@link DoorRetriever} from a list of doors.
+     *
+     * @param doors
+     *     The doors.
+     * @return The new {@link DoorRetriever}.
+     */
+    public static DoorRetriever ofDoors(CompletableFuture<List<AbstractDoor>> doors)
+    {
+        return new DoorRetriever.FutureDoorListRetriever(doors);
+    }
+
+    /**
      * Represents different ways a door finder can be instantiated.
      */
     public enum DoorFinderMode

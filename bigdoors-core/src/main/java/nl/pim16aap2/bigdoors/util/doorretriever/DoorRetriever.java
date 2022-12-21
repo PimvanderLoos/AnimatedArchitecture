@@ -351,6 +351,61 @@ public sealed abstract class DoorRetriever
     }
 
     /**
+     * Represents a {@link DoorRetriever} that references a future list of doors by the object themselves.
+     *
+     * @author Pim
+     */
+    @ToString
+    @EqualsAndHashCode(callSuper = false, doNotUseGetters = true)
+    static final class FutureDoorListRetriever extends DoorRetriever
+    {
+        private final CompletableFuture<List<AbstractDoor>> doors;
+
+        FutureDoorListRetriever(CompletableFuture<List<AbstractDoor>> doors)
+        {
+            this.doors = doors.exceptionally(t -> Util.exceptionally(t, Collections.emptyList()));
+        }
+
+        @Override
+        public boolean isAvailable()
+        {
+            return doors.isDone();
+        }
+
+        @Override
+        public CompletableFuture<Optional<AbstractDoor>> getDoor()
+        {
+            return doors.thenApply(lst -> lst.size() > 0 ? Optional.of(lst.get(0)) : Optional.empty());
+        }
+
+        @Override
+        public CompletableFuture<List<AbstractDoor>> getDoors()
+        {
+            return doors;
+        }
+
+        private CompletableFuture<List<AbstractDoor>> getDoors0(IPPlayer player)
+        {
+            final UUID playerUUID = player.getUUID();
+            return doors.thenApply(retrieved ->
+                                       retrieved.stream().filter(door -> door.isDoorOwner(playerUUID)).toList());
+        }
+
+        @Override
+        public CompletableFuture<List<AbstractDoor>> getDoors(IPPlayer player)
+        {
+            return getDoors0(player);
+        }
+
+        @Override
+        public CompletableFuture<Optional<AbstractDoor>> getDoor(IPPlayer player)
+        {
+            return getDoors0(player)
+                .thenApply(lst -> lst.size() == 1 ? Optional.of(lst.get(0)) : Optional.empty());
+        }
+    }
+
+    /**
      * Represents a {@link DoorRetriever} that references a future optional door directly.
      *
      * @author Pim

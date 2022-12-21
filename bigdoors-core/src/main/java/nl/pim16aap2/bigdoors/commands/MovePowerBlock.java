@@ -41,7 +41,7 @@ public class MovePowerBlock extends DoorTargetCommand
     @Override
     public CommandDefinition getCommand()
     {
-        return CommandDefinition.MOVE_POWERBLOCK;
+        return CommandDefinition.MOVE_POWER_BLOCK;
     }
 
     @Override

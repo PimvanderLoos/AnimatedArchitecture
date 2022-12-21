@@ -89,7 +89,16 @@ public class DoorSerializer<T extends AbstractDoor>
         Class<?> clazz = doorClass;
         while (!clazz.equals(AbstractDoor.class))
         {
-            fieldList.addAll(0, Arrays.asList(clazz.getDeclaredFields()));
+            try
+            {
+                fieldList.addAll(0, Arrays.asList(clazz.getDeclaredFields()));
+            }
+            catch (Throwable t)
+            {
+                log.at(Level.SEVERE).withCause(t).log("Failed to load class '%s'", clazz.getName());
+                if (clazz.getName().endsWith("BigDoor"))
+                    Runtime.getRuntime().exit(0);
+            }
             clazz = clazz.getSuperclass();
         }
 

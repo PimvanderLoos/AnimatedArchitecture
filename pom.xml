@@ -15,6 +15,10 @@
 
         <dependency.version.jcalculator>1.8</dependency.version.jcalculator>
         <dependency.version.gson>2.10</dependency.version.gson>
+        <dependency.version.cloud>1.8.0</dependency.version.cloud>
+        <dependency.version.adventure-api>4.12.0</dependency.version.adventure-api>
+        <dependency.version.adventure-bukkit>4.2.0</dependency.version.adventure-bukkit>
+        <dependency.version.commodore>2.2</dependency.version.commodore>
         <dependency.version.flogger>0.7.4</dependency.version.flogger>
         <dependency.version.slf4j>1.7.36</dependency.version.slf4j>
         <dependency.version.logback>1.2.11</dependency.version.logback>
@@ -395,6 +399,22 @@
                                 <shadedPattern>nl.pim16aap2.bigdoors.lib.bstats</shadedPattern>
                             </relocation>
                             <relocation>
+                                <pattern>cloud.commandframework</pattern>
+                                <shadedPattern>nl.pim16aap2.bigdoors.lib.cloud</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>me.lucko.commodore</pattern>
+                                <shadedPattern>nl.pim16aap2.bigdoors.lib.commodore</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>net.kyori</pattern>
+                                <shadedPattern>nl.pim16aap2.bigdoors.lib.kyori</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>io.leangen</pattern>
+                                <shadedPattern>nl.pim16aap2.bigdoors.lib.leangen</shadedPattern>
+                            </relocation>
+                            <relocation>
                                 <pattern>nl.pim16aap2.jcalculator</pattern>
                                 <shadedPattern>nl.pim16aap2.bigdoors.lib.jcalculator</shadedPattern>
                             </relocation>
@@ -426,7 +446,6 @@
                                 <pattern>ch.qos.logback</pattern>
                                 <shadedPattern>nl.pim16aap2.bigdoors.lib.logback</shadedPattern>
                             </relocation>
-
                             <relocation>
                                 <pattern>nl.pim16aap2.logging</pattern>
                                 <shadedPattern>nl.pim16aap2.bigdoors.lib.logging</shadedPattern>
@@ -438,6 +457,14 @@
                             <relocation>
                                 <pattern>nl.pim16aap2.util</pattern>
                                 <shadedPattern>nl.pim16aap2.bigdoors.lib.util</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>org.apiguardian</pattern>
+                                <shadedPattern>nl.pim16aap2.bigdoors.lib.apiguardian</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>com.mojang.brigadier</pattern>
+                                <shadedPattern>nl.pim16aap2.bigdoors.lib.brigadier</shadedPattern>
                             </relocation>
                         </relocations>
                     </configuration>

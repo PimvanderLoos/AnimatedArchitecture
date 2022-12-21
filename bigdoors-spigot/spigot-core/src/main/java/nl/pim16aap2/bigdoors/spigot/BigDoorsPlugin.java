@@ -142,8 +142,12 @@ public final class BigDoorsPlugin extends JavaPlugin implements IBigDoorsPlatfor
         // As such, we make sure to initialize the platform just once and then
         // restart it on all onEnable calls after the first one, provided it was
         // initialized properly.
+        boolean firstInit = false;
         if (!initialized)
+        {
+            firstInit = true;
             bigDoorsSpigotPlatform = initPlatform();
+        }
         initialized = true;
 
         if (bigDoorsSpigotPlatform == null)
@@ -155,8 +159,24 @@ public final class BigDoorsPlugin extends JavaPlugin implements IBigDoorsPlatfor
         LOG_BACK_CONFIGURATOR.setLevel(bigDoorsSpigotPlatform.getBigDoorsConfig().logLevel()).apply();
         restartableHolder.initialize();
 
+        if (firstInit)
+            initCommands(bigDoorsSpigotPlatform);
+
         // TODO: Remove this before any release.
         printDebug();
+    }
+
+    private void initCommands(BigDoorsSpigotPlatform bigDoorsSpigotPlatform)
+    {
+        try
+        {
+            bigDoorsSpigotPlatform.getCommandListener().init();
+        }
+        catch (Exception e)
+        {
+            log.at(Level.SEVERE).withCause(e).log("Failed to initialize command listener!");
+            onInitFailure();
+        }
     }
 
     @Override

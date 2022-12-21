@@ -78,6 +78,14 @@ public final class Util
      */
     private static final Pattern LOCALE_FILE_PATTERN = Pattern.compile("^[\\w-]+\\.properties");
 
+    /**
+     * A valid door name.
+     * <p>
+     * All letters "a-zA-Z" are allowed as well as "-" and '_'. Numbers are allowed as well, but only if there are
+     * non-number characters in the name as well. For example, '0_MyDoor-0' is allowed, but '0' is not.
+     */
+    private static final Pattern VALID_DOOR_NAME = Pattern.compile("^\\w*[a-zA-Z_-]+\\w*$");
+
     static
     {
         for (final var pbf : PBlockFace.values())
@@ -442,7 +450,7 @@ public final class Util
         if (name == null || name.isBlank())
             return false;
 
-        return Util.parseLong(name).isEmpty() && Util.parseDouble(name).isEmpty();
+        return VALID_DOOR_NAME.matcher(name).matches();
     }
 
     /**

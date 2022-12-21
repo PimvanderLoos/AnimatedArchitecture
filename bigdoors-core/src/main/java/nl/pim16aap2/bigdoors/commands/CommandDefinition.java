@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import nl.pim16aap2.bigdoors.util.Util;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -65,8 +66,8 @@ public final class CommandDefinition
                               PREFIX_USER + "info",
                               PREFIX_ADMIN + "bypass.info");
 
-    public static final CommandDefinition INSPECT_POWERBLOCK =
-        new CommandDefinition("INSPECT_POWERBLOCK",
+    public static final CommandDefinition INSPECT_POWER_BLOCK =
+        new CommandDefinition("INSPECT_POWER_BLOCK",
                               PREFIX_USER + "inspect",
                               PREFIX_ADMIN + "bypass.inspect");
 
@@ -80,8 +81,8 @@ public final class CommandDefinition
                               PREFIX_USER + "lock",
                               PREFIX_ADMIN + "bypass.lock");
 
-    public static final CommandDefinition MOVE_POWERBLOCK =
-        new CommandDefinition("MOVE_POWERBLOCK",
+    public static final CommandDefinition MOVE_POWER_BLOCK =
+        new CommandDefinition("MOVE_POWER_BLOCK",
                               PREFIX_USER + "movepowerblock",
                               PREFIX_ADMIN + "bypass.movepowerblock");
 
@@ -152,5 +153,18 @@ public final class CommandDefinition
         this.name = name;
         this.userPermission = Optional.ofNullable(userPermission);
         this.adminPermission = Optional.ofNullable(adminPermission);
+    }
+
+    /**
+     * @return The lowest permission level available. If the command has both a user and an admin permission, the user
+     * permission will be returned. If it only has an admin permission, that will be returned instead.
+     *
+     * @throws NullPointerException
+     *     When this command has neither a user permission nor an admin permission.
+     */
+    public String getLowestPermission()
+    {
+        return Util.requireNonNull(userPermission.orElseGet(() -> adminPermission.orElse(null)),
+                                   "Minimum permission for command " + this.name);
     }
 }

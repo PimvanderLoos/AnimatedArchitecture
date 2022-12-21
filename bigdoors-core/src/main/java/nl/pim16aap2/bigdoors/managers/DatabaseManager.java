@@ -532,6 +532,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
             {
                 final var event = factoryMethod.apply(bigDoorsEventFactory);
                 doorEventCaller.callDoorEvent(event);
+                log.at(Level.SEVERE).log("Event %s was%s cancelled!", event, (event.isCancelled() ? "" : " not"));
                 return event.isCancelled();
             });
     }

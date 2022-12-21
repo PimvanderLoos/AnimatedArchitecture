@@ -4,10 +4,11 @@ import lombok.Getter;
 import lombok.ToString;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Represents a permission level where a lower level indicates a higher access level.
@@ -21,9 +22,13 @@ public enum PermissionLevel
     NO_PERMISSION(999),
     ;
 
+    private static final List<PermissionLevel> VALUES = List.of(values());
+
     private static final Map<Integer, PermissionLevel> VALUE_MAP =
-        Stream.of(PermissionLevel.values())
-              .collect(Collectors.toUnmodifiableMap(PermissionLevel::getValue, Function.identity()));
+        VALUES.stream().collect(Collectors.toUnmodifiableMap(PermissionLevel::getValue, Function.identity()));
+
+    private static final Map<String, PermissionLevel> NAME_MAP =
+        VALUES.stream().collect(Collectors.toUnmodifiableMap(PermissionLevel::name, Function.identity()));
 
     @Getter
     private final int value;
@@ -43,6 +48,20 @@ public enum PermissionLevel
     public static @Nullable PermissionLevel fromValue(int id)
     {
         return VALUE_MAP.get(id);
+    }
+
+    /**
+     * Retrieves the {@link PermissionLevel} from its name.
+     * <p>
+     * This method is case-insensitive.
+     *
+     * @param name
+     *     The name of the door permission to retrieve.
+     * @return The door permission with the given name if it exists, otherwise null.
+     */
+    public static @Nullable PermissionLevel fromName(String name)
+    {
+        return NAME_MAP.get(name.toLowerCase(Locale.ROOT));
     }
 
     /**
@@ -68,5 +87,17 @@ public enum PermissionLevel
     public boolean isLowerThan(PermissionLevel other)
     {
         return this.value < other.value;
+    }
+
+    /**
+     * Retrieves an unmodifiable list of all values.
+     * <p>
+     * See {@link #values()}.
+     *
+     * @return The values in this enum.
+     */
+    public static List<PermissionLevel> getValues()
+    {
+        return VALUES;
     }
 }

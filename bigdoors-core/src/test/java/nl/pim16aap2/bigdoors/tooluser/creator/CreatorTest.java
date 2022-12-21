@@ -8,6 +8,8 @@ import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
+import nl.pim16aap2.bigdoors.commands.CommandFactory;
+import nl.pim16aap2.bigdoors.commands.SetOpenDirectionDelayed;
 import nl.pim16aap2.bigdoors.doors.DoorBaseBuilder;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
@@ -18,6 +20,7 @@ import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,11 +30,11 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.List;
+import java.util.EnumSet;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
+import java.util.Set;
 
 import static nl.pim16aap2.bigdoors.UnitTestUtil.*;
 
@@ -49,10 +52,15 @@ class CreatorTest
     @Mock
     private LimitsManager limitsManager;
 
+    @Mock
+    private CommandFactory commandFactory;
+
+    private AutoCloseable mocks;
+
     @BeforeEach
     void init()
     {
-        MockitoAnnotations.openMocks(this);
+        mocks = MockitoAnnotations.openMocks(this);
 
         final DoorType doorType = Mockito.mock(DoorType.class);
 
@@ -71,12 +79,20 @@ class CreatorTest
         UnitTestUtil.setField(Creator.class, creator, "doorBaseBuilder", Mockito.mock(DoorBaseBuilder.class));
         UnitTestUtil.setField(Creator.class, creator, "databaseManager", Mockito.mock(DatabaseManager.class));
         UnitTestUtil.setField(Creator.class, creator, "economyManager", economyManager);
+        UnitTestUtil.setField(Creator.class, creator, "commandFactory", commandFactory);
 
         UnitTestUtil.setField(ToolUser.class, creator, "player", player);
         UnitTestUtil.setField(ToolUser.class, creator, "localizer", initLocalizer());
         UnitTestUtil.setField(ToolUser.class, creator, "protectionCompatManager", protectionCompatManager);
         UnitTestUtil.setField(ToolUser.class, creator, "bigDoorsToolUtil", Mockito.mock(IBigDoorsToolUtil.class));
         UnitTestUtil.setField(ToolUser.class, creator, "localizer", initLocalizer());
+    }
+
+    @AfterEach
+    void cleanup()
+        throws Exception
+    {
+        mocks.close();
     }
 
     @Test
@@ -207,23 +223,24 @@ class CreatorTest
     @Test
     void testOpenDirectionStep()
     {
+        Mockito.when(commandFactory.getSetOpenDirectionDelayed())
+               .thenReturn(Mockito.mock(SetOpenDirectionDelayed.class));
+
         final DoorType doorType = Mockito.mock(DoorType.class);
-        final List<RotateDirection> validOpenDirections = Arrays.asList(RotateDirection.EAST, RotateDirection.WEST);
+        final Set<RotateDirection> validOpenDirections = EnumSet.of(RotateDirection.EAST, RotateDirection.WEST);
         Mockito.when(doorType.getValidOpenDirections()).thenReturn(validOpenDirections);
 
         Mockito.when(creator.getDoorType()).thenReturn(doorType);
 
-        Assertions.assertFalse(creator.completeSetOpenDirStep("-1"));
-        Assertions.assertTrue(creator.completeSetOpenDirStep("0"));
-        Assertions.assertTrue(creator.completeSetOpenDirStep("1"));
-        Assertions.assertFalse(creator.completeSetOpenDirStep("2"));
-
-        Assertions.assertFalse(creator.completeSetOpenDirStep("NORTH"));
-        Assertions.assertTrue(creator.completeSetOpenDirStep("EAST"));
-        Assertions.assertFalse(creator.completeSetOpenDirStep("SOUTH"));
-        Assertions.assertTrue(creator.completeSetOpenDirStep("WEST"));
-
-        Assertions.assertFalse(creator.completeSetOpenDirStep(""));
+        Assertions.assertFalse(creator.completeSetOpenDirStep(RotateDirection.NONE));
+        Assertions.assertFalse(creator.completeSetOpenDirStep(RotateDirection.NORTH));
+        Assertions.assertTrue(creator.completeSetOpenDirStep(RotateDirection.EAST));
+        Assertions.assertFalse(creator.completeSetOpenDirStep(RotateDirection.SOUTH));
+        Assertions.assertTrue(creator.completeSetOpenDirStep(RotateDirection.WEST));
+        Assertions.assertFalse(creator.completeSetOpenDirStep(RotateDirection.CLOCKWISE));
+        Assertions.assertFalse(creator.completeSetOpenDirStep(RotateDirection.COUNTERCLOCKWISE));
+        Assertions.assertFalse(creator.completeSetOpenDirStep(RotateDirection.UP));
+        Assertions.assertFalse(creator.completeSetOpenDirStep(RotateDirection.DOWN));
     }
 
     @Test

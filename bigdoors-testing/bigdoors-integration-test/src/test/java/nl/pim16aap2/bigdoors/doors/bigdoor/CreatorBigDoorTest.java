@@ -18,7 +18,6 @@ class CreatorBigDoorTest extends CreatorTestsUtil
     void createBigDoor()
     {
         openDirection = RotateDirection.CLOCKWISE;
-        String openDirectionName = "0";
 
         final BigDoor actualDoor = new BigDoor(constructDoorBase());
         Assertions.assertNotNull(DoorTypeBigDoor.get());
@@ -29,6 +28,6 @@ class CreatorBigDoorTest extends CreatorTestsUtil
                      max.toLocation(locationFactory, world),
                      rotationPoint.toLocation(locationFactory, world),
                      powerblock.toLocation(locationFactory, world),
-                     openDirectionName);
+                     openDirection);
     }
 }

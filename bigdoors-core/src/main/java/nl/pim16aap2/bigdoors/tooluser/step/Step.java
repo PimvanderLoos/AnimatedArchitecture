@@ -31,7 +31,14 @@ public class Step implements IStep
     private final String messageKey;
 
     @ToString.Exclude
+    @Getter
+    private final @Nullable Runnable stepPreparation;
+
+    @ToString.Exclude
     private final List<Supplier<String>> messageVariablesRetrievers;
+
+    @ToString.Exclude
+    private final Supplier<List<String>> flatMessageVariablesRetrievers;
 
     private final boolean waitForUserInput;
 
@@ -64,6 +71,7 @@ public class Step implements IStep
     {
         final List<String> variables = new ArrayList<>(messageVariablesRetrievers.size());
         messageVariablesRetrievers.forEach(fun -> variables.add(fun.get()));
+        variables.addAll(flatMessageVariablesRetrievers.get());
 
         Object[] variablesArr = new String[variables.size()];
         variablesArr = variables.toArray(variablesArr);
@@ -77,6 +85,8 @@ public class Step implements IStep
         private final String name;
         private @Nullable StepExecutor stepExecutor = null;
         private @Nullable List<Supplier<String>> messageVariablesRetrievers = null;
+        private @Nullable Supplier<List<String>> flatMessageVariablesRetrievers = null;
+        private @Nullable Runnable stepPreparation;
         private boolean waitForUserInput = true;
         private @Nullable String messageKey = null;
         private @Nullable Supplier<Boolean> skipCondition = null;
@@ -91,6 +101,12 @@ public class Step implements IStep
         public Factory implicitNextStep(boolean implicitNextStep)
         {
             this.implicitNextStep = implicitNextStep;
+            return this;
+        }
+
+        public Factory stepPreparation(Runnable prepareStep)
+        {
+            this.stepPreparation = prepareStep;
             return this;
         }
 
@@ -109,6 +125,12 @@ public class Step implements IStep
         public Factory messageVariableRetrievers(List<Supplier<String>> messageVariablesRetrievers)
         {
             this.messageVariablesRetrievers = Collections.unmodifiableList(messageVariablesRetrievers);
+            return this;
+        }
+
+        public Factory messageVariableRetrievers(Supplier<List<String>> messageVariablesRetrievers)
+        {
+            flatMessageVariablesRetrievers = messageVariablesRetrievers;
             return this;
         }
 
@@ -140,9 +162,11 @@ public class Step implements IStep
 
             if (messageVariablesRetrievers == null)
                 messageVariablesRetrievers = Collections.emptyList();
+            if (flatMessageVariablesRetrievers == null)
+                flatMessageVariablesRetrievers = Collections::emptyList;
 
-            return new Step(localizer, name, stepExecutor, messageKey, messageVariablesRetrievers,
-                            waitForUserInput, skipCondition, implicitNextStep);
+            return new Step(localizer, name, stepExecutor, messageKey, stepPreparation, messageVariablesRetrievers,
+                            flatMessageVariablesRetrievers, waitForUserInput, skipCondition, implicitNextStep);
         }
     }
 }

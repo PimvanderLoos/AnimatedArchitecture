@@ -21,7 +21,6 @@ class CreatorElevatorTest extends CreatorTestsUtil
     {
         rotationPoint = new Cuboid(min, max).getCenterBlock();
         openDirection = RotateDirection.UP;
-        String openDirectionName = "0";
 
         final Elevator actualDoor = new Elevator(constructDoorBase(), blocksToMove);
         final CreatorElevator creator = new CreatorElevator(context, player);
@@ -30,7 +29,7 @@ class CreatorElevatorTest extends CreatorTestsUtil
                      min.toLocation(locationFactory, world),
                      max.toLocation(locationFactory, world),
                      powerblock.toLocation(locationFactory, world),
-                     openDirectionName,
+                     openDirection,
                      blocksToMove);
     }
 }

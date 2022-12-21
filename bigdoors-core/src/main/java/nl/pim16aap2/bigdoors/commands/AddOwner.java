@@ -13,6 +13,7 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -49,12 +50,12 @@ public class AddOwner extends DoorTargetCommand
     @AssistedInject //
     AddOwner(
         @Assisted ICommandSender commandSender, ILocalizer localizer, @Assisted DoorRetriever doorRetriever,
-        @Assisted IPPlayer targetPlayer, @Assisted PermissionLevel targetPermissionLevel,
+        @Assisted IPPlayer targetPlayer, @Assisted @Nullable PermissionLevel targetPermissionLevel,
         DatabaseManager databaseManager)
     {
         super(commandSender, localizer, doorRetriever, DoorAttribute.ADD_OWNER);
         this.targetPlayer = targetPlayer;
-        this.targetPermissionLevel = targetPermissionLevel;
+        this.targetPermissionLevel = targetPermissionLevel == null ? DEFAULT_PERMISSION_LEVEL : targetPermissionLevel;
         this.databaseManager = databaseManager;
     }
 
@@ -152,7 +153,7 @@ public class AddOwner extends DoorTargetCommand
          */
         AddOwner newAddOwner(
             ICommandSender commandSender, DoorRetriever doorRetriever, IPPlayer targetPlayer,
-            PermissionLevel targetPermissionLevel);
+            @Nullable PermissionLevel targetPermissionLevel);
 
         /**
          * See {@link #newAddOwner(ICommandSender, DoorRetriever, IPPlayer, PermissionLevel)}.
@@ -162,7 +163,7 @@ public class AddOwner extends DoorTargetCommand
         default AddOwner newAddOwner(
             ICommandSender commandSender, DoorRetriever doorRetriever, IPPlayer targetPlayer)
         {
-            return newAddOwner(commandSender, doorRetriever, targetPlayer, AddOwner.DEFAULT_PERMISSION_LEVEL);
+            return newAddOwner(commandSender, doorRetriever, targetPlayer, null);
         }
     }
 }

@@ -96,8 +96,8 @@ public final class ToolUserManager extends Restartable
     }
 
     /**
-     * Stops and removes a {@link ToolUser}. "Stop" here means that it will make sure to properly clean up the {@link
-     * ToolUser}.
+     * Stops and removes a {@link ToolUser}. "Stop" here means that it will make sure to properly clean up the
+     * {@link ToolUser}.
      *
      * @param toolUser
      *     The {@link ToolUser} to stop and remove.

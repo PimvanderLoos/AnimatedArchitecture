@@ -39,6 +39,7 @@ import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
+import nl.pim16aap2.bigdoors.spigot.comands.CommandManager;
 import nl.pim16aap2.bigdoors.spigot.exceptions.InitializationException;
 import nl.pim16aap2.bigdoors.spigot.listeners.ChunkListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.EventListeners;
@@ -201,6 +202,9 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     @SuppressWarnings({"FieldCanBeLocal", "unused", "PMD.SingularField"})
     private final WorldListener worldListener;
 
+    @Getter
+    private final CommandManager commandListener;
+
     BigDoorsSpigotPlatform(BigDoorsSpigotComponent bigDoorsSpigotComponent, BigDoorsPlugin plugin)
         throws InitializationException
     {
@@ -268,6 +272,7 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
         blockAnalyzer = safeGetter(BigDoorsSpigotComponent::getBlockAnalyzer);
         doorTypeLoader = safeGetter(BigDoorsSpigotComponent::getDoorTypeLoader);
         restartableHolder = safeGetter(BigDoorsSpigotComponent::getRestartableHolder);
+        commandListener = safeGetter(BigDoorsSpigotComponent::getCommandListener);
 
         initPlatform();
     }

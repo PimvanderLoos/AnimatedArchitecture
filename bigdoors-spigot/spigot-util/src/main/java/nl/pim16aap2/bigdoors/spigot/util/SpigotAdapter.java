@@ -4,15 +4,18 @@ import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
+import nl.pim16aap2.bigdoors.commands.ICommandSender;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PLocationSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PPlayerSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PWorldSpigot;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.pserver.PServer;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
@@ -107,6 +110,35 @@ public final class SpigotAdapter
     public static Vector getBukkitVector(Vector3Dd vector)
     {
         return new Vector(vector.x(), vector.y(), vector.z());
+    }
+
+    /**
+     * Wraps a Bukkit {@link CommandSender} in an {@link ICommandSender}.
+     *
+     * @param commandSender
+     *     The Bukkit command sender.
+     * @return The wrapped command sender.
+     */
+    public static ICommandSender wrapCommandSender(CommandSender commandSender)
+    {
+        return commandSender instanceof Player player ? new PPlayerSpigot(player) : new PServer();
+    }
+
+    /**
+     * Unwraps a {@link ICommandSender} into an Bukkit {@link CommandSender}.
+     *
+     * @param commandSender
+     *     The command sender.
+     * @return The unwrapped bukkit command sender.
+     */
+    public static CommandSender unwrapCommandSender(ICommandSender commandSender)
+    {
+        if (commandSender instanceof PPlayerSpigot playerSpigot)
+            return playerSpigot.getBukkitPlayer();
+        if (commandSender instanceof PServer)
+            return Bukkit.getServer().getConsoleSender();
+        throw new IllegalArgumentException("Trying to unwrap command sender of illegal type: " +
+                                               commandSender.getClass().getName());
     }
 
     /**

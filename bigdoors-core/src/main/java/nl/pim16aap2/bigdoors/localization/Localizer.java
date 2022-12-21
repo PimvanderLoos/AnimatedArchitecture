@@ -128,7 +128,7 @@ final class Localizer implements ILocalizer
      *     When trying to initialize this localizer while the ClassLoader is not closed.
      */
     @Initializer
-    void init()
+    synchronized void init()
     {
         if (classLoader != null)
             throw new IllegalStateException("ClassLoader is already initialized!");
@@ -170,7 +170,7 @@ final class Localizer implements ILocalizer
      * <p>
      * After calling this method, all requests for localized messages will fail until {@link #init()} is called.
      */
-    void shutdown()
+    synchronized void shutdown()
     {
         if (classLoader != null)
         {
@@ -192,7 +192,7 @@ final class Localizer implements ILocalizer
      * <p>
      * See {@link #shutdown()} and {@link #init()}.
      */
-    void reInit()
+    synchronized void reInit()
     {
         shutdown();
         init();

@@ -175,4 +175,17 @@ public final class Procedure
         }
         return currentStep.isImplicitNextStep();
     }
+
+    /**
+     * Runs the step preparation for the current step if applicable. See {@link IStep#getStepPreparation()}.
+     */
+    public void runCurrentStepPreparation()
+    {
+        if (currentStep == null)
+            return;
+        final @Nullable Runnable preparation = currentStep.getStepPreparation();
+        if (preparation == null)
+            return;
+        preparation.run();
+    }
 }

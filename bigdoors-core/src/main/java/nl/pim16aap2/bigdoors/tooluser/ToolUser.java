@@ -10,6 +10,7 @@ import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
+import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.doors.DoorBaseBuilder;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
@@ -169,6 +170,7 @@ public abstract class ToolUser
      */
     protected void prepareCurrentStep()
     {
+        getProcedure().runCurrentStepPreparation();
         sendMessage();
         if (!getProcedure().waitForUserInput())
             handleInput(null);
@@ -177,8 +179,8 @@ public abstract class ToolUser
     /**
      * See {@link Procedure#skipToStep(IStep)}.
      * <p>
-     * After successfully skipping to the target step, the newly-selected step will be prepared. See {@link
-     * #prepareCurrentStep()}.
+     * After successfully skipping to the target step, the newly-selected step will be prepared. See
+     * {@link #prepareCurrentStep()}.
      */
     @SuppressWarnings("unused")
     protected boolean skipToStep(IStep goalStep)
@@ -328,11 +330,14 @@ public abstract class ToolUser
         private final IEconomyManager economyManager;
         private final IProtectionCompatManager protectionCompatManager;
         private final IBigDoorsToolUtil bigDoorsToolUtil;
+        private final CommandFactory commandFactory;
 
         @Inject
-        public Context(DoorBaseBuilder doorBaseBuilder, ILocalizer localizer, ToolUserManager toolUserManager,
-                       DatabaseManager databaseManager, LimitsManager limitsManager, IEconomyManager economyManager,
-                       IProtectionCompatManager protectionCompatManager, IBigDoorsToolUtil bigDoorsToolUtil)
+        public Context(
+            DoorBaseBuilder doorBaseBuilder, ILocalizer localizer, ToolUserManager toolUserManager,
+            DatabaseManager databaseManager, LimitsManager limitsManager, IEconomyManager economyManager,
+            IProtectionCompatManager protectionCompatManager, IBigDoorsToolUtil bigDoorsToolUtil,
+            CommandFactory commandFactory)
         {
             this.doorBaseBuilder = doorBaseBuilder;
             this.localizer = localizer;
@@ -342,6 +347,7 @@ public abstract class ToolUser
             this.economyManager = economyManager;
             this.protectionCompatManager = protectionCompatManager;
             this.bigDoorsToolUtil = bigDoorsToolUtil;
+            this.commandFactory = commandFactory;
         }
     }
 }

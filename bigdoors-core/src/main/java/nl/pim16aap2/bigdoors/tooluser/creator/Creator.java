@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.api.IEconomyManager;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorBaseBuilder;
@@ -20,6 +21,7 @@ import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorBoolean;
+import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorOpenDirection;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorPLocation;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorString;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorVoid;
@@ -33,11 +35,10 @@ import org.jetbrains.annotations.Nullable;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 /**
@@ -56,6 +57,8 @@ public abstract class Creator extends ToolUser
     protected final DatabaseManager databaseManager;
 
     protected final IEconomyManager economyManager;
+
+    protected final CommandFactory commandFactory;
 
     /**
      * The name of the door that is to be created.
@@ -180,6 +183,7 @@ public abstract class Creator extends ToolUser
         doorBaseBuilder = context.getDoorBaseBuilder();
         databaseManager = context.getDatabaseManager();
         economyManager = context.getEconomyManager();
+        commandFactory = context.getCommandFactory();
 
         player.sendMessage(localizer.getMessage("creator.base.init"));
 
@@ -216,9 +220,13 @@ public abstract class Creator extends ToolUser
 
         factorySetOpenDir =
             new Step.Factory(localizer, "SET_OPEN_DIRECTION")
-                .stepExecutor(new StepExecutorString(this::completeSetOpenDirStep))
+                .stepExecutor(new StepExecutorOpenDirection(this::completeSetOpenDirStep))
+                .stepPreparation(this::prepareSetOpenDirection)
                 .messageKey("creator.base.set_open_dir")
-                .messageVariableRetrievers(Collections.singletonList(this::getOpenDirections));
+                .messageVariableRetrievers(
+                    () -> getValidOpenDirections().stream()
+                                                  .map(dir -> localizer.getMessage(dir.getLocalizationKey()))
+                                                  .toList());
 
         factoryConfirmPrice =
             new Step.Factory(localizer, "CONFIRM_DOOR_PRICE")
@@ -232,6 +240,15 @@ public abstract class Creator extends ToolUser
             new Step.Factory(localizer, "COMPLETE_CREATION_PROCESS")
                 .stepExecutor(new StepExecutorVoid(this::completeCreationProcess))
                 .waitForUserInput(false);
+    }
+
+    /**
+     * Prepares the step that sets the open direction.
+     */
+    protected void prepareSetOpenDirection()
+    {
+        commandFactory.getSetOpenDirectionDelayed().runDelayed(getPlayer(), this, direction ->
+            CompletableFuture.completedFuture(handleInput(direction)), null);
     }
 
     /**
@@ -390,67 +407,24 @@ public abstract class Creator extends ToolUser
     }
 
     /**
-     * Parses the selected open direction from a String.
+     * Attempts to complete the step that sets the {@link #openDir}.
      * <p>
-     * If the String is an integer value, it will try to get the {@link RotateDirection} at the corresponding index in
-     * the list of valid open directions as obtained from {@link DoorType#getValidOpenDirections()}.
-     * <p>
-     * If the String is not an integer value, it will try to match it to the name of a {@link RotateDirection}. Note
-     * that it has to be an exact match.
+     * If the open direction is not valid for this type, nothing changes.
      *
-     * @param str
-     *     The name or index of the selected open direction.
-     * @return The selected {@link RotateDirection}, if it exists.
-     */
-    // TODO: Do not match against the enum names of RotateDirection, but against localized RotateDirection names.
-    protected Optional<RotateDirection> parseOpenDirection(String str)
-    {
-        final String openDirName = str.toUpperCase(Locale.ENGLISH);
-        final OptionalInt idOpt = Util.parseInt(str);
-
-        final List<RotateDirection> validOpenDirs = getValidOpenDirections();
-
-        if (idOpt.isPresent())
-        {
-            final int id = idOpt.getAsInt();
-            if (id < 0 || id >= validOpenDirs.size())
-            {
-                log.at(Level.FINE).log("Player %s selected ID: %d out of %d options.",
-                                       getPlayer(), id, validOpenDirs.size());
-                return Optional.empty();
-            }
-
-            return Optional.of(validOpenDirs.get(id));
-        }
-
-        return RotateDirection.getRotateDirection(openDirName).flatMap(
-            foundOpenDir -> validOpenDirs.contains(foundOpenDir) ?
-                            Optional.of(foundOpenDir) : Optional.empty());
-    }
-
-    /**
-     * Attempts to complete the step that sets the {@link #openDir}. It uses the open direction as parsed from a String
-     * using {@link #parseOpenDirection(String)} if possible.
-     * <p>
-     * If no valid open direction for this type can be found, nothing changes.
-     *
-     * @param str
-     *     The name or index of the {@link RotateDirection} that was selected by the player.
+     * @param direction
+     *     The {@link RotateDirection} that was selected by the player.
      * @return True if the {@link #openDir} was set successfully.
      */
-    protected boolean completeSetOpenDirStep(String str)
+    protected boolean completeSetOpenDirStep(RotateDirection direction)
     {
-        return parseOpenDirection(str).map(
-            foundOpenDir ->
-            {
-                openDir = foundOpenDir;
-                return true;
-            }).orElseGet(
-            () ->
-            {
-                getPlayer().sendMessage(localizer.getMessage("creator.base.error.invalid_option", str));
-                return false;
-            });
+        if (!getValidOpenDirections().contains(direction))
+        {
+            getPlayer().sendMessage(localizer.getMessage("creator.base.error.invalid_option", direction.name()));
+            prepareSetOpenDirection();
+            return false;
+        }
+        openDir = direction;
+        return true;
     }
 
     /**
@@ -487,7 +461,7 @@ public abstract class Creator extends ToolUser
         databaseManager.addDoor(door, getPlayer()).whenComplete(
             (result, throwable) ->
             {
-                if (!result.cancelled())
+                if (result.cancelled())
                 {
                     getPlayer().sendMessage(localizer.getMessage("creator.base.error.creation_cancelled"));
                     return;
@@ -544,26 +518,7 @@ public abstract class Creator extends ToolUser
      */
     protected boolean skipConfirmPrice()
     {
-
         return getPrice().isEmpty();
-    }
-
-    /**
-     * Gets the list of available open directions for the {@link DoorType} that is being created in the following
-     * format:
-     * <p>
-     * "idx: RotateDirection\n"
-     *
-     * @return The list of valid open directions for this type, each on their own line.
-     */
-    protected String getOpenDirections()
-    {
-        final var sb = new StringBuilder();
-        int idx = 0;
-        for (final RotateDirection rotateDirection : getValidOpenDirections())
-            sb.append(idx++).append(": ")
-              .append(localizer.getMessage(rotateDirection.getLocalizationKey())).append('\n');
-        return sb.toString();
     }
 
     /**
@@ -572,7 +527,7 @@ public abstract class Creator extends ToolUser
      *
      * @return The list of valid open directions for this type given its current physical dimensions.
      */
-    protected List<RotateDirection> getValidOpenDirections()
+    public Set<RotateDirection> getValidOpenDirections()
     {
         return getDoorType().getValidOpenDirections();
     }
@@ -605,10 +560,9 @@ public abstract class Creator extends ToolUser
         if (distanceLimit.isPresent() &&
             (distance = cuboid.getCenter().getDistance(pos)) > distanceLimit.getAsInt())
         {
-            getPlayer().sendMessage(localizer
-                                        .getMessage("creator.base.error.powerblock_too_far",
-                                                    DECIMAL_FORMAT.format(distance),
-                                                    Integer.toString(distanceLimit.getAsInt())));
+            getPlayer().sendMessage(localizer.getMessage("creator.base.error.powerblock_too_far",
+                                                         DECIMAL_FORMAT.format(distance),
+                                                         Integer.toString(distanceLimit.getAsInt())));
             return false;
         }
 

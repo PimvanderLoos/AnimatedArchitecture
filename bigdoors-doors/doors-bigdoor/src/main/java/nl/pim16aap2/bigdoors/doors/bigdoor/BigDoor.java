@@ -44,6 +44,11 @@ public class BigDoor extends AbstractDoor implements ITimerToggleable
     @PersistentVariable
     protected int autoOpenTime;
 
+    public static void tryLog()
+    {
+        log.at(Level.SEVERE).log("TESTING THE LOGGER!");
+    }
+
     public BigDoor(DoorBase doorBase, int autoCloseTime, int autoOpenTime)
     {
         super(doorBase);
@@ -97,9 +102,10 @@ public class BigDoor extends AbstractDoor implements ITimerToggleable
     }
 
     @Override
-    protected BlockMover constructBlockMover(BlockMover.Context context, DoorActionCause cause, double time,
-                                             boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
-                                             DoorActionType actionType)
+    protected BlockMover constructBlockMover(
+        BlockMover.Context context, DoorActionCause cause, double time,
+        boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
+        DoorActionType actionType)
         throws Exception
     {
         return new BigDoorMover(context, this, getCurrentToggleDir(), time, skipAnimation,
