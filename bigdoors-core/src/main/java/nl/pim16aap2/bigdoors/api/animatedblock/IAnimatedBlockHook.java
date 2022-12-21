@@ -16,9 +16,16 @@ public interface IAnimatedBlockHook
     String getName();
 
     /**
-     * Fires after an animated block has been spawned.
+     * Fires after an animated block has been spawned. Respawning is not counted. See {@link #onRespawn()} for that.
      */
     default void onSpawn()
+    {
+    }
+
+    /**
+     * Fires after an animated block has been respawned.
+     */
+    default void onRespawn()
     {
     }
 

@@ -11,7 +11,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.GameProfileSerializer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.protocol.game.PacketPlayOutEntity;
-import net.minecraft.network.protocol.game.PacketPlayOutSpawnEntity;
 import net.minecraft.server.level.PlayerChunkMap;
 import net.minecraft.server.level.WorldServer;
 import net.minecraft.util.MathHelper;
@@ -21,6 +20,7 @@ import net.minecraft.world.entity.EnumMoveType;
 import net.minecraft.world.entity.item.EntityFallingBlock;
 import net.minecraft.world.level.block.state.IBlockData;
 import net.minecraft.world.level.entity.EntityInLevelCallback;
+import net.minecraft.world.level.entity.PersistentEntitySectionManager;
 import net.minecraft.world.phys.Vec3D;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
@@ -72,10 +72,13 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
     private final List<IAnimatedBlockHook> hooks;
     @ToString.Exclude
     private @Nullable PlayerChunkMap.EntityTracker tracker;
+
+    // net.minecraft.server.level.ServerLevel
     @ToString.Exclude
     private final WorldServer worldServer;
 
     private EntityInLevelCallback entityInLevelCallback = EntityInLevelCallback.a;
+    private @Nullable EntityInLevelCallback entityInLevelCallbackSectionManager;
 
     @Getter
     private Vector3Dd previousPosition;
@@ -152,6 +155,8 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
     public void a(EntityInLevelCallback entityInLevelCallback)
     {
         this.entityInLevelCallback = entityInLevelCallback;
+        if (entityInLevelCallback.getClass().getEnclosingClass() == PersistentEntitySectionManager.class)
+            this.entityInLevelCallbackSectionManager = entityInLevelCallback;
     }
 
     private synchronized void handleDeath()
@@ -163,12 +168,16 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
     @Override
     public synchronized void spawn()
     {
-        worldServer.addFreshEntity(this, SpawnReason.CUSTOM);
+        spawn0();
         tracker = Util.requireNonNull(worldServer.k().a.L.get(getEntityId()), "entity tracker");
-        dw(); // Mark alive
-        setEntityInLevelCallback();
-
         forEachHook("onSpawn", IAnimatedBlockHook::onSpawn);
+    }
+
+    private void spawn0()
+    {
+        worldServer.addFreshEntity(this, SpawnReason.CUSTOM);
+        dA(); // Entity#unsetRemoved()
+        setEntityInLevelCallback();
     }
 
     @Override
@@ -181,8 +190,18 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
             return;
         }
 
-        final var packet = new PacketPlayOutSpawnEntity(this, 70);
-        tracker.a(packet);
+        if (entityInLevelCallbackSectionManager == null)
+        {
+            log.at(Level.SEVERE).withStackTrace(StackSize.FULL)
+               .log("entityInLevelCallbackSectionManager is null! Blocks cannot be respawned!");
+            return;
+        }
+
+        entityInLevelCallbackSectionManager.a(RemovalReason.b);
+
+        spawn0();
+
+        forEachHook("onRespawn", IAnimatedBlockHook::onRespawn);
     }
 
     private synchronized void cyclePositions(Vector3Dd newPosition)

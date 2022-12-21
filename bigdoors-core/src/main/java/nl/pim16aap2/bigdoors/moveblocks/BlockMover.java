@@ -187,7 +187,8 @@ public abstract class BlockMover
     private void applyRotationOnCurrentThread()
     {
         for (final IAnimatedBlock animatedBlock : animatedBlocks)
-            if (animatedBlock.getAnimatedBlockData().rotateBlock(openDirection))
+            if (animatedBlock.getAnimatedBlockData().canRotate() &&
+                animatedBlock.getAnimatedBlockData().rotateBlock(openDirection))
                 animatedBlock.respawn();
     }
 

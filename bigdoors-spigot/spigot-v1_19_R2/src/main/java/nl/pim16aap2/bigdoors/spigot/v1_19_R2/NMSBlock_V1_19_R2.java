@@ -164,10 +164,13 @@ public class NMSBlock_V1_19_R2 extends BlockBase implements IAnimatedBlockData
     @GuardedBy("blockDataLock")
     private void putBlock(BlockPosition blockPosition)
     {
+        // net.minecraft.world.level.block.state.BlockState getBlockState(net.minecraft.core.BlockPos)
         final IBlockData old = worldServer.a_(blockPosition);
 
         // Place the block, and don't apply physics.
+        // setBlock(net.minecraft.core.BlockPos,net.minecraft.world.level.block.state.BlockState,int)
         if (worldServer.a(blockPosition, blockData, 1042))
+            // sendBlockUpdated(net.minecraft.core.BlockPos,net.minecraft.world.level.block.state.BlockState,net.minecraft.world.level.block.state.BlockState,int)
             worldServer.getMinecraftWorld().a(blockPosition, old, blockData, 3);
     }
 
