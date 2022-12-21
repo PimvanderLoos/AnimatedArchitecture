@@ -35,7 +35,6 @@ import org.jetbrains.annotations.Nullable;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Collections;
-import java.util.Locale;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.Set;
