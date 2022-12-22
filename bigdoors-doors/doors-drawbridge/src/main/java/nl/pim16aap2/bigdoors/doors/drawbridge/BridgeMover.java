@@ -126,7 +126,7 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
             this.respawnBlocks();
 
         for (final IAnimatedBlock animatedBlock : animatedBlocks)
-            movementMethod.apply(animatedBlock, getGoalPos(stepSum, animatedBlock));
+            applyMovement(animatedBlock, getGoalPos(stepSum, animatedBlock));
     }
 
     @Override

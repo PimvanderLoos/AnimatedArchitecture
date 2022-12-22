@@ -114,7 +114,7 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
                     continue;
 
                 final double timeAngle = hourArm ? hourAngle : minuteAngle;
-                movementMethod.apply(animatedBlock, getGoalPos(timeAngle, animatedBlock));
+                applyMovement(animatedBlock, getGoalPos(timeAngle, animatedBlock));
             }
     }
 

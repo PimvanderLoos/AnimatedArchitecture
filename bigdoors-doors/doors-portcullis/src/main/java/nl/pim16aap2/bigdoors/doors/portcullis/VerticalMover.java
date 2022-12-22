@@ -114,6 +114,6 @@ public class VerticalMover extends BlockMover
 
         final double stepSum = step * ticks;
         for (final IAnimatedBlock animatedBlock : animatedBlocks)
-            movementMethod.apply(animatedBlock, getGoalPos(animatedBlock, stepSum));
+            applyMovement(animatedBlock, getGoalPos(animatedBlock, stepSum));
     }
 }

@@ -77,7 +77,7 @@ public class BigDoorMover extends BlockMover
         final double sin = Math.sin(stepSum);
 
         for (final IAnimatedBlock animatedBlock : animatedBlocks)
-            movementMethod.apply(animatedBlock, getGoalPos(animatedBlock, cos, sin));
+            applyMovement(animatedBlock, getGoalPos(animatedBlock, cos, sin));
     }
 
     private Vector3Dd getGoalPos(double cos, double sin, double startX, double startY, double startZ)

@@ -3,10 +3,12 @@ package nl.pim16aap2.bigdoors.moveblocks;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.bigdoors.api.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.api.animatedblock.AnimationContext;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimationHook;
@@ -25,6 +27,7 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimerTask;
@@ -43,6 +46,8 @@ import static nl.pim16aap2.bigdoors.api.animatedblock.IAnimation.AnimationState;
 @Flogger
 public abstract class BlockMover
 {
+    protected boolean drawDebugBlocks = true;
+
     protected final IPWorld world;
 
     protected final AbstractDoor door;
@@ -67,6 +72,9 @@ public abstract class BlockMover
 
     @ToString.Exclude
     protected final IPExecutor executor;
+
+    @ToString.Exclude
+    protected final GlowingBlockSpawner glowingBlockSpawner;
 
     @ToString.Exclude
     protected final IPLocationFactory locationFactory;
@@ -149,6 +157,7 @@ public abstract class BlockMover
         animatedBlockFactory = context.getAnimatedBlockFactory();
         locationFactory = context.getLocationFactory();
         animationHookManager = context.getAnimationHookManager();
+        glowingBlockSpawner = context.getGlowingBlockSpawner();
 
         if (!context.getExecutor().isMainThread(Thread.currentThread().getId()))
             throw new Exception("BlockMovers must be called on the main thread!");
@@ -384,7 +393,25 @@ public abstract class BlockMover
     protected void executeFinishingStep(@SuppressWarnings("unused") int counter)
     {
         for (final IAnimatedBlock animatedBlock : animatedBlocks)
-            movementMethod.apply(animatedBlock, animatedBlock.getFinalPosition());
+            applyMovement(animatedBlock, animatedBlock.getFinalPosition());
+    }
+
+    protected final void applyMovement(IAnimatedBlock animatedBlock, Vector3Dd finalPosition)
+    {
+        if (drawDebugBlocks)
+            drawDebugBlock(finalPosition);
+        movementMethod.apply(animatedBlock, finalPosition);
+    }
+
+    private void drawDebugBlock(Vector3Dd finalPosition)
+    {
+        glowingBlockSpawner.builder()
+                           .atPosition(finalPosition)
+                           .inWorld(world)
+                           .forDuration(Duration.ofMillis(250))
+                           .withColor(PColor.GOLD)
+                           .forPlayer(player)
+                           .build();
     }
 
     private void executeFinishingStep(int counter, Animation<IAnimatedBlock> animation)
@@ -660,12 +687,14 @@ public abstract class BlockMover
         private final IPExecutor executor;
         private final IAnimatedBlockFactory animatedBlockFactory;
         private final AnimationHookManager animationHookManager;
+        private final GlowingBlockSpawner glowingBlockSpawner;
 
         @Inject
         public Context(
             DoorActivityManager doorActivityManager, AutoCloseScheduler autoCloseScheduler,
             IPLocationFactory locationFactory, IAudioPlayer audioPlayer, IPExecutor executor,
-            IAnimatedBlockFactory animatedBlockFactory, AnimationHookManager animationHookManager)
+            IAnimatedBlockFactory animatedBlockFactory, AnimationHookManager animationHookManager,
+            GlowingBlockSpawner glowingBlockSpawner)
         {
             this.doorActivityManager = doorActivityManager;
             this.autoCloseScheduler = autoCloseScheduler;
@@ -674,6 +703,7 @@ public abstract class BlockMover
             this.executor = executor;
             this.animatedBlockFactory = animatedBlockFactory;
             this.animationHookManager = animationHookManager;
+            this.glowingBlockSpawner = glowingBlockSpawner;
         }
     }
 
@@ -728,6 +758,6 @@ public abstract class BlockMover
         /**
          * Moves an animated block to a given goal position using the specified method.
          */
-        public abstract void apply(IAnimatedBlock animatedBlock, Vector3Dd goalPos);
+        abstract void apply(IAnimatedBlock animatedBlock, Vector3Dd goalPos);
     }
 }
