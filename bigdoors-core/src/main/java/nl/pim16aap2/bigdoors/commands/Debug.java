@@ -6,6 +6,7 @@ import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import nl.pim16aap2.bigdoors.api.debugging.DebugReporter;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 
 import java.util.concurrent.CompletableFuture;
@@ -24,10 +25,11 @@ public class Debug extends BaseCommand
     private final DebugReporter debugReporter;
 
     @AssistedInject //
-    Debug(@Assisted ICommandSender commandSender, ILocalizer localizer,
-          IMessagingInterface messagingInterface, DebugReporter debugReporter)
+    Debug(
+        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
+        IMessagingInterface messagingInterface, DebugReporter debugReporter)
     {
-        super(commandSender, localizer);
+        super(commandSender, localizer, textFactory);
         this.messagingInterface = messagingInterface;
         this.debugReporter = debugReporter;
     }

@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.PermissionLevel;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
@@ -66,6 +67,7 @@ class AddOwnerTest
                                          Mockito.any(PermissionLevel.class)))
                .thenAnswer((Answer<AddOwner>) invoc ->
                    new AddOwner(invoc.getArgument(0, ICommandSender.class), localizer,
+                                ITextFactory.getSimpleTextFactory(),
                                 invoc.getArgument(1, DoorRetriever.class),
                                 invoc.getArgument(2, IPPlayer.class), invoc.getArgument(3, PermissionLevel.class),
                                 databaseManager));

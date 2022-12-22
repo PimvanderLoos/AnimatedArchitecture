@@ -8,9 +8,11 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,13 +32,19 @@ public final class ToolUserManager extends Restartable
 {
     private final Map<UUID, ToolUserEntry> toolUsers = new ConcurrentHashMap<>();
     private final ILocalizer localizer;
+    private final ITextFactory textFactory;
     private final IPExecutor executor;
 
     @Inject
-    public ToolUserManager(RestartableHolder holder, ILocalizer localizer, IPExecutor executor)
+    public ToolUserManager(
+        RestartableHolder holder,
+        ILocalizer localizer,
+        ITextFactory textFactory,
+        IPExecutor executor)
     {
         super(holder);
         this.localizer = localizer;
+        this.textFactory = textFactory;
         this.executor = executor;
     }
 
@@ -140,7 +148,8 @@ public final class ToolUserManager extends Restartable
             public void run()
             {
                 if (toolUser.isActive())
-                    toolUser.getPlayer().sendMessage(localizer.getMessage("creator.base.error.timed_out"));
+                    toolUser.getPlayer().sendMessage(textFactory, TextType.ERROR,
+                                                     localizer.getMessage("creator.base.error.timed_out"));
                 toolUser.abort();
             }
         };
@@ -184,7 +193,8 @@ public final class ToolUserManager extends Restartable
             return;
 
         if (pair.toolUser.isActive())
-            pair.toolUser.getPlayer().sendMessage(localizer.getMessage("creator.base.error.creation_cancelled"));
+            pair.toolUser.getPlayer()
+                         .sendError(textFactory, localizer.getMessage("creator.base.error.creation_cancelled"));
         pair.toolUser.abort();
 
         if (pair.timerTask != null)

@@ -49,6 +49,8 @@ import nl.pim16aap2.bigdoors.spigot.factories.pplayerfactory.PPlayerFactorySpigo
 import nl.pim16aap2.bigdoors.spigot.factories.pworldfactory.PWorldFactorySpigotModule;
 import nl.pim16aap2.bigdoors.spigot.implementations.BigDoorsToolUtilSpigot;
 import nl.pim16aap2.bigdoors.spigot.implementations.BigDoorsToolUtilSpigotModule;
+import nl.pim16aap2.bigdoors.spigot.implementations.TextFactorySpigot;
+import nl.pim16aap2.bigdoors.spigot.implementations.TextFactorySpigotModule;
 import nl.pim16aap2.bigdoors.spigot.listeners.ChunkListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.EventListeners;
 import nl.pim16aap2.bigdoors.spigot.listeners.LoginMessageListener;
@@ -100,6 +102,7 @@ import javax.inject.Singleton;
     DebugReporterSpigotModule.class,
     VaultManagerModule.class,
     BigDoorsToolUtilSpigotModule.class,
+    TextFactorySpigotModule.class,
 })
 interface BigDoorsSpigotComponent
 {
@@ -188,6 +191,8 @@ interface BigDoorsSpigotComponent
     IPowerBlockRedstoneManager getIPowerBlockRedstoneManager();
 
     BigDoorsToolUtilSpigot getBigDoorsToolUtilSpigot();
+
+    TextFactorySpigot getTextFactorySpigot();
 
     DatabaseManager getDatabaseManager();
 

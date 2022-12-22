@@ -5,6 +5,7 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorAttribute;
 import nl.pim16aap2.bigdoors.doors.DoorOwner;
@@ -49,11 +50,11 @@ public class AddOwner extends DoorTargetCommand
 
     @AssistedInject //
     AddOwner(
-        @Assisted ICommandSender commandSender, ILocalizer localizer, @Assisted DoorRetriever doorRetriever,
-        @Assisted IPPlayer targetPlayer, @Assisted @Nullable PermissionLevel targetPermissionLevel,
-        DatabaseManager databaseManager)
+        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
+        @Assisted DoorRetriever doorRetriever, @Assisted IPPlayer targetPlayer,
+        @Assisted @Nullable PermissionLevel targetPermissionLevel, DatabaseManager databaseManager)
     {
-        super(commandSender, localizer, doorRetriever, DoorAttribute.ADD_OWNER);
+        super(commandSender, localizer, textFactory, doorRetriever, DoorAttribute.ADD_OWNER);
         this.targetPlayer = targetPlayer;
         this.targetPermissionLevel = targetPermissionLevel == null ? DEFAULT_PERMISSION_LEVEL : targetPermissionLevel;
         this.databaseManager = databaseManager;
@@ -71,8 +72,9 @@ public class AddOwner extends DoorTargetCommand
         if (targetPermissionLevel != PermissionLevel.CREATOR && targetPermissionLevel != PermissionLevel.NO_PERMISSION)
             return true;
 
-        getCommandSender().sendMessage(localizer.getMessage("commands.add_owner.error.invalid_target_permission",
-                                                            targetPermissionLevel));
+        getCommandSender()
+            .sendError(textFactory, localizer.getMessage("commands.add_owner.error.invalid_target_permission",
+                                                         targetPermissionLevel));
         return false;
     }
 
@@ -93,7 +95,8 @@ public class AddOwner extends DoorTargetCommand
         {
             if (existingPermission == PermissionLevel.CREATOR)
             {
-                getCommandSender().sendMessage(localizer.getMessage("commands.add_owner.error.targeting_prime_owner"));
+                getCommandSender().sendError(textFactory,
+                                             localizer.getMessage("commands.add_owner.error.targeting_prime_owner"));
                 return false;
             }
             return true;
@@ -102,28 +105,29 @@ public class AddOwner extends DoorTargetCommand
         final var doorOwner = getCommandSender().getPlayer().flatMap(door::getDoorOwner);
         if (doorOwner.isEmpty())
         {
-            getCommandSender().sendMessage(localizer.getMessage("commands.add_owner.error.not_an_owner"));
+            getCommandSender().sendError(textFactory, localizer.getMessage("commands.add_owner.error.not_an_owner"));
             return false;
         }
 
         final PermissionLevel executorPermission = doorOwner.get().permission();
         if (!DoorAttribute.ADD_OWNER.canAccessWith(doorOwner.get().permission()))
         {
-            getCommandSender().sendMessage(localizer.getMessage("commands.add_owner.error.not_allowed"));
+            getCommandSender().sendError(textFactory, localizer.getMessage("commands.add_owner.error.not_allowed"));
             return false;
         }
 
         if (targetPermissionLevel.isLowerThanOrEquals(executorPermission))
         {
-            getCommandSender().sendMessage(
-                localizer.getMessage("commands.add_owner.error.cannot_assign_below_self"));
+            getCommandSender().sendError(textFactory,
+                                         localizer.getMessage("commands.add_owner.error.cannot_assign_below_self"));
             return false;
         }
 
         if (existingPermission.isLowerThanOrEquals(executorPermission) || existingPermission == targetPermissionLevel)
         {
-            getCommandSender().sendMessage(localizer.getMessage("commands.add_owner.error.target_already_owner",
-                                                                targetPlayer.asString()));
+            getCommandSender()
+                .sendError(textFactory, localizer.getMessage("commands.add_owner.error.target_already_owner",
+                                                             targetPlayer.asString()));
             return false;
         }
 

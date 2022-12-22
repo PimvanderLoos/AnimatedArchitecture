@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.commands;
 
 import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
 import org.junit.jupiter.api.Assertions;
@@ -37,7 +38,7 @@ class StopDoorsTest
 
         Mockito.when(factory.newStopDoors(Mockito.any(ICommandSender.class)))
                .thenAnswer(invoc -> new StopDoors(invoc.getArgument(0, ICommandSender.class),
-                                                  localizer, doorActivityManager));
+                                                  localizer, ITextFactory.getSimpleTextFactory(), doorActivityManager));
     }
 
     @Test

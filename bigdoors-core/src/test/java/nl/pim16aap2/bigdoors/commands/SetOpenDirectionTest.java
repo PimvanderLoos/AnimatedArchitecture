@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
@@ -55,8 +56,8 @@ class SetOpenDirectionTest
                                                  Mockito.any(DoorRetriever.class),
                                                  Mockito.any(RotateDirection.class)))
                .thenAnswer(invoc -> new SetOpenDirection(invoc.getArgument(0, ICommandSender.class), localizer,
-                                                         invoc.getArgument(1,
-                                                                           DoorRetriever.class),
+                                                         ITextFactory.getSimpleTextFactory(),
+                                                         invoc.getArgument(1, DoorRetriever.class),
                                                          invoc.getArgument(2, RotateDirection.class)));
     }
 

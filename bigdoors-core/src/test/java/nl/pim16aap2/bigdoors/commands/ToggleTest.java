@@ -5,6 +5,7 @@ import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorToggleRequest;
 import nl.pim16aap2.bigdoors.doors.DoorToggleRequestBuilder;
@@ -84,6 +85,7 @@ class ToggleTest
                                                                  3);
 
                        return new Toggle(invoc.getArgument(0, ICommandSender.class), localizer,
+                                         ITextFactory.getSimpleTextFactory(),
                                          invoc.getArgument(1, DoorActionType.class),
                                          invoc.getArgument(2, Double.class), doorToggleRequestBuilder,
                                          messageableServer, retrievers);

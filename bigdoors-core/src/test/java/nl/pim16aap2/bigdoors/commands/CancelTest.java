@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
@@ -54,6 +55,7 @@ class CancelTest
 
         Mockito.when(factory.newCancel(Mockito.any(ICommandSender.class)))
                .thenAnswer(invoc -> new Cancel(invoc.getArgument(0, ICommandSender.class), localizer,
+                                               ITextFactory.getSimpleTextFactory(),
                                                toolUserManager, doorSpecificationManager));
     }
 

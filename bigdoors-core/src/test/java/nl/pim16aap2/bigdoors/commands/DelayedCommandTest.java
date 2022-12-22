@@ -1,6 +1,8 @@
 package nl.pim16aap2.bigdoors.commands;
 
+import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
@@ -13,6 +15,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.mockito.Answers;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -37,9 +40,11 @@ class DelayedCommandTest
         new DelayedCommandInputManager(Mockito.mock(DebuggableRegistry.class));
     @Mock ILocalizer localizer;
     @Mock DelayedCommandInputRequest.IFactory<Object> inputRequestFactory;
+    @Spy ITextFactory textFactory = ITextFactory.getSimpleTextFactory();
     @InjectMocks DelayedCommand.Context context;
 
-    @Mock ICommandSender commandSender;
+    @Mock(answer = Answers.CALLS_REAL_METHODS)
+    ICommandSender commandSender;
 
     DoorRetriever doorRetriever;
     @Mock AbstractDoor door;
@@ -74,7 +79,8 @@ class DelayedCommandTest
         final DelayedCommandImpl delayedCommand = new DelayedCommandImpl(context, inputRequestFactory, delayedFunction);
 
         delayedCommand.runDelayed(commandSender, doorRetriever);
-        Mockito.verify(commandSender, Mockito.times(1)).sendMessage(DelayedCommandImpl.INPUT_REQUEST_MSG);
+        Mockito.verify(commandSender, Mockito.times(1))
+               .sendMessage(UnitTestUtil.toText(DelayedCommandImpl.INPUT_REQUEST_MSG));
         Mockito.verify(inputRequestFactory, Mockito.times(1)).create(
             Mockito.anyLong(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.verify(delayedFunction, Mockito.never()).apply(Mockito.any(), Mockito.any(), Mockito.any());
@@ -84,7 +90,8 @@ class DelayedCommandTest
         Mockito.verify(delayedFunction, Mockito.times(1)).apply(commandSender, doorRetriever, input);
 
         delayedCommand.provideDelayedInput(commandSender, new Object());
-        Mockito.verify(commandSender, Mockito.times(1)).sendMessage("commands.base.error.not_waiting");
+        Mockito.verify(commandSender, Mockito.times(1))
+               .sendMessage(UnitTestUtil.toText("commands.base.error.not_waiting"));
     }
 
     @Test
@@ -93,7 +100,8 @@ class DelayedCommandTest
         final DelayedCommandImpl delayedCommand = new DelayedCommandImpl(context, inputRequestFactory, delayedFunction);
 
         delayedCommand.provideDelayedInput(commandSender, new Object());
-        Mockito.verify(commandSender, Mockito.times(1)).sendMessage("commands.base.error.not_waiting");
+        Mockito.verify(commandSender, Mockito.times(1))
+               .sendMessage(UnitTestUtil.toText("commands.base.error.not_waiting"));
     }
 
     @Test
@@ -127,6 +135,7 @@ class DelayedCommandTest
                 invocation.getArgument(4),
                 invocation.getArgument(5),
                 localizer,
+                ITextFactory.getSimpleTextFactory(),
                 delayedCommandInputManager));
     }
 

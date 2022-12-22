@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
@@ -49,6 +50,7 @@ class NewDoorTest
         Mockito.when(factory.newNewDoor(Mockito.any(ICommandSender.class), Mockito.any(DoorType.class),
                                         Mockito.any()))
                .thenAnswer(invoc -> new NewDoor(invoc.getArgument(0, ICommandSender.class), localizer,
+                                                ITextFactory.getSimpleTextFactory(),
                                                 invoc.getArgument(1, DoorType.class),
                                                 invoc.getArgument(2, String.class),
                                                 toolUserManager, creatorContextProvider));

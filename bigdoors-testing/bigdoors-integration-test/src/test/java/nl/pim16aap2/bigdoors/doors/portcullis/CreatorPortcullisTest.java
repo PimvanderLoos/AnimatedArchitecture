@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.doors.portcullis;
 
+import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.tooluser.creator.CreatorTestsUtil;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -50,8 +51,9 @@ class CreatorPortcullisTest extends CreatorTestsUtil
         Mockito.when(configLoader.maxBlocksToMove()).thenReturn(OptionalInt.of(blocksToMoveLimit));
 
         Assertions.assertFalse(creator.setBlocksToMove(blocksToMove));
-        Mockito.verify(player).sendMessage(String.format("creator.base.error.blocks_to_move_too_far %d %d",
-                                                         blocksToMove, blocksToMoveLimit));
+        Mockito.verify(player)
+               .sendMessage(UnitTestUtil.toText(String.format("creator.base.error.blocks_to_move_too_far %d %d",
+                                                              blocksToMove, blocksToMoveLimit)));
 
         Mockito.when(configLoader.maxBlocksToMove()).thenReturn(OptionalInt.of(blocksToMove));
         Assertions.assertTrue(creator.setBlocksToMove(blocksToMove));

@@ -5,6 +5,7 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
@@ -26,10 +27,10 @@ public class InspectPowerBlock extends BaseCommand
 
     @AssistedInject //
     InspectPowerBlock(
-        @Assisted ICommandSender commandSender, ILocalizer localizer,
+        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
         ToolUserManager toolUserManager, PowerBlockInspector.IFactory inspectPowerBlockFactory)
     {
-        super(commandSender, localizer);
+        super(commandSender, localizer, textFactory);
         this.toolUserManager = toolUserManager;
         this.inspectPowerBlockFactory = inspectPowerBlockFactory;
     }

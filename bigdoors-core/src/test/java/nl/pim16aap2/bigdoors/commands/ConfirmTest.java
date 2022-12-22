@@ -3,8 +3,10 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
+import nl.pim16aap2.bigdoors.text.Text;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,7 +53,7 @@ class ConfirmTest
 
         Mockito.when(factory.newConfirm(Mockito.any(ICommandSender.class)))
                .thenAnswer(invoc -> new Confirm(invoc.getArgument(0, ICommandSender.class),
-                                                localizer, toolUserManager));
+                                                localizer, ITextFactory.getSimpleTextFactory(), toolUserManager));
     }
 
     @Test
@@ -71,12 +73,12 @@ class ConfirmTest
         Assertions.assertTrue(factory.newConfirm(commandSender).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(toolUserManager).getToolUser(uuid);
         Mockito.verify(toolUser).handleInput(true);
-        Mockito.verify(commandSender, Mockito.never()).sendMessage(Mockito.any());
+        Mockito.verify(commandSender, Mockito.never()).sendMessage(Mockito.any(Text.class));
 
         Mockito.when(toolUserManager.getToolUser(Mockito.any(UUID.class))).thenReturn(Optional.empty());
         Assertions.assertTrue(factory.newConfirm(commandSender).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(toolUserManager, Mockito.times(2)).getToolUser(uuid);
         Mockito.verify(toolUser).handleInput(true);
-        Mockito.verify(commandSender).sendMessage(Mockito.any());
+        Mockito.verify(commandSender).sendMessage(Mockito.any(Text.class));
     }
 }

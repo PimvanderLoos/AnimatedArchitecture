@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
@@ -46,6 +47,7 @@ class RemoveOwnerTest
     void beforeEach()
     {
         MockitoAnnotations.openMocks(this);
+
         initCommandSenderPermissions(commandSender, true, true);
 
         Mockito.when(door.isDoorOwner(Mockito.any(UUID.class))).thenReturn(true);
@@ -62,6 +64,7 @@ class RemoveOwnerTest
                                             Mockito.any(DoorRetriever.class),
                                             Mockito.any(IPPlayer.class)))
                .thenAnswer(invoc -> new RemoveOwner(invoc.getArgument(0, ICommandSender.class), localizer,
+                                                    ITextFactory.getSimpleTextFactory(),
                                                     invoc.getArgument(1, DoorRetriever.class),
                                                     invoc.getArgument(2, IPPlayer.class), databaseManager));
     }

@@ -16,6 +16,7 @@ import nl.pim16aap2.bigdoors.doors.PermissionLevel;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
+import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.tooluser.Procedure;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
@@ -185,7 +186,7 @@ public abstract class Creator extends ToolUser
         economyManager = context.getEconomyManager();
         commandFactory = context.getCommandFactory();
 
-        player.sendMessage(localizer.getMessage("creator.base.init"));
+        player.sendMessage(textFactory, TextType.INFO, localizer.getMessage("creator.base.init"));
 
         if (name != null)
             handleInput(name);
@@ -313,7 +314,8 @@ public abstract class Creator extends ToolUser
         if (!Util.isValidDoorName(str))
         {
             log.at(Level.FINE).log("Invalid name '%s' for selected Creator: %s", str, this);
-            getPlayer().sendMessage(localizer.getMessage("creator.base.error.invalid_name", str));
+            getPlayer().sendMessage(textFactory, TextType.ERROR,
+                                    localizer.getMessage("creator.base.error.invalid_name", str));
             return false;
         }
 
@@ -360,7 +362,8 @@ public abstract class Creator extends ToolUser
         final OptionalInt sizeLimit = limitsManager.getLimit(getPlayer(), Limit.DOOR_SIZE);
         if (sizeLimit.isPresent() && newCuboid.getVolume() > sizeLimit.getAsInt())
         {
-            getPlayer().sendMessage(localizer.getMessage("creator.base.error.area_too_big",
+            getPlayer().sendMessage(textFactory, TextType.ERROR,
+                                    localizer.getMessage("creator.base.error.area_too_big",
                                                          Integer.toString(newCuboid.getVolume()),
                                                          Integer.toString(sizeLimit.getAsInt())));
             return false;
@@ -389,14 +392,16 @@ public abstract class Creator extends ToolUser
     {
         if (!confirm)
         {
-            getPlayer().sendMessage(localizer.getMessage("creator.base.error.creation_cancelled"));
+            getPlayer().sendMessage(textFactory, TextType.INFO,
+                                    localizer.getMessage("creator.base.error.creation_cancelled"));
             abort();
             return true;
         }
         if (!buyDoor())
         {
 
-            getPlayer().sendMessage(localizer.getMessage("creator.base.error.insufficient_funds",
+            getPlayer().sendMessage(textFactory, TextType.ERROR,
+                                    localizer.getMessage("creator.base.error.insufficient_funds",
                                                          DECIMAL_FORMAT.format(getPrice().orElse(0))));
             abort();
             return true;
@@ -419,7 +424,8 @@ public abstract class Creator extends ToolUser
     {
         if (!getValidOpenDirections().contains(direction))
         {
-            getPlayer().sendMessage(localizer.getMessage("creator.base.error.invalid_option", direction.name()));
+            getPlayer().sendMessage(textFactory, TextType.ERROR,
+                                    localizer.getMessage("creator.base.error.invalid_option", direction.name()));
             prepareSetOpenDirection();
             return false;
         }
@@ -463,13 +469,15 @@ public abstract class Creator extends ToolUser
             {
                 if (result.cancelled())
                 {
-                    getPlayer().sendMessage(localizer.getMessage("creator.base.error.creation_cancelled"));
+                    getPlayer().sendMessage(textFactory, TextType.ERROR,
+                                            localizer.getMessage("creator.base.error.creation_cancelled"));
                     return;
                 }
 
                 if (result.door().isEmpty())
                 {
-                    getPlayer().sendMessage(localizer.getMessage("constants.error.generic"));
+                    getPlayer().sendMessage(textFactory, TextType.ERROR,
+                                            localizer.getMessage("constants.error.generic"));
                     log.at(Level.SEVERE).log("Failed to insert door after creation!");
                 }
             }).exceptionally(Util::exceptionally);
@@ -551,8 +559,8 @@ public abstract class Creator extends ToolUser
         final Vector3Di pos = loc.getPosition();
         if (Util.requireNonNull(cuboid, "cuboid").isPosInsideCuboid(pos))
         {
-            getPlayer().sendMessage(localizer
-                                        .getMessage("creator.base.error.powerblock_inside_door"));
+            getPlayer().sendMessage(textFactory, TextType.ERROR,
+                                    localizer.getMessage("creator.base.error.powerblock_inside_door"));
             return false;
         }
         final OptionalInt distanceLimit = limitsManager.getLimit(getPlayer(), Limit.POWERBLOCK_DISTANCE);
@@ -560,7 +568,8 @@ public abstract class Creator extends ToolUser
         if (distanceLimit.isPresent() &&
             (distance = cuboid.getCenter().getDistance(pos)) > distanceLimit.getAsInt())
         {
-            getPlayer().sendMessage(localizer.getMessage("creator.base.error.powerblock_too_far",
+            getPlayer().sendMessage(textFactory, TextType.ERROR,
+                                    localizer.getMessage("creator.base.error.powerblock_too_far",
                                                          DECIMAL_FORMAT.format(distance),
                                                          Integer.toString(distanceLimit.getAsInt())));
             return false;
@@ -590,8 +599,8 @@ public abstract class Creator extends ToolUser
 
         if (!Util.requireNonNull(cuboid, "cuboid").isInRange(loc, 1))
         {
-            getPlayer().sendMessage(localizer
-                                        .getMessage("creator.base.error.invalid_rotation_point"));
+            getPlayer().sendMessage(textFactory, TextType.ERROR,
+                                    localizer.getMessage("creator.base.error.invalid_rotation_point"));
             return false;
         }
 

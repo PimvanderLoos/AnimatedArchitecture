@@ -3,7 +3,9 @@ package nl.pim16aap2.bigdoors;
 import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.text.Text;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -182,8 +184,9 @@ public class UnitTestUtil
      * @param <T>
      *     The type of the throwable wrapped inside the RuntimeException.
      */
-    public static <T extends Throwable> void assertWrappedThrows(Class<T> expectedType, Executable executable,
-                                                                 boolean deepSearch)
+    public static <T extends Throwable> void assertWrappedThrows(
+        Class<T> expectedType, Executable executable,
+        boolean deepSearch)
     {
         RuntimeException rte = Assertions.assertThrows(RuntimeException.class, executable);
         if (deepSearch)
@@ -250,5 +253,19 @@ public class UnitTestUtil
             ret[idx] = (T) obj;
         }
         return ret;
+    }
+
+    /**
+     * Creates a new un-styled {@link Text} object from an input String.
+     * <p>
+     * The created Text is not mocked and can be used as a normal Text object.
+     *
+     * @param string
+     *     The string to use to create a new Text object.
+     * @return The new Text object.
+     */
+    public static Text toText(String string)
+    {
+        return ITextFactory.getSimpleTextFactory().newText().append(string);
     }
 }

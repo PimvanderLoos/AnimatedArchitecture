@@ -69,9 +69,9 @@ public class CreatorPortcullis extends Creator
         final OptionalInt blocksToMoveLimit = limitsManager.getLimit(getPlayer(), Limit.BLOCKS_TO_MOVE);
         if (blocksToMoveLimit.isPresent() && blocksToMove > blocksToMoveLimit.getAsInt())
         {
-            getPlayer().sendMessage(localizer.getMessage("creator.base.error.blocks_to_move_too_far",
-                                                         Integer.toString(blocksToMove),
-                                                         Integer.toString(blocksToMoveLimit.getAsInt())));
+            getPlayer().sendError(textFactory, localizer.getMessage("creator.base.error.blocks_to_move_too_far",
+                                                                    Integer.toString(blocksToMove),
+                                                                    Integer.toString(blocksToMoveLimit.getAsInt())));
             return false;
         }
 

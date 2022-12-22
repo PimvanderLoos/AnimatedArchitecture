@@ -5,6 +5,7 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorAttribute;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
@@ -12,6 +13,7 @@ import nl.pim16aap2.bigdoors.doors.DoorOwner;
 import nl.pim16aap2.bigdoors.doors.PermissionLevel;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 
@@ -32,10 +34,10 @@ public class RemoveOwner extends DoorTargetCommand
 
     @AssistedInject //
     RemoveOwner(
-        @Assisted ICommandSender commandSender, ILocalizer localizer, @Assisted DoorRetriever doorRetriever,
-        @Assisted IPPlayer targetPlayer, DatabaseManager databaseManager)
+        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
+        @Assisted DoorRetriever doorRetriever, @Assisted IPPlayer targetPlayer, DatabaseManager databaseManager)
     {
-        super(commandSender, localizer, doorRetriever, DoorAttribute.REMOVE_OWNER);
+        super(commandSender, localizer, textFactory, doorRetriever, DoorAttribute.REMOVE_OWNER);
         this.targetPlayer = targetPlayer;
         this.databaseManager = databaseManager;
     }
@@ -61,7 +63,8 @@ public class RemoveOwner extends DoorTargetCommand
         final var doorOwner = getCommandSender().getPlayer().flatMap(door::getDoorOwner);
         if (doorOwner.isEmpty() && !bypassOwnership)
         {
-            getCommandSender().sendMessage(localizer.getMessage("commands.remove_owner.error.not_an_owner"));
+            getCommandSender().sendMessage(textFactory, TextType.ERROR,
+                                           localizer.getMessage("commands.remove_owner.error.not_an_owner"));
             return false;
         }
 
@@ -69,7 +72,8 @@ public class RemoveOwner extends DoorTargetCommand
         final PermissionLevel ownerPermission = doorOwner.map(DoorOwner::permission).orElse(PermissionLevel.CREATOR);
         if (!DoorAttribute.REMOVE_OWNER.canAccessWith(ownerPermission))
         {
-            getCommandSender().sendMessage(localizer.getMessage("commands.remove_owner.error.not_allowed"));
+            getCommandSender().sendMessage(textFactory, TextType.ERROR,
+                                           localizer.getMessage("commands.remove_owner.error.not_allowed"));
             return false;
         }
 
@@ -77,7 +81,8 @@ public class RemoveOwner extends DoorTargetCommand
         if (targetDoorOwner.isEmpty())
         {
             getCommandSender()
-                .sendMessage(localizer.getMessage("commands.remove_owner.error.target_not_an_owner",
+                .sendMessage(textFactory, TextType.ERROR,
+                             localizer.getMessage("commands.remove_owner.error.target_not_an_owner",
                                                   targetPlayer.asString(), door.getBasicInfo()));
             return false;
         }
@@ -85,7 +90,8 @@ public class RemoveOwner extends DoorTargetCommand
         if (targetDoorOwner.get().permission().isLowerThanOrEquals(ownerPermission))
         {
             getCommandSender()
-                .sendMessage(localizer.getMessage("commands.remove_owner.error.cannot_remove_lower_permission"));
+                .sendMessage(textFactory, TextType.ERROR,
+                             localizer.getMessage("commands.remove_owner.error.cannot_remove_lower_permission"));
             return false;
         }
         return true;

@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
@@ -47,6 +48,7 @@ class ListDoorsTest
         Mockito.when(factory.newListDoors(Mockito.any(ICommandSender.class),
                                           Mockito.any(DoorRetriever.class)))
                .thenAnswer(invoc -> new ListDoors(invoc.getArgument(0, ICommandSender.class), localizer,
+                                                  ITextFactory.getSimpleTextFactory(),
                                                   invoc.getArgument(1, DoorRetriever.class)));
     }
 
@@ -59,16 +61,19 @@ class ListDoorsTest
         // No doors will be found, because the command sender is not an owner of any them.
         CommandTestingUtil.initCommandSenderPermissions(playerCommandSender, true, false);
         Assertions.assertTrue(factory.newListDoors(playerCommandSender, retriever).run().get(1, TimeUnit.SECONDS));
-        Mockito.verify(playerCommandSender).sendMessage("commands.list_doors.error.no_doors_found");
+        Mockito.verify(playerCommandSender)
+               .sendMessage(UnitTestUtil.toText("commands.list_doors.error.no_doors_found"));
 
         // Run it again, but now do so with admin permissions enabled.
         // As a result, we should NOT get the "No doors found!" message again.
         CommandTestingUtil.initCommandSenderPermissions(playerCommandSender, true, true);
         Assertions.assertTrue(factory.newListDoors(playerCommandSender, retriever).run().get(1, TimeUnit.SECONDS));
-        Mockito.verify(playerCommandSender).sendMessage("commands.list_doors.error.no_doors_found");
+        Mockito.verify(playerCommandSender)
+               .sendMessage(UnitTestUtil.toText("commands.list_doors.error.no_doors_found"));
 
 
         Assertions.assertTrue(factory.newListDoors(serverCommandSender, retriever).run().get(1, TimeUnit.SECONDS));
-        Mockito.verify(serverCommandSender, Mockito.never()).sendMessage("commands.list_doors.error.no_doors_found");
+        Mockito.verify(serverCommandSender, Mockito.never())
+               .sendMessage(UnitTestUtil.toText("commands.list_doors.error.no_doors_found"));
     }
 }

@@ -13,6 +13,7 @@ import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.commands.DelayedCommand;
@@ -155,9 +156,9 @@ public class CreatorTestsUtil
                 .getFactory();
         doorBaseBuilder = new DoorBaseBuilder(doorBaseIFactory);
 
-        context = new ToolUser.Context(doorBaseBuilder, localizer, toolUserManager, databaseManager,
-                                       limitsManager, economyManager, protectionCompatManager, bigDoorsToolUtil,
-                                       commandFactory);
+        context = new ToolUser.Context(
+            doorBaseBuilder, localizer, ITextFactory.getSimpleTextFactory(), toolUserManager, databaseManager,
+            limitsManager, economyManager, protectionCompatManager, bigDoorsToolUtil, commandFactory);
 
         initCommands();
 
@@ -195,6 +196,7 @@ public class CreatorTestsUtil
                 .setMock(DelayedCommandInputManager.class, delayedCommandInputManager);
 
         final var commandContext = new DelayedCommand.Context(delayedCommandInputManager, localizer,
+                                                              ITextFactory.getSimpleTextFactory(),
                                                               () -> commandFactory);
         final SetOpenDirectionDelayed setOpenDirectionDelayed =
             new SetOpenDirectionDelayed(commandContext, assistedFactory.getFactory());
@@ -257,7 +259,8 @@ public class CreatorTestsUtil
     public void testCreation(Creator creator, AbstractDoor actualDoor, Object... input)
     {
         applySteps(creator, input);
-        Mockito.verify(creator.getPlayer(), Mockito.never()).sendMessage("Door creation was cancelled!");
+        Mockito.verify(creator.getPlayer(), Mockito.never())
+               .sendMessage(UnitTestUtil.toText("Door creation was cancelled!"));
         Mockito.verify(databaseManager).addDoor(actualDoor, player);
     }
 }

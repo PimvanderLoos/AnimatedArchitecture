@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.spigot.util.implementations.pserver;
 
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.commands.IPServer;
+import nl.pim16aap2.bigdoors.text.Text;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -22,14 +23,8 @@ public class PServer implements IPServer
     }
 
     @Override
-    public void sendMessage(Level level, String message)
+    public void sendMessage(Text text)
     {
-        log.at(level).log("%s", message);
-    }
-
-    @Override
-    public void sendMessage(String message)
-    {
-        IPServer.super.sendMessage(message);
+        log.at(Level.INFO).log("%s", text.toPlainString());
     }
 }

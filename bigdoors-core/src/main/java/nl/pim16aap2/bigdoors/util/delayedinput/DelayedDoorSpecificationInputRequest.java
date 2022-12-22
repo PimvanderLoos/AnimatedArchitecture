@@ -2,8 +2,12 @@ package nl.pim16aap2.bigdoors.util.delayedinput;
 
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
+import nl.pim16aap2.bigdoors.text.Text;
+import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.util.Util;
 
 import java.time.Duration;
@@ -21,15 +25,20 @@ public final class DelayedDoorSpecificationInputRequest extends DelayedInputRequ
 {
     private final List<AbstractDoor> options;
     private final IPPlayer player;
+    @SuppressWarnings({"FieldCanBeLocal", "unused", "PMD.SingularField"})
+    private final ILocalizer localizer;
+    private final ITextFactory textFactory;
     private final DoorSpecificationManager doorSpecificationManager;
 
     private DelayedDoorSpecificationInputRequest(
-        Duration timeout, List<AbstractDoor> options, IPPlayer player,
+        Duration timeout, List<AbstractDoor> options, IPPlayer player, ILocalizer localizer, ITextFactory textFactory,
         DoorSpecificationManager doorSpecificationManager)
     {
         super(timeout);
         this.options = options;
         this.player = player;
+        this.localizer = localizer;
+        this.textFactory = textFactory;
         this.doorSpecificationManager = doorSpecificationManager;
         init();
     }
@@ -40,9 +49,13 @@ public final class DelayedDoorSpecificationInputRequest extends DelayedInputRequ
         // TODO: Localization
         // TODO: Abstraction. It may be a list and it may specified using a command, but that's not always true.
         //       It may also use a GUI or clickable text or whatever.
-        final StringBuilder sb = new StringBuilder("Please specify a door you using \"/bigdoors specify <ID>\"");
-        getDoorInfoList(sb);
-        player.sendMessage(sb.toString());
+        final Text text = textFactory.newText();
+        text.append("Please specify a door you using \"", TextType.INFO)
+            .append("/BigDoors specify <ID>", TextType.HIGHLIGHT)
+            .append("\"", TextType.INFO);
+
+        getDoorInfoList(text);
+        player.sendMessage(text);
     }
 
     /**
@@ -61,7 +74,7 @@ public final class DelayedDoorSpecificationInputRequest extends DelayedInputRequ
      * @return The specified door if the user specified a valid one. Otherwise, an empty Optional.
      */
     public static CompletableFuture<Optional<AbstractDoor>> get(
-        Duration timeout, List<AbstractDoor> options, IPPlayer player,
+        Duration timeout, List<AbstractDoor> options, IPPlayer player, ILocalizer localizer, ITextFactory textFactory,
         DoorSpecificationManager doorSpecificationManager)
     {
         if (options.size() == 1)
@@ -69,7 +82,7 @@ public final class DelayedDoorSpecificationInputRequest extends DelayedInputRequ
         if (options.isEmpty())
             return CompletableFuture.completedFuture(Optional.empty());
 
-        return new DelayedDoorSpecificationInputRequest(timeout, options, player,
+        return new DelayedDoorSpecificationInputRequest(timeout, options, player, localizer, textFactory,
                                                         doorSpecificationManager).getInputResult().thenApply(
             input ->
             {
@@ -88,25 +101,29 @@ public final class DelayedDoorSpecificationInputRequest extends DelayedInputRequ
         doorSpecificationManager.cancelRequest(player);
     }
 
-    private void getDoorInfoList(StringBuilder sb)
+    private void getDoorInfoList(Text text)
     {
         final Optional<IPLocation> location = player.getLocation();
 
         options.forEach(
             door ->
             {
-                sb.append('\n')
-                  .append(String.format("%d: %s, Creator: %s, World: %s",
-                                        door.getDoorUID(), door.getDoorType().getSimpleName(),
-                                        door.getPrimeOwner().pPlayerData().getName(),
-                                        door.getWorld().worldName()));
+                text.append("\n")
+                    .append(Long.toString(door.getDoorUID()), TextType.HIGHLIGHT)
+                    .append(": ", TextType.INFO)
+                    .append(door.getDoorType().getSimpleName(), TextType.HIGHLIGHT)
+                    .append(", Creator: ", TextType.INFO)
+                    .append(door.getPrimeOwner().pPlayerData().getName(), TextType.HIGHLIGHT)
+                    .append(", World: ", TextType.INFO)
+                    .append(door.getWorld().worldName(), TextType.HIGHLIGHT);
 
                 if (location.isEmpty())
                     return;
 
                 final double distance = Util.getDistanceToDoor(location.get(), door);
                 if (distance >= 0)
-                    sb.append(String.format(", Distance: %.1f", distance));
+                    text.append(", Distance: ", TextType.INFO)
+                        .append(String.format("%.1f", distance), TextType.HIGHLIGHT);
             });
     }
 }

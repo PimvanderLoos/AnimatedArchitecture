@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.api.IEconomyManager;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IPermissionsManager;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
@@ -47,13 +48,16 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     private @Nullable Economy economy = null;
     private @Nullable Permission perms = null;
     private final ILocalizer localizer;
+    private final ITextFactory textFactory;
     private final IConfigLoader configLoader;
     private final DoorTypeManager doorTypeManager;
 
     @Inject
-    public VaultManager(ILocalizer localizer, IConfigLoader configLoader, DoorTypeManager doorTypeManager)
+    public VaultManager(
+        ILocalizer localizer, ITextFactory textFactory, IConfigLoader configLoader, DoorTypeManager doorTypeManager)
     {
         this.localizer = localizer;
+        this.textFactory = textFactory;
         this.configLoader = configLoader;
         this.doorTypeManager = doorTypeManager;
 
@@ -86,11 +90,12 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final double price = priceOpt.getAsDouble();
         if (withdrawPlayer(spigotPlayer, world.worldName(), price))
         {
-            player.sendMessage(localizer.getMessage("creator.base.money_withdrawn", Double.toString(price)));
+            player.sendInfo(textFactory, localizer.getMessage("creator.base.money_withdrawn", Double.toString(price)));
             return true;
         }
 
-        player.sendMessage(localizer.getMessage("creator.base.error.insufficient_funds", Double.toString(price)));
+        player.sendError(textFactory,
+                         localizer.getMessage("creator.base.error.insufficient_funds", Double.toString(price)));
         return false;
     }
 
@@ -289,8 +294,8 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     }
 
     /**
-     * Initialize the "permissions" dependency. Assumes Vault is installed on this server. See {@link
-     * #isVaultInstalled()}.
+     * Initialize the "permissions" dependency. Assumes Vault is installed on this server. See
+     * {@link #isVaultInstalled()}.
      *
      * @return True if the initialization process was successful.
      */

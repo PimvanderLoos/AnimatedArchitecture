@@ -16,6 +16,7 @@ import cloud.commandframework.minecraft.extras.MinecraftHelp;
 import cloud.commandframework.paper.PaperCommandManager;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.format.NamedTextColor;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.commands.CommandDefinition;
 import nl.pim16aap2.bigdoors.commands.ICommandSender;
 import nl.pim16aap2.bigdoors.doors.PermissionLevel;
@@ -23,7 +24,6 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
-import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,6 +40,7 @@ public final class CommandManager
 {
     private final JavaPlugin plugin;
     private final ILocalizer localizer;
+    private final ITextFactory textFactory;
     private final DoorRetrieverFactory doorRetrieverFactory;
     private volatile @Nullable BukkitCommandManager<ICommandSender> manager;
     private boolean asyncCompletions = false;
@@ -50,11 +51,12 @@ public final class CommandManager
 
     @Inject//
     CommandManager(
-        JavaPlugin plugin, ILocalizer localizer, DoorRetrieverFactory doorRetrieverFactory,
+        JavaPlugin plugin, ILocalizer localizer, ITextFactory textFactory, DoorRetrieverFactory doorRetrieverFactory,
         DoorTypeParser doorTypeParser, DirectionParser directionParser, CommandExecutor executor)
     {
         this.plugin = plugin;
         this.localizer = localizer;
+        this.textFactory = textFactory;
         this.doorRetrieverFactory = doorRetrieverFactory;
         this.doorTypeParser = doorTypeParser;
         this.directionParser = directionParser;
@@ -82,9 +84,9 @@ public final class CommandManager
 
         final CommandConfirmationManager<ICommandSender> confirmationManager = new CommandConfirmationManager<>(
             30L, TimeUnit.SECONDS,
-            context -> context.getCommandContext().getSender().sendMessage(
-                ChatColor.RED + "Confirmation required. Confirm using /bigdoors confirm."),
-            sender -> sender.sendMessage(ChatColor.RED + "You don't have any pending commands.")
+            context -> context.getCommandContext().getSender()
+                              .sendInfo(textFactory, "Confirmation required. Confirm using /bigdoors confirm."),
+            sender -> sender.sendError(textFactory, "You don't have any pending commands.")
         );
 
         confirmationManager.registerConfirmationProcessor(this.manager);

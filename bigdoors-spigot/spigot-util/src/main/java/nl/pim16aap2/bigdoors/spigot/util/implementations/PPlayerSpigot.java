@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.commands.CommandDefinition;
 import nl.pim16aap2.bigdoors.commands.PermissionsStatus;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
+import nl.pim16aap2.bigdoors.text.Text;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -93,9 +94,9 @@ public final class PPlayerSpigot implements IPPlayer
     }
 
     @Override
-    public void sendMessage(Level level, String message)
+    public void sendMessage(Text text)
     {
-        spigotPlayer.sendMessage(message);
+        spigotPlayer.sendMessage(text.toString());
     }
 
     /**

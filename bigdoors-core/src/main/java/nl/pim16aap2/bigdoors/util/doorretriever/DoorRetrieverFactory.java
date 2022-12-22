@@ -1,9 +1,11 @@
 package nl.pim16aap2.bigdoors.util.doorretriever;
 
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.commands.ICommandSender;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.PermissionLevel;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -26,16 +28,20 @@ public final class DoorRetrieverFactory
     private final IConfigLoader config;
     private final DoorSpecificationManager doorSpecificationManager;
     private final DoorFinderCache doorFinderCache;
+    private final ILocalizer localizer;
+    private final ITextFactory textFactory;
 
     @Inject
     public DoorRetrieverFactory(
         DatabaseManager databaseManager, IConfigLoader config, DoorSpecificationManager doorSpecificationManager,
-        DoorFinderCache doorFinderCache)
+        DoorFinderCache doorFinderCache, ILocalizer localizer, ITextFactory textFactory)
     {
         this.databaseManager = databaseManager;
         this.config = config;
         this.doorSpecificationManager = doorSpecificationManager;
         this.doorFinderCache = doorFinderCache;
+        this.localizer = localizer;
+        this.textFactory = textFactory;
     }
 
     /**
@@ -50,7 +56,8 @@ public final class DoorRetrieverFactory
         final OptionalLong doorUID = Util.parseLong(doorID);
         return doorUID.isPresent() ?
                new DoorRetriever.DoorUIDRetriever(databaseManager, doorUID.getAsLong()) :
-               new DoorRetriever.DoorNameRetriever(databaseManager, config, doorSpecificationManager, doorID);
+               new DoorRetriever.DoorNameRetriever(databaseManager, config, doorSpecificationManager, localizer,
+                                                   textFactory, doorID);
     }
 
     /**

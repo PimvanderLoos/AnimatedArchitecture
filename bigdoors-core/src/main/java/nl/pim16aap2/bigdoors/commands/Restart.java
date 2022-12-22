@@ -6,7 +6,9 @@ import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatformProvider;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.text.TextType;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -21,9 +23,11 @@ public class Restart extends BaseCommand
     private final IBigDoorsPlatformProvider platformProvider;
 
     @AssistedInject //
-    Restart(@Assisted ICommandSender commandSender, ILocalizer localizer, IBigDoorsPlatformProvider platformProvider)
+    Restart(
+        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
+        IBigDoorsPlatformProvider platformProvider)
     {
-        super(commandSender, localizer);
+        super(commandSender, localizer, textFactory);
         this.platformProvider = platformProvider;
     }
 
@@ -33,10 +37,16 @@ public class Restart extends BaseCommand
         return CommandDefinition.RESTART;
     }
 
+    private void restartPlatform(IBigDoorsPlatform platform)
+    {
+        platform.restartPlugin();
+        getCommandSender().sendMessage(textFactory, TextType.SUCCESS, localizer.getMessage("commands.restart.success"));
+    }
+
     @Override
     protected CompletableFuture<Boolean> executeCommand(PermissionsStatus permissions)
     {
-        platformProvider.getPlatform().ifPresent(IBigDoorsPlatform::restartPlugin);
+        platformProvider.getPlatform().ifPresent(this::restartPlatform);
         return CompletableFuture.completedFuture(true);
     }
 

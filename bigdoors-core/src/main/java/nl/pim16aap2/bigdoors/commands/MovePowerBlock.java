@@ -5,13 +5,14 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorAttribute;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.PowerBlockRelocator;
 import nl.pim16aap2.bigdoors.util.Constants;
-import nl.pim16aap2.bigdoors.doors.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 
@@ -30,10 +31,11 @@ public class MovePowerBlock extends DoorTargetCommand
 
     @AssistedInject //
     MovePowerBlock(
-        @Assisted ICommandSender commandSender, ILocalizer localizer, @Assisted DoorRetriever doorRetriever,
-        ToolUserManager toolUserManager, PowerBlockRelocator.IFactory powerBlockRelocatorFactory)
+        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
+        @Assisted DoorRetriever doorRetriever, ToolUserManager toolUserManager,
+        PowerBlockRelocator.IFactory powerBlockRelocatorFactory)
     {
-        super(commandSender, localizer, doorRetriever, DoorAttribute.RELOCATE_POWERBLOCK);
+        super(commandSender, localizer, textFactory, doorRetriever, DoorAttribute.RELOCATE_POWERBLOCK);
         this.toolUserManager = toolUserManager;
         this.powerBlockRelocatorFactory = powerBlockRelocatorFactory;
     }
