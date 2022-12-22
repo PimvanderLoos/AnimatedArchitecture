@@ -307,7 +307,7 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
     @Override
     public boolean isAlive()
     {
-        return bp();
+        return br();
     }
 
     @Override
