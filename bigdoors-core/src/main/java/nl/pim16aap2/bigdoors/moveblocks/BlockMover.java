@@ -82,7 +82,7 @@ public abstract class BlockMover
     @ToString.Exclude
     private final AnimationHookManager animationHookManager;
 
-    protected MovementMethod movementMethod = MovementMethod.VELOCITY;
+    protected MovementMethod movementMethod = MovementMethod.TELEPORT_VELOCITY;
 
     @Getter
     protected double time;
@@ -728,12 +728,25 @@ public abstract class BlockMover
         /**
          * Teleports the animated blocks directly to their target positions.
          */
-        public static final MovementMethod TELEPORT = new MovementMethod("TELEPORT", 4)
+        public static final MovementMethod TELEPORT = new MovementMethod("TELEPORT", 2)
         {
             @Override
             public void apply(IAnimatedBlock animatedBlock, Vector3Dd goalPos)
             {
                 animatedBlock.teleport(goalPos);
+            }
+        };
+
+        /**
+         * Combination of {@link #TELEPORT} and {@link #VELOCITY}.
+         */
+        public static final MovementMethod TELEPORT_VELOCITY = new MovementMethod("TELEPORT", 12)
+        {
+            @Override
+            public void apply(IAnimatedBlock animatedBlock, Vector3Dd goalPos)
+            {
+                TELEPORT.apply(animatedBlock, goalPos);
+                VELOCITY.apply(animatedBlock, goalPos);
             }
         };
 
