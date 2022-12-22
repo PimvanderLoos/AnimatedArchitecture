@@ -46,7 +46,7 @@ import static nl.pim16aap2.bigdoors.api.animatedblock.IAnimation.AnimationState;
 @Flogger
 public abstract class BlockMover
 {
-    protected boolean drawDebugBlocks = true;
+    protected boolean drawDebugBlocks = false;
 
     protected final IPWorld world;
 
@@ -120,12 +120,6 @@ public abstract class BlockMover
      * The duration of the animation measured in ticks.
      */
     protected int animationDuration = -1;
-
-    /**
-     * The duration (measured in ticks) of the final step executed after the animation has ended. This step is used to
-     * move the animated blocks to their final positions gracefully.
-     */
-    protected int finishDuration = 30;
 
     protected final Cuboid newCuboid;
 
@@ -478,7 +472,7 @@ public abstract class BlockMover
 
         forEachHook("onPrepare", IAnimationHook::onPrepare);
 
-        final int stopCount = animationDuration + Math.max(0, finishDuration);
+        final int stopCount = animationDuration + Math.max(0, movementMethod.finishDuration());
         moverTask = new TimerTask()
         {
             private int counter = 0;
@@ -722,7 +716,7 @@ public abstract class BlockMover
          * generally tend to move slightly towards the center of any rotation (so corners will be rounded, circles
          * slightly smaller).
          */
-        public static final MovementMethod VELOCITY = new MovementMethod("VELOCITY")
+        public static final MovementMethod VELOCITY = new MovementMethod("VELOCITY", 30)
         {
             @Override
             public void apply(IAnimatedBlock animatedBlock, Vector3Dd goalPos)
@@ -734,7 +728,7 @@ public abstract class BlockMover
         /**
          * Teleports the animated blocks directly to their target positions.
          */
-        public static final MovementMethod TELEPORT = new MovementMethod("TELEPORT")
+        public static final MovementMethod TELEPORT = new MovementMethod("TELEPORT", 4)
         {
             @Override
             public void apply(IAnimatedBlock animatedBlock, Vector3Dd goalPos)
@@ -744,15 +738,26 @@ public abstract class BlockMover
         };
 
         private final String name;
+        private final int finishDuration;
 
-        protected MovementMethod(String name)
+        protected MovementMethod(String name, int finishDuration)
         {
             this.name = name;
+            this.finishDuration = finishDuration;
         }
 
         public String name()
         {
             return name;
+        }
+
+        /**
+         * The duration (measured in ticks) of the final step executed after the animation has ended. This step is used
+         * to move the animated blocks to their final positions gracefully.
+         */
+        public int finishDuration()
+        {
+            return finishDuration;
         }
 
         /**

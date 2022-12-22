@@ -11,6 +11,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.GameProfileSerializer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.protocol.game.PacketPlayOutEntity;
+import net.minecraft.server.level.EntityTrackerEntry;
 import net.minecraft.server.level.PlayerChunkMap;
 import net.minecraft.server.level.WorldServer;
 import net.minecraft.util.MathHelper;
@@ -41,7 +42,9 @@ import org.bukkit.craftbukkit.v1_19_R2.util.CraftMagicNumbers;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
@@ -124,6 +127,7 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
         this.hooks = animatedBlockHookManager.instantiateHooks(this);
     }
 
+    @Override
     public synchronized void a(RemovalReason entityRemovalReason)
     {
         this.b(entityRemovalReason);
@@ -165,19 +169,21 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
         forEachHook("onDie", IAnimatedBlockHook::onDie);
     }
 
-    @Override
-    public synchronized void spawn()
-    {
-        spawn0();
-        tracker = Util.requireNonNull(worldServer.k().a.L.get(getEntityId()), "entity tracker");
-        forEachHook("onSpawn", IAnimatedBlockHook::onSpawn);
-    }
-
     private void spawn0()
     {
         worldServer.addFreshEntity(this, SpawnReason.CUSTOM);
         dA(); // Entity#unsetRemoved()
         setEntityInLevelCallback();
+
+        tracker = Util.requireNonNull(worldServer.k().a.L.get(getEntityId()), "entity tracker");
+        modifyEntityTracker(tracker);
+    }
+
+    @Override
+    public synchronized void spawn()
+    {
+        spawn0();
+        forEachHook("onSpawn", IAnimatedBlockHook::onSpawn);
     }
 
     @Override
@@ -216,11 +222,18 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
     }
 
     @Override
-    public synchronized boolean teleport(Vector3Dd newPosition, Vector3Dd rotation)
+    public void inactiveTick()
     {
-        if (!isAlive())
-            return false;
+        this.l();
+    }
 
+    @Override
+    public void postTick()
+    {
+    }
+
+    private void relativeTeleport(Vector3Dd newPosition)
+    {
         final double deltaX = newPosition.x() - currentPosition.x();
         final double deltaY = newPosition.y() - currentPosition.y();
         final double deltaZ = newPosition.z() - currentPosition.z();
@@ -234,9 +247,19 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
 
         if (tracker != null)
             tracker.a(tpPacket);
+    }
+
+    @Override
+    public synchronized boolean teleport(Vector3Dd newPosition, Vector3Dd rotation)
+    {
+        if (!isAlive())
+            return false;
+
+        relativeTeleport(newPosition);
+
+        cyclePositions(newPosition);
 
         forEachHook("onTeleport", hook -> hook.onTeleport(newPosition));
-        cyclePositions(newPosition);
 
         return true;
     }
@@ -262,6 +285,26 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
             cyclePositions(getRawCurrentLocation());
         }
         forEachHook("postTick", IAnimatedBlockHook::postTick);
+    }
+
+    private void modifyEntityTracker(PlayerChunkMap.EntityTracker tracker)
+    {
+        try
+        {
+            final Field entryField = tracker.getClass().getDeclaredField("b");
+            entryField.setAccessible(true);
+            final EntityTrackerEntry entityTrackerEntry =
+                Objects.requireNonNull((EntityTrackerEntry) entryField.get(tracker));
+
+            final Field updateInterval = EntityTrackerEntry.class.getDeclaredField("e");
+            updateInterval.setAccessible(true);
+            updateInterval.set(entityTrackerEntry, Integer.MAX_VALUE);
+        }
+        catch (Exception e)
+        {
+            log.at(Level.SEVERE).withCause(e)
+               .log("Failed to modify entity tracker! Animated block movement will probably be choppy!");
+        }
     }
 
     private void forEachHook(String actionName, Consumer<IAnimatedBlockHook> call)
