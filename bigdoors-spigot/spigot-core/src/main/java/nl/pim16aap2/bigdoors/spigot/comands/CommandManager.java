@@ -14,6 +14,7 @@ import cloud.commandframework.meta.CommandMeta;
 import cloud.commandframework.minecraft.extras.MinecraftExceptionHandler;
 import cloud.commandframework.minecraft.extras.MinecraftHelp;
 import cloud.commandframework.paper.PaperCommandManager;
+import lombok.extern.flogger.Flogger;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.format.NamedTextColor;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
@@ -32,10 +33,12 @@ import javax.inject.Singleton;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 import static net.kyori.adventure.text.Component.text;
 
 @Singleton
+@Flogger
 public final class CommandManager
 {
     private final JavaPlugin plugin;
@@ -71,16 +74,16 @@ public final class CommandManager
     {
         if (manager != null)
             throw new IllegalStateException("Trying to instantiate Cloud manage again!");
-        manager = Util.requireNonNull(newManager(), "Cloud manager");
 
-        if (manager.hasCapability(CloudBukkitCapabilities.BRIGADIER))
-            manager.registerBrigadier();
+        manager = Util.requireNonNull(newManager(), "Cloud manager");
+        registerBrigadier(manager);
 
         if (manager.hasCapability(CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION))
         {
             ((PaperCommandManager<ICommandSender>) manager).registerAsynchronousCompletions();
             asyncCompletions = true;
         }
+
 
         final CommandConfirmationManager<ICommandSender> confirmationManager = new CommandConfirmationManager<>(
             30L, TimeUnit.SECONDS,
@@ -410,6 +413,20 @@ public final class CommandManager
     private DoorTypeArgument.DoorTypeArgumentBuilder defaultDoorTypeArgument(boolean required)
     {
         return DoorTypeArgument.builder().required(required).name("doorType").parser(doorTypeParser);
+    }
+
+    private static void registerBrigadier(BukkitCommandManager<ICommandSender> manager)
+    {
+        try
+        {
+            if (manager.hasCapability(CloudBukkitCapabilities.BRIGADIER) &&
+                manager.hasCapability(CloudBukkitCapabilities.COMMODORE_BRIGADIER))
+                manager.registerBrigadier();
+        }
+        catch (Exception e)
+        {
+            log.at(Level.SEVERE).withCause(e).log("Failed to register brigadier!");
+        }
     }
 
     private BukkitCommandManager<ICommandSender> newManager()

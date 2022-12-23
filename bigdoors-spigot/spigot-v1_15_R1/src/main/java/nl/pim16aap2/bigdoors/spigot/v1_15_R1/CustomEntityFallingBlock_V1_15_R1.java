@@ -189,6 +189,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         // Update the current id.
         this.e(ENTITY_COUNT.incrementAndGet());
         spawn0();
+
     }
 
     private synchronized void cyclePositions(Vector3Dd newPosition)

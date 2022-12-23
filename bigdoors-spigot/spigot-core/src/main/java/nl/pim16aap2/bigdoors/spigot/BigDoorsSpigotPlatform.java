@@ -211,8 +211,7 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
         this.bigDoorsSpigotComponent = bigDoorsSpigotComponent;
         this.plugin = plugin;
 
-        final SubPlatformManager subPlatformManagerSpigot =
-            bigDoorsSpigotComponent.getSubPlatformManager();
+        final SubPlatformManager subPlatformManagerSpigot = bigDoorsSpigotComponent.getSubPlatformManager();
 
         if (!subPlatformManagerSpigot.isValidPlatform())
             throw new InitializationException("Failed to initialize BigDoors SubPlatform version " +

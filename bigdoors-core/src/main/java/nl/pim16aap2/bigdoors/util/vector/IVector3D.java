@@ -63,6 +63,15 @@ public sealed interface IVector3D permits Vector3Dd, Vector3Di
     }
 
     /**
+     * @return The magnitude of this vector.
+     */
+    @CheckReturnValue @Contract(pure = true)
+    default double magnitude()
+    {
+        return Math.sqrt(Math.pow(xD(), 2) + Math.pow(yD(), 2) + Math.pow(zD(), 2));
+    }
+
+    /**
      * @return A new vector with {@link Math#floor(double)} applied to the current values.
      */
     IVector3D floor();
