@@ -77,6 +77,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
     private boolean autoDLUpdate;
     private long downloadDelay;
     private boolean enableRedstone;
+    private boolean loadChunksForToggle;
     private boolean checkForUpdates;
     private Locale locale = Locale.ROOT;
     private int headCacheTimeout;
@@ -132,6 +133,13 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
         final String defResPackUrl = "https://www.dropbox.com/s/0q6h8jkfjqrn1tp/BigDoorsResourcePack.zip?dl=1";
         final String defResPackUrl1_13 = "https://www.dropbox.com/s/al4idl017ggpnuq/BigDoorsResourcePack-1_13.zip?dl=1";
 
+        final String[] loadChunksForToggleComment = {
+            "Try to load chunks when a door is toggled. When set to false, doors will not be toggled " +
+                "if more than 1 chunk needs to be loaded.",
+            "When set to true, the plugin will try to load all chunks the door will interact with before " +
+                "toggling. If more than 1 chunk ",
+            "needs to be loaded, the door will skip its animation to avoid spawning a bunch of entities " +
+                "no one can see anyway."};
         final String[] enableRedstoneComment = {
             "Allow doors to be opened using redstone signals."};
         final String[] powerBlockTypeComment = {
@@ -234,6 +242,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
 
 
         enableRedstone = addNewConfigEntry(config, "allowRedstone", true, enableRedstoneComment);
+        loadChunksForToggle = addNewConfigEntry(config, "loadChunksForToggle", true, loadChunksForToggleComment);
 
         // No need to store the result here. It would be a list of Strings anyway, while we want blocks.
         // Because all entries need to be verified as valid blocks anyway, the list of power block types is
@@ -512,6 +521,12 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
     public boolean enableRedstone()
     {
         return enableRedstone;
+    }
+
+    @Override
+    public boolean loadChunksForToggle()
+    {
+        return loadChunksForToggle;
     }
 
     public Set<Material> powerBlockTypes()

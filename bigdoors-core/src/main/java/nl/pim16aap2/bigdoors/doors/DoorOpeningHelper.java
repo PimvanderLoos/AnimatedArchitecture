@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import com.google.common.flogger.StackSize;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
+import nl.pim16aap2.bigdoors.api.IChunkLoader;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
@@ -55,6 +55,7 @@ public final class DoorOpeningHelper
     private final GlowingBlockSpawner glowingBlockSpawner;
     private final IBigDoorsEventFactory bigDoorsEventFactory;
     private final IPExecutor executor;
+    private final IChunkLoader chunkLoader;
     private final IDoorEventCaller doorEventCaller;
 
     @Inject //
@@ -70,6 +71,7 @@ public final class DoorOpeningHelper
         GlowingBlockSpawner glowingBlockSpawner,
         IBigDoorsEventFactory bigDoorsEventFactory,
         IPExecutor executor,
+        IChunkLoader chunkLoader,
         IDoorEventCaller doorEventCaller)
     {
         this.localizer = localizer;
@@ -83,6 +85,7 @@ public final class DoorOpeningHelper
         this.glowingBlockSpawner = glowingBlockSpawner;
         this.bigDoorsEventFactory = bigDoorsEventFactory;
         this.executor = executor;
+        this.chunkLoader = chunkLoader;
         this.doorEventCaller = doorEventCaller;
     }
 
@@ -385,11 +388,20 @@ public final class DoorOpeningHelper
         return DoorToggleResult.SUCCESS;
     }
 
-    private boolean chunksLoaded(@SuppressWarnings({"unused", "squid:S1172"}) IDoor door)
+    private boolean chunksLoaded(AbstractDoor door)
     {
-        // TODO: IMPLEMENT THIS
-        log.at(Level.SEVERE).withStackTrace(StackSize.FULL).log("Method not implemented!");
-        return true;
+        final var mode = config.loadChunksForToggle() ?
+                         IChunkLoader.ChunkLoadMode.ATTEMPT_LOAD : IChunkLoader.ChunkLoadMode.VERIFY_LOADED;
+
+        final var result = chunkLoader.checkChunks(door.getWorld(), door.getCuboid(), mode);
+        if (result == IChunkLoader.ChunkLoadResult.FAIL)
+            return false;
+
+        final var newCoordsResult =
+            door.getPotentialNewCoordinates()
+                .map(newCuboid -> chunkLoader.checkChunks(door.getWorld(), newCuboid, mode))
+                .orElse(IChunkLoader.ChunkLoadResult.PASS);
+        return newCoordsResult != IChunkLoader.ChunkLoadResult.FAIL;
     }
 
     /**

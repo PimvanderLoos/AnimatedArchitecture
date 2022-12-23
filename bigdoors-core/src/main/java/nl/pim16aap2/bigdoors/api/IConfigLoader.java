@@ -119,6 +119,11 @@ public interface IConfigLoader extends IRestartable
     boolean enableRedstone();
 
     /**
+     * @return True if we should try to load any unloaded chunks for a toggle.
+     */
+    boolean loadChunksForToggle();
+
+    /**
      * Whether or not to check for updates.
      *
      * @return True if the plugin should check for new updates.
