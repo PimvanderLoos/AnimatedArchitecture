@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.tooluser.creator;
 
-import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
 import nl.pim16aap2.bigdoors.api.IEconomyManager;
@@ -346,11 +345,17 @@ class CreatorTest
         Assertions.assertTrue(creator.completeSetRotationPointStep(UnitTestUtil.getLocation(11, 21, 31, world)));
     }
 
-    @SneakyThrows
     private void setField(String fieldName, @Nullable Object obj)
     {
-        final Field f = Creator.class.getDeclaredField(fieldName);
-        f.setAccessible(true);
-        f.set(creator, obj);
+        try
+        {
+            final Field f = Creator.class.getDeclaredField(fieldName);
+            f.setAccessible(true);
+            f.set(creator, obj);
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 }

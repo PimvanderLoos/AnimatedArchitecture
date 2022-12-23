@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
@@ -49,8 +48,8 @@ class SetNameTest
     }
 
     @Test
-    @SneakyThrows
     void testExecution()
+        throws Exception
     {
         final UUID uuid = UUID.randomUUID();
         final String name = "newDoor";
@@ -66,8 +65,8 @@ class SetNameTest
     }
 
     @Test
-    @SneakyThrows
     void testIncorrectToolUser()
+        throws Exception
     {
         final UUID uuid = UUID.randomUUID();
         final String name = "newDoor";
@@ -82,8 +81,8 @@ class SetNameTest
     }
 
     @Test
-    @SneakyThrows
     void testServer()
+        throws Exception
     {
         Assertions.assertTrue(factory.newSetName(Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS), "newDoor")
                                      .run().get(1, TimeUnit.SECONDS));

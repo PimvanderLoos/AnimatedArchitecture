@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.storage;
 
 import com.google.common.flogger.LogSiteStackTrace;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -45,7 +44,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.lang.reflect.Field;
-import java.nio.file.FileSystemException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -139,11 +137,17 @@ public class SQLiteJDBCDriverConnectionTest
      * Prepares files for a test run.
      */
     @BeforeAll
-    @SneakyThrows
     public static void prepare()
     {
-        Files.deleteIfExists(DB_FILE);
-        Files.deleteIfExists(DB_FILE_BACKUP);
+        try
+        {
+            Files.deleteIfExists(DB_FILE);
+            Files.deleteIfExists(DB_FILE_BACKUP);
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -151,7 +155,6 @@ public class SQLiteJDBCDriverConnectionTest
      * (for debugging purposes).
      */
     @AfterAll
-    @SneakyThrows
     public static void cleanup()
     {
         final Path finishedDB = DB_FILE.resolveSibling(DB_FILE.getFileName() + ".FINISHED");
@@ -159,13 +162,18 @@ public class SQLiteJDBCDriverConnectionTest
         {
             Files.move(DB_FILE, finishedDB, StandardCopyOption.REPLACE_EXISTING);
         }
-        catch (FileSystemException exception)
+        catch (Exception exception)
         {
-            log.error("Failed to move database file to finished file. This is a Windows-Only Error and can be ignored.",
-                      exception);
+            log.error("Failed to move database file to finished file.", exception);
         }
-
-        Files.deleteIfExists(DB_FILE_BACKUP);
+        try
+        {
+            Files.deleteIfExists(DB_FILE_BACKUP);
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     private void deleteDoorTypeTestDoors()

@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
@@ -45,8 +44,8 @@ class SpecifyTest
     }
 
     @Test
-    @SneakyThrows
     void testServer()
+        throws Exception
     {
         final IPServer server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
         Assertions.assertTrue(factory.newSpecify(server, "newDoor").run().get(1, TimeUnit.SECONDS));
@@ -54,8 +53,8 @@ class SpecifyTest
     }
 
     @Test
-    @SneakyThrows
     void testExecution()
+        throws Exception
     {
         Mockito.when(doorSpecificationManager.handleInput(Mockito.any(), Mockito.any())).thenReturn(true);
         final String input = "newDoor";

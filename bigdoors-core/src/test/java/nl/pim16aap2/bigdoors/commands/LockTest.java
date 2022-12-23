@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
@@ -70,8 +69,8 @@ class LockTest
     }
 
     @Test
-    @SneakyThrows
     void test()
+        throws Exception
     {
         final boolean lock = true;
         Mockito.when(event.isCancelled()).thenReturn(true);
