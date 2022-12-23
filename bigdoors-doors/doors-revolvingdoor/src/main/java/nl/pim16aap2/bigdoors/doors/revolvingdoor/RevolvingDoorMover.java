@@ -117,7 +117,7 @@ public class RevolvingDoorMover extends BlockMover
     {
         final double stepSum = step * ticks;
 
-        for (final IAnimatedBlock animatedBlock : animatedBlocks)
+        for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
             movementMethod.apply(animatedBlock, getGoalPos.apply(animatedBlock, stepSum));
     }
 
