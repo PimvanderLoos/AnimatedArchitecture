@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
@@ -29,7 +30,9 @@ import org.jetbrains.annotations.Nullable;
 import javax.inject.Inject;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -48,16 +51,33 @@ public abstract class BlockMover
 {
     protected boolean drawDebugBlocks = false;
 
+    /**
+     * The world in which the blocks are going to be moved.
+     */
     protected final IPWorld world;
 
+    /**
+     * The door whose blocks are going to be moved.
+     */
     protected final AbstractDoor door;
 
+    /**
+     * The player responsible for the movement.
+     * <p>
+     * This player may be offline.
+     */
     @Getter
     protected final IPPlayer player;
 
+    /**
+     * What caused the door to be moved.
+     */
     @Getter
     private final DoorActionCause cause;
 
+    /**
+     * The type of action that is fulfilled by moving the door.
+     */
     @Getter
     private final DoorActionType actionType;
 
@@ -82,18 +102,51 @@ public abstract class BlockMover
     @ToString.Exclude
     private final AnimationHookManager animationHookManager;
 
+    /**
+     * The type of movement to apply to animated blocks.
+     * <p>
+     * Subclasses are free to override this if a different type of movement is desired for that type.
+     * <p>
+     * Each animated block is moved using {@link MovementMethod#apply(IAnimatedBlock, Vector3Dd)}.
+     */
     protected MovementMethod movementMethod = MovementMethod.TELEPORT_VELOCITY;
 
+    /**
+     * The amount of time (in seconds) that an animation is requested to take.
+     * <p>
+     * The actual duration of the animation is likely to be different due to:
+     * <p>
+     * 1) {@link MovementMethod#finishDuration()}.
+     * <p>
+     * 2) There may be speed limits in place for animated blocks. This can result in lower time bounds that depend on
+     * the shape of the door and the type of movement.
+     */
     @Getter
     protected double time;
 
+    /**
+     * When true, the blocks are moved without animating them. No animated blocks are spawned.
+     */
     @Getter
     protected boolean skipAnimation;
 
+    /**
+     * The direction in of the movement.
+     */
     protected RotateDirection openDirection;
 
+    /**
+     * The modifiable list of animated blocks.
+     */
     @ToString.Exclude
-    protected ArrayList<IAnimatedBlock> animatedBlocks;
+    private final ArrayList<IAnimatedBlock> privateAnimatedBlocks;
+
+    /**
+     * The (unmodifiable) list of animated blocks.
+     */
+    @ToString.Exclude
+    @Getter(AccessLevel.PROTECTED)
+    private final List<IAnimatedBlock> animatedBlocks;
 
     protected int xMin;
 
@@ -107,20 +160,39 @@ public abstract class BlockMover
 
     protected int zMax;
 
+    /**
+     * Keeps track of whether the animation has finished.
+     */
     private final AtomicBoolean isFinished = new AtomicBoolean(false);
-    private volatile boolean hasStarted = false;
 
-    protected @Nullable TimerTask moverTask = null;
+    /**
+     * Keeps track of whether the animation has started.
+     */
+    private volatile boolean hasStarted = false;
 
     private @Nullable List<IAnimationHook<IAnimatedBlock>> hooks;
 
-    protected int moverTaskID = 0;
+    /**
+     * The task that moves the animated blocks.
+     * <p>
+     * This will be null until the animation starts (if it does, see {@link #skipAnimation}).
+     */
+    protected @Nullable TimerTask moverTask = null;
+
+    /**
+     * The ID of the {@link #moverTask}.
+     */
+    @Getter(AccessLevel.PROTECTED)
+    private @Nullable Integer moverTaskID = null;
 
     /**
      * The duration of the animation measured in ticks.
      */
     protected int animationDuration = -1;
 
+    /**
+     * The cuboid that describes the location of the door after the blocks have been moved.
+     */
     protected final Cuboid newCuboid;
 
     /**
@@ -129,7 +201,7 @@ public abstract class BlockMover
      * @param door
      *     The {@link AbstractDoor}.
      * @param time
-     *     The amount of time (in seconds) the door will try to toggle itself in.
+     *     See {@link #time}.
      * @param skipAnimation
      *     If the door should be opened instantly (i.e. skip animation) or not.
      * @param openDirection
@@ -163,7 +235,8 @@ public abstract class BlockMover
         this.skipAnimation = skipAnimation;
         this.openDirection = openDirection;
         this.player = player;
-        animatedBlocks = new ArrayList<>(door.getBlockCount());
+        privateAnimatedBlocks = new ArrayList<>(door.getBlockCount());
+        animatedBlocks = Collections.unmodifiableList(privateAnimatedBlocks);
         this.newCuboid = newCuboid;
         this.cause = cause;
         this.actionType = actionType;
@@ -179,7 +252,7 @@ public abstract class BlockMover
     public void abort()
     {
         if (moverTask != null)
-            executor.cancel(moverTask, moverTaskID);
+            executor.cancel(moverTask, Objects.requireNonNull(moverTaskID));
         putBlocks(true);
     }
 
@@ -189,7 +262,7 @@ public abstract class BlockMover
      */
     private void applyRotationOnCurrentThread()
     {
-        for (final IAnimatedBlock animatedBlock : animatedBlocks)
+        for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
             if (animatedBlock.getAnimatedBlockData().canRotate() &&
                 animatedBlock.getAnimatedBlockData().rotateBlock(openDirection))
                 animatedBlock.respawn();
@@ -209,7 +282,7 @@ public abstract class BlockMover
      */
     private void respawnBlocksOnCurrentThread()
     {
-        animatedBlocks.forEach(IAnimatedBlock::respawn);
+        privateAnimatedBlocks.forEach(IAnimatedBlock::respawn);
     }
 
     /**
@@ -235,7 +308,8 @@ public abstract class BlockMover
             throw new IllegalStateException("Trying to start an animation again!");
         hasStarted = true;
 
-        final Animation<IAnimatedBlock> animation = new Animation<>(animationDuration, door.getCuboid(), animatedBlocks,
+        final Animation<IAnimatedBlock> animation = new Animation<>(animationDuration, door.getCuboid(),
+                                                                    privateAnimatedBlocks,
                                                                     door);
         final AnimationContext animationContext = new AnimationContext(door.getDoorType(), door, animation);
 
@@ -259,7 +333,7 @@ public abstract class BlockMover
 
                         animatedBlockFactory
                             .create(location, radius, startAngle, bottom, onEdge, animationContext, finalPosition)
-                            .ifPresent(animatedBlocks::add);
+                            .ifPresent(privateAnimatedBlocks::add);
                     }
         }
         catch (Exception e)
@@ -269,12 +343,12 @@ public abstract class BlockMover
             return;
         }
 
-        animatedBlocks.trimToSize();
+        privateAnimatedBlocks.trimToSize();
 
         if (!tryRemoveOriginalBlocks(false) || !tryRemoveOriginalBlocks(true))
             return;
 
-        final boolean animationSkipped = skipAnimation || animatedBlocks.isEmpty();
+        final boolean animationSkipped = skipAnimation || privateAnimatedBlocks.isEmpty();
         animation.setState(animationSkipped ? AnimationState.SKIPPED : AnimationState.ACTIVE);
         this.hooks = animationHookManager.instantiateHooks(animation);
 
@@ -285,7 +359,7 @@ public abstract class BlockMover
     }
 
     /**
-     * Tries to remove the original blocks of all blocks in {@link #animatedBlocks}.
+     * Tries to remove the original blocks of all blocks in {@link #privateAnimatedBlocks}.
      * <p>
      * If an exception is thrown while removing the original blocks, the process is finished using
      * {@link #handleInitFailure()}.
@@ -297,7 +371,7 @@ public abstract class BlockMover
      */
     private boolean tryRemoveOriginalBlocks(boolean edgePass)
     {
-        for (final IAnimatedBlock animatedBlock : animatedBlocks)
+        for (final IAnimatedBlock animatedBlock : privateAnimatedBlocks)
         {
             try
             {
@@ -324,7 +398,7 @@ public abstract class BlockMover
      */
     private void handleInitFailure()
     {
-        for (final IAnimatedBlock animatedBlock : animatedBlocks)
+        for (final IAnimatedBlock animatedBlock : privateAnimatedBlocks)
         {
             try
             {
@@ -386,7 +460,7 @@ public abstract class BlockMover
      */
     protected void executeFinishingStep(@SuppressWarnings("unused") int counter)
     {
-        for (final IAnimatedBlock animatedBlock : animatedBlocks)
+        for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
             applyMovement(animatedBlock, animatedBlock.getFinalPosition());
     }
 
@@ -425,7 +499,7 @@ public abstract class BlockMover
         animation.setRegion(getAnimationRegion());
         animation.setState(AnimationState.STOPPING);
 
-        for (final IAnimatedBlock animatedBlock : animatedBlocks)
+        for (final IAnimatedBlock animatedBlock : privateAnimatedBlocks)
             animatedBlock.setVelocity(new Vector3Dd(0D, 0D, 0D));
 
         forEachHook("onAnimationEnding", IAnimationHook::onAnimationEnding);
@@ -436,7 +510,7 @@ public abstract class BlockMover
             log.at(Level.WARNING).log("MoverTask unexpectedly null for BlockMover:\n%s", this);
             return;
         }
-        executor.cancel(moverTask, moverTaskID);
+        executor.cancel(moverTask, Objects.requireNonNull(moverTaskID));
 
         animation.setState(AnimationState.COMPLETED);
         animation.setRegion(door.getCuboid());
@@ -451,7 +525,7 @@ public abstract class BlockMover
     {
         if (!executor.isMainThread())
             throw new IllegalStateException("Animated blocks must be spawned on the main thread!");
-        animatedBlocks.forEach(IAnimatedBlock::spawn);
+        getAnimatedBlocks().forEach(IAnimatedBlock::spawn);
     }
 
     /**
@@ -566,13 +640,13 @@ public abstract class BlockMover
         if (isFinished.getAndSet(true))
             return;
 
-        for (final IAnimatedBlock animatedBlock : animatedBlocks)
+        for (final IAnimatedBlock animatedBlock : privateAnimatedBlocks)
             putSavedBlock(animatedBlock);
 
         // Tell the door object it has been opened and what its new coordinates are.
         updateCoords(door);
 
-        animatedBlocks.clear();
+        privateAnimatedBlocks.clear();
 
         forEachHook("onAnimationCompleted", IAnimationHook::onAnimationCompleted);
 
@@ -630,7 +704,7 @@ public abstract class BlockMover
         double yMax = Double.MIN_VALUE;
         double zMax = Double.MIN_VALUE;
 
-        for (final IAnimatedBlock animatedBlock : animatedBlocks)
+        for (final IAnimatedBlock animatedBlock : privateAnimatedBlocks)
         {
             final Vector3Dd pos = animatedBlock.getPosition();
             if (pos.x() < xMin)

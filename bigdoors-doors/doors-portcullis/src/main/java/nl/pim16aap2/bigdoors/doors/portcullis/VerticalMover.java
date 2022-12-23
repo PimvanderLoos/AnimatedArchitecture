@@ -78,7 +78,7 @@ public class VerticalMover extends BlockMover
     {
         super.prepareAnimation();
         // Gets the first block, which will be used as a base for the movement of all other blocks in the animation.
-        firstBlockData = animatedBlocks.isEmpty() ? null : animatedBlocks.get(0);
+        firstBlockData = getAnimatedBlocks().isEmpty() ? null : getAnimatedBlocks().get(0);
     }
 
     protected Vector3Dd getGoalPos(IAnimatedBlock animatedBlock, double stepSum)
@@ -113,7 +113,7 @@ public class VerticalMover extends BlockMover
             return;
 
         final double stepSum = step * ticks;
-        for (final IAnimatedBlock animatedBlock : animatedBlocks)
+        for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
             applyMovement(animatedBlock, getGoalPos(animatedBlock, stepSum));
     }
 }

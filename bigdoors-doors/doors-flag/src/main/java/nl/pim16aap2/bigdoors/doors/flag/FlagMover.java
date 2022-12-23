@@ -118,7 +118,7 @@ public class FlagMover extends BlockMover
     @Override
     protected void executeAnimationStep(int ticks)
     {
-        for (final IAnimatedBlock animatedBlock : animatedBlocks)
+        for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
             applyMovement(animatedBlock, getGoalPos.apply(animatedBlock, ticks));
     }
 

@@ -236,7 +236,7 @@ public class GarageDoorMover extends BlockMover
     protected void executeAnimationStep(int ticks)
     {
         final double stepSum = step * ticks;
-        for (final IAnimatedBlock animatedBlock : animatedBlocks)
+        for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
             applyMovement(animatedBlock, getVector.apply(animatedBlock, stepSum));
     }
 
