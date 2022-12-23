@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.commands;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
-import lombok.SneakyThrows;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IMessageable;
@@ -131,7 +130,6 @@ public class Toggle extends BaseCommand
                                 .build().execute();
     }
 
-    @SneakyThrows
     private CompletableFuture<Void> handleDoorRequest(
         DoorRetriever doorRetriever,
         DoorActionCause doorActionCause, boolean hasBypassPermission)

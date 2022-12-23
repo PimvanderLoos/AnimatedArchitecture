@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatformProvider;
@@ -47,8 +46,8 @@ class RestartTest
     }
 
     @Test
-    @SneakyThrows
     void test()
+        throws Exception
     {
         Assertions.assertTrue(factory.newRestart(commandSender).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(platform).restartPlugin();

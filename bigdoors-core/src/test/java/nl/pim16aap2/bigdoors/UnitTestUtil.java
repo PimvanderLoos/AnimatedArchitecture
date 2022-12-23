@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors;
 
-import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
@@ -207,12 +206,18 @@ public class UnitTestUtil
      * @param value
      *     The value to set the field to.
      */
-    @SneakyThrows
     public static void setField(Class<?> clz, Object obj, String fieldName, Object value)
     {
-        Field field = clz.getDeclaredField(fieldName);
-        field.setAccessible(true);
-        field.set(obj, value);
+        try
+        {
+            Field field = clz.getDeclaredField(fieldName);
+            field.setAccessible(true);
+            field.set(obj, value);
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

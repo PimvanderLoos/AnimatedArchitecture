@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.util.delayedinput;
 
-import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -18,8 +17,8 @@ class DelayedInputRequestTest
      * Once timed out, the 'input' should be empty.
      */
     @Test
-    @SneakyThrows
     void testTimeout()
+        throws Exception
     {
         final DelayedInputRequestImpl request = new DelayedInputRequestImpl(100);
         final CompletableFuture<Optional<String>> output = request.getInputResult();
@@ -30,8 +29,8 @@ class DelayedInputRequestTest
     }
 
     @Test
-    @SneakyThrows
     void testDoubleInput()
+        throws Exception
     {
         final String firstInput = Util.randomInsecureString(10);
         final String secondInput = Util.randomInsecureString(10);
@@ -54,8 +53,8 @@ class DelayedInputRequestTest
      * Makes sure that providing input works properly and returns it as intended.`
      */
     @Test
-    @SneakyThrows
     void testInput()
+        throws Exception
     {
         final String inputString = Util.randomInsecureString(10);
 
@@ -72,7 +71,6 @@ class DelayedInputRequestTest
     }
 
     @Test
-    @SneakyThrows
     void testStatusCancelled()
     {
         final DelayedInputRequestImpl request = new DelayedInputRequestImpl(5, TimeUnit.SECONDS);
@@ -93,8 +91,8 @@ class DelayedInputRequestTest
     }
 
     @Test
-    @SneakyThrows
     void testStatusTimedOut()
+        throws Exception
     {
         final DelayedInputRequestImpl request = new DelayedInputRequestImpl(1, TimeUnit.MILLISECONDS);
         final long startTime = System.nanoTime();
@@ -112,8 +110,8 @@ class DelayedInputRequestTest
     }
 
     @Test
-    @SneakyThrows
     void testStatusSuccess()
+        throws Exception
     {
         final DelayedInputRequestImpl request = new DelayedInputRequestImpl(1, TimeUnit.SECONDS);
         request.set("VALUE");

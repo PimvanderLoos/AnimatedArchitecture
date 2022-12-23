@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
@@ -57,8 +56,8 @@ class SetBlocksToMoveTest
     }
 
     @Test
-    @SneakyThrows
     void testDoorTypes()
+        throws Exception
     {
         final int blocksToMove = 42;
 

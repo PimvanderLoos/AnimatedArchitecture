@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
@@ -48,7 +47,6 @@ class BaseCommandTest
     }
 
     @Test
-    @SneakyThrows
     void testHasAccess()
     {
         Assertions.assertTrue(baseCommand.hasAccessToAttribute(door, DoorAttribute.DELETE, true));
@@ -69,8 +67,8 @@ class BaseCommandTest
     }
 
     @Test
-    @SneakyThrows
     void testBasic()
+        throws Exception
     {
         Mockito.when(baseCommand.executeCommand(Mockito.any())).thenReturn(CompletableFuture.completedFuture(true));
         final CompletableFuture<Boolean> result = baseCommand.run();
@@ -78,8 +76,8 @@ class BaseCommandTest
     }
 
     @Test
-    @SneakyThrows
     void testNegativeExecution()
+        throws Exception
     {
         Mockito.when(baseCommand.executeCommand(Mockito.any())).thenReturn(CompletableFuture.completedFuture(false));
         final CompletableFuture<Boolean> result = baseCommand.run();
@@ -87,8 +85,8 @@ class BaseCommandTest
     }
 
     @Test
-    @SneakyThrows
     void invalidInput()
+        throws Exception
     {
         Mockito.when(baseCommand.validInput()).thenReturn(false);
         final CompletableFuture<Boolean> result = baseCommand.run();
@@ -96,8 +94,8 @@ class BaseCommandTest
     }
 
     @Test
-    @SneakyThrows
     void testPermissionFailure()
+        throws Exception
     {
         Mockito.when(baseCommand.executeCommand(Mockito.any())).thenReturn(CompletableFuture.completedFuture(true));
         Mockito.when(commandSender.hasPermission(Mockito.any(CommandDefinition.class)))
@@ -138,7 +136,6 @@ class BaseCommandTest
         Assertions.assertEquals(IllegalStateException.class, exception.getCause().getCause().getCause().getClass());
     }
 
-    @SneakyThrows
     private static void initBaseCommand(BaseCommand baseCommand, ICommandSender commandSender, ILocalizer localizer)
     {
         UnitTestUtil.setField(BaseCommand.class, baseCommand, "commandSender", commandSender);

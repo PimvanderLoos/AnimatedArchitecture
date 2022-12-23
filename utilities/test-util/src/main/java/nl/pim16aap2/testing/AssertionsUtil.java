@@ -1,7 +1,6 @@
 package nl.pim16aap2.testing;
 
 import ch.qos.logback.classic.Level;
-import lombok.SneakyThrows;
 import nl.pim16aap2.testing.logging.LogInspector;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.function.Executable;
@@ -23,14 +22,20 @@ public final class AssertionsUtil
     //        The issue is that NullAway does not realise that Class#isInstance(Object)
     //        returning true means that the object cannot be null.
     @SuppressWarnings("NullAway")
-    @SneakyThrows
-    private static Throwable getThrowableLoggedByExecutable(@Nullable Class<?> source, Executable executable,
-                                                            Class<?> expectedType, Level level)
+    private static Throwable getThrowableLoggedByExecutable(
+        @Nullable Class<?> source, Executable executable, Class<?> expectedType, Level level)
     {
         final LogInspector inspector = LogInspector.get();
         final int countBefore = inspector.getThrowingCount(source);
 
-        executable.execute();
+        try
+        {
+            executable.execute();
+        }
+        catch (Throwable t)
+        {
+            throw new RuntimeException(t);
+        }
 
         if (countBefore == inspector.getThrowingCount(source))
             throw new AssertionFailedError(
@@ -65,8 +70,8 @@ public final class AssertionsUtil
      *     The type of the throwable.
      * @return The throwable that was logged.
      */
-    public static <T extends Throwable> T assertThrowableLogged(Class<T> expectedType, Executable executable,
-                                                                Level level)
+    public static <T extends Throwable> T assertThrowableLogged(
+        Class<T> expectedType, Executable executable, Level level)
     {
         final @Nullable Throwable throwable = getThrowableLoggedByExecutable(null, executable, expectedType, level);
         if (expectedType.isInstance(throwable))

@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
@@ -157,8 +156,8 @@ class RemoveOwnerTest
 //    }
 
     @Test
-    @SneakyThrows
     void testDatabaseInteraction()
+        throws Exception
     {
         Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwnerCreator));
         Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwnerAdmin));

@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
@@ -42,8 +41,8 @@ class StopDoorsTest
     }
 
     @Test
-    @SneakyThrows
     void test()
+        throws Exception
     {
         Assertions.assertTrue(factory.newStopDoors(commandSender).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(doorActivityManager).stopDoors();

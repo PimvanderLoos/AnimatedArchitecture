@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
@@ -66,8 +65,8 @@ class DeleteTest
     }
 
     @Test
-    @SneakyThrows
     void testServer()
+        throws Exception
     {
         final IPServer server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
         Assertions.assertTrue(factory.newDelete(server, doorRetriever).run().get(1, TimeUnit.SECONDS));
@@ -75,8 +74,8 @@ class DeleteTest
     }
 
     @Test
-    @SneakyThrows
     void testExecution()
+        throws Exception
     {
         // No permissions, so not allowed.
         initCommandSenderPermissions(commandSender, false, false);
