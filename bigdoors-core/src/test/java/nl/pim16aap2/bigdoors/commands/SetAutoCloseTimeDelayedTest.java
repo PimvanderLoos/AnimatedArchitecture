@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
@@ -74,8 +73,8 @@ class SetAutoCloseTimeDelayedTest
     }
 
     @Test
-    @SneakyThrows
     void normal()
+        throws Exception
     {
         final SetAutoCloseTimeDelayed setAutoCloseTimeDelayed =
             new SetAutoCloseTimeDelayed(context, inputRequestFactory);

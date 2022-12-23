@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -76,8 +75,8 @@ class RemoveOwnerDelayedTest
     }
 
     @Test
-    @SneakyThrows
     void normal()
+        throws Exception
     {
         final RemoveOwnerDelayed removeOwnerDelayed = new RemoveOwnerDelayed(context, inputRequestFactory);
 

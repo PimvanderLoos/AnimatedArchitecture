@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
@@ -57,8 +56,8 @@ class InspectPowerBlockTest
     }
 
     @Test
-    @SneakyThrows
     void testServer()
+        throws Exception
     {
         final IPServer server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
         Assertions.assertTrue(factory.newInspectPowerBlock(server).run().get(1, TimeUnit.SECONDS));
@@ -66,8 +65,8 @@ class InspectPowerBlockTest
     }
 
     @Test
-    @SneakyThrows
     void testExecution()
+        throws Exception
     {
         Assertions.assertTrue(factory.newInspectPowerBlock(commandSender).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(toolUserManager).startToolUser(Mockito.any(), Mockito.anyInt());

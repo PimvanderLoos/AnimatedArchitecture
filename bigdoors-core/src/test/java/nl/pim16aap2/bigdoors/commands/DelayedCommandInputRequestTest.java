@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
@@ -44,8 +43,8 @@ class DelayedCommandInputRequestTest
     }
 
     @Test
-    @SneakyThrows
     void test()
+        throws Exception
     {
         final DelayedInput delayedInput = new DelayedInput(UUID.randomUUID(), "Some string");
         final DelayedCommandInputRequest<?> inputRequest =
@@ -62,8 +61,8 @@ class DelayedCommandInputRequestTest
     }
 
     @Test
-    @SneakyThrows
     void testInvalidInput()
+        throws Exception
     {
         final DelayedInput delayedInput = new DelayedInput(UUID.randomUUID(), "Some string");
         final DelayedCommandInputRequest<?> inputRequest =
@@ -80,8 +79,8 @@ class DelayedCommandInputRequestTest
     }
 
     @Test
-    @SneakyThrows
     void testException()
+        throws Exception
     {
         // Ensure that exceptions are properly propagated.
         final DelayedCommandInputRequest<?> inputRequest =

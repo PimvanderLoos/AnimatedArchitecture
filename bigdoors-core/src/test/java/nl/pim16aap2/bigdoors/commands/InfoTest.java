@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -57,8 +56,8 @@ class InfoTest
     }
 
     @Test
-    @SneakyThrows
     void testServer()
+        throws Exception
     {
         final IPServer server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
 
@@ -69,8 +68,8 @@ class InfoTest
     }
 
     @Test
-    @SneakyThrows
     void testPlayer()
+        throws Exception
     {
         final IPPlayer player = Mockito.mock(IPPlayer.class, Answers.CALLS_REAL_METHODS);
 

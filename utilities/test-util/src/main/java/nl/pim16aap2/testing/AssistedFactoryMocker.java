@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.SneakyThrows;
 import lombok.ToString;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
@@ -32,8 +31,8 @@ import java.util.stream.Collectors;
 /**
  * Represents a class that can be used to create mocked objects for an {@link AssistedFactory}.
  * <p>
- * Any dependencies that cannot be mocked will default to null. These can later be manually updated using {@link
- * AssistedFactoryMocker#setMock(Class, String, Object)} if needed.
+ * Any dependencies that cannot be mocked will default to null. These can later be manually updated using
+ * {@link AssistedFactoryMocker#setMock(Class, String, Object)} if needed.
  *
  * @param <T>
  *     The type of the class that is instantiated by the factory.
@@ -91,7 +90,6 @@ public class AssistedFactoryMocker<T, U>
         this(targetClass, factoryClass, Mockito.withSettings());
     }
 
-    @SneakyThrows
     T instantiateNewTarget(InvocationOnMock invocation)
     {
         final Object[] ctorParams = new Object[targetCtor.getParameterCount()];
@@ -106,7 +104,14 @@ public class AssistedFactoryMocker<T, U>
             ctorParams[idx] = value;
         }
 
-        return targetCtor.newInstance(ctorParams);
+        try
+        {
+            return targetCtor.newInstance(ctorParams);
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -274,8 +279,8 @@ public class AssistedFactoryMocker<T, U>
      * @return The name as provided by {@link Assisted#value()} if the parameter has a non-blank name, otherwise null.
      */
     @SuppressWarnings("NullAway")
-    static @Nullable <T extends Annotation> String getAnnotationValue(Class<T> annotationType, Parameter parameter,
-                                                                      Function<T, @Nullable String> mapper)
+    static @Nullable <T extends Annotation> String getAnnotationValue(
+        Class<T> annotationType, Parameter parameter, Function<T, @Nullable String> mapper)
     {
         final @Nullable T annotation = parameter.getAnnotation(annotationType);
         //noinspection ConstantConditions
@@ -339,8 +344,7 @@ public class AssistedFactoryMocker<T, U>
         @SuppressWarnings("ConstantConditions") // IntelliJ doesn't like potentially null values for requireNonNull -_-
         final String paramName = Objects.requireNonNull(param.name(),
                                                         "Name of parameter " + param + " cannot be null!");
-        final List<ParameterDescription> result = matches.stream().filter(val -> paramName.equals(val.name()))
-                                                         .collect(Collectors.toList());
+        final List<ParameterDescription> result = matches.stream().filter(val -> paramName.equals(val.name())).toList();
         if (result.isEmpty())
             throw new IllegalStateException(
                 "Failed to find a matching factory parameter for constructor parameter: " + param);
@@ -358,8 +362,8 @@ public class AssistedFactoryMocker<T, U>
      *     The {@link ParameterDescription}s of the parameters of the constructor.
      * @return A list of {@link MappedParameter}s.
      */
-    static List<MappedParameter> getMappedParameters(List<ParameterDescription> factoryParams,
-                                                     List<ParameterDescription> ctorParams)
+    static List<MappedParameter> getMappedParameters(
+        List<ParameterDescription> factoryParams, List<ParameterDescription> ctorParams)
     {
         final List<MappedParameter> ret = new ArrayList<>(ctorParams.size());
         for (int idx = 0; idx < ctorParams.size(); ++idx)

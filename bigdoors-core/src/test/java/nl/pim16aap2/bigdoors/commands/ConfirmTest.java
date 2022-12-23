@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
@@ -57,8 +56,8 @@ class ConfirmTest
     }
 
     @Test
-    @SneakyThrows
     void testServer()
+        throws Exception
     {
         // Ensure the server running the method does not result in a ToolUser being started.
         Assertions.assertTrue(factory.newConfirm(Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS)).run()
@@ -67,8 +66,8 @@ class ConfirmTest
     }
 
     @Test
-    @SneakyThrows
     void test()
+        throws Exception
     {
         Assertions.assertTrue(factory.newConfirm(commandSender).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(toolUserManager).getToolUser(uuid);

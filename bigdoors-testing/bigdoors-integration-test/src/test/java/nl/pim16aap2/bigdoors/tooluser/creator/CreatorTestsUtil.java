@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.tooluser.creator;
 
-import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
@@ -139,9 +138,8 @@ public class CreatorTestsUtil
         Mockito.when(player.getPPlayerData()).thenReturn(playerData);
     }
 
-    @BeforeEach
-    @SneakyThrows
-    protected void beforeEach()
+    private void beforeEach0()
+        throws Exception
     {
         mocks = MockitoAnnotations.openMocks(this);
 
@@ -184,6 +182,19 @@ public class CreatorTestsUtil
         Mockito.when(configLoader.maxDoorCount()).thenReturn(OptionalInt.empty());
         Mockito.when(configLoader.maxPowerBlockDistance()).thenReturn(OptionalInt.empty());
         Mockito.when(configLoader.maxBlocksToMove()).thenReturn(OptionalInt.empty());
+    }
+
+    @BeforeEach
+    protected void beforeEach()
+    {
+        try
+        {
+            beforeEach0();
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -255,7 +266,6 @@ public class CreatorTestsUtil
         }
     }
 
-    @SneakyThrows
     public void testCreation(Creator creator, AbstractDoor actualDoor, Object... input)
     {
         applySteps(creator, input);

@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
@@ -58,8 +57,8 @@ class DoorTargetCommandTest
     }
 
     @Test
-    @SneakyThrows
     void testExecutionSuccess()
+        throws Exception
     {
         Assertions.assertTrue(doorTargetCommand.executeCommand(new PermissionsStatus(true, true))
                                                .get(1, TimeUnit.SECONDS));
@@ -67,8 +66,8 @@ class DoorTargetCommandTest
     }
 
     @Test
-    @SneakyThrows
     void testExecutionFailureNoDoor()
+        throws Exception
     {
         Mockito.when(door.isDoorOwner(Mockito.any(UUID.class))).thenReturn(false);
         Mockito.when(door.isDoorOwner(Mockito.any(IPPlayer.class))).thenReturn(false);
@@ -78,8 +77,8 @@ class DoorTargetCommandTest
     }
 
     @Test
-    @SneakyThrows
     void testExecutionFailureNoPermission()
+        throws Exception
     {
         Mockito.doReturn(false).when(doorTargetCommand).isAllowed(Mockito.any(), Mockito.anyBoolean());
 
@@ -89,8 +88,8 @@ class DoorTargetCommandTest
     }
 
     @Test
-    @SneakyThrows
     void testPerformActionFailure()
+        throws Exception
     {
         Mockito.when(doorTargetCommand.performAction(Mockito.any()))
                .thenThrow(new IllegalStateException("Generic Exception!"));

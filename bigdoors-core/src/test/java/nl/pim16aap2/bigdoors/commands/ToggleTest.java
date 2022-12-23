@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -54,7 +53,7 @@ class ToggleTest
     @Mock
     private DoorToggleRequest doorToggleRequest;
 
-    @SneakyThrows @BeforeEach
+    @BeforeEach
     void init()
     {
         MockitoAnnotations.openMocks(this);
@@ -93,8 +92,8 @@ class ToggleTest
     }
 
     @Test
-    @SneakyThrows
     void testSuccess()
+        throws Exception
     {
         final Toggle toggle = factory.newToggle(commandSender, Toggle.DEFAULT_DOOR_ACTION_TYPE,
                                                 Toggle.DEFAULT_SPEED_MULTIPLIER, doorRetriever);
@@ -110,8 +109,8 @@ class ToggleTest
     }
 
     @Test
-    @SneakyThrows
     void testExecution()
+        throws Exception
     {
         // Ensure that supplying multiple door retrievers properly attempts toggling all of them.
         final int count = 10;
@@ -139,8 +138,8 @@ class ToggleTest
     }
 
     @Test
-    @SneakyThrows
     void testParameters()
+        throws Exception
     {
         Mockito.when(door.isCloseable()).thenReturn(true);
         Mockito.when(door.isOpenable()).thenReturn(true);
@@ -173,8 +172,8 @@ class ToggleTest
     }
 
     @Test
-    @SneakyThrows
     void testServerCommandSender()
+        throws Exception
     {
         final IPServer serverCommandSender = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
         Assertions.assertTrue(factory.newToggle(serverCommandSender, DoorActionType.TOGGLE, doorRetriever).run()
@@ -192,8 +191,8 @@ class ToggleTest
     }
 
     @Test
-    @SneakyThrows
     void testAbort()
+        throws Exception
     {
         Mockito.when(door.isCloseable()).thenReturn(false);
 

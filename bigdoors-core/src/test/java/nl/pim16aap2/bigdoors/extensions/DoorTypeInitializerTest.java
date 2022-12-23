@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.extensions;
 
-import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.data.graph.DirectedAcyclicGraph;
 import nl.pim16aap2.bigdoors.doors.DoorSerializer;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
@@ -75,9 +74,9 @@ class DoorTypeInitializerTest
         Mockito.verify(graph, Mockito.times(1)).addConnection(Mockito.any(), (Loadable) Mockito.any());
     }
 
-    @SneakyThrows
     @Test
     void testLoadDoorType()
+        throws Exception
     {
         final Path badPath = Path.of("path/to/something/else.txt");
         final Path goodPath = Path.of("path/to/jar/to/load.jar");
@@ -122,9 +121,9 @@ class DoorTypeInitializerTest
         Assertions.assertEquals(goodType, initializer.loadDoorType(info));
     }
 
-    @SneakyThrows
     @Test
     void testLoadDoorTypes()
+        throws Exception
     {
         final IDoorTypeClassLoader doorTypeClassLoader = Mockito.mock(IDoorTypeClassLoader.class);
         Mockito.when(doorTypeClassLoader.loadJar(Mockito.any())).thenReturn(true);

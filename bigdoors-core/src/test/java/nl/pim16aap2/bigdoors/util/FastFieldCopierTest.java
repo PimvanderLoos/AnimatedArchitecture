@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test;
 class FastFieldCopierTest
 {
     @Test
-    @SneakyThrows
     void testFastFieldCopier()
+        throws Exception
     {
         final FastFieldCopier<Foo, Bar> copier = FastFieldCopier.of(Foo.class, "str", Bar.class, "str");
 
@@ -24,7 +24,6 @@ class FastFieldCopierTest
     }
 
     @Test
-    @SneakyThrows
     void testInvalidTypes()
     {
         Assertions.assertThrows(IllegalArgumentException.class,

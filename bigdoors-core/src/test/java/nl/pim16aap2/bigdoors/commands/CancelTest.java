@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
@@ -60,8 +59,8 @@ class CancelTest
     }
 
     @Test
-    @SneakyThrows
     void test()
+        throws Exception
     {
         Assertions.assertTrue(factory.newCancel(commandSender).run().get(1, TimeUnit.SECONDS));
 
