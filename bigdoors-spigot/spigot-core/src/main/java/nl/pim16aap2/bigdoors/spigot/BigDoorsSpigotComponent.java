@@ -49,6 +49,7 @@ import nl.pim16aap2.bigdoors.spigot.factories.pplayerfactory.PPlayerFactorySpigo
 import nl.pim16aap2.bigdoors.spigot.factories.pworldfactory.PWorldFactorySpigotModule;
 import nl.pim16aap2.bigdoors.spigot.implementations.BigDoorsToolUtilSpigot;
 import nl.pim16aap2.bigdoors.spigot.implementations.BigDoorsToolUtilSpigotModule;
+import nl.pim16aap2.bigdoors.spigot.implementations.ChunkLoaderSpigotModule;
 import nl.pim16aap2.bigdoors.spigot.implementations.TextFactorySpigot;
 import nl.pim16aap2.bigdoors.spigot.implementations.TextFactorySpigotModule;
 import nl.pim16aap2.bigdoors.spigot.listeners.ChunkListener;
@@ -103,6 +104,7 @@ import javax.inject.Singleton;
     VaultManagerModule.class,
     BigDoorsToolUtilSpigotModule.class,
     TextFactorySpigotModule.class,
+    ChunkLoaderSpigotModule.class,
 })
 interface BigDoorsSpigotComponent
 {
