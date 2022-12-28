@@ -142,6 +142,7 @@ this means that you can use either the door's name or its (numerical) UID.
     <th>bigdoors.user.gui</th>
     <td><code>/BigDoors menu</code>
             <br>
+            <br>
         <code>/bdm</code></td>
     <td>Opens the BigDoors GUI.</td>
   </tr>
@@ -218,7 +219,9 @@ this means that you can use either the door's name or its (numerical) UID.
     <th>bigdoors.user.toggledoor</th>
     <td><code>/OpenDoor &lt;DoorID&gt; [DoorID2] ... [DoorID..]</code>
             <br>
+            <br>
         <code>/CloseDoor &lt;DoorID&gt; [DoorID2] ... [DoorID..]</code>
+            <br>
             <br>
         <code>/ToggleDoor &lt;DoorID&gt; [DoorID2] ... [DoorID..]</code></td>
     <td>Opens, closes, or toggles a door (of any type). More than one door can be provided in a single command.
@@ -299,7 +302,7 @@ this means that you can use either the door's name or its (numerical) UID.
   </tr>
   <tr>
     <th>bigdoors.admin.stopdoors</th>
-    <td><code>/bigdoors.admin.stopdoors</code></td>
+    <td><code>/StopDoors</code></td>
     <td>Immediately ends all active animations. 
         Any animated blocks are placed in their final position, so no blocks are deleted.</td>
   </tr>
