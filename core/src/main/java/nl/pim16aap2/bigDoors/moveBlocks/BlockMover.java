@@ -23,6 +23,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -35,6 +37,7 @@ public abstract class BlockMover
 
     protected final AtomicBoolean blocksPlaced = new AtomicBoolean(false);
     protected final ArrayList<MyBlockData> savedBlocks = new ArrayList<>();
+    private final List<MyBlockData> publicSavedBlocks = Collections.unmodifiableList(savedBlocks);
     protected final boolean instantOpen;
 
     protected BlockMover(BigDoors plugin, @Nullable Door door, boolean instantOpen)
@@ -190,6 +193,16 @@ public abstract class BlockMover
     protected void toggleOpen(Door door)
     {
         door.setOpenStatus(!door.isOpen());
+    }
+
+    /**
+     * @return An unmodifiable list of the 'saved blocks' (i.e. the animated blocks).
+     * This list will be empty until the animated blocks have been created.
+     */
+    @SuppressWarnings("unused")
+    public final List<MyBlockData> getSavedBlocks()
+    {
+        return publicSavedBlocks;
     }
 
     @FunctionalInterface

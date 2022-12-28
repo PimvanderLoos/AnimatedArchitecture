@@ -1,5 +1,6 @@
 Alpha 0.1.8.42
 - Write changelog to console when update is available.
+- Expose animated blocks.
 
 Alpha 0.1.8.41
 - Add support for MC 1.19.3.
