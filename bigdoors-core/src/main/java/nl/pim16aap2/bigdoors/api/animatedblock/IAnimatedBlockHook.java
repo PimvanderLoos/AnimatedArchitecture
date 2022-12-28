@@ -17,6 +17,8 @@ public interface IAnimatedBlockHook
 
     /**
      * Fires after an animated block has been spawned. Respawning is not counted. See {@link #onRespawn()} for that.
+     * <p>
+     * This may be called asynchronously.
      */
     default void onSpawn()
     {
@@ -38,6 +40,8 @@ public interface IAnimatedBlockHook
 
     /**
      * Fires after an animated block has been teleported.
+     * <p>
+     * This may be called asynchronously.
      *
      * @param newPosition
      *     The position the animated block was teleported to.
@@ -50,6 +54,8 @@ public interface IAnimatedBlockHook
      * Fires after this animated block has been moved.
      * <p>
      * This may happen either because of a teleport or because of tick-based movement.
+     * <p>
+     * This may be called asynchronously.
      *
      * @param newPosition
      *     The position the animated block was moved to.
