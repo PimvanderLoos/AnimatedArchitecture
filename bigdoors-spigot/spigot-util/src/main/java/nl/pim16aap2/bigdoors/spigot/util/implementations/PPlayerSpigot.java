@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.spigot.util.implementations;
 
-import com.google.common.flogger.StackSize;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -15,7 +14,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.logging.Level;
 
 /**
  * Represents an implementation of {@link IPPlayer} for the Spigot platform.
@@ -41,9 +39,7 @@ public final class PPlayerSpigot implements IPPlayer
     @Override
     public boolean hasProtectionBypassPermission()
     {
-        // TODO: IMPLEMENT THIS
-        log.at(Level.SEVERE).withStackTrace(StackSize.FULL).log("Method not implemented!");
-        return true;
+        return spigotPlayer.isOp() || spigotPlayer.hasPermission("bigdoors.admin.bypass_protection_plugins");
     }
 
     @Override
