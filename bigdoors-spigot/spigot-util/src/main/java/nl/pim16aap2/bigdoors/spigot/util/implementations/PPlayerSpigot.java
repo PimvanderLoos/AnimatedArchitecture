@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.commands.CommandDefinition;
 import nl.pim16aap2.bigdoors.commands.PermissionsStatus;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
+import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.text.Text;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
@@ -68,17 +69,17 @@ public final class PPlayerSpigot implements IPPlayer
     @Override
     public int getDoorSizeLimit()
     {
-        // TODO: IMPLEMENT THIS
-        log.at(Level.SEVERE).withStackTrace(StackSize.FULL).log("Method not implemented!");
-        return Integer.MAX_VALUE;
+        if (spigotPlayer.isOp())
+            return Integer.MAX_VALUE;
+        return SpigotUtil.getHighestPermissionSuffix(spigotPlayer, "bigdoors.door_size_limit.");
     }
 
     @Override
     public int getDoorCountLimit()
     {
-        // TODO: IMPLEMENT THIS
-        log.at(Level.SEVERE).withStackTrace(StackSize.FULL).log("Method not implemented!");
-        return Integer.MAX_VALUE;
+        if (spigotPlayer.isOp())
+            return Integer.MAX_VALUE;
+        return SpigotUtil.getHighestPermissionSuffix(spigotPlayer, "bigdoors.doors_owned_limit.");
     }
 
     @Override
