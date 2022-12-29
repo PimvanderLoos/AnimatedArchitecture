@@ -4,10 +4,12 @@ import lombok.Getter;
 import lombok.Setter;
 import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
+import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.PermissionAttachmentInfo;
 
 import java.time.Duration;
 import java.util.EnumMap;
@@ -196,5 +198,38 @@ public final class SpigotUtil
             default:
                 return false;
         }
+    }
+
+    static int getPermissionSuffixValue(String permissionNode, String permissionBase)
+    {
+        if (permissionNode.startsWith(permissionBase))
+        {
+            final String[] parts = permissionNode.split(permissionBase);
+            if (parts.length != 2)
+                return -1;
+
+            return Util.parseInt(parts[1]).orElse(-1);
+        }
+        return -1;
+    }
+
+    /**
+     * Retrieves the highest integer value of a specific permission node, if it exists.
+     * <p>
+     * E.g., if a player has two permission nodes: "{@code example.permission.10}" and "{@code example.permission.20}",
+     * then this method would return "20" for a permission base of "{@code example.permission.}".
+     *
+     * @param player
+     *     The player whose permissions to analyze.
+     * @param permissionBase
+     *     The base permission node to find the suffix for. E.g. "{@code example.permission.}".
+     * @return The highest integer suffix or -1 if none could be found.
+     */
+    public static int getHighestPermissionSuffix(Player player, String permissionBase)
+    {
+        return player.getEffectivePermissions().stream()
+                     .map(PermissionAttachmentInfo::getPermission)
+                     .mapToInt(node -> getPermissionSuffixValue(node, permissionBase))
+                     .max().orElse(-1);
     }
 }
