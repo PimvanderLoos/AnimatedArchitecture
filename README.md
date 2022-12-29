@@ -73,7 +73,7 @@ Got your own translation? Let me know!
 Note that translations created for older versions may still work. If there are any missing messages you'll be notified in the log.
 
 
-# Unsupported Environments:=
+# Unsupported Environments:
 If the plugin detects that it is in an unsupported environment during startup, it will abort its initialization to prevent issues. You can force the plugin to enable anyway by enabling unsafe mode in the config, but doing so is not supported!!
 The following servers are considered unsupported:
 * CatServer
