@@ -4,7 +4,7 @@ import dagger.BindsInstance;
 import dagger.Component;
 import nl.pim16aap2.bigdoors.api.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
-import nl.pim16aap2.bigdoors.api.IChunkManager;
+import nl.pim16aap2.bigdoors.api.IChunkLoader;
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
@@ -68,7 +68,6 @@ import nl.pim16aap2.bigdoors.spigot.managers.VaultManagerModule;
 import nl.pim16aap2.bigdoors.spigot.util.DebugReporterSpigotModule;
 import nl.pim16aap2.bigdoors.spigot.util.api.IBigDoorsSpigotSubPlatform;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.audio.AudioPlayerSpigotModule;
-import nl.pim16aap2.bigdoors.spigot.util.implementations.chunkmanager.ChunkManagerSpigotModule;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.glowingblocks.GlowingBlockSpawnerModule;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.messageable.MessagingInterfaceSpigotModule;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.pexecutor.PExecutorModule;
@@ -94,7 +93,6 @@ import javax.inject.Singleton;
     PLocationFactorySpigotModule.class,
     BigDoorsEventsSpigotModule.class,
     PPlayerFactorySpigotModule.class,
-    ChunkManagerSpigotModule.class,
     MessagingInterfaceSpigotModule.class,
     AudioPlayerSpigotModule.class,
     PowerBlockRedstoneManagerSpigotModule.class,
@@ -183,7 +181,7 @@ interface BigDoorsSpigotComponent
 
     IMessagingInterface getIMessagingInterface();
 
-    IChunkManager getIChunkManager();
+    IChunkLoader getChunkLoader();
 
     @Named("MessageableServer")
     IMessageable getMessageable();

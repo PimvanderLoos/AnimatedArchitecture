@@ -162,11 +162,9 @@ public interface IBigDoorsPlatform
     AutoCloseScheduler getAutoCloseScheduler();
 
     /**
-     * Gets the instance of the {@link IChunkManager} for this platform.
-     *
-     * @return The instance of the {@link IChunkManager} for this platform.
+     * @return The instance of the {@link IConfigLoader} for this platform.
      */
-    IChunkManager getChunkManager();
+    IChunkLoader getChunkLoader();
 
     /**
      * Gets the {@link DatabaseManager}.

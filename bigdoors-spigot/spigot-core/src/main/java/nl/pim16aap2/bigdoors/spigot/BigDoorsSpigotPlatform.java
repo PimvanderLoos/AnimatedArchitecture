@@ -6,7 +6,7 @@ import nl.pim16aap2.bigdoors.api.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
-import nl.pim16aap2.bigdoors.api.IChunkManager;
+import nl.pim16aap2.bigdoors.api.IChunkLoader;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IEconomyManager;
 import nl.pim16aap2.bigdoors.api.IMessageable;
@@ -119,7 +119,7 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     private final AutoCloseScheduler autoCloseScheduler;
 
     @Getter
-    private final IChunkManager chunkManager;
+    private final IChunkLoader chunkLoader;
 
     @Getter
     private final DatabaseManager databaseManager;
@@ -234,7 +234,7 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
         powerBlockManager = safeGetter(BigDoorsSpigotComponent::getPowerBlockManager);
         doorRegistry = safeGetter(BigDoorsSpigotComponent::getDoorRegistry);
         localizationManager = safeGetter(BigDoorsSpigotComponent::getLocalizationManager);
-        chunkManager = safeGetter(BigDoorsSpigotComponent::getIChunkManager);
+        chunkLoader = safeGetter(BigDoorsSpigotComponent::getChunkLoader);
         powerBlockRedstoneManager = safeGetter(BigDoorsSpigotComponent::getIPowerBlockRedstoneManager);
         doorActivityManager = safeGetter(BigDoorsSpigotComponent::getDoorActivityManager);
         doorSpecificationManager = safeGetter(BigDoorsSpigotComponent::getDoorSpecificationManager);
