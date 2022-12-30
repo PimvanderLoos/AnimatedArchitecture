@@ -4,8 +4,6 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
-import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -19,8 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 /**
  * Represents a manager for the localization system.
@@ -36,13 +34,12 @@ public final class LocalizationManager extends Restartable implements ILocalizat
     private final IConfigLoader configLoader;
     private final Localizer localizer;
     private final LocalizationGenerator baseGenerator;
-    private final DoorTypeManager doorTypeManager;
     private @Nullable LocalizationGenerator patchGenerator;
 
     @Inject
     public LocalizationManager(
         RestartableHolder restartableHolder, @Named("localizationBaseDir") Path baseDir,
-        @Named("localizationBaseName") String baseName, IConfigLoader configLoader, DoorTypeManager doorTypeManager)
+        @Named("localizationBaseName") String baseName, IConfigLoader configLoader)
     {
         super(restartableHolder);
         this.baseDir = baseDir;
@@ -51,33 +48,39 @@ public final class LocalizationManager extends Restartable implements ILocalizat
         localizer = new Localizer(baseDir, baseName);
         localizer.setDefaultLocale(configLoader.locale());
         baseGenerator = new LocalizationGenerator(baseDir, baseName);
-        this.doorTypeManager = doorTypeManager;
     }
 
     /**
      * Runs a method for the currently installed generators while taking care of restarting the {@link #localizer} when
      * needed.
      */
-    private synchronized void runForGenerators(Consumer<ILocalizationGenerator> method)
+    private synchronized void runForGenerators(Consumer<ILocalizationGenerator> method, Supplier<String> desc)
     {
-        // If the localization system is not patched, shut down the localizer before running the method for the
-        // base generator so that the localizer sees the updated generated files. If there ARE patches, we don't need
-        // to shut down the localizer just yet, because the localizer doesn't use the base localization files.
-        if (patchGenerator == null)
+        try
         {
-            localizer.shutdown();
-            method.accept(baseGenerator);
+            // If the localization system is not patched, shut down the localizer before running the method for the
+            // base generator so that the localizer sees the updated generated files. If there ARE patches, we don't
+            // need to shut down the localizer just yet, because the localizer doesn't use the base localization files.
+            if (patchGenerator == null)
+            {
+                localizer.shutdown();
+                method.accept(baseGenerator);
+            }
+            else
+            {
+                method.accept(baseGenerator);
+                localizer.shutdown();
+                method.accept(patchGenerator);
+            }
+
+            applyPatches();
+
+            localizer.init();
         }
-        else
+        catch (Exception e)
         {
-            method.accept(baseGenerator);
-            localizer.shutdown();
-            method.accept(patchGenerator);
+            log.atSevere().withCause(e).log("Failed to execute action : '%s'", desc.get());
         }
-
-        applyPatches();
-
-        localizer.init();
     }
 
     /**
@@ -128,41 +131,35 @@ public final class LocalizationManager extends Restartable implements ILocalizat
     @Override
     public synchronized void addResources(Path path, @Nullable String baseName)
     {
-        runForGenerators(generator -> generator.addResources(path, baseName));
+        runForGenerators(generator -> generator.addResources(path, baseName),
+                         () -> "Add resources from path: " + path + ", with baseName: " + baseName);
     }
 
     @Override
     public synchronized void addResources(List<Path> paths)
     {
-        runForGenerators(generator -> generator.addResources(paths));
+        runForGenerators(generator -> generator.addResources(paths),
+                         () -> "Add resources from paths: " + paths);
     }
 
     @Override
     public synchronized void addResourcesFromClass(Class<?> clz, @Nullable String baseName)
     {
-        runForGenerators(generator -> generator.addResourcesFromClass(clz, baseName));
+        runForGenerators(generator -> generator.addResourcesFromClass(clz, baseName),
+                         () -> "Add resources from class: " + clz.getName() + ", with baseName: " + baseName);
     }
 
     @Override
     public synchronized void addResourcesFromClass(List<Class<?>> classes)
     {
-        runForGenerators(generator -> generator.addResourcesFromClass(classes));
-    }
-
-    private void initializeResources()
-    {
-        final List<Class<?>> types = doorTypeManager.getEnabledDoorTypes().stream()
-                                                    .map(DoorType::getDoorClass)
-                                                    .collect(Collectors.toList());
-        addResourcesFromClass(types);
-        addResourcesFromClass(List.of(LocalizationManager.class));
+        runForGenerators(generator -> generator.addResourcesFromClass(classes),
+                         () -> "Add resources from classes: " + classes.stream().map(Class::getName).toList());
     }
 
     @Override
     public synchronized void initialize()
     {
         localizer.setDefaultLocale(configLoader.locale());
-        initializeResources();
         applyPatches();
         localizer.reInit();
     }

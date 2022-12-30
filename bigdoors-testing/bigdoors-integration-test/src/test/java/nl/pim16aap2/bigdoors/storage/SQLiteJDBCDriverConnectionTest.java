@@ -22,6 +22,7 @@ import nl.pim16aap2.bigdoors.doors.drawbridge.DoorTypeDrawbridge;
 import nl.pim16aap2.bigdoors.doors.drawbridge.Drawbridge;
 import nl.pim16aap2.bigdoors.doors.portcullis.DoorTypePortcullis;
 import nl.pim16aap2.bigdoors.doors.portcullis.Portcullis;
+import nl.pim16aap2.bigdoors.localization.LocalizationManager;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
@@ -112,6 +113,9 @@ public class SQLiteJDBCDriverConnectionTest
     @Mock
     private DebuggableRegistry debuggableRegistry;
 
+    @Mock
+    private LocalizationManager localizationManager;
+
     @BeforeEach
     void beforeEach()
         throws NoSuchMethodException
@@ -120,7 +124,7 @@ public class SQLiteJDBCDriverConnectionTest
 
         worldFactory = new TestPWorldFactory();
         doorRegistry = DoorRegistry.unCached(restartableHolder, debuggableRegistry);
-        doorTypeManager = new DoorTypeManager(restartableHolder, debuggableRegistry);
+        doorTypeManager = new DoorTypeManager(restartableHolder, debuggableRegistry, localizationManager);
 
         final AssistedFactoryMocker<DoorBase, DoorBase.IFactory> assistedFactoryMocker =
             new AssistedFactoryMocker<>(DoorBase.class, DoorBase.IFactory.class)
