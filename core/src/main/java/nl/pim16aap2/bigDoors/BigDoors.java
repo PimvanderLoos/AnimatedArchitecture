@@ -34,6 +34,7 @@ import nl.pim16aap2.bigDoors.moveBlocks.DoorOpener;
 import nl.pim16aap2.bigDoors.moveBlocks.Opener;
 import nl.pim16aap2.bigDoors.moveBlocks.PortcullisOpener;
 import nl.pim16aap2.bigDoors.moveBlocks.SlidingDoorOpener;
+import nl.pim16aap2.bigDoors.reflection.BukkitReflectionUtil;
 import nl.pim16aap2.bigDoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigDoors.toolUsers.ToolUser;
 import nl.pim16aap2.bigDoors.toolUsers.ToolVerifier;
@@ -154,6 +155,17 @@ public class BigDoors extends JavaPlugin implements Listener
         {
             logger.logMessageToConsoleOnly("Failed to read config file. Plugin disabled!");
             setDisabled("This plugin is disabled because it failed to read config file!");
+            getMyLogger().logMessage(Level.SEVERE, Util.throwableToString(e));
+            return;
+        }
+
+        try
+        {
+            BukkitReflectionUtil.init();
+        }
+        catch (Exception e)
+        {
+            setDisabled("Failed to initialize BukkitReflectionUtil!");
             getMyLogger().logMessage(Level.SEVERE, Util.throwableToString(e));
             return;
         }
