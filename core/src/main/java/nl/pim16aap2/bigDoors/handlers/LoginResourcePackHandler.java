@@ -1,10 +1,9 @@
 package nl.pim16aap2.bigDoors.handlers;
 
+import nl.pim16aap2.bigDoors.BigDoors;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-
-import nl.pim16aap2.bigDoors.BigDoors;
 
 public class LoginResourcePackHandler implements Listener
 {

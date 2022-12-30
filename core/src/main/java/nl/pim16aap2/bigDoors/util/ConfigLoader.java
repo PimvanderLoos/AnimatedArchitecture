@@ -110,9 +110,16 @@ public class ConfigLoader
             MCVersion.v1_17_R1);
 
         populateResourcePacks(
-            RESOURCEPACKS, "https://www.dropbox.com/s/frkik8qpv3jep9v/BigDoorsResourcePack-Format8.zip?dl=1",
-            // TODO: Add pack v9 for 1.19.1 and 1.19.2 and v12 for 1.19.3.
-            MCVersion.v1_18_R1, MCVersion.v1_18_R2, MCVersion.v1_19_R1, MCVersion.v1_19_R2);
+            RESOURCEPACKS, "https://www.dropbox.com/s/4pkvrpb9kmrq590/BigDoorsResourcePack-Format8.zip?dl=1",
+            MCVersion.v1_18_R1, MCVersion.v1_18_R2);
+
+        populateResourcePacks(
+            RESOURCEPACKS, "https://www.dropbox.com/s/mrft439gckhz2cw/BigDoorsResourcePack-Format9.zip?dl=1",
+            MCVersion.v1_19_R1);
+
+        populateResourcePacks(
+            RESOURCEPACKS, "https://www.dropbox.com/s/8vpwzjkd9jnp1xu/BigDoorsResourcePack-Format12.zip?dl=1",
+            MCVersion.v1_19_R2);
     }
 
     public ConfigLoader(BigDoors plugin)
@@ -180,7 +187,10 @@ public class ConfigLoader
                                              + RESOURCEPACKS.get(MCVersion.v1_17_R1) + "'",
                                          "The resource pack for 1.18.x is: '"
                                              + RESOURCEPACKS.get(MCVersion.v1_18_R1) + "'",
-                                         // TODO: Descriptions for 1.19.x
+                                         "The resource pack for 1.19 - 1.19.2 is: '"
+                                             + RESOURCEPACKS.get(MCVersion.v1_19_R1) + "'",
+                                         "The resource pack for 1.19.3 is: '"
+                                             + RESOURCEPACKS.get(MCVersion.v1_19_R2) + "'",
                                              };
         String[] multiplierComment = { "These multipliers affect the opening/closing speed of their respective door types.",
                                        "Note that the maximum speed is limited, so beyond a certain point rasising these values won't have any effect.",
