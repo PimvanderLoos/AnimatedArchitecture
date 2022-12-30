@@ -1,6 +1,6 @@
 Alpha 0.1.8.42
 - Write changelog to console when update is available.
-- Expose animated blocks.
+- Add some functionality to aid the exciting new physics addon: https://github.com/bonn2/BigDoorsPhysics
 - Add 1.19 resource packs.
 
 Alpha 0.1.8.41
