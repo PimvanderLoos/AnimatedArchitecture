@@ -50,7 +50,9 @@ An updated list of the changelog can be found [here](https://github.com/Pimvande
 
 
 # Add-ons
-* [Big Doors Opener](https://www.spigotmc.org/resources/80805/) (Created by Eldoria). It allows you to automatically open doors based on conditions such as player proximity, player permissions, or time of day!
+* [Big Doors Opener](https://www.spigotmc.org/resources/80805/) (Created by Eldoria). It allows you to automatically
+open doors based on conditions such as player proximity, player permissions, or time of day!
+* [Big Doors Physics](https://modrinth.com/plugin/bigdoorsphysics) (Created by bonn2). It adds collisions to the animated blocks!
 
 
 # FAQ:
