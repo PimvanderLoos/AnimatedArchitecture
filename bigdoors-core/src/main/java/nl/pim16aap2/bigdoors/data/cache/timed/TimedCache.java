@@ -549,6 +549,8 @@ public sealed class TimedCache<K, V>
         }
 
         @Override
+        // NullAway doesn't see that remappingFunction itself is not null.
+        @SuppressWarnings("NullAway")
         public Optional<V> computeIfPresent(K key, BiFunction<K, @Nullable V, V> remappingFunction)
         {
             validateState();
