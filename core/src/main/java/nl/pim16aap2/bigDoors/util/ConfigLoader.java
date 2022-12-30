@@ -89,26 +89,30 @@ public class ConfigLoader
     public static boolean DEBUG = false;
     private final BigDoors plugin;
 
-    private static final MCVersion LATEST_RESOURCE_PACK_VERSION = MCVersion.v1_18;
+    private static final MCVersion LATEST_RESOURCE_PACK_VERSION = MCVersion.v1_18_R1;
     private static final EnumMap<MCVersion, String> RESOURCEPACKS = new EnumMap<>(MCVersion.class);
     static
     {
-        RESOURCEPACKS.put(MCVersion.v1_11,
-                          "https://www.dropbox.com/s/6zdkg4jr90pc1mi/BigDoorsResourcePack-1_11.zip?dl=1");
-        RESOURCEPACKS.put(MCVersion.v1_12,
-                          "https://www.dropbox.com/s/6zdkg4jr90pc1mi/BigDoorsResourcePack-1_11.zip?dl=1");
-        RESOURCEPACKS.put(MCVersion.v1_13,
-                          "https://www.dropbox.com/s/al4idl017ggpnuq/BigDoorsResourcePack-1_13.zip?dl=1");
-        RESOURCEPACKS.put(MCVersion.v1_14,
-                          "https://www.dropbox.com/s/al4idl017ggpnuq/BigDoorsResourcePack-1_13.zip?dl=1");
-        RESOURCEPACKS.put(MCVersion.v1_15,
-                          "https://www.dropbox.com/s/frkik8qpv3jep9v/BigDoorsResourcePack-1_15.zip?dl=1");
-        RESOURCEPACKS.put(MCVersion.v1_16,
-                          "https://www.dropbox.com/s/frkik8qpv3jep9v/BigDoorsResourcePack-1_15.zip?dl=1");
-        RESOURCEPACKS.put(MCVersion.v1_17,
-                          "https://www.dropbox.com/s/frkik8qpv3jep9v/BigDoorsResourcePack-Format7.zip?dl=1");
-        RESOURCEPACKS.put(MCVersion.v1_18,
-                          "https://www.dropbox.com/s/4pkvrpb9kmrq590/BigDoorsResourcePack-Format8.zip?dl=1");
+        populateResourcePacks(
+            RESOURCEPACKS, "https://www.dropbox.com/s/6zdkg4jr90pc1mi/BigDoorsResourcePack-1_11.zip?dl=1",
+            MCVersion.v1_11_R1, MCVersion.v1_12_R1);
+
+        populateResourcePacks(
+            RESOURCEPACKS, "https://www.dropbox.com/s/al4idl017ggpnuq/BigDoorsResourcePack-1_13.zip?dl=1",
+            MCVersion.v1_13_R1, MCVersion.v1_13_R2, MCVersion.v1_14_R1);
+
+        populateResourcePacks(
+            RESOURCEPACKS, "https://www.dropbox.com/s/6zdkg4jr90pc1mi/BigDoorsResourcePack-1_15.zip?dl=1",
+            MCVersion.v1_15_R1, MCVersion.v1_16_R1, MCVersion.v1_16_R2, MCVersion.v1_16_R3);
+
+        populateResourcePacks(
+            RESOURCEPACKS, "https://www.dropbox.com/s/frkik8qpv3jep9v/BigDoorsResourcePack-Format7.zip?dl=1",
+            MCVersion.v1_17_R1);
+
+        populateResourcePacks(
+            RESOURCEPACKS, "https://www.dropbox.com/s/frkik8qpv3jep9v/BigDoorsResourcePack-Format8.zip?dl=1",
+            // TODO: Add pack v9 for 1.19.1 and 1.19.2 and v12 for 1.19.3.
+            MCVersion.v1_18_R1, MCVersion.v1_18_R2, MCVersion.v1_19_R1, MCVersion.v1_19_R2);
     }
 
     public ConfigLoader(BigDoors plugin)
@@ -167,15 +171,16 @@ public class ConfigLoader
         String[] resourcePackComment = { "This plugin uses a support resource pack for things suchs as sound.",
                                          "Different packs will be used for different versions of Minecraft:",
                                          "The resource pack for 1.11.x/1.12.x is: '"
-                                             + RESOURCEPACKS.get(MCVersion.v1_11) + "'",
+                                             + RESOURCEPACKS.get(MCVersion.v1_11_R1) + "'",
                                          "The resource pack for 1.13.x/1.14.x is: '"
-                                             + RESOURCEPACKS.get(MCVersion.v1_13) + "'",
+                                             + RESOURCEPACKS.get(MCVersion.v1_13_R1) + "'",
                                          "The resource pack for 1.15.x/1.16.x is: '"
-                                             + RESOURCEPACKS.get(MCVersion.v1_15) + "'",
+                                             + RESOURCEPACKS.get(MCVersion.v1_15_R1) + "'",
                                          "The resource pack for 1.17.x is: '"
-                                             + RESOURCEPACKS.get(MCVersion.v1_17) + "'",
+                                             + RESOURCEPACKS.get(MCVersion.v1_17_R1) + "'",
                                          "The resource pack for 1.18.x is: '"
-                                             + RESOURCEPACKS.get(MCVersion.v1_18) + "'",
+                                             + RESOURCEPACKS.get(MCVersion.v1_18_R1) + "'",
+                                         // TODO: Descriptions for 1.19.x
                                              };
         String[] multiplierComment = { "These multipliers affect the opening/closing speed of their respective door types.",
                                        "Note that the maximum speed is limited, so beyond a certain point rasising these values won't have any effect.",
@@ -557,6 +562,12 @@ public class ConfigLoader
         }
         ret.trimToSize();
         return Collections.unmodifiableList(ret);
+    }
+
+    private static void populateResourcePacks(EnumMap<MCVersion, String> map, String url, MCVersion... versions)
+    {
+        for (final MCVersion version : versions)
+            map.put(version, url);
     }
 
     public String dbFile()

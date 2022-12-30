@@ -36,7 +36,7 @@ public class WorldHeightManager
 
     private static MinWorldHeightFinder getMinWorldHeightFinder()
     {
-        if (!BigDoors.getMCVersion().isAtLeast(BigDoors.MCVersion.v1_18))
+        if (!BigDoors.getMCVersion().isAtLeast(BigDoors.MCVersion.v1_18_R1))
             return legacy -> 0;
 
         try

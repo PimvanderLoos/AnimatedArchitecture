@@ -77,8 +77,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 // TODO: Drawbridges that were created when flat, should remember that direction for opening.
 
@@ -128,7 +126,7 @@ public class BigDoors extends JavaPlugin implements Listener
     private VaultManager vaultManager;
     private UpdateManager updateManager;
     private static final @NotNull MCVersion MC_VERSION = BigDoors.calculateMCVersion();
-    private static final boolean IS_ON_FLATTENED_VERSION = MC_VERSION.isAtLeast(MCVersion.v1_13);
+    private static final boolean IS_ON_FLATTENED_VERSION = MC_VERSION.isAtLeast(MCVersion.v1_13_R1);
     private boolean isEnabled = false;
     private final List<String> loginMessages = new ArrayList<>();
     private final WorldHeightManager worldHeightManager = new WorldHeightManager();
@@ -159,6 +157,7 @@ public class BigDoors extends JavaPlugin implements Listener
             getMyLogger().logMessage(Level.SEVERE, Util.throwableToString(e));
             return;
         }
+
         updateManager.setEnabled(getConfigLoader().autoDLUpdate(), getConfigLoader().announceUpdateCheck());
 
         messages = new Messages(this);
@@ -696,32 +695,13 @@ public class BigDoors extends JavaPlugin implements Listener
         try
         {
             version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
+            return MCVersion.valueOf(version);
         }
-        catch (final ArrayIndexOutOfBoundsException e)
+        catch (final ArrayIndexOutOfBoundsException | IllegalArgumentException e)
         {
             e.printStackTrace();
             Bukkit.getLogger().severe("Failed to figure out the current version from input: \"" +
                                           Bukkit.getServer().getClass().getPackage().getName() +
-                                          "\"! We'll just assume you're using version " + maxVersion);
-            return maxVersion;
-        }
-
-        final Matcher baseVersionMatcher = Pattern.compile("v[0-9_]*(?=_R)").matcher(version);
-        if (!baseVersionMatcher.find())
-        {
-            Bukkit.getLogger().severe("Failed to find base version from version String: \"" + version +
-                                          "\"! We'll just assume you're using version " + maxVersion);
-            return maxVersion;
-        }
-
-        final String baseVersion = baseVersionMatcher.group().toLowerCase();
-        try
-        {
-            return MCVersion.valueOf(baseVersion);
-        }
-        catch (IllegalArgumentException e)
-        {
-            Bukkit.getLogger().severe("Failed to find the version associated with the String: \"" + baseVersion +
                                           "\"! We'll just assume you're using version " + maxVersion);
             return maxVersion;
         }
@@ -940,31 +920,35 @@ public class BigDoors extends JavaPlugin implements Listener
 
     public enum MCVersion
     {
-        v1_4,
-        v1_5,
-        v1_6,
-        v1_7,
-        v1_8,
-        v1_9,
-        v1_10,
-        v1_11,
-        v1_12,
-        v1_13,
-        v1_14,
-        v1_15,
-        v1_16,
-        v1_17,
-        v1_18,
-        v1_19,
-        v1_20,
-        v1_21,
-        v1_22,
-        v1_23,
-        v1_24,
-        v1_25,
-        v1_26,
-        v1_27,
-        v1_28,
+        v1_8_R1,
+        v1_8_R2,
+        v1_8_R3,
+        v1_9_R1,
+        v1_9_R2,
+        v1_10_R1,
+        v1_11_R1,
+        v1_12_R1,
+        v1_13_R1,
+        v1_13_R2,
+        v1_14_R1,
+        v1_15_R1,
+        v1_16_R1,
+        v1_16_R2,
+        v1_16_R3,
+        v1_17_R1,
+        v1_18_R1,
+        v1_18_R2,
+        v1_19_R1,
+        v1_19_R2,
+        v1_20_R1,
+        v1_21_R1,
+        v1_22_R1,
+        v1_23_R1,
+        v1_24_R1,
+        v1_25_R1,
+        v1_26_R1,
+        v1_27_R1,
+        v1_28_R1,
         ;
 
         public boolean isAtLeast(MCVersion test)

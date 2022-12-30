@@ -1,18 +1,6 @@
 package nl.pim16aap2.bigDoors.GUI;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Pattern;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
-
+import com.cryptomorin.xseries.XMaterial;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.BigDoors.MCVersion;
 import nl.pim16aap2.bigDoors.Door;
@@ -24,8 +12,18 @@ import nl.pim16aap2.bigDoors.util.Messages;
 import nl.pim16aap2.bigDoors.util.PageType;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
-import com.cryptomorin.xseries.XMaterial;
-import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 public class GUI
 {
@@ -59,7 +57,7 @@ public class GUI
     static
     {
         // Ugly hack. I cannot be bothered to fix this properly.
-        if (MCVersion.v1_11.equals(BigDoors.getMCVersion()) || MCVersion.v1_12.equals(BigDoors.getMCVersion()))
+        if (MCVersion.v1_11_R1.equals(BigDoors.getMCVersion()) || MCVersion.v1_12_R1.equals(BigDoors.getMCVersion()))
         {
             DOORTYPES[0] = Material.getMaterial("WOOD_DOOR"); // Door
             DOORTYPES[1] = Material.getMaterial("TRAP_DOOR"); // DrawBridge
@@ -251,11 +249,11 @@ public class GUI
         {
             if (!plugin.getCommander().hasPermissionNodeForAction(player, attr))
                 continue;
-            
-            if (attr == DoorAttribute.NOTIFICATIONS && 
+
+            if (attr == DoorAttribute.NOTIFICATIONS &&
                 !plugin.getConfigLoader().allowNotifications())
                 continue;
-            
+
             GUIItem item = getGUIItem(door, attr);
             if (item != null)
                 items.put(position++, item);
@@ -566,17 +564,17 @@ public class GUI
             desc = messages.getString("GUI.REMOVEOWNER");
             ret = new GUIItem(REMOVEOWNERMAT, desc, lore, 1, SKULLDATA);
             break;
-            
+
         case NOTIFICATIONS:
             desc = messages.getString("GUI.ReceiveNotifications");
-            addLore(lore, door.notificationEnabled() ? 
+            addLore(lore, door.notificationEnabled() ?
                 messages.getString("GUI.ReceiveNotificationsLoreEnabled") :
                     messages.getString("GUI.ReceiveNotificationsLoreDisabled")
                 );
 
             ret = new GUIItem(door.notificationEnabled() ? NOTIFICATIONSMAT_ON : NOTIFICATIONSMAT_OFF, desc, lore, 1);
             break;
-            
+
         }
         if (ret != null)
             ret.setDoorAttribute(atr);
