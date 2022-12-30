@@ -1,3 +1,6 @@
+Alpha 0.1.8.43
+-
+
 Alpha 0.1.8.42
 - Write changelog to console when update is available.
 - Add some functionality to aid the exciting new physics addon: https://github.com/bonn2/BigDoorsPhysics
