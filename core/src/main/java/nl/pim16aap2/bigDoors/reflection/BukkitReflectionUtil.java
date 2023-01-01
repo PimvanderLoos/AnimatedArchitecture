@@ -25,12 +25,16 @@ public final class BukkitReflectionUtil
 
     static
     {
+        final String nmsBase = "net.minecraft.server." + BigDoors.get().getPackageVersion() + ".";
         final String craftBase = "org.bukkit.craftbukkit." + BigDoors.get().getPackageVersion() + ".";
 
-        classNMSPlayer = ReflectionBuilder.findClass("net.minecraft.server.level.EntityPlayer").get();
-        classPlayerConnection = ReflectionBuilder.findClass("net.minecraft.server.network.PlayerConnection").get();
+        classNMSPlayer = ReflectionBuilder.findClass(nmsBase + "EntityPlayer",
+                                                     "net.minecraft.server.level.EntityPlayer").get();
+        classPlayerConnection = ReflectionBuilder.findClass(nmsBase + "PlayerConnection",
+                                                            "net.minecraft.server.network.PlayerConnection").get();
         classCraftPlayer = ReflectionBuilder.findClass(craftBase + "entity.CraftPlayer").get();
-        classVec3D = ReflectionBuilder.findClass("net.minecraft.world.phys.Vec3D").get();
+        classVec3D = ReflectionBuilder.findClass(nmsBase + "Vec3D",
+                                                 "net.minecraft.world.phys.Vec3D").get();
 
         fieldPlayerConnection = ReflectionBuilder.findField()
                                                  .inClass(classNMSPlayer).ofType(classPlayerConnection).get();

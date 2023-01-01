@@ -1,5 +1,5 @@
 Alpha 0.1.8.43
--
+- Fix startup issue on older versions of MC. Thanks, Trombettino, for the report!
 
 Alpha 0.1.8.42
 - Write changelog to console when update is available.
