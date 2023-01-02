@@ -143,6 +143,21 @@ public class BigDoors extends JavaPlugin implements Listener
     @Override
     public void onEnable()
     {
+        try
+        {
+            onEnable0();
+        }
+        catch (Throwable t)
+        {
+            setDisabled("An unknown error occurred!");
+            logger.logMessageToConsoleOnly("Failed to enable plugin: An unknown error occurred!");
+            getMyLogger().logMessage(Level.SEVERE, Util.throwableToString(t));
+        }
+    }
+
+    private void onEnable0()
+        throws Exception
+    {
         updateManager = new UpdateManager(this);
         buildNumber = readBuildNumber();
         overrideVersion();
@@ -151,10 +166,10 @@ public class BigDoors extends JavaPlugin implements Listener
         {
             readConfigValues();
         }
-        catch (Exception e)
+        catch (Exception | ExceptionInInitializerError e)
         {
+            setDisabled("Failed to read config file!");
             logger.logMessageToConsoleOnly("Failed to read config file. Plugin disabled!");
-            setDisabled("This plugin is disabled because it failed to read config file!");
             getMyLogger().logMessage(Level.SEVERE, Util.throwableToString(e));
             return;
         }
@@ -163,9 +178,10 @@ public class BigDoors extends JavaPlugin implements Listener
         {
             BukkitReflectionUtil.init();
         }
-        catch (Exception e)
+        catch (Exception | ExceptionInInitializerError e)
         {
             setDisabled("Failed to initialize BukkitReflectionUtil!");
+            logger.logMessageToConsoleOnly("Failed to initialize BukkitReflectionUtil! Plugin disabled!");
             getMyLogger().logMessage(Level.SEVERE, Util.throwableToString(e));
             return;
         }
@@ -179,11 +195,11 @@ public class BigDoors extends JavaPlugin implements Listener
         {
             if (!getConfigLoader().unsafeMode())
             {
-                String error = "This plugin is disabled because it is running in an invalid environment: '"
+                String error = "Running in an invalid environment: '"
                     + disableReason.get() +
                     "'. This can be bypassed in the config if you are feeling adventurous (unsafeMode).";
-                logger.logMessage(error, true, true);
                 setDisabled(error);
+                logger.logMessage(error, true, true);
                 return;
             }
             else if (config.unsafeModeNotification())
@@ -193,57 +209,48 @@ public class BigDoors extends JavaPlugin implements Listener
 
         logger.logMessageToLogFile("Starting BigDoors version: " + getDescription().getVersion());
 
-        try
+        Bukkit.getPluginManager().registerEvents(new LoginMessageHandler(this), this);
+
+        validVersion = compatibleMCVer();
+        // Load the files for the correct version of Minecraft.
+        if (!validVersion)
         {
-            Bukkit.getPluginManager().registerEvents(new LoginMessageHandler(this), this);
-
-            validVersion = compatibleMCVer();
-            // Load the files for the correct version of Minecraft.
-            if (!validVersion)
-            {
-                logger.logMessage("Trying to load the plugin on an incompatible version of Minecraft! (\""
-                                      + (Bukkit.getServer().getClass().getPackage().getName().replace(".", ",")
-                                               .split(",")[3])
-                                      + "\"). This plugin will NOT be enabled!", true, true);
-                logger.logMessage("If no update is available for this version, you could try to enable " +
-                                      "__CODE GENERATION__ in the config.", true, true);
-                logger.logMessage("Code generation may add support for this version, but be sure to read the " +
-                                      "warning in the config before using it!", true, true);
-                setDisabled("This version of Minecraft is not supported. Is the plugin up-to-date? " +
-                                "Or enable code generation.");
-                return;
-            }
-            fakePlayerCreator = new FakePlayerCreator(this);
-
-            init();
-
-            vaultManager = new VaultManager(this);
-            autoCloseScheduler = new AutoCloseScheduler(this);
-
-            Bukkit.getPluginManager().registerEvents(new EventHandlers(this), this);
-            Bukkit.getPluginManager().registerEvents(new GUIHandler(this), this);
-            Bukkit.getPluginManager().registerEvents(new ChunkUnloadHandler(this), this);
-
-            // No need to put these in init, as they should not be reloaded.
-            pbCache = new TimedCache<>(this, config.cacheTimeout());
-            protCompatMan = new ProtectionCompatManager(this);
-            Bukkit.getPluginManager().registerEvents(protCompatMan, this);
-            db = new SQLiteJDBCDriverConnection(this, config.dbFile());
-            commander = new Commander(this, db);
-            doorOpener = new DoorOpener(this);
-            bridgeOpener = new BridgeOpener(this);
-            commandHandler = new CommandHandler(this);
-            portcullisOpener = new PortcullisOpener(this);
-            slidingDoorOpener = new SlidingDoorOpener(this);
-
-            registerCommands(commandHandler);
-        }
-        catch (Exception exception)
-        {
-            logger.logMessage(Util.throwableToString(exception), true, true, Level.SEVERE);
             setDisabled(
-                "This plugin is disabled because an unknown error occurred during startup, please check the logs!");
+                "This version of Minecraft is not supported. Is the plugin up-to-date? Or enable code generation.");
+            logger.logMessage("Trying to load the plugin on an incompatible version of Minecraft! (\""
+                                  + (Bukkit.getServer().getClass().getPackage().getName().replace(".", ",")
+                                           .split(",")[3])
+                                  + "\"). This plugin will NOT be enabled!", true, true);
+            logger.logMessage("If no update is available for this version, you could try to enable " +
+                                  "__CODE GENERATION__ in the config.", true, true);
+            logger.logMessage("Code generation may add support for this version, but be sure to read the " +
+                                  "warning in the config before using it!", true, true);
+            return;
         }
+        fakePlayerCreator = new FakePlayerCreator(this);
+
+        init();
+
+        vaultManager = new VaultManager(this);
+        autoCloseScheduler = new AutoCloseScheduler(this);
+
+        Bukkit.getPluginManager().registerEvents(new EventHandlers(this), this);
+        Bukkit.getPluginManager().registerEvents(new GUIHandler(this), this);
+        Bukkit.getPluginManager().registerEvents(new ChunkUnloadHandler(this), this);
+
+        // No need to put these in init, as they should not be reloaded.
+        pbCache = new TimedCache<>(this, config.cacheTimeout());
+        protCompatMan = new ProtectionCompatManager(this);
+        Bukkit.getPluginManager().registerEvents(protCompatMan, this);
+        db = new SQLiteJDBCDriverConnection(this, config.dbFile());
+        commander = new Commander(this, db);
+        doorOpener = new DoorOpener(this);
+        bridgeOpener = new BridgeOpener(this);
+        commandHandler = new CommandHandler(this);
+        portcullisOpener = new PortcullisOpener(this);
+        slidingDoorOpener = new SlidingDoorOpener(this);
+
+        registerCommands(commandHandler);
 
         isEnabled = true;
     }
@@ -304,8 +311,18 @@ public class BigDoors extends JavaPlugin implements Listener
 
     private void setDisabled(String reason)
     {
-        failureCommandHandler = new FailureCommandHandler(reason);
-        registerCommands(failureCommandHandler);
+        try
+        {
+            this.isEnabled = false;
+            HandlerList.unregisterAll((JavaPlugin) this);
+            failureCommandHandler = new FailureCommandHandler("Plugin disabled: " + reason);
+            registerCommands(failureCommandHandler);
+        }
+        catch (Exception e)
+        {
+            logger.logMessageToConsoleOnly("Failed to set disabled status!");
+            getMyLogger().logMessage(Level.SEVERE, Util.throwableToString(e));
+        }
     }
 
     private void init()
