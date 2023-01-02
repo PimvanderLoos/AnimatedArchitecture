@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.api.debugging.IDebuggable;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.localization.LocalizationManager;
 import nl.pim16aap2.util.SafeStringBuilder;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,23 +32,29 @@ import java.util.logging.Level;
  *
  * @author Pim
  */
+@SuppressWarnings("unused")
 @Singleton
 @Flogger
 public final class DoorTypeManager extends Restartable implements IDebuggable
 {
+    private static final boolean DEFAULT_IS_ENABLED = true;
+
     private final Map<DoorType, DoorRegistrationStatus> doorTypeStatus = new ConcurrentHashMap<>();
     private final Map<String, DoorType> doorTypeFromName = new ConcurrentHashMap<>();
     private final Map<String, DoorType> doorTypeFromFullName = new ConcurrentHashMap<>();
+    private final LocalizationManager localizationManager;
 
     @Inject
-    public DoorTypeManager(RestartableHolder holder, DebuggableRegistry debuggableRegistry)
+    public DoorTypeManager(
+        RestartableHolder holder, DebuggableRegistry debuggableRegistry, LocalizationManager localizationManager)
     {
         super(holder);
+        this.localizationManager = localizationManager;
         debuggableRegistry.registerDebuggable(this);
     }
 
     /**
-     * Gets all registered AND enabled {@link DoorType}s.
+     * All registered AND enabled {@link DoorType}s.
      */
     @Getter
     private final List<DoorType> sortedDoorTypes = new CopyOnWriteArrayList<>()
@@ -153,6 +160,36 @@ public final class DoorTypeManager extends Restartable implements IDebuggable
         return info != null && info.status;
     }
 
+    private void registerDoorType0(DoorType doorType, boolean isEnabled)
+    {
+        log.at(Level.INFO).log("Registering door type: %s...", doorType);
+
+        doorTypeStatus.put(doorType, new DoorRegistrationStatus(doorType.getFullName(), isEnabled));
+        doorTypeFromName.put(doorType.getSimpleName(), doorType);
+        doorTypeFromFullName.put(doorType.getFullName(), doorType);
+
+        if (isEnabled)
+            sortedDoorTypes.add(doorType);
+    }
+
+    /**
+     * Registers a {@link DoorType} with the {@link LocalizationManager}.
+     * <p>
+     * This ensures any localization stuff that exists in the door type is properly handled by the localizer.
+     *
+     * @param types
+     *     The type(s) to register with the localization manager.
+     */
+    private void registerTypeWithLocalizer(List<DoorType> types)
+    {
+        if (types.isEmpty())
+            return;
+        final List<Class<?>> classes = new ArrayList<>(types.size());
+        for (final DoorType type : types)
+            classes.add(type.getDoorClass());
+        this.localizationManager.addResourcesFromClass(classes);
+    }
+
     /**
      * Registers a {@link DoorType}.
      *
@@ -162,7 +199,7 @@ public final class DoorTypeManager extends Restartable implements IDebuggable
      */
     public void registerDoorType(DoorType doorType)
     {
-        registerDoorType(doorType, true);
+        registerDoorType(doorType, DEFAULT_IS_ENABLED);
     }
 
     /**
@@ -175,14 +212,8 @@ public final class DoorTypeManager extends Restartable implements IDebuggable
      */
     public void registerDoorType(DoorType doorType, boolean isEnabled)
     {
-        log.at(Level.INFO).log("Registering door type: %s...", doorType);
-
-        doorTypeStatus.put(doorType, new DoorRegistrationStatus(doorType.getFullName(), isEnabled));
-        doorTypeFromName.put(doorType.getSimpleName(), doorType);
-        doorTypeFromFullName.put(doorType.getFullName(), doorType);
-
-        if (isEnabled)
-            sortedDoorTypes.add(doorType);
+        registerTypeWithLocalizer(List.of(doorType));
+        registerDoorType0(doorType, isEnabled);
     }
 
     /**
@@ -235,7 +266,8 @@ public final class DoorTypeManager extends Restartable implements IDebuggable
      */
     public void registerDoorTypes(List<DoorType> doorTypes)
     {
-        doorTypes.forEach(this::registerDoorType);
+        registerTypeWithLocalizer(doorTypes);
+        doorTypes.forEach(doorType -> registerDoorType0(doorType, DEFAULT_IS_ENABLED));
     }
 
     @Override
@@ -245,6 +277,14 @@ public final class DoorTypeManager extends Restartable implements IDebuggable
         sortedDoorTypes.clear();
         doorTypeFromName.clear();
         doorTypeFromFullName.clear();
+    }
+
+    @Override
+    public void initialize()
+    {
+        if (this.doorTypeStatus.keySet().isEmpty())
+            return;
+
     }
 
     @Override

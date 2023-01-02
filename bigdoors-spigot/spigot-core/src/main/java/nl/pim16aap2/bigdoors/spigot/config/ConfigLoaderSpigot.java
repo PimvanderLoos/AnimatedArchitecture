@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.config;
 
+import dagger.Lazy;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
@@ -51,7 +52,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
     @ToString.Exclude
     private final JavaPlugin plugin;
     @ToString.Exclude
-    private final DoorTypeManager doorTypeManager;
+    private final Lazy<DoorTypeManager> doorTypeManager;
     private final Path baseDir;
 
     private static final List<String> DEFAULT_POWERBLOCK_TYPE = List.of("GOLD_BLOCK");
@@ -94,7 +95,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
      */
     @Inject
     public ConfigLoaderSpigot(
-        RestartableHolder restartableHolder, JavaPlugin plugin, DoorTypeManager doorTypeManager,
+        RestartableHolder restartableHolder, JavaPlugin plugin, Lazy<DoorTypeManager> doorTypeManager,
         @Named("pluginBaseDirectory") Path baseDir, DebuggableRegistry debuggableRegistry)
     {
         this.plugin = plugin;
@@ -290,9 +291,11 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
                                         "Math.min(0.3 * radius, 3) * Math.sin((counter / 4) * 3)", (String[]) null);
 
 
+        // TODO: The config is loaded before the DoorTypeManager, so we never see any config options for the
+        //       DoorTypes in the config.
         String @Nullable [] usedMultiplierComment = multiplierComment;
         String @Nullable [] usedPricesComment = pricesComment;
-        for (final DoorType type : doorTypeManager.getEnabledDoorTypes())
+        for (final DoorType type : doorTypeManager.get().getEnabledDoorTypes())
         {
             doorMultipliers.put(type, addNewConfigEntry(config, "multiplier_" + type, 0.0D, usedMultiplierComment));
             doorPrices.put(type, addNewConfigEntry(config, "price_" + type, "0", usedPricesComment));

@@ -4,7 +4,6 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
-import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,7 +56,7 @@ class LocalizationManagerIntegrationTest
 
         final LocalizationManager localizationManager =
             new LocalizationManager(Mockito.mock(RestartableHolder.class), directoryOutput,
-                                    baseName, configLoader, Mockito.mock(DoorTypeManager.class));
+                                    baseName, configLoader);
 
         localizationManager.shutDown();
         localizationManager.initialize();
@@ -87,7 +86,7 @@ class LocalizationManagerIntegrationTest
 
         final LocalizationManager localizationManager =
             new LocalizationManager(Mockito.mock(RestartableHolder.class), directoryOutput,
-                                    baseName, configLoader, Mockito.mock(DoorTypeManager.class));
+                                    baseName, configLoader);
 
         Assertions.assertEquals("value0", localizationManager.getLocalizer().getMessage("key0"));
         Assertions.assertEquals("value3", localizationManager.getLocalizer().getMessage("key3"));
