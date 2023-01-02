@@ -1,5 +1,6 @@
 Alpha 0.1.8.43
 - Fix startup issue on older versions of MC. Thanks, Trombettino, for the report!
+- Add config option to change how to count the number of doors a player owns (defaults to only include doors created by the player). Thanks, Chris6ix, for the suggestion!
 
 Alpha 0.1.8.42
 - Write changelog to console when update is available.

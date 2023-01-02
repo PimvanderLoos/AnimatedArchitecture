@@ -57,6 +57,7 @@ public class ConfigLoader
     private String resourcePack;
     private String languageFile;
     private int maxDoorCount;
+    private int countDoorsLevel;
     private int cacheTimeout;
     private boolean announceUpdateCheck;
     private boolean autoDLUpdate;
@@ -155,6 +156,11 @@ public class ConfigLoader
                                         "However, when the material of that block is on this list, BigDoors will ignore the block and just overwrite it.",
                                         "This is mostly intended to avoid issues with toggling doors in snowy areas." };
         String[] maxDoorCountComment = { "Maximum number of doors a player can own. -1 = infinite." };
+        String[] countDoorsLevelComment = { "Change the way doors are counted when determining how many doors a player owns.",
+                                            "Valid options are '0', '1', or '2'.",
+                                            "When set to '0', only doors created by a player are counted.",
+                                            "When set to '1', all doors with level '0' as well as any doors they are shared as admin of are counted.",
+                                            "When set to '2', all doors they are (partial) owner of are counted."};
         String[] languageFileComment = { "Specify a language file to be used. Note that en_US.txt will get regenerated!" };
         String[] dbFileComment = { "Pick the name (and location if you want) of the database." };
         String[] downloadDelayComment = { "Time (in minutes) to delay auto downloading updates after their release.",
@@ -268,6 +274,9 @@ public class ConfigLoader
 
         maxDoorCount = config.getInt("maxDoorCount", -1);
         configOptionsList.add(new ConfigOption("maxDoorCount", maxDoorCount, maxDoorCountComment));
+
+        countDoorsLevel = Math.max(0, Math.min(2, config.getInt("countDoorsLevel", 0))); // Only [0; 2] is valid.
+        configOptionsList.add(new ConfigOption("countDoorsLevel", countDoorsLevel, countDoorsLevelComment));
 
         maxBlocksToMove = Math.max(1, config.getInt("maxBlocksToMove", 100));
         configOptionsList.add(new ConfigOption("maxBlocksToMove", maxBlocksToMove, maxBlocksToMoveComment));
@@ -828,5 +837,10 @@ public class ConfigLoader
     public boolean refundOnDelete()
     {
         return refundOnDelete;
+    }
+
+    public int countDoorsLevel()
+    {
+        return countDoorsLevel;
     }
 }

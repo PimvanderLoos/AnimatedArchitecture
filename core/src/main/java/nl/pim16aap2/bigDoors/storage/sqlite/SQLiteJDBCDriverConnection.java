@@ -1905,10 +1905,11 @@ public class SQLiteJDBCDriverConnection
             conn = getConnection();
             long playerID = getPlayerID(conn, playerUUID.toString());
 
-            // Select all doors from the sqlUnion table that have the previously found
-            // player as owner.
-            PreparedStatement ps2 = conn
-                .prepareStatement("SELECT * FROM sqlUnion WHERE playerID = '" + playerID + "';");
+            PreparedStatement ps2 =
+                conn.prepareStatement("SELECT * FROM sqlUnion WHERE playerID = ? AND permission <= ?;");
+            ps2.setString(1, Long.toString(playerID)); // Derp
+            ps2.setInt(2, plugin.getConfigLoader().countDoorsLevel());
+
             ResultSet rs2 = ps2.executeQuery();
             while (rs2.next())
             {
