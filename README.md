@@ -356,6 +356,43 @@ this means that you can use either the door's name or its (numerical) UID.
 
 ---
 
+## Using BigDoors in your project
+
+This project is hosted on [EldoNexus](https://eldonexus.de/#browse/browse:maven-public:nl%2Fpim16aap2%2FBigDoors).
+
+#### As a Maven dependency
+```xml
+<repositories>
+  <repository>
+    <id>eldonexus</id>
+    <url>https://eldonexus.de/repository/maven-public/</url>
+  </repository>
+</repositories>
+
+<dependencies>
+  <dependency>
+    <groupId>nl.pim16aap2</groupId>
+    <artifactId>BigDoors</artifactId>
+    <version>0.1.8.43</version>
+    <scope>provided</scope>
+  </dependency>
+</dependencies>
+```
+
+#### As a Gradle dependency
+```
+maven {
+  name = 'eldonexus'
+  url = 'https://eldonexus.de/repository/maven-public/'
+}
+
+dependencies {
+  compileOnly 'nl.pim16aap2:BigDoors:0.1.8.43'
+}
+```
+
+
+
 ## Thanks
 
 As a final note, I'd like to thank [Captain_Chaos](https://dev.bukkit.org/members/captain_chaos) for making his [PorteCoulissante](https://dev.bukkit.org/projects/portecoulissante) plugin. I've used it a lot and it inspired me to make this plugin!
