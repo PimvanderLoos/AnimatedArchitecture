@@ -62,7 +62,7 @@ import lombok.extern.flogger.Flogger;
         if (headerLine.length() > 9)
         {
             log.atSevere().log("Invalid header line: '%s'! Line too long!", headerLine);
-            headerLine = headerLine.substring(0, 9);
+            return headerLine.substring(0, 9);
         }
         else if (headerLine.length() < 9)
         {
@@ -73,7 +73,7 @@ import lombok.extern.flogger.Flogger;
                 padding[idx] = headerLine.charAt(idx);
             for (; idx < 9; ++idx)
                 padding[idx] = ' ';
-            headerLine = new String(padding);
+            return new String(padding);
         }
         return headerLine;
     }
