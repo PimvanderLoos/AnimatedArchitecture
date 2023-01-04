@@ -161,6 +161,8 @@ public final class LocalizationManager extends Restartable implements ILocalizat
     {
         localizer.setDefaultLocale(configLoader.locale());
         applyPatches();
+        runForGenerators(generator -> generator.addResourcesFromClass(List.of(LocalizationManager.class)),
+                         () -> "Adding resources from LocalizationManager.class.");
         localizer.reInit();
     }
 
