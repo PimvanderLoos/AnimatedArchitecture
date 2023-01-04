@@ -132,7 +132,9 @@ class InfoGui
     {
         final PermissionLevel perm = doorOwner.permission();
         return DoorAttribute.getValues().stream()
-                            .filter(attr -> hasAccessToAttribute(player, attr, perm, permissionsManager)).toList();
+                            .filter(attr -> hasAccessToAttribute(player, attr, perm, permissionsManager))
+                            .filter(attr -> attr != DoorAttribute.SWITCH)
+                            .toList();
     }
 
     private static boolean hasAccessToAttribute(
