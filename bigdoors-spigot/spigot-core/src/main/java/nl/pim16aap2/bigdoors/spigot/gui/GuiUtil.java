@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.gui;
 
-class GuiUtil
+final class GuiUtil
 {
     private GuiUtil()
     {
