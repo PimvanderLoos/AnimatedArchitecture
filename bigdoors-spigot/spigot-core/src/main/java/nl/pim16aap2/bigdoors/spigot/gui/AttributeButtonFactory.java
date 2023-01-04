@@ -162,7 +162,7 @@ class AttributeButtonFactory
             new ItemStack(Material.CLOCK),
             click ->
             {
-                // TODO: Implement this
+                commandFactory.getSetAutoCloseTimeDelayed().runDelayed(player, doorRetrieverFactory.of(door));
                 gui.close(true);
                 return true;
             },
@@ -179,7 +179,7 @@ class AttributeButtonFactory
             new ItemStack(Material.COMPASS),
             click ->
             {
-                // TODO: Implement this
+                commandFactory.getSetOpenDirectionDelayed().runDelayed(player, doorRetrieverFactory.of(door));
                 gui.close(true);
                 return true;
             },
@@ -196,7 +196,7 @@ class AttributeButtonFactory
             new ItemStack(Material.STICKY_PISTON),
             click ->
             {
-                // TODO: Implement this
+                commandFactory.getSetBlocksToMoveDelayed().runDelayed(player, doorRetrieverFactory.of(door));
                 gui.close(true);
                 return true;
             },
@@ -213,7 +213,7 @@ class AttributeButtonFactory
             new ItemStack(Material.PLAYER_HEAD),
             click ->
             {
-                // TODO: Implement this
+                commandFactory.getAddOwnerDelayed().runDelayed(player, doorRetrieverFactory.of(door));
                 gui.close(true);
                 return true;
             },
@@ -230,7 +230,7 @@ class AttributeButtonFactory
             new ItemStack(Material.SKELETON_SKULL),
             click ->
             {
-                // TODO: Implement this
+                commandFactory.getRemoveOwnerDelayed().runDelayed(player, doorRetrieverFactory.of(door));
                 gui.close(true);
                 return true;
             },
