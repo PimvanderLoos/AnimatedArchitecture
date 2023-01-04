@@ -13,7 +13,7 @@ import nl.pim16aap2.bigdoors.api.debugging.DebugReporter;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
-import nl.pim16aap2.bigdoors.api.factories.IGUIFactory;
+import nl.pim16aap2.bigdoors.api.factories.IGuiFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
@@ -48,7 +48,7 @@ import nl.pim16aap2.bigdoors.spigot.factories.bigdoorseventfactory.BigDoorsEvent
 import nl.pim16aap2.bigdoors.spigot.factories.plocationfactory.PLocationFactorySpigotModule;
 import nl.pim16aap2.bigdoors.spigot.factories.pplayerfactory.PPlayerFactorySpigotModule;
 import nl.pim16aap2.bigdoors.spigot.factories.pworldfactory.PWorldFactorySpigotModule;
-import nl.pim16aap2.bigdoors.spigot.gui.GUIFactorySpigotModule;
+import nl.pim16aap2.bigdoors.spigot.gui.GuiFactorySpigotModule;
 import nl.pim16aap2.bigdoors.spigot.implementations.BigDoorsToolUtilSpigot;
 import nl.pim16aap2.bigdoors.spigot.implementations.BigDoorsToolUtilSpigotModule;
 import nl.pim16aap2.bigdoors.spigot.implementations.ChunkLoaderSpigotModule;
@@ -105,7 +105,7 @@ import javax.inject.Singleton;
     BigDoorsToolUtilSpigotModule.class,
     TextFactorySpigotModule.class,
     ChunkLoaderSpigotModule.class,
-    GUIFactorySpigotModule.class,
+    GuiFactorySpigotModule.class,
 })
 interface BigDoorsSpigotComponent
 {
@@ -142,7 +142,7 @@ interface BigDoorsSpigotComponent
 
     ProtectionCompatManagerSpigot getProtectionCompatManager();
 
-    IGUIFactory getGUIFactory();
+    IGuiFactory getGUIFactory();
 
     ConfigLoaderSpigot getConfig();
 

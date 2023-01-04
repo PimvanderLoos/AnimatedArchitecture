@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Factory for GUI instances.
  */
-public interface IGUIFactory
+public interface IGuiFactory
 {
     /**
      * Creates a new GUI.

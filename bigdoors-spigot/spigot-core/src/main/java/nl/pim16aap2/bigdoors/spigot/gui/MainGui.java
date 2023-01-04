@@ -3,11 +3,11 @@ package nl.pim16aap2.bigdoors.spigot.gui;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
+import de.themoep.inventorygui.GuiElement;
 import de.themoep.inventorygui.GuiElementGroup;
 import de.themoep.inventorygui.GuiPageElement;
 import de.themoep.inventorygui.InventoryGui;
 import de.themoep.inventorygui.StaticGuiElement;
-import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -15,53 +15,64 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsPlugin;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PPlayerSpigot;
-import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-public class GUI
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+class MainGui
 {
     private static final ItemStack FILLER = new ItemStack(Material.GRAY_STAINED_GLASS_PANE, 1);
 
     private final BigDoorsPlugin bigDoorsPlugin;
     private final ILocalizer localizer;
     private final ITextFactory textFactory;
-    private final IPExecutor executor;
+    private final InfoGui.IFactory infoGUIFactory;
     private final PPlayerSpigot inventoryHolder;
-    private final GUIData guiData;
-    private final InventoryGui inventoryGui;
+    private final Map<Long, AbstractDoor> doors;
+    private final Map<Long, GuiElement> doorElements;
+    private InventoryGui inventoryGui;
+
 
     @AssistedInject//
-    GUI(
-        BigDoorsPlugin bigDoorsPlugin, ILocalizer localizer, ITextFactory textFactory, IPExecutor executor,
-        @Assisted IPPlayer inventoryHolder, @Assisted GUIData guiData)
+    MainGui(
+        BigDoorsPlugin bigDoorsPlugin, ILocalizer localizer, ITextFactory textFactory, InfoGui.IFactory infoGUIFactory,
+        @Assisted IPPlayer inventoryHolder, @Assisted List<AbstractDoor> doors)
     {
         this.bigDoorsPlugin = bigDoorsPlugin;
         this.localizer = localizer;
         this.textFactory = textFactory;
-        this.executor = executor;
+        this.infoGUIFactory = infoGUIFactory;
         this.inventoryHolder = Util.requireNonNull(SpigotAdapter.getPPlayerSpigot(inventoryHolder), "InventoryHolder");
-        this.guiData = guiData;
+        this.doors = getDoorsMap(doors);
+        doorElements = new HashMap<>(doors.size());
 
         this.inventoryGui = createGUI();
+
         showGUI();
+    }
+
+    private static Map<Long, AbstractDoor> getDoorsMap(List<AbstractDoor> doors)
+    {
+        final Map<Long, AbstractDoor> ret = new LinkedHashMap<>(doors.size());
+        doors.stream().sorted(Comparator.comparing(AbstractDoor::getName))
+             .forEach(door -> ret.put(door.getDoorUID(), door));
+        return ret;
     }
 
     private void showGUI()
     {
-        executor.runOnMainThread(() -> inventoryGui.show(inventoryHolder.getBukkitPlayer()));
+        inventoryGui.show(inventoryHolder.getBukkitPlayer());
     }
 
     private InventoryGui createGUI()
     {
-        final String[] guiSetup = {
-            "fp     nl",
-            "ggggggggg",
-            "ggggggggg",
-            "ggggggggg",
-            "ggggggggg",
-            };
+        final String[] guiSetup = GuiUtil.fillLinesWithChar('g', doors.size(), "fp     nl");
 
         final InventoryGui gui =
             new InventoryGui(bigDoorsPlugin,
@@ -81,24 +92,24 @@ public class GUI
         addHeader(gui);
     }
 
-    private void addElementGroup(de.themoep.inventorygui.InventoryGui gui)
+    private void addElementGroup(InventoryGui gui)
     {
         final GuiElementGroup group = new GuiElementGroup('g');
-        for (final AbstractDoor door : guiData.getDoors())
+        for (final AbstractDoor door : doors.values())
         {
             final StaticGuiElement guiElement = new StaticGuiElement(
                 'e',
                 new ItemStack(Material.OAK_DOOR),
                 click ->
                 {
-                    inventoryHolder.sendMessage(textFactory.newText()
-                                                           .append("CLICKED ON DOOR: \n", TextType.INFO)
-                                                           .append(door.getBasicInfo(), TextType.HIGHLIGHT));
+                    infoGUIFactory.newInfoGUI(door, inventoryHolder, this);
                     return true;
                 },
                 door.getName());
+            doorElements.put(door.getDoorUID(), guiElement);
             group.addElement(guiElement);
         }
+        group.setFiller(FILLER);
         gui.addElement(group);
     }
 
@@ -121,6 +132,31 @@ public class GUI
             localizer.getMessage("gui.main_page.nav.last_page")));
     }
 
+    /**
+     * Redraws the main GUI.
+     * <p>
+     * Note that any GUIs that are already open should be closed first.
+     */
+    public void redraw()
+    {
+        inventoryGui.close(true);
+        inventoryGui = createGUI();
+        showGUI();
+    }
+
+    /**
+     * Removes a door from the set of visible doors.
+     * <p>
+     * Note that this will not update the GUI on its own. You may need to use {@link #redraw()} for that.
+     *
+     * @param door
+     *     The door to remove.
+     */
+    public void removeDoor(AbstractDoor door)
+    {
+        doors.remove(door.getDoorUID());
+    }
+
     @AssistedFactory
     interface IFactory
     {
@@ -128,10 +164,10 @@ public class GUI
          * Creates a new GUI.
          *
          * @param inventoryHolder
-         *     The player for whom to create the inventory.
-         * @param guiData
-         *     The {@link GUIData} to use.
+         *     The player for whom to create the GUI.
+         * @param doors
+         *     The doors to show in the GUI.
          */
-        GUI newGUI(IPPlayer inventoryHolder, GUIData guiData);
+        MainGui newGUI(IPPlayer inventoryHolder, List<AbstractDoor> doors);
     }
 }

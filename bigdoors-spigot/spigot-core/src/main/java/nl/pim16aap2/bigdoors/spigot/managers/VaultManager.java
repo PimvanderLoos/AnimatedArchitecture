@@ -11,10 +11,12 @@ import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IPermissionsManager;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
+import nl.pim16aap2.bigdoors.doors.DoorAttribute;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
+import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.jcalculator.JCalculator;
 import org.bukkit.Bukkit;
@@ -27,6 +29,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
@@ -371,15 +374,33 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     }
 
     @Override
+    public boolean hasBypassPermissionsForAttribute(IPPlayer player, DoorAttribute doorAttribute)
+    {
+        final @Nullable Player bukkitPlayer = getBukkitPlayer(player);
+        if (bukkitPlayer == null)
+            return false;
+
+        return bukkitPlayer.isOp() ||
+            bukkitPlayer.hasPermission(
+                Constants.ATTRIBUTE_BYPASS_PERMISSION_PREFIX + doorAttribute.name().toLowerCase(Locale.ROOT));
+    }
+
+    @Override
     public boolean isOp(IPPlayer player)
+    {
+        final @Nullable Player bukkitPlayer = getBukkitPlayer(player);
+        return bukkitPlayer != null && bukkitPlayer.isOp();
+    }
+
+    private @Nullable Player getBukkitPlayer(IPPlayer player)
     {
         final @Nullable Player bukkitPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (bukkitPlayer == null)
         {
             log.at(Level.SEVERE).withCause(
                 new IllegalArgumentException("Failed to obtain BukkitPlayer for player: " + player.asString())).log();
-            return false;
+            return null;
         }
-        return bukkitPlayer.isOp();
+        return bukkitPlayer;
     }
 }

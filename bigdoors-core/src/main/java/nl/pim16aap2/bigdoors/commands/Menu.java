@@ -5,7 +5,7 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.api.factories.IGUIFactory;
+import nl.pim16aap2.bigdoors.api.factories.IGuiFactory;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import org.jetbrains.annotations.Nullable;
@@ -20,13 +20,13 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class Menu extends BaseCommand
 {
-    private final IGUIFactory guiFactory;
+    private final IGuiFactory guiFactory;
     private final @Nullable IPPlayer source;
 
     @AssistedInject //
     Menu(
         @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
-        IGUIFactory guiFactory, @Assisted @Nullable IPPlayer source)
+        IGuiFactory guiFactory, @Assisted @Nullable IPPlayer source)
     {
         super(commandSender, localizer, textFactory);
         this.guiFactory = guiFactory;
