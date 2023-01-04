@@ -84,6 +84,7 @@ public final class DoorTypeManager extends Restartable implements IDebuggable
         for (final Map.Entry<DoorType, DoorRegistrationStatus> doorType : doorTypeStatus.entrySet())
             if (doorType.getValue().status == status)
                 enabledDoorTypes.add(doorType.getKey());
+        enabledDoorTypes.sort(Comparator.comparing(DoorType::getSimpleName));
         return enabledDoorTypes;
     }
 

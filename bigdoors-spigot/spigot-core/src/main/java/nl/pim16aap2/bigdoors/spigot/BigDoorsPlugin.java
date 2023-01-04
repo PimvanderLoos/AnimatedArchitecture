@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.api.IBigDoorsPlatformProvider;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
+import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
 import nl.pim16aap2.bigdoors.spigot.listeners.BackupCommandListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.LoginMessageListener;
 import nl.pim16aap2.bigdoors.spigot.logging.ConsoleAppender;
@@ -159,9 +160,12 @@ public final class BigDoorsPlugin extends JavaPlugin implements IBigDoorsPlatfor
         LOG_BACK_CONFIGURATOR.setLevel(bigDoorsSpigotPlatform.getBigDoorsConfig().logLevel()).apply();
         restartableHolder.initialize();
 
+        // Rewrite the config after everything has been loaded to ensure all
+        // extensions/addons have their hooks in.
+        ((ConfigLoaderSpigot) (bigDoorsSpigotPlatform.getBigDoorsConfig())).rewriteConfig();
+
         if (firstInit)
             initCommands(bigDoorsSpigotPlatform);
-
         // TODO: Remove this before any release.
         printDebug();
     }

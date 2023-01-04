@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -114,7 +115,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
     public void initialize()
     {
         plugin.reloadConfig();
-        makeConfig();
+        rewriteConfig();
     }
 
     @Override
@@ -129,8 +130,11 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
     /**
      * Read the current config file and rewrite the file.
      */
-    private void makeConfig()
+    public void rewriteConfig()
     {
+        plugin.reloadConfig();
+        shutDown();
+
         final String defResPackUrl = "https://www.dropbox.com/s/0q6h8jkfjqrn1tp/BigDoorsResourcePack.zip?dl=1";
         final String defResPackUrl1_13 = "https://www.dropbox.com/s/al4idl017ggpnuq/BigDoorsResourcePack-1_13.zip?dl=1";
 
@@ -290,19 +294,9 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
         flagFormula = addNewConfigEntry(config, "flagFormula",
                                         "Math.min(0.3 * radius, 3) * Math.sin((counter / 4) * 3)", (String[]) null);
 
-
-        // TODO: The config is loaded before the DoorTypeManager, so we never see any config options for the
-        //       DoorTypes in the config.
-        String @Nullable [] usedMultiplierComment = multiplierComment;
-        String @Nullable [] usedPricesComment = pricesComment;
-        for (final DoorType type : doorTypeManager.get().getEnabledDoorTypes())
-        {
-            doorMultipliers.put(type, addNewConfigEntry(config, "multiplier_" + type, 0.0D, usedMultiplierComment));
-            doorPrices.put(type, addNewConfigEntry(config, "price_" + type, "0", usedPricesComment));
-
-            usedMultiplierComment = null;
-            usedPricesComment = null;
-        }
+        final List<DoorType> enabledDoorTypes = doorTypeManager.get().getEnabledDoorTypes();
+        parseForEachDoorType(doorMultipliers, config, enabledDoorTypes, multiplierComment, 0.0D, "multiplier_");
+        parseForEachDoorType(doorPrices, config, enabledDoorTypes, pricesComment, "0", "price_");
 
         consoleLogging = addNewConfigEntry(config, "consoleLogging", true, consoleLoggingComment);
         final String logLevelName = addNewConfigEntry(config, "logLevel", "INFO", logLevelComment);
@@ -317,6 +311,39 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
 
         writeConfig();
         printInfo();
+    }
+
+    private <T> void parseForEachDoorType(
+        Map<DoorType, T> target, IConfigReader config, List<DoorType> enabledDoorTypes,
+        String[] header, T defaultValue, String startsWith)
+    {
+        final Map<String, Object> existingMappings = getKeysStartingWith(config, startsWith, defaultValue);
+
+        String @Nullable [] comment = header;
+        for (final DoorType type : enabledDoorTypes)
+        {
+            final String key = startsWith + type.getSimpleName();
+            target.put(type, addNewConfigEntry(config, key, defaultValue, comment));
+            existingMappings.remove(key);
+            comment = null;
+        }
+
+        comment = comment == null ? new String[]{"# Unloaded DoorTypes "} : comment;
+        // Add the unmapped entries so they aren't ignored.
+        for (final var entry : existingMappings.entrySet())
+        {
+            addNewConfigEntry(config, entry.getKey(), entry.getValue(), comment);
+            comment = null;
+        }
+    }
+
+    private Map<String, Object> getKeysStartingWith(IConfigReader config, String startsWith, Object defaultValue)
+    {
+        final Map<String, Object> ret = new LinkedHashMap<>();
+        final List<String> keys = config.getKeys().stream().filter(key -> key.startsWith(startsWith)).toList();
+        for (final String key : keys)
+            ret.put(key, config.get(key, defaultValue));
+        return ret;
     }
 
     /**
@@ -354,8 +381,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
      * @return The value as read from the config file if it exists or the default value.
      */
     private <T> T addNewConfigEntry(
-        IConfigReader config, String optionName, T defaultValue,
-        String @Nullable ... comment)
+        IConfigReader config, String optionName, T defaultValue, String @Nullable ... comment)
     {
         final ConfigEntry<T> option = new ConfigEntry<>(config, optionName, defaultValue, comment);
         configEntries.add(option);

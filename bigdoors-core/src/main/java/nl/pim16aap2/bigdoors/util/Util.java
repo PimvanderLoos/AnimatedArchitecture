@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Locale;
@@ -918,5 +919,12 @@ public final class Util
         if ("ALL".equals(preparedLogLevelName))
             return Level.ALL;
         return null;
+    }
+
+    public static <T> void sortAlphabetically(List<T> list, Function<T, String> mapper)
+    {
+        if (list.isEmpty())
+            return;
+        list.sort(Comparator.comparing(mapper));
     }
 }
