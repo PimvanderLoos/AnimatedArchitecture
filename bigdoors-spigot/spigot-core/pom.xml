@@ -42,6 +42,13 @@
             <artifactId>JCalculator</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>de.themoep</groupId>
+            <artifactId>inventorygui</artifactId>
+            <version>${dependency.version.infentory-gui}</version>
+            <scope>compile</scope>
+        </dependency>
+
 
         <dependency>
             <groupId>org.spigotmc</groupId>

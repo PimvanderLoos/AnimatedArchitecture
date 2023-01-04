@@ -53,6 +53,7 @@
         <dependency.version.maven-checkstyle>3.2.0</dependency.version.maven-checkstyle>
         <dependency.version.jdbc-sqlite>3.40.0.0</dependency.version.jdbc-sqlite>
         <dependency.version.jimfs>1.2</dependency.version.jimfs>
+        <dependency.version.infentory-gui>1.6-SNAPSHOT</dependency.version.infentory-gui>
     </properties>
 
     <modules>
@@ -465,6 +466,10 @@
                             <relocation>
                                 <pattern>com.mojang.brigadier</pattern>
                                 <shadedPattern>nl.pim16aap2.bigdoors.lib.brigadier</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>de.themoep.inventorygui</pattern>
+                                <shadedPattern>nl.pim16aap2.bigdoors.lib.inventorygui</shadedPattern>
                             </relocation>
                         </relocations>
                     </configuration>
