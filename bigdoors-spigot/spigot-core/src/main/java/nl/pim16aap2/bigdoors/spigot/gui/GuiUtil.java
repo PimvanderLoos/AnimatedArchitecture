@@ -1,6 +1,8 @@
 package nl.pim16aap2.bigdoors.spigot.gui;
 
-final class GuiUtil
+import lombok.extern.flogger.Flogger;
+
+@Flogger final class GuiUtil
 {
     private GuiUtil()
     {
@@ -38,10 +40,7 @@ final class GuiUtil
         {
             if (rowIdx < header.length)
             {
-                final String line = header[rowIdx];
-                if (line.length() > 9)
-                    throw new IllegalArgumentException("Invalid header line: '");
-                rows[rowIdx] = header[rowIdx];
+                rows[rowIdx] = getNormalizedHeaderLine(header[rowIdx]);
                 continue;
             }
 
@@ -56,5 +55,26 @@ final class GuiUtil
             rows[rowIdx] = new String(row);
         }
         return rows;
+    }
+
+    private static String getNormalizedHeaderLine(String headerLine)
+    {
+        if (headerLine.length() > 9)
+        {
+            log.atSevere().log("Invalid header line: '%s'! Line too long!", headerLine);
+            headerLine = headerLine.substring(0, 9);
+        }
+        else if (headerLine.length() < 9)
+        {
+            log.atSevere().log("Invalid header line: '%s'! Line too short!", headerLine);
+            final char[] padding = new char[9];
+            int idx = 0;
+            for (; idx < headerLine.length(); ++idx)
+                padding[idx] = headerLine.charAt(idx);
+            for (; idx < 9; ++idx)
+                padding[idx] = ' ';
+            headerLine = new String(padding);
+        }
+        return headerLine;
     }
 }
