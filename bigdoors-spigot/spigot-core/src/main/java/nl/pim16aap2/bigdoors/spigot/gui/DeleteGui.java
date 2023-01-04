@@ -5,10 +5,12 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import de.themoep.inventorygui.InventoryGui;
 import de.themoep.inventorygui.StaticGuiElement;
+import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsPlugin;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PPlayerSpigot;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -18,6 +20,8 @@ class DeleteGui
 
     private final BigDoorsPlugin bigDoorsPlugin;
     private final ILocalizer localizer;
+    private final CommandFactory commandFactory;
+    private final DoorRetrieverFactory doorRetrieverFactory;
     private final AbstractDoor door;
     private final PPlayerSpigot inventoryHolder;
     private final MainGui mainGui;
@@ -25,11 +29,14 @@ class DeleteGui
 
     @AssistedInject //
     DeleteGui(
-        BigDoorsPlugin bigDoorsPlugin, ILocalizer localizer,
+        BigDoorsPlugin bigDoorsPlugin, ILocalizer localizer, CommandFactory commandFactory,
+        DoorRetrieverFactory doorRetrieverFactory,
         @Assisted AbstractDoor door, @Assisted PPlayerSpigot inventoryHolder, @Assisted MainGui mainGui)
     {
         this.bigDoorsPlugin = bigDoorsPlugin;
         this.localizer = localizer;
+        this.commandFactory = commandFactory;
+        this.doorRetrieverFactory = doorRetrieverFactory;
         this.door = door;
         this.inventoryHolder = inventoryHolder;
         this.mainGui = mainGui;
@@ -86,7 +93,7 @@ class DeleteGui
             new ItemStack(Material.BARRIER),
             click ->
             {
-//                commandFactory.newDelete(inventoryHolder, doorRetrieverFactory.of(door)).run();
+                commandFactory.newDelete(inventoryHolder, doorRetrieverFactory.of(door)).run();
                 mainGui.removeDoor(door);
                 inventoryGui.close(true);
                 mainGui.redraw();
