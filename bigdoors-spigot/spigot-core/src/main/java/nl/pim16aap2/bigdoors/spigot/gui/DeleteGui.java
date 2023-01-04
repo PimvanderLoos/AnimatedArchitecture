@@ -5,13 +5,10 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import de.themoep.inventorygui.InventoryGui;
 import de.themoep.inventorygui.StaticGuiElement;
-import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
-import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsPlugin;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PPlayerSpigot;
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -19,11 +16,8 @@ class DeleteGui
 {
     private static final ItemStack FILLER = new ItemStack(Material.GRAY_STAINED_GLASS_PANE, 1);
 
-    private final CommandFactory commandFactory;
     private final BigDoorsPlugin bigDoorsPlugin;
     private final ILocalizer localizer;
-    private final ITextFactory textFactory;
-    private final DoorRetrieverFactory doorRetrieverFactory;
     private final AbstractDoor door;
     private final PPlayerSpigot inventoryHolder;
     private final MainGui mainGui;
@@ -31,15 +25,11 @@ class DeleteGui
 
     @AssistedInject //
     DeleteGui(
-        BigDoorsPlugin bigDoorsPlugin, ILocalizer localizer, ITextFactory textFactory,
-        CommandFactory commandFactory, DoorRetrieverFactory doorRetrieverFactory,
+        BigDoorsPlugin bigDoorsPlugin, ILocalizer localizer,
         @Assisted AbstractDoor door, @Assisted PPlayerSpigot inventoryHolder, @Assisted MainGui mainGui)
     {
-        this.commandFactory = commandFactory;
         this.bigDoorsPlugin = bigDoorsPlugin;
         this.localizer = localizer;
-        this.textFactory = textFactory;
-        this.doorRetrieverFactory = doorRetrieverFactory;
         this.door = door;
         this.inventoryHolder = inventoryHolder;
         this.mainGui = mainGui;

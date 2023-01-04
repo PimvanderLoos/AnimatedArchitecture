@@ -9,7 +9,6 @@ import de.themoep.inventorygui.InventoryGui;
 import de.themoep.inventorygui.StaticGuiElement;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPermissionsManager;
-import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorAttribute;
 import nl.pim16aap2.bigdoors.doors.DoorOwner;
@@ -36,24 +35,26 @@ class InfoGui
 
     private final BigDoorsPlugin bigDoorsPlugin;
     private final ILocalizer localizer;
-    private final ITextFactory textFactory;
     private final AttributeButtonFactory attributeButtonFactory;
     private final AbstractDoor door;
     private final PPlayerSpigot inventoryHolder;
     private final MainGui mainGui;
     private final InventoryGui inventoryGui;
     private final List<DoorAttribute> allowedAttributes;
+
+    // Currently not used, but it's needed later on when we can update the elements
+    // When the field in the door changes.
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private final Map<DoorAttribute, GuiElement> attributeElements;
 
     @AssistedInject //
     InfoGui(
-        BigDoorsPlugin bigDoorsPlugin, ILocalizer localizer, ITextFactory textFactory,
-        IPermissionsManager permissionsManager, AttributeButtonFactory attributeButtonFactory,
+        BigDoorsPlugin bigDoorsPlugin, ILocalizer localizer, IPermissionsManager permissionsManager,
+        AttributeButtonFactory attributeButtonFactory,
         @Assisted AbstractDoor door, @Assisted PPlayerSpigot inventoryHolder, @Assisted MainGui mainGui)
     {
         this.bigDoorsPlugin = bigDoorsPlugin;
         this.localizer = localizer;
-        this.textFactory = textFactory;
         this.attributeButtonFactory = attributeButtonFactory;
         this.door = door;
         this.inventoryHolder = inventoryHolder;

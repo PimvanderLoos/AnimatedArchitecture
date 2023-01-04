@@ -3,13 +3,11 @@ package nl.pim16aap2.bigdoors.spigot.gui;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
-import de.themoep.inventorygui.GuiElement;
 import de.themoep.inventorygui.GuiElementGroup;
 import de.themoep.inventorygui.GuiPageElement;
 import de.themoep.inventorygui.InventoryGui;
 import de.themoep.inventorygui.StaticGuiElement;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsPlugin;
@@ -20,7 +18,6 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,26 +28,22 @@ class MainGui
 
     private final BigDoorsPlugin bigDoorsPlugin;
     private final ILocalizer localizer;
-    private final ITextFactory textFactory;
     private final InfoGui.IFactory infoGUIFactory;
     private final PPlayerSpigot inventoryHolder;
     private final Map<Long, AbstractDoor> doors;
-    private final Map<Long, GuiElement> doorElements;
     private InventoryGui inventoryGui;
 
 
     @AssistedInject//
     MainGui(
-        BigDoorsPlugin bigDoorsPlugin, ILocalizer localizer, ITextFactory textFactory, InfoGui.IFactory infoGUIFactory,
+        BigDoorsPlugin bigDoorsPlugin, ILocalizer localizer, InfoGui.IFactory infoGUIFactory,
         @Assisted IPPlayer inventoryHolder, @Assisted List<AbstractDoor> doors)
     {
         this.bigDoorsPlugin = bigDoorsPlugin;
         this.localizer = localizer;
-        this.textFactory = textFactory;
         this.infoGUIFactory = infoGUIFactory;
         this.inventoryHolder = Util.requireNonNull(SpigotAdapter.getPPlayerSpigot(inventoryHolder), "InventoryHolder");
         this.doors = getDoorsMap(doors);
-        doorElements = new HashMap<>(doors.size());
 
         this.inventoryGui = createGUI();
 
@@ -106,7 +99,6 @@ class MainGui
                     return true;
                 },
                 door.getName());
-            doorElements.put(door.getDoorUID(), guiElement);
             group.addElement(guiElement);
         }
         group.setFiller(FILLER);
