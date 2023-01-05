@@ -278,9 +278,6 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
             if (Math.abs(mot.c) < 0.001 && Math.abs(mot.d) < 0.001 && Math.abs(mot.e) < 0.001)
                 return;
 
-            if (getTicksAlive() > 12_000)
-                kill();
-
             a(EnumMoveType.a, di());
             cyclePositions(getRawCurrentLocation());
         }
