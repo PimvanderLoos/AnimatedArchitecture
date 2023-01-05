@@ -8,10 +8,8 @@ class LocalizationPatcherTest
     @Test
     void isValidPatch()
     {
-        Assertions.assertFalse(LocalizationPatcher.isValidPatch("key", "key="));
-        //noinspection ConstantConditions
-        Assertions.assertFalse(LocalizationPatcher.isValidPatch(null, "key="));
-        Assertions.assertTrue(LocalizationPatcher.isValidPatch("key", "key= "));
-        Assertions.assertTrue(LocalizationPatcher.isValidPatch("key", "key=value"));
+        Assertions.assertFalse(LocalizationPatcher.isValidPatch(new LocalizationEntry("key", "")));
+        Assertions.assertTrue(LocalizationPatcher.isValidPatch(new LocalizationEntry("key", " ")));
+        Assertions.assertTrue(LocalizationPatcher.isValidPatch(new LocalizationEntry("key", "value")));
     }
 }

@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.localization;
 
 import lombok.Getter;
 import lombok.extern.flogger.Flogger;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -9,8 +10,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -61,10 +62,14 @@ final class LocalizationPatcher
      */
     void updatePatchKeys(Collection<String> rootKeys, LocaleFile localeFile)
     {
-        final Set<String> patchKeys = LocalizationUtil.getKeySet(localeFile.path());
-        final Set<String> appendableKeys = new LinkedHashSet<>(rootKeys);
-        appendableKeys.removeAll(patchKeys);
-        appendKeys(localeFile, appendableKeys);
+        final Map<String, String> patchEntries = LocalizationUtil.getEntryMap(localeFile.path());
+        final Set<String> appendableKeys = new HashSet<>(rootKeys);
+        appendableKeys.removeAll(patchEntries.keySet());
+        if (appendableKeys.isEmpty())
+            return;
+
+        appendableKeys.forEach(key -> patchEntries.put(key, ""));
+        writePatchFile(localeFile, patchEntries);
     }
 
     /**
@@ -72,23 +77,26 @@ final class LocalizationPatcher
      *
      * @param localeFile
      *     The locale file to append the keys to.
-     * @param appendableKeys
-     *     The localization keys to append to the locale file.
+     * @param entries
+     *     The localization entries to append to the locale file.
      */
-    void appendKeys(LocaleFile localeFile, Set<String> appendableKeys)
+    void writePatchFile(LocaleFile localeFile, Map<String, String> entries)
     {
-        if (appendableKeys.isEmpty())
+        if (entries.isEmpty())
             return;
 
         final StringBuilder sb = new StringBuilder();
-        appendableKeys.forEach(key -> sb.append(key).append("=\n"));
+        entries.forEach((key, value) -> sb.append(key).append('=').append(value).append('\n'));
         try
         {
-            Files.writeString(localeFile.path(), sb.toString(), StandardOpenOption.APPEND);
+            Files.writeString(localeFile.path(), sb.toString(),
+                              StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE,
+                              StandardOpenOption.WRITE);
         }
         catch (IOException e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to append new keys to file: %s", localeFile.path());
+            log.at(Level.SEVERE).withCause(e)
+               .log("Failed to write localization entries to file: %s", localeFile.path());
         }
     }
 
@@ -106,9 +114,9 @@ final class LocalizationPatcher
         final Map<String, String> ret = new LinkedHashMap<>();
         LocalizationUtil.readFile(localeFile.path(), line ->
         {
-            final @Nullable String key = LocalizationUtil.getKeyFromLine(line);
-            if (isValidPatch(key, line))
-                ret.put(key, line);
+            final @Nullable LocalizationEntry entry = LocalizationUtil.getEntryFromLine(line);
+            if (isValidPatch(entry))
+                ret.put(entry.key(), line);
         });
         return ret;
     }
@@ -116,16 +124,15 @@ final class LocalizationPatcher
     /**
      * Tests if a line is a valid patch.
      *
-     * @param key
-     *     The key of the line.
-     * @param line
-     *     The line itself.
+     * @param entry
+     *     The localization entry
      * @return True if the patch is valid (i.e. not empty).
      */
-    static boolean isValidPatch(@Nullable String key, String line)
+    @Contract("null -> false")
+    static boolean isValidPatch(@Nullable LocalizationEntry entry)
     {
-        if (key == null)
+        if (entry == null)
             return false;
-        return !(key + "=").equals(line);
+        return !entry.value().isEmpty();
     }
 }

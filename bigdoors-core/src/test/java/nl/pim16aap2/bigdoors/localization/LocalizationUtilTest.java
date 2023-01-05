@@ -55,12 +55,13 @@ class LocalizationUtilTest
     }
 
     @Test
-    void testGetKeyFromLine()
+    void testGetEntryFromLine()
     {
-        Assertions.assertEquals("key", getKeyFromLine("key=value"));
-        Assertions.assertEquals("key", getKeyFromLine("key=value=another_value"));
-        Assertions.assertNull(getKeyFromLine("key"));
-        Assertions.assertNull(getKeyFromLine(""));
+        Assertions.assertEquals(new LocalizationEntry("key", "value"), getEntryFromLine("key=value"));
+        Assertions.assertEquals(
+            new LocalizationEntry("key", "value=another_value"), getEntryFromLine("key=value=another_value"));
+        Assertions.assertNull(getEntryFromLine("key"));
+        Assertions.assertNull(getEntryFromLine(""));
     }
 
     @Test
