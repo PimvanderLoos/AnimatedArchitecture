@@ -21,7 +21,7 @@ import static nl.pim16aap2.bigdoors.localization.LocalizationTestingUtilities.wr
 
 class LocalizerIntegrationTest
 {
-    private static final Locale LOCALE_DUTCH = new Locale("nl", "NL");
+    private static final Locale LOCALE_DUTCH = new Locale.Builder().setLanguage("nl").setRegion("NL").build();
     private static final String BASE_NAME = "Translation";
 
     private FileSystem fs;

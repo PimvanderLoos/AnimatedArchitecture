@@ -557,11 +557,12 @@ public final class LocalizationUtil
         if (parts[0].isBlank())
             return Locale.ROOT;
 
-        if (parts.length == 1)
-            return new Locale(parts[0]);
-        if (parts.length == 2)
-            return new Locale(parts[0], parts[1]);
-        return new Locale(parts[0], parts[1], parts[2]);
+        final Locale.Builder builder = new Locale.Builder().setLanguage(parts[0]);
+        if (parts.length >= 2)
+            builder.setRegion(parts[1]);
+        if (parts.length >= 3)
+            builder.setVariant(parts[2]);
+        return builder.build();
     }
 
 
