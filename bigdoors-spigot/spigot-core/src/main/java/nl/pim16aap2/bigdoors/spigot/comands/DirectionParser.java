@@ -4,6 +4,8 @@ import cloud.commandframework.arguments.parser.ArgumentParseResult;
 import cloud.commandframework.arguments.parser.ArgumentParser;
 import cloud.commandframework.context.CommandContext;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
+import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.commands.ICommandSender;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
@@ -28,18 +30,18 @@ import java.util.stream.Stream;
  *
  * @author Pim
  */
-public class DirectionParser implements ArgumentParser<ICommandSender, RotateDirection>
+public class DirectionParser implements ArgumentParser<ICommandSender, RotateDirection>, IRestartable
 {
     private final ToolUserManager toolUserManager;
     private final ILocalizer localizer;
     private final Map<String, RotateDirection> suggestions = new LinkedHashMap<>(RotateDirection.values().length);
     private final Map<RotateDirection, String> invertedSuggestions = new EnumMap<>(RotateDirection.class);
 
-    @Inject DirectionParser(ToolUserManager toolUserManager, ILocalizer localizer)
+    @Inject DirectionParser(RestartableHolder restartableHolder, ToolUserManager toolUserManager, ILocalizer localizer)
     {
+        restartableHolder.registerRestartable(this);
         this.toolUserManager = toolUserManager;
         this.localizer = localizer;
-        fillSuggestions();
     }
 
     private void fillSuggestions()
@@ -90,6 +92,19 @@ public class DirectionParser implements ArgumentParser<ICommandSender, RotateDir
             return null;
 
         return creator.getValidOpenDirections().stream().map(invertedSuggestions::get);
+    }
+
+    @Override
+    public void initialize()
+    {
+        fillSuggestions();
+    }
+
+    @Override
+    public void shutDown()
+    {
+        suggestions.clear();
+        invertedSuggestions.clear();
     }
 }
 
