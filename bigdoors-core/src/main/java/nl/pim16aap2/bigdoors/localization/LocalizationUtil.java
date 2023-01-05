@@ -430,6 +430,18 @@ public final class LocalizationUtil
         return String.format("%s%s.properties", outputBaseName, locale.length() == 0 ? "" : ("_" + locale));
     }
 
+    static void deleteFile(Path file)
+    {
+        try
+        {
+            Files.deleteIfExists(file);
+        }
+        catch (IOException e)
+        {
+            log.at(Level.SEVERE).withCause(e).log("Failed to delete file: '%s'", file);
+        }
+    }
+
     /**
      * Ensures a given zip file exists.
      */

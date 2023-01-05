@@ -33,8 +33,8 @@ final class Localizer implements ILocalizer
     private String bundleName;
 
     /**
-     * The default {@link Locale} to use when no locale is specified when requesting a translation. Defaults to {@link
-     * Locale#ROOT}.
+     * The default {@link Locale} to use when no locale is specified when requesting a translation. Defaults to
+     * {@link Locale#ROOT}.
      */
     @Setter
     private Locale defaultLocale;
@@ -50,22 +50,27 @@ final class Localizer implements ILocalizer
      * @param defaultLocale
      *     The default {@link Locale} to use when no locale is specified when requesting a translation. Defaults to
      *     {@link Locale#ROOT}.
+     * @param deleteBundleOnStart
+     *     Delete the existing bundle on startup to ensure it will be regenerated. Should be true for usual operation,
+     *     but special situations (e.g. testing) might require it to be false.
      */
-    Localizer(Path directory, String baseName, Locale defaultLocale)
+    Localizer(Path directory, String baseName, Locale defaultLocale, boolean deleteBundleOnStart)
     {
         this.baseName = baseName;
         this.directory = directory;
         this.defaultLocale = defaultLocale;
         bundleName = baseName + ".bundle";
+        if (deleteBundleOnStart)
+            LocalizationUtil.deleteFile(directory.resolve(bundleName));
         init();
     }
 
     /**
-     * See {@link #Localizer(Path, String, Locale)}.
+     * See {@link #Localizer(Path, String, Locale, boolean)}.
      */
-    Localizer(Path directory, String baseName)
+    Localizer(Path directory, String baseName, boolean deleteBundleOnStart)
     {
-        this(directory, baseName, Locale.ROOT);
+        this(directory, baseName, Locale.ROOT, deleteBundleOnStart);
     }
 
     /**
@@ -113,7 +118,7 @@ final class Localizer implements ILocalizer
         return getMessage(key, defaultLocale, args);
     }
 
-    @Override @SuppressWarnings("unused")
+    @Override
     public List<Locale> getAvailableLocales()
     {
         return localeList;

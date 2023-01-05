@@ -36,18 +36,25 @@ public final class LocalizationManager extends Restartable implements ILocalizat
     private final LocalizationGenerator baseGenerator;
     private @Nullable LocalizationGenerator patchGenerator;
 
-    @Inject
-    public LocalizationManager(
-        RestartableHolder restartableHolder, @Named("localizationBaseDir") Path baseDir,
-        @Named("localizationBaseName") String baseName, IConfigLoader configLoader)
+    LocalizationManager(
+        RestartableHolder restartableHolder, Path baseDir,
+        String baseName, IConfigLoader configLoader, boolean deleteBundleOnStart)
     {
         super(restartableHolder);
         this.baseDir = baseDir;
         this.baseName = baseName;
         this.configLoader = configLoader;
-        localizer = new Localizer(baseDir, baseName);
+        localizer = new Localizer(baseDir, baseName, deleteBundleOnStart);
         localizer.setDefaultLocale(configLoader.locale());
         baseGenerator = new LocalizationGenerator(baseDir, baseName);
+    }
+
+    @Inject
+    public LocalizationManager(
+        RestartableHolder restartableHolder, @Named("localizationBaseDir") Path baseDir,
+        @Named("localizationBaseName") String baseName, IConfigLoader configLoader)
+    {
+        this(restartableHolder, baseDir, baseName, configLoader, true);
     }
 
     /**
