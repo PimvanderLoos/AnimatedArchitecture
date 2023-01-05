@@ -42,7 +42,7 @@ class LocalizationUtilIntegrationTest
         addFilesToZip(zipFile,
                       base + ".properties",
                       base + "_en_us.properties",
-                      base + "_en_us_some_random_variation.properties",
+                      base + "_en_us_random.properties",
                       base + "_nl.properties",
                       base + "_nl_NL.properties");
 
@@ -50,8 +50,9 @@ class LocalizationUtilIntegrationTest
         Assertions.assertEquals(5, locales.size());
         Assertions.assertTrue(locales.contains(Locale.ROOT));
         Assertions.assertTrue(locales.contains(Locale.US));
-        Assertions.assertTrue(locales.contains(new Locale("en", "US", "some_random_variation")));
-        Assertions.assertTrue(locales.contains(new Locale("nl")));
-        Assertions.assertTrue(locales.contains(new Locale("nl", "NL")));
+        Assertions.assertTrue(locales.contains(
+            new Locale.Builder().setLanguage("en").setRegion("US").setVariant("random").build()));
+        Assertions.assertTrue(locales.contains(new Locale.Builder().setLanguage("nl").build()));
+        Assertions.assertTrue(locales.contains(new Locale.Builder().setLanguage("nl").setRegion("NL").build()));
     }
 }

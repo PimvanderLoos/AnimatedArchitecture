@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.stream.Stream;
@@ -115,8 +116,8 @@ public final class LocalizationUtil
 
         for (final String line : newLines)
         {
-            final @Nullable String key = getKeyFromLine(line);
-            if (key == null || keys.contains(key))
+            final @Nullable LocalizationEntry entry = getEntryFromLine(line);
+            if (entry == null || keys.contains(entry.key()))
                 continue;
             merged.add(line);
         }
@@ -137,9 +138,9 @@ public final class LocalizationUtil
         final Set<String> ret = new LinkedHashSet<>();
         readFile(inputStream, line ->
         {
-            final @Nullable String key = getKeyFromLine(line);
-            if (key != null)
-                ret.add(key);
+            final @Nullable LocalizationEntry entry = getEntryFromLine(line);
+            if (entry != null)
+                ret.add(entry.key());
         });
         return ret;
     }
@@ -178,11 +179,52 @@ public final class LocalizationUtil
         final Set<String> ret = new LinkedHashSet<>(lines.size());
         for (final String line : lines)
         {
-            final @Nullable String key = getKeyFromLine(line);
-            if (key != null)
-                ret.add(key);
+            final @Nullable LocalizationEntry entry = getEntryFromLine(line);
+            if (entry != null)
+                ret.add(entry.key());
         }
         return ret;
+    }
+
+    /**
+     * Gets a set containing all the keys in an input stream.
+     *
+     * @param inputStream
+     *     The input stream to read lines of Strings from. These lines are expected to be of the format "key=value".
+     * @return A set with all the keys used in the input stream.
+     */
+    static Map<String, String> getEntryMap(InputStream inputStream)
+    {
+        final Map<String, String> ret = new TreeMap<>();
+        readFile(inputStream, line ->
+        {
+            final @Nullable LocalizationEntry key = getEntryFromLine(line);
+            if (key != null)
+                ret.put(key.key(), key.value());
+        });
+        return ret;
+    }
+
+    /**
+     * Gets a map containing all the key-value pairs in a file.
+     *
+     * @param path
+     *     The path to a file.
+     * @return A map with all the key-value pairs in the file.
+     */
+    static Map<String, String> getEntryMap(Path path)
+    {
+        if (!Files.isRegularFile(path))
+            return Collections.emptyMap();
+        try (InputStream inputStream = Files.newInputStream(path))
+        {
+            return getEntryMap(inputStream);
+        }
+        catch (IOException e)
+        {
+            log.at(Level.SEVERE).withCause(e).log("Failed to get entries from file: %s", path);
+            return Collections.emptyMap();
+        }
     }
 
     /**
@@ -192,14 +234,14 @@ public final class LocalizationUtil
      *     A string containing a key/value pair.
      * @return The key as used in the line.
      */
-    static @Nullable String getKeyFromLine(String line)
+    static @Nullable LocalizationEntry getEntryFromLine(String line)
     {
         final char[] chars = new char[line.length()];
         line.getChars(0, line.length(), chars, 0);
 
         for (int idx = 0; idx < line.length(); ++idx)
             if (chars[idx] == '=')
-                return line.substring(0, idx);
+                return new LocalizationEntry(line.substring(0, idx), line.substring(idx + 1));
         return null;
     }
 
@@ -430,6 +472,18 @@ public final class LocalizationUtil
         return String.format("%s%s.properties", outputBaseName, locale.length() == 0 ? "" : ("_" + locale));
     }
 
+    static void deleteFile(Path file)
+    {
+        try
+        {
+            Files.deleteIfExists(file);
+        }
+        catch (IOException e)
+        {
+            log.at(Level.SEVERE).withCause(e).log("Failed to delete file: '%s'", file);
+        }
+    }
+
     /**
      * Ensures a given zip file exists.
      */
@@ -503,10 +557,13 @@ public final class LocalizationUtil
         if (parts[0].isBlank())
             return Locale.ROOT;
 
-        if (parts.length == 1)
-            return new Locale(parts[0]);
-        if (parts.length == 2)
-            return new Locale(parts[0], parts[1]);
-        return new Locale(parts[0], parts[1], parts[2]);
+        final Locale.Builder builder = new Locale.Builder().setLanguage(parts[0]);
+        if (parts.length >= 2)
+            builder.setRegion(parts[1]);
+        if (parts.length >= 3)
+            builder.setVariant(parts[2]);
+        return builder.build();
     }
+
+
 }

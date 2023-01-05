@@ -39,18 +39,18 @@ class LocalizationPatcherIntegrationTest
         throws IOException
     {
         final Path file0 = LocalizationUtil.ensureFileExists(directoryOutput.resolve("patch.properties"));
-        LocalizationUtil.appendToFile(file0, List.of("key0=aaa", "key1=aba", "key2=aab", "key3=baa"));
+        LocalizationUtil.appendToFile(file0, List.of("key0=aaa", "key3=baa", "key1=aba", "key2=aab"));
 
         final Path file1 = LocalizationUtil.ensureFileExists(directoryOutput.resolve("patch_en_US.properties"));
-        LocalizationUtil.appendToFile(file1, List.of("key10=aaa", "key11=aba", "key12=aab", "key13=baa"));
+        LocalizationUtil.appendToFile(file1, List.of("key10=aaa", "key13=baa", "key12=aab", "key11=aba"));
 
         final LocalizationPatcher patcher = new LocalizationPatcher(directoryOutput, "patch");
-        patcher.updatePatchKeys(List.of("key1", "key4", "key5"));
+        patcher.updatePatchKeys(List.of("key1", "key5", "key4"));
 
         Assertions.assertArrayEquals(new Object[]{"key0", "key1", "key2", "key3", "key4", "key5"},
                                      LocalizationUtil.getKeySet(file0).toArray());
 
-        Assertions.assertArrayEquals(new Object[]{"key10", "key11", "key12", "key13", "key1", "key4", "key5"},
+        Assertions.assertArrayEquals(new Object[]{"key1", "key10", "key11", "key12", "key13", "key4", "key5"},
                                      LocalizationUtil.getKeySet(file1).toArray());
     }
 
