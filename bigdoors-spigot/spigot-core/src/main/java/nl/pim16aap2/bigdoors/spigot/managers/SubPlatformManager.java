@@ -5,7 +5,6 @@ import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.managers.AnimatedBlockHookManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsPlugin;
 import nl.pim16aap2.bigdoors.spigot.util.api.IBigDoorsSpigotSubPlatform;
-import nl.pim16aap2.bigdoors.spigot.v1_15_R1.BigDoorsSpigotSubPlatform_V1_15_R1;
 import nl.pim16aap2.bigdoors.spigot.v1_19_R2.BigDoorsSpigotSubPlatform_V1_19_R2;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Nullable;
@@ -116,14 +115,6 @@ public final class SubPlatformManager
                     AnimatedBlockHookManager animatedBlockHookManager)
                 {
                     return null;
-                }
-            },
-        V1_15_R1
-            {
-                @Override
-                public IBigDoorsSpigotSubPlatform getPlatform(AnimatedBlockHookManager animatedBlockHookManager)
-                {
-                    return new BigDoorsSpigotSubPlatform_V1_15_R1(animatedBlockHookManager);
                 }
             },
         V1_19_R2
