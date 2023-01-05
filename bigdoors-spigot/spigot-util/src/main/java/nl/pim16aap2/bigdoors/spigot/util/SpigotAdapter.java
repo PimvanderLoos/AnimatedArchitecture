@@ -89,6 +89,23 @@ public final class SpigotAdapter
     }
 
     /**
+     * Tries to convert an {@link IPPlayer} to a {@link PPlayerSpigot}.
+     *
+     * @param player
+     *     The player object to convert.
+     * @return The converted player object, or null if that was not possible.
+     */
+    public static @Nullable PPlayerSpigot getPPlayerSpigot(IPPlayer player)
+    {
+        if (player instanceof PPlayerSpigot playerSpigot)
+            return playerSpigot;
+        final @Nullable Player bukkitPlayer = getBukkitPlayer(player);
+        if (bukkitPlayer == null)
+            return null;
+        return new PPlayerSpigot(bukkitPlayer);
+    }
+
+    /**
      * Tries to get an offline Bukkit player represented by an {@link IPPlayer}.
      *
      * @param pPlayer

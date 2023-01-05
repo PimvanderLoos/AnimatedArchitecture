@@ -3,6 +3,9 @@ package nl.pim16aap2.bigdoors.doors;
 
 import lombok.Getter;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Represent the possible attributes of a door.
  *
@@ -66,6 +69,8 @@ public enum DoorAttribute
      */
     REMOVE_OWNER(PermissionLevel.ADMIN);
 
+    private static final List<DoorAttribute> VALUES = Arrays.asList(values());
+
     /**
      * The minimum level of ownership required to access an attribute.
      */
@@ -87,5 +92,15 @@ public enum DoorAttribute
     public boolean canAccessWith(PermissionLevel permissionLevel)
     {
         return permissionLevel.isLowerThanOrEquals(getPermissionLevel());
+    }
+
+    /**
+     * @return All values in this enum as an unmodifiable list.
+     * <p>
+     * Unlike {@link #values()}, this does not create a new object.
+     */
+    public static List<DoorAttribute> getValues()
+    {
+        return VALUES;
     }
 }

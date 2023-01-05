@@ -1,6 +1,8 @@
 package nl.pim16aap2.bigdoors.util;
 
 
+import nl.pim16aap2.bigdoors.doors.DoorAttribute;
+
 /**
  * Represents a list of constant variables.
  *
@@ -44,4 +46,9 @@ public final class Constants
      * The amount of time (in seconds) a user has to complete the door creation process.
      */
     public static final int DOOR_CREATOR_TIME_LIMIT = 120 * 20;
+
+    /**
+     * The prefix for the {@link DoorAttribute}-specific bypass permissions.
+     */
+    public static final String ATTRIBUTE_BYPASS_PERMISSION_PREFIX = "bigdoors.admin.bypass.attribute.";
 }

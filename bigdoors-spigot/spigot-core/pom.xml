@@ -11,6 +11,13 @@
         <version>1</version>
     </parent>
 
+    <repositories>
+        <repository>
+            <id>minebench-repo</id>
+            <url>https://repo.minebench.de/</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
@@ -34,6 +41,14 @@
             <groupId>com.github.PimvanderLoos</groupId>
             <artifactId>JCalculator</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>de.themoep</groupId>
+            <artifactId>inventorygui</artifactId>
+            <version>${dependency.version.infentory-gui}</version>
+            <scope>compile</scope>
+        </dependency>
+
 
         <dependency>
             <groupId>org.spigotmc</groupId>

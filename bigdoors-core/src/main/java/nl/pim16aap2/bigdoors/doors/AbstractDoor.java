@@ -17,6 +17,7 @@ import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
@@ -285,7 +286,7 @@ public abstract class AbstractDoor implements IDoor
     {
         try
         {
-            return doorBase.syncData(serializer.serialize(this));
+            return doorBase.syncData(serializer.serialize(this)).exceptionally(Util::exceptionally);
         }
         catch (Exception e)
         {

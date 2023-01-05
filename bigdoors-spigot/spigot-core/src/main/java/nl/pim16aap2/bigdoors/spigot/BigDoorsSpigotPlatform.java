@@ -17,6 +17,7 @@ import nl.pim16aap2.bigdoors.api.IPowerBlockRedstoneManager;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
+import nl.pim16aap2.bigdoors.api.factories.IGuiFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
@@ -81,6 +82,9 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
 
     @Getter
     private final IAnimatedBlockFactory animatedBlockFactory;
+
+    @Getter
+    private final IGuiFactory guiFactory;
 
     @Getter
     private final IPPlayerFactory pPlayerFactory;
@@ -250,6 +254,7 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
         commandFactory = safeGetter(BigDoorsSpigotComponent::getCommandFactory);
         animatedBlockFactory = safeGetter(BigDoorsSpigotComponent::getAnimatedBlockFactory);
         bigDoorsEventFactory = safeGetter(BigDoorsSpigotComponent::getIBigDoorsEventFactory);
+        guiFactory = safeGetter(BigDoorsSpigotComponent::getGUIFactory);
 
         redstoneListener = safeGetter(BigDoorsSpigotComponent::getRedstoneListener);
         loginResourcePackListener = safeGetter(BigDoorsSpigotComponent::getLoginResourcePackListener);

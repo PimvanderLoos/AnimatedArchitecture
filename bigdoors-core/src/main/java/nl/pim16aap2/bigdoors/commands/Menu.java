@@ -5,6 +5,7 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.factories.IGuiFactory;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import org.jetbrains.annotations.Nullable;
@@ -19,15 +20,17 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class Menu extends BaseCommand
 {
-    private final @Nullable IPPlayer target;
+    private final IGuiFactory guiFactory;
+    private final @Nullable IPPlayer source;
 
     @AssistedInject //
     Menu(
         @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
-        @Assisted @Nullable IPPlayer target)
+        IGuiFactory guiFactory, @Assisted @Nullable IPPlayer source)
     {
         super(commandSender, localizer, textFactory);
-        this.target = target;
+        this.guiFactory = guiFactory;
+        this.source = source;
     }
 
     @Override
@@ -48,10 +51,11 @@ public class Menu extends BaseCommand
     protected CompletableFuture<Boolean> executeCommand(PermissionsStatus permissions)
     {
         // You need the bypass permission to open menus that aren't your own.
-        if (!permissions.hasAdminPermission() && !getCommandSender().equals(target))
+        if (!permissions.hasAdminPermission() && !getCommandSender().equals(source))
             return CompletableFuture.completedFuture(false);
 
-        throw new UnsupportedOperationException("This command has not yet been implemented!");
+        getCommandSender().getPlayer().ifPresent(player -> guiFactory.newGUI(player, source));
+        return CompletableFuture.completedFuture(true);
     }
 
     @AssistedFactory
@@ -65,13 +69,13 @@ public class Menu extends BaseCommand
          *     <p>
          *     This is the entity to which the menu will be shown, and as such this must be an {@link IPPlayer} (menus
          *     aren't supported for servers/command blocks).
-         * @param target
+         * @param source
          *     The {@link IPPlayer} whose doors will be used.
          *     <p>
          *     When this is null (default), the command sender's own doors will be used.
          * @return See {@link BaseCommand#run()}.
          */
-        Menu newMenu(ICommandSender commandSender, @Nullable IPPlayer target);
+        Menu newMenu(ICommandSender commandSender, @Nullable IPPlayer source);
 
         /**
          * See {@link #newMenu(ICommandSender, IPPlayer)}.
