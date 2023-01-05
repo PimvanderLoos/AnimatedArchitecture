@@ -616,32 +616,16 @@ public abstract class BlockMover
         return -1;
     }
 
-    /**
-     * Places the block of an {@link IAnimatedBlock}.
-     */
-    private void putSavedBlock(IAnimatedBlock animatedBlock)
+    private synchronized void putBlocks0(boolean onDisable)
     {
-        animatedBlock.kill();
-        animatedBlock.getAnimatedBlockData().putBlock(animatedBlock.getFinalPosition());
-    }
-
-    /**
-     * Places all the blocks of the door in their final position and kills all the animated blocks.
-     * <p>
-     * When the plugin is currently not in the process of disabling, it also schedules the auto close.
-     *
-     * @param onDisable
-     *     Whether the plugin is currently being disabled.
-     */
-    public final synchronized void putBlocks(boolean onDisable)
-    {
-        // Only allow this method to be run once! If it can be run multiple times, it'll cause door corruption because
-        // While the blocks have already been placed, the coordinates can still be toggled!
-        if (isFinished.getAndSet(true))
-            return;
+        if (!executor.isMainThread())
+            throw new IllegalStateException("Attempting async block placement!");
 
         for (final IAnimatedBlock animatedBlock : privateAnimatedBlocks)
-            putSavedBlock(animatedBlock);
+        {
+            animatedBlock.kill();
+            animatedBlock.getAnimatedBlockData().putBlock(animatedBlock.getFinalPosition());
+        }
 
         // Tell the door object it has been opened and what its new coordinates are.
         updateCoords(door);
@@ -654,6 +638,23 @@ public abstract class BlockMover
             return;
 
         doorActivityManager.processFinishedBlockMover(this, true);
+    }
+
+    /**
+     * Places all the blocks of the door in their final position and kills all the animated blocks.
+     * <p>
+     * When the plugin is currently not in the process of disabling, it also schedules the auto close.
+     *
+     * @param onDisable
+     *     Whether the plugin is currently being disabled.
+     */
+    public final void putBlocks(boolean onDisable)
+    {
+        // Only allow this method to be run once! If it can be run multiple times, it'll cause door corruption because
+        // While the blocks have already been placed, the coordinates can still be toggled!
+        if (isFinished.getAndSet(true))
+            return;
+        executor.runOnMainThread(() -> putBlocks0(onDisable));
     }
 
     /**
