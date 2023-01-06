@@ -426,13 +426,6 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
     }
 
     @Override
-    public Vector3Dd getVelocity()
-    {
-        final var vec = de();
-        return new Vector3Dd(vec.c, vec.d, vec.e);
-    }
-
-    @Override
     public IPWorld getPWorld()
     {
         return pWorld;
@@ -481,7 +474,7 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
     }
 
     @Override
-    public Vector3Dd getPVelocity()
+    public Vector3Dd getVelocity()
     {
         final Vec3D bukkitVelocity = de();
         return new Vector3Dd(bukkitVelocity.c, bukkitVelocity.d, bukkitVelocity.e);
