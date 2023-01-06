@@ -59,28 +59,25 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
 
         switch (rotateDirection)
         {
-            case NORTH ->
-            {
+            case NORTH:
                 angle = -Math.PI / 2;
                 rotator = Vector3Dd::rotateAroundXAxis;
-            }
-            case SOUTH ->
-            {
+                break;
+            case SOUTH:
                 angle = Math.PI / 2;
                 rotator = Vector3Dd::rotateAroundXAxis;
-            }
-            case EAST ->
-            {
+                break;
+            case EAST:
                 angle = Math.PI / 2;
                 rotator = Vector3Dd::rotateAroundZAxis;
-            }
-            case WEST ->
-            {
+                break;
+            case WEST:
                 angle = -Math.PI / 2;
                 rotator = Vector3Dd::rotateAroundZAxis;
-            }
-            default -> throw new IllegalArgumentException("RotateDirection \"" + rotateDirection.name() +
-                                                              " is not valid for this type!");
+                break;
+            default:
+                throw new IllegalArgumentException("RotateDirection \"" + rotateDirection.name() +
+                                                       " is not valid for this type!");
         }
 
         super.animationDuration = (int) (20 * super.time);

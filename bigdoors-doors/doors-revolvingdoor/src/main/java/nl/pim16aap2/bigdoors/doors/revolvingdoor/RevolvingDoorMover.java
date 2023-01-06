@@ -34,20 +34,21 @@ public class RevolvingDoorMover extends BlockMover
     {
         super(context, door, 30, false, RotateDirection.NONE, player, newCuboid, cause, actionType);
 
-        /**
-         * The number of quarter circles to turn.
-         */
-
         this.time = time;
         this.rotateDirection = rotateDirection;
 
         switch (rotateDirection)
         {
-            case CLOCKWISE -> getGoalPos = this::getGoalPosClockwise;
-            case COUNTERCLOCKWISE -> getGoalPos = this::getGoalPosCounterClockwise;
-            default -> throw new IllegalStateException(
-                String.format("Failed to open door '%d'. Reason: Invalid rotateDirection '%s'",
-                              getDoorUID(), rotateDirection.name()));
+            case CLOCKWISE:
+                getGoalPos = this::getGoalPosClockwise;
+                break;
+            case COUNTERCLOCKWISE:
+                getGoalPos = this::getGoalPosCounterClockwise;
+                break;
+            default:
+                throw new IllegalStateException(
+                    String.format("Failed to open door '%d'. Reason: Invalid rotateDirection '%s'",
+                                  getDoorUID(), rotateDirection.name()));
         }
 
         super.animationDuration = (int) (20.0 * super.time * quarterCircles);
