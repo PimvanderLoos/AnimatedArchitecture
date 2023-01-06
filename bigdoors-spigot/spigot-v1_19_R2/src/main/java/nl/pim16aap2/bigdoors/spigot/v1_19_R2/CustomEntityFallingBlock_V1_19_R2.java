@@ -23,6 +23,7 @@ import net.minecraft.world.level.block.state.IBlockData;
 import net.minecraft.world.level.entity.EntityInLevelCallback;
 import net.minecraft.world.level.entity.PersistentEntitySectionManager;
 import net.minecraft.world.phys.Vec3D;
+import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.animatedblock.AnimationContext;
@@ -45,6 +46,7 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
@@ -71,6 +73,7 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
     private final float startAngle;
     @Getter
     private final boolean onEdge;
+    private final IPExecutor executor;
     private final IPWorld pWorld;
     private final List<IAnimatedBlockHook> hooks;
     @ToString.Exclude
@@ -88,16 +91,20 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
     @Getter
     private Vector3Dd currentPosition;
 
+    private final AtomicReference<@Nullable Vector3Dd> teleportedTo = new AtomicReference<>();
+
     private final IPLocation startLocation;
     private final Vector3Dd startPosition;
     private final Vector3Dd finalPosition;
 
     public CustomEntityFallingBlock_V1_19_R2(
-        IPWorld pWorld, World world, double posX, double posY, double posZ, float radius, float startAngle,
+        IPExecutor executor, IPWorld pWorld, World world, double posX, double posY, double posZ, float radius,
+        float startAngle,
         boolean onEdge, AnimationContext context, AnimatedBlockHookManager animatedBlockHookManager,
         Vector3Dd finalPosition)
     {
         super(EntityTypes.F, ((CraftWorld) world).getHandle());
+        this.executor = executor;
         this.pWorld = pWorld;
         bukkitWorld = world;
         this.radius = radius;
@@ -109,7 +116,8 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
         // Do not round x and z because they are at half blocks; Given x;z 10;5, the block will be spawned at
         // 10.5;5.5. Rounding it would retrieve the blocks at 11;6.
         this.animatedBlockData =
-            new NMSBlock_V1_19_R2(worldServer, (int) Math.floor(posX), (int) Math.round(posY), (int) Math.floor(posZ));
+            new NMSBlock_V1_19_R2(executor, worldServer, (int) Math.floor(posX), (int) Math.round(posY),
+                                  (int) Math.floor(posZ));
         this.startLocation = new PLocationSpigot(new Location(bukkitWorld, posX, posY, posZ));
         this.startPosition = new Vector3Dd(startLocation.getX(), startLocation.getY(), startLocation.getZ());
 
@@ -140,12 +148,26 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
             @Override
             public void a() // onMove
             {
+                if (!executor.isMainThread())
+                {
+                    // Async position updates cause async move callbacks.
+                    // This can result in server crashes when the entity
+                    // gets moved to a different EntitySection.
+                    log.atSevere().withStackTrace(StackSize.FULL).log("Caught async move callback! THIS IS A BUG!");
+                    return;
+                }
                 CustomEntityFallingBlock_V1_19_R2.this.entityInLevelCallback.a();
             }
 
             @Override
             public void a(RemovalReason removalReason) // onRemove
             {
+                if (!executor.isMainThread())
+                {
+                    log.atSevere().withStackTrace(StackSize.FULL).log("Caught async remove callback! THIS IS A BUG!");
+                    return;
+                }
+
                 CustomEntityFallingBlock_V1_19_R2.this.entityInLevelCallback.a(removalReason);
                 CustomEntityFallingBlock_V1_19_R2.this.handleDeath();
             }
@@ -165,12 +187,24 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
 
     private synchronized void handleDeath()
     {
+        if (!executor.isMainThread())
+        {
+            log.atSevere().withStackTrace(StackSize.FULL).log("Caught async death! THIS IS A BUG!");
+            return;
+        }
+
         this.cN().forEach(Entity::q); // Remove passengers
         forEachHook("onDie", IAnimatedBlockHook::onDie);
     }
 
     private void spawn0()
     {
+        if (!executor.isMainThread())
+        {
+            log.atSevere().withStackTrace(StackSize.FULL).log("Caught async spawn! THIS IS A BUG!");
+            return;
+        }
+
         worldServer.addFreshEntity(this, SpawnReason.CUSTOM);
         dA(); // Entity#unsetRemoved()
         setEntityInLevelCallback();
@@ -189,6 +223,12 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
     @Override
     public synchronized void respawn()
     {
+        if (!executor.isMainThread())
+        {
+            log.atSevere().withStackTrace(StackSize.FULL).log("Caught async respawn! THIS IS A BUG!");
+            return;
+        }
+
         if (tracker == null)
         {
             log.at(Level.SEVERE).withStackTrace(StackSize.FULL)
@@ -210,13 +250,27 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
         forEachHook("onRespawn", IAnimatedBlockHook::onRespawn);
     }
 
+    private synchronized void setPosRaw(Vector3Dd newPosition)
+    {
+        if (!executor.isMainThread())
+        {
+            // Async position updates cause async move callbacks.
+            // This can result in server crashes when the entity
+            // gets moved to a different EntitySection.
+            log.atSevere().withStackTrace(StackSize.FULL).log("Caught async position update! THIS IS A BUG!");
+            return;
+        }
+
+        // Update current and last x/y/z values in entity class.
+        p(newPosition.x(), newPosition.y(), newPosition.z()); // setPosRaw
+    }
+
     private synchronized void cyclePositions(Vector3Dd newPosition)
     {
         previousPosition = currentPosition;
         currentPosition = newPosition;
 
-        // Update current and last x/y/z values in entity class.
-        p(newPosition.x(), newPosition.y(), newPosition.z()); // setPosRaw
+        setPosRaw(newPosition);
 
         forEachHook("onMoved", hook -> hook.onMoved(newPosition));
     }
@@ -255,25 +309,46 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
         if (!isAlive())
             return false;
 
+        teleportedTo.set(newPosition);
         relativeTeleport(newPosition);
-
-        cyclePositions(newPosition);
-
         forEachHook("onTeleport", hook -> hook.onTeleport(newPosition));
 
         return true;
     }
 
+    /**
+     * Handles a teleport action.
+     * <p>
+     * If this animated block was not teleported, nothing happens. Otherwise, the positions are updated.
+     */
+    private void handleTeleport()
+    {
+        final @Nullable Vector3Dd teleportedToCopy = teleportedTo.getAndSet(null);
+        if (teleportedToCopy == null)
+            return;
+
+    }
+
     @Override
     public synchronized void l()
     {
+        if (!executor.isMainThread())
+        {
+            log.atSevere().withStackTrace(StackSize.FULL).log("Caught async tick! THIS IS A BUG!");
+            return;
+        }
+
         if (!isAlive())
             return;
+
+        forEachHook("preTick", IAnimatedBlockHook::preTick);
 
         if (animatedBlockData.getMyBlockData().h())
             kill();
         else
         {
+            handleTeleport();
+
             final Vec3D mot = super.de();
             if (Math.abs(mot.c) < 0.001 && Math.abs(mot.d) < 0.001 && Math.abs(mot.e) < 0.001)
                 return;

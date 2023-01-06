@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.spigot.v1_19_R2;
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
+import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.managers.AnimatedBlockHookManager;
 import nl.pim16aap2.bigdoors.spigot.util.api.IBigDoorsSpigotSubPlatform;
@@ -27,11 +28,13 @@ public final class BigDoorsSpigotSubPlatform_V1_19_R2 implements IBigDoorsSpigot
     private IGlowingBlockFactory glowingBlockFactory;
 
     private final AnimatedBlockHookManager animatedBlockHookManager;
+    private final IPExecutor executor;
 
     @Inject
-    public BigDoorsSpigotSubPlatform_V1_19_R2(AnimatedBlockHookManager animatedBlockHookManager)
+    public BigDoorsSpigotSubPlatform_V1_19_R2(AnimatedBlockHookManager animatedBlockHookManager, IPExecutor executor)
     {
         this.animatedBlockHookManager = animatedBlockHookManager;
+        this.executor = executor;
     }
 
     @Override
@@ -44,7 +47,7 @@ public final class BigDoorsSpigotSubPlatform_V1_19_R2 implements IBigDoorsSpigot
     @Initializer
     public void init(JavaPlugin plugin)
     {
-        animatedBlockFactory = new AnimatedBlockFactory_V1_19_R2(animatedBlockHookManager);
+        animatedBlockFactory = new AnimatedBlockFactory_V1_19_R2(animatedBlockHookManager, executor);
         blockAnalyzer = new BlockAnalyzer_V1_19_R2();
         glowingBlockFactory = new GlowingBlock_V1_19_R2.Factory();
     }

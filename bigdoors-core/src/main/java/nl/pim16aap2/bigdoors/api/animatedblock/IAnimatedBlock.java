@@ -103,11 +103,17 @@ public interface IAnimatedBlock
 
     /**
      * @return The current location of this entity.
+     * <p>
+     * Note that this will not reflect the new location after the animated block is teleported until after the next
+     * tick.
      */
     IPLocation getPLocation();
 
     /**
      * @return The current position of this entity.
+     * <p>
+     * Note that this will not reflect the new position after the animated block is teleported until after the next
+     * tick.
      */
     Vector3Dd getPosition();
 

@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.v1_19_R2;
 
+import com.google.common.flogger.StackSize;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.Synchronized;
 import lombok.extern.flogger.Flogger;
@@ -9,6 +10,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBase;
 import net.minecraft.world.level.block.state.IBlockData;
+import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlockData;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
@@ -43,6 +45,7 @@ public class NMSBlock_V1_19_R2 extends BlockBase implements IAnimatedBlockData
 {
     @SuppressWarnings("unused") // Appears unused, but it's referenced in annotations.
     private final Object blockDataLock = new Object();
+    private final IPExecutor executor;
     private final WorldServer worldServer;
     private final World bukkitWorld;
 
@@ -70,9 +73,10 @@ public class NMSBlock_V1_19_R2 extends BlockBase implements IAnimatedBlockData
      * @param z
      *     The z coordinate of the NMS block.
      */
-    NMSBlock_V1_19_R2(WorldServer worldServer, int x, int y, int z)
+    NMSBlock_V1_19_R2(IPExecutor executor, WorldServer worldServer, int x, int y, int z)
     {
         super(newBlockInfo(worldServer.getWorld(), new BlockPosition(x, y, z)));
+        this.executor = executor;
         this.worldServer = worldServer;
         this.bukkitWorld = worldServer.getWorld();
 
@@ -164,6 +168,12 @@ public class NMSBlock_V1_19_R2 extends BlockBase implements IAnimatedBlockData
     @GuardedBy("blockDataLock")
     private void putBlock(BlockPosition blockPosition)
     {
+        if (!executor.isMainThread())
+        {
+            log.atSevere().withStackTrace(StackSize.FULL).log("Caught async block placement! THIS IS A BUG!");
+            return;
+        }
+
         // net.minecraft.world.level.block.state.BlockState getBlockState(net.minecraft.core.BlockPos)
         final IBlockData old = worldServer.a_(blockPosition);
 
@@ -344,6 +354,12 @@ public class NMSBlock_V1_19_R2 extends BlockBase implements IAnimatedBlockData
     @Override
     public void deleteOriginalBlock(boolean applyPhysics)
     {
+        if (!executor.isMainThread())
+        {
+            log.atSevere().withStackTrace(StackSize.FULL).log("Caught async block removal! THIS IS A BUG!");
+            return;
+        }
+
         if (!applyPhysics)
         {
             bukkitWorld.getBlockAt(loc).setType(Material.AIR, false);

@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.v1_19_R2;
 
+import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.animatedblock.AnimationContext;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
@@ -27,10 +28,12 @@ import java.util.Optional;
 public final class AnimatedBlockFactory_V1_19_R2 implements IAnimatedBlockFactory
 {
     private final AnimatedBlockHookManager animatedBlockHookManager;
+    private final IPExecutor executor;
 
-    AnimatedBlockFactory_V1_19_R2(AnimatedBlockHookManager animatedBlockHookManager)
+    AnimatedBlockFactory_V1_19_R2(AnimatedBlockHookManager animatedBlockHookManager, IPExecutor executor)
     {
         this.animatedBlockHookManager = animatedBlockHookManager;
+        this.executor = executor;
     }
 
     @Override
@@ -50,8 +53,8 @@ public final class AnimatedBlockFactory_V1_19_R2 implements IAnimatedBlockFactor
         final IPLocation spawnLoc = loc.add(0, offset - 0.020, 0);
 
         final var animatedBlock = new CustomEntityFallingBlock_V1_19_R2(
-            loc.getWorld(), bukkitWorld, spawnLoc.getX(), spawnLoc.getY(), spawnLoc.getZ(), radius, startAngle, onEdge,
-            context, animatedBlockHookManager, finalPosition);
+            executor, loc.getWorld(), bukkitWorld, spawnLoc.getX(), spawnLoc.getY(), spawnLoc.getZ(), radius,
+            startAngle, onEdge, context, animatedBlockHookManager, finalPosition);
 
         animatedBlock.b(CraftChatMessage.fromStringOrNull(Constants.BIGDOORS_ENTITY_NAME));
         animatedBlock.n(false);
