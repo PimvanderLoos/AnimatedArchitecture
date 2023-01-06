@@ -343,19 +343,10 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
 
         forEachHook("preTick", IAnimatedBlockHook::preTick);
 
-        if (animatedBlockData.getMyBlockData().h())
-            kill();
-        else
-        {
-            handleTeleport();
+        handleTeleport();
+        a(EnumMoveType.a, di());
+        cyclePositions(getRawCurrentLocation());
 
-            final Vec3D mot = super.de();
-            if (Math.abs(mot.c) < 0.001 && Math.abs(mot.d) < 0.001 && Math.abs(mot.e) < 0.001)
-                return;
-
-            a(EnumMoveType.a, di());
-            cyclePositions(getRawCurrentLocation());
-        }
         forEachHook("postTick", IAnimatedBlockHook::postTick);
     }
 
@@ -526,10 +517,5 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
     private int getEntityId()
     {
         return super.ah();
-    }
-
-    private int getTicksAlive()
-    {
-        return super.b;
     }
 }

@@ -120,7 +120,10 @@ public final class DoorOpeningHelper
                 messageReceiver
                     .sendError(textFactory, localizer.getMessage(result.getLocalizationKey(), door.getName()));
             else
-                log.at(Level.INFO).log("Failed to toggle door: %d, reason: %s", door.getDoorUID(), result.name());
+            {
+                final Level level = result == DoorToggleResult.BUSY ? Level.FINE : Level.INFO;
+                log.at(level).log("Failed to toggle door: %d, reason: %s", door.getDoorUID(), result.name());
+            }
         }
         return result;
     }
