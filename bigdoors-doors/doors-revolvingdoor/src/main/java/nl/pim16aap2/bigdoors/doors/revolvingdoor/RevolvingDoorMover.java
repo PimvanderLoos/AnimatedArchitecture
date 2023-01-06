@@ -46,16 +46,11 @@ public class RevolvingDoorMover extends BlockMover
 
         switch (rotateDirection)
         {
-            case CLOCKWISE:
-                getGoalPos = this::getGoalPosClockwise;
-                break;
-            case COUNTERCLOCKWISE:
-                getGoalPos = this::getGoalPosCounterClockwise;
-                break;
-            default:
-                throw new IllegalStateException("Failed to open door \"" + getDoorUID()
-                                                    + "\". Reason: Invalid rotateDirection \"" +
-                                                    rotateDirection + "\"");
+            case CLOCKWISE -> getGoalPos = this::getGoalPosClockwise;
+            case COUNTERCLOCKWISE -> getGoalPos = this::getGoalPosCounterClockwise;
+            default -> throw new IllegalStateException(
+                String.format("Failed to open door '%d'. Reason: Invalid rotateDirection '%s'",
+                              getDoorUID(), rotateDirection.name()));
         }
 
         init();

@@ -148,6 +148,14 @@ public abstract class BlockMover
     @Getter(AccessLevel.PROTECTED)
     private final List<IAnimatedBlock> animatedBlocks;
 
+    /**
+     * True for types of movement that are supposed to keep going until otherwise stopped. For example, flags,
+     * windmills, etc.
+     * <p>
+     * False to have the movement be time-bound, such as for doors, drawbridges, etc.
+     */
+    protected boolean perpetualMovement = false;
+
     protected int xMin;
 
     protected int yMin;
@@ -225,7 +233,7 @@ public abstract class BlockMover
         animationHookManager = context.getAnimationHookManager();
         glowingBlockSpawner = context.getGlowingBlockSpawner();
 
-        if (!context.getExecutor().isMainThread(Thread.currentThread().getId()))
+        if (!context.getExecutor().isMainThread(Thread.currentThread().threadId()))
             throw new Exception("BlockMovers must be called on the main thread!");
 
         autoCloseScheduler.unscheduleAutoClose(door.getDoorUID());
@@ -565,18 +573,13 @@ public abstract class BlockMover
                 currentTime = System.nanoTime();
                 startTime += currentTime - lastTime;
 
-                // After about 12620 ticks, the blocks will disappear.
-                // Respawning them before this happens, fixes the issue.
-                // TODO: Check if just resetting the tick value of the blocks works as well.
-                if (counter % 12_500 == 0)
-                    respawnBlocks();
-
-                if (counter > stopCount)
-                    stopAnimation(animation);
-                else if (counter > animationDuration)
-                    executeFinishingStep(counter, animation);
-                else
+                if (perpetualMovement || counter <= animationDuration)
                     executeAnimationStep(counter, animation);
+                else if (counter > stopCount)
+                    stopAnimation(animation);
+                else
+                    executeFinishingStep(counter, animation);
+
                 animation.setStepsExecuted(counter);
                 forEachHook("onPostAnimationStep", IAnimationHook::onPostAnimationStep);
             }

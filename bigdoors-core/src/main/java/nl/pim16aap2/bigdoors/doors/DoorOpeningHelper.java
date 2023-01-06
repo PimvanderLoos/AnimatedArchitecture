@@ -173,8 +173,8 @@ public final class DoorOpeningHelper
         Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
     {
         executor.assertMainThread();
-        return doorBase.registerBlockMover(abstractDoor, cause, time, skipAnimation,
-                                           newCuboid, responsible, actionType);
+        return doorBase.registerBlockMover(
+            abstractDoor, cause, time, skipAnimation, newCuboid, responsible, actionType);
     }
 
     /**

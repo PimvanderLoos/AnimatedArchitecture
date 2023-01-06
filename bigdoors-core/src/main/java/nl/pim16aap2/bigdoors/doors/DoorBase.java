@@ -425,7 +425,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
         DoorActionType actionType)
     {
-        if (!executor.isMainThread(Thread.currentThread().getId()))
+        if (!executor.isMainThread(Thread.currentThread().threadId()))
         {
             doorActivityManager.setDoorAvailable(getDoorUID());
             log.at(Level.SEVERE).withCause(

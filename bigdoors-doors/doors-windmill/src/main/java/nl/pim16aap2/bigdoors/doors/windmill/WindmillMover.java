@@ -35,6 +35,7 @@ public class WindmillMover<T extends AbstractDoor & IHorizontalAxisAligned> exte
     @Override
     protected void init()
     {
+        super.perpetualMovement = true;
         super.animationDuration = (int) (20 * 20 * super.time);
         step = (Math.PI / 2.0) / (20.0f * super.time * 2.0f);
     }

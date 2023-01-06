@@ -238,8 +238,8 @@ public abstract class AbstractDoor implements IDoor
             return doorOpeningHelper.abort(this, DoorToggleResult.ERROR, cause, responsible, messageReceiver);
 
         final IDoorEventTogglePrepare prepareEvent =
-            doorOpeningHelper.callTogglePrepareEvent(this, cause, actionType, responsible,
-                                                     time, skipAnimation, newCuboid.get());
+            doorOpeningHelper.callTogglePrepareEvent(
+                this, cause, actionType, responsible, time, skipAnimation, newCuboid.get());
 
         if (prepareEvent.isCancelled())
             return doorOpeningHelper.abort(this, DoorToggleResult.CANCELLED, cause, responsible, messageReceiver);
@@ -252,8 +252,8 @@ public abstract class AbstractDoor implements IDoor
             return doorOpeningHelper.abort(this, DoorToggleResult.NO_PERMISSION, cause, responsible, messageReceiver);
 
         final boolean scheduled =
-            doorOpeningHelper.registerBlockMover(doorBase, this, cause, time, skipAnimation,
-                                                 newCuboid.get(), responsible, actionType);
+            doorOpeningHelper.registerBlockMover(
+                doorBase, this, cause, time, skipAnimation, newCuboid.get(), responsible, actionType);
 
         if (!scheduled)
             return DoorToggleResult.ERROR;

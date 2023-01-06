@@ -55,35 +55,32 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
 
         northSouth = door.isNorthSouthAligned();
         rotationCenter = door.getRotationPoint().toDouble().add(0.5, 0, 0.5);
-
-        final int xLen = Math.abs(door.getMaximum().x() - door.getMinimum().x());
-        final int yLen = Math.abs(door.getMaximum().y() - door.getMinimum().y());
-        final int zLen = Math.abs(door.getMaximum().z() - door.getMinimum().z());
-        final int doorSize = Math.max(xLen, Math.max(yLen, zLen)) + 1;
-        final double[] vars = Util.calculateTimeAndTickRate(doorSize, time, multiplier, 5.2);
-        this.time = vars[0];
+        this.time = time;
 
         switch (rotateDirection)
         {
-            case NORTH:
+            case NORTH ->
+            {
                 angle = -Math.PI / 2;
                 rotator = Vector3Dd::rotateAroundXAxis;
-                break;
-            case SOUTH:
+            }
+            case SOUTH ->
+            {
                 angle = Math.PI / 2;
                 rotator = Vector3Dd::rotateAroundXAxis;
-                break;
-            case EAST:
+            }
+            case EAST ->
+            {
                 angle = Math.PI / 2;
                 rotator = Vector3Dd::rotateAroundZAxis;
-                break;
-            case WEST:
+            }
+            case WEST ->
+            {
                 angle = -Math.PI / 2;
                 rotator = Vector3Dd::rotateAroundZAxis;
-                break;
-            default:
-                throw new IllegalArgumentException("RotateDirection \"" + rotateDirection.name() +
-                                                       " is not valid for this type!");
+            }
+            default -> throw new IllegalArgumentException("RotateDirection \"" + rotateDirection.name() +
+                                                              " is not valid for this type!");
         }
 
         init();

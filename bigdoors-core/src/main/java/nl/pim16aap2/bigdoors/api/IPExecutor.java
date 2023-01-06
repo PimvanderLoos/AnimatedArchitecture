@@ -200,7 +200,7 @@ public interface IPExecutor
      */
     default boolean isMainThread()
     {
-        return isMainThread(Thread.currentThread().getId());
+        return isMainThread(Thread.currentThread().threadId());
     }
 
     /**

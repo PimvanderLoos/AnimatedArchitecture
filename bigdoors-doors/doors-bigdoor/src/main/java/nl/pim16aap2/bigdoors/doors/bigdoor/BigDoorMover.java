@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 
@@ -38,12 +37,6 @@ public class BigDoorMover extends BlockMover
             log.at(Level.SEVERE).log("Invalid open direction '%s' for door: %d", rotDirection.name(), getDoorUID());
 
         rotationCenter = new Vector3Dd(door.getRotationPoint().x() + 0.5, yMin, door.getRotationPoint().z() + 0.5);
-
-        final int xLen = Math.abs(door.getMaximum().x() - door.getMinimum().x());
-        final int zLen = Math.abs(door.getMaximum().z() - door.getMinimum().z());
-        final int doorLength = Math.max(xLen, zLen) + 1;
-        final double[] vars = Util.calculateTimeAndTickRate(doorLength, time, multiplier, 3.7);
-//        super.time = vars[0];
         super.time = 3;
 
         init();
