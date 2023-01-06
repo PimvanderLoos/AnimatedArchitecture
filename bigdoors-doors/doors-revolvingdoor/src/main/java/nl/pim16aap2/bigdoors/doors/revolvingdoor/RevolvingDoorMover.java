@@ -23,13 +23,8 @@ public class RevolvingDoorMover extends BlockMover
     private final BiFunction<IAnimatedBlock, Double, Vector3Dd> getGoalPos;
     private final RotateDirection rotateDirection;
 
-    /**
-     * The number of quarter circles to turn.
-     */
-    private final int quarterCircles;
-
-    private double step = 0;
-    private double endStepSum = 0;
+    private final double step;
+    private final double endStepSum;
 
     @SuppressWarnings("unused")
     public RevolvingDoorMover(
@@ -39,7 +34,9 @@ public class RevolvingDoorMover extends BlockMover
     {
         super(context, door, 30, false, RotateDirection.NONE, player, newCuboid, cause, actionType);
 
-        this.quarterCircles = quarterCircles;
+        /**
+         * The number of quarter circles to turn.
+         */
 
         this.time = time;
         this.rotateDirection = rotateDirection;
@@ -53,15 +50,6 @@ public class RevolvingDoorMover extends BlockMover
                               getDoorUID(), rotateDirection.name()));
         }
 
-        init();
-        super.startAnimation();
-    }
-
-    /**
-     * Used for initializing variables such as {@link #animationDuration}.
-     */
-    protected void init()
-    {
         super.animationDuration = (int) (20.0 * super.time * quarterCircles);
         step = (Math.PI / 2.0 * quarterCircles) / super.animationDuration * -1.0;
         endStepSum = super.animationDuration * step;

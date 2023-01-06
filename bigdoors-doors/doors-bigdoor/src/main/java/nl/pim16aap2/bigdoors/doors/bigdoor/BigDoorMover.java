@@ -18,9 +18,9 @@ import java.util.logging.Level;
 public class BigDoorMover extends BlockMover
 {
     private final Vector3Dd rotationCenter;
-    private int halfEndCount;
+    private final int halfEndCount;
     private final double angle;
-    private double step;
+    private final double step;
 
     public BigDoorMover(
         Context context, AbstractDoor door, RotateDirection rotDirection, double time,
@@ -39,15 +39,6 @@ public class BigDoorMover extends BlockMover
         rotationCenter = new Vector3Dd(door.getRotationPoint().x() + 0.5, yMin, door.getRotationPoint().z() + 0.5);
         super.time = 3;
 
-        init();
-        super.startAnimation();
-    }
-
-    /**
-     * Used for initializing variables such as {@link #animationDuration}.
-     */
-    protected void init()
-    {
         super.animationDuration = (int) (20 * super.time) + 1;
         step = angle / super.animationDuration;
         halfEndCount = super.animationDuration / 2;

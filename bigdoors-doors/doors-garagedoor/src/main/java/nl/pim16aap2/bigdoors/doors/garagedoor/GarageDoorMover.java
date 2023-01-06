@@ -30,7 +30,7 @@ public class GarageDoorMover extends BlockMover
     private final boolean northSouth;
     protected int blocksToMove;
 
-    private double step;
+    private final double step;
 
     public GarageDoorMover(
         Context context, GarageDoor door, double time, double multiplier, boolean skipAnimation,
@@ -45,30 +45,33 @@ public class GarageDoorMover extends BlockMover
         BiFunction<IAnimatedBlock, Double, Vector3Dd> getVectorTmp;
         switch (rotateDirection)
         {
-            case NORTH:
+            case NORTH ->
+            {
                 directionVec = PBlockFace.getDirection(PBlockFace.NORTH);
                 getVectorTmp = this::getVectorDownNorth;
                 northSouth = true;
-                break;
-            case EAST:
+            }
+            case EAST ->
+            {
                 directionVec = PBlockFace.getDirection(PBlockFace.EAST);
                 getVectorTmp = this::getVectorDownEast;
                 northSouth = false;
-                break;
-            case SOUTH:
+            }
+            case SOUTH ->
+            {
                 directionVec = PBlockFace.getDirection(PBlockFace.SOUTH);
                 getVectorTmp = this::getVectorDownSouth;
                 northSouth = true;
-                break;
-            case WEST:
+            }
+            case WEST ->
+            {
                 directionVec = PBlockFace.getDirection(PBlockFace.WEST);
                 getVectorTmp = this::getVectorDownWest;
                 northSouth = false;
-                break;
-            default:
-                throw new IllegalStateException("Failed to open garage door \"" + getDoorUID()
-                                                    + "\". Reason: Invalid rotateDirection \"" +
-                                                    rotateDirection + "\"");
+            }
+            default -> throw new IllegalStateException("Failed to open garage door \"" + getDoorUID()
+                                                           + "\". Reason: Invalid rotateDirection \"" +
+                                                           rotateDirection + "\"");
         }
 
         xLen = xMax - xMin;
@@ -88,15 +91,6 @@ public class GarageDoorMover extends BlockMover
             getVector = getVectorTmp;
         }
 
-        init();
-        super.startAnimation();
-    }
-
-    /**
-     * Used for initializing variables such as {@link #animationDuration}.
-     */
-    protected void init()
-    {
         super.animationDuration = (int) (20 * super.time);
         step = (blocksToMove + 0.5f) / super.animationDuration;
     }

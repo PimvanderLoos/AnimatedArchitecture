@@ -26,8 +26,8 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
     protected final boolean northSouth;
     protected final TriFunction<Vector3Dd, Vector3Dd, Double, Vector3Dd> rotator;
 
-    private int halfEndCount;
-    private double step;
+    private final int halfEndCount;
+    private final double step;
     protected final double angle;
 
     /**
@@ -83,15 +83,6 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
                                                               " is not valid for this type!");
         }
 
-        init();
-        super.startAnimation();
-    }
-
-    /**
-     * Used for initializing variables such as {@link #animationDuration}.
-     */
-    protected void init()
-    {
         super.animationDuration = (int) (20 * super.time);
         step = angle / super.animationDuration;
         halfEndCount = super.animationDuration / 2;

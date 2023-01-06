@@ -19,8 +19,7 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 public class VerticalMover extends BlockMover
 {
     protected final int blocksToMove;
-
-    private double step;
+    private final double step;
 
     public VerticalMover(
         Context context, AbstractDoor door, double time, boolean skipAnimation, int blocksToMove, double multiplier,
@@ -50,15 +49,6 @@ public class VerticalMover extends BlockMover
             super.time = Math.abs(blocksToMove) / speed;
         }
 
-        init();
-        super.startAnimation();
-    }
-
-    /**
-     * Used for initializing variables such as {@link #animationDuration}.
-     */
-    protected void init()
-    {
         super.animationDuration = (int) (20 * super.time);
         step = ((double) blocksToMove) / ((double) super.animationDuration);
     }

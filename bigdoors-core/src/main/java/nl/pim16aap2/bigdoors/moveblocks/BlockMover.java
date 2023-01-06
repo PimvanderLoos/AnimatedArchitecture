@@ -309,8 +309,11 @@ public abstract class BlockMover
      * any animations.
      * <p>
      * Has to be called from the main thread!
+     *
+     * @throws IllegalStateException
+     *     When called asynchronously, when some variables are invalid, or when that animation has already started.
      */
-    protected final synchronized void startAnimation()
+    public final synchronized void startAnimation()
     {
         if (animationDuration < 0)
             throw new IllegalStateException("Trying to start an animation with invalid endCount value: " +

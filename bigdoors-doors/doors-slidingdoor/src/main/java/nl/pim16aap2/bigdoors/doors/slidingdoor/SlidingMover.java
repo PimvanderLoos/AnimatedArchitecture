@@ -23,7 +23,7 @@ public class SlidingMover extends BlockMover
     private final int moveX;
     private final int moveZ;
 
-    private double step;
+    private final double step;
 
     private @Nullable IAnimatedBlock firstBlockData = null;
 
@@ -63,15 +63,6 @@ public class SlidingMover extends BlockMover
             super.time = Math.abs(blocksToMove) / speed;
         }
 
-        init();
-        super.startAnimation();
-    }
-
-    /**
-     * Used for initializing variables such as {@link #animationDuration}.
-     */
-    protected void init()
-    {
         super.animationDuration = (int) (20 * super.time);
         step = ((double) blocksToMove) / ((double) super.animationDuration);
     }

@@ -59,11 +59,6 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
         isHourArm = northSouth ? this::isHourArmNS : this::isHourArmEW;
         angleDirectionMultiplier =
             (rotateDirection == RotateDirection.EAST || rotateDirection == RotateDirection.SOUTH) ? -1 : 1;
-    }
-
-    @Override
-    protected void init()
-    {
         super.animationDuration = 40_000;
     }
 
