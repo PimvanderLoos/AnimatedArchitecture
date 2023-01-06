@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
+import com.google.common.flogger.StackSize;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.ToString;
@@ -176,7 +177,7 @@ public abstract class BlockMover
     /**
      * Keeps track of whether the animation has started.
      */
-    private volatile boolean hasStarted = false;
+    private final AtomicBoolean hasStarted = new AtomicBoolean(false);
 
     private @Nullable List<IAnimationHook<IAnimatedBlock>> hooks;
 
@@ -233,8 +234,8 @@ public abstract class BlockMover
         animationHookManager = context.getAnimationHookManager();
         glowingBlockSpawner = context.getGlowingBlockSpawner();
 
-        if (!context.getExecutor().isMainThread(Thread.currentThread().threadId()))
-            throw new Exception("BlockMovers must be called on the main thread!");
+        if (!context.getExecutor().isMainThread())
+            throw new IllegalStateException("BlockMovers must be called on the main thread!");
 
         autoCloseScheduler.unscheduleAutoClose(door.getDoorUID());
         world = door.getWorld();
@@ -306,19 +307,23 @@ public abstract class BlockMover
      * <p>
      * Note that if {@link #skipAnimation} is true, the blocks will be placed in the new position immediately without
      * any animations.
+     * <p>
+     * Has to be called from the main thread!
      */
-    protected synchronized void startAnimation()
+    protected final synchronized void startAnimation()
     {
         if (animationDuration < 0)
             throw new IllegalStateException("Trying to start an animation with invalid endCount value: " +
                                                 animationDuration);
-        if (hasStarted)
-            throw new IllegalStateException("Trying to start an animation again!");
-        hasStarted = true;
 
-        final Animation<IAnimatedBlock> animation = new Animation<>(animationDuration, door.getCuboid(),
-                                                                    privateAnimatedBlocks,
-                                                                    door);
+        if (!executor.isMainThread())
+            throw new IllegalStateException("Animations must be started on the main thread!");
+
+        if (hasStarted.getAndSet(true))
+            throw new IllegalStateException("Trying to start an animation again!");
+
+        final Animation<IAnimatedBlock> animation = new Animation<>(
+            animationDuration, door.getCuboid(), privateAnimatedBlocks, door);
         final AnimationContext animationContext = new AnimationContext(door.getDoorType(), door, animation);
 
         try
@@ -379,6 +384,9 @@ public abstract class BlockMover
      */
     private boolean tryRemoveOriginalBlocks(boolean edgePass)
     {
+        if (!executor.isMainThread())
+            throw new IllegalStateException("Blocks must be removed on the main thread!");
+
         for (final IAnimatedBlock animatedBlock : privateAnimatedBlocks)
         {
             try
@@ -406,6 +414,13 @@ public abstract class BlockMover
      */
     private void handleInitFailure()
     {
+        if (!executor.isMainThread())
+        {
+            log.atSevere().withStackTrace(StackSize.FULL).log("Trying to handle init failure asynchronously!");
+            executor.runOnMainThread(this::handleInitFailure);
+            return;
+        }
+
         for (final IAnimatedBlock animatedBlock : privateAnimatedBlocks)
         {
             try
@@ -512,7 +527,7 @@ public abstract class BlockMover
 
         forEachHook("onAnimationEnding", IAnimationHook::onAnimationEnding);
 
-        executor.runSync(() -> putBlocks(false));
+        putBlocks(false);
         if (moverTask == null)
         {
             log.at(Level.WARNING).log("MoverTask unexpectedly null for BlockMover:\n%s", this);
@@ -541,6 +556,9 @@ public abstract class BlockMover
      */
     private synchronized void animateEntities(Animation<IAnimatedBlock> animation)
     {
+        if (!executor.isMainThread())
+            throw new IllegalStateException("Animation must be started on the main thread!");
+
         try
         {
             prepareAnimation();
