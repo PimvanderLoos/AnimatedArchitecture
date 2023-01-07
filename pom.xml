@@ -14,7 +14,7 @@
         <maven.compiler.release>19</maven.compiler.release>
 
         <dependency.version.jcalculator>1.8</dependency.version.jcalculator>
-        <dependency.version.gson>2.10</dependency.version.gson>
+        <dependency.version.gson>2.10.1</dependency.version.gson>
         <dependency.version.cloud>1.8.0</dependency.version.cloud>
         <dependency.version.adventure-api>4.12.0</dependency.version.adventure-api>
         <dependency.version.adventure-bukkit>4.2.0</dependency.version.adventure-bukkit>
