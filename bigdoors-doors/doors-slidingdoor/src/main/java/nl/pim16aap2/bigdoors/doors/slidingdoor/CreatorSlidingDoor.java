@@ -70,6 +70,7 @@ public class CreatorSlidingDoor extends Creator
         if (blocksToMoveLimit.isPresent() && blocksToMove > blocksToMoveLimit.getAsInt())
         {
             getPlayer().sendError(textFactory, localizer.getMessage("creator.base.error.blocks_to_move_too_far",
+                                                                    localizer.getDoorType(getDoorType()),
                                                                     Integer.toString(blocksToMove),
                                                                     Integer.toString(blocksToMoveLimit.getAsInt())));
             return false;

@@ -34,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.Collections;
+import java.util.List;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.Set;
@@ -200,7 +200,7 @@ public abstract class Creator extends ToolUser
             new Step.Factory(localizer, "SET_NAME")
                 .stepExecutor(new StepExecutorString(this::completeNamingStep))
                 .messageKey("creator.base.give_name")
-                .messageVariableRetriever(getDoorType()::getLocalizationKey);
+                .messageVariableRetriever(() -> localizer.getDoorType(getDoorType()));
 
         factorySetFirstPos =
             new Step.Factory(localizer, "SET_FIRST_POS")
@@ -234,7 +234,8 @@ public abstract class Creator extends ToolUser
                 .stepExecutor(new StepExecutorBoolean(this::confirmPrice))
                 .skipCondition(this::skipConfirmPrice)
                 .messageKey("creator.base.confirm_door_price")
-                .messageVariableRetrievers(Collections.singletonList(() -> String.format("%.2f", getPrice().orElse(0))))
+                .messageVariableRetrievers(List.of(() -> localizer.getDoorType(getDoorType()),
+                                                   () -> String.format("%.2f", getPrice().orElse(0))))
                 .implicitNextStep(false);
 
         factoryCompleteProcess =
@@ -315,7 +316,8 @@ public abstract class Creator extends ToolUser
         {
             log.at(Level.FINE).log("Invalid name '%s' for selected Creator: %s", str, this);
             getPlayer().sendMessage(textFactory, TextType.ERROR,
-                                    localizer.getMessage("creator.base.error.invalid_name", str));
+                                    localizer.getMessage("creator.base.error.invalid_name",
+                                                         str, localizer.getDoorType(getDoorType())));
             return false;
         }
 
@@ -362,10 +364,12 @@ public abstract class Creator extends ToolUser
         final OptionalInt sizeLimit = limitsManager.getLimit(getPlayer(), Limit.DOOR_SIZE);
         if (sizeLimit.isPresent() && newCuboid.getVolume() > sizeLimit.getAsInt())
         {
-            getPlayer().sendMessage(textFactory, TextType.ERROR,
-                                    localizer.getMessage("creator.base.error.area_too_big",
-                                                         Integer.toString(newCuboid.getVolume()),
-                                                         Integer.toString(sizeLimit.getAsInt())));
+            getPlayer().sendMessage(
+                textFactory, TextType.ERROR,
+                localizer.getMessage("creator.base.error.area_too_big",
+                                     localizer.getDoorType(getDoorType()),
+                                     Integer.toString(newCuboid.getVolume()),
+                                     Integer.toString(sizeLimit.getAsInt())));
             return false;
         }
 
@@ -402,6 +406,7 @@ public abstract class Creator extends ToolUser
 
             getPlayer().sendMessage(textFactory, TextType.ERROR,
                                     localizer.getMessage("creator.base.error.insufficient_funds",
+                                                         localizer.getDoorType(getDoorType()),
                                                          DECIMAL_FORMAT.format(getPrice().orElse(0))));
             abort();
             return true;
@@ -559,7 +564,8 @@ public abstract class Creator extends ToolUser
         if (Util.requireNonNull(cuboid, "cuboid").isPosInsideCuboid(pos))
         {
             getPlayer().sendMessage(textFactory, TextType.ERROR,
-                                    localizer.getMessage("creator.base.error.powerblock_inside_door"));
+                                    localizer.getMessage("creator.base.error.powerblock_inside_door",
+                                                         localizer.getDoorType(getDoorType())));
             return false;
         }
         final OptionalInt distanceLimit = limitsManager.getLimit(getPlayer(), Limit.POWERBLOCK_DISTANCE);
@@ -569,6 +575,7 @@ public abstract class Creator extends ToolUser
         {
             getPlayer().sendMessage(textFactory, TextType.ERROR,
                                     localizer.getMessage("creator.base.error.powerblock_too_far",
+                                                         localizer.getDoorType(getDoorType()),
                                                          DECIMAL_FORMAT.format(distance),
                                                          Integer.toString(distanceLimit.getAsInt())));
             return false;

@@ -61,6 +61,7 @@ class CreatorTest
         mocks = MockitoAnnotations.openMocks(this);
 
         final DoorType doorType = Mockito.mock(DoorType.class);
+        Mockito.when(doorType.getLocalizationKey()).thenReturn("DoorType");
 
         Mockito.when(creator.getDoorType()).thenReturn(doorType);
         Mockito.when(economyManager.isEconomyEnabled()).thenReturn(true);
@@ -97,7 +98,8 @@ class CreatorTest
         final String input = "1";
         // Numerical names are not allowed.
         Assertions.assertFalse(creator.completeNamingStep(input));
-        Mockito.verify(player).sendMessage(UnitTestUtil.toText("creator.base.error.invalid_name " + input));
+        Mockito.verify(player)
+               .sendMessage(UnitTestUtil.toText("creator.base.error.invalid_name " + input + " DoorType"));
 
         Assertions.assertTrue(creator.completeNamingStep("newDoor"));
         Mockito.verify(creator).giveTool();
@@ -165,7 +167,7 @@ class CreatorTest
         // Not allowed, because the selected area is too big.
         Assertions.assertFalse(creator.setSecondPos(loc));
         Mockito.verify(player)
-               .sendMessage(UnitTestUtil.toText(String.format("creator.base.error.area_too_big %d %d",
+               .sendMessage(UnitTestUtil.toText(String.format("creator.base.error.area_too_big DoorType %d %d",
                                                               cuboid.getVolume(), cuboid.getVolume() - 1)));
 
         Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any()))
@@ -194,14 +196,14 @@ class CreatorTest
         Mockito.doReturn(false).when(creator).buyDoor();
 
         Assertions.assertTrue(creator.confirmPrice(true));
-        Mockito.verify(player).sendMessage(UnitTestUtil.toText("creator.base.error.insufficient_funds 0"));
+        Mockito.verify(player).sendMessage(UnitTestUtil.toText("creator.base.error.insufficient_funds DoorType 0"));
 
         double price = 123.41;
         Mockito.doReturn(OptionalDouble.of(price)).when(creator).getPrice();
         Mockito.doReturn(false).when(creator).buyDoor();
         Assertions.assertTrue(creator.confirmPrice(true));
-        Mockito.verify(player)
-               .sendMessage(UnitTestUtil.toText(String.format("creator.base.error.insufficient_funds %.2f", price)));
+        Mockito.verify(player).sendMessage(
+            UnitTestUtil.toText(String.format("creator.base.error.insufficient_funds DoorType %.2f", price)));
 
         Mockito.doReturn(true).when(creator).buyDoor();
         Assertions.assertTrue(creator.confirmPrice(true));
@@ -303,7 +305,7 @@ class CreatorTest
         Mockito.doReturn(true).when(creator).playerHasAccessToLocation(Mockito.any());
         Assertions.assertFalse(creator.completeSetPowerBlockStep(insideCuboid));
 
-        Mockito.verify(player).sendMessage(UnitTestUtil.toText("creator.base.error.powerblock_inside_door"));
+        Mockito.verify(player).sendMessage(UnitTestUtil.toText("creator.base.error.powerblock_inside_door DoorType"));
 
         final double distance = cuboid.getCenter().getDistance(outsideCuboid.getPosition());
         final int lowLimit = (int) (distance - 1);
@@ -311,7 +313,7 @@ class CreatorTest
 
         Assertions.assertFalse(creator.completeSetPowerBlockStep(outsideCuboid));
         Mockito.verify(player)
-               .sendMessage(UnitTestUtil.toText(String.format("creator.base.error.powerblock_too_far %.2f %d",
+               .sendMessage(UnitTestUtil.toText(String.format("creator.base.error.powerblock_too_far DoorType %.2f %d",
                                                               distance, lowLimit)));
 
         Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any())).thenReturn(OptionalInt.of(lowLimit + 10));
