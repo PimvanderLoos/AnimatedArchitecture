@@ -425,7 +425,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
         DoorActionType actionType)
     {
-        if (!executor.isMainThread(Thread.currentThread().getId()))
+        if (!executor.isMainThread(Thread.currentThread().threadId()))
         {
             doorActivityManager.setDoorAvailable(getDoorUID());
             log.at(Level.SEVERE).withCause(
@@ -436,8 +436,10 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         try
         {
             final BlockMover.Context context = blockMoverContextProvider.get();
-            doorOpeningHelper.registerBlockMover(abstractDoor.constructBlockMover(context, cause, time, skipAnimation,
-                                                                                  newCuboid, responsible, actionType));
+            final BlockMover blockMover = abstractDoor.constructBlockMover(
+                context, cause, time, skipAnimation, newCuboid, responsible, actionType);
+            doorOpeningHelper.registerBlockMover(blockMover);
+            blockMover.startAnimation();
         }
         catch (Exception e)
         {

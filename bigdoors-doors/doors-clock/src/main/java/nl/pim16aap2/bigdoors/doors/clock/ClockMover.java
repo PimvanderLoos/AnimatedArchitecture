@@ -35,7 +35,7 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
     protected static final float MINUTE_STEP = (float) Math.PI / 30;
 
     /**
-     * The step of 1 hours on a clock, or 1/12th of a circle in radians.
+     * The step of 1 hour on a clock, or 1/12th of a circle in radians.
      */
     protected static final float HOUR_STEP = (float) Math.PI / 6;
 
@@ -59,11 +59,6 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
         isHourArm = northSouth ? this::isHourArmNS : this::isHourArmEW;
         angleDirectionMultiplier =
             (rotateDirection == RotateDirection.EAST || rotateDirection == RotateDirection.SOUTH) ? -1 : 1;
-    }
-
-    @Override
-    protected void init()
-    {
         super.animationDuration = 40_000;
     }
 

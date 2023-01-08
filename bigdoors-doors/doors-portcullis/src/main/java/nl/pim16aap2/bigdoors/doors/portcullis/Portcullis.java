@@ -15,10 +15,7 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
 import java.util.Optional;
 
@@ -78,25 +75,30 @@ public class Portcullis extends AbstractDoor implements IDiscreteMovement, ITime
     @Override
     public synchronized RotateDirection getCurrentToggleDir()
     {
-        return isOpen() ? RotateDirection.DOWN : RotateDirection.UP;
+        return isOpen() ? getOpenDir() : RotateDirection.getOpposite(getOpenDir());
     }
 
     @Override
     public synchronized Optional<Cuboid> getPotentialNewCoordinates()
     {
-        final Vector3Di vec = PBlockFace.getDirection(Util.getPBlockFace(getCurrentToggleDir()));
-        return Optional.of(getCuboid().move(getBlocksToMove() * vec.x(), 0, getBlocksToMove() * vec.z()));
+        return Optional.of(getCuboid().move(0, getDirectedBlocksToMove(), 0));
+    }
+
+    /**
+     * @return The signed number of blocks to move (positive for up, negative for down).
+     */
+    private int getDirectedBlocksToMove()
+    {
+        return getCurrentToggleDir() == RotateDirection.UP ? getBlocksToMove() : -getBlocksToMove();
     }
 
     @Override
-    protected BlockMover constructBlockMover(BlockMover.Context context, DoorActionCause cause, double time,
-                                             boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
-                                             DoorActionType actionType)
+    protected BlockMover constructBlockMover(
+        BlockMover.Context context, DoorActionCause cause, double time, boolean skipAnimation, Cuboid newCuboid,
+        IPPlayer responsible, DoorActionType actionType)
         throws Exception
     {
-        final int directedBlocksToMove = getOpenDir().equals(RotateDirection.UP) ?
-                                         getBlocksToMove() : -getBlocksToMove();
-        return new VerticalMover(context, this, time, skipAnimation, directedBlocksToMove,
+        return new VerticalMover(context, this, time, skipAnimation, getDirectedBlocksToMove(),
                                  doorOpeningHelper.getAnimationTime(this), responsible, newCuboid, cause, actionType);
     }
 }

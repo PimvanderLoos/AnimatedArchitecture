@@ -44,15 +44,6 @@ public class FlagMover extends BlockMover
         this.time = time;
         waveSpeed = 10.0f;
 
-        init();
-        super.startAnimation();
-    }
-
-    /**
-     * Used for initializing variables such as {@link #animationDuration}.
-     */
-    protected void init()
-    {
         super.animationDuration = 200;
     }
 

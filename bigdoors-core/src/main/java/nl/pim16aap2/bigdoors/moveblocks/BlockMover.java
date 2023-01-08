@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
+import com.google.common.flogger.StackSize;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.ToString;
@@ -148,6 +149,14 @@ public abstract class BlockMover
     @Getter(AccessLevel.PROTECTED)
     private final List<IAnimatedBlock> animatedBlocks;
 
+    /**
+     * True for types of movement that are supposed to keep going until otherwise stopped. For example, flags,
+     * windmills, etc.
+     * <p>
+     * False to have the movement be time-bound, such as for doors, drawbridges, etc.
+     */
+    protected boolean perpetualMovement = false;
+
     protected int xMin;
 
     protected int yMin;
@@ -168,7 +177,7 @@ public abstract class BlockMover
     /**
      * Keeps track of whether the animation has started.
      */
-    private volatile boolean hasStarted = false;
+    private final AtomicBoolean hasStarted = new AtomicBoolean(false);
 
     private @Nullable List<IAnimationHook<IAnimatedBlock>> hooks;
 
@@ -225,8 +234,8 @@ public abstract class BlockMover
         animationHookManager = context.getAnimationHookManager();
         glowingBlockSpawner = context.getGlowingBlockSpawner();
 
-        if (!context.getExecutor().isMainThread(Thread.currentThread().getId()))
-            throw new Exception("BlockMovers must be called on the main thread!");
+        if (!context.getExecutor().isMainThread())
+            throw new IllegalStateException("BlockMovers must be called on the main thread!");
 
         autoCloseScheduler.unscheduleAutoClose(door.getDoorUID());
         world = door.getWorld();
@@ -298,19 +307,26 @@ public abstract class BlockMover
      * <p>
      * Note that if {@link #skipAnimation} is true, the blocks will be placed in the new position immediately without
      * any animations.
+     * <p>
+     * Has to be called from the main thread!
+     *
+     * @throws IllegalStateException
+     *     When called asynchronously, when some variables are invalid, or when that animation has already started.
      */
-    protected synchronized void startAnimation()
+    public final synchronized void startAnimation()
     {
         if (animationDuration < 0)
             throw new IllegalStateException("Trying to start an animation with invalid endCount value: " +
                                                 animationDuration);
-        if (hasStarted)
-            throw new IllegalStateException("Trying to start an animation again!");
-        hasStarted = true;
 
-        final Animation<IAnimatedBlock> animation = new Animation<>(animationDuration, door.getCuboid(),
-                                                                    privateAnimatedBlocks,
-                                                                    door);
+        if (!executor.isMainThread())
+            throw new IllegalStateException("Animations must be started on the main thread!");
+
+        if (hasStarted.getAndSet(true))
+            throw new IllegalStateException("Trying to start an animation again!");
+
+        final Animation<IAnimatedBlock> animation = new Animation<>(
+            animationDuration, door.getCuboid(), privateAnimatedBlocks, door);
         final AnimationContext animationContext = new AnimationContext(door.getDoorType(), door, animation);
 
         try
@@ -371,6 +387,9 @@ public abstract class BlockMover
      */
     private boolean tryRemoveOriginalBlocks(boolean edgePass)
     {
+        if (!executor.isMainThread())
+            throw new IllegalStateException("Blocks must be removed on the main thread!");
+
         for (final IAnimatedBlock animatedBlock : privateAnimatedBlocks)
         {
             try
@@ -398,6 +417,13 @@ public abstract class BlockMover
      */
     private void handleInitFailure()
     {
+        if (!executor.isMainThread())
+        {
+            log.atSevere().withStackTrace(StackSize.FULL).log("Trying to handle init failure asynchronously!");
+            executor.runOnMainThread(this::handleInitFailure);
+            return;
+        }
+
         for (final IAnimatedBlock animatedBlock : privateAnimatedBlocks)
         {
             try
@@ -504,7 +530,7 @@ public abstract class BlockMover
 
         forEachHook("onAnimationEnding", IAnimationHook::onAnimationEnding);
 
-        executor.runSync(() -> putBlocks(false));
+        putBlocks(false);
         if (moverTask == null)
         {
             log.at(Level.WARNING).log("MoverTask unexpectedly null for BlockMover:\n%s", this);
@@ -533,6 +559,9 @@ public abstract class BlockMover
      */
     private synchronized void animateEntities(Animation<IAnimatedBlock> animation)
     {
+        if (!executor.isMainThread())
+            throw new IllegalStateException("Animation must be started on the main thread!");
+
         try
         {
             prepareAnimation();
@@ -565,18 +594,13 @@ public abstract class BlockMover
                 currentTime = System.nanoTime();
                 startTime += currentTime - lastTime;
 
-                // After about 12620 ticks, the blocks will disappear.
-                // Respawning them before this happens, fixes the issue.
-                // TODO: Check if just resetting the tick value of the blocks works as well.
-                if (counter % 12_500 == 0)
-                    respawnBlocks();
-
-                if (counter > stopCount)
-                    stopAnimation(animation);
-                else if (counter > animationDuration)
-                    executeFinishingStep(counter, animation);
-                else
+                if (perpetualMovement || counter <= animationDuration)
                     executeAnimationStep(counter, animation);
+                else if (counter > stopCount)
+                    stopAnimation(animation);
+                else
+                    executeFinishingStep(counter, animation);
+
                 animation.setStepsExecuted(counter);
                 forEachHook("onPostAnimationStep", IAnimationHook::onPostAnimationStep);
             }

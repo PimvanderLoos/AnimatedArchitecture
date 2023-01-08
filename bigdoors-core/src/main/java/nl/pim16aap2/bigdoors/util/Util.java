@@ -742,19 +742,6 @@ public final class Util
         return test <= high && test >= low;
     }
 
-    @Deprecated
-    public static int tickRateFromSpeed(double speed)
-    {
-        return 1;
-    }
-
-    // Return {time, tickRate, distanceMultiplier} for a given door size.
-    @Deprecated
-    public static double[] calculateTimeAndTickRate(int doorSize, double time, double speedMultiplier, double baseSpeed)
-    {
-        return new double[0];
-    }
-
     /**
      * Flattens a list of lists into a single list.
      *
@@ -849,7 +836,7 @@ public final class Util
     }
 
     /**
-     * Handles exceptional completion of a {@link CompletableFuture}. This ensure that the target is finished
+     * Handles exceptional completion of a {@link CompletableFuture}. This ensures that the target is finished
      * exceptionally as well, to propagate the exception.
      *
      * @param throwable
@@ -867,7 +854,7 @@ public final class Util
     }
 
     /**
-     * Handles exceptional completion of a {@link CompletableFuture}. This ensure that the target is finished
+     * Handles exceptional completion of a {@link CompletableFuture}. This ensures that the target is finished
      * exceptionally as well, to propagate the exception.
      *
      * @param throwable

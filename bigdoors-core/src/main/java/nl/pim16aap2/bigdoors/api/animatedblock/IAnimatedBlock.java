@@ -36,11 +36,6 @@ public interface IAnimatedBlock
     Vector3Dd getPreviousPosition();
 
     /**
-     * @return The current velocity of this animated block in x/y/z.
-     */
-    Vector3Dd getVelocity();
-
-    /**
      * Gets the world this animated block exists in.
      *
      * @return The world this animated block exists in.
@@ -120,7 +115,7 @@ public interface IAnimatedBlock
     /**
      * @return The current velocity of this entity.
      */
-    Vector3Dd getPVelocity();
+    Vector3Dd getVelocity();
 
     /**
      * @param vector

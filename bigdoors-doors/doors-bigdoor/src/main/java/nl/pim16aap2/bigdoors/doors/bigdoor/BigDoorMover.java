@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 
@@ -19,9 +18,9 @@ import java.util.logging.Level;
 public class BigDoorMover extends BlockMover
 {
     private final Vector3Dd rotationCenter;
-    private int halfEndCount;
+    private final int halfEndCount;
     private final double angle;
-    private double step;
+    private final double step;
 
     public BigDoorMover(
         Context context, AbstractDoor door, RotateDirection rotDirection, double time,
@@ -38,23 +37,8 @@ public class BigDoorMover extends BlockMover
             log.at(Level.SEVERE).log("Invalid open direction '%s' for door: %d", rotDirection.name(), getDoorUID());
 
         rotationCenter = new Vector3Dd(door.getRotationPoint().x() + 0.5, yMin, door.getRotationPoint().z() + 0.5);
-
-        final int xLen = Math.abs(door.getMaximum().x() - door.getMinimum().x());
-        final int zLen = Math.abs(door.getMaximum().z() - door.getMinimum().z());
-        final int doorLength = Math.max(xLen, zLen) + 1;
-        final double[] vars = Util.calculateTimeAndTickRate(doorLength, time, multiplier, 3.7);
-//        super.time = vars[0];
         super.time = 3;
 
-        init();
-        super.startAnimation();
-    }
-
-    /**
-     * Used for initializing variables such as {@link #animationDuration}.
-     */
-    protected void init()
-    {
         super.animationDuration = (int) (20 * super.time) + 1;
         step = angle / super.animationDuration;
         halfEndCount = super.animationDuration / 2;

@@ -26,8 +26,8 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
     protected final boolean northSouth;
     protected final TriFunction<Vector3Dd, Vector3Dd, Double, Vector3Dd> rotator;
 
-    private int halfEndCount;
-    private double step;
+    private final int halfEndCount;
+    private final double step;
     protected final double angle;
 
     /**
@@ -55,13 +55,7 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
 
         northSouth = door.isNorthSouthAligned();
         rotationCenter = door.getRotationPoint().toDouble().add(0.5, 0, 0.5);
-
-        final int xLen = Math.abs(door.getMaximum().x() - door.getMinimum().x());
-        final int yLen = Math.abs(door.getMaximum().y() - door.getMinimum().y());
-        final int zLen = Math.abs(door.getMaximum().z() - door.getMinimum().z());
-        final int doorSize = Math.max(xLen, Math.max(yLen, zLen)) + 1;
-        final double[] vars = Util.calculateTimeAndTickRate(doorSize, time, multiplier, 5.2);
-        this.time = vars[0];
+        this.time = time;
 
         switch (rotateDirection)
         {
@@ -86,15 +80,6 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
                                                        " is not valid for this type!");
         }
 
-        init();
-        super.startAnimation();
-    }
-
-    /**
-     * Used for initializing variables such as {@link #animationDuration}.
-     */
-    protected void init()
-    {
         super.animationDuration = (int) (20 * super.time);
         step = angle / super.animationDuration;
         halfEndCount = super.animationDuration / 2;

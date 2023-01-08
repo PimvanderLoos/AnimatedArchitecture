@@ -22,7 +22,7 @@ public class WindmillMover<T extends AbstractDoor & IHorizontalAxisAligned> exte
 {
     protected static final double EPS = 2 * Double.MIN_VALUE;
 
-    private double step;
+    private final double step;
 
     public WindmillMover(
         Context context, T door, double time, double multiplier, RotateDirection rotateDirection, IPPlayer player,
@@ -30,11 +30,8 @@ public class WindmillMover<T extends AbstractDoor & IHorizontalAxisAligned> exte
         throws Exception
     {
         super(context, time, door, rotateDirection, false, multiplier, player, door.getCuboid(), cause, actionType);
-    }
 
-    @Override
-    protected void init()
-    {
+        super.perpetualMovement = true;
         super.animationDuration = (int) (20 * 20 * super.time);
         step = (Math.PI / 2.0) / (20.0f * super.time * 2.0f);
     }

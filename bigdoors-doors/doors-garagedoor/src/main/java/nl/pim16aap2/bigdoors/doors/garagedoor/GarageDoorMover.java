@@ -30,7 +30,7 @@ public class GarageDoorMover extends BlockMover
     private final boolean northSouth;
     protected int blocksToMove;
 
-    private double step;
+    private final double step;
 
     public GarageDoorMover(
         Context context, GarageDoor door, double time, double multiplier, boolean skipAnimation,
@@ -88,15 +88,6 @@ public class GarageDoorMover extends BlockMover
             getVector = getVectorTmp;
         }
 
-        init();
-        super.startAnimation();
-    }
-
-    /**
-     * Used for initializing variables such as {@link #animationDuration}.
-     */
-    protected void init()
-    {
         super.animationDuration = (int) (20 * super.time);
         step = (blocksToMove + 0.5f) / super.animationDuration;
     }
