@@ -116,7 +116,7 @@ public final class CommandDefinition
                               PREFIX_USER + "setname",
                               null);
 
-    public static final CommandDefinition SET_OPEN_DIR =
+    public static final CommandDefinition SET_OPEN_DIRECTION =
         new CommandDefinition("SET_OPEN_DIR",
                               PREFIX_USER + "base",
                               PREFIX_ADMIN + "bypass.setrotation");

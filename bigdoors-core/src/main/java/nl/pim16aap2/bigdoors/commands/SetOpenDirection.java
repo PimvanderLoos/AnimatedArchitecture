@@ -24,7 +24,7 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class SetOpenDirection extends DoorTargetCommand
 {
-    public static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.SET_OPEN_DIR;
+    public static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.SET_OPEN_DIRECTION;
 
     private final RotateDirection rotateDirection;
 

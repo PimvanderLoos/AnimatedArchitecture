@@ -353,7 +353,7 @@ public final class CommandManager
         BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
         manager.command(
-            baseInit(builder, CommandDefinition.SET_OPEN_DIR, "commands.set_open_direction.description")
+            baseInit(builder, CommandDefinition.SET_OPEN_DIRECTION, "commands.set_open_direction.description")
                 .argument(defaultDirectionArgument(true).build())
                 .argument(defaultDoorArgument(false, PermissionLevel.ADMIN).build())
                 .handler(executor::setOpenDirection)

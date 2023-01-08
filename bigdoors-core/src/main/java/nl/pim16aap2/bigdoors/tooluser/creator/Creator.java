@@ -223,7 +223,7 @@ public abstract class Creator extends ToolUser
             new Step.Factory(localizer, "SET_OPEN_DIRECTION")
                 .stepExecutor(new StepExecutorOpenDirection(this::completeSetOpenDirStep))
                 .stepPreparation(this::prepareSetOpenDirection)
-                .messageKey("creator.base.set_open_dir")
+                .messageKey("creator.base.set_open_direction")
                 .messageVariableRetrievers(
                     () -> getValidOpenDirections().stream()
                                                   .map(dir -> localizer.getMessage(dir.getLocalizationKey()))
