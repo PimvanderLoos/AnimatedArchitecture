@@ -189,7 +189,8 @@ public abstract class Creator extends ToolUser
 
         if (name != null)
             handleInput(name);
-        prepareCurrentStep();
+        else
+            prepareCurrentStep();
     }
 
     @Override
@@ -202,7 +203,7 @@ public abstract class Creator extends ToolUser
                 .messageVariableRetriever(getDoorType()::getLocalizationKey);
 
         factorySetFirstPos =
-            new Step.Factory(localizer, "SET_FIRST_POST")
+            new Step.Factory(localizer, "SET_FIRST_POS")
                 .stepExecutor(new StepExecutorPLocation(this::setFirstPos));
 
         factorySetSecondPos =
