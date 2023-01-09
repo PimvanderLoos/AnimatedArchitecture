@@ -84,6 +84,58 @@ public abstract class AbstractDoor implements IDoor
     public abstract DoorType getDoorType();
 
     /**
+     * Gets the animation time of this door.
+     * <p>
+     * This basically returns max(target, {@link #getMinimumAnimationTime()}), logging a message in case the target time
+     * is too low.
+     *
+     * @param target
+     *     The target time.
+     * @return The target time if it is bigger than the minimum time, otherwise the minimum.
+     */
+    private double getAnimationTime0(double target)
+    {
+        final double minimum = getMinimumAnimationTime();
+        if (target < minimum)
+        {
+            log.atFiner()
+               .log("Target animation time of %.4f seconds is less than the minimum of %.4f seconds for door: %s.",
+                    target, minimum, getBasicInfo());
+            return minimum;
+        }
+        return target;
+    }
+
+    /**
+     * Gets the animation time for this door.
+     * <p>
+     * The animation time is calculated using this door's {@link #getBaseAnimationTime()}, its
+     * {@link #getMinimumAnimationTime()}, and the multiplier for this type as described by
+     * {@link IConfigLoader#getAnimationSpeedMultiplier(DoorType)}.
+     *
+     * @return The animation time for this door in seconds.
+     */
+    public final double getAnimationTime()
+    {
+        return getAnimationTime0(getBaseAnimationTime() * config.getAnimationSpeedMultiplier(getDoorType()));
+    }
+
+    /**
+     * Gets the animation time for this door, keeping a target time in mind.
+     * <p>
+     * If the target is not null, the returned value will simply be the maximum value of the target and
+     * {@link #getBaseAnimationTime()}. Note that the time multiplier is ignored in this case.
+     *
+     * @param target
+     *     The target time. When null, {@link #getAnimationTime()} is used.
+     * @return The animation time for this door in seconds.
+     */
+    private double getAnimationTime(@Nullable Double target)
+    {
+        return target == null ? getAnimationTime() : getAnimationTime0(target);
+    }
+
+    /**
      * Gets the lower time limit for an animation.
      * <p>
      * Because animated blocks have a speed limit, as determined by {@link IConfigLoader#maxBlockSpeed()}, there is also
@@ -107,7 +159,7 @@ public abstract class AbstractDoor implements IDoor
      * @return The base animation time for this door in seconds.
      */
     // TODO: This method should be abstract.
-    public double getBaseToggleTime()
+    public double getBaseAnimationTime()
     {
         return 0.0D;
     }
@@ -222,9 +274,8 @@ public abstract class AbstractDoor implements IDoor
      * @param responsible
      *     Who is responsible for doorBase door. Either the player who directly toggled it (via a command or the GUI),
      *     or the prime owner when doorBase data is not available.
-     * @param time
-     *     The amount of time doorBase {@link DoorBase} will try to use to move. The maximum speed is limited, so at a
-     *     certain point lower values will not increase door speed.
+     * @param targetTime
+     *     The amount of time doorBase {@link DoorBase} will try to use to move. When null, the default speed is used.
      * @param skipAnimation
      *     If the {@link DoorBase} should be opened instantly (i.e. skip animation) or not.
      * @param actionType
@@ -234,8 +285,8 @@ public abstract class AbstractDoor implements IDoor
     // TODO: Simplify this method.
     @SuppressWarnings({"unused", "squid:S1172"}) // messageReceiver isn't used yet, but it will be.
     final synchronized DoorToggleResult toggle(
-        DoorActionCause cause, IMessageable messageReceiver, IPPlayer responsible, double time, boolean skipAnimation,
-        DoorActionType actionType)
+        DoorActionCause cause, IMessageable messageReceiver, IPPlayer responsible, @Nullable Double targetTime,
+        boolean skipAnimation, DoorActionType actionType)
     {
         if (!doorOpeningHelper.isMainThread())
         {
@@ -265,10 +316,10 @@ public abstract class AbstractDoor implements IDoor
             return doorOpeningHelper.abort(this, DoorToggleResult.TOO_BIG, cause, responsible, messageReceiver);
 
         final Optional<Cuboid> newCuboid = getPotentialNewCoordinates();
-
         if (newCuboid.isEmpty())
             return doorOpeningHelper.abort(this, DoorToggleResult.ERROR, cause, responsible, messageReceiver);
 
+        final double time = getAnimationTime(targetTime);
         final IDoorEventTogglePrepare prepareEvent =
             doorOpeningHelper.callTogglePrepareEvent(
                 this, cause, actionType, responsible, time, skipAnimation, newCuboid.get());

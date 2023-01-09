@@ -97,13 +97,25 @@ public class BigDoor extends AbstractDoor implements ITimerToggleable
     }
 
     @Override
+    public double getMinimumAnimationTime()
+    {
+        return 0.0D;
+    }
+
+    @Override
+    public double getBaseAnimationTime()
+    {
+        return 0.0D;
+    }
+
+    @Override
     protected BlockMover constructBlockMover(
         BlockMover.Context context, DoorActionCause cause, double time,
         boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
         DoorActionType actionType)
         throws Exception
     {
-        return new BigDoorMover(context, this, getCurrentToggleDir(), time, skipAnimation,
-                                responsible, newCuboid, cause, actionType);
+        return new BigDoorMover(
+            context, this, getCurrentToggleDir(), time, skipAnimation, responsible, newCuboid, cause, actionType);
     }
 }

@@ -29,8 +29,8 @@ public class BigDoorMover extends BlockMover
     {
         super(context, door, time, skipAnimation, rotDirection, player, newCuboid, cause, actionType);
 
-        angle = rotDirection == RotateDirection.CLOCKWISE ? Math.PI / 2 :
-                rotDirection == RotateDirection.COUNTERCLOCKWISE ? -Math.PI / 2 : 0.0D;
+        angle = rotDirection == RotateDirection.CLOCKWISE ? HALF_PI :
+                rotDirection == RotateDirection.COUNTERCLOCKWISE ? -HALF_PI : 0.0D;
 
         if (angle == 0.0D)
             log.atSevere().log("Invalid open direction '%s' for door: %d", rotDirection.name(), getDoorUID());

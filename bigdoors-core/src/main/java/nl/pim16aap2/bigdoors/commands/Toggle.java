@@ -16,6 +16,7 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
+import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Named;
 import java.util.Optional;
@@ -31,20 +32,19 @@ import java.util.logging.Level;
 @Flogger
 public class Toggle extends BaseCommand
 {
-    protected static final double DEFAULT_SPEED_MULTIPLIER = 0D;
     protected static final DoorActionType DEFAULT_DOOR_ACTION_TYPE = DoorActionType.TOGGLE;
 
     private final DoorToggleRequestBuilder doorToggleRequestBuilder;
     private final DoorRetriever[] doorRetrievers;
     private final IMessageable messageableServer;
     private final DoorActionType doorActionType;
-    private final double time;
+    private final @Nullable Double time;
 
     @AssistedInject //
     Toggle(
         @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
         @Assisted DoorActionType doorActionType,
-        @Assisted double time, DoorToggleRequestBuilder doorToggleRequestBuilder,
+        @Assisted @Nullable Double time, DoorToggleRequestBuilder doorToggleRequestBuilder,
         @Named("MessageableServer") IMessageable messageableServer, @Assisted DoorRetriever... doorRetrievers)
     {
         super(commandSender, localizer, textFactory);
@@ -173,43 +173,40 @@ public class Toggle extends BaseCommand
          * @return See {@link BaseCommand#run()}.
          */
         Toggle newToggle(
-            ICommandSender commandSender, DoorActionType doorActionType, double speedMultiplier,
+            ICommandSender commandSender, DoorActionType doorActionType, @Nullable Double speedMultiplier,
             DoorRetriever... doorRetrievers);
 
         /**
-         * See {@link #newToggle(ICommandSender, DoorActionType, double, DoorRetriever...)}.
+         * See {@link #newToggle(ICommandSender, DoorActionType, Double, DoorRetriever...)}.
          * <p>
-         * Defaults to {@link Toggle#DEFAULT_SPEED_MULTIPLIER} for the speed multiplier.
+         * Defaults to null for the time multiplier.
          */
         default Toggle newToggle(
-            ICommandSender commandSender, DoorActionType doorActionType,
-            DoorRetriever... doorRetrievers)
+            ICommandSender commandSender, DoorActionType doorActionType, DoorRetriever... doorRetrievers)
         {
-            return newToggle(commandSender, doorActionType, Toggle.DEFAULT_SPEED_MULTIPLIER, doorRetrievers);
+            return newToggle(commandSender, doorActionType, null, doorRetrievers);
         }
 
         /**
-         * See {@link #newToggle(ICommandSender, DoorActionType, double, DoorRetriever...)}.
+         * See {@link #newToggle(ICommandSender, DoorActionType, Double, DoorRetriever...)}.
          * <p>
          * Defaults to {@link Toggle#DEFAULT_DOOR_ACTION_TYPE} for the door action type.
          */
         default Toggle newToggle(
-            ICommandSender commandSender, double speedMultiplier,
-            DoorRetriever... doorRetrievers)
+            ICommandSender commandSender, @Nullable Double speedMultiplier, DoorRetriever... doorRetrievers)
         {
             return newToggle(commandSender, Toggle.DEFAULT_DOOR_ACTION_TYPE, speedMultiplier, doorRetrievers);
         }
 
         /**
-         * See {@link #newToggle(ICommandSender, DoorActionType, double, DoorRetriever...)}.
+         * See {@link #newToggle(ICommandSender, DoorActionType, Double, DoorRetriever...)}.
          * <p>
-         * Defaults to {@link Toggle#DEFAULT_SPEED_MULTIPLIER} for the speed multiplier and to
-         * {@link Toggle#DEFAULT_DOOR_ACTION_TYPE} for the door action type.
+         * Defaults to null for the speed multiplier and to {@link Toggle#DEFAULT_DOOR_ACTION_TYPE} for the door action
+         * type.
          */
         default Toggle newToggle(ICommandSender commandSender, DoorRetriever... doorRetrievers)
         {
-            return newToggle(commandSender, Toggle.DEFAULT_DOOR_ACTION_TYPE, Toggle.DEFAULT_SPEED_MULTIPLIER,
-                             doorRetrievers);
+            return newToggle(commandSender, Toggle.DEFAULT_DOOR_ACTION_TYPE, null, doorRetrievers);
         }
     }
 }

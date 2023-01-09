@@ -37,7 +37,7 @@ public class DoorToggleRequest
     @Getter
     private final @Nullable IPPlayer responsible;
     @Getter
-    private final double time;
+    private final @Nullable Double time;
     @Getter
     private final boolean skipAnimation;
     @Getter
@@ -52,10 +52,10 @@ public class DoorToggleRequest
     @AssistedInject
     public DoorToggleRequest(
         @Assisted DoorRetriever doorRetriever, @Assisted DoorActionCause doorActionCause,
-        @Assisted IMessageable messageReceiver, @Assisted @Nullable IPPlayer responsible, @Assisted double time,
-        @Assisted boolean skipAnimation, @Assisted DoorActionType doorActionType, ILocalizer localizer,
-        DoorActivityManager doorActivityManager, AutoCloseScheduler autoCloseScheduler, IPPlayerFactory playerFactory,
-        IPExecutor executor)
+        @Assisted IMessageable messageReceiver, @Assisted @Nullable IPPlayer responsible,
+        @Assisted @Nullable Double time, @Assisted boolean skipAnimation, @Assisted DoorActionType doorActionType,
+        ILocalizer localizer, DoorActivityManager doorActivityManager, AutoCloseScheduler autoCloseScheduler,
+        IPPlayerFactory playerFactory, IPExecutor executor)
     {
         this.doorRetriever = doorRetriever;
         this.doorActionCause = doorActionCause;
@@ -101,6 +101,7 @@ public class DoorToggleRequest
     private DoorToggleResult execute(AbstractDoor door, IPPlayer responsible)
     {
         executor.assertMainThread();
+
         return door.toggle(doorActionCause, messageReceiver, responsible, time, skipAnimation, doorActionType);
     }
 
@@ -126,6 +127,7 @@ public class DoorToggleRequest
     {
         DoorToggleRequest create(
             DoorRetriever doorRetriever, DoorActionCause doorActionCause, IMessageable messageReceiver,
-            @Nullable IPPlayer responsible, double time, boolean skipAnimation, DoorActionType doorActionType);
+            @Nullable IPPlayer responsible, @Nullable Double time, boolean skipAnimation,
+            DoorActionType doorActionType);
     }
 }
