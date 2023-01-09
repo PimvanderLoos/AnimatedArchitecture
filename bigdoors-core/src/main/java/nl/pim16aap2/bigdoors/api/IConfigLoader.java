@@ -124,7 +124,7 @@ public interface IConfigLoader extends IRestartable
     boolean loadChunksForToggle();
 
     /**
-     * Whether or not to check for updates.
+     * Whether to check for updates.
      *
      * @return True if the plugin should check for new updates.
      */
@@ -140,11 +140,11 @@ public interface IConfigLoader extends IRestartable
     String getPrice(DoorType type);
 
     /**
-     * Gets the animation speed multiplier for a specific type of door.
+     * Gets the animation time multiplier for a specific type of door.
      *
      * @param type
      *     The door type.
-     * @return The animation time for the door type.
+     * @return The animation time multiplier for the door type.
      */
     double getAnimationSpeedMultiplier(DoorType type);
 

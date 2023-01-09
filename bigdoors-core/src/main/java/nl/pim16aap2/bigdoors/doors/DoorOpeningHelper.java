@@ -447,13 +447,13 @@ public final class DoorOpeningHelper
     }
 
     /**
-     * Gets the animation speed multiplier of a {@link IDoor} from the config based on its {@link DoorType}.
+     * Gets the animation time multiplier of a {@link IDoor} from the config based on its {@link DoorType}.
      *
      * @param door
      *     The {@link AbstractDoor}.
-     * @return The animation time of this {@link IDoor}.
+     * @return The animation time multiplier of this {@link IDoor}.
      */
-    public double getAnimationSpeedMultiplier(AbstractDoor door)
+    public double getAnimationTimeMultiplier(AbstractDoor door)
     {
         return config.getAnimationSpeedMultiplier(door.getDoorType());
     }

@@ -110,7 +110,7 @@ public class SlidingDoor extends AbstractDoor implements IDiscreteMovement, ITim
     {
         final RotateDirection currentToggleDir = getCurrentToggleDir();
         return new SlidingMover(context, this, time, skipAnimation, getBlocksToMove(), currentToggleDir,
-                                doorOpeningHelper.getAnimationSpeedMultiplier(this), responsible, newCuboid, cause,
+                                doorOpeningHelper.getAnimationTimeMultiplier(this), responsible, newCuboid, cause,
                                 actionType);
     }
 }

@@ -48,6 +48,7 @@ public abstract class AbstractDoor implements IDoor
     @Getter
     protected final DoorBase doorBase;
     protected final ILocalizer localizer;
+    protected final IConfigLoader config;
     protected final DoorOpeningHelper doorOpeningHelper;
 
 
@@ -59,6 +60,7 @@ public abstract class AbstractDoor implements IDoor
         this.doorBase = doorBase;
         this.localizer = localizer;
         this.doorRegistry = doorRegistry;
+        this.config = doorBase.getConfig();
         this.autoCloseScheduler = autoCloseScheduler;
         this.doorOpeningHelper = doorOpeningHelper;
 
