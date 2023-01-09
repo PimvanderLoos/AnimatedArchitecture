@@ -29,6 +29,7 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,6 +51,11 @@ import static nl.pim16aap2.bigdoors.api.animatedblock.IAnimation.AnimationState;
 @Flogger
 public abstract class BlockMover
 {
+    /**
+     * The delay (measured in milliseconds) between initialization of the animation and starting to move the blocks.
+     */
+    private static final int START_DELAY = 700;
+
     protected boolean drawDebugBlocks = false;
 
     /**
@@ -103,6 +109,9 @@ public abstract class BlockMover
     @ToString.Exclude
     private final AnimationHookManager animationHookManager;
 
+    @ToString.Exclude
+    protected final int serverTickTime;
+
     /**
      * The type of movement to apply to animated blocks.
      * <p>
@@ -113,14 +122,9 @@ public abstract class BlockMover
     protected MovementMethod movementMethod = MovementMethod.TELEPORT_VELOCITY;
 
     /**
-     * The amount of time (in seconds) that an animation is requested to take.
+     * The amount of time (in seconds) that the animation will take.
      * <p>
-     * The actual duration of the animation is likely to be different due to:
-     * <p>
-     * 1) {@link MovementMethod#finishDuration()}.
-     * <p>
-     * 2) There may be speed limits in place for animated blocks. This can result in lower time bounds that depend on
-     * the shape of the door and the type of movement.
+     * This excludes any additional time specified by {@link MovementMethod#finishDuration()}.
      */
     @Getter
     protected double time;
@@ -233,6 +237,7 @@ public abstract class BlockMover
         locationFactory = context.getLocationFactory();
         animationHookManager = context.getAnimationHookManager();
         glowingBlockSpawner = context.getGlowingBlockSpawner();
+        serverTickTime = context.getServerTickTime();
 
         if (!context.getExecutor().isMainThread())
             throw new IllegalStateException("BlockMovers must be called on the main thread!");
@@ -563,7 +568,11 @@ public abstract class BlockMover
 
         forEachHook("onPrepare", IAnimationHook::onPrepare);
 
-        final int stopCount = animationDuration + Math.max(0, movementMethod.finishDuration());
+        final int finishDurationTicks = Math.round((float) movementMethod.finishDuration() / serverTickTime);
+        final int stopCount = animationDuration + Math.max(0, finishDurationTicks);
+
+        final int initialDelay = Math.round((float) START_DELAY / serverTickTime);
+
         moverTask = new TimerTask()
         {
             private int counter = 0;
@@ -593,7 +602,7 @@ public abstract class BlockMover
                 forEachHook("onPostAnimationStep", IAnimationHook::onPostAnimationStep);
             }
         };
-        moverTaskID = executor.runAsyncRepeated(moverTask, 14, 1);
+        moverTaskID = executor.runAsyncRepeated(moverTask, initialDelay, 1);
     }
 
     /**
@@ -769,13 +778,14 @@ public abstract class BlockMover
         private final IAnimatedBlockFactory animatedBlockFactory;
         private final AnimationHookManager animationHookManager;
         private final GlowingBlockSpawner glowingBlockSpawner;
+        private final int serverTickTime;
 
         @Inject
         public Context(
             DoorActivityManager doorActivityManager, AutoCloseScheduler autoCloseScheduler,
             IPLocationFactory locationFactory, IAudioPlayer audioPlayer, IPExecutor executor,
             IAnimatedBlockFactory animatedBlockFactory, AnimationHookManager animationHookManager,
-            GlowingBlockSpawner glowingBlockSpawner)
+            GlowingBlockSpawner glowingBlockSpawner, @Named("serverTickTime") int serverTickTime)
         {
             this.doorActivityManager = doorActivityManager;
             this.autoCloseScheduler = autoCloseScheduler;
@@ -785,6 +795,7 @@ public abstract class BlockMover
             this.animatedBlockFactory = animatedBlockFactory;
             this.animationHookManager = animationHookManager;
             this.glowingBlockSpawner = glowingBlockSpawner;
+            this.serverTickTime = serverTickTime;
         }
     }
 
@@ -803,7 +814,7 @@ public abstract class BlockMover
          * generally tend to move slightly towards the center of any rotation (so corners will be rounded, circles
          * slightly smaller).
          */
-        public static final MovementMethod VELOCITY = new MovementMethod("VELOCITY", 30)
+        public static final MovementMethod VELOCITY = new MovementMethod("VELOCITY", 1500)
         {
             @Override
             public void apply(IAnimatedBlock animatedBlock, Vector3Dd goalPos, int ticksRemaining)
@@ -815,7 +826,7 @@ public abstract class BlockMover
         /**
          * Teleports the animated blocks directly to their target positions.
          */
-        public static final MovementMethod TELEPORT = new MovementMethod("TELEPORT", 2)
+        public static final MovementMethod TELEPORT = new MovementMethod("TELEPORT", 100)
         {
             @Override
             public void apply(IAnimatedBlock animatedBlock, Vector3Dd goalPos, int ticksRemaining)
@@ -827,7 +838,7 @@ public abstract class BlockMover
         /**
          * Combination of {@link #TELEPORT} and {@link #VELOCITY}.
          */
-        public static final MovementMethod TELEPORT_VELOCITY = new MovementMethod("TELEPORT", 12)
+        public static final MovementMethod TELEPORT_VELOCITY = new MovementMethod("TELEPORT", 600)
         {
             /**
              * Only teleport the animated blocks once every several ticks.
@@ -848,6 +859,11 @@ public abstract class BlockMover
         };
 
         private final String name;
+
+        /**
+         * The duration (measured in milliseconds) of the final animation state that moves blocks to their final
+         * position.
+         */
         private final int finishDuration;
 
         protected MovementMethod(String name, int finishDuration)
@@ -862,8 +878,8 @@ public abstract class BlockMover
         }
 
         /**
-         * The duration (measured in ticks) of the final step executed after the animation has ended. This step is used
-         * to move the animated blocks to their final positions gracefully.
+         * The duration (measured in milliseconds) of the final step executed after the animation has ended. This step
+         * is used to move the animated blocks to their final positions gracefully.
          */
         public int finishDuration()
         {
