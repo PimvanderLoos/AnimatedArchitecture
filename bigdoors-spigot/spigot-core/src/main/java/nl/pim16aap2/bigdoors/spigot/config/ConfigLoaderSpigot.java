@@ -206,7 +206,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
             "The default resource pack for 1.11.x/1.12.x is: '" + defResPackUrl + "'",
             "The default resource pack for 1.13.x is: '" + defResPackUrl1_13 + "'"};
         final String[] maxBlockSpeedComment = {
-            "Determines the global speed limit of animated blocks.",
+            "Determines the global speed limit of animated blocks measured in blocks/second.",
             "Animated objects will slow down when necessary to avoid any of their animated blocks exceeding this limit",
             "Higher values may result in choppier and/or glitchier animations."
         };
@@ -301,7 +301,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
         flagFormula = addNewConfigEntry(config, "flagFormula",
                                         "Math.min(0.3 * radius, 3) * Math.sin((counter / 4) * 3)", (String[]) null);
 
-        maxBlockSpeed = addNewConfigEntry(config, "maxBlockSpeed", 6.0D, maxBlockSpeedComment);
+        maxBlockSpeed = addNewConfigEntry(config, "maxBlockSpeed", 5.0D, maxBlockSpeedComment);
 
         final List<DoorType> enabledDoorTypes = doorTypeManager.get().getEnabledDoorTypes();
         parseForEachDoorType(doorSpeedMultipliers, config, enabledDoorTypes, speedMultiplierComment, 1.0D,

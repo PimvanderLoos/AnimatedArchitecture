@@ -16,9 +16,12 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.logging.Level;
+import java.util.stream.Stream;
 
 /**
  * Represents a Big Door doorType.
@@ -31,8 +34,14 @@ import java.util.logging.Level;
 @Flogger
 public class BigDoor extends AbstractDoor implements ITimerToggleable
 {
-    @EqualsAndHashCode.Exclude
     private static final DoorType DOOR_TYPE = DoorTypeBigDoor.get();
+
+    private static final double HALF_PI = Math.PI / 2;
+
+    /**
+     * The default speed of the animation in blocks/second, as measured by the fastest-moving block in the door.
+     */
+    private static final double DEFAULT_ANIMATION_SPEED = 1.5;
 
     @Getter
     @Setter
@@ -43,6 +52,9 @@ public class BigDoor extends AbstractDoor implements ITimerToggleable
     @Setter
     @PersistentVariable
     protected int autoOpenTime;
+
+    @EqualsAndHashCode.Exclude
+    private @Nullable Double maxRadius;
 
     public BigDoor(DoorBase doorBase, int autoCloseTime, int autoOpenTime)
     {
@@ -96,16 +108,40 @@ public class BigDoor extends AbstractDoor implements ITimerToggleable
         return Optional.of(getCuboid().updatePositions(vec -> vec.rotateAroundYAxis(getRotationPoint(), angle)));
     }
 
+    /**
+     * @return The maximum distance from the rotation point to one of the corners of the door.
+     */
+    private synchronized double getMaxRadius()
+    {
+        // No need for double-checking locking or anything like that, as the result will always be
+        // the same and is not too expensive to calculate.
+        if (maxRadius != null)
+            return maxRadius;
+
+        final Cuboid cuboid = getCuboid();
+        final Vector3Di rotationPoint = getRotationPoint();
+        final Vector3Di min = cuboid.getMin();
+        final Vector3Di max = cuboid.getMax();
+        final Vector3Di other0 = new Vector3Di(min.x(), min.y(), max.z());
+        final Vector3Di other1 = new Vector3Di(max.x(), min.y(), min.z());
+
+        return maxRadius = Stream.of(min, max, other0, other1)
+                                 .mapToDouble(val -> BigDoorMover.getRadius(rotationPoint, val.x(), val.z()))
+                                 .max().orElseThrow();
+    }
+
     @Override
     public double getMinimumAnimationTime()
     {
-        return 0.0D;
+        final double distance = getMaxRadius() * HALF_PI;
+        return distance / config.maxBlockSpeed();
     }
 
     @Override
     public double getBaseAnimationTime()
     {
-        return 0.0D;
+        final double distance = getMaxRadius() * HALF_PI;
+        return distance / Math.min(DEFAULT_ANIMATION_SPEED, config.maxBlockSpeed());
     }
 
     @Override
