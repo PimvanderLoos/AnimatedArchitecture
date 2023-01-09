@@ -45,11 +45,6 @@ public interface IBigDoorsPlatform
     String getVersion();
 
     /**
-     * @return The amount of time (in milliseconds) each ticks takes on this platform under normal operation.
-     */
-    int getTickTime();
-
-    /**
      * Gets the instance of the {@link IBigDoorsToolUtil} for this platform.
      *
      * @return The instance of the {@link IBigDoorsToolUtil} for this platform.

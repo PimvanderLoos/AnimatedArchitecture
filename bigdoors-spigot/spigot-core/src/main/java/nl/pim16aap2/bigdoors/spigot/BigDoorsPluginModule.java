@@ -29,6 +29,16 @@ public abstract class BigDoorsPluginModule
         return 58_669;
     }
 
+    /**
+     * The time between each server tick in milliseconds.
+     */
+    @Provides
+    @Named("serverTickTime")
+    static int provideServerTickTime()
+    {
+        return 50;
+    }
+
     @Provides
     @Singleton
     @Named("databaseFile")
