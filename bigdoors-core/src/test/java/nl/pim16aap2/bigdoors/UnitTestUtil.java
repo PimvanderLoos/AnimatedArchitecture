@@ -27,7 +27,7 @@ public class UnitTestUtil
 
     public static ILocalizer initLocalizer()
     {
-        final ILocalizer localizer = Mockito.mock(ILocalizer.class);
+        final ILocalizer localizer = Mockito.mock(ILocalizer.class, Mockito.CALLS_REAL_METHODS);
         Mockito.when(localizer.getMessage(Mockito.anyString()))
                .thenAnswer(invocation -> invocation.getArgument(0, String.class));
         Mockito.when(localizer.getMessage(Mockito.anyString(), Mockito.any()))

@@ -7,7 +7,9 @@ import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,18 +50,27 @@ class PowerBlockRelocatorTest
         Mockito.when(door.getWorld()).thenReturn(world);
         Mockito.when(door.getPowerBlock()).thenReturn(currentPowerBlockLoc);
 
+        final DoorType doorType = Mockito.mock(DoorType.class);
+        Mockito.when(door.getDoorType()).thenReturn(doorType);
+        Mockito.when(doorType.getLocalizationKey()).thenReturn("DoorType");
+
         compatManager = Mockito.mock(IProtectionCompatManager.class);
         Mockito.when(compatManager.canBreakBlock(Mockito.any(), Mockito.any())).thenReturn(Optional.empty());
         Mockito.when(compatManager.canBreakBlocksBetweenLocs(Mockito.any(), Mockito.any(),
                                                              Mockito.any(), Mockito.any()))
                .thenReturn(Optional.empty());
 
-
         final ToolUser.Context context = Mockito.mock(ToolUser.Context.class, Answers.RETURNS_MOCKS);
         Mockito.when(context.getProtectionCompatManager()).thenReturn(compatManager);
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
         Mockito.when(context.getLocalizer()).thenReturn(localizer);
         Mockito.when(context.getTextFactory()).thenReturn(ITextFactory.getSimpleTextFactory());
+
+        final Step.Factory.IFactory assistedStepFactory = Mockito.mock(Step.Factory.IFactory.class);
+        //noinspection deprecation
+        Mockito.when(assistedStepFactory.stepName(Mockito.anyString()))
+               .thenAnswer(invocation -> new Step.Factory(localizer, invocation.getArgument(0, String.class)));
+        Mockito.when(context.getStepFactory()).thenReturn(assistedStepFactory);
 
         Mockito.when(factory.create(Mockito.any(IPPlayer.class), Mockito.any(AbstractDoor.class)))
                .thenAnswer(invoc -> new PowerBlockRelocator(context, invoc.getArgument(0, IPPlayer.class),
@@ -74,7 +85,8 @@ class PowerBlockRelocatorTest
         Mockito.when(location.getWorld()).thenReturn(Mockito.mock(IPWorld.class));
 
         Assertions.assertFalse(relocator.moveToLoc(location));
-        Mockito.verify(player).sendMessage(UnitTestUtil.toText("tool_user.powerblock_relocator.error.world_mismatch"));
+        Mockito.verify(player)
+               .sendMessage(UnitTestUtil.toText("tool_user.powerblock_relocator.error.world_mismatch DoorType"));
 
         Mockito.when(location.getWorld()).thenReturn(Mockito.mock(IPWorld.class));
     }

@@ -73,7 +73,8 @@ public abstract class DoorTargetCommand extends BaseCommand
 
             getCommandSender()
                 .sendMessage(textFactory, TextType.ERROR,
-                             localizer.getMessage("commands.door_target_command.base.error.no_permission_for_action"));
+                             localizer.getMessage("commands.door_target_command.base.error.no_permission_for_action",
+                                                  localizer.getDoorType(door.get())));
             return true;
         }
 

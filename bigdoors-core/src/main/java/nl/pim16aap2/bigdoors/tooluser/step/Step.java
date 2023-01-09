@@ -1,5 +1,8 @@
 package nl.pim16aap2.bigdoors.tooluser.step;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,8 +10,8 @@ import lombok.ToString;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutor;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.VisibleForTesting;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +23,7 @@ import java.util.function.Supplier;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Step implements IStep
 {
+    @ToString.Exclude
     private final ILocalizer localizer;
 
     @Getter
@@ -36,9 +40,6 @@ public class Step implements IStep
 
     @ToString.Exclude
     private final List<Supplier<String>> messageVariablesRetrievers;
-
-    @ToString.Exclude
-    private final Supplier<List<String>> flatMessageVariablesRetrievers;
 
     private final boolean waitForUserInput;
 
@@ -69,89 +70,110 @@ public class Step implements IStep
     @Override
     public String getLocalizedMessage()
     {
-        final List<String> variables = new ArrayList<>(messageVariablesRetrievers.size());
-        messageVariablesRetrievers.forEach(fun -> variables.add(fun.get()));
-        variables.addAll(flatMessageVariablesRetrievers.get());
-
-        Object[] variablesArr = new String[variables.size()];
-        variablesArr = variables.toArray(variablesArr);
-
-        return localizer.getMessage(messageKey, variablesArr);
+        return localizer.getMessage(messageKey, messageVariablesRetrievers.stream().map(Supplier::get).toArray());
     }
 
+    /**
+     * Factory class for new {@link Step} objects.
+     */
     public static class Factory
     {
         private final ILocalizer localizer;
         private final String name;
         private @Nullable StepExecutor stepExecutor = null;
         private @Nullable List<Supplier<String>> messageVariablesRetrievers = null;
-        private @Nullable Supplier<List<String>> flatMessageVariablesRetrievers = null;
         private @Nullable Runnable stepPreparation;
         private boolean waitForUserInput = true;
         private @Nullable String messageKey = null;
         private @Nullable Supplier<Boolean> skipCondition = null;
         private boolean implicitNextStep = true;
 
-        public Factory(ILocalizer localizer, String name)
+        /**
+         * @deprecated Prefer instantiation using {@link Step.Factory.IFactory} instead.
+         */
+        @VisibleForTesting
+        @AssistedInject
+        @Deprecated
+        public Factory(ILocalizer localizer, @Assisted String name)
         {
             this.localizer = localizer;
             this.name = name;
         }
 
+        /**
+         * See {@link IStep#isImplicitNextStep()}.
+         */
         public Factory implicitNextStep(boolean implicitNextStep)
         {
             this.implicitNextStep = implicitNextStep;
             return this;
         }
 
+        /**
+         * See {@link IStep#getStepPreparation()}.
+         */
         public Factory stepPreparation(Runnable prepareStep)
         {
             this.stepPreparation = prepareStep;
             return this;
         }
 
+        /**
+         * See {@link IStep#getStepExecutor()}.
+         */
         public Factory stepExecutor(StepExecutor stepExecutor)
         {
             this.stepExecutor = stepExecutor;
             return this;
         }
 
-        public Factory messageVariableRetriever(Supplier<String> messageVariablesRetriever)
-        {
-            messageVariablesRetrievers = List.of(messageVariablesRetriever);
-            return this;
-        }
-
-        public Factory messageVariableRetrievers(List<Supplier<String>> messageVariablesRetrievers)
-        {
-            this.messageVariablesRetrievers = Collections.unmodifiableList(messageVariablesRetrievers);
-            return this;
-        }
-
-        public Factory messageVariableRetrievers(Supplier<List<String>> messageVariablesRetrievers)
-        {
-            flatMessageVariablesRetrievers = messageVariablesRetrievers;
-            return this;
-        }
-
-        public Factory skipCondition(Supplier<Boolean> skipCondition)
-        {
-            this.skipCondition = skipCondition;
-            return this;
-        }
-
-        public Factory waitForUserInput(boolean waitForUserInput)
-        {
-            this.waitForUserInput = waitForUserInput;
-            return this;
-        }
-
+        /**
+         * Sets the key of the localized message for this step.
+         */
         public Factory messageKey(String messageKey)
         {
             this.messageKey = messageKey;
             return this;
         }
 
+        /**
+         * Provides the variables for the placeholder(s) in the localized messages for this step.
+         */
+        @SafeVarargs
+        public final Factory messageVariableRetrievers(Supplier<String>... messageVariablesRetriever)
+        {
+            messageVariablesRetrievers = List.of(messageVariablesRetriever);
+            return this;
+        }
+
+        /**
+         * Sets the implementation of {@link IStep#skip()}.
+         * <p>
+         * This can be used to disable certain steps based on arbitrary conditions (e.g. configuration settings).
+         */
+        public Factory skipCondition(Supplier<Boolean> skipCondition)
+        {
+            this.skipCondition = skipCondition;
+            return this;
+        }
+
+        /**
+         * See {@link IStep#waitForUserInput()}.
+         */
+        public Factory waitForUserInput(boolean waitForUserInput)
+        {
+            this.waitForUserInput = waitForUserInput;
+            return this;
+        }
+
+        /**
+         * Creates the new {@link Step} object using the provided values.
+         *
+         * @return The new Step object.
+         *
+         * @throws InstantiationException
+         *     When this method is called but neither the step executor nor the message key is set.
+         */
         public Step construct()
             throws InstantiationException
         {
@@ -162,11 +184,28 @@ public class Step implements IStep
 
             if (messageVariablesRetrievers == null)
                 messageVariablesRetrievers = Collections.emptyList();
-            if (flatMessageVariablesRetrievers == null)
-                flatMessageVariablesRetrievers = Collections::emptyList;
 
             return new Step(localizer, name, stepExecutor, messageKey, stepPreparation, messageVariablesRetrievers,
-                            flatMessageVariablesRetrievers, waitForUserInput, skipCondition, implicitNextStep);
+                            waitForUserInput, skipCondition, implicitNextStep);
+        }
+
+        /**
+         * Nested factory used to create new {@link Step.Factory} instances.
+         * <p>
+         * It is preferred to use this over the direct constructor as this ensures that all required dependencies are
+         * included.
+         */
+        @AssistedFactory
+        public interface IFactory
+        {
+            /**
+             * Creates a new {@link Step.Factory}.
+             *
+             * @param stepName
+             *     The name of the step to be created.
+             * @return The new factory.
+             */
+            Step.Factory stepName(String stepName);
         }
     }
 }

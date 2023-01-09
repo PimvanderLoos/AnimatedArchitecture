@@ -103,7 +103,8 @@ public final class DoorOpeningHelper
      * @return The result.
      */
     DoorToggleResult abort(
-        IDoor door, DoorToggleResult result, DoorActionCause cause, IPPlayer responsible, IMessageable messageReceiver)
+        AbstractDoor door, DoorToggleResult result, DoorActionCause cause, IPPlayer responsible,
+        IMessageable messageReceiver)
     {
         log.at(Level.FINE).log("Aborted toggle for door %d because of %s. Toggle Reason: %s, Responsible: %s",
                                door.getDoorUID(), result.name(), cause.name(), responsible.asString());
@@ -118,7 +119,9 @@ public final class DoorOpeningHelper
         {
             if (messageReceiver instanceof IPPlayer)
                 messageReceiver
-                    .sendError(textFactory, localizer.getMessage(result.getLocalizationKey(), door.getName()));
+                    .sendError(textFactory, localizer.getMessage(result.getLocalizationKey(),
+                                                                 localizer.getDoorType(door.getDoorType()),
+                                                                 door.getName()));
             else
             {
                 final Level level = result == DoorToggleResult.BUSY ? Level.FINE : Level.INFO;

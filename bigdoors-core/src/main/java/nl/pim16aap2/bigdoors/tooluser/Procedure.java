@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.tooluser;
 
+import com.google.common.flogger.StackSize;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
@@ -10,7 +11,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
 
 /**
  * Represents a procedure as defined by a series of {@link IStep}s.
@@ -51,9 +51,9 @@ public final class Procedure
     {
         if (!steps.hasNext())
         {
-            log.at(Level.SEVERE).withCause(new IndexOutOfBoundsException(
-                "Trying to advance to the next step while there is none! Step: " +
-                    (currentStep == null ? "NULL" : getCurrentStepName()))).log();
+            log.atSevere().withStackTrace(StackSize.FULL)
+               .log("Trying to advance to the next step while there is none! Step: %s",
+                    (currentStep == null ? "NULL" : getCurrentStepName()));
             return;
         }
         currentStep = steps.next();
@@ -96,8 +96,8 @@ public final class Procedure
     {
         if (currentStep == null)
         {
-            log.at(Level.SEVERE).withCause(
-                new IllegalStateException("Cannot apply step executor because there is no active step!")).log();
+            log.atSevere().withStackTrace(StackSize.FULL)
+               .log("Cannot apply step executor because there is no active step!");
             return false;
         }
         return currentStep.getStepExecutor().map(stepExecutor -> stepExecutor.apply(obj)).orElse(false);
@@ -112,9 +112,8 @@ public final class Procedure
     {
         if (currentStep == null)
         {
-            log.at(Level.SEVERE).withCause(
-                   new IllegalStateException("Cannot get the current step message because there is no active step!"))
-               .log();
+            log.atSevere().withStackTrace(StackSize.FULL)
+               .log("Cannot get the current step message because there is no active step!");
             return localizer.getMessage("constants.error.generic");
         }
         return currentStep.getLocalizedMessage();
@@ -129,8 +128,8 @@ public final class Procedure
     {
         if (currentStep == null)
         {
-            log.at(Level.SEVERE).withCause(
-                new IllegalStateException("Cannot get the name of the current because there is no active step!")).log();
+            log.atSevere().withStackTrace(StackSize.FULL)
+               .log("Cannot get the name of the current because there is no active step!");
             return "NULL";
         }
         return currentStep.getName();
@@ -145,8 +144,8 @@ public final class Procedure
     {
         if (currentStep == null)
         {
-            log.at(Level.SEVERE).withCause(
-                new IllegalStateException("Cannot wait for user input because there is no active step!")).log();
+            log.atSevere().withStackTrace(StackSize.FULL)
+               .log("Cannot wait for user input because there is no active step!");
             return false;
         }
         return currentStep.waitForUserInput();
@@ -169,8 +168,8 @@ public final class Procedure
 
         if (currentStep == null)
         {
-            log.at(Level.SEVERE).withCause(
-                new IllegalStateException("Cannot check for implicit next step as there is no current step!")).log();
+            log.atSevere().withStackTrace(StackSize.FULL)
+               .log("Cannot check for implicit next step as there is no current step!");
             return false;
         }
         return currentStep.isImplicitNextStep();

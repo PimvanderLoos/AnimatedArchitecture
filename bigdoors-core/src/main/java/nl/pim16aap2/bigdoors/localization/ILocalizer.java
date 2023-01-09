@@ -1,5 +1,8 @@
 package nl.pim16aap2.bigdoors.localization;
 
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doortypes.DoorType;
+
 import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
@@ -37,6 +40,26 @@ public interface ILocalizer
      *     When no mapping for the key can be found.
      */
     String getMessage(String key, Object... args);
+
+    /**
+     * Shortcut {@link #getMessage(String, Object...)} for {@link DoorType#getLocalizationKey()}.
+     *
+     * @param doorType
+     *     The door type to localize.
+     * @return The localized name of the door type.
+     */
+    default String getDoorType(DoorType doorType)
+    {
+        return getMessage(doorType.getLocalizationKey());
+    }
+
+    /**
+     * See {@link #getDoorType(DoorType)}
+     */
+    default String getDoorType(AbstractDoor door)
+    {
+        return getDoorType(door.getDoorType());
+    }
 
     /**
      * Gets a list of {@link Locale}s that are currently available.

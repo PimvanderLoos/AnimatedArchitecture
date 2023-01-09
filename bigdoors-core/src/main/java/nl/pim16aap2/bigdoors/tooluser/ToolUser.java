@@ -19,6 +19,7 @@ import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
+import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,6 +46,8 @@ public abstract class ToolUser
 
     protected final ITextFactory textFactory;
 
+    protected final Step.Factory.IFactory stepFactory;
+
     /**
      * The {@link Procedure} that this {@link ToolUser} will go through.
      */
@@ -69,6 +72,7 @@ public abstract class ToolUser
 
     protected ToolUser(Context context, IPPlayer player)
     {
+        stepFactory = context.getStepFactory();
         this.player = player;
         localizer = context.getLocalizer();
         toolUserManager = context.getToolUserManager();
@@ -218,15 +222,8 @@ public abstract class ToolUser
         }
     }
 
-    /**
-     * Handles user input for the given step.
-     *
-     * @param obj
-     *     The input to handle. What actual type is expected depends on the step.
-     * @return True if the input was processed successfully.
-     */
     @SuppressWarnings("PMD.PrematureDeclaration")
-    public boolean handleInput(@Nullable Object obj)
+    private boolean handleInput0(@Nullable Object obj)
     {
         log.at(Level.FINE).log("Handling input: %s (%s) for step: %s in ToolUser: %s.",
                                obj, (obj == null ? "null" : obj.getClass().getSimpleName()),
@@ -251,6 +248,26 @@ public abstract class ToolUser
 
         prepareCurrentStep();
         return true;
+    }
+
+    /**
+     * Handles user input for the given step.
+     *
+     * @param obj
+     *     The input to handle. What actual type is expected depends on the step.
+     * @return True if the input was processed successfully.
+     */
+    public boolean handleInput(@Nullable Object obj)
+    {
+        try
+        {
+            return handleInput0(obj);
+        }
+        catch (Exception e)
+        {
+            log.atSevere().withCause(e).log("Failed to handle input '%s' for ToolUser '%s'!", obj, this);
+            return false;
+        }
     }
 
     /**
@@ -339,13 +356,15 @@ public abstract class ToolUser
         private final IProtectionCompatManager protectionCompatManager;
         private final IBigDoorsToolUtil bigDoorsToolUtil;
         private final CommandFactory commandFactory;
+        private final Step.Factory.IFactory stepFactory;
 
         @Inject
         public Context(
             DoorBaseBuilder doorBaseBuilder, ILocalizer localizer, ITextFactory textFactory,
             ToolUserManager toolUserManager, DatabaseManager databaseManager, LimitsManager limitsManager,
             IEconomyManager economyManager, IProtectionCompatManager protectionCompatManager,
-            IBigDoorsToolUtil bigDoorsToolUtil, CommandFactory commandFactory)
+            IBigDoorsToolUtil bigDoorsToolUtil, CommandFactory commandFactory,
+            Step.Factory.IFactory stepFactory)
         {
             this.doorBaseBuilder = doorBaseBuilder;
             this.localizer = localizer;
@@ -357,11 +376,7 @@ public abstract class ToolUser
             this.bigDoorsToolUtil = bigDoorsToolUtil;
             this.commandFactory = commandFactory;
             this.textFactory = textFactory;
-        }
-
-        public ITextFactory getTextFactory()
-        {
-            return textFactory;
+            this.stepFactory = stepFactory;
         }
     }
 }

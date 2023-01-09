@@ -105,14 +105,16 @@ public class AddOwner extends DoorTargetCommand
         final var doorOwner = getCommandSender().getPlayer().flatMap(door::getDoorOwner);
         if (doorOwner.isEmpty())
         {
-            getCommandSender().sendError(textFactory, localizer.getMessage("commands.add_owner.error.not_an_owner"));
+            getCommandSender().sendError(textFactory, localizer.getMessage("commands.add_owner.error.not_an_owner",
+                                                                           localizer.getDoorType(door)));
             return false;
         }
 
         final PermissionLevel executorPermission = doorOwner.get().permission();
         if (!DoorAttribute.ADD_OWNER.canAccessWith(doorOwner.get().permission()))
         {
-            getCommandSender().sendError(textFactory, localizer.getMessage("commands.add_owner.error.not_allowed"));
+            getCommandSender().sendError(textFactory, localizer.getMessage("commands.add_owner.error.not_allowed",
+                                                                           localizer.getDoorType(door)));
             return false;
         }
 
@@ -127,7 +129,7 @@ public class AddOwner extends DoorTargetCommand
         {
             getCommandSender()
                 .sendError(textFactory, localizer.getMessage("commands.add_owner.error.target_already_owner",
-                                                             targetPlayer.asString()));
+                                                             targetPlayer.asString(), localizer.getDoorType(door)));
             return false;
         }
 

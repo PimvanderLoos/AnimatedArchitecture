@@ -98,7 +98,8 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         }
 
         player.sendError(textFactory,
-                         localizer.getMessage("creator.base.error.insufficient_funds", Double.toString(price)));
+                         localizer.getMessage("creator.base.error.insufficient_funds",
+                                              localizer.getMessage(type.getLocalizationKey()), Double.toString(price)));
         return false;
     }
 

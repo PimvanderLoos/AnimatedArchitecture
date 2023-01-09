@@ -36,7 +36,8 @@ public class CreatorPortcullis extends Creator
     protected List<IStep> generateSteps()
         throws InstantiationException
     {
-        final Step stepBlocksToMove = new Step.Factory(localizer, "SET_BLOCKS_TO_MOVE")
+        final Step stepBlocksToMove = stepFactory
+            .stepName("SET_BLOCKS_TO_MOVE")
             .messageKey("creator.portcullis.set_blocks_to_move")
             .stepExecutor(new StepExecutorInteger(this::setBlocksToMove))
             .stepPreparation(this::prepareSetBlocksToMove)
@@ -70,6 +71,7 @@ public class CreatorPortcullis extends Creator
         if (blocksToMoveLimit.isPresent() && blocksToMove > blocksToMoveLimit.getAsInt())
         {
             getPlayer().sendError(textFactory, localizer.getMessage("creator.base.error.blocks_to_move_too_far",
+                                                                    localizer.getDoorType(getDoorType()),
                                                                     Integer.toString(blocksToMove),
                                                                     Integer.toString(blocksToMoveLimit.getAsInt())));
             return false;

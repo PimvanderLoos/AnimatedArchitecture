@@ -106,7 +106,8 @@ public class Toggle extends BaseCommand
         {
             getCommandSender()
                 .sendMessage(textFactory, TextType.ERROR,
-                             localizer.getMessage("commands.toggle.error.no_access", door.getBasicInfo()));
+                             localizer.getMessage("commands.toggle.error.no_access",
+                                                  localizer.getDoorType(door), door.getBasicInfo()));
             log.at(Level.FINE).log("%s has no access for command %s for door %s!", getCommandSender(), this, door);
             return;
         }
@@ -114,7 +115,8 @@ public class Toggle extends BaseCommand
         {
             getCommandSender()
                 .sendMessage(textFactory, TextType.ERROR,
-                             localizer.getMessage("commands.toggle.error.cannot_toggle", door.getBasicInfo()));
+                             localizer.getMessage("commands.toggle.error.cannot_toggle",
+                                                  localizer.getDoorType(door), door.getBasicInfo()));
             log.at(Level.FINER).log("Blocked action for command %s for door %s by %s", this, door, getCommandSender());
             return;
         }

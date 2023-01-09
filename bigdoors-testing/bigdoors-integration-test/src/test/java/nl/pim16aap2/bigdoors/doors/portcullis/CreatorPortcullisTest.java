@@ -51,9 +51,9 @@ class CreatorPortcullisTest extends CreatorTestsUtil
         Mockito.when(configLoader.maxBlocksToMove()).thenReturn(OptionalInt.of(blocksToMoveLimit));
 
         Assertions.assertFalse(creator.setBlocksToMove(blocksToMove));
-        Mockito.verify(player)
-               .sendMessage(UnitTestUtil.toText(String.format("creator.base.error.blocks_to_move_too_far %d %d",
-                                                              blocksToMove, blocksToMoveLimit)));
+        Mockito.verify(player).sendMessage(
+            UnitTestUtil.toText(String.format("creator.base.error.blocks_to_move_too_far door.type.portcullis %d %d",
+                                              blocksToMove, blocksToMoveLimit)));
 
         Mockito.when(configLoader.maxBlocksToMove()).thenReturn(OptionalInt.of(blocksToMove));
         Assertions.assertTrue(creator.setBlocksToMove(blocksToMove));

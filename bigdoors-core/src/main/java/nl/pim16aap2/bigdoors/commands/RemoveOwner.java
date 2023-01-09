@@ -64,7 +64,8 @@ public class RemoveOwner extends DoorTargetCommand
         if (doorOwner.isEmpty() && !bypassOwnership)
         {
             getCommandSender().sendMessage(textFactory, TextType.ERROR,
-                                           localizer.getMessage("commands.remove_owner.error.not_an_owner"));
+                                           localizer.getMessage("commands.remove_owner.error.not_an_owner",
+                                                                localizer.getDoorType(door)));
             return false;
         }
 
@@ -73,7 +74,8 @@ public class RemoveOwner extends DoorTargetCommand
         if (!DoorAttribute.REMOVE_OWNER.canAccessWith(ownerPermission))
         {
             getCommandSender().sendMessage(textFactory, TextType.ERROR,
-                                           localizer.getMessage("commands.remove_owner.error.not_allowed"));
+                                           localizer.getMessage("commands.remove_owner.error.not_allowed",
+                                                                localizer.getDoorType(door)));
             return false;
         }
 
@@ -83,7 +85,8 @@ public class RemoveOwner extends DoorTargetCommand
             getCommandSender()
                 .sendMessage(textFactory, TextType.ERROR,
                              localizer.getMessage("commands.remove_owner.error.target_not_an_owner",
-                                                  targetPlayer.asString(), door.getBasicInfo()));
+                                                  targetPlayer.asString(), localizer.getDoorType(door),
+                                                  door.getBasicInfo()));
             return false;
         }
 

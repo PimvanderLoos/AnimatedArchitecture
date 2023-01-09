@@ -49,7 +49,8 @@ public class PowerBlockRelocator extends ToolUser
         if (!loc.getWorld().equals(door.getWorld()))
         {
             getPlayer().sendError(textFactory,
-                                  localizer.getMessage("tool_user.powerblock_relocator.error.world_mismatch"));
+                                  localizer.getMessage("tool_user.powerblock_relocator.error.world_mismatch",
+                                                       localizer.getDoorType(door.getDoorType())));
             return false;
         }
 
@@ -90,12 +91,14 @@ public class PowerBlockRelocator extends ToolUser
     protected List<IStep> generateSteps()
         throws InstantiationException
     {
-        final Step stepPowerblockRelocatorInit = new Step.Factory(localizer, "RELOCATE_POWER_BLOCK_INIT")
+        final Step stepPowerblockRelocatorInit = stepFactory
+            .stepName("RELOCATE_POWER_BLOCK_INIT")
             .messageKey("tool_user.powerblock_relocator.init")
             .stepExecutor(new StepExecutorPLocation(this::moveToLoc))
             .waitForUserInput(true).construct();
 
-        final Step stepPowerblockRelocatorCompleted = new Step.Factory(localizer, "RELOCATE_POWER_BLOCK_COMPLETED")
+        final Step stepPowerblockRelocatorCompleted = stepFactory
+            .stepName("RELOCATE_POWER_BLOCK_COMPLETED")
             .messageKey("tool_user.powerblock_relocator.success")
             .stepExecutor(new StepExecutorVoid(this::completeProcess))
             .waitForUserInput(false).construct();

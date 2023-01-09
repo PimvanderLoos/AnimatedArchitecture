@@ -33,6 +33,7 @@ import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.testimplementations.TestPLocationFactory;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
+import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -154,9 +155,15 @@ public class CreatorTestsUtil
                 .getFactory();
         doorBaseBuilder = new DoorBaseBuilder(doorBaseIFactory);
 
+        final var assistedStepFactory = Mockito.mock(Step.Factory.IFactory.class);
+        //noinspection deprecation
+        Mockito.when(assistedStepFactory.stepName(Mockito.anyString()))
+               .thenAnswer(invocation -> new Step.Factory(localizer, invocation.getArgument(0, String.class)));
+
         context = new ToolUser.Context(
             doorBaseBuilder, localizer, ITextFactory.getSimpleTextFactory(), toolUserManager, databaseManager,
-            limitsManager, economyManager, protectionCompatManager, bigDoorsToolUtil, commandFactory);
+            limitsManager, economyManager, protectionCompatManager, bigDoorsToolUtil, commandFactory,
+            assistedStepFactory);
 
         initCommands();
 

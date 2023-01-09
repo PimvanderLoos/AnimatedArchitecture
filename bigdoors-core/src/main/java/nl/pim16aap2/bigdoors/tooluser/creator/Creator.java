@@ -34,7 +34,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.Collections;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.Set;
@@ -196,51 +195,52 @@ public abstract class Creator extends ToolUser
     @Override
     protected void init()
     {
-        factorySetName =
-            new Step.Factory(localizer, "SET_NAME")
-                .stepExecutor(new StepExecutorString(this::completeNamingStep))
-                .messageKey("creator.base.give_name")
-                .messageVariableRetriever(getDoorType()::getLocalizationKey);
+        factorySetName = stepFactory
+            .stepName("SET_NAME")
+            .stepExecutor(new StepExecutorString(this::completeNamingStep))
+            .messageKey("creator.base.give_name")
+            .messageVariableRetrievers(() -> localizer.getDoorType(getDoorType()));
 
-        factorySetFirstPos =
-            new Step.Factory(localizer, "SET_FIRST_POS")
-                .stepExecutor(new StepExecutorPLocation(this::setFirstPos));
+        factorySetFirstPos = stepFactory
+            .stepName("SET_FIRST_POS")
+            .stepExecutor(new StepExecutorPLocation(this::setFirstPos));
 
-        factorySetSecondPos =
-            new Step.Factory(localizer, "SET_SECOND_POS")
-                .stepExecutor(new StepExecutorPLocation(this::setSecondPos));
+        factorySetSecondPos = stepFactory
+            .stepName("SET_SECOND_POS")
+            .stepExecutor(new StepExecutorPLocation(this::setSecondPos));
 
-        factorySetRotationPointPos =
-            new Step.Factory(localizer, "SET_ROTATION_POINT")
-                .stepExecutor(new StepExecutorPLocation(this::completeSetRotationPointStep));
+        factorySetRotationPointPos = stepFactory
+            .stepName("SET_ROTATION_POINT")
+            .stepExecutor(new StepExecutorPLocation(this::completeSetRotationPointStep));
 
-        factorySetPowerBlockPos =
-            new Step.Factory(localizer, "SET_POWER_BLOCK_POS")
-                .messageKey("creator.base.set_power_block")
-                .stepExecutor(new StepExecutorPLocation(this::completeSetPowerBlockStep));
+        factorySetPowerBlockPos = stepFactory
+            .stepName("SET_POWER_BLOCK_POS")
+            .messageKey("creator.base.set_power_block")
+            .stepExecutor(new StepExecutorPLocation(this::completeSetPowerBlockStep));
 
-        factorySetOpenDir =
-            new Step.Factory(localizer, "SET_OPEN_DIRECTION")
-                .stepExecutor(new StepExecutorOpenDirection(this::completeSetOpenDirStep))
-                .stepPreparation(this::prepareSetOpenDirection)
-                .messageKey("creator.base.set_open_direction")
-                .messageVariableRetrievers(
-                    () -> getValidOpenDirections().stream()
-                                                  .map(dir -> localizer.getMessage(dir.getLocalizationKey()))
-                                                  .toList());
+        factorySetOpenDir = stepFactory
+            .stepName("SET_OPEN_DIRECTION")
+            .stepExecutor(new StepExecutorOpenDirection(this::completeSetOpenDirStep))
+            .stepPreparation(this::prepareSetOpenDirection)
+            .messageKey("creator.base.set_open_direction")
+            .messageVariableRetrievers(
+                () -> localizer.getDoorType(getDoorType()),
+                () -> getValidOpenDirections().stream().map(dir -> localizer.getMessage(dir.getLocalizationKey()))
+                                              .toList().toString());
 
-        factoryConfirmPrice =
-            new Step.Factory(localizer, "CONFIRM_DOOR_PRICE")
-                .stepExecutor(new StepExecutorBoolean(this::confirmPrice))
-                .skipCondition(this::skipConfirmPrice)
-                .messageKey("creator.base.confirm_door_price")
-                .messageVariableRetrievers(Collections.singletonList(() -> String.format("%.2f", getPrice().orElse(0))))
-                .implicitNextStep(false);
+        factoryConfirmPrice = stepFactory
+            .stepName("CONFIRM_DOOR_PRICE")
+            .stepExecutor(new StepExecutorBoolean(this::confirmPrice))
+            .skipCondition(this::skipConfirmPrice)
+            .messageKey("creator.base.confirm_door_price")
+            .messageVariableRetrievers(() -> localizer.getDoorType(getDoorType()),
+                                       () -> String.format("%.2f", getPrice().orElse(0)))
+            .implicitNextStep(false);
 
-        factoryCompleteProcess =
-            new Step.Factory(localizer, "COMPLETE_CREATION_PROCESS")
-                .stepExecutor(new StepExecutorVoid(this::completeCreationProcess))
-                .waitForUserInput(false);
+        factoryCompleteProcess = stepFactory
+            .stepName("COMPLETE_CREATION_PROCESS")
+            .stepExecutor(new StepExecutorVoid(this::completeCreationProcess))
+            .waitForUserInput(false);
     }
 
     /**
@@ -315,7 +315,8 @@ public abstract class Creator extends ToolUser
         {
             log.at(Level.FINE).log("Invalid name '%s' for selected Creator: %s", str, this);
             getPlayer().sendMessage(textFactory, TextType.ERROR,
-                                    localizer.getMessage("creator.base.error.invalid_name", str));
+                                    localizer.getMessage("creator.base.error.invalid_name",
+                                                         str, localizer.getDoorType(getDoorType())));
             return false;
         }
 
@@ -362,10 +363,12 @@ public abstract class Creator extends ToolUser
         final OptionalInt sizeLimit = limitsManager.getLimit(getPlayer(), Limit.DOOR_SIZE);
         if (sizeLimit.isPresent() && newCuboid.getVolume() > sizeLimit.getAsInt())
         {
-            getPlayer().sendMessage(textFactory, TextType.ERROR,
-                                    localizer.getMessage("creator.base.error.area_too_big",
-                                                         Integer.toString(newCuboid.getVolume()),
-                                                         Integer.toString(sizeLimit.getAsInt())));
+            getPlayer().sendMessage(
+                textFactory, TextType.ERROR,
+                localizer.getMessage("creator.base.error.area_too_big",
+                                     localizer.getDoorType(getDoorType()),
+                                     Integer.toString(newCuboid.getVolume()),
+                                     Integer.toString(sizeLimit.getAsInt())));
             return false;
         }
 
@@ -402,6 +405,7 @@ public abstract class Creator extends ToolUser
 
             getPlayer().sendMessage(textFactory, TextType.ERROR,
                                     localizer.getMessage("creator.base.error.insufficient_funds",
+                                                         localizer.getDoorType(getDoorType()),
                                                          DECIMAL_FORMAT.format(getPrice().orElse(0))));
             abort();
             return true;
@@ -559,7 +563,8 @@ public abstract class Creator extends ToolUser
         if (Util.requireNonNull(cuboid, "cuboid").isPosInsideCuboid(pos))
         {
             getPlayer().sendMessage(textFactory, TextType.ERROR,
-                                    localizer.getMessage("creator.base.error.powerblock_inside_door"));
+                                    localizer.getMessage("creator.base.error.powerblock_inside_door",
+                                                         localizer.getDoorType(getDoorType())));
             return false;
         }
         final OptionalInt distanceLimit = limitsManager.getLimit(getPlayer(), Limit.POWERBLOCK_DISTANCE);
@@ -569,6 +574,7 @@ public abstract class Creator extends ToolUser
         {
             getPlayer().sendMessage(textFactory, TextType.ERROR,
                                     localizer.getMessage("creator.base.error.powerblock_too_far",
+                                                         localizer.getDoorType(getDoorType()),
                                                          DECIMAL_FORMAT.format(distance),
                                                          Integer.toString(distanceLimit.getAsInt())));
             return false;

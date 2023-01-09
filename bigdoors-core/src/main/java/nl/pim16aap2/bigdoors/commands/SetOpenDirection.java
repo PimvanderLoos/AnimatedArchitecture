@@ -51,7 +51,8 @@ public class SetOpenDirection extends DoorTargetCommand
             getCommandSender().sendMessage(
                 textFactory, TextType.ERROR,
                 localizer.getMessage("commands.set_open_direction.error.invalid_rotation",
-                                     rotateDirection.name(), door.getBasicInfo()));
+                                     localizer.getMessage(rotateDirection.getLocalizationKey()),
+                                     localizer.getDoorType(door), door.getBasicInfo()));
 
             return CompletableFuture.completedFuture(true);
         }

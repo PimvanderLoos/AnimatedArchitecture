@@ -5,6 +5,7 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.PermissionLevel;
+import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
@@ -54,6 +55,10 @@ class AddOwnerTest
     void init()
     {
         MockitoAnnotations.openMocks(this);
+
+        final DoorType doorType = Mockito.mock(DoorType.class);
+        Mockito.when(doorType.getLocalizationKey()).thenReturn("DoorType");
+        Mockito.when(door.getDoorType()).thenReturn(doorType);
 
         localizer = UnitTestUtil.initLocalizer();
 
