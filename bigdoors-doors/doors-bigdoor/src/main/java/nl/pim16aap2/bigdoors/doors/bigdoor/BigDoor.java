@@ -44,11 +44,6 @@ public class BigDoor extends AbstractDoor implements ITimerToggleable
     @PersistentVariable
     protected int autoOpenTime;
 
-    public static void tryLog()
-    {
-        log.at(Level.SEVERE).log("TESTING THE LOGGER!");
-    }
-
     public BigDoor(DoorBase doorBase, int autoCloseTime, int autoOpenTime)
     {
         super(doorBase);
