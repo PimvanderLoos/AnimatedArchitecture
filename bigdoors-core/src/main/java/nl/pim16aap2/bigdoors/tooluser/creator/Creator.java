@@ -196,52 +196,52 @@ public abstract class Creator extends ToolUser
     @Override
     protected void init()
     {
-        factorySetName =
-            new Step.Factory(localizer, "SET_NAME")
-                .stepExecutor(new StepExecutorString(this::completeNamingStep))
-                .messageKey("creator.base.give_name")
-                .messageVariableRetriever(() -> localizer.getDoorType(getDoorType()));
+        factorySetName = stepFactory
+            .stepName("SET_NAME")
+            .stepExecutor(new StepExecutorString(this::completeNamingStep))
+            .messageKey("creator.base.give_name")
+            .messageVariableRetriever(() -> localizer.getDoorType(getDoorType()));
 
-        factorySetFirstPos =
-            new Step.Factory(localizer, "SET_FIRST_POS")
-                .stepExecutor(new StepExecutorPLocation(this::setFirstPos));
+        factorySetFirstPos = stepFactory
+            .stepName("SET_FIRST_POS")
+            .stepExecutor(new StepExecutorPLocation(this::setFirstPos));
 
-        factorySetSecondPos =
-            new Step.Factory(localizer, "SET_SECOND_POS")
-                .stepExecutor(new StepExecutorPLocation(this::setSecondPos));
+        factorySetSecondPos = stepFactory
+            .stepName("SET_SECOND_POS")
+            .stepExecutor(new StepExecutorPLocation(this::setSecondPos));
 
-        factorySetRotationPointPos =
-            new Step.Factory(localizer, "SET_ROTATION_POINT")
-                .stepExecutor(new StepExecutorPLocation(this::completeSetRotationPointStep));
+        factorySetRotationPointPos = stepFactory
+            .stepName("SET_ROTATION_POINT")
+            .stepExecutor(new StepExecutorPLocation(this::completeSetRotationPointStep));
 
-        factorySetPowerBlockPos =
-            new Step.Factory(localizer, "SET_POWER_BLOCK_POS")
-                .messageKey("creator.base.set_power_block")
-                .stepExecutor(new StepExecutorPLocation(this::completeSetPowerBlockStep));
+        factorySetPowerBlockPos = stepFactory
+            .stepName("SET_POWER_BLOCK_POS")
+            .messageKey("creator.base.set_power_block")
+            .stepExecutor(new StepExecutorPLocation(this::completeSetPowerBlockStep));
 
-        factorySetOpenDir =
-            new Step.Factory(localizer, "SET_OPEN_DIRECTION")
-                .stepExecutor(new StepExecutorOpenDirection(this::completeSetOpenDirStep))
-                .stepPreparation(this::prepareSetOpenDirection)
-                .messageKey("creator.base.set_open_direction")
-                .messageVariableRetrievers(
-                    () -> getValidOpenDirections().stream()
-                                                  .map(dir -> localizer.getMessage(dir.getLocalizationKey()))
-                                                  .toList());
+        factorySetOpenDir = stepFactory
+            .stepName("SET_OPEN_DIRECTION")
+            .stepExecutor(new StepExecutorOpenDirection(this::completeSetOpenDirStep))
+            .stepPreparation(this::prepareSetOpenDirection)
+            .messageKey("creator.base.set_open_direction")
+            .messageVariableRetrievers(
+                () -> getValidOpenDirections().stream()
+                                              .map(dir -> localizer.getMessage(dir.getLocalizationKey()))
+                                              .toList());
 
-        factoryConfirmPrice =
-            new Step.Factory(localizer, "CONFIRM_DOOR_PRICE")
-                .stepExecutor(new StepExecutorBoolean(this::confirmPrice))
-                .skipCondition(this::skipConfirmPrice)
-                .messageKey("creator.base.confirm_door_price")
-                .messageVariableRetrievers(List.of(() -> localizer.getDoorType(getDoorType()),
-                                                   () -> String.format("%.2f", getPrice().orElse(0))))
-                .implicitNextStep(false);
+        factoryConfirmPrice = stepFactory
+            .stepName("CONFIRM_DOOR_PRICE")
+            .stepExecutor(new StepExecutorBoolean(this::confirmPrice))
+            .skipCondition(this::skipConfirmPrice)
+            .messageKey("creator.base.confirm_door_price")
+            .messageVariableRetrievers(List.of(() -> localizer.getDoorType(getDoorType()),
+                                               () -> String.format("%.2f", getPrice().orElse(0))))
+            .implicitNextStep(false);
 
-        factoryCompleteProcess =
-            new Step.Factory(localizer, "COMPLETE_CREATION_PROCESS")
-                .stepExecutor(new StepExecutorVoid(this::completeCreationProcess))
-                .waitForUserInput(false);
+        factoryCompleteProcess = stepFactory
+            .stepName("COMPLETE_CREATION_PROCESS")
+            .stepExecutor(new StepExecutorVoid(this::completeCreationProcess))
+            .waitForUserInput(false);
     }
 
     /**

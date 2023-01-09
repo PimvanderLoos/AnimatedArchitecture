@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,12 +55,17 @@ class PowerBlockRelocatorTest
                                                              Mockito.any(), Mockito.any()))
                .thenReturn(Optional.empty());
 
-
         final ToolUser.Context context = Mockito.mock(ToolUser.Context.class, Answers.RETURNS_MOCKS);
         Mockito.when(context.getProtectionCompatManager()).thenReturn(compatManager);
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
         Mockito.when(context.getLocalizer()).thenReturn(localizer);
         Mockito.when(context.getTextFactory()).thenReturn(ITextFactory.getSimpleTextFactory());
+
+        final Step.Factory.IFactory assistedStepFactory = Mockito.mock(Step.Factory.IFactory.class);
+        //noinspection deprecation
+        Mockito.when(assistedStepFactory.stepName(Mockito.anyString()))
+               .thenAnswer(invocation -> new Step.Factory(localizer, invocation.getArgument(0, String.class)));
+        Mockito.when(context.getStepFactory()).thenReturn(assistedStepFactory);
 
         Mockito.when(factory.create(Mockito.any(IPPlayer.class), Mockito.any(AbstractDoor.class)))
                .thenAnswer(invoc -> new PowerBlockRelocator(context, invoc.getArgument(0, IPPlayer.class),

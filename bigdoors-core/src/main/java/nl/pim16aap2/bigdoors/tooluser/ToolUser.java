@@ -19,6 +19,7 @@ import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
+import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,6 +46,8 @@ public abstract class ToolUser
 
     protected final ITextFactory textFactory;
 
+    protected final Step.Factory.IFactory stepFactory;
+
     /**
      * The {@link Procedure} that this {@link ToolUser} will go through.
      */
@@ -69,6 +72,7 @@ public abstract class ToolUser
 
     protected ToolUser(Context context, IPPlayer player)
     {
+        stepFactory = context.getStepFactory();
         this.player = player;
         localizer = context.getLocalizer();
         toolUserManager = context.getToolUserManager();
@@ -339,13 +343,15 @@ public abstract class ToolUser
         private final IProtectionCompatManager protectionCompatManager;
         private final IBigDoorsToolUtil bigDoorsToolUtil;
         private final CommandFactory commandFactory;
+        private final Step.Factory.IFactory stepFactory;
 
         @Inject
         public Context(
             DoorBaseBuilder doorBaseBuilder, ILocalizer localizer, ITextFactory textFactory,
             ToolUserManager toolUserManager, DatabaseManager databaseManager, LimitsManager limitsManager,
             IEconomyManager economyManager, IProtectionCompatManager protectionCompatManager,
-            IBigDoorsToolUtil bigDoorsToolUtil, CommandFactory commandFactory)
+            IBigDoorsToolUtil bigDoorsToolUtil, CommandFactory commandFactory,
+            Step.Factory.IFactory stepFactory)
         {
             this.doorBaseBuilder = doorBaseBuilder;
             this.localizer = localizer;
@@ -357,11 +363,7 @@ public abstract class ToolUser
             this.bigDoorsToolUtil = bigDoorsToolUtil;
             this.commandFactory = commandFactory;
             this.textFactory = textFactory;
-        }
-
-        public ITextFactory getTextFactory()
-        {
-            return textFactory;
+            this.stepFactory = stepFactory;
         }
     }
 }

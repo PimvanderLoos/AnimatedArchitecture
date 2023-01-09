@@ -59,7 +59,8 @@ public class PowerBlockInspector extends ToolUser
     protected List<IStep> generateSteps()
         throws InstantiationException
     {
-        final Step stepBlocksToMove = new Step.Factory(localizer, "INSPECT_POWER_BLOCK")
+        final Step stepBlocksToMove = stepFactory
+            .stepName("INSPECT_POWER_BLOCK")
             .messageKey("tool_user.powerblock_inspector.init")
             .stepExecutor(new StepExecutorPLocation(this::inspectLoc))
             .waitForUserInput(true).construct();

@@ -36,7 +36,8 @@ public class CreatorPortcullis extends Creator
     protected List<IStep> generateSteps()
         throws InstantiationException
     {
-        final Step stepBlocksToMove = new Step.Factory(localizer, "SET_BLOCKS_TO_MOVE")
+        final Step stepBlocksToMove = stepFactory
+            .stepName("SET_BLOCKS_TO_MOVE")
             .messageKey("creator.portcullis.set_blocks_to_move")
             .stepExecutor(new StepExecutorInteger(this::setBlocksToMove))
             .stepPreparation(this::prepareSetBlocksToMove)

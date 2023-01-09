@@ -1,5 +1,8 @@
 package nl.pim16aap2.bigdoors.tooluser.step;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,6 +10,7 @@ import lombok.ToString;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutor;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -92,7 +96,13 @@ public class Step implements IStep
         private @Nullable Supplier<Boolean> skipCondition = null;
         private boolean implicitNextStep = true;
 
-        public Factory(ILocalizer localizer, String name)
+        /**
+         * @deprecated Prefer instantiation using {@link Step.Factory.IFactory} instead.
+         */
+        @VisibleForTesting
+        @AssistedInject
+        @Deprecated
+        public Factory(ILocalizer localizer, @Assisted String name)
         {
             this.localizer = localizer;
             this.name = name;
@@ -167,6 +177,25 @@ public class Step implements IStep
 
             return new Step(localizer, name, stepExecutor, messageKey, stepPreparation, messageVariablesRetrievers,
                             flatMessageVariablesRetrievers, waitForUserInput, skipCondition, implicitNextStep);
+        }
+
+        /**
+         * Nested factory used to create new {@link Step.Factory} instances.
+         * <p>
+         * It is preferred to use this over the direct constructor as this ensures that all required dependencies are
+         * included.
+         */
+        @AssistedFactory
+        public interface IFactory
+        {
+            /**
+             * Creates a new {@link Step.Factory}.
+             *
+             * @param stepName
+             *     The name of the step to be created.
+             * @return The new factory.
+             */
+            Step.Factory stepName(String stepName);
         }
     }
 }
