@@ -203,7 +203,7 @@ public class GarageDoor extends AbstractDoor implements IHorizontalAxisAligned, 
         // TODO: Get rid of this.
         final double fixedTime = time < 0.5 ? 5 : time;
 
-        return new GarageDoorMover(context, this, fixedTime, doorOpeningHelper.getAnimationTimeMultiplier(this),
+        return new GarageDoorMover(context, this, fixedTime, config.getAnimationSpeedMultiplier(getDoorType()),
                                    skipAnimation,
                                    getCurrentToggleDir(), responsible, newCuboid, cause, actionType);
     }

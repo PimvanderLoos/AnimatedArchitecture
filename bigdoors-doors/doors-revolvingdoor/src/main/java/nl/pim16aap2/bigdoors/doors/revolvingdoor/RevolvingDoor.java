@@ -92,7 +92,7 @@ public class RevolvingDoor extends AbstractDoor
         // TODO: Get rid of this.
         final double fixedTime = time < 0.5 ? 5 : time;
 
-        return new RevolvingDoorMover(context, this, fixedTime, doorOpeningHelper.getAnimationTimeMultiplier(this),
+        return new RevolvingDoorMover(context, this, fixedTime, config.getAnimationSpeedMultiplier(getDoorType()),
                                       getCurrentToggleDir(), responsible, quarterCircles, cause, newCuboid, actionType);
     }
 

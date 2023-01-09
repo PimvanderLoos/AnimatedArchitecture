@@ -114,7 +114,7 @@ public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, 
         throws Exception
     {
         return new BridgeMover<>(context, time, this, getCurrentToggleDir(), skipAnimation,
-                                 doorOpeningHelper.getAnimationTimeMultiplier(this), responsible, newCuboid, cause,
+                                 config.getAnimationSpeedMultiplier(getDoorType()), responsible, newCuboid, cause,
                                  actionType);
     }
 
