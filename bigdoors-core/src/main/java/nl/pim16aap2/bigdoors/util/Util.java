@@ -371,7 +371,7 @@ public final class Util
      */
     public static double clampAngleRad(double angle)
     {
-        return angle % (2 * Math.PI);
+        return angle % Math.TAU;
     }
 
     /**
@@ -383,7 +383,7 @@ public final class Util
      */
     public static double clampAngleDeg(double angle)
     {
-        return angle % (2 * Math.PI);
+        return angle % Math.TAU;
     }
 
     /**
