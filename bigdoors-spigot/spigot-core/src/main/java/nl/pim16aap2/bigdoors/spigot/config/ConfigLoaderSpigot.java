@@ -602,7 +602,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
     @Override
     public double getAnimationSpeedMultiplier(DoorType type)
     {
-        return doorSpeedMultipliers.getOrDefault(type, 1.0D);
+        return Math.max(0.0001D, doorSpeedMultipliers.getOrDefault(type, 1.0D));
     }
 
     @Override
