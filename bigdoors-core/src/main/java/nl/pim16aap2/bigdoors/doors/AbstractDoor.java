@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.doors;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
@@ -79,6 +80,35 @@ public abstract class AbstractDoor implements IDoor
      * @return The {@link DoorType} of doorBase door.
      */
     public abstract DoorType getDoorType();
+
+    /**
+     * Gets the lower time limit for an animation.
+     * <p>
+     * Because animated blocks have a speed limit, as determined by {@link IConfigLoader#maxBlockSpeed()}, there is also
+     * a minimum amount of time for its animation.
+     * <p>
+     * The exact time limit depends on the shape, size, and type of door.
+     *
+     * @return The lower animation time limit for this door in seconds.
+     */
+    // TODO: This method should be abstract.
+    public double getMinimumAnimationTime()
+    {
+        return 0.0D;
+    }
+
+    /**
+     * Gets the base animation time for this door.
+     * <p>
+     * This is the animation time without any multipliers applied to it.
+     *
+     * @return The base animation time for this door in seconds.
+     */
+    // TODO: This method should be abstract.
+    public double getBaseToggleTime()
+    {
+        return 0.0D;
+    }
 
     /**
      * Checks if this door can be opened instantly (i.e. skip the animation).
