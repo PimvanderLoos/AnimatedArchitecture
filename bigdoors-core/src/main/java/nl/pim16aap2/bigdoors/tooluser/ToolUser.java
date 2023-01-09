@@ -222,15 +222,8 @@ public abstract class ToolUser
         }
     }
 
-    /**
-     * Handles user input for the given step.
-     *
-     * @param obj
-     *     The input to handle. What actual type is expected depends on the step.
-     * @return True if the input was processed successfully.
-     */
     @SuppressWarnings("PMD.PrematureDeclaration")
-    public boolean handleInput(@Nullable Object obj)
+    private boolean handleInput0(@Nullable Object obj)
     {
         log.at(Level.FINE).log("Handling input: %s (%s) for step: %s in ToolUser: %s.",
                                obj, (obj == null ? "null" : obj.getClass().getSimpleName()),
@@ -255,6 +248,26 @@ public abstract class ToolUser
 
         prepareCurrentStep();
         return true;
+    }
+
+    /**
+     * Handles user input for the given step.
+     *
+     * @param obj
+     *     The input to handle. What actual type is expected depends on the step.
+     * @return True if the input was processed successfully.
+     */
+    public boolean handleInput(@Nullable Object obj)
+    {
+        try
+        {
+            return handleInput0(obj);
+        }
+        catch (Exception e)
+        {
+            log.atSevere().withCause(e).log("Failed to handle input '%s' for ToolUser '%s'!", obj, this);
+            return false;
+        }
     }
 
     /**

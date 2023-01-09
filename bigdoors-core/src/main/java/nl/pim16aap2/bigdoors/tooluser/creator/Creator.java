@@ -34,7 +34,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.List;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.Set;
@@ -200,7 +199,7 @@ public abstract class Creator extends ToolUser
             .stepName("SET_NAME")
             .stepExecutor(new StepExecutorString(this::completeNamingStep))
             .messageKey("creator.base.give_name")
-            .messageVariableRetriever(() -> localizer.getDoorType(getDoorType()));
+            .messageVariableRetrievers(() -> localizer.getDoorType(getDoorType()));
 
         factorySetFirstPos = stepFactory
             .stepName("SET_FIRST_POS")
@@ -225,17 +224,17 @@ public abstract class Creator extends ToolUser
             .stepPreparation(this::prepareSetOpenDirection)
             .messageKey("creator.base.set_open_direction")
             .messageVariableRetrievers(
-                () -> getValidOpenDirections().stream()
-                                              .map(dir -> localizer.getMessage(dir.getLocalizationKey()))
-                                              .toList());
+                () -> localizer.getDoorType(getDoorType()),
+                () -> getValidOpenDirections().stream().map(dir -> localizer.getMessage(dir.getLocalizationKey()))
+                                              .toList().toString());
 
         factoryConfirmPrice = stepFactory
             .stepName("CONFIRM_DOOR_PRICE")
             .stepExecutor(new StepExecutorBoolean(this::confirmPrice))
             .skipCondition(this::skipConfirmPrice)
             .messageKey("creator.base.confirm_door_price")
-            .messageVariableRetrievers(List.of(() -> localizer.getDoorType(getDoorType()),
-                                               () -> String.format("%.2f", getPrice().orElse(0))))
+            .messageVariableRetrievers(() -> localizer.getDoorType(getDoorType()),
+                                       () -> String.format("%.2f", getPrice().orElse(0)))
             .implicitNextStep(false);
 
         factoryCompleteProcess = stepFactory

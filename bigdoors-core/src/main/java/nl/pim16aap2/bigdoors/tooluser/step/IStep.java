@@ -13,21 +13,21 @@ import java.util.Optional;
 public interface IStep
 {
     /**
-     * Gets the name of this step.
-     *
      * @return The name of this step.
      */
     String getName();
 
     /**
-     * Gets the localized {@link String} that belongs to the current {@link IStep}.
-     *
      * @return The localized {@link String} that belongs to the current {@link IStep}.
      */
     String getLocalizedMessage();
 
     /**
      * Checks if this type of {@link IStep} waits for user input or not.
+     * <p>
+     * Most steps will usually wait for user input (e.g. providing a name, or location, etc.). However, some steps can
+     * be executed immediately. One such example is a finishing step, that runs after all other steps have been
+     * completed and processes the final result of all the steps that have been executed.
      *
      * @return True if this type of {@link IStep} waits for user input.
      */
@@ -39,8 +39,6 @@ public interface IStep
     @Nullable Runnable getStepPreparation();
 
     /**
-     * Gets the {@link StepExecutor} for the current step.
-     *
      * @return The {@link StepExecutor} for the current step.
      */
     Optional<StepExecutor> getStepExecutor();
