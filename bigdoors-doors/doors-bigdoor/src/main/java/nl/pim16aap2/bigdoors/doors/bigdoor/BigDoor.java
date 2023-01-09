@@ -104,6 +104,6 @@ public class BigDoor extends AbstractDoor implements ITimerToggleable
         throws Exception
     {
         return new BigDoorMover(context, this, getCurrentToggleDir(), time, skipAnimation,
-                                doorOpeningHelper.getAnimationTime(this), responsible, newCuboid, cause, actionType);
+                                responsible, newCuboid, cause, actionType);
     }
 }

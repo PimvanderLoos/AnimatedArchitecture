@@ -75,12 +75,13 @@ public class Flag extends AbstractDoor implements IHorizontalAxisAligned, IPerpe
     }
 
     @Override
-    protected BlockMover constructBlockMover(BlockMover.Context context, DoorActionCause cause, double time,
-                                             boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
-                                             DoorActionType actionType)
+    protected BlockMover constructBlockMover(
+        BlockMover.Context context, DoorActionCause cause, double time,
+        boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
+        DoorActionType actionType)
         throws Exception
     {
-        return new FlagMover(context, 60, this, doorOpeningHelper.getAnimationTime(this), responsible, cause,
+        return new FlagMover(context, 60, this, doorOpeningHelper.getAnimationSpeedMultiplier(this), responsible, cause,
                              actionType);
     }
 

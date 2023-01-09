@@ -261,6 +261,8 @@ public abstract class BlockMover
         xMax = door.getMaximum().x();
         yMax = door.getMaximum().y();
         zMax = door.getMaximum().z();
+
+        this.animationDuration = (int) Math.min(Integer.MAX_VALUE, Math.round(1000 * this.time / serverTickTime));
     }
 
     public void abort()

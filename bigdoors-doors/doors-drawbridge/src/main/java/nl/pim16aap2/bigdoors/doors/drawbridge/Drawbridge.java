@@ -107,13 +107,15 @@ public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, 
     }
 
     @Override
-    protected BlockMover constructBlockMover(BlockMover.Context context, DoorActionCause cause, double time,
-                                             boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
-                                             DoorActionType actionType)
+    protected BlockMover constructBlockMover(
+        BlockMover.Context context, DoorActionCause cause, double time,
+        boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
+        DoorActionType actionType)
         throws Exception
     {
         return new BridgeMover<>(context, time, this, getCurrentToggleDir(), skipAnimation,
-                                 doorOpeningHelper.getAnimationTime(this), responsible, newCuboid, cause, actionType);
+                                 doorOpeningHelper.getAnimationSpeedMultiplier(this), responsible, newCuboid, cause,
+                                 actionType);
     }
 
     @Override

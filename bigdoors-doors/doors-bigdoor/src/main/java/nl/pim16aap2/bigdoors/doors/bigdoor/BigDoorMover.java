@@ -12,11 +12,11 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 
-import java.util.logging.Level;
-
 @Flogger
 public class BigDoorMover extends BlockMover
 {
+    private static final double HALF_PI = Math.PI / 2;
+
     private final Vector3Dd rotationCenter;
     private final int halfEndCount;
     private final double angle;
@@ -24,8 +24,7 @@ public class BigDoorMover extends BlockMover
 
     public BigDoorMover(
         Context context, AbstractDoor door, RotateDirection rotDirection, double time,
-        boolean skipAnimation, double multiplier, IPPlayer player, Cuboid newCuboid,
-        DoorActionCause cause, DoorActionType actionType)
+        boolean skipAnimation, IPPlayer player, Cuboid newCuboid, DoorActionCause cause, DoorActionType actionType)
         throws Exception
     {
         super(context, door, time, skipAnimation, rotDirection, player, newCuboid, cause, actionType);
@@ -34,12 +33,10 @@ public class BigDoorMover extends BlockMover
                 rotDirection == RotateDirection.COUNTERCLOCKWISE ? -Math.PI / 2 : 0.0D;
 
         if (angle == 0.0D)
-            log.at(Level.SEVERE).log("Invalid open direction '%s' for door: %d", rotDirection.name(), getDoorUID());
+            log.atSevere().log("Invalid open direction '%s' for door: %d", rotDirection.name(), getDoorUID());
 
         rotationCenter = new Vector3Dd(door.getRotationPoint().x() + 0.5, yMin, door.getRotationPoint().z() + 0.5);
-        super.time = 3;
 
-        super.animationDuration = (int) (20 * super.time) + 1;
         step = angle / super.animationDuration;
         halfEndCount = super.animationDuration / 2;
     }

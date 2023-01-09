@@ -140,13 +140,13 @@ public interface IConfigLoader extends IRestartable
     String getPrice(DoorType type);
 
     /**
-     * Gets the animation time for a specific type of door.
+     * Gets the animation speed multiplier for a specific type of door.
      *
      * @param type
      *     The door type.
      * @return The animation time for the door type.
      */
-    double getAnimationTime(DoorType type);
+    double getAnimationSpeedMultiplier(DoorType type);
 
     /**
      * @return The global maximum speed of a block.

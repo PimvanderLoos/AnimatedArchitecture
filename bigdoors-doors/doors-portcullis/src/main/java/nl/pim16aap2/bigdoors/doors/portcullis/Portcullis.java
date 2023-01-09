@@ -99,6 +99,7 @@ public class Portcullis extends AbstractDoor implements IDiscreteMovement, ITime
         throws Exception
     {
         return new VerticalMover(context, this, time, skipAnimation, getDirectedBlocksToMove(),
-                                 doorOpeningHelper.getAnimationTime(this), responsible, newCuboid, cause, actionType);
+                                 doorOpeningHelper.getAnimationSpeedMultiplier(this), responsible, newCuboid, cause,
+                                 actionType);
     }
 }
