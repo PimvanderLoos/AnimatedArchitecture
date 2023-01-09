@@ -21,7 +21,6 @@ import java.util.function.BiFunction;
 public class RevolvingDoorMover extends BlockMover
 {
     private final BiFunction<IAnimatedBlock, Double, Vector3Dd> getGoalPos;
-    private final RotateDirection rotateDirection;
 
     private final double step;
     private final double endStepSum;
@@ -32,10 +31,7 @@ public class RevolvingDoorMover extends BlockMover
         IPPlayer player, int quarterCircles, DoorActionCause cause, Cuboid newCuboid, DoorActionType actionType)
         throws Exception
     {
-        super(context, door, 30, false, RotateDirection.NONE, player, newCuboid, cause, actionType);
-
-        this.time = time;
-        this.rotateDirection = rotateDirection;
+        super(context, door, time, false, rotateDirection, player, newCuboid, cause, actionType);
 
         switch (rotateDirection)
         {
@@ -91,7 +87,7 @@ public class RevolvingDoorMover extends BlockMover
                                                 (int) startLocation.yD(),
                                                 (int) startLocation.zD());
 
-        if (rotateDirection == RotateDirection.CLOCKWISE)
+        if (openDirection == RotateDirection.CLOCKWISE)
             return getGoalPosClockwise(radius, startAngle, startLocation.yD(), endStepSum);
         return getGoalPosCounterClockwise(radius, startAngle, startLocation.yD(), endStepSum);
     }

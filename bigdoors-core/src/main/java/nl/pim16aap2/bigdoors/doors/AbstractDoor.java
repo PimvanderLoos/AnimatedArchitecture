@@ -136,6 +136,35 @@ public abstract class AbstractDoor implements IDoor
     }
 
     /**
+     * Gets the distance traveled per animation by the animated block that travels the furthest.
+     * <p>
+     * For example, for a circular object, this will be a block on the edge, as these blocks travel further per
+     * revolution than the blocks closer to the center of the circle.
+     * <p>
+     * This method looks at the distance per animation cycle. The exact definition of a cycle depends on the
+     * implementation of the door. For a big door, for example, a cycle could be a single toggle, or a quarter circle.
+     * To keep things easy, a revolving door (which may not have a definitive end to its animation) could define a cycle
+     * as quarter circle as well.
+     * <p>
+     * The distance value is used to calculate {@link #getMinimumAnimationTime()} and {@link #getBaseAnimationTime()}.
+     *
+     * @return The longest distance traveled by an animated block measured in blocks.
+     */
+    // TODO: This method should be abstract.
+    protected double getLongestDistancePerAnimationCycle()
+    {
+        return 0.0D;
+    }
+
+    /**
+     * The default speed of the animation in blocks/second, as measured by the fastest-moving block in the door.
+     */
+    protected double getDefaultAnimationSpeed()
+    {
+        return 1.5D;
+    }
+
+    /**
      * Gets the lower time limit for an animation.
      * <p>
      * Because animated blocks have a speed limit, as determined by {@link IConfigLoader#maxBlockSpeed()}, there is also
@@ -145,10 +174,9 @@ public abstract class AbstractDoor implements IDoor
      *
      * @return The lower animation time limit for this door in seconds.
      */
-    // TODO: This method should be abstract.
     public double getMinimumAnimationTime()
     {
-        return 0.0D;
+        return getLongestDistancePerAnimationCycle() / config.maxBlockSpeed();
     }
 
     /**
@@ -161,7 +189,7 @@ public abstract class AbstractDoor implements IDoor
     // TODO: This method should be abstract.
     public double getBaseAnimationTime()
     {
-        return 0.0D;
+        return getLongestDistancePerAnimationCycle() / Math.min(getDefaultAnimationSpeed(), config.maxBlockSpeed());
     }
 
     /**
