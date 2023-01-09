@@ -149,6 +149,11 @@ public interface IConfigLoader extends IRestartable
     double getAnimationTime(DoorType type);
 
     /**
+     * @return The global maximum speed of a block.
+     */
+    double maxBlockSpeed();
+
+    /**
      * The log level to use.
      *
      * @return The log level.

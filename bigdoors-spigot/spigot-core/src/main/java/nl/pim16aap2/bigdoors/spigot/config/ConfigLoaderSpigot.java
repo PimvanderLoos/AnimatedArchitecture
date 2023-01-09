@@ -75,6 +75,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
     private String resourcePack = "";
     private OptionalInt maxDoorCount = OptionalInt.empty();
     private OptionalInt maxBlocksToMove = OptionalInt.empty();
+    private double maxBlockSpeed;
     private int cacheTimeout;
     private boolean autoDLUpdate;
     private long downloadDelay;
@@ -204,6 +205,11 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
             "When this is the case, it's recommended to disable this option and merge the pack with the other one.",
             "The default resource pack for 1.11.x/1.12.x is: '" + defResPackUrl + "'",
             "The default resource pack for 1.13.x is: '" + defResPackUrl1_13 + "'"};
+        final String[] maxBlockSpeedComment = {
+            "Determines the global speed limit of animated blocks.",
+            "Animated objects will slow down when necessary to avoid any of their animated blocks exceeding this limit",
+            "Higher values may result in choppier and/or glitchier animations."
+        };
         final String[] multiplierComment = {
             "These multipliers affect the opening/closing speed of their respective doorBase types.",
             "Note that the maximum speed is limited, so beyond a certain point " +
@@ -290,9 +296,10 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
         coolDown = addNewConfigEntry(config, "coolDown", 0, coolDownComment);
         cacheTimeout = addNewConfigEntry(config, "cacheTimeout", 120, cacheTimeoutComment);
 
-
         flagFormula = addNewConfigEntry(config, "flagFormula",
                                         "Math.min(0.3 * radius, 3) * Math.sin((counter / 4) * 3)", (String[]) null);
+
+        maxBlockSpeed = addNewConfigEntry(config, "maxBlockSpeed", 6.0D, maxBlockSpeedComment);
 
         final List<DoorType> enabledDoorTypes = doorTypeManager.get().getEnabledDoorTypes();
         parseForEachDoorType(doorMultipliers, config, enabledDoorTypes, multiplierComment, 0.0D, "multiplier_");
@@ -593,6 +600,12 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
     public double getAnimationTime(DoorType type)
     {
         return doorMultipliers.getOrDefault(type, 0.0D);
+    }
+
+    @Override
+    public double maxBlockSpeed()
+    {
+        return maxBlockSpeed;
     }
 
     @Override
