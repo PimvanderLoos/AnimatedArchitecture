@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -49,6 +50,10 @@ class PowerBlockRelocatorTest
         Mockito.when(door.getWorld()).thenReturn(world);
         Mockito.when(door.getPowerBlock()).thenReturn(currentPowerBlockLoc);
 
+        final DoorType doorType = Mockito.mock(DoorType.class);
+        Mockito.when(door.getDoorType()).thenReturn(doorType);
+        Mockito.when(doorType.getLocalizationKey()).thenReturn("DoorType");
+
         compatManager = Mockito.mock(IProtectionCompatManager.class);
         Mockito.when(compatManager.canBreakBlock(Mockito.any(), Mockito.any())).thenReturn(Optional.empty());
         Mockito.when(compatManager.canBreakBlocksBetweenLocs(Mockito.any(), Mockito.any(),
@@ -80,7 +85,8 @@ class PowerBlockRelocatorTest
         Mockito.when(location.getWorld()).thenReturn(Mockito.mock(IPWorld.class));
 
         Assertions.assertFalse(relocator.moveToLoc(location));
-        Mockito.verify(player).sendMessage(UnitTestUtil.toText("tool_user.powerblock_relocator.error.world_mismatch"));
+        Mockito.verify(player)
+               .sendMessage(UnitTestUtil.toText("tool_user.powerblock_relocator.error.world_mismatch DoorType"));
 
         Mockito.when(location.getWorld()).thenReturn(Mockito.mock(IPWorld.class));
     }

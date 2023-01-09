@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.localization;
 
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 
 import java.util.List;
@@ -50,6 +51,14 @@ public interface ILocalizer
     default String getDoorType(DoorType doorType)
     {
         return getMessage(doorType.getLocalizationKey());
+    }
+
+    /**
+     * See {@link #getDoorType(DoorType)}
+     */
+    default String getDoorType(AbstractDoor door)
+    {
+        return getDoorType(door.getDoorType());
     }
 
     /**

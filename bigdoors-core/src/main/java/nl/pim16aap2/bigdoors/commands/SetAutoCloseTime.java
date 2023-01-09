@@ -50,7 +50,7 @@ public class SetAutoCloseTime extends DoorTargetCommand
         {
             getCommandSender().sendMessage(textFactory, TextType.ERROR,
                                            localizer.getMessage("commands.set_auto_close_time.error.invalid_door_type",
-                                                                door.getBasicInfo()));
+                                                                localizer.getDoorType(door), door.getBasicInfo()));
             return CompletableFuture.completedFuture(true);
         }
 

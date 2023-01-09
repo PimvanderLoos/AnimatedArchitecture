@@ -51,7 +51,7 @@ public class SetBlocksToMove extends DoorTargetCommand
             getCommandSender()
                 .sendMessage(textFactory, TextType.ERROR,
                              localizer.getMessage("commands.set_blocks_to_move.error.invalid_door_type",
-                                                  door.getBasicInfo()));
+                                                  localizer.getDoorType(door), door.getBasicInfo()));
             return CompletableFuture.completedFuture(true);
         }
 

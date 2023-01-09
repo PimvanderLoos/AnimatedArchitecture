@@ -49,7 +49,8 @@ public class PowerBlockRelocator extends ToolUser
         if (!loc.getWorld().equals(door.getWorld()))
         {
             getPlayer().sendError(textFactory,
-                                  localizer.getMessage("tool_user.powerblock_relocator.error.world_mismatch"));
+                                  localizer.getMessage("tool_user.powerblock_relocator.error.world_mismatch",
+                                                       localizer.getDoorType(door.getDoorType())));
             return false;
         }
 
