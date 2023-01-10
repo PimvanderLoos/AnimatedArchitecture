@@ -27,7 +27,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Stream;
 
 /**
- * Represents a Big Door doorType.
+ * Represents a Big Door movable type.
  *
  * @author Pim
  * @see AbstractMovable
@@ -45,6 +45,9 @@ public class BigDoor extends AbstractMovable implements ITimerToggleable
     @Getter
     private final double longestAnimationCycleDistance;
 
+    @Getter
+    private final Cuboid animationRange;
+
     @PersistentVariable
     @GuardedBy("lock")
     @Getter(onMethod_ = @Locked.Read)
@@ -57,19 +60,21 @@ public class BigDoor extends AbstractMovable implements ITimerToggleable
     @Setter(onMethod_ = @Locked.Write)
     protected int autoOpenTime;
 
-    public BigDoor(MovableBase doorBase, int autoCloseTime, int autoOpenTime)
+    public BigDoor(MovableBase base, int autoCloseTime, int autoOpenTime)
     {
-        super(doorBase);
+        super(base);
         this.lock = getLock();
         this.autoCloseTime = autoCloseTime;
         this.autoOpenTime = autoOpenTime;
-        this.longestAnimationCycleDistance =
-            calculateLongestAnimationCycleDistance(getCuboid(), getRotationPoint());
+
+        final double maxRadius = getMaxRadius(getCuboid(), getRotationPoint());
+        this.longestAnimationCycleDistance = maxRadius * MathUtil.HALF_PI;
+        this.animationRange = calculateAnimationRange(maxRadius, getCuboid());
     }
 
-    public BigDoor(MovableBase doorBase)
+    public BigDoor(MovableBase base)
     {
-        this(doorBase, -1, -1); // Add tmp/default values
+        this(base, -1, -1); // Add tmp/default values
     }
 
     @Override
@@ -116,9 +121,26 @@ public class BigDoor extends AbstractMovable implements ITimerToggleable
     }
 
     /**
-     * @return The maximum distance from the rotation point to one of the corners of the movable.
+     * @param maxRadius
+     *     See {@link #getMaxRadius(Cuboid, Vector3Di)}.
+     * @param cuboid
+     *     The cuboid that describes this door.
+     * @return The animation range.
      */
-    public static double calculateLongestAnimationCycleDistance(Cuboid cuboid, Vector3Di rotationPoint)
+    public static Cuboid calculateAnimationRange(double maxRadius, Cuboid cuboid)
+    {
+        final int radius = (int) Math.ceil(maxRadius);
+        return new Cuboid(cuboid.getMin().add(-radius, 0, -radius), cuboid.getMax().add(radius, 0, radius));
+    }
+
+    /**
+     * @param cuboid
+     *     The cuboid that describes this door.
+     * @param rotationPoint
+     *     The rotation point of the door.
+     * @return The radius between the rotation point of the door and the animated block furthest from it.
+     */
+    public static double getMaxRadius(Cuboid cuboid, Vector3Di rotationPoint)
     {
         final Vector3Di min = cuboid.getMin();
         final Vector3Di max = cuboid.getMax();
@@ -127,8 +149,7 @@ public class BigDoor extends AbstractMovable implements ITimerToggleable
 
         return Stream.of(min, max, other0, other1)
                      .mapToDouble(val -> BigDoorMover.getRadius(rotationPoint, val.x(), val.z()))
-                     .max().orElseThrow() * MathUtil.HALF_PI;
-
+                     .max().orElseThrow();
     }
 
     @Override

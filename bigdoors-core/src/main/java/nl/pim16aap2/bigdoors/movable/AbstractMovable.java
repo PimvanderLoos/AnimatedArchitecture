@@ -205,6 +205,16 @@ public abstract class AbstractMovable implements IMovable
     }
 
     /**
+     * Gets the cuboid describing the limits within an animation of this door takes place.
+     * <p>
+     * At no point during an animation will any animated block leave this cuboid, though not guarantees are given
+     * regarding how tight the cuboid fits around the animated blocks.
+     *
+     * @return The animation range.
+     */
+    public abstract Cuboid getAnimationRange();
+
+    /**
      * Finds the new minimum and maximum coordinates (represented by a {@link Cuboid}) of this movable that would be the
      * result of toggling it.
      *

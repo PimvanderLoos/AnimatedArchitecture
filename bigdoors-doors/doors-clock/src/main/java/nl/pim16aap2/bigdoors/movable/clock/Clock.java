@@ -22,7 +22,7 @@ import java.util.Optional;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * Represents a Clock doorType.
+ * Represents a Clock movable type.
  *
  * @author Pim
  */
@@ -64,9 +64,9 @@ public class Clock extends AbstractMovable implements IHorizontalAxisAligned
     @Getter
     protected final PBlockFace hourArmSide;
 
-    public Clock(MovableBase doorData, boolean northSouthAligned, PBlockFace hourArmSide)
+    public Clock(MovableBase base, boolean northSouthAligned, PBlockFace hourArmSide)
     {
-        super(doorData);
+        super(base);
         this.lock = getLock();
         this.northSouthAligned = northSouthAligned;
         this.hourArmSide = hourArmSide;
@@ -87,7 +87,22 @@ public class Clock extends AbstractMovable implements IHorizontalAxisAligned
     @Override
     protected double getLongestAnimationCycleDistance()
     {
+        // Not needed for this type, as it is not affected by time/speed calculations anyway.
         return 0.0D;
+    }
+
+    @Override
+    public Cuboid getAnimationRange()
+    {
+        final Cuboid cuboid = getCuboid();
+
+        // The clock needs to be an odd-sized square, so the radius is always half the height (rounded up).
+        final int circleRadius = (int) Math.ceil(cuboid.getDimensions().y() / 2.0D);
+        // The distance to the corner of the box around the circle is just pythagoras with a == b.
+        final int boxRadius = (int) Math.ceil(Math.sqrt(2 * Math.pow(circleRadius, 2)));
+        final int delta = boxRadius - circleRadius;
+
+        return isNorthSouthAligned() ? cuboid.grow(0, delta, delta) : cuboid.grow(delta, delta, 0);
     }
 
     @Override

@@ -17,12 +17,13 @@ import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * Represents a Flag doorType.
+ * Represents a Flag movable type.
  *
  * @author Pim
  * @see MovableBase
@@ -71,6 +72,19 @@ public class Flag extends AbstractMovable implements IHorizontalAxisAligned, IPe
     protected double getLongestAnimationCycleDistance()
     {
         return 0.0D;
+    }
+
+    @Override
+    public Cuboid getAnimationRange()
+    {
+        final Cuboid cuboid = getCuboid();
+        final Vector3Di rotationPoint = getRotationPoint();
+        final int halfHeight = (int) Math.ceil(cuboid.getDimensions().y() / 2.0F);
+
+        final int maxDim = Math.max(cuboid.getDimensions().x(), cuboid.getDimensions().z());
+        // Very, VERY rough estimate. But it's good enough for the time being.
+        return new Cuboid(rotationPoint.add(-maxDim, -halfHeight, -maxDim),
+                          rotationPoint.add(maxDim, halfHeight, maxDim));
     }
 
     /**

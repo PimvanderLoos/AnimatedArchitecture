@@ -27,7 +27,7 @@ import java.util.Optional;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * Represents a Sliding Door doorType.
+ * Represents a Sliding Door movable type.
  *
  * @author Pim
  */
@@ -58,24 +58,24 @@ public class SlidingDoor extends AbstractMovable implements IDiscreteMovement, I
     @Setter(onMethod_ = @Locked.Write)
     protected int autoOpenTime;
 
-    public SlidingDoor(MovableBase doorBase, int blocksToMove, int autoCloseTime, int autoOpenTime)
+    public SlidingDoor(MovableBase base, int blocksToMove, int autoCloseTime, int autoOpenTime)
     {
-        super(doorBase);
+        super(base);
         this.lock = getLock();
         this.blocksToMove = blocksToMove;
         this.autoCloseTime = autoCloseTime;
         this.autoOpenTime = autoOpenTime;
     }
 
-    public SlidingDoor(MovableBase doorBase, int blocksToMove)
+    public SlidingDoor(MovableBase base, int blocksToMove)
     {
-        this(doorBase, blocksToMove, -1, -1);
+        this(base, blocksToMove, -1, -1);
     }
 
     @SuppressWarnings("unused")
-    private SlidingDoor(MovableBase doorBase)
+    private SlidingDoor(MovableBase base)
     {
-        this(doorBase, -1); // Add tmp/default values
+        this(base, -1); // Add tmp/default values
     }
 
     @Override
@@ -89,6 +89,24 @@ public class SlidingDoor extends AbstractMovable implements IDiscreteMovement, I
     protected double getLongestAnimationCycleDistance()
     {
         return blocksToMove;
+    }
+
+    @Override
+    @Locked.Read
+    public Cuboid getAnimationRange()
+    {
+        final Cuboid cuboid = getCuboid();
+        final Vector3Di min = cuboid.getMin();
+        final Vector3Di max = cuboid.getMax();
+
+        return switch (getCurrentToggleDir())
+            {
+                case NORTH -> new Cuboid(min.add(0, 0, -blocksToMove), max.add(0, 0, 0)); // -z
+                case EAST -> new Cuboid(min.add(0, 0, 0), max.add(blocksToMove, 0, 0)); // +x
+                case SOUTH -> new Cuboid(min.add(0, 0, 0), max.add(0, 0, blocksToMove)); // +z
+                case WEST -> new Cuboid(min.add(-blocksToMove, 0, 0), max.add(0, 0, 0)); // -x
+                default -> cuboid.grow(blocksToMove, 0, blocksToMove);
+            };
     }
 
     @Override
@@ -110,7 +128,7 @@ public class SlidingDoor extends AbstractMovable implements IDiscreteMovement, I
     @Locked.Read
     public RotateDirection getCurrentToggleDir()
     {
-        return isOpen() ? RotateDirection.getOpposite(getOpenDir()) : getOpenDir();
+        return isOpen() ? getOpenDir() : RotateDirection.getOpposite(getOpenDir());
     }
 
     @Override
@@ -118,7 +136,7 @@ public class SlidingDoor extends AbstractMovable implements IDiscreteMovement, I
     public Optional<Cuboid> getPotentialNewCoordinates()
     {
         final Vector3Di vec = PBlockFace.getDirection(Util.getPBlockFace(getCurrentToggleDir()));
-        return Optional.of(getCuboid().move(0, getBlocksToMove() * vec.y(), 0));
+        return Optional.of(getCuboid().move(getBlocksToMove() * vec.x(), 0, getBlocksToMove() * vec.z()));
     }
 
     @Override

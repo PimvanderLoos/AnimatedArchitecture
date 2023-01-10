@@ -7,7 +7,7 @@ import nl.pim16aap2.bigdoors.movable.portcullis.Portcullis;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 
 /**
- * Represents an Elevator doorType.
+ * Represents an Elevator movable type.
  *
  * @author Pim
  * @see Portcullis
@@ -18,20 +18,20 @@ public class Elevator extends Portcullis
 {
     private static final MovableType MOVABLE_TYPE = MovableTypeElevator.get();
 
-    public Elevator(MovableBase doorData, int blocksToMove, int autoCloseTime, int autoOpenTime)
+    public Elevator(MovableBase base, int blocksToMove, int autoCloseTime, int autoOpenTime)
     {
-        super(doorData, blocksToMove, autoCloseTime, autoOpenTime);
+        super(base, blocksToMove, autoCloseTime, autoOpenTime);
     }
 
-    public Elevator(MovableBase doorBase, int blocksToMove)
+    public Elevator(MovableBase base, int blocksToMove)
     {
-        super(doorBase, blocksToMove, -1, -1);
+        super(base, blocksToMove, -1, -1);
     }
 
     @SuppressWarnings("unused")
-    private Elevator(MovableBase doorBase)
+    private Elevator(MovableBase base)
     {
-        this(doorBase, -1); // Add tmp/default values
+        this(base, -1); // Add tmp/default values
     }
 
     @Override

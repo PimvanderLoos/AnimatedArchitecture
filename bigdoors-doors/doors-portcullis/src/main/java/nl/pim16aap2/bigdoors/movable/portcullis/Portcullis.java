@@ -18,13 +18,14 @@ import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
 import javax.annotation.concurrent.GuardedBy;
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * Represents a Portcullis doorType.
+ * Represents a Portcullis movable type.
  *
  * @author Pim
  * @see MovableBase
@@ -56,24 +57,24 @@ public class Portcullis extends AbstractMovable implements IDiscreteMovement, IT
     @Setter(onMethod_ = @Locked.Write)
     protected int autoOpenTime;
 
-    public Portcullis(MovableBase doorBase, int blocksToMove, int autoCloseTime, int autoOpenTime)
+    public Portcullis(MovableBase base, int blocksToMove, int autoCloseTime, int autoOpenTime)
     {
-        super(doorBase);
+        super(base);
         this.lock = getLock();
         this.blocksToMove = blocksToMove;
         this.autoCloseTime = autoCloseTime;
         this.autoOpenTime = autoOpenTime;
     }
 
-    public Portcullis(MovableBase doorBase, int blocksToMove)
+    public Portcullis(MovableBase base, int blocksToMove)
     {
-        this(doorBase, blocksToMove, -1, -1);
+        this(base, blocksToMove, -1, -1);
     }
 
     @SuppressWarnings("unused")
-    private Portcullis(MovableBase doorBase)
+    private Portcullis(MovableBase base)
     {
-        this(doorBase, -1); // Add tmp/default values
+        this(base, -1); // Add tmp/default values
     }
 
     @Override
@@ -87,6 +88,16 @@ public class Portcullis extends AbstractMovable implements IDiscreteMovement, IT
     protected double calculateAnimationTime(double target)
     {
         return super.calculateAnimationTime(target + (isCurrentToggleDirUp() ? -0.2D : 0.2D));
+    }
+
+    @Override
+    public Cuboid getAnimationRange()
+    {
+        final Cuboid cuboid = getCuboid();
+        final Vector3Di min = cuboid.getMin();
+        final Vector3Di max = cuboid.getMax();
+
+        return new Cuboid(min.add(0, -getBlocksToMove(), 0), max.add(0, getBlocksToMove(), 0));
     }
 
     @Override
