@@ -68,20 +68,20 @@ class ToggleTest
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
         Mockito.when(doorToggleRequestFactory.create(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
-                                                     Mockito.anyDouble(), Mockito.anyBoolean(), Mockito.any()))
+                                                     Mockito.nullable(Double.class), Mockito.anyBoolean(),
+                                                     Mockito.any()))
                .thenReturn(doorToggleRequest);
 
         doorToggleRequestBuilder = new DoorToggleRequestBuilder(doorToggleRequestFactory, messageableServer,
                                                                 Mockito.mock(IPPlayerFactory.class));
 
         Mockito.when(factory.newToggle(Mockito.any(ICommandSender.class), Mockito.any(DoorActionType.class),
-                                       Mockito.anyDouble(), Mockito.any()))
+                                       Mockito.nullable(Double.class), Mockito.any()))
                .thenAnswer(
                    invoc ->
                    {
                        final DoorRetriever[] retrievers =
-                           UnitTestUtil.arrayFromCapturedVarArgs(DoorRetriever.class, invoc,
-                                                                 3);
+                           UnitTestUtil.arrayFromCapturedVarArgs(DoorRetriever.class, invoc, 3);
 
                        return new Toggle(invoc.getArgument(0, ICommandSender.class), localizer,
                                          ITextFactory.getSimpleTextFactory(),
@@ -96,16 +96,16 @@ class ToggleTest
         throws Exception
     {
         final Toggle toggle = factory.newToggle(commandSender, Toggle.DEFAULT_DOOR_ACTION_TYPE,
-                                                Toggle.DEFAULT_SPEED_MULTIPLIER, doorRetriever);
+                                                (Double) null, doorRetriever);
         toggle.executeCommand(new PermissionsStatus(true, true)).get(1, TimeUnit.SECONDS);
         Mockito.verify(doorToggleRequestFactory).create(doorRetriever, DoorActionCause.PLAYER, commandSender,
-                                                        commandSender, 0.0D, false, DoorActionType.TOGGLE);
+                                                        commandSender, null, false, DoorActionType.TOGGLE);
 
         Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(CommandTestingUtil.doorOwnerCreator));
         toggle.executeCommand(new PermissionsStatus(true, false)).get(1, TimeUnit.SECONDS);
         Mockito.verify(doorToggleRequestFactory, Mockito.times(2)).create(doorRetriever, DoorActionCause.PLAYER,
                                                                           commandSender, commandSender,
-                                                                          0.0D, false, DoorActionType.TOGGLE);
+                                                                          null, false, DoorActionType.TOGGLE);
     }
 
     @Test
@@ -124,7 +124,7 @@ class ToggleTest
         }
 
         final Toggle toggle = factory.newToggle(commandSender, Toggle.DEFAULT_DOOR_ACTION_TYPE,
-                                                Toggle.DEFAULT_SPEED_MULTIPLIER, retrievers);
+                                                null, retrievers);
         toggle.executeCommand(new PermissionsStatus(true, true)).get(1, TimeUnit.SECONDS);
 
         final Set<DoorRetriever> toggledDoors =
@@ -147,7 +147,7 @@ class ToggleTest
         Assertions.assertTrue(factory.newToggle(commandSender, doorRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(doorToggleRequestFactory, Mockito.times(1))
                .create(doorRetriever, DoorActionCause.PLAYER, commandSender, commandSender,
-                       Toggle.DEFAULT_SPEED_MULTIPLIER, false, DoorActionType.TOGGLE);
+                       null, false, DoorActionType.TOGGLE);
 
 
         Assertions.assertTrue(factory.newToggle(commandSender, 3.141592653589793D, doorRetriever).run()
@@ -161,14 +161,14 @@ class ToggleTest
             factory.newToggle(commandSender, DoorActionType.CLOSE, doorRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(doorToggleRequestFactory, Mockito.times(1))
                .create(doorRetriever, DoorActionCause.PLAYER, commandSender, commandSender,
-                       Toggle.DEFAULT_SPEED_MULTIPLIER, false, DoorActionType.CLOSE);
+                       null, false, DoorActionType.CLOSE);
 
 
-        Assertions.assertTrue(factory.newToggle(commandSender, DoorActionType.OPEN, 42, doorRetriever).run()
+        Assertions.assertTrue(factory.newToggle(commandSender, DoorActionType.OPEN, 42D, doorRetriever).run()
                                      .get(1, TimeUnit.SECONDS));
         Mockito.verify(doorToggleRequestFactory, Mockito.times(1))
                .create(doorRetriever, DoorActionCause.PLAYER, commandSender,
-                       commandSender, 42, false, DoorActionType.OPEN);
+                       commandSender, 42D, false, DoorActionType.OPEN);
     }
 
     @Test
@@ -180,7 +180,7 @@ class ToggleTest
                                      .get(1, TimeUnit.SECONDS));
         Mockito.verify(doorToggleRequestFactory, Mockito.times(1))
                .create(doorRetriever, DoorActionCause.SERVER, messageableServer, null,
-                       Toggle.DEFAULT_SPEED_MULTIPLIER, false, DoorActionType.TOGGLE);
+                       null, false, DoorActionType.TOGGLE);
     }
 
     private void verifyNoOpenerCalls()

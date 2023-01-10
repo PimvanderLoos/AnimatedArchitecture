@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.bigdoor.BigDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
@@ -30,8 +31,10 @@ import java.util.logging.Level;
 @Flogger
 public class RevolvingDoor extends AbstractDoor
 {
-    @EqualsAndHashCode.Exclude
     private static final DoorType DOOR_TYPE = DoorTypeRevolvingDoor.get();
+
+    @Getter
+    private final double longestAnimationCycleDistance;
 
     /**
      * The number of quarter circles (so 90 degree rotations) this door will make before stopping.
@@ -47,6 +50,8 @@ public class RevolvingDoor extends AbstractDoor
     {
         super(doorBase);
         this.quarterCircles = quarterCircles;
+        this.longestAnimationCycleDistance =
+            BigDoor.calculateLongestAnimationCycleDistance(getCuboid(), getRotationPoint());
     }
 
     public RevolvingDoor(DoorBase doorBase)
@@ -83,16 +88,15 @@ public class RevolvingDoor extends AbstractDoor
     }
 
     @Override
-    protected BlockMover constructBlockMover(BlockMover.Context context, DoorActionCause cause, double time,
-                                             boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
-                                             DoorActionType actionType)
+    protected BlockMover constructBlockMover(
+        BlockMover.Context context, DoorActionCause cause, double time,
+        boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
+        DoorActionType actionType)
         throws Exception
     {
-        // TODO: Get rid of this.
-        final double fixedTime = time < 0.5 ? 5 : time;
-
-        return new RevolvingDoorMover(context, this, fixedTime, doorOpeningHelper.getAnimationTime(this),
-                                      getCurrentToggleDir(), responsible, quarterCircles, cause, newCuboid, actionType);
+        return new RevolvingDoorMover(
+            context, this, time, config.getAnimationSpeedMultiplier(getDoorType()), getCurrentToggleDir(), responsible,
+            quarterCircles, cause, newCuboid, actionType);
     }
 
     @Override

@@ -75,6 +75,12 @@ public class SlidingDoor extends AbstractDoor implements IDiscreteMovement, ITim
     }
 
     @Override
+    protected double getLongestAnimationCycleDistance()
+    {
+        return blocksToMove;
+    }
+
+    @Override
     public boolean canSkipAnimation()
     {
         return true;
@@ -102,13 +108,14 @@ public class SlidingDoor extends AbstractDoor implements IDiscreteMovement, ITim
     }
 
     @Override
-    protected BlockMover constructBlockMover(BlockMover.Context context, DoorActionCause cause, double time,
-                                             boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
-                                             DoorActionType actionType)
+    protected BlockMover constructBlockMover(
+        BlockMover.Context context, DoorActionCause cause, double time,
+        boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
+        DoorActionType actionType)
         throws Exception
     {
-        final RotateDirection currentToggleDir = getCurrentToggleDir();
-        return new SlidingMover(context, this, time, skipAnimation, getBlocksToMove(), currentToggleDir,
-                                doorOpeningHelper.getAnimationTime(this), responsible, newCuboid, cause, actionType);
+        return new SlidingMover(
+            context, this, time, skipAnimation, getBlocksToMove(), getCurrentToggleDir(),
+            config.getAnimationSpeedMultiplier(getDoorType()), responsible, newCuboid, cause, actionType);
     }
 }

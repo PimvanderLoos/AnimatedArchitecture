@@ -9,6 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
@@ -91,6 +92,10 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
 
     @EqualsAndHashCode.Exclude
     @Getter(AccessLevel.PACKAGE)
+    private final IConfigLoader config;
+
+    @EqualsAndHashCode.Exclude
+    @Getter(AccessLevel.PACKAGE)
     private final ILocalizer localizer;
 
     @EqualsAndHashCode.Exclude
@@ -140,7 +145,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         LimitsManager limitsManager, AutoCloseScheduler autoCloseScheduler, DoorOpeningHelper doorOpeningHelper,
         DoorToggleRequestBuilder doorToggleRequestBuilder, IPPlayerFactory playerFactory,
         IDoorEventCaller doorEventCaller, Provider<BlockMover.Context> blockMoverContextProvider,
-        IPExecutor executor)
+        IPExecutor executor, IConfigLoader config)
     {
         this.doorUID = doorUID;
         this.name = name;
@@ -161,6 +166,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
             doorOwnersTmp.putAll(doorOwners);
         this.doorOwners = doorOwnersTmp;
 
+        this.config = config;
         this.localizer = localizer;
         this.databaseManager = databaseManager;
         this.doorRegistry = doorRegistry;
@@ -190,6 +196,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         primeOwner = other.primeOwner;
         this.doorOwners = doorOwners == null ? new ConcurrentHashMap<>(0) : doorOwners;
 
+        config = other.config;
         localizer = other.localizer;
         databaseManager = other.databaseManager;
         doorRegistry = other.doorRegistry;

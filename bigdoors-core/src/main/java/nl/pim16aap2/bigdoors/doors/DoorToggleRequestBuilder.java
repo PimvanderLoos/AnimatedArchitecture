@@ -65,11 +65,11 @@ public class DoorToggleRequestBuilder
 
         private @Nullable IMessageable messageReceiver = null;
         private @Nullable IPPlayer responsible = null;
-        private double time = 0D;
+        private @Nullable Double time = null;
         private boolean skipAnimation = false;
 
         @Override
-        public IBuilder time(double time)
+        public IBuilder time(@Nullable Double time)
         {
             this.time = time;
             return this;
@@ -187,10 +187,10 @@ public class DoorToggleRequestBuilder
          *     limited, there is a lower bound limit of this value. The exact limit depends on the type and dimensions
          *     of the door.
          *     <p>
-         *     A value of 0 (default) allows the mover to figure out the time on its own.
+         *     A value of null (default) allows the door to figure out the time on its own.
          * @return The next step of the guided builder process.
          */
-        IBuilder time(double time);
+        IBuilder time(@Nullable Double time);
 
         /**
          * Optional: Skips the animation.

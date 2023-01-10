@@ -67,6 +67,18 @@ public class Portcullis extends AbstractDoor implements IDiscreteMovement, ITime
     }
 
     @Override
+    protected double getLongestAnimationCycleDistance()
+    {
+        return blocksToMove;
+    }
+
+    @Override
+    protected double calculateAnimationTime(double target)
+    {
+        return super.calculateAnimationTime(target + (isCurrentToggleDirUp() ? -0.2D : 0.2D));
+    }
+
+    @Override
     public DoorType getDoorType()
     {
         return DOOR_TYPE;
@@ -85,11 +97,19 @@ public class Portcullis extends AbstractDoor implements IDiscreteMovement, ITime
     }
 
     /**
+     * @return True if the current toggle dir goes up.
+     */
+    private boolean isCurrentToggleDirUp()
+    {
+        return getCurrentToggleDir() == RotateDirection.UP;
+    }
+
+    /**
      * @return The signed number of blocks to move (positive for up, negative for down).
      */
     private int getDirectedBlocksToMove()
     {
-        return getCurrentToggleDir() == RotateDirection.UP ? getBlocksToMove() : -getBlocksToMove();
+        return isCurrentToggleDirUp() ? getBlocksToMove() : -getBlocksToMove();
     }
 
     @Override
@@ -98,7 +118,8 @@ public class Portcullis extends AbstractDoor implements IDiscreteMovement, ITime
         IPPlayer responsible, DoorActionType actionType)
         throws Exception
     {
-        return new VerticalMover(context, this, time, skipAnimation, getDirectedBlocksToMove(),
-                                 doorOpeningHelper.getAnimationTime(this), responsible, newCuboid, cause, actionType);
+        return new VerticalMover(
+            context, this, time, skipAnimation, getDirectedBlocksToMove(),
+            config.getAnimationSpeedMultiplier(getDoorType()), responsible, newCuboid, cause, actionType);
     }
 }

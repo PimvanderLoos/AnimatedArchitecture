@@ -55,7 +55,6 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
 
         northSouth = door.isNorthSouthAligned();
         rotationCenter = door.getRotationPoint().toDouble().add(0.5, 0, 0.5);
-        this.time = time;
 
         switch (rotateDirection)
         {
@@ -114,15 +113,19 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
             applyMovement(animatedBlock, getGoalPos(stepSum, animatedBlock), ticksRemaining);
     }
 
-    @Override
-    protected float getRadius(int xAxis, int yAxis, int zAxis)
+    public static float getRadius(boolean northSouthAligned, IVector3D rotationPoint, int xAxis, int yAxis, int zAxis)
     {
         // Get the current radius of a block between used axis (either x and y, or z and y).
         // When the rotation point is positioned along the NS axis, the Z values does not change.
-        final double deltaA = (double) door.getRotationPoint().y() - yAxis;
-        final double deltaB =
-            northSouth ? (door.getRotationPoint().x() - xAxis) : (door.getRotationPoint().z() - zAxis);
+        final double deltaA = rotationPoint.yD() - yAxis;
+        final double deltaB = northSouthAligned ? (rotationPoint.xD() - xAxis) : (rotationPoint.zD() - zAxis);
         return (float) Math.sqrt(Math.pow(deltaA, 2) + Math.pow(deltaB, 2));
+    }
+
+    @Override
+    protected float getRadius(int xAxis, int yAxis, int zAxis)
+    {
+        return getRadius(northSouth, door.getRotationPoint(), xAxis, yAxis, zAxis);
     }
 
     @Override

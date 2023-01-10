@@ -28,7 +28,6 @@ import java.util.Optional;
 @EqualsAndHashCode(callSuper = true)
 public class Clock extends AbstractDoor implements IHorizontalAxisAligned
 {
-    @EqualsAndHashCode.Exclude
     private static final DoorType DOOR_TYPE = DoorTypeClock.get();
 
     /**
@@ -47,9 +46,9 @@ public class Clock extends AbstractDoor implements IHorizontalAxisAligned
     protected final boolean northSouthAligned;
 
     /**
-     * Describes on which side the hour arm is. If the clock is situated along the North/South axis see {@link
-     * #northSouthAligned}, then the hour arm can either be on the {@link PBlockFace#WEST} or the {@link
-     * PBlockFace#EAST} side.
+     * Describes on which side the hour arm is. If the clock is situated along the North/South axis see
+     * {@link #northSouthAligned}, then the hour arm can either be on the {@link PBlockFace#WEST} or the
+     * {@link PBlockFace#EAST} side.
      * <p>
      * This is stored as a direction rather than an integer value (for example the X/Z axis value) so that it could also
      * work for {@link Clock}s that have arms that are more than 1 block deep.
@@ -81,9 +80,15 @@ public class Clock extends AbstractDoor implements IHorizontalAxisAligned
     }
 
     @Override
-    protected BlockMover constructBlockMover(BlockMover.Context context, DoorActionCause cause, double time,
-                                             boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
-                                             DoorActionType actionType)
+    protected double getLongestAnimationCycleDistance()
+    {
+        return 0.0D;
+    }
+
+    @Override
+    protected BlockMover constructBlockMover(
+        BlockMover.Context context, DoorActionCause cause, double time, boolean skipAnimation, Cuboid newCuboid,
+        IPPlayer responsible, DoorActionType actionType)
         throws Exception
     {
         return new ClockMover<>(context, this, getCurrentToggleDir(), responsible, cause, actionType);

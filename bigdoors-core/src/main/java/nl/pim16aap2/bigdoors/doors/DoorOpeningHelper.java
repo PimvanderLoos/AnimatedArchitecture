@@ -14,7 +14,6 @@ import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
-import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.IDoorEventCaller;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
@@ -444,17 +443,5 @@ public final class DoorOpeningHelper
     public Optional<BlockMover> getBlockMover(long doorUID)
     {
         return doorActivityManager.getBlockMover(doorUID);
-    }
-
-    /**
-     * Gets the animation time of a {@link IDoor} from the config based on its {@link DoorType}.
-     *
-     * @param door
-     *     The {@link AbstractDoor}.
-     * @return The animation time of this {@link IDoor}.
-     */
-    public double getAnimationTime(AbstractDoor door)
-    {
-        return config.getAnimationTime(door.getDoorType());
     }
 }

@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.doors;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
@@ -47,6 +48,7 @@ public abstract class AbstractDoor implements IDoor
     @Getter
     protected final DoorBase doorBase;
     protected final ILocalizer localizer;
+    protected final IConfigLoader config;
     protected final DoorOpeningHelper doorOpeningHelper;
 
 
@@ -58,6 +60,7 @@ public abstract class AbstractDoor implements IDoor
         this.doorBase = doorBase;
         this.localizer = localizer;
         this.doorRegistry = doorRegistry;
+        this.config = doorBase.getConfig();
         this.autoCloseScheduler = autoCloseScheduler;
         this.doorOpeningHelper = doorOpeningHelper;
 
@@ -79,6 +82,103 @@ public abstract class AbstractDoor implements IDoor
      * @return The {@link DoorType} of doorBase door.
      */
     public abstract DoorType getDoorType();
+
+    /**
+     * Gets the animation time of this door.
+     * <p>
+     * This basically returns max(target, {@link #getMinimumAnimationTime()}), logging a message in case the target time
+     * is too low.
+     *
+     * @param target
+     *     The target time.
+     * @return The target time if it is bigger than the minimum time, otherwise the minimum.
+     */
+    protected double calculateAnimationTime(double target)
+    {
+        final double minimum = getMinimumAnimationTime();
+        if (target < minimum)
+        {
+            log.atFiner()
+               .log("Target animation time of %.4f seconds is less than the minimum of %.4f seconds for door: %s.",
+                    target, minimum, getBasicInfo());
+            return minimum;
+        }
+        return target;
+    }
+
+    /**
+     * Gets the animation time for this door.
+     * <p>
+     * The animation time is calculated using this door's {@link #getBaseAnimationTime()}, its
+     * {@link #getMinimumAnimationTime()}, and the multiplier for this type as described by
+     * {@link IConfigLoader#getAnimationSpeedMultiplier(DoorType)}.
+     * <p>
+     * If the target is not null, the returned value will simply be the maximum value of the target and
+     * {@link #getBaseAnimationTime()}. Note that the time multiplier is ignored in this case.
+     *
+     * @param target
+     *     The target time. When null, {@link #getBaseAnimationTime()} is used.
+     * @return The animation time for this door in seconds.
+     */
+    private double getAnimationTime(@Nullable Double target)
+    {
+        final double realTarget = target != null ?
+                                  target : config.getAnimationSpeedMultiplier(getDoorType()) * getBaseAnimationTime();
+        return calculateAnimationTime(realTarget);
+    }
+
+    /**
+     * Gets the distance traveled per animation by the animated block that travels the furthest.
+     * <p>
+     * For example, for a circular object, this will be a block on the edge, as these blocks travel further per
+     * revolution than the blocks closer to the center of the circle.
+     * <p>
+     * This method looks at the distance per animation cycle. The exact definition of a cycle depends on the
+     * implementation of the door. For a big door, for example, a cycle could be a single toggle, or a quarter circle.
+     * To keep things easy, a revolving door (which may not have a definitive end to its animation) could define a cycle
+     * as quarter circle as well.
+     * <p>
+     * The distance value is used to calculate {@link #getMinimumAnimationTime()} and {@link #getBaseAnimationTime()}.
+     *
+     * @return The longest distance traveled by an animated block measured in blocks.
+     */
+    protected abstract double getLongestAnimationCycleDistance();
+
+    /**
+     * The default speed of the animation in blocks/second, as measured by the fastest-moving block in the door.
+     */
+    protected double getDefaultAnimationSpeed()
+    {
+        return 1.5D;
+    }
+
+    /**
+     * Gets the lower time limit for an animation.
+     * <p>
+     * Because animated blocks have a speed limit, as determined by {@link IConfigLoader#maxBlockSpeed()}, there is also
+     * a minimum amount of time for its animation.
+     * <p>
+     * The exact time limit depends on the shape, size, and type of door.
+     *
+     * @return The lower animation time limit for this door in seconds.
+     */
+    public double getMinimumAnimationTime()
+    {
+        return getLongestAnimationCycleDistance() / config.maxBlockSpeed();
+    }
+
+    /**
+     * Gets the base animation time for this door.
+     * <p>
+     * This is the animation time without any multipliers applied to it.
+     *
+     * @return The base animation time for this door in seconds.
+     */
+    // TODO: This method should be abstract.
+    public double getBaseAnimationTime()
+    {
+        return getLongestAnimationCycleDistance() / Math.min(getDefaultAnimationSpeed(), config.maxBlockSpeed());
+    }
 
     /**
      * Checks if this door can be opened instantly (i.e. skip the animation).
@@ -190,9 +290,8 @@ public abstract class AbstractDoor implements IDoor
      * @param responsible
      *     Who is responsible for doorBase door. Either the player who directly toggled it (via a command or the GUI),
      *     or the prime owner when doorBase data is not available.
-     * @param time
-     *     The amount of time doorBase {@link DoorBase} will try to use to move. The maximum speed is limited, so at a
-     *     certain point lower values will not increase door speed.
+     * @param targetTime
+     *     The amount of time doorBase {@link DoorBase} will try to use to move. When null, the default speed is used.
      * @param skipAnimation
      *     If the {@link DoorBase} should be opened instantly (i.e. skip animation) or not.
      * @param actionType
@@ -202,8 +301,8 @@ public abstract class AbstractDoor implements IDoor
     // TODO: Simplify this method.
     @SuppressWarnings({"unused", "squid:S1172"}) // messageReceiver isn't used yet, but it will be.
     final synchronized DoorToggleResult toggle(
-        DoorActionCause cause, IMessageable messageReceiver, IPPlayer responsible, double time, boolean skipAnimation,
-        DoorActionType actionType)
+        DoorActionCause cause, IMessageable messageReceiver, IPPlayer responsible, @Nullable Double targetTime,
+        boolean skipAnimation, DoorActionType actionType)
     {
         if (!doorOpeningHelper.isMainThread())
         {
@@ -233,10 +332,10 @@ public abstract class AbstractDoor implements IDoor
             return doorOpeningHelper.abort(this, DoorToggleResult.TOO_BIG, cause, responsible, messageReceiver);
 
         final Optional<Cuboid> newCuboid = getPotentialNewCoordinates();
-
         if (newCuboid.isEmpty())
             return doorOpeningHelper.abort(this, DoorToggleResult.ERROR, cause, responsible, messageReceiver);
 
+        final double time = getAnimationTime(targetTime);
         final IDoorEventTogglePrepare prepareEvent =
             doorOpeningHelper.callTogglePrepareEvent(
                 this, cause, actionType, responsible, time, skipAnimation, newCuboid.get());

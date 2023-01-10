@@ -82,7 +82,7 @@ class AttributeButtonFactory
             new ItemStack(Material.LEVER),
             click ->
             {
-                commandFactory.newToggle(player, config.getAnimationTime(door.getDoorType()),
+                commandFactory.newToggle(player, config.getAnimationSpeedMultiplier(door.getDoorType()),
                                          doorRetrieverFactory.of(door)).run();
                 return true;
             },

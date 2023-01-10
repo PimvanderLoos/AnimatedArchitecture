@@ -16,9 +16,11 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
 import java.util.Optional;
 import java.util.logging.Level;
+import java.util.stream.Stream;
 
 /**
  * Represents a Big Door doorType.
@@ -31,8 +33,12 @@ import java.util.logging.Level;
 @Flogger
 public class BigDoor extends AbstractDoor implements ITimerToggleable
 {
-    @EqualsAndHashCode.Exclude
     private static final DoorType DOOR_TYPE = DoorTypeBigDoor.get();
+
+    private static final double HALF_PI = Math.PI / 2;
+
+    @Getter
+    private final double longestAnimationCycleDistance;
 
     @Getter
     @Setter
@@ -49,6 +55,8 @@ public class BigDoor extends AbstractDoor implements ITimerToggleable
         super(doorBase);
         this.autoCloseTime = autoCloseTime;
         this.autoOpenTime = autoOpenTime;
+        this.longestAnimationCycleDistance =
+            calculateLongestAnimationCycleDistance(getCuboid(), getRotationPoint());
     }
 
     public BigDoor(DoorBase doorBase)
@@ -96,6 +104,22 @@ public class BigDoor extends AbstractDoor implements ITimerToggleable
         return Optional.of(getCuboid().updatePositions(vec -> vec.rotateAroundYAxis(getRotationPoint(), angle)));
     }
 
+    /**
+     * @return The maximum distance from the rotation point to one of the corners of the door.
+     */
+    public static double calculateLongestAnimationCycleDistance(Cuboid cuboid, Vector3Di rotationPoint)
+    {
+        final Vector3Di min = cuboid.getMin();
+        final Vector3Di max = cuboid.getMax();
+        final Vector3Di other0 = new Vector3Di(min.x(), min.y(), max.z());
+        final Vector3Di other1 = new Vector3Di(max.x(), min.y(), min.z());
+
+        return Stream.of(min, max, other0, other1)
+                     .mapToDouble(val -> BigDoorMover.getRadius(rotationPoint, val.x(), val.z()))
+                     .max().orElseThrow() * HALF_PI;
+
+    }
+
     @Override
     protected BlockMover constructBlockMover(
         BlockMover.Context context, DoorActionCause cause, double time,
@@ -103,7 +127,7 @@ public class BigDoor extends AbstractDoor implements ITimerToggleable
         DoorActionType actionType)
         throws Exception
     {
-        return new BigDoorMover(context, this, getCurrentToggleDir(), time, skipAnimation,
-                                doorOpeningHelper.getAnimationTime(this), responsible, newCuboid, cause, actionType);
+        return new BigDoorMover(
+            context, this, getCurrentToggleDir(), time, skipAnimation, responsible, newCuboid, cause, actionType);
     }
 }
