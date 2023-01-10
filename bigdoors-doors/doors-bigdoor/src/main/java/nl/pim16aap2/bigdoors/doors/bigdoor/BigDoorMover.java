@@ -11,7 +11,6 @@ import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
 @Flogger
 public class BigDoorMover extends BlockMover
@@ -83,10 +82,10 @@ public class BigDoorMover extends BlockMover
         return getGoalPos(cos, sin, animatedBlock.getStartX(), animatedBlock.getStartY(), animatedBlock.getStartZ());
     }
 
-    static float getRadius(Vector3Di rotationPoint, int xAxis, int zAxis)
+    static float getRadius(IVector3D rotationPoint, int xAxis, int zAxis)
     {
-        final double deltaA = (double) rotationPoint.x() - xAxis;
-        final double deltaB = (double) rotationPoint.z() - zAxis;
+        final double deltaA = rotationPoint.xD() - xAxis;
+        final double deltaB = rotationPoint.zD() - zAxis;
         return (float) Math.sqrt(Math.pow(deltaA, 2) + Math.pow(deltaB, 2));
     }
 

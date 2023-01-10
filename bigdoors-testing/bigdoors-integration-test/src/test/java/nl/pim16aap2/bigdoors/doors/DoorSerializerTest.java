@@ -146,6 +146,12 @@ class DoorSerializerTest
         }
 
         @Override
+        protected double getLongestAnimationCycleDistance()
+        {
+            return 0;
+        }
+
+        @Override
         public DoorType getDoorType()
         {
             return DOOR_TYPE;
@@ -193,8 +199,7 @@ class DoorSerializerTest
         private final int subclassTestValue;
 
         public TestDoorSubType(
-            DoorBase doorBase, String testName, boolean isCoolType, int blockTestCount,
-            int subclassTestValue)
+            DoorBase doorBase, String testName, boolean isCoolType, int blockTestCount, int subclassTestValue)
         {
             super(doorBase, testName, isCoolType, blockTestCount);
 

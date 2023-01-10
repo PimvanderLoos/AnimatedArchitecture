@@ -16,9 +16,11 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
 import java.util.Optional;
 import java.util.logging.Level;
+import java.util.stream.Stream;
 
 /**
  * Represents a DrawBrige doorType.
@@ -29,8 +31,12 @@ import java.util.logging.Level;
 @Flogger
 public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, ITimerToggleable
 {
-    @EqualsAndHashCode.Exclude
+    private static final double HALF_PI = Math.PI / 2;
+
     private static final DoorType DOOR_TYPE = DoorTypeDrawbridge.get();
+
+    @Getter
+    private final double longestAnimationCycleDistance;
 
     @Getter
     @Setter
@@ -58,6 +64,10 @@ public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, 
         this.autoOpenTime = autoOpenTime;
         this.autoCloseTime = autoCloseTime;
         this.modeUp = modeUp;
+        this.longestAnimationCycleDistance =
+            calculateLongestAnimationCycleDistance(isNorthSouthAligned(),
+                                                   getCuboid(),
+                                                   getRotationPoint());
     }
 
     public Drawbridge(DoorBase doorBase, boolean modeUp)
@@ -113,9 +123,9 @@ public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, 
         DoorActionType actionType)
         throws Exception
     {
-        return new BridgeMover<>(context, time, this, getCurrentToggleDir(), skipAnimation,
-                                 config.getAnimationSpeedMultiplier(getDoorType()), responsible, newCuboid, cause,
-                                 actionType);
+        return new BridgeMover<>(
+            context, time, this, getCurrentToggleDir(), skipAnimation,
+            config.getAnimationSpeedMultiplier(getDoorType()), responsible, newCuboid, cause, actionType);
     }
 
     @Override
@@ -123,5 +133,22 @@ public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, 
     {
         final RotateDirection openDir = getOpenDir();
         return openDir == RotateDirection.NORTH || openDir == RotateDirection.SOUTH;
+    }
+
+    /**
+     * @return The maximum distance from the rotation point to one of the corners of the door.
+     */
+    public static double calculateLongestAnimationCycleDistance(
+        boolean northSouthAligned, Cuboid cuboid, Vector3Di rotationPoint)
+    {
+        final Vector3Di min = cuboid.getMin();
+        final Vector3Di max = cuboid.getMax();
+        final Vector3Di other0 = new Vector3Di(min.x(), min.y(), max.z());
+        final Vector3Di other1 = new Vector3Di(max.x(), min.y(), min.z());
+
+        return Stream
+            .of(min, max, other0, other1)
+            .mapToDouble(val -> BridgeMover.getRadius(northSouthAligned, rotationPoint, val.x(), val.y(), val.z()))
+            .max().orElseThrow() * HALF_PI;
     }
 }

@@ -25,7 +25,7 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
 {
     /**
      * Method to determine if a given {@link IAnimatedBlock} is part of the little hand or the big hand of a clock.
-     * Represented as a {@link Function} because TODO: Finish this sentence
+     * Represented as a {@link Function} because TODO: Finish this sentence  ?? wut ??
      */
     protected final Function<IAnimatedBlock, Boolean> isHourArm;
 
@@ -56,6 +56,8 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
         throws Exception
     {
         super(context, door, 0.0D, 0.0D, rotateDirection, player, cause, actionType);
+        super.movementMethod = MovementMethod.TELEPORT;
+
         isHourArm = northSouth ? this::isHourArmNS : this::isHourArmEW;
         angleDirectionMultiplier =
             (rotateDirection == RotateDirection.EAST || rotateDirection == RotateDirection.SOUTH) ? -1 : 1;

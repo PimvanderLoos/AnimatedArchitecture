@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.IPerpetualMover;
+import nl.pim16aap2.bigdoors.doors.drawbridge.Drawbridge;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
@@ -27,8 +28,10 @@ import java.util.Optional;
 @EqualsAndHashCode(callSuper = true)
 public class Windmill extends AbstractDoor implements IHorizontalAxisAligned, IPerpetualMover
 {
-    @EqualsAndHashCode.Exclude
     private static final DoorType DOOR_TYPE = DoorTypeWindmill.get();
+
+    @Getter
+    private final double longestAnimationCycleDistance;
 
     /**
      * The number of quarter circles (so 90 degree rotations) this door will make before stopping.
@@ -43,6 +46,9 @@ public class Windmill extends AbstractDoor implements IHorizontalAxisAligned, IP
     {
         super(doorBase);
         this.quarterCircles = quarterCircles;
+
+        longestAnimationCycleDistance =
+            Drawbridge.calculateLongestAnimationCycleDistance(isNorthSouthAligned(), getCuboid(), getRotationPoint());
     }
 
     public Windmill(DoorBase doorBase)
@@ -95,10 +101,8 @@ public class Windmill extends AbstractDoor implements IHorizontalAxisAligned, IP
         DoorActionType actionType)
         throws Exception
     {
-        // TODO: Get rid of this.
-        final double fixedTime = time < 0.5 ? 5 : time;
-
-        return new WindmillMover<>(context, this, fixedTime, config.getAnimationSpeedMultiplier(getDoorType()),
-                                   getCurrentToggleDir(), responsible, cause, actionType);
+        return new WindmillMover<>(
+            context, this, time, config.getAnimationSpeedMultiplier(getDoorType()), getCurrentToggleDir(), responsible,
+            cause, actionType);
     }
 }

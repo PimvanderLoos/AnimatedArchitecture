@@ -28,7 +28,6 @@ import java.util.Optional;
 @EqualsAndHashCode(callSuper = true)
 public class Flag extends AbstractDoor implements IHorizontalAxisAligned, IPerpetualMover
 {
-    @EqualsAndHashCode.Exclude
     private static final DoorType DOOR_TYPE = DoorTypeFlag.get();
 
     /**
@@ -61,6 +60,12 @@ public class Flag extends AbstractDoor implements IHorizontalAxisAligned, IPerpe
         return DOOR_TYPE;
     }
 
+    @Override
+    protected double getLongestAnimationCycleDistance()
+    {
+        return 0.0D;
+    }
+
     /**
      * {@inheritDoc}
      * <p>
@@ -81,8 +86,8 @@ public class Flag extends AbstractDoor implements IHorizontalAxisAligned, IPerpe
         DoorActionType actionType)
         throws Exception
     {
-        return new FlagMover(context, 60, this, config.getAnimationSpeedMultiplier(getDoorType()), responsible, cause,
-                             actionType);
+        return new FlagMover(
+            context, time, this, config.getAnimationSpeedMultiplier(getDoorType()), responsible, cause, actionType);
     }
 
     @Override

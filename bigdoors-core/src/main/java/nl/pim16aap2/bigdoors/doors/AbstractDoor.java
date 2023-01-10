@@ -93,7 +93,7 @@ public abstract class AbstractDoor implements IDoor
      *     The target time.
      * @return The target time if it is bigger than the minimum time, otherwise the minimum.
      */
-    private double getAnimationTime0(double target)
+    protected double calculateAnimationTime(double target)
     {
         final double minimum = getMinimumAnimationTime();
         if (target < minimum)
@@ -112,27 +112,19 @@ public abstract class AbstractDoor implements IDoor
      * The animation time is calculated using this door's {@link #getBaseAnimationTime()}, its
      * {@link #getMinimumAnimationTime()}, and the multiplier for this type as described by
      * {@link IConfigLoader#getAnimationSpeedMultiplier(DoorType)}.
-     *
-     * @return The animation time for this door in seconds.
-     */
-    public final double getAnimationTime()
-    {
-        return getAnimationTime0(getBaseAnimationTime() * config.getAnimationSpeedMultiplier(getDoorType()));
-    }
-
-    /**
-     * Gets the animation time for this door, keeping a target time in mind.
      * <p>
      * If the target is not null, the returned value will simply be the maximum value of the target and
      * {@link #getBaseAnimationTime()}. Note that the time multiplier is ignored in this case.
      *
      * @param target
-     *     The target time. When null, {@link #getAnimationTime()} is used.
+     *     The target time. When null, {@link #getBaseAnimationTime()} is used.
      * @return The animation time for this door in seconds.
      */
     private double getAnimationTime(@Nullable Double target)
     {
-        return target == null ? getAnimationTime() : getAnimationTime0(target);
+        final double realTarget = target != null ?
+                                  target : config.getAnimationSpeedMultiplier(getDoorType()) * getBaseAnimationTime();
+        return calculateAnimationTime(realTarget);
     }
 
     /**
@@ -150,11 +142,7 @@ public abstract class AbstractDoor implements IDoor
      *
      * @return The longest distance traveled by an animated block measured in blocks.
      */
-    // TODO: This method should be abstract.
-    protected double getLongestDistancePerAnimationCycle()
-    {
-        return 0.0D;
-    }
+    protected abstract double getLongestAnimationCycleDistance();
 
     /**
      * The default speed of the animation in blocks/second, as measured by the fastest-moving block in the door.
@@ -176,7 +164,7 @@ public abstract class AbstractDoor implements IDoor
      */
     public double getMinimumAnimationTime()
     {
-        return getLongestDistancePerAnimationCycle() / config.maxBlockSpeed();
+        return getLongestAnimationCycleDistance() / config.maxBlockSpeed();
     }
 
     /**
@@ -189,7 +177,7 @@ public abstract class AbstractDoor implements IDoor
     // TODO: This method should be abstract.
     public double getBaseAnimationTime()
     {
-        return getLongestDistancePerAnimationCycle() / Math.min(getDefaultAnimationSpeed(), config.maxBlockSpeed());
+        return getLongestAnimationCycleDistance() / Math.min(getDefaultAnimationSpeed(), config.maxBlockSpeed());
     }
 
     /**

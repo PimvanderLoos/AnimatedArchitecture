@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.doors.garagedoor;
 
+import com.google.common.flogger.StackSize;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,7 +35,6 @@ import java.util.logging.Level;
 @Flogger
 public class GarageDoor extends AbstractDoor implements IHorizontalAxisAligned, ITimerToggleable
 {
-    @EqualsAndHashCode.Exclude
     private static final DoorType DOOR_TYPE = DoorTypeGarageDoor.get();
 
     /**
@@ -88,6 +88,21 @@ public class GarageDoor extends AbstractDoor implements IHorizontalAxisAligned, 
     }
 
     @Override
+    protected double getLongestAnimationCycleDistance()
+    {
+        final Cuboid cuboid = getCuboid();
+        final Vector3Di dims = cuboid.getDimensions();
+
+        final double movement;
+        if (isOpen())
+            movement = isNorthSouthAligned() ? dims.z() : dims.x();
+        else
+            movement = dims.y();
+        // Not exactly correct, but much faster and pretty close.
+        return 2 * movement;
+    }
+
+    @Override
     public synchronized RotateDirection getCurrentToggleDir()
     {
         final RotateDirection rotDir = getOpenDir();
@@ -131,11 +146,9 @@ public class GarageDoor extends AbstractDoor implements IHorizontalAxisAligned, 
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(
-                new IllegalArgumentException(
-                    "RotateDirection \"" + rotateDirection.name() +
-                        "\" is not a valid direction for a door of type \"" +
-                        getDoorType() + "\"")).log();
+            log.at(Level.SEVERE).withStackTrace(StackSize.FULL)
+               .log("RotateDirection '%s' is not a valid direction for a door of type '%s'",
+                    rotateDirection.name(), getDoorType());
             return Optional.empty();
         }
 
@@ -200,11 +213,8 @@ public class GarageDoor extends AbstractDoor implements IHorizontalAxisAligned, 
         DoorActionType actionType)
         throws Exception
     {
-        // TODO: Get rid of this.
-        final double fixedTime = time < 0.5 ? 5 : time;
-
-        return new GarageDoorMover(context, this, fixedTime, config.getAnimationSpeedMultiplier(getDoorType()),
-                                   skipAnimation,
-                                   getCurrentToggleDir(), responsible, newCuboid, cause, actionType);
+        return new GarageDoorMover(
+            context, this, time, config.getAnimationSpeedMultiplier(getDoorType()), skipAnimation,
+            getCurrentToggleDir(), responsible, newCuboid, cause, actionType);
     }
 }

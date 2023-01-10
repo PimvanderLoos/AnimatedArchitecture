@@ -34,7 +34,7 @@ public class RevolvingDoor extends AbstractDoor
     private static final DoorType DOOR_TYPE = DoorTypeRevolvingDoor.get();
 
     @Getter
-    private final double longestDistancePerAnimationCycle;
+    private final double longestAnimationCycleDistance;
 
     /**
      * The number of quarter circles (so 90 degree rotations) this door will make before stopping.
@@ -50,8 +50,8 @@ public class RevolvingDoor extends AbstractDoor
     {
         super(doorBase);
         this.quarterCircles = quarterCircles;
-        this.longestDistancePerAnimationCycle =
-            BigDoor.calculateLongestDistancePerAnimationCycle(getCuboid(), getRotationPoint());
+        this.longestAnimationCycleDistance =
+            BigDoor.calculateLongestAnimationCycleDistance(getCuboid(), getRotationPoint());
     }
 
     public RevolvingDoor(DoorBase doorBase)
@@ -94,8 +94,9 @@ public class RevolvingDoor extends AbstractDoor
         DoorActionType actionType)
         throws Exception
     {
-        return new RevolvingDoorMover(context, this, time, config.getAnimationSpeedMultiplier(getDoorType()),
-                                      getCurrentToggleDir(), responsible, quarterCircles, cause, newCuboid, actionType);
+        return new RevolvingDoorMover(
+            context, this, time, config.getAnimationSpeedMultiplier(getDoorType()), getCurrentToggleDir(), responsible,
+            quarterCircles, cause, newCuboid, actionType);
     }
 
     @Override

@@ -38,7 +38,7 @@ public class BigDoor extends AbstractDoor implements ITimerToggleable
     private static final double HALF_PI = Math.PI / 2;
 
     @Getter
-    private final double longestDistancePerAnimationCycle;
+    private final double longestAnimationCycleDistance;
 
     @Getter
     @Setter
@@ -55,8 +55,8 @@ public class BigDoor extends AbstractDoor implements ITimerToggleable
         super(doorBase);
         this.autoCloseTime = autoCloseTime;
         this.autoOpenTime = autoOpenTime;
-        this.longestDistancePerAnimationCycle =
-            calculateLongestDistancePerAnimationCycle(getCuboid(), getRotationPoint());
+        this.longestAnimationCycleDistance =
+            calculateLongestAnimationCycleDistance(getCuboid(), getRotationPoint());
     }
 
     public BigDoor(DoorBase doorBase)
@@ -107,7 +107,7 @@ public class BigDoor extends AbstractDoor implements ITimerToggleable
     /**
      * @return The maximum distance from the rotation point to one of the corners of the door.
      */
-    public static double calculateLongestDistancePerAnimationCycle(Cuboid cuboid, Vector3Di rotationPoint)
+    public static double calculateLongestAnimationCycleDistance(Cuboid cuboid, Vector3Di rotationPoint)
     {
         final Vector3Di min = cuboid.getMin();
         final Vector3Di max = cuboid.getMax();
