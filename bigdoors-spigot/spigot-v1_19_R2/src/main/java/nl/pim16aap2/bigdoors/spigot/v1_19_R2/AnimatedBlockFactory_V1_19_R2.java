@@ -6,6 +6,7 @@ import nl.pim16aap2.bigdoors.api.animatedblock.AnimationContext;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.managers.AnimatedBlockHookManager;
+import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -39,7 +40,7 @@ public final class AnimatedBlockFactory_V1_19_R2 implements IAnimatedBlockFactor
     @Override
     public Optional<IAnimatedBlock> create(
         IPLocation loc, float radius, float startAngle, boolean bottom, boolean onEdge, AnimationContext context,
-        Vector3Dd finalPosition)
+        Vector3Dd finalPosition, BlockMover.MovementMethod movementMethod)
         throws Exception
     {
         final Location spigotLocation = SpigotAdapter.getBukkitLocation(loc);
@@ -54,7 +55,7 @@ public final class AnimatedBlockFactory_V1_19_R2 implements IAnimatedBlockFactor
 
         final var animatedBlock = new CustomEntityFallingBlock_V1_19_R2(
             executor, loc.getWorld(), bukkitWorld, spawnLoc.getX(), spawnLoc.getY(), spawnLoc.getZ(), radius,
-            startAngle, onEdge, context, animatedBlockHookManager, finalPosition);
+            startAngle, movementMethod, onEdge, context, animatedBlockHookManager, finalPosition);
 
         animatedBlock.b(CraftChatMessage.fromStringOrNull(Constants.BIGDOORS_ENTITY_NAME));
         animatedBlock.n(false);

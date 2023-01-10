@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.v1_19_R2;
 
 import com.google.common.flogger.StackSize;
+import io.netty.buffer.Unpooled;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -10,7 +11,9 @@ import net.minecraft.core.BlockPosition;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.GameProfileSerializer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketDataSerializer;
 import net.minecraft.network.protocol.game.PacketPlayOutEntity;
+import net.minecraft.network.protocol.game.PacketPlayOutEntityTeleport;
 import net.minecraft.server.level.EntityTrackerEntry;
 import net.minecraft.server.level.PlayerChunkMap;
 import net.minecraft.server.level.WorldServer;
@@ -30,10 +33,12 @@ import nl.pim16aap2.bigdoors.api.animatedblock.AnimationContext;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlockHook;
 import nl.pim16aap2.bigdoors.managers.AnimatedBlockHookManager;
+import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.api.IAnimatedBlockSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PLocationSpigot;
 import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -71,6 +76,7 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
     private final float radius;
     @Getter
     private final float startAngle;
+    private final BlockMover.MovementMethod movementMethod;
     @Getter
     private final boolean onEdge;
     private final IPExecutor executor;
@@ -91,6 +97,10 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
     @Getter
     private Vector3Dd currentPosition;
 
+    @Getter
+    private Vector3Dd previousTarget;
+    private Vector3Dd currentTarget;
+
     private final AtomicReference<@Nullable Vector3Dd> teleportedTo = new AtomicReference<>();
 
     private final IPLocation startLocation;
@@ -99,7 +109,7 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
 
     public CustomEntityFallingBlock_V1_19_R2(
         IPExecutor executor, IPWorld pWorld, World world, double posX, double posY, double posZ, float radius,
-        float startAngle,
+        float startAngle, BlockMover.MovementMethod movementMethod,
         boolean onEdge, AnimationContext context, AnimatedBlockHookManager animatedBlockHookManager,
         Vector3Dd finalPosition)
     {
@@ -109,6 +119,7 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
         bukkitWorld = world;
         this.radius = radius;
         this.startAngle = startAngle;
+        this.movementMethod = movementMethod;
         this.onEdge = onEdge;
         this.context = context;
         this.finalPosition = finalPosition;
@@ -123,6 +134,8 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
 
         previousPosition = new Vector3Dd(posX, posY, posZ);
         currentPosition = previousPosition;
+        previousTarget = previousPosition;
+        currentTarget = previousPosition;
 
         this.f(posX, posY, posZ);
         super.b = 0;
@@ -250,7 +263,7 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
         forEachHook("onRespawn", IAnimatedBlockHook::onRespawn);
     }
 
-    private synchronized void setPosRaw(Vector3Dd newPosition)
+    private synchronized void setPosRaw(IVector3D newPosition)
     {
         if (!executor.isMainThread())
         {
@@ -262,16 +275,25 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
         }
 
         // Update current and last x/y/z values in entity class.
-        p(newPosition.x(), newPosition.y(), newPosition.z()); // setPosRaw
+        p(newPosition.xD(), newPosition.yD(), newPosition.zD()); // setPosRaw
     }
 
     private synchronized void cyclePositions(Vector3Dd newPosition)
     {
         previousPosition = currentPosition;
         currentPosition = newPosition;
+    }
 
+    private synchronized void cycleTargets(Vector3Dd newTarget)
+    {
+        previousTarget = currentTarget;
+        currentTarget = newTarget;
+    }
+
+    private synchronized void cycleAndUpdatePositions(Vector3Dd newPosition)
+    {
+        cyclePositions(newPosition);
         setPosRaw(newPosition);
-
         forEachHook("onMoved", hook -> hook.onMoved(newPosition));
     }
 
@@ -286,11 +308,11 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
     {
     }
 
-    private void relativeTeleport(Vector3Dd from, Vector3Dd to)
+    private void relativeTeleport(IVector3D from, IVector3D to)
     {
-        final double deltaX = to.x() - from.x();
-        final double deltaY = to.y() - from.y();
-        final double deltaZ = to.z() - from.z();
+        final double deltaX = to.xD() - from.xD();
+        final double deltaY = to.yD() - from.yD();
+        final double deltaZ = to.zD() - from.zD();
 
         final short relX = (short) ((int) MathHelper.c(deltaX * 4096.0));
         final short relY = (short) ((int) MathHelper.c(deltaY * 4096.0));
@@ -303,19 +325,23 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
             tracker.a(tpPacket);
     }
 
-    @Override
-    public synchronized boolean teleport(Vector3Dd newPosition, Vector3Dd rotation)
+    private void absoluteTeleport(IVector3D to, IVector3D rotation)
     {
-        if (!isAlive())
-            return false;
+        if (tracker == null)
+            return;
 
-        final @Nullable Vector3Dd from =
-            Objects.requireNonNullElse(teleportedTo.getAndSet(newPosition), currentPosition);
+        // int + 3 * double + 2 * byte + 1 * boolean = 4 + 3 * 8 + 2 + 1 = 31 bytes
+        final PacketDataSerializer dataSerializer = new PacketDataSerializer(Unpooled.directBuffer(31));
 
-        relativeTeleport(from, newPosition);
-        forEachHook("onTeleport", hook -> hook.onTeleport(from, newPosition));
+        dataSerializer.d(getEntityId());
+        dataSerializer.writeDouble(to.xD());
+        dataSerializer.writeDouble(to.yD());
+        dataSerializer.writeDouble(to.zD());
+        dataSerializer.writeByte((byte) ((int) (rotation.yD() * 256.0F / 360.0F)));
+        dataSerializer.writeByte((byte) ((int) (rotation.xD() * 256.0F / 360.0F)));
+        dataSerializer.writeBoolean(false);
 
-        return true;
+        tracker.a(new PacketPlayOutEntityTeleport(dataSerializer));
     }
 
     /**
@@ -328,7 +354,7 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
         final @Nullable Vector3Dd teleportedToCopy = teleportedTo.getAndSet(null);
         if (teleportedToCopy == null)
             return;
-        cyclePositions(teleportedToCopy);
+        setPosRaw(teleportedToCopy);
     }
 
     @Override
@@ -345,9 +371,10 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
 
         forEachHook("preTick", IAnimatedBlockHook::preTick);
 
+        ++b;
         handleTeleport();
         a(EnumMoveType.a, di());
-        cyclePositions(getRawCurrentLocation());
+        cycleAndUpdatePositions(getRawCurrentLocation());
 
         forEachHook("postTick", IAnimatedBlockHook::postTick);
     }
@@ -370,6 +397,42 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
             log.at(Level.SEVERE).withCause(e)
                .log("Failed to modify entity tracker! Animated block movement will probably be choppy!");
         }
+    }
+
+    @Override
+    public void moveToTarget(Vector3Dd target, int ticksRemaining)
+    {
+        cycleTargets(target);
+        movementMethod.apply(this, target, ticksRemaining);
+    }
+
+    @Override
+    public synchronized boolean teleport(Vector3Dd newPosition, Vector3Dd rotation, TeleportMode teleportMode)
+    {
+        if (!isAlive())
+            return false;
+
+        final var from = Objects.requireNonNullElse(teleportedTo.getAndSet(newPosition), currentPosition);
+        cyclePositions(newPosition);
+        if (teleportMode == TeleportMode.RELATIVE)
+            relativeTeleport(from, newPosition);
+        else
+            absoluteTeleport(newPosition, rotation);
+        forEachHook("onTeleport", hook -> hook.onTeleport(from, newPosition));
+        return true;
+    }
+
+    @Override
+    public synchronized void setVelocity(Vector3Dd vector)
+    {
+        f(new Vec3D(vector.x(), vector.y(), vector.z()));
+        D = true;
+    }
+
+    @Override
+    public int getTicksLived()
+    {
+        return this.b;
     }
 
     private void forEachHook(String actionName, Consumer<IAnimatedBlockHook> call)
@@ -438,12 +501,6 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
     }
 
     @Override
-    public boolean teleport(Vector3Dd newPosition, Vector3Dd rotation, TeleportMode teleportMode)
-    {
-        return teleport(newPosition, rotation);
-    }
-
-    @Override
     public void kill()
     {
         aj();
@@ -464,20 +521,6 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
     public Vector3Dd getPosition()
     {
         return getCurrentPosition();
-    }
-
-    @Override
-    public Vector3Dd getVelocity()
-    {
-        final Vec3D bukkitVelocity = de();
-        return new Vector3Dd(bukkitVelocity.c, bukkitVelocity.d, bukkitVelocity.e);
-    }
-
-    @Override
-    public void setVelocity(Vector3Dd vector)
-    {
-        f(new Vec3D(vector.x(), vector.y(), vector.z()));
-        D = true;
     }
 
     @Override

@@ -89,13 +89,13 @@ public class SlidingMover extends BlockMover
     }
 
     @Override
-    protected void executeAnimationStep(int ticks)
+    protected void executeAnimationStep(int ticks, int ticksRemaining)
     {
         if (firstBlockData == null)
             return;
 
         final double stepSum = step * ticks;
         for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
-            applyMovement(animatedBlock, getGoalPos(animatedBlock, stepSum));
+            applyMovement(animatedBlock, getGoalPos(animatedBlock, stepSum), ticksRemaining);
     }
 }
