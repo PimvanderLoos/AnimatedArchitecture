@@ -43,10 +43,12 @@ public interface IAnimatedBlockHook
      * <p>
      * This may be called asynchronously.
      *
-     * @param newPosition
+     * @param from
+     *     The position of the animated block before the teleport.
+     * @param to
      *     The position the animated block was teleported to.
      */
-    default void onTeleport(Vector3Dd newPosition)
+    default void onTeleport(Vector3Dd from, Vector3Dd to)
     {
     }
 

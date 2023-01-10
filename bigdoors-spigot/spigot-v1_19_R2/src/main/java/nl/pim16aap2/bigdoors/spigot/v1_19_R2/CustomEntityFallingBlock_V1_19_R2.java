@@ -286,11 +286,11 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
     {
     }
 
-    private void relativeTeleport(Vector3Dd newPosition)
+    private void relativeTeleport(Vector3Dd from, Vector3Dd to)
     {
-        final double deltaX = newPosition.x() - currentPosition.x();
-        final double deltaY = newPosition.y() - currentPosition.y();
-        final double deltaZ = newPosition.z() - currentPosition.z();
+        final double deltaX = to.x() - from.x();
+        final double deltaY = to.y() - from.y();
+        final double deltaZ = to.z() - from.z();
 
         final short relX = (short) ((int) MathHelper.c(deltaX * 4096.0));
         final short relY = (short) ((int) MathHelper.c(deltaY * 4096.0));
@@ -309,9 +309,11 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
         if (!isAlive())
             return false;
 
-        teleportedTo.set(newPosition);
-        relativeTeleport(newPosition);
-        forEachHook("onTeleport", hook -> hook.onTeleport(newPosition));
+        final @Nullable Vector3Dd from =
+            Objects.requireNonNullElse(teleportedTo.getAndSet(newPosition), currentPosition);
+
+        relativeTeleport(from, newPosition);
+        forEachHook("onTeleport", hook -> hook.onTeleport(from, newPosition));
 
         return true;
     }
@@ -326,7 +328,7 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
         final @Nullable Vector3Dd teleportedToCopy = teleportedTo.getAndSet(null);
         if (teleportedToCopy == null)
             return;
-
+        cyclePositions(teleportedToCopy);
     }
 
     @Override
