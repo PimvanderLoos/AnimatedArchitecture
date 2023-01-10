@@ -269,9 +269,12 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
     {
         previousPosition = currentPosition;
         currentPosition = newPosition;
+    }
 
+    private synchronized void cycleAndUpdatePositions(Vector3Dd newPosition)
+    {
+        cyclePositions(newPosition);
         setPosRaw(newPosition);
-
         forEachHook("onMoved", hook -> hook.onMoved(newPosition));
     }
 
@@ -309,12 +312,10 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
         if (!isAlive())
             return false;
 
-        final @Nullable Vector3Dd from =
-            Objects.requireNonNullElse(teleportedTo.getAndSet(newPosition), currentPosition);
-
+        final var from = Objects.requireNonNullElse(teleportedTo.getAndSet(newPosition), currentPosition);
+        cyclePositions(newPosition);
         relativeTeleport(from, newPosition);
         forEachHook("onTeleport", hook -> hook.onTeleport(from, newPosition));
-
         return true;
     }
 
@@ -328,7 +329,7 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
         final @Nullable Vector3Dd teleportedToCopy = teleportedTo.getAndSet(null);
         if (teleportedToCopy == null)
             return;
-        cyclePositions(teleportedToCopy);
+        setPosRaw(teleportedToCopy);
     }
 
     @Override
@@ -347,7 +348,7 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
 
         handleTeleport();
         a(EnumMoveType.a, di());
-        cyclePositions(getRawCurrentLocation());
+        cycleAndUpdatePositions(getRawCurrentLocation());
 
         forEachHook("postTick", IAnimatedBlockHook::postTick);
     }
