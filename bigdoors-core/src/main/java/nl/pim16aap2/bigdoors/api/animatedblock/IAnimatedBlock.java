@@ -52,8 +52,22 @@ public interface IAnimatedBlock
      *
      * @param target
      *     The target position the block should move to(wards).
+     * @param ticksRemaining
      */
-    void moveToTarget(Vector3Dd target);
+    void moveToTarget(Vector3Dd target, int ticksRemaining);
+
+    /**
+     * Teleports the entity to the provided position.
+     *
+     * @param newPosition
+     *     The location that the entity will be reported to.
+     * @param rotation
+     *     The local rotations of the entity.
+     * @param teleportMode
+     *     The type of teleportation to apply.
+     * @return True if the teleport was successful.
+     */
+    boolean teleport(Vector3Dd newPosition, Vector3Dd rotation, TeleportMode teleportMode);
 
     /**
      * Teleports the entity to the provided position.
@@ -64,7 +78,24 @@ public interface IAnimatedBlock
      *     The local rotations of the entity.
      * @return True if the teleport was successful.
      */
-    boolean teleport(Vector3Dd newPosition, Vector3Dd rotation);
+    default boolean teleport(Vector3Dd newPosition, Vector3Dd rotation)
+    {
+        return teleport(newPosition, new Vector3Dd(0, 0, 0), TeleportMode.RELATIVE);
+    }
+
+    /**
+     * Teleports the entity to the provided position.
+     *
+     * @param newPosition
+     *     The location that the entity will be reported to.
+     * @param teleportMode
+     *     The type of teleportation to apply.
+     * @return True if the teleport was successful.
+     */
+    default boolean teleport(Vector3Dd newPosition, TeleportMode teleportMode)
+    {
+        return teleport(newPosition, new Vector3Dd(0, 0, 0), teleportMode);
+    }
 
     /**
      * Teleports the entity to the provided position.
@@ -159,4 +190,17 @@ public interface IAnimatedBlock
      * @return True if this animated block is on the edge of the cuboid being animated.
      */
     boolean isOnEdge();
+
+    enum TeleportMode
+    {
+        /**
+         * Teleports the animated object relative to its old location.
+         */
+        RELATIVE,
+
+        /**
+         * Teleports the animated object to the absolute location.
+         */
+        ABSOLUTE
+    }
 }

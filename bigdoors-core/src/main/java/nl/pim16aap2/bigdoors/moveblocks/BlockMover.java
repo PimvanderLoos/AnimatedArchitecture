@@ -108,7 +108,7 @@ public abstract class BlockMover
      * <p>
      * Subclasses are free to override this if a different type of movement is desired for that type.
      * <p>
-     * Each animated block is moved using {@link MovementMethod#apply(IAnimatedBlock, Vector3Dd)}.
+     * Each animated block is moved using {@link MovementMethod#apply(IAnimatedBlock, Vector3Dd, int)}.
      */
     protected MovementMethod movementMethod = MovementMethod.TELEPORT_VELOCITY;
 
@@ -465,40 +465,26 @@ public abstract class BlockMover
      *
      * @param ticks
      *     The number of ticks that have passed since the start of the animation.
+     * @param ticksRemaining
      */
-    protected abstract void executeAnimationStep(int ticks);
+    protected abstract void executeAnimationStep(int ticks, int ticksRemaining);
 
     private void executeAnimationStep(int counter, Animation<IAnimatedBlock> animation)
     {
-        executeAnimationStep(counter);
+        executeAnimationStep(counter, animation.getRemainingSteps());
 
         animation.setRegion(getAnimationRegion());
         animation.setState(AnimationState.ACTIVE);
     }
 
-    /**
-     * Runs a single step of the animation after the actual animation has completed.
-     * <p>
-     * This should be used to finish up the animation by moving the animated blocks to their final positions
-     * gracefully.
-     *
-     * @param counter
-     *     The number of ticks since the animation started.
-     */
-    protected void executeFinishingStep(@SuppressWarnings("unused") int counter)
-    {
-        for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
-            applyMovement(animatedBlock, animatedBlock.getFinalPosition());
-    }
-
-    protected final void applyMovement(IAnimatedBlock animatedBlock, Vector3Dd targetPosition)
+    protected final void applyMovement(IAnimatedBlock animatedBlock, IVector3D targetPosition, int ticksRemaining)
     {
         if (drawDebugBlocks)
             drawDebugBlock(targetPosition);
-        animatedBlock.moveToTarget(targetPosition);
+        animatedBlock.moveToTarget(new Vector3Dd(targetPosition), ticksRemaining);
     }
 
-    private void drawDebugBlock(Vector3Dd finalPosition)
+    private void drawDebugBlock(IVector3D finalPosition)
     {
         glowingBlockSpawner.builder()
                            .atPosition(finalPosition)
@@ -509,9 +495,10 @@ public abstract class BlockMover
                            .build();
     }
 
-    private void executeFinishingStep(int counter, Animation<IAnimatedBlock> animation)
+    private void executeFinishingStep(Animation<IAnimatedBlock> animation)
     {
-        executeFinishingStep(counter);
+        for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
+            applyMovement(animatedBlock, animatedBlock.getFinalPosition(), -1);
 
         animation.setRegion(getAnimationRegion());
         animation.setState(AnimationState.FINISHING);
@@ -600,7 +587,7 @@ public abstract class BlockMover
                 else if (counter > stopCount)
                     stopAnimation(animation);
                 else
-                    executeFinishingStep(counter, animation);
+                    executeFinishingStep(animation);
 
                 animation.setStepsExecuted(counter);
                 forEachHook("onPostAnimationStep", IAnimationHook::onPostAnimationStep);
@@ -819,7 +806,7 @@ public abstract class BlockMover
         public static final MovementMethod VELOCITY = new MovementMethod("VELOCITY", 30)
         {
             @Override
-            public void apply(IAnimatedBlock animatedBlock, Vector3Dd goalPos)
+            public void apply(IAnimatedBlock animatedBlock, Vector3Dd goalPos, int ticksRemaining)
             {
                 animatedBlock.setVelocity(goalPos.subtract(animatedBlock.getCurrentPosition()));
             }
@@ -831,7 +818,7 @@ public abstract class BlockMover
         public static final MovementMethod TELEPORT = new MovementMethod("TELEPORT", 2)
         {
             @Override
-            public void apply(IAnimatedBlock animatedBlock, Vector3Dd goalPos)
+            public void apply(IAnimatedBlock animatedBlock, Vector3Dd goalPos, int ticksRemaining)
             {
                 animatedBlock.teleport(goalPos);
             }
@@ -842,11 +829,21 @@ public abstract class BlockMover
          */
         public static final MovementMethod TELEPORT_VELOCITY = new MovementMethod("TELEPORT", 12)
         {
+            /**
+             * Only teleport the animated blocks once every several ticks.
+             */
+            private static final int TELEPORT_FREQUENCY = 3;
+
             @Override
-            public void apply(IAnimatedBlock animatedBlock, Vector3Dd goalPos)
+            public void apply(IAnimatedBlock animatedBlock, Vector3Dd goalPos, int ticksRemaining)
             {
-                TELEPORT.apply(animatedBlock, goalPos);
-                VELOCITY.apply(animatedBlock, goalPos);
+                if (ticksRemaining == 0 ||
+                    (ticksRemaining > 0 && animatedBlock.getTicksLived() % TELEPORT_FREQUENCY == 0))
+                    animatedBlock.teleport(goalPos, IAnimatedBlock.TeleportMode.ABSOLUTE);
+
+                final Vector3Dd velocitySourcePosition =
+                    ticksRemaining < 2 ? animatedBlock.getCurrentPosition() : animatedBlock.getPreviousTarget();
+                animatedBlock.setVelocity(goalPos.subtract(velocitySourcePosition));
             }
         };
 
@@ -876,6 +873,6 @@ public abstract class BlockMover
         /**
          * Moves an animated block to a given goal position using the specified method.
          */
-        public abstract void apply(IAnimatedBlock animatedBlock, Vector3Dd goalPos);
+        public abstract void apply(IAnimatedBlock animatedBlock, Vector3Dd goalPos, int ticksRemaining);
     }
 }

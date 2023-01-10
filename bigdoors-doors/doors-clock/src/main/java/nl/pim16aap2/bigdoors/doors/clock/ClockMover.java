@@ -89,7 +89,7 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
     }
 
     @Override
-    protected void executeAnimationStep(int ticks)
+    protected void executeAnimationStep(int ticks, int ticksRemaining)
     {
         final WorldTime worldTime = world.getTime();
         final double hourAngle = angleDirectionMultiplier * ClockMover.hoursToAngle(worldTime.getHours(),
@@ -109,7 +109,7 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
                     continue;
 
                 final double timeAngle = hourArm ? hourAngle : minuteAngle;
-                applyMovement(animatedBlock, getGoalPos(timeAngle, animatedBlock));
+                applyMovement(animatedBlock, getGoalPos(timeAngle, animatedBlock), ticksRemaining);
             }
     }
 

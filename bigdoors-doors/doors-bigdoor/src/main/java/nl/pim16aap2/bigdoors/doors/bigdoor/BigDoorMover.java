@@ -51,7 +51,7 @@ public class BigDoorMover extends BlockMover
     }
 
     @Override
-    protected void executeAnimationStep(int ticks)
+    protected void executeAnimationStep(int ticks, int ticksRemaining)
     {
         if (ticks == halfEndCount)
             applyRotation();
@@ -61,7 +61,7 @@ public class BigDoorMover extends BlockMover
         final double sin = Math.sin(stepSum);
 
         for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
-            applyMovement(animatedBlock, getGoalPos(animatedBlock, cos, sin));
+            applyMovement(animatedBlock, getGoalPos(animatedBlock, cos, sin), ticksRemaining);
     }
 
     private Vector3Dd getGoalPos(double cos, double sin, double startX, double startY, double startZ)

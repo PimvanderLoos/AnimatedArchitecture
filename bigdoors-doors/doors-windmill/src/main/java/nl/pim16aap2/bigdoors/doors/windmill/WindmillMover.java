@@ -43,11 +43,11 @@ public class WindmillMover<T extends AbstractDoor & IHorizontalAxisAligned> exte
     }
 
     @Override
-    protected void executeAnimationStep(int ticks)
+    protected void executeAnimationStep(int ticks, int ticksRemaining)
     {
         final double stepSum = step * ticks;
         for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
-            applyMovement(animatedBlock, getGoalPos(stepSum, animatedBlock));
+            applyMovement(animatedBlock, getGoalPos(stepSum, animatedBlock), ticksRemaining);
     }
 
     @Override

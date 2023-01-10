@@ -65,10 +65,10 @@ public class VerticalMover extends BlockMover
     }
 
     @Override
-    protected void executeAnimationStep(int ticks)
+    protected void executeAnimationStep(int ticks, int ticksRemaining)
     {
         final double stepSum = step * ticks;
         for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
-            applyMovement(animatedBlock, getGoalPos(animatedBlock, stepSum));
+            applyMovement(animatedBlock, getGoalPos(animatedBlock, stepSum), ticksRemaining);
     }
 }

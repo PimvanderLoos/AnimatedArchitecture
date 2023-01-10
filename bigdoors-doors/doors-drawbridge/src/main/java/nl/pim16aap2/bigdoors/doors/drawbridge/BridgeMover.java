@@ -102,7 +102,7 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
     }
 
     @Override
-    protected void executeAnimationStep(int ticks)
+    protected void executeAnimationStep(int ticks, int ticksRemaining)
     {
         final double stepSum = step * ticks;
         final boolean replace = ticks == halfEndCount;
@@ -111,7 +111,7 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
             this.respawnBlocks();
 
         for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
-            applyMovement(animatedBlock, getGoalPos(stepSum, animatedBlock));
+            applyMovement(animatedBlock, getGoalPos(stepSum, animatedBlock), ticksRemaining);
     }
 
     @Override
