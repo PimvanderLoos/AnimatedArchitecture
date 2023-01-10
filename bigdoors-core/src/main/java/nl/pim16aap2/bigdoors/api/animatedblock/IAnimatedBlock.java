@@ -36,11 +36,24 @@ public interface IAnimatedBlock
     Vector3Dd getPreviousPosition();
 
     /**
+     * @return The previous movement target.
+     */
+    Vector3Dd getPreviousTarget();
+
+    /**
      * Gets the world this animated block exists in.
      *
      * @return The world this animated block exists in.
      */
     IPWorld getPWorld();
+
+    /**
+     * Moves this animated block to the target.
+     *
+     * @param target
+     *     The target position the block should move to(wards).
+     */
+    void moveToTarget(Vector3Dd target);
 
     /**
      * Teleports the entity to the provided position.
@@ -49,25 +62,9 @@ public interface IAnimatedBlock
      *     The location that the entity will be reported to.
      * @param rotation
      *     The local rotations of the entity.
-     * @param teleportMode
-     *     How to handle the teleport.
      * @return True if the teleport was successful.
      */
-    boolean teleport(Vector3Dd newPosition, Vector3Dd rotation, TeleportMode teleportMode);
-
-    /**
-     * Teleports the entity to the provided position.
-     *
-     * @param newPosition
-     *     The location that the entity will be reported to.
-     * @param rotation
-     *     The local rotation of the entity.
-     * @return True if the teleport was successful.
-     */
-    default boolean teleport(Vector3Dd newPosition, Vector3Dd rotation)
-    {
-        return teleport(newPosition, rotation, TeleportMode.SET_VELOCITY);
-    }
+    boolean teleport(Vector3Dd newPosition, Vector3Dd rotation);
 
     /**
      * Teleports the entity to the provided position.
@@ -78,8 +75,14 @@ public interface IAnimatedBlock
      */
     default boolean teleport(Vector3Dd newPosition)
     {
-        return teleport(newPosition, new Vector3Dd(0, 0, 0), TeleportMode.SET_VELOCITY);
+        return teleport(newPosition, new Vector3Dd(0, 0, 0));
     }
+
+    /**
+     * @param vector
+     *     The new velocity of the entity.
+     */
+    void setVelocity(Vector3Dd vector);
 
     /**
      * Spawns this animated block.
@@ -97,6 +100,11 @@ public interface IAnimatedBlock
     void kill();
 
     /**
+     * @return The number of ticks this animated block has existed for.
+     */
+    int getTicksLived();
+
+    /**
      * @return The current location of this entity.
      * <p>
      * Note that this will not reflect the new location after the animated block is teleported until after the next
@@ -111,17 +119,6 @@ public interface IAnimatedBlock
      * tick.
      */
     Vector3Dd getPosition();
-
-    /**
-     * @return The current velocity of this entity.
-     */
-    Vector3Dd getVelocity();
-
-    /**
-     * @param vector
-     *     The new velocity of the entity.
-     */
-    void setVelocity(Vector3Dd vector);
 
     /**
      * @return The starting position of this animated block.
@@ -162,10 +159,4 @@ public interface IAnimatedBlock
      * @return True if this animated block is on the edge of the cuboid being animated.
      */
     boolean isOnEdge();
-
-    enum TeleportMode
-    {
-        SET_VELOCITY,
-        NO_VELOCITY
-    }
 }

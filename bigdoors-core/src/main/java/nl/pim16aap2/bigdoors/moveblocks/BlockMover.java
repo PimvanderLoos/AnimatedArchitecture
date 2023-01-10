@@ -348,7 +348,8 @@ public abstract class BlockMover
                         final Vector3Dd finalPosition = getFinalPosition(startPosition, radius);
 
                         animatedBlockFactory
-                            .create(location, radius, startAngle, bottom, onEdge, animationContext, finalPosition)
+                            .create(location, radius, startAngle, bottom, onEdge, animationContext, finalPosition,
+                                    movementMethod)
                             .ifPresent(privateAnimatedBlocks::add);
                     }
         }
@@ -490,11 +491,11 @@ public abstract class BlockMover
             applyMovement(animatedBlock, animatedBlock.getFinalPosition());
     }
 
-    protected final void applyMovement(IAnimatedBlock animatedBlock, Vector3Dd finalPosition)
+    protected final void applyMovement(IAnimatedBlock animatedBlock, Vector3Dd targetPosition)
     {
         if (drawDebugBlocks)
-            drawDebugBlock(finalPosition);
-        movementMethod.apply(animatedBlock, finalPosition);
+            drawDebugBlock(targetPosition);
+        animatedBlock.moveToTarget(targetPosition);
     }
 
     private void drawDebugBlock(Vector3Dd finalPosition)
@@ -820,7 +821,7 @@ public abstract class BlockMover
             @Override
             public void apply(IAnimatedBlock animatedBlock, Vector3Dd goalPos)
             {
-                animatedBlock.setVelocity(goalPos.subtract(animatedBlock.getCurrentPosition()).multiply(0.101));
+                animatedBlock.setVelocity(goalPos.subtract(animatedBlock.getCurrentPosition()));
             }
         };
 
@@ -875,6 +876,6 @@ public abstract class BlockMover
         /**
          * Moves an animated block to a given goal position using the specified method.
          */
-        abstract void apply(IAnimatedBlock animatedBlock, Vector3Dd goalPos);
+        public abstract void apply(IAnimatedBlock animatedBlock, Vector3Dd goalPos);
     }
 }
