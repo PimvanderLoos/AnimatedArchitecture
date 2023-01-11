@@ -24,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
 /**
@@ -39,7 +40,7 @@ public class GlowingBlock_V1_19_R2 implements IGlowingBlock
     @Getter
     private final int entityId;
 
-    private boolean alive = false;
+    private final AtomicBoolean alive = new AtomicBoolean(false);
 
     private final Map<PColor, Team> teams;
     private final Player player;
@@ -71,17 +72,16 @@ public class GlowingBlock_V1_19_R2 implements IGlowingBlock
     @Override
     public void kill()
     {
-        if (!alive)
+        if (!alive.getAndSet(false))
             return;
 
         getConnection().ifPresent(connection -> connection.a(new PacketPlayOutEntityDestroy(entityId)));
-        alive = false;
     }
 
     @Override
     public void teleport(Vector3Dd position)
     {
-        if (!alive)
+        if (!alive.get())
             return;
         getConnection().ifPresent(connection -> connection.a(new PacketPlayOutGlowingBlockTeleport(position)));
     }
@@ -119,7 +119,7 @@ public class GlowingBlock_V1_19_R2 implements IGlowingBlock
         final PacketPlayOutEntityMetadata entityMetadata =
             new PacketPlayOutEntityMetadata(glowingBlockEntity.ah(), glowingBlockEntity.al().c());
         playerConnection.a(entityMetadata);
-        alive = true;
+        alive.set(true);
     }
 
     private class PacketPlayOutGlowingBlockTeleport extends PacketPlayOutEntityTeleport
@@ -159,7 +159,7 @@ public class GlowingBlock_V1_19_R2 implements IGlowingBlock
             try
             {
                 final GlowingBlock_V1_19_R2 block = new GlowingBlock_V1_19_R2(player, world, pColor, x, y, z, teams);
-                return block.alive ? Optional.of(block) : Optional.empty();
+                return block.alive.get() ? Optional.of(block) : Optional.empty();
             }
             catch (Exception | ExceptionInInitializerError e)
             {
