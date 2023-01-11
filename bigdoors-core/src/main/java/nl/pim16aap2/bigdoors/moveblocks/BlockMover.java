@@ -242,6 +242,9 @@ public abstract class BlockMover
         DoorActionCause cause, DoorActionType actionType)
         throws Exception
     {
+        if (!Thread.holdsLock(door.getDoorBase()))
+            throw new IllegalStateException("Trying to instantiate BlockMover without lock on door base!");
+
         executor = context.getExecutor();
         doorActivityManager = context.getDoorActivityManager();
         autoCloseScheduler = context.getAutoCloseScheduler();
