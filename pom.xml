@@ -22,7 +22,7 @@
         <dependency.version.flogger>0.7.4</dependency.version.flogger>
         <dependency.version.slf4j>1.7.36</dependency.version.slf4j>
         <dependency.version.logback>1.2.11</dependency.version.logback>
-        <dependency.version.annotations>23.1.0</dependency.version.annotations>
+        <dependency.version.annotations>24.0.0</dependency.version.annotations>
         <dependency.version.lombok>1.18.24</dependency.version.lombok>
         <dependency.version.lombok-plugin>1.18.20.0</dependency.version.lombok-plugin>
         <dependency.version.errorprone>2.18.0</dependency.version.errorprone>
