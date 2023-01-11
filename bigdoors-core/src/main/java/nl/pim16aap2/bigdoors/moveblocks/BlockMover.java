@@ -242,9 +242,6 @@ public abstract class BlockMover
         DoorActionCause cause, DoorActionType actionType)
         throws Exception
     {
-        if (!context.getExecutor().isMainThread())
-            throw new IllegalStateException("BlockMovers must be called on the main thread!");
-
         executor = context.getExecutor();
         doorActivityManager = context.getDoorActivityManager();
         autoCloseScheduler = context.getAutoCloseScheduler();
@@ -328,18 +325,30 @@ public abstract class BlockMover
      * <p>
      * Note that if {@link #skipAnimation} is true, the blocks will be placed in the new position immediately without
      * any animations.
-     * <p>
-     * Has to be called from the main thread!
      *
      * @throws IllegalStateException
-     *     When called asynchronously, when some variables are invalid, or when that animation has already started.
+     *     When {@code animationDuration < 0}.
      */
     public final synchronized void startAnimation()
     {
         if (animationDuration < 0)
             throw new IllegalStateException("Trying to start an animation with invalid endCount value: " +
                                                 animationDuration);
+        if (executor.isMainThread())
+            startAnimation0();
+        else
+            executor.runSync(this::startAnimation);
+    }
 
+    /**
+     * @throws IllegalStateException
+     *     1) When called asynchronously; this method needs to be called on the main thread as determined by
+     *     {@link IPExecutor#isMainThread()}.
+     *     <p>
+     *     2) When {@link #hasStarted} has already been set to true.
+     */
+    private synchronized void startAnimation0()
+    {
         if (!executor.isMainThread())
             throw new IllegalStateException("Animations must be started on the main thread!");
 

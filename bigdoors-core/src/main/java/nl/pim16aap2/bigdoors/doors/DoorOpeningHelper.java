@@ -177,17 +177,8 @@ public final class DoorOpeningHelper
         DoorBase doorBase, AbstractDoor abstractDoor, DoorActionCause cause, double time, boolean skipAnimation,
         Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
     {
-        executor.assertMainThread();
         return doorBase.registerBlockMover(
             abstractDoor, cause, time, skipAnimation, newCuboid, responsible, actionType);
-    }
-
-    /**
-     * See {@link IPExecutor#isMainThread()}.
-     */
-    boolean isMainThread()
-    {
-        return executor.isMainThread();
     }
 
     /**
@@ -407,17 +398,6 @@ public final class DoorOpeningHelper
                 .map(newCuboid -> chunkLoader.checkChunks(door.getWorld(), newCuboid, mode))
                 .orElse(IChunkLoader.ChunkLoadResult.PASS);
         return newCoordsResult != IChunkLoader.ChunkLoadResult.FAIL;
-    }
-
-    /**
-     * Registers a BlockMover with the {@link DatabaseManager}
-     *
-     * @param blockMover
-     *     The {@link BlockMover}.
-     */
-    public void registerBlockMover(BlockMover blockMover)
-    {
-        doorActivityManager.addBlockMover(blockMover);
     }
 
     /**

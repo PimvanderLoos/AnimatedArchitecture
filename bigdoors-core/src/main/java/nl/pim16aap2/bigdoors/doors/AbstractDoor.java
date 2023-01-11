@@ -312,13 +312,6 @@ public abstract class AbstractDoor implements IDoor
         DoorActionCause cause, IMessageable messageReceiver, IPPlayer responsible, @Nullable Double targetTime,
         boolean skipAnimation, DoorActionType actionType)
     {
-        if (!doorOpeningHelper.isMainThread())
-        {
-            log.at(Level.SEVERE).withCause(new IllegalStateException("Doors must be toggled on the main thread!"))
-               .log();
-            return DoorToggleResult.ERROR;
-        }
-
         if (getOpenDir() == RotateDirection.NONE)
         {
             log.at(Level.SEVERE).withCause(new IllegalStateException("OpenDir cannot be NONE!")).log();
