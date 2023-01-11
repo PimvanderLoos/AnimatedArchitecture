@@ -419,7 +419,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
      * @return True when everything went all right, otherwise false.
      */
     // TODO: Move to DoorOpeningHelper.
-    synchronized boolean registerBlockMover(
+    boolean registerBlockMover(
         AbstractDoor abstractDoor, DoorActionCause cause, double time,
         boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
         DoorActionType actionType)
@@ -435,8 +435,12 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         try
         {
             final BlockMover.Context context = blockMoverContextProvider.get();
-            final BlockMover blockMover = abstractDoor.constructBlockMover(
-                context, cause, time, skipAnimation, newCuboid, responsible, actionType);
+            final BlockMover blockMover;
+            synchronized (this)
+            {
+                blockMover = abstractDoor.constructBlockMover(
+                    context, cause, time, skipAnimation, newCuboid, responsible, actionType);
+            }
             doorOpeningHelper.registerBlockMover(blockMover);
             blockMover.startAnimation();
         }
