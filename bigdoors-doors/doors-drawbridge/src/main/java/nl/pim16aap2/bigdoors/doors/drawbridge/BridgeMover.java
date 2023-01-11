@@ -125,7 +125,7 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
     @Override
     protected float getRadius(int xAxis, int yAxis, int zAxis)
     {
-        return getRadius(northSouth, door.getRotationPoint(), xAxis, yAxis, zAxis);
+        return getRadius(northSouth, rotationPoint, xAxis, yAxis, zAxis);
     }
 
     @Override
@@ -133,8 +133,8 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
     {
         // Get the angle between the used axes (either x and y, or z and y).
         // When the rotation point is positioned along the NS axis, the Z values does not change.
-        final double deltaA = northSouth ? door.getRotationPoint().x() - xAxis : door.getRotationPoint().z() - zAxis;
-        final double deltaB = (double) door.getRotationPoint().y() - yAxis;
+        final double deltaA = northSouth ? rotationPoint.x() - xAxis : rotationPoint.z() - zAxis;
+        final double deltaB = rotationPoint.yD() - yAxis;
         return (float) Util.clampAngleRad(Math.atan2(deltaA, deltaB));
     }
 }

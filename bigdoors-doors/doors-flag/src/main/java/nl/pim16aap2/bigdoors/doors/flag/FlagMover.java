@@ -117,7 +117,7 @@ public class FlagMover extends BlockMover
     protected float getRadius(int xAxis, int yAxis, int zAxis)
     {
         if (NS)
-            return Math.abs((float) zAxis - door.getRotationPoint().z());
-        return Math.abs((float) xAxis - door.getRotationPoint().x());
+            return Math.abs((float) zAxis - rotationPoint.z());
+        return Math.abs((float) xAxis - rotationPoint.x());
     }
 }

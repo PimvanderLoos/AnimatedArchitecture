@@ -66,7 +66,7 @@ public abstract class BlockMover
     /**
      * The door whose blocks are going to be moved.
      */
-    protected final AbstractDoor door;
+    private final AbstractDoor door;
 
     /**
      * The player responsible for the movement.
@@ -206,10 +206,22 @@ public abstract class BlockMover
     /**
      * The cuboid that describes the location of the door after the blocks have been moved.
      */
+    protected final Cuboid oldCuboid;
+
+    /**
+     * The cuboid that describes the location of the door after the blocks have been moved.
+     */
     protected final Cuboid newCuboid;
 
     /**
+     * The point around which the door rotates.
+     */
+    protected final Vector3Di rotationPoint;
+
+    /**
      * Constructs a {@link BlockMover}.
+     * <p>
+     * It is assumed that the door being moved is locked at the time this Mover is instantiated.
      *
      * @param door
      *     The {@link AbstractDoor}.
@@ -230,6 +242,9 @@ public abstract class BlockMover
         DoorActionCause cause, DoorActionType actionType)
         throws Exception
     {
+        if (!context.getExecutor().isMainThread())
+            throw new IllegalStateException("BlockMovers must be called on the main thread!");
+
         executor = context.getExecutor();
         doorActivityManager = context.getDoorActivityManager();
         autoCloseScheduler = context.getAutoCloseScheduler();
@@ -238,9 +253,6 @@ public abstract class BlockMover
         animationHookManager = context.getAnimationHookManager();
         glowingBlockSpawner = context.getGlowingBlockSpawner();
         serverTickTime = context.getServerTickTime();
-
-        if (!context.getExecutor().isMainThread())
-            throw new IllegalStateException("BlockMovers must be called on the main thread!");
 
         autoCloseScheduler.unscheduleAutoClose(door.getDoorUID());
         world = door.getWorld();
@@ -252,8 +264,10 @@ public abstract class BlockMover
         privateAnimatedBlocks = new ArrayList<>(door.getBlockCount());
         animatedBlocks = Collections.unmodifiableList(privateAnimatedBlocks);
         this.newCuboid = newCuboid;
+        this.oldCuboid = door.getCuboid();
         this.cause = cause;
         this.actionType = actionType;
+        this.rotationPoint = door.getRotationPoint();
 
         xMin = door.getMinimum().x();
         yMin = door.getMinimum().y();
@@ -333,7 +347,7 @@ public abstract class BlockMover
             throw new IllegalStateException("Trying to start an animation again!");
 
         final Animation<IAnimatedBlock> animation = new Animation<>(
-            animationDuration, door.getCuboid(), privateAnimatedBlocks, door);
+            animationDuration, oldCuboid, privateAnimatedBlocks, door);
         final AnimationContext animationContext = new AnimationContext(door.getDoorType(), door, animation);
 
         try
@@ -534,7 +548,7 @@ public abstract class BlockMover
         executor.cancel(moverTask, Objects.requireNonNull(moverTaskID));
 
         animation.setState(AnimationState.COMPLETED);
-        animation.setRegion(door.getCuboid());
+        animation.setRegion(oldCuboid);
     }
 
     /**

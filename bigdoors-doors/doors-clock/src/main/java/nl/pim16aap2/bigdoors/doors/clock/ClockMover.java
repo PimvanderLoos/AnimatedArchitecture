@@ -71,7 +71,7 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
      */
     private boolean isHourArmNS(IAnimatedBlock animatedBlock)
     {
-        return ((int) animatedBlock.getPosition().z()) == door.getRotationPoint().z();
+        return ((int) animatedBlock.getPosition().z()) == rotationPoint.z();
     }
 
     /**
@@ -81,7 +81,7 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
      */
     private boolean isHourArmEW(IAnimatedBlock animatedBlock)
     {
-        return ((int) animatedBlock.getPosition().x()) == door.getRotationPoint().x();
+        return ((int) animatedBlock.getPosition().x()) == rotationPoint.x();
     }
 
     @Override

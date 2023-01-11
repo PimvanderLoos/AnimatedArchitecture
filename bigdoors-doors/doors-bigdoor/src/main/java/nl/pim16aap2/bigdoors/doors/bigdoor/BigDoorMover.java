@@ -35,7 +35,7 @@ public class BigDoorMover extends BlockMover
         if (angle == 0.0D)
             log.atSevere().log("Invalid open direction '%s' for door: %d", rotDirection.name(), getDoorUID());
 
-        rotationCenter = new Vector3Dd(door.getRotationPoint().x() + 0.5, yMin, door.getRotationPoint().z() + 0.5);
+        rotationCenter = new Vector3Dd(rotationPoint.x() + 0.5, yMin, rotationPoint.z() + 0.5);
 
         step = angle / super.animationDuration;
         halfEndCount = super.animationDuration / 2;
@@ -92,13 +92,12 @@ public class BigDoorMover extends BlockMover
     @Override
     protected float getRadius(int xAxis, int yAxis, int zAxis)
     {
-        return getRadius(door.getRotationPoint(), xAxis, zAxis);
+        return getRadius(rotationPoint, xAxis, zAxis);
     }
 
     @Override
     protected float getStartAngle(int xAxis, int yAxis, int zAxis)
     {
-        return (float) Math.atan2((double) door.getRotationPoint().x() - xAxis,
-                                  (double) door.getRotationPoint().z() - zAxis);
+        return (float) Math.atan2(rotationPoint.xD() - xAxis, rotationPoint.zD() - zAxis);
     }
 }

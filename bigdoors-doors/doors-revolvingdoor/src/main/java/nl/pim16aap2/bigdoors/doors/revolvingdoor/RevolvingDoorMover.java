@@ -21,7 +21,6 @@ import java.util.function.BiFunction;
 public class RevolvingDoorMover extends BlockMover
 {
     private final BiFunction<IAnimatedBlock, Double, Vector3Dd> getGoalPos;
-
     private final double step;
     private final double endStepSum;
 
@@ -54,8 +53,8 @@ public class RevolvingDoorMover extends BlockMover
 
     private Vector3Dd getGoalPosClockwise(double radius, double startAngle, double startY, double stepSum)
     {
-        final double posX = 0.5 + door.getRotationPoint().x() - radius * Math.sin(startAngle + stepSum);
-        final double posZ = 0.5 + door.getRotationPoint().z() - radius * Math.cos(startAngle + stepSum);
+        final double posX = 0.5 + rotationPoint.xD() - radius * Math.sin(startAngle + stepSum);
+        final double posZ = 0.5 + rotationPoint.zD() - radius * Math.cos(startAngle + stepSum);
         return new Vector3Dd(posX, startY, posZ);
     }
 
@@ -68,8 +67,8 @@ public class RevolvingDoorMover extends BlockMover
 
     private Vector3Dd getGoalPosCounterClockwise(double radius, double startAngle, double startY, double stepSum)
     {
-        final double posX = 0.5 + door.getRotationPoint().x() - radius * Math.sin(startAngle - stepSum);
-        final double posZ = 0.5 + door.getRotationPoint().z() - radius * Math.cos(startAngle - stepSum);
+        final double posX = 0.5 + rotationPoint.xD() - radius * Math.sin(startAngle - stepSum);
+        final double posZ = 0.5 + rotationPoint.zD() - radius * Math.cos(startAngle - stepSum);
         return new Vector3Dd(posX, startY, posZ);
     }
 
@@ -104,15 +103,14 @@ public class RevolvingDoorMover extends BlockMover
     @Override
     protected float getRadius(int xAxis, int yAxis, int zAxis)
     {
-        final double deltaA = (double) door.getRotationPoint().x() - xAxis;
-        final double deltaB = (double) door.getRotationPoint().z() - zAxis;
+        final double deltaA = rotationPoint.xD() - xAxis;
+        final double deltaB = rotationPoint.zD() - zAxis;
         return (float) Math.sqrt(Math.pow(deltaA, 2) + Math.pow(deltaB, 2));
     }
 
     @Override
     protected float getStartAngle(int xAxis, int yAxis, int zAxis)
     {
-        return (float) Math.atan2((double) door.getRotationPoint().x() - xAxis,
-                                  (double) door.getRotationPoint().z() - zAxis);
+        return (float) Math.atan2(rotationPoint.xD() - xAxis, rotationPoint.zD() - zAxis);
     }
 }
