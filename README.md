@@ -8,8 +8,6 @@ planned release date.<br>
 If you are looking for the current release of BigDoors, please check out
 [v1](https://github.com/PimvanderLoos/BigDoors/tree/v1) instead.
 
----
-
 ## Using v2
 
 ### Warnings
@@ -35,10 +33,14 @@ Before you try to use v2, please be aware that this project is still very much i
 * Extract both zip files.
 * Place the `BigDoors-Spigot.jar` in the plugins directory of your server.
 * Create the following folder (or start the server to generate it automatically): `plugins/BigDoors2/extensions`.
-* Move all the jars from the `DoorTypes.zip` file to the new extensions directory.
+* Move all the jars from the `DoorTypes.zip` file to the new `extensions` directory.
 * (Re)start your server.
 
----
+## Translations
+
+<a href="https://hosted.weblate.org/engage/bigdoors/">
+<img src="https://hosted.weblate.org/widgets/bigdoors/-/multi-auto.svg" alt="Translation status" />
+</a>
 
 ## Compiling BigDoors v2
 
