@@ -1,8 +1,6 @@
 package nl.pim16aap2.bigdoors.doors.portcullis;
 
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -17,6 +15,7 @@ import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 
+import javax.annotation.concurrent.GuardedBy;
 import java.util.Optional;
 
 /**
@@ -32,19 +31,16 @@ public class Portcullis extends AbstractDoor implements IDiscreteMovement, ITime
     @EqualsAndHashCode.Exclude
     private static final DoorType DOOR_TYPE = DoorTypePortcullis.get();
 
-    @Getter
-    @Setter
     @PersistentVariable
+    @GuardedBy("this")
     protected int blocksToMove;
 
-    @Getter
-    @Setter
     @PersistentVariable
+    @GuardedBy("this")
     protected int autoCloseTime;
 
-    @Getter
-    @Setter
     @PersistentVariable
+    @GuardedBy("this")
     protected int autoOpenTime;
 
     public Portcullis(DoorBase doorBase, int blocksToMove, int autoCloseTime, int autoOpenTime)
@@ -67,7 +63,7 @@ public class Portcullis extends AbstractDoor implements IDiscreteMovement, ITime
     }
 
     @Override
-    protected double getLongestAnimationCycleDistance()
+    protected synchronized double getLongestAnimationCycleDistance()
     {
         return blocksToMove;
     }
@@ -85,13 +81,16 @@ public class Portcullis extends AbstractDoor implements IDiscreteMovement, ITime
     }
 
     @Override
-    public synchronized RotateDirection getCurrentToggleDir()
+    public RotateDirection getCurrentToggleDir()
     {
-        return isOpen() ? getOpenDir() : RotateDirection.getOpposite(getOpenDir());
+        synchronized (getDoorBase())
+        {
+            return isOpen() ? getOpenDir() : RotateDirection.getOpposite(getOpenDir());
+        }
     }
 
     @Override
-    public synchronized Optional<Cuboid> getPotentialNewCoordinates()
+    public Optional<Cuboid> getPotentialNewCoordinates()
     {
         return Optional.of(getCuboid().move(0, getDirectedBlocksToMove(), 0));
     }
@@ -113,7 +112,7 @@ public class Portcullis extends AbstractDoor implements IDiscreteMovement, ITime
     }
 
     @Override
-    protected BlockMover constructBlockMover(
+    protected synchronized BlockMover constructBlockMover(
         BlockMover.Context context, DoorActionCause cause, double time, boolean skipAnimation, Cuboid newCuboid,
         IPPlayer responsible, DoorActionType actionType)
         throws Exception
@@ -121,5 +120,41 @@ public class Portcullis extends AbstractDoor implements IDiscreteMovement, ITime
         return new VerticalMover(
             context, this, time, skipAnimation, getDirectedBlocksToMove(),
             config.getAnimationSpeedMultiplier(getDoorType()), responsible, newCuboid, cause, actionType);
+    }
+
+    @Override
+    public synchronized void setBlocksToMove(int blocksToMove)
+    {
+        this.blocksToMove = blocksToMove;
+    }
+
+    @Override
+    public synchronized void setAutoCloseTime(int autoCloseTime)
+    {
+        this.autoCloseTime = autoCloseTime;
+    }
+
+    @Override
+    public synchronized void setAutoOpenTime(int autoOpenTime)
+    {
+        this.autoOpenTime = autoOpenTime;
+    }
+
+    @Override
+    public synchronized int getBlocksToMove()
+    {
+        return this.blocksToMove;
+    }
+
+    @Override
+    public synchronized int getAutoCloseTime()
+    {
+        return this.autoCloseTime;
+    }
+
+    @Override
+    public synchronized int getAutoOpenTime()
+    {
+        return this.autoOpenTime;
     }
 }

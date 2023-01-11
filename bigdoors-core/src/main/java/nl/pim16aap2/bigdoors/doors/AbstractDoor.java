@@ -51,7 +51,6 @@ public abstract class AbstractDoor implements IDoor
     protected final IConfigLoader config;
     protected final DoorOpeningHelper doorOpeningHelper;
 
-
     protected AbstractDoor(
         DoorBase doorBase, ILocalizer localizer, DoorRegistry doorRegistry,
         AutoCloseScheduler autoCloseScheduler, DoorOpeningHelper doorOpeningHelper)
@@ -298,9 +297,18 @@ public abstract class AbstractDoor implements IDoor
      *     The type of action.
      * @return The result of the attempt.
      */
-    // TODO: Simplify this method.
+    final DoorToggleResult toggle(
+        DoorActionCause cause, IMessageable messageReceiver, IPPlayer responsible, @Nullable Double targetTime,
+        boolean skipAnimation, DoorActionType actionType)
+    {
+        synchronized (getDoorBase())
+        {
+            return toggle0(cause, messageReceiver, responsible, targetTime, skipAnimation, actionType);
+        }
+    }
+
     @SuppressWarnings({"unused", "squid:S1172"}) // messageReceiver isn't used yet, but it will be.
-    final synchronized DoorToggleResult toggle(
+    private synchronized DoorToggleResult toggle0(
         DoorActionCause cause, IMessageable messageReceiver, IPPlayer responsible, @Nullable Double targetTime,
         boolean skipAnimation, DoorActionType actionType)
     {

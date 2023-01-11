@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.doors.bigdoor;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
@@ -18,6 +17,7 @@ import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
+import javax.annotation.concurrent.GuardedBy;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.stream.Stream;
@@ -34,20 +34,17 @@ import java.util.stream.Stream;
 public class BigDoor extends AbstractDoor implements ITimerToggleable
 {
     private static final DoorType DOOR_TYPE = DoorTypeBigDoor.get();
-
     private static final double HALF_PI = Math.PI / 2;
 
     @Getter
     private final double longestAnimationCycleDistance;
 
-    @Getter
-    @Setter
     @PersistentVariable
+    @GuardedBy("this")
     protected int autoCloseTime;
 
-    @Getter
-    @Setter
     @PersistentVariable
+    @GuardedBy("this")
     protected int autoOpenTime;
 
     public BigDoor(DoorBase doorBase, int autoCloseTime, int autoOpenTime)
@@ -86,13 +83,26 @@ public class BigDoor extends AbstractDoor implements ITimerToggleable
     @Override
     public RotateDirection getCurrentToggleDir()
     {
-        return isOpen() ? RotateDirection.getOpposite(getOpenDir()) : getOpenDir();
+        synchronized (getDoorBase())
+        {
+            return isOpen() ? RotateDirection.getOpposite(getOpenDir()) : getOpenDir();
+        }
     }
 
     @Override
     public synchronized Optional<Cuboid> getPotentialNewCoordinates()
     {
-        final RotateDirection rotateDirection = getCurrentToggleDir();
+        final Vector3Di rotationPoint;
+        final RotateDirection rotateDirection;
+        final Cuboid cuboid;
+
+        synchronized (getDoorBase())
+        {
+            rotationPoint = getRotationPoint();
+            rotateDirection = getCurrentToggleDir();
+            cuboid = getCuboid();
+        }
+
         final double angle = rotateDirection == RotateDirection.CLOCKWISE ? Math.PI / 2 :
                              rotateDirection == RotateDirection.COUNTERCLOCKWISE ? -Math.PI / 2 : 0.0D;
         if (angle == 0.0D)
@@ -101,7 +111,7 @@ public class BigDoor extends AbstractDoor implements ITimerToggleable
             return Optional.empty();
         }
 
-        return Optional.of(getCuboid().updatePositions(vec -> vec.rotateAroundYAxis(getRotationPoint(), angle)));
+        return Optional.of(cuboid.updatePositions(vec -> vec.rotateAroundYAxis(rotationPoint, angle)));
     }
 
     /**
@@ -117,11 +127,10 @@ public class BigDoor extends AbstractDoor implements ITimerToggleable
         return Stream.of(min, max, other0, other1)
                      .mapToDouble(val -> BigDoorMover.getRadius(rotationPoint, val.x(), val.z()))
                      .max().orElseThrow() * HALF_PI;
-
     }
 
     @Override
-    protected BlockMover constructBlockMover(
+    protected synchronized BlockMover constructBlockMover(
         BlockMover.Context context, DoorActionCause cause, double time,
         boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
         DoorActionType actionType)
@@ -129,5 +138,29 @@ public class BigDoor extends AbstractDoor implements ITimerToggleable
     {
         return new BigDoorMover(
             context, this, getCurrentToggleDir(), time, skipAnimation, responsible, newCuboid, cause, actionType);
+    }
+
+    @Override
+    public synchronized void setAutoCloseTime(int autoCloseTime)
+    {
+        this.autoCloseTime = autoCloseTime;
+    }
+
+    @Override
+    public synchronized void setAutoOpenTime(int autoOpenTime)
+    {
+        this.autoOpenTime = autoOpenTime;
+    }
+
+    @Override
+    public synchronized int getAutoCloseTime()
+    {
+        return this.autoCloseTime;
+    }
+
+    @Override
+    public synchronized int getAutoOpenTime()
+    {
+        return this.autoOpenTime;
     }
 }
