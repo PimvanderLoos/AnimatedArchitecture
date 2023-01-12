@@ -1,7 +1,10 @@
 package nl.pim16aap2.bigdoors.doors.portcullis;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.Locked;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -17,6 +20,7 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 
 import javax.annotation.concurrent.GuardedBy;
 import java.util.Optional;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Represents a Portcullis doorType.
@@ -28,24 +32,33 @@ import java.util.Optional;
 @EqualsAndHashCode(callSuper = true)
 public class Portcullis extends AbstractDoor implements IDiscreteMovement, ITimerToggleable
 {
-    @EqualsAndHashCode.Exclude
     private static final DoorType DOOR_TYPE = DoorTypePortcullis.get();
 
+    @EqualsAndHashCode.Exclude
+    private final ReentrantReadWriteLock lock;
+
     @PersistentVariable
-    @GuardedBy("this")
+    @GuardedBy("lock")
+    @Getter(onMethod_ = @Locked.Read)
+    @Setter(onMethod_ = @Locked.Write)
     protected int blocksToMove;
 
     @PersistentVariable
-    @GuardedBy("this")
+    @GuardedBy("lock")
+    @Getter(onMethod_ = @Locked.Read)
+    @Setter(onMethod_ = @Locked.Write)
     protected int autoCloseTime;
 
     @PersistentVariable
-    @GuardedBy("this")
+    @GuardedBy("lock")
+    @Getter(onMethod_ = @Locked.Read)
+    @Setter(onMethod_ = @Locked.Write)
     protected int autoOpenTime;
 
     public Portcullis(DoorBase doorBase, int blocksToMove, int autoCloseTime, int autoOpenTime)
     {
         super(doorBase);
+        this.lock = getLock();
         this.blocksToMove = blocksToMove;
         this.autoCloseTime = autoCloseTime;
         this.autoOpenTime = autoOpenTime;
@@ -63,7 +76,8 @@ public class Portcullis extends AbstractDoor implements IDiscreteMovement, ITime
     }
 
     @Override
-    protected synchronized double getLongestAnimationCycleDistance()
+    @Locked.Read
+    protected double getLongestAnimationCycleDistance()
     {
         return blocksToMove;
     }
@@ -81,12 +95,10 @@ public class Portcullis extends AbstractDoor implements IDiscreteMovement, ITime
     }
 
     @Override
+    @Locked.Read
     public RotateDirection getCurrentToggleDir()
     {
-        synchronized (getDoorBase())
-        {
-            return isOpen() ? getOpenDir() : RotateDirection.getOpposite(getOpenDir());
-        }
+        return isOpen() ? getOpenDir() : RotateDirection.getOpposite(getOpenDir());
     }
 
     @Override
@@ -112,7 +124,8 @@ public class Portcullis extends AbstractDoor implements IDiscreteMovement, ITime
     }
 
     @Override
-    protected synchronized BlockMover constructBlockMover(
+    @Locked.Read
+    protected BlockMover constructBlockMover(
         BlockMover.Context context, DoorActionCause cause, double time, boolean skipAnimation, Cuboid newCuboid,
         IPPlayer responsible, DoorActionType actionType)
         throws Exception
@@ -120,41 +133,5 @@ public class Portcullis extends AbstractDoor implements IDiscreteMovement, ITime
         return new VerticalMover(
             context, this, time, skipAnimation, getDirectedBlocksToMove(),
             config.getAnimationSpeedMultiplier(getDoorType()), responsible, newCuboid, cause, actionType);
-    }
-
-    @Override
-    public synchronized void setBlocksToMove(int blocksToMove)
-    {
-        this.blocksToMove = blocksToMove;
-    }
-
-    @Override
-    public synchronized void setAutoCloseTime(int autoCloseTime)
-    {
-        this.autoCloseTime = autoCloseTime;
-    }
-
-    @Override
-    public synchronized void setAutoOpenTime(int autoOpenTime)
-    {
-        this.autoOpenTime = autoOpenTime;
-    }
-
-    @Override
-    public synchronized int getBlocksToMove()
-    {
-        return this.blocksToMove;
-    }
-
-    @Override
-    public synchronized int getAutoCloseTime()
-    {
-        return this.autoCloseTime;
-    }
-
-    @Override
-    public synchronized int getAutoOpenTime()
-    {
-        return this.autoOpenTime;
     }
 }

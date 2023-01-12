@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.doors.clock;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.experimental.Locked;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -17,6 +18,7 @@ import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 
 import java.util.Optional;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Represents a Clock doorType.
@@ -29,6 +31,9 @@ public class Clock extends AbstractDoor implements IHorizontalAxisAligned
 {
     private static final DoorType DOOR_TYPE = DoorTypeClock.get();
 
+    @EqualsAndHashCode.Exclude
+    private final ReentrantReadWriteLock lock;
+
     /**
      * Describes if the {@link Clock} is situated along the North/South axis <b>(= TRUE)</b> or along the East/West
      * axis
@@ -36,7 +41,7 @@ public class Clock extends AbstractDoor implements IHorizontalAxisAligned
      * <p>
      * To be situated along a specific axis means that the blocks move along that axis. For example, if the door moves
      * along the North/South <i>(= Z)</i> axis, all animated blocks will have a different Z-coordinate depending on the
-     * time of day and a X-coordinate depending on the X-coordinate they originally started at.
+     * time of day and an X-coordinate depending on the X-coordinate they originally started at.
      *
      * @return True if this clock is situated along the north/south axis.
      */
@@ -61,6 +66,7 @@ public class Clock extends AbstractDoor implements IHorizontalAxisAligned
     public Clock(DoorBase doorData, boolean northSouthAligned, PBlockFace hourArmSide)
     {
         super(doorData);
+        this.lock = getLock();
         this.northSouthAligned = northSouthAligned;
         this.hourArmSide = hourArmSide;
     }
@@ -84,7 +90,8 @@ public class Clock extends AbstractDoor implements IHorizontalAxisAligned
     }
 
     @Override
-    protected synchronized BlockMover constructBlockMover(
+    @Locked.Read
+    protected BlockMover constructBlockMover(
         BlockMover.Context context, DoorActionCause cause, double time, boolean skipAnimation, Cuboid newCuboid,
         IPPlayer responsible, DoorActionType actionType)
         throws Exception

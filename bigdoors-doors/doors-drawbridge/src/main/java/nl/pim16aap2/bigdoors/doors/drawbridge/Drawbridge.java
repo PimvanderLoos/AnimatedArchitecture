@@ -2,6 +2,8 @@ package nl.pim16aap2.bigdoors.doors.drawbridge;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -19,6 +21,7 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
 import javax.annotation.concurrent.GuardedBy;
 import java.util.Optional;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.stream.Stream;
 
@@ -31,19 +34,25 @@ import java.util.stream.Stream;
 @Flogger
 public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, ITimerToggleable
 {
+    private static final DoorType DOOR_TYPE = DoorTypeDrawbridge.get();
     private static final double HALF_PI = Math.PI / 2;
 
-    private static final DoorType DOOR_TYPE = DoorTypeDrawbridge.get();
+    @EqualsAndHashCode.Exclude
+    private final ReentrantReadWriteLock lock;
 
     @Getter
     private final double longestAnimationCycleDistance;
 
     @PersistentVariable
-    @GuardedBy("this")
+    @GuardedBy("lock")
+    @Getter(onMethod_ = @Locked.Read)
+    @Setter(onMethod_ = @Locked.Write)
     protected int autoCloseTime;
 
     @PersistentVariable
-    @GuardedBy("this")
+    @GuardedBy("lock")
+    @Getter(onMethod_ = @Locked.Read)
+    @Setter(onMethod_ = @Locked.Write)
     protected int autoOpenTime;
 
     /**
@@ -53,12 +62,15 @@ public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, 
      * @return True if this {@link Drawbridge}'s vertical stance points up.
      */
     @PersistentVariable
-    @GuardedBy("this")
+    @GuardedBy("lock")
+    @Getter(onMethod_ = @Locked.Read)
+    @Setter(onMethod_ = @Locked.Write)
     protected boolean modeUp;
 
     public Drawbridge(DoorBase doorBase, int autoCloseTime, int autoOpenTime, boolean modeUp)
     {
         super(doorBase);
+        this.lock = getLock();
         this.autoOpenTime = autoOpenTime;
         this.autoCloseTime = autoCloseTime;
         this.modeUp = modeUp;
@@ -84,26 +96,19 @@ public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, 
     }
 
     @Override
-    public synchronized RotateDirection getCurrentToggleDir()
+    @Locked.Read
+    public RotateDirection getCurrentToggleDir()
     {
-        synchronized (getDoorBase())
-        {
-            return isOpen() ? RotateDirection.getOpposite(getOpenDir()) : getOpenDir();
-        }
+        return isOpen() ? RotateDirection.getOpposite(getOpenDir()) : getOpenDir();
     }
 
     @Override
+    @Locked.Read
     public Optional<Cuboid> getPotentialNewCoordinates()
     {
-        final RotateDirection rotateDirection;
-        final Cuboid cuboid;
-        final Vector3Di rotationPoint;
-        synchronized (getDoorBase())
-        {
-            rotateDirection = getCurrentToggleDir();
-            cuboid = getCuboid();
-            rotationPoint = getRotationPoint();
-        }
+        final RotateDirection rotateDirection = getCurrentToggleDir();
+        final Cuboid cuboid = getCuboid();
+        final Vector3Di rotationPoint = getRotationPoint();
 
         final double angle;
         if (rotateDirection == RotateDirection.NORTH || rotateDirection == RotateDirection.WEST)
@@ -123,7 +128,8 @@ public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, 
     }
 
     @Override
-    protected synchronized BlockMover constructBlockMover(
+    @Locked.Read
+    protected BlockMover constructBlockMover(
         BlockMover.Context context, DoorActionCause cause, double time,
         boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
         DoorActionType actionType)
@@ -156,34 +162,5 @@ public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, 
             .of(min, max, other0, other1)
             .mapToDouble(val -> BridgeMover.getRadius(northSouthAligned, rotationPoint, val.x(), val.y(), val.z()))
             .max().orElseThrow() * HALF_PI;
-    }
-
-    @Override
-    public synchronized int getAutoCloseTime()
-    {
-        return this.autoCloseTime;
-    }
-
-    @Override
-    public synchronized int getAutoOpenTime()
-    {
-        return this.autoOpenTime;
-    }
-
-    public synchronized boolean isModeUp()
-    {
-        return this.modeUp;
-    }
-
-    @Override
-    public synchronized void setAutoCloseTime(int autoCloseTime)
-    {
-        this.autoCloseTime = autoCloseTime;
-    }
-
-    @Override
-    public synchronized void setAutoOpenTime(int autoOpenTime)
-    {
-        this.autoOpenTime = autoOpenTime;
     }
 }

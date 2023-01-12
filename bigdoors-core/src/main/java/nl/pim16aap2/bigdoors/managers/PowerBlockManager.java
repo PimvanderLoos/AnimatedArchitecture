@@ -138,7 +138,7 @@ public final class PowerBlockManager extends Restartable
     @SuppressWarnings("unused")
     public void updatePowerBlockLoc(AbstractDoor door, Vector3Di oldPos, Vector3Di newPos)
     {
-        door.setPowerBlockPosition(newPos);
+        door.setPowerBlock(newPos);
         door.syncData();
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(door.getWorld().worldName());
         if (powerBlockWorld == null)

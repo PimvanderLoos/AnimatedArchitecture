@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.doors.flag;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.experimental.Locked;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -17,6 +18,7 @@ import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 
 import java.util.Optional;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Represents a Flag doorType.
@@ -29,6 +31,9 @@ import java.util.Optional;
 public class Flag extends AbstractDoor implements IHorizontalAxisAligned, IPerpetualMover
 {
     private static final DoorType DOOR_TYPE = DoorTypeFlag.get();
+
+    @EqualsAndHashCode.Exclude
+    private final ReentrantReadWriteLock lock;
 
     /**
      * Describes if the {@link Flag} is situated along the North/South axis <b>(= TRUE)</b> or along the East/West axis
@@ -46,6 +51,7 @@ public class Flag extends AbstractDoor implements IHorizontalAxisAligned, IPerpe
     public Flag(DoorBase doorBase, boolean northSouthAligned)
     {
         super(doorBase);
+        this.lock = getLock();
         this.northSouthAligned = northSouthAligned;
     }
 
@@ -80,7 +86,8 @@ public class Flag extends AbstractDoor implements IHorizontalAxisAligned, IPerpe
     }
 
     @Override
-    protected synchronized BlockMover constructBlockMover(
+    @Locked.Read
+    protected BlockMover constructBlockMover(
         BlockMover.Context context, DoorActionCause cause, double time,
         boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
         DoorActionType actionType)

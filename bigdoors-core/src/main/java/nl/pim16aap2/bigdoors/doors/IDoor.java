@@ -52,7 +52,7 @@ public interface IDoor extends IDoorConst
      * @param pos
      *     The new position.
      */
-    void setPowerBlockPosition(Vector3Di pos);
+    void setPowerBlock(Vector3Di pos);
 
     /**
      * Updates the position of the rotation point.

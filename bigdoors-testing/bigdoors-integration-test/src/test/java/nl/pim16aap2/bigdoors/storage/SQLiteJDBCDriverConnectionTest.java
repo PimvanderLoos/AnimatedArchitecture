@@ -528,7 +528,7 @@ public class SQLiteJDBCDriverConnectionTest
             // update some general data.
             door3.setLocked(!isLocked);
             door3.setOpen(!isOpen);
-            door3.setPowerBlockPosition(newPowerBlock);
+            door3.setPowerBlock(newPowerBlock);
             door3.setCoordinates(newMin, newMax);
             door3.setOpenDir(newDir);
 
@@ -561,7 +561,7 @@ public class SQLiteJDBCDriverConnectionTest
             // reset base data
             door3.setLocked(isLocked);
             door3.setOpen(isOpen);
-            door3.setPowerBlockPosition(oldPowerBlock);
+            door3.setPowerBlock(oldPowerBlock);
             door3.setCoordinates(oldMin, oldMax);
             door3.setOpenDir(oldDir);
 

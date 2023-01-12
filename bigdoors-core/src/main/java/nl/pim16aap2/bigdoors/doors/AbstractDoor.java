@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.doors;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IMessageable;
@@ -28,6 +29,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 
@@ -40,6 +42,12 @@ import java.util.logging.Level;
 @Flogger
 public abstract class AbstractDoor implements IDoor
 {
+    /**
+     * The lock as used by both the {@link DoorBase} and this class.
+     */
+    @EqualsAndHashCode.Exclude
+    private final ReentrantReadWriteLock lock;
+
     @EqualsAndHashCode.Exclude
     private final DoorSerializer<?> serializer;
     private final DoorRegistry doorRegistry;
@@ -56,6 +64,7 @@ public abstract class AbstractDoor implements IDoor
         AutoCloseScheduler autoCloseScheduler, DoorOpeningHelper doorOpeningHelper)
     {
         serializer = getDoorType().getDoorSerializer();
+        this.lock = doorBase.getLock();
         this.doorBase = doorBase;
         this.localizer = localizer;
         this.doorRegistry = doorRegistry;
@@ -297,18 +306,9 @@ public abstract class AbstractDoor implements IDoor
      *     The type of action.
      * @return The result of the attempt.
      */
-    final DoorToggleResult toggle(
-        DoorActionCause cause, IMessageable messageReceiver, IPPlayer responsible, @Nullable Double targetTime,
-        boolean skipAnimation, DoorActionType actionType)
-    {
-        synchronized (getDoorBase())
-        {
-            return toggle0(cause, messageReceiver, responsible, targetTime, skipAnimation, actionType);
-        }
-    }
-
+    @Locked.Read
     @SuppressWarnings({"unused", "squid:S1172"}) // messageReceiver isn't used yet, but it will be.
-    private synchronized DoorToggleResult toggle0(
+    final DoorToggleResult toggle(
         DoorActionCause cause, IMessageable messageReceiver, IPPlayer responsible, @Nullable Double targetTime,
         boolean skipAnimation, DoorActionType actionType)
     {
@@ -348,6 +348,7 @@ public abstract class AbstractDoor implements IDoor
         if (!doorOpeningHelper.isLocationEmpty(newCuboid.get(), getCuboid(), responsiblePlayer, getWorld()))
             return doorOpeningHelper.abort(this, DoorToggleResult.OBSTRUCTED, cause, responsible, messageReceiver);
 
+        // TODO: Run on main thread!
         if (!doorOpeningHelper.canBreakBlocksBetweenLocs(this, newCuboid.get(), responsible))
             return doorOpeningHelper.abort(this, DoorToggleResult.NO_PERMISSION, cause, responsible, messageReceiver);
 
@@ -382,7 +383,8 @@ public abstract class AbstractDoor implements IDoor
      *
      * @return True if the synchronization was successful.
      */
-    public final synchronized CompletableFuture<Boolean> syncData()
+    @Locked.Read
+    public final CompletableFuture<Boolean> syncData()
     {
         try
         {
@@ -395,13 +397,15 @@ public abstract class AbstractDoor implements IDoor
         return CompletableFuture.completedFuture(false);
     }
 
-    public synchronized String getBasicInfo()
+    @Locked.Read
+    public String getBasicInfo()
     {
         return getDoorUID() + " (" + getPrimeOwner() + ") - " + getDoorType().getSimpleName() + ": " + getName();
     }
 
     @Override
-    public synchronized String toString()
+    @Locked.Read
+    public String toString()
     {
         String ret = doorBase + "\n"
             + "Type-specific data:\n"
@@ -410,6 +414,14 @@ public abstract class AbstractDoor implements IDoor
         ret += serializer.toString(this);
 
         return ret;
+    }
+
+    /**
+     * @return The locking object used by both this class and its {@link DoorBase}.
+     */
+    protected final ReentrantReadWriteLock getLock()
+    {
+        return lock;
     }
 
     @Override
@@ -479,9 +491,9 @@ public abstract class AbstractDoor implements IDoor
     }
 
     @Override
-    public void setPowerBlockPosition(Vector3Di pos)
+    public void setPowerBlock(Vector3Di pos)
     {
-        doorBase.setPowerBlockPosition(pos);
+        doorBase.setPowerBlock(pos);
     }
 
     @Override
