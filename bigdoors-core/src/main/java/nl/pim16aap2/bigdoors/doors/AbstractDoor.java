@@ -455,12 +455,6 @@ public abstract class AbstractDoor implements IDoor
     }
 
     @Override
-    public void setCoordinates(Vector3Di posA, Vector3Di posB)
-    {
-        doorBase.setCoordinates(posA, posB);
-    }
-
-    @Override
     public Vector3Di getMinimum()
     {
         return doorBase.getMinimum();

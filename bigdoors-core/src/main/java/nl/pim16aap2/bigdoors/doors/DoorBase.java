@@ -348,12 +348,6 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     }
 
     @Override
-    public synchronized void setCoordinates(Vector3Di posA, Vector3Di posB)
-    {
-        cuboid = new Cuboid(posA, posB);
-    }
-
-    @Override
     public synchronized Vector3Di getMinimum()
     {
         return cuboid.getMin();
