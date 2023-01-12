@@ -347,7 +347,6 @@ public abstract class AbstractDoor implements IDoor
         if (!doorOpeningHelper.isLocationEmpty(newCuboid.get(), getCuboid(), responsiblePlayer, getWorld()))
             return doorOpeningHelper.abort(this, DoorToggleResult.OBSTRUCTED, cause, responsible, messageReceiver);
 
-        // TODO: Run on main thread!
         if (!doorOpeningHelper.canBreakBlocksBetweenLocs(this, newCuboid.get(), responsible))
             return doorOpeningHelper.abort(this, DoorToggleResult.NO_PERMISSION, cause, responsible, messageReceiver);
 

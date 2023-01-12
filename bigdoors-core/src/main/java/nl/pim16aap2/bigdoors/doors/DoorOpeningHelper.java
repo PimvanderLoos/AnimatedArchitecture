@@ -6,6 +6,7 @@ import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.IChunkLoader;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IMessageable;
+import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
@@ -32,6 +33,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.inject.Inject;
 import java.time.Duration;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 /**
@@ -47,6 +49,7 @@ public final class DoorOpeningHelper
     private final DoorActivityManager doorActivityManager;
     private final DoorTypeManager doorTypeManager;
     private final IConfigLoader config;
+    private final IPExecutor executor;
     private final IBlockAnalyzer blockAnalyzer;
     private final IPLocationFactory locationFactory;
     private final IProtectionCompatManager protectionCompatManager;
@@ -62,6 +65,7 @@ public final class DoorOpeningHelper
         DoorActivityManager doorActivityManager,
         DoorTypeManager doorTypeManager,
         IConfigLoader config,
+        IPExecutor executor,
         IBlockAnalyzer blockAnalyzer,
         IPLocationFactory locationFactory,
         IProtectionCompatManager protectionCompatManager,
@@ -75,6 +79,7 @@ public final class DoorOpeningHelper
         this.doorActivityManager = doorActivityManager;
         this.doorTypeManager = doorTypeManager;
         this.config = config;
+        this.executor = executor;
         this.blockAnalyzer = blockAnalyzer;
         this.locationFactory = locationFactory;
         this.protectionCompatManager = protectionCompatManager;
@@ -190,7 +195,25 @@ public final class DoorOpeningHelper
      *     Who is responsible for the action.
      * @return True if the player is allowed to break the block(s).
      */
-    public boolean canBreakBlocksBetweenLocs(IDoor door, Cuboid cuboid, IPPlayer responsible)
+    public boolean canBreakBlocksBetweenLocs(IDoorConst door, Cuboid cuboid, IPPlayer responsible)
+    {
+        if (protectionCompatManager.canSkipCheck())
+            return true;
+        try
+        {
+            return executor.runOnMainThread(() -> canBreakBlocksBetweenLocs0(door, cuboid, responsible))
+                           .get(500, TimeUnit.MILLISECONDS);
+        }
+        catch (Exception e)
+        {
+            log.atSevere().withCause(e)
+               .log("Failed to check if blocks can be broken in cuboid %s for user: '%s' for door %s",
+                    cuboid, responsible, door);
+            return false;
+        }
+    }
+
+    private boolean canBreakBlocksBetweenLocs0(IDoorConst door, Cuboid cuboid, IPPlayer responsible)
     {
         // If the returned value is an empty Optional, the player is allowed to break blocks.
         return protectionCompatManager.canBreakBlocksBetweenLocs(responsible, cuboid.getMin(), cuboid.getMax(),
