@@ -262,8 +262,9 @@ public abstract class BlockMover
 
     public void abort()
     {
-        if (moverTask != null)
-            executor.cancel(moverTask, Objects.requireNonNull(moverTaskID));
+        final @Nullable TimerTask moverTask0 = moverTask;
+        if (moverTask0 != null)
+            executor.cancel(moverTask0, Objects.requireNonNull(moverTaskID));
         putBlocks(true);
     }
 
@@ -533,12 +534,14 @@ public abstract class BlockMover
         forEachHook("onAnimationEnding", IAnimationHook::onAnimationEnding);
 
         putBlocks(false);
-        if (moverTask == null)
+
+        final @Nullable TimerTask moverTask0 = moverTask;
+        if (moverTask0 == null)
         {
             log.at(Level.WARNING).log("MoverTask unexpectedly null for BlockMover:\n%s", this);
             return;
         }
-        executor.cancel(moverTask, Objects.requireNonNull(moverTaskID));
+        executor.cancel(moverTask0, Objects.requireNonNull(moverTaskID));
 
         animation.setState(AnimationState.COMPLETED);
         animation.setRegion(oldCuboid);
@@ -580,7 +583,7 @@ public abstract class BlockMover
 
         final int initialDelay = Math.round((float) START_DELAY / serverTickTime);
 
-        moverTask = new TimerTask()
+        final TimerTask moverTask0 = new TimerTask()
         {
             private int counter = 0;
             private @Nullable Long startTime = null; // Initialize on the first run.
@@ -609,7 +612,8 @@ public abstract class BlockMover
                 forEachHook("onPostAnimationStep", IAnimationHook::onPostAnimationStep);
             }
         };
-        moverTaskID = executor.runAsyncRepeated(moverTask, initialDelay, 1);
+        moverTask = moverTask0;
+        moverTaskID = executor.runAsyncRepeated(moverTask0, initialDelay, 1);
     }
 
     /**
@@ -755,10 +759,11 @@ public abstract class BlockMover
 
     private void forEachHook(String actionName, Consumer<IAnimationHook<IAnimatedBlock>> call)
     {
-        if (hooks == null)
+        final @Nullable var hooks0 = hooks;
+        if (hooks0 == null)
             return;
 
-        for (final IAnimationHook<IAnimatedBlock> hook : hooks)
+        for (final IAnimationHook<IAnimatedBlock> hook : hooks0)
         {
             log.at(Level.FINEST).log("Executing '%s' for hook '%s'!", actionName, hook.getName());
             try
