@@ -337,10 +337,7 @@ public abstract class BlockMover
         if (animationDuration < 0)
             throw new IllegalStateException("Trying to start an animation with invalid endCount value: " +
                                                 animationDuration);
-        if (executor.isMainThread())
-            startAnimation0();
-        else
-            executor.runSync(this::startAnimation);
+        executor.runOnMainThread(this::startAnimation0);
     }
 
     /**
