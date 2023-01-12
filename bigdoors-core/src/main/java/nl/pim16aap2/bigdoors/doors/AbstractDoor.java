@@ -12,7 +12,6 @@ import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
-import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleStart;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
@@ -359,9 +358,9 @@ public abstract class AbstractDoor implements IDoor
         if (!scheduled)
             return DoorToggleResult.ERROR;
 
-        final IDoorEventToggleStart toggleStartEvent =
-            doorOpeningHelper.callToggleStartEvent(this, cause, actionType, responsible,
-                                                   time, skipAnimation, newCuboid.get());
+        doorBase.getExecutor().runAsync(
+            () -> doorOpeningHelper.callToggleStartEvent(
+                this, cause, actionType, responsible, time, skipAnimation, newCuboid.get()));
 
         return DoorToggleResult.SUCCESS;
     }

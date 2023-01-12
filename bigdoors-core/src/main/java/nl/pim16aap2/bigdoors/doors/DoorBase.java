@@ -132,6 +132,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     private final IDoorEventCaller doorEventCaller;
 
     @EqualsAndHashCode.Exclude
+    @Getter(AccessLevel.PACKAGE)
     private final IPExecutor executor;
 
     @EqualsAndHashCode.Exclude
