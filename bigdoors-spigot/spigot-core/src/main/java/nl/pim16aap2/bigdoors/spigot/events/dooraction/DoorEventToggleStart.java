@@ -24,6 +24,9 @@ public class DoorEventToggleStart extends DoorToggleEvent implements IDoorEventT
     @Getter
     private final Cuboid newCuboid;
 
+    @Getter
+    private final AbstractDoor door;
+
     /**
      * Constructs a door action event.
      *
@@ -43,11 +46,13 @@ public class DoorEventToggleStart extends DoorToggleEvent implements IDoorEventT
      * @param newCuboid
      *     The {@link Cuboid} representing the area the door will take up after the toggle.
      */
-    public DoorEventToggleStart(AbstractDoor door, DoorActionCause cause, DoorActionType actionType,
-                                IPPlayer responsible, double time, boolean skipAnimation, Cuboid newCuboid)
+    public DoorEventToggleStart(
+        AbstractDoor door, DoorActionCause cause, DoorActionType actionType, IPPlayer responsible, double time,
+        boolean skipAnimation, Cuboid newCuboid)
     {
-        super(door, cause, actionType, responsible, time, skipAnimation);
+        super(cause, actionType, responsible, time, skipAnimation);
         this.newCuboid = newCuboid;
+        this.door = door;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.events.dooraction;
 
+import lombok.Getter;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -19,6 +20,9 @@ public class DoorEventToggleEnd extends DoorToggleEvent implements IDoorEventTog
 {
     private static final HandlerList HANDLERS_LIST = new HandlerList();
 
+    @Getter
+    private final AbstractDoor door;
+
     /**
      * Constructs a door action event.
      *
@@ -36,10 +40,12 @@ public class DoorEventToggleEnd extends DoorToggleEvent implements IDoorEventTog
      * @param skipAnimation
      *     If true, the door will skip the animation and open instantly.
      */
-    public DoorEventToggleEnd(AbstractDoor door, DoorActionCause cause, DoorActionType actionType, IPPlayer responsible,
-                              double time, boolean skipAnimation)
+    public DoorEventToggleEnd(
+        AbstractDoor door, DoorActionCause cause, DoorActionType actionType, IPPlayer responsible, double time,
+        boolean skipAnimation)
     {
-        super(door, cause, actionType, responsible, time, skipAnimation);
+        super(cause, actionType, responsible, time, skipAnimation);
+        this.door = door;
     }
 
     @Override

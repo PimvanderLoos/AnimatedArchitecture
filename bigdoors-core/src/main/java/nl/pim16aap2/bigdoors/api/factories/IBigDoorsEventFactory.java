@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.api.factories;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorOwner;
+import nl.pim16aap2.bigdoors.doors.IDoorConst;
 import nl.pim16aap2.bigdoors.events.IBigDoorsEvent;
 import nl.pim16aap2.bigdoors.events.IDoorCreatedEvent;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareAddOwnerEvent;
@@ -207,7 +208,7 @@ public interface IBigDoorsEventFactory
      *     The {@link Cuboid} representing the area the door will take up after the toggle.
      */
     IDoorEventTogglePrepare createTogglePrepareEvent(
-        AbstractDoor door, DoorActionCause cause, DoorActionType actionType, IPPlayer responsible, double time,
+        IDoorConst door, DoorActionCause cause, DoorActionType actionType, IPPlayer responsible, double time,
         boolean skipAnimation, Cuboid newCuboid);
 
     /**

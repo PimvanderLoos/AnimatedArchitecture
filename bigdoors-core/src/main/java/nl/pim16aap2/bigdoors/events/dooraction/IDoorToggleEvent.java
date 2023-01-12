@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.events.dooraction;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.IDoorConst;
 import nl.pim16aap2.bigdoors.events.IBigDoorsEvent;
 
 public interface IDoorToggleEvent extends IBigDoorsEvent
@@ -11,7 +11,7 @@ public interface IDoorToggleEvent extends IBigDoorsEvent
      *
      * @return The door.
      */
-    AbstractDoor getDoor();
+    IDoorConst getDoor();
 
     /**
      * Gets what caused the door action request to be created.

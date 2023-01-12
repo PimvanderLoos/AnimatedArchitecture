@@ -3,6 +3,8 @@ package nl.pim16aap2.bigdoors.spigot.factories.bigdoorseventfactory;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorOwner;
+import nl.pim16aap2.bigdoors.doors.IDoorConst;
 import nl.pim16aap2.bigdoors.events.IDoorCreatedEvent;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareAddOwnerEvent;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareCreateEvent;
@@ -24,7 +26,6 @@ import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorEventToggleEnd;
 import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorEventTogglePrepare;
 import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorEventToggleStart;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.doors.DoorOwner;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -83,7 +84,7 @@ public class BigDoorsEventFactorySpigot implements IBigDoorsEventFactory
 
     @Override
     public IDoorEventTogglePrepare createTogglePrepareEvent(
-        AbstractDoor door, DoorActionCause cause,
+        IDoorConst door, DoorActionCause cause,
         DoorActionType actionType, IPPlayer responsible,
         double time, boolean skipAnimation, Cuboid newCuboid)
     {

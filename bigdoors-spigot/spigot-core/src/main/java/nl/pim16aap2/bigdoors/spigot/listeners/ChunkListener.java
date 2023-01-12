@@ -105,8 +105,8 @@ public class ChunkListener extends AbstractListener
     }
 
     /**
-     * Listens to chunks being unloaded and checks if it intersects with the region of any of the active {@link
-     * nl.pim16aap2.bigdoors.doors.DoorBase}s.
+     * Listens to chunks being unloaded and checks if it intersects with the region of any of the active
+     * {@link nl.pim16aap2.bigdoors.doors.DoorBase}s.
      *
      * @param event
      *     The {@link ChunkUnloadEvent}.

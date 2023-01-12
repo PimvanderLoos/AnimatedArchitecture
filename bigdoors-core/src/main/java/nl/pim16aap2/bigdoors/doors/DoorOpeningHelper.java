@@ -133,16 +133,16 @@ public final class DoorOpeningHelper
 
     /**
      * See
-     * {@link IBigDoorsEventFactory#createTogglePrepareEvent(AbstractDoor, DoorActionCause, DoorActionType, IPPlayer,
+     * {@link IBigDoorsEventFactory#createTogglePrepareEvent(IDoorConst, DoorActionCause, DoorActionType, IPPlayer,
      * double, boolean, Cuboid)}.
      */
     IDoorEventTogglePrepare callTogglePrepareEvent(
-        AbstractDoor door, DoorActionCause cause, DoorActionType actionType, IPPlayer responsible, double time,
+        IDoorConst door, DoorActionCause cause, DoorActionType actionType, IPPlayer responsible, double time,
         boolean skipAnimation, Cuboid newCuboid)
     {
         final IDoorEventTogglePrepare event =
-            bigDoorsEventFactory.createTogglePrepareEvent(door, cause, actionType, responsible,
-                                                          time, skipAnimation, newCuboid);
+            bigDoorsEventFactory.createTogglePrepareEvent(
+                door, cause, actionType, responsible, time, skipAnimation, newCuboid);
         callDoorToggleEvent(event);
         return event;
     }
@@ -157,8 +157,8 @@ public final class DoorOpeningHelper
         boolean skipAnimation, Cuboid newCuboid)
     {
         final IDoorEventToggleStart event =
-            bigDoorsEventFactory.createToggleStartEvent(door, cause, actionType, responsible,
-                                                        time, skipAnimation, newCuboid);
+            bigDoorsEventFactory.createToggleStartEvent(
+                door, cause, actionType, responsible, time, skipAnimation, newCuboid);
         callDoorToggleEvent(event);
         return event;
     }

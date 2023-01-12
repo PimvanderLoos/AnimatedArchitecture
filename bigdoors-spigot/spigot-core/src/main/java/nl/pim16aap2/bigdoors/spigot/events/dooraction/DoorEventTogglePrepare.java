@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.IDoorConst;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
@@ -18,13 +18,19 @@ import org.jetbrains.annotations.NotNull;
  * @author Pim
  */
 @ToString
-public class DoorEventTogglePrepare extends DoorEventToggleStart implements IDoorEventTogglePrepare
+public class DoorEventTogglePrepare extends DoorToggleEvent implements IDoorEventTogglePrepare
 {
     private static final HandlerList HANDLERS_LIST = new HandlerList();
 
     @Getter
     @Setter
     private boolean isCancelled = false;
+
+    @Getter
+    private final Cuboid newCuboid;
+
+    @Getter
+    private final IDoorConst door;
 
     /**
      * Constructs a door action event.
@@ -45,10 +51,13 @@ public class DoorEventTogglePrepare extends DoorEventToggleStart implements IDoo
      * @param newCuboid
      *     The {@link Cuboid} representing the area the door will take up after the toggle.
      */
-    public DoorEventTogglePrepare(AbstractDoor door, DoorActionCause cause, DoorActionType actionType,
-                                  IPPlayer responsible, double time, boolean animationSkipped, Cuboid newCuboid)
+    public DoorEventTogglePrepare(
+        IDoorConst door, DoorActionCause cause, DoorActionType actionType, IPPlayer responsible, double time,
+        boolean animationSkipped, Cuboid newCuboid)
     {
-        super(door, cause, actionType, responsible, time, animationSkipped, newCuboid);
+        super(cause, actionType, responsible, time, animationSkipped);
+        this.newCuboid = newCuboid;
+        this.door = door;
     }
 
     @Override
