@@ -352,8 +352,7 @@ public abstract class BlockMover
      */
     private synchronized void startAnimation0()
     {
-        if (!executor.isMainThread())
-            throw new IllegalStateException("Animations must be started on the main thread!");
+        executor.assertMainThread("Animations must be started on the main thread!");
 
         if (hasStarted.getAndSet(true))
             throw new IllegalStateException("Trying to start an animation again!");
@@ -421,8 +420,7 @@ public abstract class BlockMover
      */
     private boolean tryRemoveOriginalBlocks(boolean edgePass)
     {
-        if (!executor.isMainThread())
-            throw new IllegalStateException("Blocks must be removed on the main thread!");
+        executor.assertMainThread("Blocks must be removed on the main thread!");
 
         for (final IAnimatedBlock animatedBlock : privateAnimatedBlocks)
         {
@@ -570,8 +568,7 @@ public abstract class BlockMover
      */
     protected void prepareAnimation()
     {
-        if (!executor.isMainThread())
-            throw new IllegalStateException("Animated blocks must be spawned on the main thread!");
+        executor.assertMainThread("Animated blocks must be spawned on the main thread!");
         getAnimatedBlocks().forEach(IAnimatedBlock::spawn);
     }
 
@@ -580,8 +577,7 @@ public abstract class BlockMover
      */
     private synchronized void animateEntities(Animation<IAnimatedBlock> animation)
     {
-        if (!executor.isMainThread())
-            throw new IllegalStateException("Animation must be started on the main thread!");
+        executor.assertMainThread("Animation must be started on the main thread!");
 
         try
         {
@@ -667,8 +663,7 @@ public abstract class BlockMover
 
     private synchronized void putBlocks0(boolean onDisable)
     {
-        if (!executor.isMainThread())
-            throw new IllegalStateException("Attempting async block placement!");
+        executor.assertMainThread("Attempting async block placement!");
 
         for (final IAnimatedBlock animatedBlock : privateAnimatedBlocks)
         {

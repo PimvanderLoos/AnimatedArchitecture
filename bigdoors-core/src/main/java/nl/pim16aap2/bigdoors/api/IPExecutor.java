@@ -206,12 +206,25 @@ public interface IPExecutor
     /**
      * Asserts that this method was called from the main thread. See {@link #isMainThread()}.
      *
+     * @param message
+     *     The error message for the exception.
+     * @throws IllegalStateException
+     *     When called from any thread that is not that main thread.
+     */
+    default void assertMainThread(String message)
+    {
+        if (!isMainThread())
+            throw new IllegalThreadStateException(message);
+    }
+
+    /**
+     * Asserts that this method was called from the main thread. See {@link #isMainThread()}.
+     *
      * @throws IllegalStateException
      *     When called from any thread that is not that main thread.
      */
     default void assertMainThread()
     {
-        if (!isMainThread())
-            throw new IllegalThreadStateException();
+        assertMainThread("Assertion Failed: Not on main thread!");
     }
 }
