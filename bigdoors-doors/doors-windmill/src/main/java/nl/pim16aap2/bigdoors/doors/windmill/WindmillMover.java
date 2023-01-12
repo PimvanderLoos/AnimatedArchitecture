@@ -30,9 +30,8 @@ public class WindmillMover<T extends AbstractDoor & IHorizontalAxisAligned> exte
         throws Exception
     {
         super(context, time, door, rotateDirection, false, multiplier, player, door.getCuboid(), cause, actionType);
-
         super.perpetualMovement = true;
-        super.animationDuration = (int) (20 * 20 * super.time);
+
         step = (Math.PI / 2.0) / (20.0f * super.time * 2.0f);
     }
 

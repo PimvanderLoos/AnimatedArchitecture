@@ -56,7 +56,7 @@ public abstract class BlockMover
      */
     private static final int START_DELAY = 700;
 
-    protected boolean drawDebugBlocks = false;
+    private final boolean drawDebugBlocks = false;
 
     /**
      * The world in which the blocks are going to be moved.
@@ -119,7 +119,7 @@ public abstract class BlockMover
      * <p>
      * Each animated block is moved using {@link MovementMethod#apply(IAnimatedBlock, Vector3Dd, int)}.
      */
-    protected MovementMethod movementMethod = MovementMethod.TELEPORT_VELOCITY;
+    protected volatile MovementMethod movementMethod = MovementMethod.TELEPORT_VELOCITY;
 
     /**
      * The amount of time (in seconds) that the animation will take.
@@ -127,18 +127,18 @@ public abstract class BlockMover
      * This excludes any additional time specified by {@link MovementMethod#finishDuration()}.
      */
     @Getter
-    protected double time;
+    protected final double time;
 
     /**
      * When true, the blocks are moved without animating them. No animated blocks are spawned.
      */
     @Getter
-    protected boolean skipAnimation;
+    protected final boolean skipAnimation;
 
     /**
      * The direction in of the movement.
      */
-    protected RotateDirection openDirection;
+    protected final RotateDirection openDirection;
 
     /**
      * The modifiable list of animated blocks.
@@ -159,19 +159,7 @@ public abstract class BlockMover
      * <p>
      * False to have the movement be time-bound, such as for doors, drawbridges, etc.
      */
-    protected boolean perpetualMovement = false;
-
-    protected int xMin;
-
-    protected int yMin;
-
-    protected int zMin;
-
-    protected int xMax;
-
-    protected int yMax;
-
-    protected int zMax;
+    protected volatile boolean perpetualMovement = false;
 
     /**
      * Keeps track of whether the animation has finished.
@@ -183,25 +171,25 @@ public abstract class BlockMover
      */
     private final AtomicBoolean hasStarted = new AtomicBoolean(false);
 
-    private @Nullable List<IAnimationHook<IAnimatedBlock>> hooks;
+    private volatile @Nullable List<IAnimationHook<IAnimatedBlock>> hooks;
 
     /**
      * The task that moves the animated blocks.
      * <p>
      * This will be null until the animation starts (if it does, see {@link #skipAnimation}).
      */
-    protected @Nullable TimerTask moverTask = null;
+    protected volatile @Nullable TimerTask moverTask = null;
 
     /**
      * The ID of the {@link #moverTask}.
      */
     @Getter(AccessLevel.PROTECTED)
-    private @Nullable Integer moverTaskID = null;
+    private volatile @Nullable Integer moverTaskID = null;
 
     /**
      * The duration of the animation measured in ticks.
      */
-    protected int animationDuration = -1;
+    protected final int animationDuration;
 
     /**
      * The cuboid that describes the location of the door after the blocks have been moved.
@@ -269,13 +257,6 @@ public abstract class BlockMover
         this.actionType = actionType;
         this.rotationPoint = door.getRotationPoint();
 
-        xMin = door.getMinimum().x();
-        yMin = door.getMinimum().y();
-        zMin = door.getMinimum().z();
-        xMax = door.getMaximum().x();
-        yMax = door.getMaximum().y();
-        zMax = door.getMaximum().z();
-
         this.animationDuration = (int) Math.min(Integer.MAX_VALUE, Math.round(1000 * this.time / serverTickTime));
     }
 
@@ -328,11 +309,8 @@ public abstract class BlockMover
      * <p>
      * Note that if {@link #skipAnimation} is true, the blocks will be placed in the new position immediately without
      * any animations.
-     *
-     * @throws IllegalStateException
-     *     When {@code animationDuration < 0}.
      */
-    public final synchronized void startAnimation()
+    public final void startAnimation()
     {
         if (animationDuration < 0)
             throw new IllegalStateException("Trying to start an animation with invalid endCount value: " +
@@ -360,6 +338,14 @@ public abstract class BlockMover
 
         try
         {
+            final int xMin = oldCuboid.getMin().x();
+            final int yMin = oldCuboid.getMin().y();
+            final int zMin = oldCuboid.getMin().z();
+
+            final int xMax = oldCuboid.getMax().x();
+            final int yMax = oldCuboid.getMax().y();
+            final int zMax = oldCuboid.getMax().z();
+
             for (int xAxis = xMin; xAxis <= xMax; ++xAxis)
                 for (int yAxis = yMax; yAxis >= yMin; --yAxis)
                     for (int zAxis = zMin; zAxis <= zMax; ++zAxis)

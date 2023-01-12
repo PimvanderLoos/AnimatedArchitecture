@@ -24,14 +24,9 @@ public class GarageDoorMover extends BlockMover
     private final double resultHeight;
     private final Vector3Di directionVec;
     private final BiFunction<IAnimatedBlock, Double, Vector3Dd> getVector;
-    private final int xLen;
-    private final int yLen;
-    private final int zLen;
     private final boolean northSouth;
     private final double step;
     private final boolean isOpen;
-
-    protected int blocksToMove;
 
     public GarageDoorMover(
         Context context, GarageDoor door, double time, double multiplier, boolean skipAnimation,
@@ -74,24 +69,21 @@ public class GarageDoorMover extends BlockMover
                                                     rotateDirection + "\"");
         }
 
-        xLen = xMax - xMin;
-        yLen = yMax - yMin;
-        zLen = zMax - zMin;
-
+        final Vector3Di dims = oldCuboid.getDimensions();
+        int blocksToMove;
         if (!door.isOpen())
         {
-            blocksToMove = yLen + 1;
+            blocksToMove = dims.y();
             getVector = this::getVectorUp;
         }
         else
         {
-            blocksToMove = Math.abs((xLen + 1) * directionVec.x()
-                                        + (yLen + 1) * directionVec.y()
-                                        + (zLen + 1) * directionVec.z());
+            blocksToMove = Math.abs(dims.x() * directionVec.x()
+                                        + dims.y() * directionVec.y()
+                                        + dims.z() * directionVec.z());
             getVector = getVectorTmp;
         }
 
-        super.animationDuration = (int) (20 * super.time);
         step = (blocksToMove + 0.5f) / super.animationDuration;
     }
 
@@ -198,24 +190,26 @@ public class GarageDoorMover extends BlockMover
         double newY;
         double newZ;
 
+        final Vector3Di dims = oldCuboid.getDimensions();
+
         if (!isOpen)
         {
-            newX = startLocation.xD() + (1 + yLen - radius) * directionVec.x();
+            newX = startLocation.xD() + (dims.y() - radius) * directionVec.x();
             newY = resultHeight;
-            newZ = startLocation.zD() + (1 + yLen - radius) * directionVec.z();
+            newZ = startLocation.zD() + (dims.y() - radius) * directionVec.z();
         }
         else
         {
             if (directionVec.x() == 0)
             {
                 newX = startLocation.xD();
-                newY = oldCuboid.getMax().y() - (zLen - radius);
+                newY = oldCuboid.getMax().y() - (dims.z() - radius);
                 newZ = rotationPoint.z();
             }
             else
             {
                 newX = rotationPoint.x();
-                newY = oldCuboid.getMax().y() - (xLen - radius);
+                newY = oldCuboid.getMax().y() - (dims.x() - radius);
                 newZ = startLocation.zD();
             }
             newY -= 2;

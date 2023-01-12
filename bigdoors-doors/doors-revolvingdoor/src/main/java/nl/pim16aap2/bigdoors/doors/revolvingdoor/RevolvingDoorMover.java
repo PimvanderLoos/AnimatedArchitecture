@@ -46,7 +46,6 @@ public class RevolvingDoorMover extends BlockMover
                                   getDoorUID(), rotateDirection.name()));
         }
 
-        super.animationDuration = (int) (20.0 * super.time * quarterCircles);
         step = (Math.PI / 2.0 * quarterCircles) / super.animationDuration * -1.0;
         endStepSum = super.animationDuration * step;
     }

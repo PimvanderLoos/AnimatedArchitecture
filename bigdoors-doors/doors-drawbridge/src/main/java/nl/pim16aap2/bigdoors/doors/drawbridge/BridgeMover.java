@@ -79,7 +79,6 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
                                                        " is not valid for this type!");
         }
 
-        super.animationDuration = (int) (20 * super.time);
         step = angle / super.animationDuration;
         halfEndCount = super.animationDuration / 2;
     }
