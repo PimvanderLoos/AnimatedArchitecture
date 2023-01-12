@@ -29,7 +29,7 @@
         <dependency.version.nullaway>0.10.7</dependency.version.nullaway>
         <dependency.version.checker-framework>3.29.0</dependency.version.checker-framework>
         <dependency.version.checkstyle>10.6.0</dependency.version.checkstyle>
-        <dependency.version.pmd>3.19.0</dependency.version.pmd>
+        <dependency.version.pmd>3.20.0</dependency.version.pmd>
         <dependency.version.dagger>2.44.2</dependency.version.dagger>
         <dependency.version.mockito>4.11.0</dependency.version.mockito>
         <dependency.version.junit>5.9.2</dependency.version.junit>
