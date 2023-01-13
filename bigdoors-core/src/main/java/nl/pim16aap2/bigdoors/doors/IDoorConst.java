@@ -4,9 +4,10 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -15,6 +16,7 @@ import java.util.UUID;
  *
  * @author Pim
  */
+@SuppressWarnings("unused")
 public interface IDoorConst
 {
     /**
@@ -22,14 +24,20 @@ public interface IDoorConst
      *
      * @return True if this door can be opened right now.
      */
-    boolean isOpenable();
+    default boolean isOpenable()
+    {
+        return !isOpen();
+    }
 
     /**
      * Checks if this door can be closed right now.
      *
      * @return True if this door can be closed right now.
      */
-    boolean isCloseable();
+    default boolean isCloseable()
+    {
+        return isOpen();
+    }
 
     /**
      * Gets the {@link Cuboid} representing the area taken up by this door.
@@ -86,7 +94,7 @@ public interface IDoorConst
      *
      * @return All {@link DoorOwner}s of this door, including the original creator.
      */
-    List<DoorOwner> getDoorOwners();
+    Collection<DoorOwner> getDoorOwners();
 
     /**
      * Attempts to get the {@link DoorOwner} of this door represented by the UUID of a player.
@@ -159,14 +167,20 @@ public interface IDoorConst
      *
      * @return The minimum coordinates of this door.
      */
-    Vector3Di getMinimum();
+    default Vector3Di getMinimum()
+    {
+        return getCuboid().getMin();
+    }
 
     /**
      * Gets a copy of the maximum position of this door.
      *
      * @return A copy of the maximum position of this door.
      */
-    Vector3Di getMaximum();
+    default Vector3Di getMaximum()
+    {
+        return getCuboid().getMax();
+    }
 
     /**
      * Retrieve the total number of blocks this {@link IDoor} is made out of. If invalidated or not calculated * yet, it
@@ -176,7 +190,10 @@ public interface IDoorConst
      *
      * @return Total number of blocks this {@link IDoor} is made out of.
      */
-    int getBlockCount();
+    default int getBlockCount()
+    {
+        return getCuboid().getVolume();
+    }
 
     /**
      * Gets the dimensions of this door.
@@ -186,12 +203,18 @@ public interface IDoorConst
      *
      * @return The dimensions of this door.
      */
-    Vector3Di getDimensions();
+    default Vector3Di getDimensions()
+    {
+        return getCuboid().getDimensions();
+    }
 
     /**
      * @return The simple hash of the chunk in which the power block resides.
      */
-    long getChunkId();
+    default long getChunkId()
+    {
+        return Util.getChunkId(getPowerBlock());
+    }
 
     @Override
     boolean equals(Object o);

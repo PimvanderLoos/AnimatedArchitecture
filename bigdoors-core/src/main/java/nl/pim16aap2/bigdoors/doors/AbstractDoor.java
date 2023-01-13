@@ -22,8 +22,8 @@ import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -539,7 +539,7 @@ public abstract class AbstractDoor implements IDoor
     }
 
     @Override
-    public List<DoorOwner> getDoorOwners()
+    public Collection<DoorOwner> getDoorOwners()
     {
         return doorBase.getDoorOwners();
     }
@@ -564,24 +564,6 @@ public abstract class AbstractDoor implements IDoor
     }
 
     @Override
-    public Vector3Di getMinimum()
-    {
-        return doorBase.getMinimum();
-    }
-
-    @Override
-    public Vector3Di getMaximum()
-    {
-        return doorBase.getMaximum();
-    }
-
-    @Override
-    public Vector3Di getDimensions()
-    {
-        return doorBase.getDimensions();
-    }
-
-    @Override
     public void setRotationPoint(Vector3Di pos)
     {
         assertWriteLockable();
@@ -593,18 +575,6 @@ public abstract class AbstractDoor implements IDoor
     {
         assertWriteLockable();
         doorBase.setPowerBlock(pos);
-    }
-
-    @Override
-    public int getBlockCount()
-    {
-        return doorBase.getBlockCount();
-    }
-
-    @Override
-    public long getChunkId()
-    {
-        return doorBase.getChunkId();
     }
 
     @Override

@@ -29,13 +29,14 @@ import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.Limit;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.inject.Provider;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -107,6 +108,11 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     @EqualsAndHashCode.Exclude
     @GuardedBy("lock")
     private final Map<UUID, DoorOwner> doorOwners;
+
+    @EqualsAndHashCode.Exclude
+    @GuardedBy("lock")
+    @Getter(onMethod_ = @Locked.Read, value = AccessLevel.PACKAGE)
+    private final Map<UUID, DoorOwner> doorOwnersView;
 
     @EqualsAndHashCode.Exclude
     @Getter(AccessLevel.PACKAGE)
@@ -184,6 +190,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         else
             doorOwnersTmp.putAll(doorOwners);
         this.doorOwners = doorOwnersTmp;
+        this.doorOwnersView = Collections.unmodifiableMap(this.doorOwners);
 
         this.config = config;
         this.localizer = localizer;
@@ -214,6 +221,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         openDir = other.openDir;
         primeOwner = other.primeOwner;
         this.doorOwners = doorOwners == null ? new HashMap<>(0) : doorOwners;
+        this.doorOwnersView = Collections.unmodifiableMap(this.doorOwners);
 
         config = other.config;
         localizer = other.localizer;
@@ -337,21 +345,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
 
     @Override
     @Locked.Read
-    public boolean isOpenable()
-    {
-        return !isOpen;
-    }
-
-    @Override
-    @Locked.Read
-    public boolean isCloseable()
-    {
-        return isOpen;
-    }
-
-    @Override
-    @Locked.Read
-    public List<DoorOwner> getDoorOwners()
+    public Collection<DoorOwner> getDoorOwners()
     {
         final List<DoorOwner> ret = new ArrayList<>(doorOwners.size());
         ret.addAll(doorOwners.values());
@@ -377,41 +371,6 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     public void setCoordinates(Cuboid newCuboid)
     {
         cuboid = newCuboid;
-    }
-
-    @Override
-    @Locked.Read
-    public Vector3Di getMinimum()
-    {
-        return cuboid.getMin();
-    }
-
-    @Override
-    @Locked.Read
-    public Vector3Di getMaximum()
-    {
-        return cuboid.getMax();
-    }
-
-    @Override
-    @Locked.Read
-    public Vector3Di getDimensions()
-    {
-        return cuboid.getDimensions();
-    }
-
-    @Override
-    @Locked.Read
-    public int getBlockCount()
-    {
-        return cuboid.getVolume();
-    }
-
-    @Override
-    @Locked.Read
-    public long getChunkId()
-    {
-        return Util.getChunkId(powerBlock);
     }
 
     /**
