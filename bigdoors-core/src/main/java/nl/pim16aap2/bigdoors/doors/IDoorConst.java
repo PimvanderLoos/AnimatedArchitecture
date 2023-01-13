@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.doors;
 
+import lombok.experimental.Locked;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.Cuboid;
@@ -19,6 +20,12 @@ import java.util.UUID;
 @SuppressWarnings("unused")
 public interface IDoorConst
 {
+    /**
+     * @return A {@link DoorSnapshot} of this {@link DoorBase}.
+     */
+    @Locked.Read
+    DoorSnapshot getSnapshot();
+
     /**
      * Checks if this door can be opened right now.
      *

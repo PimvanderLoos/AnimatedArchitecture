@@ -70,4 +70,10 @@ public final class DoorSnapshot implements IDoorConst
     {
         return doorOwners.values();
     }
+
+    @Override
+    public DoorSnapshot getSnapshot()
+    {
+        return this;
+    }
 }

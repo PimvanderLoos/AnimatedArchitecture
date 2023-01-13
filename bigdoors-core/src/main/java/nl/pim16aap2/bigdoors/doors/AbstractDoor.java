@@ -376,6 +376,12 @@ public abstract class AbstractDoor implements IDoor
         doorBase.onRedstoneChange(this, newCurrent);
     }
 
+    @Override
+    public DoorSnapshot getSnapshot()
+    {
+        return doorBase.getSnapshot();
+    }
+
     /**
      * Synchronizes all data of this door with the database.
      *
