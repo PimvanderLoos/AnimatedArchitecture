@@ -13,6 +13,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Represents a (read-only) snapshot of a door at a particular point in time.
+ * <p>
+ * All access to this class is thread safe and does not lock.
+ *
+ * @author Pim
+ */
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 public final class DoorSnapshot implements IDoorConst

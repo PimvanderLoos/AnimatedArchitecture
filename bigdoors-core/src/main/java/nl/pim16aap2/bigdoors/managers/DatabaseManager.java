@@ -15,6 +15,7 @@ import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorOwner;
+import nl.pim16aap2.bigdoors.doors.DoorSnapshot;
 import nl.pim16aap2.bigdoors.doors.PermissionLevel;
 import nl.pim16aap2.bigdoors.events.ICancellableBigDoorsEvent;
 import nl.pim16aap2.bigdoors.events.IDoorCreatedEvent;
@@ -633,15 +634,15 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     /**
      * Updates the all data of an {@link AbstractDoor}. This includes both the base data and the type-specific data.
      *
-     * @param doorBase
+     * @param snapshot
      *     The {@link DoorBase} that describes the base data of door.
      * @param typeData
      *     The type-specific data of this door.
      * @return The future result of the operation. If the operation was successful this will be true.
      */
-    public CompletableFuture<Boolean> syncDoorData(DoorBase doorBase, byte[] typeData)
+    public CompletableFuture<Boolean> syncDoorData(DoorSnapshot snapshot, byte[] typeData)
     {
-        return CompletableFuture.supplyAsync(() -> db.syncDoorData(doorBase, typeData), threadPool)
+        return CompletableFuture.supplyAsync(() -> db.syncDoorData(snapshot, typeData), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
     }
 

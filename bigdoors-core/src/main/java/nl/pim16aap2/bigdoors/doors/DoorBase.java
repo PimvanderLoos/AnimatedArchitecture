@@ -16,7 +16,6 @@ import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
-import nl.pim16aap2.bigdoors.events.IDoorEventCaller;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
@@ -135,9 +134,6 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     private final AutoCloseScheduler autoCloseScheduler;
 
     @EqualsAndHashCode.Exclude
-    private final IDoorEventCaller doorEventCaller;
-
-    @EqualsAndHashCode.Exclude
     @Getter(AccessLevel.PACKAGE)
     private final IPExecutor executor;
 
@@ -169,7 +165,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         DatabaseManager databaseManager, DoorRegistry doorRegistry, DoorActivityManager doorActivityManager,
         LimitsManager limitsManager, AutoCloseScheduler autoCloseScheduler, DoorOpeningHelper doorOpeningHelper,
         DoorToggleRequestBuilder doorToggleRequestBuilder, IPPlayerFactory playerFactory,
-        IDoorEventCaller doorEventCaller, Provider<BlockMover.Context> blockMoverContextProvider,
+        Provider<BlockMover.Context> blockMoverContextProvider,
         IPExecutor executor, IConfigLoader config)
     {
         this.doorUID = doorUID;
@@ -202,69 +198,17 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         this.doorOpeningHelper = doorOpeningHelper;
         this.doorToggleRequestBuilder = doorToggleRequestBuilder;
         this.playerFactory = playerFactory;
-        this.doorEventCaller = doorEventCaller;
         this.blockMoverContextProvider = blockMoverContextProvider;
         this.executor = executor;
     }
 
-    // Copy constructor
-    private DoorBase(DoorBase other, @Nullable Map<UUID, DoorOwner> doorOwners)
-    {
-        doorUID = other.doorUID;
-        name = other.name;
-        cuboid = other.cuboid;
-        rotationPoint = other.rotationPoint;
-        powerBlock = other.powerBlock;
-        world = other.world;
-        isOpen = other.isOpen;
-        isLocked = other.isLocked;
-        openDir = other.openDir;
-        primeOwner = other.primeOwner;
-        this.doorOwners = doorOwners == null ? new HashMap<>(0) : doorOwners;
-        this.doorOwnersView = Collections.unmodifiableMap(this.doorOwners);
-
-        config = other.config;
-        localizer = other.localizer;
-        databaseManager = other.databaseManager;
-        doorRegistry = other.doorRegistry;
-        doorActivityManager = other.doorActivityManager;
-        limitsManager = other.limitsManager;
-        autoCloseScheduler = other.autoCloseScheduler;
-        doorOpeningHelper = other.doorOpeningHelper;
-        doorToggleRequestBuilder = other.doorToggleRequestBuilder;
-        playerFactory = other.playerFactory;
-        doorEventCaller = other.doorEventCaller;
-        blockMoverContextProvider = other.blockMoverContextProvider;
-        executor = other.executor;
-    }
-
     /**
-     * Gets a full copy of this {@link DoorBase}.
-     * <p>
-     * A full copy includes a full copy of {@link #doorOwners}. If this is not needed, consider using
-     * {@link #getPartialSnapshot()} instead as it will be faster.
-     *
-     * @return A full copy of this {@link DoorBase}.
-     */
-    @SuppressWarnings("unused")
-    @Locked.Read
-    public DoorBase getFullSnapshot()
-    {
-        return new DoorBase(this, new HashMap<>(doorOwners));
-    }
-
-    /**
-     * Gets a full copy of this {@link DoorBase}.
-     * <p>
-     * A partial copy does not include the {@link #doorOwners}. If these are needed, consider using
-     * {@link #getFullSnapshot()} instead.
-     *
-     * @return A partial copy of this {@link DoorBase}.
+     * @return A new {@link DoorSnapshot} of this {@link DoorBase}.
      */
     @Locked.Read
-    public DoorBase getPartialSnapshot()
+    public DoorSnapshot getSnapshot()
     {
-        return new DoorBase(this, null);
+        return new DoorSnapshot(this);
     }
 
     /**
@@ -275,9 +219,9 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
      *     The type-specific data of an {@link AbstractDoor}.
      * @return Future true if the synchronization was successful.
      */
-    @Locked.Read CompletableFuture<Boolean> syncData(byte[] typeData)
+    CompletableFuture<Boolean> syncData(byte[] typeData)
     {
-        return databaseManager.syncDoorData(getPartialSnapshot(), typeData);
+        return databaseManager.syncDoorData(getSnapshot(), typeData);
     }
 
     @Override
