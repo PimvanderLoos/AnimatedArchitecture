@@ -663,7 +663,7 @@ public abstract class BlockMover
         }
 
         // Tell the door object it has been opened and what its new coordinates are.
-        updateCoords(door);
+        door.withWriteLock(() -> updateCoords(door));
 
         privateAnimatedBlocks.clear();
 
@@ -698,15 +698,11 @@ public abstract class BlockMover
      * @param door
      *     The {@link AbstractDoor}.
      */
-    private synchronized void updateCoords(AbstractDoor door)
+    private void updateCoords(AbstractDoor door)
     {
-        if (newCuboid.equals(door.getCuboid()))
-            return;
-
-        door.setCoordinates(newCuboid);
-
         door.setOpen(!door.isOpen());
-        door.setCoordinates(newCuboid);
+        if (!newCuboid.equals(door.getCuboid()))
+            door.setCoordinates(newCuboid);
         door.syncData();
     }
 

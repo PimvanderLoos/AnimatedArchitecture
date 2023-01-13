@@ -395,6 +395,104 @@ public abstract class AbstractDoor implements IDoor
         return CompletableFuture.completedFuture(false);
     }
 
+    /**
+     * Ensures that the current thread can obtain a write lock.
+     * <p>
+     * For example, when a thread already holds a read lock, that thread may not (try to) obtain a write lock as well,
+     * as this would result in a deadlock.
+     *
+     * @throws IllegalStateException
+     *     When the current thread is not allowed to obtain a write lock.
+     */
+    private void assertWriteLockable()
+    {
+        if (lock.getReadHoldCount() > 0)
+            throw new IllegalStateException(
+                "Caught potential deadlock! Trying to obtain write lock while under read lock!");
+    }
+
+    /**
+     * Executes a supplier under a write lock.
+     *
+     * @param supplier
+     *     The supplier to execute under the write lock.
+     * @param <T>
+     *     The return type of the supplier.
+     * @return The value returned by the supplier.
+     *
+     * @throws IllegalStateException
+     *     When the current thread may is not allowed to obtain a write lock.
+     */
+    @SuppressWarnings("unused")
+    public final <T> T withWriteLock(Supplier<T> supplier)
+    {
+        // Sadly, we cannot use Locked.Read, as we need to ensure that
+        // we can obtain a write lock in the first place.
+        assertWriteLockable();
+        lock.writeLock().lock();
+        try
+        {
+            return supplier.get();
+        }
+        finally
+        {
+            lock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Executes a Runnable under a write lock.
+     *
+     * @throws IllegalStateException
+     *     When the current thread may is not allowed to obtain a write lock.
+     */
+    @SuppressWarnings("unused")
+    public final void withWriteLock(Runnable runnable)
+    {
+        // Sadly, we cannot use Locked.Read, as we need to ensure that
+        // we can obtain a write lock in the first place.
+        assertWriteLockable();
+        lock.writeLock().lock();
+        try
+        {
+            runnable.run();
+        }
+        finally
+        {
+            lock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Executes a supplier under a read lock.
+     *
+     * @param supplier
+     *     The supplier to execute under the read lock.
+     * @param <T>
+     *     The return type of the supplier.
+     * @return The value returned by the supplier.
+     */
+    // Obtaining a read lock won't cause a deadlock,
+    // so no need to check it's possible.
+    @Locked.Read
+    @SuppressWarnings("unused")
+    public final <T> T withReadLock(Supplier<T> supplier)
+    {
+        return supplier.get();
+    }
+
+    /**
+     * Executes a Runnable under a read lock.
+     */
+    // Obtaining a read lock won't cause a deadlock,
+    // so no need to check it's possible.
+    @Locked.Read
+    @SuppressWarnings("unused")
+    public final void withReadLock(Runnable runnable)
+    {
+        runnable.run();
+    }
+
     @Locked.Read
     public String getBasicInfo()
     {
