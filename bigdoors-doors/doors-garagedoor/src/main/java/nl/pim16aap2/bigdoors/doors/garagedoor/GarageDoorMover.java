@@ -24,13 +24,9 @@ public class GarageDoorMover extends BlockMover
     private final double resultHeight;
     private final Vector3Di directionVec;
     private final BiFunction<IAnimatedBlock, Double, Vector3Dd> getVector;
-    private final int xLen;
-    private final int yLen;
-    private final int zLen;
     private final boolean northSouth;
-    protected int blocksToMove;
-
     private final double step;
+    private final boolean isOpen;
 
     public GarageDoorMover(
         Context context, GarageDoor door, double time, double multiplier, boolean skipAnimation,
@@ -40,7 +36,9 @@ public class GarageDoorMover extends BlockMover
     {
         super(context, door, time, skipAnimation, rotateDirection, player, newCuboid, cause, actionType);
 
-        resultHeight = door.getMaximum().y() + 1.0D;
+        isOpen = door.isOpen();
+
+        resultHeight = oldCuboid.getMax().y() + 1.0D;
 
         BiFunction<IAnimatedBlock, Double, Vector3Dd> getVectorTmp;
         switch (rotateDirection)
@@ -71,24 +69,21 @@ public class GarageDoorMover extends BlockMover
                                                     rotateDirection + "\"");
         }
 
-        xLen = xMax - xMin;
-        yLen = yMax - yMin;
-        zLen = zMax - zMin;
-
+        final Vector3Di dims = oldCuboid.getDimensions();
+        int blocksToMove;
         if (!door.isOpen())
         {
-            blocksToMove = yLen + 1;
+            blocksToMove = dims.y();
             getVector = this::getVectorUp;
         }
         else
         {
-            blocksToMove = Math.abs((xLen + 1) * directionVec.x()
-                                        + (yLen + 1) * directionVec.y()
-                                        + (zLen + 1) * directionVec.z());
+            blocksToMove = Math.abs(dims.x() * directionVec.x()
+                                        + dims.y() * directionVec.y()
+                                        + dims.z() * directionVec.z());
             getVector = getVectorTmp;
         }
 
-        super.animationDuration = (int) (20 * super.time);
         step = (blocksToMove + 0.5f) / super.animationDuration;
     }
 
@@ -99,7 +94,7 @@ public class GarageDoorMover extends BlockMover
         double yMod = stepSum;
         double zMod = 0;
 
-        if (currentHeight >= door.getMaximum().y())
+        if (currentHeight >= oldCuboid.getMax().y())
         {
             final double horizontal = Math.max(0, stepSum - animatedBlock.getRadius() - 0.5);
             xMod = directionVec.x() * horizontal;
@@ -112,7 +107,7 @@ public class GarageDoorMover extends BlockMover
 
     private Vector3Dd getVectorDownNorth(IAnimatedBlock animatedBlock, double stepSum)
     {
-        final double goalZ = door.getRotationPoint().z();
+        final double goalZ = rotationPoint.z();
         final double pivotZ = goalZ + 1.5;
         final double currentZ = Math.max(goalZ, animatedBlock.getStartZ() - stepSum);
 
@@ -132,7 +127,7 @@ public class GarageDoorMover extends BlockMover
 
     private Vector3Dd getVectorDownSouth(IAnimatedBlock animatedBlock, double stepSum)
     {
-        final double goalZ = door.getRotationPoint().z();
+        final double goalZ = rotationPoint.z();
         final double pivotZ = goalZ - 1.5;
         final double currentZ = Math.min(goalZ, animatedBlock.getStartZ() + stepSum);
 
@@ -151,7 +146,7 @@ public class GarageDoorMover extends BlockMover
 
     private Vector3Dd getVectorDownEast(IAnimatedBlock animatedBlock, double stepSum)
     {
-        final double goalX = door.getRotationPoint().x();
+        final double goalX = rotationPoint.x();
         final double pivotX = goalX - 1.5;
         final double currentX = Math.min(goalX, animatedBlock.getStartX() + stepSum);
 
@@ -170,7 +165,7 @@ public class GarageDoorMover extends BlockMover
 
     private Vector3Dd getVectorDownWest(IAnimatedBlock animatedBlock, double stepSum)
     {
-        final double goalX = door.getRotationPoint().x();
+        final double goalX = rotationPoint.x();
         final double pivotX = goalX + 1.5;
         final double currentX = Math.max(goalX, animatedBlock.getStartX() - stepSum);
 
@@ -195,24 +190,26 @@ public class GarageDoorMover extends BlockMover
         double newY;
         double newZ;
 
-        if (!door.isOpen())
+        final Vector3Di dims = oldCuboid.getDimensions();
+
+        if (!isOpen)
         {
-            newX = startLocation.xD() + (1 + yLen - radius) * directionVec.x();
+            newX = startLocation.xD() + (dims.y() - radius) * directionVec.x();
             newY = resultHeight;
-            newZ = startLocation.zD() + (1 + yLen - radius) * directionVec.z();
+            newZ = startLocation.zD() + (dims.y() - radius) * directionVec.z();
         }
         else
         {
             if (directionVec.x() == 0)
             {
                 newX = startLocation.xD();
-                newY = door.getMaximum().y() - (zLen - radius);
-                newZ = door.getRotationPoint().z();
+                newY = oldCuboid.getMax().y() - (dims.z() - radius);
+                newZ = rotationPoint.z();
             }
             else
             {
-                newX = door.getRotationPoint().x();
-                newY = door.getMaximum().y() - (xLen - radius);
+                newX = rotationPoint.x();
+                newY = oldCuboid.getMax().y() - (dims.x() - radius);
                 newZ = startLocation.zD();
             }
             newY -= 2;
@@ -234,14 +231,14 @@ public class GarageDoorMover extends BlockMover
     @Override
     protected float getRadius(int xAxis, int yAxis, int zAxis)
     {
-        if (!door.isOpen())
+        if (!isOpen)
         {
-            final float height = door.getMaximum().y();
+            final float height = oldCuboid.getMax().y();
             return height - yAxis;
         }
 
-        final int dX = Math.abs(xAxis - door.getRotationPoint().x());
-        final int dZ = Math.abs(zAxis - door.getRotationPoint().z());
+        final int dX = Math.abs(xAxis - rotationPoint.x());
+        final int dZ = Math.abs(zAxis - rotationPoint.z());
         return Math.abs(dX * directionVec.x() + dZ * directionVec.z());
     }
 }

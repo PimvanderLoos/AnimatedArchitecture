@@ -7,7 +7,6 @@ import dagger.assisted.AssistedInject;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
@@ -31,6 +30,7 @@ import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,7 +39,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
 /**
@@ -57,38 +56,36 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     @Getter
     private final IPWorld world;
 
-    @Getter
+    @GuardedBy("this")
     private Vector3Di rotationPoint;
 
-    @Getter
+    @GuardedBy("this")
     private Vector3Di powerBlock;
 
-    @Getter
-    @Setter
+    @GuardedBy("this")
     private String name;
 
+    @GuardedBy("this")
     private Cuboid cuboid;
 
-    @Getter
-    @Setter
+    @GuardedBy("this")
     private boolean isOpen;
 
-    @Getter
-    @Setter
+    @GuardedBy("this")
     private RotateDirection openDir;
 
     /**
      * Represents the locked status of this door. True = locked, False = unlocked.
      */
-    @Getter
-    @Setter
-    private volatile boolean isLocked;
-
-    @EqualsAndHashCode.Exclude
-    private final Map<UUID, DoorOwner> doorOwners;
+    @GuardedBy("this")
+    private boolean isLocked;
 
     @Getter
     private final DoorOwner primeOwner;
+
+    @EqualsAndHashCode.Exclude
+    @GuardedBy("this")
+    private final Map<UUID, DoorOwner> doorOwners;
 
     @EqualsAndHashCode.Exclude
     @Getter(AccessLevel.PACKAGE)
@@ -159,7 +156,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         this.primeOwner = primeOwner;
 
         final int initSize = doorOwners == null ? 1 : doorOwners.size();
-        final Map<UUID, DoorOwner> doorOwnersTmp = new ConcurrentHashMap<>(initSize);
+        final Map<UUID, DoorOwner> doorOwnersTmp = new HashMap<>(initSize);
         if (doorOwners == null)
             doorOwnersTmp.put(primeOwner.pPlayerData().getUUID(), primeOwner);
         else
@@ -194,7 +191,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         isLocked = other.isLocked;
         openDir = other.openDir;
         primeOwner = other.primeOwner;
-        this.doorOwners = doorOwners == null ? new ConcurrentHashMap<>(0) : doorOwners;
+        this.doorOwners = doorOwners == null ? new HashMap<>(0) : doorOwners;
 
         config = other.config;
         localizer = other.localizer;
@@ -219,6 +216,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
      *
      * @return A full copy of this {@link DoorBase}.
      */
+    @SuppressWarnings("unused")
     public synchronized DoorBase getFullSnapshot()
     {
         return new DoorBase(this, new HashMap<>(doorOwners));
@@ -243,7 +241,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
      *
      * @param typeData
      *     The type-specific data of an {@link AbstractDoor}.
-     * @return true if the synchronization was successful.
+     * @return Future true if the synchronization was successful.
      */
     synchronized CompletableFuture<Boolean> syncData(byte[] typeData)
     {
@@ -251,7 +249,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     }
 
     @Override
-    protected void addOwner(UUID uuid, DoorOwner doorOwner)
+    protected synchronized void addOwner(UUID uuid, DoorOwner doorOwner)
     {
         if (doorOwner.permission() == PermissionLevel.CREATOR)
         {
@@ -277,7 +275,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         return limitsManager.exceedsLimit(player, Limit.DOOR_SIZE, getBlockCount());
     }
 
-    void onRedstoneChange(AbstractDoor abstractDoor, int newCurrent)
+    synchronized void onRedstoneChange(AbstractDoor abstractDoor, int newCurrent)
     {
         final @Nullable DoorActionType doorActionType;
         if (newCurrent == 0 && isCloseable())
@@ -299,7 +297,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     }
 
     @Override
-    protected boolean removeOwner(UUID uuid)
+    protected synchronized boolean removeOwner(UUID uuid)
     {
         if (primeOwner.pPlayerData().getUUID().equals(uuid))
         {
@@ -312,25 +310,19 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     }
 
     @Override
-    public Cuboid getCuboid()
-    {
-        return cuboid;
-    }
-
-    @Override
-    public boolean isOpenable()
+    public synchronized boolean isOpenable()
     {
         return !isOpen;
     }
 
     @Override
-    public boolean isCloseable()
+    public synchronized boolean isCloseable()
     {
         return isOpen;
     }
 
     @Override
-    public List<DoorOwner> getDoorOwners()
+    public synchronized List<DoorOwner> getDoorOwners()
     {
         final List<DoorOwner> ret = new ArrayList<>(doorOwners.size());
         ret.addAll(doorOwners.values());
@@ -338,43 +330,43 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     }
 
     @Override
-    public Optional<DoorOwner> getDoorOwner(UUID uuid)
+    public synchronized Optional<DoorOwner> getDoorOwner(UUID uuid)
     {
         return Optional.ofNullable(doorOwners.get(uuid));
     }
 
     @Override
-    public boolean isDoorOwner(UUID uuid)
+    public synchronized boolean isDoorOwner(UUID uuid)
     {
         return doorOwners.containsKey(uuid);
     }
 
     @Override
-    public void setCoordinates(Cuboid newCuboid)
+    public synchronized void setCoordinates(Cuboid newCuboid)
     {
         cuboid = newCuboid;
     }
 
     @Override
-    public void setCoordinates(Vector3Di posA, Vector3Di posB)
+    public synchronized void setCoordinates(Vector3Di posA, Vector3Di posB)
     {
         cuboid = new Cuboid(posA, posB);
     }
 
     @Override
-    public Vector3Di getMinimum()
+    public synchronized Vector3Di getMinimum()
     {
         return cuboid.getMin();
     }
 
     @Override
-    public Vector3Di getMaximum()
+    public synchronized Vector3Di getMaximum()
     {
         return cuboid.getMax();
     }
 
     @Override
-    public Vector3Di getDimensions()
+    public synchronized Vector3Di getDimensions()
     {
         return cuboid.getDimensions();
     }
@@ -386,13 +378,13 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     }
 
     @Override
-    public void setPowerBlockPosition(Vector3Di pos)
+    public synchronized void setPowerBlockPosition(Vector3Di pos)
     {
         powerBlock = pos;
     }
 
     @Override
-    public int getBlockCount()
+    public synchronized int getBlockCount()
     {
         return cuboid.getVolume();
     }
@@ -427,25 +419,21 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
      * @return True when everything went all right, otherwise false.
      */
     // TODO: Move to DoorOpeningHelper.
-    synchronized boolean registerBlockMover(
+    boolean registerBlockMover(
         AbstractDoor abstractDoor, DoorActionCause cause, double time,
         boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
         DoorActionType actionType)
     {
-        if (!executor.isMainThread(Thread.currentThread().threadId()))
-        {
-            doorActivityManager.setDoorAvailable(getDoorUID());
-            log.at(Level.SEVERE).withCause(
-                new IllegalThreadStateException("BlockMovers must be instantiated on the main thread!")).log();
-            return true;
-        }
-
         try
         {
             final BlockMover.Context context = blockMoverContextProvider.get();
-            final BlockMover blockMover = abstractDoor.constructBlockMover(
-                context, cause, time, skipAnimation, newCuboid, responsible, actionType);
-            doorOpeningHelper.registerBlockMover(blockMover);
+            final BlockMover blockMover;
+            synchronized (this)
+            {
+                blockMover = abstractDoor.constructBlockMover(
+                    context, cause, time, skipAnimation, newCuboid, responsible, actionType);
+            }
+            doorActivityManager.addBlockMover(blockMover);
             blockMover.startAnimation();
         }
         catch (Exception e)
@@ -473,10 +461,76 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
             + formatLine("OpenDir", openDir.name());
     }
 
-    private String formatLine(String name, @Nullable Object obj)
+    private synchronized String formatLine(String name, @Nullable Object obj)
     {
         final String objString = obj == null ? "NULL" : obj.toString();
         return name + ": " + objString + "\n";
+    }
+
+    @Override
+    public synchronized Vector3Di getRotationPoint()
+    {
+        return this.rotationPoint;
+    }
+
+    @Override
+    public synchronized Vector3Di getPowerBlock()
+    {
+        return this.powerBlock;
+    }
+
+    @Override
+    public synchronized String getName()
+    {
+        return this.name;
+    }
+
+    @Override
+    public synchronized Cuboid getCuboid()
+    {
+        return this.cuboid;
+    }
+
+    @Override
+    public synchronized boolean isOpen()
+    {
+        return this.isOpen;
+    }
+
+    @Override
+    public synchronized RotateDirection getOpenDir()
+    {
+        return this.openDir;
+    }
+
+    @Override
+    public synchronized boolean isLocked()
+    {
+        return this.isLocked;
+    }
+
+    @Override
+    public synchronized void setName(String name)
+    {
+        this.name = name;
+    }
+
+    @Override
+    public synchronized void setOpen(boolean isOpen)
+    {
+        this.isOpen = isOpen;
+    }
+
+    @Override
+    public synchronized void setOpenDir(RotateDirection openDir)
+    {
+        this.openDir = openDir;
+    }
+
+    @Override
+    public synchronized void setLocked(boolean isLocked)
+    {
+        this.isLocked = isLocked;
     }
 
     @AssistedFactory

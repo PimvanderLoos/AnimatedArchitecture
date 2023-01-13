@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.IChunkLoader;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IMessageable;
-import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
@@ -53,7 +52,6 @@ public final class DoorOpeningHelper
     private final IProtectionCompatManager protectionCompatManager;
     private final GlowingBlockSpawner glowingBlockSpawner;
     private final IBigDoorsEventFactory bigDoorsEventFactory;
-    private final IPExecutor executor;
     private final IChunkLoader chunkLoader;
     private final IDoorEventCaller doorEventCaller;
 
@@ -69,7 +67,6 @@ public final class DoorOpeningHelper
         IProtectionCompatManager protectionCompatManager,
         GlowingBlockSpawner glowingBlockSpawner,
         IBigDoorsEventFactory bigDoorsEventFactory,
-        IPExecutor executor,
         IChunkLoader chunkLoader,
         IDoorEventCaller doorEventCaller)
     {
@@ -83,7 +80,6 @@ public final class DoorOpeningHelper
         this.protectionCompatManager = protectionCompatManager;
         this.glowingBlockSpawner = glowingBlockSpawner;
         this.bigDoorsEventFactory = bigDoorsEventFactory;
-        this.executor = executor;
         this.chunkLoader = chunkLoader;
         this.doorEventCaller = doorEventCaller;
     }
@@ -177,17 +173,8 @@ public final class DoorOpeningHelper
         DoorBase doorBase, AbstractDoor abstractDoor, DoorActionCause cause, double time, boolean skipAnimation,
         Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
     {
-        executor.assertMainThread();
         return doorBase.registerBlockMover(
             abstractDoor, cause, time, skipAnimation, newCuboid, responsible, actionType);
-    }
-
-    /**
-     * See {@link IPExecutor#isMainThread()}.
-     */
-    boolean isMainThread()
-    {
-        return executor.isMainThread();
     }
 
     /**
@@ -407,17 +394,6 @@ public final class DoorOpeningHelper
                 .map(newCuboid -> chunkLoader.checkChunks(door.getWorld(), newCuboid, mode))
                 .orElse(IChunkLoader.ChunkLoadResult.PASS);
         return newCoordsResult != IChunkLoader.ChunkLoadResult.FAIL;
-    }
-
-    /**
-     * Registers a BlockMover with the {@link DatabaseManager}
-     *
-     * @param blockMover
-     *     The {@link BlockMover}.
-     */
-    public void registerBlockMover(BlockMover blockMover)
-    {
-        doorActivityManager.addBlockMover(blockMover);
     }
 
     /**

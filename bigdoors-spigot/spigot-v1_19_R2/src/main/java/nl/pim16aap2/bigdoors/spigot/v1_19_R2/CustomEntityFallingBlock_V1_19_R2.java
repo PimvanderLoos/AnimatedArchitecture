@@ -48,6 +48,7 @@ import org.bukkit.craftbukkit.v1_19_R2.util.CraftMagicNumbers;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.concurrent.GuardedBy;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Objects;
@@ -66,45 +67,69 @@ import java.util.logging.Level;
 @ToString(callSuper = true)
 public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implements IAnimatedBlockSpigot
 {
+    @ToString.Exclude @EqualsAndHashCode.Exclude
+    private final IPExecutor executor;
+
+    @Getter
+    @ToString.Exclude @EqualsAndHashCode.Exclude
+    private final AnimationContext context;
+
     @Getter
     private final NMSBlock_V1_19_R2 animatedBlockData;
+
     @Getter
     private final org.bukkit.World bukkitWorld;
-    @Getter
-    private final AnimationContext context;
+
     @Getter
     private final float radius;
+
     @Getter
     private final float startAngle;
+
     private final BlockMover.MovementMethod movementMethod;
+
     @Getter
     private final boolean onEdge;
-    private final IPExecutor executor;
+
     private final IPWorld pWorld;
+
     private final List<IAnimatedBlockHook> hooks;
-    @ToString.Exclude
-    private @Nullable PlayerChunkMap.EntityTracker tracker;
 
     // net.minecraft.server.level.ServerLevel
     @ToString.Exclude
     private final WorldServer worldServer;
 
+    @GuardedBy("this")
+    @ToString.Exclude @EqualsAndHashCode.Exclude
+    private @Nullable PlayerChunkMap.EntityTracker tracker;
+
+    // No need to lock for these two, as they can only be accessed on the main thread.
+    @ToString.Exclude @EqualsAndHashCode.Exclude
     private EntityInLevelCallback entityInLevelCallback = EntityInLevelCallback.a;
+    @ToString.Exclude @EqualsAndHashCode.Exclude
     private @Nullable EntityInLevelCallback entityInLevelCallbackSectionManager;
 
-    @Getter
+    @GuardedBy("this")
     private Vector3Dd previousPosition;
-    @Getter
+
+    @GuardedBy("this")
     private Vector3Dd currentPosition;
 
-    @Getter
+    @GuardedBy("this")
     private Vector3Dd previousTarget;
+
+    @GuardedBy("this")
     private Vector3Dd currentTarget;
 
     private final AtomicReference<@Nullable Vector3Dd> teleportedTo = new AtomicReference<>();
 
+    @Getter
     private final IPLocation startLocation;
+
+    @Getter
     private final Vector3Dd startPosition;
+
+    @Getter
     private final Vector3Dd finalPosition;
 
     public CustomEntityFallingBlock_V1_19_R2(
@@ -210,7 +235,7 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
         forEachHook("onDie", IAnimatedBlockHook::onDie);
     }
 
-    private void spawn0()
+    private synchronized void spawn0()
     {
         if (!executor.isMainThread())
         {
@@ -308,7 +333,7 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
     {
     }
 
-    private void relativeTeleport(IVector3D from, IVector3D to)
+    private synchronized void relativeTeleport(IVector3D from, IVector3D to)
     {
         final double deltaX = to.xD() - from.xD();
         final double deltaY = to.yD() - from.yD();
@@ -325,7 +350,7 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
             tracker.a(tpPacket);
     }
 
-    private void absoluteTeleport(IVector3D to, IVector3D rotation)
+    private synchronized void absoluteTeleport(IVector3D to, IVector3D rotation)
     {
         if (tracker == null)
             return;
@@ -518,7 +543,7 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
     }
 
     @Override
-    public Vector3Dd getPosition()
+    public synchronized Vector3Dd getPosition()
     {
         return getCurrentPosition();
     }
@@ -527,18 +552,6 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
     public IBlockData i()
     {
         return this.animatedBlockData.getMyBlockData();
-    }
-
-    @Override
-    public Vector3Dd getStartPosition()
-    {
-        return startPosition;
-    }
-
-    @Override
-    public Vector3Dd getFinalPosition()
-    {
-        return finalPosition;
     }
 
     @Override
@@ -562,5 +575,29 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
     private int getEntityId()
     {
         return super.ah();
+    }
+
+    @Override
+    public synchronized Vector3Dd getPreviousPosition()
+    {
+        return previousPosition;
+    }
+
+    @Override
+    public synchronized Vector3Dd getCurrentPosition()
+    {
+        return currentPosition;
+    }
+
+    @Override
+    public synchronized Vector3Dd getPreviousTarget()
+    {
+        return previousTarget;
+    }
+
+    @SuppressWarnings("unused") // It is used, by equals/hashCode/toString. Just not visibly so.
+    public synchronized Vector3Dd getCurrentTarget()
+    {
+        return currentTarget;
     }
 }

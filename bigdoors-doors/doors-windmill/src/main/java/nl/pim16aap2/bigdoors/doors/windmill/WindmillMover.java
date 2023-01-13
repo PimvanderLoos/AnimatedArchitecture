@@ -30,9 +30,8 @@ public class WindmillMover<T extends AbstractDoor & IHorizontalAxisAligned> exte
         throws Exception
     {
         super(context, time, door, rotateDirection, false, multiplier, player, door.getCuboid(), cause, actionType);
-
         super.perpetualMovement = true;
-        super.animationDuration = (int) (20 * 20 * super.time);
+
         step = (Math.PI / 2.0) / (20.0f * super.time * 2.0f);
     }
 
@@ -55,9 +54,8 @@ public class WindmillMover<T extends AbstractDoor & IHorizontalAxisAligned> exte
     {
         // Get the current radius of a block between used axis (either x and y, or z and y).
         // When the rotation point is positioned along the NS axis, the X values does not change for this type.
-        final double deltaA = (double) door.getRotationPoint().y() - yAxis;
-        final double deltaB =
-            northSouth ? (door.getRotationPoint().z() - zAxis) : (door.getRotationPoint().x() - xAxis);
+        final double deltaA = rotationPoint.yD() - yAxis;
+        final double deltaB = northSouth ? (rotationPoint.z() - zAxis) : (rotationPoint.x() - xAxis);
         return (float) Math.sqrt(Math.pow(deltaA, 2) + Math.pow(deltaB, 2));
     }
 
@@ -66,8 +64,8 @@ public class WindmillMover<T extends AbstractDoor & IHorizontalAxisAligned> exte
     {
         // Get the angle between the used axes (either x and y, or z and y).
         // When the rotation point is positioned along the NS axis, the X values does not change for this type.
-        final double deltaA = northSouth ? door.getRotationPoint().z() - zAxis : door.getRotationPoint().x() - xAxis;
-        final double deltaB = (double) door.getRotationPoint().y() - yAxis;
+        final double deltaA = northSouth ? rotationPoint.z() - zAxis : rotationPoint.x() - xAxis;
+        final double deltaB = rotationPoint.yD() - yAxis;
 
         return (float) Util.clampAngleRad(Math.atan2(deltaA, deltaB));
     }

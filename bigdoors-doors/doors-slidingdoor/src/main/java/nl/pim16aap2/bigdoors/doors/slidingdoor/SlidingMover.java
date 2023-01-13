@@ -25,7 +25,7 @@ public class SlidingMover extends BlockMover
 
     private final double step;
 
-    private @Nullable IAnimatedBlock firstBlockData = null;
+    private volatile @Nullable IAnimatedBlock firstBlockData = null;
 
     protected final int blocksToMove;
 
@@ -43,27 +43,6 @@ public class SlidingMover extends BlockMover
         moveX = northSouth ? 0 : blocksToMove;
         moveZ = northSouth ? blocksToMove : 0;
 
-        double speed = 1;
-        double pcMult = multiplier;
-        pcMult = pcMult == 0.0 ? 1.0 : pcMult;
-        final int maxSpeed = 6;
-
-        // If the time isn't default, calculate speed.
-        if (time != 0.0)
-        {
-            speed = Math.abs(blocksToMove) / time;
-            super.time = time;
-        }
-
-        // If the non-default exceeds the max-speed or isn't set, calculate default speed.
-        if (time == 0.0 || speed > maxSpeed)
-        {
-            speed = 1.4 * pcMult;
-            speed = speed > maxSpeed ? maxSpeed : speed;
-            super.time = Math.abs(blocksToMove) / speed;
-        }
-
-        super.animationDuration = (int) (20 * super.time);
         step = ((double) blocksToMove) / ((double) super.animationDuration);
     }
 

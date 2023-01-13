@@ -61,7 +61,6 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
         isHourArm = northSouth ? this::isHourArmNS : this::isHourArmEW;
         angleDirectionMultiplier =
             (rotateDirection == RotateDirection.EAST || rotateDirection == RotateDirection.SOUTH) ? -1 : 1;
-        super.animationDuration = 40_000;
     }
 
     /**
@@ -71,7 +70,7 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
      */
     private boolean isHourArmNS(IAnimatedBlock animatedBlock)
     {
-        return ((int) animatedBlock.getPosition().z()) == door.getRotationPoint().z();
+        return ((int) animatedBlock.getPosition().z()) == rotationPoint.z();
     }
 
     /**
@@ -81,7 +80,7 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
      */
     private boolean isHourArmEW(IAnimatedBlock animatedBlock)
     {
-        return ((int) animatedBlock.getPosition().x()) == door.getRotationPoint().x();
+        return ((int) animatedBlock.getPosition().x()) == rotationPoint.x();
     }
 
     @Override

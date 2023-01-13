@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
 import java.util.function.BiFunction;
 
@@ -32,19 +33,16 @@ public class FlagMover extends BlockMover
     {
         super(context, door, time, false, RotateDirection.NONE, player, door.getCuboid(), cause, actionType);
 
-        final int xLen = Math.abs(xMax - xMin) + 1;
-        final int zLen = Math.abs(zMax - zMin) + 1;
+        final Vector3Di dims = oldCuboid.getDimensions();
+
         NS = door.isNorthSouthAligned();
         getGoalPos = NS ? this::getGoalPosNS : this::getGoalPosEW;
 
-        final int length = NS ? zLen : xLen;
+        final int length = NS ? dims.z() : dims.x();
         period = length * 2.0f;
         amplitude = length / 4.0;
 
-        this.time = time;
         waveSpeed = 10.0f;
-
-        super.animationDuration = 200;
     }
 
     /**
@@ -117,7 +115,7 @@ public class FlagMover extends BlockMover
     protected float getRadius(int xAxis, int yAxis, int zAxis)
     {
         if (NS)
-            return Math.abs((float) zAxis - door.getRotationPoint().z());
-        return Math.abs((float) xAxis - door.getRotationPoint().x());
+            return Math.abs((float) zAxis - rotationPoint.z());
+        return Math.abs((float) xAxis - rotationPoint.x());
     }
 }

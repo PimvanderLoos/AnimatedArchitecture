@@ -1,8 +1,6 @@
 package nl.pim16aap2.bigdoors.doors.slidingdoor;
 
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -20,6 +18,7 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
+import javax.annotation.concurrent.GuardedBy;
 import java.util.Optional;
 
 /**
@@ -34,19 +33,16 @@ public class SlidingDoor extends AbstractDoor implements IDiscreteMovement, ITim
     @EqualsAndHashCode.Exclude
     private static final DoorType DOOR_TYPE = DoorTypeSlidingDoor.get();
 
-    @Getter
-    @Setter
     @PersistentVariable
+    @GuardedBy("this")
     protected int blocksToMove;
 
-    @Getter
-    @Setter
     @PersistentVariable
+    @GuardedBy("this")
     protected int autoCloseTime;
 
-    @Getter
-    @Setter
     @PersistentVariable
+    @GuardedBy("this")
     protected int autoOpenTime;
 
     public SlidingDoor(DoorBase doorBase, int blocksToMove, int autoCloseTime, int autoOpenTime)
@@ -75,7 +71,7 @@ public class SlidingDoor extends AbstractDoor implements IDiscreteMovement, ITim
     }
 
     @Override
-    protected double getLongestAnimationCycleDistance()
+    protected synchronized double getLongestAnimationCycleDistance()
     {
         return blocksToMove;
     }
@@ -89,26 +85,33 @@ public class SlidingDoor extends AbstractDoor implements IDiscreteMovement, ITim
     @Override
     public RotateDirection cycleOpenDirection()
     {
-        return getOpenDir().equals(RotateDirection.NORTH) ? RotateDirection.EAST :
-               getOpenDir().equals(RotateDirection.EAST) ? RotateDirection.SOUTH :
-               getOpenDir().equals(RotateDirection.SOUTH) ? RotateDirection.WEST : RotateDirection.NORTH;
+        final RotateDirection openDirection = getOpenDir();
+        return openDirection.equals(RotateDirection.NORTH) ? RotateDirection.EAST :
+               openDirection.equals(RotateDirection.EAST) ? RotateDirection.SOUTH :
+               openDirection.equals(RotateDirection.SOUTH) ? RotateDirection.WEST : RotateDirection.NORTH;
     }
 
     @Override
-    public synchronized RotateDirection getCurrentToggleDir()
+    public RotateDirection getCurrentToggleDir()
     {
-        return isOpen() ? RotateDirection.getOpposite(getOpenDir()) : getOpenDir();
+        synchronized (getDoorBase())
+        {
+            return isOpen() ? RotateDirection.getOpposite(getOpenDir()) : getOpenDir();
+        }
     }
 
     @Override
-    public synchronized Optional<Cuboid> getPotentialNewCoordinates()
+    public Optional<Cuboid> getPotentialNewCoordinates()
     {
-        final Vector3Di vec = PBlockFace.getDirection(Util.getPBlockFace(getCurrentToggleDir()));
-        return Optional.of(getCuboid().move(0, getBlocksToMove() * vec.y(), 0));
+        synchronized (getDoorBase())
+        {
+            final Vector3Di vec = PBlockFace.getDirection(Util.getPBlockFace(getCurrentToggleDir()));
+            return Optional.of(getCuboid().move(0, getBlocksToMove() * vec.y(), 0));
+        }
     }
 
     @Override
-    protected BlockMover constructBlockMover(
+    protected synchronized BlockMover constructBlockMover(
         BlockMover.Context context, DoorActionCause cause, double time,
         boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
         DoorActionType actionType)
@@ -117,5 +120,41 @@ public class SlidingDoor extends AbstractDoor implements IDiscreteMovement, ITim
         return new SlidingMover(
             context, this, time, skipAnimation, getBlocksToMove(), getCurrentToggleDir(),
             config.getAnimationSpeedMultiplier(getDoorType()), responsible, newCuboid, cause, actionType);
+    }
+
+    @Override
+    public synchronized int getBlocksToMove()
+    {
+        return this.blocksToMove;
+    }
+
+    @Override
+    public synchronized int getAutoCloseTime()
+    {
+        return this.autoCloseTime;
+    }
+
+    @Override
+    public synchronized int getAutoOpenTime()
+    {
+        return this.autoOpenTime;
+    }
+
+    @Override
+    public synchronized void setBlocksToMove(int blocksToMove)
+    {
+        this.blocksToMove = blocksToMove;
+    }
+
+    @Override
+    public synchronized void setAutoCloseTime(int autoCloseTime)
+    {
+        this.autoCloseTime = autoCloseTime;
+    }
+
+    @Override
+    public synchronized void setAutoOpenTime(int autoOpenTime)
+    {
+        this.autoOpenTime = autoOpenTime;
     }
 }

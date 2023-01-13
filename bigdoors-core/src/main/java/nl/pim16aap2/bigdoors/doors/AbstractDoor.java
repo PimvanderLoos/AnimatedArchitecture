@@ -51,7 +51,6 @@ public abstract class AbstractDoor implements IDoor
     protected final IConfigLoader config;
     protected final DoorOpeningHelper doorOpeningHelper;
 
-
     protected AbstractDoor(
         DoorBase doorBase, ILocalizer localizer, DoorRegistry doorRegistry,
         AutoCloseScheduler autoCloseScheduler, DoorOpeningHelper doorOpeningHelper)
@@ -298,19 +297,21 @@ public abstract class AbstractDoor implements IDoor
      *     The type of action.
      * @return The result of the attempt.
      */
-    // TODO: Simplify this method.
-    @SuppressWarnings({"unused", "squid:S1172"}) // messageReceiver isn't used yet, but it will be.
-    final synchronized DoorToggleResult toggle(
+    final DoorToggleResult toggle(
         DoorActionCause cause, IMessageable messageReceiver, IPPlayer responsible, @Nullable Double targetTime,
         boolean skipAnimation, DoorActionType actionType)
     {
-        if (!doorOpeningHelper.isMainThread())
+        synchronized (getDoorBase())
         {
-            log.at(Level.SEVERE).withCause(new IllegalStateException("Doors must be toggled on the main thread!"))
-               .log();
-            return DoorToggleResult.ERROR;
+            return toggle0(cause, messageReceiver, responsible, targetTime, skipAnimation, actionType);
         }
+    }
 
+    @SuppressWarnings({"unused", "squid:S1172"}) // messageReceiver isn't used yet, but it will be.
+    private synchronized DoorToggleResult toggle0(
+        DoorActionCause cause, IMessageable messageReceiver, IPPlayer responsible, @Nullable Double targetTime,
+        boolean skipAnimation, DoorActionType actionType)
+    {
         if (getOpenDir() == RotateDirection.NONE)
         {
             log.at(Level.SEVERE).withCause(new IllegalStateException("OpenDir cannot be NONE!")).log();

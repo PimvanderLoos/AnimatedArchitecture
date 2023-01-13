@@ -36,6 +36,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.TimerTask;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -56,7 +57,7 @@ public abstract class BlockMover
      */
     private static final int START_DELAY = 700;
 
-    protected boolean drawDebugBlocks = false;
+    private final boolean drawDebugBlocks = false;
 
     /**
      * The world in which the blocks are going to be moved.
@@ -66,7 +67,7 @@ public abstract class BlockMover
     /**
      * The door whose blocks are going to be moved.
      */
-    protected final AbstractDoor door;
+    private final AbstractDoor door;
 
     /**
      * The player responsible for the movement.
@@ -119,7 +120,7 @@ public abstract class BlockMover
      * <p>
      * Each animated block is moved using {@link MovementMethod#apply(IAnimatedBlock, Vector3Dd, int)}.
      */
-    protected MovementMethod movementMethod = MovementMethod.TELEPORT_VELOCITY;
+    protected volatile MovementMethod movementMethod = MovementMethod.TELEPORT_VELOCITY;
 
     /**
      * The amount of time (in seconds) that the animation will take.
@@ -127,24 +128,24 @@ public abstract class BlockMover
      * This excludes any additional time specified by {@link MovementMethod#finishDuration()}.
      */
     @Getter
-    protected double time;
+    protected final double time;
 
     /**
      * When true, the blocks are moved without animating them. No animated blocks are spawned.
      */
     @Getter
-    protected boolean skipAnimation;
+    protected final boolean skipAnimation;
 
     /**
      * The direction in of the movement.
      */
-    protected RotateDirection openDirection;
+    protected final RotateDirection openDirection;
 
     /**
      * The modifiable list of animated blocks.
      */
     @ToString.Exclude
-    private final ArrayList<IAnimatedBlock> privateAnimatedBlocks;
+    private final List<IAnimatedBlock> privateAnimatedBlocks;
 
     /**
      * The (unmodifiable) list of animated blocks.
@@ -159,19 +160,7 @@ public abstract class BlockMover
      * <p>
      * False to have the movement be time-bound, such as for doors, drawbridges, etc.
      */
-    protected boolean perpetualMovement = false;
-
-    protected int xMin;
-
-    protected int yMin;
-
-    protected int zMin;
-
-    protected int xMax;
-
-    protected int yMax;
-
-    protected int zMax;
+    protected volatile boolean perpetualMovement = false;
 
     /**
      * Keeps track of whether the animation has finished.
@@ -183,25 +172,30 @@ public abstract class BlockMover
      */
     private final AtomicBoolean hasStarted = new AtomicBoolean(false);
 
-    private @Nullable List<IAnimationHook<IAnimatedBlock>> hooks;
+    private volatile @Nullable List<IAnimationHook<IAnimatedBlock>> hooks;
 
     /**
      * The task that moves the animated blocks.
      * <p>
      * This will be null until the animation starts (if it does, see {@link #skipAnimation}).
      */
-    protected @Nullable TimerTask moverTask = null;
+    protected volatile @Nullable TimerTask moverTask = null;
 
     /**
      * The ID of the {@link #moverTask}.
      */
     @Getter(AccessLevel.PROTECTED)
-    private @Nullable Integer moverTaskID = null;
+    private volatile @Nullable Integer moverTaskID = null;
 
     /**
      * The duration of the animation measured in ticks.
      */
-    protected int animationDuration = -1;
+    protected final int animationDuration;
+
+    /**
+     * The cuboid that describes the location of the door after the blocks have been moved.
+     */
+    protected final Cuboid oldCuboid;
 
     /**
      * The cuboid that describes the location of the door after the blocks have been moved.
@@ -209,7 +203,14 @@ public abstract class BlockMover
     protected final Cuboid newCuboid;
 
     /**
+     * The point around which the door rotates.
+     */
+    protected final Vector3Di rotationPoint;
+
+    /**
      * Constructs a {@link BlockMover}.
+     * <p>
+     * It is assumed that the door being moved is locked at the time this Mover is instantiated.
      *
      * @param door
      *     The {@link AbstractDoor}.
@@ -230,6 +231,9 @@ public abstract class BlockMover
         DoorActionCause cause, DoorActionType actionType)
         throws Exception
     {
+        if (!Thread.holdsLock(door.getDoorBase()))
+            throw new IllegalStateException("Trying to instantiate BlockMover without lock on door base!");
+
         executor = context.getExecutor();
         doorActivityManager = context.getDoorActivityManager();
         autoCloseScheduler = context.getAutoCloseScheduler();
@@ -239,9 +243,6 @@ public abstract class BlockMover
         glowingBlockSpawner = context.getGlowingBlockSpawner();
         serverTickTime = context.getServerTickTime();
 
-        if (!context.getExecutor().isMainThread())
-            throw new IllegalStateException("BlockMovers must be called on the main thread!");
-
         autoCloseScheduler.unscheduleAutoClose(door.getDoorUID());
         world = door.getWorld();
         this.door = door;
@@ -249,26 +250,22 @@ public abstract class BlockMover
         this.skipAnimation = skipAnimation;
         this.openDirection = openDirection;
         this.player = player;
-        privateAnimatedBlocks = new ArrayList<>(door.getBlockCount());
+        privateAnimatedBlocks = new CopyOnWriteArrayList<>();
         animatedBlocks = Collections.unmodifiableList(privateAnimatedBlocks);
         this.newCuboid = newCuboid;
+        this.oldCuboid = door.getCuboid();
         this.cause = cause;
         this.actionType = actionType;
-
-        xMin = door.getMinimum().x();
-        yMin = door.getMinimum().y();
-        zMin = door.getMinimum().z();
-        xMax = door.getMaximum().x();
-        yMax = door.getMaximum().y();
-        zMax = door.getMaximum().z();
+        this.rotationPoint = door.getRotationPoint();
 
         this.animationDuration = (int) Math.min(Integer.MAX_VALUE, Math.round(1000 * this.time / serverTickTime));
     }
 
     public void abort()
     {
-        if (moverTask != null)
-            executor.cancel(moverTask, Objects.requireNonNull(moverTaskID));
+        final @Nullable TimerTask moverTask0 = moverTask;
+        if (moverTask0 != null)
+            executor.cancel(moverTask0, Objects.requireNonNull(moverTaskID));
         putBlocks(true);
     }
 
@@ -298,7 +295,7 @@ public abstract class BlockMover
      */
     private void respawnBlocksOnCurrentThread()
     {
-        privateAnimatedBlocks.forEach(IAnimatedBlock::respawn);
+        animatedBlocks.forEach(IAnimatedBlock::respawn);
     }
 
     /**
@@ -314,30 +311,44 @@ public abstract class BlockMover
      * <p>
      * Note that if {@link #skipAnimation} is true, the blocks will be placed in the new position immediately without
      * any animations.
-     * <p>
-     * Has to be called from the main thread!
-     *
-     * @throws IllegalStateException
-     *     When called asynchronously, when some variables are invalid, or when that animation has already started.
      */
-    public final synchronized void startAnimation()
+    public final void startAnimation()
     {
         if (animationDuration < 0)
             throw new IllegalStateException("Trying to start an animation with invalid endCount value: " +
                                                 animationDuration);
+        executor.runOnMainThread(this::startAnimation0);
+    }
 
-        if (!executor.isMainThread())
-            throw new IllegalStateException("Animations must be started on the main thread!");
+    /**
+     * @throws IllegalStateException
+     *     1) When called asynchronously; this method needs to be called on the main thread as determined by
+     *     {@link IPExecutor#isMainThread()}.
+     *     <p>
+     *     2) When {@link #hasStarted} has already been set to true.
+     */
+    private void startAnimation0()
+    {
+        executor.assertMainThread("Animations must be started on the main thread!");
 
         if (hasStarted.getAndSet(true))
             throw new IllegalStateException("Trying to start an animation again!");
 
         final Animation<IAnimatedBlock> animation = new Animation<>(
-            animationDuration, door.getCuboid(), privateAnimatedBlocks, door);
+            animationDuration, oldCuboid, animatedBlocks, door);
         final AnimationContext animationContext = new AnimationContext(door.getDoorType(), door, animation);
+        final List<IAnimatedBlock> newAnimatedBlocks = new ArrayList<>(door.getBlockCount());
 
         try
         {
+            final int xMin = oldCuboid.getMin().x();
+            final int yMin = oldCuboid.getMin().y();
+            final int zMin = oldCuboid.getMin().z();
+
+            final int xMax = oldCuboid.getMax().x();
+            final int yMax = oldCuboid.getMax().y();
+            final int zMax = oldCuboid.getMax().z();
+
             for (int xAxis = xMin; xAxis <= xMax; ++xAxis)
                 for (int yAxis = yMax; yAxis >= yMin; --yAxis)
                     for (int zAxis = zMin; zAxis <= zMax; ++zAxis)
@@ -357,17 +368,18 @@ public abstract class BlockMover
                         animatedBlockFactory
                             .create(location, radius, startAngle, bottom, onEdge, animationContext, finalPosition,
                                     movementMethod)
-                            .ifPresent(privateAnimatedBlocks::add);
+                            .ifPresent(newAnimatedBlocks::add);
                     }
+            this.privateAnimatedBlocks.addAll(newAnimatedBlocks);
         }
         catch (Exception e)
         {
             log.at(Level.SEVERE).withCause(e).log();
+            // Add the block anyway, so we can deal with them in the initFailure method.
+            this.privateAnimatedBlocks.addAll(newAnimatedBlocks);
             handleInitFailure();
             return;
         }
-
-        privateAnimatedBlocks.trimToSize();
 
         if (!tryRemoveOriginalBlocks(false) || !tryRemoveOriginalBlocks(true))
             return;
@@ -395,10 +407,9 @@ public abstract class BlockMover
      */
     private boolean tryRemoveOriginalBlocks(boolean edgePass)
     {
-        if (!executor.isMainThread())
-            throw new IllegalStateException("Blocks must be removed on the main thread!");
+        executor.assertMainThread("Blocks must be removed on the main thread!");
 
-        for (final IAnimatedBlock animatedBlock : privateAnimatedBlocks)
+        for (final IAnimatedBlock animatedBlock : animatedBlocks)
         {
             try
             {
@@ -432,7 +443,7 @@ public abstract class BlockMover
             return;
         }
 
-        for (final IAnimatedBlock animatedBlock : privateAnimatedBlocks)
+        for (final IAnimatedBlock animatedBlock : animatedBlocks)
         {
             try
             {
@@ -455,6 +466,7 @@ public abstract class BlockMover
                 log.at(Level.SEVERE).withCause(e).log("Failed to restore block: %s", animatedBlock);
             }
         }
+        privateAnimatedBlocks.clear();
         doorActivityManager.processFinishedBlockMover(this, false);
     }
 
@@ -515,26 +527,28 @@ public abstract class BlockMover
      * Gracefully stops the animation: Freeze any animated blocks, kill the animation task and place the blocks in their
      * new location.
      */
-    private synchronized void stopAnimation(Animation<IAnimatedBlock> animation)
+    private void stopAnimation(Animation<IAnimatedBlock> animation)
     {
         animation.setRegion(getAnimationRegion());
         animation.setState(AnimationState.STOPPING);
 
-        for (final IAnimatedBlock animatedBlock : privateAnimatedBlocks)
+        for (final IAnimatedBlock animatedBlock : animatedBlocks)
             animatedBlock.setVelocity(new Vector3Dd(0D, 0D, 0D));
 
         forEachHook("onAnimationEnding", IAnimationHook::onAnimationEnding);
 
         putBlocks(false);
-        if (moverTask == null)
+
+        final @Nullable TimerTask moverTask0 = moverTask;
+        if (moverTask0 == null)
         {
             log.at(Level.WARNING).log("MoverTask unexpectedly null for BlockMover:\n%s", this);
             return;
         }
-        executor.cancel(moverTask, Objects.requireNonNull(moverTaskID));
+        executor.cancel(moverTask0, Objects.requireNonNull(moverTaskID));
 
         animation.setState(AnimationState.COMPLETED);
-        animation.setRegion(door.getCuboid());
+        animation.setRegion(oldCuboid);
     }
 
     /**
@@ -544,18 +558,16 @@ public abstract class BlockMover
      */
     protected void prepareAnimation()
     {
-        if (!executor.isMainThread())
-            throw new IllegalStateException("Animated blocks must be spawned on the main thread!");
+        executor.assertMainThread("Animated blocks must be spawned on the main thread!");
         getAnimatedBlocks().forEach(IAnimatedBlock::spawn);
     }
 
     /**
      * Runs the animation of the animated blocks.
      */
-    private synchronized void animateEntities(Animation<IAnimatedBlock> animation)
+    private void animateEntities(Animation<IAnimatedBlock> animation)
     {
-        if (!executor.isMainThread())
-            throw new IllegalStateException("Animation must be started on the main thread!");
+        executor.assertMainThread("Animation must be started on the main thread!");
 
         try
         {
@@ -575,7 +587,7 @@ public abstract class BlockMover
 
         final int initialDelay = Math.round((float) START_DELAY / serverTickTime);
 
-        moverTask = new TimerTask()
+        final TimerTask moverTask0 = new TimerTask()
         {
             private int counter = 0;
             private @Nullable Long startTime = null; // Initialize on the first run.
@@ -604,7 +616,8 @@ public abstract class BlockMover
                 forEachHook("onPostAnimationStep", IAnimationHook::onPostAnimationStep);
             }
         };
-        moverTaskID = executor.runAsyncRepeated(moverTask, initialDelay, 1);
+        moverTask = moverTask0;
+        moverTaskID = executor.runAsyncRepeated(moverTask0, initialDelay, 1);
     }
 
     /**
@@ -639,12 +652,11 @@ public abstract class BlockMover
         return -1;
     }
 
-    private synchronized void putBlocks0(boolean onDisable)
+    private void putBlocks0(boolean onDisable)
     {
-        if (!executor.isMainThread())
-            throw new IllegalStateException("Attempting async block placement!");
+        executor.assertMainThread("Attempting async block placement!");
 
-        for (final IAnimatedBlock animatedBlock : privateAnimatedBlocks)
+        for (final IAnimatedBlock animatedBlock : animatedBlocks)
         {
             animatedBlock.kill();
             animatedBlock.getAnimatedBlockData().putBlock(animatedBlock.getFinalPosition());
@@ -728,7 +740,7 @@ public abstract class BlockMover
         double yMax = Double.MIN_VALUE;
         double zMax = Double.MIN_VALUE;
 
-        for (final IAnimatedBlock animatedBlock : privateAnimatedBlocks)
+        for (final IAnimatedBlock animatedBlock : animatedBlocks)
         {
             final Vector3Dd pos = animatedBlock.getPosition();
             if (pos.x() < xMin)
@@ -751,10 +763,11 @@ public abstract class BlockMover
 
     private void forEachHook(String actionName, Consumer<IAnimationHook<IAnimatedBlock>> call)
     {
-        if (hooks == null)
+        final @Nullable var hooks0 = hooks;
+        if (hooks0 == null)
             return;
 
-        for (final IAnimationHook<IAnimatedBlock> hook : hooks)
+        for (final IAnimationHook<IAnimatedBlock> hook : hooks0)
         {
             log.at(Level.FINEST).log("Executing '%s' for hook '%s'!", actionName, hook.getName());
             try

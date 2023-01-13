@@ -29,27 +29,6 @@ public class VerticalMover extends BlockMover
         super(context, door, time, skipAnimation, RotateDirection.NONE, player, newCuboid, cause, actionType);
         this.blocksToMove = blocksToMove;
 
-        double speed = 1;
-        double pcMultiplier = multiplier;
-        pcMultiplier = pcMultiplier == 0.0 ? 1.0 : pcMultiplier;
-        final int maxSpeed = 6;
-
-        // If the time isn't default, calculate speed.
-        if (time != 0.0)
-        {
-            speed = Math.abs(blocksToMove) / time;
-            super.time = time;
-        }
-
-        // If the non-default exceeds the max-speed or isn't set, calculate default speed.
-        if (time == 0.0 || speed > maxSpeed)
-        {
-            speed = (blocksToMove < 0 ? 1.7 : 0.8) * pcMultiplier;
-            speed = speed > maxSpeed ? maxSpeed : speed;
-            super.time = Math.abs(blocksToMove) / speed;
-        }
-
-        super.animationDuration = (int) (20 * super.time);
         step = ((double) blocksToMove) / ((double) super.animationDuration);
     }
 

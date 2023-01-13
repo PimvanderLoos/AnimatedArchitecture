@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.doors.drawbridge;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -18,6 +17,7 @@ import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
+import javax.annotation.concurrent.GuardedBy;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.stream.Stream;
@@ -38,14 +38,12 @@ public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, 
     @Getter
     private final double longestAnimationCycleDistance;
 
-    @Getter
-    @Setter
     @PersistentVariable
+    @GuardedBy("this")
     protected int autoCloseTime;
 
-    @Getter
-    @Setter
     @PersistentVariable
+    @GuardedBy("this")
     protected int autoOpenTime;
 
     /**
@@ -54,8 +52,8 @@ public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, 
      *
      * @return True if this {@link Drawbridge}'s vertical stance points up.
      */
-    @Getter
     @PersistentVariable
+    @GuardedBy("this")
     protected boolean modeUp;
 
     public Drawbridge(DoorBase doorBase, int autoCloseTime, int autoOpenTime, boolean modeUp)
@@ -65,9 +63,7 @@ public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, 
         this.autoCloseTime = autoCloseTime;
         this.modeUp = modeUp;
         this.longestAnimationCycleDistance =
-            calculateLongestAnimationCycleDistance(isNorthSouthAligned(),
-                                                   getCuboid(),
-                                                   getRotationPoint());
+            calculateLongestAnimationCycleDistance(isNorthSouthAligned(), getCuboid(), getRotationPoint());
     }
 
     public Drawbridge(DoorBase doorBase, boolean modeUp)
@@ -90,13 +86,25 @@ public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, 
     @Override
     public synchronized RotateDirection getCurrentToggleDir()
     {
-        return isOpen() ? RotateDirection.getOpposite(getOpenDir()) : getOpenDir();
+        synchronized (getDoorBase())
+        {
+            return isOpen() ? RotateDirection.getOpposite(getOpenDir()) : getOpenDir();
+        }
     }
 
     @Override
-    public synchronized Optional<Cuboid> getPotentialNewCoordinates()
+    public Optional<Cuboid> getPotentialNewCoordinates()
     {
-        final RotateDirection rotateDirection = getCurrentToggleDir();
+        final RotateDirection rotateDirection;
+        final Cuboid cuboid;
+        final Vector3Di rotationPoint;
+        synchronized (getDoorBase())
+        {
+            rotateDirection = getCurrentToggleDir();
+            cuboid = getCuboid();
+            rotationPoint = getRotationPoint();
+        }
+
         final double angle;
         if (rotateDirection == RotateDirection.NORTH || rotateDirection == RotateDirection.WEST)
             angle = -Math.PI / 2;
@@ -104,20 +112,18 @@ public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, 
             angle = Math.PI / 2;
         else
         {
-
             log.at(Level.SEVERE).log("Invalid open direction '%s' for door: %d", rotateDirection.name(), getDoorUID());
             return Optional.empty();
         }
 
-        final Cuboid cuboid = getCuboid();
         if (rotateDirection == RotateDirection.NORTH || rotateDirection == RotateDirection.SOUTH)
-            return Optional.of(cuboid.updatePositions(vec -> vec.rotateAroundXAxis(getRotationPoint(), angle)));
+            return Optional.of(cuboid.updatePositions(vec -> vec.rotateAroundXAxis(rotationPoint, angle)));
         else
-            return Optional.of(cuboid.updatePositions(vec -> vec.rotateAroundZAxis(getRotationPoint(), angle)));
+            return Optional.of(cuboid.updatePositions(vec -> vec.rotateAroundZAxis(rotationPoint, angle)));
     }
 
     @Override
-    protected BlockMover constructBlockMover(
+    protected synchronized BlockMover constructBlockMover(
         BlockMover.Context context, DoorActionCause cause, double time,
         boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
         DoorActionType actionType)
@@ -150,5 +156,34 @@ public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, 
             .of(min, max, other0, other1)
             .mapToDouble(val -> BridgeMover.getRadius(northSouthAligned, rotationPoint, val.x(), val.y(), val.z()))
             .max().orElseThrow() * HALF_PI;
+    }
+
+    @Override
+    public synchronized int getAutoCloseTime()
+    {
+        return this.autoCloseTime;
+    }
+
+    @Override
+    public synchronized int getAutoOpenTime()
+    {
+        return this.autoOpenTime;
+    }
+
+    public synchronized boolean isModeUp()
+    {
+        return this.modeUp;
+    }
+
+    @Override
+    public synchronized void setAutoCloseTime(int autoCloseTime)
+    {
+        this.autoCloseTime = autoCloseTime;
+    }
+
+    @Override
+    public synchronized void setAutoOpenTime(int autoOpenTime)
+    {
+        this.autoOpenTime = autoOpenTime;
     }
 }

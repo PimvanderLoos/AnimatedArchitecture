@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.doors.revolvingdoor;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
@@ -16,7 +15,9 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
+import javax.annotation.concurrent.GuardedBy;
 import java.util.Optional;
 import java.util.logging.Level;
 
@@ -41,9 +42,8 @@ public class RevolvingDoor extends AbstractDoor
      *
      * @return The number of quarter circles this door will rotate.
      */
-    @Getter
-    @Setter
     @PersistentVariable
+    @GuardedBy("this")
     private int quarterCircles;
 
     public RevolvingDoor(DoorBase doorBase, int quarterCircles)
@@ -68,7 +68,17 @@ public class RevolvingDoor extends AbstractDoor
     @Override
     public Optional<Cuboid> getPotentialNewCoordinates()
     {
-        final RotateDirection rotateDirection = getCurrentToggleDir();
+        final RotateDirection rotateDirection;
+        final Vector3Di rotationPoint;
+        final Cuboid cuboid;
+
+        synchronized (getDoorBase())
+        {
+            rotateDirection = getCurrentToggleDir();
+            rotationPoint = getRotationPoint();
+            cuboid = getCuboid();
+        }
+
         final double angle = rotateDirection == RotateDirection.CLOCKWISE ? Math.PI / 2 :
                              rotateDirection == RotateDirection.COUNTERCLOCKWISE ? -Math.PI / 2 : 0.0D;
         if (angle == 0.0D)
@@ -78,17 +88,17 @@ public class RevolvingDoor extends AbstractDoor
             return Optional.empty();
         }
 
-        return Optional.of(getCuboid().updatePositions(vec -> vec.rotateAroundYAxis(getRotationPoint(), angle)));
+        return Optional.of(cuboid.updatePositions(vec -> vec.rotateAroundYAxis(rotationPoint, angle)));
     }
 
     @Override
-    public synchronized RotateDirection getCurrentToggleDir()
+    public RotateDirection getCurrentToggleDir()
     {
         return getOpenDir();
     }
 
     @Override
-    protected BlockMover constructBlockMover(
+    protected synchronized BlockMover constructBlockMover(
         BlockMover.Context context, DoorActionCause cause, double time,
         boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
         DoorActionType actionType)
@@ -109,5 +119,15 @@ public class RevolvingDoor extends AbstractDoor
     public boolean isCloseable()
     {
         return true;
+    }
+
+    public synchronized int getQuarterCircles()
+    {
+        return this.quarterCircles;
+    }
+
+    public synchronized void setQuarterCircles(int quarterCircles)
+    {
+        this.quarterCircles = quarterCircles;
     }
 }

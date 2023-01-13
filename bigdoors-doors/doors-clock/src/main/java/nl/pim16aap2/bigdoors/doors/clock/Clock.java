@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.doors.clock;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -55,10 +54,9 @@ public class Clock extends AbstractDoor implements IHorizontalAxisAligned
      *
      * @return The side of the hour arm relative to the minute arm.
      */
-    @Getter
-    @Setter
     @PersistentVariable
-    protected PBlockFace hourArmSide;
+    @Getter
+    protected final PBlockFace hourArmSide;
 
     public Clock(DoorBase doorData, boolean northSouthAligned, PBlockFace hourArmSide)
     {
@@ -86,7 +84,7 @@ public class Clock extends AbstractDoor implements IHorizontalAxisAligned
     }
 
     @Override
-    protected BlockMover constructBlockMover(
+    protected synchronized BlockMover constructBlockMover(
         BlockMover.Context context, DoorActionCause cause, double time, boolean skipAnimation, Cuboid newCuboid,
         IPPlayer responsible, DoorActionType actionType)
         throws Exception

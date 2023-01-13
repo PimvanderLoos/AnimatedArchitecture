@@ -39,7 +39,7 @@ public class DoorEventCallerSpigot implements IDoorEventCaller
         }
 
         // Async events can only be called asynchronously and Sync events can only be called from the main thread.
-        final boolean isMainThread = executor.isMainThread(Thread.currentThread().getId());
+        final boolean isMainThread = executor.isMainThread();
         if (isMainThread && bigDoorsEvent.isAsynchronous())
             executor.runAsync(() -> Bukkit.getPluginManager().callEvent((BigDoorsSpigotEvent) bigDoorsEvent));
         else if ((!isMainThread) && (!bigDoorsEvent.isAsynchronous()))

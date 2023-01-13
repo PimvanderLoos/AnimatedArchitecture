@@ -17,6 +17,7 @@ import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 
+import javax.annotation.concurrent.GuardedBy;
 import java.util.Optional;
 
 /**
@@ -38,8 +39,8 @@ public class Windmill extends AbstractDoor implements IHorizontalAxisAligned, IP
      *
      * @return The number of quarter circles this door will rotate.
      */
-    @Getter
     @PersistentVariable
+    @GuardedBy("this")
     private int quarterCircles;
 
     public Windmill(DoorBase doorBase, int quarterCircles)
@@ -83,19 +84,21 @@ public class Windmill extends AbstractDoor implements IHorizontalAxisAligned, IP
     @Override
     public boolean isNorthSouthAligned()
     {
-        return getOpenDir() == RotateDirection.EAST || getOpenDir() == RotateDirection.WEST;
+        final RotateDirection openDir = getOpenDir();
+        return openDir == RotateDirection.EAST || openDir == RotateDirection.WEST;
     }
 
     @Override
     public RotateDirection cycleOpenDirection()
     {
-        return getOpenDir().equals(RotateDirection.NORTH) ? RotateDirection.EAST :
-               getOpenDir().equals(RotateDirection.EAST) ? RotateDirection.SOUTH :
-               getOpenDir().equals(RotateDirection.SOUTH) ? RotateDirection.WEST : RotateDirection.NORTH;
+        final RotateDirection openDir = getOpenDir();
+        return openDir.equals(RotateDirection.NORTH) ? RotateDirection.EAST :
+               openDir.equals(RotateDirection.EAST) ? RotateDirection.SOUTH :
+               openDir.equals(RotateDirection.SOUTH) ? RotateDirection.WEST : RotateDirection.NORTH;
     }
 
     @Override
-    protected BlockMover constructBlockMover(
+    protected synchronized BlockMover constructBlockMover(
         BlockMover.Context context, DoorActionCause cause, double time,
         boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
         DoorActionType actionType)
@@ -104,5 +107,15 @@ public class Windmill extends AbstractDoor implements IHorizontalAxisAligned, IP
         return new WindmillMover<>(
             context, this, time, config.getAnimationSpeedMultiplier(getDoorType()), getCurrentToggleDir(), responsible,
             cause, actionType);
+    }
+
+    public synchronized int getQuarterCircles()
+    {
+        return this.quarterCircles;
+    }
+
+    public synchronized void setQuarterCircles(int quarterCircles)
+    {
+        this.quarterCircles = quarterCircles;
     }
 }

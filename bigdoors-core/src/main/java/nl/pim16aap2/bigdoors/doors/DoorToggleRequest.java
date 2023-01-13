@@ -79,29 +79,24 @@ public class DoorToggleRequest
     public CompletableFuture<DoorToggleResult> execute()
     {
         log.at(Level.FINE).log("Executing toggle request: %s", this);
-        return doorRetriever.getDoor().thenCompose(this::execute)
+        return doorRetriever.getDoor().thenApply(this::execute)
                             .exceptionally(throwable -> Util.exceptionally(throwable, DoorToggleResult.ERROR));
     }
 
-    private CompletableFuture<DoorToggleResult> execute(Optional<AbstractDoor> doorOpt)
+    private DoorToggleResult execute(Optional<AbstractDoor> doorOpt)
     {
         if (doorOpt.isEmpty())
         {
             log.at(Level.INFO).log("Toggle failure (no door found): %s", this);
-            return CompletableFuture.completedFuture(DoorToggleResult.ERROR);
+            return DoorToggleResult.ERROR;
         }
         final AbstractDoor door = doorOpt.get();
         final IPPlayer actualResponsible = getActualResponsible(door);
-
-        if (executor.isMainThread())
-            return CompletableFuture.completedFuture(execute(door, actualResponsible));
-        return executor.scheduleOnMainThread(() -> execute(door, actualResponsible));
+        return execute(door, actualResponsible);
     }
 
     private DoorToggleResult execute(AbstractDoor door, IPPlayer responsible)
     {
-        executor.assertMainThread();
-
         return door.toggle(doorActionCause, messageReceiver, responsible, time, skipAnimation, doorActionType);
     }
 
