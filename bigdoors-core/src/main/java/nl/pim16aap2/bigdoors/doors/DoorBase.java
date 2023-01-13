@@ -341,16 +341,16 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
      *     The type of action that will be performed by the BlockMover.
      * @return True when everything went all right, otherwise false.
      */
-    @Locked.Read
     boolean registerBlockMover(
-        AbstractDoor abstractDoor, DoorActionCause cause, double time,
+        AbstractDoor abstractDoor, DoorSnapshot snapshot, DoorActionCause cause, double time,
         boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
         DoorActionType actionType)
     {
         try
         {
             final BlockMover blockMover = abstractDoor.constructBlockMover(
-                blockMoverContextProvider.get(), cause, time, skipAnimation, newCuboid, responsible, actionType);
+                blockMoverContextProvider.get(), snapshot, cause, time, skipAnimation, newCuboid, responsible,
+                actionType);
 
             doorActivityManager.addBlockMover(blockMover);
             executor.scheduleOnMainThread(blockMover::startAnimation);

@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.api.animatedblock;
 
 import lombok.Value;
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorSnapshot;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 
 /**
@@ -18,9 +18,9 @@ public class AnimationContext
     DoorType doorType;
 
     /**
-     * The door that is being animated.
+     * A snapshot of the door being animated, created before the movement started.
      */
-    AbstractDoor door;
+    DoorSnapshot doorSnapshot;
 
     /**
      * The current progress of the animation.

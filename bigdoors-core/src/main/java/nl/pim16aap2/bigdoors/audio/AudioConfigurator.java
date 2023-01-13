@@ -8,7 +8,6 @@ import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.debugging.IDebuggable;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import org.jetbrains.annotations.Nullable;
@@ -53,13 +52,13 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
      * This method will use the user-specified configuration for retrieving the mapping. If the user did not modify
      * this, the mapping is simply the same as the door type's default audio set.
      *
-     * @param door
-     *     The door for which to retrieve the audio set to use.
+     * @param doorType
+     *     The type of the door for which to retrieve the audio set to use.
      * @return The audio set mapped for the given door.
      */
-    public AudioSet getAudioSet(AbstractDoor door)
+    public AudioSet getAudioSet(DoorType doorType)
     {
-        final @Nullable AudioSet ret = audioMap.get(door.getDoorType());
+        final @Nullable AudioSet ret = audioMap.get(doorType);
         return ret == null ? EMPTY_AUDIO_SET : ret;
     }
 

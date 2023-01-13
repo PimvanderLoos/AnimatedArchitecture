@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.doors.portcullis;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorSnapshot;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
@@ -22,11 +23,13 @@ public class VerticalMover extends BlockMover
     private final double step;
 
     public VerticalMover(
-        Context context, AbstractDoor door, double time, boolean skipAnimation, int blocksToMove, double multiplier,
-        IPPlayer player, Cuboid newCuboid, DoorActionCause cause, DoorActionType actionType)
+        Context context, AbstractDoor door, DoorSnapshot doorSnapshot, double time, boolean skipAnimation,
+        int blocksToMove, double multiplier, IPPlayer player, Cuboid newCuboid, DoorActionCause cause,
+        DoorActionType actionType)
         throws Exception
     {
-        super(context, door, time, skipAnimation, RotateDirection.NONE, player, newCuboid, cause, actionType);
+        super(context, door, doorSnapshot, time, skipAnimation, RotateDirection.NONE, player, newCuboid, cause,
+              actionType);
         this.blocksToMove = blocksToMove;
 
         step = ((double) blocksToMove) / ((double) super.animationDuration);

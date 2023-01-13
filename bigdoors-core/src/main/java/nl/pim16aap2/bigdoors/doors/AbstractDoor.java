@@ -263,6 +263,10 @@ public abstract class AbstractDoor implements IDoor
      * doorBase method MUST BE CALLED FROM THE MAIN THREAD! (Because of MC, spawning entities needs to happen
      * synchronously)
      *
+     * @param context
+     *     The {@link BlockMover.Context} to run the block mover in.
+     * @param doorSnapshot
+     *     A snapshot of the door created before the toggle.
      * @param cause
      *     What caused doorBase action.
      * @param time
@@ -276,13 +280,11 @@ public abstract class AbstractDoor implements IDoor
      *     The {@link IPPlayer} responsible for the door action.
      * @param actionType
      *     The type of action that will be performed by the BlockMover.
-     * @param context
-     *     The {@link BlockMover.Context} to run the block mover in.
      * @return The {@link BlockMover} for doorBase class.
      */
     protected abstract BlockMover constructBlockMover(
-        BlockMover.Context context, DoorActionCause cause, double time, boolean skipAnimation, Cuboid newCuboid,
-        IPPlayer responsible, DoorActionType actionType)
+        BlockMover.Context context, DoorSnapshot doorSnapshot, DoorActionCause cause, double time,
+        boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
         throws Exception;
 
     /**

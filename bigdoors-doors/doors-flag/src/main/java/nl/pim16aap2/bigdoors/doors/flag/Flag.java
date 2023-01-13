@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorSnapshot;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.IPerpetualMover;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
@@ -88,13 +89,13 @@ public class Flag extends AbstractDoor implements IHorizontalAxisAligned, IPerpe
     @Override
     @Locked.Read
     protected BlockMover constructBlockMover(
-        BlockMover.Context context, DoorActionCause cause, double time,
-        boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
-        DoorActionType actionType)
+        BlockMover.Context context, DoorSnapshot doorSnapshot, DoorActionCause cause, double time,
+        boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
         throws Exception
     {
         return new FlagMover(
-            context, time, this, config.getAnimationSpeedMultiplier(getDoorType()), responsible, cause, actionType);
+            context, this, doorSnapshot, time, config.getAnimationSpeedMultiplier(getDoorType()), responsible, cause,
+            actionType);
     }
 
     @Override

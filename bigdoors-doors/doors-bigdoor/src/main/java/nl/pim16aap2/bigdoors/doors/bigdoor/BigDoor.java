@@ -10,6 +10,7 @@ import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorSnapshot;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
@@ -132,12 +133,12 @@ public class BigDoor extends AbstractDoor implements ITimerToggleable
     @Override
     @Locked.Read
     protected BlockMover constructBlockMover(
-        BlockMover.Context context, DoorActionCause cause, double time,
-        boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
-        DoorActionType actionType)
+        BlockMover.Context context, DoorSnapshot doorSnapshot, DoorActionCause cause, double time,
+        boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
         throws Exception
     {
         return new BigDoorMover(
-            context, this, getCurrentToggleDir(), time, skipAnimation, responsible, newCuboid, cause, actionType);
+            context, this, doorSnapshot, getCurrentToggleDir(), time, skipAnimation, responsible, newCuboid, cause,
+            actionType);
     }
 }

@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorSnapshot;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.IDiscreteMovement;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
@@ -126,12 +127,12 @@ public class Portcullis extends AbstractDoor implements IDiscreteMovement, ITime
     @Override
     @Locked.Read
     protected BlockMover constructBlockMover(
-        BlockMover.Context context, DoorActionCause cause, double time, boolean skipAnimation, Cuboid newCuboid,
-        IPPlayer responsible, DoorActionType actionType)
+        BlockMover.Context context, DoorSnapshot doorSnapshot, DoorActionCause cause, double time,
+        boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
         throws Exception
     {
         return new VerticalMover(
-            context, this, time, skipAnimation, getDirectedBlocksToMove(),
+            context, this, doorSnapshot, time, skipAnimation, getDirectedBlocksToMove(),
             config.getAnimationSpeedMultiplier(getDoorType()), responsible, newCuboid, cause, actionType);
     }
 }

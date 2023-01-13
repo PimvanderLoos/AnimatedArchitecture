@@ -126,8 +126,7 @@ public final class DoorActivityManager extends Restartable
 
         doorEventCaller.callDoorEvent(
             eventFactory.createToggleEndEvent(
-                // FIXME: DO NOT CREATE A NEW SNAPSHOT HERE!
-                blockMover.getDoor(), blockMover.getDoor().getSnapshot(), blockMover.getCause(),
+                blockMover.getDoor(), blockMover.getDoorSnapshot(), blockMover.getCause(),
                 blockMover.getActionType(), blockMover.getPlayer(), blockMover.getTime(),
                 blockMover.isSkipAnimation()));
 

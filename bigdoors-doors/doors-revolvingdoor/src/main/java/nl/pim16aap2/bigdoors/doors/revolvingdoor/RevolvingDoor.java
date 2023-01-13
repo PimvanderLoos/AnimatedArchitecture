@@ -10,6 +10,7 @@ import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorSnapshot;
 import nl.pim16aap2.bigdoors.doors.bigdoor.BigDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
@@ -99,14 +100,14 @@ public class RevolvingDoor extends AbstractDoor
     @Override
     @Locked.Read
     protected BlockMover constructBlockMover(
-        BlockMover.Context context, DoorActionCause cause, double time,
+        BlockMover.Context context, DoorSnapshot doorSnapshot, DoorActionCause cause, double time,
         boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
         DoorActionType actionType)
         throws Exception
     {
         return new RevolvingDoorMover(
-            context, this, time, config.getAnimationSpeedMultiplier(getDoorType()), getCurrentToggleDir(), responsible,
-            quarterCircles, cause, newCuboid, actionType);
+            context, this, doorSnapshot, time, config.getAnimationSpeedMultiplier(getDoorType()), getCurrentToggleDir(),
+            responsible, quarterCircles, cause, newCuboid, actionType);
     }
 
     @Override

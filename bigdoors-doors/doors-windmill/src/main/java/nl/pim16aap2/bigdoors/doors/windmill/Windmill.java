@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorSnapshot;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.IPerpetualMover;
 import nl.pim16aap2.bigdoors.doors.drawbridge.Drawbridge;
@@ -109,13 +110,12 @@ public class Windmill extends AbstractDoor implements IHorizontalAxisAligned, IP
     @Override
     @Locked.Read
     protected BlockMover constructBlockMover(
-        BlockMover.Context context, DoorActionCause cause, double time,
-        boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
-        DoorActionType actionType)
+        BlockMover.Context context, DoorSnapshot doorSnapshot, DoorActionCause cause, double time,
+        boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
         throws Exception
     {
         return new WindmillMover<>(
-            context, this, time, config.getAnimationSpeedMultiplier(getDoorType()), getCurrentToggleDir(), responsible,
-            cause, actionType);
+            context, this, doorSnapshot, time, config.getAnimationSpeedMultiplier(getDoorType()), getCurrentToggleDir(),
+            responsible, cause, actionType);
     }
 }

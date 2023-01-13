@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.doors.flag;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
+import nl.pim16aap2.bigdoors.doors.DoorSnapshot;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
@@ -27,11 +28,13 @@ public class FlagMover extends BlockMover
     private final double waveSpeed;
 
     public FlagMover(
-        Context context, double time, Flag door, double multiplier, IPPlayer player, DoorActionCause cause,
+        Context context, Flag door, DoorSnapshot doorSnapshot, double time, double multiplier, IPPlayer player,
+        DoorActionCause cause,
         DoorActionType actionType)
         throws Exception
     {
-        super(context, door, time, false, RotateDirection.NONE, player, door.getCuboid(), cause, actionType);
+        super(context, door, doorSnapshot, time, false, RotateDirection.NONE, player, door.getCuboid(), cause,
+              actionType);
 
         final Vector3Di dims = oldCuboid.getDimensions();
 
@@ -115,7 +118,7 @@ public class FlagMover extends BlockMover
     protected float getRadius(int xAxis, int yAxis, int zAxis)
     {
         if (NS)
-            return Math.abs((float) zAxis - rotationPoint.z());
-        return Math.abs((float) xAxis - rotationPoint.x());
+            return Math.abs((float) zAxis - doorSnapshot.getRotationPoint().z());
+        return Math.abs((float) xAxis - doorSnapshot.getRotationPoint().x());
     }
 }

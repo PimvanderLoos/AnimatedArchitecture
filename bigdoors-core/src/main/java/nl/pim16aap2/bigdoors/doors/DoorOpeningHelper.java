@@ -177,16 +177,13 @@ public final class DoorOpeningHelper
 
     /**
      * Registers a new block mover. Must be called from the main thread.
-     *
-     * @throws IllegalStateException
-     *     When called from a thread that is not the main thread.
      */
     boolean registerBlockMover(
-        AbstractDoor abstractDoor, DoorActionCause cause, double time, boolean skipAnimation,
+        AbstractDoor abstractDoor, DoorSnapshot snapshot, DoorActionCause cause, double time, boolean skipAnimation,
         Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
     {
         return abstractDoor.doorBase.registerBlockMover(
-            abstractDoor, cause, time, skipAnimation, newCuboid, responsible, actionType);
+            abstractDoor, snapshot, cause, time, skipAnimation, newCuboid, responsible, actionType);
     }
 
     private DoorToggleResult toggle(
@@ -225,15 +222,14 @@ public final class DoorOpeningHelper
         if (!canBreakBlocksBetweenLocs(snapshot, newCuboid, responsible))
             return abort(targetDoor, DoorToggleResult.NO_PERMISSION, cause, responsible, messageReceiver);
 
-        final boolean scheduled =
-            registerBlockMover(targetDoor, cause, animationTime, skipAnimation, newCuboid, responsible, actionType);
+        final boolean scheduled = registerBlockMover(
+            targetDoor, snapshot, cause, animationTime, skipAnimation, newCuboid, responsible, actionType);
 
         if (!scheduled)
             return DoorToggleResult.ERROR;
 
-        executor.runAsync(
-            () -> callToggleStartEvent(
-                targetDoor, snapshot, cause, actionType, responsible, animationTime, skipAnimation, newCuboid));
+        executor.runAsync(() -> callToggleStartEvent(
+            targetDoor, snapshot, cause, actionType, responsible, animationTime, skipAnimation, newCuboid));
 
         return DoorToggleResult.SUCCESS;
     }
