@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorSnapshot;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleStart;
@@ -32,6 +33,8 @@ public class DoorEventToggleStart extends DoorToggleEvent implements IDoorEventT
      *
      * @param door
      *     The door.
+     * @param doorSnapshot
+     *     A snapshot of the door created at the time the toggle action was requested.
      * @param cause
      *     What caused the action.
      * @param actionType
@@ -47,10 +50,11 @@ public class DoorEventToggleStart extends DoorToggleEvent implements IDoorEventT
      *     The {@link Cuboid} representing the area the door will take up after the toggle.
      */
     public DoorEventToggleStart(
-        AbstractDoor door, DoorActionCause cause, DoorActionType actionType, IPPlayer responsible, double time,
+        AbstractDoor door, DoorSnapshot doorSnapshot, DoorActionCause cause, DoorActionType actionType,
+        IPPlayer responsible, double time,
         boolean skipAnimation, Cuboid newCuboid)
     {
-        super(cause, actionType, responsible, time, skipAnimation);
+        super(doorSnapshot, cause, actionType, responsible, time, skipAnimation);
         this.newCuboid = newCuboid;
         this.door = door;
     }

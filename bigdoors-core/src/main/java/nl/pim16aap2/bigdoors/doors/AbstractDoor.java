@@ -11,7 +11,6 @@ import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
-import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
@@ -127,7 +126,7 @@ public abstract class AbstractDoor implements IDoor
      *     The target time. When null, {@link #getBaseAnimationTime()} is used.
      * @return The animation time for this door in seconds.
      */
-    private double getAnimationTime(@Nullable Double target)
+    final double getAnimationTime(@Nullable Double target)
     {
         final double realTarget = target != null ?
                                   target : config.getAnimationSpeedMultiplier(getDoorType()) * getBaseAnimationTime();
@@ -305,63 +304,12 @@ public abstract class AbstractDoor implements IDoor
      *     The type of action.
      * @return The result of the attempt.
      */
-    @Locked.Read
-    @SuppressWarnings({"unused", "squid:S1172"}) // messageReceiver isn't used yet, but it will be.
     final DoorToggleResult toggle(
         DoorActionCause cause, IMessageable messageReceiver, IPPlayer responsible, @Nullable Double targetTime,
         boolean skipAnimation, DoorActionType actionType)
     {
-        if (getOpenDir() == RotateDirection.NONE)
-        {
-            log.at(Level.SEVERE).withCause(new IllegalStateException("OpenDir cannot be NONE!")).log();
-            return DoorToggleResult.ERROR;
-        }
-
-        if (!doorRegistry.isRegistered(this))
-            return doorOpeningHelper.abort(this, DoorToggleResult.INSTANCE_UNREGISTERED, cause, responsible,
-                                           messageReceiver);
-
-        if (skipAnimation && !canSkipAnimation())
-            return doorOpeningHelper.abort(this, DoorToggleResult.ERROR, cause, responsible, messageReceiver);
-
-        final DoorToggleResult isOpenable = doorOpeningHelper.canBeToggled(this, actionType);
-        if (isOpenable != DoorToggleResult.SUCCESS)
-            return doorOpeningHelper.abort(this, isOpenable, cause, responsible, messageReceiver);
-
-        if (doorBase.exceedSizeLimit(responsible))
-            return doorOpeningHelper.abort(this, DoorToggleResult.TOO_BIG, cause, responsible, messageReceiver);
-
-        final Optional<Cuboid> newCuboid = getPotentialNewCoordinates();
-        if (newCuboid.isEmpty())
-            return doorOpeningHelper.abort(this, DoorToggleResult.ERROR, cause, responsible, messageReceiver);
-
-        final double time = getAnimationTime(targetTime);
-        final IDoorEventTogglePrepare prepareEvent =
-            doorOpeningHelper.callTogglePrepareEvent(
-                this, cause, actionType, responsible, time, skipAnimation, newCuboid.get());
-
-        if (prepareEvent.isCancelled())
-            return doorOpeningHelper.abort(this, DoorToggleResult.CANCELLED, cause, responsible, messageReceiver);
-
-        final @Nullable IPPlayer responsiblePlayer = cause.equals(DoorActionCause.PLAYER) ? responsible : null;
-        if (!doorOpeningHelper.isLocationEmpty(newCuboid.get(), getCuboid(), responsiblePlayer, getWorld()))
-            return doorOpeningHelper.abort(this, DoorToggleResult.OBSTRUCTED, cause, responsible, messageReceiver);
-
-        if (!doorOpeningHelper.canBreakBlocksBetweenLocs(this, newCuboid.get(), responsible))
-            return doorOpeningHelper.abort(this, DoorToggleResult.NO_PERMISSION, cause, responsible, messageReceiver);
-
-        final boolean scheduled =
-            doorOpeningHelper.registerBlockMover(
-                doorBase, this, cause, time, skipAnimation, newCuboid.get(), responsible, actionType);
-
-        if (!scheduled)
-            return DoorToggleResult.ERROR;
-
-        doorBase.getExecutor().runAsync(
-            () -> doorOpeningHelper.callToggleStartEvent(
-                this, cause, actionType, responsible, time, skipAnimation, newCuboid.get()));
-
-        return DoorToggleResult.SUCCESS;
+        return doorOpeningHelper.toggle(
+            this, cause, messageReceiver, responsible, targetTime, skipAnimation, actionType);
     }
 
     /**

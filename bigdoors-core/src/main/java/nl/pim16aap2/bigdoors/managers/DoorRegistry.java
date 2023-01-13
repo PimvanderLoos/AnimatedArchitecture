@@ -8,7 +8,7 @@ import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.data.cache.timed.TimedCache;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.doors.IDoor;
+import nl.pim16aap2.bigdoors.doors.IDoorConst;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -136,7 +136,7 @@ public final class DoorRegistry extends Restartable implements IDebuggable
      *     The door.
      * @return True if an entry exists for the exact instance of the provided {@link DoorBase}.
      */
-    public boolean isRegistered(IDoor doorBase)
+    public boolean isRegistered(IDoorConst doorBase)
     {
         return doorCache.get(doorBase.getDoorUID()).map(found -> found == doorBase).orElse(false);
     }

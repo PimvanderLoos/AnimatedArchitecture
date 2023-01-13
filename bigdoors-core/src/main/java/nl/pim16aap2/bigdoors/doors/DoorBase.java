@@ -206,6 +206,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
      * @return A new {@link DoorSnapshot} of this {@link DoorBase}.
      */
     @Locked.Read
+    @Override
     public DoorSnapshot getSnapshot()
     {
         return new DoorSnapshot(this);
@@ -340,7 +341,6 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
      *     The type of action that will be performed by the BlockMover.
      * @return True when everything went all right, otherwise false.
      */
-    // TODO: Move to DoorOpeningHelper.
     @Locked.Read
     boolean registerBlockMover(
         AbstractDoor abstractDoor, DoorActionCause cause, double time,

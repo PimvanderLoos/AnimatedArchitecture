@@ -44,9 +44,10 @@ public final class DoorActivityManager extends Restartable
      *     The {@link AutoCloseScheduler} to use for scheduling auto close actions when required.
      */
     @Inject
-    public DoorActivityManager(RestartableHolder holder, Lazy<AutoCloseScheduler> autoCloseScheduler,
-                               IConfigLoader config, IPExecutor executor, IBigDoorsEventFactory eventFactory,
-                               IDoorEventCaller doorEventCaller)
+    public DoorActivityManager(
+        RestartableHolder holder, Lazy<AutoCloseScheduler> autoCloseScheduler,
+        IConfigLoader config, IPExecutor executor, IBigDoorsEventFactory eventFactory,
+        IDoorEventCaller doorEventCaller)
     {
         super(holder);
         this.autoCloseScheduler = autoCloseScheduler;
@@ -124,10 +125,11 @@ public final class DoorActivityManager extends Restartable
             return;
 
         doorEventCaller.callDoorEvent(
-            eventFactory
-                .createToggleEndEvent(blockMover.getDoor(), blockMover.getCause(), blockMover.getActionType(),
-                                      blockMover.getPlayer(), blockMover.getTime(),
-                                      blockMover.isSkipAnimation()));
+            eventFactory.createToggleEndEvent(
+                // FIXME: DO NOT CREATE A NEW SNAPSHOT HERE!
+                blockMover.getDoor(), blockMover.getDoor().getSnapshot(), blockMover.getCause(),
+                blockMover.getActionType(), blockMover.getPlayer(), blockMover.getTime(),
+                blockMover.isSkipAnimation()));
 
         if (blockMover.getDoor() instanceof ITimerToggleable)
             autoCloseScheduler.get().scheduleAutoClose(blockMover.getPlayer(),

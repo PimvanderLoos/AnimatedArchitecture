@@ -4,7 +4,7 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorOwner;
-import nl.pim16aap2.bigdoors.doors.IDoorConst;
+import nl.pim16aap2.bigdoors.doors.DoorSnapshot;
 import nl.pim16aap2.bigdoors.events.IDoorCreatedEvent;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareAddOwnerEvent;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareCreateEvent;
@@ -84,28 +84,29 @@ public class BigDoorsEventFactorySpigot implements IBigDoorsEventFactory
 
     @Override
     public IDoorEventTogglePrepare createTogglePrepareEvent(
-        IDoorConst door, DoorActionCause cause,
+        DoorSnapshot snapshot, DoorActionCause cause,
         DoorActionType actionType, IPPlayer responsible,
         double time, boolean skipAnimation, Cuboid newCuboid)
     {
-        return new DoorEventTogglePrepare(door, cause, actionType, responsible, time, skipAnimation, newCuboid);
+        return new DoorEventTogglePrepare(snapshot, cause, actionType, responsible, time, skipAnimation, newCuboid);
     }
 
     @Override
     public IDoorEventToggleStart createToggleStartEvent(
-        AbstractDoor door, DoorActionCause cause,
+        AbstractDoor door, DoorSnapshot doorSnapshot, DoorActionCause cause,
         DoorActionType actionType, IPPlayer responsible, double time,
         boolean skipAnimation, Cuboid newCuboid)
 
     {
-        return new DoorEventToggleStart(door, cause, actionType, responsible, time, skipAnimation, newCuboid);
+        return new DoorEventToggleStart(
+            door, doorSnapshot, cause, actionType, responsible, time, skipAnimation, newCuboid);
     }
 
     @Override
     public IDoorEventToggleEnd createToggleEndEvent(
-        AbstractDoor door, DoorActionCause cause, DoorActionType actionType,
+        AbstractDoor door, DoorSnapshot doorSnapshot, DoorActionCause cause, DoorActionType actionType,
         IPPlayer responsible, double time, boolean skipAnimation)
     {
-        return new DoorEventToggleEnd(door, cause, actionType, responsible, time, skipAnimation);
+        return new DoorEventToggleEnd(door, doorSnapshot, cause, actionType, responsible, time, skipAnimation);
     }
 }

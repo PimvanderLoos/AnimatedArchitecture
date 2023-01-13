@@ -14,6 +14,7 @@ import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
+import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.IDoorEventCaller;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
@@ -22,10 +23,12 @@ import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleStart;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorToggleEvent;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
 import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
@@ -55,6 +58,7 @@ public final class DoorOpeningHelper
     private final IProtectionCompatManager protectionCompatManager;
     private final GlowingBlockSpawner glowingBlockSpawner;
     private final IBigDoorsEventFactory bigDoorsEventFactory;
+    private final DoorRegistry doorRegistry;
     private final IChunkLoader chunkLoader;
     private final IDoorEventCaller doorEventCaller;
 
@@ -71,6 +75,7 @@ public final class DoorOpeningHelper
         IProtectionCompatManager protectionCompatManager,
         GlowingBlockSpawner glowingBlockSpawner,
         IBigDoorsEventFactory bigDoorsEventFactory,
+        DoorRegistry doorRegistry,
         IChunkLoader chunkLoader,
         IDoorEventCaller doorEventCaller)
     {
@@ -85,6 +90,7 @@ public final class DoorOpeningHelper
         this.protectionCompatManager = protectionCompatManager;
         this.glowingBlockSpawner = glowingBlockSpawner;
         this.bigDoorsEventFactory = bigDoorsEventFactory;
+        this.doorRegistry = doorRegistry;
         this.chunkLoader = chunkLoader;
         this.doorEventCaller = doorEventCaller;
     }
@@ -118,10 +124,10 @@ public final class DoorOpeningHelper
         if (!result.equals(DoorToggleResult.NO_PERMISSION))
         {
             if (messageReceiver instanceof IPPlayer)
-                messageReceiver
-                    .sendError(textFactory, localizer.getMessage(result.getLocalizationKey(),
-                                                                 localizer.getDoorType(door.getDoorType()),
-                                                                 door.getName()));
+                messageReceiver.sendError(
+                    textFactory,
+                    localizer.getMessage(result.getLocalizationKey(), localizer.getDoorType(door.getDoorType()),
+                                         door.getName()));
             else
             {
                 final Level level = result == DoorToggleResult.BUSY ? Level.FINE : Level.INFO;
@@ -133,32 +139,33 @@ public final class DoorOpeningHelper
 
     /**
      * See
-     * {@link IBigDoorsEventFactory#createTogglePrepareEvent(IDoorConst, DoorActionCause, DoorActionType, IPPlayer,
+     * {@link IBigDoorsEventFactory#createTogglePrepareEvent(DoorSnapshot, DoorActionCause, DoorActionType, IPPlayer,
      * double, boolean, Cuboid)}.
      */
     IDoorEventTogglePrepare callTogglePrepareEvent(
-        IDoorConst door, DoorActionCause cause, DoorActionType actionType, IPPlayer responsible, double time,
+        DoorSnapshot snapshot, DoorActionCause cause, DoorActionType actionType, IPPlayer responsible, double time,
         boolean skipAnimation, Cuboid newCuboid)
     {
         final IDoorEventTogglePrepare event =
             bigDoorsEventFactory.createTogglePrepareEvent(
-                door, cause, actionType, responsible, time, skipAnimation, newCuboid);
+                snapshot, cause, actionType, responsible, time, skipAnimation, newCuboid);
         callDoorToggleEvent(event);
         return event;
     }
 
     /**
      * See
-     * {@link IBigDoorsEventFactory#createToggleStartEvent(AbstractDoor, DoorActionCause, DoorActionType, IPPlayer,
-     * double, boolean, Cuboid)}.
+     * {@link IBigDoorsEventFactory#createToggleStartEvent(AbstractDoor, DoorSnapshot, DoorActionCause, DoorActionType,
+     * IPPlayer, double, boolean, Cuboid)}.
      */
     IDoorEventToggleStart callToggleStartEvent(
-        AbstractDoor door, DoorActionCause cause, DoorActionType actionType, IPPlayer responsible, double time,
+        AbstractDoor door, DoorSnapshot doorSnapshot, DoorActionCause cause, DoorActionType actionType,
+        IPPlayer responsible, double time,
         boolean skipAnimation, Cuboid newCuboid)
     {
         final IDoorEventToggleStart event =
             bigDoorsEventFactory.createToggleStartEvent(
-                door, cause, actionType, responsible, time, skipAnimation, newCuboid);
+                door, doorSnapshot, cause, actionType, responsible, time, skipAnimation, newCuboid);
         callDoorToggleEvent(event);
         return event;
     }
@@ -175,11 +182,92 @@ public final class DoorOpeningHelper
      *     When called from a thread that is not the main thread.
      */
     boolean registerBlockMover(
-        DoorBase doorBase, AbstractDoor abstractDoor, DoorActionCause cause, double time, boolean skipAnimation,
+        AbstractDoor abstractDoor, DoorActionCause cause, double time, boolean skipAnimation,
         Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
     {
-        return doorBase.registerBlockMover(
+        return abstractDoor.doorBase.registerBlockMover(
             abstractDoor, cause, time, skipAnimation, newCuboid, responsible, actionType);
+    }
+
+    private DoorToggleResult toggle(
+        DoorSnapshot snapshot, AbstractDoor targetDoor, DoorActionCause cause, IMessageable messageReceiver,
+        IPPlayer responsible, boolean skipAnimation, DoorActionType actionType,
+        boolean canSkipAnimation, Cuboid newCuboid, double animationTime)
+    {
+        if (snapshot.getOpenDir() == RotateDirection.NONE)
+        {
+            log.at(Level.SEVERE).withCause(new IllegalStateException("OpenDir cannot be NONE!")).log();
+            return DoorToggleResult.ERROR;
+        }
+
+        if (!doorRegistry.isRegistered(snapshot))
+            return abort(targetDoor, DoorToggleResult.INSTANCE_UNREGISTERED, cause, responsible,
+                         messageReceiver);
+
+        if (skipAnimation && !canSkipAnimation)
+            return abort(targetDoor, DoorToggleResult.ERROR, cause, responsible, messageReceiver);
+
+        final DoorToggleResult isOpenable = canBeToggled(snapshot, targetDoor.getDoorType(), newCuboid, actionType);
+        if (isOpenable != DoorToggleResult.SUCCESS)
+            return abort(targetDoor, isOpenable, cause, responsible, messageReceiver);
+
+        final IDoorEventTogglePrepare prepareEvent =
+            callTogglePrepareEvent(
+                snapshot, cause, actionType, responsible, animationTime, skipAnimation, newCuboid);
+
+        if (prepareEvent.isCancelled())
+            return abort(targetDoor, DoorToggleResult.CANCELLED, cause, responsible, messageReceiver);
+
+        final @Nullable IPPlayer responsiblePlayer = cause.equals(DoorActionCause.PLAYER) ? responsible : null;
+        if (!isLocationEmpty(newCuboid, snapshot.getCuboid(), responsiblePlayer, snapshot.getWorld()))
+            return abort(targetDoor, DoorToggleResult.OBSTRUCTED, cause, responsible, messageReceiver);
+
+        if (!canBreakBlocksBetweenLocs(snapshot, newCuboid, responsible))
+            return abort(targetDoor, DoorToggleResult.NO_PERMISSION, cause, responsible, messageReceiver);
+
+        final boolean scheduled =
+            registerBlockMover(targetDoor, cause, animationTime, skipAnimation, newCuboid, responsible, actionType);
+
+        if (!scheduled)
+            return DoorToggleResult.ERROR;
+
+        executor.runAsync(
+            () -> callToggleStartEvent(
+                targetDoor, snapshot, cause, actionType, responsible, animationTime, skipAnimation, newCuboid));
+
+        return DoorToggleResult.SUCCESS;
+    }
+
+    DoorToggleResult toggle(
+        AbstractDoor door, DoorActionCause cause, IMessageable messageReceiver, IPPlayer responsible,
+        @Nullable Double targetTime, boolean skipAnimation, DoorActionType actionType)
+    {
+        final Optional<Cuboid> newCuboid;
+        final double animationTime;
+        final DoorSnapshot snapshot;
+        final boolean canSkipAnimation;
+
+        door.getLock().readLock().lock();
+        try
+        {
+            if (door.doorBase.exceedSizeLimit(responsible))
+                return abort(door, DoorToggleResult.TOO_BIG, cause, responsible, messageReceiver);
+
+            newCuboid = door.getPotentialNewCoordinates();
+            if (newCuboid.isEmpty())
+                return abort(door, DoorToggleResult.ERROR, cause, responsible, messageReceiver);
+
+            animationTime = door.getAnimationTime(targetTime);
+            canSkipAnimation = door.canSkipAnimation();
+            snapshot = door.getSnapshot();
+        }
+        finally
+        {
+            door.getLock().readLock().unlock();
+        }
+        return toggle(
+            snapshot, door, cause, messageReceiver, responsible, skipAnimation, actionType, canSkipAnimation,
+            newCuboid.get(), animationTime);
     }
 
     /**
@@ -374,11 +462,15 @@ public final class DoorOpeningHelper
      *
      * @param door
      *     The {@link AbstractDoor}.
+     * @param type
+     *     The type of door being toggled.
+     * @param newCuboid
+     *     The target cuboid of the door.
      * @param actionType
      *     The type of action.
      * @return {@link DoorToggleResult#SUCCESS} if it can be toggled
      */
-    DoorToggleResult canBeToggled(AbstractDoor door, DoorActionType actionType)
+    DoorToggleResult canBeToggled(IDoorConst door, DoorType type, Cuboid newCuboid, DoorActionType actionType)
     {
         if (!doorActivityManager.attemptRegisterAsBusy(door.getDoorUID()))
             return DoorToggleResult.BUSY;
@@ -391,10 +483,10 @@ public final class DoorOpeningHelper
         if (door.isLocked())
             return DoorToggleResult.LOCKED;
 
-        if (!doorTypeManager.isDoorTypeEnabled(door.getDoorType()))
+        if (!doorTypeManager.isDoorTypeEnabled(type))
             return DoorToggleResult.TYPE_DISABLED;
 
-        if (!chunksLoaded(door))
+        if (!chunksLoaded(door, newCuboid))
         {
             log.at(Level.WARNING).log("Chunks for door '%s' could not be not loaded!", door.getName());
             return DoorToggleResult.ERROR;
@@ -403,7 +495,7 @@ public final class DoorOpeningHelper
         return DoorToggleResult.SUCCESS;
     }
 
-    private boolean chunksLoaded(AbstractDoor door)
+    private boolean chunksLoaded(IDoorConst door, Cuboid newCuboid)
     {
         final var mode = config.loadChunksForToggle() ?
                          IChunkLoader.ChunkLoadMode.ATTEMPT_LOAD : IChunkLoader.ChunkLoadMode.VERIFY_LOADED;
@@ -412,11 +504,7 @@ public final class DoorOpeningHelper
         if (result == IChunkLoader.ChunkLoadResult.FAIL)
             return false;
 
-        final var newCoordsResult =
-            door.getPotentialNewCoordinates()
-                .map(newCuboid -> chunkLoader.checkChunks(door.getWorld(), newCuboid, mode))
-                .orElse(IChunkLoader.ChunkLoadResult.PASS);
-        return newCoordsResult != IChunkLoader.ChunkLoadResult.FAIL;
+        return chunkLoader.checkChunks(door.getWorld(), newCuboid, mode) != IChunkLoader.ChunkLoadResult.FAIL;
     }
 
     /**

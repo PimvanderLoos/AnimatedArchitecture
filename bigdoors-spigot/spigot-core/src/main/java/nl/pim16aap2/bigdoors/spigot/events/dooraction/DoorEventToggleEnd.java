@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorSnapshot;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleEnd;
@@ -41,10 +42,10 @@ public class DoorEventToggleEnd extends DoorToggleEvent implements IDoorEventTog
      *     If true, the door will skip the animation and open instantly.
      */
     public DoorEventToggleEnd(
-        AbstractDoor door, DoorActionCause cause, DoorActionType actionType, IPPlayer responsible, double time,
-        boolean skipAnimation)
+        AbstractDoor door, DoorSnapshot doorSnapshot, DoorActionCause cause, DoorActionType actionType,
+        IPPlayer responsible, double time, boolean skipAnimation)
     {
-        super(cause, actionType, responsible, time, skipAnimation);
+        super(doorSnapshot, cause, actionType, responsible, time, skipAnimation);
         this.door = door;
     }
 
