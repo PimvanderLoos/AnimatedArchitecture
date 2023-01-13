@@ -559,6 +559,7 @@ public abstract class AbstractDoor implements IDoor
     @Override
     public void setCoordinates(Cuboid newCuboid)
     {
+        assertWriteLockable();
         doorBase.setCoordinates(newCuboid);
     }
 
@@ -583,12 +584,14 @@ public abstract class AbstractDoor implements IDoor
     @Override
     public void setRotationPoint(Vector3Di pos)
     {
+        assertWriteLockable();
         doorBase.setRotationPoint(pos);
     }
 
     @Override
     public void setPowerBlock(Vector3Di pos)
     {
+        assertWriteLockable();
         doorBase.setPowerBlock(pos);
     }
 
@@ -607,24 +610,28 @@ public abstract class AbstractDoor implements IDoor
     @Override
     public void setName(String name)
     {
+        assertWriteLockable();
         doorBase.setName(name);
     }
 
     @Override
     public void setOpen(boolean open)
     {
+        assertWriteLockable();
         doorBase.setOpen(open);
     }
 
     @Override
     public void setOpenDir(RotateDirection openDir)
     {
+        assertWriteLockable();
         doorBase.setOpenDir(openDir);
     }
 
     @Override
     public void setLocked(boolean locked)
     {
+        assertWriteLockable();
         doorBase.setLocked(locked);
     }
 
