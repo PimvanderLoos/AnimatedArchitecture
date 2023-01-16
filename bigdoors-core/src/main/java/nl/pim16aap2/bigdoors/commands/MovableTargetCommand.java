@@ -63,7 +63,7 @@ public abstract class MovableTargetCommand extends BaseCommand
 
             getCommandSender()
                 .sendMessage(textFactory, TextType.ERROR,
-                             localizer.getMessage("commands.door_target_command.base.error.door_not_found"));
+                             localizer.getMessage("commands.movable_target_command.base.error.movable_not_found"));
             return false;
         }
 
@@ -74,7 +74,7 @@ public abstract class MovableTargetCommand extends BaseCommand
 
             getCommandSender()
                 .sendMessage(textFactory, TextType.ERROR,
-                             localizer.getMessage("commands.door_target_command.base.error.no_permission_for_action",
+                             localizer.getMessage("commands.movable_target_command.base.error.no_permission_for_action",
                                                   localizer.getMovableType(movable.get())));
             return true;
         }

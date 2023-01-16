@@ -26,7 +26,7 @@ public final class MovableTypeDrawbridge extends MovableType
     {
         super(Constants.PLUGIN_NAME, "DrawBridge", TYPE_VERSION,
               Arrays.asList(RotateDirection.NORTH, RotateDirection.EAST,
-                            RotateDirection.SOUTH, RotateDirection.WEST), "door.type.drawbridge");
+                            RotateDirection.SOUTH, RotateDirection.WEST), "movable.type.drawbridge");
     }
 
     @Override

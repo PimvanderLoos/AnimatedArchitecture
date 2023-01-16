@@ -61,18 +61,18 @@ class ListMovablesTest
         CommandTestingUtil.initCommandSenderPermissions(playerCommandSender, true, false);
         Assertions.assertTrue(factory.newListMovables(playerCommandSender, retriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(playerCommandSender)
-               .sendMessage(UnitTestUtil.toText("commands.list_doors.error.no_doors_found"));
+               .sendMessage(UnitTestUtil.toText("commands.list_movables.error.no_movables_found"));
 
         // Run it again, but now do so with admin permissions enabled.
         // As a result, we should NOT get the "No movables found!" message again.
         CommandTestingUtil.initCommandSenderPermissions(playerCommandSender, true, true);
         Assertions.assertTrue(factory.newListMovables(playerCommandSender, retriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(playerCommandSender)
-               .sendMessage(UnitTestUtil.toText("commands.list_doors.error.no_doors_found"));
+               .sendMessage(UnitTestUtil.toText("commands.list_movables.error.no_movables_found"));
 
 
         Assertions.assertTrue(factory.newListMovables(serverCommandSender, retriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(serverCommandSender, Mockito.never())
-               .sendMessage(UnitTestUtil.toText("commands.list_doors.error.no_doors_found"));
+               .sendMessage(UnitTestUtil.toText("commands.list_movables.error.no_movables_found"));
     }
 }

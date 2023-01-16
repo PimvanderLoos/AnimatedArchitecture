@@ -62,7 +62,7 @@ public class Toggle extends BaseCommand
             return true;
 
         getCommandSender().sendMessage(textFactory, TextType.ERROR,
-                                       localizer.getMessage("commands.toggle.error.not_enough_doors"));
+                                       localizer.getMessage("commands.toggle.error.not_enough_movables"));
         return false;
     }
 

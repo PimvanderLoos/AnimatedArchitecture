@@ -25,7 +25,7 @@ public final class MovableTypePortcullis extends MovableType
     private MovableTypePortcullis()
     {
         super(Constants.PLUGIN_NAME, "Portcullis", TYPE_VERSION,
-              Arrays.asList(RotateDirection.UP, RotateDirection.DOWN), "door.type.portcullis");
+              Arrays.asList(RotateDirection.UP, RotateDirection.DOWN), "movable.type.portcullis");
     }
 
     /**

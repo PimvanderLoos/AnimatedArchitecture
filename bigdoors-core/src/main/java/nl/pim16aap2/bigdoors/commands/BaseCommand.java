@@ -249,7 +249,7 @@ public abstract class BaseCommand
                     if (movable.isPresent())
                         return movable;
                     commandSender.sendMessage(textFactory, TextType.ERROR,
-                                              localizer.getMessage("commands.base.error.cannot_find_target_door"));
+                                              localizer.getMessage("commands.base.error.cannot_find_target_movable"));
                     return Optional.empty();
                 });
     }

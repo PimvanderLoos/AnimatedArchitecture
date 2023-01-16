@@ -315,7 +315,7 @@ class CreatorTest
         Assertions.assertFalse(creator.completeSetPowerBlockStep(insideCuboid));
 
         Mockito.verify(player)
-               .sendMessage(UnitTestUtil.toText("creator.base.error.powerblock_inside_door MovableType"));
+               .sendMessage(UnitTestUtil.toText("creator.base.error.powerblock_inside_movable MovableType"));
 
         final double distance = cuboid.getCenter().getDistance(outsideCuboid.getPosition());
         final int lowLimit = (int) (distance - 1);

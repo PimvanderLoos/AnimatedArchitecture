@@ -26,7 +26,7 @@ public final class MovableTypeWindmill extends MovableType
     {
         super(Constants.PLUGIN_NAME, "Windmill", TYPE_VERSION,
               Arrays.asList(RotateDirection.NORTH, RotateDirection.EAST,
-                            RotateDirection.SOUTH, RotateDirection.WEST), "door.type.windmill");
+                            RotateDirection.SOUTH, RotateDirection.WEST), "movable.type.windmill");
     }
 
     /**

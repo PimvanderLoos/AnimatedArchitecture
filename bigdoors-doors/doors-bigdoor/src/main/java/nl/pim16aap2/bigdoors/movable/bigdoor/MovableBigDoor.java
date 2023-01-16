@@ -25,7 +25,7 @@ public final class MovableBigDoor extends MovableType
     private MovableBigDoor()
     {
         super(Constants.PLUGIN_NAME, "BigDoor", TYPE_VERSION,
-              Arrays.asList(RotateDirection.CLOCKWISE, RotateDirection.COUNTERCLOCKWISE), "door.type.big_door");
+              Arrays.asList(RotateDirection.CLOCKWISE, RotateDirection.COUNTERCLOCKWISE), "movable.type.big_door");
     }
 
     /**

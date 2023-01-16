@@ -25,7 +25,7 @@ public final class MovableTypeElevator extends MovableType
     private MovableTypeElevator()
     {
         super(Constants.PLUGIN_NAME, "Elevator", TYPE_VERSION,
-              Arrays.asList(RotateDirection.UP, RotateDirection.DOWN), "door.type.elevator");
+              Arrays.asList(RotateDirection.UP, RotateDirection.DOWN), "movable.type.elevator");
     }
 
     /**

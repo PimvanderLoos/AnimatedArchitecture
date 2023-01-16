@@ -232,7 +232,7 @@ public abstract class Creator extends ToolUser
             .stepName("CONFIRM_MOVABLE_PRICE")
             .stepExecutor(new StepExecutorBoolean(this::confirmPrice))
             .skipCondition(this::skipConfirmPrice)
-            .messageKey("creator.base.confirm_door_price")
+            .messageKey("creator.base.confirm_movable_price")
             .messageVariableRetrievers(() -> localizer.getMovableType(getMovableType()),
                                        () -> String.format("%.2f", getPrice().orElse(0)))
             .implicitNextStep(false);
@@ -565,7 +565,7 @@ public abstract class Creator extends ToolUser
         if (Util.requireNonNull(cuboid, "cuboid").isPosInsideCuboid(pos))
         {
             getPlayer().sendMessage(textFactory, TextType.ERROR,
-                                    localizer.getMessage("creator.base.error.powerblock_inside_door",
+                                    localizer.getMessage("creator.base.error.powerblock_inside_movable",
                                                          localizer.getMovableType(getMovableType())));
             return false;
         }

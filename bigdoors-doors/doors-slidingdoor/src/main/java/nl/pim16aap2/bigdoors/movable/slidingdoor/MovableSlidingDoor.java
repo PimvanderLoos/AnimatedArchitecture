@@ -26,7 +26,7 @@ public final class MovableSlidingDoor extends MovableType
     {
         super(Constants.PLUGIN_NAME, "SlidingDoor", TYPE_VERSION, Arrays
             .asList(RotateDirection.NORTH, RotateDirection.EAST,
-                    RotateDirection.SOUTH, RotateDirection.WEST), "door.type.sliding_door");
+                    RotateDirection.SOUTH, RotateDirection.WEST), "movable.type.sliding_door");
     }
 
     /**

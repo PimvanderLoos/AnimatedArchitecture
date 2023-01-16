@@ -20,7 +20,7 @@ public final class MovableTypeClock extends MovableType
     {
         super(Constants.PLUGIN_NAME, "Clock", TYPE_VERSION,
               Arrays.asList(RotateDirection.NORTH, RotateDirection.EAST,
-                            RotateDirection.SOUTH, RotateDirection.WEST), "door.type.clock");
+                            RotateDirection.SOUTH, RotateDirection.WEST), "movable.type.clock");
     }
 
     /**

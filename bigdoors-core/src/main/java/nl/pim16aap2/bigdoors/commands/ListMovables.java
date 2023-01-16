@@ -59,12 +59,12 @@ public class ListMovables extends BaseCommand
         if (movables.isEmpty())
         {
             getCommandSender().sendMessage(textFactory, TextType.ERROR,
-                                           localizer.getMessage("commands.list_doors.error.no_doors_found"));
+                                           localizer.getMessage("commands.list_movables.error.no_movables_found"));
             return;
         }
 
         final StringBuilder sb = new StringBuilder(
-            localizer.getMessage("commands.list_doors.door_list_header")).append('\n');
+            localizer.getMessage("commands.list_movables.movable_list_header")).append('\n');
         for (final var movable : movables)
             sb.append("  ").append(movable.getBasicInfo()).append('\n');
         getCommandSender().sendMessage(textFactory, TextType.INFO, sb.toString());

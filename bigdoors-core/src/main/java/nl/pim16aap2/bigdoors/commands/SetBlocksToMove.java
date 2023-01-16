@@ -50,7 +50,7 @@ public class SetBlocksToMove extends MovableTargetCommand
         {
             getCommandSender()
                 .sendMessage(textFactory, TextType.ERROR,
-                             localizer.getMessage("commands.set_blocks_to_move.error.invalid_door_type",
+                             localizer.getMessage("commands.set_blocks_to_move.error.invalid_movable_type",
                                                   localizer.getMovableType(movable), movable.getBasicInfo()));
             return CompletableFuture.completedFuture(true);
         }

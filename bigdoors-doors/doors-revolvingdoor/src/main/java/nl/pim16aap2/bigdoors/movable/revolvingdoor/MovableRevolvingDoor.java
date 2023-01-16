@@ -25,7 +25,8 @@ public final class MovableRevolvingDoor extends MovableType
     private MovableRevolvingDoor()
     {
         super(Constants.PLUGIN_NAME, "RevolvingDoor", TYPE_VERSION,
-              Arrays.asList(RotateDirection.CLOCKWISE, RotateDirection.COUNTERCLOCKWISE), "door.type.revolving_door");
+              Arrays.asList(RotateDirection.CLOCKWISE, RotateDirection.COUNTERCLOCKWISE),
+              "movable.type.revolving_door");
     }
 
     /**

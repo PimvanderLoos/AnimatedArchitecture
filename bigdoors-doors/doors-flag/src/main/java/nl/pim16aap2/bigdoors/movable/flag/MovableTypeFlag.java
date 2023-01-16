@@ -17,7 +17,7 @@ public final class MovableTypeFlag extends MovableType
 
     private MovableTypeFlag()
     {
-        super(Constants.PLUGIN_NAME, "Flag", TYPE_VERSION, Collections.emptyList(), "door.type.flag");
+        super(Constants.PLUGIN_NAME, "Flag", TYPE_VERSION, Collections.emptyList(), "movable.type.flag");
     }
 
     /**

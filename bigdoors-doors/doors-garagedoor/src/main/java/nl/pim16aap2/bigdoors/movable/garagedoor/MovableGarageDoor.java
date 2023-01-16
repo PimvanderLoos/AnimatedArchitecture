@@ -26,7 +26,7 @@ public final class MovableGarageDoor extends MovableType
     {
         super(Constants.PLUGIN_NAME, "GarageDoor", TYPE_VERSION,
               Arrays.asList(RotateDirection.NORTH, RotateDirection.EAST,
-                            RotateDirection.SOUTH, RotateDirection.WEST), "door.type.garage_door");
+                            RotateDirection.SOUTH, RotateDirection.WEST), "movable.type.garage_door");
     }
 
     /**

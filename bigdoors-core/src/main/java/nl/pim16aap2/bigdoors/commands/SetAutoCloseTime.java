@@ -49,9 +49,10 @@ public class SetAutoCloseTime extends MovableTargetCommand
         if (!(movable instanceof ITimerToggleable))
         {
             getCommandSender().sendMessage(textFactory, TextType.ERROR,
-                                           localizer.getMessage("commands.set_auto_close_time.error.invalid_door_type",
-                                                                localizer.getMovableType(movable),
-                                                                movable.getBasicInfo()));
+                                           localizer.getMessage(
+                                               "commands.set_auto_close_time.error.invalid_movable_type",
+                                               localizer.getMovableType(movable),
+                                               movable.getBasicInfo()));
             return CompletableFuture.completedFuture(true);
         }
 
