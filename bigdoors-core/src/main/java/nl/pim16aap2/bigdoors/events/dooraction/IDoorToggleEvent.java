@@ -1,17 +1,20 @@
 package nl.pim16aap2.bigdoors.events.dooraction;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorSnapshot;
 import nl.pim16aap2.bigdoors.events.IBigDoorsEvent;
 
 public interface IDoorToggleEvent extends IBigDoorsEvent
 {
     /**
-     * Gets the door that is the subject of this event.
+     * Before the door is animated, a snapshot of the data is created which is then used for all calculations.
+     * <p>
+     * The snapshots are read-only, so this snapshot contains the old data of the door before the animation was
+     * applied.
      *
-     * @return The door.
+     * @return A snapshot of the door created at the time the toggle action was requested.
      */
-    AbstractDoor getDoor();
+    DoorSnapshot getDoorSnapshot();
 
     /**
      * Gets what caused the door action request to be created.

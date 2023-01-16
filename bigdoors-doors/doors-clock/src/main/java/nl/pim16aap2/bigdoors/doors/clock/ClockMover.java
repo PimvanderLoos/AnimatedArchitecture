@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.doors.clock;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorSnapshot;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.doors.windmill.WindmillMover;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
@@ -51,11 +52,11 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
     protected final int angleDirectionMultiplier;
 
     public ClockMover(
-        Context context, T door, RotateDirection rotateDirection, IPPlayer player, DoorActionCause cause,
-        DoorActionType actionType)
+        Context context, T door, DoorSnapshot doorSnapshot, RotateDirection rotateDirection, IPPlayer player,
+        DoorActionCause cause, DoorActionType actionType)
         throws Exception
     {
-        super(context, door, 0.0D, 0.0D, rotateDirection, player, cause, actionType);
+        super(context, door, doorSnapshot, 0.0D, 0.0D, rotateDirection, player, cause, actionType);
         super.movementMethod = MovementMethod.TELEPORT;
 
         isHourArm = northSouth ? this::isHourArmNS : this::isHourArmEW;
@@ -70,7 +71,7 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
      */
     private boolean isHourArmNS(IAnimatedBlock animatedBlock)
     {
-        return ((int) animatedBlock.getPosition().z()) == rotationPoint.z();
+        return ((int) animatedBlock.getPosition().z()) == doorSnapshot.getRotationPoint().z();
     }
 
     /**
@@ -80,7 +81,7 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
      */
     private boolean isHourArmEW(IAnimatedBlock animatedBlock)
     {
-        return ((int) animatedBlock.getPosition().x()) == rotationPoint.x();
+        return ((int) animatedBlock.getPosition().x()) == doorSnapshot.getRotationPoint().x();
     }
 
     @Override
@@ -92,7 +93,7 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
     @Override
     protected void executeAnimationStep(int ticks, int ticksRemaining)
     {
-        final WorldTime worldTime = world.getTime();
+        final WorldTime worldTime = doorSnapshot.getWorld().getTime();
         final double hourAngle = angleDirectionMultiplier * ClockMover.hoursToAngle(worldTime.getHours(),
                                                                                     worldTime.getMinutes());
         final double minuteAngle = angleDirectionMultiplier * ClockMover.minutesToAngle(worldTime.getMinutes());

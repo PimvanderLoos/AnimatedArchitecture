@@ -3,8 +3,8 @@ package nl.pim16aap2.bigdoors.storage;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorOwner;
+import nl.pim16aap2.bigdoors.doors.IDoorConst;
 import nl.pim16aap2.bigdoors.doors.PermissionLevel;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
@@ -245,13 +245,13 @@ public interface IStorage
      * Synchronizes an {@link AbstractDoor} door with the database. This will synchronize both the base and the
      * type-specific data of the {@link AbstractDoor}.
      *
-     * @param doorBase
-     *     The {@link DoorBase} that describes the base data of door.
+     * @param door
+     *     The {@link IDoorConst} that describes the data of door.
      * @param typeData
      *     The type-specific data of this door.
      * @return True if the update was successful.
      */
-    boolean syncDoorData(DoorBase doorBase, byte[] typeData);
+    boolean syncDoorData(IDoorConst door, byte[] typeData);
 
     /**
      * Retrieves all {@link DatabaseManager.DoorIdentifier}s that start with the provided input.

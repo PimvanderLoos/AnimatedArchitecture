@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorSnapshot;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
@@ -18,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
  * @author Pim
  */
 @ToString
-public class DoorEventTogglePrepare extends DoorEventToggleStart implements IDoorEventTogglePrepare
+public class DoorEventTogglePrepare extends DoorToggleEvent implements IDoorEventTogglePrepare
 {
     private static final HandlerList HANDLERS_LIST = new HandlerList();
 
@@ -26,11 +26,14 @@ public class DoorEventTogglePrepare extends DoorEventToggleStart implements IDoo
     @Setter
     private boolean isCancelled = false;
 
+    @Getter
+    private final Cuboid newCuboid;
+
     /**
      * Constructs a door action event.
      *
-     * @param door
-     *     The door.
+     * @param doorSnapshot
+     *     A snapshot of the door.
      * @param cause
      *     What caused the action.
      * @param actionType
@@ -45,10 +48,12 @@ public class DoorEventTogglePrepare extends DoorEventToggleStart implements IDoo
      * @param newCuboid
      *     The {@link Cuboid} representing the area the door will take up after the toggle.
      */
-    public DoorEventTogglePrepare(AbstractDoor door, DoorActionCause cause, DoorActionType actionType,
-                                  IPPlayer responsible, double time, boolean animationSkipped, Cuboid newCuboid)
+    public DoorEventTogglePrepare(
+        DoorSnapshot doorSnapshot, DoorActionCause cause, DoorActionType actionType, IPPlayer responsible, double time,
+        boolean animationSkipped, Cuboid newCuboid)
     {
-        super(door, cause, actionType, responsible, time, animationSkipped, newCuboid);
+        super(doorSnapshot, cause, actionType, responsible, time, animationSkipped);
+        this.newCuboid = newCuboid;
     }
 
     @Override

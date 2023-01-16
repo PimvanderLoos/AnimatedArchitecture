@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.api.animatedblock;
 
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorSnapshot;
+import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 
 import java.util.List;
@@ -48,9 +49,14 @@ public interface IAnimation<T extends IAnimatedBlock>
     List<T> getAnimatedBlocks();
 
     /**
-     * @return The door being animated.
+     * @return A snapshot of the door being animated, created before the movement started.
      */
-    AbstractDoor getDoor();
+    DoorSnapshot getDoorSnapshot();
+
+    /**
+     * @return The type of the door being toggled.
+     */
+    DoorType getDoorType();
 
     /**
      * @return The current state of the animation.

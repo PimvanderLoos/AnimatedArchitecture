@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.doors;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IMessageable;
@@ -10,8 +11,6 @@ import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
-import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
-import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleStart;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
@@ -22,12 +21,13 @@ import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 
@@ -40,6 +40,12 @@ import java.util.logging.Level;
 @Flogger
 public abstract class AbstractDoor implements IDoor
 {
+    /**
+     * The lock as used by both the {@link DoorBase} and this class.
+     */
+    @EqualsAndHashCode.Exclude
+    private final ReentrantReadWriteLock lock;
+
     @EqualsAndHashCode.Exclude
     private final DoorSerializer<?> serializer;
     private final DoorRegistry doorRegistry;
@@ -56,6 +62,7 @@ public abstract class AbstractDoor implements IDoor
         AutoCloseScheduler autoCloseScheduler, DoorOpeningHelper doorOpeningHelper)
     {
         serializer = getDoorType().getDoorSerializer();
+        this.lock = doorBase.getLock();
         this.doorBase = doorBase;
         this.localizer = localizer;
         this.doorRegistry = doorRegistry;
@@ -119,7 +126,7 @@ public abstract class AbstractDoor implements IDoor
      *     The target time. When null, {@link #getBaseAnimationTime()} is used.
      * @return The animation time for this door in seconds.
      */
-    private double getAnimationTime(@Nullable Double target)
+    final double getAnimationTime(@Nullable Double target)
     {
         final double realTarget = target != null ?
                                   target : config.getAnimationSpeedMultiplier(getDoorType()) * getBaseAnimationTime();
@@ -256,6 +263,10 @@ public abstract class AbstractDoor implements IDoor
      * doorBase method MUST BE CALLED FROM THE MAIN THREAD! (Because of MC, spawning entities needs to happen
      * synchronously)
      *
+     * @param context
+     *     The {@link BlockMover.Context} to run the block mover in.
+     * @param doorSnapshot
+     *     A snapshot of the door created before the toggle.
      * @param cause
      *     What caused doorBase action.
      * @param time
@@ -269,13 +280,11 @@ public abstract class AbstractDoor implements IDoor
      *     The {@link IPPlayer} responsible for the door action.
      * @param actionType
      *     The type of action that will be performed by the BlockMover.
-     * @param context
-     *     The {@link BlockMover.Context} to run the block mover in.
      * @return The {@link BlockMover} for doorBase class.
      */
     protected abstract BlockMover constructBlockMover(
-        BlockMover.Context context, DoorActionCause cause, double time, boolean skipAnimation, Cuboid newCuboid,
-        IPPlayer responsible, DoorActionType actionType)
+        BlockMover.Context context, DoorSnapshot doorSnapshot, DoorActionCause cause, double time,
+        boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
         throws Exception;
 
     /**
@@ -301,68 +310,8 @@ public abstract class AbstractDoor implements IDoor
         DoorActionCause cause, IMessageable messageReceiver, IPPlayer responsible, @Nullable Double targetTime,
         boolean skipAnimation, DoorActionType actionType)
     {
-        synchronized (getDoorBase())
-        {
-            return toggle0(cause, messageReceiver, responsible, targetTime, skipAnimation, actionType);
-        }
-    }
-
-    @SuppressWarnings({"unused", "squid:S1172"}) // messageReceiver isn't used yet, but it will be.
-    private synchronized DoorToggleResult toggle0(
-        DoorActionCause cause, IMessageable messageReceiver, IPPlayer responsible, @Nullable Double targetTime,
-        boolean skipAnimation, DoorActionType actionType)
-    {
-        if (getOpenDir() == RotateDirection.NONE)
-        {
-            log.at(Level.SEVERE).withCause(new IllegalStateException("OpenDir cannot be NONE!")).log();
-            return DoorToggleResult.ERROR;
-        }
-
-        if (!doorRegistry.isRegistered(this))
-            return doorOpeningHelper.abort(this, DoorToggleResult.INSTANCE_UNREGISTERED, cause, responsible,
-                                           messageReceiver);
-
-        if (skipAnimation && !canSkipAnimation())
-            return doorOpeningHelper.abort(this, DoorToggleResult.ERROR, cause, responsible, messageReceiver);
-
-        final DoorToggleResult isOpenable = doorOpeningHelper.canBeToggled(this, actionType);
-        if (isOpenable != DoorToggleResult.SUCCESS)
-            return doorOpeningHelper.abort(this, isOpenable, cause, responsible, messageReceiver);
-
-        if (doorBase.exceedSizeLimit(responsible))
-            return doorOpeningHelper.abort(this, DoorToggleResult.TOO_BIG, cause, responsible, messageReceiver);
-
-        final Optional<Cuboid> newCuboid = getPotentialNewCoordinates();
-        if (newCuboid.isEmpty())
-            return doorOpeningHelper.abort(this, DoorToggleResult.ERROR, cause, responsible, messageReceiver);
-
-        final double time = getAnimationTime(targetTime);
-        final IDoorEventTogglePrepare prepareEvent =
-            doorOpeningHelper.callTogglePrepareEvent(
-                this, cause, actionType, responsible, time, skipAnimation, newCuboid.get());
-
-        if (prepareEvent.isCancelled())
-            return doorOpeningHelper.abort(this, DoorToggleResult.CANCELLED, cause, responsible, messageReceiver);
-
-        final @Nullable IPPlayer responsiblePlayer = cause.equals(DoorActionCause.PLAYER) ? responsible : null;
-        if (!doorOpeningHelper.isLocationEmpty(newCuboid.get(), getCuboid(), responsiblePlayer, getWorld()))
-            return doorOpeningHelper.abort(this, DoorToggleResult.OBSTRUCTED, cause, responsible, messageReceiver);
-
-        if (!doorOpeningHelper.canBreakBlocksBetweenLocs(this, newCuboid.get(), responsible))
-            return doorOpeningHelper.abort(this, DoorToggleResult.NO_PERMISSION, cause, responsible, messageReceiver);
-
-        final boolean scheduled =
-            doorOpeningHelper.registerBlockMover(
-                doorBase, this, cause, time, skipAnimation, newCuboid.get(), responsible, actionType);
-
-        if (!scheduled)
-            return DoorToggleResult.ERROR;
-
-        final IDoorEventToggleStart toggleStartEvent =
-            doorOpeningHelper.callToggleStartEvent(this, cause, actionType, responsible,
-                                                   time, skipAnimation, newCuboid.get());
-
-        return DoorToggleResult.SUCCESS;
+        return doorOpeningHelper.toggle(
+            this, cause, messageReceiver, responsible, targetTime, skipAnimation, actionType);
     }
 
     /**
@@ -377,12 +326,19 @@ public abstract class AbstractDoor implements IDoor
         doorBase.onRedstoneChange(this, newCurrent);
     }
 
+    @Override
+    public DoorSnapshot getSnapshot()
+    {
+        return doorBase.getSnapshot();
+    }
+
     /**
      * Synchronizes all data of this door with the database.
      *
      * @return True if the synchronization was successful.
      */
-    public final synchronized CompletableFuture<Boolean> syncData()
+    @Locked.Read
+    public final CompletableFuture<Boolean> syncData()
     {
         try
         {
@@ -395,13 +351,113 @@ public abstract class AbstractDoor implements IDoor
         return CompletableFuture.completedFuture(false);
     }
 
-    public synchronized String getBasicInfo()
+    /**
+     * Ensures that the current thread can obtain a write lock.
+     * <p>
+     * For example, when a thread already holds a read lock, that thread may not (try to) obtain a write lock as well,
+     * as this would result in a deadlock.
+     *
+     * @throws IllegalStateException
+     *     When the current thread is not allowed to obtain a write lock.
+     */
+    private void assertWriteLockable()
+    {
+        if (lock.getReadHoldCount() > 0)
+            throw new IllegalStateException(
+                "Caught potential deadlock! Trying to obtain write lock while under read lock!");
+    }
+
+    /**
+     * Executes a supplier under a write lock.
+     *
+     * @param supplier
+     *     The supplier to execute under the write lock.
+     * @param <T>
+     *     The return type of the supplier.
+     * @return The value returned by the supplier.
+     *
+     * @throws IllegalStateException
+     *     When the current thread may is not allowed to obtain a write lock.
+     */
+    @SuppressWarnings("unused")
+    public final <T> T withWriteLock(Supplier<T> supplier)
+    {
+        // Sadly, we cannot use Locked.Read, as we need to ensure that
+        // we can obtain a write lock in the first place.
+        assertWriteLockable();
+        lock.writeLock().lock();
+        try
+        {
+            return supplier.get();
+        }
+        finally
+        {
+            lock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Executes a Runnable under a write lock.
+     *
+     * @throws IllegalStateException
+     *     When the current thread may is not allowed to obtain a write lock.
+     */
+    @SuppressWarnings("unused")
+    public final void withWriteLock(Runnable runnable)
+    {
+        // Sadly, we cannot use Locked.Read, as we need to ensure that
+        // we can obtain a write lock in the first place.
+        assertWriteLockable();
+        lock.writeLock().lock();
+        try
+        {
+            runnable.run();
+        }
+        finally
+        {
+            lock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Executes a supplier under a read lock.
+     *
+     * @param supplier
+     *     The supplier to execute under the read lock.
+     * @param <T>
+     *     The return type of the supplier.
+     * @return The value returned by the supplier.
+     */
+    // Obtaining a read lock won't cause a deadlock,
+    // so no need to check it's possible.
+    @Locked.Read
+    @SuppressWarnings("unused")
+    public final <T> T withReadLock(Supplier<T> supplier)
+    {
+        return supplier.get();
+    }
+
+    /**
+     * Executes a Runnable under a read lock.
+     */
+    // Obtaining a read lock won't cause a deadlock,
+    // so no need to check it's possible.
+    @Locked.Read
+    @SuppressWarnings("unused")
+    public final void withReadLock(Runnable runnable)
+    {
+        runnable.run();
+    }
+
+    @Locked.Read
+    public String getBasicInfo()
     {
         return getDoorUID() + " (" + getPrimeOwner() + ") - " + getDoorType().getSimpleName() + ": " + getName();
     }
 
     @Override
-    public synchronized String toString()
+    @Locked.Read
+    public String toString()
     {
         String ret = doorBase + "\n"
             + "Type-specific data:\n"
@@ -410,6 +466,14 @@ public abstract class AbstractDoor implements IDoor
         ret += serializer.toString(this);
 
         return ret;
+    }
+
+    /**
+     * @return The locking object used by both this class and its {@link DoorBase}.
+     */
+    protected final ReentrantReadWriteLock getLock()
+    {
+        return lock;
     }
 
     @Override
@@ -431,7 +495,7 @@ public abstract class AbstractDoor implements IDoor
     }
 
     @Override
-    public List<DoorOwner> getDoorOwners()
+    public Collection<DoorOwner> getDoorOwners()
     {
         return doorBase.getDoorOwners();
     }
@@ -451,78 +515,49 @@ public abstract class AbstractDoor implements IDoor
     @Override
     public void setCoordinates(Cuboid newCuboid)
     {
+        assertWriteLockable();
         doorBase.setCoordinates(newCuboid);
-    }
-
-    @Override
-    public void setCoordinates(Vector3Di posA, Vector3Di posB)
-    {
-        doorBase.setCoordinates(posA, posB);
-    }
-
-    @Override
-    public Vector3Di getMinimum()
-    {
-        return doorBase.getMinimum();
-    }
-
-    @Override
-    public Vector3Di getMaximum()
-    {
-        return doorBase.getMaximum();
-    }
-
-    @Override
-    public Vector3Di getDimensions()
-    {
-        return doorBase.getDimensions();
     }
 
     @Override
     public void setRotationPoint(Vector3Di pos)
     {
+        assertWriteLockable();
         doorBase.setRotationPoint(pos);
     }
 
     @Override
-    public void setPowerBlockPosition(Vector3Di pos)
+    public void setPowerBlock(Vector3Di pos)
     {
-        doorBase.setPowerBlockPosition(pos);
-    }
-
-    @Override
-    public int getBlockCount()
-    {
-        return doorBase.getBlockCount();
-    }
-
-    @Override
-    public long getChunkId()
-    {
-        return doorBase.getChunkId();
+        assertWriteLockable();
+        doorBase.setPowerBlock(pos);
     }
 
     @Override
     public void setName(String name)
     {
+        assertWriteLockable();
         doorBase.setName(name);
     }
 
     @Override
     public void setOpen(boolean open)
     {
+        assertWriteLockable();
         doorBase.setOpen(open);
     }
 
     @Override
     public void setOpenDir(RotateDirection openDir)
     {
+        assertWriteLockable();
         doorBase.setOpenDir(openDir);
     }
 
     @Override
     public void setLocked(boolean locked)
     {
+        assertWriteLockable();
         doorBase.setLocked(locked);
     }
 

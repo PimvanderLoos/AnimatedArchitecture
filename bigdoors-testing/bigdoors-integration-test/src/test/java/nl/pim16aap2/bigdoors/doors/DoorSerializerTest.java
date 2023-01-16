@@ -183,7 +183,7 @@ class DoorSerializerTest
 
         @Override
         protected BlockMover constructBlockMover(
-            BlockMover.Context context, DoorActionCause cause,
+            BlockMover.Context context, DoorSnapshot doorSnapshot, DoorActionCause cause,
             double time, boolean skipAnimation, Cuboid newCuboid,
             IPPlayer responsible, DoorActionType actionType)
         {

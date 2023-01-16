@@ -1,11 +1,15 @@
 package nl.pim16aap2.bigdoors.doors.slidingdoor;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.Locked;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorSnapshot;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.IDiscreteMovement;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
@@ -20,6 +24,7 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
 import javax.annotation.concurrent.GuardedBy;
 import java.util.Optional;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Represents a Sliding Door doorType.
@@ -30,24 +35,33 @@ import java.util.Optional;
 @EqualsAndHashCode(callSuper = true)
 public class SlidingDoor extends AbstractDoor implements IDiscreteMovement, ITimerToggleable
 {
-    @EqualsAndHashCode.Exclude
     private static final DoorType DOOR_TYPE = DoorTypeSlidingDoor.get();
 
+    @EqualsAndHashCode.Exclude
+    private final ReentrantReadWriteLock lock;
+
     @PersistentVariable
-    @GuardedBy("this")
+    @GuardedBy("lock")
+    @Getter(onMethod_ = @Locked.Read)
+    @Setter(onMethod_ = @Locked.Write)
     protected int blocksToMove;
 
     @PersistentVariable
-    @GuardedBy("this")
+    @GuardedBy("lock")
+    @Getter(onMethod_ = @Locked.Read)
+    @Setter(onMethod_ = @Locked.Write)
     protected int autoCloseTime;
 
     @PersistentVariable
-    @GuardedBy("this")
+    @GuardedBy("lock")
+    @Getter(onMethod_ = @Locked.Read)
+    @Setter(onMethod_ = @Locked.Write)
     protected int autoOpenTime;
 
     public SlidingDoor(DoorBase doorBase, int blocksToMove, int autoCloseTime, int autoOpenTime)
     {
         super(doorBase);
+        this.lock = getLock();
         this.blocksToMove = blocksToMove;
         this.autoCloseTime = autoCloseTime;
         this.autoOpenTime = autoOpenTime;
@@ -71,7 +85,8 @@ public class SlidingDoor extends AbstractDoor implements IDiscreteMovement, ITim
     }
 
     @Override
-    protected synchronized double getLongestAnimationCycleDistance()
+    @Locked.Read
+    protected double getLongestAnimationCycleDistance()
     {
         return blocksToMove;
     }
@@ -92,69 +107,29 @@ public class SlidingDoor extends AbstractDoor implements IDiscreteMovement, ITim
     }
 
     @Override
+    @Locked.Read
     public RotateDirection getCurrentToggleDir()
     {
-        synchronized (getDoorBase())
-        {
-            return isOpen() ? RotateDirection.getOpposite(getOpenDir()) : getOpenDir();
-        }
+        return isOpen() ? RotateDirection.getOpposite(getOpenDir()) : getOpenDir();
     }
 
     @Override
+    @Locked.Read
     public Optional<Cuboid> getPotentialNewCoordinates()
     {
-        synchronized (getDoorBase())
-        {
-            final Vector3Di vec = PBlockFace.getDirection(Util.getPBlockFace(getCurrentToggleDir()));
-            return Optional.of(getCuboid().move(0, getBlocksToMove() * vec.y(), 0));
-        }
+        final Vector3Di vec = PBlockFace.getDirection(Util.getPBlockFace(getCurrentToggleDir()));
+        return Optional.of(getCuboid().move(0, getBlocksToMove() * vec.y(), 0));
     }
 
     @Override
-    protected synchronized BlockMover constructBlockMover(
-        BlockMover.Context context, DoorActionCause cause, double time,
-        boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
-        DoorActionType actionType)
+    @Locked.Read
+    protected BlockMover constructBlockMover(
+        BlockMover.Context context, DoorSnapshot doorSnapshot, DoorActionCause cause, double time,
+        boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
         throws Exception
     {
         return new SlidingMover(
-            context, this, time, skipAnimation, getBlocksToMove(), getCurrentToggleDir(),
+            context, this, doorSnapshot, time, skipAnimation, getBlocksToMove(), getCurrentToggleDir(),
             config.getAnimationSpeedMultiplier(getDoorType()), responsible, newCuboid, cause, actionType);
-    }
-
-    @Override
-    public synchronized int getBlocksToMove()
-    {
-        return this.blocksToMove;
-    }
-
-    @Override
-    public synchronized int getAutoCloseTime()
-    {
-        return this.autoCloseTime;
-    }
-
-    @Override
-    public synchronized int getAutoOpenTime()
-    {
-        return this.autoOpenTime;
-    }
-
-    @Override
-    public synchronized void setBlocksToMove(int blocksToMove)
-    {
-        this.blocksToMove = blocksToMove;
-    }
-
-    @Override
-    public synchronized void setAutoCloseTime(int autoCloseTime)
-    {
-        this.autoCloseTime = autoCloseTime;
-    }
-
-    @Override
-    public synchronized void setAutoOpenTime(int autoOpenTime)
-    {
-        this.autoOpenTime = autoOpenTime;
     }
 }

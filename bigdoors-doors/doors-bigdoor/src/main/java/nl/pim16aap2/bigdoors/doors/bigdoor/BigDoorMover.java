@@ -4,6 +4,7 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorSnapshot;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
@@ -23,11 +24,11 @@ public class BigDoorMover extends BlockMover
     private final double step;
 
     public BigDoorMover(
-        Context context, AbstractDoor door, RotateDirection rotDirection, double time,
+        Context context, AbstractDoor door, DoorSnapshot doorSnapshot, RotateDirection rotDirection, double time,
         boolean skipAnimation, IPPlayer player, Cuboid newCuboid, DoorActionCause cause, DoorActionType actionType)
         throws Exception
     {
-        super(context, door, time, skipAnimation, rotDirection, player, newCuboid, cause, actionType);
+        super(context, door, doorSnapshot, time, skipAnimation, rotDirection, player, newCuboid, cause, actionType);
 
         angle = rotDirection == RotateDirection.CLOCKWISE ? HALF_PI :
                 rotDirection == RotateDirection.COUNTERCLOCKWISE ? -HALF_PI : 0.0D;
@@ -35,7 +36,9 @@ public class BigDoorMover extends BlockMover
         if (angle == 0.0D)
             log.atSevere().log("Invalid open direction '%s' for door: %d", rotDirection.name(), getDoorUID());
 
-        rotationCenter = new Vector3Dd(rotationPoint.x() + 0.5, oldCuboid.getMin().y(), rotationPoint.z() + 0.5);
+        rotationCenter = new Vector3Dd(
+            doorSnapshot.getRotationPoint().x() + 0.5, oldCuboid.getMin().y(),
+            doorSnapshot.getRotationPoint().z() + 0.5);
 
         step = angle / super.animationDuration;
         halfEndCount = super.animationDuration / 2;
@@ -92,12 +95,13 @@ public class BigDoorMover extends BlockMover
     @Override
     protected float getRadius(int xAxis, int yAxis, int zAxis)
     {
-        return getRadius(rotationPoint, xAxis, zAxis);
+        return getRadius(doorSnapshot.getRotationPoint(), xAxis, zAxis);
     }
 
     @Override
     protected float getStartAngle(int xAxis, int yAxis, int zAxis)
     {
-        return (float) Math.atan2(rotationPoint.xD() - xAxis, rotationPoint.zD() - zAxis);
+        return (float) Math.atan2(doorSnapshot.getRotationPoint().xD() - xAxis,
+                                  doorSnapshot.getRotationPoint().zD() - zAxis);
     }
 }

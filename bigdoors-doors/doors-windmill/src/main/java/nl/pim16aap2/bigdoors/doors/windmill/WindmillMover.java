@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.doors.windmill;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorSnapshot;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.doors.drawbridge.BridgeMover;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
@@ -25,11 +26,12 @@ public class WindmillMover<T extends AbstractDoor & IHorizontalAxisAligned> exte
     private final double step;
 
     public WindmillMover(
-        Context context, T door, double time, double multiplier, RotateDirection rotateDirection, IPPlayer player,
-        DoorActionCause cause, DoorActionType actionType)
+        Context context, T door, DoorSnapshot doorSnapshot, double time, double multiplier,
+        RotateDirection rotateDirection, IPPlayer player, DoorActionCause cause, DoorActionType actionType)
         throws Exception
     {
-        super(context, time, door, rotateDirection, false, multiplier, player, door.getCuboid(), cause, actionType);
+        super(context, door, doorSnapshot, time, rotateDirection, false, multiplier, player, door.getCuboid(), cause,
+              actionType);
         super.perpetualMovement = true;
 
         step = (Math.PI / 2.0) / (20.0f * super.time * 2.0f);
@@ -54,8 +56,9 @@ public class WindmillMover<T extends AbstractDoor & IHorizontalAxisAligned> exte
     {
         // Get the current radius of a block between used axis (either x and y, or z and y).
         // When the rotation point is positioned along the NS axis, the X values does not change for this type.
-        final double deltaA = rotationPoint.yD() - yAxis;
-        final double deltaB = northSouth ? (rotationPoint.z() - zAxis) : (rotationPoint.x() - xAxis);
+        final double deltaA = doorSnapshot.getRotationPoint().yD() - yAxis;
+        final double deltaB =
+            northSouth ? (doorSnapshot.getRotationPoint().z() - zAxis) : (doorSnapshot.getRotationPoint().x() - xAxis);
         return (float) Math.sqrt(Math.pow(deltaA, 2) + Math.pow(deltaB, 2));
     }
 
@@ -64,8 +67,9 @@ public class WindmillMover<T extends AbstractDoor & IHorizontalAxisAligned> exte
     {
         // Get the angle between the used axes (either x and y, or z and y).
         // When the rotation point is positioned along the NS axis, the X values does not change for this type.
-        final double deltaA = northSouth ? rotationPoint.z() - zAxis : rotationPoint.x() - xAxis;
-        final double deltaB = rotationPoint.yD() - yAxis;
+        final double deltaA =
+            northSouth ? doorSnapshot.getRotationPoint().z() - zAxis : doorSnapshot.getRotationPoint().x() - xAxis;
+        final double deltaB = doorSnapshot.getRotationPoint().yD() - yAxis;
 
         return (float) Util.clampAngleRad(Math.atan2(deltaA, deltaB));
     }

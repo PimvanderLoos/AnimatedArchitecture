@@ -3,12 +3,15 @@ package nl.pim16aap2.bigdoors.doors.garagedoor;
 import com.google.common.flogger.StackSize;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorSnapshot;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
@@ -23,6 +26,7 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
 import javax.annotation.concurrent.GuardedBy;
 import java.util.Optional;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 
 /**
@@ -36,6 +40,9 @@ import java.util.logging.Level;
 public class GarageDoor extends AbstractDoor implements IHorizontalAxisAligned, ITimerToggleable
 {
     private static final DoorType DOOR_TYPE = DoorTypeGarageDoor.get();
+
+    @EqualsAndHashCode.Exclude
+    private final ReentrantReadWriteLock lock;
 
     /**
      * Describes if the {@link GarageDoor} is situated along the North/South axis <b>(= TRUE)</b> or along the East/West
@@ -53,16 +60,21 @@ public class GarageDoor extends AbstractDoor implements IHorizontalAxisAligned, 
     protected final boolean northSouthAligned;
 
     @PersistentVariable
-    @GuardedBy("this")
+    @GuardedBy("lock")
+    @Getter(onMethod_ = @Locked.Read)
+    @Setter(onMethod_ = @Locked.Write)
     protected int autoCloseTime;
 
     @PersistentVariable
-    @GuardedBy("this")
+    @GuardedBy("lock")
+    @Getter(onMethod_ = @Locked.Read)
+    @Setter(onMethod_ = @Locked.Write)
     protected int autoOpenTime;
 
     public GarageDoor(DoorBase doorBase, int autoCloseTime, int autoOpenTime, boolean northSouthAligned)
     {
         super(doorBase);
+        this.lock = getLock();
         this.autoCloseTime = autoCloseTime;
         this.autoOpenTime = autoOpenTime;
         this.northSouthAligned = northSouthAligned;
@@ -86,6 +98,7 @@ public class GarageDoor extends AbstractDoor implements IHorizontalAxisAligned, 
     }
 
     @Override
+    @Locked.Read
     protected double getLongestAnimationCycleDistance()
     {
         final Cuboid cuboid = getCuboid();
@@ -101,15 +114,13 @@ public class GarageDoor extends AbstractDoor implements IHorizontalAxisAligned, 
     }
 
     @Override
+    @Locked.Read
     public RotateDirection getCurrentToggleDir()
     {
-        synchronized (getDoorBase())
-        {
-            final RotateDirection rotDir = getOpenDir();
-            if (isOpen())
-                return RotateDirection.getOpposite(rotDir);
-            return rotDir;
-        }
+        final RotateDirection rotDir = getOpenDir();
+        if (isOpen())
+            return RotateDirection.getOpposite(rotDir);
+        return rotDir;
     }
 
     @Override
@@ -121,16 +132,11 @@ public class GarageDoor extends AbstractDoor implements IHorizontalAxisAligned, 
     }
 
     @Override
+    @Locked.Read
     public Optional<Cuboid> getPotentialNewCoordinates()
     {
-        final RotateDirection rotateDirection;
-        final Cuboid cuboid;
-
-        synchronized (getDoorBase())
-        {
-            rotateDirection = getCurrentToggleDir();
-            cuboid = getCuboid();
-        }
+        final RotateDirection rotateDirection = getCurrentToggleDir();
+        final Cuboid cuboid = getCuboid();
 
         final Vector3Di dimensions = cuboid.getDimensions();
         final Vector3Di minimum = cuboid.getMin();
@@ -214,38 +220,15 @@ public class GarageDoor extends AbstractDoor implements IHorizontalAxisAligned, 
     }
 
     @Override
-    protected synchronized BlockMover constructBlockMover(
-        BlockMover.Context context, DoorActionCause cause, double time,
+    @Locked.Read
+    protected BlockMover constructBlockMover(
+        BlockMover.Context context, DoorSnapshot doorSnapshot, DoorActionCause cause, double time,
         boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
         DoorActionType actionType)
         throws Exception
     {
         return new GarageDoorMover(
-            context, this, time, config.getAnimationSpeedMultiplier(getDoorType()), skipAnimation,
+            context, this, doorSnapshot, time, config.getAnimationSpeedMultiplier(getDoorType()), skipAnimation,
             getCurrentToggleDir(), responsible, newCuboid, cause, actionType);
-    }
-
-    @Override
-    public synchronized void setAutoCloseTime(int autoCloseTime)
-    {
-        this.autoCloseTime = autoCloseTime;
-    }
-
-    @Override
-    public synchronized void setAutoOpenTime(int autoOpenTime)
-    {
-        this.autoOpenTime = autoOpenTime;
-    }
-
-    @Override
-    public synchronized int getAutoCloseTime()
-    {
-        return this.autoCloseTime;
-    }
-
-    @Override
-    public synchronized int getAutoOpenTime()
-    {
-        return this.autoOpenTime;
     }
 }

@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.api.factories;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorOwner;
+import nl.pim16aap2.bigdoors.doors.DoorSnapshot;
 import nl.pim16aap2.bigdoors.events.IBigDoorsEvent;
 import nl.pim16aap2.bigdoors.events.IDoorCreatedEvent;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareAddOwnerEvent;
@@ -189,7 +190,7 @@ public interface IBigDoorsEventFactory
     /**
      * Constructs a {@link IDoorEventTogglePrepare}.
      *
-     * @param door
+     * @param snapshot
      *     The door.
      * @param cause
      *     What caused the action.
@@ -207,14 +208,16 @@ public interface IBigDoorsEventFactory
      *     The {@link Cuboid} representing the area the door will take up after the toggle.
      */
     IDoorEventTogglePrepare createTogglePrepareEvent(
-        AbstractDoor door, DoorActionCause cause, DoorActionType actionType, IPPlayer responsible, double time,
+        DoorSnapshot snapshot, DoorActionCause cause, DoorActionType actionType, IPPlayer responsible, double time,
         boolean skipAnimation, Cuboid newCuboid);
 
     /**
      * Constructs a {@link IDoorEventToggleStart}.
      *
      * @param door
-     *     The door.
+     *     The door itself.
+     * @param doorSnapshot
+     *     A snapshot of the door created at the time the toggle action was requested.
      * @param cause
      *     What caused the action.
      * @param actionType
@@ -231,14 +234,16 @@ public interface IBigDoorsEventFactory
      *     The {@link Cuboid} representing the area the door will take up after the toggle.
      */
     IDoorEventToggleStart createToggleStartEvent(
-        AbstractDoor door, DoorActionCause cause, DoorActionType actionType, IPPlayer responsible, double time,
-        boolean skipAnimation, Cuboid newCuboid);
+        AbstractDoor door, DoorSnapshot doorSnapshot, DoorActionCause cause, DoorActionType actionType,
+        IPPlayer responsible, double time, boolean skipAnimation, Cuboid newCuboid);
 
     /**
      * Constructs a {@link IDoorEventToggleEnd}.
      *
      * @param door
      *     The door.
+     * @param doorSnapshot
+     *     A snapshot of the door created when the door was preparing to toggle.
      * @param cause
      *     What caused the action.
      * @param actionType
@@ -253,6 +258,6 @@ public interface IBigDoorsEventFactory
      *     If true, the door will skip the animation and open instantly.
      */
     IDoorEventToggleEnd createToggleEndEvent(
-        AbstractDoor door, DoorActionCause cause, DoorActionType actionType, IPPlayer responsible, double time,
-        boolean skipAnimation);
+        AbstractDoor door, DoorSnapshot doorSnapshot, DoorActionCause cause, DoorActionType actionType,
+        IPPlayer responsible, double time, boolean skipAnimation);
 }

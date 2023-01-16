@@ -20,6 +20,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 
 /**
@@ -51,7 +52,9 @@ public class DoorSerializer<T extends AbstractDoor>
     private static final @Nullable Unsafe UNSAFE = UnsafeGetter.getUnsafe();
 
     private final @Nullable FastFieldSetter<AbstractDoor, DoorBase> fieldCopierDoorBase =
-        getFieldCopierDoorBase(UNSAFE);
+        getFieldCopierInAbstractDoor(UNSAFE, DoorBase.class, "doorBase");
+    private final @Nullable FastFieldSetter<AbstractDoor, ReentrantReadWriteLock> fieldCopierLock =
+        getFieldCopierInAbstractDoor(UNSAFE, ReentrantReadWriteLock.class, "lock");
 
     public DoorSerializer(Class<T> doorClass)
     {
@@ -229,12 +232,13 @@ public class DoorSerializer<T extends AbstractDoor>
     private @Nullable T instantiateUnsafe(DoorBase doorBase)
         throws InstantiationException
     {
-        if (UNSAFE == null || fieldCopierDoorBase == null)
+        if (UNSAFE == null || fieldCopierDoorBase == null || fieldCopierLock == null)
             return null;
 
         @SuppressWarnings("unchecked") //
         final T door = (T) UNSAFE.allocateInstance(doorClass);
         fieldCopierDoorBase.copy(door, doorBase);
+        fieldCopierLock.copy(door, doorBase.getLock());
         return door;
     }
 
@@ -300,17 +304,19 @@ public class DoorSerializer<T extends AbstractDoor>
         return sb.toString();
     }
 
-    private static @Nullable FastFieldSetter<AbstractDoor, DoorBase> getFieldCopierDoorBase(@Nullable Unsafe unsafe)
+    private static @Nullable <T> FastFieldSetter<AbstractDoor, T> getFieldCopierInAbstractDoor(
+        @Nullable Unsafe unsafe, Class<T> type, String fieldName)
     {
         if (unsafe == null)
             return null;
         try
         {
-            return FastFieldSetter.of(unsafe, DoorBase.class, AbstractDoor.class, "doorBase");
+            return FastFieldSetter.of(unsafe, type, AbstractDoor.class, fieldName);
         }
         catch (Exception e)
         {
-            log.at(Level.FINE).withCause(e).log("Failed to get FastFieldSetter for DoorBase of class: ");
+            log.at(Level.FINE).withCause(e).log("Failed to get FastFieldSetter for %s AbstractDoorBase#%s",
+                                                type.getName(), fieldName);
             return null;
         }
     }

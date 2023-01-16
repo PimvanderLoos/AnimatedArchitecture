@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.api.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.api.animatedblock.AnimationContext;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
@@ -18,6 +17,7 @@ import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.audio.IAudioPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorSnapshot;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.managers.AnimationHookManager;
@@ -60,14 +60,16 @@ public abstract class BlockMover
     private final boolean drawDebugBlocks = false;
 
     /**
-     * The world in which the blocks are going to be moved.
-     */
-    protected final IPWorld world;
-
-    /**
      * The door whose blocks are going to be moved.
      */
+    @Getter
     private final AbstractDoor door;
+
+    /**
+     * A snapshot of the door created before the toggle.
+     */
+    @Getter
+    protected final DoorSnapshot doorSnapshot;
 
     /**
      * The player responsible for the movement.
@@ -203,17 +205,12 @@ public abstract class BlockMover
     protected final Cuboid newCuboid;
 
     /**
-     * The point around which the door rotates.
-     */
-    protected final Vector3Di rotationPoint;
-
-    /**
      * Constructs a {@link BlockMover}.
-     * <p>
-     * It is assumed that the door being moved is locked at the time this Mover is instantiated.
      *
      * @param door
      *     The {@link AbstractDoor}.
+     * @param doorSnapshot
+     *     A snapshot of the door created before the toggle.
      * @param time
      *     See {@link #time}.
      * @param skipAnimation
@@ -226,14 +223,11 @@ public abstract class BlockMover
      *     The {@link Cuboid} representing the area the door will take up after the toggle.
      */
     protected BlockMover(
-        Context context, AbstractDoor door, double time, boolean skipAnimation,
+        Context context, AbstractDoor door, DoorSnapshot doorSnapshot, double time, boolean skipAnimation,
         RotateDirection openDirection, IPPlayer player, Cuboid newCuboid,
         DoorActionCause cause, DoorActionType actionType)
         throws Exception
     {
-        if (!Thread.holdsLock(door.getDoorBase()))
-            throw new IllegalStateException("Trying to instantiate BlockMover without lock on door base!");
-
         executor = context.getExecutor();
         doorActivityManager = context.getDoorActivityManager();
         autoCloseScheduler = context.getAutoCloseScheduler();
@@ -243,9 +237,9 @@ public abstract class BlockMover
         glowingBlockSpawner = context.getGlowingBlockSpawner();
         serverTickTime = context.getServerTickTime();
 
-        autoCloseScheduler.unscheduleAutoClose(door.getDoorUID());
-        world = door.getWorld();
+        autoCloseScheduler.unscheduleAutoClose(doorSnapshot.getDoorUID());
         this.door = door;
+        this.doorSnapshot = doorSnapshot;
         this.time = time;
         this.skipAnimation = skipAnimation;
         this.openDirection = openDirection;
@@ -256,7 +250,6 @@ public abstract class BlockMover
         this.oldCuboid = door.getCuboid();
         this.cause = cause;
         this.actionType = actionType;
-        this.rotationPoint = door.getRotationPoint();
 
         this.animationDuration = (int) Math.min(Integer.MAX_VALUE, Math.round(1000 * this.time / serverTickTime));
     }
@@ -335,9 +328,9 @@ public abstract class BlockMover
             throw new IllegalStateException("Trying to start an animation again!");
 
         final Animation<IAnimatedBlock> animation = new Animation<>(
-            animationDuration, oldCuboid, animatedBlocks, door);
-        final AnimationContext animationContext = new AnimationContext(door.getDoorType(), door, animation);
-        final List<IAnimatedBlock> newAnimatedBlocks = new ArrayList<>(door.getBlockCount());
+            animationDuration, oldCuboid, animatedBlocks, doorSnapshot, door.getDoorType());
+        final AnimationContext animationContext = new AnimationContext(door.getDoorType(), doorSnapshot, animation);
+        final List<IAnimatedBlock> newAnimatedBlocks = new ArrayList<>(doorSnapshot.getBlockCount());
 
         try
         {
@@ -358,7 +351,8 @@ public abstract class BlockMover
                                 yAxis == yMin || yAxis == yMax ||
                                 zAxis == zMin || zAxis == zMax;
 
-                        final IPLocation location = locationFactory.create(world, xAxis + 0.5, yAxis, zAxis + 0.5);
+                        final IPLocation location =
+                            locationFactory.create(doorSnapshot.getWorld(), xAxis + 0.5, yAxis, zAxis + 0.5);
                         final boolean bottom = (yAxis == yMin);
                         final float radius = getRadius(xAxis, yAxis, zAxis);
                         final float startAngle = getStartAngle(xAxis, yAxis, zAxis);
@@ -507,7 +501,7 @@ public abstract class BlockMover
     {
         glowingBlockSpawner.builder()
                            .atPosition(finalPosition)
-                           .inWorld(world)
+                           .inWorld(doorSnapshot.getWorld())
                            .forDuration(Duration.ofMillis(250))
                            .withColor(PColor.GOLD)
                            .forPlayer(player)
@@ -663,7 +657,7 @@ public abstract class BlockMover
         }
 
         // Tell the door object it has been opened and what its new coordinates are.
-        updateCoords(door);
+        door.withWriteLock(this::updateCoords);
 
         privateAnimatedBlocks.clear();
 
@@ -694,19 +688,12 @@ public abstract class BlockMover
 
     /**
      * Updates the coordinates of a {@link AbstractDoor} and toggles its open status.
-     *
-     * @param door
-     *     The {@link AbstractDoor}.
      */
-    private synchronized void updateCoords(AbstractDoor door)
+    private void updateCoords()
     {
-        if (newCuboid.equals(door.getCuboid()))
-            return;
-
-        door.setCoordinates(newCuboid);
-
-        door.setOpen(!door.isOpen());
-        door.setCoordinates(newCuboid);
+        door.setOpen(!doorSnapshot.isOpen());
+        if (!newCuboid.equals(doorSnapshot.getCuboid()))
+            door.setCoordinates(newCuboid);
         door.syncData();
     }
 
@@ -717,17 +704,7 @@ public abstract class BlockMover
      */
     public final long getDoorUID()
     {
-        return door.getDoorUID();
-    }
-
-    /**
-     * Gets the {@link AbstractDoor} being moved.
-     *
-     * @return The {@link AbstractDoor} being moved.
-     */
-    public final AbstractDoor getDoor()
-    {
-        return door;
+        return doorSnapshot.getDoorUID();
     }
 
     private Cuboid getAnimationRegion()

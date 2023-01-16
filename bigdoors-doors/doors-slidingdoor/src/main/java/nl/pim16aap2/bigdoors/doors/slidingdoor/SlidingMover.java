@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.doors.slidingdoor;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorSnapshot;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
@@ -30,12 +31,12 @@ public class SlidingMover extends BlockMover
     protected final int blocksToMove;
 
     public SlidingMover(
-        Context context, AbstractDoor door, double time, boolean skipAnimation, int blocksToMove,
-        RotateDirection openDirection, double multiplier, IPPlayer player, Cuboid newCuboid, DoorActionCause cause,
-        DoorActionType actionType)
+        Context context, AbstractDoor door, DoorSnapshot doorSnapshot, double time, boolean skipAnimation,
+        int blocksToMove, RotateDirection openDirection, double multiplier, IPPlayer player, Cuboid newCuboid,
+        DoorActionCause cause, DoorActionType actionType)
         throws Exception
     {
-        super(context, door, time, skipAnimation, openDirection, player, newCuboid, cause, actionType);
+        super(context, door, doorSnapshot, time, skipAnimation, openDirection, player, newCuboid, cause, actionType);
         this.blocksToMove = blocksToMove;
 
         northSouth = openDirection.equals(RotateDirection.NORTH) || openDirection.equals(RotateDirection.SOUTH);

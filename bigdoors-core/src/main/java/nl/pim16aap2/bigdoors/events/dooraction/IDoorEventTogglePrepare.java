@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.events.dooraction;
 
 import nl.pim16aap2.bigdoors.events.ICancellableBigDoorsEvent;
+import nl.pim16aap2.bigdoors.util.Cuboid;
 
 /**
  * Represents a toggle action that might be applied to a door. Note that not cancelling this event does not mean that
@@ -10,6 +11,12 @@ import nl.pim16aap2.bigdoors.events.ICancellableBigDoorsEvent;
  *
  * @author Pim
  */
-public interface IDoorEventTogglePrepare extends IDoorEventToggleStart, ICancellableBigDoorsEvent
+public interface IDoorEventTogglePrepare extends IDoorToggleEvent, ICancellableBigDoorsEvent
 {
+    /**
+     * Gets the new coordinates of the door after the toggle.
+     *
+     * @return The new coordinates of the door after the toggle.
+     */
+    Cuboid getNewCuboid();
 }

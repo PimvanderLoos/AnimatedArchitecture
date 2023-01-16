@@ -36,4 +36,9 @@ public interface IProtectionCompatManager
      * @return The name of the IProtectionCompat that objects, if any, or an empty Optional if allowed by all compats.
      */
     Optional<String> canBreakBlocksBetweenLocs(IPPlayer player, Vector3Di pos1, Vector3Di pos2, IPWorld world);
+
+    /**
+     * @return True if all checks for block-breaking access can be skipped. This may happen when no hooks are enabled.
+     */
+    boolean canSkipCheck();
 }

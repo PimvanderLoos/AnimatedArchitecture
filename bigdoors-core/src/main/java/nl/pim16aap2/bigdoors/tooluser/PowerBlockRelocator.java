@@ -80,7 +80,7 @@ public class PowerBlockRelocator extends ToolUser
                                   localizer.getMessage("tool_user.powerblock_relocator.error.location_unchanged"));
         else
         {
-            door.setPowerBlockPosition(newLoc.getPosition());
+            door.setPowerBlock(newLoc.getPosition());
             door.syncData();
             getPlayer().sendSuccess(textFactory, localizer.getMessage("tool_user.powerblock_relocator.success"));
         }

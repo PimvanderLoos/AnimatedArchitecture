@@ -4,6 +4,7 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorSnapshot;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
@@ -47,11 +48,12 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
      *     The player who opened this door.
      */
     public BridgeMover(
-        Context context, double time, T door, RotateDirection rotateDirection, boolean skipAnimation, double multiplier,
-        IPPlayer player, Cuboid newCuboid, DoorActionCause cause, DoorActionType actionType)
+        Context context, T door, DoorSnapshot doorSnapshot, double time, RotateDirection rotateDirection,
+        boolean skipAnimation, double multiplier, IPPlayer player, Cuboid newCuboid, DoorActionCause cause,
+        DoorActionType actionType)
         throws Exception
     {
-        super(context, door, time, skipAnimation, rotateDirection, player, newCuboid, cause, actionType);
+        super(context, door, doorSnapshot, time, skipAnimation, rotateDirection, player, newCuboid, cause, actionType);
 
         northSouth = door.isNorthSouthAligned();
         rotationCenter = door.getRotationPoint().toDouble().add(0.5, 0, 0.5);
@@ -124,7 +126,7 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
     @Override
     protected float getRadius(int xAxis, int yAxis, int zAxis)
     {
-        return getRadius(northSouth, rotationPoint, xAxis, yAxis, zAxis);
+        return getRadius(northSouth, doorSnapshot.getRotationPoint(), xAxis, yAxis, zAxis);
     }
 
     @Override
@@ -132,8 +134,10 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
     {
         // Get the angle between the used axes (either x and y, or z and y).
         // When the rotation point is positioned along the NS axis, the Z values does not change.
-        final double deltaA = northSouth ? rotationPoint.x() - xAxis : rotationPoint.z() - zAxis;
-        final double deltaB = rotationPoint.yD() - yAxis;
+        final double deltaA = northSouth ?
+                              doorSnapshot.getRotationPoint().x() - xAxis :
+                              doorSnapshot.getRotationPoint().z() - zAxis;
+        final double deltaB = doorSnapshot.getRotationPoint().y() - yAxis;
         return (float) Util.clampAngleRad(Math.atan2(deltaA, deltaB));
     }
 }

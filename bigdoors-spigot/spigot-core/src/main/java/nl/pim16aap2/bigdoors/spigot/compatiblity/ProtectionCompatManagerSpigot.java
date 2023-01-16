@@ -58,6 +58,12 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
         return Optional.empty();
     }
 
+    @Override
+    public boolean canSkipCheck()
+    {
+        return true;
+    }
+
     /**
      * Load a compat for the plugin enabled in the event if needed.
      *
