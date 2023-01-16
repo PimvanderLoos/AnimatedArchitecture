@@ -109,7 +109,7 @@ public class BigDoor extends AbstractMovable implements ITimerToggleable
         if (angle == 0.0D)
         {
             log.at(Level.SEVERE)
-               .log("Invalid open direction '%s' for door: %d", rotateDirection.name(), getMovableUID());
+               .log("Invalid open direction '%s' for door: %d", rotateDirection.name(), getUID());
             return Optional.empty();
         }
 

@@ -55,14 +55,14 @@ class BaseCommandTest
         final IPPlayer player = Mockito.mock(IPPlayer.class, Answers.CALLS_REAL_METHODS);
         UnitTestUtil.setField(BaseCommand.class, baseCommand, "commandSender", player);
 
-        Mockito.when(door.getMovableOwner(player)).thenReturn(Optional.of(movableOwnerNoPerm));
+        Mockito.when(door.getOwner(player)).thenReturn(Optional.of(movableOwnerNoPerm));
         Assertions.assertFalse(baseCommand.hasAccessToAttribute(door, MovableAttribute.DELETE, false));
         Assertions.assertTrue(baseCommand.hasAccessToAttribute(door, MovableAttribute.DELETE, true));
 
-        Mockito.when(door.getMovableOwner(player)).thenReturn(Optional.of(movableOwnerAdmin));
+        Mockito.when(door.getOwner(player)).thenReturn(Optional.of(movableOwnerAdmin));
         Assertions.assertFalse(baseCommand.hasAccessToAttribute(door, MovableAttribute.DELETE, false));
 
-        Mockito.when(door.getMovableOwner(player)).thenReturn(Optional.of(movableOwnerCreator));
+        Mockito.when(door.getOwner(player)).thenReturn(Optional.of(movableOwnerCreator));
         Assertions.assertTrue(baseCommand.hasAccessToAttribute(door, MovableAttribute.DELETE, false));
     }
 

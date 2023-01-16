@@ -84,7 +84,7 @@ public abstract class BaseCommand
             return true;
 
         return commandSender.getPlayer()
-                            .flatMap(door::getMovableOwner)
+                            .flatMap(door::getOwner)
                             .map(doorOwner -> doorAttribute.canAccessWith(doorOwner.permission()))
                             .orElse(false);
     }

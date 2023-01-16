@@ -60,7 +60,7 @@ public class RemoveOwner extends MovableTargetCommand
     {
         final boolean bypassOwnership = !getCommandSender().isPlayer() || hasBypassPermission;
 
-        final var movableOwner = getCommandSender().getPlayer().flatMap(movable::getMovableOwner);
+        final var movableOwner = getCommandSender().getPlayer().flatMap(movable::getOwner);
         if (movableOwner.isEmpty() && !bypassOwnership)
         {
             getCommandSender().sendMessage(textFactory, TextType.ERROR,
@@ -80,7 +80,7 @@ public class RemoveOwner extends MovableTargetCommand
             return false;
         }
 
-        final var targetMovableOwner = movable.getMovableOwner(targetPlayer);
+        final var targetMovableOwner = movable.getOwner(targetPlayer);
         if (targetMovableOwner.isEmpty())
         {
             getCommandSender()

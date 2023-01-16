@@ -233,7 +233,7 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor imp
         {
             log.at(Level.SEVERE).withStackTrace(StackSize.FULL)
                .log("Failed to add Owner '%s' as owner to movable: %d because a permission level of 0 is not allowed!",
-                    movableOwner.pPlayerData(), this.getMovableUID());
+                    movableOwner.pPlayerData(), this.getUID());
             return;
         }
         movableOwners.put(uuid, movableOwner);
@@ -282,7 +282,7 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor imp
         {
             log.at(Level.SEVERE).withCause(new IllegalArgumentException(
                    "Failed to remove owner: " + primeOwner.pPlayerData() + " as owner from movable: " +
-                       this.getMovableUID() +
+                       this.getUID() +
                        " because removing an owner with a permission level of 0 is not allowed!"))
                .log();
             return false;
@@ -292,7 +292,7 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor imp
 
     @Override
     @Locked.Read
-    public Collection<MovableOwner> getMovableOwners()
+    public Collection<MovableOwner> getOwners()
     {
         final List<MovableOwner> ret = new ArrayList<>(movableOwners.size());
         ret.addAll(movableOwners.values());
@@ -301,14 +301,14 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor imp
 
     @Override
     @Locked.Read
-    public Optional<MovableOwner> getMovableOwner(UUID uuid)
+    public Optional<MovableOwner> getOwner(UUID uuid)
     {
         return Optional.ofNullable(movableOwners.get(uuid));
     }
 
     @Override
     @Locked.Read
-    public boolean isMovableOwner(UUID uuid)
+    public boolean isOwner(UUID uuid)
     {
         return movableOwners.containsKey(uuid);
     }

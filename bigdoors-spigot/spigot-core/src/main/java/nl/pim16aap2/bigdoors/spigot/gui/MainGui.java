@@ -54,7 +54,7 @@ class MainGui
     {
         final Map<Long, AbstractMovable> ret = new LinkedHashMap<>(movables.size());
         movables.stream().sorted(Comparator.comparing(AbstractMovable::getName))
-                .forEach(domovableor -> ret.put(domovableor.getMovableUID(), domovableor));
+                .forEach(domovableor -> ret.put(domovableor.getUID(), domovableor));
         return ret;
     }
 
@@ -146,7 +146,7 @@ class MainGui
      */
     public void removeMovable(AbstractMovable movable)
     {
-        movables.remove(movable.getMovableUID());
+        movables.remove(movable.getUID());
     }
 
     @AssistedFactory

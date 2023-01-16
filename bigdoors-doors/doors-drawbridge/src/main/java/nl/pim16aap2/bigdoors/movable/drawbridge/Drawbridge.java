@@ -119,7 +119,7 @@ public class Drawbridge extends AbstractMovable implements IHorizontalAxisAligne
         else
         {
             log.at(Level.SEVERE)
-               .log("Invalid open direction '%s' for door: %d", rotateDirection.name(), getMovableUID());
+               .log("Invalid open direction '%s' for door: %d", rotateDirection.name(), getUID());
             return Optional.empty();
         }
 

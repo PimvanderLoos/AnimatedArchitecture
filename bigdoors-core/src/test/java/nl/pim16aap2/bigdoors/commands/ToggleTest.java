@@ -60,8 +60,8 @@ class ToggleTest
 
         initCommandSenderPermissions(commandSender, true, true);
 
-        Mockito.when(movable.isMovableOwner(Mockito.any(UUID.class))).thenReturn(true);
-        Mockito.when(movable.isMovableOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
+        Mockito.when(movable.isOwner(Mockito.any(UUID.class))).thenReturn(true);
+        Mockito.when(movable.isOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
 
         movableRetriever = MovableRetrieverFactory.ofMovable(movable);
 
@@ -101,7 +101,7 @@ class ToggleTest
         Mockito.verify(movableToggleRequestFactory).create(movableRetriever, MovableActionCause.PLAYER, commandSender,
                                                            commandSender, null, false, MovableActionType.TOGGLE);
 
-        Mockito.when(movable.getMovableOwner(commandSender))
+        Mockito.when(movable.getOwner(commandSender))
                .thenReturn(Optional.of(CommandTestingUtil.movableOwnerCreator));
         toggle.executeCommand(new PermissionsStatus(true, false)).get(1, TimeUnit.SECONDS);
         Mockito.verify(movableToggleRequestFactory, Mockito.times(2))
@@ -120,8 +120,8 @@ class ToggleTest
         for (int idx = 0; idx < count; ++idx)
         {
             final AbstractMovable newMovable = Mockito.mock(AbstractMovable.class);
-            Mockito.when(newMovable.isMovableOwner(Mockito.any(UUID.class))).thenReturn(true);
-            Mockito.when(newMovable.isMovableOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
+            Mockito.when(newMovable.isOwner(Mockito.any(UUID.class))).thenReturn(true);
+            Mockito.when(newMovable.isOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
             retrievers[idx] = MovableRetrieverFactory.ofMovable(newMovable);
         }
 
@@ -204,7 +204,7 @@ class ToggleTest
 
         Mockito.when(movable.isCloseable()).thenReturn(true);
         initCommandSenderPermissions(commandSender, false, false);
-        Mockito.when(movable.getMovableOwner(Mockito.any(IPPlayer.class))).thenReturn(Optional.empty());
+        Mockito.when(movable.getOwner(Mockito.any(IPPlayer.class))).thenReturn(Optional.empty());
 
         Assertions.assertTrue(factory.newToggle(commandSender, MovableActionType.CLOSE, movableRetriever).run()
                                      .get(1, TimeUnit.SECONDS));

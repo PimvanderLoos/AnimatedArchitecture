@@ -490,7 +490,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                                  .setNextLong(getFlag(movable.isOpen(), movable.isLocked()))
                                  .setNextBytes(typeData)
 
-                                 .setNextLong(movable.getMovableUID())) > 0;
+                                 .setNextLong(movable.getUID())) > 0;
     }
 
     @Override

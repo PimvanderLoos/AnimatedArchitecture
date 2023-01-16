@@ -89,7 +89,7 @@ public class AddOwner extends MovableTargetCommand
     @Override
     protected boolean isAllowed(AbstractMovable movable, boolean hasBypassPermission)
     {
-        final PermissionLevel existingPermission = movable.getMovableOwner(targetPlayer).map(MovableOwner::permission)
+        final PermissionLevel existingPermission = movable.getOwner(targetPlayer).map(MovableOwner::permission)
                                                           .orElse(PermissionLevel.NO_PERMISSION);
         if (!getCommandSender().isPlayer() || hasBypassPermission)
         {
@@ -102,7 +102,7 @@ public class AddOwner extends MovableTargetCommand
             return true;
         }
 
-        final var doorOwner = getCommandSender().getPlayer().flatMap(movable::getMovableOwner);
+        final var doorOwner = getCommandSender().getPlayer().flatMap(movable::getOwner);
         if (doorOwner.isEmpty())
         {
             getCommandSender().sendError(textFactory, localizer.getMessage("commands.add_owner.error.not_an_owner",

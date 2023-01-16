@@ -39,7 +39,7 @@ public final class MovableSnapshot implements IMovableConst
     MovableSnapshot(MovableBase movable)
     {
         this(
-            movable.getMovableUID(),
+            movable.getUID(),
             movable.getWorld(),
             movable.getRotationPoint(),
             movable.getPowerBlock(),
@@ -54,19 +54,19 @@ public final class MovableSnapshot implements IMovableConst
     }
 
     @Override
-    public Optional<MovableOwner> getMovableOwner(UUID player)
+    public Optional<MovableOwner> getOwner(UUID player)
     {
         return Optional.ofNullable(movableOwners.get(player));
     }
 
     @Override
-    public boolean isMovableOwner(UUID player)
+    public boolean isOwner(UUID player)
     {
         return movableOwners.containsKey(player);
     }
 
     @Override
-    public Collection<MovableOwner> getMovableOwners()
+    public Collection<MovableOwner> getOwners()
     {
         return movableOwners.values();
     }

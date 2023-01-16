@@ -60,7 +60,7 @@ class InfoGui
         this.inventoryHolder = inventoryHolder;
         this.mainGui = mainGui;
 
-        final MovableOwner movableOwner = movable.getMovableOwner(inventoryHolder).orElseGet(this::getDummyOwner);
+        final MovableOwner movableOwner = movable.getOwner(inventoryHolder).orElseGet(this::getDummyOwner);
         this.allowedAttributes = analyzeAttributes(movableOwner, inventoryHolder, permissionsManager);
 
         this.attributeElements = new HashMap<>(this.allowedAttributes.size());
@@ -124,7 +124,7 @@ class InfoGui
     private MovableOwner getDummyOwner()
     {
         log.atSevere().log("Player '%s' does not have access to movable: '%s'!", inventoryHolder, movable);
-        return new MovableOwner(movable.getMovableUID(), PermissionLevel.NO_PERMISSION,
+        return new MovableOwner(movable.getUID(), PermissionLevel.NO_PERMISSION,
                                 inventoryHolder.getPPlayerData());
     }
 

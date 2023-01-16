@@ -119,7 +119,7 @@ public final class MovableActivityManager extends Restartable
 
     private void handleFinishedBlockMover(BlockMover blockMover, boolean allowReschedule)
     {
-        setMovableAvailable(blockMover.getMovable().getMovableUID());
+        setMovableAvailable(blockMover.getMovable().getUID());
 
         if (!allowReschedule)
             return;

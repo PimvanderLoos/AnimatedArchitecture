@@ -52,8 +52,8 @@ class DeleteTest
         Mockito.when(doorType.getLocalizationKey()).thenReturn("DoorType");
         Mockito.when(door.getMovableType()).thenReturn(doorType);
 
-        Mockito.when(door.isMovableOwner(Mockito.any(UUID.class))).thenReturn(true);
-        Mockito.when(door.isMovableOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
+        Mockito.when(door.isOwner(Mockito.any(UUID.class))).thenReturn(true);
+        Mockito.when(door.isOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
         doorRetriever = MovableRetrieverFactory.ofMovable(door);
 
         Mockito.when(databaseManager.deleteMovable(Mockito.any(), Mockito.any()))
@@ -93,12 +93,12 @@ class DeleteTest
         Mockito.verify(databaseManager, Mockito.never()).deleteMovable(door, commandSender);
 
         // Has user permission, and is owner, so allowed.
-        Mockito.when(door.getMovableOwner(commandSender)).thenReturn(Optional.of(movableOwnerCreator));
+        Mockito.when(door.getOwner(commandSender)).thenReturn(Optional.of(movableOwnerCreator));
         Assertions.assertTrue(factory.newDelete(commandSender, doorRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(databaseManager, Mockito.times(1)).deleteMovable(door, commandSender);
 
         // Admin permission, so allowed, despite not being owner.
-        Mockito.when(door.getMovableOwner(commandSender)).thenReturn(Optional.empty());
+        Mockito.when(door.getOwner(commandSender)).thenReturn(Optional.empty());
         initCommandSenderPermissions(commandSender, true, true);
         Assertions.assertTrue(factory.newDelete(commandSender, doorRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(databaseManager, Mockito.times(2)).deleteMovable(door, commandSender);

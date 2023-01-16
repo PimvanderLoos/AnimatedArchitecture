@@ -91,7 +91,7 @@ public final class DelayedMovableSpecificationInputRequest extends DelayedInputR
                     return Optional.empty();
 
                 final long uid = uidOpt.getAsLong();
-                return Util.searchIterable(options, movable -> movable.getMovableUID() == uid);
+                return Util.searchIterable(options, movable -> movable.getUID() == uid);
             });
     }
 
@@ -109,7 +109,7 @@ public final class DelayedMovableSpecificationInputRequest extends DelayedInputR
             movable ->
             {
                 text.append("\n")
-                    .append(Long.toString(movable.getMovableUID()), TextType.HIGHLIGHT)
+                    .append(Long.toString(movable.getUID()), TextType.HIGHLIGHT)
                     .append(": ", TextType.INFO)
                     .append(movable.getMovableType().getSimpleName(), TextType.HIGHLIGHT)
                     .append(", Creator: ", TextType.INFO)

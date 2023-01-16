@@ -260,9 +260,9 @@ public class SQLiteJDBCDriverConnectionTest
 
         if (!movable.equals(test.get(0)))
             Assertions.fail(
-                "Data of retrieved movable is not the same! ID = " + movable.getMovableUID() + ", name = " +
+                "Data of retrieved movable is not the same! ID = " + movable.getUID() + ", name = " +
                     movable.getName() +
-                    ", found ID = " + test.get(0).getMovableUID() + ", found name = " + test.get(0).getName());
+                    ", found ID = " + test.get(0).getUID() + ", found name = " + test.get(0).getName());
     }
 
     /**
@@ -328,7 +328,7 @@ public class SQLiteJDBCDriverConnectionTest
         Assertions.assertEquals(3, storage.getMovablesInChunk(chunkId).size());
 
         // Check if adding owners works correctly.
-        UnitTestUtil.optionalEquals(1, storage.getMovable(1L), (movable) -> movable.getMovableOwners().size());
+        UnitTestUtil.optionalEquals(1, storage.getMovable(1L), (movable) -> movable.getOwners().size());
 
         // Try adding playerData2 as owner of movable 2.
         Assertions.assertTrue(storage.addOwner(2L, PLAYER_DATA_2, PermissionLevel.ADMIN));
@@ -340,17 +340,17 @@ public class SQLiteJDBCDriverConnectionTest
         Assertions.assertFalse(storage.addOwner(2L, PLAYER_DATA_2, PermissionLevel.CREATOR));
 
         // Try adding a player that is not in the database yet as owner.
-        UnitTestUtil.optionalEquals(1, storage.getMovable(1L), (movable) -> movable.getMovableOwners().size());
+        UnitTestUtil.optionalEquals(1, storage.getMovable(1L), (movable) -> movable.getOwners().size());
         Assertions.assertTrue(storage.addOwner(1L, PLAYER_DATA_3, PermissionLevel.ADMIN));
-        UnitTestUtil.optionalEquals(2, storage.getMovable(1L), (movable) -> movable.getMovableOwners().size());
+        UnitTestUtil.optionalEquals(2, storage.getMovable(1L), (movable) -> movable.getOwners().size());
 
         // Verify the permission level of player 2 over movable 2.
         UnitTestUtil.optionalEquals(PermissionLevel.ADMIN, storage.getMovable(2L),
-                                    (movable) -> movable.getMovableOwner(PLAYER_DATA_2.getUUID())
+                                    (movable) -> movable.getOwner(PLAYER_DATA_2.getUUID())
                                                         .map(MovableOwner::permission)
                                                         .orElse(PermissionLevel.NO_PERMISSION));
         // Verify there are only 2 owners of movable 2 (player 1 didn't get copied).
-        UnitTestUtil.optionalEquals(2, storage.getMovable(2L), (movable) -> movable.getMovableOwners().size());
+        UnitTestUtil.optionalEquals(2, storage.getMovable(2L), (movable) -> movable.getOwners().size());
 
         // Verify that player 2 is the creator of exactly 1 movable.
         Assertions.assertEquals(1, storage.getMovables(PLAYER_DATA_2.getUUID(), PermissionLevel.CREATOR).size());
@@ -373,17 +373,17 @@ public class SQLiteJDBCDriverConnectionTest
         // Verify that adding an existing owner overrides the permission level.
         Assertions.assertTrue(storage.addOwner(2L, PLAYER_DATA_2, PermissionLevel.USER));
         UnitTestUtil.optionalEquals(PermissionLevel.USER, storage.getMovable(2L),
-                                    (movable) -> movable.getMovableOwner(PLAYER_DATA_2.getUUID())
+                                    (movable) -> movable.getOwner(PLAYER_DATA_2.getUUID())
                                                         .map(MovableOwner::permission)
                                                         .orElse(PermissionLevel.NO_PERMISSION));
 
         // Remove player 2 as owner of movable 2.
         Assertions.assertTrue(storage.removeOwner(2L, PLAYER_DATA_2.getUUID()));
-        UnitTestUtil.optionalEquals(1, storage.getMovable(2L), (movable) -> movable.getMovableOwners().size());
+        UnitTestUtil.optionalEquals(1, storage.getMovable(2L), (movable) -> movable.getOwners().size());
 
         // Try to remove player 1 (creator) of movable 2. This is not allowed.
         Assertions.assertFalse(storage.removeOwner(2L, PLAYER_DATA_1.getUUID()));
-        UnitTestUtil.optionalEquals(1, storage.getMovable(2L), (movable) -> movable.getMovableOwners().size());
+        UnitTestUtil.optionalEquals(1, storage.getMovable(2L), (movable) -> movable.getOwners().size());
 
         // Verify that after deletion of player 2 as owner, player 2 is now owner with permission level <= 1
         // of exactly 1 movable, with the name shared between movables 2 and 3. This will be movable 3.

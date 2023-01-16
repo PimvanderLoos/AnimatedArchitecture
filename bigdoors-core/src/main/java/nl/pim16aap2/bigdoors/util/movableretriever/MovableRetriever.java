@@ -306,7 +306,7 @@ public sealed abstract class MovableRetriever
         @Override
         public CompletableFuture<Optional<AbstractMovable>> getMovable(IPPlayer player)
         {
-            return movable != null && movable.isMovableOwner(player) ?
+            return movable != null && movable.isOwner(player) ?
                    getMovable() : CompletableFuture.completedFuture(Optional.empty());
         }
     }
@@ -346,7 +346,7 @@ public sealed abstract class MovableRetriever
         private List<AbstractMovable> getMovables0(IPPlayer player)
         {
             final UUID playerUUID = player.getUUID();
-            return movables.stream().filter(movable -> movable.isMovableOwner(playerUUID)).collect(Collectors.toList());
+            return movables.stream().filter(movable -> movable.isOwner(playerUUID)).collect(Collectors.toList());
         }
 
         @Override
@@ -401,7 +401,7 @@ public sealed abstract class MovableRetriever
         {
             final UUID playerUUID = player.getUUID();
             return movables
-                .thenApply(retrieved -> retrieved.stream().filter(movable -> movable.isMovableOwner(playerUUID))
+                .thenApply(retrieved -> retrieved.stream().filter(movable -> movable.isOwner(playerUUID))
                                                  .toList());
         }
 
@@ -450,7 +450,7 @@ public sealed abstract class MovableRetriever
                 movableOpt ->
                 {
                     final boolean playerIsPresent =
-                        movableOpt.map(movable -> movable.isMovableOwner(player)).orElse(false);
+                        movableOpt.map(movable -> movable.isOwner(player)).orElse(false);
                     return playerIsPresent ? movableOpt : Optional.empty();
                 });
         }

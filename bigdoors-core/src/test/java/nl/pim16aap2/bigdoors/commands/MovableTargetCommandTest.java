@@ -40,8 +40,8 @@ class MovableTargetCommandTest
         MockitoAnnotations.openMocks(this);
 
         initCommandSenderPermissions(commandSender, true, true);
-        Mockito.when(movable.isMovableOwner(Mockito.any(UUID.class))).thenReturn(true);
-        Mockito.when(movable.isMovableOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
+        Mockito.when(movable.isOwner(Mockito.any(UUID.class))).thenReturn(true);
+        Mockito.when(movable.isOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
 
         final MovableType movableType = Mockito.mock(MovableType.class);
         Mockito.when(movableType.getLocalizationKey()).thenReturn("MovableType");
@@ -75,8 +75,8 @@ class MovableTargetCommandTest
     void testExecutionFailureNoMovable()
         throws Exception
     {
-        Mockito.when(movable.isMovableOwner(Mockito.any(UUID.class))).thenReturn(false);
-        Mockito.when(movable.isMovableOwner(Mockito.any(IPPlayer.class))).thenReturn(false);
+        Mockito.when(movable.isOwner(Mockito.any(UUID.class))).thenReturn(false);
+        Mockito.when(movable.isOwner(Mockito.any(IPPlayer.class))).thenReturn(false);
 
         Assertions.assertFalse(movableTargetCommand.executeCommand(new PermissionsStatus(true, true))
                                                    .get(1, TimeUnit.SECONDS));

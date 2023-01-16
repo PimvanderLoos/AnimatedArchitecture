@@ -487,7 +487,7 @@ public final class Util
     public static boolean hasPermissionForAction(UUID uuid, IMovableConst movable, MovableAttribute attribute)
     {
         return movable
-            .getMovableOwner(uuid)
+            .getOwner(uuid)
             .map(movableOwner -> movableOwner.permission().isLowerThanOrEquals(attribute.getPermissionLevel()))
             .orElse(false);
     }

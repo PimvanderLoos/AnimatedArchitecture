@@ -93,7 +93,7 @@ public final class AutoCloseScheduler extends Restartable
             return;
 
         // First delete any old timers that might still be running.
-        deleteTimer(movable.getMovableUID());
+        deleteTimer(movable.getUID());
         // Add 2 ticks to the minimum delay to make sure there's no overlap with setting the movable available again.
         final int delay = Math.min(Constants.MINIMUM_MOVABLE_DELAY + 2, autoCloseTimer * 20);
 
@@ -104,7 +104,7 @@ public final class AutoCloseScheduler extends Restartable
             {
                 if (movable.isOpen())
                 {
-                    movableActivityManager.setMovableAvailable(movable.getMovableUID());
+                    movableActivityManager.setMovableAvailable(movable.getUID());
                     movableToggleRequestBuilder.builder()
                                                .movable(movable)
                                                .movableActionCause(MovableActionCause.AUTOCLOSE)
@@ -115,10 +115,10 @@ public final class AutoCloseScheduler extends Restartable
                                                .build().execute();
 
                 }
-                deleteTimer(movable.getMovableUID());
+                deleteTimer(movable.getUID());
             }
         };
-        timers.put(movable.getMovableUID(), task);
+        timers.put(movable.getUID(), task);
         executor.runSyncLater(task, delay);
     }
 

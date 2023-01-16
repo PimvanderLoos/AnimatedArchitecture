@@ -46,8 +46,8 @@ class SetAutoCloseTimeTest
         movable = Mockito.mock(AbstractMovable.class,
                                Mockito.withSettings().extraInterfaces(ITimerToggleable.class));
         Mockito.when(movable.syncData()).thenReturn(CompletableFuture.completedFuture(true));
-        Mockito.when(movable.isMovableOwner(Mockito.any(UUID.class))).thenReturn(true);
-        Mockito.when(movable.isMovableOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
+        Mockito.when(movable.isOwner(Mockito.any(UUID.class))).thenReturn(true);
+        Mockito.when(movable.isOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
 
         Mockito.when(movableType.getLocalizationKey()).thenReturn("MovableType");
         Mockito.when(movable.getMovableType()).thenReturn(movableType);

@@ -46,8 +46,8 @@ class LockTest
         MockitoAnnotations.openMocks(this);
 
         initCommandSenderPermissions(commandSender, true, true);
-        Mockito.when(door.isMovableOwner(Mockito.any(UUID.class))).thenReturn(true);
-        Mockito.when(door.isMovableOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
+        Mockito.when(door.isOwner(Mockito.any(UUID.class))).thenReturn(true);
+        Mockito.when(door.isOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
         doorRetriever = MovableRetrieverFactory.ofMovable(door);
 
         Mockito.when(door.syncData()).thenReturn(CompletableFuture.completedFuture(true));

@@ -54,8 +54,8 @@ class RemoveOwnerTest
         Mockito.when(doorType.getLocalizationKey()).thenReturn("DoorType");
         Mockito.when(door.getMovableType()).thenReturn(doorType);
 
-        Mockito.when(door.isMovableOwner(Mockito.any(UUID.class))).thenReturn(true);
-        Mockito.when(door.isMovableOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
+        Mockito.when(door.isOwner(Mockito.any(UUID.class))).thenReturn(true);
+        Mockito.when(door.isOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
         doorRetriever = MovableRetrieverFactory.ofMovable(door);
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
@@ -86,11 +86,11 @@ class RemoveOwnerTest
         Assertions.assertFalse(removeOwner.isAllowed(door, true));
 
         // Removing the level0 owner is not allowed even with bypass enabled!
-        Mockito.when(door.getMovableOwner(target)).thenReturn(Optional.of(movableOwnerCreator));
+        Mockito.when(door.getOwner(target)).thenReturn(Optional.of(movableOwnerCreator));
         Assertions.assertFalse(removeOwner.isAllowed(door, true));
 
         // Removing level>0 owners IS allowed with bypass even if
-        Mockito.when(door.getMovableOwner(target)).thenReturn(Optional.of(movableOwnerAdmin));
+        Mockito.when(door.getOwner(target)).thenReturn(Optional.of(movableOwnerAdmin));
         Assertions.assertTrue(removeOwner.isAllowed(door, true));
     }
 
@@ -99,11 +99,11 @@ class RemoveOwnerTest
     {
         final RemoveOwner removeOwner = factory.newRemoveOwner(commandSender, doorRetriever, target);
 
-        Mockito.when(door.getMovableOwner(commandSender)).thenReturn(Optional.of(movableOwnerCreator));
-        Mockito.when(door.getMovableOwner(target)).thenReturn(Optional.of(movableOwnerAdmin));
+        Mockito.when(door.getOwner(commandSender)).thenReturn(Optional.of(movableOwnerCreator));
+        Mockito.when(door.getOwner(target)).thenReturn(Optional.of(movableOwnerAdmin));
         Assertions.assertTrue(removeOwner.isAllowed(door, false));
 
-        Mockito.when(door.getMovableOwner(target)).thenReturn(Optional.of(movableOwnerUser));
+        Mockito.when(door.getOwner(target)).thenReturn(Optional.of(movableOwnerUser));
         Assertions.assertTrue(removeOwner.isAllowed(door, false));
     }
 
@@ -112,29 +112,29 @@ class RemoveOwnerTest
     {
         final RemoveOwner removeOwner = factory.newRemoveOwner(commandSender, doorRetriever, target);
 
-        Mockito.when(door.getMovableOwner(target)).thenReturn(Optional.of(movableOwnerCreator));
-        Mockito.when(door.getMovableOwner(commandSender)).thenReturn(Optional.of(movableOwnerCreator));
+        Mockito.when(door.getOwner(target)).thenReturn(Optional.of(movableOwnerCreator));
+        Mockito.when(door.getOwner(commandSender)).thenReturn(Optional.of(movableOwnerCreator));
         Assertions.assertFalse(removeOwner.isAllowed(door, false));
 
-        Mockito.when(door.getMovableOwner(commandSender)).thenReturn(Optional.of(movableOwnerAdmin));
+        Mockito.when(door.getOwner(commandSender)).thenReturn(Optional.of(movableOwnerAdmin));
         Assertions.assertFalse(removeOwner.isAllowed(door, false));
 
-        Mockito.when(door.getMovableOwner(commandSender)).thenReturn(Optional.of(movableOwnerAdmin));
+        Mockito.when(door.getOwner(commandSender)).thenReturn(Optional.of(movableOwnerAdmin));
         Assertions.assertFalse(removeOwner.isAllowed(door, false));
 
-        Mockito.when(door.getMovableOwner(target)).thenReturn(Optional.of(movableOwnerAdmin));
+        Mockito.when(door.getOwner(target)).thenReturn(Optional.of(movableOwnerAdmin));
         Assertions.assertFalse(removeOwner.isAllowed(door, false));
 
-        Mockito.when(door.getMovableOwner(target)).thenReturn(Optional.of(movableOwnerUser));
+        Mockito.when(door.getOwner(target)).thenReturn(Optional.of(movableOwnerUser));
         Assertions.assertTrue(removeOwner.isAllowed(door, false));
 
-        Mockito.when(door.getMovableOwner(target)).thenReturn(Optional.of(movableOwnerUser));
+        Mockito.when(door.getOwner(target)).thenReturn(Optional.of(movableOwnerUser));
         Assertions.assertTrue(removeOwner.isAllowed(door, false));
 
-        Mockito.when(door.getMovableOwner(commandSender)).thenReturn(Optional.of(movableOwnerUser));
+        Mockito.when(door.getOwner(commandSender)).thenReturn(Optional.of(movableOwnerUser));
         Assertions.assertFalse(removeOwner.isAllowed(door, true));
 
-        Mockito.when(door.getMovableOwner(commandSender)).thenReturn(Optional.empty());
+        Mockito.when(door.getOwner(commandSender)).thenReturn(Optional.empty());
         Assertions.assertFalse(removeOwner.isAllowed(door, false));
     }
 
@@ -164,8 +164,8 @@ class RemoveOwnerTest
     void testDatabaseInteraction()
         throws Exception
     {
-        Mockito.when(door.getMovableOwner(commandSender)).thenReturn(Optional.of(movableOwnerCreator));
-        Mockito.when(door.getMovableOwner(target)).thenReturn(Optional.of(movableOwnerAdmin));
+        Mockito.when(door.getOwner(commandSender)).thenReturn(Optional.of(movableOwnerCreator));
+        Mockito.when(door.getOwner(target)).thenReturn(Optional.of(movableOwnerAdmin));
 
         final CompletableFuture<Boolean> result = factory.newRemoveOwner(commandSender, doorRetriever, target).run();
         Assertions.assertTrue(result.get(1, TimeUnit.SECONDS));

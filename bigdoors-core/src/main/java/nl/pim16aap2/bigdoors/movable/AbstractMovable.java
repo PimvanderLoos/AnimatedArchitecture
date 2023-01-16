@@ -70,9 +70,9 @@ public abstract class AbstractMovable implements IMovable
         this.autoCloseScheduler = autoCloseScheduler;
         this.movableOpeningHelper = movableOpeningHelper;
 
-        log.at(Level.FINEST).log("Instantiating movable: %d", movableBase.getMovableUID());
-        if (movableBase.getMovableUID() > 0 && !movableRegistry.registerMovable(new Registrable()))
-            throw new IllegalStateException("Tried to create new movable \"" + movableBase.getMovableUID() +
+        log.at(Level.FINEST).log("Instantiating movable: %d", movableBase.getUID());
+        if (movableBase.getUID() > 0 && !movableRegistry.registerMovable(new Registrable()))
+            throw new IllegalStateException("Tried to create new movable \"" + movableBase.getUID() +
                                                 "\" while it is already registered!");
     }
 
@@ -452,7 +452,7 @@ public abstract class AbstractMovable implements IMovable
     @Locked.Read
     public String getBasicInfo()
     {
-        return getMovableUID() + " (" + getPrimeOwner() + ") - " + getMovableType().getSimpleName() + ": " + getName();
+        return getUID() + " (" + getPrimeOwner() + ") - " + getMovableType().getSimpleName() + ": " + getName();
     }
 
     @Override
@@ -495,21 +495,21 @@ public abstract class AbstractMovable implements IMovable
     }
 
     @Override
-    public Collection<MovableOwner> getMovableOwners()
+    public Collection<MovableOwner> getOwners()
     {
-        return movableBase.getMovableOwners();
+        return movableBase.getOwners();
     }
 
     @Override
-    public Optional<MovableOwner> getMovableOwner(UUID uuid)
+    public Optional<MovableOwner> getOwner(UUID uuid)
     {
-        return movableBase.getMovableOwner(uuid);
+        return movableBase.getOwner(uuid);
     }
 
     @Override
-    public boolean isMovableOwner(UUID player)
+    public boolean isOwner(UUID player)
     {
-        return movableBase.isMovableOwner(player);
+        return movableBase.isOwner(player);
     }
 
     @Override
@@ -562,9 +562,9 @@ public abstract class AbstractMovable implements IMovable
     }
 
     @Override
-    public long getMovableUID()
+    public long getUID()
     {
-        return movableBase.getMovableUID();
+        return movableBase.getUID();
     }
 
     @Override

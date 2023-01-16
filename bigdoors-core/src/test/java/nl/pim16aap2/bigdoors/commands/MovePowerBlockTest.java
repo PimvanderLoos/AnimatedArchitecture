@@ -52,8 +52,8 @@ class MovePowerBlockTest
 
         initCommandSenderPermissions(commandSender, true, true);
         doorRetriever = MovableRetrieverFactory.ofMovable(door);
-        Mockito.when(door.isMovableOwner(uuid)).thenReturn(true);
-        Mockito.when(door.isMovableOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
+        Mockito.when(door.isOwner(uuid)).thenReturn(true);
+        Mockito.when(door.isOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
         Mockito.when(commandSender.getUUID()).thenReturn(uuid);
         Mockito.when(toolUserManager.getToolUser(uuid)).thenReturn(Optional.of(toolUser));
 

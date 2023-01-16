@@ -43,8 +43,8 @@ class InfoTest
         MockitoAnnotations.openMocks(this);
 
         movableRetriever = MovableRetrieverFactory.ofMovable(movable);
-        Mockito.when(movable.isMovableOwner(Mockito.any(UUID.class))).thenReturn(true);
-        Mockito.when(movable.isMovableOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
+        Mockito.when(movable.isOwner(Mockito.any(UUID.class))).thenReturn(true);
+        Mockito.when(movable.isOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
 
         final MovableType movableType = Mockito.mock(MovableType.class);
         Mockito.when(movableType.getLocalizationKey()).thenReturn("MovableType");
@@ -92,7 +92,7 @@ class InfoTest
         Mockito.verify(player).sendMessage(UnitTestUtil.toText(movableString));
 
         initCommandSenderPermissions(player, true, false);
-        Mockito.when(movable.getMovableOwner(player)).thenReturn(Optional.of(movableOwnerCreator));
+        Mockito.when(movable.getOwner(player)).thenReturn(Optional.of(movableOwnerCreator));
         Assertions.assertTrue(factory.newInfo(player, movableRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(glowingBlockSpawner, Mockito.times(2))
                .spawnGlowingBlocks(Mockito.any(), Mockito.any(), Mockito.any());

@@ -70,7 +70,7 @@ public interface IMovableConst
      *
      * @return The UID of the {@link IMovable} as used in the database.
      */
-    long getMovableUID();
+    long getUID();
 
     /**
      * Check if the {@link IMovable} is currently locked. When locked, movables cannot be opened.
@@ -99,7 +99,7 @@ public interface IMovableConst
      *
      * @return All {@link MovableOwner}s of this movable, including the original creator.
      */
-    Collection<MovableOwner> getMovableOwners();
+    Collection<MovableOwner> getOwners();
 
     /**
      * Attempts to get the {@link MovableOwner} of this movable represented by the UUID of a player.
@@ -109,7 +109,7 @@ public interface IMovableConst
      * @return The {@link MovableOwner} of this movable for the given player, if this player is a {@link MovableOwner}
      * of this movable.
      */
-    Optional<MovableOwner> getMovableOwner(UUID player);
+    Optional<MovableOwner> getOwner(UUID player);
 
     /**
      * Attempts to get the {@link MovableOwner} of this movable represented by an {@link IPPlayer}.
@@ -119,28 +119,28 @@ public interface IMovableConst
      * @return The {@link MovableOwner} of this movable for the given player, if this player is a {@link MovableOwner}
      * of this movable.
      */
-    default Optional<MovableOwner> getMovableOwner(IPPlayer player)
+    default Optional<MovableOwner> getOwner(IPPlayer player)
     {
-        return getMovableOwner(player.getUUID());
+        return getOwner(player.getUUID());
     }
 
     /**
      * Checks if a player with a given UUID is a (co-)owner of this movable with any level of ownership.
      * <p>
-     * If the level of ownership matters, use {@link #getMovableOwner(UUID)} instead.
+     * If the level of ownership matters, use {@link #getOwner(UUID)} instead.
      *
      * @param player
      *     The UUID of a player.
      * @return True if the player with the given UUID is an owner of this movable with any level of ownership.
      */
-    boolean isMovableOwner(UUID player);
+    boolean isOwner(UUID player);
 
     /**
-     * See {@link #isMovableOwner(UUID)}.
+     * See {@link #isOwner(UUID)}.
      */
-    default boolean isMovableOwner(IPPlayer player)
+    default boolean isOwner(IPPlayer player)
     {
-        return isMovableOwner(player.getUUID());
+        return isOwner(player.getUUID());
     }
 
     /**
