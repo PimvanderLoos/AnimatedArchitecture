@@ -8,8 +8,8 @@ import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.debugging.IDebuggable;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
-import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
+import nl.pim16aap2.bigdoors.managers.MovableTypeManager;
+import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -30,35 +30,35 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
     private static final AudioSet EMPTY_AUDIO_SET = new AudioSet(null, null);
 
     private final AudioConfigIO audioConfigIO;
-    private final DoorTypeManager doorTypeManager;
+    private final MovableTypeManager movableTypeManager;
     @Getter(AccessLevel.PACKAGE)
-    private Map<DoorType, AudioSet> audioMap = new HashMap<>();
+    private Map<MovableType, AudioSet> audioMap = new HashMap<>();
 
     @Inject//
     AudioConfigurator(
         AudioConfigIO audioConfigIO, RestartableHolder restartableHolder,
-        DebuggableRegistry debuggableRegistry, DoorTypeManager doorTypeManager)
+        DebuggableRegistry debuggableRegistry, MovableTypeManager movableTypeManager)
     {
         this.audioConfigIO = audioConfigIO;
-        this.doorTypeManager = doorTypeManager;
+        this.movableTypeManager = movableTypeManager;
 
         restartableHolder.registerRestartable(this);
         debuggableRegistry.registerDebuggable(this);
     }
 
     /**
-     * Retrieves the audio set mapped for a door.
+     * Retrieves the audio set mapped for a movable.
      * <p>
      * This method will use the user-specified configuration for retrieving the mapping. If the user did not modify
-     * this, the mapping is simply the same as the door type's default audio set.
+     * this, the mapping is simply the same as the movable type's default audio set.
      *
-     * @param doorType
-     *     The type of the door for which to retrieve the audio set to use.
-     * @return The audio set mapped for the given door.
+     * @param movableType
+     *     The type of the movable for which to retrieve the audio set to use.
+     * @return The audio set mapped for the given movable.
      */
-    public AudioSet getAudioSet(DoorType doorType)
+    public AudioSet getAudioSet(MovableType movableType)
     {
-        final @Nullable AudioSet ret = audioMap.get(doorType);
+        final @Nullable AudioSet ret = audioMap.get(movableType);
         return ret == null ? EMPTY_AUDIO_SET : ret;
     }
 
@@ -78,10 +78,10 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
      *     The config data to use to generate the final map.
      * @return The generated final map.
      */
-    Map<DoorType, AudioSet> getFinalMap(ConfigData configData)
+    Map<MovableType, AudioSet> getFinalMap(ConfigData configData)
     {
         @SuppressWarnings("NullAway") // NullAway currently does not work well with nullable annotations in generics.
-        final Map<DoorType, AudioSet> ret = new LinkedHashMap<>(configData.sets.size());
+        final Map<MovableType, AudioSet> ret = new LinkedHashMap<>(configData.sets.size());
 
         final AudioSet fallback = configData.defaultSet == null ? EMPTY_AUDIO_SET : configData.defaultSet;
         configData.sets.forEach((key, val) -> ret.put(key, val == null ? fallback : val));
@@ -89,12 +89,12 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
     }
 
     /**
-     * @return The configured data based on the defaults provided by the door types and the user-specified
+     * @return The configured data based on the defaults provided by the movable types and the user-specified
      * configurations.
      */
     ConfigData generateConfigData()
     {
-        final Map<DoorType, @Nullable AudioSet> defaults = getDefaults();
+        final Map<MovableType, @Nullable AudioSet> defaults = getDefaults();
         final Map<String, @Nullable AudioSet> parsed = audioConfigIO.readConfig();
 
         @SuppressWarnings("NullAway") // NullAway currently does not work well with nullable annotations in generics.
@@ -103,27 +103,28 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
     }
 
     /**
-     * @return The default audio set mappings for each door type as specified by the door type itself.
+     * @return The default audio set mappings for each movable type as specified by the movable type itself.
      */
-    private Map<DoorType, @Nullable AudioSet> getDefaults()
+    private Map<MovableType, @Nullable AudioSet> getDefaults()
     {
-        final Collection<DoorType> enabledDoorTypes = doorTypeManager.getEnabledDoorTypes();
-        final Map<DoorType, @Nullable AudioSet> defaultMap = new LinkedHashMap<>(enabledDoorTypes.size());
-        doorTypeManager.getEnabledDoorTypes().forEach(type -> defaultMap.put(type, type.getAudioSet()));
+        final Collection<MovableType> enabledenabledMovableTypesTypes = movableTypeManager.getEnabledMovableTypes();
+        final Map<MovableType, @Nullable AudioSet> defaultMap =
+            new LinkedHashMap<>(enabledenabledMovableTypesTypes.size());
+        movableTypeManager.getEnabledMovableTypes().forEach(type -> defaultMap.put(type, type.getAudioSet()));
         return defaultMap;
     }
 
     // NullAway currently does not work well with nullable annotations in generics.
     @SuppressWarnings("NullAway")
-    private Map<DoorType, @Nullable AudioSet> mergeMaps(
-        Map<String, @Nullable AudioSet> parsed, Map<DoorType, @Nullable AudioSet> defaults)
+    private Map<MovableType, @Nullable AudioSet> mergeMaps(
+        Map<String, @Nullable AudioSet> parsed, Map<MovableType, @Nullable AudioSet> defaults)
     {
-        final LinkedHashMap<DoorType, @Nullable AudioSet> merged = new LinkedHashMap<>(defaults);
+        final LinkedHashMap<MovableType, @Nullable AudioSet> merged = new LinkedHashMap<>(defaults);
         for (final Map.Entry<String, @Nullable AudioSet> entry : parsed.entrySet())
         {
             if (KEY_DEFAULT.equals(entry.getKey()))
                 continue;
-            doorTypeManager.getDoorType(entry.getKey()).ifPresent(type -> merged.put(type, entry.getValue()));
+            movableTypeManager.getMovableType(entry.getKey()).ifPresent(type -> merged.put(type, entry.getValue()));
         }
         return merged;
     }
@@ -153,7 +154,7 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
     static class ConfigData
     {
         private final @Nullable AudioSet defaultSet;
-        private final Map<DoorType, @Nullable AudioSet> sets;
+        private final Map<MovableType, @Nullable AudioSet> sets;
 
         @Nullable AudioSet defaultSet()
         {
@@ -162,7 +163,7 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
 
         // NullAway currently does not work well with nullable annotations in generics.
         @SuppressWarnings("NullAway")
-        Map<DoorType, @Nullable AudioSet> sets()
+        Map<MovableType, @Nullable AudioSet> sets()
         {
             return sets;
         }

@@ -10,7 +10,7 @@ import nl.pim16aap2.bigdoors.util.Util;
 @SuppressWarnings("unused")
 public enum SQLStatement
 {
-    UPDATE_DOOR_BASE(
+    UPDATE_MOVABLE_BASE(
         """
         UPDATE DoorBase SET
         name           = ?,
@@ -36,15 +36,15 @@ public enum SQLStatement
         """
     ),
 
-    UPDATE_DOOR_OWNER_PERMISSION(
+    UPDATE_MOVABLE_OWNER_PERMISSION(
         "UPDATE DoorOwnerPlayer SET permission = ? WHERE playerID = ? and doorUID = ?;"
     ),
 
-    GET_DOOR_OWNER_PLAYER(
+    GET_MOVABLE_OWNER_PLAYER(
         "SELECT * FROM DoorOwnerPlayer WHERE playerID = ? AND doorUID = ?;"
     ),
 
-    DELETE_NAMED_DOOR_OF_PLAYER(
+    DELETE_NAMED_MOVABLE_OF_PLAYER(
         """
         DELETE FROM DoorBase
         WHERE DoorBase.id IN
@@ -55,7 +55,7 @@ public enum SQLStatement
         """
     ),
 
-    DELETE_DOOR_TYPE(
+    DELETE_MOVABLE_TYPE(
         "DELETE FROM DoorBase WHERE DoorBase.doorType = ?;"
     ),
 
@@ -63,11 +63,11 @@ public enum SQLStatement
         "SELECT last_insert_rowid() AS lastId;"
     ),
 
-    INSERT_DOOR_OWNER(
+    INSERT_MOVABLE_OWNER(
         "INSERT INTO DoorOwnerPlayer (permission, playerID, doorUID) VALUES (?,?,?);"
     ),
 
-    REMOVE_DOOR_OWNER(
+    REMOVE_MOVABLE_OWNER(
         """
         DELETE
         FROM DoorOwnerPlayer
@@ -83,9 +83,9 @@ public enum SQLStatement
     ),
 
     /**
-     * Gets all the doors that have their <b>rotationPoint</b> in the chunk with the given chunk hash.
+     * Gets all the movables that have their <b>rotationPoint</b> in the chunk with the given chunk hash.
      */
-    GET_DOORS_IN_CHUNK(
+    GET_MOVABLE_IN_CHUNK(
         "SELECT * FROM DoorBase WHERE rotationPointChunkId = ?;"
     ),
 
@@ -138,15 +138,15 @@ public enum SQLStatement
         "SELECT * FROM Player WHERE playerName = ?;"
     ),
 
-    GET_OWNER_COUNT_OF_DOOR(
+    GET_OWNER_COUNT_OF_MOVABLE(
         "SELECT COUNT(*) AS total FROM DoorOwnerPlayer WHERE doorUID = ?;"
     ),
 
-    GET_DOOR_COUNT_BY_NAME(
+    GET_MOVABLE_COUNT_BY_NAME(
         "SELECT COUNT(*) AS total FROM DoorBase WHERE name = ?;"
     ),
 
-    GET_PLAYER_DOOR_COUNT(
+    GET_PLAYER_MOVABLE_COUNT(
         """
         SELECT COUNT(*) AS total
         FROM DoorOwnerPlayer AS U
@@ -156,7 +156,7 @@ public enum SQLStatement
         """
     ),
 
-    GET_DOOR_COUNT_FOR_PLAYER(
+    GET_MOVABLE_COUNT_FOR_PLAYER(
         """
         SELECT COUNT(*) AS total
         FROM DoorOwnerPlayer AS U INNER JOIN Player AS P on U.playerID = P.id
@@ -173,7 +173,7 @@ public enum SQLStatement
         """
     ),
 
-    DELETE_DOOR(
+    DELETE_MOVABLE(
         "DELETE FROM DoorBase WHERE id = ?;"
     ),
 
@@ -181,7 +181,7 @@ public enum SQLStatement
         "SELECT id FROM Player WHERE playerUUID = ?;"
     ),
 
-    GET_DOOR_BASE_FROM_ID(
+    GET_MOVABLE_BASE_FROM_ID(
         """
         SELECT DoorBase.*, Player.*, DoorOwnerPlayer.permission
         FROM DoorBase
@@ -192,9 +192,9 @@ public enum SQLStatement
     ),
 
     /**
-     * Obtains the IDs of all doors whose rotationPoint's chunk hash value has a certain value.
+     * Obtains the IDs of all movables whose rotationPoint's chunk hash value has a certain value.
      */
-    GET_DOOR_IDS_IN_CHUNK(
+    GET_MOVABLE_IDS_IN_CHUNK(
         """
         SELECT DoorBase.id
         FROM DoorBase
@@ -202,7 +202,7 @@ public enum SQLStatement
         """
     ),
 
-    GET_DOOR_BASE_FROM_ID_FOR_PLAYER(
+    GET_MOVABLE_BASE_FROM_ID_FOR_PLAYER(
         """
         SELECT DoorBase.*, Player.*, DoorOwnerPlayer.permission
         FROM DoorBase
@@ -212,7 +212,7 @@ public enum SQLStatement
         """
     ),
 
-    GET_NAMED_DOORS_OWNED_BY_PLAYER(
+    GET_NAMED_MOVABLES_OWNED_BY_PLAYER(
         """
         SELECT DoorBase.*, Player.*, DoorOwnerPlayer.permission
         FROM DoorBase
@@ -222,7 +222,7 @@ public enum SQLStatement
         """
     ),
 
-    GET_DOORS_WITH_NAME(
+    GET_MOVABLES_WITH_NAME(
         """
         SELECT DoorBase.*, Player.*, DoorOwnerPlayer.permission
         FROM DoorBase
@@ -232,7 +232,7 @@ public enum SQLStatement
         """
     ),
 
-    GET_DOORS_OWNED_BY_PLAYER_WITH_LEVEL(
+    GET_MOVABLES_OWNED_BY_PLAYER_WITH_LEVEL(
         """
         SELECT DoorBase.*, Player.*, DoorOwnerPlayer.permission
         FROM DoorBase
@@ -242,7 +242,7 @@ public enum SQLStatement
         """
     ),
 
-    GET_DOOR_OWNERS(
+    GET_MOVABLE_OWNERS(
         """
         SELECT O.doorUID, O.permission, P.*
         FROM DoorOwnerPlayer AS O INNER JOIN Player AS P ON O.playerID = P.id
@@ -250,7 +250,7 @@ public enum SQLStatement
         """
     ),
 
-    INSERT_DOOR_BASE(
+    INSERT_MOVABLE_BASE(
         """
         INSERT INTO DoorBase
         (name, world, xMin, yMin, zMin, xMax, yMax, zMax, rotationPointX, rotationPointY, rotationPointZ,
@@ -261,7 +261,7 @@ public enum SQLStatement
     ),
 
     /**
-     * Inserts a new door creator. This is a door owner with permission level 0.
+     * Inserts a new movable creator. This is a movable owner with permission level 0.
      * <p>
      * This statement is intended to be used in the same transaction that inserted the DoorBase.
      */
@@ -278,7 +278,7 @@ public enum SQLStatement
         """
     ),
 
-    SELECT_MOST_RECENT_DOOR(
+    SELECT_MOST_RECENT_MOVABLE(
         """
         SELECT seq
         FROM sqlite_sequence
@@ -306,11 +306,11 @@ public enum SQLStatement
         "UPDATE SQLITE_SEQUENCE SET seq = 100 WHERE name = 'Player' and seq < 100;"
     ),
 
-    RESERVE_IDS_DOORBASE(
+    RESERVE_IDS_MOVABLE(
         "UPDATE SQLITE_SEQUENCE SET seq = 100 WHERE name = 'DoorBase' and seq < 100;"
     ),
 
-    RESERVE_IDS_DOOROWNER_PLAYER(
+    RESERVE_IDS_MOVABLE_OWNER_PLAYER(
         "UPDATE SQLITE_SEQUENCE SET seq = 100 WHERE name = 'DoorOwnerPlayer' and seq < 100;"
     ),
 
@@ -327,7 +327,7 @@ public enum SQLStatement
         """
     ),
 
-    CREATE_TABLE_DOORBASE(
+    CREATE_TABLE_MOVABLE(
         """
         CREATE TABLE IF NOT EXISTS DoorBase
         (id               INTEGER    PRIMARY KEY AUTOINCREMENT,
@@ -354,7 +354,7 @@ public enum SQLStatement
         """
     ),
 
-    CREATE_TABLE_DOOROWNER_PLAYER(
+    CREATE_TABLE_MOVABLE_OWNER_PLAYER(
         """
         CREATE TABLE IF NOT EXISTS DoorOwnerPlayer
         (id            INTEGER    PRIMARY KEY AUTOINCREMENT,

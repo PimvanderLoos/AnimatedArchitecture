@@ -5,8 +5,8 @@ import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.data.cache.timed.TimedCache;
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.movable.AbstractMovable;
+import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -78,18 +78,17 @@ public final class PowerBlockManager extends Restartable
     }
 
     /**
-     * Gets all {@link DoorBase}s that have a powerblock at a location in a world.
+     * Gets all {@link MovableBase}s that have a powerblock at a location in a world.
      *
      * @param loc
      *     The location.
      * @param worldName
      *     The name of the world.
-     * @return All {@link DoorBase}s that have a powerblock at a location in a world.
+     * @return All {@link MovableBase}s that have a powerblock at a location in a world.
      */
     // TODO: Try to have about 50% less CompletableFuture here.
-    public CompletableFuture<List<CompletableFuture<Optional<AbstractDoor>>>> doorsFromPowerBlockLoc(
-        Vector3Di loc,
-        String worldName)
+    public CompletableFuture<List<CompletableFuture<Optional<AbstractMovable>>>> movablesFromPowerBlockLoc(
+        Vector3Di loc, String worldName)
     {
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
@@ -101,18 +100,18 @@ public final class PowerBlockManager extends Restartable
         return powerBlockWorld.getPowerBlocks(loc).handle(
             (list, throwable) ->
             {
-                final List<CompletableFuture<Optional<AbstractDoor>>> doorBases = new ArrayList<>();
-                list.forEach(doorUID -> doorBases.add(databaseManager.getDoor(doorUID)));
-                return doorBases;
+                final List<CompletableFuture<Optional<AbstractMovable>>> movables = new ArrayList<>();
+                list.forEach(movableUID -> movables.add(databaseManager.getMovable(movableUID)));
+                return movables;
             }).exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
-     * Checks if a world is a BigDoors world. In other words, it checks if a world contains more than 0 doors.
+     * Checks if a world is a BigDoors world. In other words, it checks if a world contains more than 0 movables.
      *
      * @param worldName
      *     The name of the world.
-     * @return True if the world contains at least 1 door.
+     * @return True if the world contains at least 1 movable.
      */
     public boolean isBigDoorsWorld(String worldName)
     {
@@ -126,24 +125,24 @@ public final class PowerBlockManager extends Restartable
     }
 
     /**
-     * Updates the position of the power block of a {@link DoorBase} in the database.
+     * Updates the position of the power block of a {@link MovableBase} in the database.
      *
-     * @param door
-     *     The {@link DoorBase}.
+     * @param movable
+     *     The {@link MovableBase}.
      * @param oldPos
      *     The old position.
      * @param newPos
      *     The new position.
      */
     @SuppressWarnings("unused")
-    public void updatePowerBlockLoc(AbstractDoor door, Vector3Di oldPos, Vector3Di newPos)
+    public void updatePowerBlockLoc(AbstractMovable movable, Vector3Di oldPos, Vector3Di newPos)
     {
-        door.setPowerBlock(newPos);
-        door.syncData();
-        final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(door.getWorld().worldName());
+        movable.setPowerBlock(newPos);
+        movable.syncData();
+        final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(movable.getWorld().worldName());
         if (powerBlockWorld == null)
         {
-            log.at(Level.WARNING).log("Failed to load power blocks for world: '%s'.", door.getWorld().worldName());
+            log.at(Level.WARNING).log("Failed to load power blocks for world: '%s'.", movable.getWorld().worldName());
             return;
         }
 
@@ -153,14 +152,14 @@ public final class PowerBlockManager extends Restartable
     }
 
     /**
-     * Invalidates the cache for when a door is either added to a world or removed from it.
+     * Invalidates the cache for when a movable is either added to a world or removed from it.
      *
      * @param worldName
-     *     The name of the world of the door.
+     *     The name of the world of the movable.
      * @param pos
-     *     The position of the door's power block.
+     *     The position of the movable's power block.
      */
-    public void onDoorAddOrRemove(String worldName, Vector3Di pos)
+    public void onMovableAddOrRemove(String worldName, Vector3Di pos)
     {
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
@@ -229,9 +228,9 @@ public final class PowerBlockManager extends Restartable
         }
 
         /**
-         * Checks if this world contains more than 0 doors (and power blocks by extension).
+         * Checks if this world contains more than 0 movables (and power blocks by extension).
          *
-         * @return True if this world contains more than 0 doors.
+         * @return True if this world contains more than 0 movables.
          */
         private boolean isBigDoorsWorld()
         {
@@ -239,11 +238,11 @@ public final class PowerBlockManager extends Restartable
         }
 
         /**
-         * Gets all UIDs of doors whose power blocks are in the given location.
+         * Gets all UIDs of movables whose power blocks are in the given location.
          *
          * @param loc
          *     The location to check.
-         * @return All UIDs of doors whose power blocks are in the given location.
+         * @return All UIDs of movables whose power blocks are in the given location.
          */
         private CompletableFuture<List<Long>> getPowerBlocks(Vector3Di loc)
         {
@@ -262,9 +261,9 @@ public final class PowerBlockManager extends Restartable
                     {
                         powerBlockChunk.setPowerBlocks(map);
 
-                        final List<Long> doorUIDs = new ArrayList<>(map.size());
-                        map.forEach((key, value) -> doorUIDs.addAll(value));
-                        return doorUIDs;
+                        final List<Long> movableUIDs = new ArrayList<>(map.size());
+                        map.forEach((key, value) -> movableUIDs.addAll(value));
+                        return movableUIDs;
                     }).exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
             }
 
@@ -285,7 +284,7 @@ public final class PowerBlockManager extends Restartable
         }
 
         /**
-         * Updates if this world contains more than 0 doors in the database (and power blocks by extension).
+         * Updates if this world contains more than 0 movables in the database (and power blocks by extension).
          * <p>
          * This differs from {@link #isBigDoorsWorld()} in that this method queries the database.
          */
@@ -314,7 +313,7 @@ public final class PowerBlockManager extends Restartable
          * Key: Hashed locations (in chunk-space coordinates),
          * {@link Util#simpleChunkSpaceLocationhash(int, int, int)}.
          * <p>
-         * Value: List of UIDs of all doors whose power block occupy this space.
+         * Value: List of UIDs of all movables whose power block occupy this space.
          */
         private Map<Integer, List<Long>> powerBlocks = Collections.emptyMap();
 
@@ -324,11 +323,11 @@ public final class PowerBlockManager extends Restartable
         }
 
         /**
-         * Gets all UIDs of doors whose power blocks are in the given location.
+         * Gets all UIDs of movables whose power blocks are in the given location.
          *
          * @param loc
          *     The location to check.
-         * @return All UIDs of doors whose power blocks are in the given location.
+         * @return All UIDs of movables whose power blocks are in the given location.
          */
         private List<Long> getPowerBlocks(Vector3Di loc)
         {
@@ -342,7 +341,7 @@ public final class PowerBlockManager extends Restartable
         /**
          * Updates if this chunk contains more than 0 power blocks.
          *
-         * @return True if this chunk contains more than 0 doors.
+         * @return True if this chunk contains more than 0 movables.
          */
         private boolean isPowerBlockChunk()
         {

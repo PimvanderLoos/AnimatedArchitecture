@@ -24,7 +24,7 @@ public class PowerBlockInspector extends ToolUser
     /**
      * Whether this user has the bypass permission.
      * <p>
-     * When this is true, the user does not have to be an owner of the door to retrieve its location.
+     * When this is true, the user does not have to be an owner of the movable to retrieve its location.
      */
     @SuppressWarnings({"PMD.SingularField", "PMD.UnusedPrivateField"}) // Not used... YET!
     // TODO: Use bypassPermission for PowerBlockInspector.

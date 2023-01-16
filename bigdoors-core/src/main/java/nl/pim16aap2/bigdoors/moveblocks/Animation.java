@@ -5,8 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimation;
-import nl.pim16aap2.bigdoors.doors.DoorSnapshot;
-import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
+import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 
 import java.util.Collections;
@@ -21,21 +21,22 @@ public class Animation<T extends IAnimatedBlock> implements IAnimation<T>
     @Getter
     private final List<T> animatedBlocks;
     @Getter
-    private final DoorSnapshot doorSnapshot;
+    private final MovableSnapshot movableSnapshot;
     @Getter
-    private final DoorType doorType;
+    private final MovableType movableType;
     @Setter(AccessLevel.PACKAGE)
     private volatile AnimationState state = AnimationState.PENDING;
     @Setter(AccessLevel.PACKAGE)
     private volatile int stepsExecuted = 0;
 
-    Animation(int duration, Cuboid region, List<T> animatedBlocks, DoorSnapshot doorSnapshot, DoorType doorType)
+    Animation(
+        int duration, Cuboid region, List<T> animatedBlocks, MovableSnapshot movableSnapshot, MovableType movableType)
     {
         this.duration = duration;
         this.region = region;
         this.animatedBlocks = Collections.unmodifiableList(animatedBlocks);
-        this.doorSnapshot = doorSnapshot;
-        this.doorType = doorType;
+        this.movableSnapshot = movableSnapshot;
+        this.movableType = movableType;
     }
 
     @Override

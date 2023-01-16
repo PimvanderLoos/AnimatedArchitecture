@@ -20,11 +20,11 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.commands.CommandDefinition;
 import nl.pim16aap2.bigdoors.commands.ICommandSender;
-import nl.pim16aap2.bigdoors.doors.PermissionLevel;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.movable.PermissionLevel;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
+import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,24 +44,25 @@ public final class CommandManager
     private final JavaPlugin plugin;
     private final ILocalizer localizer;
     private final ITextFactory textFactory;
-    private final DoorRetrieverFactory doorRetrieverFactory;
+    private final MovableRetrieverFactory movableRetrieverFactory;
     private volatile @Nullable BukkitCommandManager<ICommandSender> manager;
     private boolean asyncCompletions = false;
     private final BukkitAudiences bukkitAudiences;
-    private final DoorTypeParser doorTypeParser;
+    private final MovableTypeParser movableTypeParser;
     private final DirectionParser directionParser;
     private final CommandExecutor executor;
 
     @Inject//
     CommandManager(
-        JavaPlugin plugin, ILocalizer localizer, ITextFactory textFactory, DoorRetrieverFactory doorRetrieverFactory,
-        DoorTypeParser doorTypeParser, DirectionParser directionParser, CommandExecutor executor)
+        JavaPlugin plugin, ILocalizer localizer, ITextFactory textFactory,
+        MovableRetrieverFactory movableRetrieverFactory, MovableTypeParser movableTypeParser,
+        DirectionParser directionParser, CommandExecutor executor)
     {
         this.plugin = plugin;
         this.localizer = localizer;
         this.textFactory = textFactory;
-        this.doorRetrieverFactory = doorRetrieverFactory;
-        this.doorTypeParser = doorTypeParser;
+        this.movableRetrieverFactory = movableRetrieverFactory;
+        this.movableTypeParser = movableTypeParser;
         this.directionParser = directionParser;
         this.bukkitAudiences = BukkitAudiences.create(plugin);
         this.executor = executor;
@@ -124,11 +125,11 @@ public final class CommandManager
         initCmdDelete(manager, builder);
         initCmdInfo(manager, builder);
         initCmdInspectPowerBlock(manager, builder);
-        initCmdListDoors(manager, builder);
+        initCmdListMovables(manager, builder);
         initCmdLock(manager, builder);
         initCmdMenu(manager, builder);
         initCmdMovePowerBlock(manager, builder);
-        initCmdNewDoor(manager, builder);
+        initCmdNewMovable(manager, builder);
         initCmdRemoveOwner(manager, builder);
         initCmdRestart(manager, builder);
         initCmdSetAutoCloseTime(manager, builder);
@@ -136,7 +137,7 @@ public final class CommandManager
         initCmdSetName(manager, builder);
         initCmdSetOpenDirection(manager, builder);
         initCmdSpecify(manager, builder);
-        initCmdStopDoors(manager, builder);
+        initCmdStopMovables(manager, builder);
         initCmdToggle(manager, builder);
         initCmdVersion(manager, builder);
 
@@ -185,7 +186,7 @@ public final class CommandManager
                               .defaultDescription(ArgumentDescription.of(
                                   localizer.getMessage("commands.add_owner.param.permission_level.description")))
                               .build())
-                .argument(defaultDoorArgument(false, PermissionLevel.ADMIN).build())
+                .argument(defaultMovableArgument(false, PermissionLevel.ADMIN).build())
                 .handler(executor::addOwner)
         );
     }
@@ -222,7 +223,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.DELETE, "commands.delete.description")
-                .argument(defaultDoorArgument(true, PermissionLevel.ADMIN).build())
+                .argument(defaultMovableArgument(true, PermissionLevel.ADMIN).build())
                 .handler(executor::delete)
         );
     }
@@ -232,7 +233,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.INFO, "commands.info.description")
-                .argument(defaultDoorArgument(true, PermissionLevel.USER).build())
+                .argument(defaultMovableArgument(true, PermissionLevel.USER).build())
                 .handler(executor::info)
         );
     }
@@ -246,13 +247,13 @@ public final class CommandManager
         );
     }
 
-    private void initCmdListDoors(
+    private void initCmdListMovables(
         BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
         manager.command(
-            baseInit(builder, CommandDefinition.LIST_DOORS, "commands.list_doors.description")
-                .argument(StringArgument.optional("doorName"))
-                .handler(executor::listDoors)
+            baseInit(builder, CommandDefinition.LIST_MOVABLES, "commands.list_doors.description")
+                .argument(StringArgument.optional("movableName"))
+                .handler(executor::listMovables)
         );
     }
 
@@ -281,19 +282,19 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.MOVE_POWER_BLOCK, "commands.move_power_block.description")
-                .argument(defaultDoorArgument(true, PermissionLevel.ADMIN).build())
+                .argument(defaultMovableArgument(true, PermissionLevel.ADMIN).build())
                 .handler(executor::movePowerBlock)
         );
     }
 
-    private void initCmdNewDoor(
+    private void initCmdNewMovable(
         BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
         manager.command(
-            baseInit(builder, CommandDefinition.NEW_DOOR, "commands.new_door.description")
-                .argument(defaultDoorTypeArgument(true).build())
-                .argument(StringArgument.<ICommandSender>builder("doorName").asOptional().build())
-                .handler(executor::newDoor)
+            baseInit(builder, CommandDefinition.NEW_MOVABLE, "commands.new_door.description")
+                .argument(defaultMovableTypeArgument(true).build())
+                .argument(StringArgument.<ICommandSender>builder("movableName").asOptional().build())
+                .handler(executor::newMovable)
         );
     }
 
@@ -302,7 +303,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.REMOVE_OWNER, "commands.remove_owner.description")
-                .argument(defaultDoorArgument(true, PermissionLevel.ADMIN).build())
+                .argument(defaultMovableArgument(true, PermissionLevel.ADMIN).build())
                 .argument(PlayerArgument.of("targetPlayer"))
                 .handler(executor::removeOwner)
         );
@@ -323,7 +324,7 @@ public final class CommandManager
         manager.command(
             baseInit(builder, CommandDefinition.SET_AUTO_CLOSE_TIME, "commands.set_auto_close_time.description")
                 .argument(IntegerArgument.of("autoCloseTime"))
-                .argument(defaultDoorArgument(false, PermissionLevel.ADMIN).build())
+                .argument(defaultMovableArgument(false, PermissionLevel.ADMIN).build())
                 .handler(executor::setAutoCloseTime)
         );
     }
@@ -334,7 +335,7 @@ public final class CommandManager
         manager.command(
             baseInit(builder, CommandDefinition.SET_BLOCKS_TO_MOVE, "commands.set_blocks_to_move.description")
                 .argument(IntegerArgument.of("blocksToMove"))
-                .argument(defaultDoorArgument(false, PermissionLevel.ADMIN).build())
+                .argument(defaultMovableArgument(false, PermissionLevel.ADMIN).build())
                 .handler(executor::setBlocksToMove)
         );
     }
@@ -355,7 +356,7 @@ public final class CommandManager
         manager.command(
             baseInit(builder, CommandDefinition.SET_OPEN_DIRECTION, "commands.set_open_direction.description")
                 .argument(defaultDirectionArgument(true).build())
-                .argument(defaultDoorArgument(false, PermissionLevel.ADMIN).build())
+                .argument(defaultMovableArgument(false, PermissionLevel.ADMIN).build())
                 .handler(executor::setOpenDirection)
         );
     }
@@ -369,12 +370,12 @@ public final class CommandManager
         );
     }
 
-    private void initCmdStopDoors(
+    private void initCmdStopMovables(
         BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
         manager.command(
-            baseInit(builder, CommandDefinition.STOP_DOORS, "commands.stop_doors.description")
-                .handler(executor::stopDoors)
+            baseInit(builder, CommandDefinition.STOP_MOVABLES, "commands.stop_doors.description")
+                .handler(executor::stopMovables)
         );
     }
 
@@ -383,7 +384,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.TOGGLE, "commands.toggle.description")
-                .argument(defaultDoorArgument(true, PermissionLevel.USER).build())
+                .argument(defaultMovableArgument(true, PermissionLevel.USER).build())
                 .handler(executor::toggle)
         );
     }
@@ -397,11 +398,12 @@ public final class CommandManager
         );
     }
 
-    private DoorArgument.DoorArgumentBuilder defaultDoorArgument(boolean required, PermissionLevel maxPermission)
+    private MovableArgument.MovableArgumentBuilder defaultMovableArgument(
+        boolean required, PermissionLevel maxPermission)
     {
-        return DoorArgument.builder().required(required).name("doorRetriever")
-                           .asyncSuggestions(asyncCompletions)
-                           .doorRetrieverFactory(doorRetrieverFactory).maxPermission(maxPermission);
+        return MovableArgument.builder().required(required).name("movableRetriever")
+                              .asyncSuggestions(asyncCompletions)
+                              .movableRetrieverFactory(movableRetrieverFactory).maxPermission(maxPermission);
     }
 
     private DirectionArgument.DirectionArgumentBuilder defaultDirectionArgument(boolean required)
@@ -410,9 +412,9 @@ public final class CommandManager
                                 .parser(directionParser);
     }
 
-    private DoorTypeArgument.DoorTypeArgumentBuilder defaultDoorTypeArgument(boolean required)
+    private MovableTypeArgument.MovableTypeArgumentBuilder defaultMovableTypeArgument(boolean required)
     {
-        return DoorTypeArgument.builder().required(required).name("doorType").parser(doorTypeParser);
+        return MovableTypeArgument.builder().required(required).name("movableType").parser(movableTypeParser);
     }
 
     private static void registerBrigadier(BukkitCommandManager<ICommandSender> manager)

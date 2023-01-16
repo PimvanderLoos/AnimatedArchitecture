@@ -1,11 +1,11 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
+import nl.pim16aap2.bigdoors.movable.AbstractMovable;
+import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
+import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,9 +40,9 @@ class SetBlocksToMoveDelayedTest
 
     @Mock ICommandSender commandSender;
 
-    @Mock AbstractDoor door;
-    DoorRetriever doorRetriever;
-    @InjectMocks DoorRetrieverFactory doorRetrieverFactory;
+    @Mock AbstractMovable movable;
+    MovableRetriever movableRetriever;
+    @InjectMocks MovableRetrieverFactory movableRetrieverFactory;
 
     @Mock SetBlocksToMove setBlocksToMove;
 
@@ -57,7 +57,7 @@ class SetBlocksToMoveDelayedTest
             invocation -> invocation.getArgument(0, String.class));
         initInputRequestFactory(inputRequestFactory, localizer, delayedCommandInputManager);
 
-        doorRetriever = doorRetrieverFactory.of(door);
+        movableRetriever = movableRetrieverFactory.of(movable);
 
         Mockito.when(setBlocksToMove.run()).thenReturn(CompletableFuture.completedFuture(true));
 
@@ -78,12 +78,12 @@ class SetBlocksToMoveDelayedTest
     {
         final SetBlocksToMoveDelayed setBlocksToMoveDelayed = new SetBlocksToMoveDelayed(context, inputRequestFactory);
 
-        final CompletableFuture<Boolean> result0 = setBlocksToMoveDelayed.runDelayed(commandSender, doorRetriever);
+        final CompletableFuture<Boolean> result0 = setBlocksToMoveDelayed.runDelayed(commandSender, movableRetriever);
         final CompletableFuture<Boolean> result1 = setBlocksToMoveDelayed.provideDelayedInput(commandSender, 10);
 
         Assertions.assertTrue(result0.get());
         Assertions.assertTrue(result1.get());
 
-        Mockito.verify(commandFactory, Mockito.times(1)).newSetBlocksToMove(commandSender, doorRetriever, 10);
+        Mockito.verify(commandFactory, Mockito.times(1)).newSetBlocksToMove(commandSender, movableRetriever, 10);
     }
 }

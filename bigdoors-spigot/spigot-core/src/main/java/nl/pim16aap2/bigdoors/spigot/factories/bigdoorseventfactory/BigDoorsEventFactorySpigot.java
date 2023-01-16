@@ -2,29 +2,29 @@ package nl.pim16aap2.bigdoors.spigot.factories.bigdoorseventfactory;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.doors.DoorOwner;
-import nl.pim16aap2.bigdoors.doors.DoorSnapshot;
-import nl.pim16aap2.bigdoors.events.IDoorCreatedEvent;
-import nl.pim16aap2.bigdoors.events.IDoorPrepareAddOwnerEvent;
-import nl.pim16aap2.bigdoors.events.IDoorPrepareCreateEvent;
-import nl.pim16aap2.bigdoors.events.IDoorPrepareDeleteEvent;
-import nl.pim16aap2.bigdoors.events.IDoorPrepareLockChangeEvent;
-import nl.pim16aap2.bigdoors.events.IDoorPrepareRemoveOwnerEvent;
-import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
-import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
-import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleEnd;
-import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
-import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleStart;
-import nl.pim16aap2.bigdoors.spigot.events.DoorCreatedEvent;
-import nl.pim16aap2.bigdoors.spigot.events.DoorPrepareAddOwnerEvent;
-import nl.pim16aap2.bigdoors.spigot.events.DoorPrepareCreateEvent;
-import nl.pim16aap2.bigdoors.spigot.events.DoorPrepareDeleteEvent;
-import nl.pim16aap2.bigdoors.spigot.events.DoorPrepareLockChangeEvent;
-import nl.pim16aap2.bigdoors.spigot.events.DoorPrepareRemoveOwnerEvent;
-import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorEventToggleEnd;
-import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorEventTogglePrepare;
-import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorEventToggleStart;
+import nl.pim16aap2.bigdoors.events.IMovableCreatedEvent;
+import nl.pim16aap2.bigdoors.events.IMovablePrepareAddOwnerEvent;
+import nl.pim16aap2.bigdoors.events.IMovablePrepareCreateEvent;
+import nl.pim16aap2.bigdoors.events.IMovablePrepareDeleteEvent;
+import nl.pim16aap2.bigdoors.events.IMovablePrepareLockChangeEvent;
+import nl.pim16aap2.bigdoors.events.IMovablePrepareRemoveOwnerEvent;
+import nl.pim16aap2.bigdoors.events.movableaction.IMovableEventToggleEnd;
+import nl.pim16aap2.bigdoors.events.movableaction.IMovableEventTogglePrepare;
+import nl.pim16aap2.bigdoors.events.movableaction.IMovableEventToggleStart;
+import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
+import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
+import nl.pim16aap2.bigdoors.movable.AbstractMovable;
+import nl.pim16aap2.bigdoors.movable.MovableOwner;
+import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
+import nl.pim16aap2.bigdoors.spigot.events.MovableCreatedEvent;
+import nl.pim16aap2.bigdoors.spigot.events.MovablePrepareAddOwnerEvent;
+import nl.pim16aap2.bigdoors.spigot.events.MovablePrepareCreateEvent;
+import nl.pim16aap2.bigdoors.spigot.events.MovablePrepareDeleteEvent;
+import nl.pim16aap2.bigdoors.spigot.events.MovablePrepareLockChangeEvent;
+import nl.pim16aap2.bigdoors.spigot.events.MovablePrepareRemoveOwnerEvent;
+import nl.pim16aap2.bigdoors.spigot.events.dooraction.MovableEventToggleEnd;
+import nl.pim16aap2.bigdoors.spigot.events.dooraction.MovableEventTogglePrepare;
+import nl.pim16aap2.bigdoors.spigot.events.dooraction.MovableEventToggleStart;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,72 +41,75 @@ public class BigDoorsEventFactorySpigot implements IBigDoorsEventFactory
 
 
     @Override
-    public IDoorCreatedEvent createDoorCreatedEvent(AbstractDoor preview, @Nullable IPPlayer responsible)
+    public IMovableCreatedEvent createMovableCreatedEvent(AbstractMovable preview, @Nullable IPPlayer responsible)
     {
-        return new DoorCreatedEvent(preview, responsible);
+        return new MovableCreatedEvent(preview, responsible);
     }
 
     @Override
-    public IDoorPrepareCreateEvent createPrepareDoorCreateEvent(AbstractDoor door, @Nullable IPPlayer responsible)
+    public IMovablePrepareCreateEvent createPrepareMovableCreateEvent(
+        AbstractMovable movable, @Nullable IPPlayer responsible)
     {
-        return new DoorPrepareCreateEvent(door, responsible);
+        return new MovablePrepareCreateEvent(movable, responsible);
     }
 
     @Override
-    public IDoorPrepareDeleteEvent createPrepareDeleteDoorEvent(AbstractDoor door, @Nullable IPPlayer responsible)
+    public IMovablePrepareDeleteEvent createPrepareDeleteMovableEvent(
+        AbstractMovable movable, @Nullable IPPlayer responsible)
     {
-        return new DoorPrepareDeleteEvent(door, responsible);
+        return new MovablePrepareDeleteEvent(movable, responsible);
     }
 
     @Override
-    public IDoorPrepareAddOwnerEvent createDoorPrepareAddOwnerEvent(
-        AbstractDoor door, DoorOwner newOwner,
+    public IMovablePrepareAddOwnerEvent createMovablePrepareAddOwnerEvent(
+        AbstractMovable movable, MovableOwner newOwner,
         @Nullable IPPlayer responsible)
     {
-        return new DoorPrepareAddOwnerEvent(door, responsible, newOwner);
+        return new MovablePrepareAddOwnerEvent(movable, responsible, newOwner);
     }
 
     @Override
-    public IDoorPrepareRemoveOwnerEvent createDoorPrepareRemoveOwnerEvent(
-        AbstractDoor door, DoorOwner removedOwner,
+    public IMovablePrepareRemoveOwnerEvent createMovablePrepareRemoveOwnerEvent(
+        AbstractMovable movable, MovableOwner removedOwner,
         @Nullable IPPlayer responsible)
     {
-        return new DoorPrepareRemoveOwnerEvent(door, responsible, removedOwner);
+        return new MovablePrepareRemoveOwnerEvent(movable, responsible, removedOwner);
     }
 
     @Override
-    public IDoorPrepareLockChangeEvent createDoorPrepareLockChangeEvent(
-        AbstractDoor door, boolean newLockStatus,
+    public IMovablePrepareLockChangeEvent createMovablePrepareLockChangeEvent(
+        AbstractMovable movable, boolean newLockStatus,
         @Nullable IPPlayer responsible)
     {
-        return new DoorPrepareLockChangeEvent(door, responsible, newLockStatus);
+        return new MovablePrepareLockChangeEvent(movable, responsible, newLockStatus);
     }
 
     @Override
-    public IDoorEventTogglePrepare createTogglePrepareEvent(
-        DoorSnapshot snapshot, DoorActionCause cause,
-        DoorActionType actionType, IPPlayer responsible,
+    public IMovableEventTogglePrepare createTogglePrepareEvent(
+        MovableSnapshot snapshot, MovableActionCause cause,
+        MovableActionType actionType, IPPlayer responsible,
         double time, boolean skipAnimation, Cuboid newCuboid)
     {
-        return new DoorEventTogglePrepare(snapshot, cause, actionType, responsible, time, skipAnimation, newCuboid);
+        return new MovableEventTogglePrepare(snapshot, cause, actionType, responsible, time, skipAnimation, newCuboid);
     }
 
     @Override
-    public IDoorEventToggleStart createToggleStartEvent(
-        AbstractDoor door, DoorSnapshot doorSnapshot, DoorActionCause cause,
-        DoorActionType actionType, IPPlayer responsible, double time,
+    public IMovableEventToggleStart createToggleStartEvent(
+        AbstractMovable movable, MovableSnapshot movableSnapshot, MovableActionCause cause,
+        MovableActionType actionType, IPPlayer responsible, double time,
         boolean skipAnimation, Cuboid newCuboid)
 
     {
-        return new DoorEventToggleStart(
-            door, doorSnapshot, cause, actionType, responsible, time, skipAnimation, newCuboid);
+        return new MovableEventToggleStart(
+            movable, movableSnapshot, cause, actionType, responsible, time, skipAnimation, newCuboid);
     }
 
     @Override
-    public IDoorEventToggleEnd createToggleEndEvent(
-        AbstractDoor door, DoorSnapshot doorSnapshot, DoorActionCause cause, DoorActionType actionType,
+    public IMovableEventToggleEnd createToggleEndEvent(
+        AbstractMovable movable, MovableSnapshot snapshot, MovableActionCause cause,
+        MovableActionType actionType,
         IPPlayer responsible, double time, boolean skipAnimation)
     {
-        return new DoorEventToggleEnd(door, doorSnapshot, cause, actionType, responsible, time, skipAnimation);
+        return new MovableEventToggleEnd(movable, snapshot, cause, actionType, responsible, time, skipAnimation);
     }
 }

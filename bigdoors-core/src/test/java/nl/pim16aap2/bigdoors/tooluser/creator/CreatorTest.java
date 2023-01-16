@@ -10,11 +10,11 @@ import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.commands.SetOpenDirectionDelayed;
-import nl.pim16aap2.bigdoors.doors.DoorBaseBuilder;
-import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
+import nl.pim16aap2.bigdoors.movable.MovableBaseBuilder;
+import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.tooluser.Procedure;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
@@ -62,10 +62,10 @@ class CreatorTest
     {
         mocks = MockitoAnnotations.openMocks(this);
 
-        final DoorType doorType = Mockito.mock(DoorType.class);
-        Mockito.when(doorType.getLocalizationKey()).thenReturn("DoorType");
+        final MovableType movableType = Mockito.mock(MovableType.class);
+        Mockito.when(movableType.getLocalizationKey()).thenReturn("MovableType");
 
-        Mockito.when(creator.getDoorType()).thenReturn(doorType);
+        Mockito.when(creator.getMovableType()).thenReturn(movableType);
         Mockito.when(economyManager.isEconomyEnabled()).thenReturn(true);
 
         final IProtectionCompatManager protectionCompatManager = Mockito.mock(IProtectionCompatManager.class);
@@ -81,7 +81,7 @@ class CreatorTest
                .thenAnswer(invocation -> new Step.Factory(localizer, invocation.getArgument(0, String.class)));
 
         UnitTestUtil.setField(Creator.class, creator, "limitsManager", limitsManager);
-        UnitTestUtil.setField(Creator.class, creator, "doorBaseBuilder", Mockito.mock(DoorBaseBuilder.class));
+        UnitTestUtil.setField(Creator.class, creator, "movableBaseBuilder", Mockito.mock(MovableBaseBuilder.class));
         UnitTestUtil.setField(Creator.class, creator, "databaseManager", Mockito.mock(DatabaseManager.class));
         UnitTestUtil.setField(Creator.class, creator, "economyManager", economyManager);
         UnitTestUtil.setField(Creator.class, creator, "commandFactory", commandFactory);
@@ -108,7 +108,7 @@ class CreatorTest
         // Numerical names are not allowed.
         Assertions.assertFalse(creator.completeNamingStep(input));
         Mockito.verify(player)
-               .sendMessage(UnitTestUtil.toText("creator.base.error.invalid_name " + input + " DoorType"));
+               .sendMessage(UnitTestUtil.toText("creator.base.error.invalid_name " + input + " MovableType"));
 
         Assertions.assertTrue(creator.completeNamingStep("newDoor"));
         Mockito.verify(creator).giveTool();
@@ -176,7 +176,7 @@ class CreatorTest
         // Not allowed, because the selected area is too big.
         Assertions.assertFalse(creator.setSecondPos(loc));
         Mockito.verify(player)
-               .sendMessage(UnitTestUtil.toText(String.format("creator.base.error.area_too_big DoorType %d %d",
+               .sendMessage(UnitTestUtil.toText(String.format("creator.base.error.area_too_big MovableType %d %d",
                                                               cuboid.getVolume(), cuboid.getVolume() - 1)));
 
         Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any()))
@@ -202,19 +202,19 @@ class CreatorTest
         Mockito.verify(player).sendMessage(UnitTestUtil.toText("creator.base.error.creation_cancelled"));
 
         Mockito.doReturn(OptionalDouble.empty()).when(creator).getPrice();
-        Mockito.doReturn(false).when(creator).buyDoor();
+        Mockito.doReturn(false).when(creator).buyMovable();
 
         Assertions.assertTrue(creator.confirmPrice(true));
-        Mockito.verify(player).sendMessage(UnitTestUtil.toText("creator.base.error.insufficient_funds DoorType 0"));
+        Mockito.verify(player).sendMessage(UnitTestUtil.toText("creator.base.error.insufficient_funds MovableType 0"));
 
         double price = 123.41;
         Mockito.doReturn(OptionalDouble.of(price)).when(creator).getPrice();
-        Mockito.doReturn(false).when(creator).buyDoor();
+        Mockito.doReturn(false).when(creator).buyMovable();
         Assertions.assertTrue(creator.confirmPrice(true));
         Mockito.verify(player).sendMessage(
-            UnitTestUtil.toText(String.format("creator.base.error.insufficient_funds DoorType %.2f", price)));
+            UnitTestUtil.toText(String.format("creator.base.error.insufficient_funds MovableType %.2f", price)));
 
-        Mockito.doReturn(true).when(creator).buyDoor();
+        Mockito.doReturn(true).when(creator).buyMovable();
         Assertions.assertTrue(creator.confirmPrice(true));
         Mockito.verify(procedure).goToNextStep();
     }
@@ -235,11 +235,11 @@ class CreatorTest
         Mockito.when(commandFactory.getSetOpenDirectionDelayed())
                .thenReturn(Mockito.mock(SetOpenDirectionDelayed.class));
 
-        final DoorType doorType = Mockito.mock(DoorType.class);
+        final MovableType movableType = Mockito.mock(MovableType.class);
         final Set<RotateDirection> validOpenDirections = EnumSet.of(RotateDirection.EAST, RotateDirection.WEST);
-        Mockito.when(doorType.getValidOpenDirections()).thenReturn(validOpenDirections);
+        Mockito.when(movableType.getValidOpenDirections()).thenReturn(validOpenDirections);
 
-        Mockito.when(creator.getDoorType()).thenReturn(doorType);
+        Mockito.when(creator.getMovableType()).thenReturn(movableType);
 
         Assertions.assertFalse(creator.completeSetOpenDirStep(RotateDirection.NONE));
         Assertions.assertFalse(creator.completeSetOpenDirStep(RotateDirection.NORTH));
@@ -270,23 +270,23 @@ class CreatorTest
     }
 
     @Test
-    void testBuyDoor()
+    void testBuyMovable()
     {
         Mockito.when(economyManager.isEconomyEnabled()).thenReturn(false);
 
         final Cuboid cuboid = new Cuboid(new Vector3Di(1, 2, 3), new Vector3Di(4, 5, 6));
         setField("cuboid", cuboid);
-        Assertions.assertTrue(creator.buyDoor());
+        Assertions.assertTrue(creator.buyMovable());
 
         final IPWorld world = Mockito.mock(IPWorld.class);
         setField("world", world);
 
-        final DoorType doorType = Mockito.mock(DoorType.class);
-        Mockito.when(creator.getDoorType()).thenReturn(doorType);
+        final MovableType MovableType = Mockito.mock(MovableType.class);
+        Mockito.when(creator.getMovableType()).thenReturn(MovableType);
 
         Mockito.when(economyManager.isEconomyEnabled()).thenReturn(true);
-        creator.buyDoor();
-        Mockito.verify(economyManager).buyDoor(player, world, doorType, cuboid.getVolume());
+        creator.buyMovable();
+        Mockito.verify(economyManager).buyMovable(player, world, MovableType, cuboid.getVolume());
     }
 
     @Test
@@ -314,16 +314,17 @@ class CreatorTest
         Mockito.doReturn(true).when(creator).playerHasAccessToLocation(Mockito.any());
         Assertions.assertFalse(creator.completeSetPowerBlockStep(insideCuboid));
 
-        Mockito.verify(player).sendMessage(UnitTestUtil.toText("creator.base.error.powerblock_inside_door DoorType"));
+        Mockito.verify(player)
+               .sendMessage(UnitTestUtil.toText("creator.base.error.powerblock_inside_door MovableType"));
 
         final double distance = cuboid.getCenter().getDistance(outsideCuboid.getPosition());
         final int lowLimit = (int) (distance - 1);
         Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any())).thenReturn(OptionalInt.of(lowLimit));
 
         Assertions.assertFalse(creator.completeSetPowerBlockStep(outsideCuboid));
-        Mockito.verify(player)
-               .sendMessage(UnitTestUtil.toText(String.format("creator.base.error.powerblock_too_far DoorType %.2f %d",
-                                                              distance, lowLimit)));
+        Mockito.verify(player).sendMessage(
+            UnitTestUtil.toText(String.format("creator.base.error.powerblock_too_far MovableType %.2f %d",
+                                              distance, lowLimit)));
 
         Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any())).thenReturn(OptionalInt.of(lowLimit + 10));
         Assertions.assertTrue(creator.completeSetPowerBlockStep(outsideCuboid));

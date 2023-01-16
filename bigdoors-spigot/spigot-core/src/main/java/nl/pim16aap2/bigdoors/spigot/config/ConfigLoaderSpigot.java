@@ -8,9 +8,9 @@ import nl.pim16aap2.bigdoors.api.IConfigReader;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.debugging.IDebuggable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
-import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.localization.LocalizationUtil;
-import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
+import nl.pim16aap2.bigdoors.managers.MovableTypeManager;
+import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.ConfigReaderSpigot;
 import nl.pim16aap2.bigdoors.util.ConfigEntry;
@@ -53,7 +53,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
     @ToString.Exclude
     private final JavaPlugin plugin;
     @ToString.Exclude
-    private final Lazy<DoorTypeManager> doorTypeManager;
+    private final Lazy<MovableTypeManager> movableTypeManager;
     private final Path baseDir;
 
     private static final List<String> DEFAULT_POWERBLOCK_TYPE = List.of("GOLD_BLOCK");
@@ -63,17 +63,17 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
     private final Set<Material> materialBlacklist = EnumSet.noneOf(Material.class);
     @ToString.Exclude
     private final List<ConfigEntry<?>> configEntries = new ArrayList<>();
-    private final Map<DoorType, String> doorPrices;
-    private final Map<DoorType, Double> doorSpeedMultipliers;
+    private final Map<MovableType, String> movablePrices;
+    private final Map<MovableType, Double> movableSpeedMultipliers;
     @ToString.Exclude
     private final String header;
 
     private int coolDown;
     private boolean allowStats;
-    private OptionalInt maxDoorSize = OptionalInt.empty();
+    private OptionalInt maxMovableSize = OptionalInt.empty();
     private OptionalInt maxPowerBlockDistance = OptionalInt.empty();
     private String resourcePack = "";
-    private OptionalInt maxDoorCount = OptionalInt.empty();
+    private OptionalInt maxMovableCount = OptionalInt.empty();
     private OptionalInt maxBlocksToMove = OptionalInt.empty();
     private double maxBlockSpeed;
     private int cacheTimeout;
@@ -97,14 +97,14 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
      */
     @Inject
     public ConfigLoaderSpigot(
-        RestartableHolder restartableHolder, JavaPlugin plugin, Lazy<DoorTypeManager> doorTypeManager,
+        RestartableHolder restartableHolder, JavaPlugin plugin, Lazy<MovableTypeManager> movableTypeManager,
         @Named("pluginBaseDirectory") Path baseDir, DebuggableRegistry debuggableRegistry)
     {
         this.plugin = plugin;
-        this.doorTypeManager = doorTypeManager;
+        this.movableTypeManager = movableTypeManager;
         this.baseDir = baseDir;
-        doorPrices = new HashMap<>();
-        doorSpeedMultipliers = new HashMap<>();
+        movablePrices = new HashMap<>();
+        movableSpeedMultipliers = new HashMap<>();
 
         header = "Config file for BigDoors. Don't forget to make a backup before making changes!";
 
@@ -124,8 +124,8 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
     {
         configEntries.clear();
         powerBlockTypes.clear();
-        doorPrices.clear();
-        doorSpeedMultipliers.clear();
+        movablePrices.clear();
+        movableSpeedMultipliers.clear();
     }
 
     /**
@@ -140,30 +140,30 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
         final String defResPackUrl1_13 = "https://www.dropbox.com/s/al4idl017ggpnuq/BigDoorsResourcePack-1_13.zip?dl=1";
 
         final String[] loadChunksForToggleComment = {
-            "Try to load chunks when a door is toggled. When set to false, doors will not be toggled " +
+            "Try to load chunks when a movable is toggled. When set to false, movables will not be toggled " +
                 "if more than 1 chunk needs to be loaded.",
-            "When set to true, the plugin will try to load all chunks the door will interact with before " +
+            "When set to true, the plugin will try to load all chunks the movable will interact with before " +
                 "toggling. If more than 1 chunk ",
-            "needs to be loaded, the door will skip its animation to avoid spawning a bunch of entities " +
+            "needs to be loaded, the movable will skip its animation to avoid spawning a bunch of entities " +
                 "no one can see anyway."};
         final String[] enableRedstoneComment = {
-            "Allow doors to be opened using redstone signals."};
+            "Allow movables to be opened using redstone signals."};
         final String[] powerBlockTypeComment = {
-            "Choose the type of the power block that is used to open doors using redstone.",
+            "Choose the type of the power block that is used to open movables using redstone.",
             "A list can be found here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html",
-            "This is the block that will open the DoorBase attached to it when it receives a redstone signal.",
+            "This is the block that will open the movable attached to it when it receives a redstone signal.",
             "Multiple types are allowed."};
         final String[] blacklistComment = {
             "List of blacklisted materials. Materials on this list can not be animated.",
             "Use the same list of materials as for the power blocks. For example, you would blacklist bedrock like so:",
             "  - BEDROCK"};
-        final String[] maxDoorCountComment = {
-            "Global maximum number of doors a player can own. You can set it to -1 to disable it this limit.",
+        final String[] maxMovableCountComment = {
+            "Global maximum number of movables a player can own. You can set it to -1 to disable it this limit.",
             "Not even admins and OPs can bypass this limit!",
             "Note that you can also use permissions for this, if you need more finely grained control using this node:",
-            "'" + Limit.DOOR_COUNT.getUserPermission() + "x', where 'x' can be any positive value."};
+            "'" + Limit.MOVABLE_COUNT.getUserPermission() + "x', where 'x' can be any positive value."};
         final String[] maxBlocksToMoveComment = {
-            "Global maximum number of doors a player can own. You can set it to -1 to disable it this limit.",
+            "Global maximum number of movables a player can own. You can set it to -1 to disable it this limit.",
             "Not even admins and OPs can bypass this limit!",
             "Note that you can also use permissions for this, if you need more finely grained control using this node:",
             "'" + Limit.BLOCKS_TO_MOVE.getUserPermission() + "x', where 'x' can be any positive value."};
@@ -182,16 +182,16 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
             "Allow this plugin to send (anonymized) stats using bStats. Please consider keeping it enabled.",
             "It has a negligible impact on performance and more users on " +
                 "stats keeps me more motivated to support this plugin!"};
-        final String[] maxDoorSizeComment = {
-            "Global maximum number of blocks allowed in a door. You can set it to -1 to disable it this limit.",
-            "If this number is exceeded, doors will open instantly and skip the animation.",
+        final String[] maxMovableSizeComment = {
+            "Global maximum number of blocks allowed in a movable. You can set it to -1 to disable it this limit.",
+            "If this number is exceeded, movables will open instantly and skip the animation.",
             "Not even admins and OPs can bypass this limit!",
             "Note that you can also use permissions for this, " +
                 "if you need more finely grained control using this node: ",
-            "'" + Limit.DOOR_SIZE.getUserPermission() + "x', where 'x' can be any positive value."};
+            "'" + Limit.MOVABLE_SIZE.getUserPermission() + "x', where 'x' can be any positive value."};
         final String[] maxPowerBlockDistanceComment = {
-            "Global maximum distance between a door and its powerblock. You can set it to -1 to disable it this limit.",
-            "The distance is measured from the center of the door.",
+            "Global maximum distance between a movable and its powerblock. You can set it to -1 to disable this limit.",
+            "The distance is measured from the center of the movable.",
             "Not even admins and OPs can bypass this limit!",
             "Note that you can also use permissions for this, " +
                 "if you need more finely grained control using this node: ",
@@ -211,22 +211,22 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
             "Higher values may result in choppier and/or glitchier animations."
         };
         final String[] speedMultiplierComment = {
-            "Change the animation time of each door type.",
+            "Change the animation time of each movable type.",
             "Note that the maximum speed is limited by 'maxBlockSpeed', " +
-                "so there is a limit to how fast you can make the doors",
+                "so there is a limit to how fast you can make the movables",
             "The higher the value, the more time an animation will take. ",
             "For example, So 1.5 means it will take 50% as long, and 0.5 means it will only take half as long.",
             "To use the default values, set them to \"1.0\" (without quotation marks).",
             "Note that everything is optimized for default values, so it's recommended to leave this setting as-is."};
         final String[] coolDownComment = {
-            "Cool-down on using doors. Time is measured in seconds."};
+            "Cool-down on using movables. Time is measured in seconds."};
         final String[] cacheTimeoutComment = {
             "Amount of time (in minutes) to cache power block positions in a chunk. " +
                 "-1 means no caching (not recommended!), 0 = infinite cache (not recommended either!).",
             "It doesn't take up too much RAM, so it's recommended to leave this value high. " +
                 "It'll get updated automatically when needed anyway."};
         final String[] pricesComment = {
-            "When Vault is present, you can set the price of doorBase creation here for every type of door.",
+            "When Vault is present, you can set the price of creation here for each type of movable.",
             "You can use the word \"blockCount\" (without quotation marks, case sensitive) as a " +
                 "variable that will be replaced by the actual blockCount.",
             "Furthermore, you can use these operators: -, +, *, /, sqrt(), ^, %, " +
@@ -265,14 +265,14 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
         addNewConfigEntry(config, "materialBlacklist", DEFAULT_BLACKLIST, blacklistComment,
                           new MaterialVerifier(materialBlacklist));
 
-        final int maxDoorCount = addNewConfigEntry(config, "maxDoorCount", -1, maxDoorCountComment);
-        this.maxDoorCount = maxDoorCount > 0 ? OptionalInt.of(maxDoorCount) : OptionalInt.empty();
+        final int maxMovableCount = addNewConfigEntry(config, "maxMovableCount", -1, maxMovableCountComment);
+        this.maxMovableCount = maxMovableCount > 0 ? OptionalInt.of(maxMovableCount) : OptionalInt.empty();
 
         final int maxBlocksToMove = addNewConfigEntry(config, "maxBlocksToMove", 100, maxBlocksToMoveComment);
         this.maxBlocksToMove = maxBlocksToMove > 0 ? OptionalInt.of(maxBlocksToMove) : OptionalInt.empty();
 
-        final int maxDoorSize = addNewConfigEntry(config, "maxDoorSize", 500, maxDoorSizeComment);
-        this.maxDoorSize = maxDoorSize > 0 ? OptionalInt.of(maxDoorSize) : OptionalInt.empty();
+        final int maxMovableSize = addNewConfigEntry(config, "maxMovableSize", 500, maxMovableSizeComment);
+        this.maxMovableSize = maxMovableSize > 0 ? OptionalInt.of(maxMovableSize) : OptionalInt.empty();
 
         final int maxPowerBlockDistance = addNewConfigEntry(config, "maxPowerBlockDistance", -1,
                                                             maxPowerBlockDistanceComment);
@@ -303,10 +303,10 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
 
         maxBlockSpeed = addNewConfigEntry(config, "maxBlockSpeed", 5.0D, maxBlockSpeedComment);
 
-        final List<DoorType> enabledDoorTypes = doorTypeManager.get().getEnabledDoorTypes();
-        parseForEachDoorType(doorSpeedMultipliers, config, enabledDoorTypes, speedMultiplierComment, 1.0D,
-                             "speed-multiplier_");
-        parseForEachDoorType(doorPrices, config, enabledDoorTypes, pricesComment, "0", "price_");
+        final List<MovableType> enabledMovableTypes = movableTypeManager.get().getEnabledMovableTypes();
+        parseForEachMovableType(movableSpeedMultipliers, config, enabledMovableTypes, speedMultiplierComment, 1.0D,
+                                "speed-multiplier_");
+        parseForEachMovableType(movablePrices, config, enabledMovableTypes, pricesComment, "0", "price_");
 
         consoleLogging = addNewConfigEntry(config, "consoleLogging", true, consoleLoggingComment);
         final String logLevelName = addNewConfigEntry(config, "logLevel", "INFO", logLevelComment);
@@ -323,14 +323,14 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
         printInfo();
     }
 
-    private <T> void parseForEachDoorType(
-        Map<DoorType, T> target, IConfigReader config, List<DoorType> enabledDoorTypes,
+    private <T> void parseForEachMovableType(
+        Map<MovableType, T> target, IConfigReader config, List<MovableType> enabledMovableTypes,
         String[] header, T defaultValue, String startsWith)
     {
         final Map<String, Object> existingMappings = getKeysStartingWith(config, startsWith, defaultValue);
 
         String @Nullable [] comment = header;
-        for (final DoorType type : enabledDoorTypes)
+        for (final MovableType type : enabledMovableTypes)
         {
             final String key = startsWith + type.getSimpleName();
             target.put(type, addNewConfigEntry(config, key, defaultValue, comment));
@@ -338,7 +338,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
             comment = null;
         }
 
-        comment = comment == null ? new String[]{"# Unloaded DoorTypes "} : comment;
+        comment = comment == null ? new String[]{"# Unloaded MovableTypes "} : comment;
         // Add the unmapped entries so they aren't ignored.
         for (final var entry : existingMappings.entrySet())
         {
@@ -501,9 +501,9 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
     }
 
     @Override
-    public OptionalInt maxDoorSize()
+    public OptionalInt maxMovableSize()
     {
-        return maxDoorSize;
+        return maxMovableSize;
     }
 
     @Override
@@ -524,9 +524,9 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
     }
 
     @Override
-    public OptionalInt maxDoorCount()
+    public OptionalInt maxMovableCount()
     {
-        return maxDoorCount;
+        return maxMovableCount;
     }
 
     @Override
@@ -590,9 +590,9 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
     }
 
     @Override
-    public String getPrice(DoorType type)
+    public String getPrice(MovableType type)
     {
-        final String ret = doorPrices.get(type);
+        final String ret = movablePrices.get(type);
         if (ret != null)
             return ret;
         log.at(Level.SEVERE).withCause(new IllegalStateException("No price found for type: " + type)).log();
@@ -600,9 +600,9 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
     }
 
     @Override
-    public double getAnimationSpeedMultiplier(DoorType type)
+    public double getAnimationSpeedMultiplier(MovableType type)
     {
-        return Math.max(0.0001D, doorSpeedMultipliers.getOrDefault(type, 1.0D));
+        return Math.max(0.0001D, movableSpeedMultipliers.getOrDefault(type, 1.0D));
     }
 
     @Override

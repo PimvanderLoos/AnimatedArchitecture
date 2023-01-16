@@ -3,12 +3,12 @@ package nl.pim16aap2.bigdoors.commands;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
+import nl.pim16aap2.bigdoors.movable.AbstractMovable;
+import nl.pim16aap2.bigdoors.movabletypes.MovableType;
+import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
+import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,8 +22,8 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.doorOwnerCreator;
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initCommandSenderPermissions;
+import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.movableOwnerCreator;
 
 class DeleteTest
 {
@@ -33,10 +33,10 @@ class DeleteTest
     @Mock
     private DatabaseManager databaseManager;
 
-    private DoorRetriever doorRetriever;
+    private MovableRetriever doorRetriever;
 
     @Mock
-    private AbstractDoor door;
+    private AbstractMovable door;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private Delete.IFactory factory;
@@ -48,24 +48,24 @@ class DeleteTest
 
         initCommandSenderPermissions(commandSender, true, true);
 
-        final DoorType doorType = Mockito.mock(DoorType.class);
+        final MovableType doorType = Mockito.mock(MovableType.class);
         Mockito.when(doorType.getLocalizationKey()).thenReturn("DoorType");
-        Mockito.when(door.getDoorType()).thenReturn(doorType);
+        Mockito.when(door.getMovableType()).thenReturn(doorType);
 
-        Mockito.when(door.isDoorOwner(Mockito.any(UUID.class))).thenReturn(true);
-        Mockito.when(door.isDoorOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
-        doorRetriever = DoorRetrieverFactory.ofDoor(door);
+        Mockito.when(door.isMovableOwner(Mockito.any(UUID.class))).thenReturn(true);
+        Mockito.when(door.isMovableOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
+        doorRetriever = MovableRetrieverFactory.ofMovable(door);
 
-        Mockito.when(databaseManager.deleteDoor(Mockito.any(), Mockito.any()))
+        Mockito.when(databaseManager.deleteMovable(Mockito.any(), Mockito.any()))
                .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
         Mockito.when(factory.newDelete(Mockito.any(ICommandSender.class),
-                                       Mockito.any(DoorRetriever.class)))
+                                       Mockito.any(MovableRetriever.class)))
                .thenAnswer(invoc -> new Delete(invoc.getArgument(0, ICommandSender.class), localizer,
                                                ITextFactory.getSimpleTextFactory(),
-                                               invoc.getArgument(1, DoorRetriever.class),
+                                               invoc.getArgument(1, MovableRetriever.class),
                                                databaseManager));
     }
 
@@ -75,7 +75,7 @@ class DeleteTest
     {
         final IPServer server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
         Assertions.assertTrue(factory.newDelete(server, doorRetriever).run().get(1, TimeUnit.SECONDS));
-        Mockito.verify(databaseManager).deleteDoor(door, null);
+        Mockito.verify(databaseManager).deleteMovable(door, null);
     }
 
     @Test
@@ -85,22 +85,22 @@ class DeleteTest
         // No permissions, so not allowed.
         initCommandSenderPermissions(commandSender, false, false);
         Assertions.assertTrue(factory.newDelete(commandSender, doorRetriever).run().get(1, TimeUnit.SECONDS));
-        Mockito.verify(databaseManager, Mockito.never()).deleteDoor(door, commandSender);
+        Mockito.verify(databaseManager, Mockito.never()).deleteMovable(door, commandSender);
 
         // Has user permission, but not an owner, so not allowed.
         initCommandSenderPermissions(commandSender, true, false);
         Assertions.assertTrue(factory.newDelete(commandSender, doorRetriever).run().get(1, TimeUnit.SECONDS));
-        Mockito.verify(databaseManager, Mockito.never()).deleteDoor(door, commandSender);
+        Mockito.verify(databaseManager, Mockito.never()).deleteMovable(door, commandSender);
 
         // Has user permission, and is owner, so allowed.
-        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwnerCreator));
+        Mockito.when(door.getMovableOwner(commandSender)).thenReturn(Optional.of(movableOwnerCreator));
         Assertions.assertTrue(factory.newDelete(commandSender, doorRetriever).run().get(1, TimeUnit.SECONDS));
-        Mockito.verify(databaseManager, Mockito.times(1)).deleteDoor(door, commandSender);
+        Mockito.verify(databaseManager, Mockito.times(1)).deleteMovable(door, commandSender);
 
         // Admin permission, so allowed, despite not being owner.
-        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.empty());
+        Mockito.when(door.getMovableOwner(commandSender)).thenReturn(Optional.empty());
         initCommandSenderPermissions(commandSender, true, true);
         Assertions.assertTrue(factory.newDelete(commandSender, doorRetriever).run().get(1, TimeUnit.SECONDS));
-        Mockito.verify(databaseManager, Mockito.times(2)).deleteDoor(door, commandSender);
+        Mockito.verify(databaseManager, Mockito.times(2)).deleteMovable(door, commandSender);
     }
 }

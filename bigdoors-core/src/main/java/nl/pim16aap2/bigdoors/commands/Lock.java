@@ -7,39 +7,39 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.doors.DoorAttribute;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.events.IDoorEventCaller;
+import nl.pim16aap2.bigdoors.events.IBigDoorsEventCaller;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
+import nl.pim16aap2.bigdoors.movable.AbstractMovable;
+import nl.pim16aap2.bigdoors.movable.MovableAttribute;
+import nl.pim16aap2.bigdoors.movable.MovableBase;
+import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
+import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 /**
- * Represents the command that is used to change whether a door is locked.
+ * Represents the command that is used to change whether a movable is locked.
  *
  * @author Pim
  */
 @ToString
 @Flogger
-public class Lock extends DoorTargetCommand
+public class Lock extends MovableTargetCommand
 {
     private final boolean lockedStatus;
-    private final IDoorEventCaller doorEventCaller;
+    private final IBigDoorsEventCaller bigDoorsEventCaller;
     private final IBigDoorsEventFactory bigDoorsEventFactory;
 
     @AssistedInject //
     Lock(
         @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
-        @Assisted DoorRetriever doorRetriever,
-        @Assisted boolean lockedStatus, IDoorEventCaller doorEventCaller, IBigDoorsEventFactory bigDoorsEventFactory)
+        @Assisted MovableRetriever movableRetriever, @Assisted boolean lockedStatus,
+        IBigDoorsEventCaller bigDoorsEventCaller, IBigDoorsEventFactory bigDoorsEventFactory)
     {
-        super(commandSender, localizer, textFactory, doorRetriever, DoorAttribute.LOCK);
+        super(commandSender, localizer, textFactory, movableRetriever, MovableAttribute.LOCK);
         this.lockedStatus = lockedStatus;
-        this.doorEventCaller = doorEventCaller;
+        this.bigDoorsEventCaller = bigDoorsEventCaller;
         this.bigDoorsEventFactory = bigDoorsEventFactory;
     }
 
@@ -50,12 +50,12 @@ public class Lock extends DoorTargetCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> performAction(AbstractDoor door)
+    protected CompletableFuture<Boolean> performAction(AbstractMovable movable)
     {
         final var event = bigDoorsEventFactory
-            .createDoorPrepareLockChangeEvent(door, lockedStatus, getCommandSender().getPlayer().orElse(null));
+            .createMovablePrepareLockChangeEvent(movable, lockedStatus, getCommandSender().getPlayer().orElse(null));
 
-        doorEventCaller.callDoorEvent(event);
+        bigDoorsEventCaller.callBigDoorsEvent(event);
 
         if (event.isCancelled())
         {
@@ -63,8 +63,8 @@ public class Lock extends DoorTargetCommand
             return CompletableFuture.completedFuture(true);
         }
 
-        door.setLocked(lockedStatus);
-        return door.syncData().thenApply(x -> true);
+        movable.setLocked(lockedStatus);
+        return movable.syncData().thenApply(x -> true);
     }
 
     @AssistedFactory
@@ -74,14 +74,14 @@ public class Lock extends DoorTargetCommand
          * Creates (but does not execute!) a new {@link Lock} command.
          *
          * @param commandSender
-         *     The {@link ICommandSender} responsible for changing the locked status of the door.
-         * @param doorRetriever
-         *     A {@link DoorRetrieverFactory} representing the {@link DoorBase} for which the locked status will be
-         *     modified.
+         *     The {@link ICommandSender} responsible for changing the locked status of the movable.
+         * @param movableRetriever
+         *     A {@link MovableRetrieverFactory} representing the {@link MovableBase} for which the locked status will
+         *     be modified.
          * @param lock
          *     The new lock status.
          * @return See {@link BaseCommand#run()}.
          */
-        Lock newLock(ICommandSender commandSender, DoorRetriever doorRetriever, boolean lock);
+        Lock newLock(ICommandSender commandSender, MovableRetriever movableRetriever, boolean lock);
     }
 }

@@ -7,14 +7,14 @@ import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.commands.CommandFactory;
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.doors.DoorBaseBuilder;
-import nl.pim16aap2.bigdoors.doors.DoorOwner;
-import nl.pim16aap2.bigdoors.doors.PermissionLevel;
-import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
+import nl.pim16aap2.bigdoors.movable.AbstractMovable;
+import nl.pim16aap2.bigdoors.movable.MovableBase;
+import nl.pim16aap2.bigdoors.movable.MovableBaseBuilder;
+import nl.pim16aap2.bigdoors.movable.MovableOwner;
+import nl.pim16aap2.bigdoors.movable.PermissionLevel;
+import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.tooluser.Procedure;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
@@ -41,7 +41,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 /**
- * Represents a specialization of the {@link ToolUser} that is used for creating new {@link AbstractDoor}s.
+ * Represents a specialization of the {@link ToolUser} that is used for creating new {@link AbstractMovable}s.
  *
  * @author Pim
  */
@@ -51,7 +51,7 @@ public abstract class Creator extends ToolUser
 {
     protected final LimitsManager limitsManager;
 
-    protected final DoorBaseBuilder doorBaseBuilder;
+    protected final MovableBaseBuilder movableBaseBuilder;
 
     protected final DatabaseManager databaseManager;
 
@@ -60,12 +60,12 @@ public abstract class Creator extends ToolUser
     protected final CommandFactory commandFactory;
 
     /**
-     * The name of the door that is to be created.
+     * The name of the movable that is to be created.
      */
     protected @Nullable String name;
 
     /**
-     * The cuboid that defines the location and dimensions of the door.
+     * The cuboid that defines the location and dimensions of the movable.
      * <p>
      * This region is defined by {@link #firstPos} and the second position selected by the user.
      */
@@ -94,17 +94,17 @@ public abstract class Creator extends ToolUser
     protected @Nullable RotateDirection openDir;
 
     /**
-     * The {@link IPWorld} this door is created in.
+     * The {@link IPWorld} this movable is created in.
      */
     protected @Nullable IPWorld world;
 
     /**
-     * Whether the door is created in the open (true) or closed (false) position.
+     * Whether the movable is created in the open (true) or closed (false) position.
      */
     protected boolean isOpen = false;
 
     /**
-     * Whether the door is created in the locked (true) or unlocked (false) state.
+     * Whether the movable is created in the locked (true) or unlocked (false) state.
      */
     protected boolean isLocked = false;
 
@@ -117,7 +117,7 @@ public abstract class Creator extends ToolUser
     protected Step.Factory factorySetName;
 
     /**
-     * IFactory for the {@link IStep} that sets the first position of the area of the door.
+     * IFactory for the {@link IStep} that sets the first position of the area of the movable.
      * <p>
      * Don't forget to set the message before using it!
      */
@@ -125,7 +125,7 @@ public abstract class Creator extends ToolUser
     protected Step.Factory factorySetFirstPos;
 
     /**
-     * IFactory for the {@link IStep} that sets the second position of the area of the door, thus completing the
+     * IFactory for the {@link IStep} that sets the second position of the area of the movable, thus completing the
      * {@link Cuboid}.
      * <p>
      * Don't forget to set the message before using it!
@@ -134,7 +134,7 @@ public abstract class Creator extends ToolUser
     protected Step.Factory factorySetSecondPos;
 
     /**
-     * IFactory for the {@link IStep} that sets the position of the door's rotation point.
+     * IFactory for the {@link IStep} that sets the position of the movable's rotation point.
      * <p>
      * Don't forget to set the message before using it!
      */
@@ -142,7 +142,7 @@ public abstract class Creator extends ToolUser
     protected Step.Factory factorySetRotationPointPos;
 
     /**
-     * IFactory for the {@link IStep} that sets the position of the door's power block.
+     * IFactory for the {@link IStep} that sets the position of the movable's power block.
      * <p>
      * Don't forget to set the message before using it!
      */
@@ -150,7 +150,7 @@ public abstract class Creator extends ToolUser
     protected Step.Factory factorySetPowerBlockPos;
 
     /**
-     * IFactory for the {@link IStep} that sets the open direction of the door.
+     * IFactory for the {@link IStep} that sets the open direction of the movable.
      * <p>
      * Don't forget to set the message before using it!
      */
@@ -158,7 +158,7 @@ public abstract class Creator extends ToolUser
     protected Step.Factory factorySetOpenDir;
 
     /**
-     * IFactory for the {@link IStep} that allows the player to confirm or reject the price of the door.
+     * IFactory for the {@link IStep} that allows the player to confirm or reject the price of the movable.
      * <p>
      * Don't forget to set the message before using it!
      */
@@ -179,7 +179,7 @@ public abstract class Creator extends ToolUser
     {
         super(context, player);
         limitsManager = context.getLimitsManager();
-        doorBaseBuilder = context.getDoorBaseBuilder();
+        movableBaseBuilder = context.getMovableBaseBuilder();
         databaseManager = context.getDatabaseManager();
         economyManager = context.getEconomyManager();
         commandFactory = context.getCommandFactory();
@@ -199,7 +199,7 @@ public abstract class Creator extends ToolUser
             .stepName("SET_NAME")
             .stepExecutor(new StepExecutorString(this::completeNamingStep))
             .messageKey("creator.base.give_name")
-            .messageVariableRetrievers(() -> localizer.getDoorType(getDoorType()));
+            .messageVariableRetrievers(() -> localizer.getMovableType(getMovableType()));
 
         factorySetFirstPos = stepFactory
             .stepName("SET_FIRST_POS")
@@ -224,16 +224,16 @@ public abstract class Creator extends ToolUser
             .stepPreparation(this::prepareSetOpenDirection)
             .messageKey("creator.base.set_open_direction")
             .messageVariableRetrievers(
-                () -> localizer.getDoorType(getDoorType()),
+                () -> localizer.getMovableType(getMovableType()),
                 () -> getValidOpenDirections().stream().map(dir -> localizer.getMessage(dir.getLocalizationKey()))
                                               .toList().toString());
 
         factoryConfirmPrice = stepFactory
-            .stepName("CONFIRM_DOOR_PRICE")
+            .stepName("CONFIRM_MOVABLE_PRICE")
             .stepExecutor(new StepExecutorBoolean(this::confirmPrice))
             .skipCondition(this::skipConfirmPrice)
             .messageKey("creator.base.confirm_door_price")
-            .messageVariableRetrievers(() -> localizer.getDoorType(getDoorType()),
+            .messageVariableRetrievers(() -> localizer.getMovableType(getMovableType()),
                                        () -> String.format("%.2f", getPrice().orElse(0)))
             .implicitNextStep(false);
 
@@ -253,18 +253,18 @@ public abstract class Creator extends ToolUser
     }
 
     /**
-     * Constructs the {@link DoorBase} for the current door. This is the same for all doors.
+     * Constructs the {@link MovableBase} for the current movable. This is the same for all movables.
      *
-     * @return The {@link DoorBase} for the current door.
+     * @return The {@link MovableBase} for the current movable.
      */
-    protected final DoorBase constructDoorData()
+    protected final MovableBase constructMovableData()
     {
-        final long doorUID = -1;
-        final var owner = new DoorOwner(doorUID, PermissionLevel.CREATOR, getPlayer().getPPlayerData());
+        final long movableUID = -1;
+        final var owner = new MovableOwner(movableUID, PermissionLevel.CREATOR, getPlayer().getPPlayerData());
 
-        return doorBaseBuilder
+        return movableBaseBuilder
             .builder()
-            .uid(doorUID)
+            .uid(movableUID)
             .name(Util.requireNonNull(name, "Name"))
             .cuboid(Util.requireNonNull(cuboid, "cuboid"))
             .rotationPoint(Util.requireNonNull(rotationPoint, "rotationPoint"))
@@ -278,7 +278,8 @@ public abstract class Creator extends ToolUser
     }
 
     /**
-     * Completes the creation process. It'll construct and insert the door and complete the {@link ToolUser} process.
+     * Completes the creation process. It'll construct and insert the movable and complete the {@link ToolUser}
+     * process.
      *
      * @return True, so that it fits the functional interface being used for the steps.
      * <p>
@@ -288,7 +289,7 @@ public abstract class Creator extends ToolUser
     protected boolean completeCreationProcess()
     {
         if (active)
-            insertDoor(constructDoor());
+            insertMovable(constructMovable());
         return true;
     }
 
@@ -303,20 +304,20 @@ public abstract class Creator extends ToolUser
      * Completes the naming step for this {@link Creator}. This means that it'll set the name, go to the next step, and
      * give the user the creator tool.
      * <p>
-     * Note that there are some requirements that the name must meet. See {@link Util#isValidDoorName(String)}.
+     * Note that there are some requirements that the name must meet. See {@link Util#isValidMovableName(String)}.
      *
      * @param str
-     *     The desired name of the door.
+     *     The desired name of the movable.
      * @return True if the naming step was finished successfully.
      */
     protected boolean completeNamingStep(String str)
     {
-        if (!Util.isValidDoorName(str))
+        if (!Util.isValidMovableName(str))
         {
             log.at(Level.FINE).log("Invalid name '%s' for selected Creator: %s", str, this);
             getPlayer().sendMessage(textFactory, TextType.ERROR,
                                     localizer.getMessage("creator.base.error.invalid_name",
-                                                         str, localizer.getDoorType(getDoorType())));
+                                                         str, localizer.getMovableType(getMovableType())));
             return false;
         }
 
@@ -360,13 +361,13 @@ public abstract class Creator extends ToolUser
         final Cuboid newCuboid = new Cuboid(Util.requireNonNull(firstPos, "firstPos"),
                                             new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
 
-        final OptionalInt sizeLimit = limitsManager.getLimit(getPlayer(), Limit.DOOR_SIZE);
+        final OptionalInt sizeLimit = limitsManager.getLimit(getPlayer(), Limit.MOVABLE_SIZE);
         if (sizeLimit.isPresent() && newCuboid.getVolume() > sizeLimit.getAsInt())
         {
             getPlayer().sendMessage(
                 textFactory, TextType.ERROR,
                 localizer.getMessage("creator.base.error.area_too_big",
-                                     localizer.getDoorType(getDoorType()),
+                                     localizer.getMovableType(getMovableType()),
                                      Integer.toString(newCuboid.getVolume()),
                                      Integer.toString(sizeLimit.getAsInt())));
             return false;
@@ -378,15 +379,15 @@ public abstract class Creator extends ToolUser
     }
 
     /**
-     * Attempts to buy the door for the player and advances the procedure if successful.
+     * Attempts to buy the movable for the player and advances the procedure if successful.
      * <p>
-     * Note that if the player does not end up buying the door, either because of insufficient funds or because they
+     * Note that if the player does not end up buying the movable, either because of insufficient funds or because they
      * rejected the offer, the current step is NOT advanced!
      *
      * @param confirm
-     *     Whether the player confirmed they want to buy this door.
-     * @return Always returns true, because either they can and do buy the door, or they cannot or refuse to buy the
-     * door and the process is aborted.
+     *     Whether the player confirmed they want to buy this movable.
+     * @return Always returns true, because either they can and do buy the movable, or they cannot or refuse to buy the
+     * movable and the process is aborted.
      */
     // This method always returns the same value (S3516). However, in the case of this method, there is no reason to
     // return false as every input is valid and leads to a valid state.
@@ -400,12 +401,12 @@ public abstract class Creator extends ToolUser
             abort();
             return true;
         }
-        if (!buyDoor())
+        if (!buyMovable())
         {
 
             getPlayer().sendMessage(textFactory, TextType.ERROR,
                                     localizer.getMessage("creator.base.error.insufficient_funds",
-                                                         localizer.getDoorType(getDoorType()),
+                                                         localizer.getMovableType(getMovableType()),
                                                          DECIMAL_FORMAT.format(getPrice().orElse(0))));
             abort();
             return true;
@@ -438,18 +439,18 @@ public abstract class Creator extends ToolUser
     }
 
     /**
-     * Constructs the door at the end of the creation process.
+     * Constructs the movable at the end of the creation process.
      *
-     * @return The newly-created door.
+     * @return The newly-created movable.
      */
-    protected abstract AbstractDoor constructDoor();
+    protected abstract AbstractMovable constructMovable();
 
     /**
-     * Verifies that the world of the selected location matches the world that this door is being created in.
+     * Verifies that the world of the selected location matches the world that this movable is being created in.
      *
      * @param targetWorld
      *     The world to check.
-     * @return True if the world is the same world this door is being created in.
+     * @return True if the world is the same world this movable is being created in.
      */
     protected boolean verifyWorldMatch(IPWorld targetWorld)
     {
@@ -460,14 +461,14 @@ public abstract class Creator extends ToolUser
     }
 
     /**
-     * Takes care of inserting the door.
+     * Takes care of inserting the movable.
      *
-     * @param door
-     *     The door to send to the {@link DatabaseManager}.
+     * @param movable
+     *     The movable to send to the {@link DatabaseManager}.
      */
-    protected void insertDoor(AbstractDoor door)
+    protected void insertMovable(AbstractMovable movable)
     {
-        databaseManager.addDoor(door, getPlayer()).whenComplete(
+        databaseManager.addMovable(movable, getPlayer()).whenComplete(
             (result, throwable) ->
             {
                 if (result.cancelled())
@@ -477,55 +478,55 @@ public abstract class Creator extends ToolUser
                     return;
                 }
 
-                if (result.door().isEmpty())
+                if (result.movable().isEmpty())
                 {
                     getPlayer().sendMessage(textFactory, TextType.ERROR,
                                             localizer.getMessage("constants.error.generic"));
-                    log.at(Level.SEVERE).log("Failed to insert door after creation!");
+                    log.at(Level.SEVERE).log("Failed to insert movable after creation!");
                 }
             }).exceptionally(Util::exceptionally);
     }
 
     /**
-     * Obtains the type of door this creator will create.
+     * Obtains the type of movable this creator will create.
      *
-     * @return The type of door that will be created.
+     * @return The type of movable that will be created.
      */
-    protected abstract DoorType getDoorType();
+    protected abstract MovableType getMovableType();
 
     /**
-     * Attempts to buy the door for the current player.
+     * Attempts to buy the movable for the current player.
      *
-     * @return True if the player has bought the door or if the economy is not enabled.
+     * @return True if the player has bought the movable or if the economy is not enabled.
      */
-    protected boolean buyDoor()
+    protected boolean buyMovable()
     {
         if (!economyManager.isEconomyEnabled())
             return true;
 
-        return economyManager.buyDoor(getPlayer(), Util.requireNonNull(world, "world"), getDoorType(),
-                                      Util.requireNonNull(cuboid, "cuboid").getVolume());
+        return economyManager.buyMovable(getPlayer(), Util.requireNonNull(world, "world"), getMovableType(),
+                                         Util.requireNonNull(cuboid, "cuboid").getVolume());
     }
 
     /**
-     * Gets the price of the door based on its volume. If the door is free because the price is <= 0 or the
+     * Gets the price of the movable based on its volume. If the movable is free because the price is <= 0 or the
      * {@link nl.pim16aap2.bigdoors.api.IEconomyManager} is disabled, the price will be empty.
      *
-     * @return The price of the door if a positive price could be found.
+     * @return The price of the movable if a positive price could be found.
      */
     protected OptionalDouble getPrice()
     {
         if (!economyManager.isEconomyEnabled())
             return OptionalDouble.empty();
-        return economyManager.getPrice(getDoorType(), Util.requireNonNull(cuboid, "cuboid").getVolume());
+        return economyManager.getPrice(getMovableType(), Util.requireNonNull(cuboid, "cuboid").getVolume());
     }
 
     /**
-     * Checks if the step that asks the user to confirm that they want to buy the door should be skipped.
+     * Checks if the step that asks the user to confirm that they want to buy the movable should be skipped.
      * <p>
-     * It should be skipped if the door is free for whatever reason. See {@link #getPrice()}.
+     * It should be skipped if the movable is free for whatever reason. See {@link #getPrice()}.
      *
-     * @return True if the step that asks the user to confirm that they want to buy the door should be skipped.
+     * @return True if the step that asks the user to confirm that they want to buy the movable should be skipped.
      */
     protected boolean skipConfirmPrice()
     {
@@ -534,18 +535,19 @@ public abstract class Creator extends ToolUser
 
     /**
      * Gets the list of valid open directions for this type. It returns a subset of
-     * {@link DoorType#getValidOpenDirections()} based on the current physical aspects of the {@link AbstractDoor}.
+     * {@link MovableType#getValidOpenDirections()} based on the current physical aspects of the
+     * {@link AbstractMovable}.
      *
      * @return The list of valid open directions for this type given its current physical dimensions.
      */
     public Set<RotateDirection> getValidOpenDirections()
     {
-        return getDoorType().getValidOpenDirections();
+        return getMovableType().getValidOpenDirections();
     }
 
     /**
-     * Attempts to complete the step in the {@link Procedure} that sets the second position of the {@link AbstractDoor}
-     * that is being created.
+     * Attempts to complete the step in the {@link Procedure} that sets the second position of the
+     * {@link AbstractMovable} that is being created.
      *
      * @param loc
      *     The selected location of the rotation point.
@@ -564,7 +566,7 @@ public abstract class Creator extends ToolUser
         {
             getPlayer().sendMessage(textFactory, TextType.ERROR,
                                     localizer.getMessage("creator.base.error.powerblock_inside_door",
-                                                         localizer.getDoorType(getDoorType())));
+                                                         localizer.getMovableType(getMovableType())));
             return false;
         }
         final OptionalInt distanceLimit = limitsManager.getLimit(getPlayer(), Limit.POWERBLOCK_DISTANCE);
@@ -574,7 +576,7 @@ public abstract class Creator extends ToolUser
         {
             getPlayer().sendMessage(textFactory, TextType.ERROR,
                                     localizer.getMessage("creator.base.error.powerblock_too_far",
-                                                         localizer.getDoorType(getDoorType()),
+                                                         localizer.getMovableType(getMovableType()),
                                                          DECIMAL_FORMAT.format(distance),
                                                          Integer.toString(distanceLimit.getAsInt())));
             return false;
@@ -588,7 +590,7 @@ public abstract class Creator extends ToolUser
 
     /**
      * Attempts to complete the step in the {@link Procedure} that sets the location of the rotation point for the
-     * {@link AbstractDoor} that is being created.
+     * {@link AbstractMovable} that is being created.
      *
      * @param loc
      *     The selected location of the rotation point.

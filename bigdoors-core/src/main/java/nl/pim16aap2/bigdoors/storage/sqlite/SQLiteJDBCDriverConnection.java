@@ -9,17 +9,17 @@ import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.debugging.IDebuggable;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.doors.DoorBaseBuilder;
-import nl.pim16aap2.bigdoors.doors.DoorOwner;
-import nl.pim16aap2.bigdoors.doors.DoorSerializer;
-import nl.pim16aap2.bigdoors.doors.IDoorConst;
-import nl.pim16aap2.bigdoors.doors.PermissionLevel;
-import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
-import nl.pim16aap2.bigdoors.managers.DoorRegistry;
-import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
+import nl.pim16aap2.bigdoors.managers.MovableRegistry;
+import nl.pim16aap2.bigdoors.managers.MovableTypeManager;
+import nl.pim16aap2.bigdoors.movable.AbstractMovable;
+import nl.pim16aap2.bigdoors.movable.IMovableConst;
+import nl.pim16aap2.bigdoors.movable.MovableBase;
+import nl.pim16aap2.bigdoors.movable.MovableBaseBuilder;
+import nl.pim16aap2.bigdoors.movable.MovableOwner;
+import nl.pim16aap2.bigdoors.movable.MovableSerializer;
+import nl.pim16aap2.bigdoors.movable.PermissionLevel;
+import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.storage.PPreparedStatement;
 import nl.pim16aap2.bigdoors.storage.SQLStatement;
@@ -90,11 +90,11 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     @Getter
     private volatile DatabaseState databaseState = DatabaseState.UNINITIALIZED;
 
-    private final DoorBaseBuilder doorBaseBuilder;
+    private final MovableBaseBuilder movableBaseBuilder;
 
-    private final DoorRegistry doorRegistry;
+    private final MovableRegistry movableRegistry;
 
-    private final DoorTypeManager doorTypeManager;
+    private final MovableTypeManager movableTypeManager;
 
     private final IPWorldFactory worldFactory;
 
@@ -108,13 +108,13 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      */
     @Inject
     public SQLiteJDBCDriverConnection(
-        @Named("databaseFile") Path dbFile, DoorBaseBuilder doorBaseBuilder, DoorRegistry doorRegistry,
-        DoorTypeManager doorTypeManager, IPWorldFactory worldFactory, DebuggableRegistry debuggableRegistry)
+        @Named("databaseFile") Path dbFile, MovableBaseBuilder movableBaseBuilder, MovableRegistry movableRegistry,
+        MovableTypeManager movableTypeManager, IPWorldFactory worldFactory, DebuggableRegistry debuggableRegistry)
     {
         this.dbFile = dbFile;
-        this.doorBaseBuilder = doorBaseBuilder;
-        this.doorRegistry = doorRegistry;
-        this.doorTypeManager = doorTypeManager;
+        this.movableBaseBuilder = movableBaseBuilder;
+        this.movableRegistry = movableRegistry;
+        this.movableTypeManager = movableTypeManager;
         this.worldFactory = worldFactory;
 
         try
@@ -273,7 +273,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
             // Check if the "doors" table already exists. If it does, assume the rest exists
             // as well and don't set it up.
-            if (conn.getMetaData().getTables(null, null, "DoorBase", new String[]{"TABLE"}).next())
+            if (conn.getMetaData().getTables(null, null, "doors", new String[]{"TABLE"}).next())
             {
                 databaseState = DatabaseState.OUT_OF_DATE;
                 verifyDatabaseVersion(conn);
@@ -283,11 +283,11 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 executeUpdate(conn, SQLStatement.CREATE_TABLE_PLAYER.constructPPreparedStatement());
                 executeUpdate(conn, SQLStatement.RESERVE_IDS_PLAYER.constructPPreparedStatement());
 
-                executeUpdate(conn, SQLStatement.CREATE_TABLE_DOORBASE.constructPPreparedStatement());
-                executeUpdate(conn, SQLStatement.RESERVE_IDS_DOORBASE.constructPPreparedStatement());
+                executeUpdate(conn, SQLStatement.CREATE_TABLE_MOVABLE.constructPPreparedStatement());
+                executeUpdate(conn, SQLStatement.RESERVE_IDS_MOVABLE.constructPPreparedStatement());
 
-                executeUpdate(conn, SQLStatement.CREATE_TABLE_DOOROWNER_PLAYER.constructPPreparedStatement());
-                executeUpdate(conn, SQLStatement.RESERVE_IDS_DOOROWNER_PLAYER.constructPPreparedStatement());
+                executeUpdate(conn, SQLStatement.CREATE_TABLE_MOVABLE_OWNER_PLAYER.constructPPreparedStatement());
+                executeUpdate(conn, SQLStatement.RESERVE_IDS_MOVABLE_OWNER_PLAYER.constructPPreparedStatement());
 
                 updateDBVersion(conn);
                 databaseState = DatabaseState.OK;
@@ -300,146 +300,158 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         }
     }
 
-    private Optional<AbstractDoor> constructDoor(ResultSet doorBaseRS)
+    private Optional<AbstractMovable> constructMovable(ResultSet movableBaseRS)
         throws Exception
     {
-        final Optional<DoorType> doorType = doorTypeManager.getDoorTypeFromFullName(doorBaseRS.getString("doorType"));
+        final Optional<MovableType> movableType = movableTypeManager.getMovableTypeFromFullName(
+            movableBaseRS.getString("doorType"));
 
-        if (!doorType.map(doorTypeManager::isRegistered).orElse(false))
+        if (!movableType.map(movableTypeManager::isRegistered).orElse(false))
         {
-            log.at(Level.SEVERE).withCause(new IllegalStateException("Type with ID: " + doorBaseRS.getInt("doorType") +
-                                                                         " has not been registered (yet)!")).log();
+            log.at(Level.SEVERE)
+               .withCause(new IllegalStateException("Type with ID: " + movableBaseRS.getInt("doorType") +
+                                                        " has not been registered (yet)!")).log();
             return Optional.empty();
         }
 
-        final long doorUID = doorBaseRS.getLong("id");
+        final long movableUID = movableBaseRS.getLong("id");
 
-        // SonarLint assumes that doorType could be empty (S3655) (appears to miss the mapping operation above),
+        // SonarLint assumes that movableType could be empty (S3655) (appears to miss the mapping operation above),
         // while this actually won't happen.
         @SuppressWarnings("squid:S3655") //
-        final DoorSerializer<?> serializer = doorType.get().getDoorSerializer();
+        final MovableSerializer<?> serializer = movableType.get().getMovableSerializer();
 
-        final Optional<AbstractDoor> registeredDoor = doorRegistry.getRegisteredDoor(doorUID);
-        if (registeredDoor.isPresent())
-            return registeredDoor;
+        final Optional<AbstractMovable> registeredMovable = movableRegistry.getRegisteredMovable(movableUID);
+        if (registeredMovable.isPresent())
+            return registeredMovable;
 
         final Optional<RotateDirection> openDirection =
-            Optional.ofNullable(RotateDirection.valueOf(doorBaseRS.getInt("openDirection")));
+            Optional.ofNullable(RotateDirection.valueOf(movableBaseRS.getInt("openDirection")));
 
         if (openDirection.isEmpty())
             return Optional.empty();
 
-        final Vector3Di min = new Vector3Di(doorBaseRS.getInt("xMin"),
-                                            doorBaseRS.getInt("yMin"),
-                                            doorBaseRS.getInt("zMin"));
-        final Vector3Di max = new Vector3Di(doorBaseRS.getInt("xMax"),
-                                            doorBaseRS.getInt("yMax"),
-                                            doorBaseRS.getInt("zMax"));
-        final Vector3Di rotationPoint = new Vector3Di(doorBaseRS.getInt("rotationPointX"),
-                                                      doorBaseRS.getInt("rotationPointY"),
-                                                      doorBaseRS.getInt("rotationPointZ"));
-        final Vector3Di powerBlock = new Vector3Di(doorBaseRS.getInt("powerBlockX"),
-                                                   doorBaseRS.getInt("powerBlockY"),
-                                                   doorBaseRS.getInt("powerBlockZ"));
+        final Vector3Di min = new Vector3Di(movableBaseRS.getInt("xMin"),
+                                            movableBaseRS.getInt("yMin"),
+                                            movableBaseRS.getInt("zMin"));
+        final Vector3Di max = new Vector3Di(movableBaseRS.getInt("xMax"),
+                                            movableBaseRS.getInt("yMax"),
+                                            movableBaseRS.getInt("zMax"));
+        final Vector3Di rotationPoint = new Vector3Di(movableBaseRS.getInt("rotationPointX"),
+                                                      movableBaseRS.getInt("rotationPointY"),
+                                                      movableBaseRS.getInt("rotationPointZ"));
+        final Vector3Di powerBlock = new Vector3Di(movableBaseRS.getInt("powerBlockX"),
+                                                   movableBaseRS.getInt("powerBlockY"),
+                                                   movableBaseRS.getInt("powerBlockZ"));
 
-        final IPWorld world = worldFactory.create(doorBaseRS.getString("world"));
+        final IPWorld world = worldFactory.create(movableBaseRS.getString("world"));
 
-        final long bitflag = doorBaseRS.getLong("bitflag");
-        final boolean isOpen = IBitFlag.hasFlag(DoorFlag.getFlagValue(DoorFlag.IS_OPEN), bitflag);
-        final boolean isLocked = IBitFlag.hasFlag(DoorFlag.getFlagValue(DoorFlag.IS_LOCKED), bitflag);
+        final long bitflag = movableBaseRS.getLong("bitflag");
+        final boolean isOpen = IBitFlag.hasFlag(MovableFlag.getFlagValue(MovableFlag.IS_OPEN), bitflag);
+        final boolean isLocked = IBitFlag.hasFlag(MovableFlag.getFlagValue(MovableFlag.IS_LOCKED), bitflag);
 
-        final String name = doorBaseRS.getString("name");
+        final String name = movableBaseRS.getString("name");
 
-        final PPlayerData playerData = new PPlayerData(UUID.fromString(doorBaseRS.getString("playerUUID")),
-                                                       doorBaseRS.getString("playerName"),
-                                                       doorBaseRS.getInt("sizeLimit"),
-                                                       doorBaseRS.getInt("countLimit"),
-                                                       doorBaseRS.getLong("permissions"));
+        final PPlayerData playerData = new PPlayerData(UUID.fromString(movableBaseRS.getString("playerUUID")),
+                                                       movableBaseRS.getString("playerName"),
+                                                       movableBaseRS.getInt("sizeLimit"),
+                                                       movableBaseRS.getInt("countLimit"),
+                                                       movableBaseRS.getLong("permissions"));
 
-        final DoorOwner primeOwner = new DoorOwner(
-            doorUID, Objects.requireNonNull(PermissionLevel.fromValue(doorBaseRS.getInt("permission"))), playerData);
+        final MovableOwner primeOwner = new MovableOwner(
+            movableUID, Objects.requireNonNull(PermissionLevel.fromValue(movableBaseRS.getInt("permission"))),
+            playerData);
 
-        final Map<UUID, DoorOwner> doorOwners = getOwnersOfDoor(doorUID);
-        final DoorBase doorData = doorBaseBuilder.builder().uid(doorUID).name(name).cuboid(new Cuboid(min, max))
-                                                 .rotationPoint(rotationPoint).powerBlock(powerBlock).world(world)
-                                                 .isOpen(isOpen)
-                                                 .isLocked(isLocked).openDir(openDirection.get()).primeOwner(primeOwner)
-                                                 .doorOwners(doorOwners).build();
+        final Map<UUID, MovableOwner> ownersOfMovable = getOwnersOfMovable(movableUID);
+        final MovableBase movableData = movableBaseBuilder.builder()
+                                                          .uid(movableUID)
+                                                          .name(name)
+                                                          .cuboid(new Cuboid(min, max))
+                                                          .rotationPoint(rotationPoint)
+                                                          .powerBlock(powerBlock)
+                                                          .world(world)
+                                                          .isOpen(isOpen)
+                                                          .isLocked(isLocked)
+                                                          .openDir(openDirection.get())
+                                                          .primeOwner(primeOwner)
+                                                          .ownersOfMovable(ownersOfMovable).build();
 
-        final byte[] rawTypeData = doorBaseRS.getBytes("typeData");
-        return Optional.of(serializer.deserialize(doorData, rawTypeData));
+        final byte[] rawTypeData = movableBaseRS.getBytes("typeData");
+        return Optional.of(serializer.deserialize(movableData, rawTypeData));
     }
 
     @Override
-    public boolean deleteDoorType(DoorType doorType)
+    public boolean deleteMovableType(MovableType movableType)
     {
         final boolean removed = executeTransaction(
-            conn -> executeUpdate(SQLStatement.DELETE_DOOR_TYPE
+            conn -> executeUpdate(SQLStatement.DELETE_MOVABLE_TYPE
                                       .constructPPreparedStatement()
-                                      .setNextString(doorType.getFullName())) > 0, false);
+                                      .setNextString(movableType.getFullName())) > 0, false);
 
         if (removed)
-            doorTypeManager.unregisterDoorType(doorType);
+            movableTypeManager.unregisterMovableType(movableType);
         return removed;
     }
 
-    private Long insert(Connection conn, AbstractDoor door, String doorType, byte[] typeSpecificData)
+    private Long insert(Connection conn, AbstractMovable movable, String movableType, byte[] typeSpecificData)
     {
-        final PPlayerData playerData = door.getPrimeOwner().pPlayerData();
+        final PPlayerData playerData = movable.getPrimeOwner().pPlayerData();
         insertOrIgnorePlayer(conn, playerData);
 
-        final String worldName = door.getWorld().worldName();
-        executeUpdate(conn, SQLStatement.INSERT_DOOR_BASE.constructPPreparedStatement()
-                                                         .setNextString(door.getName())
-                                                         .setNextString(worldName)
-                                                         .setNextInt(door.getMinimum().x())
-                                                         .setNextInt(door.getMinimum().y())
-                                                         .setNextInt(door.getMinimum().z())
-                                                         .setNextInt(door.getMaximum().x())
-                                                         .setNextInt(door.getMaximum().y())
-                                                         .setNextInt(door.getMaximum().z())
-                                                         .setNextInt(door.getRotationPoint().x())
-                                                         .setNextInt(door.getRotationPoint().y())
-                                                         .setNextInt(door.getRotationPoint().z())
-                                                         .setNextLong(Util.getChunkId(door.getRotationPoint()))
-                                                         .setNextInt(door.getPowerBlock().x())
-                                                         .setNextInt(door.getPowerBlock().y())
-                                                         .setNextInt(door.getPowerBlock().z())
-                                                         .setNextLong(Util.getChunkId(door.getPowerBlock()))
-                                                         .setNextInt(RotateDirection.getValue(door.getOpenDir()))
-                                                         .setNextLong(getFlag(door))
-                                                         .setNextString(doorType)
-                                                         .setNextBytes(typeSpecificData));
+        final String worldName = movable.getWorld().worldName();
+        executeUpdate(conn, SQLStatement.INSERT_MOVABLE_BASE.constructPPreparedStatement()
+                                                            .setNextString(movable.getName())
+                                                            .setNextString(worldName)
+                                                            .setNextInt(movable.getMinimum().x())
+                                                            .setNextInt(movable.getMinimum().y())
+                                                            .setNextInt(movable.getMinimum().z())
+                                                            .setNextInt(movable.getMaximum().x())
+                                                            .setNextInt(movable.getMaximum().y())
+                                                            .setNextInt(movable.getMaximum().z())
+                                                            .setNextInt(movable.getRotationPoint().x())
+                                                            .setNextInt(movable.getRotationPoint().y())
+                                                            .setNextInt(movable.getRotationPoint().z())
+                                                            .setNextLong(Util.getChunkId(movable.getRotationPoint()))
+                                                            .setNextInt(movable.getPowerBlock().x())
+                                                            .setNextInt(movable.getPowerBlock().y())
+                                                            .setNextInt(movable.getPowerBlock().z())
+                                                            .setNextLong(Util.getChunkId(movable.getPowerBlock()))
+                                                            .setNextInt(RotateDirection.getValue(movable.getOpenDir()))
+                                                            .setNextLong(getFlag(movable))
+                                                            .setNextString(movableType)
+                                                            .setNextBytes(typeSpecificData));
 
-        // TODO: Just use the fact that the last-inserted door has the current UID (that fact is already used by
-        //       getTypeSpecificDataInsertStatement(DoorType)), so it can be done in a single statement.
-        final long doorUID = executeQuery(conn, SQLStatement.SELECT_MOST_RECENT_DOOR.constructPPreparedStatement(),
-                                          rs -> rs.next() ? rs.getLong("seq") : -1, -1L);
+        // TODO: Just use the fact that the last-inserted movable has the current UID (that fact is already used by
+        //       getTypeSpecificDataInsertStatement(MovableType)), so it can be done in a single statement.
+        final long movableUID = executeQuery(conn,
+                                             SQLStatement.SELECT_MOST_RECENT_MOVABLE.constructPPreparedStatement(),
+                                             rs -> rs.next() ? rs.getLong("seq") : -1, -1L);
 
         executeUpdate(conn, SQLStatement.INSERT_PRIME_OWNER.constructPPreparedStatement()
                                                            .setString(1, playerData.getUUID().toString()));
 
-        return doorUID;
+        return movableUID;
     }
 
     @Override
-    public Optional<AbstractDoor> insert(AbstractDoor door)
+    public Optional<AbstractMovable> insert(AbstractMovable movable)
     {
-        final DoorSerializer<?> serializer = door.getDoorType().getDoorSerializer();
+        final MovableSerializer<?> serializer = movable.getMovableType().getMovableSerializer();
 
-        final String typeName = door.getDoorType().getFullName();
+        final String typeName = movable.getMovableType().getFullName();
         try
         {
-            final byte[] typeData = serializer.serialize(door);
+            final byte[] typeData = serializer.serialize(movable);
 
-            final long doorUID = executeTransaction(conn -> insert(conn, door, typeName, typeData), -1L);
-            if (doorUID > 0)
+            final long movableUID = executeTransaction(conn -> insert(conn, movable, typeName, typeData), -1L);
+            if (movableUID > 0)
                 return Optional.of(serializer.deserialize(
-                    doorBaseBuilder.builder().uid(doorUID).name(door.getName()).cuboid(door.getCuboid())
-                                   .rotationPoint(door.getRotationPoint()).powerBlock(door.getPowerBlock())
-                                   .world(door.getWorld())
-                                   .isOpen(door.isOpen()).isLocked(door.isLocked()).openDir(door.getOpenDir())
-                                   .primeOwner(door.getPrimeOwner()).build(), typeData));
+                    movableBaseBuilder.builder().uid(movableUID).name(movable.getName()).cuboid(movable.getCuboid())
+                                      .rotationPoint(movable.getRotationPoint()).powerBlock(movable.getPowerBlock())
+                                      .world(movable.getWorld())
+                                      .isOpen(movable.isOpen()).isLocked(movable.isLocked())
+                                      .openDir(movable.getOpenDir())
+                                      .primeOwner(movable.getPrimeOwner()).build(), typeData));
         }
         catch (Exception t)
         {
@@ -449,40 +461,40 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    public boolean syncDoorData(IDoorConst doorBase, byte[] typeData)
+    public boolean syncMovableData(IMovableConst movable, byte[] typeData)
     {
-        return executeUpdate(SQLStatement.UPDATE_DOOR_BASE
+        return executeUpdate(SQLStatement.UPDATE_MOVABLE_BASE
                                  .constructPPreparedStatement()
-                                 .setNextString(doorBase.getName())
-                                 .setNextString(doorBase.getWorld().worldName())
+                                 .setNextString(movable.getName())
+                                 .setNextString(movable.getWorld().worldName())
 
-                                 .setNextInt(doorBase.getCuboid().getMin().x())
-                                 .setNextInt(doorBase.getCuboid().getMin().y())
-                                 .setNextInt(doorBase.getCuboid().getMin().z())
+                                 .setNextInt(movable.getCuboid().getMin().x())
+                                 .setNextInt(movable.getCuboid().getMin().y())
+                                 .setNextInt(movable.getCuboid().getMin().z())
 
-                                 .setNextInt(doorBase.getCuboid().getMax().x())
-                                 .setNextInt(doorBase.getCuboid().getMax().y())
-                                 .setNextInt(doorBase.getCuboid().getMax().z())
+                                 .setNextInt(movable.getCuboid().getMax().x())
+                                 .setNextInt(movable.getCuboid().getMax().y())
+                                 .setNextInt(movable.getCuboid().getMax().z())
 
-                                 .setNextInt(doorBase.getRotationPoint().x())
-                                 .setNextInt(doorBase.getRotationPoint().y())
-                                 .setNextInt(doorBase.getRotationPoint().z())
-                                 .setNextLong(Util.getChunkId(doorBase.getRotationPoint()))
+                                 .setNextInt(movable.getRotationPoint().x())
+                                 .setNextInt(movable.getRotationPoint().y())
+                                 .setNextInt(movable.getRotationPoint().z())
+                                 .setNextLong(Util.getChunkId(movable.getRotationPoint()))
 
-                                 .setNextInt(doorBase.getPowerBlock().x())
-                                 .setNextInt(doorBase.getPowerBlock().y())
-                                 .setNextInt(doorBase.getPowerBlock().z())
-                                 .setNextLong(Util.getChunkId(doorBase.getPowerBlock()))
+                                 .setNextInt(movable.getPowerBlock().x())
+                                 .setNextInt(movable.getPowerBlock().y())
+                                 .setNextInt(movable.getPowerBlock().z())
+                                 .setNextLong(Util.getChunkId(movable.getPowerBlock()))
 
-                                 .setNextInt(RotateDirection.getValue(doorBase.getOpenDir()))
-                                 .setNextLong(getFlag(doorBase.isOpen(), doorBase.isLocked()))
+                                 .setNextInt(RotateDirection.getValue(movable.getOpenDir()))
+                                 .setNextLong(getFlag(movable.isOpen(), movable.isLocked()))
                                  .setNextBytes(typeData)
 
-                                 .setNextLong(doorBase.getDoorUID())) > 0;
+                                 .setNextLong(movable.getMovableUID())) > 0;
     }
 
     @Override
-    public List<DatabaseManager.DoorIdentifier> getPartialIdentifiers(
+    public List<DatabaseManager.MovableIdentifier> getPartialIdentifiers(
         String input, @Nullable IPPlayer player, PermissionLevel maxPermission)
     {
         final PPreparedStatement query = Util.isNumerical(input) ?
@@ -500,13 +512,13 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         return executeQuery(query, this::collectIdentifiers, Collections.emptyList());
     }
 
-    private List<DatabaseManager.DoorIdentifier> collectIdentifiers(ResultSet resultSet)
+    private List<DatabaseManager.MovableIdentifier> collectIdentifiers(ResultSet resultSet)
         throws SQLException
     {
-        final List<DatabaseManager.DoorIdentifier> ret = new ArrayList<>();
+        final List<DatabaseManager.MovableIdentifier> ret = new ArrayList<>();
 
         while (resultSet.next())
-            ret.add(new DatabaseManager.DoorIdentifier(resultSet.getLong("id"), resultSet.getString("name")));
+            ret.add(new DatabaseManager.MovableIdentifier(resultSet.getLong("id"), resultSet.getString("name")));
         return ret;
     }
 
@@ -515,8 +527,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         executeUpdate(conn, SQLStatement.INSERT_OR_IGNORE_PLAYER_DATA.constructPPreparedStatement()
                                                                      .setNextString(playerData.getUUID().toString())
                                                                      .setNextString(playerData.getName())
-                                                                     .setNextInt(playerData.getDoorSizeLimit())
-                                                                     .setNextInt(playerData.getDoorCountLimit())
+                                                                     .setNextInt(playerData.getMovableSizeLimit())
+                                                                     .setNextInt(playerData.getMovableCountLimit())
                                                                      .setNextLong(playerData.getPermissionsFlag()));
     }
 
@@ -525,94 +537,94 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      *
      * @param conn
      *     The connection to the database.
-     * @param doorOwner
-     *     The doorOwner with the player to retrieve.
+     * @param movableOwner
+     *     The owner of the movable whose player ID to retrieve.
      * @return The database ID of the player.
      */
-    private long getPlayerID(Connection conn, DoorOwner doorOwner)
+    private long getPlayerID(Connection conn, MovableOwner movableOwner)
     {
-        insertOrIgnorePlayer(conn, doorOwner.pPlayerData());
+        insertOrIgnorePlayer(conn, movableOwner.pPlayerData());
 
         return executeQuery(conn, SQLStatement.GET_PLAYER_ID
                                 .constructPPreparedStatement()
-                                .setString(1, doorOwner.pPlayerData().getUUID().toString()),
+                                .setString(1, movableOwner.pPlayerData().getUUID().toString()),
                             rs -> rs.next() ? rs.getLong("id") : -1, -1L);
     }
 
     /**
-     * Attempts to construct a subclass of {@link DoorBase} from a ResultSet containing all data pertaining the
-     * {@link DoorBase} (as stored in the "DoorBase" table), as well as the owner (name, UUID, permission) and the
+     * Attempts to construct a subclass of {@link MovableBase} from a ResultSet containing all data pertaining the
+     * {@link MovableBase} (as stored in the "movableBase" table), as well as the owner (name, UUID, permission) and the
      * typeTableName.
      *
-     * @param doorBaseRS
-     *     The {@link ResultSet} containing a row from the "DoorBase" table as well as a row from the "DoorOwnerPlayer"
-     *     table and "typeTableName" from the "DoorType" table.
-     * @return An instance of a subclass of {@link DoorBase} if it could be created.
+     * @param movableBaseRS
+     *     The {@link ResultSet} containing a row from the "movableBase" table as well as a row from the
+     *     "DoorOwnerPlayer" table and "typeTableName" from the "DoorType" table.
+     * @return An instance of a subclass of {@link MovableBase} if it could be created.
      */
-    private Optional<AbstractDoor> getDoor(ResultSet doorBaseRS)
+    private Optional<AbstractMovable> getMovable(ResultSet movableBaseRS)
         throws Exception
     {
         // Make sure the ResultSet isn't empty.
-        if (!doorBaseRS.isBeforeFirst())
+        if (!movableBaseRS.isBeforeFirst())
             return Optional.empty();
 
-        return constructDoor(doorBaseRS);
+        return constructMovable(movableBaseRS);
     }
 
     /**
-     * Attempts to construct a list of subclasses of {@link DoorBase} from a ResultSet containing all data pertaining to
-     * one or more {@link DoorBase}s (as stored in the "DoorBase" table), as well as the owner (name, UUID, permission)
-     * and the typeTableName.
+     * Attempts to construct a list of subclasses of {@link MovableBase} from a ResultSet containing all data pertaining
+     * to one or more {@link MovableBase}s (as stored in the "movableBase" table), as well as the owner (name, UUID,
+     * permission) and the typeTableName.
      *
-     * @param doorBaseRS
-     *     The {@link ResultSet} containing one or more rows from the "DoorBase" table as well as matching rows from the
-     *     "DoorOwnerPlayer" table and "typeTableName" from the "DoorType" table.
-     * @return An optional with a list of {@link DoorBase}s if any could be constructed. If none could be constructed,
-     * an empty {@link Optional} is returned instead.
+     * @param movableBaseRS
+     *     The {@link ResultSet} containing one or more rows from the "movableBase" table as well as matching rows from
+     *     the "DoorOwnerPlayer" table and "typeTableName" from the "DoorType" table.
+     * @return An optional with a list of {@link MovableBase}s if any could be constructed. If none could be
+     * constructed, an empty {@link Optional} is returned instead.
      */
-    private List<AbstractDoor> getDoors(ResultSet doorBaseRS)
+    private List<AbstractMovable> getMovables(ResultSet movableBaseRS)
         throws Exception
     {
         // Make sure the ResultSet isn't empty.
-        if (!doorBaseRS.isBeforeFirst())
+        if (!movableBaseRS.isBeforeFirst())
             return Collections.emptyList();
 
-        final List<AbstractDoor> doors = new ArrayList<>();
-        while (doorBaseRS.next())
-            constructDoor(doorBaseRS).ifPresent(doors::add);
-        return doors;
+        final List<AbstractMovable> movables = new ArrayList<>();
+        while (movableBaseRS.next())
+            constructMovable(movableBaseRS).ifPresent(movables::add);
+        return movables;
     }
 
     @Override
-    public Optional<AbstractDoor> getDoor(long doorUID)
+    public Optional<AbstractMovable> getMovable(long movableUID)
     {
-        return executeQuery(SQLStatement.GET_DOOR_BASE_FROM_ID.constructPPreparedStatement()
-                                                              .setLong(1, doorUID),
-                            this::getDoor, Optional.empty());
+        return executeQuery(SQLStatement.GET_MOVABLE_BASE_FROM_ID.constructPPreparedStatement()
+                                                                 .setLong(1, movableUID),
+                            this::getMovable, Optional.empty());
     }
 
     @Override
-    public Optional<AbstractDoor> getDoor(UUID playerUUID, long doorUID)
+    public Optional<AbstractMovable> getMovable(UUID playerUUID, long movableUID)
     {
-        return executeQuery(SQLStatement.GET_DOOR_BASE_FROM_ID_FOR_PLAYER.constructPPreparedStatement()
-                                                                         .setLong(1, doorUID)
-                                                                         .setString(2, playerUUID.toString()),
-                            this::getDoor, Optional.empty());
+        return executeQuery(SQLStatement.GET_MOVABLE_BASE_FROM_ID_FOR_PLAYER.constructPPreparedStatement()
+                                                                            .setLong(1, movableUID)
+                                                                            .setString(2, playerUUID.toString()),
+                            this::getMovable, Optional.empty());
     }
 
     @Override
-    public boolean removeDoor(long doorUID)
+    public boolean removeMovable(long movableUID)
     {
-        return executeUpdate(SQLStatement.DELETE_DOOR.constructPPreparedStatement()
-                                                     .setLong(1, doorUID)) > 0;
+        return executeUpdate(SQLStatement.DELETE_MOVABLE.constructPPreparedStatement()
+                                                        .setLong(1, movableUID)) > 0;
     }
 
     @Override
-    public boolean removeDoors(UUID playerUUID, String doorName)
+    public boolean removeMovables(UUID playerUUID, String movableName)
     {
-        return executeUpdate(SQLStatement.DELETE_NAMED_DOOR_OF_PLAYER.constructPPreparedStatement()
-                                                                     .setString(1, playerUUID.toString())
-                                                                     .setString(2, doorName)) > 0;
+        return executeUpdate(SQLStatement.DELETE_NAMED_MOVABLE_OF_PLAYER.constructPPreparedStatement()
+                                                                        .setString(1, playerUUID.toString())
+                                                                        .setString(2, movableName)) > 0;
     }
 
     @Override
@@ -624,75 +636,75 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    public int getDoorCountForPlayer(UUID playerUUID)
+    public int getMovableCountForPlayer(UUID playerUUID)
     {
-        return executeQuery(SQLStatement.GET_DOOR_COUNT_FOR_PLAYER.constructPPreparedStatement()
-                                                                  .setString(1, playerUUID.toString()),
+        return executeQuery(SQLStatement.GET_MOVABLE_COUNT_FOR_PLAYER.constructPPreparedStatement()
+                                                                     .setString(1, playerUUID.toString()),
                             resultSet -> resultSet.next() ? resultSet.getInt("total") : -1, -1);
     }
 
     @Override
-    public int getDoorCountForPlayer(UUID playerUUID, String doorName)
+    public int getMovableCountForPlayer(UUID playerUUID, String movableName)
     {
-        return executeQuery(SQLStatement.GET_PLAYER_DOOR_COUNT.constructPPreparedStatement()
-                                                              .setString(1, playerUUID.toString())
-                                                              .setString(2, doorName),
+        return executeQuery(SQLStatement.GET_PLAYER_MOVABLE_COUNT.constructPPreparedStatement()
+                                                                 .setString(1, playerUUID.toString())
+                                                                 .setString(2, movableName),
                             resultSet -> resultSet.next() ? resultSet.getInt("total") : -1, -1);
     }
 
     @Override
-    public int getDoorCountByName(String doorName)
+    public int getMovableCountByName(String movableName)
     {
-        return executeQuery(SQLStatement.GET_DOOR_COUNT_BY_NAME.constructPPreparedStatement()
-                                                               .setString(1, doorName),
+        return executeQuery(SQLStatement.GET_MOVABLE_COUNT_BY_NAME.constructPPreparedStatement()
+                                                                  .setString(1, movableName),
                             resultSet -> resultSet.next() ? resultSet.getInt("total") : -1, -1);
     }
 
     @Override
-    public int getOwnerCountOfDoor(long doorUID)
+    public int getOwnerCountOfMovable(long movableUID)
     {
-        return executeQuery(SQLStatement.GET_OWNER_COUNT_OF_DOOR.constructPPreparedStatement()
-                                                                .setLong(1, doorUID),
+        return executeQuery(SQLStatement.GET_OWNER_COUNT_OF_MOVABLE.constructPPreparedStatement()
+                                                                   .setLong(1, movableUID),
                             resultSet -> resultSet.next() ? resultSet.getInt("total") : -1, -1);
     }
 
     @Override
-    public List<AbstractDoor> getDoors(UUID playerUUID, String doorName, PermissionLevel maxPermission)
+    public List<AbstractMovable> getMovables(UUID playerUUID, String movableName, PermissionLevel maxPermission)
     {
-        return executeQuery(SQLStatement.GET_NAMED_DOORS_OWNED_BY_PLAYER.constructPPreparedStatement()
-                                                                        .setString(1, playerUUID.toString())
-                                                                        .setString(2, doorName)
-                                                                        .setInt(3, maxPermission.getValue()),
-                            this::getDoors, Collections.emptyList());
+        return executeQuery(SQLStatement.GET_NAMED_MOVABLES_OWNED_BY_PLAYER.constructPPreparedStatement()
+                                                                           .setString(1, playerUUID.toString())
+                                                                           .setString(2, movableName)
+                                                                           .setInt(3, maxPermission.getValue()),
+                            this::getMovables, Collections.emptyList());
     }
 
     @Override
-    public List<AbstractDoor> getDoors(UUID playerUUID, String name)
+    public List<AbstractMovable> getMovables(UUID playerUUID, String name)
     {
-        return getDoors(playerUUID, name, PermissionLevel.CREATOR);
+        return getMovables(playerUUID, name, PermissionLevel.CREATOR);
     }
 
     @Override
-    public List<AbstractDoor> getDoors(String name)
+    public List<AbstractMovable> getMovables(String name)
     {
-        return executeQuery(SQLStatement.GET_DOORS_WITH_NAME.constructPPreparedStatement()
-                                                            .setString(1, name),
-                            this::getDoors, Collections.emptyList());
+        return executeQuery(SQLStatement.GET_MOVABLES_WITH_NAME.constructPPreparedStatement()
+                                                               .setString(1, name),
+                            this::getMovables, Collections.emptyList());
     }
 
     @Override
-    public List<AbstractDoor> getDoors(UUID playerUUID, PermissionLevel maxPermission)
+    public List<AbstractMovable> getMovables(UUID playerUUID, PermissionLevel maxPermission)
     {
-        return executeQuery(SQLStatement.GET_DOORS_OWNED_BY_PLAYER_WITH_LEVEL.constructPPreparedStatement()
-                                                                             .setString(1, playerUUID.toString())
-                                                                             .setInt(2, maxPermission.getValue()),
-                            this::getDoors, Collections.emptyList());
+        return executeQuery(SQLStatement.GET_MOVABLES_OWNED_BY_PLAYER_WITH_LEVEL.constructPPreparedStatement()
+                                                                                .setString(1, playerUUID.toString())
+                                                                                .setInt(2, maxPermission.getValue()),
+                            this::getMovables, Collections.emptyList());
     }
 
     @Override
-    public List<AbstractDoor> getDoors(UUID playerUUID)
+    public List<AbstractMovable> getMovables(UUID playerUUID)
     {
-        return getDoors(playerUUID, PermissionLevel.CREATOR);
+        return getMovables(playerUUID, PermissionLevel.CREATOR);
     }
 
     @Override
@@ -700,8 +712,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     {
         return executeUpdate(SQLStatement.UPDATE_PLAYER_DATA.constructPPreparedStatement()
                                                             .setNextString(playerData.getName())
-                                                            .setNextInt(playerData.getDoorSizeLimit())
-                                                            .setNextInt(playerData.getDoorCountLimit())
+                                                            .setNextInt(playerData.getMovableSizeLimit())
+                                                            .setNextInt(playerData.getMovableCountLimit())
                                                             .setNextLong(playerData.getPermissionsFlag())
                                                             .setNextString(playerData.getUUID().toString())) > 0;
     }
@@ -748,50 +760,50 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                                                                       .setLong(1, chunkId),
                             resultSet ->
                             {
-                                final ConcurrentHashMap<Integer, List<Long>> doors = new ConcurrentHashMap<>();
+                                final ConcurrentHashMap<Integer, List<Long>> movables = new ConcurrentHashMap<>();
                                 while (resultSet.next())
                                 {
                                     final int locationHash =
                                         Util.simpleChunkSpaceLocationhash(resultSet.getInt("powerBlockX"),
                                                                           resultSet.getInt("powerBlockY"),
                                                                           resultSet.getInt("powerBlockZ"));
-                                    if (!doors.containsKey(locationHash))
-                                        doors.put(locationHash, new ArrayList<>());
-                                    doors.get(locationHash).add(resultSet.getLong("id"));
+                                    if (!movables.containsKey(locationHash))
+                                        movables.put(locationHash, new ArrayList<>());
+                                    movables.get(locationHash).add(resultSet.getLong("id"));
                                 }
-                                return doors;
+                                return movables;
                             }, new ConcurrentHashMap<>());
     }
 
     @Override
-    public List<Long> getDoorsInChunk(long chunkId)
+    public List<Long> getMovablesInChunk(long chunkId)
     {
-        return executeQuery(SQLStatement.GET_DOOR_IDS_IN_CHUNK.constructPPreparedStatement()
-                                                              .setLong(1, chunkId),
+        return executeQuery(SQLStatement.GET_MOVABLE_IDS_IN_CHUNK.constructPPreparedStatement()
+                                                                 .setLong(1, chunkId),
                             resultSet ->
                             {
-                                final List<Long> doors = new ArrayList<>();
+                                final List<Long> movables = new ArrayList<>();
                                 while (resultSet.next())
-                                    doors.add(resultSet.getLong("id"));
-                                return doors;
+                                    movables.add(resultSet.getLong("id"));
+                                return movables;
                             }, new ArrayList<>(0));
     }
 
     @Override
-    public boolean removeOwner(long doorUID, UUID playerUUID)
+    public boolean removeOwner(long movableUID, UUID playerUUID)
     {
-        return executeUpdate(SQLStatement.REMOVE_DOOR_OWNER.constructPPreparedStatement()
-                                                           .setString(1, playerUUID.toString())
-                                                           .setLong(2, doorUID)) > 0;
+        return executeUpdate(SQLStatement.REMOVE_MOVABLE_OWNER.constructPPreparedStatement()
+                                                              .setString(1, playerUUID.toString())
+                                                              .setLong(2, movableUID)) > 0;
     }
 
-    private Map<UUID, DoorOwner> getOwnersOfDoor(long doorUID)
+    private Map<UUID, MovableOwner> getOwnersOfMovable(long movableUID)
     {
-        return executeQuery(SQLStatement.GET_DOOR_OWNERS.constructPPreparedStatement()
-                                                        .setLong(1, doorUID),
+        return executeQuery(SQLStatement.GET_MOVABLE_OWNERS.constructPPreparedStatement()
+                                                           .setLong(1, movableUID),
                             resultSet ->
                             {
-                                final Map<UUID, DoorOwner> ret = new HashMap<>();
+                                final Map<UUID, MovableOwner> ret = new HashMap<>();
                                 while (resultSet.next())
                                 {
                                     final UUID uuid = UUID.fromString(resultSet.getString("playerUUID"));
@@ -802,8 +814,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                                                         resultSet.getInt("countLimit"),
                                                         resultSet.getLong("permissions"));
 
-                                    ret.put(uuid, new DoorOwner(
-                                        resultSet.getLong("doorUID"),
+                                    ret.put(uuid, new MovableOwner(
+                                        resultSet.getLong("movableUID"),
                                         Objects.requireNonNull(
                                             PermissionLevel.fromValue(resultSet.getInt("permission"))),
                                         playerData));
@@ -813,7 +825,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    public boolean addOwner(long doorUID, PPlayerData player, PermissionLevel permission)
+    public boolean addOwner(long movableUID, PPlayerData player, PermissionLevel permission)
     {
         // permission level 0 is reserved for the creator, and negative values are not allowed.
         if (permission.getValue() < 1 || permission == PermissionLevel.NO_PERMISSION)
@@ -826,30 +838,31 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         return executeTransaction(
             conn ->
             {
-                final long playerID = getPlayerID(conn, new DoorOwner(doorUID, permission, player.getPPlayerData()));
+                final long playerID = getPlayerID(conn,
+                                                  new MovableOwner(movableUID, permission, player.getPPlayerData()));
 
                 if (playerID == -1)
                     throw new IllegalArgumentException(
-                        "Trying to add player \"" + player.getUUID() + "\" as owner of door " + doorUID +
+                        "Trying to add player \"" + player.getUUID() + "\" as owner of movable " + movableUID +
                             ", but that player is not registered in the database! Aborting...");
 
                 return executeQuery(
-                    conn, SQLStatement.GET_DOOR_OWNER_PLAYER.constructPPreparedStatement()
-                                                            .setLong(1, playerID)
-                                                            .setLong(2, doorUID),
+                    conn, SQLStatement.GET_MOVABLE_OWNER_PLAYER.constructPPreparedStatement()
+                                                               .setLong(1, playerID)
+                                                               .setLong(2, movableUID),
                     rs ->
                     {
                         final SQLStatement statement =
                             (rs.next() && (rs.getInt("permission") != permission.getValue())) ?
-                            SQLStatement.UPDATE_DOOR_OWNER_PERMISSION :
-                            SQLStatement.INSERT_DOOR_OWNER;
+                            SQLStatement.UPDATE_MOVABLE_OWNER_PERMISSION :
+                            SQLStatement.INSERT_MOVABLE_OWNER;
 
                         return
                             executeUpdate(conn, statement
                                 .constructPPreparedStatement()
                                 .setInt(1, permission.getValue())
                                 .setLong(2, playerID)
-                                .setLong(3, doorUID)) > 0;
+                                .setLong(3, movableUID)) > 0;
                     }, false);
             }, false);
     }

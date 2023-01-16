@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -23,13 +23,13 @@ public class SetAutoCloseTimeDelayed extends DelayedCommand<Integer>
 
     @Override
     protected CompletableFuture<Boolean> delayedInputExecutor(
-        ICommandSender commandSender, DoorRetriever doorRetriever, Integer autoCloseTime)
+        ICommandSender commandSender, MovableRetriever movableRetriever, Integer autoCloseTime)
     {
-        return commandFactory.get().newSetAutoCloseTime(commandSender, doorRetriever, autoCloseTime).run();
+        return commandFactory.get().newSetAutoCloseTime(commandSender, movableRetriever, autoCloseTime).run();
     }
 
     @Override
-    protected String inputRequestMessage(ICommandSender commandSender, DoorRetriever doorRetriever)
+    protected String inputRequestMessage(ICommandSender commandSender, MovableRetriever movableRetriever)
     {
         return localizer.getMessage("commands.set_auto_close_time.init");
     }

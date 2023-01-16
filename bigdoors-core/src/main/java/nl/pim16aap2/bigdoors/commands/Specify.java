@@ -7,14 +7,14 @@ import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
+import nl.pim16aap2.bigdoors.managers.MovableSpecificationManager;
 import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.util.delayedinput.DelayedInputRequest;
 
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Implements the command to specify a door for the {@link DoorSpecificationManager}.
+ * Implements the command to specify a movable for the {@link MovableSpecificationManager}.
  *
  * @author Pim
  */
@@ -22,16 +22,16 @@ import java.util.concurrent.CompletableFuture;
 public class Specify extends BaseCommand
 {
     private final String input;
-    private final DoorSpecificationManager doorSpecificationManager;
+    private final MovableSpecificationManager movableSpecificationManager;
 
     @AssistedInject //
     Specify(
         @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
-        @Assisted String input, DoorSpecificationManager doorSpecificationManager)
+        @Assisted String input, MovableSpecificationManager movableSpecificationManager)
     {
         super(commandSender, localizer, textFactory);
         this.input = input;
-        this.doorSpecificationManager = doorSpecificationManager;
+        this.movableSpecificationManager = movableSpecificationManager;
     }
 
     @Override
@@ -50,7 +50,7 @@ public class Specify extends BaseCommand
     @Override
     protected CompletableFuture<Boolean> executeCommand(PermissionsStatus permissions)
     {
-        if (!doorSpecificationManager.handleInput((IPPlayer) getCommandSender(), input))
+        if (!movableSpecificationManager.handleInput((IPPlayer) getCommandSender(), input))
             getCommandSender().sendMessage(textFactory, TextType.ERROR,
                                            localizer.getMessage("commands.base.error.no_pending_process"));
         return CompletableFuture.completedFuture(true);
@@ -63,10 +63,10 @@ public class Specify extends BaseCommand
          * Creates (but does not execute!) a new {@link Specify} command.
          *
          * @param commandSender
-         *     The {@link ICommandSender} responsible specifying a door.
+         *     The {@link ICommandSender} responsible specifying a movable.
          * @param name
-         *     The name/index that specifies a door based on the {@link DelayedInputRequest} for the command sender as
-         *     registered by the {@link DoorSpecificationManager}.
+         *     The name/index that specifies a movable based on the {@link DelayedInputRequest} for the command sender
+         *     as registered by the {@link MovableSpecificationManager}.
          * @return See {@link BaseCommand#run()}.
          */
         Specify newSpecify(ICommandSender commandSender, String name);

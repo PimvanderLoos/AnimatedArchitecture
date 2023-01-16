@@ -71,7 +71,7 @@ public final class AudioAnimationHook implements IAnimationHook<IAnimatedBlock>
     {
         if (audioDescription == null)
             return;
-        audioPlayer.playSound(position, animation.getDoorSnapshot().getWorld(), audioDescription.sound(),
+        audioPlayer.playSound(position, animation.getMovableSnapshot().getWorld(), audioDescription.sound(),
                               audioDescription.volume(), audioDescription.pitch());
     }
 
@@ -100,7 +100,7 @@ public final class AudioAnimationHook implements IAnimationHook<IAnimatedBlock>
         @Override
         public @Nullable IAnimationHook<IAnimatedBlock> newInstance(IAnimation<IAnimatedBlock> animation)
         {
-            final AudioSet audioSet = audioConfigurator.getAudioSet(animation.getDoorType());
+            final AudioSet audioSet = audioConfigurator.getAudioSet(animation.getMovableType());
             if (audioSet.isEmpty())
                 return null;
             return new AudioAnimationHook(animation, audioSet, audioPlayer, getServerTickTime());

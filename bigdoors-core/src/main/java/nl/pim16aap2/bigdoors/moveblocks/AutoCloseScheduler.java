@@ -4,11 +4,11 @@ import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.doors.DoorToggleRequestBuilder;
-import nl.pim16aap2.bigdoors.doors.doorarchetypes.ITimerToggleable;
-import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
-import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
+import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
+import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
+import nl.pim16aap2.bigdoors.movable.AbstractMovable;
+import nl.pim16aap2.bigdoors.movable.MovableToggleRequestBuilder;
+import nl.pim16aap2.bigdoors.movable.movablearchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.util.Constants;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.TimerTask;
 
 /**
- * Represents a scheduler that automatically closes doors after a certain amount of time.
+ * Represents a scheduler that automatically closes movables after a certain amount of time.
  *
  * @author Pim
  */
@@ -29,95 +29,96 @@ public final class AutoCloseScheduler extends Restartable
     /**
      * A map of {@link TimerTask}s.
      * <p>
-     * <b>Key:</b> doorUID
+     * <b>Key:</b> movableUID
      * <p>
-     * <b>Value:</b> A {@link TimerTask} to toggle this door again after a certain amount of time.
+     * <b>Value:</b> A {@link TimerTask} to toggle this movable again after a certain amount of time.
      */
     private final Map<Long, TimerTask> timers = new HashMap<>();
-    private final DoorActivityManager doorActivityManager;
-    private final DoorToggleRequestBuilder doorToggleRequestBuilder;
+    private final MovableActivityManager movableActivityManager;
+    private final MovableToggleRequestBuilder movableToggleRequestBuilder;
     private final IPExecutor executor;
 
     @Inject
-    public AutoCloseScheduler(RestartableHolder holder, DoorActivityManager doorActivityManager,
-                              DoorToggleRequestBuilder doorToggleRequestBuilder, IPExecutor executor)
+    public AutoCloseScheduler(
+        RestartableHolder holder, MovableActivityManager movableActivityManager,
+        MovableToggleRequestBuilder movableToggleRequestBuilder, IPExecutor executor)
     {
         super(holder);
-        this.doorActivityManager = doorActivityManager;
-        this.doorToggleRequestBuilder = doorToggleRequestBuilder;
+        this.movableActivityManager = movableActivityManager;
+        this.movableToggleRequestBuilder = movableToggleRequestBuilder;
         this.executor = executor;
     }
 
     /**
-     * Cancels and deleted the {@link TimerTask} of a door if it exists.
+     * Cancels and deleted the {@link TimerTask} of a movable if it exists.
      *
-     * @param doorUID
-     *     The UID of the door.
+     * @param movableUID
+     *     The UID of the movable.
      */
-    private synchronized void deleteTimer(long doorUID)
+    private synchronized void deleteTimer(long movableUID)
     {
-        final @Nullable TimerTask task = timers.remove(doorUID);
+        final @Nullable TimerTask task = timers.remove(movableUID);
         if (task != null)
             task.cancel();
     }
 
     /**
-     * Unschedules automatically closing a door.
+     * Unschedules automatically closing a movable.
      *
-     * @param doorUID
-     *     The UID of the door.
+     * @param movableUID
+     *     The UID of the movable.
      */
-    public synchronized void unscheduleAutoClose(long doorUID)
+    public synchronized void unscheduleAutoClose(long movableUID)
     {
-        deleteTimer(doorUID);
+        deleteTimer(movableUID);
     }
 
     /**
-     * Schedules closing a door.
+     * Schedules closing a movable.
      *
      * @param player
-     *     The player who requested the door toggle. May be null.
-     * @param door
-     *     The door to close.
+     *     The player who requested the movable toggle. May be null.
+     * @param movable
+     *     The movable to close.
      * @param time
      *     The duration (in seconds) of the animation.
      * @param skipAnimation
-     *     Whether the door should be animated or not.
+     *     Whether the movable should be animated or not.
      */
-    synchronized <T extends AbstractDoor & ITimerToggleable> void scheduleAutoClose(IPPlayer player, T door,
-                                                                                    double time, boolean skipAnimation)
+    synchronized <T extends AbstractMovable & ITimerToggleable> void scheduleAutoClose(
+        IPPlayer player, T movable, double time, boolean skipAnimation)
     {
-        final int autoCloseTimer = door.getAutoCloseTime();
-        if (autoCloseTimer < 0 || !door.isOpen())
+        final int autoCloseTimer = movable.getAutoCloseTime();
+        if (autoCloseTimer < 0 || !movable.isOpen())
             return;
 
         // First delete any old timers that might still be running.
-        deleteTimer(door.getDoorUID());
-        // Add 2 ticks to the minimum delay to make sure there's no overlap with setting the door available again.
-        final int delay = Math.min(Constants.MINIMUM_DOOR_DELAY + 2, autoCloseTimer * 20);
+        deleteTimer(movable.getMovableUID());
+        // Add 2 ticks to the minimum delay to make sure there's no overlap with setting the movable available again.
+        final int delay = Math.min(Constants.MINIMUM_MOVABLE_DELAY + 2, autoCloseTimer * 20);
 
         final TimerTask task = new TimerTask()
         {
             @Override
             public void run()
             {
-                if (door.isOpen())
+                if (movable.isOpen())
                 {
-                    doorActivityManager.setDoorAvailable(door.getDoorUID());
-                    doorToggleRequestBuilder.builder()
-                                            .door(door)
-                                            .doorActionCause(DoorActionCause.AUTOCLOSE)
-                                            .doorActionType(DoorActionType.CLOSE)
-                                            .skipAnimation(skipAnimation)
-                                            .time(time)
-                                            .responsible(player)
-                                            .build().execute();
+                    movableActivityManager.setMovableAvailable(movable.getMovableUID());
+                    movableToggleRequestBuilder.builder()
+                                               .movable(movable)
+                                               .movableActionCause(MovableActionCause.AUTOCLOSE)
+                                               .movableActionType(MovableActionType.CLOSE)
+                                               .skipAnimation(skipAnimation)
+                                               .time(time)
+                                               .responsible(player)
+                                               .build().execute();
 
                 }
-                deleteTimer(door.getDoorUID());
+                deleteTimer(movable.getMovableUID());
             }
         };
-        timers.put(door.getDoorUID(), task);
+        timers.put(movable.getMovableUID(), task);
         executor.runSyncLater(task, delay);
     }
 

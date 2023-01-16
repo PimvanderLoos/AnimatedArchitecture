@@ -12,11 +12,11 @@ import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.commands.CommandFactory;
-import nl.pim16aap2.bigdoors.doors.DoorBaseBuilder;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
+import nl.pim16aap2.bigdoors.movable.MovableBaseBuilder;
 import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
@@ -346,7 +346,7 @@ public abstract class ToolUser
     @Getter
     public static final class Context
     {
-        private final DoorBaseBuilder doorBaseBuilder;
+        private final MovableBaseBuilder movableBaseBuilder;
         private final ILocalizer localizer;
         private final ITextFactory textFactory;
         private final ToolUserManager toolUserManager;
@@ -360,13 +360,13 @@ public abstract class ToolUser
 
         @Inject
         public Context(
-            DoorBaseBuilder doorBaseBuilder, ILocalizer localizer, ITextFactory textFactory,
+            MovableBaseBuilder movableBaseBuilder, ILocalizer localizer, ITextFactory textFactory,
             ToolUserManager toolUserManager, DatabaseManager databaseManager, LimitsManager limitsManager,
             IEconomyManager economyManager, IProtectionCompatManager protectionCompatManager,
             IBigDoorsToolUtil bigDoorsToolUtil, CommandFactory commandFactory,
             Step.Factory.IFactory stepFactory)
         {
-            this.doorBaseBuilder = doorBaseBuilder;
+            this.movableBaseBuilder = movableBaseBuilder;
             this.localizer = localizer;
             this.toolUserManager = toolUserManager;
             this.databaseManager = databaseManager;

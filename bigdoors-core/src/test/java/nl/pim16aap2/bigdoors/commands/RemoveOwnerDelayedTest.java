@@ -2,11 +2,11 @@ package nl.pim16aap2.bigdoors.commands;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
+import nl.pim16aap2.bigdoors.movable.AbstractMovable;
+import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
+import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,9 +41,9 @@ class RemoveOwnerDelayedTest
 
     @Mock ICommandSender commandSender;
 
-    @Mock AbstractDoor door;
-    DoorRetriever doorRetriever;
-    @InjectMocks DoorRetrieverFactory doorRetrieverFactory;
+    @Mock AbstractMovable door;
+    MovableRetriever doorRetriever;
+    @InjectMocks MovableRetrieverFactory doorRetrieverFactory;
 
     @Mock RemoveOwner removeOwner;
     @Mock IPPlayer targetPlayer;

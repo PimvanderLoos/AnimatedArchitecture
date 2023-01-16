@@ -45,7 +45,7 @@ public final class CommandFactory
     @Delegate
     private final SetOpenDirection.IFactory setOpenDirectionFactory;
     @Delegate
-    private final StopDoors.IFactory stopDoorsFactory;
+    private final StopMovables.IFactory stopDoorsFactory;
     @Delegate
     private final Lock.IFactory lockFactory;
     @Delegate
@@ -53,9 +53,9 @@ public final class CommandFactory
     @Delegate
     private final MovePowerBlock.IFactory movePowerBlockFactory;
     @Delegate
-    private final NewDoor.IFactory newDoorFactory;
+    private final NewMovable.IFactory newDoorFactory;
     @Delegate
-    private final ListDoors.IFactory listDoorsFactory;
+    private final ListMovables.IFactory listDoorsFactory;
 
     @Getter
     private final AddOwnerDelayed addOwnerDelayed;
@@ -77,10 +77,10 @@ public final class CommandFactory
         Delete.IFactory deleteFactory,
         Info.IFactory infoFactory,
         InspectPowerBlock.IFactory inspectPowerBlockFactory,
-        ListDoors.IFactory listDoorsFactory,
+        ListMovables.IFactory listDoorsFactory,
         Lock.IFactory lockFactory,
         MovePowerBlock.IFactory movePowerBlockFactory,
-        NewDoor.IFactory newDoorFactory,
+        NewMovable.IFactory newDoorFactory,
         RemoveOwner.IFactory removeOwnerFactory, RemoveOwnerDelayed removeOwnerDelayed,
         Restart.IFactory restartFactory,
         SetAutoCloseTime.IFactory setAutoCloseTimeFactory, SetAutoCloseTimeDelayed setAutoCloseTimeDelayed,
@@ -88,7 +88,7 @@ public final class CommandFactory
         SetName.IFactory setNameFactory,
         SetOpenDirection.IFactory setOpenDirectionFactory, SetOpenDirectionDelayed setOpenDirectionDelayed,
         Specify.IFactory specifyFactory,
-        StopDoors.IFactory stopDoorsFactory,
+        StopMovables.IFactory stopDoorsFactory,
         Toggle.IFactory toggleFactory,
         Version.IFactory versionFactory)
     {

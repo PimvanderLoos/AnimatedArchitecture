@@ -2,10 +2,10 @@ package nl.pim16aap2.bigdoors.spigot.listeners;
 
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
-import nl.pim16aap2.bigdoors.doors.DoorToggleRequestBuilder;
-import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
-import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
+import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
+import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
+import nl.pim16aap2.bigdoors.movable.MovableToggleRequestBuilder;
 import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -35,17 +35,18 @@ import java.util.logging.Level;
 public class RedstoneListener extends AbstractListener
 {
     private final ConfigLoaderSpigot config;
-    private final DoorToggleRequestBuilder doorToggleRequestBuilder;
+    private final MovableToggleRequestBuilder movableToggleRequestBuilder;
     private final Set<Material> powerBlockTypes = new HashSet<>();
     private final PowerBlockManager powerBlockManager;
 
     @Inject
-    public RedstoneListener(RestartableHolder holder, JavaPlugin plugin, ConfigLoaderSpigot config,
-                            DoorToggleRequestBuilder doorToggleRequestBuilder, PowerBlockManager powerBlockManager)
+    public RedstoneListener(
+        RestartableHolder holder, JavaPlugin plugin, ConfigLoaderSpigot config,
+        MovableToggleRequestBuilder movableToggleRequestBuilder, PowerBlockManager powerBlockManager)
     {
         super(holder, plugin, () -> shouldBeEnabled(config));
         this.config = config;
-        this.doorToggleRequestBuilder = doorToggleRequestBuilder;
+        this.movableToggleRequestBuilder = movableToggleRequestBuilder;
         this.powerBlockManager = powerBlockManager;
     }
 
@@ -76,17 +77,18 @@ public class RedstoneListener extends AbstractListener
         powerBlockTypes.clear();
     }
 
-    private void checkDoors(Location loc)
+    private void checkMovables(Location loc)
     {
         final String worldName = Objects.requireNonNull(loc.getWorld(), "World cannot be null!").getName();
-        powerBlockManager.doorsFromPowerBlockLoc(
+        powerBlockManager.movablesFromPowerBlockLoc(
             new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()), worldName).whenComplete(
-            (doorList, throwable) -> doorList.forEach(
-                door -> doorToggleRequestBuilder.builder()
-                                                .door(door)
-                                                .doorActionCause(DoorActionCause.REDSTONE)
-                                                .doorActionType(DoorActionType.TOGGLE)
-                                                .build().execute()));
+            (movables, throwable) -> movables.forEach(
+                movable -> movableToggleRequestBuilder
+                    .builder()
+                    .movable(movable)
+                    .movableActionCause(MovableActionCause.REDSTONE)
+                    .movableActionType(MovableActionType.TOGGLE)
+                    .build().execute()));
     }
 
     /**
@@ -108,22 +110,22 @@ public class RedstoneListener extends AbstractListener
             final int z = location.getBlockZ();
 
             if (powerBlockTypes.contains(world.getBlockAt(x, y, z - 1).getType())) // North
-                checkDoors(new Location(world, x, y, z - 1.0));
+                checkMovables(new Location(world, x, y, z - 1.0));
 
             if (powerBlockTypes.contains(world.getBlockAt(x + 1, y, z).getType())) // East
-                checkDoors(new Location(world, x + 1.0, y, z));
+                checkMovables(new Location(world, x + 1.0, y, z));
 
             if (powerBlockTypes.contains(world.getBlockAt(x, y, z + 1).getType())) // South
-                checkDoors(new Location(world, x, y, z + 1.0));
+                checkMovables(new Location(world, x, y, z + 1.0));
 
             if (powerBlockTypes.contains(world.getBlockAt(x - 1, y, z).getType())) // West
-                checkDoors(new Location(world, x - 1.0, y, z));
+                checkMovables(new Location(world, x - 1.0, y, z));
 
             if (y < 254 && powerBlockTypes.contains(world.getBlockAt(x, y + 1, z).getType())) // Above
-                checkDoors(new Location(world, x, y + 1.0, z));
+                checkMovables(new Location(world, x, y + 1.0, z));
 
             if (y > 0 && powerBlockTypes.contains(world.getBlockAt(x, y - 1, z).getType())) // Under
-                checkDoors(new Location(world, x, y - 1.0, z));
+                checkMovables(new Location(world, x, y - 1.0, z));
         }
         catch (Exception e)
         {
@@ -132,8 +134,8 @@ public class RedstoneListener extends AbstractListener
     }
 
     /**
-     * Listens to redstone changes and checks if there are any doors attached to it. Any doors that are found are then
-     * toggled, if possible.
+     * Listens to redstone changes and checks if there are any movables attached to it. Any movables that are found are
+     * then toggled, if possible.
      *
      * @param event
      *     The {@link BlockRedstoneEvent}.

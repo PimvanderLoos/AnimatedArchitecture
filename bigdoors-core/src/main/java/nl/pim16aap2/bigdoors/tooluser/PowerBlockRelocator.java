@@ -7,7 +7,7 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorPLocation;
@@ -27,14 +27,14 @@ import java.util.logging.Level;
 @Flogger
 public class PowerBlockRelocator extends ToolUser
 {
-    private final AbstractDoor door;
+    private final AbstractMovable movable;
     private @Nullable IPLocation newLoc;
 
     @AssistedInject
-    public PowerBlockRelocator(ToolUser.Context context, @Assisted IPPlayer player, @Assisted AbstractDoor door)
+    public PowerBlockRelocator(ToolUser.Context context, @Assisted IPPlayer player, @Assisted AbstractMovable movable)
     {
         super(context, player);
-        this.door = door;
+        this.movable = movable;
     }
 
     @Override
@@ -46,15 +46,15 @@ public class PowerBlockRelocator extends ToolUser
 
     protected boolean moveToLoc(IPLocation loc)
     {
-        if (!loc.getWorld().equals(door.getWorld()))
+        if (!loc.getWorld().equals(movable.getWorld()))
         {
             getPlayer().sendError(textFactory,
                                   localizer.getMessage("tool_user.powerblock_relocator.error.world_mismatch",
-                                                       localizer.getDoorType(door.getDoorType())));
+                                                       localizer.getMovableType(movable.getMovableType())));
             return false;
         }
 
-        if (loc.getPosition().equals(door.getPowerBlock()))
+        if (loc.getPosition().equals(movable.getPowerBlock()))
         {
             newLoc = loc;
             return true;
@@ -75,13 +75,13 @@ public class PowerBlockRelocator extends ToolUser
                 new NullPointerException("newLoc is null, which should not be possible at this point!")).log();
             getPlayer().sendError(textFactory, localizer.getMessage("constants.error.generic"));
         }
-        else if (door.getPowerBlock().equals(newLoc.getPosition()))
+        else if (movable.getPowerBlock().equals(newLoc.getPosition()))
             getPlayer().sendError(textFactory,
                                   localizer.getMessage("tool_user.powerblock_relocator.error.location_unchanged"));
         else
         {
-            door.setPowerBlock(newLoc.getPosition());
-            door.syncData();
+            movable.setPowerBlock(newLoc.getPosition());
+            movable.syncData();
             getPlayer().sendSuccess(textFactory, localizer.getMessage("tool_user.powerblock_relocator.success"));
         }
         return true;
@@ -109,6 +109,6 @@ public class PowerBlockRelocator extends ToolUser
     @AssistedFactory
     public interface IFactory
     {
-        PowerBlockRelocator create(IPPlayer player, AbstractDoor door);
+        PowerBlockRelocator create(IPPlayer player, AbstractMovable movable);
     }
 }

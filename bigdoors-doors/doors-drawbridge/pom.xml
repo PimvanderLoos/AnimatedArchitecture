@@ -6,7 +6,7 @@
     <version>1</version>
 
     <properties>
-        <mainClass>nl.pim16aap2.bigdoors.doors.drawbridge.DoorTypeDrawbridge</mainClass>
+        <mainClass>nl.pim16aap2.bigdoors.movable.drawbridge.MovableTypeDrawbridge</mainClass>
         <typeName>Drawbridge</typeName>
         <version>1</version>
     </properties>

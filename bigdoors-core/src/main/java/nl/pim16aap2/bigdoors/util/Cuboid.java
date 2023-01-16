@@ -42,7 +42,7 @@ public class Cuboid
     private final int volume;
 
     /**
-     * Gets the dimensions of this door.
+     * Gets the dimensions of this movable.
      */
     @Getter
     @EqualsAndHashCode.Exclude

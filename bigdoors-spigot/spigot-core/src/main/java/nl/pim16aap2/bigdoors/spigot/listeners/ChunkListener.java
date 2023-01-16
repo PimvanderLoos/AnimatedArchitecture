@@ -5,6 +5,7 @@ import nl.pim16aap2.bigdoors.annotations.Initializer;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
+import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import org.bukkit.event.EventHandler;
@@ -73,12 +74,12 @@ public class ChunkListener extends AbstractListener
         catch (NoSuchMethodException | SecurityException e)
         {
             log.at(Level.SEVERE).withCause(e)
-               .log("Serious error encountered! Unloading chunks with active doors IS UNSAFE!");
+               .log("Serious error encountered! Unloading chunks with active movables IS UNSAFE!");
         }
     }
 
     /**
-     * Listens to chunks being loaded and checks if they contain doors that move perpetually (doors, clocks, etc).
+     * Listens to chunks being loaded and checks if they contain movables that move perpetually (doors, clocks, etc).
      *
      * @param event
      *     The {@link ChunkLoadEvent}.
@@ -88,15 +89,15 @@ public class ChunkListener extends AbstractListener
     public void onChunkLoad(ChunkLoadEvent event)
     {
         final long chunkId = Util.getChunkId(event.getChunk().getX(), event.getChunk().getZ());
-        databaseManager.getDoorsInChunk(chunkId).whenComplete(
-            (doors, throwable) ->
-                doors.forEach(doorUID -> databaseManager.getDoor(doorUID).whenComplete(
-                    (optionalDoor, throwable2) ->
-                        optionalDoor.ifPresent(
-                            door ->
+        databaseManager.getMovablesInChunk(chunkId).whenComplete(
+            (movables, throwable) ->
+                movables.forEach(movableUID -> databaseManager.getMovable(movableUID).whenComplete(
+                    (optionalMovable, throwable2) ->
+                        optionalMovable.ifPresent(
+                            movable ->
                             {
                                 // TODO: (re?)Implement this
-//                                if (door instanceof IPerpetualMover && door.isPowerBlockActive())
+//                                if (door instanceof IPerpetualMover && movable.isPowerBlockActive())
 //                                    BigDoors.get().getDoorOpener()
 //                                            .animateDoorAsync(door, DoorActionCause.PERPETUALMOVEMENT, null, 0,
 //                                                              false, DoorActionType.TOGGLE);
@@ -106,7 +107,7 @@ public class ChunkListener extends AbstractListener
 
     /**
      * Listens to chunks being unloaded and checks if it intersects with the region of any of the active
-     * {@link nl.pim16aap2.bigdoors.doors.DoorBase}s.
+     * {@link MovableBase}s.
      *
      * @param event
      *     The {@link ChunkUnloadEvent}.
@@ -168,7 +169,7 @@ public class ChunkListener extends AbstractListener
         catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
         {
             log.at(Level.SEVERE).withCause(e)
-               .log("Serious error encountered! Unloading chunks with active doors IS UNSAFE!");
+               .log("Serious error encountered! Unloading chunks with active movables IS UNSAFE!");
             return false;
         }
         return false;

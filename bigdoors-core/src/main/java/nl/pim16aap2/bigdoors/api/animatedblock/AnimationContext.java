@@ -1,11 +1,11 @@
 package nl.pim16aap2.bigdoors.api.animatedblock;
 
 import lombok.Value;
-import nl.pim16aap2.bigdoors.doors.DoorSnapshot;
-import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
+import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 
 /**
- * Contains the context in which an animation takes place. For example, the door that is being animated.
+ * Contains the context in which an animation takes place. For example, the movable that is being animated.
  *
  * @author Pim
  */
@@ -13,14 +13,14 @@ import nl.pim16aap2.bigdoors.doortypes.DoorType;
 public class AnimationContext
 {
     /**
-     * The type of door being animated.
+     * The type of movable being animated.
      */
-    DoorType doorType;
+    MovableType movableType;
 
     /**
-     * A snapshot of the door being animated, created before the movement started.
+     * A snapshot of the movable being animated, created before the movement started.
      */
-    DoorSnapshot doorSnapshot;
+    MovableSnapshot movableSnapshot;
 
     /**
      * The current progress of the animation.

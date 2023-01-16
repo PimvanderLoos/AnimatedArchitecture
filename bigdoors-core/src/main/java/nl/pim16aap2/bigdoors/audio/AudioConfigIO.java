@@ -6,7 +6,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -81,7 +81,7 @@ class AudioConfigIO
 
     // NullAway currently does not work well with nullable annotations in generics.
     @SuppressWarnings("NullAway")
-    void writeConfig(Map<DoorType, @Nullable AudioSet> map, @Nullable AudioSet defaultAudioSet)
+    void writeConfig(Map<MovableType, @Nullable AudioSet> map, @Nullable AudioSet defaultAudioSet)
     {
         final JsonObject base = new JsonObject();
         appendToJsonObject(GSON, base, AudioConfigurator.KEY_DEFAULT, defaultAudioSet);

@@ -5,14 +5,14 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.doors.DoorAttribute;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.doors.doorarchetypes.IDiscreteMovement;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.movable.AbstractMovable;
+import nl.pim16aap2.bigdoors.movable.MovableAttribute;
+import nl.pim16aap2.bigdoors.movable.MovableBase;
+import nl.pim16aap2.bigdoors.movable.movablearchetypes.IDiscreteMovement;
 import nl.pim16aap2.bigdoors.text.TextType;
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
+import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
+import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -22,7 +22,7 @@ import java.util.concurrent.CompletableFuture;
  * @author Pim
  */
 @ToString
-public class SetBlocksToMove extends DoorTargetCommand
+public class SetBlocksToMove extends MovableTargetCommand
 {
     public static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.SET_BLOCKS_TO_MOVE;
 
@@ -31,9 +31,9 @@ public class SetBlocksToMove extends DoorTargetCommand
     @AssistedInject //
     SetBlocksToMove(
         @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
-        @Assisted DoorRetriever doorRetriever, @Assisted int blocksToMove)
+        @Assisted MovableRetriever movableRetriever, @Assisted int blocksToMove)
     {
-        super(commandSender, localizer, textFactory, doorRetriever, DoorAttribute.BLOCKS_TO_MOVE);
+        super(commandSender, localizer, textFactory, movableRetriever, MovableAttribute.BLOCKS_TO_MOVE);
         this.blocksToMove = blocksToMove;
     }
 
@@ -44,19 +44,19 @@ public class SetBlocksToMove extends DoorTargetCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> performAction(AbstractDoor door)
+    protected CompletableFuture<Boolean> performAction(AbstractMovable movable)
     {
-        if (!(door instanceof IDiscreteMovement))
+        if (!(movable instanceof IDiscreteMovement))
         {
             getCommandSender()
                 .sendMessage(textFactory, TextType.ERROR,
                              localizer.getMessage("commands.set_blocks_to_move.error.invalid_door_type",
-                                                  localizer.getDoorType(door), door.getBasicInfo()));
+                                                  localizer.getMovableType(movable), movable.getBasicInfo()));
             return CompletableFuture.completedFuture(true);
         }
 
-        ((IDiscreteMovement) door).setBlocksToMove(blocksToMove);
-        return door.syncData().thenApply(x -> true);
+        ((IDiscreteMovement) movable).setBlocksToMove(blocksToMove);
+        return movable.syncData().thenApply(x -> true);
     }
 
     @AssistedFactory
@@ -66,15 +66,15 @@ public class SetBlocksToMove extends DoorTargetCommand
          * Creates (but does not execute!) a new {@link SetBlocksToMove} command.
          *
          * @param commandSender
-         *     The {@link ICommandSender} responsible for changing the blocks-to-move distance of the door.
-         * @param doorRetriever
-         *     A {@link DoorRetrieverFactory} representing the {@link DoorBase} for which the blocks-to-move distance
-         *     will be modified.
+         *     The {@link ICommandSender} responsible for changing the blocks-to-move distance of the movable.
+         * @param movableRetriever
+         *     A {@link MovableRetrieverFactory} representing the {@link MovableBase} for which the blocks-to-move
+         *     distance will be modified.
          * @param blocksToMove
          *     The new blocks-to-move distance.
          * @return See {@link BaseCommand#run()}.
          */
         SetBlocksToMove newSetBlocksToMove(
-            ICommandSender commandSender, DoorRetriever doorRetriever, int blocksToMove);
+            ICommandSender commandSender, MovableRetriever movableRetriever, int blocksToMove);
     }
 }

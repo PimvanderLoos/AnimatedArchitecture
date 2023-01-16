@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -24,13 +24,13 @@ public class RemoveOwnerDelayed extends DelayedCommand<IPPlayer>
 
     @Override
     protected CompletableFuture<Boolean> delayedInputExecutor(
-        ICommandSender commandSender, DoorRetriever doorRetriever, IPPlayer targetPlayer)
+        ICommandSender commandSender, MovableRetriever movableRetriever, IPPlayer targetPlayer)
     {
-        return commandFactory.get().newRemoveOwner(commandSender, doorRetriever, targetPlayer).run();
+        return commandFactory.get().newRemoveOwner(commandSender, movableRetriever, targetPlayer).run();
     }
 
     @Override
-    protected String inputRequestMessage(ICommandSender commandSender, DoorRetriever doorRetriever)
+    protected String inputRequestMessage(ICommandSender commandSender, MovableRetriever movableRetriever)
     {
         return localizer.getMessage("commands.remove_owner.init");
     }

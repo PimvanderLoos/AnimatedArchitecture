@@ -8,8 +8,8 @@ import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.delayedinput.DelayedInputRequest;
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
+import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
+import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -23,13 +23,13 @@ import java.util.logging.Level;
 /**
  * Represents a delayed command.
  * <p>
- * A delayed command allows "starting" the command while only knowing the target door. This is useful when the door is
- * already known (e.g. after having been selected in a GUI), but the other specific data is not.
+ * A delayed command allows "starting" the command while only knowing the target movable. This is useful when the
+ * movable is already known (e.g. after having been selected in a GUI), but the other specific data is not.
  * <p>
- * An example usage of this system could be changing the name of a door via a GUI. Using the GUI, the user has to select
- * a door to apply the change to, but we'll need to wait for user input to update the name. For a user, having to use
- * specify the door they would need to change in a command or something would be rather awkward, so this way we can
- * remember that information and not require the user to input duplicate data.
+ * An example usage of this system could be changing the name of a movable via a GUI. Using the GUI, the user has to
+ * select a movable to apply the change to, but we'll need to wait for user input to update the name. For a user, having
+ * to use specify the movable they would need to change in a command or something would be rather awkward, so this way
+ * we can remember that information and not require the user to input duplicate data.
  *
  * @author Pim
  */
@@ -97,31 +97,31 @@ public abstract class DelayedCommand<T>
      * @param commandSender
      *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
      *     execution.
-     * @param doorRetriever
-     *     A {@link DoorRetrieverFactory} that references the target door.
+     * @param movableRetriever
+     *     A {@link MovableRetrieverFactory} that references the target movable.
      * @return See {@link BaseCommand#run()}.
      */
-    public CompletableFuture<Boolean> runDelayed(ICommandSender commandSender, DoorRetriever doorRetriever)
+    public CompletableFuture<Boolean> runDelayed(ICommandSender commandSender, MovableRetriever movableRetriever)
     {
         log.at(Level.FINEST)
-           .log("Creating delayed command for command '%s' with command sender: '%s' for DoorRetriever: %s",
-                getCommandDefinition(), commandSender, doorRetriever);
+           .log("Creating delayed command for command '%s' with command sender: '%s' for MovableRetriever: %s",
+                getCommandDefinition(), commandSender, movableRetriever);
 
         final int commandTimeout = Constants.COMMAND_WAITER_TIMEOUT;
         return inputRequestFactory.create(commandTimeout, commandSender, getCommandDefinition(),
-                                          getExecutor(commandSender, doorRetriever),
-                                          () -> inputRequestMessage(commandSender, doorRetriever), delayedInputClz)
+                                          getExecutor(commandSender, movableRetriever),
+                                          () -> inputRequestMessage(commandSender, movableRetriever), delayedInputClz)
                                   .getCommandOutput();
     }
 
     private Function<T, CompletableFuture<Boolean>> getExecutor(
-        ICommandSender commandSender, DoorRetriever doorRetriever)
+        ICommandSender commandSender, MovableRetriever movableRetriever)
     {
         return delayedInput ->
         {
             try
             {
-                return delayedInputExecutor(commandSender, doorRetriever, delayedInput);
+                return delayedInputExecutor(commandSender, movableRetriever, delayedInput);
             }
             catch (Exception e)
             {
@@ -195,30 +195,30 @@ public abstract class DelayedCommand<T>
      * The method that is run once delayed input is received.
      * <p>
      * It processes the new input and executes the command using the previously-provided data (see
-     * {@link #runDelayed(ICommandSender, DoorRetriever)}).
+     * {@link #runDelayed(ICommandSender, MovableRetriever)}).
      *
      * @param commandSender
      *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
      *     execution.
-     * @param doorRetriever
-     *     A {@link DoorRetrieverFactory} that references the target door.
+     * @param movableRetriever
+     *     A {@link MovableRetrieverFactory} that references the target movable.
      * @param delayedInput
      *     The delayed input that was retrieved.
      * @return See {@link BaseCommand#run()}.
      */
     protected abstract CompletableFuture<Boolean> delayedInputExecutor(
-        ICommandSender commandSender, DoorRetriever doorRetriever, T delayedInput);
+        ICommandSender commandSender, MovableRetriever movableRetriever, T delayedInput);
 
     /**
      * Retrieves the message that will be sent to the command sender after initialization of a delayed input request.
      *
      * @param commandSender
      *     The user responsible for the delayed command.
-     * @param doorRetriever
-     *     The door retriever as currently specified.
+     * @param movableRetriever
+     *     The movable retriever as currently specified.
      * @return The init message for the delayed input request.
      */
-    protected abstract String inputRequestMessage(ICommandSender commandSender, DoorRetriever doorRetriever);
+    protected abstract String inputRequestMessage(ICommandSender commandSender, MovableRetriever movableRetriever);
 
     @Singleton
     public static final class Context

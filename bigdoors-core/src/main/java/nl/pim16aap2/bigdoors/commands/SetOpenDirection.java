@@ -5,24 +5,24 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.doors.DoorAttribute;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.movable.AbstractMovable;
+import nl.pim16aap2.bigdoors.movable.MovableAttribute;
+import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
+import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
+import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Represents the command that changes the opening direction of doors.
+ * Represents the command that changes the opening direction of movables.
  *
  * @author Pim
  */
 @ToString
-public class SetOpenDirection extends DoorTargetCommand
+public class SetOpenDirection extends MovableTargetCommand
 {
     public static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.SET_OPEN_DIRECTION;
 
@@ -31,9 +31,9 @@ public class SetOpenDirection extends DoorTargetCommand
     @AssistedInject //
     SetOpenDirection(
         @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
-        @Assisted DoorRetriever doorRetriever, @Assisted RotateDirection rotateDirection)
+        @Assisted MovableRetriever movableRetriever, @Assisted RotateDirection rotateDirection)
     {
-        super(commandSender, localizer, textFactory, doorRetriever, DoorAttribute.OPEN_DIRECTION);
+        super(commandSender, localizer, textFactory, movableRetriever, MovableAttribute.OPEN_DIRECTION);
         this.rotateDirection = rotateDirection;
     }
 
@@ -44,21 +44,21 @@ public class SetOpenDirection extends DoorTargetCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> performAction(AbstractDoor door)
+    protected CompletableFuture<Boolean> performAction(AbstractMovable movable)
     {
-        if (!door.getDoorType().isValidOpenDirection(rotateDirection))
+        if (!movable.getMovableType().isValidOpenDirection(rotateDirection))
         {
             getCommandSender().sendMessage(
                 textFactory, TextType.ERROR,
                 localizer.getMessage("commands.set_open_direction.error.invalid_rotation",
                                      localizer.getMessage(rotateDirection.getLocalizationKey()),
-                                     localizer.getDoorType(door), door.getBasicInfo()));
+                                     localizer.getMovableType(movable), movable.getBasicInfo()));
 
             return CompletableFuture.completedFuture(true);
         }
 
-        door.setOpenDir(rotateDirection);
-        return door.syncData().thenApply(x -> true);
+        movable.setOpenDir(rotateDirection);
+        return movable.syncData().thenApply(x -> true);
     }
 
     @AssistedFactory
@@ -68,15 +68,15 @@ public class SetOpenDirection extends DoorTargetCommand
          * Creates (but does not execute!) a new {@link SetOpenDirection} command.
          *
          * @param commandSender
-         *     The {@link ICommandSender} responsible for changing open direction of the door.
-         * @param doorRetriever
-         *     A {@link DoorRetrieverFactory} representing the {@link DoorBase} for which the open direction will be
-         *     modified.
+         *     The {@link ICommandSender} responsible for changing open direction of the movable.
+         * @param movableRetriever
+         *     A {@link MovableRetrieverFactory} representing the {@link MovableBase} for which the open direction will
+         *     be modified.
          * @param rotateDirection
          *     The new open direction.
          * @return See {@link BaseCommand#run()}.
          */
         SetOpenDirection newSetOpenDirection(
-            ICommandSender commandSender, DoorRetriever doorRetriever, RotateDirection rotateDirection);
+            ICommandSender commandSender, MovableRetriever movableRetriever, RotateDirection rotateDirection);
     }
 }

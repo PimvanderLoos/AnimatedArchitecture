@@ -40,23 +40,23 @@ class UtilTest
     }
 
     @Test
-    void isValidDoorName()
+    void isValidMovableName()
     {
-        Assertions.assertFalse(Util.isValidDoorName(""));
-        Assertions.assertFalse(Util.isValidDoorName(null));
-        Assertions.assertFalse(Util.isValidDoorName("0"));
-        Assertions.assertFalse(Util.isValidDoorName("0999"));
-        Assertions.assertFalse(Util.isValidDoorName("321"));
-        Assertions.assertFalse(Util.isValidDoorName("my door"));
-        Assertions.assertFalse(Util.isValidDoorName("myDoor!"));
-        Assertions.assertFalse(Util.isValidDoorName("myDoor?"));
+        Assertions.assertFalse(Util.isValidMovableName(""));
+        Assertions.assertFalse(Util.isValidMovableName(null));
+        Assertions.assertFalse(Util.isValidMovableName("0"));
+        Assertions.assertFalse(Util.isValidMovableName("0999"));
+        Assertions.assertFalse(Util.isValidMovableName("321"));
+        Assertions.assertFalse(Util.isValidMovableName("my door"));
+        Assertions.assertFalse(Util.isValidMovableName("myDoor!"));
+        Assertions.assertFalse(Util.isValidMovableName("myDoor?"));
 
-        Assertions.assertTrue(Util.isValidDoorName("3-21"));
-        Assertions.assertTrue(Util.isValidDoorName("mydoor"));
-        Assertions.assertTrue(Util.isValidDoorName("MyDoor"));
-        Assertions.assertTrue(Util.isValidDoorName("A"));
-        Assertions.assertTrue(Util.isValidDoorName("a"));
-        Assertions.assertTrue(Util.isValidDoorName("a0"));
-        Assertions.assertTrue(Util.isValidDoorName("0a0"));
+        Assertions.assertTrue(Util.isValidMovableName("3-21"));
+        Assertions.assertTrue(Util.isValidMovableName("mydoor"));
+        Assertions.assertTrue(Util.isValidMovableName("MyDoor"));
+        Assertions.assertTrue(Util.isValidMovableName("A"));
+        Assertions.assertTrue(Util.isValidMovableName("a"));
+        Assertions.assertTrue(Util.isValidMovableName("a0"));
+        Assertions.assertTrue(Util.isValidMovableName("0a0"));
     }
 }

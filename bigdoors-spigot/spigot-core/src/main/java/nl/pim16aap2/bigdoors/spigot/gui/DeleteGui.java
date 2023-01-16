@@ -6,11 +6,11 @@ import dagger.assisted.AssistedInject;
 import de.themoep.inventorygui.InventoryGui;
 import de.themoep.inventorygui.StaticGuiElement;
 import nl.pim16aap2.bigdoors.commands.CommandFactory;
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsPlugin;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PPlayerSpigot;
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
+import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -21,8 +21,8 @@ class DeleteGui
     private final BigDoorsPlugin bigDoorsPlugin;
     private final ILocalizer localizer;
     private final CommandFactory commandFactory;
-    private final DoorRetrieverFactory doorRetrieverFactory;
-    private final AbstractDoor door;
+    private final MovableRetrieverFactory movableRetrieverFactory;
+    private final AbstractMovable movable;
     private final PPlayerSpigot inventoryHolder;
     private final MainGui mainGui;
     private final InventoryGui inventoryGui;
@@ -30,14 +30,14 @@ class DeleteGui
     @AssistedInject //
     DeleteGui(
         BigDoorsPlugin bigDoorsPlugin, ILocalizer localizer, CommandFactory commandFactory,
-        DoorRetrieverFactory doorRetrieverFactory,
-        @Assisted AbstractDoor door, @Assisted PPlayerSpigot inventoryHolder, @Assisted MainGui mainGui)
+        MovableRetrieverFactory movableRetrieverFactory,
+        @Assisted AbstractMovable movable, @Assisted PPlayerSpigot inventoryHolder, @Assisted MainGui mainGui)
     {
         this.bigDoorsPlugin = bigDoorsPlugin;
         this.localizer = localizer;
         this.commandFactory = commandFactory;
-        this.doorRetrieverFactory = doorRetrieverFactory;
-        this.door = door;
+        this.movableRetrieverFactory = movableRetrieverFactory;
+        this.movable = movable;
         this.inventoryHolder = inventoryHolder;
         this.mainGui = mainGui;
 
@@ -65,8 +65,8 @@ class DeleteGui
             new InventoryGui(bigDoorsPlugin,
                              inventoryHolder.getBukkitPlayer(),
                              localizer.getMessage("gui.delete_page.title",
-                                                  localizer.getMessage(door.getDoorType().getLocalizationKey()),
-                                                  door.getName()),
+                                                  localizer.getMessage(movable.getMovableType().getLocalizationKey()),
+                                                  movable.getName()),
                              guiSetup);
         gui.setFiller(FILLER);
 
@@ -86,27 +86,27 @@ class DeleteGui
                 return true;
             },
             localizer.getMessage("gui.delete_page.cancel",
-                                 localizer.getMessage(door.getDoorType().getLocalizationKey()))
+                                 localizer.getMessage(movable.getMovableType().getLocalizationKey()))
         ));
         gui.addElement(new StaticGuiElement(
             'd',
             new ItemStack(Material.BARRIER),
             click ->
             {
-                commandFactory.newDelete(inventoryHolder, doorRetrieverFactory.of(door)).run();
-                mainGui.removeDoor(door);
+                commandFactory.newDelete(inventoryHolder, movableRetrieverFactory.of(movable)).run();
+                mainGui.removeMovable(movable);
                 inventoryGui.close(true);
                 mainGui.redraw();
                 return true;
             },
             localizer.getMessage("gui.delete_page.confirm",
-                                 localizer.getMessage(door.getDoorType().getLocalizationKey()))
+                                 localizer.getMessage(movable.getMovableType().getLocalizationKey()))
         ));
     }
 
     @AssistedFactory
     interface IFactory
     {
-        DeleteGui newDeleteGui(AbstractDoor door, PPlayerSpigot playerSpigot, MainGui mainGui);
+        DeleteGui newDeleteGui(AbstractMovable movable, PPlayerSpigot playerSpigot, MainGui mainGui);
     }
 }

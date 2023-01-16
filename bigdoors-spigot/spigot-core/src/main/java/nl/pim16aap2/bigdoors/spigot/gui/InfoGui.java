@@ -9,11 +9,11 @@ import de.themoep.inventorygui.InventoryGui;
 import de.themoep.inventorygui.StaticGuiElement;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPermissionsManager;
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.doors.DoorAttribute;
-import nl.pim16aap2.bigdoors.doors.DoorOwner;
-import nl.pim16aap2.bigdoors.doors.PermissionLevel;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.movable.AbstractMovable;
+import nl.pim16aap2.bigdoors.movable.MovableAttribute;
+import nl.pim16aap2.bigdoors.movable.MovableOwner;
+import nl.pim16aap2.bigdoors.movable.PermissionLevel;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsPlugin;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PPlayerSpigot;
 import org.bukkit.Material;
@@ -24,9 +24,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Represents the info menu for a door.
+ * Represents the info menu for a movable.
  * <p>
- * This contains all the options for a single door.
+ * This contains all the options for a single movable.
  */
 @Flogger
 class InfoGui
@@ -36,32 +36,32 @@ class InfoGui
     private final BigDoorsPlugin bigDoorsPlugin;
     private final ILocalizer localizer;
     private final AttributeButtonFactory attributeButtonFactory;
-    private final AbstractDoor door;
+    private final AbstractMovable movable;
     private final PPlayerSpigot inventoryHolder;
     private final MainGui mainGui;
     private final InventoryGui inventoryGui;
-    private final List<DoorAttribute> allowedAttributes;
+    private final List<MovableAttribute> allowedAttributes;
 
     // Currently not used, but it's needed later on when we can update the elements
-    // When the field in the door changes.
+    // When the field in the movable changes.
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
-    private final Map<DoorAttribute, GuiElement> attributeElements;
+    private final Map<MovableAttribute, GuiElement> attributeElements;
 
     @AssistedInject //
     InfoGui(
         BigDoorsPlugin bigDoorsPlugin, ILocalizer localizer, IPermissionsManager permissionsManager,
         AttributeButtonFactory attributeButtonFactory,
-        @Assisted AbstractDoor door, @Assisted PPlayerSpigot inventoryHolder, @Assisted MainGui mainGui)
+        @Assisted AbstractMovable movable, @Assisted PPlayerSpigot inventoryHolder, @Assisted MainGui mainGui)
     {
         this.bigDoorsPlugin = bigDoorsPlugin;
         this.localizer = localizer;
         this.attributeButtonFactory = attributeButtonFactory;
-        this.door = door;
+        this.movable = movable;
         this.inventoryHolder = inventoryHolder;
         this.mainGui = mainGui;
 
-        final DoorOwner doorOwner = door.getDoorOwner(inventoryHolder).orElseGet(this::getDummyOwner);
-        this.allowedAttributes = analyzeAttributes(doorOwner, inventoryHolder, permissionsManager);
+        final MovableOwner movableOwner = movable.getMovableOwner(inventoryHolder).orElseGet(this::getDummyOwner);
+        this.allowedAttributes = analyzeAttributes(movableOwner, inventoryHolder, permissionsManager);
 
         this.attributeElements = new HashMap<>(this.allowedAttributes.size());
 
@@ -82,7 +82,7 @@ class InfoGui
         final InventoryGui gui =
             new InventoryGui(bigDoorsPlugin,
                              inventoryHolder.getBukkitPlayer(),
-                             localizer.getMessage("gui.info_page.title", door.getName()),
+                             localizer.getMessage("gui.info_page.title", movable.getName()),
                              guiSetup);
         gui.setFiller(FILLER);
 
@@ -103,17 +103,17 @@ class InfoGui
             'h',
             new ItemStack(Material.BOOK),
             localizer.getMessage("gui.info_page.header",
-                                 localizer.getMessage(door.getDoorType().getLocalizationKey()), door.getName())
+                                 localizer.getMessage(movable.getMovableType().getLocalizationKey()), movable.getName())
         ));
     }
 
     private void addElements(InventoryGui gui)
     {
         final GuiElementGroup group = new GuiElementGroup('g');
-        for (final DoorAttribute attribute : allowedAttributes)
+        for (final MovableAttribute attribute : allowedAttributes)
         {
             final GuiElement element =
-                attributeButtonFactory.of(gui, mainGui, attribute, door, inventoryHolder, 'g');
+                attributeButtonFactory.of(gui, mainGui, attribute, movable, inventoryHolder, 'g');
             attributeElements.put(attribute, element);
             group.addElement(element);
         }
@@ -121,24 +121,25 @@ class InfoGui
         gui.addElement(group);
     }
 
-    private DoorOwner getDummyOwner()
+    private MovableOwner getDummyOwner()
     {
-        log.atSevere().log("Player '%s' does not have access to door: '%s'!", inventoryHolder, door);
-        return new DoorOwner(door.getDoorUID(), PermissionLevel.NO_PERMISSION, inventoryHolder.getPPlayerData());
+        log.atSevere().log("Player '%s' does not have access to movable: '%s'!", inventoryHolder, movable);
+        return new MovableOwner(movable.getMovableUID(), PermissionLevel.NO_PERMISSION,
+                                inventoryHolder.getPPlayerData());
     }
 
-    static List<DoorAttribute> analyzeAttributes(
-        DoorOwner doorOwner, PPlayerSpigot player, IPermissionsManager permissionsManager)
+    static List<MovableAttribute> analyzeAttributes(
+        MovableOwner movableOwner, PPlayerSpigot player, IPermissionsManager permissionsManager)
     {
-        final PermissionLevel perm = doorOwner.permission();
-        return DoorAttribute.getValues().stream()
-                            .filter(attr -> hasAccessToAttribute(player, attr, perm, permissionsManager))
-                            .filter(attr -> attr != DoorAttribute.SWITCH)
-                            .toList();
+        final PermissionLevel perm = movableOwner.permission();
+        return MovableAttribute.getValues().stream()
+                               .filter(attr -> hasAccessToAttribute(player, attr, perm, permissionsManager))
+                               .filter(attr -> attr != MovableAttribute.SWITCH)
+                               .toList();
     }
 
     private static boolean hasAccessToAttribute(
-        PPlayerSpigot player, DoorAttribute attribute, PermissionLevel permissionLevel,
+        PPlayerSpigot player, MovableAttribute attribute, PermissionLevel permissionLevel,
         IPermissionsManager permissionsManager)
     {
         return attribute.canAccessWith(permissionLevel) ||
@@ -148,6 +149,6 @@ class InfoGui
     @AssistedFactory
     interface IFactory
     {
-        InfoGui newInfoGUI(AbstractDoor door, PPlayerSpigot playerSpigot, MainGui mainGui);
+        InfoGui newInfoGUI(AbstractMovable movable, PPlayerSpigot playerSpigot, MainGui mainGui);
     }
 }

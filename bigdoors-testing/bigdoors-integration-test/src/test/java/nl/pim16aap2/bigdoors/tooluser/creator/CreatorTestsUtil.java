@@ -19,17 +19,17 @@ import nl.pim16aap2.bigdoors.commands.DelayedCommand;
 import nl.pim16aap2.bigdoors.commands.DelayedCommandInputRequest;
 import nl.pim16aap2.bigdoors.commands.SetBlocksToMoveDelayed;
 import nl.pim16aap2.bigdoors.commands.SetOpenDirectionDelayed;
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.doors.DoorBaseBuilder;
-import nl.pim16aap2.bigdoors.doors.DoorOwner;
-import nl.pim16aap2.bigdoors.doors.PermissionLevel;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
-import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
+import nl.pim16aap2.bigdoors.managers.MovableRegistry;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
+import nl.pim16aap2.bigdoors.movable.AbstractMovable;
+import nl.pim16aap2.bigdoors.movable.MovableBase;
+import nl.pim16aap2.bigdoors.movable.MovableBaseBuilder;
+import nl.pim16aap2.bigdoors.movable.MovableOwner;
+import nl.pim16aap2.bigdoors.movable.PermissionLevel;
 import nl.pim16aap2.bigdoors.testimplementations.TestPLocationFactory;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
@@ -62,14 +62,14 @@ public class CreatorTestsUtil
     protected final Vector3Di min = new Vector3Di(10, 15, 20);
     protected final Vector3Di max = new Vector3Di(20, 25, 30);
     protected final Vector3Di powerblock = new Vector3Di(40, 40, 40);
-    protected final String doorName = "testDoor123";
+    protected final String movableName = "testDoor123";
     protected final IPWorld world = getWorld();
     protected Vector3Di rotationPoint = new Vector3Di(20, 15, 25);
     protected RotateDirection openDirection = RotateDirection.COUNTERCLOCKWISE;
 
-    protected DoorOwner doorOwner;
+    protected MovableOwner movableOwner;
 
-    protected DoorBaseBuilder doorBaseBuilder;
+    protected MovableBaseBuilder movableBaseBuilder;
 
     protected ILocalizer localizer;
 
@@ -120,20 +120,20 @@ public class CreatorTestsUtil
     {
         final var uuid = UUID.fromString("f373bb8d-dd2d-496e-a9c5-f9a0c45b2db5");
         final var name = "user";
-        var doorSizeLimit = 8;
-        var doorCountLimit = 9;
+        var movableSizeLimit = 8;
+        var movableCountLimit = 9;
 
-        playerData = new PPlayerData(uuid, name, doorSizeLimit, doorCountLimit, true, true);
+        playerData = new PPlayerData(uuid, name, movableSizeLimit, movableCountLimit, true, true);
 
-        doorOwner = new DoorOwner(-1, PermissionLevel.CREATOR, playerData);
+        movableOwner = new MovableOwner(-1, PermissionLevel.CREATOR, playerData);
 
         Mockito.when(player.getUUID()).thenReturn(uuid);
         Mockito.when(player.getName()).thenReturn(name);
-        Mockito.when(player.getDoorCountLimit()).thenReturn(doorCountLimit);
-        Mockito.when(player.getDoorSizeLimit()).thenReturn(doorSizeLimit);
+        Mockito.when(player.getMovableCountLimit()).thenReturn(movableCountLimit);
+        Mockito.when(player.getMovableSizeLimit()).thenReturn(movableSizeLimit);
         Mockito.when(player.isOp()).thenReturn(true);
         Mockito.when(player.hasProtectionBypassPermission()).thenReturn(true);
-        Mockito.when(player.getDoorSizeLimit()).thenReturn(doorSizeLimit);
+        Mockito.when(player.getMovableSizeLimit()).thenReturn(movableSizeLimit);
         Mockito.when(player.getLocation()).thenReturn(Optional.empty());
 
         Mockito.when(player.getPPlayerData()).thenReturn(playerData);
@@ -147,13 +147,13 @@ public class CreatorTestsUtil
         localizer = UnitTestUtil.initLocalizer();
         limitsManager = new LimitsManager(permissionsManager, configLoader);
 
-        final DoorBase.IFactory doorBaseIFactory =
-            new AssistedFactoryMocker<>(DoorBase.class, DoorBase.IFactory.class)
+        final MovableBase.IFactory movableBaseIFactory =
+            new AssistedFactoryMocker<>(MovableBase.class, MovableBase.IFactory.class)
                 .setMock(ILocalizer.class, localizer)
-                .setMock(DoorRegistry.class,
-                         DoorRegistry.unCached(Mockito.mock(RestartableHolder.class), debuggableRegistry))
+                .setMock(MovableRegistry.class,
+                         MovableRegistry.unCached(Mockito.mock(RestartableHolder.class), debuggableRegistry))
                 .getFactory();
-        doorBaseBuilder = new DoorBaseBuilder(doorBaseIFactory);
+        movableBaseBuilder = new MovableBaseBuilder(movableBaseIFactory);
 
         final var assistedStepFactory = Mockito.mock(Step.Factory.IFactory.class);
         //noinspection deprecation
@@ -161,7 +161,7 @@ public class CreatorTestsUtil
                .thenAnswer(invocation -> new Step.Factory(localizer, invocation.getArgument(0, String.class)));
 
         context = new ToolUser.Context(
-            doorBaseBuilder, localizer, ITextFactory.getSimpleTextFactory(), toolUserManager, databaseManager,
+            movableBaseBuilder, localizer, ITextFactory.getSimpleTextFactory(), toolUserManager, databaseManager,
             limitsManager, economyManager, protectionCompatManager, bigDoorsToolUtil, commandFactory,
             assistedStepFactory);
 
@@ -173,20 +173,21 @@ public class CreatorTestsUtil
         Mockito.when(playerFactory.create(playerData.getUUID()))
                .thenReturn(CompletableFuture.completedFuture(Optional.of(player)));
 
-        // Immediately return whatever door was being added to the database as if it was successful.
-        Mockito.when(databaseManager.addDoor(ArgumentMatchers.any())).thenAnswer(
-            (Answer<CompletableFuture<Optional<AbstractDoor>>>) invocation ->
-                CompletableFuture.completedFuture(Optional.of((AbstractDoor) invocation.getArguments()[0])));
+        // Immediately return whatever movable was being added to the database as if it was successful.
+        Mockito.when(databaseManager.addMovable(ArgumentMatchers.any())).thenAnswer(
+            (Answer<CompletableFuture<Optional<AbstractMovable>>>) invocation ->
+                CompletableFuture.completedFuture(Optional.of((AbstractMovable) invocation.getArguments()[0])));
 
-        Mockito.when(databaseManager.addDoor(ArgumentMatchers.any(AbstractDoor.class), Mockito.any(IPPlayer.class)))
-               .thenAnswer((Answer<CompletableFuture<DatabaseManager.DoorInsertResult>>) invocation ->
-                   CompletableFuture.completedFuture(new DatabaseManager.DoorInsertResult(
-                       Optional.of(invocation.getArgument(0, AbstractDoor.class)), false)));
+        Mockito.when(
+                   databaseManager.addMovable(ArgumentMatchers.any(AbstractMovable.class), Mockito.any(IPPlayer.class)))
+               .thenAnswer((Answer<CompletableFuture<DatabaseManager.MovableInsertResult>>) invocation ->
+                   CompletableFuture.completedFuture(new DatabaseManager.MovableInsertResult(
+                       Optional.of(invocation.getArgument(0, AbstractMovable.class)), false)));
 
         Mockito.when(permissionsManager.hasPermission(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(true);
 
-        Mockito.when(configLoader.maxDoorSize()).thenReturn(OptionalInt.empty());
-        Mockito.when(configLoader.maxDoorCount()).thenReturn(OptionalInt.empty());
+        Mockito.when(configLoader.maxMovableSize()).thenReturn(OptionalInt.empty());
+        Mockito.when(configLoader.maxMovableCount()).thenReturn(OptionalInt.empty());
         Mockito.when(configLoader.maxPowerBlockDistance()).thenReturn(OptionalInt.empty());
         Mockito.when(configLoader.maxBlocksToMove()).thenReturn(OptionalInt.empty());
     }
@@ -243,21 +244,21 @@ public class CreatorTestsUtil
                .thenReturn(OptionalDouble.of(price));
     }
 
-    protected void setBuyDoor(boolean status)
+    protected void setBuyMovable(boolean status)
     {
-        Mockito.when(economyManager.buyDoor(ArgumentMatchers.any(), ArgumentMatchers.any(),
-                                            ArgumentMatchers.any(), ArgumentMatchers.anyInt()))
+        Mockito.when(economyManager.buyMovable(ArgumentMatchers.any(), ArgumentMatchers.any(),
+                                               ArgumentMatchers.any(), ArgumentMatchers.anyInt()))
                .thenReturn(status);
     }
 
 
-    protected DoorBase constructDoorBase()
+    protected MovableBase constructMovableBase()
     {
-        return doorBaseBuilder.builder()
-                              .uid(-1).name(doorName).cuboid(new Cuboid(min, max)).rotationPoint(rotationPoint)
-                              .powerBlock(powerblock).world(world).isOpen(false).isLocked(false)
-                              .openDir(openDirection).primeOwner(doorOwner)
-                              .build();
+        return movableBaseBuilder.builder()
+                                 .uid(-1).name(movableName).cuboid(new Cuboid(min, max)).rotationPoint(rotationPoint)
+                                 .powerBlock(powerblock).world(world).isOpen(false).isLocked(false)
+                                 .openDir(openDirection).primeOwner(movableOwner)
+                                 .build();
     }
 
     public void applySteps(Creator creator, Object... input)
@@ -273,11 +274,11 @@ public class CreatorTestsUtil
         }
     }
 
-    public void testCreation(Creator creator, AbstractDoor actualDoor, Object... input)
+    public void testCreation(Creator creator, AbstractMovable actualMovable, Object... input)
     {
         applySteps(creator, input);
         Mockito.verify(creator.getPlayer(), Mockito.never())
-               .sendMessage(UnitTestUtil.toText("Door creation was cancelled!"));
-        Mockito.verify(databaseManager).addDoor(actualDoor, player);
+               .sendMessage(UnitTestUtil.toText("creator.base.error.creation_cancelled"));
+        Mockito.verify(databaseManager).addMovable(actualMovable, player);
     }
 }

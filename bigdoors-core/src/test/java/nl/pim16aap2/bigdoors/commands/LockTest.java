@@ -4,12 +4,12 @@ import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.events.IDoorEventCaller;
-import nl.pim16aap2.bigdoors.events.IDoorPrepareLockChangeEvent;
+import nl.pim16aap2.bigdoors.events.IBigDoorsEventCaller;
+import nl.pim16aap2.bigdoors.events.IMovablePrepareLockChangeEvent;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
+import nl.pim16aap2.bigdoors.movable.AbstractMovable;
+import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
+import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,16 +26,16 @@ import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initCommandSende
 
 class LockTest
 {
-    private DoorRetriever doorRetriever;
+    private MovableRetriever doorRetriever;
 
     @Mock
-    private AbstractDoor door;
+    private AbstractMovable door;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private IPPlayer commandSender;
 
     @Mock
-    private IDoorPrepareLockChangeEvent event;
+    private IMovablePrepareLockChangeEvent event;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private Lock.IFactory factory;
@@ -46,25 +46,27 @@ class LockTest
         MockitoAnnotations.openMocks(this);
 
         initCommandSenderPermissions(commandSender, true, true);
-        Mockito.when(door.isDoorOwner(Mockito.any(UUID.class))).thenReturn(true);
-        Mockito.when(door.isDoorOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
-        doorRetriever = DoorRetrieverFactory.ofDoor(door);
+        Mockito.when(door.isMovableOwner(Mockito.any(UUID.class))).thenReturn(true);
+        Mockito.when(door.isMovableOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
+        doorRetriever = MovableRetrieverFactory.ofMovable(door);
 
         Mockito.when(door.syncData()).thenReturn(CompletableFuture.completedFuture(true));
 
         final IBigDoorsEventFactory eventFactory = Mockito.mock(IBigDoorsEventFactory.class);
-        Mockito.when(eventFactory.createDoorPrepareLockChangeEvent(Mockito.any(), Mockito.anyBoolean(), Mockito.any()))
+        Mockito.when(
+                   eventFactory.createMovablePrepareLockChangeEvent(Mockito.any(), Mockito.anyBoolean(), Mockito.any()))
                .thenReturn(event);
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
         Mockito.when(factory.newLock(Mockito.any(ICommandSender.class),
-                                     Mockito.any(DoorRetriever.class),
+                                     Mockito.any(MovableRetriever.class),
                                      Mockito.anyBoolean()))
                .thenAnswer(invoc -> new Lock(invoc.getArgument(0, ICommandSender.class), localizer,
                                              ITextFactory.getSimpleTextFactory(),
-                                             invoc.getArgument(1, DoorRetriever.class),
-                                             invoc.getArgument(2, Boolean.class), Mockito.mock(IDoorEventCaller.class),
+                                             invoc.getArgument(1, MovableRetriever.class),
+                                             invoc.getArgument(2, Boolean.class),
+                                             Mockito.mock(IBigDoorsEventCaller.class),
                                              eventFactory));
     }
 

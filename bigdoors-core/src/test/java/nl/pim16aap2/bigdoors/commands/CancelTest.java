@@ -4,7 +4,7 @@ import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
+import nl.pim16aap2.bigdoors.managers.MovableSpecificationManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import org.junit.jupiter.api.Assertions;
@@ -30,7 +30,7 @@ class CancelTest
     private ToolUser toolUser;
 
     @Mock
-    private DoorSpecificationManager doorSpecificationManager;
+    private MovableSpecificationManager doorSpecificationManager;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private Cancel.IFactory factory;
