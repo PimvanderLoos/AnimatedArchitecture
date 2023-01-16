@@ -161,8 +161,8 @@ public class Cuboid
      * @param z
      *     The z-coordinate to check.
      * @param range
-     *     The range the position might be in. A range of 0 gives the same result as {@link
-     *     #isPosInsideCuboid(Vector3Di)}.
+     *     The range the position might be in. A range of 0 gives the same result as
+     *     {@link #isPosInsideCuboid(Vector3Di)}.
      * @return True if the provided position lies within the range of this cuboid.
      */
     @CheckReturnValue @Contract(pure = true)
@@ -304,6 +304,20 @@ public class Cuboid
         final int y = max.y() - min.y() + 1;
         final int z = max.z() - min.z() + 1;
         return new Vector3Di(x, y, z);
+    }
+
+    /**
+     * @return All 8 corners of this cuboid.
+     */
+    @CheckReturnValue @Contract(pure = true)
+    public Vector3Di[] getCorners()
+    {
+        return new Vector3Di[]{
+            min, new Vector3Di(min.x(), min.y(), max.z()),
+            new Vector3Di(max.x(), min.y(), min.z()), new Vector3Di(max.x(), min.y(), max.z()),
+
+            new Vector3Di(min.x(), max.y(), min.z()), new Vector3Di(min.x(), max.y(), max.z()),
+            new Vector3Di(max.x(), max.y(), min.z()), max};
     }
 
     /**

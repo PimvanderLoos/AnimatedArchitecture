@@ -5,6 +5,8 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.Set;
+
 class CuboidTest
 {
     public final double EPSILON = 1E-6;
@@ -182,5 +184,21 @@ class CuboidTest
         final Cuboid out = Cuboid.of(val1, val2, Cuboid.RoundingMode.OUTWARD);
         Assertions.assertEquals(outMin, out.min);
         Assertions.assertEquals(outMax, out.max);
+    }
+
+    @Test
+    void testCorners()
+    {
+        final Vector3Di val1 = new Vector3Di(10, 99, 25);
+        final Vector3Di val2 = new Vector3Di(44, 11, 30);
+        final Cuboid cuboid = new Cuboid(val1, val2);
+
+        Assertions.assertEquals(
+            Set.of(cuboid.getCorners()),
+            Set.of(
+                new Vector3Di(10, 11, 25), new Vector3Di(10, 11, 30),
+                new Vector3Di(44, 11, 25), new Vector3Di(44, 11, 30),
+                new Vector3Di(10, 99, 25), new Vector3Di(10, 99, 30),
+                new Vector3Di(44, 99, 25), new Vector3Di(44, 99, 30)));
     }
 }

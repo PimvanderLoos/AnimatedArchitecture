@@ -154,13 +154,8 @@ public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, 
     public static double calculateLongestAnimationCycleDistance(
         boolean northSouthAligned, Cuboid cuboid, Vector3Di rotationPoint)
     {
-        final Vector3Di min = cuboid.getMin();
-        final Vector3Di max = cuboid.getMax();
-        final Vector3Di other0 = new Vector3Di(min.x(), min.y(), max.z());
-        final Vector3Di other1 = new Vector3Di(max.x(), min.y(), min.z());
-
         return Stream
-            .of(min, max, other0, other1)
+            .of(cuboid.getCorners())
             .mapToDouble(val -> BridgeMover.getRadius(northSouthAligned, rotationPoint, val.x(), val.y(), val.z()))
             .max().orElseThrow() * MathUtil.HALF_PI;
     }
