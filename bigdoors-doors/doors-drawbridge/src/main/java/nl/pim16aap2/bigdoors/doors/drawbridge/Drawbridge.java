@@ -17,6 +17,7 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.util.MathUtil;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
@@ -27,7 +28,7 @@ import java.util.logging.Level;
 import java.util.stream.Stream;
 
 /**
- * Represents a DrawBrige doorType.
+ * Represents a Drawbridge doorType.
  *
  * @author Pim
  */
@@ -36,7 +37,6 @@ import java.util.stream.Stream;
 public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, ITimerToggleable
 {
     private static final DoorType DOOR_TYPE = DoorTypeDrawbridge.get();
-    private static final double HALF_PI = Math.PI / 2;
 
     @EqualsAndHashCode.Exclude
     private final ReentrantReadWriteLock lock;
@@ -113,9 +113,9 @@ public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, 
 
         final double angle;
         if (rotateDirection == RotateDirection.NORTH || rotateDirection == RotateDirection.WEST)
-            angle = -Math.PI / 2;
+            angle = -MathUtil.HALF_PI;
         else if (rotateDirection == RotateDirection.SOUTH || rotateDirection == RotateDirection.EAST)
-            angle = Math.PI / 2;
+            angle = MathUtil.HALF_PI;
         else
         {
             log.at(Level.SEVERE).log("Invalid open direction '%s' for door: %d", rotateDirection.name(), getDoorUID());
@@ -162,6 +162,6 @@ public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, 
         return Stream
             .of(min, max, other0, other1)
             .mapToDouble(val -> BridgeMover.getRadius(northSouthAligned, rotationPoint, val.x(), val.y(), val.z()))
-            .max().orElseThrow() * HALF_PI;
+            .max().orElseThrow() * MathUtil.HALF_PI;
     }
 }

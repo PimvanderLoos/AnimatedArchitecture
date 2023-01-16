@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.util.MathUtil;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
@@ -48,7 +49,7 @@ public class RevolvingDoorMover extends BlockMover
                                   getDoorUID(), rotateDirection.name()));
         }
 
-        step = (Math.PI / 2.0 * quarterCircles) / super.animationDuration * -1.0;
+        step = (MathUtil.HALF_PI * quarterCircles) / super.animationDuration * -1.0;
         endStepSum = super.animationDuration * step;
     }
 

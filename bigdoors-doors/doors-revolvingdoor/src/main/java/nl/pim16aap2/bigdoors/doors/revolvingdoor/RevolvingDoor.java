@@ -17,6 +17,7 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.util.MathUtil;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -79,8 +80,8 @@ public class RevolvingDoor extends AbstractDoor
     public Optional<Cuboid> getPotentialNewCoordinates()
     {
         final RotateDirection rotateDirection = getCurrentToggleDir();
-        final double angle = rotateDirection == RotateDirection.CLOCKWISE ? Math.PI / 2 :
-                             rotateDirection == RotateDirection.COUNTERCLOCKWISE ? -Math.PI / 2 : 0.0D;
+        final double angle = rotateDirection == RotateDirection.CLOCKWISE ? MathUtil.HALF_PI :
+                             rotateDirection == RotateDirection.COUNTERCLOCKWISE ? -MathUtil.HALF_PI : 0.0D;
         if (angle == 0.0D)
         {
             log.at(Level.SEVERE)

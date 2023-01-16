@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.util.vector;
 
+import nl.pim16aap2.bigdoors.util.MathUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -14,8 +15,8 @@ class Vector3DiTest
         final Vector3Di endPointPos = new Vector3Di(-9, 76, 210);
         final Vector3Di endPointNeg = new Vector3Di(-9, 76, 196);
 
-        final double radiansPos = Math.PI / 2;
-        final double radiansNeg = -Math.PI / 2;
+        final double radiansPos = MathUtil.HALF_PI;
+        final double radiansNeg = -MathUtil.HALF_PI;
 
         Assertions.assertEquals(endPointPos, startPoint.rotateAroundXAxis(pivotPoint, radiansPos));
         Assertions.assertEquals(endPointNeg, startPoint.rotateAroundXAxis(pivotPoint, radiansNeg));
@@ -29,8 +30,8 @@ class Vector3DiTest
         final Vector3Di endPointPos = new Vector3Di(133, 75, 223);
         final Vector3Di endPointNeg = new Vector3Di(119, 75, 223);
 
-        final double radiansPos = Math.PI / 2;
-        final double radiansNeg = -Math.PI / 2;
+        final double radiansPos = MathUtil.HALF_PI;
+        final double radiansNeg = -MathUtil.HALF_PI;
 
         Assertions.assertEquals(endPointPos, startPoint.rotateAroundYAxis(pivotPoint, radiansPos));
         Assertions.assertEquals(endPointNeg, startPoint.rotateAroundYAxis(pivotPoint, radiansNeg));
@@ -44,8 +45,8 @@ class Vector3DiTest
         final Vector3Di endPointPos = new Vector3Di(85, 85, 221);
         final Vector3Di endPointNeg = new Vector3Di(85, 73, 221);
 
-        final double radiansPos = Math.PI / 2;
-        final double radiansNeg = -Math.PI / 2;
+        final double radiansPos = MathUtil.HALF_PI;
+        final double radiansNeg = -MathUtil.HALF_PI;
 
         Assertions.assertEquals(endPointPos, startPoint.rotateAroundZAxis(pivotPoint, radiansPos));
         Assertions.assertEquals(endPointNeg, startPoint.rotateAroundZAxis(pivotPoint, radiansNeg));

@@ -10,6 +10,7 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.util.MathUtil;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.functional.TriFunction;
@@ -61,19 +62,19 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
         switch (rotateDirection)
         {
             case NORTH:
-                angle = -Math.PI / 2;
+                angle = -MathUtil.HALF_PI;
                 rotator = Vector3Dd::rotateAroundXAxis;
                 break;
             case SOUTH:
-                angle = Math.PI / 2;
+                angle = MathUtil.HALF_PI;
                 rotator = Vector3Dd::rotateAroundXAxis;
                 break;
             case EAST:
-                angle = Math.PI / 2;
+                angle = MathUtil.HALF_PI;
                 rotator = Vector3Dd::rotateAroundZAxis;
                 break;
             case WEST:
-                angle = -Math.PI / 2;
+                angle = -MathUtil.HALF_PI;
                 rotator = Vector3Dd::rotateAroundZAxis;
                 break;
             default:

@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.util.MathUtil;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
@@ -16,8 +17,6 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 @Flogger
 public class BigDoorMover extends BlockMover
 {
-    private static final double HALF_PI = Math.PI / 2;
-
     private final Vector3Dd rotationCenter;
     private final int halfEndCount;
     private final double angle;
@@ -30,8 +29,8 @@ public class BigDoorMover extends BlockMover
     {
         super(context, door, doorSnapshot, time, skipAnimation, rotDirection, player, newCuboid, cause, actionType);
 
-        angle = rotDirection == RotateDirection.CLOCKWISE ? HALF_PI :
-                rotDirection == RotateDirection.COUNTERCLOCKWISE ? -HALF_PI : 0.0D;
+        angle = rotDirection == RotateDirection.CLOCKWISE ? MathUtil.HALF_PI :
+                rotDirection == RotateDirection.COUNTERCLOCKWISE ? -MathUtil.HALF_PI : 0.0D;
 
         if (angle == 0.0D)
             log.atSevere().log("Invalid open direction '%s' for door: %d", rotDirection.name(), getDoorUID());

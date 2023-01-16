@@ -17,6 +17,7 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.util.MathUtil;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
@@ -38,7 +39,6 @@ import java.util.stream.Stream;
 public class BigDoor extends AbstractDoor implements ITimerToggleable
 {
     private static final DoorType DOOR_TYPE = DoorTypeBigDoor.get();
-    private static final double HALF_PI = Math.PI / 2;
 
     @EqualsAndHashCode.Exclude
     private final ReentrantReadWriteLock lock;
@@ -104,8 +104,8 @@ public class BigDoor extends AbstractDoor implements ITimerToggleable
     public Optional<Cuboid> getPotentialNewCoordinates()
     {
         final RotateDirection rotateDirection = getCurrentToggleDir();
-        final double angle = rotateDirection == RotateDirection.CLOCKWISE ? Math.PI / 2 :
-                             rotateDirection == RotateDirection.COUNTERCLOCKWISE ? -Math.PI / 2 : 0.0D;
+        final double angle = rotateDirection == RotateDirection.CLOCKWISE ? MathUtil.HALF_PI :
+                             rotateDirection == RotateDirection.COUNTERCLOCKWISE ? -MathUtil.HALF_PI : 0.0D;
         if (angle == 0.0D)
         {
             log.at(Level.SEVERE).log("Invalid open direction '%s' for door: %d", rotateDirection.name(), getDoorUID());
@@ -127,7 +127,8 @@ public class BigDoor extends AbstractDoor implements ITimerToggleable
 
         return Stream.of(min, max, other0, other1)
                      .mapToDouble(val -> BigDoorMover.getRadius(rotationPoint, val.x(), val.z()))
-                     .max().orElseThrow() * HALF_PI;
+                     .max().orElseThrow() * MathUtil.HALF_PI;
+
     }
 
     @Override
