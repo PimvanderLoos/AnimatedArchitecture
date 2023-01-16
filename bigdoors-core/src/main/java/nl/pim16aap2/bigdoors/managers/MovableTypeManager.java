@@ -141,8 +141,10 @@ public final class MovableTypeManager extends Restartable implements IDebuggable
      *     The fully qualified name of the type.
      * @return The {@link MovableType} to retrieve, if possible.
      */
-    public Optional<MovableType> getMovableTypeFromFullName(String fullName)
+    public Optional<MovableType> getMovableTypeFromFullName(@Nullable String fullName)
     {
+        if (fullName == null)
+            return Optional.empty();
         return Optional.ofNullable(movableTypeFromFullName.get(fullName));
     }
 

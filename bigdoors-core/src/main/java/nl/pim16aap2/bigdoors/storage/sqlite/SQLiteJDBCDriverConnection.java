@@ -66,8 +66,8 @@ import java.util.logging.Level;
 public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 {
     private static final String DRIVER = "org.sqlite.JDBC";
-    private static final int DATABASE_VERSION = 12;
-    private static final int MIN_DATABASE_VERSION = 10;
+    private static final int DATABASE_VERSION = 13;
+    private static final int MIN_DATABASE_VERSION = 12;
 
     /**
      * A fake UUID that cannot exist normally. To be used for storing transient data across server restarts.
@@ -271,9 +271,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 return;
             }
 
-            // Check if the "doors" table already exists. If it does, assume the rest exists
+            // Check if the "movables" table already exists. If it does, assume the rest exists
             // as well and don't set it up.
-            if (conn.getMetaData().getTables(null, null, "doors", new String[]{"TABLE"}).next())
+            if (conn.getMetaData().getTables(null, null, "Movables", new String[]{"TABLE"}).next())
             {
                 databaseState = DatabaseState.OUT_OF_DATE;
                 verifyDatabaseVersion(conn);
@@ -303,14 +303,14 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     private Optional<AbstractMovable> constructMovable(ResultSet movableBaseRS)
         throws Exception
     {
-        final Optional<MovableType> movableType = movableTypeManager.getMovableTypeFromFullName(
-            movableBaseRS.getString("doorType"));
+        final @Nullable String movableTypeResult = movableBaseRS.getString("movableType");
+        final Optional<MovableType> movableType = movableTypeManager.getMovableTypeFromFullName(movableTypeResult);
 
         if (!movableType.map(movableTypeManager::isRegistered).orElse(false))
         {
             log.at(Level.SEVERE)
-               .withCause(new IllegalStateException("Type with ID: " + movableBaseRS.getInt("doorType") +
-                                                        " has not been registered (yet)!")).log();
+               .withStackTrace(StackSize.FULL)
+               .log("Type with ID: '%s' has not been registered (yet)!", movableTypeResult);
             return Optional.empty();
         }
 
@@ -558,7 +558,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      *
      * @param movableBaseRS
      *     The {@link ResultSet} containing a row from the "movableBase" table as well as a row from the
-     *     "DoorOwnerPlayer" table and "typeTableName" from the "DoorType" table.
+     *     "MovableOwnerPlayer" table and "typeTableName" from the "MovableType" table.
      * @return An instance of a subclass of {@link MovableBase} if it could be created.
      */
     private Optional<AbstractMovable> getMovable(ResultSet movableBaseRS)
@@ -578,7 +578,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      *
      * @param movableBaseRS
      *     The {@link ResultSet} containing one or more rows from the "movableBase" table as well as matching rows from
-     *     the "DoorOwnerPlayer" table and "typeTableName" from the "DoorType" table.
+     *     the "MovableOwnerPlayer" table and "typeTableName" from the "MovableType" table.
      * @return An optional with a list of {@link MovableBase}s if any could be constructed. If none could be
      * constructed, an empty {@link Optional} is returned instead.
      */
