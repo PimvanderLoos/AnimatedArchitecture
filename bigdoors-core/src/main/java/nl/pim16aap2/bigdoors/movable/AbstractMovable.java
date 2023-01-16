@@ -70,9 +70,9 @@ public abstract class AbstractMovable implements IMovable
         this.autoCloseScheduler = autoCloseScheduler;
         this.movableOpeningHelper = movableOpeningHelper;
 
-        log.at(Level.FINEST).log("Instantiating movable: %d", movableBase.getUID());
-        if (movableBase.getUID() > 0 && !movableRegistry.registerMovable(new Registrable()))
-            throw new IllegalStateException("Tried to create new movable \"" + movableBase.getUID() +
+        log.at(Level.FINEST).log("Instantiating movable: %d", movableBase.getUid());
+        if (movableBase.getUid() > 0 && !movableRegistry.registerMovable(new Registrable()))
+            throw new IllegalStateException("Tried to create new movable \"" + movableBase.getUid() +
                                                 "\" while it is already registered!");
     }
 
@@ -452,7 +452,7 @@ public abstract class AbstractMovable implements IMovable
     @Locked.Read
     public String getBasicInfo()
     {
-        return getUID() + " (" + getPrimeOwner() + ") - " + getMovableType().getSimpleName() + ": " + getName();
+        return getUid() + " (" + getPrimeOwner() + ") - " + getMovableType().getSimpleName() + ": " + getName();
     }
 
     @Override
@@ -562,9 +562,9 @@ public abstract class AbstractMovable implements IMovable
     }
 
     @Override
-    public long getUID()
+    public long getUid()
     {
-        return movableBase.getUID();
+        return movableBase.getUid();
     }
 
     @Override

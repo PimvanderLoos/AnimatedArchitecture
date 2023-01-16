@@ -113,13 +113,13 @@ public final class MovableOpeningHelper
         IMessageable messageReceiver)
     {
         log.at(Level.FINE).log("Aborted toggle for movable %d because of %s. Toggle Reason: %s, Responsible: %s",
-                               movable.getUID(), result.name(), cause.name(), responsible.asString());
+                               movable.getUid(), result.name(), cause.name(), responsible.asString());
 
         // If the reason the toggle attempt was cancelled was because it was busy, it should obviously
         // not reset the busy status of this movable. However, in every other case it should, because the movable is
         // registered as busy before all the other checks take place.
         if (!result.equals(MovableToggleResult.BUSY))
-            doorActivityManager.setMovableAvailable(movable.getUID());
+            doorActivityManager.setMovableAvailable(movable.getUid());
 
         if (!result.equals(MovableToggleResult.NO_PERMISSION))
         {
@@ -132,7 +132,7 @@ public final class MovableOpeningHelper
             else
             {
                 final Level level = result == MovableToggleResult.BUSY ? Level.FINE : Level.INFO;
-                log.at(level).log("Failed to toggle movable: %d, reason: %s", movable.getUID(), result.name());
+                log.at(level).log("Failed to toggle movable: %d, reason: %s", movable.getUid(), result.name());
             }
         }
         return result;
@@ -309,7 +309,7 @@ public final class MovableOpeningHelper
             protectionCompat ->
             {
                 log.at(Level.WARNING).log("Player '%s' is not allowed to open movable '%s' (%d) here! Reason: %s",
-                                          responsible, movable.getName(), movable.getUID(), protectionCompat);
+                                          responsible, movable.getName(), movable.getUid(), protectionCompat);
                 return false;
             }).orElse(true);
     }
@@ -473,7 +473,7 @@ public final class MovableOpeningHelper
     MovableToggleResult canBeToggled(
         IMovableConst movable, MovableType type, Cuboid newCuboid, MovableActionType actionType)
     {
-        if (!doorActivityManager.attemptRegisterAsBusy(movable.getUID()))
+        if (!doorActivityManager.attemptRegisterAsBusy(movable.getUid()))
             return MovableToggleResult.BUSY;
 
         if (actionType == MovableActionType.OPEN && !movable.isOpenable())

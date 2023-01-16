@@ -237,7 +237,7 @@ public abstract class BlockMover
         glowingBlockSpawner = context.getGlowingBlockSpawner();
         serverTickTime = context.getServerTickTime();
 
-        autoCloseScheduler.unscheduleAutoClose(snapshot.getUID());
+        autoCloseScheduler.unscheduleAutoClose(snapshot.getUid());
         this.movable = movable;
         this.snapshot = snapshot;
         this.time = time;
@@ -705,7 +705,7 @@ public abstract class BlockMover
      */
     public final long getMovableUID()
     {
-        return snapshot.getUID();
+        return snapshot.getUid();
     }
 
     private Cuboid getAnimationRegion()

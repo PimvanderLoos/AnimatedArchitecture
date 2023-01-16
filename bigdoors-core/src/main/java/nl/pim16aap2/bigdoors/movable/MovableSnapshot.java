@@ -24,7 +24,7 @@ import java.util.UUID;
 @Getter
 public final class MovableSnapshot implements IMovableConst
 {
-    private final long movableUID;
+    private final long uid;
     private final IPWorld world;
     private Vector3Di rotationPoint;
     private Vector3Di powerBlock;
@@ -39,7 +39,7 @@ public final class MovableSnapshot implements IMovableConst
     MovableSnapshot(MovableBase movable)
     {
         this(
-            movable.getUID(),
+            movable.getUid(),
             movable.getWorld(),
             movable.getRotationPoint(),
             movable.getPowerBlock(),

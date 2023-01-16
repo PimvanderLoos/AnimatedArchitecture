@@ -70,7 +70,7 @@ public interface IMovableConst
      *
      * @return The UID of the {@link IMovable} as used in the database.
      */
-    long getUID();
+    long getUid();
 
     /**
      * Check if the {@link IMovable} is currently locked. When locked, movables cannot be opened.

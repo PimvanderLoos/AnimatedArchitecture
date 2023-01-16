@@ -59,7 +59,7 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor imp
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
     @Getter
-    private final long movableUID;
+    private final long uid;
 
     @Getter
     private final IPWorld world;
@@ -157,7 +157,7 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor imp
 
     @AssistedInject //
     MovableBase(
-        @Assisted long movableUID, @Assisted String name, @Assisted Cuboid cuboid,
+        @Assisted long uid, @Assisted String name, @Assisted Cuboid cuboid,
         @Assisted("rotationPoint") Vector3Di rotationPoint, @Assisted("powerBlock") Vector3Di powerBlock,
         @Assisted IPWorld world, @Assisted("isOpen") boolean isOpen, @Assisted("isLocked") boolean isLocked,
         @Assisted RotateDirection openDir, @Assisted MovableOwner primeOwner,
@@ -168,7 +168,7 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor imp
         Provider<BlockMover.Context> blockMoverContextProvider,
         IPExecutor executor, IConfigLoader config)
     {
-        this.movableUID = movableUID;
+        this.uid = uid;
         this.name = name;
         this.cuboid = cuboid;
         this.rotationPoint = rotationPoint;
@@ -233,7 +233,7 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor imp
         {
             log.at(Level.SEVERE).withStackTrace(StackSize.FULL)
                .log("Failed to add Owner '%s' as owner to movable: %d because a permission level of 0 is not allowed!",
-                    movableOwner.pPlayerData(), this.getUID());
+                    movableOwner.pPlayerData(), this.getUid());
             return;
         }
         movableOwners.put(uuid, movableOwner);
@@ -282,7 +282,7 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor imp
         {
             log.at(Level.SEVERE).withCause(new IllegalArgumentException(
                    "Failed to remove owner: " + primeOwner.pPlayerData() + " as owner from movable: " +
-                       this.getUID() +
+                       this.getUid() +
                        " because removing an owner with a permission level of 0 is not allowed!"))
                .log();
             return false;
@@ -372,7 +372,7 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor imp
     @Locked.Read
     public String toString()
     {
-        return movableUID + ": " + name + "\n"
+        return uid + ": " + name + "\n"
             + formatLine("Cuboid", getCuboid())
             + formatLine("Rotation Point", this.getRotationPoint())
             + formatLine("PowerBlock Position: ", getPowerBlock())

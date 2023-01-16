@@ -85,7 +85,7 @@ public class RevolvingDoor extends AbstractMovable
         if (angle == 0.0D)
         {
             log.at(Level.SEVERE)
-               .log("Invalid open direction '%s' for revolving door: %d", rotateDirection.name(), getUID());
+               .log("Invalid open direction '%s' for revolving door: %d", rotateDirection.name(), getUid());
             return Optional.empty();
         }
 

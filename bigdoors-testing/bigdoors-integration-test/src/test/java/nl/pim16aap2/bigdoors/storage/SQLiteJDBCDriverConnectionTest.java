@@ -260,9 +260,9 @@ public class SQLiteJDBCDriverConnectionTest
 
         if (!movable.equals(test.get(0)))
             Assertions.fail(
-                "Data of retrieved movable is not the same! ID = " + movable.getUID() + ", name = " +
+                "Data of retrieved movable is not the same! ID = " + movable.getUid() + ", name = " +
                     movable.getName() +
-                    ", found ID = " + test.get(0).getUID() + ", found name = " + test.get(0).getName());
+                    ", found ID = " + test.get(0).getUid() + ", found name = " + test.get(0).getName());
     }
 
     /**

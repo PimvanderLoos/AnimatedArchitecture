@@ -124,7 +124,7 @@ class InfoGui
     private MovableOwner getDummyOwner()
     {
         log.atSevere().log("Player '%s' does not have access to movable: '%s'!", inventoryHolder, movable);
-        return new MovableOwner(movable.getUID(), PermissionLevel.NO_PERMISSION,
+        return new MovableOwner(movable.getUid(), PermissionLevel.NO_PERMISSION,
                                 inventoryHolder.getPPlayerData());
     }
 

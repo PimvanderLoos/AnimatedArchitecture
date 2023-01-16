@@ -222,8 +222,8 @@ public final class DatabaseManager extends Restartable implements IDebuggable
                 if (cancelled)
                     return ActionResult.CANCELLED;
 
-                movableRegistry.deregisterMovable(movable.getUID());
-                final boolean result = db.removeMovable(movable.getUID());
+                movableRegistry.deregisterMovable(movable.getUid());
+                final boolean result = db.removeMovable(movable.getUid());
                 if (!result)
                     return ActionResult.FAIL;
 
@@ -501,7 +501,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
         if (permission.getValue() < 1 || permission == PermissionLevel.NO_PERMISSION)
             return CompletableFuture.completedFuture(ActionResult.FAIL);
 
-        final var newOwner = new MovableOwner(movable.getUID(), permission, player.getPPlayerData());
+        final var newOwner = new MovableOwner(movable.getUid(), permission, player.getPPlayerData());
 
         return callCancellableEvent(fact -> fact.createMovablePrepareAddOwnerEvent(movable, newOwner, responsible))
             .thenApplyAsync(
@@ -512,12 +512,12 @@ public final class DatabaseManager extends Restartable implements IDebuggable
 
                     final PPlayerData playerData = player.getPPlayerData();
 
-                    final boolean result = db.addOwner(movable.getUID(), playerData, permission);
+                    final boolean result = db.addOwner(movable.getUid(), playerData, permission);
                     if (!result)
                         return ActionResult.FAIL;
 
                     ((FriendMovableAccessor) movable.getMovableBase())
-                        .addOwner(player.getUUID(), new MovableOwner(movable.getUID(), permission, playerData));
+                        .addOwner(player.getUUID(), new MovableOwner(movable.getUid(), permission, playerData));
 
                     return ActionResult.SUCCESS;
                 }, threadPool).exceptionally(ex -> Util.exceptionally(ex, ActionResult.FAIL));
@@ -609,14 +609,14 @@ public final class DatabaseManager extends Restartable implements IDebuggable
         if (movableOwner.isEmpty())
         {
             log.at(Level.FINE).log("Trying to remove player: %s from movable: %d, but the player is not an owner!",
-                                   playerUUID, movable.getUID());
+                                   playerUUID, movable.getUid());
             return CompletableFuture.completedFuture(ActionResult.FAIL);
         }
         if (movableOwner.get().permission() == PermissionLevel.CREATOR)
         {
             log.at(Level.FINE).log("Trying to remove player: %s from movable: %d, but the player is the prime owner! " +
                                        "This is not allowed!",
-                                   playerUUID, movable.getUID());
+                                   playerUUID, movable.getUid());
             return CompletableFuture.completedFuture(ActionResult.FAIL);
         }
 
@@ -628,7 +628,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
                     if (cancelled)
                         return ActionResult.CANCELLED;
 
-                    final boolean result = db.removeOwner(movable.getUID(), playerUUID);
+                    final boolean result = db.removeOwner(movable.getUid(), playerUUID);
                     if (!result)
                         return ActionResult.FAIL;
 

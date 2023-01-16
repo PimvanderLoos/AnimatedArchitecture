@@ -281,7 +281,7 @@ class MovableFinderTest
         for (int idx = 0; idx < names.size(); ++idx)
         {
             final AbstractMovable movable = Mockito.mock(AbstractMovable.class);
-            Mockito.when(movable.getUID()).thenReturn(uids.get(idx));
+            Mockito.when(movable.getUid()).thenReturn(uids.get(idx));
             Mockito.when(movable.getName()).thenReturn(names.get(idx));
             movables.add(idx, movable);
         }

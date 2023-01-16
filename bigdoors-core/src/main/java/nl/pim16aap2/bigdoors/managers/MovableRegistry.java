@@ -138,7 +138,7 @@ public final class MovableRegistry extends Restartable implements IDebuggable
      */
     public boolean isRegistered(IMovableConst movable)
     {
-        return movableCache.get(movable.getUID()).map(found -> found == movable).orElse(false);
+        return movableCache.get(movable.getUid()).map(found -> found == movable).orElse(false);
     }
 
     /**
@@ -153,7 +153,7 @@ public final class MovableRegistry extends Restartable implements IDebuggable
         if (!acceptNewEntries)
             return true;
         final AbstractMovable movable = registrable.getAbstractMovableBase();
-        return movableCache.putIfAbsent(movable.getUID(), movable).isEmpty();
+        return movableCache.putIfAbsent(movable.getUid(), movable).isEmpty();
     }
 
     @Override
