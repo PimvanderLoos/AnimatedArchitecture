@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.GlowingBlockSpawner;
+import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -771,14 +772,21 @@ public abstract class BlockMover
         private final IAnimatedBlockFactory animatedBlockFactory;
         private final AnimationHookManager animationHookManager;
         private final GlowingBlockSpawner glowingBlockSpawner;
+        private final IConfigLoader config;
         private final int serverTickTime;
 
         @Inject
         public Context(
-            MovableActivityManager movableActivityManager, AutoCloseScheduler autoCloseScheduler,
-            IPLocationFactory locationFactory, IAudioPlayer audioPlayer, IPExecutor executor,
-            IAnimatedBlockFactory animatedBlockFactory, AnimationHookManager animationHookManager,
-            GlowingBlockSpawner glowingBlockSpawner, @Named("serverTickTime") int serverTickTime)
+            MovableActivityManager movableActivityManager,
+            AutoCloseScheduler autoCloseScheduler,
+            IPLocationFactory locationFactory,
+            IAudioPlayer audioPlayer,
+            IPExecutor executor,
+            IAnimatedBlockFactory animatedBlockFactory,
+            AnimationHookManager animationHookManager,
+            GlowingBlockSpawner glowingBlockSpawner,
+            IConfigLoader config,
+            @Named("serverTickTime") int serverTickTime)
         {
             this.movableActivityManager = movableActivityManager;
             this.autoCloseScheduler = autoCloseScheduler;
@@ -788,6 +796,7 @@ public abstract class BlockMover
             this.animatedBlockFactory = animatedBlockFactory;
             this.animationHookManager = animationHookManager;
             this.glowingBlockSpawner = glowingBlockSpawner;
+            this.config = config;
             this.serverTickTime = serverTickTime;
         }
     }

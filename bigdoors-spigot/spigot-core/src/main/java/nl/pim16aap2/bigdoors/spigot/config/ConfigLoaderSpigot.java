@@ -87,7 +87,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
     private boolean consoleLogging;
     private Level logLevel = Level.INFO;
     private boolean debug = false;
-    private String flagFormula = "";
+    private String flagMovementFormula = "";
 
     /**
      * Constructs a new {@link ConfigLoaderSpigot}.
@@ -225,6 +225,17 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
                 "-1 means no caching (not recommended!), 0 = infinite cache (not recommended either!).",
             "It doesn't take up too much RAM, so it's recommended to leave this value high. " +
                 "It'll get updated automatically when needed anyway."};
+        final String[] flagMovementFormulaComment = {
+            "The movement formula of the blocks for flags.",
+            "You can find a list of supported operators in the formula here: " +
+                "https://github.com/PimvanderLoos/JCalculator",
+            "The formula can use the following variables:",
+            "'radius':  The distance of the block to the pole it is connected to.",
+            "'counter': The number of steps that have passed in the animation.",
+            "'length':  The total length of the flag.",
+            "'height':  The height of the block for which the formula is used. The bottom row has a height of 0.",
+            "The return value of the formula is the horizontal displacement of a single block in the flag."
+        };
         final String[] pricesComment = {
             "When Vault is present, you can set the price of creation here for each type of movable.",
             "You can use the word \"blockCount\" (without quotation marks, case sensitive) as a " +
@@ -298,8 +309,10 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
         coolDown = addNewConfigEntry(config, "coolDown", 0, coolDownComment);
         cacheTimeout = addNewConfigEntry(config, "cacheTimeout", 120, cacheTimeoutComment);
 
-        flagFormula = addNewConfigEntry(config, "flagFormula",
-                                        "Math.min(0.3 * radius, 3) * Math.sin((counter / 4) * 3)", (String[]) null);
+        flagMovementFormula = addNewConfigEntry(
+            config, "flagMovementFormula",
+            "min(0.07 * radius, 3) * sin(radius / 1.7 + height / 12 + counter / 12)",
+            flagMovementFormulaComment);
 
         maxBlockSpeed = addNewConfigEntry(config, "maxBlockSpeed", 5.0D, maxBlockSpeedComment);
 
@@ -477,9 +490,9 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
     }
 
     @Override
-    public String flagFormula()
+    public String flagMovementFormula()
     {
-        return flagFormula;
+        return flagMovementFormula;
     }
 
     @Override

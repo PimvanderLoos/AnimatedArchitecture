@@ -36,11 +36,9 @@ public interface IConfigLoader extends IRestartable
     }
 
     /**
-     * Gets the formula of a flag. Used for debugging.
-     *
-     * @return The formula of a flag.
+     * @return The movement formula of a flag.
      */
-    String flagFormula();
+    String flagMovementFormula();
 
     /**
      * Gets the number of ticks a movable should wait before it can be activated again.

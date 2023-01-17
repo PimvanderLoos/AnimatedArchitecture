@@ -49,16 +49,16 @@ public class Flag extends AbstractMovable implements IHorizontalAxisAligned, IPe
     @PersistentVariable
     protected final boolean northSouthAligned;
 
-    public Flag(MovableBase doorBase, boolean northSouthAligned)
+    public Flag(MovableBase base, boolean northSouthAligned)
     {
-        super(doorBase);
+        super(base);
         this.lock = getLock();
         this.northSouthAligned = northSouthAligned;
     }
 
-    private Flag(MovableBase doorBase)
+    private Flag(MovableBase base)
     {
-        this(doorBase, false); // Add tmp/default values
+        this(base, false); // Add tmp/default values
     }
 
     @Override
@@ -95,8 +95,7 @@ public class Flag extends AbstractMovable implements IHorizontalAxisAligned, IPe
     {
         return new FlagMover(
             context, this, movableSnapshot, time, config.getAnimationSpeedMultiplier(getType()), responsible,
-            cause,
-            actionType);
+            cause, actionType);
     }
 
     @Override
