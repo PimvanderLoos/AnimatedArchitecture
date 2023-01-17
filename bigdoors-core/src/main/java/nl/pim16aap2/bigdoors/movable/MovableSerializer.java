@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.movable;
 
+import com.google.common.flogger.StackSize;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.util.FastFieldSetter;
@@ -259,8 +260,8 @@ public class MovableSerializer<T extends AbstractMovable>
     {
         if (!movableClass.isAssignableFrom(movable.getClass()))
         {
-            log.atSevere().withCause(new IllegalArgumentException(
-                "Expected type " + getMovableTypeName() + " but received type " + movable.getClass().getName())).log();
+            log.atSevere().withStackTrace(StackSize.FULL)
+               .log("Expected type '%s' but received type '%s'!", getMovableTypeName(), movable.getClass().getName());
             return "";
         }
 

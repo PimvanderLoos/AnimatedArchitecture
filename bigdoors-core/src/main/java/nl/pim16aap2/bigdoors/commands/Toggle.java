@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
+import com.google.common.flogger.StackSize;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -94,8 +95,7 @@ public class Toggle extends BaseCommand
                 return movable.isOpenable();
             default:
                 log.atSevere()
-                   .withCause(new IllegalStateException("Reached unregistered case: " + movableActionType.name()))
-                   .log();
+                   .withStackTrace(StackSize.FULL).log("Reached unregistered case: '%s'!", movableActionType.name());
                 return false;
         }
     }

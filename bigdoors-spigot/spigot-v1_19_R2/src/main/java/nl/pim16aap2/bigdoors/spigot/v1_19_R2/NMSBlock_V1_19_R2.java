@@ -276,9 +276,8 @@ public class NMSBlock_V1_19_R2 extends BlockBase implements IAnimatedBlockData
         final @Nullable var mappedDir = PBlockFace.getDirFun(dir);
         if (mappedDir == null)
         {
-            log.atSevere().withCause(
-                new IllegalStateException("Failed to get face from vector " + dir +
-                                              ". Rotations will not work as expected!")).log();
+            log.atSevere().withStackTrace(StackSize.FULL)
+               .log("Failed to get face from vector '%s'. Rotations will not work as expected!", dir);
             return;
         }
 
@@ -319,9 +318,8 @@ public class NMSBlock_V1_19_R2 extends BlockBase implements IAnimatedBlockData
         final @Nullable var mappedDir = PBlockFace.getDirFun(dir);
         if (mappedDir == null)
         {
-            log.atSevere().withCause(
-                new IllegalStateException("Failed to get face from vector " + dir +
-                                              ". Rotations will not work as expected!")).log();
+            log.atSevere().withStackTrace(StackSize.FULL)
+               .log("Failed to get face from vector '%s'. Rotations will not work as expected!", dir);
             return;
         }
 

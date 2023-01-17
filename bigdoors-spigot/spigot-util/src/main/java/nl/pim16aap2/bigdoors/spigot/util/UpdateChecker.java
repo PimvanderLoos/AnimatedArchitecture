@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.util;
 
 import com.google.common.base.Preconditions;
+import com.google.common.flogger.StackSize;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -213,9 +214,8 @@ public final class UpdateChecker
 
             if (httpConnection.getResponseCode() != 200)
             {
-                log.atSevere().withCause(
-                    new RuntimeException("Download returned status #" + httpConnection.getResponseCode() +
-                                             "\n for URL: " + downloadURL)).log();
+                log.atSevere().withStackTrace(StackSize.FULL)
+                   .log("Download returned status #%d\n for URL: '%s'", httpConnection.getResponseCode(), downloadURL);
                 return false;
             }
 

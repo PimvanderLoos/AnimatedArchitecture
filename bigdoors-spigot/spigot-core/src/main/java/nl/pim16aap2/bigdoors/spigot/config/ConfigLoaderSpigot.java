@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.config;
 
+import com.google.common.flogger.StackSize;
 import dagger.Lazy;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
@@ -608,7 +609,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
         final String ret = movablePrices.get(type);
         if (ret != null)
             return ret;
-        log.atSevere().withCause(new IllegalStateException("No price found for type: " + type)).log();
+        log.atSevere().withStackTrace(StackSize.FULL).log("No price found for type: '%s'", type);
         return "0";
     }
 

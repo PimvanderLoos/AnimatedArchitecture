@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.movable;
 
+import com.google.common.flogger.StackSize;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
@@ -194,7 +195,7 @@ public final class MovableOpeningHelper
     {
         if (snapshot.getOpenDir() == RotateDirection.NONE)
         {
-            log.atSevere().withCause(new IllegalStateException("OpenDir cannot be NONE!")).log();
+            log.atSevere().withStackTrace(StackSize.FULL).log("OpenDir cannot be 'NONE'!");
             return MovableToggleResult.ERROR;
         }
 

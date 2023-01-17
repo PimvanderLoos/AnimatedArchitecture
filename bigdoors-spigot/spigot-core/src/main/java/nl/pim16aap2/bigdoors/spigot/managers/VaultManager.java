@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.managers;
 
+import com.google.common.flogger.StackSize;
 import lombok.extern.flogger.Flogger;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
@@ -81,8 +82,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
         {
-            log.atSevere().withCause(
-                new NullPointerException("Failed to obtain Spigot player: " + player.getUUID())).log();
+            log.atSevere().withStackTrace(StackSize.FULL).log("Failed to obtain Spigot player: '%s'", player.getUUID());
             return false;
         }
 
@@ -343,8 +343,8 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final @Nullable Player bukkitPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (bukkitPlayer == null)
         {
-            log.atSevere().withCause(
-                new IllegalArgumentException("Failed to obtain BukkitPlayer for player: " + player.asString())).log();
+            log.atSevere().withStackTrace(StackSize.FULL)
+               .log("Failed to obtain BukkitPlayer for player: '%s'", player.asString());
             return OptionalInt.empty();
         }
 
@@ -367,8 +367,8 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final @Nullable Player bukkitPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (bukkitPlayer == null)
         {
-            log.atSevere().withCause(
-                new IllegalArgumentException("Failed to obtain BukkitPlayer for player: " + player.asString())).log();
+            log.atSevere().withStackTrace(StackSize.FULL)
+               .log("Failed to obtain BukkitPlayer for player: '%s'", player.asString());
             return false;
         }
 
@@ -399,8 +399,8 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final @Nullable Player bukkitPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (bukkitPlayer == null)
         {
-            log.atSevere().withCause(
-                new IllegalArgumentException("Failed to obtain BukkitPlayer for player: " + player.asString())).log();
+            log.atSevere().withStackTrace(StackSize.FULL)
+               .log("Failed to obtain BukkitPlayer for player: '%s'", player.asString());
             return null;
         }
         return bukkitPlayer;

@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.events;
 
+import com.google.common.flogger.StackSize;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.events.IBigDoorsEvent;
@@ -31,9 +32,9 @@ public class BigDoorsEventCallerSpigot implements IBigDoorsEventCaller
     {
         if (!(bigDoorsEvent instanceof BigDoorsSpigotEvent))
         {
-            log.atSevere().withCause(new IllegalArgumentException(
-                "Event " + bigDoorsEvent.getEventName() +
-                    ", is not a Spigot event, but it was called on the Spigot platform!")).log();
+            log.atSevere().withStackTrace(StackSize.FULL)
+               .log("Event '%s', is not a Spigot event, but it was called on the Spigot platform!",
+                    bigDoorsEvent.getEventName());
             return;
         }
 

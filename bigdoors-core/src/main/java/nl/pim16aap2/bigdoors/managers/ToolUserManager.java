@@ -95,9 +95,9 @@ public final class ToolUserManager extends Restartable
 
         if (!toolUsers.isEmpty())
         {
-            log.atSevere().withCause(new IllegalStateException("Failed to properly remove ToolUsers!")).log();
-            toolUsers.forEach((uuid, pair) -> log.atSevere()
-                                                 .log("Failed to abort ToolUer for user: %s", uuid.toString()));
+            log.atSevere().withStackTrace(StackSize.FULL).log("Failed to properly remove ToolUsers!");
+            toolUsers.forEach((uuid, pair) ->
+                                  log.atSevere().log("Failed to abort ToolUer for user: %s", uuid.toString()));
             toolUsers.clear();
         }
     }

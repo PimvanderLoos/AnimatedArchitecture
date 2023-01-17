@@ -279,11 +279,10 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor imp
     {
         if (primeOwner.pPlayerData().getUUID().equals(uuid))
         {
-            log.atSevere().withCause(new IllegalArgumentException(
-                   "Failed to remove owner: " + primeOwner.pPlayerData() + " as owner from movable: " +
-                       this.getUid() +
-                       " because removing an owner with a permission level of 0 is not allowed!"))
-               .log();
+            log.atSevere().withStackTrace(StackSize.FULL)
+               .log("Failed to remove owner: '%s' as owner from movable: '%d'" +
+                        " because removing an owner with a permission level of 0 is not allowed!",
+                    primeOwner.pPlayerData(), this.getUid());
             return false;
         }
         return owners.remove(uuid) != null;

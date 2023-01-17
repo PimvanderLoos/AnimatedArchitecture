@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.tooluser;
 
+import com.google.common.flogger.StackSize;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -70,8 +71,8 @@ public class PowerBlockRelocator extends ToolUser
     {
         if (newLoc == null)
         {
-            log.atSevere().withCause(
-                new NullPointerException("newLoc is null, which should not be possible at this point!")).log();
+            log.atSevere().withStackTrace(StackSize.FULL)
+               .log("newLoc is null, which should not be possible at this point!");
             getPlayer().sendError(textFactory, localizer.getMessage("constants.error.generic"));
         }
         else if (movable.getPowerBlock().equals(newLoc.getPosition()))

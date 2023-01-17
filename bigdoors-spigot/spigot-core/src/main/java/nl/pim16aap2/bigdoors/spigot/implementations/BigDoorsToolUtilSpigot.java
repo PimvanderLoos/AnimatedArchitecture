@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.implementations;
 
+import com.google.common.flogger.StackSize;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -40,8 +41,8 @@ public class BigDoorsToolUtilSpigot implements IBigDoorsToolUtil
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
         {
-            log.atSevere().withCause(
-                new NullPointerException("Failed to obtain Spigot player: " + player.getUUID())).log();
+            log.atSevere().withStackTrace(StackSize.FULL)
+               .log("Failed to obtain Spigot player: %s", player.getUUID());
             return;
         }
 
@@ -72,8 +73,7 @@ public class BigDoorsToolUtilSpigot implements IBigDoorsToolUtil
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
         {
-            log.atSevere().withCause(
-                new NullPointerException("Failed to obtain Spigot player: " + player.getUUID())).log();
+            log.atSevere().withStackTrace(StackSize.FULL).log("Failed to obtain Spigot player: '%s'", player.getUUID());
             return;
         }
         spigotPlayer.getInventory().forEach(
@@ -102,8 +102,7 @@ public class BigDoorsToolUtilSpigot implements IBigDoorsToolUtil
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
         {
-            log.atSevere().withCause(
-                new NullPointerException("Failed to obtain Spigot player: " + player.getUUID())).log();
+            log.atSevere().withStackTrace(StackSize.FULL).log("Failed to obtain Spigot player: '%s'", player.getUUID());
             return false;
         }
 

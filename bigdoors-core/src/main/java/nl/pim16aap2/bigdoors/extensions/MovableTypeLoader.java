@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.extensions;
 
+import com.google.common.flogger.StackSize;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
@@ -92,7 +93,7 @@ public final class MovableTypeLoader extends Restartable
         log.atFine().log("Attempting to load MovableType from jar: %s", file);
         if (!file.toString().endsWith(".jar"))
         {
-            log.atSevere().withCause(new IllegalArgumentException("\"" + file + "\" is not a valid jar file!")).log();
+            log.atSevere().withStackTrace(StackSize.FULL).log("'%s' is not a valid jar file!", file);
             return Optional.empty();
         }
 
@@ -108,8 +109,7 @@ public final class MovableTypeLoader extends Restartable
             className = manifest.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
             if (className == null)
             {
-                log.atSevere().withCause(new IllegalArgumentException(
-                    "File: \"" + file + "\" does not specify its main class!")).log();
+                log.atSevere().withStackTrace(StackSize.FULL).log("File: '%s' does not specify its main class!", file);
                 return Optional.empty();
             }
 
@@ -117,8 +117,7 @@ public final class MovableTypeLoader extends Restartable
             typeName = typeNameSection == null ? null : typeNameSection.getValue("TypeName");
             if (typeName == null)
             {
-                log.atSevere().withCause(new IllegalArgumentException(
-                    "File: \"" + file + "\" does not specify its type name!")).log();
+                log.atSevere().withStackTrace(StackSize.FULL).log("File: '%s' does not specify its type name!", file);
                 return Optional.empty();
             }
 
@@ -127,8 +126,7 @@ public final class MovableTypeLoader extends Restartable
                                                          null : versionSection.getValue("Version"));
             if (versionOpt.isEmpty())
             {
-                log.atSevere().withCause(new IllegalArgumentException(
-                    "File: \"" + file + "\" does not specify its version!")).log();
+                log.atSevere().withStackTrace(StackSize.FULL).log("File: '%s' does not specify its version!", file);
                 return Optional.empty();
             }
             version = versionOpt.getAsInt();
