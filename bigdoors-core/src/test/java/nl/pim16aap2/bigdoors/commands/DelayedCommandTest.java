@@ -16,7 +16,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.mockito.Answers;
-import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -33,24 +32,39 @@ import static org.mockito.AdditionalAnswers.delegatesTo;
 class DelayedCommandTest
 {
     CommandFactory commandFactory = Mockito.mock(CommandFactory.class);
-    @SuppressWarnings("unchecked") Provider<CommandFactory> commandFactoryProvider =
+
+    @SuppressWarnings("unchecked")
+    Provider<CommandFactory> commandFactoryProvider =
         Mockito.mock(Provider.class, delegatesTo((Provider<CommandFactory>) () -> commandFactory));
 
-    @Spy DelayedCommandInputManager delayedCommandInputManager =
-        new DelayedCommandInputManager(Mockito.mock(DebuggableRegistry.class));
-    @Mock ILocalizer localizer;
-    @Mock DelayedCommandInputRequest.IFactory<Object> inputRequestFactory;
-    @Spy ITextFactory textFactory = ITextFactory.getSimpleTextFactory();
-    @InjectMocks DelayedCommand.Context context;
+    @Spy
+    DelayedCommandInputManager delayedCommandInputManager = new DelayedCommandInputManager(
+        Mockito.mock(DebuggableRegistry.class));
+
+    ILocalizer localizer = UnitTestUtil.initLocalizer();
+
+    @Mock
+    DelayedCommandInputRequest.IFactory<Object> inputRequestFactory;
+
+    @Spy
+    ITextFactory textFactory = ITextFactory.getSimpleTextFactory();
+
+    @InjectMocks
+    DelayedCommand.Context context;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     ICommandSender commandSender;
 
-    MovableRetriever doorRetriever;
-    @Mock AbstractMovable door;
-    @InjectMocks MovableRetrieverFactory doorRetrieverFactory;
+    MovableRetriever movableRetriever;
 
-    @Mock TriFunction<ICommandSender, MovableRetriever, Object, CompletableFuture<Boolean>> delayedFunction;
+    @Mock
+    AbstractMovable movable;
+
+    @InjectMocks
+    MovableRetrieverFactory movableRetrieverFactory;
+
+    @Mock
+    TriFunction<ICommandSender, MovableRetriever, Object, CompletableFuture<Boolean>> delayedFunction;
 
     AutoCloseable openMocks;
 
@@ -58,11 +72,8 @@ class DelayedCommandTest
     void init()
     {
         openMocks = MockitoAnnotations.openMocks(this);
-
-        Mockito.when(localizer.getMessage(Mockito.anyString(), ArgumentMatchers.<String>any())).thenAnswer(
-            invocation -> invocation.getArgument(0, String.class));
         initInputRequestFactory(inputRequestFactory, localizer, delayedCommandInputManager);
-        doorRetriever = doorRetrieverFactory.of(door);
+        movableRetriever = movableRetrieverFactory.of(movable);
         LogInspector.get().clearHistory();
     }
 
@@ -78,7 +89,7 @@ class DelayedCommandTest
     {
         final DelayedCommandImpl delayedCommand = new DelayedCommandImpl(context, inputRequestFactory, delayedFunction);
 
-        delayedCommand.runDelayed(commandSender, doorRetriever);
+        delayedCommand.runDelayed(commandSender, movableRetriever);
         Mockito.verify(commandSender, Mockito.times(1))
                .sendMessage(UnitTestUtil.toText(DelayedCommandImpl.INPUT_REQUEST_MSG));
         Mockito.verify(inputRequestFactory, Mockito.times(1)).create(
@@ -87,7 +98,7 @@ class DelayedCommandTest
 
         final Object input = new Object();
         delayedCommand.provideDelayedInput(commandSender, input).join();
-        Mockito.verify(delayedFunction, Mockito.times(1)).apply(commandSender, doorRetriever, input);
+        Mockito.verify(delayedFunction, Mockito.times(1)).apply(commandSender, movableRetriever, input);
 
         delayedCommand.provideDelayedInput(commandSender, new Object());
         Mockito.verify(commandSender, Mockito.times(1))
@@ -110,7 +121,7 @@ class DelayedCommandTest
         Mockito.when(delayedFunction.apply(Mockito.any(), Mockito.any(), Mockito.any()))
                .thenThrow(RuntimeException.class);
         final DelayedCommandImpl delayedCommand = new DelayedCommandImpl(context, inputRequestFactory, delayedFunction);
-        delayedCommand.runDelayed(commandSender, doorRetriever);
+        delayedCommand.runDelayed(commandSender, movableRetriever);
         Assertions.assertEquals(0, LogInspector.get().getThrowingCount());
 
         Assertions.assertFalse(delayedCommand.provideDelayedInput(commandSender, new Object()).join());

@@ -60,9 +60,10 @@ class PowerBlockRelocatorTest
                                                              Mockito.any(), Mockito.any()))
                .thenReturn(Optional.empty());
 
+        final ILocalizer localizer = UnitTestUtil.initLocalizer();
+
         final ToolUser.Context context = Mockito.mock(ToolUser.Context.class, Answers.RETURNS_MOCKS);
         Mockito.when(context.getProtectionCompatManager()).thenReturn(compatManager);
-        final ILocalizer localizer = UnitTestUtil.initLocalizer();
         Mockito.when(context.getLocalizer()).thenReturn(localizer);
         Mockito.when(context.getTextFactory()).thenReturn(ITextFactory.getSimpleTextFactory());
 

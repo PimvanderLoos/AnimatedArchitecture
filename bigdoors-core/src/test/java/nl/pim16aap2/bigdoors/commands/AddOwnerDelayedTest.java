@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
+import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
@@ -13,7 +14,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -30,24 +30,41 @@ import static org.mockito.AdditionalAnswers.delegatesTo;
 @SuppressWarnings("unused")
 class AddOwnerDelayedTest
 {
-    @Spy DelayedCommandInputManager delayedCommandInputManager =
+    @Spy
+    DelayedCommandInputManager delayedCommandInputManager =
         new DelayedCommandInputManager(Mockito.mock(DebuggableRegistry.class));
-    @Mock ILocalizer localizer;
-    @Mock DelayedCommandInputRequest.IFactory<AddOwnerDelayed.DelayedInput> inputRequestFactory;
-    @InjectMocks DelayedCommand.Context context;
 
-    @Mock CommandFactory commandFactory;
-    @SuppressWarnings("unchecked") Provider<CommandFactory> commandFactoryProvider =
+    ILocalizer localizer = UnitTestUtil.initLocalizer();
+
+    @Mock
+    DelayedCommandInputRequest.IFactory<AddOwnerDelayed.DelayedInput> inputRequestFactory;
+
+    @InjectMocks
+    DelayedCommand.Context context;
+
+    @Mock
+    CommandFactory commandFactory;
+
+    @SuppressWarnings("unchecked")
+    Provider<CommandFactory> commandFactoryProvider =
         Mockito.mock(Provider.class, delegatesTo((Provider<CommandFactory>) () -> commandFactory));
 
-    @Mock ICommandSender commandSender;
+    @Mock
+    ICommandSender commandSender;
 
-    @Mock AbstractMovable door;
-    MovableRetriever doorRetriever;
-    @InjectMocks MovableRetrieverFactory doorRetrieverFactory;
+    MovableRetriever movableRetriever;
 
-    @Mock AddOwner addOwner;
-    @Mock IPPlayer targetPlayer;
+    @Mock
+    AbstractMovable movable;
+
+    @InjectMocks
+    MovableRetrieverFactory movableRetrieverFactory;
+
+    @Mock
+    AddOwner addOwner;
+
+    @Mock
+    IPPlayer targetPlayer;
 
     AutoCloseable openMocks;
 
@@ -56,11 +73,9 @@ class AddOwnerDelayedTest
     {
         openMocks = MockitoAnnotations.openMocks(this);
 
-        Mockito.when(localizer.getMessage(Mockito.anyString(), ArgumentMatchers.<String>any())).thenAnswer(
-            invocation -> invocation.getArgument(0, String.class));
         initInputRequestFactory(inputRequestFactory, localizer, delayedCommandInputManager);
 
-        doorRetriever = doorRetrieverFactory.of(door);
+        movableRetriever = movableRetrieverFactory.of(movable);
 
         Mockito.when(addOwner.run()).thenReturn(CompletableFuture.completedFuture(true));
 
@@ -81,7 +96,7 @@ class AddOwnerDelayedTest
     {
         final AddOwnerDelayed addOwnerDelayed = new AddOwnerDelayed(context, inputRequestFactory);
 
-        final CompletableFuture<Boolean> result0 = addOwnerDelayed.runDelayed(commandSender, doorRetriever);
+        final CompletableFuture<Boolean> result0 = addOwnerDelayed.runDelayed(commandSender, movableRetriever);
         final AddOwnerDelayed.DelayedInput input = new AddOwnerDelayed.DelayedInput(targetPlayer);
         final CompletableFuture<Boolean> result1 = addOwnerDelayed.provideDelayedInput(commandSender, input);
 
@@ -89,6 +104,6 @@ class AddOwnerDelayedTest
         Assertions.assertTrue(result1.get());
 
         Mockito.verify(commandFactory, Mockito.times(1))
-               .newAddOwner(commandSender, doorRetriever, input.getTargetPlayer(), PermissionLevel.USER);
+               .newAddOwner(commandSender, movableRetriever, input.getTargetPlayer(), PermissionLevel.USER);
     }
 }

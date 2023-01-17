@@ -11,6 +11,7 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.function.Executable;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 
@@ -28,15 +29,10 @@ public class UnitTestUtil
     public static ILocalizer initLocalizer()
     {
         final ILocalizer localizer = Mockito.mock(ILocalizer.class, Mockito.CALLS_REAL_METHODS);
-        Mockito.when(localizer.getMessage(Mockito.anyString()))
-               .thenAnswer(invocation -> invocation.getArgument(0, String.class));
-        Mockito.when(localizer.getMessage(Mockito.anyString(), Mockito.any()))
+        Mockito.when(localizer.getMessage(Mockito.anyString(), ArgumentMatchers.any(Object[].class)))
                .thenAnswer(invocation ->
                            {
                                String ret = invocation.getArgument(0, String.class);
-                               if (invocation.getArguments().length == 1)
-                                   return ret;
-
                                for (int idx = 1; idx < invocation.getArguments().length; ++idx)
                                    //noinspection StringConcatenationInLoop
                                    ret += " " + invocation.getArgument(idx, Object.class);
