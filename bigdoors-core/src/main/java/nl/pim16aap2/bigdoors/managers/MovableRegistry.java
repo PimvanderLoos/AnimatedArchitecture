@@ -7,7 +7,6 @@ import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.data.cache.timed.TimedCache;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.IMovableConst;
 import nl.pim16aap2.bigdoors.movable.MovableBase;
 
 import javax.inject.Inject;
@@ -93,7 +92,8 @@ public final class MovableRegistry extends Restartable implements IDebuggable
     }
 
     /**
-     * Attempts to get the {@link MovableBase} associated the given UID. It will only search
+     * Attempts to get the {@link MovableBase} associated the given UID. It can only retrieve doors that still exist in
+     * the cache.
      *
      * @param movableUID
      *     The UID of the movable.
@@ -136,7 +136,7 @@ public final class MovableRegistry extends Restartable implements IDebuggable
      *     The movable.
      * @return True if an entry exists for the exact instance of the provided {@link MovableBase}.
      */
-    public boolean isRegistered(IMovableConst movable)
+    public boolean isRegistered(AbstractMovable movable)
     {
         return movableCache.get(movable.getUid()).map(found -> found == movable).orElse(false);
     }

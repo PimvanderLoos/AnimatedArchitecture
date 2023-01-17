@@ -200,7 +200,7 @@ public final class MovableOpeningHelper
             return MovableToggleResult.ERROR;
         }
 
-        if (!doorRegistry.isRegistered(snapshot))
+        if (!doorRegistry.isRegistered(targetDoor))
             return abort(targetDoor, MovableToggleResult.INSTANCE_UNREGISTERED, cause, responsible,
                          messageReceiver);
 
