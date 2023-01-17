@@ -34,7 +34,7 @@ public final class MovableSnapshot implements IMovableConst
     private RotateDirection openDir;
     private boolean isLocked;
     private final MovableOwner primeOwner;
-    private final Map<UUID, MovableOwner> movableOwners;
+    private final Map<UUID, MovableOwner> owners;
 
     MovableSnapshot(MovableBase movable)
     {
@@ -49,26 +49,26 @@ public final class MovableSnapshot implements IMovableConst
             movable.getOpenDir(),
             movable.isLocked(),
             movable.getPrimeOwner(),
-            Map.copyOf(movable.getMovableOwnersView())
+            Map.copyOf(movable.getOwnersView())
         );
     }
 
     @Override
     public Optional<MovableOwner> getOwner(UUID player)
     {
-        return Optional.ofNullable(movableOwners.get(player));
+        return Optional.ofNullable(owners.get(player));
     }
 
     @Override
     public boolean isOwner(UUID player)
     {
-        return movableOwners.containsKey(player);
+        return owners.containsKey(player);
     }
 
     @Override
     public Collection<MovableOwner> getOwners()
     {
-        return movableOwners.values();
+        return owners.values();
     }
 
     @Override

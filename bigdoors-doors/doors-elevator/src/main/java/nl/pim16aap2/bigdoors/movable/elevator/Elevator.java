@@ -35,7 +35,7 @@ public class Elevator extends Portcullis
     }
 
     @Override
-    public MovableType getMovableType()
+    public MovableType getType()
     {
         return MOVABLE_TYPE;
     }

@@ -90,7 +90,7 @@ public class Portcullis extends AbstractMovable implements IDiscreteMovement, IT
     }
 
     @Override
-    public MovableType getMovableType()
+    public MovableType getType()
     {
         return MOVABLE_TYPE;
     }
@@ -133,6 +133,6 @@ public class Portcullis extends AbstractMovable implements IDiscreteMovement, IT
     {
         return new VerticalMover(
             context, this, movableSnapshot, time, skipAnimation, getDirectedBlocksToMove(),
-            config.getAnimationSpeedMultiplier(getMovableType()), responsible, newCuboid, cause, actionType);
+            config.getAnimationSpeedMultiplier(getType()), responsible, newCuboid, cause, actionType);
     }
 }

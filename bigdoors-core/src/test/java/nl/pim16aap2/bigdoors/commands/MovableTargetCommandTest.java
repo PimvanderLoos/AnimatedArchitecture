@@ -45,7 +45,7 @@ class MovableTargetCommandTest
 
         final MovableType movableType = Mockito.mock(MovableType.class);
         Mockito.when(movableType.getLocalizationKey()).thenReturn("MovableType");
-        Mockito.when(movable.getMovableType()).thenReturn(movableType);
+        Mockito.when(movable.getType()).thenReturn(movableType);
 
         Mockito.doReturn(true).when(movableTargetCommand).isAllowed(Mockito.any(), Mockito.anyBoolean());
         Mockito.when(movableTargetCommand.performAction(Mockito.any()))

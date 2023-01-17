@@ -62,7 +62,7 @@ public class Flag extends AbstractMovable implements IHorizontalAxisAligned, IPe
     }
 
     @Override
-    public MovableType getMovableType()
+    public MovableType getType()
     {
         return MOVABLE_TYPE;
     }
@@ -94,7 +94,7 @@ public class Flag extends AbstractMovable implements IHorizontalAxisAligned, IPe
         throws Exception
     {
         return new FlagMover(
-            context, this, movableSnapshot, time, config.getAnimationSpeedMultiplier(getMovableType()), responsible,
+            context, this, movableSnapshot, time, config.getAnimationSpeedMultiplier(getType()), responsible,
             cause,
             actionType);
     }

@@ -154,7 +154,7 @@ class MovableSerializerTest
         }
 
         @Override
-        public MovableType getMovableType()
+        public MovableType getType()
         {
             return MOVABLE_TYPE;
         }

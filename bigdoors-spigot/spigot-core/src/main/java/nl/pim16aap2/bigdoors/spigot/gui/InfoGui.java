@@ -103,7 +103,7 @@ class InfoGui
             'h',
             new ItemStack(Material.BOOK),
             localizer.getMessage("gui.info_page.header",
-                                 localizer.getMessage(movable.getMovableType().getLocalizationKey()), movable.getName())
+                                 localizer.getMessage(movable.getType().getLocalizationKey()), movable.getName())
         ));
     }
 

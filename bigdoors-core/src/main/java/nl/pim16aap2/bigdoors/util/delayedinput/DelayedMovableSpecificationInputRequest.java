@@ -111,7 +111,7 @@ public final class DelayedMovableSpecificationInputRequest extends DelayedInputR
                 text.append("\n")
                     .append(Long.toString(movable.getUid()), TextType.HIGHLIGHT)
                     .append(": ", TextType.INFO)
-                    .append(movable.getMovableType().getSimpleName(), TextType.HIGHLIGHT)
+                    .append(movable.getType().getSimpleName(), TextType.HIGHLIGHT)
                     .append(", Creator: ", TextType.INFO)
                     .append(movable.getPrimeOwner().pPlayerData().getName(), TextType.HIGHLIGHT)
                     .append(", World: ", TextType.INFO)

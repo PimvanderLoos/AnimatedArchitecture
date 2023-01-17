@@ -91,7 +91,7 @@ public class Drawbridge extends AbstractMovable implements IHorizontalAxisAligne
     }
 
     @Override
-    public MovableType getMovableType()
+    public MovableType getType()
     {
         return MOVABLE_TYPE;
     }
@@ -139,7 +139,7 @@ public class Drawbridge extends AbstractMovable implements IHorizontalAxisAligne
     {
         return new BridgeMover<>(
             context, this, movableSnapshot, time, getCurrentToggleDir(), skipAnimation,
-            config.getAnimationSpeedMultiplier(getMovableType()), responsible, newCuboid, cause, actionType);
+            config.getAnimationSpeedMultiplier(getType()), responsible, newCuboid, cause, actionType);
     }
 
     @Override

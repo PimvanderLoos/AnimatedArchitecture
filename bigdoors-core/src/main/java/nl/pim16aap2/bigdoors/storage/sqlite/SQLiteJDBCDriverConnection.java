@@ -436,9 +436,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     @Override
     public Optional<AbstractMovable> insert(AbstractMovable movable)
     {
-        final MovableSerializer<?> serializer = movable.getMovableType().getMovableSerializer();
+        final MovableSerializer<?> serializer = movable.getType().getMovableSerializer();
 
-        final String typeName = movable.getMovableType().getFullName();
+        final String typeName = movable.getType().getFullName();
         try
         {
             final byte[] typeData = serializer.serialize(movable);

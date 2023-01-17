@@ -58,7 +58,7 @@ class AddOwnerTest
 
         final MovableType doorType = Mockito.mock(MovableType.class);
         Mockito.when(doorType.getLocalizationKey()).thenReturn("DoorType");
-        Mockito.when(door.getMovableType()).thenReturn(doorType);
+        Mockito.when(door.getType()).thenReturn(doorType);
 
         localizer = UnitTestUtil.initLocalizer();
 

@@ -36,7 +36,7 @@ class CreatorFullTest extends CreatorTestsUtil
                .thenReturn(EnumSet.of(RotateDirection.NORTH, RotateDirection.SOUTH));
 
         final var movable = Mockito.mock(AbstractMovable.class);
-        Mockito.when(movable.getMovableType()).thenReturn(movableType);
+        Mockito.when(movable.getType()).thenReturn(movableType);
 
         final var creator = new CreatorTestImpl(context, player, movable);
 
@@ -66,7 +66,7 @@ class CreatorFullTest extends CreatorTestsUtil
                .thenReturn(EnumSet.of(RotateDirection.NORTH, RotateDirection.SOUTH));
 
         final var movable = Mockito.mock(AbstractMovable.class);
-        Mockito.when(movable.getMovableType()).thenReturn(movableType);
+        Mockito.when(movable.getType()).thenReturn(movableType);
 
         final var creator = new CreatorTestImpl(context, player, movable);
 

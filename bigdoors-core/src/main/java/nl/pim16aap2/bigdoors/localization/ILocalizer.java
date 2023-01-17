@@ -58,7 +58,7 @@ public interface ILocalizer
      */
     default String getMovableType(AbstractMovable movable)
     {
-        return getMovableType(movable.getMovableType());
+        return getMovableType(movable.getType());
     }
 
     /**

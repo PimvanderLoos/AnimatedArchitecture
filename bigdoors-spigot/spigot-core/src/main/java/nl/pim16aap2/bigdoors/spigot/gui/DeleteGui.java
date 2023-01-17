@@ -65,7 +65,7 @@ class DeleteGui
             new InventoryGui(bigDoorsPlugin,
                              inventoryHolder.getBukkitPlayer(),
                              localizer.getMessage("gui.delete_page.title",
-                                                  localizer.getMessage(movable.getMovableType().getLocalizationKey()),
+                                                  localizer.getMessage(movable.getType().getLocalizationKey()),
                                                   movable.getName()),
                              guiSetup);
         gui.setFiller(FILLER);
@@ -86,7 +86,7 @@ class DeleteGui
                 return true;
             },
             localizer.getMessage("gui.delete_page.cancel",
-                                 localizer.getMessage(movable.getMovableType().getLocalizationKey()))
+                                 localizer.getMessage(movable.getType().getLocalizationKey()))
         ));
         gui.addElement(new StaticGuiElement(
             'd',
@@ -100,7 +100,7 @@ class DeleteGui
                 return true;
             },
             localizer.getMessage("gui.delete_page.confirm",
-                                 localizer.getMessage(movable.getMovableType().getLocalizationKey()))
+                                 localizer.getMessage(movable.getType().getLocalizationKey()))
         ));
     }
 

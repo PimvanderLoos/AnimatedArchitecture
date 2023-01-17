@@ -52,7 +52,7 @@ class RemoveOwnerTest
 
         final MovableType doorType = Mockito.mock(MovableType.class);
         Mockito.when(doorType.getLocalizationKey()).thenReturn("DoorType");
-        Mockito.when(door.getMovableType()).thenReturn(doorType);
+        Mockito.when(door.getType()).thenReturn(doorType);
 
         Mockito.when(door.isOwner(Mockito.any(UUID.class))).thenReturn(true);
         Mockito.when(door.isOwner(Mockito.any(IPPlayer.class))).thenReturn(true);

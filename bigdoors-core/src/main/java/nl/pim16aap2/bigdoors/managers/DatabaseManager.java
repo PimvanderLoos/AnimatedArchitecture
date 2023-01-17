@@ -516,7 +516,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
                     if (!result)
                         return ActionResult.FAIL;
 
-                    ((FriendMovableAccessor) movable.getMovableBase())
+                    ((FriendMovableAccessor) movable.getBase())
                         .addOwner(player.getUUID(), new MovableOwner(movable.getUid(), permission, playerData));
 
                     return ActionResult.SUCCESS;
@@ -632,7 +632,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
                     if (!result)
                         return ActionResult.FAIL;
 
-                    ((FriendMovableAccessor) movable.getMovableBase()).removeOwner(playerUUID);
+                    ((FriendMovableAccessor) movable.getBase()).removeOwner(playerUUID);
                     return ActionResult.SUCCESS;
                 }, threadPool).exceptionally(ex -> Util.exceptionally(ex, ActionResult.FAIL));
     }

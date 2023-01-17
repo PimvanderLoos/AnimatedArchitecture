@@ -328,8 +328,8 @@ public abstract class BlockMover
             throw new IllegalStateException("Trying to start an animation again!");
 
         final Animation<IAnimatedBlock> animation = new Animation<>(
-            animationDuration, oldCuboid, animatedBlocks, snapshot, movable.getMovableType());
-        final AnimationContext animationContext = new AnimationContext(movable.getMovableType(), snapshot,
+            animationDuration, oldCuboid, animatedBlocks, snapshot, movable.getType());
+        final AnimationContext animationContext = new AnimationContext(movable.getType(), snapshot,
                                                                        animation);
         final List<IAnimatedBlock> newAnimatedBlocks = new ArrayList<>(snapshot.getBlockCount());
 

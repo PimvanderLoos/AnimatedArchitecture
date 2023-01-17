@@ -74,7 +74,7 @@ public class BigDoor extends AbstractMovable implements ITimerToggleable
     }
 
     @Override
-    public MovableType getMovableType()
+    public MovableType getType()
     {
         return MOVABLE_TYPE;
     }

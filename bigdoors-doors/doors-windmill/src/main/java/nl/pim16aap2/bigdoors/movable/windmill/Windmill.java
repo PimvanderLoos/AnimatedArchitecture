@@ -68,7 +68,7 @@ public class Windmill extends AbstractMovable implements IHorizontalAxisAligned,
     }
 
     @Override
-    public MovableType getMovableType()
+    public MovableType getType()
     {
         return MOVABLE_TYPE;
     }
@@ -115,7 +115,7 @@ public class Windmill extends AbstractMovable implements IHorizontalAxisAligned,
         throws Exception
     {
         return new WindmillMover<>(
-            context, this, movableSnapshot, time, config.getAnimationSpeedMultiplier(getMovableType()),
+            context, this, movableSnapshot, time, config.getAnimationSpeedMultiplier(getType()),
             getCurrentToggleDir(),
             responsible, cause, actionType);
     }

@@ -51,7 +51,7 @@ class PowerBlockRelocatorTest
         Mockito.when(movable.getPowerBlock()).thenReturn(currentPowerBlockLoc);
 
         final MovableType movableTypeType = Mockito.mock(MovableType.class);
-        Mockito.when(movable.getMovableType()).thenReturn(movableTypeType);
+        Mockito.when(movable.getType()).thenReturn(movableTypeType);
         Mockito.when(movableTypeType.getLocalizationKey()).thenReturn("MovableType");
 
         compatManager = Mockito.mock(IProtectionCompatManager.class);

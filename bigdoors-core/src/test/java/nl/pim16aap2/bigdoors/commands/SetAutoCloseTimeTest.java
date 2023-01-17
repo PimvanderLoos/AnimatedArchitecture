@@ -50,7 +50,7 @@ class SetAutoCloseTimeTest
         Mockito.when(movable.isOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
 
         Mockito.when(movableType.getLocalizationKey()).thenReturn("MovableType");
-        Mockito.when(movable.getMovableType()).thenReturn(movableType);
+        Mockito.when(movable.getType()).thenReturn(movableType);
 
         initCommandSenderPermissions(commandSender, true, true);
         movableRetriever = MovableRetrieverFactory.ofMovable(movable);
@@ -74,7 +74,7 @@ class SetAutoCloseTimeTest
 
         final SetAutoCloseTime command = factory.newSetAutoCloseTime(commandSender, movableRetriever, autoCloseValue);
         final AbstractMovable altMovable = Mockito.mock(AbstractMovable.class);
-        Mockito.when(altMovable.getMovableType()).thenReturn(movableType);
+        Mockito.when(altMovable.getType()).thenReturn(movableType);
 
         Assertions.assertTrue(command.performAction(altMovable).get(1, TimeUnit.SECONDS));
         Mockito.verify(altMovable, Mockito.never()).syncData();

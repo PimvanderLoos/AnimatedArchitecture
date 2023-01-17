@@ -48,7 +48,7 @@ class InfoTest
 
         final MovableType movableType = Mockito.mock(MovableType.class);
         Mockito.when(movableType.getLocalizationKey()).thenReturn("MovableType");
-        Mockito.when(movable.getMovableType()).thenReturn(movableType);
+        Mockito.when(movable.getType()).thenReturn(movableType);
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 

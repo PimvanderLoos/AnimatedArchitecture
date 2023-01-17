@@ -469,7 +469,7 @@ public class SQLiteJDBCDriverConnectionTest
     public void modifyMovables()
     {
         MovableSerializer<?> serializer =
-            Assertions.assertDoesNotThrow(() -> new MovableSerializer<>(movable3.getMovableType().getMovableClass()));
+            Assertions.assertDoesNotThrow(() -> new MovableSerializer<>(movable3.getType().getMovableClass()));
         Assertions.assertNotNull(serializer);
 
         // Test changing autoCloseTime value.  (i.e. syncing type-specific data).
@@ -479,13 +479,13 @@ public class SQLiteJDBCDriverConnectionTest
             final int testAutoCloseTime = 20;
 
             timerToggleable.setAutoCloseTime(testAutoCloseTime);
-            Assertions.assertTrue(storage.syncMovableData(movable3.getMovableBase().getSnapshot(), Assertions
+            Assertions.assertTrue(storage.syncMovableData(movable3.getBase().getSnapshot(), Assertions
                 .assertDoesNotThrow(() -> serializer.serialize(movable3))));
             UnitTestUtil.optionalEquals(testAutoCloseTime, storage.getMovable(3L),
                                         (movable) -> ((ITimerToggleable) movable).getAutoCloseTime());
 
             timerToggleable.setAutoCloseTime(movable3AutoCloseTime);
-            Assertions.assertTrue(storage.syncMovableData(movable3.getMovableBase().getSnapshot(), Assertions
+            Assertions.assertTrue(storage.syncMovableData(movable3.getBase().getSnapshot(), Assertions
                 .assertDoesNotThrow(() -> serializer.serialize(movable3))));
 
             UnitTestUtil.optionalEquals(movable3AutoCloseTime, storage.getMovable(3L),
@@ -497,12 +497,12 @@ public class SQLiteJDBCDriverConnectionTest
         // Test (un)locking (i.e. syncing base data).
         {
             movable3.setLocked(true);
-            Assertions.assertTrue(storage.syncMovableData(movable3.getMovableBase().getSnapshot(), Assertions
+            Assertions.assertTrue(storage.syncMovableData(movable3.getBase().getSnapshot(), Assertions
                 .assertDoesNotThrow(() -> serializer.serialize(movable3))));
             UnitTestUtil.optionalEquals(true, storage.getMovable(3L), AbstractMovable::isLocked);
 
             movable3.setLocked(false);
-            Assertions.assertTrue(storage.syncMovableData(movable3.getMovableBase().getSnapshot(), Assertions
+            Assertions.assertTrue(storage.syncMovableData(movable3.getBase().getSnapshot(), Assertions
                 .assertDoesNotThrow(() -> serializer.serialize(movable3))));
             UnitTestUtil.optionalEquals(false, storage.getMovable(3L), AbstractMovable::isLocked);
         }
@@ -546,7 +546,7 @@ public class SQLiteJDBCDriverConnectionTest
             Assertions.assertNotSame(0, blocksToMove);
             pc.setBlocksToMove(newBlocksToMove);
 
-            Assertions.assertTrue(storage.syncMovableData(movable3.getMovableBase().getSnapshot(), Assertions
+            Assertions.assertTrue(storage.syncMovableData(movable3.getBase().getSnapshot(), Assertions
                 .assertDoesNotThrow(() -> serializer.serialize(movable3))));
 
             Optional<AbstractMovable> retrievedOpt = storage.getMovable(3L);
@@ -575,7 +575,7 @@ public class SQLiteJDBCDriverConnectionTest
             // Reset type-specific data
             pc.setBlocksToMove(blocksToMove);
 
-            Assertions.assertTrue(storage.syncMovableData(movable3.getMovableBase().getSnapshot(), Assertions
+            Assertions.assertTrue(storage.syncMovableData(movable3.getBase().getSnapshot(), Assertions
                 .assertDoesNotThrow(() -> serializer.serialize(movable3))));
         }
     }

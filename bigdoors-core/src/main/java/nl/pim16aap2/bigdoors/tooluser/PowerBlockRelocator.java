@@ -50,7 +50,7 @@ public class PowerBlockRelocator extends ToolUser
         {
             getPlayer().sendError(textFactory,
                                   localizer.getMessage("tool_user.powerblock_relocator.error.world_mismatch",
-                                                       localizer.getMovableType(movable.getMovableType())));
+                                                       localizer.getMovableType(movable.getType())));
             return false;
         }
 

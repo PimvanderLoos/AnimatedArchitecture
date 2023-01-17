@@ -92,7 +92,7 @@ public class GarageDoor extends AbstractMovable implements IHorizontalAxisAligne
     }
 
     @Override
-    public MovableType getMovableType()
+    public MovableType getType()
     {
         return MOVABLE_TYPE;
     }
@@ -161,7 +161,7 @@ public class GarageDoor extends AbstractMovable implements IHorizontalAxisAligne
         {
             log.at(Level.SEVERE).withStackTrace(StackSize.FULL)
                .log("RotateDirection '%s' is not a valid direction for a movable of type '%s'",
-                    rotateDirection.name(), getMovableType());
+                    rotateDirection.name(), getType());
             return Optional.empty();
         }
 
@@ -228,7 +228,7 @@ public class GarageDoor extends AbstractMovable implements IHorizontalAxisAligne
         throws Exception
     {
         return new GarageDoorMover(
-            context, this, movableSnapshot, time, config.getAnimationSpeedMultiplier(getMovableType()), skipAnimation,
+            context, this, movableSnapshot, time, config.getAnimationSpeedMultiplier(getType()), skipAnimation,
             getCurrentToggleDir(), responsible, newCuboid, cause, actionType);
     }
 }

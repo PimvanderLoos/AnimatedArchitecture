@@ -52,7 +52,7 @@ public class MovableSerializer<T extends AbstractMovable>
     private static final @Nullable Unsafe UNSAFE = UnsafeGetter.getUnsafe();
 
     private final @Nullable FastFieldSetter<AbstractMovable, MovableBase> fieldCopierMovableBase =
-        getFieldCopierInAbstractMovable(UNSAFE, MovableBase.class, "movableBase");
+        getFieldCopierInAbstractMovable(UNSAFE, MovableBase.class, "base");
     private final @Nullable FastFieldSetter<AbstractMovable, ReentrantReadWriteLock> fieldCopierLock =
         getFieldCopierInAbstractMovable(UNSAFE, ReentrantReadWriteLock.class, "lock");
 

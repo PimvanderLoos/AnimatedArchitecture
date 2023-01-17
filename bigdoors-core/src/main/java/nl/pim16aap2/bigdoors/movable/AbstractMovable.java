@@ -52,40 +52,40 @@ public abstract class AbstractMovable implements IMovable
     private final AutoCloseScheduler autoCloseScheduler;
 
     @Getter
-    protected final MovableBase movableBase;
+    protected final MovableBase base;
     protected final ILocalizer localizer;
     protected final IConfigLoader config;
     protected final MovableOpeningHelper movableOpeningHelper;
 
     protected AbstractMovable(
-        MovableBase movableBase, ILocalizer localizer, MovableRegistry movableRegistry,
+        MovableBase base, ILocalizer localizer, MovableRegistry movableRegistry,
         AutoCloseScheduler autoCloseScheduler, MovableOpeningHelper movableOpeningHelper)
     {
-        serializer = getMovableType().getMovableSerializer();
-        this.lock = movableBase.getLock();
-        this.movableBase = movableBase;
+        serializer = getType().getMovableSerializer();
+        this.lock = base.getLock();
+        this.base = base;
         this.localizer = localizer;
         this.movableRegistry = movableRegistry;
-        this.config = movableBase.getConfig();
+        this.config = base.getConfig();
         this.autoCloseScheduler = autoCloseScheduler;
         this.movableOpeningHelper = movableOpeningHelper;
 
-        log.at(Level.FINEST).log("Instantiating movable: %d", movableBase.getUid());
-        if (movableBase.getUid() > 0 && !movableRegistry.registerMovable(new Registrable()))
-            throw new IllegalStateException("Tried to create new movable \"" + movableBase.getUid() +
+        log.at(Level.FINEST).log("Instantiating movable: %d", base.getUid());
+        if (base.getUid() > 0 && !movableRegistry.registerMovable(new Registrable()))
+            throw new IllegalStateException("Tried to create new movable \"" + base.getUid() +
                                                 "\" while it is already registered!");
     }
 
-    protected AbstractMovable(MovableBase movableBase)
+    protected AbstractMovable(MovableBase base)
     {
-        this(movableBase, movableBase.getLocalizer(), movableBase.getMovableRegistry(),
-             movableBase.getAutoCloseScheduler(), movableBase.getMovableOpeningHelper());
+        this(base, base.getLocalizer(), base.getMovableRegistry(),
+             base.getAutoCloseScheduler(), base.getMovableOpeningHelper());
     }
 
     /**
      * @return The {@link MovableType} of this movable.
      */
-    public abstract MovableType getMovableType();
+    public abstract MovableType getType();
 
     /**
      * Gets the animation time of this movable.
@@ -128,7 +128,7 @@ public abstract class AbstractMovable implements IMovable
     {
         final double realTarget = target != null ?
                                   target :
-                                  config.getAnimationSpeedMultiplier(getMovableType()) * getBaseAnimationTime();
+                                  config.getAnimationSpeedMultiplier(getType()) * getBaseAnimationTime();
         return calculateAnimationTime(realTarget);
     }
 
@@ -230,7 +230,7 @@ public abstract class AbstractMovable implements IMovable
     @SuppressWarnings("unused")
     public RotateDirection cycleOpenDirection()
     {
-        final Set<RotateDirection> validOpenDirections = getMovableType().getValidOpenDirections();
+        final Set<RotateDirection> validOpenDirections = getType().getValidOpenDirections();
         final RotateDirection currentDir = getOpenDir();
 
         @Nullable RotateDirection first = null;
@@ -253,7 +253,7 @@ public abstract class AbstractMovable implements IMovable
         log.at(Level.FINE)
            .log(
                "Failed to cycle open direction for movable of type '%s' with open dir '%s' given valid directions '%s'",
-               getMovableType(), currentDir, validOpenDirections);
+               getType(), currentDir, validOpenDirections);
         return RotateDirection.NONE;
     }
 
@@ -323,13 +323,13 @@ public abstract class AbstractMovable implements IMovable
     @SuppressWarnings("unused")
     public final void onRedstoneChange(int newCurrent)
     {
-        movableBase.onRedstoneChange(this, newCurrent);
+        base.onRedstoneChange(this, newCurrent);
     }
 
     @Override
     public MovableSnapshot getSnapshot()
     {
-        return movableBase.getSnapshot();
+        return base.getSnapshot();
     }
 
     /**
@@ -342,7 +342,7 @@ public abstract class AbstractMovable implements IMovable
     {
         try
         {
-            return movableBase.syncData(serializer.serialize(this)).exceptionally(Util::exceptionally);
+            return base.syncData(serializer.serialize(this)).exceptionally(Util::exceptionally);
         }
         catch (Exception e)
         {
@@ -452,16 +452,16 @@ public abstract class AbstractMovable implements IMovable
     @Locked.Read
     public String getBasicInfo()
     {
-        return getUid() + " (" + getPrimeOwner() + ") - " + getMovableType().getSimpleName() + ": " + getName();
+        return getUid() + " (" + getPrimeOwner() + ") - " + getType().getSimpleName() + ": " + getName();
     }
 
     @Override
     @Locked.Read
     public String toString()
     {
-        String ret = movableBase + "\n"
+        String ret = base + "\n"
             + "Type-specific data:\n"
-            + "type: " + getMovableType() + "\n";
+            + "type: " + getType() + "\n";
 
         ret += serializer.toString(this);
 
@@ -479,151 +479,156 @@ public abstract class AbstractMovable implements IMovable
     @Override
     public Cuboid getCuboid()
     {
-        return movableBase.getCuboid();
+        return base.getCuboid();
     }
 
     @Override
     public boolean isOpenable()
     {
-        return movableBase.isOpenable();
+        return base.isOpenable();
     }
 
     @Override
     public boolean isCloseable()
     {
-        return movableBase.isCloseable();
+        return base.isCloseable();
     }
 
     @Override
     public Collection<MovableOwner> getOwners()
     {
-        return movableBase.getOwners();
+        return base.getOwners();
     }
 
     @Override
     public Optional<MovableOwner> getOwner(UUID uuid)
     {
-        return movableBase.getOwner(uuid);
+        return base.getOwner(uuid);
     }
 
     @Override
     public boolean isOwner(UUID player)
     {
-        return movableBase.isOwner(player);
+        return base.isOwner(player);
     }
 
     @Override
     public void setCoordinates(Cuboid newCuboid)
     {
         assertWriteLockable();
-        movableBase.setCoordinates(newCuboid);
+        base.setCoordinates(newCuboid);
     }
 
     @Override
     public void setRotationPoint(Vector3Di pos)
     {
         assertWriteLockable();
-        movableBase.setRotationPoint(pos);
+        base.setRotationPoint(pos);
     }
 
     @Override
     public void setPowerBlock(Vector3Di pos)
     {
         assertWriteLockable();
-        movableBase.setPowerBlock(pos);
+        base.setPowerBlock(pos);
     }
 
     @Override
     public void setName(String name)
     {
         assertWriteLockable();
-        movableBase.setName(name);
+        base.setName(name);
     }
 
     @Override
     public void setOpen(boolean open)
     {
         assertWriteLockable();
-        movableBase.setOpen(open);
+        base.setOpen(open);
     }
 
     @Override
     public void setOpenDir(RotateDirection openDir)
     {
         assertWriteLockable();
-        movableBase.setOpenDir(openDir);
+        base.setOpenDir(openDir);
     }
 
     @Override
     public void setLocked(boolean locked)
     {
         assertWriteLockable();
-        movableBase.setLocked(locked);
+        base.setLocked(locked);
     }
 
     @Override
     public long getUid()
     {
-        return movableBase.getUid();
+        return base.getUid();
     }
 
     @Override
     public IPWorld getWorld()
     {
-        return movableBase.getWorld();
+        return base.getWorld();
     }
 
     @Override
     public Vector3Di getRotationPoint()
     {
-        return movableBase.getRotationPoint();
+        return base.getRotationPoint();
     }
 
     @Override
     public Vector3Di getPowerBlock()
     {
-        return movableBase.getPowerBlock();
+        return base.getPowerBlock();
     }
 
     @Override
     public String getName()
     {
-        return movableBase.getName();
+        return base.getName();
     }
 
     @Override
     public boolean isOpen()
     {
-        return movableBase.isOpen();
+        return base.isOpen();
     }
 
     @Override
     public RotateDirection getOpenDir()
     {
-        return movableBase.getOpenDir();
+        return base.getOpenDir();
     }
 
     @Override
     public boolean isLocked()
     {
-        return movableBase.isLocked();
+        return base.isLocked();
     }
 
     @Override
     public MovableOwner getPrimeOwner()
     {
-        return movableBase.getPrimeOwner();
+        return base.getPrimeOwner();
     }
 
-    public class Registrable
+    /**
+     * Represents the part of this movable that can be registered in registries and such.
+     * <p>
+     * This is handled via this registrable to ensure that this {@link AbstractMovable} class has private access to
+     * certain registries (e.g. {@link MovableRegistry}, as no other objects will have access to this
+     * {@link Registrable}.
+     */
+    public final class Registrable
     {
         private Registrable()
         {
         }
 
         /**
-         * Gets the {@link MovableBase} that is associated with this {@link Registrable}.
-         *
          * @return The {@link MovableBase} that is associated with this {@link Registrable}.
          */
         public AbstractMovable getAbstractMovableBase()

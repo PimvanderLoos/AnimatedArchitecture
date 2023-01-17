@@ -106,12 +106,12 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor imp
 
     @EqualsAndHashCode.Exclude
     @GuardedBy("lock")
-    private final Map<UUID, MovableOwner> movableOwners;
+    private final Map<UUID, MovableOwner> owners;
 
     @EqualsAndHashCode.Exclude
     @GuardedBy("lock")
     @Getter(onMethod_ = @Locked.Read, value = AccessLevel.PACKAGE)
-    private final Map<UUID, MovableOwner> movableOwnersView;
+    private final Map<UUID, MovableOwner> ownersView;
 
     @EqualsAndHashCode.Exclude
     @Getter(AccessLevel.PACKAGE)
@@ -161,7 +161,7 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor imp
         @Assisted("rotationPoint") Vector3Di rotationPoint, @Assisted("powerBlock") Vector3Di powerBlock,
         @Assisted IPWorld world, @Assisted("isOpen") boolean isOpen, @Assisted("isLocked") boolean isLocked,
         @Assisted RotateDirection openDir, @Assisted MovableOwner primeOwner,
-        @Assisted @Nullable Map<UUID, MovableOwner> movableOwners, ILocalizer localizer,
+        @Assisted @Nullable Map<UUID, MovableOwner> owners, ILocalizer localizer,
         DatabaseManager databaseManager, MovableRegistry movableRegistry, MovableActivityManager movableActivityManager,
         LimitsManager limitsManager, AutoCloseScheduler autoCloseScheduler, MovableOpeningHelper movableOpeningHelper,
         MovableToggleRequestBuilder movableToggleRequestBuilder, IPPlayerFactory playerFactory,
@@ -179,14 +179,14 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor imp
         this.openDir = openDir;
         this.primeOwner = primeOwner;
 
-        final int initSize = movableOwners == null ? 1 : movableOwners.size();
+        final int initSize = owners == null ? 1 : owners.size();
         final Map<UUID, MovableOwner> movableOwnersTmp = new HashMap<>(initSize);
-        if (movableOwners == null)
+        if (owners == null)
             movableOwnersTmp.put(primeOwner.pPlayerData().getUUID(), primeOwner);
         else
-            movableOwnersTmp.putAll(movableOwners);
-        this.movableOwners = movableOwnersTmp;
-        this.movableOwnersView = Collections.unmodifiableMap(this.movableOwners);
+            movableOwnersTmp.putAll(owners);
+        this.owners = movableOwnersTmp;
+        this.ownersView = Collections.unmodifiableMap(this.owners);
 
         this.config = config;
         this.localizer = localizer;
@@ -236,7 +236,7 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor imp
                     movableOwner.pPlayerData(), this.getUid());
             return;
         }
-        movableOwners.put(uuid, movableOwner);
+        owners.put(uuid, movableOwner);
     }
 
     /**
@@ -287,15 +287,15 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor imp
                .log();
             return false;
         }
-        return movableOwners.remove(uuid) != null;
+        return owners.remove(uuid) != null;
     }
 
     @Override
     @Locked.Read
     public Collection<MovableOwner> getOwners()
     {
-        final List<MovableOwner> ret = new ArrayList<>(movableOwners.size());
-        ret.addAll(movableOwners.values());
+        final List<MovableOwner> ret = new ArrayList<>(owners.size());
+        ret.addAll(owners.values());
         return ret;
     }
 
@@ -303,14 +303,14 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor imp
     @Locked.Read
     public Optional<MovableOwner> getOwner(UUID uuid)
     {
-        return Optional.ofNullable(movableOwners.get(uuid));
+        return Optional.ofNullable(owners.get(uuid));
     }
 
     @Override
     @Locked.Read
     public boolean isOwner(UUID uuid)
     {
-        return movableOwners.containsKey(uuid);
+        return owners.containsKey(uuid);
     }
 
     @Override

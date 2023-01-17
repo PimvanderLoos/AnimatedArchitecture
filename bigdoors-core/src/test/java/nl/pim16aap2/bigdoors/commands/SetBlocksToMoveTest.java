@@ -46,7 +46,7 @@ class SetBlocksToMoveTest
         Mockito.when(movable.syncData()).thenReturn(CompletableFuture.completedFuture(true));
 
         Mockito.when(movableType.getLocalizationKey()).thenReturn("MovableType");
-        Mockito.when(movable.getMovableType()).thenReturn(movableType);
+        Mockito.when(movable.getType()).thenReturn(movableType);
 
         initCommandSenderPermissions(commandSender, true, true);
         movableRetriever = MovableRetrieverFactory.ofMovable(movable);
@@ -70,7 +70,7 @@ class SetBlocksToMoveTest
 
         final SetBlocksToMove command = factory.newSetBlocksToMove(commandSender, movableRetriever, blocksToMove);
         final AbstractMovable altMovable = Mockito.mock(AbstractMovable.class);
-        Mockito.when(altMovable.getMovableType()).thenReturn(movableType);
+        Mockito.when(altMovable.getType()).thenReturn(movableType);
 
         Assertions.assertTrue(command.performAction(altMovable).get(1, TimeUnit.SECONDS));
         Mockito.verify(altMovable, Mockito.never()).syncData();

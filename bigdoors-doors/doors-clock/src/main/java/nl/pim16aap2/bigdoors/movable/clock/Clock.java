@@ -73,7 +73,7 @@ public class Clock extends AbstractMovable implements IHorizontalAxisAligned
     }
 
     @Override
-    public MovableType getMovableType()
+    public MovableType getType()
     {
         return MOVABLE_TYPE;
     }

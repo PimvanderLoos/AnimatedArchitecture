@@ -62,14 +62,14 @@ class AttributeButtonFactory
                 "isLocked",
                 new ItemStack(Material.RED_STAINED_GLASS_PANE),
                 localizer.getMessage("gui.info_page.attribute.unlock",
-                                     localizer.getMessage(movable.getMovableType().getLocalizationKey()))
+                                     localizer.getMessage(movable.getType().getLocalizationKey()))
             ),
             new GuiStateElement.State(
                 change -> lockButtonExecute(false, change, movable, player),
                 "isUnlocked",
                 new ItemStack(Material.GREEN_STAINED_GLASS_PANE),
                 localizer.getMessage("gui.info_page.attribute.lock",
-                                     localizer.getMessage(movable.getMovableType().getLocalizationKey()))
+                                     localizer.getMessage(movable.getType().getLocalizationKey()))
             )
         );
         element.setState(movable.isLocked() ? "isLocked" : "isUnlocked");
@@ -83,12 +83,12 @@ class AttributeButtonFactory
             new ItemStack(Material.LEVER),
             click ->
             {
-                commandFactory.newToggle(player, config.getAnimationSpeedMultiplier(movable.getMovableType()),
+                commandFactory.newToggle(player, config.getAnimationSpeedMultiplier(movable.getType()),
                                          movableRetrieverFactory.of(movable)).run();
                 return true;
             },
             localizer.getMessage("gui.info_page.attribute.toggle",
-                                 localizer.getMessage(movable.getMovableType().getLocalizationKey()))
+                                 localizer.getMessage(movable.getType().getLocalizationKey()))
         );
     }
 
@@ -103,7 +103,7 @@ class AttributeButtonFactory
                 throw new UnsupportedOperationException("Switch hasn't been implemented yet!");
             },
             localizer.getMessage("gui.info_page.attribute.switch",
-                                 localizer.getMessage(movable.getMovableType().getLocalizationKey()))
+                                 localizer.getMessage(movable.getType().getLocalizationKey()))
         );
     }
 
@@ -118,7 +118,7 @@ class AttributeButtonFactory
                 return true;
             },
             localizer.getMessage("gui.info_page.attribute.info",
-                                 localizer.getMessage(movable.getMovableType().getLocalizationKey()))
+                                 localizer.getMessage(movable.getType().getLocalizationKey()))
         );
     }
 
@@ -134,7 +134,7 @@ class AttributeButtonFactory
                 return true;
             },
             localizer.getMessage("gui.info_page.attribute.delete",
-                                 localizer.getMessage(movable.getMovableType().getLocalizationKey()))
+                                 localizer.getMessage(movable.getType().getLocalizationKey()))
         );
     }
 
@@ -151,7 +151,7 @@ class AttributeButtonFactory
                 return true;
             },
             localizer.getMessage("gui.info_page.attribute.relocate_power_block",
-                                 localizer.getMessage(movable.getMovableType().getLocalizationKey()))
+                                 localizer.getMessage(movable.getType().getLocalizationKey()))
         );
     }
 
@@ -168,7 +168,7 @@ class AttributeButtonFactory
                 return true;
             },
             localizer.getMessage("gui.info_page.attribute.auto_close_timer",
-                                 localizer.getMessage(movable.getMovableType().getLocalizationKey()))
+                                 localizer.getMessage(movable.getType().getLocalizationKey()))
         );
     }
 
@@ -185,7 +185,7 @@ class AttributeButtonFactory
                 return true;
             },
             localizer.getMessage("gui.info_page.attribute.open_direction",
-                                 localizer.getMessage(movable.getMovableType().getLocalizationKey()))
+                                 localizer.getMessage(movable.getType().getLocalizationKey()))
         );
     }
 
@@ -202,7 +202,7 @@ class AttributeButtonFactory
                 return true;
             },
             localizer.getMessage("gui.info_page.attribute.blocks_to_move",
-                                 localizer.getMessage(movable.getMovableType().getLocalizationKey()))
+                                 localizer.getMessage(movable.getType().getLocalizationKey()))
         );
     }
 
@@ -219,7 +219,7 @@ class AttributeButtonFactory
                 return true;
             },
             localizer.getMessage("gui.info_page.attribute.add_owner",
-                                 localizer.getMessage(movable.getMovableType().getLocalizationKey()))
+                                 localizer.getMessage(movable.getType().getLocalizationKey()))
         );
     }
 
@@ -236,7 +236,7 @@ class AttributeButtonFactory
                 return true;
             },
             localizer.getMessage("gui.info_page.attribute.remove_owner",
-                                 localizer.getMessage(movable.getMovableType().getLocalizationKey()))
+                                 localizer.getMessage(movable.getType().getLocalizationKey()))
         );
     }
 

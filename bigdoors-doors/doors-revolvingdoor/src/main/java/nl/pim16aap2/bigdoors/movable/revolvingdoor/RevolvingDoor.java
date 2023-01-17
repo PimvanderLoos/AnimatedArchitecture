@@ -70,7 +70,7 @@ public class RevolvingDoor extends AbstractMovable
     }
 
     @Override
-    public MovableType getMovableType()
+    public MovableType getType()
     {
         return MOVABLE_TYPE;
     }
@@ -107,7 +107,7 @@ public class RevolvingDoor extends AbstractMovable
         throws Exception
     {
         return new RevolvingDoorMover(
-            context, this, movableSnapshot, time, config.getAnimationSpeedMultiplier(getMovableType()),
+            context, this, movableSnapshot, time, config.getAnimationSpeedMultiplier(getType()),
             getCurrentToggleDir(),
             responsible, quarterCircles, cause, newCuboid, actionType);
     }

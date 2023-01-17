@@ -127,7 +127,7 @@ public final class MovableOpeningHelper
                 messageReceiver.sendError(
                     textFactory,
                     localizer.getMessage(result.getLocalizationKey(),
-                                         localizer.getMovableType(movable.getMovableType()),
+                                         localizer.getMovableType(movable.getType()),
                                          movable.getName()));
             else
             {
@@ -185,7 +185,7 @@ public final class MovableOpeningHelper
         boolean skipAnimation,
         Cuboid newCuboid, IPPlayer responsible, MovableActionType actionType)
     {
-        return abstractDoor.movableBase.registerBlockMover(
+        return abstractDoor.base.registerBlockMover(
             abstractDoor, snapshot, cause, time, skipAnimation, newCuboid, responsible, actionType);
     }
 
@@ -207,7 +207,7 @@ public final class MovableOpeningHelper
         if (skipAnimation && !canSkipAnimation)
             return abort(targetDoor, MovableToggleResult.ERROR, cause, responsible, messageReceiver);
 
-        final MovableToggleResult isOpenable = canBeToggled(snapshot, targetDoor.getMovableType(), newCuboid,
+        final MovableToggleResult isOpenable = canBeToggled(snapshot, targetDoor.getType(), newCuboid,
                                                             actionType);
         if (isOpenable != MovableToggleResult.SUCCESS)
             return abort(targetDoor, isOpenable, cause, responsible, messageReceiver);
@@ -250,7 +250,7 @@ public final class MovableOpeningHelper
         movable.getLock().readLock().lock();
         try
         {
-            if (movable.movableBase.exceedSizeLimit(responsible))
+            if (movable.base.exceedSizeLimit(responsible))
                 return abort(movable, MovableToggleResult.TOO_BIG, cause, responsible, messageReceiver);
 
             newCuboid = movable.getPotentialNewCoordinates();

@@ -44,7 +44,7 @@ class SetOpenDirectionTest
         MockitoAnnotations.openMocks(this);
 
         Mockito.when(movable.syncData()).thenReturn(CompletableFuture.completedFuture(true));
-        Mockito.when(movable.getMovableType()).thenReturn(movableType);
+        Mockito.when(movable.getType()).thenReturn(movableType);
 
         initCommandSenderPermissions(commandSender, true, true);
         movableRetriever = MovableRetrieverFactory.ofMovable(movable);

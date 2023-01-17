@@ -46,7 +46,7 @@ public class SetOpenDirection extends MovableTargetCommand
     @Override
     protected CompletableFuture<Boolean> performAction(AbstractMovable movable)
     {
-        if (!movable.getMovableType().isValidOpenDirection(rotateDirection))
+        if (!movable.getType().isValidOpenDirection(rotateDirection))
         {
             getCommandSender().sendMessage(
                 textFactory, TextType.ERROR,
