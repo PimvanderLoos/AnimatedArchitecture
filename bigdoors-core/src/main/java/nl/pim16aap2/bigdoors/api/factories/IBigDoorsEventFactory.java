@@ -1,21 +1,21 @@
 package nl.pim16aap2.bigdoors.api.factories;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.doors.DoorOwner;
-import nl.pim16aap2.bigdoors.doors.DoorSnapshot;
 import nl.pim16aap2.bigdoors.events.IBigDoorsEvent;
-import nl.pim16aap2.bigdoors.events.IDoorCreatedEvent;
-import nl.pim16aap2.bigdoors.events.IDoorPrepareAddOwnerEvent;
-import nl.pim16aap2.bigdoors.events.IDoorPrepareCreateEvent;
-import nl.pim16aap2.bigdoors.events.IDoorPrepareDeleteEvent;
-import nl.pim16aap2.bigdoors.events.IDoorPrepareLockChangeEvent;
-import nl.pim16aap2.bigdoors.events.IDoorPrepareRemoveOwnerEvent;
-import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
-import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
-import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleEnd;
-import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
-import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleStart;
+import nl.pim16aap2.bigdoors.events.IMovableCreatedEvent;
+import nl.pim16aap2.bigdoors.events.IMovablePrepareAddOwnerEvent;
+import nl.pim16aap2.bigdoors.events.IMovablePrepareCreateEvent;
+import nl.pim16aap2.bigdoors.events.IMovablePrepareDeleteEvent;
+import nl.pim16aap2.bigdoors.events.IMovablePrepareLockChangeEvent;
+import nl.pim16aap2.bigdoors.events.IMovablePrepareRemoveOwnerEvent;
+import nl.pim16aap2.bigdoors.events.movableaction.IMovableEventToggleEnd;
+import nl.pim16aap2.bigdoors.events.movableaction.IMovableEventTogglePrepare;
+import nl.pim16aap2.bigdoors.events.movableaction.IMovableEventToggleStart;
+import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
+import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
+import nl.pim16aap2.bigdoors.movable.AbstractMovable;
+import nl.pim16aap2.bigdoors.movable.MovableOwner;
+import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,237 +27,240 @@ import org.jetbrains.annotations.Nullable;
 public interface IBigDoorsEventFactory
 {
     /**
-     * Constructs a new {@link IDoorCreatedEvent}.
+     * Constructs a new {@link IMovableCreatedEvent}.
      *
      * @param preview
-     *     The preview of the door that is to be created.
+     *     The preview of the movable that is to be created.
      * @param responsible
      *     The {@link IPPlayer} responsible for the action, if a player was responsible for it.
      */
-    IDoorCreatedEvent createDoorCreatedEvent(AbstractDoor preview, @Nullable IPPlayer responsible);
+    IMovableCreatedEvent createMovableCreatedEvent(AbstractMovable preview, @Nullable IPPlayer responsible);
 
     /**
-     * Constructs a new {@link IDoorCreatedEvent} and assumes it was not created by an {@link IPPlayer}.
+     * Constructs a new {@link IMovableCreatedEvent} and assumes it was not created by an {@link IPPlayer}.
      * <p>
-     * When the door is created by an {@link IPPlayer}, consider using
-     * {@link #createDoorCreatedEvent(AbstractDoor, IPPlayer)} instead.
+     * When the movable is created by an {@link IPPlayer}, consider using
+     * {@link #createMovableCreatedEvent(AbstractMovable, IPPlayer)} instead.
      *
      * @param preview
-     *     The preview of the door that is to be created.
+     *     The preview of the movable that is to be created.
      */
-    default IDoorCreatedEvent createDoorCreatedEvent(AbstractDoor preview)
+    default IMovableCreatedEvent createMovableCreatedEvent(AbstractMovable preview)
     {
-        return createDoorCreatedEvent(preview, null);
+        return createMovableCreatedEvent(preview, null);
     }
 
     /**
-     * Constructs a new {@link IDoorPrepareCreateEvent}.
+     * Constructs a new {@link IMovablePrepareCreateEvent}.
      *
-     * @param door
-     *     The door that was created.
+     * @param movable
+     *     The movable that was created.
      * @param responsible
      *     The {@link IPPlayer} responsible for the action, if a player was responsible for it.
      */
-    IDoorPrepareCreateEvent createPrepareDoorCreateEvent(AbstractDoor door, @Nullable IPPlayer responsible);
+    IMovablePrepareCreateEvent createPrepareMovableCreateEvent(AbstractMovable movable, @Nullable IPPlayer responsible);
 
     /**
-     * Constructs a new {@link IDoorPrepareCreateEvent} and assumes it was not created by an {@link IPPlayer}.
+     * Constructs a new {@link IMovablePrepareCreateEvent} and assumes it was not created by an {@link IPPlayer}.
      * <p>
-     * When the door is created by a player, consider using
-     * {@link #createPrepareDoorCreateEvent(AbstractDoor, IPPlayer)} instead.
+     * When the movable is created by a player, consider using
+     * {@link #createPrepareMovableCreateEvent(AbstractMovable, IPPlayer)} instead.
      *
-     * @param door
-     *     The door that was created.
+     * @param movable
+     *     The movable that was created.
      */
-    default IDoorPrepareCreateEvent createPrepareDoorCreateEvent(AbstractDoor door)
+    default IMovablePrepareCreateEvent createPrepareMovableCreateEvent(AbstractMovable movable)
     {
-        return createPrepareDoorCreateEvent(door, null);
+        return createPrepareMovableCreateEvent(movable, null);
     }
 
     /**
-     * Constructs a new {@link IDoorPrepareDeleteEvent}.
+     * Constructs a new {@link IMovablePrepareDeleteEvent}.
      *
-     * @param door
-     *     The {@link AbstractDoor} that will be deleted.
+     * @param movable
+     *     The {@link AbstractMovable} that will be deleted.
      * @param responsible
      *     The {@link IPPlayer} responsible for the action, if a player was responsible for it.
      */
-    IDoorPrepareDeleteEvent createPrepareDeleteDoorEvent(AbstractDoor door, @Nullable IPPlayer responsible);
+    IMovablePrepareDeleteEvent createPrepareDeleteMovableEvent(AbstractMovable movable, @Nullable IPPlayer responsible);
 
     /**
-     * Constructs a new {@link IDoorPrepareDeleteEvent} and assumes it was not deleted by an {@link IPPlayer}.
+     * Constructs a new {@link IMovablePrepareDeleteEvent} and assumes it was not deleted by an {@link IPPlayer}.
      * <p>
-     * When the door is deleted by a player, consider using
-     * {@link #createPrepareDeleteDoorEvent(AbstractDoor, IPPlayer)} instead.
+     * When the movable is deleted by a player, consider using
+     * {@link #createPrepareDeleteMovableEvent(AbstractMovable, IPPlayer)} instead.
      *
-     * @param door
-     *     The {@link AbstractDoor} that will be deleted.
+     * @param movable
+     *     The {@link AbstractMovable} that will be deleted.
      */
-    default IDoorPrepareDeleteEvent createPrepareDeleteDoorEvent(AbstractDoor door)
+    default IMovablePrepareDeleteEvent createPrepareDeleteMovableEvent(AbstractMovable movable)
     {
-        return createPrepareDeleteDoorEvent(door, null);
+        return createPrepareDeleteMovableEvent(movable, null);
     }
 
     /**
-     * Constructs a new {@link IDoorPrepareAddOwnerEvent}.
+     * Constructs a new {@link IMovablePrepareAddOwnerEvent}.
      *
-     * @param door
-     *     The door to which a new owner is to be added.
+     * @param movable
+     *     The movable to which a new owner is to be added.
      * @param newOwner
-     *     The new {@link DoorOwner} that is to be added to the door.
+     *     The new {@link MovableOwner} that is to be added to the movable.
      * @param responsible
      *     The {@link IPPlayer} responsible for the action, if a player was responsible for it.
      */
-    IDoorPrepareAddOwnerEvent createDoorPrepareAddOwnerEvent(
-        AbstractDoor door, DoorOwner newOwner, @Nullable IPPlayer responsible);
+    IMovablePrepareAddOwnerEvent createMovablePrepareAddOwnerEvent(
+        AbstractMovable movable, MovableOwner newOwner, @Nullable IPPlayer responsible);
 
     /**
-     * Constructs a new {@link IDoorPrepareAddOwnerEvent} and assumes it was not added by an {@link IPPlayer}.
+     * Constructs a new {@link IMovablePrepareAddOwnerEvent} and assumes it was not added by an {@link IPPlayer}.
      * <p>
      * If the owner is added by an {@link IPPlayer}, consider using
-     * {@link #createDoorPrepareAddOwnerEvent(AbstractDoor, DoorOwner, IPPlayer)} instead.
+     * {@link #createMovablePrepareAddOwnerEvent(AbstractMovable, MovableOwner, IPPlayer)} instead.
      *
-     * @param door
-     *     The door to which a new owner is to be added.
+     * @param movable
+     *     The movable to which a new owner is to be added.
      * @param newOwner
-     *     The new {@link DoorOwner} that is to be added to the door.
+     *     The new {@link MovableOwner} that is to be added to the movable.
      */
-    default IDoorPrepareAddOwnerEvent createDoorPrepareAddOwnerEvent(AbstractDoor door, DoorOwner newOwner)
+    default IMovablePrepareAddOwnerEvent createMovablePrepareAddOwnerEvent(
+        AbstractMovable movable, MovableOwner newOwner)
     {
-        return createDoorPrepareAddOwnerEvent(door, newOwner, null);
+        return createMovablePrepareAddOwnerEvent(movable, newOwner, null);
     }
 
     /**
-     * Constructs a new {@link IDoorPrepareRemoveOwnerEvent}.
+     * Constructs a new {@link IMovablePrepareRemoveOwnerEvent}.
      *
-     * @param door
-     *     The door from which an owner will be removed.
+     * @param movable
+     *     The movable from which an owner will be removed.
      * @param removedOwner
-     *     The {@link DoorOwner} that is to be removed from the door.
+     *     The {@link MovableOwner} that is to be removed from the movable.
      * @param responsible
      *     The {@link IPPlayer} responsible for the action, if a player was responsible for it.
      */
-    IDoorPrepareRemoveOwnerEvent createDoorPrepareRemoveOwnerEvent(
-        AbstractDoor door, DoorOwner removedOwner, @Nullable IPPlayer responsible);
+    IMovablePrepareRemoveOwnerEvent createMovablePrepareRemoveOwnerEvent(
+        AbstractMovable movable, MovableOwner removedOwner, @Nullable IPPlayer responsible);
 
     /**
-     * Constructs a new {@link IDoorPrepareRemoveOwnerEvent} and assumes the owner was not removed by an
+     * Constructs a new {@link IMovablePrepareRemoveOwnerEvent} and assumes the owner was not removed by an
      * {@link IPPlayer}.
      * <p>
      * If the owner is removed by a player, consider using
-     * {@link #createDoorPrepareRemoveOwnerEvent(AbstractDoor, DoorOwner, IPPlayer)} instead.
+     * {@link #createMovablePrepareRemoveOwnerEvent(AbstractMovable, MovableOwner, IPPlayer)} instead.
      *
-     * @param door
-     *     The door from which an owner will be removed.
+     * @param movable
+     *     The movable from which an owner will be removed.
      * @param removedOwner
-     *     The {@link DoorOwner} that is to be removed from the door.
+     *     The {@link MovableOwner} that is to be removed from the movable.
      */
-    default IDoorPrepareRemoveOwnerEvent createDoorPrepareRemoveOwnerEvent(AbstractDoor door, DoorOwner removedOwner)
+    default IMovablePrepareRemoveOwnerEvent createMovablePrepareRemoveOwnerEvent(
+        AbstractMovable movable, MovableOwner removedOwner)
     {
-        return createDoorPrepareRemoveOwnerEvent(door, removedOwner, null);
+        return createMovablePrepareRemoveOwnerEvent(movable, removedOwner, null);
     }
 
 
     /**
-     * Constructs a new {@link IDoorPrepareLockChangeEvent}.
+     * Constructs a new {@link IMovablePrepareLockChangeEvent}.
      *
-     * @param door
-     *     The door to which the lock status is to be changed
+     * @param movable
+     *     The movable to which the lock status is to be changed
      * @param newLockStatus
-     *     The new locked status of the door.
+     *     The new locked status of the movable.
      * @param responsible
      *     The {@link IPPlayer} responsible for the action, if a player was responsible for it.
      */
-    IDoorPrepareLockChangeEvent createDoorPrepareLockChangeEvent(
-        AbstractDoor door, boolean newLockStatus, @Nullable IPPlayer responsible);
+    IMovablePrepareLockChangeEvent createMovablePrepareLockChangeEvent(
+        AbstractMovable movable, boolean newLockStatus, @Nullable IPPlayer responsible);
 
     /**
-     * Constructs a new {@link IDoorPrepareLockChangeEvent} and assumes it was not added by an {@link IPPlayer}.
+     * Constructs a new {@link IMovablePrepareLockChangeEvent} and assumes it was not added by an {@link IPPlayer}.
      * <p>
      * If the owner is added by a player, consider using
-     * {@link #createDoorPrepareLockChangeEvent(AbstractDoor, boolean, IPPlayer)} instead.
+     * {@link #createMovablePrepareLockChangeEvent(AbstractMovable, boolean, IPPlayer)} instead.
      *
-     * @param door
-     *     The door to which the lock status is to be changed
+     * @param movable
+     *     The movable to which the lock status is to be changed
      * @param newLockStatus
-     *     The new locked status of the door.
+     *     The new locked status of the movable.
      */
-    default IDoorPrepareLockChangeEvent createDoorPrepareLockChangeEvent(AbstractDoor door, boolean newLockStatus)
+    default IMovablePrepareLockChangeEvent createMovablePrepareLockChangeEvent(
+        AbstractMovable movable, boolean newLockStatus)
     {
-        return createDoorPrepareLockChangeEvent(door, newLockStatus, null);
+        return createMovablePrepareLockChangeEvent(movable, newLockStatus, null);
     }
 
     /**
-     * Constructs a {@link IDoorEventTogglePrepare}.
+     * Constructs a {@link IMovableEventTogglePrepare}.
      *
      * @param snapshot
-     *     The door.
+     *     The snapshot of the movable.
      * @param cause
      *     What caused the action.
      * @param actionType
      *     The type of action.
      * @param responsible
-     *     Who is responsible for this door. Either the player who directly toggled it (via a command or the GUI), or
+     *     Who is responsible for this movable. Either the player who directly toggled it (via a command or the GUI), or
      *     the original creator when this data is not available.
      * @param time
-     *     The number of seconds the door will take to open. Note that there are other factors that affect the total
+     *     The number of seconds the movable will take to open. Note that there are other factors that affect the total
      *     time as well.
      * @param skipAnimation
-     *     If true, the door will skip the animation and open instantly.
+     *     If true, the movable will skip the animation and open instantly.
      * @param newCuboid
-     *     The {@link Cuboid} representing the area the door will take up after the toggle.
+     *     The {@link Cuboid} representing the area the movable will take up after the toggle.
      */
-    IDoorEventTogglePrepare createTogglePrepareEvent(
-        DoorSnapshot snapshot, DoorActionCause cause, DoorActionType actionType, IPPlayer responsible, double time,
-        boolean skipAnimation, Cuboid newCuboid);
+    IMovableEventTogglePrepare createTogglePrepareEvent(
+        MovableSnapshot snapshot, MovableActionCause cause, MovableActionType actionType, IPPlayer responsible,
+        double time, boolean skipAnimation, Cuboid newCuboid);
 
     /**
-     * Constructs a {@link IDoorEventToggleStart}.
+     * Constructs a {@link IMovableEventToggleStart}.
      *
-     * @param door
-     *     The door itself.
-     * @param doorSnapshot
-     *     A snapshot of the door created at the time the toggle action was requested.
+     * @param movable
+     *     The movable itself.
+     * @param movableSnapshot
+     *     A snapshot of the movable created at the time the toggle action was requested.
      * @param cause
      *     What caused the action.
      * @param actionType
      *     The type of action.
      * @param responsible
-     *     Who is responsible for this door. Either the player who directly toggled it (via a command or the GUI), or
+     *     Who is responsible for this movable. Either the player who directly toggled it (via a command or the GUI), or
      *     the original creator when this data is not available.
      * @param time
-     *     The number of seconds the door will take to open. Note that there are other factors that affect the total
+     *     The number of seconds the movable will take to open. Note that there are other factors that affect the total
      *     time as well.
      * @param skipAnimation
-     *     If true, the door will skip the animation and open instantly.
+     *     If true, the movable will skip the animation and open instantly.
      * @param newCuboid
-     *     The {@link Cuboid} representing the area the door will take up after the toggle.
+     *     The {@link Cuboid} representing the area the movable will take up after the toggle.
      */
-    IDoorEventToggleStart createToggleStartEvent(
-        AbstractDoor door, DoorSnapshot doorSnapshot, DoorActionCause cause, DoorActionType actionType,
-        IPPlayer responsible, double time, boolean skipAnimation, Cuboid newCuboid);
+    IMovableEventToggleStart createToggleStartEvent(
+        AbstractMovable movable, MovableSnapshot movableSnapshot, MovableActionCause cause,
+        MovableActionType actionType, IPPlayer responsible, double time, boolean skipAnimation, Cuboid newCuboid);
 
     /**
-     * Constructs a {@link IDoorEventToggleEnd}.
+     * Constructs a {@link IMovableEventToggleEnd}.
      *
-     * @param door
-     *     The door.
-     * @param doorSnapshot
-     *     A snapshot of the door created when the door was preparing to toggle.
+     * @param movable
+     *     The movable.
+     * @param snapshot
+     *     A snapshot of the movable created when the movable was preparing to toggle.
      * @param cause
      *     What caused the action.
      * @param actionType
      *     The type of action.
      * @param responsible
-     *     Who is responsible for this door. Either the player who directly toggled it (via a command or the GUI), or
+     *     Who is responsible for this movable. Either the player who directly toggled it (via a command or the GUI), or
      *     the original creator when this data is not available.
      * @param time
-     *     The number of seconds the door will take to open. Note that there are other factors that affect the total
+     *     The number of seconds the movable will take to open. Note that there are other factors that affect the total
      *     time as well.
      * @param skipAnimation
-     *     If true, the door will skip the animation and open instantly.
+     *     If true, the movable will skip the animation and open instantly.
      */
-    IDoorEventToggleEnd createToggleEndEvent(
-        AbstractDoor door, DoorSnapshot doorSnapshot, DoorActionCause cause, DoorActionType actionType,
-        IPPlayer responsible, double time, boolean skipAnimation);
+    IMovableEventToggleEnd createToggleEndEvent(
+        AbstractMovable movable, MovableSnapshot snapshot, MovableActionCause cause,
+        MovableActionType actionType, IPPlayer responsible, double time, boolean skipAnimation);
 }

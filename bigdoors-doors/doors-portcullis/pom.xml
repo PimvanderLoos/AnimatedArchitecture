@@ -6,7 +6,7 @@
     <version>1</version>
 
     <properties>
-        <mainClass>nl.pim16aap2.bigdoors.doors.portcullis.DoorTypePortcullis</mainClass>
+        <mainClass>nl.pim16aap2.bigdoors.movable.portcullis.MovableTypePortcullis</mainClass>
         <typeName>Portcullis</typeName>
         <version>1</version>
     </properties>

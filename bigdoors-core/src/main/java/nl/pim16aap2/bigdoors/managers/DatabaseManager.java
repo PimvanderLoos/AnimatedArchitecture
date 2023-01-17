@@ -12,16 +12,16 @@ import nl.pim16aap2.bigdoors.api.debugging.IDebuggable;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.doors.DoorOwner;
-import nl.pim16aap2.bigdoors.doors.DoorSnapshot;
-import nl.pim16aap2.bigdoors.doors.PermissionLevel;
+import nl.pim16aap2.bigdoors.events.IBigDoorsEventCaller;
 import nl.pim16aap2.bigdoors.events.ICancellableBigDoorsEvent;
-import nl.pim16aap2.bigdoors.events.IDoorCreatedEvent;
-import nl.pim16aap2.bigdoors.events.IDoorEventCaller;
-import nl.pim16aap2.bigdoors.events.IDoorPrepareCreateEvent;
-import nl.pim16aap2.bigdoors.events.IDoorPrepareDeleteEvent;
+import nl.pim16aap2.bigdoors.events.IMovableCreatedEvent;
+import nl.pim16aap2.bigdoors.events.IMovablePrepareCreateEvent;
+import nl.pim16aap2.bigdoors.events.IMovablePrepareDeleteEvent;
+import nl.pim16aap2.bigdoors.movable.AbstractMovable;
+import nl.pim16aap2.bigdoors.movable.MovableBase;
+import nl.pim16aap2.bigdoors.movable.MovableOwner;
+import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
+import nl.pim16aap2.bigdoors.movable.PermissionLevel;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -62,8 +62,8 @@ public final class DatabaseManager extends Restartable implements IDebuggable
 
     private final IStorage db;
 
-    private final IDoorEventCaller doorEventCaller;
-    private final DoorRegistry doorRegistry;
+    private final IBigDoorsEventCaller bigDoorsEventCaller;
+    private final MovableRegistry movableRegistry;
     private final Lazy<PowerBlockManager> powerBlockManager;
     private final IBigDoorsEventFactory bigDoorsEventFactory;
 
@@ -77,14 +77,14 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      */
     @Inject
     public DatabaseManager(
-        RestartableHolder restartableHolder, IStorage storage, DoorRegistry doorRegistry,
+        RestartableHolder restartableHolder, IStorage storage, MovableRegistry movableRegistry,
         Lazy<PowerBlockManager> powerBlockManager, IBigDoorsEventFactory bigDoorsEventFactory,
-        IDoorEventCaller doorEventCaller, DebuggableRegistry debuggableRegistry)
+        IBigDoorsEventCaller bigDoorsEventCaller, DebuggableRegistry debuggableRegistry)
     {
         super(restartableHolder);
         db = storage;
-        this.doorEventCaller = doorEventCaller;
-        this.doorRegistry = doorRegistry;
+        this.bigDoorsEventCaller = bigDoorsEventCaller;
+        this.movableRegistry = movableRegistry;
         this.powerBlockManager = powerBlockManager;
         this.bigDoorsEventFactory = bigDoorsEventFactory;
         initThreadPool();
@@ -119,214 +119,217 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Inserts a {@link AbstractDoor} into the database and assumes that the door was NOT created by an
-     * {@link IPPlayer}. See {@link #addDoor(AbstractDoor, IPPlayer)}.
+     * Inserts a {@link AbstractMovable} into the database and assumes that the movable was NOT created by an
+     * {@link IPPlayer}. See {@link #addMovable(AbstractMovable, IPPlayer)}.
      *
-     * @param newDoor
-     *     The new {@link AbstractDoor}.
+     * @param movable
+     *     The new {@link AbstractMovable}.
      * @return The future result of the operation. If the operation was successful this will be true.
      */
-    public CompletableFuture<DoorInsertResult> addDoor(AbstractDoor newDoor)
+    public CompletableFuture<MovableInsertResult> addMovable(AbstractMovable movable)
     {
-        return addDoor(newDoor, null);
+        return addMovable(movable, null);
     }
 
     /**
-     * Inserts a {@link AbstractDoor} into the database.
+     * Inserts a {@link AbstractMovable} into the database.
      *
-     * @param newDoor
-     *     The new {@link AbstractDoor}.
+     * @param movable
+     *     The new {@link AbstractMovable}.
      * @param responsible
-     *     The {@link IPPlayer} responsible for creating the door. This is used for the {@link IDoorPrepareCreateEvent}
-     *     and the {@link IDoorCreatedEvent}. This may be null.
+     *     The {@link IPPlayer} responsible for creating the movable. This is used for the
+     *     {@link IMovablePrepareCreateEvent} and the {@link IMovableCreatedEvent}. This may be null.
      * @return The future result of the operation.
      */
-    public CompletableFuture<DoorInsertResult> addDoor(AbstractDoor newDoor, @Nullable IPPlayer responsible)
+    public CompletableFuture<MovableInsertResult> addMovable(AbstractMovable movable, @Nullable IPPlayer responsible)
     {
         final var ret = callCancellableEvent(
-            fact -> fact.createPrepareDoorCreateEvent(newDoor, responsible)).thenApplyAsync(
+            fact -> fact.createPrepareMovableCreateEvent(movable, responsible)).thenApplyAsync(
             cancelled ->
             {
                 if (cancelled)
-                    return new DoorInsertResult(Optional.empty(), true);
+                    return new MovableInsertResult(Optional.empty(), true);
 
-                final Optional<AbstractDoor> result = db.insert(newDoor);
+                final Optional<AbstractMovable> result = db.insert(movable);
                 result.ifPresent(
-                    (door) -> powerBlockManager.get().onDoorAddOrRemove(door.getWorld().worldName(),
-                                                                        new Vector3Di(door.getPowerBlock().x(),
-                                                                                      door.getPowerBlock().y(),
-                                                                                      door.getPowerBlock().z())));
-                return new DoorInsertResult(result, false);
-            }, threadPool).exceptionally(ex -> Util.exceptionally(ex, new DoorInsertResult(Optional.empty(), false)));
+                    (newMovable) -> powerBlockManager.get().onMovableAddOrRemove(
+                        newMovable.getWorld().worldName(),
+                        new Vector3Di(newMovable.getPowerBlock().x(),
+                                      newMovable.getPowerBlock().y(),
+                                      newMovable.getPowerBlock().z())));
+                return new MovableInsertResult(result, false);
+            }, threadPool).exceptionally(
+            ex -> Util.exceptionally(ex, new MovableInsertResult(Optional.empty(), false)));
 
-        ret.thenAccept(result -> callDoorCreatedEvent(result, responsible));
+        ret.thenAccept(result -> callMovableCreatedEvent(result, responsible));
 
         return ret;
     }
 
     /**
-     * Calls the {@link IDoorCreatedEvent}.
+     * Calls the {@link IMovableCreatedEvent}.
      *
      * @param result
-     *     The result of trying to add a door to the database.
+     *     The result of trying to add a movable to the database.
      * @param responsible
      *     The {@link IPPlayer} responsible for creating it, if an {@link IPPlayer} was responsible for it. If not, this
      *     is null.
      */
-    private void callDoorCreatedEvent(DoorInsertResult result, @Nullable IPPlayer responsible)
+    private void callMovableCreatedEvent(MovableInsertResult result, @Nullable IPPlayer responsible)
     {
         CompletableFuture.runAsync(
             () ->
             {
-                if (result.cancelled() || result.door().isEmpty())
+                if (result.cancelled() || result.movable().isEmpty())
                     return;
 
-                final IDoorCreatedEvent doorCreatedEvent =
-                    bigDoorsEventFactory.createDoorCreatedEvent(result.door().get(), responsible);
+                final IMovableCreatedEvent movableCreatedEvent =
+                    bigDoorsEventFactory.createMovableCreatedEvent(result.movable().get(), responsible);
 
-                doorEventCaller.callDoorEvent(doorCreatedEvent);
+                bigDoorsEventCaller.callBigDoorsEvent(movableCreatedEvent);
             });
     }
 
     /**
-     * Removes a {@link AbstractDoor} from the database and assumes that the door was NOT deleted by an
-     * {@link IPPlayer}. See {@link #deleteDoor(AbstractDoor, IPPlayer)}.
+     * Removes a {@link AbstractMovable} from the database and assumes that the movable was NOT deleted by an
+     * {@link IPPlayer}. See {@link #deleteMovable(AbstractMovable, IPPlayer)}.
      *
-     * @param door
-     *     The door.
+     * @param movable
+     *     The movable that will be deleted.
      * @return The future result of the operation.
      */
     @SuppressWarnings("unused")
-    public CompletableFuture<ActionResult> deleteDoor(AbstractDoor door)
+    public CompletableFuture<ActionResult> deleteMovable(AbstractMovable movable)
     {
-        return deleteDoor(door, null);
+        return deleteMovable(movable, null);
     }
 
     /**
-     * Removes a {@link AbstractDoor} from the database.
+     * Removes a {@link AbstractMovable} from the database.
      *
-     * @param door
-     *     The door that will be deleted.
+     * @param movable
+     *     The movable that will be deleted.
      * @param responsible
-     *     The {@link IPPlayer} responsible for creating the door. This is used for the {@link IDoorPrepareDeleteEvent}.
-     *     This may be null.
+     *     The {@link IPPlayer} responsible for creating the movable. This is used for the
+     *     {@link IMovablePrepareDeleteEvent}. This may be null.
      * @return The future result of the operation.
      */
-    public CompletableFuture<ActionResult> deleteDoor(AbstractDoor door, @Nullable IPPlayer responsible)
+    public CompletableFuture<ActionResult> deleteMovable(AbstractMovable movable, @Nullable IPPlayer responsible)
     {
-        return callCancellableEvent(fact -> fact.createPrepareDeleteDoorEvent(door, responsible)).thenApplyAsync(
+        return callCancellableEvent(fact -> fact.createPrepareDeleteMovableEvent(movable, responsible)).thenApplyAsync(
             cancelled ->
             {
                 if (cancelled)
                     return ActionResult.CANCELLED;
 
-                doorRegistry.deregisterDoor(door.getDoorUID());
-                final boolean result = db.removeDoor(door.getDoorUID());
+                movableRegistry.deregisterMovable(movable.getUid());
+                final boolean result = db.removeMovable(movable.getUid());
                 if (!result)
                     return ActionResult.FAIL;
 
-                powerBlockManager.get().onDoorAddOrRemove(door.getWorld().worldName(),
-                                                          new Vector3Di(door.getPowerBlock().x(),
-                                                                        door.getPowerBlock().y(),
-                                                                        door.getPowerBlock().z()));
+                powerBlockManager.get().onMovableAddOrRemove(movable.getWorld().worldName(),
+                                                             new Vector3Di(movable.getPowerBlock().x(),
+                                                                           movable.getPowerBlock().y(),
+                                                                           movable.getPowerBlock().z()));
                 return ActionResult.SUCCESS;
             }, threadPool).exceptionally(ex -> Util.exceptionally(ex, ActionResult.FAIL));
     }
 
     /**
-     * Gets a list of door UIDs that have their rotation point in a given chunk.
+     * Gets a list of movable UIDs that have their rotation point in a given chunk.
      *
      * @param chunkId
-     *     The id of the chunk the doors are in.
-     * @return A list of door UIDs that have their rotation point in a given chunk.
+     *     The id of the chunk the movables are in.
+     * @return A list of movable UIDs that have their rotation point in a given chunk.
      */
-    public CompletableFuture<List<Long>> getDoorsInChunk(long chunkId)
+    public CompletableFuture<List<Long>> getMovablesInChunk(long chunkId)
     {
-        return CompletableFuture.supplyAsync(() -> db.getDoorsInChunk(chunkId), threadPool)
+        return CompletableFuture.supplyAsync(() -> db.getMovablesInChunk(chunkId), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
-     * Gets all {@link AbstractDoor} owned by a player. Only searches for {@link AbstractDoor} with a given name if one
-     * was provided.
+     * Gets all {@link AbstractMovable} owned by a player. Only searches for {@link AbstractMovable} with a given name
+     * if one was provided.
      *
      * @param playerUUID
      *     The {@link UUID} of the payer.
-     * @param doorID
-     *     The name or the UID of the {@link AbstractDoor} to search for. Can be null.
-     * @return All {@link AbstractDoor} owned by a player with a specific name.
+     * @param movableID
+     *     The name or the UID of the {@link AbstractMovable} to search for. Can be null.
+     * @return All {@link AbstractMovable} owned by a player with a specific name.
      */
-    public CompletableFuture<List<AbstractDoor>> getDoors(UUID playerUUID, String doorID)
+    public CompletableFuture<List<AbstractMovable>> getMovables(UUID playerUUID, String movableID)
     {
-        // Check if the name is actually the UID of the door.
-        final OptionalLong doorUID = Util.parseLong(doorID);
-        if (doorUID.isPresent())
+        // Check if the name is actually the UID of the movable.
+        final OptionalLong movableUID = Util.parseLong(movableID);
+        if (movableUID.isPresent())
             return CompletableFuture
-                .supplyAsync(() -> db.getDoor(playerUUID, doorUID.getAsLong())
+                .supplyAsync(() -> db.getMovable(playerUUID, movableUID.getAsLong())
                                      .map(Collections::singletonList)
                                      .orElse(Collections.emptyList()), threadPool)
                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
 
-        return CompletableFuture.supplyAsync(() -> db.getDoors(playerUUID, doorID), threadPool)
+        return CompletableFuture.supplyAsync(() -> db.getMovables(playerUUID, movableID), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
-     * See {@link #getDoors(UUID, String)}.
+     * See {@link #getMovables(UUID, String)}.
      */
-    public CompletableFuture<List<AbstractDoor>> getDoors(IPPlayer player, String name)
+    public CompletableFuture<List<AbstractMovable>> getMovables(IPPlayer player, String name)
     {
-        return getDoors(player.getUUID(), name);
+        return getMovables(player.getUUID(), name);
     }
 
     /**
-     * Gets all {@link AbstractDoor} owned by a player.
+     * Gets all {@link AbstractMovable} owned by a player.
      *
      * @param playerUUID
      *     The {@link UUID} of the player.
-     * @return All {@link AbstractDoor} owned by a player.
+     * @return All {@link AbstractMovable} owned by a player.
      */
-    public CompletableFuture<List<AbstractDoor>> getDoors(UUID playerUUID)
+    public CompletableFuture<List<AbstractMovable>> getMovables(UUID playerUUID)
     {
-        return CompletableFuture.supplyAsync(() -> db.getDoors(playerUUID), threadPool)
+        return CompletableFuture.supplyAsync(() -> db.getMovables(playerUUID), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
-     * See {@link #getDoors(UUID)}.
+     * See {@link #getMovables(UUID)}.
      */
-    public CompletableFuture<List<AbstractDoor>> getDoors(IPPlayer player)
+    public CompletableFuture<List<AbstractMovable>> getMovables(IPPlayer player)
     {
-        return getDoors(player.getUUID());
+        return getMovables(player.getUUID());
     }
 
     /**
-     * Gets all {@link AbstractDoor} owned by a player with a specific name.
+     * Gets all {@link AbstractMovable} owned by a player with a specific name.
      *
      * @param playerUUID
      *     The {@link UUID} of the payer.
      * @param name
-     *     The name of the {@link AbstractDoor} to search for.
+     *     The name of the {@link AbstractMovable} to search for.
      * @param maxPermission
-     *     The maximum level of ownership (inclusive) this player has over the {@link AbstractDoor}s.
-     * @return All {@link AbstractDoor} owned by a player with a specific name.
+     *     The maximum level of ownership (inclusive) this player has over the {@link AbstractMovable}s.
+     * @return All {@link AbstractMovable} owned by a player with a specific name.
      */
-    public CompletableFuture<List<AbstractDoor>> getDoors(UUID playerUUID, String name, PermissionLevel maxPermission)
+    public CompletableFuture<List<AbstractMovable>> getMovables(
+        UUID playerUUID, String name, PermissionLevel maxPermission)
     {
-        return CompletableFuture.supplyAsync(() -> db.getDoors(playerUUID, name, maxPermission), threadPool)
+        return CompletableFuture.supplyAsync(() -> db.getMovables(playerUUID, name, maxPermission), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
-     * Gets all {@link AbstractDoor}s with a specific name, regardless over ownership.
+     * Gets all {@link AbstractMovable}s with a specific name, regardless over ownership.
      *
      * @param name
-     *     The name of the {@link AbstractDoor}s.
-     * @return All {@link AbstractDoor}s with a specific name.
+     *     The name of the {@link AbstractMovable}s.
+     * @return All {@link AbstractMovable}s with a specific name.
      */
-    public CompletableFuture<List<AbstractDoor>> getDoors(String name)
+    public CompletableFuture<List<AbstractMovable>> getMovables(String name)
     {
-        return CompletableFuture.supplyAsync(() -> db.getDoors(name), threadPool)
+        return CompletableFuture.supplyAsync(() -> db.getMovables(name), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
@@ -375,115 +378,100 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Gets the {@link AbstractDoor} with a specific UID.
+     * Gets the {@link AbstractMovable} with a specific UID.
      *
-     * @param doorUID
-     *     The UID of the {@link AbstractDoor}.
-     * @return The {@link AbstractDoor} if it exists.
+     * @param movableUID
+     *     The UID of the {@link AbstractMovable}.
+     * @return The {@link AbstractMovable} if it exists.
      */
-    public CompletableFuture<Optional<AbstractDoor>> getDoor(long doorUID)
+    public CompletableFuture<Optional<AbstractMovable>> getMovable(long movableUID)
     {
-        return CompletableFuture.supplyAsync(() -> db.getDoor(doorUID), threadPool)
+        return CompletableFuture.supplyAsync(() -> db.getMovable(movableUID), threadPool)
                                 .exceptionally(Util::exceptionallyOptional);
     }
 
     /**
-     * Gets the {@link AbstractDoor} with the given UID owned by the player. If the given player does not own the
-     * provided door, no door will be returned.
+     * Gets the {@link AbstractMovable} with the given UID owned by the player. If the given player does not own the
+     * provided movable, no movable will be returned.
      *
      * @param player
      *     The {@link IPPlayer}.
-     * @param doorUID
-     *     The UID of the {@link AbstractDoor}.
-     * @return The {@link AbstractDoor} with the given UID if it exists and the provided player owns it.
+     * @param movableUID
+     *     The UID of the {@link AbstractMovable}.
+     * @return The {@link AbstractMovable} with the given UID if it exists and the provided player owns it.
      */
-    public CompletableFuture<Optional<AbstractDoor>> getDoor(IPPlayer player, long doorUID)
+    public CompletableFuture<Optional<AbstractMovable>> getMovable(IPPlayer player, long movableUID)
     {
-        return getDoor(player.getUUID(), doorUID);
+        return getMovable(player.getUUID(), movableUID);
     }
 
     /**
-     * Gets the {@link AbstractDoor} with the given UID owned by the player. If the given player does not own the *
-     * provided door, no door will be returned.
+     * Gets the {@link AbstractMovable} with the given UID owned by the player. If the given player does not own the *
+     * provided movable, no movable will be returned.
      *
      * @param uuid
      *     The {@link UUID} of the player.
-     * @param doorUID
-     *     The UID of the {@link AbstractDoor}.
-     * @return The {@link AbstractDoor} with the given UID if it exists and the provided player owns it.
+     * @param movableUID
+     *     The UID of the {@link AbstractMovable}.
+     * @return The {@link AbstractMovable} with the given UID if it exists and the provided player owns it.
      */
-    public CompletableFuture<Optional<AbstractDoor>> getDoor(UUID uuid, long doorUID)
+    public CompletableFuture<Optional<AbstractMovable>> getMovable(UUID uuid, long movableUID)
     {
-        return CompletableFuture.supplyAsync(() -> db.getDoor(uuid, doorUID), threadPool)
+        return CompletableFuture.supplyAsync(() -> db.getMovable(uuid, movableUID), threadPool)
                                 .exceptionally(Util::exceptionallyOptional);
     }
 
     /**
-     * Gets the number of {@link AbstractDoor}s owned by a player.
+     * Gets the number of {@link AbstractMovable}s owned by a player.
      *
      * @param playerUUID
      *     The {@link UUID} of the player.
-     * @return The number of {@link AbstractDoor}s this player owns.
+     * @return The number of {@link AbstractMovable}s this player owns.
      */
     @SuppressWarnings("unused")
-    public CompletableFuture<Integer> countDoorsOwnedByPlayer(UUID playerUUID)
+    public CompletableFuture<Integer> countMovablesOwnedByPlayer(UUID playerUUID)
     {
-        return CompletableFuture.supplyAsync(() -> db.getDoorCountForPlayer(playerUUID), threadPool)
+        return CompletableFuture.supplyAsync(() -> db.getMovableCountForPlayer(playerUUID), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, -1));
     }
 
     /**
-     * Counts the number of {@link AbstractDoor}s with a specific name owned by a player.
+     * Counts the number of {@link AbstractMovable}s with a specific name owned by a player.
      *
      * @param playerUUID
      *     The {@link UUID} of the player.
-     * @param doorName
-     *     The name of the door.
-     * @return The number of {@link AbstractDoor}s with a specific name owned by a player.
+     * @param movableName
+     *     The name of the movable.
+     * @return The number of {@link AbstractMovable}s with a specific name owned by a player.
      */
     @SuppressWarnings("unused")
-    public CompletableFuture<Integer> countDoorsOwnedByPlayer(UUID playerUUID, String doorName)
+    public CompletableFuture<Integer> countMovablesOwnedByPlayer(UUID playerUUID, String movableName)
     {
-        return CompletableFuture.supplyAsync(() -> db.getDoorCountForPlayer(playerUUID, doorName), threadPool)
+        return CompletableFuture.supplyAsync(() -> db.getMovableCountForPlayer(playerUUID, movableName), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, -1));
     }
 
     /**
-     * The number of {@link AbstractDoor}s in the database with a specific name.
+     * The number of {@link AbstractMovable}s in the database with a specific name.
      *
-     * @param doorName
-     *     The name of the {@link AbstractDoor}.
-     * @return The number of {@link AbstractDoor}s with a specific name.
+     * @param movableName
+     *     The name of the {@link AbstractMovable}.
+     * @return The number of {@link AbstractMovable}s with a specific name.
      */
     @SuppressWarnings("unused")
-    public CompletableFuture<Integer> countDoorsByName(String doorName)
+    public CompletableFuture<Integer> countMovablesByName(String movableName)
     {
-        return CompletableFuture.supplyAsync(() -> db.getDoorCountByName(doorName), threadPool)
+        return CompletableFuture.supplyAsync(() -> db.getMovableCountByName(movableName), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, -1));
     }
 
     /**
-     * Adds a player as owner to a {@link AbstractDoor} at a given level of ownership and assumes that the door was NOT
-     * deleted by an {@link IPPlayer}. See {@link #addOwner(AbstractDoor, IPPlayer, PermissionLevel, IPPlayer)}.
+     * Adds a player as owner to a {@link AbstractMovable} at a given level of ownership and assumes that the movable
+     * was NOT deleted by an {@link IPPlayer}. See
+     * {@link #addOwner(AbstractMovable, IPPlayer, PermissionLevel, IPPlayer)}.
      *
-     * @param door
-     *     The {@link AbstractDoor}.
-     * @param player
-     *     The {@link IPPlayer}.
-     * @param permission
-     *     The level of ownership.
-     * @return The future result of the operation.
-     */
-    public CompletableFuture<ActionResult> addOwner(AbstractDoor door, IPPlayer player, PermissionLevel permission)
-    {
-        return addOwner(door, player, permission, null);
-    }
-
-    /**
-     * Adds a player as owner to a {@link AbstractDoor} at a given level of ownership.
-     *
-     * @param door
-     *     The {@link AbstractDoor}.
+     * @param movable
+     *     The {@link AbstractMovable}.
      * @param player
      *     The {@link IPPlayer}.
      * @param permission
@@ -491,14 +479,31 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      * @return The future result of the operation.
      */
     public CompletableFuture<ActionResult> addOwner(
-        AbstractDoor door, IPPlayer player, PermissionLevel permission, @Nullable IPPlayer responsible)
+        AbstractMovable movable, IPPlayer player, PermissionLevel permission)
+    {
+        return addOwner(movable, player, permission, null);
+    }
+
+    /**
+     * Adds a player as owner to a {@link AbstractMovable} at a given level of ownership.
+     *
+     * @param movable
+     *     The {@link AbstractMovable}.
+     * @param player
+     *     The {@link IPPlayer}.
+     * @param permission
+     *     The level of ownership.
+     * @return The future result of the operation.
+     */
+    public CompletableFuture<ActionResult> addOwner(
+        AbstractMovable movable, IPPlayer player, PermissionLevel permission, @Nullable IPPlayer responsible)
     {
         if (permission.getValue() < 1 || permission == PermissionLevel.NO_PERMISSION)
             return CompletableFuture.completedFuture(ActionResult.FAIL);
 
-        final var newOwner = new DoorOwner(door.getDoorUID(), permission, player.getPPlayerData());
+        final var newOwner = new MovableOwner(movable.getUid(), permission, player.getPPlayerData());
 
-        return callCancellableEvent(fact -> fact.createDoorPrepareAddOwnerEvent(door, newOwner, responsible))
+        return callCancellableEvent(fact -> fact.createMovablePrepareAddOwnerEvent(movable, newOwner, responsible))
             .thenApplyAsync(
                 cancelled ->
                 {
@@ -507,12 +512,12 @@ public final class DatabaseManager extends Restartable implements IDebuggable
 
                     final PPlayerData playerData = player.getPPlayerData();
 
-                    final boolean result = db.addOwner(door.getDoorUID(), playerData, permission);
+                    final boolean result = db.addOwner(movable.getUid(), playerData, permission);
                     if (!result)
                         return ActionResult.FAIL;
 
-                    ((FriendDoorAccessor) door.getDoorBase())
-                        .addOwner(player.getUUID(), new DoorOwner(door.getDoorUID(), permission, playerData));
+                    ((FriendMovableAccessor) movable.getMovableBase())
+                        .addOwner(player.getUUID(), new MovableOwner(movable.getUid(), permission, playerData));
 
                     return ActionResult.SUCCESS;
                 }, threadPool).exceptionally(ex -> Util.exceptionally(ex, ActionResult.FAIL));
@@ -532,133 +537,134 @@ public final class DatabaseManager extends Restartable implements IDebuggable
             () ->
             {
                 final var event = factoryMethod.apply(bigDoorsEventFactory);
-                doorEventCaller.callDoorEvent(event);
+                bigDoorsEventCaller.callBigDoorsEvent(event);
                 log.at(Level.SEVERE).log("Event %s was%s cancelled!", event, (event.isCancelled() ? "" : " not"));
                 return event.isCancelled();
             });
     }
 
     /**
-     * Remove a {@link IPPlayer} as owner of a {@link AbstractDoor}.
+     * Remove a {@link IPPlayer} as owner of a {@link AbstractMovable}.
      *
-     * @param door
-     *     The {@link AbstractDoor}.
+     * @param movable
+     *     The {@link AbstractMovable}.
      * @param player
      *     The {@link IPPlayer}.
      * @return True if owner removal was successful.
      */
-    public CompletableFuture<ActionResult> removeOwner(AbstractDoor door, IPPlayer player)
+    public CompletableFuture<ActionResult> removeOwner(AbstractMovable movable, IPPlayer player)
     {
-        return removeOwner(door, player, null);
+        return removeOwner(movable, player, null);
     }
 
     /**
-     * Remove a {@link IPPlayer} as owner of a {@link AbstractDoor}.
+     * Remove a {@link IPPlayer} as owner of a {@link AbstractMovable}.
      *
-     * @param door
-     *     The {@link AbstractDoor}.
+     * @param movable
+     *     The {@link AbstractMovable}.
      * @param player
      *     The {@link IPPlayer}.
      * @param responsible
-     *     The {@link IPPlayer} responsible for creating the door. This is used for the {@link IDoorPrepareDeleteEvent}.
-     *     This may be null.
+     *     The {@link IPPlayer} responsible for creating the movable. This is used for the
+     *     {@link IMovablePrepareDeleteEvent}. This may be null.
      * @return The future result of the operation.
      */
     public CompletableFuture<ActionResult> removeOwner(
-        AbstractDoor door, IPPlayer player, @Nullable IPPlayer responsible)
+        AbstractMovable movable, IPPlayer player, @Nullable IPPlayer responsible)
     {
-        return removeOwner(door, player.getUUID(), responsible);
+        return removeOwner(movable, player.getUUID(), responsible);
     }
 
     /**
-     * Remove a {@link IPPlayer} as owner of a {@link AbstractDoor} and assumes that the door was NOT deleted by an
-     * {@link IPPlayer}. See {@link #removeOwner(AbstractDoor, UUID, IPPlayer)}.
+     * Remove a {@link IPPlayer} as owner of a {@link AbstractMovable} and assumes that the movable was NOT deleted by
+     * an {@link IPPlayer}. See {@link #removeOwner(AbstractMovable, UUID, IPPlayer)}.
      *
-     * @param door
-     *     The {@link AbstractDoor}.
+     * @param movable
+     *     The {@link AbstractMovable}.
      * @param playerUUID
      *     The {@link UUID} of the {@link IPPlayer}.
      * @return The future result of the operation.
      */
-    public CompletableFuture<ActionResult> removeOwner(AbstractDoor door, UUID playerUUID)
+    public CompletableFuture<ActionResult> removeOwner(AbstractMovable movable, UUID playerUUID)
     {
-        return removeOwner(door, playerUUID, null);
+        return removeOwner(movable, playerUUID, null);
     }
 
     /**
-     * Remove a {@link IPPlayer} as owner of a {@link AbstractDoor}.
+     * Remove a {@link IPPlayer} as owner of a {@link AbstractMovable}.
      *
-     * @param door
-     *     The {@link AbstractDoor}.
+     * @param movable
+     *     The {@link AbstractMovable}.
      * @param playerUUID
      *     The {@link UUID} of the {@link IPPlayer}.
      * @param responsible
-     *     The {@link IPPlayer} responsible for creating the door. This is used for the {@link IDoorPrepareDeleteEvent}.
-     *     This may be null.
+     *     The {@link IPPlayer} responsible for creating the movable. This is used for the
+     *     {@link IMovablePrepareDeleteEvent}. This may be null.
      * @return The future result of the operation.
      */
     public CompletableFuture<ActionResult> removeOwner(
-        AbstractDoor door, UUID playerUUID, @Nullable IPPlayer responsible)
+        AbstractMovable movable, UUID playerUUID, @Nullable IPPlayer responsible)
     {
-        final Optional<DoorOwner> doorOwner = door.getDoorOwner(playerUUID);
-        if (doorOwner.isEmpty())
+        final Optional<MovableOwner> movableOwner = movable.getOwner(playerUUID);
+        if (movableOwner.isEmpty())
         {
-            log.at(Level.FINE).log("Trying to remove player: %s from door: %d, but the player is not an owner!",
-                                   playerUUID, door.getDoorUID());
+            log.at(Level.FINE).log("Trying to remove player: %s from movable: %d, but the player is not an owner!",
+                                   playerUUID, movable.getUid());
             return CompletableFuture.completedFuture(ActionResult.FAIL);
         }
-        if (doorOwner.get().permission() == PermissionLevel.CREATOR)
+        if (movableOwner.get().permission() == PermissionLevel.CREATOR)
         {
-            log.at(Level.FINE).log("Trying to remove player: %s from door: %d, but the player is the prime owner! " +
+            log.at(Level.FINE).log("Trying to remove player: %s from movable: %d, but the player is the prime owner! " +
                                        "This is not allowed!",
-                                   playerUUID, door.getDoorUID());
+                                   playerUUID, movable.getUid());
             return CompletableFuture.completedFuture(ActionResult.FAIL);
         }
 
-        return callCancellableEvent(fact -> fact.createDoorPrepareRemoveOwnerEvent(door, doorOwner.get(), responsible))
+        return callCancellableEvent(
+            fact -> fact.createMovablePrepareRemoveOwnerEvent(movable, movableOwner.get(), responsible))
             .thenApplyAsync(
                 cancelled ->
                 {
                     if (cancelled)
                         return ActionResult.CANCELLED;
 
-                    final boolean result = db.removeOwner(door.getDoorUID(), playerUUID);
+                    final boolean result = db.removeOwner(movable.getUid(), playerUUID);
                     if (!result)
                         return ActionResult.FAIL;
 
-                    ((FriendDoorAccessor) door.getDoorBase()).removeOwner(playerUUID);
+                    ((FriendMovableAccessor) movable.getMovableBase()).removeOwner(playerUUID);
                     return ActionResult.SUCCESS;
                 }, threadPool).exceptionally(ex -> Util.exceptionally(ex, ActionResult.FAIL));
     }
 
     /**
-     * Updates the all data of an {@link AbstractDoor}. This includes both the base data and the type-specific data.
+     * Updates the all data of an {@link AbstractMovable}. This includes both the base data and the type-specific data.
      *
      * @param snapshot
-     *     The {@link DoorBase} that describes the base data of door.
+     *     The {@link MovableBase} that describes the base data of movable.
      * @param typeData
-     *     The type-specific data of this door.
+     *     The type-specific data of this movable.
      * @return The future result of the operation. If the operation was successful this will be true.
      */
-    public CompletableFuture<Boolean> syncDoorData(DoorSnapshot snapshot, byte[] typeData)
+    public CompletableFuture<Boolean> syncMovableData(MovableSnapshot snapshot, byte[] typeData)
     {
-        return CompletableFuture.supplyAsync(() -> db.syncDoorData(snapshot, typeData), threadPool)
+        return CompletableFuture.supplyAsync(() -> db.syncMovableData(snapshot, typeData), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
     }
 
     /**
-     * Retrieves all {@link DoorIdentifier}s that start with the provided input.
+     * Retrieves all {@link MovableIdentifier}s that start with the provided input.
      * <p>
      * For example, this method can retrieve the identifiers "1", "10", "11", "100", etc from an input of "1" or
-     * "MyDoor", "MyPortcullis", "MyOtherDoor", etc. from an input of "My".
+     * "MyDoor", "MyPortcullis", "MyOtherMovable", etc. from an input of "My".
      *
      * @param input
      *     The partial identifier to look for.
      * @param player
-     *     The player that should own the doors. May be null to disregard ownership.
-     * @return All {@link DoorIdentifier}s that start with the provided input.
+     *     The player that should own the movables. May be null to disregard ownership.
+     * @return All {@link MovableIdentifier}s that start with the provided input.
      */
-    public CompletableFuture<List<DoorIdentifier>> getIdentifiersFromPartial(
+    public CompletableFuture<List<MovableIdentifier>> getIdentifiersFromPartial(
         String input, @Nullable IPPlayer player, PermissionLevel maxPermission)
     {
         return CompletableFuture.supplyAsync(() -> db.getPartialIdentifiers(input, player, maxPermission), threadPool)
@@ -666,11 +672,11 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Checks if a world contains any big doors.
+     * Checks if a world contains any movables.
      *
      * @param worldName
      *     The name of the world.
-     * @return True if at least 1 door exists in the world.
+     * @return True if at least 1 movable exists in the world.
      */
     CompletableFuture<Boolean> isBigDoorsWorld(String worldName)
     {
@@ -679,14 +685,14 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Gets a map of location hashes and their connected powerblocks for all doors in a chunk.
+     * Gets a map of location hashes and their connected powerblocks for all movables in a chunk.
      * <p>
-     * The key is the hashed location in chunk space, the value is the list of UIDs of the doors whose powerblocks
+     * The key is the hashed location in chunk space, the value is the list of UIDs of the movables whose powerblocks
      * occupies that location.
      *
      * @param chunkId
-     *     The id of the chunk the doors are in.
-     * @return A map of location hashes and their connected powerblocks for all doors in a chunk.
+     *     The id of the chunk the movables are in.
+     * @return A map of location hashes and their connected powerblocks for all movables in a chunk.
      */
     CompletableFuture<ConcurrentHashMap<Integer, List<Long>>> getPowerBlockData(long chunkId)
     {
@@ -701,7 +707,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Represents the result of an action requested from the database. E.g. deleting a door.
+     * Represents the result of an action requested from the database. E.g. deleting a movable.
      */
     public enum ActionResult
     {
@@ -722,62 +728,62 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Provides private access to certain aspects of the {@link AbstractDoor} class. Kind of like an (inverted, more
+     * Provides private access to certain aspects of the {@link AbstractMovable} class. Kind of like an (inverted, more
      * cumbersome, and less useful) friend in C++ terms.
      */
-    // TODO: Consider if this should make work the other way around? That the Door can access the 'private' methods
+    // TODO: Consider if this should make work the other way around? That the Movable can access the 'private' methods
     //       of this class? This has several advantages:
-    //       - The child classes of the door class don't have access to stuff they shouldn't have access to (these
+    //       - The child classes of the movable class don't have access to stuff they shouldn't have access to (these
     //         methods)
-    //       - All the commands that modify a door can be pooled in the AbstractDoor class, instead of being split
+    //       - All the commands that modify a movable can be pooled in the AbstractMovable class, instead of being split
     //         over several classes.
     //       Alternatively, consider creating a separate class with package-private access to either this class or
-    //       the door one. Might be a bit cleaner.
-    public abstract static class FriendDoorAccessor
+    //       the movable one. Might be a bit cleaner.
+    public abstract static class FriendMovableAccessor
     {
         /**
          * Adds an owner to the map of Owners.
          *
          * @param uuid
          *     The {@link UUID} of the owner.
-         * @param doorOwner
-         *     The {@link DoorOwner} to add.
+         * @param movableOwner
+         *     The {@link MovableOwner} to add.
          */
-        protected abstract void addOwner(UUID uuid, DoorOwner doorOwner);
+        protected abstract void addOwner(UUID uuid, MovableOwner movableOwner);
 
         /**
-         * Removes a {@link DoorOwner} from the list of {@link DoorOwner}s, if possible.
+         * Removes a {@link MovableOwner} from the list of {@link MovableOwner}s, if possible.
          *
          * @param uuid
-         *     The {@link UUID} of the {@link DoorOwner} that is to be removed.
-         * @return True if removal was successful or false if there was no previous {@link DoorOwner} with the provided
-         * {@link UUID}.
+         *     The {@link UUID} of the {@link MovableOwner} that is to be removed.
+         * @return True if removal was successful or false if there was no previous {@link MovableOwner} with the
+         * provided {@link UUID}.
          */
         protected abstract boolean removeOwner(UUID uuid);
     }
 
     /**
-     * Contains the result of an attempt to insert a door into the database.
+     * Contains the result of an attempt to insert a movable into the database.
      */
     @AllArgsConstructor @EqualsAndHashCode @ToString
-    public static final class DoorInsertResult
+    public static final class MovableInsertResult
     {
         /**
-         * The door as it was inserted into the database. This will be empty when inserted failed.
+         * The movable as it was inserted into the database. This will be empty when inserted failed.
          */
-        private final Optional<AbstractDoor> door;
+        private final Optional<AbstractMovable> movable;
         /**
          * Whether the insertion was cancelled. An insertion may be cancelled if some listener cancels the
-         * {@link IDoorPrepareCreateEvent} event.
+         * {@link IMovablePrepareCreateEvent} event.
          */
         private final boolean cancelled;
 
         /**
-         * See {@link #door}.
+         * See {@link #movable}.
          */
-        public Optional<AbstractDoor> door()
+        public Optional<AbstractMovable> movable()
         {
-            return door;
+            return movable;
         }
 
         /**
@@ -790,7 +796,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     @AllArgsConstructor @EqualsAndHashCode @ToString
-    public static final class DoorIdentifier
+    public static final class MovableIdentifier
     {
         private final long uid;
         private final String name;

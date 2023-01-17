@@ -3,12 +3,12 @@ package nl.pim16aap2.bigdoors.commands;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
+import nl.pim16aap2.bigdoors.movable.AbstractMovable;
+import nl.pim16aap2.bigdoors.movabletypes.MovableType;
+import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
+import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,10 +26,10 @@ import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.*;
 
 class RemoveOwnerTest
 {
-    private DoorRetriever doorRetriever;
+    private MovableRetriever doorRetriever;
 
     @Mock
-    private AbstractDoor door;
+    private AbstractMovable door;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private IPPlayer commandSender;
@@ -50,26 +50,26 @@ class RemoveOwnerTest
 
         initCommandSenderPermissions(commandSender, true, true);
 
-        final DoorType doorType = Mockito.mock(DoorType.class);
+        final MovableType doorType = Mockito.mock(MovableType.class);
         Mockito.when(doorType.getLocalizationKey()).thenReturn("DoorType");
-        Mockito.when(door.getDoorType()).thenReturn(doorType);
+        Mockito.when(door.getMovableType()).thenReturn(doorType);
 
-        Mockito.when(door.isDoorOwner(Mockito.any(UUID.class))).thenReturn(true);
-        Mockito.when(door.isDoorOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
-        doorRetriever = DoorRetrieverFactory.ofDoor(door);
+        Mockito.when(door.isOwner(Mockito.any(UUID.class))).thenReturn(true);
+        Mockito.when(door.isOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
+        doorRetriever = MovableRetrieverFactory.ofMovable(door);
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
-        Mockito.when(databaseManager.removeOwner(Mockito.any(AbstractDoor.class), Mockito.any(IPPlayer.class),
+        Mockito.when(databaseManager.removeOwner(Mockito.any(AbstractMovable.class), Mockito.any(IPPlayer.class),
                                                  Mockito.any(IPPlayer.class)))
                .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
 
         Mockito.when(factory.newRemoveOwner(Mockito.any(ICommandSender.class),
-                                            Mockito.any(DoorRetriever.class),
+                                            Mockito.any(MovableRetriever.class),
                                             Mockito.any(IPPlayer.class)))
                .thenAnswer(invoc -> new RemoveOwner(invoc.getArgument(0, ICommandSender.class), localizer,
                                                     ITextFactory.getSimpleTextFactory(),
-                                                    invoc.getArgument(1, DoorRetriever.class),
+                                                    invoc.getArgument(1, MovableRetriever.class),
                                                     invoc.getArgument(2, IPPlayer.class), databaseManager));
     }
 
@@ -86,11 +86,11 @@ class RemoveOwnerTest
         Assertions.assertFalse(removeOwner.isAllowed(door, true));
 
         // Removing the level0 owner is not allowed even with bypass enabled!
-        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwnerCreator));
+        Mockito.when(door.getOwner(target)).thenReturn(Optional.of(movableOwnerCreator));
         Assertions.assertFalse(removeOwner.isAllowed(door, true));
 
         // Removing level>0 owners IS allowed with bypass even if
-        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwnerAdmin));
+        Mockito.when(door.getOwner(target)).thenReturn(Optional.of(movableOwnerAdmin));
         Assertions.assertTrue(removeOwner.isAllowed(door, true));
     }
 
@@ -99,11 +99,11 @@ class RemoveOwnerTest
     {
         final RemoveOwner removeOwner = factory.newRemoveOwner(commandSender, doorRetriever, target);
 
-        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwnerCreator));
-        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwnerAdmin));
+        Mockito.when(door.getOwner(commandSender)).thenReturn(Optional.of(movableOwnerCreator));
+        Mockito.when(door.getOwner(target)).thenReturn(Optional.of(movableOwnerAdmin));
         Assertions.assertTrue(removeOwner.isAllowed(door, false));
 
-        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwnerUser));
+        Mockito.when(door.getOwner(target)).thenReturn(Optional.of(movableOwnerUser));
         Assertions.assertTrue(removeOwner.isAllowed(door, false));
     }
 
@@ -112,29 +112,29 @@ class RemoveOwnerTest
     {
         final RemoveOwner removeOwner = factory.newRemoveOwner(commandSender, doorRetriever, target);
 
-        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwnerCreator));
-        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwnerCreator));
+        Mockito.when(door.getOwner(target)).thenReturn(Optional.of(movableOwnerCreator));
+        Mockito.when(door.getOwner(commandSender)).thenReturn(Optional.of(movableOwnerCreator));
         Assertions.assertFalse(removeOwner.isAllowed(door, false));
 
-        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwnerAdmin));
+        Mockito.when(door.getOwner(commandSender)).thenReturn(Optional.of(movableOwnerAdmin));
         Assertions.assertFalse(removeOwner.isAllowed(door, false));
 
-        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwnerAdmin));
+        Mockito.when(door.getOwner(commandSender)).thenReturn(Optional.of(movableOwnerAdmin));
         Assertions.assertFalse(removeOwner.isAllowed(door, false));
 
-        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwnerAdmin));
+        Mockito.when(door.getOwner(target)).thenReturn(Optional.of(movableOwnerAdmin));
         Assertions.assertFalse(removeOwner.isAllowed(door, false));
 
-        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwnerUser));
+        Mockito.when(door.getOwner(target)).thenReturn(Optional.of(movableOwnerUser));
         Assertions.assertTrue(removeOwner.isAllowed(door, false));
 
-        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwnerUser));
+        Mockito.when(door.getOwner(target)).thenReturn(Optional.of(movableOwnerUser));
         Assertions.assertTrue(removeOwner.isAllowed(door, false));
 
-        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwnerUser));
+        Mockito.when(door.getOwner(commandSender)).thenReturn(Optional.of(movableOwnerUser));
         Assertions.assertFalse(removeOwner.isAllowed(door, true));
 
-        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.empty());
+        Mockito.when(door.getOwner(commandSender)).thenReturn(Optional.empty());
         Assertions.assertFalse(removeOwner.isAllowed(door, false));
     }
 
@@ -164,8 +164,8 @@ class RemoveOwnerTest
     void testDatabaseInteraction()
         throws Exception
     {
-        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwnerCreator));
-        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwnerAdmin));
+        Mockito.when(door.getOwner(commandSender)).thenReturn(Optional.of(movableOwnerCreator));
+        Mockito.when(door.getOwner(target)).thenReturn(Optional.of(movableOwnerAdmin));
 
         final CompletableFuture<Boolean> result = factory.newRemoveOwner(commandSender, doorRetriever, target).run();
         Assertions.assertTrue(result.get(1, TimeUnit.SECONDS));

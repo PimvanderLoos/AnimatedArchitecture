@@ -25,21 +25,21 @@ import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.audio.IAudioPlayer;
 import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.commands.IPServer;
-import nl.pim16aap2.bigdoors.extensions.DoorTypeLoader;
+import nl.pim16aap2.bigdoors.extensions.MovableTypeLoader;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.localization.LocalizationManager;
 import nl.pim16aap2.bigdoors.managers.AnimatedBlockHookManager;
 import nl.pim16aap2.bigdoors.managers.AnimationHookManager;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
-import nl.pim16aap2.bigdoors.managers.DoorRegistry;
-import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
-import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
+import nl.pim16aap2.bigdoors.managers.MovableRegistry;
+import nl.pim16aap2.bigdoors.managers.MovableSpecificationManager;
+import nl.pim16aap2.bigdoors.managers.MovableTypeManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
-import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
+import nl.pim16aap2.bigdoors.moveblocks.MovableActivityManager;
 import nl.pim16aap2.bigdoors.spigot.comands.CommandManager;
 import nl.pim16aap2.bigdoors.spigot.exceptions.InitializationException;
 import nl.pim16aap2.bigdoors.spigot.listeners.ChunkListener;
@@ -114,7 +114,7 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     private final IPServer pServer;
 
     @Getter
-    private final DoorRegistry doorRegistry;
+    private final MovableRegistry doorRegistry;
 
     @Getter
     private final AutoCloseScheduler autoCloseScheduler;
@@ -126,13 +126,13 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     private final DatabaseManager databaseManager;
 
     @Getter
-    private final DoorActivityManager doorActivityManager;
+    private final MovableActivityManager doorActivityManager;
 
     @Getter
-    private final DoorSpecificationManager doorSpecificationManager;
+    private final MovableSpecificationManager doorSpecificationManager;
 
     @Getter
-    private final DoorTypeManager doorTypeManager;
+    private final MovableTypeManager doorTypeManager;
 
     @Getter
     private final ToolUserManager toolUserManager;
@@ -177,7 +177,7 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     private final IPowerBlockRedstoneManager powerBlockRedstoneManager;
 
     @Getter
-    private final DoorTypeLoader doorTypeLoader;
+    private final MovableTypeLoader doorTypeLoader;
 
     @Getter
     private final LocalizationManager localizationManager;

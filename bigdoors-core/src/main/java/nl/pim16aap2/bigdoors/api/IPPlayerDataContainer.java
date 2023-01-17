@@ -46,22 +46,22 @@ interface IPPlayerDataContainer
     boolean hasProtectionBypassPermission();
 
     /**
-     * Gets the limit for the size of doors this player can create/operate based on their permission.
+     * Gets the limit for the size of movables this player can create/operate based on their permission.
      * <p>
      * Note that this does not take the global limit into account.
      *
-     * @return The maximum door size this player can make/operate measured in number of blocks.
+     * @return The maximum movable size this player can make/operate measured in number of blocks.
      */
-    int getDoorSizeLimit();
+    int getMovableSizeLimit();
 
     /**
-     * Gets the limit for the number of doors this player can own based on their permission.
+     * Gets the limit for the number of movables this player can own based on their permission.
      * <p>
      * Note that this does not take the global limit into account.
      *
-     * @return The number of doors this player can own.
+     * @return The number of movables this player can own.
      */
-    int getDoorCountLimit();
+    int getMovableCountLimit();
 
     /**
      * Checks if this player is an OP or not.
@@ -77,7 +77,7 @@ interface IPPlayerDataContainer
      */
     default PPlayerData getPPlayerData()
     {
-        return new PPlayerData(getUUID(), getName(), getDoorSizeLimit(), getDoorCountLimit(),
+        return new PPlayerData(getUUID(), getName(), getMovableSizeLimit(), getMovableCountLimit(),
                                isOp(), hasProtectionBypassPermission());
     }
 

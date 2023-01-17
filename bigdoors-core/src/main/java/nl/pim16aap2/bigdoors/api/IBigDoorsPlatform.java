@@ -10,14 +10,14 @@ import nl.pim16aap2.bigdoors.commands.IPServer;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
-import nl.pim16aap2.bigdoors.managers.DoorRegistry;
-import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
-import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
+import nl.pim16aap2.bigdoors.managers.MovableRegistry;
+import nl.pim16aap2.bigdoors.managers.MovableSpecificationManager;
+import nl.pim16aap2.bigdoors.managers.MovableTypeManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
-import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
+import nl.pim16aap2.bigdoors.moveblocks.MovableActivityManager;
 
 /**
  * Represents a set of getter methods to get access to the internals of BigDoors.
@@ -143,11 +143,11 @@ public interface IBigDoorsPlatform
     IPServer getPServer();
 
     /**
-     * Gets the {@link DoorRegistry}.
+     * Gets the {@link MovableRegistry}.
      *
-     * @return The {@link DoorRegistry}.
+     * @return The {@link MovableRegistry}.
      */
-    DoorRegistry getDoorRegistry();
+    MovableRegistry getDoorRegistry();
 
     /**
      * Gets the {@link AutoCloseScheduler} instance.
@@ -169,25 +169,25 @@ public interface IBigDoorsPlatform
     DatabaseManager getDatabaseManager();
 
     /**
-     * Gets the {@link DoorActivityManager} instance.
+     * Gets the {@link MovableActivityManager} instance.
      *
-     * @return The {@link DoorActivityManager} instance.
+     * @return The {@link MovableActivityManager} instance.
      */
-    DoorActivityManager getDoorActivityManager();
+    MovableActivityManager getDoorActivityManager();
 
     /**
-     * Gets the {@link DoorSpecificationManager} instance.
+     * Gets the {@link MovableSpecificationManager} instance.
      *
-     * @return The {@link DoorSpecificationManager} instance.
+     * @return The {@link MovableSpecificationManager} instance.
      */
-    DoorSpecificationManager getDoorSpecificationManager();
+    MovableSpecificationManager getDoorSpecificationManager();
 
     /**
-     * Gets the {@link DoorTypeManager} instance.
+     * Gets the {@link MovableTypeManager} instance.
      *
-     * @return The {@link DoorTypeManager} instance.
+     * @return The {@link MovableTypeManager} instance.
      */
-    DoorTypeManager getDoorTypeManager();
+    MovableTypeManager getDoorTypeManager();
 
     /**
      * Gets the {@link ToolUserManager} instance.

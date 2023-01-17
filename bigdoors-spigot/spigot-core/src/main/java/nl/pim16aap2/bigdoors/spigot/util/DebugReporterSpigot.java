@@ -6,15 +6,15 @@ import nl.pim16aap2.bigdoors.api.debugging.DebugReporter;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsPlugin;
 import nl.pim16aap2.bigdoors.spigot.events.BigDoorsSpigotEvent;
-import nl.pim16aap2.bigdoors.spigot.events.DoorCreatedEvent;
-import nl.pim16aap2.bigdoors.spigot.events.DoorPrepareAddOwnerEvent;
-import nl.pim16aap2.bigdoors.spigot.events.DoorPrepareCreateEvent;
-import nl.pim16aap2.bigdoors.spigot.events.DoorPrepareDeleteEvent;
-import nl.pim16aap2.bigdoors.spigot.events.DoorPrepareLockChangeEvent;
-import nl.pim16aap2.bigdoors.spigot.events.DoorPrepareRemoveOwnerEvent;
-import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorEventToggleEnd;
-import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorEventTogglePrepare;
-import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorEventToggleStart;
+import nl.pim16aap2.bigdoors.spigot.events.MovableCreatedEvent;
+import nl.pim16aap2.bigdoors.spigot.events.MovablePrepareAddOwnerEvent;
+import nl.pim16aap2.bigdoors.spigot.events.MovablePrepareCreateEvent;
+import nl.pim16aap2.bigdoors.spigot.events.MovablePrepareDeleteEvent;
+import nl.pim16aap2.bigdoors.spigot.events.MovablePrepareLockChangeEvent;
+import nl.pim16aap2.bigdoors.spigot.events.MovablePrepareRemoveOwnerEvent;
+import nl.pim16aap2.bigdoors.spigot.events.dooraction.MovableEventToggleEnd;
+import nl.pim16aap2.bigdoors.spigot.events.dooraction.MovableEventTogglePrepare;
+import nl.pim16aap2.bigdoors.spigot.events.dooraction.MovableEventToggleStart;
 import nl.pim16aap2.bigdoors.spigot.util.api.IBigDoorsSpigotSubPlatform;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.util.SafeStringBuilder;
@@ -35,8 +35,9 @@ public class DebugReporterSpigot extends DebugReporter
     private final @Nullable IBigDoorsSpigotSubPlatform subPlatform;
 
     @Inject
-    public DebugReporterSpigot(BigDoorsPlugin bigDoorsPlugin, IBigDoorsPlatformProvider platformProvider,
-                               @Nullable IBigDoorsSpigotSubPlatform subPlatform, DebuggableRegistry debuggableRegistry)
+    public DebugReporterSpigot(
+        BigDoorsPlugin bigDoorsPlugin, IBigDoorsPlatformProvider platformProvider,
+        @Nullable IBigDoorsSpigotSubPlatform subPlatform, DebuggableRegistry debuggableRegistry)
     {
         super(debuggableRegistry, platformProvider);
         this.bigDoorsPlugin = bigDoorsPlugin;
@@ -58,15 +59,15 @@ public class DebugReporterSpigot extends DebugReporter
 //            .append("Enabled protection hooks: ")
 //            .append(getAllProtectionHooksOrSomething())
 
-            .append("EventListeners:\n").append(getListeners(DoorPrepareAddOwnerEvent.class,
-                                                             DoorPrepareCreateEvent.class,
-                                                             DoorPrepareDeleteEvent.class,
-                                                             DoorPrepareLockChangeEvent.class,
-                                                             DoorPrepareRemoveOwnerEvent.class,
-                                                             DoorCreatedEvent.class,
-                                                             DoorEventToggleEnd.class,
-                                                             DoorEventTogglePrepare.class,
-                                                             DoorEventToggleStart.class))
+            .append("EventListeners:\n").append(getListeners(MovablePrepareAddOwnerEvent.class,
+                                                             MovablePrepareCreateEvent.class,
+                                                             MovablePrepareDeleteEvent.class,
+                                                             MovablePrepareLockChangeEvent.class,
+                                                             MovablePrepareRemoveOwnerEvent.class,
+                                                             MovableCreatedEvent.class,
+                                                             MovableEventToggleEnd.class,
+                                                             MovableEventTogglePrepare.class,
+                                                             MovableEventToggleStart.class))
             .append('\n')
             .toString();
     }

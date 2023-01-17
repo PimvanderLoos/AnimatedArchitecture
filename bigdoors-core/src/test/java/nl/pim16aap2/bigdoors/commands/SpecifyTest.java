@@ -4,7 +4,7 @@ import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
+import nl.pim16aap2.bigdoors.managers.MovableSpecificationManager;
 import nl.pim16aap2.bigdoors.text.Text;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,7 +23,7 @@ class SpecifyTest
     private IPPlayer commandSender;
 
     @Mock
-    private DoorSpecificationManager doorSpecificationManager;
+    private MovableSpecificationManager movableSpecificationManager;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private Specify.IFactory factory;
@@ -40,7 +40,7 @@ class SpecifyTest
         Mockito.when(factory.newSpecify(Mockito.any(ICommandSender.class), Mockito.anyString()))
                .thenAnswer(invoc -> new Specify(invoc.getArgument(0, ICommandSender.class), localizer,
                                                 ITextFactory.getSimpleTextFactory(),
-                                                invoc.getArgument(1, String.class), doorSpecificationManager));
+                                                invoc.getArgument(1, String.class), movableSpecificationManager));
     }
 
     @Test
@@ -49,23 +49,23 @@ class SpecifyTest
     {
         final IPServer server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
         Assertions.assertTrue(factory.newSpecify(server, "newDoor").run().get(1, TimeUnit.SECONDS));
-        Mockito.verify(doorSpecificationManager, Mockito.never()).handleInput(Mockito.any(), Mockito.any());
+        Mockito.verify(movableSpecificationManager, Mockito.never()).handleInput(Mockito.any(), Mockito.any());
     }
 
     @Test
     void testExecution()
         throws Exception
     {
-        Mockito.when(doorSpecificationManager.handleInput(Mockito.any(), Mockito.any())).thenReturn(true);
+        Mockito.when(movableSpecificationManager.handleInput(Mockito.any(), Mockito.any())).thenReturn(true);
         final String input = "newDoor";
         Assertions.assertTrue(factory.newSpecify(commandSender, input).run().get(1, TimeUnit.SECONDS));
-        Mockito.verify(doorSpecificationManager).handleInput(commandSender, input);
+        Mockito.verify(movableSpecificationManager).handleInput(commandSender, input);
         Mockito.verify(commandSender, Mockito.never()).sendMessage(Mockito.any(Text.class));
 
         // Test again, but now the command sender is not an active tool user.
-        Mockito.when(doorSpecificationManager.handleInput(Mockito.any(), Mockito.any())).thenReturn(false);
+        Mockito.when(movableSpecificationManager.handleInput(Mockito.any(), Mockito.any())).thenReturn(false);
         Assertions.assertTrue(factory.newSpecify(commandSender, input).run().get(1, TimeUnit.SECONDS));
-        Mockito.verify(doorSpecificationManager, Mockito.times(2)).handleInput(commandSender, input);
+        Mockito.verify(movableSpecificationManager, Mockito.times(2)).handleInput(commandSender, input);
         Mockito.verify(commandSender).sendMessage(Mockito.any(Text.class));
     }
 }

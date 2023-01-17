@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.localization;
 
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.movable.AbstractMovable;
+import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 
 import java.util.List;
 import java.util.Locale;
@@ -42,23 +42,23 @@ public interface ILocalizer
     String getMessage(String key, Object... args);
 
     /**
-     * Shortcut {@link #getMessage(String, Object...)} for {@link DoorType#getLocalizationKey()}.
+     * Shortcut {@link #getMessage(String, Object...)} for {@link MovableType#getLocalizationKey()}.
      *
-     * @param doorType
-     *     The door type to localize.
-     * @return The localized name of the door type.
+     * @param movableType
+     *     The movable type to localize.
+     * @return The localized name of the movable type.
      */
-    default String getDoorType(DoorType doorType)
+    default String getMovableType(MovableType movableType)
     {
-        return getMessage(doorType.getLocalizationKey());
+        return getMessage(movableType.getLocalizationKey());
     }
 
     /**
-     * See {@link #getDoorType(DoorType)}
+     * See {@link #getMovableType(MovableType)}
      */
-    default String getDoorType(AbstractDoor door)
+    default String getMovableType(AbstractMovable movable)
     {
-        return getDoorType(door.getDoorType());
+        return getMovableType(movable.getMovableType());
     }
 
     /**

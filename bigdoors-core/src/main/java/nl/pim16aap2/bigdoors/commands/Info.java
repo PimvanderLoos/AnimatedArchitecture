@@ -7,33 +7,33 @@ import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.doors.DoorAttribute;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.movable.AbstractMovable;
+import nl.pim16aap2.bigdoors.movable.MovableAttribute;
+import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.text.TextType;
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
+import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
+import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Represents the information command that provides the issuer with more information about the door.
+ * Represents the information command that provides the issuer with more information about the movable.
  *
  * @author Pim
  */
 @ToString
-public class Info extends DoorTargetCommand
+public class Info extends MovableTargetCommand
 {
     private final GlowingBlockSpawner glowingBlockSpawner;
 
     @AssistedInject //
     Info(
         @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
-        @Assisted DoorRetriever doorRetriever, GlowingBlockSpawner glowingBlockSpawner)
+        @Assisted MovableRetriever movableRetriever, GlowingBlockSpawner glowingBlockSpawner)
     {
-        super(commandSender, localizer, textFactory, doorRetriever, DoorAttribute.INFO);
+        super(commandSender, localizer, textFactory, movableRetriever, MovableAttribute.INFO);
         this.glowingBlockSpawner = glowingBlockSpawner;
     }
 
@@ -44,18 +44,18 @@ public class Info extends DoorTargetCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> performAction(AbstractDoor door)
+    protected CompletableFuture<Boolean> performAction(AbstractMovable movable)
     {
-        getCommandSender().sendMessage(textFactory, TextType.INFO, door.toString());
-        highlightBlocks(door);
+        getCommandSender().sendMessage(textFactory, TextType.INFO, movable.toString());
+        highlightBlocks(movable);
         return CompletableFuture.completedFuture(true);
     }
 
-    protected void highlightBlocks(AbstractDoor doorBase)
+    protected void highlightBlocks(AbstractMovable movable)
     {
         if (!(getCommandSender() instanceof IPPlayer))
             return;
-        glowingBlockSpawner.spawnGlowingBlocks(doorBase, (IPPlayer) getCommandSender(), Duration.ofSeconds(3));
+        glowingBlockSpawner.spawnGlowingBlocks(movable, (IPPlayer) getCommandSender(), Duration.ofSeconds(3));
     }
 
     @AssistedFactory
@@ -65,13 +65,13 @@ public class Info extends DoorTargetCommand
          * Creates (but does not execute!) a new {@link Info} command.
          *
          * @param commandSender
-         *     The {@link ICommandSender} responsible for retrieving the door info and the receiver of the door's
+         *     The {@link ICommandSender} responsible for retrieving the movable info and the receiver of the movable's
          *     information.
-         * @param doorRetriever
-         *     A {@link DoorRetrieverFactory} representing the {@link DoorBase} for which the information will be
+         * @param movableRetriever
+         *     A {@link MovableRetrieverFactory} representing the {@link MovableBase} for which the information will be
          *     retrieved.
          * @return See {@link BaseCommand#run()}.
          */
-        Info newInfo(ICommandSender commandSender, DoorRetriever doorRetriever);
+        Info newInfo(ICommandSender commandSender, MovableRetriever movableRetriever);
     }
 }

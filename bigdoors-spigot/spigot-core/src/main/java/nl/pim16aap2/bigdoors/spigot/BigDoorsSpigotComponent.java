@@ -22,8 +22,8 @@ import nl.pim16aap2.bigdoors.audio.AudioAnimationHook;
 import nl.pim16aap2.bigdoors.audio.IAudioPlayer;
 import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.commands.IPServer;
-import nl.pim16aap2.bigdoors.events.IDoorEventCaller;
-import nl.pim16aap2.bigdoors.extensions.DoorTypeLoader;
+import nl.pim16aap2.bigdoors.events.IBigDoorsEventCaller;
+import nl.pim16aap2.bigdoors.extensions.MovableTypeLoader;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.localization.LocalizationManager;
 import nl.pim16aap2.bigdoors.localization.LocalizationModule;
@@ -31,14 +31,14 @@ import nl.pim16aap2.bigdoors.managers.AnimatedBlockHookManager;
 import nl.pim16aap2.bigdoors.managers.AnimationHookManager;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
-import nl.pim16aap2.bigdoors.managers.DoorRegistry;
-import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
-import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
+import nl.pim16aap2.bigdoors.managers.MovableRegistry;
+import nl.pim16aap2.bigdoors.managers.MovableSpecificationManager;
+import nl.pim16aap2.bigdoors.managers.MovableTypeManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
-import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
+import nl.pim16aap2.bigdoors.moveblocks.MovableActivityManager;
 import nl.pim16aap2.bigdoors.spigot.comands.CommandManager;
 import nl.pim16aap2.bigdoors.spigot.compatiblity.ProtectionCompatManagerModule;
 import nl.pim16aap2.bigdoors.spigot.compatiblity.ProtectionCompatManagerSpigot;
@@ -129,7 +129,7 @@ interface BigDoorsSpigotComponent
 
     SubPlatformManager getSubPlatformManager();
 
-    IDoorEventCaller getDoorEventCaller();
+    IBigDoorsEventCaller getDoorEventCaller();
 
     @Named("mainThreadId")
     long getMainThreadId();
@@ -201,15 +201,15 @@ interface BigDoorsSpigotComponent
 
     DatabaseManager getDatabaseManager();
 
-    DoorRegistry getDoorRegistry();
+    MovableRegistry getDoorRegistry();
 
     AutoCloseScheduler getAutoCloseScheduler();
 
-    DoorActivityManager getDoorActivityManager();
+    MovableActivityManager getDoorActivityManager();
 
-    DoorSpecificationManager getDoorSpecificationManager();
+    MovableSpecificationManager getDoorSpecificationManager();
 
-    DoorTypeManager getDoorTypeManager();
+    MovableTypeManager getDoorTypeManager();
 
     ToolUserManager getToolUserManager();
 
@@ -223,7 +223,7 @@ interface BigDoorsSpigotComponent
 
     IBlockAnalyzer getBlockAnalyzer();
 
-    DoorTypeLoader getDoorTypeLoader();
+    MovableTypeLoader getDoorTypeLoader();
 
     CommandFactory getCommandFactory();
 

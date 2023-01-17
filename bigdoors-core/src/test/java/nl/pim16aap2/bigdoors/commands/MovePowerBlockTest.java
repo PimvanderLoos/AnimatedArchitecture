@@ -3,13 +3,13 @@ package nl.pim16aap2.bigdoors.commands;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
+import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.tooluser.PowerBlockRelocator;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
+import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
+import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,10 +35,10 @@ class MovePowerBlockTest
     @Mock
     private ToolUserManager toolUserManager;
 
-    private DoorRetriever doorRetriever;
+    private MovableRetriever doorRetriever;
 
     @Mock
-    private AbstractDoor door;
+    private AbstractMovable door;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private MovePowerBlock.IFactory factory;
@@ -51,9 +51,9 @@ class MovePowerBlockTest
         MockitoAnnotations.openMocks(this);
 
         initCommandSenderPermissions(commandSender, true, true);
-        doorRetriever = DoorRetrieverFactory.ofDoor(door);
-        Mockito.when(door.isDoorOwner(uuid)).thenReturn(true);
-        Mockito.when(door.isDoorOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
+        doorRetriever = MovableRetrieverFactory.ofMovable(door);
+        Mockito.when(door.isOwner(uuid)).thenReturn(true);
+        Mockito.when(door.isOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
         Mockito.when(commandSender.getUUID()).thenReturn(uuid);
         Mockito.when(toolUserManager.getToolUser(uuid)).thenReturn(Optional.of(toolUser));
 
@@ -65,10 +65,10 @@ class MovePowerBlockTest
                .thenReturn(Mockito.mock(PowerBlockRelocator.class));
 
         Mockito.when(factory.newMovePowerBlock(Mockito.any(ICommandSender.class),
-                                               Mockito.any(DoorRetriever.class)))
+                                               Mockito.any(MovableRetriever.class)))
                .thenAnswer(invoc -> new MovePowerBlock(invoc.getArgument(0, ICommandSender.class), localizer,
                                                        ITextFactory.getSimpleTextFactory(),
-                                                       invoc.getArgument(1, DoorRetriever.class),
+                                                       invoc.getArgument(1, MovableRetriever.class),
                                                        toolUserManager, powerBlockRelocatorFactory));
     }
 

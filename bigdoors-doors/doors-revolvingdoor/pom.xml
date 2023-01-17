@@ -6,7 +6,7 @@
     <version>1</version>
 
     <properties>
-        <mainClass>nl.pim16aap2.bigdoors.doors.revolvingdoor.DoorTypeRevolvingDoor</mainClass>
+        <mainClass>nl.pim16aap2.bigdoors.movable.revolvingdoor.MovableRevolvingDoor</mainClass>
         <typeName>RevolvingDoor</typeName>
         <version>1</version>
         <TypeDependencies>bigdoor(1;1)</TypeDependencies>

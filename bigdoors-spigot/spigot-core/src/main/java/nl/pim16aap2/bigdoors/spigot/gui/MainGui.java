@@ -8,8 +8,8 @@ import de.themoep.inventorygui.GuiPageElement;
 import de.themoep.inventorygui.InventoryGui;
 import de.themoep.inventorygui.StaticGuiElement;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsPlugin;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PPlayerSpigot;
@@ -30,31 +30,31 @@ class MainGui
     private final ILocalizer localizer;
     private final InfoGui.IFactory infoGUIFactory;
     private final PPlayerSpigot inventoryHolder;
-    private final Map<Long, AbstractDoor> doors;
+    private final Map<Long, AbstractMovable> movables;
     private InventoryGui inventoryGui;
 
 
     @AssistedInject//
     MainGui(
         BigDoorsPlugin bigDoorsPlugin, ILocalizer localizer, InfoGui.IFactory infoGUIFactory,
-        @Assisted IPPlayer inventoryHolder, @Assisted List<AbstractDoor> doors)
+        @Assisted IPPlayer inventoryHolder, @Assisted List<AbstractMovable> movables)
     {
         this.bigDoorsPlugin = bigDoorsPlugin;
         this.localizer = localizer;
         this.infoGUIFactory = infoGUIFactory;
         this.inventoryHolder = Util.requireNonNull(SpigotAdapter.getPPlayerSpigot(inventoryHolder), "InventoryHolder");
-        this.doors = getDoorsMap(doors);
+        this.movables = getMovablesMap(movables);
 
         this.inventoryGui = createGUI();
 
         showGUI();
     }
 
-    private static Map<Long, AbstractDoor> getDoorsMap(List<AbstractDoor> doors)
+    private static Map<Long, AbstractMovable> getMovablesMap(List<AbstractMovable> movables)
     {
-        final Map<Long, AbstractDoor> ret = new LinkedHashMap<>(doors.size());
-        doors.stream().sorted(Comparator.comparing(AbstractDoor::getName))
-             .forEach(door -> ret.put(door.getDoorUID(), door));
+        final Map<Long, AbstractMovable> ret = new LinkedHashMap<>(movables.size());
+        movables.stream().sorted(Comparator.comparing(AbstractMovable::getName))
+                .forEach(domovableor -> ret.put(domovableor.getUid(), domovableor));
         return ret;
     }
 
@@ -65,7 +65,7 @@ class MainGui
 
     private InventoryGui createGUI()
     {
-        final String[] guiSetup = GuiUtil.fillLinesWithChar('g', doors.size(), "fp     nl");
+        final String[] guiSetup = GuiUtil.fillLinesWithChar('g', movables.size(), "fp     nl");
 
         final InventoryGui gui =
             new InventoryGui(bigDoorsPlugin,
@@ -88,17 +88,17 @@ class MainGui
     private void addElementGroup(InventoryGui gui)
     {
         final GuiElementGroup group = new GuiElementGroup('g');
-        for (final AbstractDoor door : doors.values())
+        for (final AbstractMovable movable : movables.values())
         {
             final StaticGuiElement guiElement = new StaticGuiElement(
                 'e',
                 new ItemStack(Material.OAK_DOOR),
                 click ->
                 {
-                    infoGUIFactory.newInfoGUI(door, inventoryHolder, this);
+                    infoGUIFactory.newInfoGUI(movable, inventoryHolder, this);
                     return true;
                 },
-                door.getName());
+                movable.getName());
             group.addElement(guiElement);
         }
         group.setFiller(FILLER);
@@ -137,16 +137,16 @@ class MainGui
     }
 
     /**
-     * Removes a door from the set of visible doors.
+     * Removes a movable from the set of visible movables.
      * <p>
      * Note that this will not update the GUI on its own. You may need to use {@link #redraw()} for that.
      *
-     * @param door
-     *     The door to remove.
+     * @param movable
+     *     The movable to remove.
      */
-    public void removeDoor(AbstractDoor door)
+    public void removeMovable(AbstractMovable movable)
     {
-        doors.remove(door.getDoorUID());
+        movables.remove(movable.getUid());
     }
 
     @AssistedFactory
@@ -157,9 +157,9 @@ class MainGui
          *
          * @param inventoryHolder
          *     The player for whom to create the GUI.
-         * @param doors
-         *     The doors to show in the GUI.
+         * @param movables
+         *     The movables to show in the GUI.
          */
-        MainGui newGUI(IPPlayer inventoryHolder, List<AbstractDoor> doors);
+        MainGui newGUI(IPPlayer inventoryHolder, List<AbstractMovable> movables);
     }
 }

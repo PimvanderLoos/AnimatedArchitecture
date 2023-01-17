@@ -5,8 +5,8 @@ import lombok.extern.flogger.Flogger;
 import lombok.val;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.doors.DoorAttribute;
+import nl.pim16aap2.bigdoors.movable.IMovableConst;
+import nl.pim16aap2.bigdoors.movable.MovableAttribute;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Contract;
@@ -80,12 +80,12 @@ public final class Util
     private static final Pattern LOCALE_FILE_PATTERN = Pattern.compile("^[\\w-]+\\.properties");
 
     /**
-     * A valid door name.
+     * A valid movable name.
      * <p>
      * All letters "a-zA-Z" are allowed as well as "-" and '_'. Numbers are allowed as well, but only if there are
      * non-number characters in the name as well. For example, '0_MyDoor-0' is allowed, but '0' is not.
      */
-    private static final Pattern VALID_DOOR_NAME = Pattern.compile("^\\w*[a-zA-Z_-]+\\w*$");
+    private static final Pattern VALID_MOVABLE_NAME = Pattern.compile("^\\w*[a-zA-Z_-]+\\w*$");
 
     static
     {
@@ -246,30 +246,30 @@ public final class Util
     }
 
     /**
-     * See {@link #getDistanceToDoor(IPLocation, AbstractDoor)}.
+     * See {@link #getDistanceToMovable(IPLocation, IMovableConst)}.
      * <p>
      * If the player object has no location, -2 is returned.
      */
-    public static double getDistanceToDoor(IPPlayer player, AbstractDoor door)
+    public static double getDistanceToMovable(IPPlayer player, IMovableConst movable)
     {
-        return player.getLocation().map(location -> getDistanceToDoor(location, door)).orElse(-2d);
+        return player.getLocation().map(location -> getDistanceToMovable(location, movable)).orElse(-2d);
     }
 
     /**
-     * Gets the distance between a location and a door. If the location and the door are not in the same world, -1 is
-     * returned.
+     * Gets the distance between a location and a movable. If the location and the movable are not in the same world, -1
+     * is returned.
      *
      * @param location
      *     The location to check.
-     * @param door
-     *     The door to check.
-     * @return The distance between the location and the door if they lie in the same world, otherwise -1.
+     * @param movable
+     *     The movable to check.
+     * @return The distance between the location and the movable if they lie in the same world, otherwise -1.
      */
-    public static double getDistanceToDoor(IPLocation location, AbstractDoor door)
+    public static double getDistanceToMovable(IPLocation location, IMovableConst movable)
     {
-        if (!location.getWorld().equals(door.getWorld()))
+        if (!location.getWorld().equals(movable.getWorld()))
             return -1;
-        return door.getCuboid().getCenter().getDistance(location.getPosition());
+        return movable.getCuboid().getCenter().getDistance(location.getPosition());
     }
 
     /**
@@ -434,7 +434,7 @@ public final class Util
     }
 
     /**
-     * Check if a given string is a valid door name. The following input is not allowed:
+     * Check if a given string is a valid movable name. The following input is not allowed:
      * <p>
      * - Numerical names (numerical values are reserved for UIDs).
      * <p>
@@ -446,12 +446,12 @@ public final class Util
      *     The name to test for validity,
      * @return True if the name is allowed.
      */
-    public static boolean isValidDoorName(@Nullable String name)
+    public static boolean isValidMovableName(@Nullable String name)
     {
         if (name == null || name.isBlank())
             return false;
 
-        return VALID_DOOR_NAME.matcher(name).matches();
+        return VALID_MOVABLE_NAME.matcher(name).matches();
     }
 
     /**
@@ -484,16 +484,17 @@ public final class Util
         return sb.toString();
     }
 
-    public static boolean hasPermissionForAction(UUID uuid, AbstractDoor door, DoorAttribute attribute)
+    public static boolean hasPermissionForAction(UUID uuid, IMovableConst movable, MovableAttribute attribute)
     {
-        return door.getDoorOwner(uuid)
-                   .map(doorOwner -> doorOwner.permission().isLowerThanOrEquals(attribute.getPermissionLevel()))
-                   .orElse(false);
+        return movable
+            .getOwner(uuid)
+            .map(movableOwner -> movableOwner.permission().isLowerThanOrEquals(attribute.getPermissionLevel()))
+            .orElse(false);
     }
 
-    public static boolean hasPermissionForAction(IPPlayer player, AbstractDoor door, DoorAttribute attribute)
+    public static boolean hasPermissionForAction(IPPlayer player, IMovableConst movable, MovableAttribute attribute)
     {
-        return hasPermissionForAction(player.getUUID(), door, attribute);
+        return hasPermissionForAction(player.getUUID(), movable, attribute);
     }
 
     /**
@@ -508,9 +509,7 @@ public final class Util
     public static int getRandomNumber(int min, int max)
     {
         if (min >= max)
-        {
             throw new IllegalArgumentException("max must be greater than min");
-        }
 
         return RANDOM.nextInt((max - min) + 1) + min;
     }

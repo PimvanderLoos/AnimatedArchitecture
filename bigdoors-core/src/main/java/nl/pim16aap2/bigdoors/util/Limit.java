@@ -8,8 +8,8 @@ import java.util.function.Function;
 
 public enum Limit
 {
-    DOOR_SIZE("door_size", IConfigLoader::maxDoorSize),
-    DOOR_COUNT("door_count", IConfigLoader::maxDoorCount),
+    MOVABLE_SIZE("door_size", IConfigLoader::maxMovableSize),
+    MOVABLE_COUNT("door_count", IConfigLoader::maxMovableCount),
     POWERBLOCK_DISTANCE("powerblock_distance", IConfigLoader::maxPowerBlockDistance),
     BLOCKS_TO_MOVE("blocks_to_move", IConfigLoader::maxBlocksToMove),
     ;

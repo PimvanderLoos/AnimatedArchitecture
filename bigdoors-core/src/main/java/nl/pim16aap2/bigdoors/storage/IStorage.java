@@ -2,12 +2,12 @@ package nl.pim16aap2.bigdoors.storage;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.doors.DoorOwner;
-import nl.pim16aap2.bigdoors.doors.IDoorConst;
-import nl.pim16aap2.bigdoors.doors.PermissionLevel;
-import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.movable.AbstractMovable;
+import nl.pim16aap2.bigdoors.movable.IMovableConst;
+import nl.pim16aap2.bigdoors.movable.MovableOwner;
+import nl.pim16aap2.bigdoors.movable.PermissionLevel;
+import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.util.IBitFlag;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 /**
- * Represents storage of all door related stuff.
+ * Represents storage of all movable related stuff.
  *
  * @author Pim
  */
@@ -39,53 +39,53 @@ public interface IStorage
     }
 
     /**
-     * Delete the door with the given doorUID from the database.
+     * Delete the movable with the given movableUID from the database.
      *
-     * @param doorUID
-     *     The UID of the door to delete.
-     * @return True if at least 1 door was successfully removed.
+     * @param movableUID
+     *     The UID of the movable to delete.
+     * @return True if at least 1 movable was successfully removed.
      */
-    boolean removeDoor(long doorUID);
+    boolean removeMovable(long movableUID);
 
     /**
-     * Delete all doors owned by the given player with the given name.
+     * Delete all movables owned by the given player with the given name.
      *
      * @param playerUUID
-     *     The player whose doors to delete.
-     * @param doorName
-     *     The name of the doors to delete.
-     * @return True if at least 1 door was successfully removed.
+     *     The player whose movables to delete.
+     * @param movableName
+     *     The name of the movables to delete.
+     * @return True if at least 1 movable was successfully removed.
      */
-    boolean removeDoors(UUID playerUUID, String doorName);
+    boolean removeMovables(UUID playerUUID, String movableName);
 
     /**
-     * Checks whether there are any doors in a given world.
+     * Checks whether there are any movables in a given world.
      *
      * @param worldName
      *     The name of the world.
-     * @return True if there are more than 0 doors in the given world.
+     * @return True if there are more than 0 movables in the given world.
      */
     boolean isBigDoorsWorld(String worldName);
 
     /**
-     * Gets the total number of doors own by the given player.
+     * Gets the total number of movables own by the given player.
      *
      * @param playerUUID
-     *     The uuid of the player whose doors to count.
-     * @return The total number of doors own by the given player.
+     *     The uuid of the player whose movables to count.
+     * @return The total number of movables own by the given player.
      */
-    int getDoorCountForPlayer(UUID playerUUID);
+    int getMovableCountForPlayer(UUID playerUUID);
 
     /**
-     * Gets the number of doors own by the given player with the given name.
+     * Gets the number of movables own by the given player with the given name.
      *
      * @param playerUUID
-     *     The uuid of the player whose doors to count.
-     * @param doorName
-     *     The name of the door to search for.
-     * @return The number of doors own by the given player with the given name.
+     *     The uuid of the player whose movables to count.
+     * @param movableName
+     *     The name of the movable to search for.
+     * @return The number of movables own by the given player with the given name.
      */
-    int getDoorCountForPlayer(UUID playerUUID, String doorName);
+    int getMovableCountForPlayer(UUID playerUUID, String movableName);
 
     /**
      * Updates the {@link PPlayerData} for a given player.
@@ -118,143 +118,143 @@ public interface IStorage
     List<PPlayerData> getPlayerData(String playerName);
 
     /**
-     * Gets the total number of doors with the given name regardless of who owns them.
+     * Gets the total number of movables with the given name regardless of who owns them.
      *
-     * @param doorName
-     *     The name of the doors to search for.
-     * @return The total number of doors with the given name.
+     * @param movableName
+     *     The name of the movables to search for.
+     * @return The total number of movables with the given name.
      */
-    int getDoorCountByName(String doorName);
+    int getMovableCountByName(String movableName);
 
     /**
-     * Gets the total number of owners of a door.
+     * Gets the total number of owners of a movable.
      *
-     * @param doorUID
-     *     The {@link AbstractDoor}.
-     * @return The total number of owners of this door.
+     * @param movableUID
+     *     The {@link AbstractMovable}.
+     * @return The total number of owners of this movable.
      */
-    int getOwnerCountOfDoor(long doorUID);
+    int getOwnerCountOfMovable(long movableUID);
 
     /**
-     * Gets the door with the given UID for the given player at the level of ownership this player has over this door,
-     * if any.
+     * Gets the movable with the given UID for the given player at the level of ownership this player has over the
+     * movable, if any.
      *
      * @param playerUUID
      *     The UUID of the player.
-     * @param doorUID
-     *     The UID of the door to retrieve.
-     * @return The door if it exists and if the player is an owner of it.
+     * @param movableUID
+     *     The UID of the movable to retrieve.
+     * @return The movable if it exists and if the player is an owner of it.
      */
-    Optional<AbstractDoor> getDoor(UUID playerUUID, long doorUID);
+    Optional<AbstractMovable> getMovable(UUID playerUUID, long movableUID);
 
     /**
-     * Gets the door with the given doorUID and the original creator as {@link DoorOwner};
+     * Gets the movable with the given movableUID and the original creator as {@link MovableOwner};
      *
-     * @param doorUID
-     *     The UID of the door to retrieve.
-     * @return The door with the given doorUID and the original creator.
+     * @param movableUID
+     *     The UID of the movable to retrieve.
+     * @return The movable with the given movableUID and the original creator.
      */
-    Optional<AbstractDoor> getDoor(long doorUID);
+    Optional<AbstractMovable> getMovable(long movableUID);
 
     /**
-     * Gets all the doors owned by the given player with the given name.
+     * Gets all the movables owned by the given player with the given name.
      *
      * @param playerUUID
      *     The UUID of the player to search for.
      * @param name
-     *     The name of the doors to search for.
-     * @return All doors owned by the given player with the given name.
+     *     The name of the movables to search for.
+     * @return All movables owned by the given player with the given name.
      */
-    List<AbstractDoor> getDoors(UUID playerUUID, String name);
+    List<AbstractMovable> getMovables(UUID playerUUID, String name);
 
     /**
-     * Gets all the doors owned by the given player.
+     * Gets all the movables owned by the given player.
      *
      * @param playerUUID
      *     The UUID of the player to search for.
-     * @return All doors owned by the given player.
+     * @return All movables owned by the given player.
      */
-    List<AbstractDoor> getDoors(UUID playerUUID);
+    List<AbstractMovable> getMovables(UUID playerUUID);
 
     /**
-     * Gets all the doors with the given name, regardless of who owns them.
+     * Gets all the movables with the given name, regardless of who owns them.
      *
      * @param name
-     *     The name of the doors to search for.
-     * @return All doors with the given name or an empty Optional if none exist.
+     *     The name of the movables to search for.
+     * @return All movables with the given name or an empty Optional if none exist.
      */
-    List<AbstractDoor> getDoors(String name);
+    List<AbstractMovable> getMovables(String name);
 
     /**
-     * Gets all the doors with the given name, owned by the player with at least a certain permission level.
+     * Gets all the movables with the given name, owned by the player with at least a certain permission level.
      *
      * @param playerUUID
-     *     The name of the player who owns the doors.
-     * @param doorName
-     *     The name of the doors to search for.
+     *     The name of the player who owns the movables.
+     * @param movableName
+     *     The name of the movables to search for.
      * @param maxPermission
-     *     The maximum level of ownership (inclusive) this player has over the doors.
-     * @return All the doors with the given name, owned the player with at least a certain permission level.
+     *     The maximum level of ownership (inclusive) this player has over the movables.
+     * @return All the movables with the given name, owned the player with at least a certain permission level.
      */
-    List<AbstractDoor> getDoors(UUID playerUUID, String doorName, PermissionLevel maxPermission);
+    List<AbstractMovable> getMovables(UUID playerUUID, String movableName, PermissionLevel maxPermission);
 
     /**
-     * Gets all the doors owned by a given player with at least a certain permission level.
+     * Gets all the movables owned by a given player with at least a certain permission level.
      *
      * @param playerUUID
-     *     The name of the player who owns the doors.
+     *     The name of the player who owns the movables.
      * @param maxPermission
-     *     The maximum level of ownership (inclusive) this player has over the doors.
-     * @return All the doors owned by the player with at least a certain permission level.
+     *     The maximum level of ownership (inclusive) this player has over the movables.
+     * @return All the movables owned by the player with at least a certain permission level.
      */
-    List<AbstractDoor> getDoors(UUID playerUUID, PermissionLevel maxPermission);
+    List<AbstractMovable> getMovables(UUID playerUUID, PermissionLevel maxPermission);
 
     /**
-     * Gets a map of location hashes and their connected powerblocks for all doors in a chunk.
+     * Gets a map of location hashes and their connected powerblocks for all movables in a chunk.
      * <p>
-     * The key is the hashed location in chunk space, the value is the list of UIDs of the doors whose powerblocks
+     * The key is the hashed location in chunk space, the value is the list of UIDs of the movables whose powerblocks
      * occupies that location.
      *
      * @param chunkId
-     *     The id of the chunk the doors are in.
-     * @return A map of location hashes and their connected powerblocks for all doors in a chunk.
+     *     The id of the chunk the movables are in.
+     * @return A map of location hashes and their connected powerblocks for all movables in a chunk.
      */
     ConcurrentHashMap<Integer, List<Long>> getPowerBlockData(long chunkId);
 
     /**
-     * Gets a list of door UIDs that have their rotation point in a given chunk.
+     * Gets a list of movable UIDs that have their rotation point in a given chunk.
      *
      * @param chunkId
-     *     The id of the chunk the doors are in.
-     * @return A list of door UIDs that have their rotation point in a given chunk.
+     *     The id of the chunk the movables are in.
+     * @return A list of movable UIDs that have their rotation point in a given chunk.
      */
-    List<Long> getDoorsInChunk(long chunkId);
+    List<Long> getMovablesInChunk(long chunkId);
 
     /**
-     * Inserts a new door in the database. If the insertion was successful, a new {@link AbstractDoor} will be created
-     * with the correct doorUID.
+     * Inserts a new movable in the database. If the insertion was successful, a new {@link AbstractMovable} will be
+     * created with the correct movableUID.
      *
-     * @param door
-     *     The door to insert.
-     * @return The {@link AbstractDoor} that was just inserted if insertion was successful. This is
+     * @param movable
+     *     The movable to insert.
+     * @return The {@link AbstractMovable} that was just inserted if insertion was successful. This is
      * <u><b>NOT!!</b></u> the same object as the one passed to this method.
      */
-    Optional<AbstractDoor> insert(AbstractDoor door);
+    Optional<AbstractMovable> insert(AbstractMovable movable);
 
     /**
-     * Synchronizes an {@link AbstractDoor} door with the database. This will synchronize both the base and the
-     * type-specific data of the {@link AbstractDoor}.
+     * Synchronizes an {@link AbstractMovable} movable with the database. This will synchronize both the base and the
+     * type-specific data of the {@link AbstractMovable}.
      *
-     * @param door
-     *     The {@link IDoorConst} that describes the data of door.
+     * @param movable
+     *     The {@link IMovableConst} that describes the data of movable.
      * @param typeData
-     *     The type-specific data of this door.
+     *     The type-specific data of this movable.
      * @return True if the update was successful.
      */
-    boolean syncDoorData(IDoorConst door, byte[] typeData);
+    boolean syncMovableData(IMovableConst movable, byte[] typeData);
 
     /**
-     * Retrieves all {@link DatabaseManager.DoorIdentifier}s that start with the provided input.
+     * Retrieves all {@link DatabaseManager.MovableIdentifier}s that start with the provided input.
      * <p>
      * For example, this method can retrieve the identifiers "1", "10", "11", "100", etc. from an input of "1" or
      * "MyDoor", "MyPortcullis", "MyOtherDoor", etc. from an input of "My".
@@ -262,81 +262,81 @@ public interface IStorage
      * @param input
      *     The partial identifier to look for.
      * @param player
-     *     The player that should own the doors. May be null to disregard ownership.
+     *     The player that should own the movables. May be null to disregard ownership.
      * @param maxPermission
-     *     The maximum level of ownership (inclusive) this player has over the doors.
-     * @return All {@link DatabaseManager.DoorIdentifier}s that start with the provided input.
+     *     The maximum level of ownership (inclusive) this player has over the movables.
+     * @return All {@link DatabaseManager.MovableIdentifier}s that start with the provided input.
      */
-    List<DatabaseManager.DoorIdentifier> getPartialIdentifiers(
+    List<DatabaseManager.MovableIdentifier> getPartialIdentifiers(
         String input, @Nullable IPPlayer player, PermissionLevel maxPermission);
 
     /**
-     * Deletes a {@link DoorType} and all {@link AbstractDoor}s of this type from the database.
+     * Deletes a {@link MovableType} and all {@link AbstractMovable}s of this type from the database.
      * <p>
-     * Note that the {@link DoorType} has to be registered before it can be deleted! It doesn't need to be enabled,
+     * Note that the {@link MovableType} has to be registered before it can be deleted! It doesn't need to be enabled,
      * though.
      *
-     * @param doorType
-     *     The {@link DoorType} to delete.
+     * @param movableType
+     *     The {@link MovableType} to delete.
      * @return True if deletion was successful.
      */
-    boolean deleteDoorType(DoorType doorType);
+    boolean deleteMovableType(MovableType movableType);
 
     /**
-     * Removes an owner of a door. Note that the original creator can never be removed.
+     * Removes an owner of a movable. Note that the original creator can never be removed.
      *
-     * @param doorUID
-     *     The UID of the door to modify.
+     * @param movableUID
+     *     The UID of the movable to modify.
      * @param playerUUID
-     *     The UUID of the player to remove as owner of the door.
+     *     The UUID of the player to remove as owner of the movable.
      * @return True if an owner was removed.
      */
-    boolean removeOwner(long doorUID, UUID playerUUID);
+    boolean removeOwner(long movableUID, UUID playerUUID);
 
     /**
-     * Adds a player as owner of a door with at a certain permission level to a door.
+     * Adds a player as owner of a movable with at a certain permission level to a movable.
      * <p>
      * Note that permission level 0 is reserved for the creator, and negative values are not allowed.
      *
-     * @param doorUID
-     *     The UID of the door to modify.
+     * @param movableUID
+     *     The UID of the movable to modify.
      * @param player
      *     The player to add as owner.
      * @param permission
-     *     The level of ownership the player will have over the door.
+     *     The level of ownership the player will have over the movable.
      * @return True if the update was successful.
      */
-    boolean addOwner(long doorUID, PPlayerData player, PermissionLevel permission);
+    boolean addOwner(long movableUID, PPlayerData player, PermissionLevel permission);
 
     /**
-     * Gets the flag value of various boolean properties of a {@link AbstractDoor}.
+     * Gets the flag value of various boolean properties of a {@link AbstractMovable}.
      *
-     * @param door
-     *     The {@link AbstractDoor}.
-     * @return The flag value of a {@link AbstractDoor}.
+     * @param movable
+     *     The {@link AbstractMovable}.
+     * @return The flag value of a {@link AbstractMovable}.
      */
-    default long getFlag(AbstractDoor door)
+    default long getFlag(AbstractMovable movable)
     {
         long flag = 0;
-        flag = IBitFlag.changeFlag(DoorFlag.getFlagValue(DoorFlag.IS_OPEN), door.isOpen(), flag);
-        flag = IBitFlag.changeFlag(DoorFlag.getFlagValue(DoorFlag.IS_LOCKED), door.isLocked(), flag);
+        flag = IBitFlag.changeFlag(MovableFlag.getFlagValue(MovableFlag.IS_OPEN), movable.isOpen(), flag);
+        flag = IBitFlag.changeFlag(MovableFlag.getFlagValue(MovableFlag.IS_LOCKED), movable.isLocked(), flag);
         return flag;
     }
 
     /**
-     * Gets the flag value of various boolean properties of a {@link AbstractDoor}.
+     * Gets the flag value of various boolean properties of a {@link AbstractMovable}.
      *
      * @param isOpen
-     *     Whether the door is currently open.
+     *     Whether the movable is currently open.
      * @param isLocked
-     *     Whether the door is currently locked.
-     * @return The flag value of a {@link AbstractDoor}.
+     *     Whether the movable is currently locked.
+     * @return The flag value of a {@link AbstractMovable}.
      */
     default long getFlag(boolean isOpen, boolean isLocked)
     {
         long flag = 0;
-        flag = IBitFlag.changeFlag(DoorFlag.getFlagValue(DoorFlag.IS_OPEN), isOpen, flag);
-        flag = IBitFlag.changeFlag(DoorFlag.getFlagValue(DoorFlag.IS_LOCKED), isLocked, flag);
+        flag = IBitFlag.changeFlag(MovableFlag.getFlagValue(MovableFlag.IS_OPEN), isOpen, flag);
+        flag = IBitFlag.changeFlag(MovableFlag.getFlagValue(MovableFlag.IS_LOCKED), isLocked, flag);
         return flag;
     }
 
@@ -391,24 +391,24 @@ public interface IStorage
     }
 
     /**
-     * Set of bit flags to represent various properties of doors.
+     * Set of bit flags to represent various properties of movables.
      *
      * @author Pim
      */
-    enum DoorFlag implements IBitFlag
+    enum MovableFlag implements IBitFlag
     {
         /**
-         * Consider a door to be opened if this flag is enabled.
+         * Consider a movable to be opened if this flag is enabled.
          */
         IS_OPEN(0b00000001),
 
         /**
-         * Consider a door to be locked if this flag is enabled.
+         * Consider a movable to be locked if this flag is enabled.
          */
         IS_LOCKED(0b00000010),
 
         /**
-         * Consider a door switched on if this flag is enabled. Used in cases of perpetual movement.
+         * Consider a movable switched on if this flag is enabled. Used in cases of perpetual movement.
          */
         IS_SWITCHED_ON(0b00000100),
         ;
@@ -418,19 +418,19 @@ public interface IStorage
          */
         private final long flagValue;
 
-        DoorFlag(long flagValue)
+        MovableFlag(long flagValue)
         {
             this.flagValue = flagValue;
         }
 
         /**
-         * Gets the flag value of a {@link DoorFlag}.
+         * Gets the flag value of a {@link MovableFlag}.
          *
          * @param flag
-         *     The {@link DoorFlag}.
-         * @return The flag value of a {@link DoorFlag}.
+         *     The {@link MovableFlag}.
+         * @return The flag value of a {@link MovableFlag}.
          */
-        public static long getFlagValue(DoorFlag flag)
+        public static long getFlagValue(MovableFlag flag)
         {
             return flag.flagValue;
         }

@@ -2,8 +2,8 @@ package nl.pim16aap2.bigdoors.tooluser.creator;
 
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.movable.AbstractMovable;
+import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.util.Cuboid;
@@ -23,7 +23,7 @@ import java.util.List;
  */
 class CreatorFullTest extends CreatorTestsUtil
 {
-    private static DoorType doorType;
+    private static MovableType movableType;
 
     @Test
     void runThroughProcess()
@@ -31,21 +31,21 @@ class CreatorFullTest extends CreatorTestsUtil
         rotationPoint = new Cuboid(min, max).getCenterBlock();
         openDirection = RotateDirection.NORTH;
 
-        doorType = Mockito.mock(DoorType.class);
-        Mockito.when(doorType.getValidOpenDirections())
+        movableType = Mockito.mock(MovableType.class);
+        Mockito.when(movableType.getValidOpenDirections())
                .thenReturn(EnumSet.of(RotateDirection.NORTH, RotateDirection.SOUTH));
 
-        final var door = Mockito.mock(AbstractDoor.class);
-        Mockito.when(door.getDoorType()).thenReturn(doorType);
+        final var movable = Mockito.mock(AbstractMovable.class);
+        Mockito.when(movable.getMovableType()).thenReturn(movableType);
 
-        final var creator = new CreatorTestImpl(context, player, door);
+        final var creator = new CreatorTestImpl(context, player, movable);
 
         setEconomyEnabled(true);
         setEconomyPrice(12.34);
-        setBuyDoor(true);
+        setBuyMovable(true);
 
-        testCreation(creator, door,
-                     doorName,
+        testCreation(creator, movable,
+                     movableName,
                      UnitTestUtil.getLocation(min, world),
                      UnitTestUtil.getLocation(max, world),
                      UnitTestUtil.getLocation(rotationPoint, world),
@@ -61,21 +61,21 @@ class CreatorFullTest extends CreatorTestsUtil
         rotationPoint = new Cuboid(min, max).getCenterBlock();
         openDirection = RotateDirection.NORTH;
 
-        doorType = Mockito.mock(DoorType.class);
-        Mockito.when(doorType.getValidOpenDirections())
+        movableType = Mockito.mock(MovableType.class);
+        Mockito.when(movableType.getValidOpenDirections())
                .thenReturn(EnumSet.of(RotateDirection.NORTH, RotateDirection.SOUTH));
 
-        final var door = Mockito.mock(AbstractDoor.class);
-        Mockito.when(door.getDoorType()).thenReturn(doorType);
+        final var movable = Mockito.mock(AbstractMovable.class);
+        Mockito.when(movable.getMovableType()).thenReturn(movableType);
 
-        final var creator = new CreatorTestImpl(context, player, door);
+        final var creator = new CreatorTestImpl(context, player, movable);
 
         setEconomyEnabled(true);
         setEconomyPrice(12.34);
-        setBuyDoor(true);
+        setBuyMovable(true);
 
         applySteps(creator,
-                   doorName,
+                   movableName,
                    UnitTestUtil.getLocation(min, world),
                    UnitTestUtil.getLocation(max, world),
                    UnitTestUtil.getLocation(rotationPoint, world),
@@ -86,17 +86,17 @@ class CreatorFullTest extends CreatorTestsUtil
         Assertions.assertTrue(delayedCommandInputManager.getInputRequest(player).get()
                                                         .provide(openDirection).join());
 
-        testCreation(creator, door, true);
+        testCreation(creator, movable, true);
     }
 
     private static class CreatorTestImpl extends Creator
     {
-        private final AbstractDoor door;
+        private final AbstractMovable movable;
 
-        protected CreatorTestImpl(ToolUser.Context context, IPPlayer player, AbstractDoor door)
+        protected CreatorTestImpl(ToolUser.Context context, IPPlayer player, AbstractMovable movable)
         {
             super(context, player, null);
-            this.door = door;
+            this.movable = movable;
         }
 
         @Override
@@ -119,15 +119,15 @@ class CreatorFullTest extends CreatorTestsUtil
         }
 
         @Override
-        protected AbstractDoor constructDoor()
+        protected AbstractMovable constructMovable()
         {
-            return door;
+            return movable;
         }
 
         @Override
-        protected DoorType getDoorType()
+        protected MovableType getMovableType()
         {
-            return doorType;
+            return movableType;
         }
     }
 }

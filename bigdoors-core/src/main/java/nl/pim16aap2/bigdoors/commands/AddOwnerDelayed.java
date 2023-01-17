@@ -4,8 +4,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.PermissionLevel;
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
+import nl.pim16aap2.bigdoors.movable.PermissionLevel;
+import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -28,22 +28,22 @@ public class AddOwnerDelayed extends DelayedCommand<AddOwnerDelayed.DelayedInput
 
     @Override
     protected CompletableFuture<Boolean> delayedInputExecutor(
-        ICommandSender commandSender, DoorRetriever doorRetriever, DelayedInput delayedInput)
+        ICommandSender commandSender, MovableRetriever movableRetriever, DelayedInput delayedInput)
     {
-        return commandFactory.get().newAddOwner(commandSender, doorRetriever, delayedInput.targetPlayer,
+        return commandFactory.get().newAddOwner(commandSender, movableRetriever, delayedInput.targetPlayer,
                                                 delayedInput.targetPermissionLevel).run();
     }
 
     @Override
-    protected String inputRequestMessage(ICommandSender commandSender, DoorRetriever doorRetriever)
+    protected String inputRequestMessage(ICommandSender commandSender, MovableRetriever movableRetriever)
     {
         return localizer.getMessage("commands.add_owner.init");
     }
 
     /**
      * Represents the data that can be provided as delayed input for this command. See
-     * {@link #runDelayed(ICommandSender, DoorRetriever)} and
-     * {@link #delayedInputExecutor(ICommandSender, DoorRetriever, DelayedInput)}.
+     * {@link #runDelayed(ICommandSender, MovableRetriever)} and
+     * {@link #delayedInputExecutor(ICommandSender, MovableRetriever, DelayedInput)}.
      */
     @ToString
     @EqualsAndHashCode
@@ -55,7 +55,7 @@ public class AddOwnerDelayed extends DelayedCommand<AddOwnerDelayed.DelayedInput
 
         /**
          * @param targetPlayer
-         *     The target player to add to this door as co-owner.
+         *     The target player to add to this movable as co-owner.
          *     <p>
          *     If this player is already an owner of the target door, their permission will be overridden provided that
          *     the command sender is allowed to add/remove co-owners at both the old and the new target permission

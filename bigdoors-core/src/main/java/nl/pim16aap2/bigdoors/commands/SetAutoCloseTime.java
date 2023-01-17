@@ -5,24 +5,24 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.doors.DoorAttribute;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.doors.doorarchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.movable.AbstractMovable;
+import nl.pim16aap2.bigdoors.movable.MovableAttribute;
+import nl.pim16aap2.bigdoors.movable.MovableBase;
+import nl.pim16aap2.bigdoors.movable.movablearchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.text.TextType;
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
+import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
+import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Implements the command that changes the auto-close-timer for doors.
+ * Implements the command that changes the auto-close-timer for movables.
  *
  * @author Pim
  */
 @ToString
-public class SetAutoCloseTime extends DoorTargetCommand
+public class SetAutoCloseTime extends MovableTargetCommand
 {
     public static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.SET_AUTO_CLOSE_TIME;
 
@@ -31,9 +31,9 @@ public class SetAutoCloseTime extends DoorTargetCommand
     @AssistedInject //
     SetAutoCloseTime(
         @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
-        @Assisted DoorRetriever doorRetriever, @Assisted int autoCloseTime)
+        @Assisted MovableRetriever movableRetriever, @Assisted int autoCloseTime)
     {
-        super(commandSender, localizer, textFactory, doorRetriever, DoorAttribute.AUTO_CLOSE_TIMER);
+        super(commandSender, localizer, textFactory, movableRetriever, MovableAttribute.AUTO_CLOSE_TIMER);
         this.autoCloseTime = autoCloseTime;
     }
 
@@ -44,18 +44,20 @@ public class SetAutoCloseTime extends DoorTargetCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> performAction(AbstractDoor door)
+    protected CompletableFuture<Boolean> performAction(AbstractMovable movable)
     {
-        if (!(door instanceof ITimerToggleable))
+        if (!(movable instanceof ITimerToggleable))
         {
             getCommandSender().sendMessage(textFactory, TextType.ERROR,
-                                           localizer.getMessage("commands.set_auto_close_time.error.invalid_door_type",
-                                                                localizer.getDoorType(door), door.getBasicInfo()));
+                                           localizer.getMessage(
+                                               "commands.set_auto_close_time.error.invalid_movable_type",
+                                               localizer.getMovableType(movable),
+                                               movable.getBasicInfo()));
             return CompletableFuture.completedFuture(true);
         }
 
-        ((ITimerToggleable) door).setAutoCloseTime(autoCloseTime);
-        return door.syncData().thenApply(x -> true);
+        ((ITimerToggleable) movable).setAutoCloseTime(autoCloseTime);
+        return movable.syncData().thenApply(x -> true);
     }
 
     @AssistedFactory
@@ -65,15 +67,15 @@ public class SetAutoCloseTime extends DoorTargetCommand
          * Creates (but does not execute!) a new {@link SetAutoCloseTime} command.
          *
          * @param commandSender
-         *     The {@link ICommandSender} responsible for changing the auto-close timer of the door.
-         * @param doorRetriever
-         *     A {@link DoorRetrieverFactory} representing the {@link DoorBase} for which the auto-close timer will be
-         *     modified.
+         *     The {@link ICommandSender} responsible for changing the auto-close timer of the movable.
+         * @param movableRetriever
+         *     A {@link MovableRetrieverFactory} representing the {@link MovableBase} for which the auto-close timer
+         *     will be modified.
          * @param autoCloseTime
          *     The new auto-close time value.
          * @return See {@link BaseCommand#run()}.
          */
         SetAutoCloseTime newSetAutoCloseTime(
-            ICommandSender commandSender, DoorRetriever doorRetriever, int autoCloseTime);
+            ICommandSender commandSender, MovableRetriever movableRetriever, int autoCloseTime);
     }
 }

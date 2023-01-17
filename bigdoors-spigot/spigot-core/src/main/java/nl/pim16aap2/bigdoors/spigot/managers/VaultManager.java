@@ -11,10 +11,10 @@ import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IPermissionsManager;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
-import nl.pim16aap2.bigdoors.doors.DoorAttribute;
-import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
+import nl.pim16aap2.bigdoors.managers.MovableTypeManager;
+import nl.pim16aap2.bigdoors.movable.MovableAttribute;
+import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -45,7 +45,7 @@ import java.util.logging.Level;
 @Flogger
 public final class VaultManager implements IRestartable, IEconomyManager, IPermissionsManager
 {
-    private final Map<DoorType, Double> flatPrices;
+    private final Map<MovableType, Double> flatPrices;
     private boolean economyEnabled = false;
     private boolean permissionsEnabled = false;
     private @Nullable Economy economy = null;
@@ -53,16 +53,17 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     private final ILocalizer localizer;
     private final ITextFactory textFactory;
     private final IConfigLoader configLoader;
-    private final DoorTypeManager doorTypeManager;
+    private final MovableTypeManager movableTypeManager;
 
     @Inject
     public VaultManager(
-        ILocalizer localizer, ITextFactory textFactory, IConfigLoader configLoader, DoorTypeManager doorTypeManager)
+        ILocalizer localizer, ITextFactory textFactory, IConfigLoader configLoader,
+        MovableTypeManager movableTypeManager)
     {
         this.localizer = localizer;
         this.textFactory = textFactory;
         this.configLoader = configLoader;
-        this.doorTypeManager = doorTypeManager;
+        this.movableTypeManager = movableTypeManager;
 
         flatPrices = new HashMap<>();
         if (isVaultInstalled())
@@ -73,7 +74,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     }
 
     @Override
-    public boolean buyDoor(IPPlayer player, IPWorld world, DoorType type, int blockCount)
+    public boolean buyMovable(IPPlayer player, IPWorld world, MovableType type, int blockCount)
     {
         if (!economyEnabled)
             return true;
@@ -110,13 +111,13 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     }
 
     /**
-     * Tries to get a flat price from the config for a {@link DoorType}. Useful in case the price is set to zero, so the
-     * plugin won't have to parse the formula every time if it is disabled.
+     * Tries to get a flat price from the config for a {@link MovableType}. Useful in case the price is set to zero, so
+     * the plugin won't have to parse the formula every time if it is disabled.
      *
      * @param type
-     *     The {@link DoorType}.
+     *     The {@link MovableType}.
      */
-    private void getFlatPrice(DoorType type)
+    private void getFlatPrice(MovableType type)
     {
         Util.parseDouble(configLoader.getPrice(type)).ifPresent(price -> flatPrices.put(type, price));
     }
@@ -141,8 +142,8 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
      * @param formula
      *     The formula of the price.
      * @param blockCount
-     *     The number of blocks in the door.
-     * @return The price of the door given the formula and the blockCount variable.
+     *     The number of blocks in the movable.
+     * @return The price of the movable given the formula and the blockCount variable.
      */
     private double evaluateFormula(String formula, int blockCount)
     {
@@ -152,14 +153,15 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to determine door creation price! Please contact pim16aap2! "
-                                                      + "Include this: '%s' and stacktrace:", formula);
+            log.at(Level.SEVERE).withCause(e)
+               .log("Failed to determine movable creation price! Please contact pim16aap2! "
+                        + "Include this: '%s' and stacktrace:", formula);
             return 0.0d;
         }
     }
 
     @Override
-    public OptionalDouble getPrice(DoorType type, int blockCount)
+    public OptionalDouble getPrice(MovableType type, int blockCount)
     {
         if (!economyEnabled)
             return OptionalDouble.empty();
@@ -326,7 +328,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     @Override
     public void initialize()
     {
-        for (final DoorType type : doorTypeManager.getEnabledDoorTypes())
+        for (final MovableType type : movableTypeManager.getEnabledMovableTypes())
             getFlatPrice(type);
     }
 
@@ -375,7 +377,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     }
 
     @Override
-    public boolean hasBypassPermissionsForAttribute(IPPlayer player, DoorAttribute doorAttribute)
+    public boolean hasBypassPermissionsForAttribute(IPPlayer player, MovableAttribute movableAttribute)
     {
         final @Nullable Player bukkitPlayer = getBukkitPlayer(player);
         if (bukkitPlayer == null)
@@ -383,7 +385,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
 
         return bukkitPlayer.isOp() ||
             bukkitPlayer.hasPermission(
-                Constants.ATTRIBUTE_BYPASS_PERMISSION_PREFIX + doorAttribute.name().toLowerCase(Locale.ROOT));
+                Constants.ATTRIBUTE_BYPASS_PERMISSION_PREFIX + movableAttribute.name().toLowerCase(Locale.ROOT));
     }
 
     @Override

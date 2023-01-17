@@ -5,14 +5,14 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.doors.DoorAttribute;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.movable.AbstractMovable;
+import nl.pim16aap2.bigdoors.movable.MovableAttribute;
+import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.text.TextType;
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
+import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
+import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -67,23 +67,24 @@ public abstract class BaseCommand
     }
 
     /**
-     * Checks if the {@link #commandSender} has access to a given {@link DoorAttribute} for a given door.
+     * Checks if the {@link #commandSender} has access to a given {@link MovableAttribute} for a given movable.
      *
      * @param door
-     *     The door to check.
+     *     The movable to check.
      * @param doorAttribute
-     *     The {@link DoorAttribute} to check.
+     *     The {@link MovableAttribute} to check.
      * @param hasBypassPermission
      *     Whether the {@link #commandSender} has bypass permission or not.
-     * @return True if the command sender has access to the provided attribute for the given door.
+     * @return True if the command sender has access to the provided attribute for the given movable.
      */
-    protected boolean hasAccessToAttribute(AbstractDoor door, DoorAttribute doorAttribute, boolean hasBypassPermission)
+    protected boolean hasAccessToAttribute(
+        AbstractMovable door, MovableAttribute doorAttribute, boolean hasBypassPermission)
     {
         if (hasBypassPermission || !commandSender.isPlayer())
             return true;
 
         return commandSender.getPlayer()
-                            .flatMap(door::getDoorOwner)
+                            .flatMap(door::getOwner)
                             .map(doorOwner -> doorAttribute.canAccessWith(doorOwner.permission()))
                             .orElse(false);
     }
@@ -229,26 +230,26 @@ public abstract class BaseCommand
     }
 
     /**
-     * Attempts to get an {@link DoorBase} based on the provided {@link DoorRetrieverFactory} and the current
+     * Attempts to get an {@link MovableBase} based on the provided {@link MovableRetrieverFactory} and the current
      * {@link ICommandSender}.
      * <p>
-     * If no door is found, the {@link ICommandSender} will be informed.
+     * If no movable is found, the {@link ICommandSender} will be informed.
      *
      * @param doorRetriever
-     *     The {@link DoorRetrieverFactory} to use
-     * @return The {@link DoorBase} if one could be retrieved.
+     *     The {@link MovableRetrieverFactory} to use
+     * @return The {@link MovableBase} if one could be retrieved.
      */
-    protected CompletableFuture<Optional<AbstractDoor>> getDoor(DoorRetriever doorRetriever)
+    protected CompletableFuture<Optional<AbstractMovable>> getMovable(MovableRetriever doorRetriever)
     {
-        return commandSender.getPlayer().map(doorRetriever::getDoorInteractive)
-                            .orElseGet(doorRetriever::getDoor).thenApplyAsync(
-                door ->
+        return commandSender.getPlayer().map(doorRetriever::getMovableInteractive)
+                            .orElseGet(doorRetriever::getMovable).thenApplyAsync(
+                movable ->
                 {
-                    log.at(Level.FINE).log("Retrieved door " + door + " for command: %s", this);
-                    if (door.isPresent())
-                        return door;
+                    log.at(Level.FINE).log("Retrieved movable " + movable + " for command: %s", this);
+                    if (movable.isPresent())
+                        return movable;
                     commandSender.sendMessage(textFactory, TextType.ERROR,
-                                              localizer.getMessage("commands.base.error.cannot_find_target_door"));
+                                              localizer.getMessage("commands.base.error.cannot_find_target_movable"));
                     return Optional.empty();
                 });
     }

@@ -6,12 +6,12 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.commands.AddOwnerDelayed;
 import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.commands.ICommandSender;
-import nl.pim16aap2.bigdoors.doors.PermissionLevel;
-import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.movable.PermissionLevel;
+import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
+import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
+import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,14 +23,14 @@ import javax.inject.Singleton;
 class CommandExecutor
 {
     private final CommandFactory commandFactory;
-    private final DoorRetrieverFactory doorRetrieverFactory;
+    private final MovableRetrieverFactory movableRetrieverFactory;
 
     @Inject CommandExecutor(
         CommandFactory commandFactory,
-        DoorRetrieverFactory doorRetrieverFactory)
+        MovableRetrieverFactory movableRetrieverFactory)
     {
         this.commandFactory = commandFactory;
-        this.doorRetrieverFactory = doorRetrieverFactory;
+        this.movableRetrieverFactory = movableRetrieverFactory;
     }
 
     // NullAway doesn't see the @Nullable on permissionLevel. Not sure if this is because of Lombok or NullAway.
@@ -39,12 +39,12 @@ class CommandExecutor
     {
         final IPPlayer newOwner = SpigotAdapter.wrapPlayer(context.get("newOwner"));
         final @Nullable PermissionLevel permissionLevel = nullable(context, "permissionLevel");
-        final @Nullable DoorRetriever doorRetriever = nullable(context, "doorRetriever");
+        final @Nullable MovableRetriever movableRetriever = nullable(context, "movableRetriever");
 
         final ICommandSender commandSender = context.getSender();
-        if (doorRetriever != null)
+        if (movableRetriever != null)
         {
-            commandFactory.newAddOwner(commandSender, doorRetriever, newOwner, permissionLevel).run();
+            commandFactory.newAddOwner(commandSender, movableRetriever, newOwner, permissionLevel).run();
         }
         else
         {
@@ -70,14 +70,14 @@ class CommandExecutor
 
     void delete(CommandContext<ICommandSender> context)
     {
-        final DoorRetriever doorRetriever = context.get("doorRetriever");
-        commandFactory.newDelete(context.getSender(), doorRetriever).run();
+        final MovableRetriever movableRetriever = context.get("movableRetriever");
+        commandFactory.newDelete(context.getSender(), movableRetriever).run();
     }
 
     void info(CommandContext<ICommandSender> context)
     {
-        final DoorRetriever doorRetriever = context.get("doorRetriever");
-        commandFactory.newInfo(context.getSender(), doorRetriever).run();
+        final MovableRetriever movableRetriever = context.get("movableRetriever");
+        commandFactory.newInfo(context.getSender(), movableRetriever).run();
     }
 
     void inspectPowerBlock(CommandContext<ICommandSender> context)
@@ -85,19 +85,19 @@ class CommandExecutor
         commandFactory.newInspectPowerBlock(context.getSender()).run();
     }
 
-    void listDoors(CommandContext<ICommandSender> context)
+    void listMovables(CommandContext<ICommandSender> context)
     {
-        final @Nullable String query = context.<String>getOptional("doorName").orElse("");
-        final DoorRetriever retriever = doorRetrieverFactory.search(
-            context.getSender(), query, DoorRetrieverFactory.DoorFinderMode.NEW_INSTANCE).asRetriever(false);
-        commandFactory.newListDoors(context.getSender(), retriever).run();
+        final @Nullable String query = context.<String>getOptional("movableName").orElse("");
+        final MovableRetriever retriever = movableRetrieverFactory.search(
+            context.getSender(), query, MovableRetrieverFactory.MovableFinderMode.NEW_INSTANCE).asRetriever(false);
+        commandFactory.newListMovables(context.getSender(), retriever).run();
     }
 
     void lock(CommandContext<ICommandSender> context)
     {
-        final DoorRetriever doorRetriever = context.get("doorRetriever");
+        final MovableRetriever movableRetriever = context.get("movableRetriever");
         final boolean lockStatus = context.get("lockStatus");
-        commandFactory.newLock(context.getSender(), doorRetriever, lockStatus).run();
+        commandFactory.newLock(context.getSender(), movableRetriever, lockStatus).run();
     }
 
     void menu(CommandContext<ICommandSender> context)
@@ -115,24 +115,24 @@ class CommandExecutor
 
     void movePowerBlock(CommandContext<ICommandSender> context)
     {
-        final DoorRetriever doorRetriever = context.get("doorRetriever");
-        commandFactory.newMovePowerBlock(context.getSender(), doorRetriever).run();
+        final MovableRetriever movableRetriever = context.get("movableRetriever");
+        commandFactory.newMovePowerBlock(context.getSender(), movableRetriever).run();
     }
 
-    // NullAway doesn't see the @Nullable on doorName. Not sure if this is because of Lombok or NullAway.
+    // NullAway doesn't see the @Nullable on movableName. Not sure if this is because of Lombok or NullAway.
     @SuppressWarnings("NullAway")
-    void newDoor(CommandContext<ICommandSender> context)
+    void newMovable(CommandContext<ICommandSender> context)
     {
-        final DoorType doorType = context.get("doorType");
-        final @Nullable String doorName = nullable(context, "doorName");
-        commandFactory.newNewDoor(context.getSender(), doorType, doorName).run();
+        final MovableType movableType = context.get("movableType");
+        final @Nullable String movableName = nullable(context, "movableName");
+        commandFactory.newNewMovable(context.getSender(), movableType, movableName).run();
     }
 
     void removeOwner(CommandContext<ICommandSender> context)
     {
-        final DoorRetriever doorRetriever = context.get("doorRetriever");
+        final MovableRetriever movableRetriever = context.get("movableRetriever");
         final IPPlayer targetPlayer = SpigotAdapter.wrapPlayer(context.get("targetPlayer"));
-        commandFactory.newRemoveOwner(context.getSender(), doorRetriever, targetPlayer).run();
+        commandFactory.newRemoveOwner(context.getSender(), movableRetriever, targetPlayer).run();
     }
 
     void restart(CommandContext<ICommandSender> context)
@@ -143,11 +143,11 @@ class CommandExecutor
     void setAutoCloseTime(CommandContext<ICommandSender> context)
     {
         final int autoCloseTime = context.get("autoCloseTime");
-        final @Nullable DoorRetriever doorRetriever = nullable(context, "doorRetriever");
+        final @Nullable MovableRetriever movableRetriever = nullable(context, "movableRetriever");
 
         final ICommandSender commandSender = context.getSender();
-        if (doorRetriever != null)
-            commandFactory.newSetAutoCloseTime(commandSender, doorRetriever, autoCloseTime).run();
+        if (movableRetriever != null)
+            commandFactory.newSetAutoCloseTime(commandSender, movableRetriever, autoCloseTime).run();
         else
             commandFactory.getSetAutoCloseTimeDelayed().provideDelayedInput(commandSender, autoCloseTime);
     }
@@ -155,11 +155,11 @@ class CommandExecutor
     void setBlocksToMove(CommandContext<ICommandSender> context)
     {
         final int blocksToMove = context.get("blocksToMove");
-        final @Nullable DoorRetriever doorRetriever = nullable(context, "doorRetriever");
+        final @Nullable MovableRetriever movableRetriever = nullable(context, "movableRetriever");
 
         final ICommandSender commandSender = context.getSender();
-        if (doorRetriever != null)
-            commandFactory.newSetBlocksToMove(commandSender, doorRetriever, blocksToMove).run();
+        if (movableRetriever != null)
+            commandFactory.newSetBlocksToMove(commandSender, movableRetriever, blocksToMove).run();
         else
             commandFactory.getSetBlocksToMoveDelayed().provideDelayedInput(commandSender, blocksToMove);
     }
@@ -173,10 +173,10 @@ class CommandExecutor
     {
         final RotateDirection direction = context.get("direction");
         final ICommandSender commandSender = context.getSender();
-        final @Nullable DoorRetriever doorRetriever = nullable(context, "doorRetriever");
+        final @Nullable MovableRetriever movableRetriever = nullable(context, "movableRetriever");
 
-        if (doorRetriever != null)
-            commandFactory.newSetOpenDirection(commandSender, doorRetriever, direction).run();
+        if (movableRetriever != null)
+            commandFactory.newSetOpenDirection(commandSender, movableRetriever, direction).run();
         else
             commandFactory.getSetOpenDirectionDelayed().provideDelayedInput(commandSender, direction);
     }
@@ -186,14 +186,14 @@ class CommandExecutor
         throw new UnsupportedOperationException("Not implemented!");
     }
 
-    void stopDoors(CommandContext<ICommandSender> context)
+    void stopMovables(CommandContext<ICommandSender> context)
     {
-        commandFactory.newStopDoors(context.getSender()).run();
+        commandFactory.newStopMovables(context.getSender()).run();
     }
 
     void toggle(CommandContext<ICommandSender> context)
     {
-        commandFactory.newToggle(context.getSender(), context.<DoorRetriever>get("doorRetriever")).run();
+        commandFactory.newToggle(context.getSender(), context.<MovableRetriever>get("movableRetriever")).run();
     }
 
     void version(CommandContext<ICommandSender> context)

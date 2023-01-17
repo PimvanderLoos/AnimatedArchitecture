@@ -2,8 +2,8 @@ package nl.pim16aap2.bigdoors.audio;
 
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
-import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
+import nl.pim16aap2.bigdoors.managers.MovableTypeManager;
+import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,12 +38,12 @@ class AudioConfiguratorTest
     static final String KEY_4 = "type_4";
     static final String KEY_5 = "type_5";
 
-    static final DoorType TYPE_0 = newDoorType(KEY_0);
-    static final DoorType TYPE_1 = newDoorType(KEY_1);
-    static final DoorType TYPE_2 = newDoorType(KEY_2);
-    static final DoorType TYPE_3 = newDoorType(KEY_3);
-    static final DoorType TYPE_4 = newDoorType(KEY_4);
-    static final DoorType TYPE_5 = newDoorType(KEY_5);
+    static final MovableType TYPE_0 = newDoorType(KEY_0);
+    static final MovableType TYPE_1 = newDoorType(KEY_1);
+    static final MovableType TYPE_2 = newDoorType(KEY_2);
+    static final MovableType TYPE_3 = newDoorType(KEY_3);
+    static final MovableType TYPE_4 = newDoorType(KEY_4);
+    static final MovableType TYPE_5 = newDoorType(KEY_5);
 
     @Mock
     AudioConfigIO audioConfigIO;
@@ -52,13 +52,13 @@ class AudioConfiguratorTest
     @Mock
     DebuggableRegistry debuggableRegistry;
     @Mock
-    DoorTypeManager doorTypeManager;
+    MovableTypeManager doorTypeManager;
 
     @BeforeEach
     void init()
     {
         MockitoAnnotations.openMocks(this);
-        Mockito.when(doorTypeManager.getDoorType(Mockito.anyString())).thenAnswer(
+        Mockito.when(doorTypeManager.getMovableType(Mockito.anyString())).thenAnswer(
             invocation -> switch (invocation.getArgument(0, String.class))
                 {
                     case KEY_0 -> Optional.of(TYPE_0);
@@ -90,11 +90,11 @@ class AudioConfiguratorTest
         final AudioConfigurator configurator = new AudioConfigurator(audioConfigIO, restartableHolder,
                                                                      debuggableRegistry, doorTypeManager);
         Mockito.when(audioConfigIO.readConfig()).thenReturn(parsed);
-        Mockito.when(doorTypeManager.getEnabledDoorTypes())
+        Mockito.when(doorTypeManager.getEnabledMovableTypes())
                .thenReturn(List.of(TYPE_0, TYPE_1, TYPE_2, TYPE_3, TYPE_4, TYPE_5));
 
         final AudioConfigurator.ConfigData configData = configurator.generateConfigData();
-        final Map<DoorType, @Nullable AudioSet> output = configData.sets();
+        final Map<MovableType, @Nullable AudioSet> output = configData.sets();
 
         Assertions.assertEquals(SET_EMPTY, output.get(TYPE_0));
         Assertions.assertEquals(SET_0, output.get(TYPE_1));
@@ -113,12 +113,12 @@ class AudioConfiguratorTest
         final AudioConfigurator configurator = new AudioConfigurator(audioConfigIO, restartableHolder,
                                                                      debuggableRegistry, doorTypeManager);
 
-        final Map<DoorType, @Nullable AudioSet> merged = new LinkedHashMap<>();
+        final Map<MovableType, @Nullable AudioSet> merged = new LinkedHashMap<>();
         merged.put(TYPE_0, SET_0);
         merged.put(TYPE_1, null);
         merged.put(TYPE_2, SET_EMPTY);
 
-        Map<DoorType, AudioSet> result = configurator.getFinalMap(new AudioConfigurator.ConfigData(null, merged));
+        Map<MovableType, AudioSet> result = configurator.getFinalMap(new AudioConfigurator.ConfigData(null, merged));
         Assertions.assertEquals(List.of(SET_0, SET_EMPTY, SET_EMPTY), new ArrayList<>(result.values()));
 
         result = configurator.getFinalMap(new AudioConfigurator.ConfigData(SET_EMPTY, merged));
@@ -128,9 +128,9 @@ class AudioConfiguratorTest
         Assertions.assertEquals(List.of(SET_0, SET_1, SET_EMPTY), new ArrayList<>(result.values()));
     }
 
-    private static DoorType newDoorType(String simpleName)
+    private static MovableType newDoorType(String simpleName)
     {
-        final DoorType doorType = Mockito.mock(DoorType.class);
+        final MovableType doorType = Mockito.mock(MovableType.class);
         Mockito.when(doorType.getSimpleName()).thenReturn(simpleName);
         return doorType;
     }

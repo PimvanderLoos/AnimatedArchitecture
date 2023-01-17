@@ -73,7 +73,7 @@ public final class BigDoorsPlugin extends JavaPlugin implements IBigDoorsPlatfor
     {
         LOG_BACK_CONFIGURATOR.setLogFile(getDataFolder().toPath().resolve("log.txt")).apply();
 
-        mainThreadId = Thread.currentThread().getId();
+        mainThreadId = Thread.currentThread().threadId();
         restartableHolder = new RestartableHolder();
 
         bigDoorsSpigotComponent = DaggerBigDoorsSpigotComponent

@@ -1,36 +1,36 @@
 package nl.pim16aap2.bigdoors.api;
 
-import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 
 import java.util.OptionalDouble;
 
 public interface IEconomyManager
 {
     /**
-     * Buys a door for a player.
+     * Buys a movable for a player.
      *
      * @param player
      *     The player whose bank account to use.
      * @param world
-     *     The world the door is in.
+     *     The world the movable is in.
      * @param type
-     *     The {@link DoorType} of the door.
+     *     The {@link MovableType} of the movable.
      * @param blockCount
-     *     The number of blocks in the door.
-     * @return True if the player bought the door successfully.
+     *     The number of blocks in the movable.
+     * @return True if the player bought the movable successfully.
      */
-    boolean buyDoor(IPPlayer player, IPWorld world, DoorType type, int blockCount);
+    boolean buyMovable(IPPlayer player, IPWorld world, MovableType type, int blockCount);
 
     /**
-     * Gets the price of {@link DoorType} for a specific number of blocks.
+     * Gets the price of {@link MovableType} for a specific number of blocks.
      *
      * @param type
-     *     The {@link DoorType}.
+     *     The {@link MovableType}.
      * @param blockCount
      *     The number of blocks.
-     * @return The price of this {@link DoorType} with this number of blocks.
+     * @return The price of this {@link MovableType} with this number of blocks.
      */
-    OptionalDouble getPrice(DoorType type, int blockCount);
+    OptionalDouble getPrice(MovableType type, int blockCount);
 
     /**
      * Checks if the economy manager is enabled.

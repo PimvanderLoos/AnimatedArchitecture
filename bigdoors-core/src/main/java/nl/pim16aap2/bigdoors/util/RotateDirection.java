@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Represents all directions a door can rotate in.
+ * Represents all directions a movable can rotate in.
  *
  * @author Pim
  */

@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import nl.pim16aap2.bigdoors.api.PPlayerData;
-import nl.pim16aap2.bigdoors.doors.DoorOwner;
-import nl.pim16aap2.bigdoors.doors.PermissionLevel;
+import nl.pim16aap2.bigdoors.movable.MovableOwner;
+import nl.pim16aap2.bigdoors.movable.PermissionLevel;
 import org.mockito.Mockito;
 
 import java.util.concurrent.CompletableFuture;
@@ -10,10 +10,11 @@ import java.util.concurrent.CompletableFuture;
 class CommandTestingUtil
 {
     public static final PPlayerData playerData = Mockito.mock(PPlayerData.class);
-    public static final DoorOwner doorOwnerCreator = new DoorOwner(0, PermissionLevel.CREATOR, playerData);
-    public static final DoorOwner doorOwnerAdmin = new DoorOwner(0, PermissionLevel.ADMIN, playerData);
-    public static final DoorOwner doorOwnerUser = new DoorOwner(0, PermissionLevel.USER, playerData);
-    public static final DoorOwner doorOwnerNoPerm = new DoorOwner(0, PermissionLevel.NO_PERMISSION, playerData);
+    public static final MovableOwner movableOwnerCreator = new MovableOwner(0, PermissionLevel.CREATOR, playerData);
+    public static final MovableOwner movableOwnerAdmin = new MovableOwner(0, PermissionLevel.ADMIN, playerData);
+    public static final MovableOwner movableOwnerUser = new MovableOwner(0, PermissionLevel.USER, playerData);
+    public static final MovableOwner movableOwnerNoPerm = new MovableOwner(0, PermissionLevel.NO_PERMISSION,
+                                                                           playerData);
 
     /**
      * Sets up the permissions for an {@link ICommandSender}.

@@ -3,12 +3,12 @@ package nl.pim16aap2.bigdoors.commands;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
-import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
-import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
+import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.util.functional.TriFunction;
+import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
+import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 import nl.pim16aap2.testing.logging.LogInspector;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -46,11 +46,11 @@ class DelayedCommandTest
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     ICommandSender commandSender;
 
-    DoorRetriever doorRetriever;
-    @Mock AbstractDoor door;
-    @InjectMocks DoorRetrieverFactory doorRetrieverFactory;
+    MovableRetriever doorRetriever;
+    @Mock AbstractMovable door;
+    @InjectMocks MovableRetrieverFactory doorRetrieverFactory;
 
-    @Mock TriFunction<ICommandSender, DoorRetriever, Object, CompletableFuture<Boolean>> delayedFunction;
+    @Mock TriFunction<ICommandSender, MovableRetriever, Object, CompletableFuture<Boolean>> delayedFunction;
 
     AutoCloseable openMocks;
 
@@ -146,11 +146,11 @@ class DelayedCommandTest
 
         public static final String INPUT_REQUEST_MSG = "DelayedCommandImpl INPUT REQUEST MSG";
 
-        private final TriFunction<ICommandSender, DoorRetriever, Object, CompletableFuture<Boolean>> delayedFunction;
+        private final TriFunction<ICommandSender, MovableRetriever, Object, CompletableFuture<Boolean>> delayedFunction;
 
         DelayedCommandImpl(
             Context context, DelayedCommandInputRequest.IFactory<Object> inputRequestFactory,
-            TriFunction<ICommandSender, DoorRetriever, Object, CompletableFuture<Boolean>> delayedFunction)
+            TriFunction<ICommandSender, MovableRetriever, Object, CompletableFuture<Boolean>> delayedFunction)
         {
             super(context, inputRequestFactory, Object.class);
             this.delayedFunction = delayedFunction;
@@ -164,13 +164,13 @@ class DelayedCommandTest
 
         @Override
         protected CompletableFuture<Boolean> delayedInputExecutor(
-            ICommandSender commandSender, DoorRetriever doorRetriever, Object delayedInput)
+            ICommandSender commandSender, MovableRetriever movableRetriever, Object delayedInput)
         {
-            return delayedFunction.apply(commandSender, doorRetriever, delayedInput);
+            return delayedFunction.apply(commandSender, movableRetriever, delayedInput);
         }
 
         @Override
-        protected String inputRequestMessage(ICommandSender commandSender, DoorRetriever doorRetriever)
+        protected String inputRequestMessage(ICommandSender commandSender, MovableRetriever movableRetriever)
         {
             return INPUT_REQUEST_MSG;
         }

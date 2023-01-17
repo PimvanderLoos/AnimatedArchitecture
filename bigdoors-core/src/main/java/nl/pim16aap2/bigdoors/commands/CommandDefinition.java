@@ -20,14 +20,14 @@ public final class CommandDefinition
     /**
      * The prefix of all permissions that a regular user should have access to for normal usage.
      * <p>
-     * This will include stuff like creating new doors and managing doors that you own.
+     * This will include stuff like creating new movables and managing movables that you own.
      */
     public static final String PREFIX_USER = "bigdoors.user.";
 
     /**
      * The prefix of all permissions for admin-related actions.
      * <p>
-     * This should include stuff like affecting server settings and managing doors owned by other players.
+     * This should include stuff like affecting server settings and managing movables owned by other players.
      */
     public static final String PREFIX_ADMIN = "bigdoors.admin.";
 
@@ -71,10 +71,10 @@ public final class CommandDefinition
                               PREFIX_USER + "inspect",
                               PREFIX_ADMIN + "bypass.inspect");
 
-    public static final CommandDefinition LIST_DOORS =
-        new CommandDefinition("LIST_DOORS",
-                              PREFIX_USER + "listdoors",
-                              PREFIX_ADMIN + "bypass.listdoors");
+    public static final CommandDefinition LIST_MOVABLES =
+        new CommandDefinition("LIST_MOVABLES",
+                              PREFIX_USER + "listmovables",
+                              PREFIX_ADMIN + "bypass.listmovables");
 
     public static final CommandDefinition LOCK =
         new CommandDefinition("LOCK",
@@ -86,9 +86,9 @@ public final class CommandDefinition
                               PREFIX_USER + "movepowerblock",
                               PREFIX_ADMIN + "bypass.movepowerblock");
 
-    public static final CommandDefinition NEW_DOOR =
-        new CommandDefinition("NEW_DOOR",
-                              PREFIX_USER + "newdoor",
+    public static final CommandDefinition NEW_MOVABLE =
+        new CommandDefinition("NEW_MOVABLE",
+                              PREFIX_USER + "newmovable",
                               null);
 
     public static final CommandDefinition REMOVE_OWNER =
@@ -126,10 +126,10 @@ public final class CommandDefinition
                               PREFIX_USER + "base",
                               null);
 
-    public static final CommandDefinition STOP_DOORS =
-        new CommandDefinition("STOP_DOORS",
+    public static final CommandDefinition STOP_MOVABLES =
+        new CommandDefinition("STOP_MOVABLES",
                               null,
-                              PREFIX_ADMIN + "stopdoors");
+                              PREFIX_ADMIN + "stopmovables");
 
     public static final CommandDefinition VERSION =
         new CommandDefinition("VERSION",

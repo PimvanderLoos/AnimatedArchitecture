@@ -6,7 +6,7 @@
     <version>1</version>
 
     <properties>
-        <mainClass>nl.pim16aap2.bigdoors.doors.bigdoor.DoorTypeBigDoor</mainClass>
+        <mainClass>nl.pim16aap2.bigdoors.movable.bigdoor.MovableBigDoor</mainClass>
         <typeName>BigDoor</typeName>
         <version>1</version>
     </properties>

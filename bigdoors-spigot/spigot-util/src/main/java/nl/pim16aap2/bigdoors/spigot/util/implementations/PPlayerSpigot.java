@@ -63,7 +63,7 @@ public final class PPlayerSpigot implements IPPlayer
     }
 
     @Override
-    public int getDoorSizeLimit()
+    public int getMovableSizeLimit()
     {
         if (spigotPlayer.isOp())
             return Integer.MAX_VALUE;
@@ -71,7 +71,7 @@ public final class PPlayerSpigot implements IPPlayer
     }
 
     @Override
-    public int getDoorCountLimit()
+    public int getMovableCountLimit()
     {
         if (spigotPlayer.isOp())
             return Integer.MAX_VALUE;
