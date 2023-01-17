@@ -49,8 +49,8 @@ public final class MovableOpeningHelper
 {
     private final ILocalizer localizer;
     private final ITextFactory textFactory;
-    private final MovableActivityManager doorActivityManager;
-    private final MovableTypeManager doorTypeManager;
+    private final MovableActivityManager movableActivityManager;
+    private final MovableTypeManager movableTypeManager;
     private final IConfigLoader config;
     private final IPExecutor executor;
     private final IBlockAnalyzer blockAnalyzer;
@@ -58,16 +58,16 @@ public final class MovableOpeningHelper
     private final IProtectionCompatManager protectionCompatManager;
     private final GlowingBlockSpawner glowingBlockSpawner;
     private final IBigDoorsEventFactory bigDoorsEventFactory;
-    private final MovableRegistry doorRegistry;
+    private final MovableRegistry movableRegistry;
     private final IChunkLoader chunkLoader;
-    private final IBigDoorsEventCaller doorEventCaller;
+    private final IBigDoorsEventCaller bigDoorsEventCaller;
 
     @Inject //
     MovableOpeningHelper(
         ILocalizer localizer,
         ITextFactory textFactory,
-        MovableActivityManager doorActivityManager,
-        MovableTypeManager doorTypeManager,
+        MovableActivityManager movableActivityManager,
+        MovableTypeManager movableTypeManager,
         IConfigLoader config,
         IPExecutor executor,
         IBlockAnalyzer blockAnalyzer,
@@ -75,14 +75,14 @@ public final class MovableOpeningHelper
         IProtectionCompatManager protectionCompatManager,
         GlowingBlockSpawner glowingBlockSpawner,
         IBigDoorsEventFactory bigDoorsEventFactory,
-        MovableRegistry doorRegistry,
+        MovableRegistry movableRegistry,
         IChunkLoader chunkLoader,
-        IBigDoorsEventCaller doorEventCaller)
+        IBigDoorsEventCaller bigDoorsEventCaller)
     {
         this.localizer = localizer;
         this.textFactory = textFactory;
-        this.doorActivityManager = doorActivityManager;
-        this.doorTypeManager = doorTypeManager;
+        this.movableActivityManager = movableActivityManager;
+        this.movableTypeManager = movableTypeManager;
         this.config = config;
         this.executor = executor;
         this.blockAnalyzer = blockAnalyzer;
@@ -90,9 +90,9 @@ public final class MovableOpeningHelper
         this.protectionCompatManager = protectionCompatManager;
         this.glowingBlockSpawner = glowingBlockSpawner;
         this.bigDoorsEventFactory = bigDoorsEventFactory;
-        this.doorRegistry = doorRegistry;
+        this.movableRegistry = movableRegistry;
         this.chunkLoader = chunkLoader;
-        this.doorEventCaller = doorEventCaller;
+        this.bigDoorsEventCaller = bigDoorsEventCaller;
     }
 
     /**
@@ -119,7 +119,7 @@ public final class MovableOpeningHelper
         // not reset the busy status of this movable. However, in every other case it should, because the movable is
         // registered as busy before all the other checks take place.
         if (!result.equals(MovableToggleResult.BUSY))
-            doorActivityManager.setMovableAvailable(movable.getUid());
+            movableActivityManager.setMovableAvailable(movable.getUid());
 
         if (!result.equals(MovableToggleResult.NO_PERMISSION))
         {
@@ -151,7 +151,7 @@ public final class MovableOpeningHelper
         final IMovableEventTogglePrepare event =
             bigDoorsEventFactory.createTogglePrepareEvent(
                 snapshot, cause, actionType, responsible, time, skipAnimation, newCuboid);
-        callDoorToggleEvent(event);
+        callMovableToggleEvent(event);
         return event;
     }
 
@@ -161,36 +161,34 @@ public final class MovableOpeningHelper
      * MovableActionType, IPPlayer, double, boolean, Cuboid)}.
      */
     IMovableEventToggleStart callToggleStartEvent(
-        AbstractMovable door, MovableSnapshot doorSnapshot, MovableActionCause cause, MovableActionType actionType,
-        IPPlayer responsible, double time,
-        boolean skipAnimation, Cuboid newCuboid)
+        AbstractMovable movable, MovableSnapshot snapshot, MovableActionCause cause, MovableActionType actionType,
+        IPPlayer responsible, double time, boolean skipAnimation, Cuboid newCuboid)
     {
         final IMovableEventToggleStart event =
             bigDoorsEventFactory.createToggleStartEvent(
-                door, doorSnapshot, cause, actionType, responsible, time, skipAnimation, newCuboid);
-        callDoorToggleEvent(event);
+                movable, snapshot, cause, actionType, responsible, time, skipAnimation, newCuboid);
+        callMovableToggleEvent(event);
         return event;
     }
 
-    private void callDoorToggleEvent(IMovableToggleEvent prepareEvent)
+    private void callMovableToggleEvent(IMovableToggleEvent prepareEvent)
     {
-        doorEventCaller.callBigDoorsEvent(prepareEvent);
+        bigDoorsEventCaller.callBigDoorsEvent(prepareEvent);
     }
 
     /**
      * Registers a new block mover. Must be called from the main thread.
      */
     boolean registerBlockMover(
-        AbstractMovable abstractDoor, MovableSnapshot snapshot, MovableActionCause cause, double time,
-        boolean skipAnimation,
-        Cuboid newCuboid, IPPlayer responsible, MovableActionType actionType)
+        AbstractMovable movable, MovableSnapshot snapshot, MovableActionCause cause, double time,
+        boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible, MovableActionType actionType)
     {
-        return abstractDoor.base.registerBlockMover(
-            abstractDoor, snapshot, cause, time, skipAnimation, newCuboid, responsible, actionType);
+        return movable.base.registerBlockMover(
+            movable, snapshot, cause, time, skipAnimation, newCuboid, responsible, actionType);
     }
 
     private MovableToggleResult toggle(
-        MovableSnapshot snapshot, AbstractMovable targetDoor, MovableActionCause cause, IMessageable messageReceiver,
+        MovableSnapshot snapshot, AbstractMovable targetMovable, MovableActionCause cause, IMessageable messageReceiver,
         IPPlayer responsible, boolean skipAnimation, MovableActionType actionType,
         boolean canSkipAnimation, Cuboid newCuboid, double animationTime)
     {
@@ -200,40 +198,40 @@ public final class MovableOpeningHelper
             return MovableToggleResult.ERROR;
         }
 
-        if (!doorRegistry.isRegistered(targetDoor))
-            return abort(targetDoor, MovableToggleResult.INSTANCE_UNREGISTERED, cause, responsible,
+        if (!movableRegistry.isRegistered(targetMovable))
+            return abort(targetMovable, MovableToggleResult.INSTANCE_UNREGISTERED, cause, responsible,
                          messageReceiver);
 
         if (skipAnimation && !canSkipAnimation)
-            return abort(targetDoor, MovableToggleResult.ERROR, cause, responsible, messageReceiver);
+            return abort(targetMovable, MovableToggleResult.ERROR, cause, responsible, messageReceiver);
 
-        final MovableToggleResult isOpenable = canBeToggled(snapshot, targetDoor.getType(), newCuboid,
+        final MovableToggleResult isOpenable = canBeToggled(snapshot, targetMovable.getType(), newCuboid,
                                                             actionType);
         if (isOpenable != MovableToggleResult.SUCCESS)
-            return abort(targetDoor, isOpenable, cause, responsible, messageReceiver);
+            return abort(targetMovable, isOpenable, cause, responsible, messageReceiver);
 
         final IMovableEventTogglePrepare prepareEvent =
             callTogglePrepareEvent(
                 snapshot, cause, actionType, responsible, animationTime, skipAnimation, newCuboid);
 
         if (prepareEvent.isCancelled())
-            return abort(targetDoor, MovableToggleResult.CANCELLED, cause, responsible, messageReceiver);
+            return abort(targetMovable, MovableToggleResult.CANCELLED, cause, responsible, messageReceiver);
 
         final @Nullable IPPlayer responsiblePlayer = cause.equals(MovableActionCause.PLAYER) ? responsible : null;
         if (!isLocationEmpty(newCuboid, snapshot.getCuboid(), responsiblePlayer, snapshot.getWorld()))
-            return abort(targetDoor, MovableToggleResult.OBSTRUCTED, cause, responsible, messageReceiver);
+            return abort(targetMovable, MovableToggleResult.OBSTRUCTED, cause, responsible, messageReceiver);
 
         if (!canBreakBlocksBetweenLocs(snapshot, newCuboid, responsible))
-            return abort(targetDoor, MovableToggleResult.NO_PERMISSION, cause, responsible, messageReceiver);
+            return abort(targetMovable, MovableToggleResult.NO_PERMISSION, cause, responsible, messageReceiver);
 
         final boolean scheduled = registerBlockMover(
-            targetDoor, snapshot, cause, animationTime, skipAnimation, newCuboid, responsible, actionType);
+            targetMovable, snapshot, cause, animationTime, skipAnimation, newCuboid, responsible, actionType);
 
         if (!scheduled)
             return MovableToggleResult.ERROR;
 
         executor.runAsync(() -> callToggleStartEvent(
-            targetDoor, snapshot, cause, actionType, responsible, animationTime, skipAnimation, newCuboid));
+            targetMovable, snapshot, cause, actionType, responsible, animationTime, skipAnimation, newCuboid));
 
         return MovableToggleResult.SUCCESS;
     }
@@ -275,7 +273,7 @@ public final class MovableOpeningHelper
      * <p>
      * If the player is not allowed to break the block(s), they'll receive a message about this.
      *
-     * @param door
+     * @param movable
      *     The {@link IMovable} being opened.
      * @param cuboid
      *     The area of blocks to check.
@@ -283,20 +281,20 @@ public final class MovableOpeningHelper
      *     Who is responsible for the action.
      * @return True if the player is allowed to break the block(s).
      */
-    public boolean canBreakBlocksBetweenLocs(IMovableConst door, Cuboid cuboid, IPPlayer responsible)
+    public boolean canBreakBlocksBetweenLocs(IMovableConst movable, Cuboid cuboid, IPPlayer responsible)
     {
         if (protectionCompatManager.canSkipCheck())
             return true;
         try
         {
-            return executor.runOnMainThread(() -> canBreakBlocksBetweenLocs0(door, cuboid, responsible))
+            return executor.runOnMainThread(() -> canBreakBlocksBetweenLocs0(movable, cuboid, responsible))
                            .get(500, TimeUnit.MILLISECONDS);
         }
         catch (Exception e)
         {
             log.atSevere().withCause(e)
                .log("Failed to check if blocks can be broken in cuboid %s for user: '%s' for movable %s",
-                    cuboid, responsible, door);
+                    cuboid, responsible, movable);
             return false;
         }
     }
@@ -390,7 +388,7 @@ public final class MovableOpeningHelper
 
         final int startY = vec.y() == 0 ? curMin.y() : vec.y() == 1 ? curMax.y() + 1 : curMin.y() - 1;
 
-        // Doors cannot start outside of the world limit.
+        // Movables cannot start outside the world limit.
         if (startY < 0 || startY > 255)
             return 0;
 
@@ -473,7 +471,7 @@ public final class MovableOpeningHelper
     MovableToggleResult canBeToggled(
         IMovableConst movable, MovableType type, Cuboid newCuboid, MovableActionType actionType)
     {
-        if (!doorActivityManager.attemptRegisterAsBusy(movable.getUid()))
+        if (!movableActivityManager.attemptRegisterAsBusy(movable.getUid()))
             return MovableToggleResult.BUSY;
 
         if (actionType == MovableActionType.OPEN && !movable.isOpenable())
@@ -484,7 +482,7 @@ public final class MovableOpeningHelper
         if (movable.isLocked())
             return MovableToggleResult.LOCKED;
 
-        if (!doorTypeManager.isMovableTypeEnabled(type))
+        if (!movableTypeManager.isMovableTypeEnabled(type))
             return MovableToggleResult.TYPE_DISABLED;
 
         if (!chunksLoaded(movable, newCuboid))
@@ -531,6 +529,6 @@ public final class MovableOpeningHelper
      */
     public Optional<BlockMover> getBlockMover(long movableUID)
     {
-        return doorActivityManager.getBlockMover(movableUID);
+        return movableActivityManager.getBlockMover(movableUID);
     }
 }
