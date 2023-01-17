@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
+import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
@@ -12,7 +13,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -29,23 +29,38 @@ import static org.mockito.AdditionalAnswers.delegatesTo;
 @SuppressWarnings("unused")
 class SetOpenDirectionDelayedTest
 {
-    @Spy DelayedCommandInputManager delayedCommandInputManager =
+    @Spy
+    DelayedCommandInputManager delayedCommandInputManager =
         new DelayedCommandInputManager(Mockito.mock(DebuggableRegistry.class));
-    @Mock ILocalizer localizer;
-    @Mock DelayedCommandInputRequest.IFactory<RotateDirection> inputRequestFactory;
-    @InjectMocks DelayedCommand.Context context;
 
-    @Mock CommandFactory commandFactory;
-    @SuppressWarnings("unchecked") Provider<CommandFactory> commandFactoryProvider =
+    ILocalizer localizer = UnitTestUtil.initLocalizer();
+
+    @Mock
+    DelayedCommandInputRequest.IFactory<RotateDirection> inputRequestFactory;
+
+    @InjectMocks
+    DelayedCommand.Context context;
+
+    @Mock
+    CommandFactory commandFactory;
+
+    @SuppressWarnings("unchecked")
+    Provider<CommandFactory> commandFactoryProvider =
         Mockito.mock(Provider.class, delegatesTo((Provider<CommandFactory>) () -> commandFactory));
 
-    @Mock ICommandSender commandSender;
+    @Mock
+    ICommandSender commandSender;
 
-    @Mock AbstractMovable movable;
     MovableRetriever movableRetriever;
-    @InjectMocks MovableRetrieverFactory movableRetrieverFactory;
 
-    @Mock SetOpenDirection setOpenDirection;
+    @Mock
+    AbstractMovable movable;
+
+    @InjectMocks
+    MovableRetrieverFactory movableRetrieverFactory;
+
+    @Mock
+    SetOpenDirection setOpenDirection;
 
     AutoCloseable openMocks;
 
@@ -54,8 +69,6 @@ class SetOpenDirectionDelayedTest
     {
         openMocks = MockitoAnnotations.openMocks(this);
 
-        Mockito.when(localizer.getMessage(Mockito.anyString(), ArgumentMatchers.<String>any())).thenAnswer(
-            invocation -> invocation.getArgument(0, String.class));
         initInputRequestFactory(inputRequestFactory, localizer, delayedCommandInputManager);
 
         movableRetriever = movableRetrieverFactory.of(movable);

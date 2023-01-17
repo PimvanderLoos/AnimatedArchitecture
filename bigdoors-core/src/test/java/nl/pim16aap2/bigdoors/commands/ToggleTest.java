@@ -11,6 +11,7 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.MovableToggleRequest;
 import nl.pim16aap2.bigdoors.movable.MovableToggleRequestBuilder;
+import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 import org.junit.jupiter.api.Assertions;
@@ -76,7 +77,7 @@ class ToggleTest
                                                                       Mockito.mock(IPPlayerFactory.class));
 
         Mockito.when(factory.newToggle(Mockito.any(ICommandSender.class), Mockito.any(MovableActionType.class),
-                                       Mockito.nullable(Double.class), Mockito.any()))
+                                       Mockito.nullable(Double.class), Mockito.any(MovableRetriever[].class)))
                .thenAnswer(
                    invoc ->
                    {
@@ -119,9 +120,14 @@ class ToggleTest
         final MovableRetriever[] retrievers = new MovableRetriever[count];
         for (int idx = 0; idx < count; ++idx)
         {
+            final MovableType type = Mockito.mock(MovableType.class);
+            Mockito.when(type.getLocalizationKey()).thenReturn("MovableType" + idx);
+
             final AbstractMovable newMovable = Mockito.mock(AbstractMovable.class);
             Mockito.when(newMovable.isOwner(Mockito.any(UUID.class))).thenReturn(true);
             Mockito.when(newMovable.isOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
+            Mockito.when(newMovable.getType()).thenReturn(type);
+
             retrievers[idx] = MovableRetrieverFactory.ofMovable(newMovable);
         }
 
