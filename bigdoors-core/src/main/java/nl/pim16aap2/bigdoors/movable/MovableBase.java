@@ -43,7 +43,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.logging.Level;
 
 /**
  * Represents an unspecialized movable.
@@ -231,7 +230,7 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor imp
     {
         if (movableOwner.permission() == PermissionLevel.CREATOR)
         {
-            log.at(Level.SEVERE).withStackTrace(StackSize.FULL)
+            log.atSevere().withStackTrace(StackSize.FULL)
                .log("Failed to add Owner '%s' as owner to movable: %d because a permission level of 0 is not allowed!",
                     movableOwner.pPlayerData(), this.getUid());
             return;
@@ -280,7 +279,7 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor imp
     {
         if (primeOwner.pPlayerData().getUUID().equals(uuid))
         {
-            log.at(Level.SEVERE).withCause(new IllegalArgumentException(
+            log.atSevere().withCause(new IllegalArgumentException(
                    "Failed to remove owner: " + primeOwner.pPlayerData() + " as owner from movable: " +
                        this.getUid() +
                        " because removing an owner with a permission level of 0 is not allowed!"))
@@ -359,7 +358,7 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor imp
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log();
+            log.atSevere().withCause(e).log();
             return false;
         }
         return true;

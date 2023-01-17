@@ -14,7 +14,6 @@ import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 
 /**
  * Represents a command that relates to an existing movable.
@@ -59,7 +58,7 @@ public abstract class MovableTargetCommand extends BaseCommand
     {
         if (movable.isEmpty())
         {
-            log.at(Level.FINE).log("Failed to find movable %s for command: %s", getMovableRetriever(), this);
+            log.atFine().log("Failed to find movable %s for command: %s", getMovableRetriever(), this);
 
             getCommandSender()
                 .sendMessage(textFactory, TextType.ERROR,
@@ -69,7 +68,7 @@ public abstract class MovableTargetCommand extends BaseCommand
 
         if (!isAllowed(movable.get(), permissions.hasAdminPermission()))
         {
-            log.at(Level.FINE)
+            log.atFine()
                .log("%s does not have access to movable %s for command %s", getCommandSender(), movable, this);
 
             getCommandSender()

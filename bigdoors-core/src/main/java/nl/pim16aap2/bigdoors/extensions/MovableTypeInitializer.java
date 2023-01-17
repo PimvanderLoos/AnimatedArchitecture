@@ -14,7 +14,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 
 /**
  * Represents an initializer for a group of {@link MovableType}s.
@@ -47,8 +46,7 @@ final class MovableTypeInitializer
         this.movableTypeClassLoader = movableTypeClassLoader;
         this.graph = createGraph(movableTypeInfos, debug);
 
-        log.at(Level.FINER).log("Dependency order: %s",
-                                graph.getLeafPath().stream().map(Loadable::getTypeName).toList());
+        log.atFiner().log("Dependency order: %s", graph.getLeafPath().stream().map(Loadable::getTypeName).toList());
     }
 
     /**
@@ -64,8 +62,8 @@ final class MovableTypeInitializer
             final Loadable loadable = node.getObj();
             if (loadable.getLoadFailure() != null)
             {
-                log.at(Level.WARNING).log("Failed to load movable type %s, reason: %s",
-                                          loadable.getMovableTypeInfo(), loadable.getLoadFailure());
+                log.atWarning().log("Failed to load movable type %s, reason: %s",
+                                    loadable.getMovableTypeInfo(), loadable.getLoadFailure());
                 continue;
             }
 
@@ -167,8 +165,8 @@ final class MovableTypeInitializer
     {
         if (!movableTypeClassLoader.loadJar(movableTypeInfo.getJarFile()))
         {
-            log.at(Level.SEVERE).log("Failed to load file: '%s'! This type ('%s') will not be loaded!",
-                                     movableTypeInfo.getJarFile(), movableTypeInfo.getTypeName());
+            log.atSevere().log("Failed to load file: '%s'! This type ('%s') will not be loaded!",
+                               movableTypeInfo.getJarFile(), movableTypeInfo.getTypeName());
             return null;
         }
 
@@ -181,16 +179,16 @@ final class MovableTypeInitializer
         }
         catch (NoSuchMethodException e)
         {
-            log.at(Level.SEVERE).log("Failed to load invalid extension: %s", movableTypeInfo);
+            log.atSevere().log("Failed to load invalid extension: %s", movableTypeInfo);
             return null;
         }
         catch (Exception | Error e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to load extension: %s", movableTypeInfo);
+            log.atSevere().withCause(e).log("Failed to load extension: %s", movableTypeInfo);
             return null;
         }
 
-        log.at(Level.FINE)
+        log.atFine()
            .log("Loaded BigDoors extension: %s", Util.capitalizeFirstLetter(movableType.getSimpleName()));
         return movableType;
     }
@@ -231,7 +229,7 @@ final class MovableTypeInitializer
 
         public void setLoadFailure(LoadFailure loadFailure)
         {
-            log.at(Level.FINER).log("Failed to load %s: %s", this, loadFailure);
+            log.atFiner().log("Failed to load %s: %s", this, loadFailure);
             this.loadFailure = loadFailure;
         }
 

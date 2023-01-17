@@ -25,7 +25,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.logging.Level;
 
 /**
  * This class manages all {@link MovableType}s. Before a type can be used, it will have to be registered here.
@@ -165,7 +164,7 @@ public final class MovableTypeManager extends Restartable implements IDebuggable
 
     private void registerMovableType0(MovableType movableType, boolean isEnabled)
     {
-        log.at(Level.INFO).log("Registering movable type: %s...", movableType);
+        log.atInfo().log("Registering movable type: %s...", movableType);
 
         movableTypeStatus.put(movableType, new MovableRegistrationStatus(movableType.getFullName(), isEnabled));
         movableTypeFromName.put(movableType.getSimpleName(), movableType);
@@ -232,8 +231,8 @@ public final class MovableTypeManager extends Restartable implements IDebuggable
     {
         if (movableTypeStatus.remove(movableType) == null)
         {
-            log.at(Level.WARNING).log("Trying to unregister movable of type: %s, but it isn't registered already!",
-                                      movableType.getSimpleName());
+            log.atWarning().log("Trying to unregister movable of type: %s, but it isn't registered already!",
+                                movableType.getSimpleName());
             return;
         }
         movableTypeFromName.remove(movableType.getSimpleName());

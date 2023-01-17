@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.logging.Level;
 
 /**
  * Represents a listener that keeps track redstone changes.
@@ -129,7 +128,7 @@ public class RedstoneListener extends AbstractListener
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Exception thrown while handling redstone event!");
+            log.atSevere().withCause(e).log("Exception thrown while handling redstone event!");
         }
     }
 

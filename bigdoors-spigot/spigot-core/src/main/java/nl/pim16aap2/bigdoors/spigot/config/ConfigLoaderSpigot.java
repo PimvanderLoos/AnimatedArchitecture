@@ -376,15 +376,15 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
     {
         final StringBuilder powerBlockTypes = new StringBuilder();
         this.powerBlockTypes.forEach(mat -> powerBlockTypes.append(String.format(" - %s\n", mat)));
-        log.at(Level.INFO).log("Power Block Types:\n%s", powerBlockTypes);
+        log.atInfo().log("Power Block Types:\n%s", powerBlockTypes);
 
         if (materialBlacklist.isEmpty())
-            log.at(Level.INFO).log("No materials are blacklisted!");
+            log.atInfo().log("No materials are blacklisted!");
         else
         {
             final StringBuilder blackListedMaterials = new StringBuilder();
             materialBlacklist.forEach(mat -> blackListedMaterials.append(String.format(" - %s\n", mat)));
-            log.at(Level.INFO).log("Blacklisted materials:\n%s", blackListedMaterials);
+            log.atInfo().log("Blacklisted materials:\n%s", blackListedMaterials);
         }
     }
 
@@ -454,15 +454,15 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
 
             if (!Files.isWritable(configFile))
             {
-                log.at(Level.WARNING).log("=======================================");
-                log.at(Level.WARNING).log("============== !WARNING! ==============");
-                log.at(Level.WARNING).log("=======================================");
-                log.at(Level.WARNING).log("====== CANNOT WRITE CONFIG FILE! ======");
-                log.at(Level.WARNING).log("==== NEW OPTIONS WILL NOT SHOW UP! ====");
-                log.at(Level.WARNING).log("==== THEY WILL USE DEFAULT VALUES! ====");
-                log.at(Level.WARNING).log("=======================================");
-                log.at(Level.WARNING).log("============== !WARNING! ==============");
-                log.at(Level.WARNING).log("=======================================");
+                log.atWarning().log("=======================================");
+                log.atWarning().log("============== !WARNING! ==============");
+                log.atWarning().log("=======================================");
+                log.atWarning().log("====== CANNOT WRITE CONFIG FILE! ======");
+                log.atWarning().log("==== NEW OPTIONS WILL NOT SHOW UP! ====");
+                log.atWarning().log("==== THEY WILL USE DEFAULT VALUES! ====");
+                log.atWarning().log("=======================================");
+                log.atWarning().log("============== !WARNING! ==============");
+                log.atWarning().log("=======================================");
             }
 
             final StringBuilder sb = new StringBuilder()
@@ -478,7 +478,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
         }
         catch (IOException e)
         {
-            log.at(Level.SEVERE).withCause(e)
+            log.atSevere().withCause(e)
                .log("Could not save config.yml! Please contact pim16aap2 and show him the following stacktrace:");
         }
     }
@@ -608,7 +608,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
         final String ret = movablePrices.get(type);
         if (ret != null)
             return ret;
-        log.at(Level.SEVERE).withCause(new IllegalStateException("No price found for type: " + type)).log();
+        log.atSevere().withCause(new IllegalStateException("No price found for type: " + type)).log();
         return "0";
     }
 
@@ -697,7 +697,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
                     final Material mat = Material.valueOf(str);
                     if (output.contains(mat))
                     {
-                        log.at(Level.WARNING).log("Failed to add material: \"%s\". It was already on the list!", str);
+                        log.atWarning().log("Failed to add material: \"%s\". It was already on the list!", str);
                         it.remove();
                     }
                     else if (mat.isSolid())
@@ -706,14 +706,14 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
                     }
                     else
                     {
-                        log.at(Level.WARNING)
+                        log.atWarning()
                            .log("Failed to add material: \"%s\". Only solid materials are allowed!", str);
                         it.remove();
                     }
                 }
                 catch (Exception e)
                 {
-                    log.at(Level.WARNING).log("Failed to parse material: \"%s\".", str);
+                    log.atWarning().log("Failed to parse material: \"%s\".", str);
                     it.remove();
                 }
             }

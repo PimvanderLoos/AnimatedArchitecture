@@ -9,9 +9,9 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
+import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.delayedinput.DelayedInputRequest;
@@ -22,7 +22,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.logging.Level;
 
 /**
  * Represents a request for delayed additional input for a command.
@@ -156,8 +155,8 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     {
         if (!inputClass.isInstance(input))
         {
-            log.at(Level.FINE).log("Trying to supply object of type %s for request: %s",
-                                   input.getClass().getName(), this);
+            log.atFine().log("Trying to supply object of type %s for request: %s",
+                             input.getClass().getName(), this);
             return CompletableFuture.completedFuture(Boolean.FALSE);
         }
 
@@ -186,7 +185,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      */
     private void log()
     {
-        log.at(Level.FINEST).log("Started delayed input request for command: %s", this);
+        log.atFinest().log("Started delayed input request for command: %s", this);
     }
 
     @AssistedFactory

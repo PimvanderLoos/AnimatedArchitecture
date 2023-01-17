@@ -19,7 +19,6 @@ import java.time.Duration;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.logging.Level;
 
 /**
  * Represents a manager of player heads with the texture of a certain player.
@@ -69,7 +68,7 @@ public final class HeadManager extends Restartable
     {
         if (headMap == null)
         {
-            log.at(Level.SEVERE).log("Trying to retrieve player head while head map is not initialized!");
+            log.atSevere().log("Trying to retrieve player head while head map is not initialized!");
             return CompletableFuture.completedFuture(Optional.empty());
         }
         // Satisfy NullAway that headMap won't be null.

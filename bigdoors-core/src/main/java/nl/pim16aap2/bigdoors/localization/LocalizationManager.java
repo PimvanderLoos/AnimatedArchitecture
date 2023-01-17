@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.util.logging.Level;
 
 /**
  * Represents a manager for the localization system.
@@ -131,7 +130,7 @@ public final class LocalizationManager extends Restartable implements ILocalizat
         }
         catch (IOException e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to apply localization patches!");
+            log.atSevere().withCause(e).log("Failed to apply localization patches!");
         }
     }
 

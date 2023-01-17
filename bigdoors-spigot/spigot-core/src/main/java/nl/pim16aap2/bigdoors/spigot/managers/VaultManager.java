@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.Set;
-import java.util.logging.Level;
 
 /**
  * Manages all interactions with Vault.
@@ -82,7 +81,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
         {
-            log.at(Level.SEVERE).withCause(
+            log.atSevere().withCause(
                 new NullPointerException("Failed to obtain Spigot player: " + player.getUUID())).log();
             return false;
         }
@@ -153,7 +152,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e)
+            log.atSevere().withCause(e)
                .log("Failed to determine movable creation price! Please contact pim16aap2! "
                         + "Include this: '%s' and stacktrace:", formula);
             return 0.0d;
@@ -187,8 +186,8 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final boolean defaultValue = true;
         if (economy == null)
         {
-            log.at(Level.WARNING).log("Economy not enabled! Could not subtract %f from the balance of player: %s!",
-                                      amount, player);
+            log.atWarning().log("Economy not enabled! Could not subtract %f from the balance of player: %s!",
+                                amount, player);
             return defaultValue;
         }
 
@@ -198,7 +197,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e)
+            log.atSevere().withCause(e)
                .log("Failed to check balance of player %s! Please contact pim16aap2!", player);
         }
         return defaultValue;
@@ -220,7 +219,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final boolean defaultValue = true;
         if (economy == null)
         {
-            log.at(Level.WARNING)
+            log.atWarning()
                .log("Economy not enabled! Could not subtract %f from the balance of player: %s in world: %s!",
                     amount, player, worldName);
             return defaultValue;
@@ -235,7 +234,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e)
+            log.atSevere().withCause(e)
                .log("Failed to subtract %f money from player %s! Please contact pim16aap2!", amount, player);
         }
         return defaultValue;
@@ -294,7 +293,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log();
+            log.atSevere().withCause(e).log();
             return false;
         }
     }
@@ -320,7 +319,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log();
+            log.atSevere().withCause(e).log();
             return false;
         }
     }
@@ -344,7 +343,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final @Nullable Player bukkitPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (bukkitPlayer == null)
         {
-            log.at(Level.SEVERE).withCause(
+            log.atSevere().withCause(
                 new IllegalArgumentException("Failed to obtain BukkitPlayer for player: " + player.asString())).log();
             return OptionalInt.empty();
         }
@@ -368,7 +367,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final @Nullable Player bukkitPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (bukkitPlayer == null)
         {
-            log.at(Level.SEVERE).withCause(
+            log.atSevere().withCause(
                 new IllegalArgumentException("Failed to obtain BukkitPlayer for player: " + player.asString())).log();
             return false;
         }
@@ -400,7 +399,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final @Nullable Player bukkitPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (bukkitPlayer == null)
         {
-            log.at(Level.SEVERE).withCause(
+            log.atSevere().withCause(
                 new IllegalArgumentException("Failed to obtain BukkitPlayer for player: " + player.asString())).log();
             return null;
         }

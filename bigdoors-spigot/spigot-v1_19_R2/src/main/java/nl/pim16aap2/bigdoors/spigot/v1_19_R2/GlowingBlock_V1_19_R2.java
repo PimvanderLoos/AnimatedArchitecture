@@ -25,7 +25,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
 
 /**
  * v1_19_R2 implementation of {@link IGlowingBlock}.
@@ -61,7 +60,7 @@ public class GlowingBlock_V1_19_R2 implements IGlowingBlock
         final @Nullable EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
         if (entityPlayer == null)
         {
-            log.at(Level.WARNING)
+            log.atWarning()
                .log("NMS entity of player: '%s' could not be found! They cannot receive Glowing Block packets!",
                     player.getDisplayName());
             return Optional.empty();
@@ -91,7 +90,7 @@ public class GlowingBlock_V1_19_R2 implements IGlowingBlock
         final @Nullable Team team = teams.get(pColor);
         if (team == null)
         {
-            log.at(Level.WARNING)
+            log.atWarning()
                .log("Failed to spawn glowing block: Could not find team for color: %s", pColor.name());
             return;
         }
@@ -163,7 +162,7 @@ public class GlowingBlock_V1_19_R2 implements IGlowingBlock
             }
             catch (Exception | ExceptionInInitializerError e)
             {
-                log.at(Level.SEVERE).withCause(e)
+                log.atSevere().withCause(e)
                    .log("Failed to spawn glowing block for player %s in world %s.", player, world);
                 return Optional.empty();
             }

@@ -6,7 +6,6 @@ import lombok.extern.flogger.Flogger;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
-import java.util.logging.Level;
 
 @ToString
 @Flogger
@@ -24,7 +23,7 @@ public class StepExecutorVoid extends StepExecutor
     protected boolean protectedAccept(@Nullable Object input)
     {
         if (input != null)
-            log.at(Level.FINE).withStackTrace(StackSize.FULL)
+            log.atFine().withStackTrace(StackSize.FULL)
                .log("Void input should not have a value. Received %s", input);
         return fun.get();
     }

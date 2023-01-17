@@ -15,7 +15,6 @@ import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.logging.Level;
 
 /**
  * Represents a manager for {@link IAnimationHookFactory} instances.
@@ -59,8 +58,8 @@ public final class AnimationHookManager implements IDebuggable
             }
             catch (Exception e)
             {
-                log.at(Level.SEVERE).withCause(e).log("Failed to create hook with factory '%s'.",
-                                                      factory.getClass().getName());
+                log.atSevere().withCause(e).log("Failed to create hook with factory '%s'.",
+                                                factory.getClass().getName());
             }
         }
 

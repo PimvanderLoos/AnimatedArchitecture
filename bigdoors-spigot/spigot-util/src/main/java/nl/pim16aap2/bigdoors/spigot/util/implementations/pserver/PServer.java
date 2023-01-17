@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.text.Text;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.logging.Level;
 
 /**
  * Represents the Spigot implementation of {@link IPServer}.
@@ -25,6 +24,6 @@ public class PServer implements IPServer
     @Override
     public void sendMessage(Text text)
     {
-        log.at(Level.INFO).log("%s", text.toPlainString());
+        log.atInfo().log("%s", text.toPlainString());
     }
 }

@@ -15,7 +15,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 
 
 /**
@@ -95,8 +94,7 @@ final class LocalizationPatcher
         }
         catch (IOException e)
         {
-            log.at(Level.SEVERE).withCause(e)
-               .log("Failed to write localization entries to file: %s", localeFile.path());
+            log.atSevere().withCause(e).log("Failed to write localization entries to file: %s", localeFile.path());
         }
     }
 

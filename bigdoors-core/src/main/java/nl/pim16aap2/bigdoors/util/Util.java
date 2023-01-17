@@ -810,7 +810,7 @@ public final class Util
     @Contract("_, !null -> !null")
     public @Nullable <T> T exceptionally(Throwable throwable, @Nullable T fallback)
     {
-        log.at(Level.SEVERE).withCause(throwable).log();
+        log.atSevere().withCause(throwable).log();
         return fallback;
     }
 

@@ -25,7 +25,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.OptionalLong;
 import java.util.concurrent.CompletableFuture;
-import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -214,7 +213,7 @@ public final class UpdateChecker
 
             if (httpConnection.getResponseCode() != 200)
             {
-                log.at(Level.SEVERE).withCause(
+                log.atSevere().withCause(
                     new RuntimeException("Download returned status #" + httpConnection.getResponseCode() +
                                              "\n for URL: " + downloadURL)).log();
                 return false;
@@ -238,7 +237,7 @@ public final class UpdateChecker
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log();
+            log.atSevere().withCause(e).log();
         }
         return downloadSuccessfull;
     }

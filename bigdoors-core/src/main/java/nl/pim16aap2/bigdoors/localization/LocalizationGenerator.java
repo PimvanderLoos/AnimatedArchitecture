@@ -17,7 +17,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 
 /**
  * Represents a class that can generate a localization file from multiple sources.
@@ -75,8 +74,8 @@ final class LocalizationGenerator implements ILocalizationGenerator
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to add resources from directory '%s' with base name: '%s",
-                                                  directory, baseName);
+            log.atSevere().withCause(e).log("Failed to add resources from directory '%s' with base name: '%s",
+                                            directory, baseName);
         }
     }
 
@@ -98,7 +97,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
         }
         catch (IOException | URISyntaxException | ProviderNotFoundException e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to read resource from file: %s", jarFile);
+            log.atSevere().withCause(e).log("Failed to read resource from file: %s", jarFile);
         }
     }
 
@@ -118,7 +117,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
         }
         catch (IOException | URISyntaxException | ProviderNotFoundException e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to get keys from base locale file.");
+            log.atSevere().withCause(e).log("Failed to get keys from base locale file.");
             return Collections.emptySet();
         }
     }
@@ -173,7 +172,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
         }
         catch (IOException | URISyntaxException | ProviderNotFoundException e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to open output file!");
+            log.atSevere().withCause(e).log("Failed to open output file!");
         }
     }
 

@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
 
 @Flogger
 public class CreatorClock extends Creator
@@ -109,8 +108,8 @@ public class CreatorClock extends Creator
         // The clock has to be an odd number of blocks tall.
         if (cuboidDims.y() % 2 == 0)
         {
-            log.at(Level.FINE).log("ClockCreator: %s: The height of the selected clock area (%d) is not an odd value!",
-                                   getPlayer(), cuboidDims.y());
+            log.atFine().log("ClockCreator: %s: The height of the selected clock area (%d) is not an odd value!",
+                             getPlayer(), cuboidDims.y());
             return false;
         }
 
@@ -119,7 +118,7 @@ public class CreatorClock extends Creator
             // It has to be a square.
             if (cuboidDims.y() != cuboidDims.z())
             {
-                log.at(Level.FINE)
+                log.atFine()
                    .log("ClockCreator: %s: The selected Clock area (%s) is not square! The x-axis is valid.",
                         getPlayer(), cuboidDims);
                 return false;
@@ -131,7 +130,7 @@ public class CreatorClock extends Creator
             // It has to be a square.
             if (cuboidDims.y() != cuboidDims.x())
             {
-                log.at(Level.FINE)
+                log.atFine()
                    .log("ClockCreator: %s: The selected Clock area (%s) is not square! The z-axis is valid.",
                         getPlayer(), cuboidDims);
                 return false;
@@ -140,7 +139,7 @@ public class CreatorClock extends Creator
         }
         else
         {
-            log.at(Level.FINE)
+            log.atFine()
                .log("ClockCreator: %s: The selected Clock area (%s) is not valid!", getPlayer(), cuboidDims);
             return false;
         }

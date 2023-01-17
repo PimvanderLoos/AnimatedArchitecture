@@ -24,7 +24,6 @@ import java.util.Optional;
 import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 
 @Singleton
 @Flogger
@@ -55,8 +54,8 @@ public final class ToolUserManager extends Restartable
 
         if (result != null)
         {
-            log.at(Level.INFO).log("Aborting previous ToolUser for user: %s (%s) because a new ToolUser was initiated!",
-                                   toolUser.getPlayer().getName(), toolUser.getPlayer().getUUID());
+            log.atInfo().log("Aborting previous ToolUser for user: %s (%s) because a new ToolUser was initiated!",
+                             toolUser.getPlayer().getName(), toolUser.getPlayer().getUUID());
             abortPair(toolUser.getPlayer().getUUID(), result);
         }
     }
@@ -96,8 +95,8 @@ public final class ToolUserManager extends Restartable
 
         if (!toolUsers.isEmpty())
         {
-            log.at(Level.SEVERE).withCause(new IllegalStateException("Failed to properly remove ToolUsers!")).log();
-            toolUsers.forEach((uuid, pair) -> log.at(Level.SEVERE)
+            log.atSevere().withCause(new IllegalStateException("Failed to properly remove ToolUsers!")).log();
+            toolUsers.forEach((uuid, pair) -> log.atSevere()
                                                  .log("Failed to abort ToolUer for user: %s", uuid.toString()));
             toolUsers.clear();
         }
@@ -129,14 +128,14 @@ public final class ToolUserManager extends Restartable
         final @Nullable ToolUserEntry pair = toolUsers.get(toolUser.getPlayer().getUUID());
         if (pair == null)
         {
-            log.at(Level.SEVERE).withStackTrace(StackSize.FULL)
+            log.atSevere().withStackTrace(StackSize.FULL)
                .log("Trying to start a tool user even though it wasn't registered, somehow!");
             return;
         }
 
         if (pair.timerTask != null)
         {
-            log.at(Level.SEVERE).withStackTrace(StackSize.FULL)
+            log.atSevere().withStackTrace(StackSize.FULL)
                .log("Trying to create a timer for a tool user even though it already has one! Aborting...");
             abortToolUser(toolUser.getPlayer().getUUID());
             return;

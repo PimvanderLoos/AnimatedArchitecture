@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Consumer;
-import java.util.logging.Level;
 import java.util.stream.Stream;
 import java.util.zip.ZipOutputStream;
 
@@ -162,7 +161,7 @@ public final class LocalizationUtil
         }
         catch (IOException e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to get keys from file: %s", path);
+            log.atSevere().withCause(e).log("Failed to get keys from file: %s", path);
             return Collections.emptySet();
         }
     }
@@ -222,7 +221,7 @@ public final class LocalizationUtil
         }
         catch (IOException e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to get entries from file: %s", path);
+            log.atSevere().withCause(e).log("Failed to get entries from file: %s", path);
             return Collections.emptyMap();
         }
     }
@@ -269,7 +268,7 @@ public final class LocalizationUtil
         }
         catch (IOException e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to read localization file!");
+            log.atSevere().withCause(e).log("Failed to read localization file!");
         }
     }
 
@@ -307,7 +306,7 @@ public final class LocalizationUtil
         }
         catch (IOException e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to read file: %s", path);
+            log.atSevere().withCause(e).log("Failed to read file: %s", path);
         }
     }
 
@@ -480,7 +479,7 @@ public final class LocalizationUtil
         }
         catch (IOException e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to delete file: '%s'", file);
+            log.atSevere().withCause(e).log("Failed to delete file: '%s'", file);
         }
     }
 
@@ -502,7 +501,7 @@ public final class LocalizationUtil
             }
             catch (IOException e)
             {
-                log.at(Level.SEVERE).withCause(e).log("Failed to create directories: %s", parent);
+                log.atSevere().withCause(e).log("Failed to create directories: %s", parent);
                 return;
             }
         }
@@ -516,7 +515,7 @@ public final class LocalizationUtil
         }
         catch (IOException e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to create file: %s", zipFile);
+            log.atSevere().withCause(e).log("Failed to create file: %s", zipFile);
         }
     }
 
@@ -537,7 +536,7 @@ public final class LocalizationUtil
         }
         catch (IOException | URISyntaxException | ProviderNotFoundException e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to find locales in file: %s", zipFile);
+            log.atSevere().withCause(e).log("Failed to find locales in file: %s", zipFile);
             return Collections.emptyList();
         }
     }

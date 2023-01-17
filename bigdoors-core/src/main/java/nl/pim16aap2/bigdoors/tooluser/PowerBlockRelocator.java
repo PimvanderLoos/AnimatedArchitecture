@@ -16,7 +16,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
 
 /**
  * Represents a tool user that relocates a powerblock to a new position.
@@ -71,7 +70,7 @@ public class PowerBlockRelocator extends ToolUser
     {
         if (newLoc == null)
         {
-            log.at(Level.SEVERE).withCause(
+            log.atSevere().withCause(
                 new NullPointerException("newLoc is null, which should not be possible at this point!")).log();
             getPlayer().sendError(textFactory, localizer.getMessage("constants.error.generic"));
         }

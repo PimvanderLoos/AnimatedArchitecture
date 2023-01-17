@@ -27,7 +27,6 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
 
 @ToString
 @Flogger
@@ -215,7 +214,7 @@ public abstract class ToolUser
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to apply input %s to ToolUser %s", obj, this);
+            log.atSevere().withCause(e).log("Failed to apply input %s to ToolUser %s", obj, this);
             getPlayer().sendMessage(textFactory, TextType.ERROR, localizer.getMessage("constants.error.generic"));
             abort();
             return false;
@@ -225,9 +224,9 @@ public abstract class ToolUser
     @SuppressWarnings("PMD.PrematureDeclaration")
     private boolean handleInput0(@Nullable Object obj)
     {
-        log.at(Level.FINE).log("Handling input: %s (%s) for step: %s in ToolUser: %s.",
-                               obj, (obj == null ? "null" : obj.getClass().getSimpleName()),
-                               getProcedure().getCurrentStepName(), this);
+        log.atFine().log("Handling input: %s (%s) for step: %s in ToolUser: %s.",
+                         obj, (obj == null ? "null" : obj.getClass().getSimpleName()),
+                         getProcedure().getCurrentStepName(), this);
 
         if (!active)
             return false;
@@ -277,7 +276,7 @@ public abstract class ToolUser
     {
         final var message = getProcedure().getMessage();
         if (message.isEmpty())
-            log.at(Level.WARNING).log("Missing translation for step: %s", getProcedure().getCurrentStepName());
+            log.atWarning().log("Missing translation for step: %s", getProcedure().getCurrentStepName());
         else
             getPlayer().sendMessage(textFactory, TextType.INFO, message);
     }
@@ -308,8 +307,8 @@ public abstract class ToolUser
         result.ifPresent(
             compat ->
             {
-                log.at(Level.FINE).log("Blocked access to cuboid %s for player %s! Reason: %s",
-                                       loc, getPlayer(), compat);
+                log.atFine().log("Blocked access to cuboid %s for player %s! Reason: %s",
+                                 loc, getPlayer(), compat);
                 getPlayer().sendMessage(textFactory, TextType.ERROR,
                                         localizer.getMessage("tool_user.base.error.no_permission_for_location"));
             });
@@ -335,8 +334,8 @@ public abstract class ToolUser
         result.ifPresent(
             compat ->
             {
-                log.at(Level.FINE).log("Blocked access to cuboid %s for player %s in world %s. Reason: %s",
-                                       cuboid, getPlayer(), world, compat);
+                log.atFine().log("Blocked access to cuboid %s for player %s in world %s. Reason: %s",
+                                 cuboid, getPlayer(), world, compat);
                 getPlayer().sendMessage(textFactory, TextType.ERROR,
                                         localizer.getMessage("tool_user.base.error.no_permission_for_location"));
             });

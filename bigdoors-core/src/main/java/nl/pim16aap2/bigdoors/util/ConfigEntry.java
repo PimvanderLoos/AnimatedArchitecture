@@ -6,7 +6,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
 
 /**
  * Represents an option in a config file.
@@ -37,8 +36,9 @@ public final class ConfigEntry<V>
      * @param verifyValue
      *     Function to use to verify the validity of a value and change it if necessary.
      */
-    public ConfigEntry(IConfigReader config, String optionName, V defaultValue, String @Nullable [] comment,
-                       @Nullable ConfigEntry.ITestValue<V> verifyValue)
+    public ConfigEntry(
+        IConfigReader config, String optionName, V defaultValue, String @Nullable [] comment,
+        @Nullable ConfigEntry.ITestValue<V> verifyValue)
     {
         this.config = config;
         this.optionName = optionName;
@@ -78,7 +78,7 @@ public final class ConfigEntry<V>
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e)
+            log.atSevere().withCause(e)
                .log("Failed to read config value of: \"%s\"! Using default value instead!", optionName);
             value = defaultValue;
         }

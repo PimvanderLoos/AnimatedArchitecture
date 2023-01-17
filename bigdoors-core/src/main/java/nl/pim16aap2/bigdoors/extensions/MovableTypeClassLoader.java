@@ -9,7 +9,6 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
-import java.util.logging.Level;
 
 @Flogger//
 final class MovableTypeClassLoader extends URLClassLoader implements IMovableTypeClassLoader
@@ -22,14 +21,14 @@ final class MovableTypeClassLoader extends URLClassLoader implements IMovableTyp
     @Override
     public boolean loadJar(Path file)
     {
-        log.at(Level.FINEST).log("Trying to load jar '%s' into MovableTypeClassLoader.", file);
+        log.atFinest().log("Trying to load jar '%s' into MovableTypeClassLoader.", file);
         try
         {
             addURL(file.toUri().toURL());
         }
         catch (Exception e)
         {
-            log.at(Level.WARNING).withCause(e).log();
+            log.atWarning().withCause(e).log();
             return false;
         }
         return true;

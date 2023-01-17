@@ -25,7 +25,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.logging.Level;
 
 @Singleton
 @Flogger
@@ -94,7 +93,7 @@ public class DebugReporterSpigot extends DebugReporter
             }
             catch (Exception e)
             {
-                log.at(Level.SEVERE).withCause(e).log("Failed to find MethodHandle for handlers!");
+                log.atSevere().withCause(e).log("Failed to find MethodHandle for handlers!");
                 sb.append("ERROR: ").append(clz::getName).append('\n');
             }
         }

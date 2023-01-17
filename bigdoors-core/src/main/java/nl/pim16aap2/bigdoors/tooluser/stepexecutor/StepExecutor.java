@@ -4,7 +4,6 @@ import lombok.extern.flogger.Flogger;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiFunction;
-import java.util.logging.Level;
 
 /**
  * Represents an executor for a single step in a larger procedure.
@@ -26,9 +25,9 @@ public abstract class StepExecutor
             return protectedAccept(input);
         else
         {
-            log.at(Level.FINE).log("Trying to pass a(n) %s into %s! This is an invalid operation!",
-                                   (input == null ? "null" : input.getClass().getSimpleName()),
-                                   getInputClass().getSimpleName());
+            log.atFine().log("Trying to pass a(n) %s into %s! This is an invalid operation!",
+                             (input == null ? "null" : input.getClass().getSimpleName()),
+                             getInputClass().getSimpleName());
             return false;
         }
     }

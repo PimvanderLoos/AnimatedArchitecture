@@ -11,7 +11,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Level;
 
 /**
  * Represents a glowing block used for highlights
@@ -177,7 +176,7 @@ public abstract class GlowingBlockSpawner
             }
             catch (Exception e)
             {
-                log.at(Level.SEVERE).withCause(e).log("Failed to spawn glowing block!");
+                log.atSevere().withCause(e).log("Failed to spawn glowing block!");
                 return Optional.empty();
             }
         }

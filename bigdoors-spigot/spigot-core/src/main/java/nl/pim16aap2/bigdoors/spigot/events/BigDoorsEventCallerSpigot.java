@@ -8,7 +8,6 @@ import org.bukkit.Bukkit;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.logging.Level;
 
 /**
  * Represents an implementation of {@link IBigDoorsEventCaller} for the Spigot platform.
@@ -32,7 +31,7 @@ public class BigDoorsEventCallerSpigot implements IBigDoorsEventCaller
     {
         if (!(bigDoorsEvent instanceof BigDoorsSpigotEvent))
         {
-            log.at(Level.SEVERE).withCause(new IllegalArgumentException(
+            log.atSevere().withCause(new IllegalArgumentException(
                 "Event " + bigDoorsEvent.getEventName() +
                     ", is not a Spigot event, but it was called on the Spigot platform!")).log();
             return;

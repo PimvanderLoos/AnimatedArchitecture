@@ -7,8 +7,6 @@ import nl.pim16aap2.bigdoors.api.IBigDoorsPlatformProvider;
 import nl.pim16aap2.util.SafeStringBuilder;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.logging.Level;
-
 @Flogger
 @AllArgsConstructor
 public abstract class DebugReporter
@@ -56,7 +54,7 @@ public abstract class DebugReporter
         }
         catch (Throwable t)
         {
-            log.at(Level.SEVERE).withCause(t).log("Failed to get debug information for class: %s", debuggableName);
+            log.atSevere().withCause(t).log("Failed to get debug information for class: %s", debuggableName);
             msg = "ERROR";
         }
 
@@ -72,7 +70,7 @@ public abstract class DebugReporter
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to get additional debug data!");
+            log.atSevere().withCause(e).log("Failed to get additional debug data!");
             return "ERROR";
         }
     }

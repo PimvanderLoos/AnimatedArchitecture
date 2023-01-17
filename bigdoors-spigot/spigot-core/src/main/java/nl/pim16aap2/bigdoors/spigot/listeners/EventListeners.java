@@ -28,7 +28,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.logging.Level;
 
 /**
  * Represents a listener that keeps track of various events.
@@ -100,7 +99,7 @@ public class EventListeners extends AbstractListener
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log();
+            log.atSevere().withCause(e).log();
         }
     }
 
@@ -122,7 +121,7 @@ public class EventListeners extends AbstractListener
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log();
+            log.atSevere().withCause(e).log();
         }
     }
 
@@ -162,7 +161,7 @@ public class EventListeners extends AbstractListener
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log();
+            log.atSevere().withCause(e).log();
         }
     }
 
@@ -201,7 +200,7 @@ public class EventListeners extends AbstractListener
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log();
+            log.atSevere().withCause(e).log();
         }
     }
 
@@ -226,7 +225,7 @@ public class EventListeners extends AbstractListener
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log();
+            log.atSevere().withCause(e).log();
         }
     }
 
@@ -257,7 +256,7 @@ public class EventListeners extends AbstractListener
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log();
+            log.atSevere().withCause(e).log();
         }
     }
 }

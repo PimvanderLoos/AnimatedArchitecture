@@ -41,7 +41,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.logging.Level;
 
 /**
  * Represents a timed cached map backed by a {@link ConcurrentHashMap}. Entries will expire after a configurable amount
@@ -500,7 +499,7 @@ public sealed class TimedCache<K, V>
     public void shutDown()
     {
         this.alive = false;
-        log.at(Level.FINEST).withStackTrace(StackSize.FULL).log("Shutting down TimedCache normally!");
+        log.atFinest().withStackTrace(StackSize.FULL).log("Shutting down TimedCache normally!");
         cache.clear();
         taskTimer.cancel();
     }

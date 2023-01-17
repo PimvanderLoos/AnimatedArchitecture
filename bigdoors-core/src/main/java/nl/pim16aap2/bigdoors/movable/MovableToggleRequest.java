@@ -21,7 +21,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.logging.Level;
 
 @Getter
 @ToString
@@ -78,7 +77,7 @@ public class MovableToggleRequest
      */
     public CompletableFuture<MovableToggleResult> execute()
     {
-        log.at(Level.FINE).log("Executing toggle request: %s", this);
+        log.atFine().log("Executing toggle request: %s", this);
         return movableRetriever.getMovable().thenApply(this::execute)
                                .exceptionally(throwable -> Util.exceptionally(throwable, MovableToggleResult.ERROR));
     }
@@ -87,7 +86,7 @@ public class MovableToggleRequest
     {
         if (movableOpt.isEmpty())
         {
-            log.at(Level.INFO).log("Toggle failure (no movable found): %s", this);
+            log.atInfo().log("Toggle failure (no movable found): %s", this);
             return MovableToggleResult.ERROR;
         }
         final AbstractMovable movable = movableOpt.get();

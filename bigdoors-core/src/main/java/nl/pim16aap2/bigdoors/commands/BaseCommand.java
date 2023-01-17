@@ -17,7 +17,6 @@ import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 
 /**
  * Represents the base BigDoors command.
@@ -120,21 +119,21 @@ public abstract class BaseCommand
         log();
         if (!validInput())
         {
-            log.at(Level.FINE).log("Invalid input for command: %s", this);
+            log.atFine().log("Invalid input for command: %s", this);
             return CompletableFuture.completedFuture(false);
         }
 
         final boolean isPlayer = commandSender instanceof IPPlayer;
         if (isPlayer && !availableForPlayers())
         {
-            log.at(Level.FINE).log("Command not allowed for players: %s", this);
+            log.atFine().log("Command not allowed for players: %s", this);
             commandSender.sendMessage(textFactory, TextType.ERROR,
                                       localizer.getMessage("commands.base.error.no_permission_for_command"));
             return CompletableFuture.completedFuture(true);
         }
         if (!isPlayer && !availableForNonPlayers())
         {
-            log.at(Level.FINE).log("Command not allowed for non-players: %s", this);
+            log.atFine().log("Command not allowed for non-players: %s", this);
             commandSender.sendMessage(textFactory, TextType.ERROR,
                                       localizer.getMessage("commands.base.error.only_available_for_players"));
             return CompletableFuture.completedFuture(true);
@@ -145,7 +144,7 @@ public abstract class BaseCommand
         return startExecution().exceptionally(
             throwable ->
             {
-                log.at(Level.SEVERE).withCause(throwable).log("Failed to execute command: %s", this);
+                log.atSevere().withCause(throwable).log("Failed to execute command: %s", this);
                 if (commandSender.isPlayer())
                     commandSender.sendMessage(textFactory, TextType.ERROR,
                                               localizer.getMessage("commands.base.error.generic"));
@@ -174,7 +173,7 @@ public abstract class BaseCommand
                 commandSender.sendMessage(textFactory, TextType.ERROR, localizer.getMessage("constants.error.generic"));
                 break;
         }
-        log.at(Level.FINE).log("Handling database action result: %s for command: %s", result.name(), this);
+        log.atFine().log("Handling database action result: %s for command: %s", result.name(), this);
         return true;
     }
 
@@ -195,7 +194,7 @@ public abstract class BaseCommand
     {
         if (!permissionResult.hasAnyPermission())
         {
-            log.at(Level.FINE).log("Permission for command: %s: %s", this, permissionResult);
+            log.atFine().log("Permission for command: %s: %s", this, permissionResult);
             commandSender.sendMessage(textFactory, TextType.ERROR,
                                       localizer.getMessage("commands.base.error.no_permission_for_command"));
             return true;
@@ -226,7 +225,7 @@ public abstract class BaseCommand
      */
     private void log()
     {
-        log.at(Level.FINEST).log("Running command %s: %s", getCommand().getName(), this);
+        log.atFinest().log("Running command %s: %s", getCommand().getName(), this);
     }
 
     /**
@@ -245,7 +244,7 @@ public abstract class BaseCommand
                             .orElseGet(doorRetriever::getMovable).thenApplyAsync(
                 movable ->
                 {
-                    log.at(Level.FINE).log("Retrieved movable " + movable + " for command: %s", this);
+                    log.atFine().log("Retrieved movable " + movable + " for command: %s", this);
                     if (movable.isPresent())
                         return movable;
                     commandSender.sendMessage(textFactory, TextType.ERROR,

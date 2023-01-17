@@ -19,7 +19,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Arrays;
-import java.util.logging.Level;
 
 @Singleton
 @Flogger
@@ -41,7 +40,7 @@ public class BigDoorsToolUtilSpigot implements IBigDoorsToolUtil
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
         {
-            log.at(Level.SEVERE).withCause(
+            log.atSevere().withCause(
                 new NullPointerException("Failed to obtain Spigot player: " + player.getUUID())).log();
             return;
         }
@@ -73,7 +72,7 @@ public class BigDoorsToolUtilSpigot implements IBigDoorsToolUtil
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
         {
-            log.at(Level.SEVERE).withCause(
+            log.atSevere().withCause(
                 new NullPointerException("Failed to obtain Spigot player: " + player.getUUID())).log();
             return;
         }
@@ -103,7 +102,7 @@ public class BigDoorsToolUtilSpigot implements IBigDoorsToolUtil
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
         {
-            log.at(Level.SEVERE).withCause(
+            log.atSevere().withCause(
                 new NullPointerException("Failed to obtain Spigot player: " + player.getUUID())).log();
             return false;
         }

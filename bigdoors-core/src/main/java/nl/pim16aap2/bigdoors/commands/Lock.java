@@ -16,7 +16,6 @@ import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.logging.Level;
 
 /**
  * Represents the command that is used to change whether a movable is locked.
@@ -59,7 +58,7 @@ public class Lock extends MovableTargetCommand
 
         if (event.isCancelled())
         {
-            log.at(Level.FINEST).log("Event %s was cancelled!", event);
+            log.atFinest().log("Event %s was cancelled!", event);
             return CompletableFuture.completedFuture(true);
         }
 

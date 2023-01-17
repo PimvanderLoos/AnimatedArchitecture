@@ -38,7 +38,6 @@ import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.logging.Level;
 
 /**
  * Represents a specialization of the {@link ToolUser} that is used for creating new {@link AbstractMovable}s.
@@ -314,7 +313,7 @@ public abstract class Creator extends ToolUser
     {
         if (!Util.isValidMovableName(str))
         {
-            log.at(Level.FINE).log("Invalid name '%s' for selected Creator: %s", str, this);
+            log.atFine().log("Invalid name '%s' for selected Creator: %s", str, this);
             getPlayer().sendMessage(textFactory, TextType.ERROR,
                                     localizer.getMessage("creator.base.error.invalid_name",
                                                          str, localizer.getMovableType(getMovableType())));
@@ -456,7 +455,7 @@ public abstract class Creator extends ToolUser
     {
         if (Util.requireNonNull(world, "world").worldName().equals(targetWorld.worldName()))
             return true;
-        log.at(Level.FINE).log("World mismatch in ToolUser for player: %s", getPlayer());
+        log.atFine().log("World mismatch in ToolUser for player: %s", getPlayer());
         return false;
     }
 
@@ -482,7 +481,7 @@ public abstract class Creator extends ToolUser
                 {
                     getPlayer().sendMessage(textFactory, TextType.ERROR,
                                             localizer.getMessage("constants.error.generic"));
-                    log.at(Level.SEVERE).log("Failed to insert movable after creation!");
+                    log.atSevere().log("Failed to insert movable after creation!");
                 }
             }).exceptionally(Util::exceptionally);
     }

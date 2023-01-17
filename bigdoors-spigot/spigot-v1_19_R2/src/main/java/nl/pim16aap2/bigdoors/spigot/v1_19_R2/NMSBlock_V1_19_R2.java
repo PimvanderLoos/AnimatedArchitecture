@@ -32,7 +32,6 @@ import org.bukkit.craftbukkit.v1_19_R2.block.data.CraftBlockData;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
-import java.util.logging.Level;
 
 /**
  * v1_19_R2 implementation of {@link IAnimatedBlockData}.
@@ -277,7 +276,7 @@ public class NMSBlock_V1_19_R2 extends BlockBase implements IAnimatedBlockData
         final @Nullable var mappedDir = PBlockFace.getDirFun(dir);
         if (mappedDir == null)
         {
-            log.at(Level.SEVERE).withCause(
+            log.atSevere().withCause(
                 new IllegalStateException("Failed to get face from vector " + dir +
                                               ". Rotations will not work as expected!")).log();
             return;
@@ -320,7 +319,7 @@ public class NMSBlock_V1_19_R2 extends BlockBase implements IAnimatedBlockData
         final @Nullable var mappedDir = PBlockFace.getDirFun(dir);
         if (mappedDir == null)
         {
-            log.at(Level.SEVERE).withCause(
+            log.atSevere().withCause(
                 new IllegalStateException("Failed to get face from vector " + dir +
                                               ". Rotations will not work as expected!")).log();
             return;

@@ -112,8 +112,8 @@ public final class MovableOpeningHelper
         AbstractMovable movable, MovableToggleResult result, MovableActionCause cause, IPPlayer responsible,
         IMessageable messageReceiver)
     {
-        log.at(Level.FINE).log("Aborted toggle for movable %d because of %s. Toggle Reason: %s, Responsible: %s",
-                               movable.getUid(), result.name(), cause.name(), responsible.asString());
+        log.atFine().log("Aborted toggle for movable %d because of %s. Toggle Reason: %s, Responsible: %s",
+                         movable.getUid(), result.name(), cause.name(), responsible.asString());
 
         // If the reason the toggle attempt was cancelled was because it was busy, it should obviously
         // not reset the busy status of this movable. However, in every other case it should, because the movable is
@@ -194,7 +194,7 @@ public final class MovableOpeningHelper
     {
         if (snapshot.getOpenDir() == RotateDirection.NONE)
         {
-            log.at(Level.SEVERE).withCause(new IllegalStateException("OpenDir cannot be NONE!")).log();
+            log.atSevere().withCause(new IllegalStateException("OpenDir cannot be NONE!")).log();
             return MovableToggleResult.ERROR;
         }
 
@@ -306,8 +306,8 @@ public final class MovableOpeningHelper
                                                                  movable.getWorld()).map(
             protectionCompat ->
             {
-                log.at(Level.WARNING).log("Player '%s' is not allowed to open movable '%s' (%d) here! Reason: %s",
-                                          responsible, movable.getName(), movable.getUid(), protectionCompat);
+                log.atWarning().log("Player '%s' is not allowed to open movable '%s' (%d) here! Reason: %s",
+                                    responsible, movable.getName(), movable.getUid(), protectionCompat);
                 return false;
             }).orElse(true);
     }
@@ -487,7 +487,7 @@ public final class MovableOpeningHelper
 
         if (!chunksLoaded(movable, newCuboid))
         {
-            log.at(Level.WARNING).log("Chunks for movable '%s' could not be not loaded!", movable.getName());
+            log.atWarning().log("Chunks for movable '%s' could not be not loaded!", movable.getName());
             return MovableToggleResult.ERROR;
         }
 

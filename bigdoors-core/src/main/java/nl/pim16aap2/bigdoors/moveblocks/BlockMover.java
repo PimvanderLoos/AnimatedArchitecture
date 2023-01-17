@@ -40,7 +40,6 @@ import java.util.TimerTask;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
-import java.util.logging.Level;
 
 import static nl.pim16aap2.bigdoors.api.animatedblock.IAnimation.AnimationState;
 
@@ -370,7 +369,7 @@ public abstract class BlockMover
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log();
+            log.atSevere().withCause(e).log();
             // Add the block anyway, so we can deal with them in the initFailure method.
             this.privateAnimatedBlocks.addAll(newAnimatedBlocks);
             handleInitFailure();
@@ -415,7 +414,7 @@ public abstract class BlockMover
             }
             catch (Exception e)
             {
-                log.at(Level.SEVERE).withCause(e)
+                log.atSevere().withCause(e)
                    .log("Failed to remove original block. Trying to restore blocks now...");
                 handleInitFailure();
                 return false;
@@ -447,7 +446,7 @@ public abstract class BlockMover
             }
             catch (Exception e)
             {
-                log.at(Level.SEVERE).withCause(e).log("Failed to kill animated block: %s", animatedBlock);
+                log.atSevere().withCause(e).log("Failed to kill animated block: %s", animatedBlock);
             }
             try
             {
@@ -459,7 +458,7 @@ public abstract class BlockMover
             }
             catch (Exception e)
             {
-                log.at(Level.SEVERE).withCause(e).log("Failed to restore block: %s", animatedBlock);
+                log.atSevere().withCause(e).log("Failed to restore block: %s", animatedBlock);
             }
         }
         privateAnimatedBlocks.clear();
@@ -538,7 +537,7 @@ public abstract class BlockMover
         final @Nullable TimerTask moverTask0 = moverTask;
         if (moverTask0 == null)
         {
-            log.at(Level.WARNING).log("MoverTask unexpectedly null for BlockMover:\n%s", this);
+            log.atWarning().log("MoverTask unexpectedly null for BlockMover:\n%s", this);
             return;
         }
         executor.cancel(moverTask0, Objects.requireNonNull(moverTaskID));
@@ -571,7 +570,7 @@ public abstract class BlockMover
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to prepare animation!");
+            log.atSevere().withCause(e).log("Failed to prepare animation!");
             handleInitFailure();
             return;
         }
@@ -748,14 +747,14 @@ public abstract class BlockMover
 
         for (final IAnimationHook<IAnimatedBlock> hook : hooks0)
         {
-            log.at(Level.FINEST).log("Executing '%s' for hook '%s'!", actionName, hook.getName());
+            log.atFinest().log("Executing '%s' for hook '%s'!", actionName, hook.getName());
             try
             {
                 call.accept(hook);
             }
             catch (Exception e)
             {
-                log.at(Level.SEVERE).withCause(e)
+                log.atSevere().withCause(e)
                    .log("Failed to execute '%s' for hook '%s'!", actionName, hook.getName());
             }
         }

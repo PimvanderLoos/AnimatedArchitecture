@@ -19,7 +19,6 @@ import java.nio.file.StandardOpenOption;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.logging.Level;
 
 /**
  * Handles all I/O for the audio config.
@@ -61,7 +60,7 @@ class AudioConfigIO
         }
         catch (Exception | AssertionError e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to read audio config!");
+            log.atSevere().withCause(e).log("Failed to read audio config!");
         }
         return Collections.emptyMap();
     }
@@ -93,7 +92,7 @@ class AudioConfigIO
         }
         catch (IOException e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to write audio config!");
+            log.atSevere().withCause(e).log("Failed to write audio config!");
         }
     }
 

@@ -5,6 +5,7 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 
 import java.util.logging.Level;
 
+
 /**
  * Implementation of {@link IMessagingInterface} for Stdout. Mostly useful for debugging.
  *

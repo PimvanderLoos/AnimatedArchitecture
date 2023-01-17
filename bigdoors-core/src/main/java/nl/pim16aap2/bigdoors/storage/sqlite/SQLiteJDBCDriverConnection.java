@@ -54,7 +54,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 
 /**
  * An implementation of {@link IStorage} for SQLite.
@@ -121,18 +120,18 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         {
             if (!loadDriver())
             {
-                log.at(Level.WARNING).log("Failed to load database driver!");
+                log.atWarning().log("Failed to load database driver!");
                 databaseState = DatabaseState.NO_DRIVER;
                 return;
             }
             init();
-            log.at(Level.FINE).log("Database initialized! Current state: %s", databaseState);
+            log.atFine().log("Database initialized! Current state: %s", databaseState);
             if (databaseState == DatabaseState.OUT_OF_DATE)
                 upgrade();
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to initialize database!");
+            log.atSevere().withCause(e).log("Failed to initialize database!");
             databaseState = DatabaseState.ERROR;
         }
         debuggableRegistry.registerDebuggable(this);
@@ -152,7 +151,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         }
         catch (ClassNotFoundException e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to load database driver: %s!", DRIVER);
+            log.atSevere().withCause(e).log("Failed to load database driver: %s!", DRIVER);
         }
         return false;
     }
@@ -168,7 +167,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     {
         if (!databaseState.equals(state))
         {
-            log.at(Level.SEVERE).withStackTrace(StackSize.FULL)
+            log.atSevere().withStackTrace(StackSize.FULL)
                .log("Database connection could not be created! " +
                         "Requested database for state '%s' while it is actually in state '%s'!",
                     state.name(), databaseState.name());
@@ -241,12 +240,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 if (!Files.isDirectory(dbFile.getParent()))
                     Files.createDirectories(dbFile.getParent());
                 Files.createFile(dbFile);
-                log.at(Level.INFO).log("New file created at: %s", dbFile);
+                log.atInfo().log("New file created at: %s", dbFile);
             }
         }
         catch (IOException e)
         {
-            log.at(Level.SEVERE).withCause(e).log("File write error: %s", dbFile);
+            log.atSevere().withCause(e).log("File write error: %s", dbFile);
             databaseState = DatabaseState.ERROR;
             return;
         }
@@ -257,7 +256,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         }
         catch (SQLException e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to open SQLite connections!");
+            log.atSevere().withCause(e).log("Failed to open SQLite connections!");
             return;
         }
 
@@ -295,7 +294,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         }
         catch (SQLException | NullPointerException e)
         {
-            log.at(Level.SEVERE).withCause(e).log();
+            log.atSevere().withCause(e).log();
             databaseState = DatabaseState.ERROR;
         }
     }
@@ -308,7 +307,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
         if (!movableType.map(movableTypeManager::isRegistered).orElse(false))
         {
-            log.at(Level.SEVERE)
+            log.atSevere()
                .withStackTrace(StackSize.FULL)
                .log("Type with ID: '%s' has not been registered (yet)!", movableTypeResult);
             return Optional.empty();
@@ -455,7 +454,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         }
         catch (Exception t)
         {
-            log.at(Level.SEVERE).withCause(t).log();
+            log.atSevere().withCause(t).log();
         }
         return Optional.empty();
     }
@@ -830,7 +829,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         // permission level 0 is reserved for the creator, and negative values are not allowed.
         if (permission.getValue() < 1 || permission == PermissionLevel.NO_PERMISSION)
         {
-            log.at(Level.INFO).withStackTrace(StackSize.FULL)
+            log.atInfo().withStackTrace(StackSize.FULL)
                .log("Cannot add co-owner with permission level %d", permission.getValue());
             return false;
         }
@@ -883,21 +882,21 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                                            rs -> rs.getInt(1), -1);
         if (dbVersion == -1)
         {
-            log.at(Level.SEVERE).log("Failed to obtain database version!");
+            log.atSevere().log("Failed to obtain database version!");
             databaseState = DatabaseState.ERROR;
             return dbVersion;
         }
 
         if (dbVersion > DATABASE_VERSION)
         {
-            log.at(Level.SEVERE)
+            log.atSevere()
                .log("Trying to load database version %s while the maximum allowed version is %s",
                     dbVersion, DATABASE_VERSION);
             databaseState = DatabaseState.TOO_NEW;
         }
         else if (dbVersion < MIN_DATABASE_VERSION)
         {
-            log.at(Level.SEVERE)
+            log.atSevere()
                .log("Trying to load database version %s while the minimum allowed version is %s",
                     dbVersion, MIN_DATABASE_VERSION);
             databaseState = DatabaseState.TOO_OLD;
@@ -923,14 +922,14 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             final @Nullable Connection conn = getConnection(DatabaseState.OUT_OF_DATE);
             if (conn == null)
             {
-                log.at(Level.SEVERE).withStackTrace(StackSize.FULL)
+                log.atSevere().withStackTrace(StackSize.FULL)
                    .log("Failed to upgrade database: Connection unavailable!");
                 databaseState = DatabaseState.ERROR;
                 return;
             }
 
             final int dbVersion = verifyDatabaseVersion(conn);
-            log.at(Level.FINE).log("Upgrading database from version %d to version %d.", dbVersion, DATABASE_VERSION);
+            log.atFine().log("Upgrading database from version %d to version %d.", dbVersion, DATABASE_VERSION);
 
             if (!makeBackup())
                 return;
@@ -943,7 +942,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to upgrade database!");
+            log.atSevere().withCause(e).log("Failed to upgrade database!");
             databaseState = DatabaseState.ERROR;
         }
     }
@@ -964,7 +963,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         }
         catch (IOException e)
         {
-            log.at(Level.SEVERE).withCause(e)
+            log.atSevere().withCause(e)
                .log("Failed to create backup of the database! Database upgrade aborted and access is disabled!");
             return false;
         }
@@ -985,7 +984,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         }
         catch (SQLException | NullPointerException e)
         {
-            log.at(Level.SEVERE).withCause(e).log();
+            log.atSevere().withCause(e).log();
         }
     }
 
@@ -1010,7 +1009,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to execute update: %s", pPreparedStatement);
+            log.atSevere().withCause(e).log("Failed to execute update: %s", pPreparedStatement);
         }
         return -1;
     }
@@ -1033,7 +1032,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         }
         catch (SQLException e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to execute update: %s", pPreparedStatement);
+            log.atSevere().withCause(e).log("Failed to execute update: %s", pPreparedStatement);
         }
         return -1;
     }
@@ -1061,7 +1060,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to execute update: %s", pPreparedStatement);
+            log.atSevere().withCause(e).log("Failed to execute update: %s", pPreparedStatement);
         }
         return -1;
     }
@@ -1088,13 +1087,13 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             }
             catch (SQLException ex)
             {
-                log.at(Level.SEVERE).withCause(ex)
+                log.atSevere().withCause(ex)
                    .log("Failed to get generated key for statement: %s", pPreparedStatement);
             }
         }
         catch (SQLException e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to execute update: %s", pPreparedStatement);
+            log.atSevere().withCause(e).log("Failed to execute update: %s", pPreparedStatement);
         }
         return -1;
     }
@@ -1128,7 +1127,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to execute query: %s", pPreparedStatement);
+            log.atSevere().withCause(e).log("Failed to execute query: %s", pPreparedStatement);
         }
         return fallback;
     }
@@ -1166,7 +1165,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to execute batch query: %s", pPreparedStatement);
+            log.atSevere().withCause(e).log("Failed to execute batch query: %s", pPreparedStatement);
         }
         return fallback;
     }
@@ -1199,7 +1198,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to execute query: %s", pPreparedStatement);
+            log.atSevere().withCause(e).log("Failed to execute query: %s", pPreparedStatement);
         }
         return fallback;
     }
@@ -1252,12 +1251,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             {
                 if (failureAction == FailureAction.ROLLBACK)
                     conn.rollback();
-                log.at(Level.SEVERE).withCause(e).log();
+                log.atSevere().withCause(e).log();
             }
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log();
+            log.atSevere().withCause(e).log();
         }
         return fallback;
     }
@@ -1295,7 +1294,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      */
     private void logStatement(PPreparedStatement pPreparedStatement)
     {
-        log.at(Level.FINEST).log("Executed statement: %s", pPreparedStatement);
+        log.atFinest().log("Executed statement: %s", pPreparedStatement);
     }
 
     @Override

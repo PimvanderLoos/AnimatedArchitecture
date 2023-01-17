@@ -5,7 +5,6 @@ import org.jetbrains.annotations.Nullable;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
-import java.util.logging.Level;
 
 /**
  * Represents an accessor for {@link Unsafe}.
@@ -37,7 +36,7 @@ public final class UnsafeGetter
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to access unsafe!");
+            log.atSevere().withCause(e).log("Failed to access unsafe!");
             return null;
         }
     }

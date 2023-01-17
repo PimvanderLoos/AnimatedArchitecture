@@ -11,7 +11,6 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
-import java.util.logging.Level;
 
 /**
  * Represents the reflection backend for the {@link ReflectionFinder} classes.
@@ -32,7 +31,7 @@ final class ReflectionBackend
         }
         catch (NoSuchMethodException e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to get Enum#name()!");
+            log.atSevere().withCause(e).log("Failed to get Enum#name()!");
         }
         ENUM_VALUE_NAME = m;
     }
@@ -139,8 +138,9 @@ final class ReflectionBackend
      *     The type of the field to search for.
      * @return The first field that matches the specification.
      */
-    public static @Nullable Field getField(Class<?> source, String name, int modifiers,
-                                           @Nullable Class<?> type)
+    public static @Nullable Field getField(
+        Class<?> source, String name, int modifiers,
+        @Nullable Class<?> type)
     {
         for (final Field field : source.getDeclaredFields())
         {
@@ -233,8 +233,9 @@ final class ReflectionBackend
      *     The return type the method should have. When this is null, the return type will be ignored.
      * @return The method matching the specified description.
      */
-    private static @Nullable Method findMethod(Class<?> source, @Nullable String name, int modifiers,
-                                               @Nullable ParameterGroup parameters, @Nullable Class<?> returnType)
+    private static @Nullable Method findMethod(
+        Class<?> source, @Nullable String name, int modifiers,
+        @Nullable ParameterGroup parameters, @Nullable Class<?> returnType)
     {
         for (final Method method : source.getDeclaredMethods())
         {
@@ -276,9 +277,10 @@ final class ReflectionBackend
      *     The return type the method should have. When this is null, the return type will be ignored.
      * @return The method matching the specified description.
      */
-    public static @Nullable Method findMethod(final boolean checkSuperClasses, final boolean checkInterfaces,
-                                              Class<?> source, @Nullable String name, int modifiers,
-                                              @Nullable ParameterGroup parameters, @Nullable Class<?> returnType)
+    public static @Nullable Method findMethod(
+        final boolean checkSuperClasses, final boolean checkInterfaces,
+        Class<?> source, @Nullable String name, int modifiers,
+        @Nullable ParameterGroup parameters, @Nullable Class<?> returnType)
     {
         @Nullable Method m = findMethod(source, name, modifiers, parameters, returnType);
         if (m != null)
@@ -377,8 +379,8 @@ final class ReflectionBackend
      * modifiers equal to '0', while this method returns "[*]".
      *
      * @param modifiers
-     *     The modifiers to convert into a String. This is a flag value composed of flags such as {@link
-     *     Modifier#PUBLIC}. See {@link #getModifiers(int...)}.
+     *     The modifiers to convert into a String. This is a flag value composed of flags such as
+     *     {@link Modifier#PUBLIC}. See {@link #getModifiers(int...)}.
      * @return A String representing the modifiers.
      */
     public static String optionalModifiersToString(int modifiers)

@@ -32,7 +32,6 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 
 @Singleton
 @Flogger
@@ -64,28 +63,28 @@ public class GlowingBlockSpawnerSpigot extends GlowingBlockSpawner implements IR
     {
         if (scoreboard == null)
         {
-            log.at(Level.WARNING).log("Failed to spawn glowing block: Scoreboard is null!");
+            log.atWarning().log("Failed to spawn glowing block: Scoreboard is null!");
             return Optional.empty();
         }
 
         if (teams.get(pColor) == null)
         {
             // FINER because it will already have been logged on startup.
-            log.at(Level.FINER).log("GlowingBlock Color %s was not registered properly!", pColor.name());
+            log.atFiner().log("GlowingBlock Color %s was not registered properly!", pColor.name());
             return Optional.empty();
         }
 
         final long ticks = SpigotUtil.durationToTicks(duration);
         if (ticks < 5)
         {
-            log.at(Level.SEVERE).withStackTrace(StackSize.FULL).log("Invalid duration of %d ticks!", ticks);
+            log.atSevere().withStackTrace(StackSize.FULL).log("Invalid duration of %d ticks!", ticks);
             return Optional.empty();
         }
 
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
         {
-            log.at(Level.SEVERE).withStackTrace(StackSize.FULL)
+            log.atSevere().withStackTrace(StackSize.FULL)
                .log("Player %s does not appear to be online! They will not receive any GlowingBlock packets!", player);
             return Optional.empty();
         }
@@ -93,7 +92,7 @@ public class GlowingBlockSpawnerSpigot extends GlowingBlockSpawner implements IR
         final @Nullable World spigotWorld = SpigotAdapter.getBukkitWorld(world);
         if (spigotWorld == null)
         {
-            log.at(Level.SEVERE).withStackTrace(StackSize.FULL)
+            log.atSevere().withStackTrace(StackSize.FULL)
                .log("World %s does not appear to be online! No Glowing Blocks can be spawned here!", world);
             return Optional.empty();
         }

@@ -27,7 +27,6 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import javax.annotation.concurrent.GuardedBy;
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.logging.Level;
 
 /**
  * Represents a Garage Door doorType.
@@ -159,7 +158,7 @@ public class GarageDoor extends AbstractMovable implements IHorizontalAxisAligne
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withStackTrace(StackSize.FULL)
+            log.atSevere().withStackTrace(StackSize.FULL)
                .log("RotateDirection '%s' is not a valid direction for a movable of type '%s'",
                     rotateDirection.name(), getType());
             return Optional.empty();

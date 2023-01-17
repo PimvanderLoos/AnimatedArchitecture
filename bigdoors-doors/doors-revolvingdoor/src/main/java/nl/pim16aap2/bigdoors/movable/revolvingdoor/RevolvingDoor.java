@@ -23,7 +23,6 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 import javax.annotation.concurrent.GuardedBy;
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.logging.Level;
 
 /**
  * Represents a Revolving Door doorType.
@@ -84,7 +83,7 @@ public class RevolvingDoor extends AbstractMovable
                              rotateDirection == RotateDirection.COUNTERCLOCKWISE ? -MathUtil.HALF_PI : 0.0D;
         if (angle == 0.0D)
         {
-            log.at(Level.SEVERE)
+            log.atSevere()
                .log("Invalid open direction '%s' for revolving door: %d", rotateDirection.name(), getUid());
             return Optional.empty();
         }

@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.logging.Level;
 
 /**
  * Manages the serialization aspects of the movables.
@@ -71,16 +70,16 @@ public class MovableSerializer<T extends AbstractMovable>
         }
         catch (Exception e)
         {
-            log.at(Level.FINER).withCause(e).log("Class %s does not have a MovableData ctor! Using Unsafe instead!",
-                                                 getMovableTypeName());
+            log.atFiner().withCause(e)
+               .log("Class %s does not have a MovableData ctor! Using Unsafe instead!", getMovableTypeName());
         }
         ctor = ctorTmp;
         if (ctor == null && UNSAFE == null)
             throw new RuntimeException("Could not find CTOR for class " + getMovableTypeName() +
                                            " and Unsafe is unavailable! This type cannot be enabled!");
 
-        log.at(Level.FINE).log("Using %s construction method for class %s.",
-                               (ctor == null ? "Unsafe" : "Reflection"), getMovableTypeName());
+        log.atFine().log("Using %s construction method for class %s.",
+                         (ctor == null ? "Unsafe" : "Reflection"), getMovableTypeName());
 
         findAnnotatedFields();
     }
@@ -98,7 +97,7 @@ public class MovableSerializer<T extends AbstractMovable>
             }
             catch (Throwable t)
             {
-                log.at(Level.SEVERE).withCause(t).log("Failed to load class '%s'", clazz.getName());
+                log.atSevere().withCause(t).log("Failed to load class '%s'", clazz.getName());
                 if (clazz.getName().endsWith("BigDoor"))
                     Runtime.getRuntime().exit(0);
             }
@@ -260,7 +259,7 @@ public class MovableSerializer<T extends AbstractMovable>
     {
         if (!movableClass.isAssignableFrom(movable.getClass()))
         {
-            log.at(Level.SEVERE).withCause(new IllegalArgumentException(
+            log.atSevere().withCause(new IllegalArgumentException(
                 "Expected type " + getMovableTypeName() + " but received type " + movable.getClass().getName())).log();
             return "";
         }
@@ -275,7 +274,7 @@ public class MovableSerializer<T extends AbstractMovable>
             }
             catch (IllegalAccessException e)
             {
-                log.at(Level.SEVERE).withCause(e).log();
+                log.atSevere().withCause(e).log();
                 value = "ERROR";
             }
             sb.append(field.getName()).append(": ").append(value).append('\n');
@@ -315,8 +314,8 @@ public class MovableSerializer<T extends AbstractMovable>
         }
         catch (Exception e)
         {
-            log.at(Level.FINE).withCause(e).log("Failed to get FastFieldSetter for %s AbstractMovableBase#%s",
-                                                type.getName(), fieldName);
+            log.atFine().withCause(e).log("Failed to get FastFieldSetter for %s AbstractMovableBase#%s",
+                                          type.getName(), fieldName);
             return null;
         }
     }

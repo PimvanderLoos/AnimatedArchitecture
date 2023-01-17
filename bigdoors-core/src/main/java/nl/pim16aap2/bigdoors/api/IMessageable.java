@@ -5,8 +5,6 @@ import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.text.Text;
 import nl.pim16aap2.bigdoors.text.TextType;
 
-import java.util.logging.Level;
-
 /**
  * Represents objects that can receive messages.
  *
@@ -94,7 +92,7 @@ public interface IMessageable
         @Override
         public void sendMessage(Text text)
         {
-            log.at(Level.FINEST).log("Sent to black hole: %s", text.toPlainString());
+            log.atFinest().log("Sent to black hole: %s", text.toPlainString());
         }
     }
 }

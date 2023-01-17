@@ -15,7 +15,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.logging.Level;
 
 
 /**
@@ -37,8 +36,9 @@ public final class UpdateManager extends Restartable
     private @Nullable BukkitTask updateRunner = null;
 
     @Inject
-    public UpdateManager(RestartableHolder restartableHolder, BigDoorsPlugin plugin,
-                         IConfigLoader config, UpdateChecker updater)
+    public UpdateManager(
+        RestartableHolder restartableHolder, BigDoorsPlugin plugin,
+        IConfigLoader config, UpdateChecker updater)
     {
         super(restartableHolder);
         this.plugin = plugin;
@@ -98,20 +98,20 @@ public final class UpdateManager extends Restartable
             {
                 final boolean updateAvailable = updateAvailable();
                 if (updateAvailable)
-                    log.at(Level.INFO).log("A new update is available: %s", getNewestVersion());
+                    log.atInfo().log("A new update is available: %s", getNewestVersion());
 
                 if (downloadUpdates && updateAvailable && result.getAge() >= config.downloadDelay())
                 {
                     updateDownloaded = updater.downloadUpdate();
                     if (updateDownloaded && updater.getLastResult() != null)
-                        log.at(Level.INFO)
+                        log.atInfo()
                            .log("Update downloaded! Restart to apply it! New version is %s, Currently running %s%s",
                                 updater.getLastResult().getNewestVersion(), plugin.getDescription().getVersion(),
                                 (Constants.DEV_BUILD ? " (but a DEV-build)" : "")
                            );
                     else
-                        log.at(Level.INFO).log("Failed to download latest version! You can download it manually at: %s",
-                                               updater.getDownloadUrl());
+                        log.atInfo().log("Failed to download latest version! You can download it manually at: %s",
+                                         updater.getDownloadUrl());
                 }
             }).exceptionally(Util::exceptionally);
     }

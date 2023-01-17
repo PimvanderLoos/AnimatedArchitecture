@@ -26,7 +26,6 @@ import java.util.OptionalInt;
 import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
-import java.util.logging.Level;
 import java.util.stream.Stream;
 
 @Singleton
@@ -63,7 +62,7 @@ public final class MovableTypeLoader extends Restartable
         }
         catch (IOException e)
         {
-            log.at(Level.SEVERE).withCause(e)
+            log.atSevere().withCause(e)
                .log("Failed to close movable type classloader! Extensions will NOT be loaded!");
         }
     }
@@ -83,18 +82,17 @@ public final class MovableTypeLoader extends Restartable
         }
         catch (IOException e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to create directory: %s", extensionsDirectory);
+            log.atSevere().withCause(e).log("Failed to create directory: %s", extensionsDirectory);
         }
         return false;
     }
 
     private Optional<MovableTypeInfo> getMovableTypeInfo(Path file)
     {
-        log.at(Level.FINE).log("Attempting to load MovableType from jar: %s", file);
+        log.atFine().log("Attempting to load MovableType from jar: %s", file);
         if (!file.toString().endsWith(".jar"))
         {
-            log.at(Level.SEVERE).withCause(new IllegalArgumentException("\"" + file + "\" is not a valid jar file!"))
-               .log();
+            log.atSevere().withCause(new IllegalArgumentException("\"" + file + "\" is not a valid jar file!")).log();
             return Optional.empty();
         }
 
@@ -110,7 +108,7 @@ public final class MovableTypeLoader extends Restartable
             className = manifest.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
             if (className == null)
             {
-                log.at(Level.SEVERE).withCause(new IllegalArgumentException(
+                log.atSevere().withCause(new IllegalArgumentException(
                     "File: \"" + file + "\" does not specify its main class!")).log();
                 return Optional.empty();
             }
@@ -119,7 +117,7 @@ public final class MovableTypeLoader extends Restartable
             typeName = typeNameSection == null ? null : typeNameSection.getValue("TypeName");
             if (typeName == null)
             {
-                log.at(Level.SEVERE).withCause(new IllegalArgumentException(
+                log.atSevere().withCause(new IllegalArgumentException(
                     "File: \"" + file + "\" does not specify its type name!")).log();
                 return Optional.empty();
             }
@@ -129,7 +127,7 @@ public final class MovableTypeLoader extends Restartable
                                                          null : versionSection.getValue("Version"));
             if (versionOpt.isEmpty())
             {
-                log.at(Level.SEVERE).withCause(new IllegalArgumentException(
+                log.atSevere().withCause(new IllegalArgumentException(
                     "File: \"" + file + "\" does not specify its version!")).log();
                 return Optional.empty();
             }
@@ -142,7 +140,7 @@ public final class MovableTypeLoader extends Restartable
         }
         catch (IOException | IllegalArgumentException e)
         {
-            log.at(Level.SEVERE).withCause(e).log();
+            log.atSevere().withCause(e).log();
             return Optional.empty();
         }
 
@@ -172,7 +170,7 @@ public final class MovableTypeLoader extends Restartable
     {
         if (movableTypeClassLoader == null)
         {
-            log.at(Level.SEVERE)
+            log.atSevere()
                .log("Trying to load movable types from directory %s, but the movable type classloader does not exist!",
                     directory);
             return Collections.emptyList();
@@ -187,7 +185,7 @@ public final class MovableTypeLoader extends Restartable
         }
         catch (IOException e)
         {
-            log.at(Level.SEVERE).withCause(e).log();
+            log.atSevere().withCause(e).log();
         }
 
         final List<MovableType> types =

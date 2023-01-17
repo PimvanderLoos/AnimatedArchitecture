@@ -18,7 +18,6 @@ import javax.inject.Singleton;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.logging.Level;
 
 /**
  * Represents a delayed command.
@@ -75,7 +74,7 @@ public abstract class DelayedCommand<T>
         ICommandSender commandSender, Creator creator, Function<T, CompletableFuture<Boolean>> executor,
         @Nullable Supplier<String> initMessageSupplier)
     {
-        log.at(Level.FINEST)
+        log.atFinest()
            .log("Creating delayed command for command '%s' with command sender: '%s' for Creator: %s",
                 getCommandDefinition(), commandSender, creator);
 
@@ -103,7 +102,7 @@ public abstract class DelayedCommand<T>
      */
     public CompletableFuture<Boolean> runDelayed(ICommandSender commandSender, MovableRetriever movableRetriever)
     {
-        log.at(Level.FINEST)
+        log.atFinest()
            .log("Creating delayed command for command '%s' with command sender: '%s' for MovableRetriever: %s",
                 getCommandDefinition(), commandSender, movableRetriever);
 
@@ -125,7 +124,7 @@ public abstract class DelayedCommand<T>
             }
             catch (Exception e)
             {
-                log.at(Level.SEVERE).withCause(e)
+                log.atSevere().withCause(e)
                    .log("Failed to executed delayed command '%s' for command sender '%s' with input '%s'",
                         this, commandSender, delayedInput);
                 e.printStackTrace();
@@ -145,7 +144,7 @@ public abstract class DelayedCommand<T>
             }
             catch (Exception e)
             {
-                log.at(Level.SEVERE).withCause(e)
+                log.atSevere().withCause(e)
                    .log("Delayed command '%s' failed to provide data for command sender '%s' with input '%s'",
                         this, commandSender, delayedInput);
                 e.printStackTrace();
@@ -170,7 +169,7 @@ public abstract class DelayedCommand<T>
      */
     public CompletableFuture<Boolean> provideDelayedInput(ICommandSender commandSender, T data)
     {
-        log.at(Level.FINEST)
+        log.atFinest()
            .log("Providing delayed command data for command '%s' with command sender: '%s' and data: '%s'",
                 getCommandDefinition(), commandSender, data);
 
@@ -180,7 +179,7 @@ public abstract class DelayedCommand<T>
             .orElseGet(
                 () ->
                 {
-                    log.at(Level.SEVERE)
+                    log.atSevere()
                        .log("'%s' tried to issue delayed command input '%s' without active command waiter!",
                             commandSender, data);
                     commandSender.sendMessage(textFactory, TextType.ERROR,

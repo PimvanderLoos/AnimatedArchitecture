@@ -33,7 +33,6 @@ import javax.inject.Singleton;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 
 import static net.kyori.adventure.text.Component.text;
 
@@ -427,7 +426,7 @@ public final class CommandManager
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to register brigadier!");
+            log.atSevere().withCause(e).log("Failed to register brigadier!");
         }
     }
 

@@ -29,7 +29,6 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
-import java.util.logging.Level;
 
 /**
  * Represents the abstract base all movable types should extend.
@@ -70,7 +69,7 @@ public abstract class AbstractMovable implements IMovable
         this.autoCloseScheduler = autoCloseScheduler;
         this.movableOpeningHelper = movableOpeningHelper;
 
-        log.at(Level.FINEST).log("Instantiating movable: %d", base.getUid());
+        log.atFinest().log("Instantiating movable: %d", base.getUid());
         if (base.getUid() > 0 && !movableRegistry.registerMovable(new Registrable()))
             throw new IllegalStateException("Tried to create new movable \"" + base.getUid() +
                                                 "\" while it is already registered!");
@@ -250,7 +249,7 @@ public abstract class AbstractMovable implements IMovable
         }
         if (first != null)
             return first;
-        log.at(Level.FINE)
+        log.atFine()
            .log(
                "Failed to cycle open direction for movable of type '%s' with open dir '%s' given valid directions '%s'",
                getType(), currentDir, validOpenDirections);
@@ -346,7 +345,7 @@ public abstract class AbstractMovable implements IMovable
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to sync data for movable: %s", getBasicInfo());
+            log.atSevere().withCause(e).log("Failed to sync data for movable: %s", getBasicInfo());
         }
         return CompletableFuture.completedFuture(false);
     }

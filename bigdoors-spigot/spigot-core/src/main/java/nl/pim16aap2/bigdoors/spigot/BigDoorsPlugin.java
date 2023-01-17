@@ -100,7 +100,7 @@ public final class BigDoorsPlugin extends JavaPlugin implements IBigDoorsPlatfor
         catch (Exception e)
         {
             setLogLevel(Level.ALL);
-            log.at(Level.SEVERE).withCause(e).log("Failed to read config! Defaulting to logging everything!");
+            log.atSevere().withCause(e).log("Failed to read config! Defaulting to logging everything!");
         }
     }
 
@@ -153,7 +153,7 @@ public final class BigDoorsPlugin extends JavaPlugin implements IBigDoorsPlatfor
 
         if (bigDoorsSpigotPlatform == null)
         {
-            log.at(Level.SEVERE).log("Failed to enable BigDoors: Platform could not be initialized!");
+            log.atSevere().log("Failed to enable BigDoors: Platform could not be initialized!");
             return;
         }
 
@@ -178,7 +178,7 @@ public final class BigDoorsPlugin extends JavaPlugin implements IBigDoorsPlatfor
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to initialize command listener!");
+            log.atSevere().withCause(e).log("Failed to initialize command listener!");
             onInitFailure();
         }
     }
@@ -197,13 +197,13 @@ public final class BigDoorsPlugin extends JavaPlugin implements IBigDoorsPlatfor
             final BigDoorsSpigotPlatform platform =
                 new BigDoorsSpigotPlatform(bigDoorsSpigotComponent, this);
             successfulInit = true;
-            log.at(Level.INFO).log("Successfully enabled BigDoors %s", getDescription().getVersion());
+            log.atInfo().log("Successfully enabled BigDoors %s", getDescription().getVersion());
             optionalBigDoorsSpigotPlatform = Optional.of(platform);
             return platform;
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to initialize BigDoors' Spigot platform!");
+            log.atSevere().withCause(e).log("Failed to initialize BigDoors' Spigot platform!");
             initErrorMessage = e.getMessage();
             onInitFailure();
             return null;
@@ -215,7 +215,7 @@ public final class BigDoorsPlugin extends JavaPlugin implements IBigDoorsPlatfor
         restartableHolder.shutDown();
         new BackupCommandListener(this, initErrorMessage);
         registerFailureLoginListener();
-        log.at(Level.WARNING).log("%s", new DebugReporterSpigot(this, this, null, new DebuggableRegistry()));
+        log.atWarning().log("%s", new DebugReporterSpigot(this, this, null, new DebuggableRegistry()));
         successfulInit = false;
         restartableHolder.shutDown();
     }

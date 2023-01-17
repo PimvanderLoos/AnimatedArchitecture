@@ -54,7 +54,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-import java.util.logging.Level;
 
 /**
  * v1_19_R2 implementation of {@link IAnimatedBlock}.
@@ -269,14 +268,14 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
 
         if (tracker == null)
         {
-            log.at(Level.SEVERE).withStackTrace(StackSize.FULL)
+            log.atSevere().withStackTrace(StackSize.FULL)
                .log("Trying to respawn an animated block that has not been spawned yet!");
             return;
         }
 
         if (entityInLevelCallbackSectionManager == null)
         {
-            log.at(Level.SEVERE).withStackTrace(StackSize.FULL)
+            log.atSevere().withStackTrace(StackSize.FULL)
                .log("entityInLevelCallbackSectionManager is null! Blocks cannot be respawned!");
             return;
         }
@@ -419,7 +418,7 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e)
+            log.atSevere().withCause(e)
                .log("Failed to modify entity tracker! Animated block movement will probably be choppy!");
         }
     }
@@ -464,14 +463,14 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
     {
         for (final IAnimatedBlockHook hook : hooks)
         {
-            log.at(Level.FINEST).log("Executing '%s' for hook '%s'!", actionName, hook.getName());
+            log.atFinest().log("Executing '%s' for hook '%s'!", actionName, hook.getName());
             try
             {
                 call.accept(hook);
             }
             catch (Exception e)
             {
-                log.at(Level.SEVERE).withCause(e)
+                log.atSevere().withCause(e)
                    .log("Failed to execute '%s' for hook '%s'!", actionName, hook.getName());
             }
         }

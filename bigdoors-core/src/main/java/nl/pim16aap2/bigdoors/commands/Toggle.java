@@ -21,7 +21,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.inject.Named;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.logging.Level;
 
 /**
  * Represents a command that toggles a movable.
@@ -94,7 +93,7 @@ public class Toggle extends BaseCommand
             case CLOSE:
                 return movable.isOpenable();
             default:
-                log.at(Level.SEVERE)
+                log.atSevere()
                    .withCause(new IllegalStateException("Reached unregistered case: " + movableActionType.name()))
                    .log();
                 return false;
@@ -109,7 +108,7 @@ public class Toggle extends BaseCommand
                 .sendMessage(textFactory, TextType.ERROR,
                              localizer.getMessage("commands.toggle.error.no_access",
                                                   localizer.getMovableType(movable), movable.getBasicInfo()));
-            log.at(Level.FINE)
+            log.atFine()
                .log("%s has no access for command %s for movable %s!", getCommandSender(), this, movable);
             return;
         }
@@ -119,7 +118,7 @@ public class Toggle extends BaseCommand
                 .sendMessage(textFactory, TextType.ERROR,
                              localizer.getMessage("commands.toggle.error.cannot_toggle",
                                                   localizer.getMovableType(movable), movable.getBasicInfo()));
-            log.at(Level.FINER)
+            log.atFiner()
                .log("Blocked action for command %s for movable %s by %s", this, movable, getCommandSender());
             return;
         }

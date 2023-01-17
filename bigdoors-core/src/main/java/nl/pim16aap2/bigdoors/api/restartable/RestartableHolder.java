@@ -9,7 +9,6 @@ import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.logging.Level;
 
 /**
  * Represents an object that can issue a restart or shutdown to {@link IRestartable} objects.
@@ -106,8 +105,8 @@ public final class RestartableHolder implements IDebuggable
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to %s restartable of type %s:\n%s",
-                                                  actionName, restartable.getClass().getName(), restartable);
+            log.atSevere().withCause(e).log("Failed to %s restartable of type %s:\n%s",
+                                            actionName, restartable.getClass().getName(), restartable);
         }
     }
 

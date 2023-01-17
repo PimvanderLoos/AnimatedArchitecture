@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -61,8 +60,7 @@ final class MovableTypeInfo
             final int arrPos = idx;
             parseDependency(split[idx]).ifPresentOrElse(
                 dep -> ret.add(arrPos, dep),
-                () -> log.at(Level.SEVERE).log("Failed to parse dependency '%s' for type: %s",
-                                               split[arrPos], typeName));
+                () -> log.atSevere().log("Failed to parse dependency '%s' for type: %s", split[arrPos], typeName));
         }
         return ret;
     }
@@ -72,7 +70,7 @@ final class MovableTypeInfo
         final Matcher nameMatcher = NAME_MATCH.matcher(dependency);
         if (!nameMatcher.find())
         {
-            log.at(Level.FINE).log("Failed to find the dependency name in: %s", dependency);
+            log.atFine().log("Failed to find the dependency name in: %s", dependency);
             return Optional.empty();
         }
         final String dependencyName = nameMatcher.group();
@@ -80,7 +78,7 @@ final class MovableTypeInfo
         final Matcher minVersionMatcher = MIN_VERSION_MATCH.matcher(dependency);
         if (!minVersionMatcher.find())
         {
-            log.at(Level.FINE).log("Failed to find the min version in: %s", dependency);
+            log.atFine().log("Failed to find the min version in: %s", dependency);
             return Optional.empty();
         }
         String minVersionStr = minVersionMatcher.group();
@@ -88,14 +86,14 @@ final class MovableTypeInfo
         final OptionalInt minVersionOpt = Util.parseInt(minVersionStr);
         if (minVersionOpt.isEmpty())
         {
-            log.at(Level.FINE).log("Failed to parse min version from: %s", minVersionStr);
+            log.atFine().log("Failed to parse min version from: %s", minVersionStr);
             return Optional.empty();
         }
 
         final Matcher maxVersionMatcher = MAX_VERSION_MATCH.matcher(dependency);
         if (!maxVersionMatcher.find())
         {
-            log.at(Level.FINE).log("Failed to find the max version in: %s", dependency);
+            log.atFine().log("Failed to find the max version in: %s", dependency);
             return Optional.empty();
         }
 
@@ -104,7 +102,7 @@ final class MovableTypeInfo
         final OptionalInt maxVersionOpt = Util.parseInt(maxVersionStr);
         if (maxVersionOpt.isEmpty())
         {
-            log.at(Level.FINE).log("Failed to parse max version from: %s", maxVersionStr);
+            log.atFine().log("Failed to parse max version from: %s", maxVersionStr);
             return Optional.empty();
         }
 

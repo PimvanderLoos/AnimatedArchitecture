@@ -39,7 +39,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
-import java.util.logging.Level;
 
 /**
  * Manages all database interactions.
@@ -538,7 +537,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
             {
                 final var event = factoryMethod.apply(bigDoorsEventFactory);
                 bigDoorsEventCaller.callBigDoorsEvent(event);
-                log.at(Level.SEVERE).log("Event %s was%s cancelled!", event, (event.isCancelled() ? "" : " not"));
+                log.atSevere().log("Event %s was%s cancelled!", event, (event.isCancelled() ? "" : " not"));
                 return event.isCancelled();
             });
     }
@@ -608,15 +607,15 @@ public final class DatabaseManager extends Restartable implements IDebuggable
         final Optional<MovableOwner> movableOwner = movable.getOwner(playerUUID);
         if (movableOwner.isEmpty())
         {
-            log.at(Level.FINE).log("Trying to remove player: %s from movable: %d, but the player is not an owner!",
-                                   playerUUID, movable.getUid());
+            log.atFine().log("Trying to remove player: %s from movable: %d, but the player is not an owner!",
+                             playerUUID, movable.getUid());
             return CompletableFuture.completedFuture(ActionResult.FAIL);
         }
         if (movableOwner.get().permission() == PermissionLevel.CREATOR)
         {
-            log.at(Level.FINE).log("Trying to remove player: %s from movable: %d, but the player is the prime owner! " +
-                                       "This is not allowed!",
-                                   playerUUID, movable.getUid());
+            log.atFine().log("Trying to remove player: %s from movable: %d, but the player is the prime owner! " +
+                                 "This is not allowed!",
+                             playerUUID, movable.getUid());
             return CompletableFuture.completedFuture(ActionResult.FAIL);
         }
 

@@ -24,7 +24,6 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import javax.annotation.concurrent.GuardedBy;
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.logging.Level;
 import java.util.stream.Stream;
 
 /**
@@ -118,7 +117,7 @@ public class Drawbridge extends AbstractMovable implements IHorizontalAxisAligne
             angle = MathUtil.HALF_PI;
         else
         {
-            log.at(Level.SEVERE)
+            log.atSevere()
                .log("Invalid open direction '%s' for door: %d", rotateDirection.name(), getUid());
             return Optional.empty();
         }

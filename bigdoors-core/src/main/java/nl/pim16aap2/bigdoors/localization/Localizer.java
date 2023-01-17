@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
 
 /**
  * Represents a class that can be used to localize Strings.
@@ -96,7 +95,7 @@ final class Localizer implements ILocalizer
     {
         if (classLoader == null)
         {
-            log.at(Level.WARNING).log("Failed to find localization key '%s'! Reason: ClassLoader is null!", key);
+            log.atWarning().log("Failed to find localization key '%s'! Reason: ClassLoader is null!", key);
             return KEY_NOT_FOUND_MESSAGE + key;
         }
 
@@ -107,7 +106,7 @@ final class Localizer implements ILocalizer
         }
         catch (MissingResourceException e)
         {
-            log.at(Level.WARNING).log("Failed to find localization key '%s'! Reason: Key does not exist!", key);
+            log.atWarning().log("Failed to find localization key '%s'! Reason: Key does not exist!", key);
             return KEY_NOT_FOUND_MESSAGE + key;
         }
     }
@@ -147,7 +146,7 @@ final class Localizer implements ILocalizer
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to initialize localizer!");
+            log.atSevere().withCause(e).log("Failed to initialize localizer!");
             classLoader = null;
             localeList = Collections.emptyList();
         }
@@ -186,8 +185,7 @@ final class Localizer implements ILocalizer
             }
             catch (IOException e)
             {
-                log.at(Level.SEVERE).withCause(e)
-                   .log("Failed to close class loader! Localizations cannot be reloaded!");
+                log.atSevere().withCause(e).log("Failed to close class loader! Localizations cannot be reloaded!");
             }
         }
     }

@@ -10,7 +10,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.logging.Level;
 
 /**
  * Represents a listener that keeps track of {@link Player}s logging in to send them the resource pack.
@@ -61,7 +60,7 @@ public class LoginResourcePackListener extends AbstractListener
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log();
+            log.atSevere().withCause(e).log();
         }
     }
 

@@ -10,8 +10,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.logging.Level;
-
 /**
  * Represents a command listener that replaces all command input with failure messages.
  * <p>
@@ -35,7 +33,7 @@ public final class BackupCommandListener implements CommandExecutor
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
     {
-        log.at(Level.WARNING).log("%s", errorMessage);
+        log.atWarning().log("%s", errorMessage);
 
         if (sender instanceof Player player)
             player.sendMessage(ChatColor.YELLOW + getReturnMessage(player));

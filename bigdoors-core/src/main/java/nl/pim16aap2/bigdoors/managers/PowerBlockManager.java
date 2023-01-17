@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 
 /**
  * Manages all power block interactions.
@@ -93,7 +92,7 @@ public final class PowerBlockManager extends Restartable
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
         {
-            log.at(Level.WARNING).log("Failed to load power blocks for world: '%s'.", worldName);
+            log.atWarning().log("Failed to load power blocks for world: '%s'.", worldName);
             return CompletableFuture.completedFuture(Collections.emptyList());
         }
 
@@ -118,7 +117,7 @@ public final class PowerBlockManager extends Restartable
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
         {
-            log.at(Level.WARNING).log("Failed to load power blocks for world: '%s'.", worldName);
+            log.atWarning().log("Failed to load power blocks for world: '%s'.", worldName);
             return false;
         }
         return powerBlockWorld.isBigDoorsWorld();
@@ -142,7 +141,7 @@ public final class PowerBlockManager extends Restartable
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(movable.getWorld().worldName());
         if (powerBlockWorld == null)
         {
-            log.at(Level.WARNING).log("Failed to load power blocks for world: '%s'.", movable.getWorld().worldName());
+            log.atWarning().log("Failed to load power blocks for world: '%s'.", movable.getWorld().worldName());
             return;
         }
 
@@ -164,7 +163,7 @@ public final class PowerBlockManager extends Restartable
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
         {
-            log.at(Level.WARNING).log("Failed to load power blocks for world: '%s'.", worldName);
+            log.atWarning().log("Failed to load power blocks for world: '%s'.", worldName);
             return;
         }
         powerBlockWorld.invalidatePosition(pos);
@@ -184,7 +183,7 @@ public final class PowerBlockManager extends Restartable
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
         {
-            log.at(Level.WARNING).log("Failed to load power blocks for world: '%s'.", worldName);
+            log.atWarning().log("Failed to load power blocks for world: '%s'.", worldName);
             return;
         }
         powerBlockWorld.invalidatePosition(new Vector3Di(chunk.x(), 64, chunk.y()));

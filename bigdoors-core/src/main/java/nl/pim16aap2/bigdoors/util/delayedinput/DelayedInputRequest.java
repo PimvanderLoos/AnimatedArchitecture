@@ -12,7 +12,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
 
 /**
  * Represents a request for delayed input. E.g. by waiting for user input.
@@ -114,7 +113,7 @@ public class DelayedInputRequest<T>
             .exceptionally(
                 ex ->
                 {
-                    log.at(Level.SEVERE).withCause(ex).log();
+                    log.atSevere().withCause(ex).log();
                     exceptionally = true;
                     return Optional.empty();
                 });

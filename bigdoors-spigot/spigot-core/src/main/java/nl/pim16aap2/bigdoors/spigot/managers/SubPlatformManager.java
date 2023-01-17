@@ -13,7 +13,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Locale;
-import java.util.logging.Level;
 
 @Singleton
 @Flogger
@@ -52,7 +51,7 @@ public final class SubPlatformManager
         }
         catch (ArrayIndexOutOfBoundsException | IllegalArgumentException e)
         {
-            log.at(Level.SEVERE).withCause(e)
+            log.atSevere().withCause(e)
                .log("Failed to determine platform version for server version: '%s'", serverVersion);
             versionTmp = Version.UNSUPPORTED_VERSION;
         }

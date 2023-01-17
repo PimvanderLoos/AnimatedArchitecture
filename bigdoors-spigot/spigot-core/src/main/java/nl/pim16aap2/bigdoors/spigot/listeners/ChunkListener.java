@@ -19,7 +19,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.logging.Level;
 
 /**
  * Represents a listener that keeps track of chunks being unloaded.
@@ -73,7 +72,7 @@ public class ChunkListener extends AbstractListener
         }
         catch (NoSuchMethodException | SecurityException e)
         {
-            log.at(Level.SEVERE).withCause(e)
+            log.atSevere().withCause(e)
                .log("Serious error encountered! Unloading chunks with active movables IS UNSAFE!");
         }
     }
@@ -143,7 +142,7 @@ public class ChunkListener extends AbstractListener
 //        }
 //        catch (Exception e)
 //        {
-//            log.at(Level.SEVERE).withCause(e).log();
+//            log.atSevere().withCause(e).log();
 //        }
     }
 
@@ -163,12 +162,12 @@ public class ChunkListener extends AbstractListener
             else if (isForceLoaded != null)
                 return (boolean) isForceLoaded.invoke(event.getChunk());
             else
-                log.at(Level.WARNING)
+                log.atWarning()
                    .log("Both isCancelled and isForceLoaded are unavailable! Chunk management is now unreliable!");
         }
         catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
         {
-            log.at(Level.SEVERE).withCause(e)
+            log.atSevere().withCause(e)
                .log("Serious error encountered! Unloading chunks with active movables IS UNSAFE!");
             return false;
         }

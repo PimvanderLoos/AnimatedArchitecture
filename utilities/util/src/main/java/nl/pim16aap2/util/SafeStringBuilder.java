@@ -5,7 +5,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.function.Supplier;
-import java.util.logging.Level;
 
 /**
  * A kind of {@link StringBuilder} with some added methods to append objects using suppliers in try/catch blocks.
@@ -57,7 +56,7 @@ public final class SafeStringBuilder implements CharSequence, Appendable, Serial
         }
         catch (Throwable t)
         {
-            log.at(Level.SEVERE).withCause(t).log();
+            log.atSevere().withCause(t).log();
             sb.append("ERROR!");
             return this;
         }
@@ -79,7 +78,7 @@ public final class SafeStringBuilder implements CharSequence, Appendable, Serial
         }
         catch (Throwable t)
         {
-            log.at(Level.SEVERE).withCause(t).log();
+            log.atSevere().withCause(t).log();
             sb.append("ERROR!");
             return this;
         }
@@ -109,7 +108,7 @@ public final class SafeStringBuilder implements CharSequence, Appendable, Serial
         }
         catch (Throwable t)
         {
-            log.at(Level.SEVERE).withCause(t).log();
+            log.atSevere().withCause(t).log();
             obj = "ERROR";
         }
         return appendIndented(indent, obj);
@@ -127,7 +126,7 @@ public final class SafeStringBuilder implements CharSequence, Appendable, Serial
         }
         catch (Throwable t)
         {
-            log.at(Level.SEVERE).withCause(t).log();
+            log.atSevere().withCause(t).log();
         }
         return this;
     }
