@@ -82,6 +82,34 @@ public final class ToolUserManager extends Restartable
         return Optional.ofNullable(toolUsers.get(uuid)).map(pair -> pair.toolUser);
     }
 
+    /**
+     * Cancels an active tool user process for a player.
+     *
+     * @param player
+     *     The player whose tool user process to cancel.
+     * @return True if a process was cancelled.
+     */
+    public boolean cancelToolUser(IPPlayer player)
+    {
+        return cancelToolUser(player.getUUID());
+    }
+
+    /**
+     * Cancels an active tool user process for a player.
+     *
+     * @param uuid
+     *     The UUID of the player whose tool user process to cancel.
+     * @return True if a process was cancelled.
+     */
+    public boolean cancelToolUser(UUID uuid)
+    {
+        final @Nullable ToolUserEntry removed = toolUsers.remove(uuid);
+        if (removed == null)
+            return false;
+        removed.toolUser.abort();
+        return true;
+    }
+
     @Override
     public void shutDown()
     {

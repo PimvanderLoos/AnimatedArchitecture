@@ -6,7 +6,6 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.MovableAttribute;
 import nl.pim16aap2.bigdoors.movable.MovableBase;
@@ -153,31 +152,6 @@ public abstract class BaseCommand
     }
 
     /**
-     * Handles the results of a database action by informing the user of any non-success states.
-     *
-     * @param result
-     *     The result obtained from the database.
-     * @return True in all cases, as it is assumed that this is not user error.
-     */
-    protected Boolean handleDatabaseActionResult(DatabaseManager.ActionResult result)
-    {
-        switch (result)
-        {
-            case CANCELLED:
-                commandSender.sendMessage(textFactory, TextType.ERROR,
-                                          localizer.getMessage("commands.base.error.action_cancelled"));
-                break;
-            case SUCCESS:
-                break;
-            case FAIL:
-                commandSender.sendMessage(textFactory, TextType.ERROR, localizer.getMessage("constants.error.generic"));
-                break;
-        }
-        log.atFine().log("Handling database action result: %s for command: %s", result.name(), this);
-        return true;
-    }
-
-    /**
      * Starts the execution of this command. It performs the permission check (See {@link #hasPermission()}) and runs
      * {@link #executeCommand(PermissionsStatus)} if the {@link ICommandSender} has access to either the user or the
      * admin permission.
@@ -244,7 +218,7 @@ public abstract class BaseCommand
                             .orElseGet(doorRetriever::getMovable).thenApplyAsync(
                 movable ->
                 {
-                    log.atFine().log("Retrieved movable " + movable + " for command: %s", this);
+                    log.atFine().log("Retrieved movable %s for command: %s", movable, this);
                     if (movable.isPresent())
                         return movable;
                     commandSender.sendMessage(textFactory, TextType.ERROR,

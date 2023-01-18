@@ -43,6 +43,14 @@ public class Lock extends MovableTargetCommand
     }
 
     @Override
+    protected void handleDatabaseActionSuccess()
+    {
+        final String msg = lockedStatus ? "commands.lock.success.locked" : "commands.lock.success.unlocked";
+        final var desc = getRetrievedMovableDescription();
+        getCommandSender().sendSuccess(textFactory, localizer.getMessage(msg, desc.typeName(), desc.id()));
+    }
+
+    @Override
     public CommandDefinition getCommand()
     {
         return CommandDefinition.LOCK;

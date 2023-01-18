@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.managers;
 
+import com.google.common.flogger.StackSize;
 import dagger.Lazy;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -144,23 +145,25 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     {
         final var ret = callCancellableEvent(
             fact -> fact.createPrepareMovableCreateEvent(movable, responsible)).thenApplyAsync(
-            cancelled ->
+            event ->
             {
-                if (cancelled)
+                if (event.isCancelled())
                     return new MovableInsertResult(Optional.empty(), true);
 
                 final Optional<AbstractMovable> result = db.insert(movable);
-                result.ifPresent(
-                    (newMovable) -> powerBlockManager.get().onMovableAddOrRemove(
+                result.ifPresentOrElse(
+                    newMovable -> powerBlockManager.get().onMovableAddOrRemove(
                         newMovable.getWorld().worldName(),
                         new Vector3Di(newMovable.getPowerBlock().x(),
                                       newMovable.getPowerBlock().y(),
-                                      newMovable.getPowerBlock().z())));
+                                      newMovable.getPowerBlock().z())),
+                    () -> log.atSevere().withStackTrace(StackSize.FULL).log("Failed to process event: %s", event));
+
                 return new MovableInsertResult(result, false);
             }, threadPool).exceptionally(
             ex -> Util.exceptionally(ex, new MovableInsertResult(Optional.empty(), false)));
 
-        ret.thenAccept(result -> callMovableCreatedEvent(result, responsible));
+        ret.thenAccept(result -> result.movable.ifPresent(unused -> callMovableCreatedEvent(result, responsible)));
 
         return ret;
     }
@@ -216,15 +219,18 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     public CompletableFuture<ActionResult> deleteMovable(AbstractMovable movable, @Nullable IPPlayer responsible)
     {
         return callCancellableEvent(fact -> fact.createPrepareDeleteMovableEvent(movable, responsible)).thenApplyAsync(
-            cancelled ->
+            event ->
             {
-                if (cancelled)
+                if (event.isCancelled())
                     return ActionResult.CANCELLED;
 
-                movableRegistry.deregisterMovable(movable.getUid());
                 final boolean result = db.removeMovable(movable.getUid());
                 if (!result)
+                {
+                    log.atSevere().withStackTrace(StackSize.FULL).log("Failed to process event: %s", event);
                     return ActionResult.FAIL;
+                }
+                movableRegistry.deregisterMovable(movable.getUid());
 
                 powerBlockManager.get().onMovableAddOrRemove(movable.getWorld().worldName(),
                                                              new Vector3Di(movable.getPowerBlock().x(),
@@ -504,16 +510,18 @@ public final class DatabaseManager extends Restartable implements IDebuggable
 
         return callCancellableEvent(fact -> fact.createMovablePrepareAddOwnerEvent(movable, newOwner, responsible))
             .thenApplyAsync(
-                cancelled ->
+                event ->
                 {
-                    if (cancelled)
+                    if (event.isCancelled())
                         return ActionResult.CANCELLED;
 
                     final PPlayerData playerData = player.getPPlayerData();
-
                     final boolean result = db.addOwner(movable.getUid(), playerData, permission);
                     if (!result)
+                    {
+                        log.atSevere().withStackTrace(StackSize.FULL).log("Failed to process event: %s", event);
                         return ActionResult.FAIL;
+                    }
 
                     ((FriendMovableAccessor) movable.getBase())
                         .addOwner(player.getUUID(), new MovableOwner(movable.getUid(), permission, playerData));
@@ -529,16 +537,17 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      *     The method to use to construct the event.
      * @return True if the create event was cancelled, otherwise false.
      */
-    private CompletableFuture<Boolean> callCancellableEvent(
-        Function<IBigDoorsEventFactory, ICancellableBigDoorsEvent> factoryMethod)
+    private <T extends ICancellableBigDoorsEvent> CompletableFuture<T> callCancellableEvent(
+        Function<IBigDoorsEventFactory, T> factoryMethod)
     {
         return CompletableFuture.supplyAsync(
             () ->
             {
-                final var event = factoryMethod.apply(bigDoorsEventFactory);
+                final T event = factoryMethod.apply(bigDoorsEventFactory);
+                log.atFinest().log("Calling event: %s", event);
                 bigDoorsEventCaller.callBigDoorsEvent(event);
-                log.atSevere().log("Event %s was%s cancelled!", event, (event.isCancelled() ? "" : " not"));
-                return event.isCancelled();
+                log.atFinest().log("Processed event: %s", event);
+                return event;
             });
     }
 
@@ -622,14 +631,17 @@ public final class DatabaseManager extends Restartable implements IDebuggable
         return callCancellableEvent(
             fact -> fact.createMovablePrepareRemoveOwnerEvent(movable, movableOwner.get(), responsible))
             .thenApplyAsync(
-                cancelled ->
+                event ->
                 {
-                    if (cancelled)
+                    if (event.isCancelled())
                         return ActionResult.CANCELLED;
 
                     final boolean result = db.removeOwner(movable.getUid(), playerUUID);
                     if (!result)
+                    {
+                        log.atSevere().withStackTrace(StackSize.FULL).log("Failed to process event: %s", event);
                         return ActionResult.FAIL;
+                    }
 
                     ((FriendMovableAccessor) movable.getBase()).removeOwner(playerUUID);
                     return ActionResult.SUCCESS;

@@ -1,15 +1,20 @@
 package nl.pim16aap2.bigdoors.commands;
 
+import com.google.common.flogger.StackSize;
 import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.MovableAttribute;
 import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -28,6 +33,18 @@ public abstract class MovableTargetCommand extends BaseCommand
 
     private final MovableAttribute movableAttribute;
 
+    /**
+     * The result of the {@link #movableRetriever}.
+     * <p>
+     * This will not be available until after {@link #executeCommand(PermissionsStatus)} has started, but before
+     * {@link #performAction(AbstractMovable)} is called.
+     * <p>
+     * Even after the result has been set, it may still be null in case no doors were found.
+     */
+    @Getter(onMethod_ = @Locked.Read)
+    @Setter(onMethod_ = @Locked.Write)
+    private @Nullable AbstractMovable retrieverResult;
+
     protected MovableTargetCommand(
         ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory, MovableRetriever movableRetriever,
         MovableAttribute movableAttribute)
@@ -41,6 +58,11 @@ public abstract class MovableTargetCommand extends BaseCommand
     protected final CompletableFuture<Boolean> executeCommand(PermissionsStatus permissions)
     {
         return getMovable(getMovableRetriever())
+            .thenApply(movable ->
+                       {
+                           setRetrieverResult(movable.orElse(null));
+                           return movable;
+                       })
             .thenApplyAsync(movable -> processMovableResult(movable, permissions))
             .exceptionally(t -> Util.exceptionally(t, false));
     }
@@ -110,4 +132,84 @@ public abstract class MovableTargetCommand extends BaseCommand
      * @return True if everything was successful.
      */
     protected abstract CompletableFuture<Boolean> performAction(AbstractMovable movable);
+
+    /**
+     * @return The movable description of the {@link #retrieverResult}.
+     */
+    protected final MovableDescription getRetrievedMovableDescription()
+    {
+        return MovableDescription.of(localizer, getRetrieverResult());
+    }
+
+
+    /**
+     * Called by {@link #handleDatabaseActionResult(DatabaseManager.ActionResult)} when the database action was
+     * cancelled.
+     */
+    protected void handleDatabaseActionCancelled()
+    {
+        getCommandSender().sendMessage(textFactory, TextType.ERROR,
+                                       localizer.getMessage("commands.base.error.action_cancelled"));
+    }
+
+    /**
+     * Called by {@link #handleDatabaseActionResult(DatabaseManager.ActionResult)} when the database action was
+     * successful.
+     */
+    protected void handleDatabaseActionSuccess()
+    {
+    }
+
+    /**
+     * Called by {@link #handleDatabaseActionResult(DatabaseManager.ActionResult)} when the database action failed.
+     */
+    protected void handleDatabaseActionFail()
+    {
+        getCommandSender().sendMessage(textFactory, TextType.ERROR, localizer.getMessage("constants.error.generic"));
+    }
+
+    /**
+     * Handles the results of a database action by informing the user of any non-success states.
+     * <p>
+     * To customize the handling, you can override {@link #handleDatabaseActionFail()},
+     * {@link #handleDatabaseActionCancelled()}, or {@link #handleDatabaseActionSuccess()}.
+     *
+     * @param result
+     *     The result obtained from the database.
+     * @return True in all cases, as it is assumed that this is not user error.
+     */
+    protected final Boolean handleDatabaseActionResult(DatabaseManager.ActionResult result)
+    {
+        log.atFine().log("Handling database action result: %s for command: %s", result.name(), this);
+        switch (result)
+        {
+            case CANCELLED -> handleDatabaseActionCancelled();
+            case SUCCESS -> handleDatabaseActionSuccess();
+            case FAIL -> handleDatabaseActionFail();
+        }
+        return true;
+    }
+
+    /**
+     * A simple description of a movable.
+     *
+     * @param typeName
+     *     The localized name of the movable's type.
+     * @param id
+     *     The user-friendly identifier of the movable.
+     */
+    protected record MovableDescription(String typeName, String id)
+    {
+        private static final MovableDescription EMPTY_DESCRIPTION = new MovableDescription("Movable", "null");
+
+        private static MovableDescription of(ILocalizer localizer, @Nullable AbstractMovable movable)
+        {
+            if (movable != null)
+                return new MovableDescription(
+                    localizer.getMovableType(movable), movable.getName() + " (" + movable.getUid() + ")");
+
+            log.atSevere().withStackTrace(StackSize.FULL).log("Movable not available after database action!");
+            return EMPTY_DESCRIPTION;
+        }
+    }
 }

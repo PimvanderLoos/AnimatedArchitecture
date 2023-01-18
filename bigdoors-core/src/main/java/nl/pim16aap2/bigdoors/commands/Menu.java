@@ -52,7 +52,10 @@ public class Menu extends BaseCommand
     {
         // You need the bypass permission to open menus that aren't your own.
         if (!permissions.hasAdminPermission() && !getCommandSender().equals(source))
+        {
+            getCommandSender().sendError(textFactory, localizer.getMessage("commands.menu.no_permission_for_others"));
             return CompletableFuture.completedFuture(false);
+        }
 
         getCommandSender().getPlayer().ifPresent(player -> guiFactory.newGUI(player, source));
         return CompletableFuture.completedFuture(true);

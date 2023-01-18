@@ -16,10 +16,10 @@ import java.util.stream.Collectors;
 @ToString
 public enum PermissionLevel
 {
-    CREATOR(0),
-    ADMIN(100),
-    USER(200),
-    NO_PERMISSION(999),
+    CREATOR(0, "constants.permission_level.creator"),
+    ADMIN(100, "constants.permission_level.admin"),
+    USER(200, "constants.permission_level.user"),
+    NO_PERMISSION(999, "constants.permission_level.no_permission"),
     ;
 
     private static final List<PermissionLevel> VALUES = List.of(values());
@@ -33,9 +33,13 @@ public enum PermissionLevel
     @Getter
     private final int value;
 
-    PermissionLevel(int value)
+    @Getter
+    private final String translationKey;
+
+    PermissionLevel(int value, String translationKey)
     {
         this.value = value;
+        this.translationKey = translationKey;
     }
 
     /**

@@ -6,6 +6,7 @@ import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.MovableAttribute;
 import nl.pim16aap2.bigdoors.movable.MovableBase;
@@ -44,6 +45,14 @@ public class SetBlocksToMove extends MovableTargetCommand
     }
 
     @Override
+    protected void handleDatabaseActionSuccess()
+    {
+        final var desc = getRetrievedMovableDescription();
+        getCommandSender().sendSuccess(textFactory, localizer.getMessage("commands.set_blocks_to_move.success",
+                                                                         desc.typeName(), desc.id()));
+    }
+
+    @Override
     protected CompletableFuture<Boolean> performAction(AbstractMovable movable)
     {
         if (!(movable instanceof IDiscreteMovement))
@@ -56,7 +65,10 @@ public class SetBlocksToMove extends MovableTargetCommand
         }
 
         ((IDiscreteMovement) movable).setBlocksToMove(blocksToMove);
-        return movable.syncData().thenApply(x -> true);
+        return movable.syncData()
+                      .thenApply(success -> handleDatabaseActionResult(
+                          success ? DatabaseManager.ActionResult.SUCCESS : DatabaseManager.ActionResult.FAIL))
+                      .thenApply(x -> true);
     }
 
     @AssistedFactory

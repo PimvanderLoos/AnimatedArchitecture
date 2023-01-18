@@ -4,6 +4,7 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
@@ -24,6 +25,7 @@ import java.util.concurrent.CompletableFuture;
  * @author Pim
  */
 @ToString
+@Flogger
 public class AddOwner extends MovableTargetCommand
 {
     public static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.ADD_OWNER;
@@ -58,6 +60,19 @@ public class AddOwner extends MovableTargetCommand
         this.targetPlayer = targetPlayer;
         this.targetPermissionLevel = targetPermissionLevel == null ? DEFAULT_PERMISSION_LEVEL : targetPermissionLevel;
         this.databaseManager = databaseManager;
+    }
+
+    @Override
+    protected void handleDatabaseActionSuccess()
+    {
+        final var description = getRetrievedMovableDescription();
+        final String rank = localizer.getMessage(targetPermissionLevel.getTranslationKey());
+        getCommandSender().sendSuccess(textFactory,
+                                       localizer.getMessage("commands.add_owner.success",
+                                                            targetPlayer.getName(), rank, description.typeName()));
+        targetPlayer.sendInfo(textFactory,
+                              localizer.getMessage("commands.add_owner.added_player_notification",
+                                                   rank, description.typeName(), description.id()));
     }
 
     @Override

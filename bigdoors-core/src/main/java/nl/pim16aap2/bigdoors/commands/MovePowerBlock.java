@@ -58,7 +58,6 @@ public class MovePowerBlock extends MovableTargetCommand
         toolUserManager.startToolUser(powerBlockRelocatorFactory.create((IPPlayer) getCommandSender(), movable),
                                       Constants.MOVABLE_CREATOR_TIME_LIMIT);
         return CompletableFuture.completedFuture(true);
-
     }
 
     @AssistedFactory

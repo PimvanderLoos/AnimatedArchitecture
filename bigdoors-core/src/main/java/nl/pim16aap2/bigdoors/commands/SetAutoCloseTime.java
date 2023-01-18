@@ -43,21 +43,27 @@ public class SetAutoCloseTime extends MovableTargetCommand
         return COMMAND_DEFINITION;
     }
 
+    private void onSuccess(AbstractMovable movable)
+    {
+        getCommandSender().sendSuccess(
+            textFactory,
+            localizer.getMessage("commands.set_auto_close_time.success", localizer.getMovableType(movable)));
+    }
+
     @Override
     protected CompletableFuture<Boolean> performAction(AbstractMovable movable)
     {
         if (!(movable instanceof ITimerToggleable))
         {
-            getCommandSender().sendMessage(textFactory, TextType.ERROR,
-                                           localizer.getMessage(
-                                               "commands.set_auto_close_time.error.invalid_movable_type",
-                                               localizer.getMovableType(movable),
-                                               movable.getBasicInfo()));
+            getCommandSender().sendMessage(
+                textFactory, TextType.ERROR,
+                localizer.getMessage("commands.set_auto_close_time.error.invalid_movable_type",
+                                     localizer.getMovableType(movable), movable.getBasicInfo()));
             return CompletableFuture.completedFuture(true);
         }
 
         ((ITimerToggleable) movable).setAutoCloseTime(autoCloseTime);
-        return movable.syncData().thenApply(x -> true);
+        return movable.syncData().thenRun(() -> onSuccess(movable)).thenApply(x -> true);
     }
 
     @AssistedFactory
