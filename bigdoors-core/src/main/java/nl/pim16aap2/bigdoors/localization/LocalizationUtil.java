@@ -484,6 +484,24 @@ public final class LocalizationUtil
     }
 
     /**
+     * Ensures a directory exists.
+     */
+    static void ensureDirectoryExists(Path dir)
+    {
+        if (Files.exists(dir))
+            return;
+
+        try
+        {
+            Files.createDirectories(dir);
+        }
+        catch (IOException e)
+        {
+            log.atSevere().withCause(e).log("Failed to create directories: %s", dir);
+        }
+    }
+
+    /**
      * Ensures a given zip file exists.
      */
     static void ensureZipFileExists(Path zipFile)

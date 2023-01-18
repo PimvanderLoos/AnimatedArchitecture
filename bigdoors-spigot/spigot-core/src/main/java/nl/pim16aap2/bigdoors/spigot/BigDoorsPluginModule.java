@@ -60,7 +60,7 @@ public abstract class BigDoorsPluginModule
     @Named("localizationBaseDir")
     static Path provideLocalizationBaseDir(@Named("pluginBaseDirectory") Path pluginBaseDirectory)
     {
-        return pluginBaseDirectory;
+        return pluginBaseDirectory.resolve("localization");
     }
 
     @Provides

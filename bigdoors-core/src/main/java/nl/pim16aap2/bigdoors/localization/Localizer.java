@@ -137,6 +137,8 @@ final class Localizer implements ILocalizer
         if (classLoader != null)
             throw new IllegalStateException("ClassLoader is already initialized!");
 
+        LocalizationUtil.ensureDirectoryExists(directory);
+
         final Path bundlePath = directory.resolve(bundleName);
         LocalizationUtil.ensureZipFileExists(bundlePath);
         try
