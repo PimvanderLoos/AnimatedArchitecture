@@ -20,6 +20,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initCommandSenderPermissions;
 
@@ -56,6 +57,7 @@ class MovableTargetCommandTest
         UnitTestUtil.setField(MovableTargetCommand.class, movableTargetCommand, "movableRetriever",
                               MovableRetrieverFactory.ofMovable(movable));
 
+        UnitTestUtil.setField(MovableTargetCommand.class, movableTargetCommand, "lock", new ReentrantReadWriteLock());
         UnitTestUtil.setField(BaseCommand.class, movableTargetCommand, "commandSender", commandSender);
         UnitTestUtil.setField(BaseCommand.class, movableTargetCommand, "localizer", localizer);
         UnitTestUtil.setField(BaseCommand.class, movableTargetCommand, "textFactory",

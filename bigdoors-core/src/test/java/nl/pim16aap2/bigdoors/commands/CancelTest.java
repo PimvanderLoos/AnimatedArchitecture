@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.MovableSpecificationManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
-import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,7 +14,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -25,9 +23,6 @@ class CancelTest
 {
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private IPPlayer commandSender;
-
-    @Mock
-    private ToolUser toolUser;
 
     @Mock
     private MovableSpecificationManager doorSpecificationManager;
@@ -48,8 +43,6 @@ class CancelTest
         initCommandSenderPermissions(commandSender, true, true);
         Mockito.when(commandSender.getUUID()).thenReturn(uuid);
 
-        Mockito.when(toolUserManager.getToolUser(uuid)).thenReturn(Optional.of(toolUser));
-
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
         Mockito.when(factory.newCancel(Mockito.any(ICommandSender.class)))
@@ -64,7 +57,7 @@ class CancelTest
     {
         Assertions.assertTrue(factory.newCancel(commandSender).run().get(1, TimeUnit.SECONDS));
 
-        Mockito.verify(toolUser).abort();
+        Mockito.verify(toolUserManager).cancelToolUser(commandSender);
         Mockito.verify(doorSpecificationManager).cancelRequest(commandSender);
     }
 }
