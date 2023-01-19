@@ -7,7 +7,7 @@ import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.events.IBigDoorsEventCaller;
-import nl.pim16aap2.bigdoors.managers.MovableRegistry;
+import nl.pim16aap2.bigdoors.managers.MovableDeletionManager;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.IMovableConst;
 import nl.pim16aap2.bigdoors.movable.MovableBase;
@@ -28,7 +28,7 @@ import java.util.stream.Stream;
  * @author Pim
  */
 @Singleton
-public final class MovableActivityManager extends Restartable implements MovableRegistry.IDeletionListener
+public final class MovableActivityManager extends Restartable implements MovableDeletionManager.IDeletionListener
 {
     private final Map<Long, Optional<BlockMover>> busyMovables = new ConcurrentHashMap<>();
 
@@ -50,10 +50,10 @@ public final class MovableActivityManager extends Restartable implements Movable
     public MovableActivityManager(
         RestartableHolder holder, Lazy<AutoCloseScheduler> autoCloseScheduler,
         IConfigLoader config, IPExecutor executor, IBigDoorsEventFactory eventFactory,
-        IBigDoorsEventCaller bigDoorsEventCaller, MovableRegistry registry)
+        IBigDoorsEventCaller bigDoorsEventCaller, MovableDeletionManager movableDeletionManager)
     {
         super(holder);
-        registry.registerDeletionListener(this);
+        movableDeletionManager.registerDeletionListener(this);
         this.autoCloseScheduler = autoCloseScheduler;
         this.config = config;
         this.executor = executor;

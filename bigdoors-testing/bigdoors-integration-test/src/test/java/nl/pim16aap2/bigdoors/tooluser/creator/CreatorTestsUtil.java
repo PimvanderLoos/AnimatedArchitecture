@@ -23,6 +23,7 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
+import nl.pim16aap2.bigdoors.managers.MovableDeletionManager;
 import nl.pim16aap2.bigdoors.managers.MovableRegistry;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
@@ -151,7 +152,8 @@ public class CreatorTestsUtil
             new AssistedFactoryMocker<>(MovableBase.class, MovableBase.IFactory.class)
                 .setMock(ILocalizer.class, localizer)
                 .setMock(MovableRegistry.class,
-                         MovableRegistry.unCached(Mockito.mock(RestartableHolder.class), debuggableRegistry))
+                         MovableRegistry.unCached(Mockito.mock(RestartableHolder.class), debuggableRegistry,
+                                                  Mockito.mock(MovableDeletionManager.class)))
                 .getFactory();
         movableBaseBuilder = new MovableBaseBuilder(movableBaseIFactory);
 

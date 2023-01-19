@@ -5,7 +5,7 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.debugging.IDebuggable;
-import nl.pim16aap2.bigdoors.managers.MovableRegistry;
+import nl.pim16aap2.bigdoors.managers.MovableDeletionManager;
 import nl.pim16aap2.bigdoors.movable.IMovableConst;
 
 import javax.inject.Inject;
@@ -28,18 +28,18 @@ import java.util.List;
  */
 @Singleton
 @Flogger
-class GuiMovableDeletionManager implements MovableRegistry.IDeletionListener, IDebuggable
+class GuiMovableDeletionManager implements MovableDeletionManager.IDeletionListener, IDebuggable
 {
     @GuardedBy("this")
     private final Deque<IGuiPage.IGuiMovableDeletionListener> listeners = new ArrayDeque<>();
     private final IPExecutor executor;
 
     @Inject GuiMovableDeletionManager(
-        MovableRegistry movableRegistry, IPExecutor executor, DebuggableRegistry debuggableRegistry)
+        MovableDeletionManager movableDeletionManager, IPExecutor executor, DebuggableRegistry debuggableRegistry)
     {
         this.executor = executor;
 
-        movableRegistry.registerDeletionListener(this);
+        movableDeletionManager.registerDeletionListener(this);
         debuggableRegistry.registerDebuggable(this);
     }
 
@@ -56,12 +56,12 @@ class GuiMovableDeletionManager implements MovableRegistry.IDeletionListener, ID
     @Override
     public void onMovableDeletion(IMovableConst movable)
     {
-        final List<MovableRegistry.IDeletionListener> copy;
+        final List<MovableDeletionManager.IDeletionListener> copy;
         synchronized (this)
         {
             copy = new ArrayList<>(listeners);
         }
-        executor.scheduleOnMainThread(() -> MovableRegistry.IDeletionListener.callListeners(copy, movable));
+        executor.scheduleOnMainThread(() -> MovableDeletionManager.IDeletionListener.callListeners(copy, movable));
     }
 
     @Override

@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Singleton
 @Flogger
-public final class PowerBlockManager extends Restartable implements MovableRegistry.IDeletionListener
+public final class PowerBlockManager extends Restartable implements MovableDeletionManager.IDeletionListener
 {
     private final Map<String, PowerBlockWorld> powerBlockWorlds = new ConcurrentHashMap<>();
     private final IConfigLoader config;
@@ -49,12 +49,14 @@ public final class PowerBlockManager extends Restartable implements MovableRegis
      */
     @Inject PowerBlockManager(
         RestartableHolder restartableHolder, IConfigLoader config, DatabaseManager databaseManager,
-        MovableRegistry registry)
+        MovableDeletionManager movableDeletionManager)
     {
         super(restartableHolder);
-        registry.registerDeletionListener(this);
+
         this.config = config;
         this.databaseManager = databaseManager;
+
+        movableDeletionManager.registerDeletionListener(this);
     }
 
     /**

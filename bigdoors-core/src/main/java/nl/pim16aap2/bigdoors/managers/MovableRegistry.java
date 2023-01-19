@@ -14,10 +14,7 @@ import nl.pim16aap2.bigdoors.movable.MovableBase;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.Duration;
-import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Represents a registry of movables.
@@ -27,7 +24,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 @Singleton
 @Flogger
-public final class MovableRegistry extends Restartable implements IDebuggable
+public final class MovableRegistry extends Restartable implements IDebuggable, MovableDeletionManager.IDeletionListener
 {
     public static final int CONCURRENCY_LEVEL = 4;
     public static final int INITIAL_CAPACITY = 100;
@@ -39,11 +36,6 @@ public final class MovableRegistry extends Restartable implements IDebuggable
     // type is thread-safe; we just want to ensure visibility across threads.
     @SuppressWarnings("squid:S3077")
     private volatile TimedCache<Long, AbstractMovable> movableCache;
-
-    /**
-     * The listeners that will be called when a movable is deleted.
-     */
-    private final List<IDeletionListener> deletionListeners = new CopyOnWriteArrayList<>();
 
     /**
      * Keeps track of whether to allow new entries to be added to the cache.
@@ -68,14 +60,17 @@ public final class MovableRegistry extends Restartable implements IDebuggable
 //    @IBuilder // These parameters aren't implemented atm, so there's no point in having this ctor/builder.
     private MovableRegistry(
         RestartableHolder restartableHolder, DebuggableRegistry debuggableRegistry,
-        int concurrencyLevel, int initialCapacity, Duration cacheExpiry)
+        int concurrencyLevel, int initialCapacity, Duration cacheExpiry, MovableDeletionManager movableDeletionManager)
     {
         super(restartableHolder);
         this.concurrencyLevel = concurrencyLevel;
         this.initialCapacity = initialCapacity;
         this.cacheExpiry = cacheExpiry;
+
         init();
+
         debuggableRegistry.registerDebuggable(this);
+        movableDeletionManager.registerDeletionListener(this);
     }
 
     /**
@@ -83,9 +78,12 @@ public final class MovableRegistry extends Restartable implements IDebuggable
      * <p>
      * See {@link #CONCURRENCY_LEVEL}, {@link #INITIAL_CAPACITY}.
      */
-    @Inject MovableRegistry(RestartableHolder restartableHolder, DebuggableRegistry debuggableRegistry)
+    @Inject MovableRegistry(
+        RestartableHolder restartableHolder, DebuggableRegistry debuggableRegistry,
+        MovableDeletionManager movableDeletionManager)
     {
-        this(restartableHolder, debuggableRegistry, CONCURRENCY_LEVEL, INITIAL_CAPACITY, CACHE_EXPIRY);
+        this(restartableHolder, debuggableRegistry, CONCURRENCY_LEVEL, INITIAL_CAPACITY, CACHE_EXPIRY,
+             movableDeletionManager);
     }
 
     /**
@@ -93,12 +91,21 @@ public final class MovableRegistry extends Restartable implements IDebuggable
      *
      * @return The new {@link MovableRegistry}.
      */
-    public static MovableRegistry unCached(RestartableHolder restartableHolder, DebuggableRegistry debuggableRegistry)
+    public static MovableRegistry unCached(
+        RestartableHolder restartableHolder, DebuggableRegistry debuggableRegistry,
+        MovableDeletionManager movableDeletionManager)
     {
-        final MovableRegistry movableRegistry =
-            new MovableRegistry(restartableHolder, debuggableRegistry, -1, -1, Duration.ofMillis(-1));
+        final MovableRegistry movableRegistry = new MovableRegistry(
+            restartableHolder, debuggableRegistry, -1, -1, Duration.ofMillis(-1), movableDeletionManager);
+
         movableRegistry.acceptNewEntries = false;
         return movableRegistry;
+    }
+
+    @Override
+    public void onMovableDeletion(IMovableConst movable)
+    {
+        movableCache.remove(movable.getUid());
     }
 
     /**
@@ -112,18 +119,6 @@ public final class MovableRegistry extends Restartable implements IDebuggable
     public Optional<AbstractMovable> getRegisteredMovable(long movableUID)
     {
         return movableCache.get(movableUID);
-    }
-
-    /**
-     * Handles the deletion of a movable.
-     *
-     * @param movable
-     *     The movable that is deleted.
-     */
-    void onMovableDeletion(IMovableConst movable)
-    {
-        movableCache.remove(movable.getUid());
-        IDeletionListener.callListeners(deletionListeners, movable);
     }
 
     /**
@@ -167,32 +162,6 @@ public final class MovableRegistry extends Restartable implements IDebuggable
         return movableCache.putIfAbsent(movable.getUid(), movable).isEmpty();
     }
 
-    /**
-     * Registers a deletion listener which will be used when a door is deleted.
-     *
-     * @param listener
-     *     The listener to register.
-     */
-    public void registerDeletionListener(IDeletionListener listener)
-    {
-        this.deletionListeners.add(listener);
-    }
-
-    /**
-     * Unregisters a deletion listener.
-     *
-     * @param listener
-     *     The listener to unregister.
-     * @return True if the listener was previously registered.
-     */
-    public boolean unregisterDeletionListener(IDeletionListener listener)
-    {
-        boolean unregistered = false;
-        while (this.deletionListeners.remove(listener))
-            unregistered = true;
-        return unregistered;
-    }
-
     @Override
     public void shutDown()
     {
@@ -225,48 +194,6 @@ public final class MovableRegistry extends Restartable implements IDebuggable
             "\nconcurrencyLevel: " + concurrencyLevel +
             "\ninitialCapacity: " + initialCapacity +
             "\ncacheExpiry: " + cacheExpiry +
-            "\ncacheSize: " + movableCache.getSize() +
-            "\ndeletionListeners: " + deletionListeners;
-    }
-
-    /**
-     * Represents a listener for movable deletion events.
-     */
-    public interface IDeletionListener
-    {
-        /**
-         * Called when a movable is deleted.
-         *
-         * @param movable
-         *     The movable that was deleted.
-         */
-        void onMovableDeletion(IMovableConst movable);
-
-        /**
-         * Safely calls all listeners for a movable that has been deleted.
-         *
-         * @param listeners
-         *     The listeners to call.
-         * @param movable
-         *     The movable that was deleted.
-         */
-        static void callListeners(Collection<IDeletionListener> listeners, IMovableConst movable)
-        {
-            listeners.forEach(listener -> callMovableDeletionListener(listener, movable));
-        }
-
-        private static void callMovableDeletionListener(IDeletionListener listener, IMovableConst movable)
-        {
-            try
-            {
-                listener.onMovableDeletion(movable);
-            }
-            catch (Exception exception)
-            {
-                log.atSevere().withCause(exception)
-                   .log("Failed to call movable deletion listener '%s' for movable %s!",
-                        listener.getClass().getName(), movable);
-            }
-        }
+            "\ncacheSize: " + movableCache.getSize();
     }
 }

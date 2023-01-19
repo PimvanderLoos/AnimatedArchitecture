@@ -62,8 +62,8 @@ public final class DatabaseManager extends Restartable implements IDebuggable
 
     private final IStorage db;
 
+    private final MovableDeletionManager movableDeletionManager;
     private final IBigDoorsEventCaller bigDoorsEventCaller;
-    private final MovableRegistry movableRegistry;
     private final Lazy<PowerBlockManager> powerBlockManager;
     private final IBigDoorsEventFactory bigDoorsEventFactory;
 
@@ -77,14 +77,14 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      */
     @Inject
     public DatabaseManager(
-        RestartableHolder restartableHolder, IStorage storage, MovableRegistry movableRegistry,
+        RestartableHolder restartableHolder, IStorage storage, MovableDeletionManager movableDeletionManager,
         Lazy<PowerBlockManager> powerBlockManager, IBigDoorsEventFactory bigDoorsEventFactory,
         IBigDoorsEventCaller bigDoorsEventCaller, DebuggableRegistry debuggableRegistry)
     {
         super(restartableHolder);
         db = storage;
+        this.movableDeletionManager = movableDeletionManager;
         this.bigDoorsEventCaller = bigDoorsEventCaller;
-        this.movableRegistry = movableRegistry;
         this.powerBlockManager = powerBlockManager;
         this.bigDoorsEventFactory = bigDoorsEventFactory;
         initThreadPool();
@@ -232,7 +232,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
                     return ActionResult.FAIL;
                 }
 
-                movableRegistry.onMovableDeletion(snapshot);
+                movableDeletionManager.onMovableDeletion(snapshot);
 
                 return ActionResult.SUCCESS;
             }, threadPool).exceptionally(ex -> Util.exceptionally(ex, ActionResult.FAIL));

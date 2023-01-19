@@ -11,6 +11,7 @@ import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.localization.LocalizationManager;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.managers.MovableDeletionManager;
 import nl.pim16aap2.bigdoors.managers.MovableRegistry;
 import nl.pim16aap2.bigdoors.managers.MovableTypeManager;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
@@ -123,7 +124,9 @@ public class SQLiteJDBCDriverConnectionTest
         MockitoAnnotations.openMocks(this);
 
         worldFactory = new TestPWorldFactory();
-        movableRegistry = MovableRegistry.unCached(restartableHolder, debuggableRegistry);
+        movableRegistry = MovableRegistry.unCached(
+            restartableHolder, debuggableRegistry, Mockito.mock(MovableDeletionManager.class));
+
         movableTypeManager = new MovableTypeManager(restartableHolder, debuggableRegistry, localizationManager);
 
         final AssistedFactoryMocker<MovableBase, MovableBase.IFactory> assistedFactoryMocker =
