@@ -1,11 +1,77 @@
 package nl.pim16aap2.bigdoors.spigot.gui;
 
+import de.themoep.inventorygui.InventoryGui;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.PPlayerSpigot;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Deque;
 
 @Flogger final class GuiUtil
 {
     private GuiUtil()
     {
+    }
+
+    /**
+     * Creates a new CloseAction that unregisters a deletion listener from the movables registry.
+     *
+     * @param manager
+     *     The MovableDeletion manager for the GUI to unregister from.
+     * @param listener
+     *     The listener to unregister.
+     * @return The CloseAction.
+     */
+    public static InventoryGui.CloseAction getDeletionListenerUnregisterCloseAction(
+        GuiMovableDeletionManager manager, IGuiPage.IGuiMovableDeletionListener listener)
+    {
+        return close ->
+        {
+            manager.unregisterDeletionListener(listener);
+            return true;
+        };
+    }
+
+    /**
+     * Closes all {@link InventoryGui}s that are currently open for a player.
+     *
+     * @param player
+     *     The player whose guis to close.
+     */
+    public static void closeAllGuis(PPlayerSpigot player)
+    {
+        final Deque<InventoryGui> history = InventoryGui.getHistory(player.getBukkitPlayer());
+        @Nullable InventoryGui finalGui = null;
+        while (!history.isEmpty())
+        {
+            final InventoryGui gui = history.removeLast();
+            gui.close(false);
+
+            // We don't use the close thing anywhere anyway.
+            final @Nullable var closeAction = gui.getCloseAction();
+            if (closeAction != null)
+                closeAction.onClose(null);
+
+            finalGui = gui;
+        }
+        if (finalGui != null)
+            finalGui.destroy();
+        InventoryGui.clearHistory(player.getBukkitPlayer());
+    }
+
+    public static void closeGuiPage(InventoryGui guiPage, PPlayerSpigot player)
+    {
+        final Deque<InventoryGui> history = InventoryGui.getHistory(player.getBukkitPlayer());
+        while (!history.isEmpty())
+        {
+            final InventoryGui gui = history.removeLast();
+            gui.close(false);
+            // We don't use the close thing anywhere anyway.
+            gui.getCloseAction().onClose(null);
+
+            if (gui == guiPage)
+                break;
+        }
     }
 
     /**

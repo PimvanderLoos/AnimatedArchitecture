@@ -7,7 +7,9 @@ import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.events.IBigDoorsEventCaller;
+import nl.pim16aap2.bigdoors.managers.MovableDeletionManager;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
+import nl.pim16aap2.bigdoors.movable.IMovableConst;
 import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.util.Constants;
@@ -15,6 +17,7 @@ import nl.pim16aap2.bigdoors.util.Constants;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
@@ -25,7 +28,7 @@ import java.util.stream.Stream;
  * @author Pim
  */
 @Singleton
-public final class MovableActivityManager extends Restartable
+public final class MovableActivityManager extends Restartable implements MovableDeletionManager.IDeletionListener
 {
     private final Map<Long, Optional<BlockMover>> busyMovables = new ConcurrentHashMap<>();
 
@@ -47,9 +50,10 @@ public final class MovableActivityManager extends Restartable
     public MovableActivityManager(
         RestartableHolder holder, Lazy<AutoCloseScheduler> autoCloseScheduler,
         IConfigLoader config, IPExecutor executor, IBigDoorsEventFactory eventFactory,
-        IBigDoorsEventCaller bigDoorsEventCaller)
+        IBigDoorsEventCaller bigDoorsEventCaller, MovableDeletionManager movableDeletionManager)
     {
         super(holder);
+        movableDeletionManager.registerDeletionListener(this);
         this.autoCloseScheduler = autoCloseScheduler;
         this.config = config;
         this.executor = executor;
@@ -167,7 +171,7 @@ public final class MovableActivityManager extends Restartable
      */
     public Optional<BlockMover> getBlockMover(long movableUID)
     {
-        return busyMovables.containsKey(movableUID) ? busyMovables.get(movableUID) : Optional.empty();
+        return Objects.requireNonNullElse(busyMovables.get(movableUID), Optional.empty());
     }
 
     /**
@@ -185,6 +189,13 @@ public final class MovableActivityManager extends Restartable
     {
         busyMovables.forEach((key, value) -> value.ifPresent(BlockMover::abort));
         emptyBusyMovables();
+    }
+
+    @Override
+    public void onMovableDeletion(IMovableConst movable)
+    {
+        Objects.<Optional<BlockMover>>requireNonNullElse(busyMovables.remove(movable.getUid()), Optional.empty())
+               .ifPresent(BlockMover::abort);
     }
 
     @Override

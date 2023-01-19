@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.managers;
 
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.debugging.IDebuggable;
@@ -7,6 +8,7 @@ import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.data.cache.timed.TimedCache;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
+import nl.pim16aap2.bigdoors.movable.IMovableConst;
 import nl.pim16aap2.bigdoors.movable.MovableBase;
 
 import javax.inject.Inject;
@@ -21,7 +23,8 @@ import java.util.Optional;
  * @see <a href="https://en.wikipedia.org/wiki/Multiton_pattern">Wikipedia: Multiton</a>
  */
 @Singleton
-public final class MovableRegistry extends Restartable implements IDebuggable
+@Flogger
+public final class MovableRegistry extends Restartable implements IDebuggable, MovableDeletionManager.IDeletionListener
 {
     public static final int CONCURRENCY_LEVEL = 4;
     public static final int INITIAL_CAPACITY = 100;
@@ -57,14 +60,17 @@ public final class MovableRegistry extends Restartable implements IDebuggable
 //    @IBuilder // These parameters aren't implemented atm, so there's no point in having this ctor/builder.
     private MovableRegistry(
         RestartableHolder restartableHolder, DebuggableRegistry debuggableRegistry,
-        int concurrencyLevel, int initialCapacity, Duration cacheExpiry)
+        int concurrencyLevel, int initialCapacity, Duration cacheExpiry, MovableDeletionManager movableDeletionManager)
     {
         super(restartableHolder);
         this.concurrencyLevel = concurrencyLevel;
         this.initialCapacity = initialCapacity;
         this.cacheExpiry = cacheExpiry;
+
         init();
+
         debuggableRegistry.registerDebuggable(this);
+        movableDeletionManager.registerDeletionListener(this);
     }
 
     /**
@@ -72,10 +78,12 @@ public final class MovableRegistry extends Restartable implements IDebuggable
      * <p>
      * See {@link #CONCURRENCY_LEVEL}, {@link #INITIAL_CAPACITY}.
      */
-    @Inject
-    public MovableRegistry(RestartableHolder restartableHolder, DebuggableRegistry debuggableRegistry)
+    @Inject MovableRegistry(
+        RestartableHolder restartableHolder, DebuggableRegistry debuggableRegistry,
+        MovableDeletionManager movableDeletionManager)
     {
-        this(restartableHolder, debuggableRegistry, CONCURRENCY_LEVEL, INITIAL_CAPACITY, CACHE_EXPIRY);
+        this(restartableHolder, debuggableRegistry, CONCURRENCY_LEVEL, INITIAL_CAPACITY, CACHE_EXPIRY,
+             movableDeletionManager);
     }
 
     /**
@@ -83,12 +91,21 @@ public final class MovableRegistry extends Restartable implements IDebuggable
      *
      * @return The new {@link MovableRegistry}.
      */
-    public static MovableRegistry unCached(RestartableHolder restartableHolder, DebuggableRegistry debuggableRegistry)
+    public static MovableRegistry unCached(
+        RestartableHolder restartableHolder, DebuggableRegistry debuggableRegistry,
+        MovableDeletionManager movableDeletionManager)
     {
-        final MovableRegistry movableRegistry =
-            new MovableRegistry(restartableHolder, debuggableRegistry, -1, -1, Duration.ofMillis(-1));
+        final MovableRegistry movableRegistry = new MovableRegistry(
+            restartableHolder, debuggableRegistry, -1, -1, Duration.ofMillis(-1), movableDeletionManager);
+
         movableRegistry.acceptNewEntries = false;
         return movableRegistry;
+    }
+
+    @Override
+    public void onMovableDeletion(IMovableConst movable)
+    {
+        movableCache.remove(movable.getUid());
     }
 
     /**
@@ -102,17 +119,6 @@ public final class MovableRegistry extends Restartable implements IDebuggable
     public Optional<AbstractMovable> getRegisteredMovable(long movableUID)
     {
         return movableCache.get(movableUID);
-    }
-
-    /**
-     * Deletes an {@link MovableBase} from the registry.
-     *
-     * @param movableUID
-     *     The UID of the {@link MovableBase} to delete.
-     */
-    void deregisterMovable(long movableUID)
-    {
-        movableCache.remove(movableUID);
     }
 
     /**

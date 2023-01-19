@@ -5,6 +5,8 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import de.themoep.inventorygui.InventoryGui;
 import de.themoep.inventorygui.StaticGuiElement;
+import lombok.Getter;
+import lombok.ToString;
 import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
@@ -14,7 +16,8 @@ import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-class DeleteGui
+@ToString(onlyExplicitlyIncluded = true)
+class DeleteGui implements IGuiPage
 {
     private static final ItemStack FILLER = new ItemStack(Material.GRAY_STAINED_GLASS_PANE, 1);
 
@@ -22,16 +25,20 @@ class DeleteGui
     private final ILocalizer localizer;
     private final CommandFactory commandFactory;
     private final MovableRetrieverFactory movableRetrieverFactory;
-    private final AbstractMovable movable;
-    private final PPlayerSpigot inventoryHolder;
-    private final MainGui mainGui;
     private final InventoryGui inventoryGui;
+
+    @ToString.Include
+    private final AbstractMovable movable;
+
+    @Getter
+    @ToString.Include
+    private final PPlayerSpigot inventoryHolder;
 
     @AssistedInject //
     DeleteGui(
         BigDoorsPlugin bigDoorsPlugin, ILocalizer localizer, CommandFactory commandFactory,
         MovableRetrieverFactory movableRetrieverFactory,
-        @Assisted AbstractMovable movable, @Assisted PPlayerSpigot inventoryHolder, @Assisted MainGui mainGui)
+        @Assisted AbstractMovable movable, @Assisted PPlayerSpigot inventoryHolder)
     {
         this.bigDoorsPlugin = bigDoorsPlugin;
         this.localizer = localizer;
@@ -39,12 +46,11 @@ class DeleteGui
         this.movableRetrieverFactory = movableRetrieverFactory;
         this.movable = movable;
         this.inventoryHolder = inventoryHolder;
-        this.mainGui = mainGui;
 
         this.inventoryGui = createGUI();
+
         showGUI();
     }
-
 
     private void showGUI()
     {
@@ -82,7 +88,7 @@ class DeleteGui
             new ItemStack(Material.GREEN_STAINED_GLASS_PANE),
             click ->
             {
-                gui.close(false);
+                GuiUtil.closeGuiPage(gui, inventoryHolder);
                 return true;
             },
             localizer.getMessage("gui.delete_page.cancel",
@@ -94,9 +100,7 @@ class DeleteGui
             click ->
             {
                 commandFactory.newDelete(inventoryHolder, movableRetrieverFactory.of(movable)).run();
-                mainGui.removeMovable(movable);
-                inventoryGui.close(true);
-                mainGui.redraw();
+                GuiUtil.closeGuiPage(gui, inventoryHolder);
                 return true;
             },
             localizer.getMessage("gui.delete_page.confirm",
@@ -104,9 +108,15 @@ class DeleteGui
         ));
     }
 
+    @Override
+    public String getPageName()
+    {
+        return "DeleteGui";
+    }
+
     @AssistedFactory
     interface IFactory
     {
-        DeleteGui newDeleteGui(AbstractMovable movable, PPlayerSpigot playerSpigot, MainGui mainGui);
+        DeleteGui newDeleteGui(AbstractMovable movable, PPlayerSpigot playerSpigot);
     }
 }

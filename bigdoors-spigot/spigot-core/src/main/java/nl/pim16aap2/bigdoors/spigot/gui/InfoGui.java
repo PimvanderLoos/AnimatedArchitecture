@@ -7,6 +7,8 @@ import de.themoep.inventorygui.GuiElement;
 import de.themoep.inventorygui.GuiElementGroup;
 import de.themoep.inventorygui.InventoryGui;
 import de.themoep.inventorygui.StaticGuiElement;
+import lombok.Getter;
+import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPermissionsManager;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
@@ -29,18 +31,27 @@ import java.util.Map;
  * This contains all the options for a single movable.
  */
 @Flogger
-class InfoGui
+@ToString(onlyExplicitlyIncluded = true)
+class InfoGui implements IGuiPage
 {
     private static final ItemStack FILLER = new ItemStack(Material.GRAY_STAINED_GLASS_PANE, 1);
 
     private final BigDoorsPlugin bigDoorsPlugin;
     private final ILocalizer localizer;
     private final AttributeButtonFactory attributeButtonFactory;
-    private final AbstractMovable movable;
-    private final PPlayerSpigot inventoryHolder;
-    private final MainGui mainGui;
+
+    @Getter
     private final InventoryGui inventoryGui;
+
+    @ToString.Include
+    private final AbstractMovable movable;
+
+    @ToString.Include
     private final List<MovableAttribute> allowedAttributes;
+
+    @Getter
+    @ToString.Include
+    private final PPlayerSpigot inventoryHolder;
 
     // Currently not used, but it's needed later on when we can update the elements
     // When the field in the movable changes.
@@ -51,14 +62,13 @@ class InfoGui
     InfoGui(
         BigDoorsPlugin bigDoorsPlugin, ILocalizer localizer, IPermissionsManager permissionsManager,
         AttributeButtonFactory attributeButtonFactory,
-        @Assisted AbstractMovable movable, @Assisted PPlayerSpigot inventoryHolder, @Assisted MainGui mainGui)
+        @Assisted AbstractMovable movable, @Assisted PPlayerSpigot inventoryHolder)
     {
         this.bigDoorsPlugin = bigDoorsPlugin;
         this.localizer = localizer;
         this.attributeButtonFactory = attributeButtonFactory;
         this.movable = movable;
         this.inventoryHolder = inventoryHolder;
-        this.mainGui = mainGui;
 
         final MovableOwner movableOwner = movable.getOwner(inventoryHolder).orElseGet(this::getDummyOwner);
         this.allowedAttributes = analyzeAttributes(movableOwner, inventoryHolder, permissionsManager);
@@ -66,6 +76,7 @@ class InfoGui
         this.attributeElements = new HashMap<>(this.allowedAttributes.size());
 
         this.inventoryGui = createGUI();
+
         showGUI();
     }
 
@@ -113,7 +124,7 @@ class InfoGui
         for (final MovableAttribute attribute : allowedAttributes)
         {
             final GuiElement element =
-                attributeButtonFactory.of(gui, mainGui, attribute, movable, inventoryHolder, 'g');
+                attributeButtonFactory.of(attribute, movable, inventoryHolder, 'g');
             attributeElements.put(attribute, element);
             group.addElement(element);
         }
@@ -146,9 +157,15 @@ class InfoGui
             permissionsManager.hasBypassPermissionsForAttribute(player, attribute);
     }
 
+    @Override
+    public String getPageName()
+    {
+        return "InfoGui";
+    }
+
     @AssistedFactory
     interface IFactory
     {
-        InfoGui newInfoGUI(AbstractMovable movable, PPlayerSpigot playerSpigot, MainGui mainGui);
+        InfoGui newInfoGUI(AbstractMovable movable, PPlayerSpigot playerSpigot);
     }
 }

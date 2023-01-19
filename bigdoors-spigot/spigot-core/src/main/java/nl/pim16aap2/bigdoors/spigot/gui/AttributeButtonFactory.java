@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.spigot.gui;
 
 import de.themoep.inventorygui.GuiElement;
 import de.themoep.inventorygui.GuiStateElement;
-import de.themoep.inventorygui.InventoryGui;
 import de.themoep.inventorygui.StaticGuiElement;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
@@ -123,14 +122,14 @@ class AttributeButtonFactory
     }
 
     private GuiElement deleteButton(
-        MainGui mainGui, AbstractMovable movable, PPlayerSpigot player, char slotChar)
+        AbstractMovable movable, PPlayerSpigot player, char slotChar)
     {
         return new StaticGuiElement(
             slotChar,
             new ItemStack(Material.BARRIER),
             click ->
             {
-                deleteGuiFactory.newDeleteGui(movable, player, mainGui);
+                deleteGuiFactory.newDeleteGui(movable, player);
                 return true;
             },
             localizer.getMessage("gui.info_page.attribute.delete",
@@ -138,8 +137,7 @@ class AttributeButtonFactory
         );
     }
 
-    private GuiElement relocatePowerBlockButton(
-        InventoryGui gui, AbstractMovable movable, PPlayerSpigot player, char slotChar)
+    private GuiElement relocatePowerBlockButton(AbstractMovable movable, PPlayerSpigot player, char slotChar)
     {
         return new StaticGuiElement(
             slotChar,
@@ -147,7 +145,7 @@ class AttributeButtonFactory
             click ->
             {
                 commandFactory.newMovePowerBlock(player, movableRetrieverFactory.of(movable)).run();
-                gui.close(true);
+                GuiUtil.closeAllGuis(player);
                 return true;
             },
             localizer.getMessage("gui.info_page.attribute.relocate_power_block",
@@ -155,8 +153,7 @@ class AttributeButtonFactory
         );
     }
 
-    private GuiElement autoCloseTimerButton(
-        InventoryGui gui, AbstractMovable movable, PPlayerSpigot player, char slotChar)
+    private GuiElement autoCloseTimerButton(AbstractMovable movable, PPlayerSpigot player, char slotChar)
     {
         return new StaticGuiElement(
             slotChar,
@@ -164,7 +161,7 @@ class AttributeButtonFactory
             click ->
             {
                 commandFactory.getSetAutoCloseTimeDelayed().runDelayed(player, movableRetrieverFactory.of(movable));
-                gui.close(true);
+                GuiUtil.closeAllGuis(player);
                 return true;
             },
             localizer.getMessage("gui.info_page.attribute.auto_close_timer",
@@ -172,8 +169,7 @@ class AttributeButtonFactory
         );
     }
 
-    private GuiElement openDirectionButton(
-        InventoryGui gui, AbstractMovable movable, PPlayerSpigot player, char slotChar)
+    private GuiElement openDirectionButton(AbstractMovable movable, PPlayerSpigot player, char slotChar)
     {
         return new StaticGuiElement(
             slotChar,
@@ -181,7 +177,7 @@ class AttributeButtonFactory
             click ->
             {
                 commandFactory.getSetOpenDirectionDelayed().runDelayed(player, movableRetrieverFactory.of(movable));
-                gui.close(true);
+                GuiUtil.closeAllGuis(player);
                 return true;
             },
             localizer.getMessage("gui.info_page.attribute.open_direction",
@@ -189,8 +185,7 @@ class AttributeButtonFactory
         );
     }
 
-    private GuiElement blocksToMoveButton(
-        InventoryGui gui, AbstractMovable movable, PPlayerSpigot player, char slotChar)
+    private GuiElement blocksToMoveButton(AbstractMovable movable, PPlayerSpigot player, char slotChar)
     {
         return new StaticGuiElement(
             slotChar,
@@ -198,7 +193,7 @@ class AttributeButtonFactory
             click ->
             {
                 commandFactory.getSetBlocksToMoveDelayed().runDelayed(player, movableRetrieverFactory.of(movable));
-                gui.close(true);
+                GuiUtil.closeAllGuis(player);
                 return true;
             },
             localizer.getMessage("gui.info_page.attribute.blocks_to_move",
@@ -206,8 +201,7 @@ class AttributeButtonFactory
         );
     }
 
-    private GuiElement addOwnerButton(
-        InventoryGui gui, AbstractMovable movable, PPlayerSpigot player, char slotChar)
+    private GuiElement addOwnerButton(AbstractMovable movable, PPlayerSpigot player, char slotChar)
     {
         return new StaticGuiElement(
             slotChar,
@@ -215,7 +209,7 @@ class AttributeButtonFactory
             click ->
             {
                 commandFactory.getAddOwnerDelayed().runDelayed(player, movableRetrieverFactory.of(movable));
-                gui.close(true);
+                GuiUtil.closeAllGuis(player);
                 return true;
             },
             localizer.getMessage("gui.info_page.attribute.add_owner",
@@ -223,8 +217,7 @@ class AttributeButtonFactory
         );
     }
 
-    private GuiElement removeOwnerButton(
-        InventoryGui gui, AbstractMovable movable, PPlayerSpigot player, char slotChar)
+    private GuiElement removeOwnerButton(AbstractMovable movable, PPlayerSpigot player, char slotChar)
     {
         return new StaticGuiElement(
             slotChar,
@@ -232,7 +225,7 @@ class AttributeButtonFactory
             click ->
             {
                 commandFactory.getRemoveOwnerDelayed().runDelayed(player, movableRetrieverFactory.of(movable));
-                gui.close(true);
+                GuiUtil.closeAllGuis(player);
                 return true;
             },
             localizer.getMessage("gui.info_page.attribute.remove_owner",
@@ -243,9 +236,7 @@ class AttributeButtonFactory
     /**
      * Creates a new GuiElement for the provided attribute.
      */
-    public GuiElement of(
-        InventoryGui gui, MainGui mainGui, MovableAttribute attribute, AbstractMovable movable,
-        PPlayerSpigot player, char slotChar)
+    public GuiElement of(MovableAttribute attribute, AbstractMovable movable, PPlayerSpigot player, char slotChar)
     {
         return switch (attribute)
             {
@@ -253,13 +244,13 @@ class AttributeButtonFactory
                 case TOGGLE -> this.toggleButton(movable, player, slotChar);
                 case SWITCH -> this.switchButton(movable, player, slotChar);
                 case INFO -> this.infoButton(movable, player, slotChar);
-                case DELETE -> this.deleteButton(mainGui, movable, player, slotChar);
-                case RELOCATE_POWERBLOCK -> this.relocatePowerBlockButton(gui, movable, player, slotChar);
-                case AUTO_CLOSE_TIMER -> this.autoCloseTimerButton(gui, movable, player, slotChar);
-                case OPEN_DIRECTION -> this.openDirectionButton(gui, movable, player, slotChar);
-                case BLOCKS_TO_MOVE -> this.blocksToMoveButton(gui, movable, player, slotChar);
-                case ADD_OWNER -> this.addOwnerButton(gui, movable, player, slotChar);
-                case REMOVE_OWNER -> this.removeOwnerButton(gui, movable, player, slotChar);
+                case DELETE -> this.deleteButton(movable, player, slotChar);
+                case RELOCATE_POWERBLOCK -> this.relocatePowerBlockButton(movable, player, slotChar);
+                case AUTO_CLOSE_TIMER -> this.autoCloseTimerButton(movable, player, slotChar);
+                case OPEN_DIRECTION -> this.openDirectionButton(movable, player, slotChar);
+                case BLOCKS_TO_MOVE -> this.blocksToMoveButton(movable, player, slotChar);
+                case ADD_OWNER -> this.addOwnerButton(movable, player, slotChar);
+                case REMOVE_OWNER -> this.removeOwnerButton(movable, player, slotChar);
             };
     }
 }
