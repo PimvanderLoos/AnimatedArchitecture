@@ -6,8 +6,8 @@ import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.data.cache.timed.TimedCache;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
+import nl.pim16aap2.bigdoors.movable.IMovableConst;
 import nl.pim16aap2.bigdoors.movable.MovableBase;
-import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -200,9 +200,9 @@ public final class PowerBlockManager extends Restartable implements MovableRegis
     }
 
     @Override
-    public void onMovableDeletion(MovableSnapshot snapshot)
+    public void onMovableDeletion(IMovableConst movable)
     {
-        onMovableAddOrRemove(snapshot.getWorld().worldName(), snapshot.getPowerBlock());
+        onMovableAddOrRemove(movable.getWorld().worldName(), movable.getPowerBlock());
     }
 
     /**

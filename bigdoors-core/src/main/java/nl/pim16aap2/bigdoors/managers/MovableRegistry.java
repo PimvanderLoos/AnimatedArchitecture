@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.managers;
 
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.debugging.IDebuggable;
@@ -7,8 +8,8 @@ import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.data.cache.timed.TimedCache;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
+import nl.pim16aap2.bigdoors.movable.IMovableConst;
 import nl.pim16aap2.bigdoors.movable.MovableBase;
-import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -24,6 +25,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @see <a href="https://en.wikipedia.org/wiki/Multiton_pattern">Wikipedia: Multiton</a>
  */
 @Singleton
+@Flogger
 public final class MovableRegistry extends Restartable implements IDebuggable
 {
     public static final int CONCURRENCY_LEVEL = 4;
@@ -117,10 +119,24 @@ public final class MovableRegistry extends Restartable implements IDebuggable
      * @param movable
      *     The movable that is deleted.
      */
-    void onMovableDeletion(MovableSnapshot movable)
+    void onMovableDeletion(IMovableConst movable)
     {
         movableCache.remove(movable.getUid());
-        deletionListeners.forEach(listener -> listener.onMovableDeletion(movable));
+        deletionListeners.forEach(listener -> callMovableDeletionListener(listener, movable));
+    }
+
+    private void callMovableDeletionListener(IDeletionListener listener, IMovableConst movable)
+    {
+        try
+        {
+            listener.onMovableDeletion(movable);
+        }
+        catch (Exception exception)
+        {
+            log.atSevere().withCause(exception)
+               .log("Failed to call movable deletion listener '%s' for movable %s!",
+                    listener.getClass().getName(), movable);
+        }
     }
 
     /**
@@ -233,9 +249,9 @@ public final class MovableRegistry extends Restartable implements IDebuggable
         /**
          * Called when a movable is deleted.
          *
-         * @param snapshot
-         *     The snapshot of the movable.
+         * @param movable
+         *     The movable.
          */
-        void onMovableDeletion(MovableSnapshot snapshot);
+        void onMovableDeletion(IMovableConst movable);
     }
 }
