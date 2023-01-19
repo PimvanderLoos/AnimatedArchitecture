@@ -43,22 +43,10 @@ public class RedstoneListener extends AbstractListener
         RestartableHolder holder, JavaPlugin plugin, ConfigLoaderSpigot config,
         MovableToggleRequestBuilder movableToggleRequestBuilder, PowerBlockManager powerBlockManager)
     {
-        super(holder, plugin, () -> shouldBeEnabled(config));
+        super(holder, plugin);
         this.config = config;
         this.movableToggleRequestBuilder = movableToggleRequestBuilder;
         this.powerBlockManager = powerBlockManager;
-    }
-
-    /**
-     * Checks if this listener should be enabled as based on the config settings.
-     *
-     * @param config
-     *     The config to use to determine the status of this listener.
-     * @return True if this listener should be enabled.
-     */
-    private static boolean shouldBeEnabled(ConfigLoaderSpigot config)
-    {
-        return config.enableRedstone();
     }
 
     @Override
