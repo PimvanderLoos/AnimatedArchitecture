@@ -1,6 +1,8 @@
 package nl.pim16aap2.bigdoors.spigot.util.implementations;
 
+import com.google.common.flogger.StackSize;
 import com.google.errorprone.annotations.CheckReturnValue;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -10,6 +12,7 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @author Pim
  */
+@Flogger
 public final class PLocationSpigot implements IPLocation
 {
     private final Location location;
@@ -33,6 +37,8 @@ public final class PLocationSpigot implements IPLocation
     public PLocationSpigot(IPWorld world, double x, double y, double z)
     {
         final @Nullable World bukkitWorld = retrieveBukkitWorld(world);
+        if (bukkitWorld == null)
+            log.atFine().withStackTrace(StackSize.FULL).log("Bukkit world of world '%s' is null!", world);
         location = new Location(bukkitWorld, x, y, z);
         this.world = world;
     }
@@ -151,6 +157,19 @@ public final class PLocationSpigot implements IPLocation
     public IPLocation add(Vector3Dd vector)
     {
         return add(vector.x(), vector.y(), vector.z());
+    }
+
+    /**
+     * Gets the {@link Block} at the given location.
+     * <p>
+     * See {@link Location#getBlock()}.
+     *
+     * @return The block at this location.
+     */
+    @CheckReturnValue @Contract(pure = true)
+    public Block getBlock()
+    {
+        return location.getBlock();
     }
 
     /**

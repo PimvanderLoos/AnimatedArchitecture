@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.spigot.factories.plocationfactory;
 
-import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
@@ -27,25 +26,25 @@ public class PLocationFactorySpigot implements IPLocationFactory
     }
 
     @Override
-    public IPLocation create(IPWorld world, double x, double y, double z)
+    public PLocationSpigot create(IPWorld world, double x, double y, double z)
     {
         return new PLocationSpigot(world, x, y, z);
     }
 
     @Override
-    public IPLocation create(IPWorld world, IVector3D position)
+    public PLocationSpigot create(IPWorld world, IVector3D position)
     {
         return create(world, position.xD(), position.yD(), position.zD());
     }
 
     @Override
-    public IPLocation create(String worldName, double x, double y, double z)
+    public PLocationSpigot create(String worldName, double x, double y, double z)
     {
         return create(worldFactory.create(worldName), x, y, z);
     }
 
     @Override
-    public IPLocation create(String worldName, IVector3D position)
+    public PLocationSpigot create(String worldName, IVector3D position)
     {
         return create(worldName, position.xD(), position.yD(), position.zD());
     }
