@@ -13,6 +13,7 @@ import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -24,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initCommandSenderPermissions;
 
+@Timeout(1)
 class MovePowerBlockTest
 {
     @Mock(answer = Answers.CALLS_REAL_METHODS)
@@ -74,18 +76,18 @@ class MovePowerBlockTest
 
     @Test
     void testServer()
-        throws Exception
     {
         final IPServer server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
-        Assertions.assertTrue(factory.newMovePowerBlock(server, doorRetriever).run().get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(
+            () -> factory.newMovePowerBlock(server, doorRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(toolUserManager, Mockito.never()).startToolUser(Mockito.any(), Mockito.anyInt());
     }
 
     @Test
     void testExecution()
-        throws Exception
     {
-        Assertions.assertTrue(factory.newMovePowerBlock(commandSender, doorRetriever).run().get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(
+            () -> factory.newMovePowerBlock(commandSender, doorRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(toolUserManager).startToolUser(Mockito.any(), Mockito.anyInt());
     }
 }

@@ -55,7 +55,7 @@ public abstract class MovableTargetCommand extends BaseCommand
     }
 
     @Override
-    protected final CompletableFuture<Boolean> executeCommand(PermissionsStatus permissions)
+    protected final CompletableFuture<?> executeCommand(PermissionsStatus permissions)
     {
         return getMovable(getMovableRetriever())
             .thenApply(movable ->
@@ -63,8 +63,8 @@ public abstract class MovableTargetCommand extends BaseCommand
                            setRetrieverResult(movable.orElse(null));
                            return movable;
                        })
-            .thenApplyAsync(movable -> processMovableResult(movable, permissions))
-            .exceptionally(t -> Util.exceptionally(t, false));
+            .thenAcceptAsync(movable -> processMovableResult(movable, permissions))
+            .exceptionally(Util::exceptionally);
     }
 
     /**
@@ -74,9 +74,8 @@ public abstract class MovableTargetCommand extends BaseCommand
      *     The result of trying to retrieve the movable.
      * @param permissions
      *     Whether the ICommandSender has user and/or admin permissions.
-     * @return The result of running the command, see {@link BaseCommand#run()}.
      */
-    private boolean processMovableResult(Optional<AbstractMovable> movable, PermissionsStatus permissions)
+    private void processMovableResult(Optional<AbstractMovable> movable, PermissionsStatus permissions)
     {
         if (movable.isEmpty())
         {
@@ -85,7 +84,7 @@ public abstract class MovableTargetCommand extends BaseCommand
             getCommandSender()
                 .sendMessage(textFactory, TextType.ERROR,
                              localizer.getMessage("commands.movable_target_command.base.error.movable_not_found"));
-            return false;
+            return;
         }
 
         if (!isAllowed(movable.get(), permissions.hasAdminPermission()))
@@ -97,16 +96,16 @@ public abstract class MovableTargetCommand extends BaseCommand
                 .sendMessage(textFactory, TextType.ERROR,
                              localizer.getMessage("commands.movable_target_command.base.error.no_permission_for_action",
                                                   localizer.getMovableType(movable.get())));
-            return true;
+            return;
         }
 
         try
         {
-            return performAction(movable.get()).get(30, TimeUnit.MINUTES);
+            performAction(movable.get()).get(30, TimeUnit.MINUTES);
         }
         catch (Exception e)
         {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failed to perform command " + this + " for movable " + movable, e);
         }
     }
 
@@ -129,9 +128,9 @@ public abstract class MovableTargetCommand extends BaseCommand
      *
      * @param movable
      *     The {@link MovableBase} to perform the action on.
-     * @return True if everything was successful.
+     * @return The future of the command execution.
      */
-    protected abstract CompletableFuture<Boolean> performAction(AbstractMovable movable);
+    protected abstract CompletableFuture<?> performAction(AbstractMovable movable);
 
     /**
      * @return The movable description of the {@link #retrieverResult}.
@@ -178,7 +177,7 @@ public abstract class MovableTargetCommand extends BaseCommand
      *     The result obtained from the database.
      * @return True in all cases, as it is assumed that this is not user error.
      */
-    protected final Boolean handleDatabaseActionResult(DatabaseManager.ActionResult result)
+    protected final void handleDatabaseActionResult(DatabaseManager.ActionResult result)
     {
         log.atFine().log("Handling database action result: %s for command: %s", result.name(), this);
         switch (result)
@@ -187,7 +186,6 @@ public abstract class MovableTargetCommand extends BaseCommand
             case SUCCESS -> handleDatabaseActionSuccess();
             case FAIL -> handleDatabaseActionFail();
         }
-        return true;
     }
 
     /**

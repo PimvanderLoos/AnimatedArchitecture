@@ -11,6 +11,7 @@ import nl.pim16aap2.bigdoors.util.Constants;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -20,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initCommandSenderPermissions;
 
+@Timeout(1)
 class NewMovableTest
 {
     @Mock(answer = Answers.CALLS_REAL_METHODS)
@@ -57,16 +59,15 @@ class NewMovableTest
 
     @Test
     void testServer()
-        throws Exception
     {
         final IPServer server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
-        Assertions.assertTrue(factory.newNewMovable(server, doorType, null).run().get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(
+            () -> factory.newNewMovable(server, doorType, null).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(toolUserManager, Mockito.never()).startToolUser(Mockito.any(), Mockito.anyInt());
     }
 
     @Test
     void testExecution()
-        throws Exception
     {
         final String name = "newDoor";
 
@@ -76,10 +77,12 @@ class NewMovableTest
         Mockito.when(doorType.getCreator(Mockito.any(), Mockito.any(), Mockito.any()))
                .thenAnswer(inv -> name.equals(inv.getArgument(2, String.class)) ? namedCreator : unnamedCreator);
 
-        Assertions.assertTrue(factory.newNewMovable(commandSender, doorType).run().get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(
+            () -> factory.newNewMovable(commandSender, doorType).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(toolUserManager).startToolUser(unnamedCreator, Constants.MOVABLE_CREATOR_TIME_LIMIT);
 
-        Assertions.assertTrue(factory.newNewMovable(commandSender, doorType, name).run().get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(
+            () -> factory.newNewMovable(commandSender, doorType, name).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(toolUserManager).startToolUser(namedCreator, Constants.MOVABLE_CREATOR_TIME_LIMIT);
     }
 }

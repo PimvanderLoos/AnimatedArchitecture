@@ -20,12 +20,12 @@ import org.mockito.Spy;
 
 import javax.inject.Provider;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import static nl.pim16aap2.bigdoors.commands.DelayedCommandTest.initInputRequestFactory;
 import static org.mockito.AdditionalAnswers.delegatesTo;
 
 @Timeout(1)
-@SuppressWarnings("unused")
 class SetBlocksToMoveDelayedTest
 {
     @Spy
@@ -42,7 +42,8 @@ class SetBlocksToMoveDelayedTest
 
     @Mock
     CommandFactory commandFactory;
-    @SuppressWarnings("unchecked") Provider<CommandFactory> commandFactoryProvider =
+    @SuppressWarnings({"unused", "unchecked"})
+    Provider<CommandFactory> commandFactoryProvider =
         Mockito.mock(Provider.class, delegatesTo((Provider<CommandFactory>) () -> commandFactory));
 
     @Mock
@@ -70,7 +71,7 @@ class SetBlocksToMoveDelayedTest
 
         movableRetriever = movableRetrieverFactory.of(movable);
 
-        Mockito.when(setBlocksToMove.run()).thenReturn(CompletableFuture.completedFuture(true));
+        Mockito.when(setBlocksToMove.run()).thenReturn(CompletableFuture.completedFuture(null));
 
         Mockito.when(commandFactory.newSetBlocksToMove(Mockito.any(), Mockito.any(), Mockito.anyInt()))
                .thenReturn(setBlocksToMove);
@@ -85,15 +86,14 @@ class SetBlocksToMoveDelayedTest
 
     @Test
     void normal()
-        throws Exception
     {
         final SetBlocksToMoveDelayed setBlocksToMoveDelayed = new SetBlocksToMoveDelayed(context, inputRequestFactory);
 
-        final CompletableFuture<Boolean> result0 = setBlocksToMoveDelayed.runDelayed(commandSender, movableRetriever);
-        final CompletableFuture<Boolean> result1 = setBlocksToMoveDelayed.provideDelayedInput(commandSender, 10);
+        final CompletableFuture<?> result0 = setBlocksToMoveDelayed.runDelayed(commandSender, movableRetriever);
+        final CompletableFuture<?> result1 = setBlocksToMoveDelayed.provideDelayedInput(commandSender, 10);
 
-        Assertions.assertTrue(result0.get());
-        Assertions.assertTrue(result1.get());
+        Assertions.assertDoesNotThrow(() -> result0.get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(() -> result1.get(1, TimeUnit.SECONDS));
 
         Mockito.verify(commandFactory, Mockito.times(1)).newSetBlocksToMove(commandSender, movableRetriever, 10);
     }

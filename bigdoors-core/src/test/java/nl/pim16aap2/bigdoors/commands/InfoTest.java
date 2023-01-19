@@ -12,6 +12,7 @@ import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -24,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initCommandSenderPermissions;
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.movableOwnerCreator;
 
+@Timeout(1)
 class InfoTest
 {
     @Mock
@@ -62,11 +64,10 @@ class InfoTest
 
     @Test
     void testServer()
-        throws Exception
     {
         final IPServer server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
 
-        Assertions.assertTrue(factory.newInfo(server, movableRetriever).run().get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(() -> factory.newInfo(server, movableRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(glowingBlockSpawner, Mockito.never())
                .spawnGlowingBlocks(Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.verify(server).sendMessage(UnitTestUtil.toText(movable.toString()));
@@ -74,26 +75,25 @@ class InfoTest
 
     @Test
     void testPlayer()
-        throws Exception
     {
         final IPPlayer player = Mockito.mock(IPPlayer.class, Answers.CALLS_REAL_METHODS);
 
         final String movableString = movable.toString();
 
         initCommandSenderPermissions(player, true, false);
-        Assertions.assertTrue(factory.newInfo(player, movableRetriever).run().get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(() -> factory.newInfo(player, movableRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(glowingBlockSpawner, Mockito.never())
                .spawnGlowingBlocks(Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.verify(player, Mockito.never()).sendMessage(UnitTestUtil.toText(movableString));
 
         initCommandSenderPermissions(player, true, true);
-        Assertions.assertTrue(factory.newInfo(player, movableRetriever).run().get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(() -> factory.newInfo(player, movableRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(glowingBlockSpawner).spawnGlowingBlocks(Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.verify(player).sendMessage(UnitTestUtil.toText(movableString));
 
         initCommandSenderPermissions(player, true, false);
         Mockito.when(movable.getOwner(player)).thenReturn(Optional.of(movableOwnerCreator));
-        Assertions.assertTrue(factory.newInfo(player, movableRetriever).run().get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(() -> factory.newInfo(player, movableRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(glowingBlockSpawner, Mockito.times(2))
                .spawnGlowingBlocks(Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.verify(player, Mockito.times(2)).sendMessage(UnitTestUtil.toText(movableString));

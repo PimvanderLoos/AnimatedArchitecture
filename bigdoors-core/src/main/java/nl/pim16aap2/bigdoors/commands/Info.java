@@ -47,11 +47,11 @@ public class Info extends MovableTargetCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> performAction(AbstractMovable movable)
+    protected CompletableFuture<?> performAction(AbstractMovable movable)
     {
         getCommandSender().sendMessage(textFactory, TextType.INFO, movable.toString());
         highlightBlocks(movable);
-        return CompletableFuture.completedFuture(true);
+        return CompletableFuture.completedFuture(null);
     }
 
     protected void highlightBlocks(AbstractMovable movable)

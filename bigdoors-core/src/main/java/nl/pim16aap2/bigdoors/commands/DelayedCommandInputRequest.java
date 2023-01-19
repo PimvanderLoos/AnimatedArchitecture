@@ -80,7 +80,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @Getter(AccessLevel.PROTECTED)
-    private final CompletableFuture<Boolean> commandOutput;
+    private final CompletableFuture<?> commandOutput;
 
     /**
      * Constructs a new delayed command input request.
@@ -106,7 +106,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
         @Assisted long timeout,
         @Assisted ICommandSender commandSender,
         @Assisted CommandDefinition commandDefinition,
-        @Assisted Function<T, CompletableFuture<Boolean>> executor,
+        @Assisted Function<T, CompletableFuture<?>> executor,
         @Assisted @Nullable Supplier<String> initMessageSupplier,
         @Assisted Class<T> inputClass,
         ILocalizer localizer,
@@ -134,11 +134,11 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
             commandSender.sendMessage(textFactory, TextType.INFO, initMessage);
     }
 
-    private CompletableFuture<Boolean> constructOutput(Function<T, CompletableFuture<Boolean>> executor)
+    private CompletableFuture<?> constructOutput(Function<T, CompletableFuture<?>> executor)
     {
         return getInputResult()
-            .thenCompose(input -> input.map(executor).orElse(CompletableFuture.completedFuture(Boolean.FALSE)))
-            .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
+            .thenCompose(input -> input.map(executor).orElse(CompletableFuture.completedFuture(null)))
+            .exceptionally(Util::exceptionally);
     }
 
     /**
@@ -151,13 +151,13 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      *     The input object to provide.
      * @return When the input is of the correct type, {@link #commandOutput} is returned, otherwise false.
      */
-    public CompletableFuture<Boolean> provide(Object input)
+    public CompletableFuture<?> provide(Object input)
     {
         if (!inputClass.isInstance(input))
         {
             log.atFine().log("Trying to supply object of type %s for request: %s",
                              input.getClass().getName(), this);
-            return CompletableFuture.completedFuture(Boolean.FALSE);
+            return CompletableFuture.completedFuture(null);
         }
 
         //noinspection unchecked
@@ -193,7 +193,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     {
         DelayedCommandInputRequest<T> create(
             long timeout, ICommandSender commandSender, CommandDefinition commandDefinition,
-            Function<T, CompletableFuture<Boolean>> executor, @Nullable Supplier<String> initMessageSupplier,
+            Function<T, CompletableFuture<?>> executor, @Nullable Supplier<String> initMessageSupplier,
             Class<T> inputClass);
     }
 }

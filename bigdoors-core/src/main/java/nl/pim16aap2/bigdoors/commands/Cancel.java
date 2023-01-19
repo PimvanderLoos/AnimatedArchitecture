@@ -40,10 +40,10 @@ public class Cancel extends BaseCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> executeCommand(PermissionsStatus permissions)
+    protected CompletableFuture<?> executeCommand(PermissionsStatus permissions)
     {
         getCommandSender().getPlayer().ifPresent(this::cancelPlayer);
-        return CompletableFuture.completedFuture(true);
+        return CompletableFuture.completedFuture(null);
     }
 
     private void cancelPlayer(IPPlayer player)

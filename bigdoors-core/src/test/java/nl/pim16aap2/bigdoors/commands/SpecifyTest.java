@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.text.Text;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -16,7 +17,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.concurrent.TimeUnit;
 
-
+@Timeout(1)
 class SpecifyTest
 {
     @Mock(answer = Answers.CALLS_REAL_METHODS)
@@ -45,26 +46,24 @@ class SpecifyTest
 
     @Test
     void testServer()
-        throws Exception
     {
         final IPServer server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
-        Assertions.assertTrue(factory.newSpecify(server, "newDoor").run().get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(() -> factory.newSpecify(server, "newDoor").run().get(1, TimeUnit.SECONDS));
         Mockito.verify(movableSpecificationManager, Mockito.never()).handleInput(Mockito.any(), Mockito.any());
     }
 
     @Test
     void testExecution()
-        throws Exception
     {
         Mockito.when(movableSpecificationManager.handleInput(Mockito.any(), Mockito.any())).thenReturn(true);
         final String input = "newDoor";
-        Assertions.assertTrue(factory.newSpecify(commandSender, input).run().get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(() -> factory.newSpecify(commandSender, input).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(movableSpecificationManager).handleInput(commandSender, input);
         Mockito.verify(commandSender, Mockito.never()).sendMessage(Mockito.any(Text.class));
 
         // Test again, but now the command sender is not an active tool user.
         Mockito.when(movableSpecificationManager.handleInput(Mockito.any(), Mockito.any())).thenReturn(false);
-        Assertions.assertTrue(factory.newSpecify(commandSender, input).run().get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(() -> factory.newSpecify(commandSender, input).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(movableSpecificationManager, Mockito.times(2)).handleInput(commandSender, input);
         Mockito.verify(commandSender).sendMessage(Mockito.any(Text.class));
     }

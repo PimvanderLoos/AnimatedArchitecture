@@ -52,10 +52,10 @@ public class Restart extends BaseCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> executeCommand(PermissionsStatus permissions)
+    protected CompletableFuture<?> executeCommand(PermissionsStatus permissions)
     {
         platformProvider.getPlatform().ifPresentOrElse(this::restartPlatform, this::onFail);
-        return CompletableFuture.completedFuture(true);
+        return CompletableFuture.completedFuture(null);
     }
 
     @AssistedFactory

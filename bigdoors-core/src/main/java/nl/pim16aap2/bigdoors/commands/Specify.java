@@ -48,12 +48,12 @@ public class Specify extends BaseCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> executeCommand(PermissionsStatus permissions)
+    protected CompletableFuture<?> executeCommand(PermissionsStatus permissions)
     {
         if (!movableSpecificationManager.handleInput((IPPlayer) getCommandSender(), input))
-            getCommandSender().sendMessage(textFactory, TextType.ERROR,
-                                           localizer.getMessage("commands.base.error.no_pending_process"));
-        return CompletableFuture.completedFuture(true);
+            getCommandSender().sendMessage(
+                textFactory, TextType.ERROR, localizer.getMessage("commands.base.error.no_pending_process"));
+        return CompletableFuture.completedFuture(null);
     }
 
     @AssistedFactory

@@ -22,6 +22,7 @@ import org.mockito.Spy;
 
 import javax.inject.Provider;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import static nl.pim16aap2.bigdoors.commands.DelayedCommandTest.initInputRequestFactory;
 import static org.mockito.AdditionalAnswers.delegatesTo;
@@ -77,7 +78,7 @@ class AddOwnerDelayedTest
 
         movableRetriever = movableRetrieverFactory.of(movable);
 
-        Mockito.when(addOwner.run()).thenReturn(CompletableFuture.completedFuture(true));
+        Mockito.when(addOwner.run()).thenReturn(CompletableFuture.completedFuture(null));
 
         Mockito.when(commandFactory.newAddOwner(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                .thenReturn(addOwner);
@@ -92,16 +93,15 @@ class AddOwnerDelayedTest
 
     @Test
     void normal()
-        throws Exception
     {
         final AddOwnerDelayed addOwnerDelayed = new AddOwnerDelayed(context, inputRequestFactory);
 
-        final CompletableFuture<Boolean> result0 = addOwnerDelayed.runDelayed(commandSender, movableRetriever);
+        final CompletableFuture<?> result0 = addOwnerDelayed.runDelayed(commandSender, movableRetriever);
         final AddOwnerDelayed.DelayedInput input = new AddOwnerDelayed.DelayedInput(targetPlayer);
-        final CompletableFuture<Boolean> result1 = addOwnerDelayed.provideDelayedInput(commandSender, input);
+        final CompletableFuture<?> result1 = addOwnerDelayed.provideDelayedInput(commandSender, input);
 
-        Assertions.assertTrue(result0.get());
-        Assertions.assertTrue(result1.get());
+        Assertions.assertDoesNotThrow(() -> result0.get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(() -> result1.get(1, TimeUnit.SECONDS));
 
         Mockito.verify(commandFactory, Mockito.times(1))
                .newAddOwner(commandSender, movableRetriever, input.getTargetPlayer(), PermissionLevel.USER);

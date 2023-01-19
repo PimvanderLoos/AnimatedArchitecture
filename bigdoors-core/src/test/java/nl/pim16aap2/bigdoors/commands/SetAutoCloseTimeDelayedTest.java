@@ -20,6 +20,7 @@ import org.mockito.Spy;
 
 import javax.inject.Provider;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import static nl.pim16aap2.bigdoors.commands.DelayedCommandTest.initInputRequestFactory;
 import static org.mockito.AdditionalAnswers.delegatesTo;
@@ -72,7 +73,7 @@ class SetAutoCloseTimeDelayedTest
 
         movableRetriever = movableRetrieverFactory.of(movable);
 
-        Mockito.when(setAutoCloseTime.run()).thenReturn(CompletableFuture.completedFuture(true));
+        Mockito.when(setAutoCloseTime.run()).thenReturn(CompletableFuture.completedFuture(null));
 
         Mockito.when(commandFactory.newSetAutoCloseTime(Mockito.any(), Mockito.any(), Mockito.anyInt()))
                .thenReturn(setAutoCloseTime);
@@ -87,16 +88,15 @@ class SetAutoCloseTimeDelayedTest
 
     @Test
     void normal()
-        throws Exception
     {
         final SetAutoCloseTimeDelayed setAutoCloseTimeDelayed =
             new SetAutoCloseTimeDelayed(context, inputRequestFactory);
 
-        final CompletableFuture<Boolean> result0 = setAutoCloseTimeDelayed.runDelayed(commandSender, movableRetriever);
-        final CompletableFuture<Boolean> result1 = setAutoCloseTimeDelayed.provideDelayedInput(commandSender, 10);
+        final CompletableFuture<?> result0 = setAutoCloseTimeDelayed.runDelayed(commandSender, movableRetriever);
+        final CompletableFuture<?> result1 = setAutoCloseTimeDelayed.provideDelayedInput(commandSender, 10);
 
-        Assertions.assertTrue(result0.get());
-        Assertions.assertTrue(result1.get());
+        Assertions.assertDoesNotThrow(() -> result0.get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(() -> result1.get(1, TimeUnit.SECONDS));
 
         Mockito.verify(commandFactory, Mockito.times(1)).newSetAutoCloseTime(commandSender, movableRetriever, 10);
     }

@@ -655,12 +655,14 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      *     The {@link MovableBase} that describes the base data of movable.
      * @param typeData
      *     The type-specific data of this movable.
-     * @return The future result of the operation. If the operation was successful this will be true.
+     * @return The result of the operation.
      */
-    public CompletableFuture<Boolean> syncMovableData(MovableSnapshot snapshot, byte[] typeData)
+    public CompletableFuture<DatabaseManager.ActionResult> syncMovableData(MovableSnapshot snapshot, byte[] typeData)
     {
-        return CompletableFuture.supplyAsync(() -> db.syncMovableData(snapshot, typeData), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
+        return CompletableFuture
+            .supplyAsync(() -> db.syncMovableData(snapshot, typeData) ? ActionResult.SUCCESS : ActionResult.FAIL,
+                         threadPool)
+            .exceptionally(ex -> Util.exceptionally(ex, ActionResult.FAIL));
     }
 
     /**

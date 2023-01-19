@@ -57,7 +57,7 @@ public class Lock extends MovableTargetCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> performAction(AbstractMovable movable)
+    protected CompletableFuture<?> performAction(AbstractMovable movable)
     {
         final var event = bigDoorsEventFactory
             .createMovablePrepareLockChangeEvent(movable, lockedStatus, getCommandSender().getPlayer().orElse(null));
@@ -67,11 +67,11 @@ public class Lock extends MovableTargetCommand
         if (event.isCancelled())
         {
             log.atFinest().log("Event %s was cancelled!", event);
-            return CompletableFuture.completedFuture(true);
+            return CompletableFuture.completedFuture(null);
         }
 
         movable.setLocked(lockedStatus);
-        return movable.syncData().thenApply(x -> true);
+        return movable.syncData().thenAccept(this::handleDatabaseActionResult);
     }
 
     @AssistedFactory

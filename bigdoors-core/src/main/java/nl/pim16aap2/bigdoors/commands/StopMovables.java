@@ -36,11 +36,11 @@ public class StopMovables extends BaseCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> executeCommand(PermissionsStatus permissions)
+    protected CompletableFuture<?> executeCommand(PermissionsStatus permissions)
     {
         movableActivityManager.stopMovables();
         getCommandSender().sendSuccess(textFactory, localizer.getMessage("commands.stop_movables.success"));
-        return CompletableFuture.completedFuture(true);
+        return CompletableFuture.completedFuture(null);
     }
 
     @AssistedFactory

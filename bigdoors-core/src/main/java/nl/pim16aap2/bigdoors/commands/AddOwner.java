@@ -94,11 +94,11 @@ public class AddOwner extends MovableTargetCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> performAction(AbstractMovable movable)
+    protected CompletableFuture<?> performAction(AbstractMovable movable)
     {
-        return databaseManager.addOwner(movable, targetPlayer, targetPermissionLevel,
-                                        getCommandSender().getPlayer().orElse(null))
-                              .thenApply(this::handleDatabaseActionResult);
+        return databaseManager
+            .addOwner(movable, targetPlayer, targetPermissionLevel, getCommandSender().getPlayer().orElse(null))
+            .thenAccept(this::handleDatabaseActionResult);
     }
 
     @Override

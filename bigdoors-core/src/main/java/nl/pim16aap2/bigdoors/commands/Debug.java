@@ -41,9 +41,9 @@ public class Debug extends BaseCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> executeCommand(PermissionsStatus permissions)
+    protected CompletableFuture<?> executeCommand(PermissionsStatus permissions)
     {
-        return CompletableFuture.runAsync(this::postDebugMessage).thenApply(val -> true);
+        return CompletableFuture.runAsync(this::postDebugMessage);
     }
 
     private void postDebugMessage()

@@ -7,12 +7,14 @@ import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.events.IBigDoorsEventCaller;
 import nl.pim16aap2.bigdoors.events.IMovablePrepareLockChangeEvent;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -24,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initCommandSenderPermissions;
 
+@Timeout(1)
 class LockTest
 {
     private MovableRetriever doorRetriever;
@@ -50,7 +53,8 @@ class LockTest
         Mockito.when(door.isOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
         doorRetriever = MovableRetrieverFactory.ofMovable(door);
 
-        Mockito.when(door.syncData()).thenReturn(CompletableFuture.completedFuture(true));
+        Mockito.when(door.syncData())
+               .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
 
         final IBigDoorsEventFactory eventFactory = Mockito.mock(IBigDoorsEventFactory.class);
         Mockito.when(
@@ -77,11 +81,13 @@ class LockTest
         final boolean lock = true;
         Mockito.when(event.isCancelled()).thenReturn(true);
 
-        Assertions.assertTrue(factory.newLock(commandSender, doorRetriever, lock).run().get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(
+            () -> factory.newLock(commandSender, doorRetriever, lock).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(door, Mockito.never()).setLocked(lock);
 
         Mockito.when(event.isCancelled()).thenReturn(false);
-        Assertions.assertTrue(factory.newLock(commandSender, doorRetriever, lock).run().get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(
+            () -> factory.newLock(commandSender, doorRetriever, lock).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(door).setLocked(lock);
     }
 }

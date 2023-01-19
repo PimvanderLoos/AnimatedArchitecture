@@ -123,14 +123,13 @@ public class Toggle extends BaseCommand
             return;
         }
 
-        final Optional<IPPlayer> playerOptional = getCommandSender().getPlayer();
+        final Optional<IPPlayer> playerOpt = getCommandSender().getPlayer();
         movableToggleRequestBuilder.builder()
                                    .movable(movable)
                                    .movableActionCause(cause)
                                    .movableActionType(movableActionType)
-                                   .responsible(playerOptional.orElse(null))
-                                   .messageReceiver(
-                                       playerOptional.isPresent() ? playerOptional.get() : messageableServer)
+                                   .responsible(playerOpt.orElse(null))
+                                   .messageReceiver(playerOpt.isPresent() ? playerOpt.get() : messageableServer)
                                    .time(time)
                                    .build().execute();
     }
@@ -139,19 +138,21 @@ public class Toggle extends BaseCommand
         MovableRetriever movableRetriever, MovableActionCause cause, boolean hasBypassPermission)
     {
         return getMovable(movableRetriever)
-            .thenAccept(movableOpt -> movableOpt.ifPresent(movable ->
-                                                               toggleMovable(movable, cause, hasBypassPermission)));
+            .thenAccept(movableOpt ->
+                            movableOpt.ifPresent(movable -> toggleMovable(movable, cause, hasBypassPermission)));
     }
 
     @Override
-    protected final CompletableFuture<Boolean> executeCommand(PermissionsStatus permissions)
+    protected final CompletableFuture<?> executeCommand(PermissionsStatus permissions)
     {
-        final MovableActionCause actionCause = getCommandSender().isPlayer() ?
-                                               MovableActionCause.PLAYER : MovableActionCause.SERVER;
+        final MovableActionCause actionCause =
+            getCommandSender().isPlayer() ? MovableActionCause.PLAYER : MovableActionCause.SERVER;
+
         final CompletableFuture<?>[] actions = new CompletableFuture[movableRetrievers.length];
         for (int idx = 0; idx < actions.length; ++idx)
             actions[idx] = handleMovableRequest(movableRetrievers[idx], actionCause, permissions.hasAdminPermission());
-        return CompletableFuture.allOf(actions).thenApply(ignored -> true);
+
+        return CompletableFuture.allOf(actions);
     }
 
     @AssistedFactory

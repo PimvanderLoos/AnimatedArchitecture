@@ -11,6 +11,7 @@ import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
 import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.MovableRegistry;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
@@ -334,10 +335,10 @@ public abstract class AbstractMovable implements IMovable
     /**
      * Synchronizes all data of this movable with the database.
      *
-     * @return True if the synchronization was successful.
+     * @return The result of the synchronization.
      */
     @Locked.Read
-    public final CompletableFuture<Boolean> syncData()
+    public final CompletableFuture<DatabaseManager.ActionResult> syncData()
     {
         try
         {
@@ -347,7 +348,7 @@ public abstract class AbstractMovable implements IMovable
         {
             log.atSevere().withCause(e).log("Failed to sync data for movable: %s", getBasicInfo());
         }
-        return CompletableFuture.completedFuture(false);
+        return CompletableFuture.completedFuture(DatabaseManager.ActionResult.FAIL);
     }
 
     /**

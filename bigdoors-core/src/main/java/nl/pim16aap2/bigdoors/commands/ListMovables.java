@@ -43,7 +43,7 @@ public class ListMovables extends BaseCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> executeCommand(PermissionsStatus permissions)
+    protected CompletableFuture<?> executeCommand(PermissionsStatus permissions)
     {
         final CompletableFuture<List<AbstractMovable>> movables;
         if (permissions.hasAdminPermission() || !getCommandSender().isPlayer())
@@ -51,7 +51,7 @@ public class ListMovables extends BaseCommand
         else
             movables = movableRetriever.getMovables((IPPlayer) getCommandSender());
 
-        return movables.thenAccept(this::sendMovableList).thenApply(val -> true);
+        return movables.thenAccept(this::sendMovableList);
     }
 
     private void sendMovableList(List<AbstractMovable> movables)

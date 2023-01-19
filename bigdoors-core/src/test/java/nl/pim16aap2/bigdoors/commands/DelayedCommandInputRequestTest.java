@@ -10,6 +10,7 @@ import nl.pim16aap2.testing.logging.LogInspector;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -20,6 +21,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
 
+@Timeout(1)
 class DelayedCommandInputRequestTest
 {
     @Mock(answer = Answers.CALLS_REAL_METHODS)
@@ -44,7 +46,6 @@ class DelayedCommandInputRequestTest
 
     @Test
     void test()
-        throws Exception
     {
         final DelayedInput delayedInput = new DelayedInput(UUID.randomUUID(), "Some string");
         final DelayedCommandInputRequest<?> inputRequest =
@@ -53,16 +54,15 @@ class DelayedCommandInputRequestTest
                                              localizer, ITextFactory.getSimpleTextFactory(),
                                              delayedCommandInputManager);
 
-        final CompletableFuture<Boolean> first = inputRequest.getCommandOutput();
-        final CompletableFuture<Boolean> second = inputRequest.provide(delayedInput);
+        final CompletableFuture<?> first = inputRequest.getCommandOutput();
+        final CompletableFuture<?> second = inputRequest.provide(delayedInput);
 
-        Assertions.assertTrue(second.get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(() -> second.get(1, TimeUnit.SECONDS));
         Assertions.assertEquals(first, second);
     }
 
     @Test
     void testInvalidInput()
-        throws Exception
     {
         final DelayedInput delayedInput = new DelayedInput(UUID.randomUUID(), "Some string");
         final DelayedCommandInputRequest<?> inputRequest =
@@ -71,16 +71,15 @@ class DelayedCommandInputRequestTest
                                              localizer, ITextFactory.getSimpleTextFactory(),
                                              delayedCommandInputManager);
 
-        final CompletableFuture<Boolean> first = inputRequest.getCommandOutput();
-        final CompletableFuture<Boolean> second = inputRequest.provide("Invalid!");
+        final CompletableFuture<?> first = inputRequest.getCommandOutput();
+        final CompletableFuture<?> second = inputRequest.provide("Invalid!");
 
-        Assertions.assertFalse(second.get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(() -> second.get(1, TimeUnit.SECONDS));
         Assertions.assertNotEquals(first, second);
     }
 
     @Test
     void testException()
-        throws Exception
     {
         // Ensure that exceptions are properly propagated.
         final DelayedCommandInputRequest<?> inputRequest =

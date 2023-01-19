@@ -10,6 +10,7 @@ import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.mockito.Mockito;
 
 import java.util.Arrays;
@@ -21,6 +22,7 @@ import java.util.List;
  * <p>
  * The specific methods are test in {@link CreatorTest}.
  */
+@Timeout(1)
 class CreatorFullTest extends CreatorTestsUtil
 {
     private static MovableType movableType;
@@ -81,10 +83,10 @@ class CreatorFullTest extends CreatorTestsUtil
                    UnitTestUtil.getLocation(rotationPoint, world),
                    UnitTestUtil.getLocation(powerblock, world));
 
-        Assertions.assertFalse(delayedCommandInputManager.getInputRequest(player).get()
-                                                         .provide(RotateDirection.EAST).join());
-        Assertions.assertTrue(delayedCommandInputManager.getInputRequest(player).get()
-                                                        .provide(openDirection).join());
+        Assertions.assertDoesNotThrow(() -> delayedCommandInputManager.getInputRequest(player).get()
+                                                                      .provide(RotateDirection.EAST).join());
+        Assertions.assertDoesNotThrow(() -> delayedCommandInputManager.getInputRequest(player).get()
+                                                                      .provide(openDirection).join());
 
         testCreation(creator, movable, true);
     }

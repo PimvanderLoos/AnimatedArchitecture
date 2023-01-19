@@ -22,7 +22,7 @@ public class SetAutoCloseTimeDelayed extends DelayedCommand<Integer>
     }
 
     @Override
-    protected CompletableFuture<Boolean> delayedInputExecutor(
+    protected CompletableFuture<?> delayedInputExecutor(
         ICommandSender commandSender, MovableRetriever movableRetriever, Integer autoCloseTime)
     {
         return commandFactory.get().newSetAutoCloseTime(commandSender, movableRetriever, autoCloseTime).run();

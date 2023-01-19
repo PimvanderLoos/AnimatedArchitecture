@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -19,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initCommandSenderPermissions;
 
+@Timeout(1)
 class CancelTest
 {
     @Mock(answer = Answers.CALLS_REAL_METHODS)
@@ -53,9 +55,8 @@ class CancelTest
 
     @Test
     void test()
-        throws Exception
     {
-        Assertions.assertTrue(factory.newCancel(commandSender).run().get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(() -> factory.newCancel(commandSender).run().get(1, TimeUnit.SECONDS));
 
         Mockito.verify(toolUserManager).cancelToolUser(commandSender);
         Mockito.verify(doorSpecificationManager).cancelRequest(commandSender);

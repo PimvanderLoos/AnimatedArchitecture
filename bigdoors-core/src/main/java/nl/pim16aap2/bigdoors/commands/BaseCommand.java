@@ -110,16 +110,15 @@ public abstract class BaseCommand
     /**
      * Executes the command.
      *
-     * @return True if the command could be executed successfully or if the command execution failed through no fault of
-     * the {@link ICommandSender}.
+     * @return The result of the execution.
      */
-    public final CompletableFuture<Boolean> run()
+    public final CompletableFuture<?> run()
     {
         log();
         if (!validInput())
         {
             log.atFine().log("Invalid input for command: %s", this);
-            return CompletableFuture.completedFuture(false);
+            return CompletableFuture.completedFuture(null);
         }
 
         final boolean isPlayer = commandSender instanceof IPPlayer;
@@ -128,18 +127,16 @@ public abstract class BaseCommand
             log.atFine().log("Command not allowed for players: %s", this);
             commandSender.sendMessage(textFactory, TextType.ERROR,
                                       localizer.getMessage("commands.base.error.no_permission_for_command"));
-            return CompletableFuture.completedFuture(true);
+            return CompletableFuture.completedFuture(null);
         }
         if (!isPlayer && !availableForNonPlayers())
         {
             log.atFine().log("Command not allowed for non-players: %s", this);
             commandSender.sendMessage(textFactory, TextType.ERROR,
                                       localizer.getMessage("commands.base.error.only_available_for_players"));
-            return CompletableFuture.completedFuture(true);
+            return CompletableFuture.completedFuture(null);
         }
 
-        // We return true in case of an exception, because it cannot (should not?) be possible
-        // for an exception to be caused be the command sender.
         return startExecution().exceptionally(
             throwable ->
             {
@@ -147,7 +144,7 @@ public abstract class BaseCommand
                 if (commandSender.isPlayer())
                     commandSender.sendMessage(textFactory, TextType.ERROR,
                                               localizer.getMessage("commands.base.error.generic"));
-                return true;
+                return null;
             });
     }
 
@@ -155,27 +152,24 @@ public abstract class BaseCommand
      * Starts the execution of this command. It performs the permission check (See {@link #hasPermission()}) and runs
      * {@link #executeCommand(PermissionsStatus)} if the {@link ICommandSender} has access to either the user or the
      * admin permission.
-     *
-     * @return True if the command could be executed successfully or if the command execution failed through no fault of
-     * the {@link ICommandSender}.
      */
-    protected final CompletableFuture<Boolean> startExecution()
+    protected final CompletableFuture<?> startExecution()
     {
-        return hasPermission().thenApplyAsync(this::handlePermissionResult);
+        return hasPermission().thenAcceptAsync(this::handlePermissionResult);
     }
 
-    private boolean handlePermissionResult(PermissionsStatus permissionResult)
+    private void handlePermissionResult(PermissionsStatus permissionResult)
     {
         if (!permissionResult.hasAnyPermission())
         {
             log.atFine().log("Permission for command: %s: %s", this, permissionResult);
             commandSender.sendMessage(textFactory, TextType.ERROR,
                                       localizer.getMessage("commands.base.error.no_permission_for_command"));
-            return true;
+            return;
         }
         try
         {
-            return executeCommand(permissionResult).get(30, TimeUnit.MINUTES);
+            executeCommand(permissionResult).get(30, TimeUnit.MINUTES);
         }
         catch (Exception e)
         {
@@ -190,9 +184,9 @@ public abstract class BaseCommand
      *
      * @param permissions
      *     Whether the {@link ICommandSender} has user and/or admin permissions.
-     * @return True if the method execution was successful.
+     * @return The future of the command execution.
      */
-    protected abstract CompletableFuture<Boolean> executeCommand(PermissionsStatus permissions);
+    protected abstract CompletableFuture<?> executeCommand(PermissionsStatus permissions);
 
     /**
      * Ensures the command is logged.

@@ -49,16 +49,19 @@ public class SetName extends BaseCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> executeCommand(PermissionsStatus permissions)
+    protected CompletableFuture<?> executeCommand(PermissionsStatus permissions)
     {
         final IPPlayer player = (IPPlayer) getCommandSender();
         final Optional<ToolUser> tu = toolUserManager.getToolUser(player.getUUID());
-        if (tu.isPresent() && tu.get() instanceof Creator)
-            return CompletableFuture.completedFuture(tu.get().handleInput(name));
+        if (tu.isPresent() && tu.get() instanceof Creator creator)
+        {
+            creator.handleInput(name);
+            return CompletableFuture.completedFuture(null);
+        }
 
         getCommandSender().sendMessage(textFactory, TextType.ERROR,
                                        localizer.getMessage("commands.base.error.no_pending_process"));
-        return CompletableFuture.completedFuture(true);
+        return CompletableFuture.completedFuture(null);
     }
 
     @AssistedFactory

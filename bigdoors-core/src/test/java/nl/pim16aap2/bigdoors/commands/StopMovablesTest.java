@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.moveblocks.MovableActivityManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -14,7 +15,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.concurrent.TimeUnit;
 
-
+@Timeout(1)
 class StopMovablesTest
 {
     @Mock(answer = Answers.CALLS_REAL_METHODS)
@@ -43,9 +44,8 @@ class StopMovablesTest
 
     @Test
     void test()
-        throws Exception
     {
-        Assertions.assertTrue(factory.newStopMovables(commandSender).run().get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(() -> factory.newStopMovables(commandSender).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(movableActivityManager).stopMovables();
     }
 }

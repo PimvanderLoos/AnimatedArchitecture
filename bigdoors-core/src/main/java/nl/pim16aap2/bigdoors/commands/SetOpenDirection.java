@@ -6,7 +6,6 @@ import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.MovableAttribute;
 import nl.pim16aap2.bigdoors.movable.MovableBase;
@@ -53,7 +52,7 @@ public class SetOpenDirection extends MovableTargetCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> performAction(AbstractMovable movable)
+    protected CompletableFuture<?> performAction(AbstractMovable movable)
     {
         if (!movable.getType().isValidOpenDirection(rotateDirection))
         {
@@ -63,14 +62,11 @@ public class SetOpenDirection extends MovableTargetCommand
                                      localizer.getMessage(rotateDirection.getLocalizationKey()),
                                      localizer.getMovableType(movable), movable.getBasicInfo()));
 
-            return CompletableFuture.completedFuture(true);
+            return CompletableFuture.completedFuture(null);
         }
 
         movable.setOpenDir(rotateDirection);
-        return movable.syncData()
-                      .thenApply(success -> handleDatabaseActionResult(
-                          success ? DatabaseManager.ActionResult.SUCCESS : DatabaseManager.ActionResult.FAIL))
-                      .thenApply(x -> true);
+        return movable.syncData().thenAccept(this::handleDatabaseActionResult);
     }
 
     @AssistedFactory

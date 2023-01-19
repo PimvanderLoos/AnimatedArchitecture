@@ -10,6 +10,7 @@ import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -21,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initCommandSenderPermissions;
 
+@Timeout(1)
 class SetNameTest
 {
     @Mock(answer = Answers.CALLS_REAL_METHODS)
@@ -49,7 +51,6 @@ class SetNameTest
 
     @Test
     void testExecution()
-        throws Exception
     {
         final UUID uuid = UUID.randomUUID();
         final String name = "newDoor";
@@ -59,14 +60,13 @@ class SetNameTest
         Mockito.when(commandSender.getUUID()).thenReturn(uuid);
         Mockito.when(toolUserManager.getToolUser(uuid)).thenReturn(Optional.of(toolUser));
 
-        Assertions.assertTrue(factory.newSetName(commandSender, name).run().get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(() -> factory.newSetName(commandSender, name).run().get(1, TimeUnit.SECONDS));
 
         Mockito.verify(toolUser).handleInput(name);
     }
 
     @Test
     void testIncorrectToolUser()
-        throws Exception
     {
         final UUID uuid = UUID.randomUUID();
         final String name = "newDoor";
@@ -75,16 +75,16 @@ class SetNameTest
         Mockito.when(commandSender.getUUID()).thenReturn(uuid);
         Mockito.when(toolUserManager.getToolUser(uuid)).thenReturn(Optional.of(toolUser));
 
-        Assertions.assertTrue(factory.newSetName(commandSender, name).run().get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(() -> factory.newSetName(commandSender, name).run().get(1, TimeUnit.SECONDS));
 
         Mockito.verify(toolUser, Mockito.never()).handleInput(name);
     }
 
     @Test
     void testServer()
-        throws Exception
     {
-        Assertions.assertTrue(factory.newSetName(Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS), "newDoor")
-                                     .run().get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(
+            () -> factory.newSetName(Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS), "newDoor")
+                         .run().get(1, TimeUnit.SECONDS));
     }
 }

@@ -23,7 +23,7 @@ public class RemoveOwnerDelayed extends DelayedCommand<IPPlayer>
     }
 
     @Override
-    protected CompletableFuture<Boolean> delayedInputExecutor(
+    protected CompletableFuture<?> delayedInputExecutor(
         ICommandSender commandSender, MovableRetriever movableRetriever, IPPlayer targetPlayer)
     {
         return commandFactory.get().newRemoveOwner(commandSender, movableRetriever, targetPlayer).run();

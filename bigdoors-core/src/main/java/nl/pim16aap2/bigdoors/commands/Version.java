@@ -37,11 +37,11 @@ public class Version extends BaseCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> executeCommand(PermissionsStatus permissions)
+    protected CompletableFuture<?> executeCommand(PermissionsStatus permissions)
     {
         final String version = platformProvider.getPlatform().map(IBigDoorsPlatform::getVersion).orElse("ERROR");
         getCommandSender().sendInfo(textFactory, localizer.getMessage("commands.version.success", version));
-        return CompletableFuture.completedFuture(true);
+        return CompletableFuture.completedFuture(null);
     }
 
     @AssistedFactory

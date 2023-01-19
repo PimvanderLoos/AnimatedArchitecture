@@ -10,6 +10,7 @@ import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -21,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initCommandSenderPermissions;
 
+@Timeout(1)
 class ConfirmTest
 {
     @Mock(answer = Answers.CALLS_REAL_METHODS)
@@ -57,25 +59,24 @@ class ConfirmTest
 
     @Test
     void testServer()
-        throws Exception
     {
         // Ensure the server running the method does not result in a ToolUser being started.
-        Assertions.assertTrue(factory.newConfirm(Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS)).run()
-                                     .get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(
+            () -> factory.newConfirm(Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS)).run()
+                         .get(1, TimeUnit.SECONDS));
         Mockito.verify(toolUserManager, Mockito.never()).getToolUser(Mockito.any(UUID.class));
     }
 
     @Test
     void test()
-        throws Exception
     {
-        Assertions.assertTrue(factory.newConfirm(commandSender).run().get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(() -> factory.newConfirm(commandSender).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(toolUserManager).getToolUser(uuid);
         Mockito.verify(toolUser).handleInput(true);
         Mockito.verify(commandSender, Mockito.never()).sendMessage(Mockito.any(Text.class));
 
         Mockito.when(toolUserManager.getToolUser(Mockito.any(UUID.class))).thenReturn(Optional.empty());
-        Assertions.assertTrue(factory.newConfirm(commandSender).run().get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(() -> factory.newConfirm(commandSender).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(toolUserManager, Mockito.times(2)).getToolUser(uuid);
         Mockito.verify(toolUser).handleInput(true);
         Mockito.verify(commandSender).sendMessage(Mockito.any(Text.class));

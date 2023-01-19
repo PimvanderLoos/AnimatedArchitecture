@@ -55,10 +55,10 @@ public class Delete extends MovableTargetCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> performAction(AbstractMovable movable)
+    protected CompletableFuture<?> performAction(AbstractMovable movable)
     {
         return databaseManager.deleteMovable(movable, getCommandSender().getPlayer().orElse(null))
-                              .thenApply(this::handleDatabaseActionResult);
+                              .thenAccept(this::handleDatabaseActionResult);
     }
 
     @AssistedFactory
