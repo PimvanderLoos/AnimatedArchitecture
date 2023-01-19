@@ -59,6 +59,14 @@ public interface IMovableConst
     String getName();
 
     /**
+     * @return The name and UID of this movable formatted as "name (uid)".
+     */
+    default String getNameAndUid()
+    {
+        return String.format("%s (%d)", getName(), getUid());
+    }
+
+    /**
      * Gets the IPWorld this {@link IMovable} exists in.
      *
      * @return The IPWorld this {@link IMovable} exists in

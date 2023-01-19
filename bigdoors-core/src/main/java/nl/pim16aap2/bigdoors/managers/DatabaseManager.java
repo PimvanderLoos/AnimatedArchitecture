@@ -225,13 +225,14 @@ public final class DatabaseManager extends Restartable implements IDebuggable
                     return ActionResult.CANCELLED;
 
                 final MovableSnapshot snapshot = movable.getSnapshot();
-                movableRegistry.onMovableDeletion(snapshot);
                 final boolean result = db.removeMovable(snapshot.getUid());
                 if (!result)
                 {
                     log.atSevere().withStackTrace(StackSize.FULL).log("Failed to process event: %s", event);
                     return ActionResult.FAIL;
                 }
+
+                movableRegistry.onMovableDeletion(snapshot);
 
                 return ActionResult.SUCCESS;
             }, threadPool).exceptionally(ex -> Util.exceptionally(ex, ActionResult.FAIL));

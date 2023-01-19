@@ -14,6 +14,7 @@ import nl.pim16aap2.bigdoors.movable.MovableBase;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.Duration;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -122,21 +123,7 @@ public final class MovableRegistry extends Restartable implements IDebuggable
     void onMovableDeletion(IMovableConst movable)
     {
         movableCache.remove(movable.getUid());
-        deletionListeners.forEach(listener -> callMovableDeletionListener(listener, movable));
-    }
-
-    private void callMovableDeletionListener(IDeletionListener listener, IMovableConst movable)
-    {
-        try
-        {
-            listener.onMovableDeletion(movable);
-        }
-        catch (Exception exception)
-        {
-            log.atSevere().withCause(exception)
-               .log("Failed to call movable deletion listener '%s' for movable %s!",
-                    listener.getClass().getName(), movable);
-        }
+        IDeletionListener.callListeners(deletionListeners, movable);
     }
 
     /**
@@ -238,7 +225,8 @@ public final class MovableRegistry extends Restartable implements IDebuggable
             "\nconcurrencyLevel: " + concurrencyLevel +
             "\ninitialCapacity: " + initialCapacity +
             "\ncacheExpiry: " + cacheExpiry +
-            "\ncacheSize: " + movableCache.getSize();
+            "\ncacheSize: " + movableCache.getSize() +
+            "\ndeletionListeners: " + deletionListeners;
     }
 
     /**
@@ -250,8 +238,35 @@ public final class MovableRegistry extends Restartable implements IDebuggable
          * Called when a movable is deleted.
          *
          * @param movable
-         *     The movable.
+         *     The movable that was deleted.
          */
         void onMovableDeletion(IMovableConst movable);
+
+        /**
+         * Safely calls all listeners for a movable that has been deleted.
+         *
+         * @param listeners
+         *     The listeners to call.
+         * @param movable
+         *     The movable that was deleted.
+         */
+        static void callListeners(Collection<IDeletionListener> listeners, IMovableConst movable)
+        {
+            listeners.forEach(listener -> callMovableDeletionListener(listener, movable));
+        }
+
+        private static void callMovableDeletionListener(IDeletionListener listener, IMovableConst movable)
+        {
+            try
+            {
+                listener.onMovableDeletion(movable);
+            }
+            catch (Exception exception)
+            {
+                log.atSevere().withCause(exception)
+                   .log("Failed to call movable deletion listener '%s' for movable %s!",
+                        listener.getClass().getName(), movable);
+            }
+        }
     }
 }
