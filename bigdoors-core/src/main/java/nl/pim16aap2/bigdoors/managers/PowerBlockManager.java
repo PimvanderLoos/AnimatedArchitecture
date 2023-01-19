@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.data.cache.timed.TimedCache;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.MovableBase;
+import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -29,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Singleton
 @Flogger
-public final class PowerBlockManager extends Restartable
+public final class PowerBlockManager extends Restartable implements MovableRegistry.IDeletionListener
 {
     private final Map<String, PowerBlockWorld> powerBlockWorlds = new ConcurrentHashMap<>();
     private final IConfigLoader config;
@@ -46,10 +47,12 @@ public final class PowerBlockManager extends Restartable
      * @param databaseManager
      *     The database manager to use for power block retrieval.
      */
-    @Inject
-    public PowerBlockManager(RestartableHolder restartableHolder, IConfigLoader config, DatabaseManager databaseManager)
+    @Inject PowerBlockManager(
+        RestartableHolder restartableHolder, IConfigLoader config, DatabaseManager databaseManager,
+        MovableRegistry registry)
     {
         super(restartableHolder);
+        registry.registerDeletionListener(this);
         this.config = config;
         this.databaseManager = databaseManager;
     }
@@ -194,6 +197,12 @@ public final class PowerBlockManager extends Restartable
     public void shutDown()
     {
         powerBlockWorlds.values().forEach(PowerBlockWorld::clear);
+    }
+
+    @Override
+    public void onMovableDeletion(MovableSnapshot snapshot)
+    {
+        onMovableAddOrRemove(snapshot.getWorld().worldName(), snapshot.getPowerBlock());
     }
 
     /**

@@ -233,10 +233,6 @@ public final class DatabaseManager extends Restartable implements IDebuggable
                     return ActionResult.FAIL;
                 }
 
-                powerBlockManager.get().onMovableAddOrRemove(movable.getWorld().worldName(),
-                                                             new Vector3Di(movable.getPowerBlock().x(),
-                                                                           movable.getPowerBlock().y(),
-                                                                           movable.getPowerBlock().z()));
                 return ActionResult.SUCCESS;
             }, threadPool).exceptionally(ex -> Util.exceptionally(ex, ActionResult.FAIL));
     }
