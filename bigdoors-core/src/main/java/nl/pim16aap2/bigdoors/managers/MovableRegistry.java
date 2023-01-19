@@ -8,11 +8,14 @@ import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.data.cache.timed.TimedCache;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.MovableBase;
+import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.Duration;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Represents a registry of movables.
@@ -33,6 +36,11 @@ public final class MovableRegistry extends Restartable implements IDebuggable
     // type is thread-safe; we just want to ensure visibility across threads.
     @SuppressWarnings("squid:S3077")
     private volatile TimedCache<Long, AbstractMovable> movableCache;
+
+    /**
+     * The listeners that will be called when a movable is deleted.
+     */
+    private final List<IDeletionListener> deletionListeners = new CopyOnWriteArrayList<>();
 
     /**
      * Keeps track of whether to allow new entries to be added to the cache.
@@ -72,8 +80,7 @@ public final class MovableRegistry extends Restartable implements IDebuggable
      * <p>
      * See {@link #CONCURRENCY_LEVEL}, {@link #INITIAL_CAPACITY}.
      */
-    @Inject
-    public MovableRegistry(RestartableHolder restartableHolder, DebuggableRegistry debuggableRegistry)
+    @Inject MovableRegistry(RestartableHolder restartableHolder, DebuggableRegistry debuggableRegistry)
     {
         this(restartableHolder, debuggableRegistry, CONCURRENCY_LEVEL, INITIAL_CAPACITY, CACHE_EXPIRY);
     }
@@ -105,14 +112,15 @@ public final class MovableRegistry extends Restartable implements IDebuggable
     }
 
     /**
-     * Deletes an {@link MovableBase} from the registry.
+     * Handles the deletion of a movable.
      *
-     * @param movableUID
-     *     The UID of the {@link MovableBase} to delete.
+     * @param movable
+     *     The movable that is deleted.
      */
-    void deregisterMovable(long movableUID)
+    void onMovableDeletion(MovableSnapshot movable)
     {
-        movableCache.remove(movableUID);
+        movableCache.remove(movable.getUid());
+        deletionListeners.forEach(listener -> listener.onMovableDeletion(movable));
     }
 
     /**
@@ -156,6 +164,32 @@ public final class MovableRegistry extends Restartable implements IDebuggable
         return movableCache.putIfAbsent(movable.getUid(), movable).isEmpty();
     }
 
+    /**
+     * Registers a deletion listener which will be used when a door is deleted.
+     *
+     * @param listener
+     *     The listener to register.
+     */
+    public void registerDeletionListener(IDeletionListener listener)
+    {
+        this.deletionListeners.add(listener);
+    }
+
+    /**
+     * Unregisters a deletion listener.
+     *
+     * @param listener
+     *     The listener to unregister.
+     * @return True if the listener was previously registered.
+     */
+    public boolean unregisterDeletionListener(IDeletionListener listener)
+    {
+        boolean unregistered = false;
+        while (this.deletionListeners.remove(listener))
+            unregistered = true;
+        return unregistered;
+    }
+
     @Override
     public void shutDown()
     {
@@ -189,5 +223,19 @@ public final class MovableRegistry extends Restartable implements IDebuggable
             "\ninitialCapacity: " + initialCapacity +
             "\ncacheExpiry: " + cacheExpiry +
             "\ncacheSize: " + movableCache.getSize();
+    }
+
+    /**
+     * Represents a listener for movable deletion events.
+     */
+    public interface IDeletionListener
+    {
+        /**
+         * Called when a movable is deleted.
+         *
+         * @param snapshot
+         *     The snapshot of the movable.
+         */
+        void onMovableDeletion(MovableSnapshot snapshot);
     }
 }

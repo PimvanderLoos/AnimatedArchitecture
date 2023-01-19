@@ -224,13 +224,14 @@ public final class DatabaseManager extends Restartable implements IDebuggable
                 if (event.isCancelled())
                     return ActionResult.CANCELLED;
 
-                final boolean result = db.removeMovable(movable.getUid());
+                final MovableSnapshot snapshot = movable.getSnapshot();
+                movableRegistry.onMovableDeletion(snapshot);
+                final boolean result = db.removeMovable(snapshot.getUid());
                 if (!result)
                 {
                     log.atSevere().withStackTrace(StackSize.FULL).log("Failed to process event: %s", event);
                     return ActionResult.FAIL;
                 }
-                movableRegistry.deregisterMovable(movable.getUid());
 
                 powerBlockManager.get().onMovableAddOrRemove(movable.getWorld().worldName(),
                                                              new Vector3Di(movable.getPowerBlock().x(),
