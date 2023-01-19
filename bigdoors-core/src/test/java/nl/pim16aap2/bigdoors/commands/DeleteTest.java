@@ -12,6 +12,7 @@ import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -25,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initCommandSenderPermissions;
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.movableOwnerCreator;
 
+@Timeout(1)
 class DeleteTest
 {
     @Mock(answer = Answers.CALLS_REAL_METHODS)
@@ -71,36 +73,38 @@ class DeleteTest
 
     @Test
     void testServer()
-        throws Exception
     {
         final IPServer server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
-        Assertions.assertTrue(factory.newDelete(server, doorRetriever).run().get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(() -> factory.newDelete(server, doorRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(databaseManager).deleteMovable(door, null);
     }
 
     @Test
     void testExecution()
-        throws Exception
     {
         // No permissions, so not allowed.
         initCommandSenderPermissions(commandSender, false, false);
-        Assertions.assertTrue(factory.newDelete(commandSender, doorRetriever).run().get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(
+            () -> factory.newDelete(commandSender, doorRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(databaseManager, Mockito.never()).deleteMovable(door, commandSender);
 
         // Has user permission, but not an owner, so not allowed.
         initCommandSenderPermissions(commandSender, true, false);
-        Assertions.assertTrue(factory.newDelete(commandSender, doorRetriever).run().get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(
+            () -> factory.newDelete(commandSender, doorRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(databaseManager, Mockito.never()).deleteMovable(door, commandSender);
 
         // Has user permission, and is owner, so allowed.
         Mockito.when(door.getOwner(commandSender)).thenReturn(Optional.of(movableOwnerCreator));
-        Assertions.assertTrue(factory.newDelete(commandSender, doorRetriever).run().get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(
+            () -> factory.newDelete(commandSender, doorRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(databaseManager, Mockito.times(1)).deleteMovable(door, commandSender);
 
         // Admin permission, so allowed, despite not being owner.
         Mockito.when(door.getOwner(commandSender)).thenReturn(Optional.empty());
         initCommandSenderPermissions(commandSender, true, true);
-        Assertions.assertTrue(factory.newDelete(commandSender, doorRetriever).run().get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(
+            () -> factory.newDelete(commandSender, doorRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(databaseManager, Mockito.times(2)).deleteMovable(door, commandSender);
     }
 }

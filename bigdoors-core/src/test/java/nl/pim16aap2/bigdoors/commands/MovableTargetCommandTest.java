@@ -11,6 +11,7 @@ import nl.pim16aap2.testing.AssertionsUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -20,9 +21,11 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initCommandSenderPermissions;
 
+@Timeout(1)
 class MovableTargetCommandTest
 {
     @Mock
@@ -49,13 +52,14 @@ class MovableTargetCommandTest
 
         Mockito.doReturn(true).when(movableTargetCommand).isAllowed(Mockito.any(), Mockito.anyBoolean());
         Mockito.when(movableTargetCommand.performAction(Mockito.any()))
-               .thenReturn(CompletableFuture.completedFuture(true));
+               .thenReturn(CompletableFuture.completedFuture(null));
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
         UnitTestUtil.setField(MovableTargetCommand.class, movableTargetCommand, "movableRetriever",
                               MovableRetrieverFactory.ofMovable(movable));
 
+        UnitTestUtil.setField(MovableTargetCommand.class, movableTargetCommand, "lock", new ReentrantReadWriteLock());
         UnitTestUtil.setField(BaseCommand.class, movableTargetCommand, "commandSender", commandSender);
         UnitTestUtil.setField(BaseCommand.class, movableTargetCommand, "localizer", localizer);
         UnitTestUtil.setField(BaseCommand.class, movableTargetCommand, "textFactory",
@@ -64,38 +68,34 @@ class MovableTargetCommandTest
 
     @Test
     void testExecutionSuccess()
-        throws Exception
     {
-        Assertions.assertTrue(movableTargetCommand.executeCommand(new PermissionsStatus(true, true))
-                                                  .get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(() -> movableTargetCommand.executeCommand(new PermissionsStatus(true, true))
+                                                                .get(1, TimeUnit.SECONDS));
         Mockito.verify(movableTargetCommand).performAction(Mockito.any());
     }
 
     @Test
     void testExecutionFailureNoMovable()
-        throws Exception
     {
         Mockito.when(movable.isOwner(Mockito.any(UUID.class))).thenReturn(false);
         Mockito.when(movable.isOwner(Mockito.any(IPPlayer.class))).thenReturn(false);
 
-        Assertions.assertFalse(movableTargetCommand.executeCommand(new PermissionsStatus(true, true))
-                                                   .get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(() -> movableTargetCommand.executeCommand(new PermissionsStatus(true, true))
+                                                                .get(1, TimeUnit.SECONDS));
     }
 
     @Test
     void testExecutionFailureNoPermission()
-        throws Exception
     {
         Mockito.doReturn(false).when(movableTargetCommand).isAllowed(Mockito.any(), Mockito.anyBoolean());
 
-        Assertions.assertTrue(movableTargetCommand.executeCommand(new PermissionsStatus(true, true))
-                                                  .get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(() -> movableTargetCommand.executeCommand(new PermissionsStatus(true, true))
+                                                                .get(1, TimeUnit.SECONDS));
         Mockito.verify(movableTargetCommand, Mockito.never()).performAction(Mockito.any());
     }
 
     @Test
     void testPerformActionFailure()
-        throws Exception
     {
         Mockito.when(movableTargetCommand.performAction(Mockito.any()))
                .thenThrow(new IllegalStateException("Generic Exception!"));

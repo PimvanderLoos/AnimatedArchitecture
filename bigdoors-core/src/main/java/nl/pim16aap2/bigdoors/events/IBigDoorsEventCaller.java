@@ -13,5 +13,5 @@ public interface IBigDoorsEventCaller
      * @param bigDoorsEvent
      *     The {@link IBigDoorsEvent} to call.
      */
-    void callBigDoorsEvent(IBigDoorsEvent bigDoorsEvent);
+    <T extends IBigDoorsEvent> void callBigDoorsEvent(T bigDoorsEvent);
 }

@@ -21,6 +21,7 @@ import org.mockito.Spy;
 
 import javax.inject.Provider;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import static nl.pim16aap2.bigdoors.commands.DelayedCommandTest.initInputRequestFactory;
 import static org.mockito.AdditionalAnswers.delegatesTo;
@@ -76,7 +77,7 @@ class RemoveOwnerDelayedTest
 
         movableRetriever = movableRetrieverFactory.of(movable);
 
-        Mockito.when(removeOwner.run()).thenReturn(CompletableFuture.completedFuture(true));
+        Mockito.when(removeOwner.run()).thenReturn(CompletableFuture.completedFuture(null));
 
         Mockito.when(commandFactory.newRemoveOwner(Mockito.any(), Mockito.any(), Mockito.any()))
                .thenReturn(removeOwner);
@@ -91,15 +92,14 @@ class RemoveOwnerDelayedTest
 
     @Test
     void normal()
-        throws Exception
     {
         final RemoveOwnerDelayed removeOwnerDelayed = new RemoveOwnerDelayed(context, inputRequestFactory);
 
-        final CompletableFuture<Boolean> result0 = removeOwnerDelayed.runDelayed(commandSender, movableRetriever);
-        final CompletableFuture<Boolean> result1 = removeOwnerDelayed.provideDelayedInput(commandSender, targetPlayer);
+        final CompletableFuture<?> result0 = removeOwnerDelayed.runDelayed(commandSender, movableRetriever);
+        final CompletableFuture<?> result1 = removeOwnerDelayed.provideDelayedInput(commandSender, targetPlayer);
 
-        Assertions.assertTrue(result0.get());
-        Assertions.assertTrue(result1.get());
+        Assertions.assertDoesNotThrow(() -> result0.get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(() -> result1.get(1, TimeUnit.SECONDS));
 
         Mockito.verify(commandFactory, Mockito.times(1)).newRemoveOwner(commandSender, movableRetriever, targetPlayer);
     }

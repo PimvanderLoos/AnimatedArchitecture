@@ -55,12 +55,12 @@ public class NewMovable extends BaseCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> executeCommand(PermissionsStatus permissions)
+    protected CompletableFuture<?> executeCommand(PermissionsStatus permissions)
     {
         toolUserManager.startToolUser(movableType.getCreator(creatorContextProvider.get(),
                                                              (IPPlayer) getCommandSender(), movableName),
                                       Constants.MOVABLE_CREATOR_TIME_LIMIT);
-        return CompletableFuture.completedFuture(true);
+        return CompletableFuture.completedFuture(null);
     }
 
     @AssistedFactory

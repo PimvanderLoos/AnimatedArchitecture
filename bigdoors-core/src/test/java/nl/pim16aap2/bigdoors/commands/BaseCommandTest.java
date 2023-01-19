@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.movable.MovableAttribute;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -21,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.*;
 
+@Timeout(1)
 class BaseCommandTest
 {
     @Mock(answer = Answers.CALLS_REAL_METHODS)
@@ -68,47 +70,43 @@ class BaseCommandTest
 
     @Test
     void testBasic()
-        throws Exception
     {
-        Mockito.when(baseCommand.executeCommand(Mockito.any())).thenReturn(CompletableFuture.completedFuture(true));
-        final CompletableFuture<Boolean> result = baseCommand.run();
-        Assertions.assertTrue(result.get(1, TimeUnit.SECONDS));
+        Mockito.when(baseCommand.executeCommand(Mockito.any())).thenReturn(CompletableFuture.completedFuture(null));
+        final CompletableFuture<?> result = baseCommand.run();
+        Assertions.assertDoesNotThrow(() -> result.get(1, TimeUnit.SECONDS));
     }
 
     @Test
     void testNegativeExecution()
-        throws Exception
     {
-        Mockito.when(baseCommand.executeCommand(Mockito.any())).thenReturn(CompletableFuture.completedFuture(false));
-        final CompletableFuture<Boolean> result = baseCommand.run();
-        Assertions.assertFalse(result.get(1, TimeUnit.SECONDS));
+        Mockito.when(baseCommand.executeCommand(Mockito.any())).thenReturn(CompletableFuture.completedFuture(null));
+        final CompletableFuture<?> result = baseCommand.run();
+        Assertions.assertDoesNotThrow(() -> result.get(1, TimeUnit.SECONDS));
     }
 
     @Test
     void invalidInput()
-        throws Exception
     {
         Mockito.when(baseCommand.validInput()).thenReturn(false);
-        final CompletableFuture<Boolean> result = baseCommand.run();
-        Assertions.assertFalse(result.get(1, TimeUnit.SECONDS));
+        final CompletableFuture<?> result = baseCommand.run();
+        Assertions.assertDoesNotThrow(() -> result.get(1, TimeUnit.SECONDS));
     }
 
     @Test
     void testPermissionFailure()
-        throws Exception
     {
-        Mockito.when(baseCommand.executeCommand(Mockito.any())).thenReturn(CompletableFuture.completedFuture(true));
+        Mockito.when(baseCommand.executeCommand(Mockito.any())).thenReturn(CompletableFuture.completedFuture(null));
         Mockito.when(commandSender.hasPermission(Mockito.any(CommandDefinition.class)))
                .thenReturn(CompletableFuture.completedFuture(new PermissionsStatus(false, false)));
 
-        final CompletableFuture<Boolean> result = baseCommand.run();
-        Assertions.assertTrue(result.get(1, TimeUnit.SECONDS));
+        final CompletableFuture<?> result = baseCommand.run();
+        Assertions.assertDoesNotThrow(() -> result.get(1, TimeUnit.SECONDS));
     }
 
     @Test
     void testExceptionPermission()
     {
-        Mockito.when(baseCommand.executeCommand(Mockito.any())).thenReturn(CompletableFuture.completedFuture(true));
+        Mockito.when(baseCommand.executeCommand(Mockito.any())).thenReturn(CompletableFuture.completedFuture(null));
 
         final CompletableFuture<PermissionsStatus> exceptional = new CompletableFuture<>();
         exceptional.completeExceptionally(new IllegalStateException("Testing exception!"));
@@ -124,11 +122,10 @@ class BaseCommandTest
     @Test
     void testExecutionException()
     {
-        Mockito.when(baseCommand.executeCommand(Mockito.any())).thenReturn(CompletableFuture.completedFuture(true));
-        final CompletableFuture<Boolean> exceptional = new CompletableFuture<>();
-        exceptional.completeExceptionally(new IllegalStateException("Testing exception!"));
+        Mockito.when(baseCommand.executeCommand(Mockito.any())).thenReturn(CompletableFuture.completedFuture(null));
 
-        Mockito.when(baseCommand.executeCommand(Mockito.any(PermissionsStatus.class))).thenReturn(exceptional);
+        Mockito.when(baseCommand.executeCommand(Mockito.any(PermissionsStatus.class)))
+               .thenReturn(CompletableFuture.failedFuture(new IllegalStateException("Testing exception!")));
 
         ExecutionException exception =
             Assertions.assertThrows(ExecutionException.class,

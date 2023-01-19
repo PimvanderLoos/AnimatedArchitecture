@@ -70,8 +70,8 @@ public abstract class DelayedCommand<T>
      * @param creator
      *     A {@link Creator} that will wait for the input.
      */
-    public CompletableFuture<Boolean> runDelayed(
-        ICommandSender commandSender, Creator creator, Function<T, CompletableFuture<Boolean>> executor,
+    public CompletableFuture<?> runDelayed(
+        ICommandSender commandSender, Creator creator, Function<T, CompletableFuture<?>> executor,
         @Nullable Supplier<String> initMessageSupplier)
     {
         log.atFinest()
@@ -79,9 +79,10 @@ public abstract class DelayedCommand<T>
                 getCommandDefinition(), commandSender, creator);
 
         final int commandTimeout = Constants.COMMAND_WAITER_TIMEOUT;
-        return inputRequestFactory.create(commandTimeout, commandSender, getCommandDefinition(),
-                                          wrapExecutor(commandSender, executor), initMessageSupplier, delayedInputClz)
-                                  .getCommandOutput();
+        return inputRequestFactory
+            .create(commandTimeout, commandSender, getCommandDefinition(), wrapExecutor(commandSender, executor),
+                    initMessageSupplier, delayedInputClz)
+            .getCommandOutput();
     }
 
     /**
@@ -100,7 +101,7 @@ public abstract class DelayedCommand<T>
      *     A {@link MovableRetrieverFactory} that references the target movable.
      * @return See {@link BaseCommand#run()}.
      */
-    public CompletableFuture<Boolean> runDelayed(ICommandSender commandSender, MovableRetriever movableRetriever)
+    public CompletableFuture<?> runDelayed(ICommandSender commandSender, MovableRetriever movableRetriever)
     {
         log.atFinest()
            .log("Creating delayed command for command '%s' with command sender: '%s' for MovableRetriever: %s",
@@ -113,7 +114,7 @@ public abstract class DelayedCommand<T>
                                   .getCommandOutput();
     }
 
-    private Function<T, CompletableFuture<Boolean>> getExecutor(
+    private Function<T, CompletableFuture<?>> getExecutor(
         ICommandSender commandSender, MovableRetriever movableRetriever)
     {
         return delayedInput ->
@@ -128,13 +129,13 @@ public abstract class DelayedCommand<T>
                    .log("Failed to executed delayed command '%s' for command sender '%s' with input '%s'",
                         this, commandSender, delayedInput);
                 e.printStackTrace();
-                return CompletableFuture.completedFuture(false);
+                return CompletableFuture.completedFuture(null);
             }
         };
     }
 
-    private Function<T, CompletableFuture<Boolean>> wrapExecutor(
-        ICommandSender commandSender, Function<T, CompletableFuture<Boolean>> executor)
+    private Function<T, CompletableFuture<?>> wrapExecutor(
+        ICommandSender commandSender, Function<T, CompletableFuture<?>> executor)
     {
         return delayedInput ->
         {
@@ -148,7 +149,7 @@ public abstract class DelayedCommand<T>
                    .log("Delayed command '%s' failed to provide data for command sender '%s' with input '%s'",
                         this, commandSender, delayedInput);
                 e.printStackTrace();
-                return CompletableFuture.completedFuture(false);
+                return CompletableFuture.completedFuture(null);
             }
         };
     }
@@ -167,7 +168,7 @@ public abstract class DelayedCommand<T>
      *     The data specified by the user.
      * @return See {@link Creator#handleInput(Object)}.
      */
-    public CompletableFuture<Boolean> provideDelayedInput(ICommandSender commandSender, T data)
+    public CompletableFuture<?> provideDelayedInput(ICommandSender commandSender, T data)
     {
         log.atFinest()
            .log("Providing delayed command data for command '%s' with command sender: '%s' and data: '%s'",
@@ -175,17 +176,17 @@ public abstract class DelayedCommand<T>
 
         return delayedCommandInputManager
             .getInputRequest(commandSender)
-            .map(request -> request.provide(data))
-            .orElseGet(
-                () ->
-                {
-                    log.atSevere()
-                       .log("'%s' tried to issue delayed command input '%s' without active command waiter!",
-                            commandSender, data);
-                    commandSender.sendMessage(textFactory, TextType.ERROR,
-                                              localizer.getMessage("commands.base.error.not_waiting"));
-                    return CompletableFuture.completedFuture(false);
-                });
+            .<CompletableFuture<?>>map(request -> request.provide(data))
+            .orElseGet((() -> handleMissingInputRequest(commandSender, data)));
+    }
+
+    private CompletableFuture<?> handleMissingInputRequest(ICommandSender commandSender, T data)
+    {
+        log.atSevere()
+           .log("'%s' tried to issue delayed command input '%s' without active command waiter!", commandSender, data);
+        commandSender.sendMessage(textFactory, TextType.ERROR,
+                                  localizer.getMessage("commands.base.error.not_waiting"));
+        return CompletableFuture.completedFuture(null);
     }
 
     protected abstract CommandDefinition getCommandDefinition();
@@ -205,7 +206,7 @@ public abstract class DelayedCommand<T>
      *     The delayed input that was retrieved.
      * @return See {@link BaseCommand#run()}.
      */
-    protected abstract CompletableFuture<Boolean> delayedInputExecutor(
+    protected abstract CompletableFuture<?> delayedInputExecutor(
         ICommandSender commandSender, MovableRetriever movableRetriever, T delayedInput);
 
     /**

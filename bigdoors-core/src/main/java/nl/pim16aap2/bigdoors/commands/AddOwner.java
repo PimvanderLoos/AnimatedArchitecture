@@ -4,6 +4,7 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
@@ -24,6 +25,7 @@ import java.util.concurrent.CompletableFuture;
  * @author Pim
  */
 @ToString
+@Flogger
 public class AddOwner extends MovableTargetCommand
 {
     public static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.ADD_OWNER;
@@ -61,6 +63,19 @@ public class AddOwner extends MovableTargetCommand
     }
 
     @Override
+    protected void handleDatabaseActionSuccess()
+    {
+        final var description = getRetrievedMovableDescription();
+        final String rank = localizer.getMessage(targetPermissionLevel.getTranslationKey());
+        getCommandSender().sendSuccess(textFactory,
+                                       localizer.getMessage("commands.add_owner.success",
+                                                            targetPlayer.getName(), rank, description.typeName()));
+        targetPlayer.sendInfo(textFactory,
+                              localizer.getMessage("commands.add_owner.added_player_notification",
+                                                   rank, description.typeName(), description.id()));
+    }
+
+    @Override
     public CommandDefinition getCommand()
     {
         return COMMAND_DEFINITION;
@@ -79,11 +94,11 @@ public class AddOwner extends MovableTargetCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> performAction(AbstractMovable movable)
+    protected CompletableFuture<?> performAction(AbstractMovable movable)
     {
-        return databaseManager.addOwner(movable, targetPlayer, targetPermissionLevel,
-                                        getCommandSender().getPlayer().orElse(null))
-                              .thenApply(this::handleDatabaseActionResult);
+        return databaseManager
+            .addOwner(movable, targetPlayer, targetPermissionLevel, getCommandSender().getPlayer().orElse(null))
+            .thenAccept(this::handleDatabaseActionResult);
     }
 
     @Override

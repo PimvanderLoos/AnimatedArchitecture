@@ -33,14 +33,14 @@ public interface ICommandSender extends IMessageable
     default CompletableFuture<Boolean> hasPermission(String permission)
     {
         return getPlayer().map(player -> player.hasPermission(permission))
-                          .orElse(CompletableFuture.completedFuture(true));
+                          .orElse(CompletableFuture.completedFuture(false));
     }
 
     /**
      * Checks if this sender has a given command.
      * <p>
-     * Both the user permission (See {@link CommandDefinition#getUserPermission()}) and the admin permission (See {@link
-     * CommandDefinition#getAdminPermission()}) are checked.
+     * Both the user permission (See {@link CommandDefinition#getUserPermission()}) and the admin permission (See
+     * {@link CommandDefinition#getAdminPermission()}) are checked.
      *
      * @param command
      *     The {@link CommandDefinition} of a command to check.

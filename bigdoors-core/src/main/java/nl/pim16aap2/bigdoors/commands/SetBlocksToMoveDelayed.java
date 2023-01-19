@@ -22,7 +22,7 @@ public class SetBlocksToMoveDelayed extends DelayedCommand<Integer>
     }
 
     @Override
-    protected CompletableFuture<Boolean> delayedInputExecutor(
+    protected CompletableFuture<?> delayedInputExecutor(
         ICommandSender commandSender, MovableRetriever movableRetriever, Integer distance)
     {
         return commandFactory.get().newSetBlocksToMove(commandSender, movableRetriever, distance).run();
@@ -31,6 +31,6 @@ public class SetBlocksToMoveDelayed extends DelayedCommand<Integer>
     @Override
     protected String inputRequestMessage(ICommandSender commandSender, MovableRetriever movableRetriever)
     {
-        return localizer.getMessage("commands.set_blocks_to_move.init");
+        return localizer.getMessage("commands.set_blocks_to_move.delayed.init");
     }
 }

@@ -47,7 +47,7 @@ public class Confirm extends BaseCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> executeCommand(PermissionsStatus permissions)
+    protected CompletableFuture<?> executeCommand(PermissionsStatus permissions)
     {
         final var toolUser = toolUserManager.getToolUser(((IPPlayer) getCommandSender()).getUUID());
         if (toolUser.isPresent())
@@ -56,7 +56,7 @@ public class Confirm extends BaseCommand
             getCommandSender().sendMessage(textFactory, TextType.ERROR,
                                            localizer.getMessage("commands.confirm.error.no_confirmation_request"));
 
-        return CompletableFuture.completedFuture(true);
+        return CompletableFuture.completedFuture(null);
     }
 
     @AssistedFactory

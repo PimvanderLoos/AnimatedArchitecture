@@ -4,6 +4,7 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
@@ -25,6 +26,7 @@ import java.util.concurrent.CompletableFuture;
  * @author Pim
  */
 @ToString
+@Flogger
 public class RemoveOwner extends MovableTargetCommand
 {
     public static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.REMOVE_OWNER;
@@ -49,10 +51,22 @@ public class RemoveOwner extends MovableTargetCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> performAction(AbstractMovable movable)
+    protected void handleDatabaseActionSuccess()
+    {
+        final var description = getRetrievedMovableDescription();
+        getCommandSender().sendSuccess(textFactory,
+                                       localizer.getMessage("commands.remove_owner.success",
+                                                            targetPlayer.getName(), description.typeName()));
+        targetPlayer.sendInfo(textFactory,
+                              localizer.getMessage("commands.remove_owner.removed_player_notification",
+                                                   description.typeName(), description.id()));
+    }
+
+    @Override
+    protected CompletableFuture<?> performAction(AbstractMovable movable)
     {
         return databaseManager.removeOwner(movable, targetPlayer, getCommandSender().getPlayer().orElse(null))
-                              .thenApply(this::handleDatabaseActionResult);
+                              .thenAccept(this::handleDatabaseActionResult);
     }
 
     @Override

@@ -13,6 +13,7 @@ import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -26,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.*;
 
+@Timeout(1)
 class AddOwnerTest
 {
     private ILocalizer localizer;
@@ -158,37 +160,18 @@ class AddOwnerTest
         Assertions.assertFalse(addOwnerUser.isAllowed(door, true));
     }
 
-    // TODO: Re-implement this.
-//    @Test
-//    @SneakyThrows
-//    void testDelayedInput()
-//    {
-//        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwnerCreator));
-//        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwnerAdmin));
-//
-//        final int first = AddOwner.runDelayed(commandSender, doorRetriever);
-//        final int second = AddOwner.provideDelayedInput(commandSender, target);
-//
-//        Assertions.assertTrue(first.get(1, TimeUnit.SECONDS));
-//        Assertions.assertEquals(first, second);
-//
-//        Mockito.verify(databaseManager, Mockito.times(1)).addOwner(door, target, AddOwner.DEFAULT_PERMISSION_LEVEL,
-//                                                                   commandSender.getPlayer().orElse(null));
-//    }
-
     @Test
     void testDatabaseInteraction()
-        throws Exception
     {
         Mockito.when(door.getOwner(commandSender)).thenReturn(Optional.of(movableOwnerCreator));
         Mockito.when(door.getOwner(target)).thenReturn(Optional.of(movableOwnerAdmin));
         Mockito.when(door.isOwner(Mockito.any(UUID.class))).thenReturn(true);
         Mockito.when(door.isOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
 
-        final CompletableFuture<Boolean> result =
+        final CompletableFuture<?> result =
             factory.newAddOwner(commandSender, doorRetriever, target, AddOwner.DEFAULT_PERMISSION_LEVEL).run();
 
-        Assertions.assertTrue(result.get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(() -> result.get(1, TimeUnit.SECONDS));
         Mockito.verify(databaseManager, Mockito.times(1)).addOwner(door, target, AddOwner.DEFAULT_PERMISSION_LEVEL,
                                                                    commandSender.getPlayer().orElse(null));
     }

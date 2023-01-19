@@ -53,12 +53,11 @@ public class MovePowerBlock extends MovableTargetCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> performAction(AbstractMovable movable)
+    protected CompletableFuture<?> performAction(AbstractMovable movable)
     {
         toolUserManager.startToolUser(powerBlockRelocatorFactory.create((IPPlayer) getCommandSender(), movable),
                                       Constants.MOVABLE_CREATOR_TIME_LIMIT);
-        return CompletableFuture.completedFuture(true);
-
+        return CompletableFuture.completedFuture(null);
     }
 
     @AssistedFactory

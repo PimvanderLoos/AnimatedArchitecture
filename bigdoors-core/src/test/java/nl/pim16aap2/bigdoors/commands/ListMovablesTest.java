@@ -10,6 +10,7 @@ import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+@Timeout(1)
 class ListMovablesTest
 {
     private List<AbstractMovable> movables;
@@ -53,25 +55,27 @@ class ListMovablesTest
 
     @Test
     void testBypass()
-        throws Exception
     {
         MovableRetriever retriever = MovableRetrieverFactory.ofMovables(movables);
 
         // No movables will be found, because the command sender is not an owner of any them.
         CommandTestingUtil.initCommandSenderPermissions(playerCommandSender, true, false);
-        Assertions.assertTrue(factory.newListMovables(playerCommandSender, retriever).run().get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(
+            () -> factory.newListMovables(playerCommandSender, retriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(playerCommandSender)
                .sendMessage(UnitTestUtil.toText("commands.list_movables.error.no_movables_found"));
 
         // Run it again, but now do so with admin permissions enabled.
         // As a result, we should NOT get the "No movables found!" message again.
         CommandTestingUtil.initCommandSenderPermissions(playerCommandSender, true, true);
-        Assertions.assertTrue(factory.newListMovables(playerCommandSender, retriever).run().get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(
+            () -> factory.newListMovables(playerCommandSender, retriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(playerCommandSender)
                .sendMessage(UnitTestUtil.toText("commands.list_movables.error.no_movables_found"));
 
 
-        Assertions.assertTrue(factory.newListMovables(serverCommandSender, retriever).run().get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(
+            () -> factory.newListMovables(serverCommandSender, retriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(serverCommandSender, Mockito.never())
                .sendMessage(UnitTestUtil.toText("commands.list_movables.error.no_movables_found"));
     }

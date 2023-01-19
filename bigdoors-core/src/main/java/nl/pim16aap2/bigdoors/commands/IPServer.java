@@ -27,7 +27,7 @@ public interface IPServer extends ICommandSender
     @Override
     default CompletableFuture<Boolean> hasPermission(String permission)
     {
-        return CompletableFuture.completedFuture(true);
+        return CompletableFuture.completedFuture(null);
     }
 
     @Override

@@ -8,7 +8,6 @@ import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatformProvider;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.text.TextType;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -38,13 +37,11 @@ public class Version extends BaseCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> executeCommand(PermissionsStatus permissions)
+    protected CompletableFuture<?> executeCommand(PermissionsStatus permissions)
     {
-        // TODO: Localization
-        getCommandSender().sendMessage(textFactory, TextType.ERROR,
-                                       platformProvider.getPlatform().map(IBigDoorsPlatform::getVersion)
-                                                       .orElse("NULL"));
-        return CompletableFuture.completedFuture(true);
+        final String version = platformProvider.getPlatform().map(IBigDoorsPlatform::getVersion).orElse("ERROR");
+        getCommandSender().sendInfo(textFactory, localizer.getMessage("commands.version.success", version));
+        return CompletableFuture.completedFuture(null);
     }
 
     @AssistedFactory

@@ -44,7 +44,15 @@ public class SetOpenDirection extends MovableTargetCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> performAction(AbstractMovable movable)
+    protected void handleDatabaseActionSuccess()
+    {
+        final var desc = getRetrievedMovableDescription();
+        getCommandSender().sendSuccess(textFactory, localizer.getMessage("commands.set_open_direction.success",
+                                                                         desc.typeName(), desc.id()));
+    }
+
+    @Override
+    protected CompletableFuture<?> performAction(AbstractMovable movable)
     {
         if (!movable.getType().isValidOpenDirection(rotateDirection))
         {
@@ -54,11 +62,11 @@ public class SetOpenDirection extends MovableTargetCommand
                                      localizer.getMessage(rotateDirection.getLocalizationKey()),
                                      localizer.getMovableType(movable), movable.getBasicInfo()));
 
-            return CompletableFuture.completedFuture(true);
+            return CompletableFuture.completedFuture(null);
         }
 
         movable.setOpenDir(rotateDirection);
-        return movable.syncData().thenApply(x -> true);
+        return movable.syncData().thenAccept(this::handleDatabaseActionResult);
     }
 
     @AssistedFactory

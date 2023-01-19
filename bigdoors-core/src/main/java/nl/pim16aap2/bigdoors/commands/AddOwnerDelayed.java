@@ -27,7 +27,7 @@ public class AddOwnerDelayed extends DelayedCommand<AddOwnerDelayed.DelayedInput
     }
 
     @Override
-    protected CompletableFuture<Boolean> delayedInputExecutor(
+    protected CompletableFuture<?> delayedInputExecutor(
         ICommandSender commandSender, MovableRetriever movableRetriever, DelayedInput delayedInput)
     {
         return commandFactory.get().newAddOwner(commandSender, movableRetriever, delayedInput.targetPlayer,
@@ -37,7 +37,7 @@ public class AddOwnerDelayed extends DelayedCommand<AddOwnerDelayed.DelayedInput
     @Override
     protected String inputRequestMessage(ICommandSender commandSender, MovableRetriever movableRetriever)
     {
-        return localizer.getMessage("commands.add_owner.init");
+        return localizer.getMessage("commands.add_owner.delayed.init");
     }
 
     /**

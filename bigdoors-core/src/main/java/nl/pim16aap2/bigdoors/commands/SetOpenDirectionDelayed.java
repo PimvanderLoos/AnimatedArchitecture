@@ -23,7 +23,7 @@ public class SetOpenDirectionDelayed extends DelayedCommand<RotateDirection>
     }
 
     @Override
-    protected CompletableFuture<Boolean> delayedInputExecutor(
+    protected CompletableFuture<?> delayedInputExecutor(
         ICommandSender commandSender, MovableRetriever movableRetriever, RotateDirection openDir)
     {
         return commandFactory.get().newSetOpenDirection(commandSender, movableRetriever, openDir).run();
@@ -32,6 +32,6 @@ public class SetOpenDirectionDelayed extends DelayedCommand<RotateDirection>
     @Override
     protected String inputRequestMessage(ICommandSender commandSender, MovableRetriever movableRetriever)
     {
-        return localizer.getMessage("commands.set_open_direction.init");
+        return localizer.getMessage("commands.set_open_direction.delayed.init");
     }
 }

@@ -48,12 +48,12 @@ public class InspectPowerBlock extends BaseCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> executeCommand(PermissionsStatus permissions)
+    protected CompletableFuture<?> executeCommand(PermissionsStatus permissions)
     {
         toolUserManager.startToolUser(inspectPowerBlockFactory.create((IPPlayer) getCommandSender(),
                                                                       permissions.hasAdminPermission()),
                                       Constants.MOVABLE_CREATOR_TIME_LIMIT);
-        return CompletableFuture.completedFuture(true);
+        return CompletableFuture.completedFuture(null);
     }
 
     @AssistedFactory

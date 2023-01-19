@@ -9,7 +9,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -88,10 +87,15 @@ public final class MovableSpecificationManager extends Restartable
      *
      * @param player
      *     The player whose requests to cancel.
+     * @return True if a request was cancelled.
      */
-    public void cancelRequest(IPPlayer player)
+    public boolean cancelRequest(IPPlayer player)
     {
-        Optional.ofNullable(requests.remove(player)).ifPresent(DelayedInputRequest::cancel);
+        final @Nullable DelayedInputRequest<String> removed = requests.remove(player);
+        if (removed == null)
+            return false;
+        removed.cancel();
+        return true;
     }
 
     @Override

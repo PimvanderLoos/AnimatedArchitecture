@@ -1,9 +1,11 @@
 package nl.pim16aap2.bigdoors.commands;
 
+import com.google.common.flogger.StackSize;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
@@ -24,6 +26,7 @@ import java.util.concurrent.CompletableFuture;
  * @author Pim
  */
 @ToString
+@Flogger
 public class Info extends MovableTargetCommand
 {
     private final GlowingBlockSpawner glowingBlockSpawner;
@@ -44,18 +47,21 @@ public class Info extends MovableTargetCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> performAction(AbstractMovable movable)
+    protected CompletableFuture<?> performAction(AbstractMovable movable)
     {
         getCommandSender().sendMessage(textFactory, TextType.INFO, movable.toString());
         highlightBlocks(movable);
-        return CompletableFuture.completedFuture(true);
+        return CompletableFuture.completedFuture(null);
     }
 
     protected void highlightBlocks(AbstractMovable movable)
     {
-        if (!(getCommandSender() instanceof IPPlayer))
+        if (!(getCommandSender() instanceof IPPlayer player))
+        {
+            log.atSevere().withStackTrace(StackSize.FULL).log("Non-player command sender tried to highlight blocks!");
             return;
-        glowingBlockSpawner.spawnGlowingBlocks(movable, (IPPlayer) getCommandSender(), Duration.ofSeconds(3));
+        }
+        glowingBlockSpawner.spawnGlowingBlocks(movable, player, Duration.ofSeconds(3));
     }
 
     @AssistedFactory

@@ -10,6 +10,7 @@ import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -21,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initCommandSenderPermissions;
 
+@Timeout(1)
 class InspectPowerBlockTest
 {
     @Mock(answer = Answers.CALLS_REAL_METHODS)
@@ -57,18 +59,16 @@ class InspectPowerBlockTest
 
     @Test
     void testServer()
-        throws Exception
     {
         final IPServer server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
-        Assertions.assertTrue(factory.newInspectPowerBlock(server).run().get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(() -> factory.newInspectPowerBlock(server).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(toolUserManager, Mockito.never()).startToolUser(Mockito.any(), Mockito.anyInt());
     }
 
     @Test
     void testExecution()
-        throws Exception
     {
-        Assertions.assertTrue(factory.newInspectPowerBlock(commandSender).run().get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(() -> factory.newInspectPowerBlock(commandSender).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(toolUserManager).startToolUser(Mockito.any(), Mockito.anyInt());
     }
 }

@@ -4,6 +4,7 @@ import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IDiscreteMovement;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
@@ -12,6 +13,7 @@ import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -22,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initCommandSenderPermissions;
 
+@Timeout(1)
 class SetBlocksToMoveTest
 {
     private AbstractMovable movable;
@@ -43,7 +46,8 @@ class SetBlocksToMoveTest
         MockitoAnnotations.openMocks(this);
 
         movable = Mockito.mock(AbstractMovable.class, Mockito.withSettings().extraInterfaces(IDiscreteMovement.class));
-        Mockito.when(movable.syncData()).thenReturn(CompletableFuture.completedFuture(true));
+        Mockito.when(movable.syncData())
+               .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
 
         Mockito.when(movableType.getLocalizationKey()).thenReturn("MovableType");
         Mockito.when(movable.getType()).thenReturn(movableType);
@@ -64,7 +68,6 @@ class SetBlocksToMoveTest
 
     @Test
     void testMovableTypes()
-        throws Exception
     {
         final int blocksToMove = 42;
 
@@ -72,28 +75,11 @@ class SetBlocksToMoveTest
         final AbstractMovable altMovable = Mockito.mock(AbstractMovable.class);
         Mockito.when(altMovable.getType()).thenReturn(movableType);
 
-        Assertions.assertTrue(command.performAction(altMovable).get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(() -> command.performAction(altMovable).get(1, TimeUnit.SECONDS));
         Mockito.verify(altMovable, Mockito.never()).syncData();
 
-        Assertions.assertTrue(command.performAction(movable).get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(() -> command.performAction(movable).get(1, TimeUnit.SECONDS));
         Mockito.verify((IDiscreteMovement) movable).setBlocksToMove(blocksToMove);
         Mockito.verify(movable).syncData();
     }
-
-    // TODO: Re-implement
-//    @Test
-//    @SneakyThrows
-//    void testDelayedInput()
-//    {
-//        final int blocksToMove = 42;
-//
-//        final int first = SetBlocksToMove.runDelayed(commandSender, doorRetriever);
-//        final int second = SetBlocksToMove.provideDelayedInput(commandSender, blocksToMove);
-//
-//        Assertions.assertTrue(first.get(1, TimeUnit.SECONDS));
-//        Assertions.assertEquals(first, second);
-//
-//        Mockito.verify((IDiscreteMovement) door).setBlocksToMove(blocksToMove);
-//        Mockito.verify(door).syncData();
-//    }
 }

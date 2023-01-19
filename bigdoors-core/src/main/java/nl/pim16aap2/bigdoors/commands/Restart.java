@@ -4,6 +4,7 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatformProvider;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
@@ -18,6 +19,7 @@ import java.util.concurrent.CompletableFuture;
  * @author Pim
  */
 @ToString
+@Flogger
 public class Restart extends BaseCommand
 {
     private final IBigDoorsPlatformProvider platformProvider;
@@ -37,6 +39,12 @@ public class Restart extends BaseCommand
         return CommandDefinition.RESTART;
     }
 
+    private void onFail()
+    {
+        getCommandSender().sendError(textFactory, localizer.getMessage("commands.restart.error"));
+        log.atSevere().log("Failed to restart plugin: No active platform! Did it start successfully?");
+    }
+
     private void restartPlatform(IBigDoorsPlatform platform)
     {
         platform.restartPlugin();
@@ -44,10 +52,10 @@ public class Restart extends BaseCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> executeCommand(PermissionsStatus permissions)
+    protected CompletableFuture<?> executeCommand(PermissionsStatus permissions)
     {
-        platformProvider.getPlatform().ifPresent(this::restartPlatform);
-        return CompletableFuture.completedFuture(true);
+        platformProvider.getPlatform().ifPresentOrElse(this::restartPlatform, this::onFail);
+        return CompletableFuture.completedFuture(null);
     }
 
     @AssistedFactory

@@ -46,16 +46,17 @@ public class Menu extends BaseCommand
     }
 
     @Override
-    // NullAway doesn't like a Nullable value ('target') as equals parameter.
-    @SuppressWarnings("NullAway")
-    protected CompletableFuture<Boolean> executeCommand(PermissionsStatus permissions)
+    protected CompletableFuture<?> executeCommand(PermissionsStatus permissions)
     {
         // You need the bypass permission to open menus that aren't your own.
-        if (!permissions.hasAdminPermission() && !getCommandSender().equals(source))
-            return CompletableFuture.completedFuture(false);
+        if (!permissions.hasAdminPermission() && source != null && !getCommandSender().equals(source))
+        {
+            getCommandSender().sendError(textFactory, localizer.getMessage("commands.menu.no_permission_for_others"));
+            return CompletableFuture.completedFuture(null);
+        }
 
         getCommandSender().getPlayer().ifPresent(player -> guiFactory.newGUI(player, source));
-        return CompletableFuture.completedFuture(true);
+        return CompletableFuture.completedFuture(null);
     }
 
     @AssistedFactory

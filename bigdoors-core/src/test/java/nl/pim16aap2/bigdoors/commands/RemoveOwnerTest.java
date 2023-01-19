@@ -12,6 +12,7 @@ import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -24,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.*;
 
+@Timeout(1)
 class RemoveOwnerTest
 {
     private MovableRetriever doorRetriever;
@@ -138,37 +140,14 @@ class RemoveOwnerTest
         Assertions.assertFalse(removeOwner.isAllowed(door, false));
     }
 
-    // TODO: Re-implement
-//    @Test
-//    @SneakyThrows
-//    void testDelayedInput()
-//    {
-//        Mockito.when(doorRetriever.getDoor()).thenReturn(CompletableFuture.completedFuture(Optional.of(door)));
-//        Mockito.when(platform.getLocalizer()).thenReturn(Mockito.mock(ILocalizer.class));
-//        final int databaseManager = mockDatabaseManager();
-//
-//        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner0));
-//        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwner1));
-//
-//        final int first = RemoveOwner.runDelayed(commandSender, doorRetriever);
-//        final int second = RemoveOwner.provideDelayedInput(commandSender, target);
-//
-//        Assertions.assertTrue(first.get(1, TimeUnit.SECONDS));
-//        Assertions.assertEquals(first, second);
-//
-//        Mockito.verify(databaseManager, Mockito.times(1)).removeOwner(door, target,
-//                                                                      commandSender.getPlayer().orElse(null));
-//    }
-
     @Test
     void testDatabaseInteraction()
-        throws Exception
     {
         Mockito.when(door.getOwner(commandSender)).thenReturn(Optional.of(movableOwnerCreator));
         Mockito.when(door.getOwner(target)).thenReturn(Optional.of(movableOwnerAdmin));
 
-        final CompletableFuture<Boolean> result = factory.newRemoveOwner(commandSender, doorRetriever, target).run();
-        Assertions.assertTrue(result.get(1, TimeUnit.SECONDS));
+        final CompletableFuture<?> result = factory.newRemoveOwner(commandSender, doorRetriever, target).run();
+        Assertions.assertDoesNotThrow(() -> result.get(1, TimeUnit.SECONDS));
         Mockito.verify(databaseManager, Mockito.times(1)).removeOwner(door, target,
                                                                       commandSender.getPlayer().orElse(null));
     }

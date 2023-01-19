@@ -217,9 +217,9 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor imp
      *
      * @param typeData
      *     The type-specific data of an {@link AbstractMovable}.
-     * @return Future true if the synchronization was successful.
+     * @return The result of the synchronization.
      */
-    CompletableFuture<Boolean> syncData(byte[] typeData)
+    CompletableFuture<DatabaseManager.ActionResult> syncData(byte[] typeData)
     {
         return databaseManager.syncMovableData(getSnapshot(), typeData);
     }

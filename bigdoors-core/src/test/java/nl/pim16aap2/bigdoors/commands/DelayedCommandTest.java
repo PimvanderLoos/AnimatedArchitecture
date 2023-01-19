@@ -24,6 +24,7 @@ import org.mockito.Spy;
 
 import javax.inject.Provider;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import static org.mockito.AdditionalAnswers.delegatesTo;
 
@@ -124,7 +125,8 @@ class DelayedCommandTest
         delayedCommand.runDelayed(commandSender, movableRetriever);
         Assertions.assertEquals(0, LogInspector.get().getThrowingCount());
 
-        Assertions.assertFalse(delayedCommand.provideDelayedInput(commandSender, new Object()).join());
+        Assertions.assertDoesNotThrow(
+            () -> delayedCommand.provideDelayedInput(commandSender, new Object()).get(1, TimeUnit.SECONDS));
         Assertions.assertEquals(1, LogInspector.get().getThrowingCount());
     }
 
@@ -174,7 +176,7 @@ class DelayedCommandTest
         }
 
         @Override
-        protected CompletableFuture<Boolean> delayedInputExecutor(
+        protected CompletableFuture<?> delayedInputExecutor(
             ICommandSender commandSender, MovableRetriever movableRetriever, Object delayedInput)
         {
             return delayedFunction.apply(commandSender, movableRetriever, delayedInput);

@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.MovableSpecificationManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
-import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -41,16 +40,18 @@ public class Cancel extends BaseCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> executeCommand(PermissionsStatus permissions)
+    protected CompletableFuture<?> executeCommand(PermissionsStatus permissions)
     {
         getCommandSender().getPlayer().ifPresent(this::cancelPlayer);
-        return CompletableFuture.completedFuture(true);
+        return CompletableFuture.completedFuture(null);
     }
 
     private void cancelPlayer(IPPlayer player)
     {
-        toolUserManager.getToolUser(player.getUUID()).ifPresent(ToolUser::abort);
-        doorSpecificationManager.cancelRequest(player);
+        if (toolUserManager.cancelToolUser(player) || doorSpecificationManager.cancelRequest(player))
+            getCommandSender().sendSuccess(textFactory, localizer.getMessage("commands.cancel.success"));
+        else
+            getCommandSender().sendError(textFactory, localizer.getMessage("commands.cancel.no_process"));
     }
 
     @AssistedFactory

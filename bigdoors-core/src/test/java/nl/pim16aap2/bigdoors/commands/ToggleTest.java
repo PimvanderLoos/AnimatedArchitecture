@@ -17,6 +17,7 @@ import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -30,6 +31,7 @@ import java.util.stream.Collectors;
 
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initCommandSenderPermissions;
 
+@Timeout(1)
 class ToggleTest
 {
     private MovableRetriever movableRetriever;
@@ -147,33 +149,35 @@ class ToggleTest
 
     @Test
     void testParameters()
-        throws Exception
     {
         Mockito.when(movable.isCloseable()).thenReturn(true);
         Mockito.when(movable.isOpenable()).thenReturn(true);
 
-        Assertions.assertTrue(factory.newToggle(commandSender, movableRetriever).run().get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(
+            () -> factory.newToggle(commandSender, movableRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(movableToggleRequestFactory, Mockito.times(1))
                .create(movableRetriever, MovableActionCause.PLAYER, commandSender, commandSender,
                        null, false, MovableActionType.TOGGLE);
 
 
-        Assertions.assertTrue(factory.newToggle(commandSender, 3.141592653589793D, movableRetriever).run()
-                                     .get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(() -> factory.newToggle(commandSender, 3.141592653589793D, movableRetriever).run()
+                                                   .get(1, TimeUnit.SECONDS));
         Mockito.verify(movableToggleRequestFactory, Mockito.times(1))
                .create(movableRetriever, MovableActionCause.PLAYER, commandSender, commandSender,
                        3.141592653589793D, false, MovableActionType.TOGGLE);
 
 
-        Assertions.assertTrue(
-            factory.newToggle(commandSender, MovableActionType.CLOSE, movableRetriever).run().get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(() ->
+                                          factory.newToggle(commandSender, MovableActionType.CLOSE, movableRetriever)
+                                                 .run().get(1, TimeUnit.SECONDS));
         Mockito.verify(movableToggleRequestFactory, Mockito.times(1))
                .create(movableRetriever, MovableActionCause.PLAYER, commandSender, commandSender,
                        null, false, MovableActionType.CLOSE);
 
 
-        Assertions.assertTrue(factory.newToggle(commandSender, MovableActionType.OPEN, 42D, movableRetriever).run()
-                                     .get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(
+            () -> factory.newToggle(commandSender, MovableActionType.OPEN, 42D, movableRetriever).run()
+                         .get(1, TimeUnit.SECONDS));
         Mockito.verify(movableToggleRequestFactory, Mockito.times(1))
                .create(movableRetriever, MovableActionCause.PLAYER, commandSender,
                        commandSender, 42D, false, MovableActionType.OPEN);
@@ -181,11 +185,11 @@ class ToggleTest
 
     @Test
     void testServerCommandSender()
-        throws Exception
     {
         final IPServer serverCommandSender = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
-        Assertions.assertTrue(factory.newToggle(serverCommandSender, MovableActionType.TOGGLE, movableRetriever).run()
-                                     .get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(
+            () -> factory.newToggle(serverCommandSender, MovableActionType.TOGGLE, movableRetriever).run()
+                         .get(1, TimeUnit.SECONDS));
         Mockito.verify(movableToggleRequestFactory, Mockito.times(1))
                .create(movableRetriever, MovableActionCause.SERVER, messageableServer, null,
                        null, false, MovableActionType.TOGGLE);
@@ -200,25 +204,27 @@ class ToggleTest
 
     @Test
     void testAbort()
-        throws Exception
     {
         Mockito.when(movable.isCloseable()).thenReturn(false);
 
-        Assertions.assertTrue(factory.newToggle(commandSender, MovableActionType.CLOSE, movableRetriever).run()
-                                     .get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(
+            () -> factory.newToggle(commandSender, MovableActionType.CLOSE, movableRetriever).run()
+                         .get(1, TimeUnit.SECONDS));
         verifyNoOpenerCalls();
 
         Mockito.when(movable.isCloseable()).thenReturn(true);
         initCommandSenderPermissions(commandSender, false, false);
         Mockito.when(movable.getOwner(Mockito.any(IPPlayer.class))).thenReturn(Optional.empty());
 
-        Assertions.assertTrue(factory.newToggle(commandSender, MovableActionType.CLOSE, movableRetriever).run()
-                                     .get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(
+            () -> factory.newToggle(commandSender, MovableActionType.CLOSE, movableRetriever).run()
+                         .get(1, TimeUnit.SECONDS));
         verifyNoOpenerCalls();
 
         initCommandSenderPermissions(commandSender, true, false);
-        Assertions.assertTrue(factory.newToggle(commandSender, MovableActionType.CLOSE, movableRetriever).run()
-                                     .get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(
+            () -> factory.newToggle(commandSender, MovableActionType.CLOSE, movableRetriever).run()
+                         .get(1, TimeUnit.SECONDS));
         verifyNoOpenerCalls();
     }
 }

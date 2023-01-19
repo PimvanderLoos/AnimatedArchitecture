@@ -44,7 +44,15 @@ public class SetBlocksToMove extends MovableTargetCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> performAction(AbstractMovable movable)
+    protected void handleDatabaseActionSuccess()
+    {
+        final var desc = getRetrievedMovableDescription();
+        getCommandSender().sendSuccess(textFactory, localizer.getMessage("commands.set_blocks_to_move.success",
+                                                                         desc.typeName(), desc.id()));
+    }
+
+    @Override
+    protected CompletableFuture<?> performAction(AbstractMovable movable)
     {
         if (!(movable instanceof IDiscreteMovement))
         {
@@ -52,11 +60,11 @@ public class SetBlocksToMove extends MovableTargetCommand
                 .sendMessage(textFactory, TextType.ERROR,
                              localizer.getMessage("commands.set_blocks_to_move.error.invalid_movable_type",
                                                   localizer.getMovableType(movable), movable.getBasicInfo()));
-            return CompletableFuture.completedFuture(true);
+            return CompletableFuture.completedFuture(null);
         }
 
         ((IDiscreteMovement) movable).setBlocksToMove(blocksToMove);
-        return movable.syncData().thenApply(x -> true);
+        return movable.syncData().thenAccept(this::handleDatabaseActionResult);
     }
 
     @AssistedFactory

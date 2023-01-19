@@ -28,7 +28,7 @@ public class BigDoorsEventCallerSpigot implements IBigDoorsEventCaller
     }
 
     @Override
-    public void callBigDoorsEvent(IBigDoorsEvent bigDoorsEvent)
+    public <T extends IBigDoorsEvent> void callBigDoorsEvent(T bigDoorsEvent)
     {
         if (!(bigDoorsEvent instanceof BigDoorsSpigotEvent))
         {
