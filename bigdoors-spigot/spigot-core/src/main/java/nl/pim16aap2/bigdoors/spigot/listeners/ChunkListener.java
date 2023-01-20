@@ -5,12 +5,12 @@ import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
+import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovableActivityManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.event.EventHandler;
@@ -53,30 +53,15 @@ public class ChunkListener extends AbstractListener
      * @param event
      *     The {@link ChunkLoadEvent}.
      */
-    @SuppressWarnings("CommentedOutCode")
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onChunkLoad(ChunkLoadEvent event)
     {
-        final long chunkId = Util.getChunkId(event.getChunk().getX(), event.getChunk().getZ());
-        databaseManager.getMovablesInChunk(chunkId).whenComplete(
-            (movables, throwable) ->
-                movables.forEach(movableUID -> databaseManager.getMovable(movableUID).whenComplete(
-                    (optionalMovable, throwable2) ->
-                        optionalMovable.ifPresent(
-                            movable ->
-                            {
-                                // TODO: (re?)Implement this
-//                                if (door instanceof IPerpetualMover && movable.isPowerBlockActive())
-//                                    BigDoors.get().getDoorOpener()
-//                                            .animateDoorAsync(door, DoorActionCause.PERPETUALMOVEMENT, null, 0,
-//                                                              false, DoorActionType.TOGGLE);
-                            })
-                )));
+        databaseManager.getMovablesInChunk(event.getChunk().getX(), event.getChunk().getZ())
+                       .thenAccept(lst -> lst.forEach(AbstractMovable::onChunkLoad));
     }
 
     /**
-     * Listens to chunks being unloaded and checks if it intersects with the region of any of the active
-     * {@link MovableBase}s.
+     * Listens to chunks being unloaded and checks if it intersects with the region of the active {@link MovableBase}s.
      *
      * @param event
      *     The {@link ChunkUnloadEvent}.

@@ -226,9 +226,9 @@ public interface IStorage
      *
      * @param chunkId
      *     The id of the chunk the movables are in.
-     * @return A list of movable UIDs that have their rotation point in a given chunk.
+     * @return A list of movables that have their rotation point in a given chunk.
      */
-    List<Long> getMovablesInChunk(long chunkId);
+    List<AbstractMovable> getMovablesInChunk(long chunkId);
 
     /**
      * Inserts a new movable in the database. If the insertion was successful, a new {@link AbstractMovable} will be

@@ -325,6 +325,14 @@ public abstract class AbstractMovable implements IMovable
     }
 
     /**
+     * Handles the chunk of the rotation point being loaded.
+     */
+    public void onChunkLoad()
+    {
+        // TODO: Implement this
+    }
+
+    /**
      * Handles a change in redstone current for this movable's powerblock.
      *
      * @param newCurrent
