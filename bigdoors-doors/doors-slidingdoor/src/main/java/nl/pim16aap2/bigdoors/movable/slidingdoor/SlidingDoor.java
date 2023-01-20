@@ -148,6 +148,6 @@ public class SlidingDoor extends AbstractMovable implements IDiscreteMovement, I
     {
         return new SlidingMover(
             context, this, movableSnapshot, time, skipAnimation, getBlocksToMove(), getCurrentToggleDir(),
-            config.getAnimationSpeedMultiplier(getType()), responsible, newCuboid, cause, actionType);
+            responsible, newCuboid, getAnimationRange(), cause, actionType);
     }
 }

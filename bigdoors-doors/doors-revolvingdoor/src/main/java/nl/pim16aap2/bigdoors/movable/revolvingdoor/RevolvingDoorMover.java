@@ -28,12 +28,13 @@ public class RevolvingDoorMover extends BlockMover
 
     @SuppressWarnings("unused")
     public RevolvingDoorMover(
-        Context context, AbstractMovable movable, MovableSnapshot snapshot, double time, double multiplier,
+        Context context, AbstractMovable movable, MovableSnapshot snapshot, double time,
         RotateDirection rotateDirection, IPPlayer player, int quarterCircles, MovableActionCause cause,
-        Cuboid newCuboid, MovableActionType actionType)
+        Cuboid newCuboid, Cuboid animationRange, MovableActionType actionType)
         throws Exception
     {
-        super(context, movable, snapshot, time, false, rotateDirection, player, newCuboid, cause, actionType);
+        super(context, movable, snapshot, time, false, rotateDirection, player, newCuboid, animationRange, cause,
+              actionType);
 
         switch (rotateDirection)
         {

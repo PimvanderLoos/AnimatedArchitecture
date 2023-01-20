@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.movable.windmill.WindmillMover;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.WorldTime;
@@ -53,10 +54,10 @@ public class ClockMover<T extends AbstractMovable & IHorizontalAxisAligned> exte
 
     public ClockMover(
         Context context, T movable, MovableSnapshot snapshot, RotateDirection rotateDirection, IPPlayer player,
-        MovableActionCause cause, MovableActionType actionType)
+        Cuboid animationRange, MovableActionCause cause, MovableActionType actionType)
         throws Exception
     {
-        super(context, movable, snapshot, 0.0D, 0.0D, rotateDirection, player, cause, actionType);
+        super(context, movable, snapshot, 0.0D, rotateDirection, player, animationRange, cause, actionType);
         super.movementMethod = MovementMethod.TELEPORT;
 
         isHourArm = northSouth ? this::isHourArmNS : this::isHourArmEW;

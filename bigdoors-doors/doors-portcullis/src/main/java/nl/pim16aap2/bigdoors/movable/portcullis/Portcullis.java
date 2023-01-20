@@ -143,7 +143,7 @@ public class Portcullis extends AbstractMovable implements IDiscreteMovement, IT
         throws Exception
     {
         return new VerticalMover(
-            context, this, movableSnapshot, time, skipAnimation, getDirectedBlocksToMove(),
-            config.getAnimationSpeedMultiplier(getType()), responsible, newCuboid, cause, actionType);
+            context, this, movableSnapshot, time, skipAnimation, getDirectedBlocksToMove(), responsible, newCuboid,
+            getAnimationRange(), cause, actionType);
     }
 }

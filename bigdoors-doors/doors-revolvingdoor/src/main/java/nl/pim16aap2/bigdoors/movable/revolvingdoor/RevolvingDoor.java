@@ -111,9 +111,8 @@ public class RevolvingDoor extends AbstractMovable
         throws Exception
     {
         return new RevolvingDoorMover(
-            context, this, movableSnapshot, time, config.getAnimationSpeedMultiplier(getType()),
-            getCurrentToggleDir(),
-            responsible, quarterCircles, cause, newCuboid, actionType);
+            context, this, movableSnapshot, time, getCurrentToggleDir(), responsible, quarterCircles, cause, newCuboid,
+            getAnimationRange(), actionType);
     }
 
     @Override

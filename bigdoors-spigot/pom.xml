@@ -13,7 +13,7 @@
     </parent>
 
     <properties>
-        <dependency.version.spigot-base>1.19-R0.1-SNAPSHOT</dependency.version.spigot-base>
+        <dependency.version.spigot-base>1.19.3-R0.1-SNAPSHOT</dependency.version.spigot-base>
     </properties>
 
     <modules>

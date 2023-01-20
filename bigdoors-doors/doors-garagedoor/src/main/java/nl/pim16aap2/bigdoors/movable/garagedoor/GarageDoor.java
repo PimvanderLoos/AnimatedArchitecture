@@ -235,7 +235,7 @@ public class GarageDoor extends AbstractMovable implements IHorizontalAxisAligne
         throws Exception
     {
         return new GarageDoorMover(
-            context, this, movableSnapshot, time, config.getAnimationSpeedMultiplier(getType()), skipAnimation,
-            getCurrentToggleDir(), responsible, newCuboid, cause, actionType);
+            context, this, movableSnapshot, time, skipAnimation, getCurrentToggleDir(), responsible, newCuboid,
+            getAnimationRange(), cause, actionType);
     }
 }

@@ -361,6 +361,32 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
         return (int) Math.round(val);
     }
 
+    /**
+     * Signed bitwise left shift the values in this vector.
+     *
+     * @param bits
+     *     The number of bits to shift the values.
+     * @return A new {@link Vector3Di}.
+     */
+    @CheckReturnValue @Contract(pure = true)
+    public Vector3Di leftShift(int bits)
+    {
+        return new Vector3Di(x << bits, y << bits, z << bits);
+    }
+
+    /**
+     * Signed bitwise right shift the values in this vector.
+     *
+     * @param bits
+     *     The number of bits to shift the values.
+     * @return A new {@link Vector3Di}.
+     */
+    @CheckReturnValue @Contract(pure = true)
+    public Vector3Di rightShift(int bits)
+    {
+        return new Vector3Di(x >> bits, y >> bits, z >> bits);
+    }
+
     @Override
     public double xD()
     {

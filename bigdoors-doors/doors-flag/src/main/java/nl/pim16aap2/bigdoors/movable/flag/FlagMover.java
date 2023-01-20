@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
 import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
 import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
@@ -32,12 +33,12 @@ public class FlagMover extends BlockMover
     private final int minY;
 
     public FlagMover(
-        Context context, Flag movable, MovableSnapshot snapshot, double time, double multiplier, IPPlayer player,
-        MovableActionCause cause, MovableActionType actionType)
+        Context context, Flag movable, MovableSnapshot snapshot, double time, IPPlayer player,
+        Cuboid animationRange, MovableActionCause cause, MovableActionType actionType)
         throws Exception
     {
-        super(context, movable, snapshot, time, false, RotateDirection.NONE, player, snapshot.getCuboid(), cause,
-              actionType);
+        super(context, movable, snapshot, time, false, RotateDirection.NONE, player, snapshot.getCuboid(),
+              animationRange, cause, actionType);
 
         this.config = context.getConfig();
 

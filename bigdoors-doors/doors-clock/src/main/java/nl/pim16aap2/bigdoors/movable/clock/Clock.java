@@ -112,7 +112,8 @@ public class Clock extends AbstractMovable implements IHorizontalAxisAligned
         boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible, MovableActionType actionType)
         throws Exception
     {
-        return new ClockMover<>(context, this, movableSnapshot, getCurrentToggleDir(), responsible, cause, actionType);
+        return new ClockMover<>(
+            context, this, movableSnapshot, getCurrentToggleDir(), responsible, getAnimationRange(), cause, actionType);
     }
 
     @Override

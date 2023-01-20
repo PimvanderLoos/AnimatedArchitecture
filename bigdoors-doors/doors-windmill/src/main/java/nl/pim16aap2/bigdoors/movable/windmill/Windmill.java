@@ -120,8 +120,7 @@ public class Windmill extends AbstractMovable implements IHorizontalAxisAligned,
         throws Exception
     {
         return new WindmillMover<>(
-            context, this, movableSnapshot, time, config.getAnimationSpeedMultiplier(getType()),
-            getCurrentToggleDir(),
-            responsible, cause, actionType);
+            context, this, movableSnapshot, time, getCurrentToggleDir(), responsible, getAnimationRange(), cause,
+            actionType);
     }
 }

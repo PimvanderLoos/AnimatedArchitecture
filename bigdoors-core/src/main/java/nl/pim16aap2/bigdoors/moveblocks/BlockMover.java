@@ -116,6 +116,9 @@ public abstract class BlockMover
     @ToString.Exclude
     protected final int serverTickTime;
 
+    @Getter
+    private final Cuboid animationRange;
+
     /**
      * The type of movement to apply to animated blocks.
      * <p>
@@ -163,7 +166,7 @@ public abstract class BlockMover
      * <p>
      * False to have the movement be time-bound, such as for doors, drawbridges, etc.
      */
-    protected volatile boolean perpetualMovement = false;
+    protected volatile boolean perpetualMovement;
 
     /**
      * Keeps track of whether the animation has finished.
@@ -225,7 +228,7 @@ public abstract class BlockMover
      */
     protected BlockMover(
         Context context, AbstractMovable movable, MovableSnapshot snapshot, double time, boolean skipAnimation,
-        RotateDirection openDirection, IPPlayer player, Cuboid newCuboid,
+        RotateDirection openDirection, IPPlayer player, Cuboid newCuboid, Cuboid animationRange,
         MovableActionCause cause, MovableActionType actionType)
         throws Exception
     {
@@ -237,6 +240,7 @@ public abstract class BlockMover
         animationHookManager = context.getAnimationHookManager();
         glowingBlockSpawner = context.getGlowingBlockSpawner();
         serverTickTime = context.getServerTickTime();
+        this.animationRange = animationRange;
 
         autoCloseScheduler.unscheduleAutoClose(snapshot.getUid());
         this.movable = movable;

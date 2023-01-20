@@ -142,8 +142,8 @@ public class Drawbridge extends AbstractMovable implements IHorizontalAxisAligne
         throws Exception
     {
         return new BridgeMover<>(
-            context, this, movableSnapshot, time, getCurrentToggleDir(), skipAnimation,
-            config.getAnimationSpeedMultiplier(getType()), responsible, newCuboid, cause, actionType);
+            context, this, movableSnapshot, time, getCurrentToggleDir(), skipAnimation, responsible, newCuboid,
+            getAnimationRange(), cause, actionType);
     }
 
     @Override

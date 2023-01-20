@@ -107,9 +107,7 @@ public class Flag extends AbstractMovable implements IHorizontalAxisAligned, IPe
         boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible, MovableActionType actionType)
         throws Exception
     {
-        return new FlagMover(
-            context, this, movableSnapshot, time, config.getAnimationSpeedMultiplier(getType()), responsible,
-            cause, actionType);
+        return new FlagMover(context, this, movableSnapshot, time, responsible, getAnimationRange(), cause, actionType);
     }
 
     @Override

@@ -24,12 +24,12 @@ public class VerticalMover extends BlockMover
 
     public VerticalMover(
         Context context, AbstractMovable movable, MovableSnapshot snapshot, double time, boolean skipAnimation,
-        int blocksToMove, double multiplier, IPPlayer player, Cuboid newCuboid, MovableActionCause cause,
+        int blocksToMove, IPPlayer player, Cuboid newCuboid, Cuboid animationRange, MovableActionCause cause,
         MovableActionType actionType)
         throws Exception
     {
-        super(context, movable, snapshot, time, skipAnimation, RotateDirection.NONE, player, newCuboid, cause,
-              actionType);
+        super(context, movable, snapshot, time, skipAnimation, RotateDirection.NONE, player, newCuboid, animationRange,
+              cause, actionType);
         this.blocksToMove = blocksToMove;
 
         step = ((double) blocksToMove) / ((double) super.animationDuration);

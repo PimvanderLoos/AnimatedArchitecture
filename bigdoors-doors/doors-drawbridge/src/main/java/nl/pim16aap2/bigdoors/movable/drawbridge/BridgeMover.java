@@ -43,19 +43,17 @@ public class BridgeMover<T extends AbstractMovable & IHorizontalAxisAligned> ext
      *     If the movable should be opened instantly (i.e. skip animation) or not.
      * @param rotateDirection
      *     The direction the {@link MovableBase} will move.
-     * @param multiplier
-     *     The speed multiplier.
      * @param player
      *     The player who opened this movable.
      */
     public BridgeMover(
         Context context, T movable, MovableSnapshot snapshot, double time, RotateDirection rotateDirection,
-        boolean skipAnimation, double multiplier, IPPlayer player, Cuboid newCuboid, MovableActionCause cause,
+        boolean skipAnimation, IPPlayer player, Cuboid newCuboid, Cuboid animationRange, MovableActionCause cause,
         MovableActionType actionType)
         throws Exception
     {
-        super(context, movable, snapshot, time, skipAnimation, rotateDirection, player, newCuboid, cause,
-              actionType);
+        super(context, movable, snapshot, time, skipAnimation, rotateDirection, player, newCuboid, animationRange,
+              cause, actionType);
 
         northSouth = movable.isNorthSouthAligned();
         rotationCenter = snapshot.getRotationPoint().toDouble().add(0.5, 0, 0.5);
