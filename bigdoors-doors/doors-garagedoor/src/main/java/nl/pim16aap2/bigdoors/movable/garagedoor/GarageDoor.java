@@ -29,7 +29,7 @@ import java.util.Optional;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * Represents a Garage Door doorType.
+ * Represents a Garage Door movable type.
  *
  * @author Pim
  */
@@ -70,24 +70,24 @@ public class GarageDoor extends AbstractMovable implements IHorizontalAxisAligne
     @Setter(onMethod_ = @Locked.Write)
     protected int autoOpenTime;
 
-    public GarageDoor(MovableBase doorBase, int autoCloseTime, int autoOpenTime, boolean northSouthAligned)
+    public GarageDoor(MovableBase base, int autoCloseTime, int autoOpenTime, boolean northSouthAligned)
     {
-        super(doorBase);
+        super(base);
         this.lock = getLock();
         this.autoCloseTime = autoCloseTime;
         this.autoOpenTime = autoOpenTime;
         this.northSouthAligned = northSouthAligned;
     }
 
-    public GarageDoor(MovableBase doorBase, boolean northSouthAligned)
+    public GarageDoor(MovableBase base, boolean northSouthAligned)
     {
-        this(doorBase, -1, -1, northSouthAligned);
+        this(base, -1, -1, northSouthAligned);
     }
 
     @SuppressWarnings("unused")
-    private GarageDoor(MovableBase doorBase)
+    private GarageDoor(MovableBase base)
     {
-        this(doorBase, false); // Add tmp/default values
+        this(base, false); // Add tmp/default values
     }
 
     @Override
@@ -110,6 +110,27 @@ public class GarageDoor extends AbstractMovable implements IHorizontalAxisAligne
             movement = dims.y();
         // Not exactly correct, but much faster and pretty close.
         return 2 * movement;
+    }
+
+    @Override
+    public Cuboid getAnimationRange()
+    {
+        final Cuboid cuboid = getCuboid();
+        if (isOpen())
+            return cuboid.grow(1, 1, 1);
+
+        final int vertical = cuboid.getDimensions().y();
+        final Vector3Di min = cuboid.getMin();
+        final Vector3Di max = cuboid.getMax();
+
+        return switch (getCurrentToggleDir())
+            {
+                case NORTH -> new Cuboid(min.add(0, 0, -vertical), max.add(0, 1, 0)); // -z
+                case EAST -> new Cuboid(min.add(0, 0, 0), max.add(vertical, 1, 0)); // +x
+                case SOUTH -> new Cuboid(min.add(0, 0, 0), max.add(0, 1, vertical)); // +z
+                case WEST -> new Cuboid(min.add(-vertical, 0, 0), max.add(0, 1, 0)); // -x
+                default -> cuboid.grow(vertical, 0, vertical);
+            };
     }
 
     @Override
@@ -199,19 +220,6 @@ public class GarageDoor extends AbstractMovable implements IHorizontalAxisAligne
                 maxX = minX - 1;
                 minX = maxX;
             }
-        }
-
-        if (minX > maxX)
-        {
-            final int tmp = minX;
-            minX = maxX;
-            maxX = tmp;
-        }
-        if (minZ > maxZ)
-        {
-            final int tmp = minZ;
-            minZ = maxZ;
-            maxZ = tmp;
         }
 
         return Optional.of(new Cuboid(new Vector3Di(minX, minY, minZ),

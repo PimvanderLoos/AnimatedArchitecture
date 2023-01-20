@@ -27,7 +27,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Stream;
 
 /**
- * Represents a Drawbridge doorType.
+ * Represents a Drawbridge movable type.
  *
  * @author Pim
  */
@@ -42,6 +42,9 @@ public class Drawbridge extends AbstractMovable implements IHorizontalAxisAligne
 
     @Getter
     private final double longestAnimationCycleDistance;
+
+    @Getter
+    private final Cuboid animationRange;
 
     @PersistentVariable
     @GuardedBy("lock")
@@ -67,26 +70,28 @@ public class Drawbridge extends AbstractMovable implements IHorizontalAxisAligne
     @Setter(onMethod_ = @Locked.Write)
     protected boolean modeUp;
 
-    public Drawbridge(MovableBase doorBase, int autoCloseTime, int autoOpenTime, boolean modeUp)
+    public Drawbridge(MovableBase base, int autoCloseTime, int autoOpenTime, boolean modeUp)
     {
-        super(doorBase);
+        super(base);
         this.lock = getLock();
         this.autoOpenTime = autoOpenTime;
         this.autoCloseTime = autoCloseTime;
         this.modeUp = modeUp;
-        this.longestAnimationCycleDistance =
-            calculateLongestAnimationCycleDistance(isNorthSouthAligned(), getCuboid(), getRotationPoint());
+
+        final double maxRadius = getMaxRadius(isNorthSouthAligned(), getCuboid(), getRotationPoint());
+        this.longestAnimationCycleDistance = maxRadius * MathUtil.HALF_PI;
+        this.animationRange = calculateAnimationRange(maxRadius, getCuboid());
     }
 
-    public Drawbridge(MovableBase doorBase, boolean modeUp)
+    public Drawbridge(MovableBase base, boolean modeUp)
     {
-        this(doorBase, -1, -1, modeUp);
+        this(base, -1, -1, modeUp);
     }
 
     @SuppressWarnings("unused")
-    private Drawbridge(MovableBase doorBase)
+    private Drawbridge(MovableBase base)
     {
-        this(doorBase, false); // Add tmp/default values
+        this(base, false); // Add tmp/default values
     }
 
     @Override
@@ -149,14 +154,30 @@ public class Drawbridge extends AbstractMovable implements IHorizontalAxisAligne
     }
 
     /**
-     * @return The maximum distance from the rotation point to one of the corners of the movable.
+     * @param maxRadius
+     *     See {@link #getMaxRadius(boolean, Cuboid, Vector3Di)}.
+     * @param cuboid
+     *     The cuboid that describes this door.
+     * @return The animation range.
      */
-    public static double calculateLongestAnimationCycleDistance(
-        boolean northSouthAligned, Cuboid cuboid, Vector3Di rotationPoint)
+    public static Cuboid calculateAnimationRange(double maxRadius, Cuboid cuboid)
+    {
+        final int radius = (int) Math.ceil(maxRadius);
+        return new Cuboid(cuboid.getMin().add(-radius), cuboid.getMin().add(radius));
+    }
+
+    /**
+     * @param cuboid
+     *     The cuboid that describes this door.
+     * @param rotationPoint
+     *     The rotation point of the door.
+     * @return The radius between the rotation point of the door and the animated block furthest from it.
+     */
+    public static double getMaxRadius(boolean northSouthAligned, Cuboid cuboid, Vector3Di rotationPoint)
     {
         return Stream
             .of(cuboid.getCorners())
             .mapToDouble(val -> BridgeMover.getRadius(northSouthAligned, rotationPoint, val.x(), val.y(), val.z()))
-            .max().orElseThrow() * MathUtil.HALF_PI;
+            .max().orElseThrow();
     }
 }

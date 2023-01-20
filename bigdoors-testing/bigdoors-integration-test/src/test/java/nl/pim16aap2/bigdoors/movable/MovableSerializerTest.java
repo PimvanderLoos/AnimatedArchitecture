@@ -166,6 +166,12 @@ class MovableSerializerTest
         }
 
         @Override
+        public Cuboid getAnimationRange()
+        {
+            return null;
+        }
+
+        @Override
         public RotateDirection getCurrentToggleDir()
         {
             return null;

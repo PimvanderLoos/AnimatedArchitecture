@@ -49,7 +49,6 @@ public class FlagMover extends BlockMover
 
         length = NS ? dims.z() : dims.x();
 
-        super.perpetualMovement = true;
         super.movementMethod = MovementMethod.TELEPORT;
     }
 

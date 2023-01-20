@@ -18,6 +18,7 @@ import nl.pim16aap2.bigdoors.movable.movablearchetypes.IPerpetualMover;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.util.MathUtil;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -25,7 +26,7 @@ import java.util.Optional;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * Represents a Windmill doorType.
+ * Represents a Windmill movable type.
  *
  * @author Pim
  */
@@ -41,6 +42,9 @@ public class Windmill extends AbstractMovable implements IHorizontalAxisAligned,
     @Getter
     private final double longestAnimationCycleDistance;
 
+    @Getter
+    private final Cuboid animationRange;
+
     /**
      * The number of quarter circles (so 90 degree rotations) this movable will make before stopping.
      *
@@ -52,14 +56,15 @@ public class Windmill extends AbstractMovable implements IHorizontalAxisAligned,
     @Setter(onMethod_ = @Locked.Write)
     private int quarterCircles;
 
-    public Windmill(MovableBase doorBase, int quarterCircles)
+    public Windmill(MovableBase base, int quarterCircles)
     {
-        super(doorBase);
+        super(base);
         this.lock = getLock();
         this.quarterCircles = quarterCircles;
 
-        longestAnimationCycleDistance =
-            Drawbridge.calculateLongestAnimationCycleDistance(isNorthSouthAligned(), getCuboid(), getRotationPoint());
+        final double maxRadius = Drawbridge.getMaxRadius(isNorthSouthAligned(), getCuboid(), getRotationPoint());
+        this.longestAnimationCycleDistance = maxRadius * MathUtil.HALF_PI;
+        this.animationRange = Drawbridge.calculateAnimationRange(maxRadius, getCuboid());
     }
 
     public Windmill(MovableBase doorBase)

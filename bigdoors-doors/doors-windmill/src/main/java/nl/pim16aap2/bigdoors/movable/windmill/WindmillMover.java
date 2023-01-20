@@ -33,7 +33,6 @@ public class WindmillMover<T extends AbstractMovable & IHorizontalAxisAligned> e
     {
         super(context, movable, snapshot, time, rotateDirection, false, multiplier, player, snapshot.getCuboid(), cause,
               actionType);
-        super.perpetualMovement = true;
 
         step = MathUtil.HALF_PI / (20.0f * super.time * 2.0f);
     }

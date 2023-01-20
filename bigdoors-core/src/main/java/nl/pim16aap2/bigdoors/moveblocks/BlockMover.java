@@ -22,6 +22,7 @@ import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
 import nl.pim16aap2.bigdoors.managers.AnimationHookManager;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
+import nl.pim16aap2.bigdoors.movable.movablearchetypes.IPerpetualMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.IVector3D;
@@ -250,6 +251,7 @@ public abstract class BlockMover
         this.oldCuboid = snapshot.getCuboid();
         this.cause = cause;
         this.actionType = actionType;
+        this.perpetualMovement = movable instanceof IPerpetualMover perpetualMover && perpetualMover.isPerpetual();
 
         this.animationDuration = (int) Math.min(Integer.MAX_VALUE, Math.round(1000 * this.time / serverTickTime));
     }

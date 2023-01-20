@@ -25,7 +25,7 @@ import java.util.Optional;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * Represents a Revolving Door doorType.
+ * Represents a Revolving Door movable type.
  *
  * @author Pim
  * @see MovableBase
@@ -43,6 +43,9 @@ public class RevolvingDoor extends AbstractMovable
     @Getter
     private final double longestAnimationCycleDistance;
 
+    @Getter
+    private final Cuboid animationRange;
+
     /**
      * The number of quarter circles (so 90 degree rotations) this movable will make before stopping.
      *
@@ -54,18 +57,20 @@ public class RevolvingDoor extends AbstractMovable
     @Setter(onMethod_ = @Locked.Write)
     private int quarterCircles;
 
-    public RevolvingDoor(MovableBase doorBase, int quarterCircles)
+    public RevolvingDoor(MovableBase base, int quarterCircles)
     {
-        super(doorBase);
+        super(base);
         this.lock = getLock();
         this.quarterCircles = quarterCircles;
-        this.longestAnimationCycleDistance =
-            BigDoor.calculateLongestAnimationCycleDistance(getCuboid(), getRotationPoint());
+
+        final double maxRadius = BigDoor.getMaxRadius(getCuboid(), getRotationPoint());
+        this.longestAnimationCycleDistance = maxRadius * MathUtil.HALF_PI;
+        this.animationRange = BigDoor.calculateAnimationRange(maxRadius, getCuboid());
     }
 
-    public RevolvingDoor(MovableBase doorBase)
+    public RevolvingDoor(MovableBase base)
     {
-        this(doorBase, 1);
+        this(base, 1);
     }
 
     @Override
