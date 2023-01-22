@@ -179,7 +179,6 @@ public abstract class AbstractMovable implements IMovable
      *
      * @return The base animation time for this movable in seconds.
      */
-    // TODO: This method should be abstract.
     public double getBaseAnimationTime()
     {
         return getLongestAnimationCycleDistance() / Math.min(getDefaultAnimationSpeed(), config.maxBlockSpeed());
@@ -203,16 +202,6 @@ public abstract class AbstractMovable implements IMovable
     {
         return false;
     }
-
-    /**
-     * Gets the cuboid describing the limits within an animation of this door takes place.
-     * <p>
-     * At no point during an animation will any animated block leave this cuboid, though not guarantees are given
-     * regarding how tight the cuboid fits around the animated blocks.
-     *
-     * @return The animation range.
-     */
-    public abstract Cuboid getAnimationRange();
 
     /**
      * Finds the new minimum and maximum coordinates (represented by a {@link Cuboid}) of this movable that would be the

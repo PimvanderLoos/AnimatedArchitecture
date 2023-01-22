@@ -52,6 +52,16 @@ public interface IMovableConst
     Cuboid getCuboid();
 
     /**
+     * Gets the cuboid describing the limits within an animation of this door takes place.
+     * <p>
+     * At no point during an animation will any animated block leave this cuboid, though not guarantees are given
+     * regarding how tight the cuboid fits around the animated blocks.
+     *
+     * @return The animation range.
+     */
+    Cuboid getAnimationRange();
+
+    /**
      * Gets the name of this movable.
      *
      * @return The name of this movable.
