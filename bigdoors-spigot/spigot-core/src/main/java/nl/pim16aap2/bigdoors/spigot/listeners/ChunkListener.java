@@ -10,9 +10,8 @@ import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovableActivityManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
-import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.util.Rectangle;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.world.ChunkLoadEvent;
@@ -64,22 +63,21 @@ public class ChunkListener extends AbstractListener
     @EventHandler(priority = EventPriority.LOWEST)
     public void onChunkUnload(ChunkUnloadEvent event)
     {
-        powerBlockManager.invalidateChunk(event.getWorld().getName(),
-                                          new Vector2Di(event.getChunk().getX(), event.getChunk().getZ()));
+        final Vector2Di chunkCoords = new Vector2Di(event.getChunk().getX(), event.getChunk().getZ());
+        powerBlockManager.invalidateChunk(event.getWorld().getName(), chunkCoords);
         try
         {
             if (event.getChunk().isForceLoaded())
                 return;
 
             final IPWorld world = SpigotAdapter.wrapWorld(event.getWorld());
-            final Vector3Di chunkCoords = new Vector3Di(event.getChunk().getX(), 0, event.getChunk().getZ());
 
             // Abort all currently active BlockMovers that (might) interact with the chunk that is being unloaded.
-            movableActivityManager.getBlockMovers()
-                                  .filter(mover -> mover.getSnapshot().getWorld().equals(world))
-                                  .filter(mover -> chunkInsideAnimationRange(chunkCoords,
-                                                                             mover.getSnapshot().getAnimationRange()))
-                                  .forEach(BlockMover::abort);
+            movableActivityManager
+                .getBlockMovers()
+                .filter(mover -> mover.getSnapshot().getWorld().equals(world))
+                .filter(mover -> chunkInsideAnimationRange(chunkCoords, mover.getSnapshot().getAnimationRange()))
+                .forEach(BlockMover::abort);
         }
         catch (Exception e)
         {
@@ -96,8 +94,8 @@ public class ChunkListener extends AbstractListener
      *     The animation range (in world-space).
      * @return True the chunk coordinates lie inside the animation range
      */
-    private boolean chunkInsideAnimationRange(Vector3Di chunkCoordinates, Cuboid animationRange)
+    private boolean chunkInsideAnimationRange(Vector2Di chunkCoordinates, Rectangle animationRange)
     {
-        return animationRange.updatePositions(vector3Di -> vector3Di.rightShift(4)).isPosInsideCuboid(chunkCoordinates);
+        return animationRange.updatePositions(vec -> vec.rightShift(4)).isPosInsideRectangle(chunkCoordinates);
     }
 }

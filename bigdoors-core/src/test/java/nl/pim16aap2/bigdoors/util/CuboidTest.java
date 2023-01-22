@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.util;
 
+import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.junit.jupiter.api.Assertions;
@@ -200,5 +201,16 @@ class CuboidTest
                 new Vector3Di(44, 11, 25), new Vector3Di(44, 11, 30),
                 new Vector3Di(10, 99, 25), new Vector3Di(10, 99, 30),
                 new Vector3Di(44, 99, 25), new Vector3Di(44, 99, 30)));
+    }
+
+    @Test
+    void testAsFlatRectangle()
+    {
+        final Vector3Di val1 = new Vector3Di(10, 99, 25);
+        final Vector3Di val2 = new Vector3Di(44, 11, 30);
+        final Cuboid cuboid = new Cuboid(val1, val2);
+
+        Assertions.assertEquals(new Rectangle(new Vector2Di(10, 25), new Vector2Di(44, 30)),
+                                cuboid.asFlatRectangle());
     }
 }

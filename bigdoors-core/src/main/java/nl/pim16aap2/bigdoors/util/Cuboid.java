@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPLocation;
+import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Contract;
@@ -318,6 +319,14 @@ public final class Cuboid
 
             new Vector3Di(min.x(), max.y(), min.z()), new Vector3Di(min.x(), max.y(), max.z()),
             new Vector3Di(max.x(), max.y(), min.z()), max};
+    }
+
+    /**
+     * @return The area described by this cuboid when you disregard the vertical (y) dimension.
+     */
+    public Rectangle asFlatRectangle()
+    {
+        return new Rectangle(new Vector2Di(min.x(), min.z()), new Vector2Di(max.x(), max.z()));
     }
 
     /**

@@ -19,6 +19,7 @@ import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.MathUtil;
+import nl.pim16aap2.bigdoors.util.Rectangle;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -43,7 +44,7 @@ public class Windmill extends AbstractMovable implements IHorizontalAxisAligned,
     private final double longestAnimationCycleDistance;
 
     @Getter
-    private final Cuboid animationRange;
+    private final Rectangle animationRange;
 
     /**
      * The number of quarter circles (so 90 degree rotations) this movable will make before stopping.

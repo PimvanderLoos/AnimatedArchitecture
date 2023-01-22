@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.util.Rectangle;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
@@ -26,7 +27,7 @@ public final class MovableSnapshot implements IMovableConst
 {
     private final long uid;
     private final IPWorld world;
-    private final Cuboid animationRange;
+    private final Rectangle animationRange;
     private Vector3Di rotationPoint;
     private Vector3Di powerBlock;
     private String name;

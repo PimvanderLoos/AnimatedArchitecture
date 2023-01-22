@@ -16,6 +16,7 @@ import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
+import nl.pim16aap2.bigdoors.util.Rectangle;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 
 import java.util.Optional;
@@ -92,7 +93,7 @@ public class Clock extends AbstractMovable implements IHorizontalAxisAligned
     }
 
     @Override
-    public Cuboid getAnimationRange()
+    public Rectangle getAnimationRange()
     {
         final Cuboid cuboid = getCuboid();
 
@@ -102,7 +103,7 @@ public class Clock extends AbstractMovable implements IHorizontalAxisAligned
         final int boxRadius = (int) Math.ceil(Math.sqrt(2 * Math.pow(circleRadius, 2)));
         final int delta = boxRadius - circleRadius;
 
-        return isNorthSouthAligned() ? cuboid.grow(0, delta, delta) : cuboid.grow(delta, delta, 0);
+        return (isNorthSouthAligned() ? cuboid.grow(0, delta, delta) : cuboid.grow(delta, delta, 0)).asFlatRectangle();
     }
 
     @Override

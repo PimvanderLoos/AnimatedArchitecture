@@ -16,6 +16,7 @@ import nl.pim16aap2.bigdoors.movable.movablearchetypes.IPerpetualMover;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.util.Rectangle;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
@@ -75,7 +76,7 @@ public class Flag extends AbstractMovable implements IHorizontalAxisAligned, IPe
     }
 
     @Override
-    public Cuboid getAnimationRange()
+    public Rectangle getAnimationRange()
     {
         final Cuboid cuboid = getCuboid();
         final Vector3Di rotationPoint = getRotationPoint();
@@ -84,7 +85,7 @@ public class Flag extends AbstractMovable implements IHorizontalAxisAligned, IPe
         final int maxDim = Math.max(cuboid.getDimensions().x(), cuboid.getDimensions().z());
         // Very, VERY rough estimate. But it's good enough for the time being.
         return new Cuboid(rotationPoint.add(-maxDim, -halfHeight, -maxDim),
-                          rotationPoint.add(maxDim, halfHeight, maxDim));
+                          rotationPoint.add(maxDim, halfHeight, maxDim)).asFlatRectangle();
     }
 
     /**
