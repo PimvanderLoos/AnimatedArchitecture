@@ -26,6 +26,7 @@ public final class MovableSnapshot implements IMovableConst
 {
     private final long uid;
     private final IPWorld world;
+    private final Cuboid animationRange;
     private Vector3Di rotationPoint;
     private Vector3Di powerBlock;
     private String name;
@@ -36,11 +37,12 @@ public final class MovableSnapshot implements IMovableConst
     private final MovableOwner primeOwner;
     private final Map<UUID, MovableOwner> owners;
 
-    MovableSnapshot(MovableBase movable)
+    MovableSnapshot(AbstractMovable movable)
     {
         this(
             movable.getUid(),
             movable.getWorld(),
+            movable.getAnimationRange(),
             movable.getRotationPoint(),
             movable.getPowerBlock(),
             movable.getName(),
@@ -49,7 +51,7 @@ public final class MovableSnapshot implements IMovableConst
             movable.getOpenDir(),
             movable.isLocked(),
             movable.getPrimeOwner(),
-            Map.copyOf(movable.getOwnersView())
+            Map.copyOf(movable.getBase().getOwnersView())
         );
     }
 

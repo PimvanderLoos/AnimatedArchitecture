@@ -40,7 +40,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
@@ -136,6 +135,7 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor
     private final IPExecutor executor;
 
     @EqualsAndHashCode.Exclude
+    @Getter(AccessLevel.PACKAGE)
     private final DatabaseManager databaseManager;
 
     @EqualsAndHashCode.Exclude
@@ -194,28 +194,6 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor
         this.playerFactory = playerFactory;
         this.blockMoverContextProvider = blockMoverContextProvider;
         this.executor = executor;
-    }
-
-    /**
-     * @return A new {@link MovableSnapshot} of this {@link MovableBase}.
-     */
-    @Locked.Read
-    public MovableSnapshot getSnapshot()
-    {
-        return new MovableSnapshot(this);
-    }
-
-    /**
-     * Synchronizes this {@link MovableBase} and the serialized type-specific data of an {@link AbstractMovable} with
-     * the database.
-     *
-     * @param typeData
-     *     The type-specific data of an {@link AbstractMovable}.
-     * @return The result of the synchronization.
-     */
-    CompletableFuture<DatabaseManager.ActionResult> syncData(byte[] typeData)
-    {
-        return databaseManager.syncMovableData(getSnapshot(), typeData);
     }
 
     @Override

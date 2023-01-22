@@ -339,19 +339,20 @@ public abstract class AbstractMovable implements IMovable
      *     The new current of the powerblock.
      */
     @SuppressWarnings("unused")
-    public final void onRedstoneChange(int newCurrent)
+    public void onRedstoneChange(int newCurrent)
     {
         base.onRedstoneChange(this, newCurrent);
     }
 
     @Override
-    public MovableSnapshot getSnapshot()
+    @Locked.Read
+    public final MovableSnapshot getSnapshot()
     {
-        return base.getSnapshot();
+        return new MovableSnapshot(this);
     }
 
     /**
-     * Synchronizes all data of this movable with the database.
+     * Synchronizes this movable and its serialized type-specific data of an {@link AbstractMovable} with the database.
      *
      * @return The result of the synchronization.
      */
@@ -360,7 +361,9 @@ public abstract class AbstractMovable implements IMovable
     {
         try
         {
-            return base.syncData(serializer.serialize(this)).exceptionally(Util::exceptionally);
+            return base.getDatabaseManager()
+                       .syncMovableData(getSnapshot(), serializer.serialize(this))
+                       .exceptionally(Util::exceptionally);
         }
         catch (Exception e)
         {
