@@ -46,12 +46,13 @@ public abstract class AbstractMovable implements IMovable
     private final ReentrantReadWriteLock lock;
     private final MovableSerializer<?> serializer;
 
-    @Getter
-    @EqualsAndHashCode.Include
-    protected final MovableBase base;
     protected final ILocalizer localizer;
     protected final IConfigLoader config;
     protected final MovableOpeningHelper movableOpeningHelper;
+
+    @Getter
+    @EqualsAndHashCode.Include
+    protected final MovableBase base;
 
     private AbstractMovable(
         MovableBase base,

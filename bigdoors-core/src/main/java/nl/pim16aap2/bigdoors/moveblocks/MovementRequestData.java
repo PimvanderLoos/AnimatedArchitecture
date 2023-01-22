@@ -88,8 +88,6 @@ public final class MovementRequestData
     public interface IFactory
     {
         /**
-         * @param movable
-         *     The movable being toggled.
          * @param movableSnapshot
          *     A snapshot of the movable, created before the toggle. The data in this snapshot is used as ground-truth
          *     for all actions of the mover.
