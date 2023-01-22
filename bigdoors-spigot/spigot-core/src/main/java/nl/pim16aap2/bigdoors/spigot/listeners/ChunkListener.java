@@ -48,10 +48,8 @@ public class ChunkListener extends AbstractListener
     }
 
     /**
-     * Listens to chunks being loaded and checks if they contain movables that move perpetually (doors, clocks, etc).
-     *
-     * @param event
-     *     The {@link ChunkLoadEvent}.
+     * Listens to chunks being loaded and ensures that {@link AbstractMovable#onChunkLoad()} is called for any movables
+     * whose rotation point lies in the chunk that is being loaded.
      */
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onChunkLoad(ChunkLoadEvent event)
@@ -62,9 +60,6 @@ public class ChunkListener extends AbstractListener
 
     /**
      * Listens to chunks being unloaded and checks if it intersects with the region of the active {@link MovableBase}s.
-     *
-     * @param event
-     *     The {@link ChunkUnloadEvent}.
      */
     @EventHandler(priority = EventPriority.LOWEST)
     public void onChunkUnload(ChunkUnloadEvent event)

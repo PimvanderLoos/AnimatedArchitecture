@@ -170,20 +170,20 @@ class CuboidTest
         final Vector3Di nearMin = new Vector3Di(-4, 17, -21);
         final Vector3Di nearMax = new Vector3Di(4, 17, 22);
         final Cuboid near = Cuboid.of(val1, val2, Cuboid.RoundingMode.NEAREST);
-        Assertions.assertEquals(nearMin, near.min);
-        Assertions.assertEquals(nearMax, near.max);
+        Assertions.assertEquals(nearMin, near.getMin());
+        Assertions.assertEquals(nearMax, near.getMax());
 
         final Vector3Di inMin = new Vector3Di(-4, 16, -21);
         final Vector3Di inMax = new Vector3Di(4, 17, 21);
         final Cuboid in = Cuboid.of(val1, val2, Cuboid.RoundingMode.INWARD);
-        Assertions.assertEquals(inMin, in.min);
-        Assertions.assertEquals(inMax, in.max);
+        Assertions.assertEquals(inMin, in.getMin());
+        Assertions.assertEquals(inMax, in.getMax());
 
         final Vector3Di outMin = new Vector3Di(-5, 16, -22);
         final Vector3Di outMax = new Vector3Di(5, 17, 22);
         final Cuboid out = Cuboid.of(val1, val2, Cuboid.RoundingMode.OUTWARD);
-        Assertions.assertEquals(outMin, out.min);
-        Assertions.assertEquals(outMax, out.max);
+        Assertions.assertEquals(outMin, out.getMin());
+        Assertions.assertEquals(outMax, out.getMax());
     }
 
     @Test

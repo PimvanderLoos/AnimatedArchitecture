@@ -19,19 +19,19 @@ import java.util.function.UnaryOperator;
  */
 @ToString
 @EqualsAndHashCode
-public class Cuboid
+public final class Cuboid
 {
     /**
      * Gets the lower bound position.
      */
     @Getter
-    protected final Vector3Di min;
+    private final Vector3Di min;
 
     /**
      * Gets the upper bound position.
      */
     @Getter
-    protected final Vector3Di max;
+    private final Vector3Di max;
 
     /**
      * Gets the total number of blocks in this cuboid. It is inclusive of lower and upper bound. E.g. the volume of
