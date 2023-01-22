@@ -46,12 +46,13 @@ public abstract class AbstractMovable implements IMovable
     private final ReentrantReadWriteLock lock;
     private final MovableSerializer<?> serializer;
 
-    @Getter
-    @EqualsAndHashCode.Include
-    protected final MovableBase base;
     protected final ILocalizer localizer;
     protected final IConfigLoader config;
     protected final MovableOpeningHelper movableOpeningHelper;
+
+    @Getter
+    @EqualsAndHashCode.Include
+    protected final MovableBase base;
 
     private AbstractMovable(
         MovableBase base,
@@ -199,16 +200,6 @@ public abstract class AbstractMovable implements IMovable
     }
 
     /**
-     * Gets the cuboid describing the limits within an animation of this door takes place.
-     * <p>
-     * At no point during an animation will any animated block leave this cuboid, though not guarantees are given
-     * regarding how tight the cuboid fits around the animated blocks.
-     *
-     * @return The animation range.
-     */
-    public abstract Cuboid getAnimationRange();
-
-    /**
      * Finds the new minimum and maximum coordinates (represented by a {@link Cuboid}) of this movable that would be the
      * result of toggling it.
      *
@@ -297,25 +288,34 @@ public abstract class AbstractMovable implements IMovable
     }
 
     /**
+     * Handles the chunk of the rotation point being loaded.
+     */
+    public void onChunkLoad()
+    {
+        // TODO: Implement this
+    }
+
+    /**
      * Handles a change in redstone current for this movable's powerblock.
      *
      * @param newCurrent
      *     The new current of the powerblock.
      */
     @SuppressWarnings("unused")
-    public final void onRedstoneChange(int newCurrent)
+    public void onRedstoneChange(int newCurrent)
     {
         base.onRedstoneChange(this, newCurrent);
     }
 
     @Override
-    public MovableSnapshot getSnapshot()
+    @Locked.Read
+    public final MovableSnapshot getSnapshot()
     {
-        return base.getSnapshot();
+        return new MovableSnapshot(this);
     }
 
     /**
-     * Synchronizes all data of this movable with the database.
+     * Synchronizes this movable and its serialized type-specific data of an {@link AbstractMovable} with the database.
      *
      * @return The result of the synchronization.
      */
@@ -324,7 +324,9 @@ public abstract class AbstractMovable implements IMovable
     {
         try
         {
-            return base.syncData(serializer.serialize(this)).exceptionally(Util::exceptionally);
+            return base.getDatabaseManager()
+                       .syncMovableData(getSnapshot(), serializer.serialize(this))
+                       .exceptionally(Util::exceptionally);
         }
         catch (Exception e)
         {

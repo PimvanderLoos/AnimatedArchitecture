@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.util.Rectangle;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
@@ -26,6 +27,7 @@ public final class MovableSnapshot implements IMovableConst
 {
     private final long uid;
     private final IPWorld world;
+    private final Rectangle animationRange;
     private Vector3Di rotationPoint;
     private Vector3Di powerBlock;
     private String name;
@@ -36,11 +38,12 @@ public final class MovableSnapshot implements IMovableConst
     private final MovableOwner primeOwner;
     private final Map<UUID, MovableOwner> owners;
 
-    MovableSnapshot(MovableBase movable)
+    MovableSnapshot(AbstractMovable movable)
     {
         this(
             movable.getUid(),
             movable.getWorld(),
+            movable.getAnimationRange(),
             movable.getRotationPoint(),
             movable.getPowerBlock(),
             movable.getName(),
@@ -49,7 +52,7 @@ public final class MovableSnapshot implements IMovableConst
             movable.getOpenDir(),
             movable.isLocked(),
             movable.getPrimeOwner(),
-            Map.copyOf(movable.getOwnersView())
+            Map.copyOf(movable.getBase().getOwnersView())
         );
     }
 

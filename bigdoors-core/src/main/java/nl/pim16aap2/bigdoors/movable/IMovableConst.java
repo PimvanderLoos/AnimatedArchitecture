@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.movable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.util.Rectangle;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -50,6 +51,16 @@ public interface IMovableConst
      * @return The {@link Cuboid} representing the area taken up by this movable.
      */
     Cuboid getCuboid();
+
+    /**
+     * Gets the rectangle describing the limits within an animation of this door takes place.
+     * <p>
+     * At no point during an animation will any animated block leave this cuboid, though not guarantees are given
+     * regarding how tight the cuboid fits around the animated blocks.
+     *
+     * @return The animation range.
+     */
+    Rectangle getAnimationRange();
 
     /**
      * Gets the name of this movable.

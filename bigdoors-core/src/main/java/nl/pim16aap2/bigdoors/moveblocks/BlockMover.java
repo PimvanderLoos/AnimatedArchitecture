@@ -159,7 +159,7 @@ public abstract class BlockMover
      * <p>
      * False to have the movement be time-bound, such as for doors, drawbridges, etc.
      */
-    protected volatile boolean perpetualMovement = false;
+    protected volatile boolean perpetualMovement;
 
     /**
      * Keeps track of whether the animation has finished.

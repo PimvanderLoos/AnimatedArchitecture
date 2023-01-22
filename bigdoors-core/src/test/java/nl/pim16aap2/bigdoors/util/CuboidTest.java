@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.util;
 
+import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.junit.jupiter.api.Assertions;
@@ -170,20 +171,20 @@ class CuboidTest
         final Vector3Di nearMin = new Vector3Di(-4, 17, -21);
         final Vector3Di nearMax = new Vector3Di(4, 17, 22);
         final Cuboid near = Cuboid.of(val1, val2, Cuboid.RoundingMode.NEAREST);
-        Assertions.assertEquals(nearMin, near.min);
-        Assertions.assertEquals(nearMax, near.max);
+        Assertions.assertEquals(nearMin, near.getMin());
+        Assertions.assertEquals(nearMax, near.getMax());
 
         final Vector3Di inMin = new Vector3Di(-4, 16, -21);
         final Vector3Di inMax = new Vector3Di(4, 17, 21);
         final Cuboid in = Cuboid.of(val1, val2, Cuboid.RoundingMode.INWARD);
-        Assertions.assertEquals(inMin, in.min);
-        Assertions.assertEquals(inMax, in.max);
+        Assertions.assertEquals(inMin, in.getMin());
+        Assertions.assertEquals(inMax, in.getMax());
 
         final Vector3Di outMin = new Vector3Di(-5, 16, -22);
         final Vector3Di outMax = new Vector3Di(5, 17, 22);
         final Cuboid out = Cuboid.of(val1, val2, Cuboid.RoundingMode.OUTWARD);
-        Assertions.assertEquals(outMin, out.min);
-        Assertions.assertEquals(outMax, out.max);
+        Assertions.assertEquals(outMin, out.getMin());
+        Assertions.assertEquals(outMax, out.getMax());
     }
 
     @Test
@@ -200,5 +201,16 @@ class CuboidTest
                 new Vector3Di(44, 11, 25), new Vector3Di(44, 11, 30),
                 new Vector3Di(10, 99, 25), new Vector3Di(10, 99, 30),
                 new Vector3Di(44, 99, 25), new Vector3Di(44, 99, 30)));
+    }
+
+    @Test
+    void testAsFlatRectangle()
+    {
+        final Vector3Di val1 = new Vector3Di(10, 99, 25);
+        final Vector3Di val2 = new Vector3Di(44, 11, 30);
+        final Cuboid cuboid = new Cuboid(val1, val2);
+
+        Assertions.assertEquals(new Rectangle(new Vector2Di(10, 25), new Vector2Di(44, 30)),
+                                cuboid.asFlatRectangle());
     }
 }

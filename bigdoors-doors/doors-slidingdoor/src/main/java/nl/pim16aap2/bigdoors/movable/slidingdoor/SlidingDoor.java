@@ -15,6 +15,7 @@ import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
+import nl.pim16aap2.bigdoors.util.Rectangle;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -90,13 +91,13 @@ public class SlidingDoor extends AbstractMovable implements IDiscreteMovement, I
 
     @Override
     @Locked.Read
-    public Cuboid getAnimationRange()
+    public Rectangle getAnimationRange()
     {
         final Cuboid cuboid = getCuboid();
         final Vector3Di min = cuboid.getMin();
         final Vector3Di max = cuboid.getMax();
 
-        return switch (getCurrentToggleDir())
+        final Cuboid cuboidRange = switch (getCurrentToggleDir())
             {
                 case NORTH -> new Cuboid(min.add(0, 0, -blocksToMove), max.add(0, 0, 0)); // -z
                 case EAST -> new Cuboid(min.add(0, 0, 0), max.add(blocksToMove, 0, 0)); // +x
@@ -104,6 +105,7 @@ public class SlidingDoor extends AbstractMovable implements IDiscreteMovement, I
                 case WEST -> new Cuboid(min.add(-blocksToMove, 0, 0), max.add(0, 0, 0)); // -x
                 default -> cuboid.grow(blocksToMove, 0, blocksToMove);
             };
+        return cuboidRange.asFlatRectangle();
     }
 
     @Override

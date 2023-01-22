@@ -192,12 +192,14 @@ public enum SQLStatement
     ),
 
     /**
-     * Obtains the IDs of all movables whose rotationPoint's chunk hash value has a certain value.
+     * Obtains the movables whose rotationPoint's chunk hash value has a certain value.
      */
-    GET_MOVABLE_IDS_IN_CHUNK(
+    GET_MOVABLES_IN_CHUNK(
         """
-        SELECT Movables.id
+        SELECT Movables.*, Player.*, MovableOwnerPlayer.permission
         FROM Movables
+        INNER JOIN MovableOwnerPlayer ON Movables.id = MovableOwnerPlayer.movableUID
+        INNER JOIN Player ON MovableOwnerPlayer.playerID = Player.id
         WHERE Movables.rotationPointChunkId = ?;
         """
     ),

@@ -285,6 +285,32 @@ public record Vector2Di(int x, int y)
 
 
     /**
+     * Signed bitwise left shift the values in this vector.
+     *
+     * @param bits
+     *     The number of bits to shift the values.
+     * @return A new {@link Vector2Di}.
+     */
+    @CheckReturnValue @Contract(pure = true)
+    public Vector2Di leftShift(int bits)
+    {
+        return new Vector2Di(x << bits, y << bits);
+    }
+
+    /**
+     * Signed bitwise right shift the values in this vector.
+     *
+     * @param bits
+     *     The number of bits to shift the values.
+     * @return A new {@link Vector2Di}.
+     */
+    @CheckReturnValue @Contract(pure = true)
+    public Vector2Di rightShift(int bits)
+    {
+        return new Vector2Di(x >> bits, y >> bits);
+    }
+
+    /**
      * Normalizes this {@link Vector2Di}.
      *
      * @return A new {@link Vector2Di} with normalized

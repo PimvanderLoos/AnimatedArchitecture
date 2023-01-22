@@ -17,6 +17,7 @@ import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
+import nl.pim16aap2.bigdoors.util.Rectangle;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -110,17 +111,17 @@ public class GarageDoor extends AbstractMovable implements IHorizontalAxisAligne
     }
 
     @Override
-    public Cuboid getAnimationRange()
+    public Rectangle getAnimationRange()
     {
         final Cuboid cuboid = getCuboid();
         if (isOpen())
-            return cuboid.grow(1, 1, 1);
+            return cuboid.grow(1, 1, 1).asFlatRectangle();
 
         final int vertical = cuboid.getDimensions().y();
         final Vector3Di min = cuboid.getMin();
         final Vector3Di max = cuboid.getMax();
 
-        return switch (getCurrentToggleDir())
+        final Cuboid cuboidRange = switch (getCurrentToggleDir())
             {
                 case NORTH -> new Cuboid(min.add(0, 0, -vertical), max.add(0, 1, 0)); // -z
                 case EAST -> new Cuboid(min.add(0, 0, 0), max.add(vertical, 1, 0)); // +x
@@ -128,6 +129,7 @@ public class GarageDoor extends AbstractMovable implements IHorizontalAxisAligne
                 case WEST -> new Cuboid(min.add(-vertical, 0, 0), max.add(0, 1, 0)); // -x
                 default -> cuboid.grow(vertical, 0, vertical);
             };
+        return cuboidRange.asFlatRectangle();
     }
 
     @Override

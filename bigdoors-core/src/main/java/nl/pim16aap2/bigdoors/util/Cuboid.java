@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPLocation;
+import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Contract;
@@ -19,19 +20,19 @@ import java.util.function.UnaryOperator;
  */
 @ToString
 @EqualsAndHashCode
-public class Cuboid
+public final class Cuboid
 {
     /**
      * Gets the lower bound position.
      */
     @Getter
-    protected final Vector3Di min;
+    private final Vector3Di min;
 
     /**
      * Gets the upper bound position.
      */
     @Getter
-    protected final Vector3Di max;
+    private final Vector3Di max;
 
     /**
      * Gets the total number of blocks in this cuboid. It is inclusive of lower and upper bound. E.g. the volume of
@@ -318,6 +319,14 @@ public class Cuboid
 
             new Vector3Di(min.x(), max.y(), min.z()), new Vector3Di(min.x(), max.y(), max.z()),
             new Vector3Di(max.x(), max.y(), min.z()), max};
+    }
+
+    /**
+     * @return The area described by this cuboid when you disregard the vertical (y) dimension.
+     */
+    public Rectangle asFlatRectangle()
+    {
+        return new Rectangle(new Vector2Di(min.x(), min.z()), new Vector2Di(max.x(), max.z()));
     }
 
     /**

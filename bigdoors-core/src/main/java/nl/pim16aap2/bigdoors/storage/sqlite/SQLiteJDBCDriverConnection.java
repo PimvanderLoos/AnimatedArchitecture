@@ -775,17 +775,11 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    public List<Long> getMovablesInChunk(long chunkId)
+    public List<AbstractMovable> getMovablesInChunk(long chunkId)
     {
-        return executeQuery(SQLStatement.GET_MOVABLE_IDS_IN_CHUNK.constructPPreparedStatement()
-                                                                 .setLong(1, chunkId),
-                            resultSet ->
-                            {
-                                final List<Long> movables = new ArrayList<>();
-                                while (resultSet.next())
-                                    movables.add(resultSet.getLong("id"));
-                                return movables;
-                            }, new ArrayList<>(0));
+        return executeQuery(SQLStatement.GET_MOVABLES_IN_CHUNK.constructPPreparedStatement()
+                                                              .setLong(1, chunkId),
+                            this::getMovables, new ArrayList<>(0));
     }
 
     @Override

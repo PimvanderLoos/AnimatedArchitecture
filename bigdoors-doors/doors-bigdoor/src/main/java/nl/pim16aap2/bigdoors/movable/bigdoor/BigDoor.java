@@ -15,6 +15,7 @@ import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.MathUtil;
+import nl.pim16aap2.bigdoors.util.Rectangle;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
@@ -43,7 +44,7 @@ public class BigDoor extends AbstractMovable implements ITimerToggleable
     private final double longestAnimationCycleDistance;
 
     @Getter
-    private final Cuboid animationRange;
+    private final Rectangle animationRange;
 
     @PersistentVariable
     @GuardedBy("lock")
@@ -124,10 +125,12 @@ public class BigDoor extends AbstractMovable implements ITimerToggleable
      *     The cuboid that describes this door.
      * @return The animation range.
      */
-    public static Cuboid calculateAnimationRange(double maxRadius, Cuboid cuboid)
+    public static Rectangle calculateAnimationRange(double maxRadius, Cuboid cuboid)
     {
         final int radius = (int) Math.ceil(maxRadius);
-        return new Cuboid(cuboid.getMin().add(-radius, 0, -radius), cuboid.getMax().add(radius, 0, radius));
+        return new Cuboid(cuboid.getMin().add(-radius, 0, -radius),
+                          cuboid.getMax().add(radius, 0, radius))
+            .asFlatRectangle();
     }
 
     /**

@@ -241,12 +241,15 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     /**
      * Gets a list of movable UIDs that have their rotation point in a given chunk.
      *
-     * @param chunkId
-     *     The id of the chunk the movables are in.
+     * @param chunkX
+     *     The x-coordinate of the chunk (in chunk space).
+     * @param chunkZ
+     *     The z-coordinate of the chunk (in chunk space).
      * @return A list of movable UIDs that have their rotation point in a given chunk.
      */
-    public CompletableFuture<List<Long>> getMovablesInChunk(long chunkId)
+    public CompletableFuture<List<AbstractMovable>> getMovablesInChunk(int chunkX, int chunkZ)
     {
+        final long chunkId = Util.getChunkId(chunkX, chunkZ);
         return CompletableFuture.supplyAsync(() -> db.getMovablesInChunk(chunkId), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
