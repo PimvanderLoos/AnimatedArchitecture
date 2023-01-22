@@ -113,7 +113,7 @@ public class Clock extends AbstractMovable implements IHorizontalAxisAligned
         throws Exception
     {
         return new ClockMover<>(
-            context, this, movableSnapshot, getCurrentToggleDir(), responsible, getAnimationRange(), cause, actionType);
+            context, this, movableSnapshot, getCurrentToggleDir(), responsible, cause, actionType);
     }
 
     @Override

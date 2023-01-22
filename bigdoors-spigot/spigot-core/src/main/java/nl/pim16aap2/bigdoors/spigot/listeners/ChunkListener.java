@@ -77,7 +77,8 @@ public class ChunkListener extends AbstractListener
             // Abort all currently active BlockMovers that (might) interact with the chunk that is being unloaded.
             movableActivityManager.getBlockMovers()
                                   .filter(mover -> mover.getSnapshot().getWorld().equals(world))
-                                  .filter(mover -> chunkInsideAnimationRange(chunkCoords, mover.getAnimationRange()))
+                                  .filter(mover -> chunkInsideAnimationRange(chunkCoords,
+                                                                             mover.getSnapshot().getAnimationRange()))
                                   .forEach(BlockMover::abort);
         }
         catch (Exception e)

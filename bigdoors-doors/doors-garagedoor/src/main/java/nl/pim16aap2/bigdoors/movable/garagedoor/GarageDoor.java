@@ -230,12 +230,11 @@ public class GarageDoor extends AbstractMovable implements IHorizontalAxisAligne
     @Locked.Read
     protected BlockMover constructBlockMover(
         BlockMover.Context context, MovableSnapshot movableSnapshot, MovableActionCause cause, double time,
-        boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
-        MovableActionType actionType)
+        boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible, MovableActionType actionType)
         throws Exception
     {
         return new GarageDoorMover(
             context, this, movableSnapshot, time, skipAnimation, getCurrentToggleDir(), responsible, newCuboid,
-            getAnimationRange(), cause, actionType);
+            cause, actionType);
     }
 }

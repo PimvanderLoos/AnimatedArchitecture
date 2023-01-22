@@ -32,12 +32,11 @@ public class SlidingMover extends BlockMover
 
     public SlidingMover(
         Context context, AbstractMovable movable, MovableSnapshot snapshot, double time, boolean skipAnimation,
-        int blocksToMove, RotateDirection openDirection, IPPlayer player, Cuboid newCuboid, Cuboid animationRange,
-        MovableActionCause cause, MovableActionType actionType)
+        int blocksToMove, RotateDirection openDirection, IPPlayer player, Cuboid newCuboid, MovableActionCause cause,
+        MovableActionType actionType)
         throws Exception
     {
-        super(context, movable, snapshot, time, skipAnimation, openDirection, player, newCuboid, animationRange, cause,
-              actionType);
+        super(context, movable, snapshot, time, skipAnimation, openDirection, player, newCuboid, cause, actionType);
         this.blocksToMove = blocksToMove;
 
         northSouth = openDirection.equals(RotateDirection.NORTH) || openDirection.equals(RotateDirection.SOUTH);

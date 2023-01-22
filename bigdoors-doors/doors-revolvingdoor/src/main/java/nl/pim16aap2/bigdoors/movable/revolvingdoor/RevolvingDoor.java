@@ -112,7 +112,7 @@ public class RevolvingDoor extends AbstractMovable
     {
         return new RevolvingDoorMover(
             context, this, movableSnapshot, time, getCurrentToggleDir(), responsible, quarterCircles, cause, newCuboid,
-            getAnimationRange(), actionType);
+            actionType);
     }
 
     @Override

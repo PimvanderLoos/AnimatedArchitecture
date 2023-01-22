@@ -161,6 +161,6 @@ public class BigDoor extends AbstractMovable implements ITimerToggleable
     {
         return new BigDoorMover(
             context, this, movableSnapshot, getCurrentToggleDir(), time, skipAnimation, responsible, newCuboid,
-            getAnimationRange(), cause, actionType);
+            cause, actionType);
     }
 }

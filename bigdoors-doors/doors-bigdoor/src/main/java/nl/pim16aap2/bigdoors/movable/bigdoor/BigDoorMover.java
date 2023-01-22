@@ -24,12 +24,11 @@ public class BigDoorMover extends BlockMover
 
     public BigDoorMover(
         Context context, AbstractMovable movable, MovableSnapshot snapshot, RotateDirection rotDirection, double time,
-        boolean skipAnimation, IPPlayer player, Cuboid newCuboid, Cuboid animationRange, MovableActionCause cause,
+        boolean skipAnimation, IPPlayer player, Cuboid newCuboid, MovableActionCause cause,
         MovableActionType actionType)
         throws Exception
     {
-        super(context, movable, snapshot, time, skipAnimation, rotDirection, player, newCuboid, animationRange, cause,
-              actionType);
+        super(context, movable, snapshot, time, skipAnimation, rotDirection, player, newCuboid, cause, actionType);
 
         angle = rotDirection == RotateDirection.CLOCKWISE ? MathUtil.HALF_PI :
                 rotDirection == RotateDirection.COUNTERCLOCKWISE ? -MathUtil.HALF_PI : 0.0D;

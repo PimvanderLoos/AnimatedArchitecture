@@ -48,12 +48,11 @@ public class BridgeMover<T extends AbstractMovable & IHorizontalAxisAligned> ext
      */
     public BridgeMover(
         Context context, T movable, MovableSnapshot snapshot, double time, RotateDirection rotateDirection,
-        boolean skipAnimation, IPPlayer player, Cuboid newCuboid, Cuboid animationRange, MovableActionCause cause,
+        boolean skipAnimation, IPPlayer player, Cuboid newCuboid, MovableActionCause cause,
         MovableActionType actionType)
         throws Exception
     {
-        super(context, movable, snapshot, time, skipAnimation, rotateDirection, player, newCuboid, animationRange,
-              cause, actionType);
+        super(context, movable, snapshot, time, skipAnimation, rotateDirection, player, newCuboid, cause, actionType);
 
         northSouth = movable.isNorthSouthAligned();
         rotationCenter = snapshot.getRotationPoint().toDouble().add(0.5, 0, 0.5);

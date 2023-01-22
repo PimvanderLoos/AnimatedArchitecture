@@ -31,12 +31,11 @@ public class GarageDoorMover extends BlockMover
 
     public GarageDoorMover(
         Context context, GarageDoor movable, MovableSnapshot snapshot, double time, boolean skipAnimation,
-        RotateDirection rotateDirection, IPPlayer player, Cuboid newCuboid, Cuboid animationRange,
-        MovableActionCause cause, MovableActionType actionType)
+        RotateDirection rotateDirection, IPPlayer player, Cuboid newCuboid, MovableActionCause cause,
+        MovableActionType actionType)
         throws Exception
     {
-        super(context, movable, snapshot, time, skipAnimation, rotateDirection, player, newCuboid, animationRange,
-              cause, actionType);
+        super(context, movable, snapshot, time, skipAnimation, rotateDirection, player, newCuboid, cause, actionType);
 
         isOpen = snapshot.isOpen();
 

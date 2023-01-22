@@ -144,6 +144,6 @@ public class Portcullis extends AbstractMovable implements IDiscreteMovement, IT
     {
         return new VerticalMover(
             context, this, movableSnapshot, time, skipAnimation, getDirectedBlocksToMove(), responsible, newCuboid,
-            getAnimationRange(), cause, actionType);
+            cause, actionType);
     }
 }

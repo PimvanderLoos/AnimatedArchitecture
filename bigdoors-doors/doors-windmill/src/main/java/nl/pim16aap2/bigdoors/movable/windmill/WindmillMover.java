@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
 import nl.pim16aap2.bigdoors.movable.drawbridge.BridgeMover;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
-import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.MathUtil;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -29,11 +28,11 @@ public class WindmillMover<T extends AbstractMovable & IHorizontalAxisAligned> e
 
     public WindmillMover(
         Context context, T movable, MovableSnapshot snapshot, double time, RotateDirection rotateDirection,
-        IPPlayer player, Cuboid animationRange, MovableActionCause cause, MovableActionType actionType)
+        IPPlayer player, MovableActionCause cause, MovableActionType actionType)
         throws Exception
     {
-        super(context, movable, snapshot, time, rotateDirection, false, player, snapshot.getCuboid(), animationRange,
-              cause, actionType);
+        super(context, movable, snapshot, time, rotateDirection, false, player, snapshot.getCuboid(), cause,
+              actionType);
 
         step = MathUtil.HALF_PI / (20.0f * super.time * 2.0f);
     }
