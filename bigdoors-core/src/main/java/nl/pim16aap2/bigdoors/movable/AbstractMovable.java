@@ -493,18 +493,6 @@ public abstract class AbstractMovable implements IMovable
     }
 
     @Override
-    public boolean isOpenable()
-    {
-        return base.isOpenable();
-    }
-
-    @Override
-    public boolean isCloseable()
-    {
-        return base.isCloseable();
-    }
-
-    @Override
     public Collection<MovableOwner> getOwners()
     {
         return base.getOwners();

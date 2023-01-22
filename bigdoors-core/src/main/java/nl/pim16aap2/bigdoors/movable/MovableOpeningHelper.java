@@ -23,12 +23,14 @@ import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
 import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.managers.MovableRegistry;
 import nl.pim16aap2.bigdoors.managers.MovableTypeManager;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovableActivityManager;
 import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.util.Limit;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -61,6 +63,7 @@ public final class MovableOpeningHelper
     private final IBigDoorsEventFactory bigDoorsEventFactory;
     private final MovableRegistry movableRegistry;
     private final IChunkLoader chunkLoader;
+    private final LimitsManager limitsManager;
     private final IBigDoorsEventCaller bigDoorsEventCaller;
 
     @Inject //
@@ -78,6 +81,7 @@ public final class MovableOpeningHelper
         IBigDoorsEventFactory bigDoorsEventFactory,
         MovableRegistry movableRegistry,
         IChunkLoader chunkLoader,
+        LimitsManager limitsManager,
         IBigDoorsEventCaller bigDoorsEventCaller)
     {
         this.localizer = localizer;
@@ -93,6 +97,7 @@ public final class MovableOpeningHelper
         this.bigDoorsEventFactory = bigDoorsEventFactory;
         this.movableRegistry = movableRegistry;
         this.chunkLoader = chunkLoader;
+        this.limitsManager = limitsManager;
         this.bigDoorsEventCaller = bigDoorsEventCaller;
     }
 
@@ -249,7 +254,7 @@ public final class MovableOpeningHelper
         movable.getLock().readLock().lock();
         try
         {
-            if (movable.base.exceedSizeLimit(responsible))
+            if (exceedSizeLimit(movable, responsible))
                 return abort(movable, MovableToggleResult.TOO_BIG, cause, responsible, messageReceiver);
 
             newCuboid = movable.getPotentialNewCoordinates();
@@ -267,6 +272,20 @@ public final class MovableOpeningHelper
         return toggle(
             snapshot, movable, cause, messageReceiver, responsible, skipAnimation, actionType, canSkipAnimation,
             newCuboid.get(), animationTime);
+    }
+
+    /**
+     * Checks if this movable exceeds the size limit for the given player.
+     * <p>
+     * See {@link LimitsManager#exceedsLimit(IPPlayer, Limit, int)}.
+     *
+     * @param player
+     *     The player whose limit to compare against this movable's size.
+     * @return True if {@link AbstractMovable#getBlockCount()} exceeds the {@link Limit#MOVABLE_SIZE} for this movable.
+     */
+    private boolean exceedSizeLimit(AbstractMovable movable, IPPlayer player)
+    {
+        return limitsManager.exceedsLimit(player, Limit.MOVABLE_SIZE, movable.getBlockCount());
     }
 
     /**
