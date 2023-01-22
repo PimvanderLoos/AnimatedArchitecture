@@ -1,15 +1,10 @@
 package nl.pim16aap2.bigdoors.movable.drawbridge;
 
-import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
-import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
-import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
-import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
-import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.MathUtil;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -32,27 +27,10 @@ public class BridgeMover<T extends AbstractMovable & IHorizontalAxisAligned> ext
     private final double step;
     protected final double angle;
 
-    /**
-     * Constructs a {@link BlockMover}.
-     *
-     * @param movable
-     *     The {@link MovableBase}.
-     * @param time
-     *     The amount of time (in seconds) the movable will try to toggle itself in.
-     * @param skipAnimation
-     *     If the movable should be opened instantly (i.e. skip animation) or not.
-     * @param rotateDirection
-     *     The direction the {@link MovableBase} will move.
-     * @param player
-     *     The player who opened this movable.
-     */
-    public BridgeMover(
-        Context context, T movable, MovableSnapshot snapshot, double time, RotateDirection rotateDirection,
-        boolean skipAnimation, IPPlayer player, Cuboid newCuboid, MovableActionCause cause,
-        MovableActionType actionType)
+    public BridgeMover(T movable, MovementRequestData data, RotateDirection rotateDirection)
         throws Exception
     {
-        super(context, movable, snapshot, time, skipAnimation, rotateDirection, player, newCuboid, cause, actionType);
+        super(movable, data, rotateDirection);
 
         northSouth = movable.isNorthSouthAligned();
         rotationCenter = snapshot.getRotationPoint().toDouble().add(0.5, 0, 0.5);

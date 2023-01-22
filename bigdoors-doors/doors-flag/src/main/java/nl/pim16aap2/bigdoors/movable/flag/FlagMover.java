@@ -2,13 +2,9 @@ package nl.pim16aap2.bigdoors.movable.flag;
 
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
-import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
-import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
-import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
-import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -21,7 +17,7 @@ import java.util.function.BiFunction;
  *
  * @author Pim
  */
-@SuppressWarnings({"FieldCanBeLocal", "unused", "squid:S1172", "CommentedOutCode", "PMD"})
+@SuppressWarnings({"FieldCanBeLocal", "unused", "squid:S1172", "PMD"})
 @Flogger
 public class FlagMover extends BlockMover
 {
@@ -31,15 +27,12 @@ public class FlagMover extends BlockMover
     private final int length;
     private final int minY;
 
-    public FlagMover(
-        Context context, Flag movable, MovableSnapshot snapshot, double time, IPPlayer player, MovableActionCause cause,
-        MovableActionType actionType)
+    public FlagMover(Flag movable, MovementRequestData data)
         throws Exception
     {
-        super(context, movable, snapshot, time, false, RotateDirection.NONE, player, snapshot.getCuboid(),
-              cause, actionType);
+        super(movable, data);
 
-        this.config = context.getConfig();
+        this.config = data.getConfig();
 
         final Vector3Di dims = oldCuboid.getDimensions();
         minY = snapshot.getMinimum().y();

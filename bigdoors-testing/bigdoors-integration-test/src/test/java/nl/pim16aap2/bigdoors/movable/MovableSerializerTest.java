@@ -3,13 +3,11 @@ package nl.pim16aap2.bigdoors.movable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
-import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
-import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
-import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
 import nl.pim16aap2.bigdoors.managers.MovableRegistry;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.testimplementations.TestPWorld;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.Rectangle;
@@ -191,10 +189,7 @@ class MovableSerializerTest
         }
 
         @Override
-        protected BlockMover constructBlockMover(
-            BlockMover.Context context, MovableSnapshot movableSnapshot, MovableActionCause cause,
-            double time, boolean skipAnimation, Cuboid newCuboid,
-            IPPlayer responsible, MovableActionType actionType)
+        protected BlockMover constructBlockMover(MovementRequestData data)
         {
             return null;
         }

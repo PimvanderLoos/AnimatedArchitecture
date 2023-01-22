@@ -1,14 +1,11 @@
 package nl.pim16aap2.bigdoors.movable.windmill;
 
-import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
-import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
-import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
 import nl.pim16aap2.bigdoors.movable.drawbridge.BridgeMover;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.MathUtil;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -26,13 +23,10 @@ public class WindmillMover<T extends AbstractMovable & IHorizontalAxisAligned> e
 
     private final double step;
 
-    public WindmillMover(
-        Context context, T movable, MovableSnapshot snapshot, double time, RotateDirection rotateDirection,
-        IPPlayer player, MovableActionCause cause, MovableActionType actionType)
+    public WindmillMover(T movable, MovementRequestData data, RotateDirection rotateDirection)
         throws Exception
     {
-        super(context, movable, snapshot, time, rotateDirection, false, player, snapshot.getCuboid(), cause,
-              actionType);
+        super(movable, data, rotateDirection);
 
         step = MathUtil.HALF_PI / (20.0f * super.time * 2.0f);
     }

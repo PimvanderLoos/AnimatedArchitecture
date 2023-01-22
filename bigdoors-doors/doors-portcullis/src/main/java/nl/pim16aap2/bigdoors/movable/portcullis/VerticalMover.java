@@ -1,14 +1,9 @@
 package nl.pim16aap2.bigdoors.movable.portcullis;
 
-import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
-import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
-import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
-import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 
@@ -22,15 +17,11 @@ public class VerticalMover extends BlockMover
     protected final int blocksToMove;
     private final double step;
 
-    public VerticalMover(
-        Context context, AbstractMovable movable, MovableSnapshot snapshot, double time, boolean skipAnimation,
-        int blocksToMove, IPPlayer player, Cuboid newCuboid, MovableActionCause cause, MovableActionType actionType)
+    public VerticalMover(AbstractMovable movable, MovementRequestData data, int blocksToMove)
         throws Exception
     {
-        super(context, movable, snapshot, time, skipAnimation, RotateDirection.NONE, player, newCuboid, cause,
-              actionType);
+        super(movable, data);
         this.blocksToMove = blocksToMove;
-
         step = ((double) blocksToMove) / ((double) super.animationDuration);
     }
 

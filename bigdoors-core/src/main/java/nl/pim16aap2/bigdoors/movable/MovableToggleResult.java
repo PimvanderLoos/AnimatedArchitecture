@@ -36,6 +36,11 @@ public enum MovableToggleResult
     ERROR("constants.movable_toggle_result.generic_toggle_failure"),
 
     /**
+     * Called when trying to skip an animation for a type of movable that does not support skipping animations.
+     */
+    CANNOT_SKIP("constants.movable_toggle_result.cannot_skip"),
+
+    /**
      * The exact instance of the {@link MovableBase} that is to be toggled isn't registered in the
      * {@link MovableRegistry}.
      */

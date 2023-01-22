@@ -1,13 +1,9 @@
 package nl.pim16aap2.bigdoors.movable.slidingdoor;
 
-import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
-import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
-import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
-import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
@@ -31,15 +27,13 @@ public class SlidingMover extends BlockMover
     protected final int blocksToMove;
 
     public SlidingMover(
-        Context context, AbstractMovable movable, MovableSnapshot snapshot, double time, boolean skipAnimation,
-        int blocksToMove, RotateDirection openDirection, IPPlayer player, Cuboid newCuboid, MovableActionCause cause,
-        MovableActionType actionType)
+        AbstractMovable movable, MovementRequestData data, RotateDirection movementDirection, int blocksToMove)
         throws Exception
     {
-        super(context, movable, snapshot, time, skipAnimation, openDirection, player, newCuboid, cause, actionType);
+        super(movable, data, movementDirection);
         this.blocksToMove = blocksToMove;
 
-        northSouth = openDirection.equals(RotateDirection.NORTH) || openDirection.equals(RotateDirection.SOUTH);
+        northSouth = movementDirection.equals(RotateDirection.NORTH) || movementDirection.equals(RotateDirection.SOUTH);
 
         moveX = northSouth ? 0 : blocksToMove;
         moveZ = northSouth ? blocksToMove : 0;

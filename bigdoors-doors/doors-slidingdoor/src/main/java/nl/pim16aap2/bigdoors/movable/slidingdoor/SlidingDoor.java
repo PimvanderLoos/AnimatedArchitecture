@@ -6,16 +6,13 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Locked;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
-import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
-import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.MovableBase;
-import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IDiscreteMovement;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.Rectangle;
@@ -143,13 +140,9 @@ public class SlidingDoor extends AbstractMovable implements IDiscreteMovement, I
 
     @Override
     @Locked.Read
-    protected BlockMover constructBlockMover(
-        BlockMover.Context context, MovableSnapshot movableSnapshot, MovableActionCause cause, double time,
-        boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible, MovableActionType actionType)
+    protected BlockMover constructBlockMover(MovementRequestData data)
         throws Exception
     {
-        return new SlidingMover(
-            context, this, movableSnapshot, time, skipAnimation, getBlocksToMove(), getCurrentToggleDir(),
-            responsible, newCuboid, cause, actionType);
+        return new SlidingMover(this, data, getCurrentToggleDir(), getBlocksToMove());
     }
 }

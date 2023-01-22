@@ -14,8 +14,8 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.MovableRegistry;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
-import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -36,38 +36,34 @@ import java.util.function.Supplier;
  *
  * @author Pim
  */
-@EqualsAndHashCode
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Flogger
 public abstract class AbstractMovable implements IMovable
 {
     /**
      * The lock as used by both the {@link MovableBase} and this class.
      */
-    @EqualsAndHashCode.Exclude
     private final ReentrantReadWriteLock lock;
-
-    @EqualsAndHashCode.Exclude
     private final MovableSerializer<?> serializer;
-    private final MovableRegistry movableRegistry;
-    private final AutoCloseScheduler autoCloseScheduler;
 
     @Getter
+    @EqualsAndHashCode.Include
     protected final MovableBase base;
     protected final ILocalizer localizer;
     protected final IConfigLoader config;
     protected final MovableOpeningHelper movableOpeningHelper;
 
-    protected AbstractMovable(
-        MovableBase base, ILocalizer localizer, MovableRegistry movableRegistry,
-        AutoCloseScheduler autoCloseScheduler, MovableOpeningHelper movableOpeningHelper)
+    private AbstractMovable(
+        MovableBase base,
+        ILocalizer localizer,
+        MovableRegistry movableRegistry,
+        MovableOpeningHelper movableOpeningHelper)
     {
         serializer = getType().getMovableSerializer();
         this.lock = base.getLock();
         this.base = base;
         this.localizer = localizer;
-        this.movableRegistry = movableRegistry;
         this.config = base.getConfig();
-        this.autoCloseScheduler = autoCloseScheduler;
         this.movableOpeningHelper = movableOpeningHelper;
 
         log.atFinest().log("Instantiating movable: %d", base.getUid());
@@ -78,8 +74,7 @@ public abstract class AbstractMovable implements IMovable
 
     protected AbstractMovable(MovableBase base)
     {
-        this(base, base.getLocalizer(), base.getMovableRegistry(),
-             base.getAutoCloseScheduler(), base.getMovableOpeningHelper());
+        this(base, base.getLocalizer(), base.getMovableRegistry(), base.getMovableOpeningHelper());
     }
 
     /**
@@ -257,33 +252,11 @@ public abstract class AbstractMovable implements IMovable
     }
 
     /**
-     * Gets the {@link Supplier} for the {@link BlockMover} for this type.
-     * <p>
-     * This method MUST BE CALLED FROM THE MAIN THREAD! (Because of MC, spawning entities needs to happen
-     * synchronously)
-     *
-     * @param context
-     *     The {@link BlockMover.Context} to run the block mover in.
-     * @param movableSnapshot
-     *     A snapshot of the movable created before the toggle.
-     * @param cause
-     *     What caused the toggle action.
-     * @param time
-     *     The amount of time this {@link MovableBase} will try to use to move. The maximum speed is limited, so at a
-     *     certain point lower values will not increase movable speed.
-     * @param skipAnimation
-     *     If the {@link MovableBase} should be opened instantly (i.e. skip animation) or not.
-     * @param newCuboid
-     *     The {@link Cuboid} representing the area the movable will take up after the toggle.
-     * @param responsible
-     *     The {@link IPPlayer} responsible for the movable action.
-     * @param actionType
-     *     The type of action that will be performed by the BlockMover.
-     * @return The {@link BlockMover} for this class.
+     * @param data
+     *     The data for the toggle request.
+     * @return A new {@link BlockMover} for this type of movable.
      */
-    protected abstract BlockMover constructBlockMover(
-        BlockMover.Context context, MovableSnapshot movableSnapshot, MovableActionCause cause, double time,
-        boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible, MovableActionType actionType)
+    protected abstract BlockMover constructBlockMover(MovementRequestData data)
         throws Exception;
 
     /**

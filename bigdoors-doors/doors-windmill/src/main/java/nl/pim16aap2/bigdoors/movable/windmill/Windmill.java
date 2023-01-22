@@ -6,17 +6,14 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Locked;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
-import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
-import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.MovableBase;
-import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
 import nl.pim16aap2.bigdoors.movable.drawbridge.Drawbridge;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IPerpetualMover;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.MathUtil;
 import nl.pim16aap2.bigdoors.util.Rectangle;
@@ -115,12 +112,9 @@ public class Windmill extends AbstractMovable implements IHorizontalAxisAligned,
 
     @Override
     @Locked.Read
-    protected BlockMover constructBlockMover(
-        BlockMover.Context context, MovableSnapshot movableSnapshot, MovableActionCause cause, double time,
-        boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible, MovableActionType actionType)
+    protected BlockMover constructBlockMover(MovementRequestData data)
         throws Exception
     {
-        return new WindmillMover<>(
-            context, this, movableSnapshot, time, getCurrentToggleDir(), responsible, cause, actionType);
+        return new WindmillMover<>(this, data, getCurrentToggleDir());
     }
 }
