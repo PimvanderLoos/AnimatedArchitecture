@@ -20,14 +20,13 @@ import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
 import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
-import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.managers.MovableRegistry;
 import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovableActivityManager;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.Limit;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,7 +50,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 @EqualsAndHashCode(callSuper = false)
 @Flogger
-public final class MovableBase extends DatabaseManager.FriendMovableAccessor implements IMovable
+public final class MovableBase extends DatabaseManager.FriendMovableAccessor
 {
     @Getter(AccessLevel.PACKAGE)
     @EqualsAndHashCode.Exclude @ToString.Exclude
@@ -143,9 +142,6 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor imp
     private final MovableActivityManager movableActivityManager;
 
     @EqualsAndHashCode.Exclude
-    private final LimitsManager limitsManager;
-
-    @EqualsAndHashCode.Exclude
     private final MovableToggleRequestBuilder movableToggleRequestBuilder;
 
     @EqualsAndHashCode.Exclude
@@ -162,7 +158,7 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor imp
         @Assisted RotateDirection openDir, @Assisted MovableOwner primeOwner,
         @Assisted @Nullable Map<UUID, MovableOwner> owners, ILocalizer localizer,
         DatabaseManager databaseManager, MovableRegistry movableRegistry, MovableActivityManager movableActivityManager,
-        LimitsManager limitsManager, AutoCloseScheduler autoCloseScheduler, MovableOpeningHelper movableOpeningHelper,
+        AutoCloseScheduler autoCloseScheduler, MovableOpeningHelper movableOpeningHelper,
         MovableToggleRequestBuilder movableToggleRequestBuilder, IPPlayerFactory playerFactory,
         Provider<BlockMover.Context> blockMoverContextProvider,
         IPExecutor executor, IConfigLoader config)
@@ -192,7 +188,6 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor imp
         this.databaseManager = databaseManager;
         this.movableRegistry = movableRegistry;
         this.movableActivityManager = movableActivityManager;
-        this.limitsManager = limitsManager;
         this.autoCloseScheduler = autoCloseScheduler;
         this.movableOpeningHelper = movableOpeningHelper;
         this.movableToggleRequestBuilder = movableToggleRequestBuilder;
@@ -205,7 +200,6 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor imp
      * @return A new {@link MovableSnapshot} of this {@link MovableBase}.
      */
     @Locked.Read
-    @Override
     public MovableSnapshot getSnapshot()
     {
         return new MovableSnapshot(this);
@@ -238,33 +232,19 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor imp
         owners.put(uuid, movableOwner);
     }
 
-    /**
-     * Checks if this movable exceeds the size limit for the given player.
-     * <p>
-     * See {@link LimitsManager#exceedsLimit(IPPlayer, Limit, int)}.
-     *
-     * @param player
-     *     The player whose limit to compare against this movable's size.
-     * @return True if {@link #getBlockCount()} exceeds the {@link Limit#MOVABLE_SIZE} for this movable.
-     */
-    boolean exceedSizeLimit(IPPlayer player)
-    {
-        return limitsManager.exceedsLimit(player, Limit.MOVABLE_SIZE, getBlockCount());
-    }
-
-    @Locked.Read void onRedstoneChange(AbstractMovable abstractMovable, int newCurrent)
+    @Locked.Read void onRedstoneChange(AbstractMovable movable, int newCurrent)
     {
         final @Nullable MovableActionType movableActionType;
-        if (newCurrent == 0 && isCloseable())
+        if (newCurrent == 0 && movable.isCloseable())
             movableActionType = MovableActionType.CLOSE;
-        else if (newCurrent > 0 && isOpenable())
-            movableActionType = MovableActionType.CLOSE;
+        else if (newCurrent > 0 && movable.isOpenable())
+            movableActionType = MovableActionType.OPEN;
         else
             movableActionType = null;
 
         if (movableActionType != null)
             movableToggleRequestBuilder.builder()
-                                       .movable(abstractMovable)
+                                       .movable(movable)
                                        .movableActionCause(MovableActionCause.REDSTONE)
                                        .movableActionType(movableActionType)
                                        .messageReceiverServer()
@@ -288,7 +268,6 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor imp
         return owners.remove(uuid) != null;
     }
 
-    @Override
     @Locked.Read
     public Collection<MovableOwner> getOwners()
     {
@@ -297,21 +276,18 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor imp
         return ret;
     }
 
-    @Override
     @Locked.Read
     public Optional<MovableOwner> getOwner(UUID uuid)
     {
         return Optional.ofNullable(owners.get(uuid));
     }
 
-    @Override
     @Locked.Read
     public boolean isOwner(UUID uuid)
     {
         return owners.containsKey(uuid);
     }
 
-    @Override
     @Locked.Write
     public void setCoordinates(Cuboid newCuboid)
     {
@@ -374,10 +350,10 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor imp
             + formatLine("Cuboid", getCuboid())
             + formatLine("Rotation Point", this.getRotationPoint())
             + formatLine("PowerBlock Position: ", getPowerBlock())
-            + formatLine("PowerBlock Hash: ", getChunkId())
+            + formatLine("PowerBlock Hash: ", Util.getChunkId(getPowerBlock()))
             + formatLine("World", getWorld())
-            + "This movable is " + (isLocked ? "" : "NOT ") + "locked.\n"
-            + "This movable is " + (isOpen ? "open.\n" : "closed.\n")
+            + formatLine("This movable is ", (isLocked ? "locked" : "unlocked"))
+            + formatLine("This movable is ", (isOpen ? "open" : "closed"))
             + formatLine("OpenDir", openDir.name());
     }
 
@@ -393,6 +369,7 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor imp
      *
      * @return True if the thread from which this method is called has a read lock or a write lock on this object.
      */
+    @SuppressWarnings("unused")
     public boolean currentThreadHasLock()
     {
         return lock.isWriteLockedByCurrentThread() || lock.getReadHoldCount() > 0;
