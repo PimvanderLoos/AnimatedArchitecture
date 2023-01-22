@@ -1,12 +1,8 @@
 package nl.pim16aap2.bigdoors.movable.garagedoor;
 
-import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
-import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
-import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
-import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
-import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.IVector3D;
@@ -30,12 +26,10 @@ public class GarageDoorMover extends BlockMover
     private final boolean isOpen;
 
     public GarageDoorMover(
-        Context context, GarageDoor movable, MovableSnapshot snapshot, double time, double multiplier,
-        boolean skipAnimation, RotateDirection rotateDirection, IPPlayer player, Cuboid newCuboid,
-        MovableActionCause cause, MovableActionType actionType)
+        GarageDoor movable, MovementRequestData data, RotateDirection rotateDirection)
         throws Exception
     {
-        super(context, movable, snapshot, time, skipAnimation, rotateDirection, player, newCuboid, cause, actionType);
+        super(movable, data, rotateDirection);
 
         isOpen = snapshot.isOpen();
 

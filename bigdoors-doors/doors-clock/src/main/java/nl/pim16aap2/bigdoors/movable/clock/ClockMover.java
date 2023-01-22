@@ -1,14 +1,11 @@
 package nl.pim16aap2.bigdoors.movable.clock;
 
-import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
-import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
-import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.movable.windmill.WindmillMover;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.WorldTime;
@@ -51,12 +48,10 @@ public class ClockMover<T extends AbstractMovable & IHorizontalAxisAligned> exte
      */
     protected final int angleDirectionMultiplier;
 
-    public ClockMover(
-        Context context, T movable, MovableSnapshot snapshot, RotateDirection rotateDirection, IPPlayer player,
-        MovableActionCause cause, MovableActionType actionType)
+    public ClockMover(T movable, MovementRequestData data, RotateDirection rotateDirection)
         throws Exception
     {
-        super(context, movable, snapshot, 0.0D, 0.0D, rotateDirection, player, cause, actionType);
+        super(movable, data, rotateDirection);
         super.movementMethod = MovementMethod.TELEPORT;
 
         isHourArm = northSouth ? this::isHourArmNS : this::isHourArmEW;
