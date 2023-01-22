@@ -1,14 +1,10 @@
 package nl.pim16aap2.bigdoors.movable.bigdoor;
 
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
-import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
-import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
-import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.MathUtil;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.IVector3D;
@@ -22,13 +18,10 @@ public class BigDoorMover extends BlockMover
     private final double angle;
     private final double step;
 
-    public BigDoorMover(
-        Context context, AbstractMovable movable, MovableSnapshot snapshot, RotateDirection rotDirection, double time,
-        boolean skipAnimation, IPPlayer player, Cuboid newCuboid, MovableActionCause cause,
-        MovableActionType actionType)
+    public BigDoorMover(AbstractMovable movable, MovementRequestData data, RotateDirection rotDirection)
         throws Exception
     {
-        super(context, movable, snapshot, time, skipAnimation, rotDirection, player, newCuboid, cause, actionType);
+        super(movable, data, rotDirection);
 
         angle = rotDirection == RotateDirection.CLOCKWISE ? MathUtil.HALF_PI :
                 rotDirection == RotateDirection.COUNTERCLOCKWISE ? -MathUtil.HALF_PI : 0.0D;

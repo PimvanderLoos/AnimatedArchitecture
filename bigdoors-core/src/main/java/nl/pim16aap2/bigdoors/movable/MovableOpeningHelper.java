@@ -29,6 +29,7 @@ import nl.pim16aap2.bigdoors.managers.MovableTypeManager;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovableActivityManager;
+import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.Limit;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -65,6 +66,7 @@ public final class MovableOpeningHelper
     private final IChunkLoader chunkLoader;
     private final LimitsManager limitsManager;
     private final IBigDoorsEventCaller bigDoorsEventCaller;
+    private final MovementRequestData.IFactory movementRequestDataFactory;
 
     @Inject //
     MovableOpeningHelper(
@@ -82,7 +84,8 @@ public final class MovableOpeningHelper
         MovableRegistry movableRegistry,
         IChunkLoader chunkLoader,
         LimitsManager limitsManager,
-        IBigDoorsEventCaller bigDoorsEventCaller)
+        IBigDoorsEventCaller bigDoorsEventCaller,
+        MovementRequestData.IFactory movementRequestDataFactory)
     {
         this.localizer = localizer;
         this.textFactory = textFactory;
@@ -99,6 +102,7 @@ public final class MovableOpeningHelper
         this.chunkLoader = chunkLoader;
         this.limitsManager = limitsManager;
         this.bigDoorsEventCaller = bigDoorsEventCaller;
+        this.movementRequestDataFactory = movementRequestDataFactory;
     }
 
     /**
@@ -151,14 +155,30 @@ public final class MovableOpeningHelper
      */
     IMovableEventTogglePrepare callTogglePrepareEvent(
         MovableSnapshot snapshot, MovableActionCause cause, MovableActionType actionType, IPPlayer responsible,
-        double time,
-        boolean skipAnimation, Cuboid newCuboid)
+        double time, boolean skipAnimation, Cuboid newCuboid)
     {
         final IMovableEventTogglePrepare event =
             bigDoorsEventFactory.createTogglePrepareEvent(
                 snapshot, cause, actionType, responsible, time, skipAnimation, newCuboid);
         callMovableToggleEvent(event);
         return event;
+    }
+
+    /**
+     * See
+     * {@link IBigDoorsEventFactory#createTogglePrepareEvent(MovableSnapshot, MovableActionCause, MovableActionType,
+     * IPPlayer, double, boolean, Cuboid)}.
+     */
+    IMovableEventTogglePrepare callTogglePrepareEvent(MovementRequestData data)
+    {
+        return callTogglePrepareEvent(
+            data.getSnapshotOfMovable(),
+            data.getCause(),
+            data.getActionType(),
+            data.getResponsible(),
+            data.getAnimationTime(),
+            data.isAnimationSkipped(),
+            data.getNewCuboid());
     }
 
     /**
@@ -177,6 +197,24 @@ public final class MovableOpeningHelper
         return event;
     }
 
+    /**
+     * See
+     * {@link IBigDoorsEventFactory#createToggleStartEvent(AbstractMovable, MovableSnapshot, MovableActionCause,
+     * MovableActionType, IPPlayer, double, boolean, Cuboid)}.
+     */
+    IMovableEventToggleStart callToggleStartEvent(AbstractMovable movable, MovementRequestData data)
+    {
+        return callToggleStartEvent(
+            movable,
+            data.getSnapshotOfMovable(),
+            data.getCause(),
+            data.getActionType(),
+            data.getResponsible(),
+            data.getAnimationTime(),
+            data.isAnimationSkipped(),
+            data.getNewCuboid());
+    }
+
     private void callMovableToggleEvent(IMovableToggleEvent prepareEvent)
     {
         bigDoorsEventCaller.callBigDoorsEvent(prepareEvent);
@@ -185,18 +223,25 @@ public final class MovableOpeningHelper
     /**
      * Registers a new block mover. Must be called from the main thread.
      */
-    boolean registerBlockMover(
-        AbstractMovable movable, MovableSnapshot snapshot, MovableActionCause cause, double time,
-        boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible, MovableActionType actionType)
+    boolean registerBlockMover(AbstractMovable movable, MovementRequestData data)
     {
-        return movable.base.registerBlockMover(
-            movable, snapshot, cause, time, skipAnimation, newCuboid, responsible, actionType);
+        try
+        {
+            final BlockMover blockMover = movable.constructBlockMover(data);
+
+            movableActivityManager.addBlockMover(blockMover);
+            executor.runOnMainThread(blockMover::startAnimation);
+        }
+        catch (Exception e)
+        {
+            log.atSevere().withCause(e).log();
+            return false;
+        }
+        return true;
     }
 
     private MovableToggleResult toggle(
-        MovableSnapshot snapshot, AbstractMovable targetMovable, MovableActionCause cause, IMessageable messageReceiver,
-        IPPlayer responsible, boolean skipAnimation, MovableActionType actionType,
-        boolean canSkipAnimation, Cuboid newCuboid, double animationTime)
+        MovableSnapshot snapshot, AbstractMovable targetMovable, MovementRequestData data, IMessageable messageReceiver)
     {
         if (snapshot.getOpenDir() == RotateDirection.NONE)
         {
@@ -205,39 +250,35 @@ public final class MovableOpeningHelper
         }
 
         if (!movableRegistry.isRegistered(targetMovable))
-            return abort(targetMovable, MovableToggleResult.INSTANCE_UNREGISTERED, cause, responsible,
+            return abort(targetMovable, MovableToggleResult.INSTANCE_UNREGISTERED, data.getCause(),
+                         data.getResponsible(), messageReceiver);
+
+        final MovableToggleResult isOpenable =
+            canBeToggled(snapshot, targetMovable.getType(), data.getNewCuboid(), data.getActionType());
+
+        if (isOpenable != MovableToggleResult.SUCCESS)
+            return abort(targetMovable, isOpenable, data.getCause(), data.getResponsible(), messageReceiver);
+
+        final IMovableEventTogglePrepare prepareEvent = callTogglePrepareEvent(data);
+        if (prepareEvent.isCancelled())
+            return abort(targetMovable, MovableToggleResult.CANCELLED, data.getCause(), data.getResponsible(),
                          messageReceiver);
 
-        if (skipAnimation && !canSkipAnimation)
-            return abort(targetMovable, MovableToggleResult.ERROR, cause, responsible, messageReceiver);
+        final @Nullable IPPlayer responsiblePlayer =
+            data.getCause().equals(MovableActionCause.PLAYER) ? data.getResponsible() : null;
+        if (!isLocationEmpty(data.getNewCuboid(), snapshot.getCuboid(), responsiblePlayer, snapshot.getWorld()))
+            return abort(targetMovable, MovableToggleResult.OBSTRUCTED, data.getCause(), data.getResponsible(),
+                         messageReceiver);
 
-        final MovableToggleResult isOpenable = canBeToggled(snapshot, targetMovable.getType(), newCuboid,
-                                                            actionType);
-        if (isOpenable != MovableToggleResult.SUCCESS)
-            return abort(targetMovable, isOpenable, cause, responsible, messageReceiver);
+        if (!canBreakBlocksBetweenLocs(snapshot, data.getNewCuboid(), data.getResponsible()))
+            return abort(targetMovable, MovableToggleResult.NO_PERMISSION, data.getCause(), data.getResponsible(),
+                         messageReceiver);
 
-        final IMovableEventTogglePrepare prepareEvent =
-            callTogglePrepareEvent(
-                snapshot, cause, actionType, responsible, animationTime, skipAnimation, newCuboid);
-
-        if (prepareEvent.isCancelled())
-            return abort(targetMovable, MovableToggleResult.CANCELLED, cause, responsible, messageReceiver);
-
-        final @Nullable IPPlayer responsiblePlayer = cause.equals(MovableActionCause.PLAYER) ? responsible : null;
-        if (!isLocationEmpty(newCuboid, snapshot.getCuboid(), responsiblePlayer, snapshot.getWorld()))
-            return abort(targetMovable, MovableToggleResult.OBSTRUCTED, cause, responsible, messageReceiver);
-
-        if (!canBreakBlocksBetweenLocs(snapshot, newCuboid, responsible))
-            return abort(targetMovable, MovableToggleResult.NO_PERMISSION, cause, responsible, messageReceiver);
-
-        final boolean scheduled = registerBlockMover(
-            targetMovable, snapshot, cause, animationTime, skipAnimation, newCuboid, responsible, actionType);
-
+        final boolean scheduled = registerBlockMover(targetMovable, data);
         if (!scheduled)
             return MovableToggleResult.ERROR;
 
-        executor.runAsync(() -> callToggleStartEvent(
-            targetMovable, snapshot, cause, actionType, responsible, animationTime, skipAnimation, newCuboid));
+        executor.runAsync(() -> callToggleStartEvent(targetMovable, data));
 
         return MovableToggleResult.SUCCESS;
     }
@@ -249,11 +290,14 @@ public final class MovableOpeningHelper
         final Optional<Cuboid> newCuboid;
         final double animationTime;
         final MovableSnapshot snapshot;
-        final boolean canSkipAnimation;
+        final MovementRequestData data;
 
         movable.getLock().readLock().lock();
         try
         {
+            if (skipAnimation && !movable.canSkipAnimation())
+                return abort(movable, MovableToggleResult.ERROR, cause, responsible, messageReceiver);
+
             if (exceedSizeLimit(movable, responsible))
                 return abort(movable, MovableToggleResult.TOO_BIG, cause, responsible, messageReceiver);
 
@@ -262,16 +306,16 @@ public final class MovableOpeningHelper
                 return abort(movable, MovableToggleResult.ERROR, cause, responsible, messageReceiver);
 
             animationTime = movable.getAnimationTime(targetTime);
-            canSkipAnimation = movable.canSkipAnimation();
             snapshot = movable.getSnapshot();
+
+            data = movementRequestDataFactory.newToggleRequestData(
+                snapshot, cause, animationTime, skipAnimation, newCuboid.get(), responsible, actionType);
         }
         finally
         {
             movable.getLock().readLock().unlock();
         }
-        return toggle(
-            snapshot, movable, cause, messageReceiver, responsible, skipAnimation, actionType, canSkipAnimation,
-            newCuboid.get(), animationTime);
+        return toggle(snapshot, movable, data, messageReceiver);
     }
 
     /**

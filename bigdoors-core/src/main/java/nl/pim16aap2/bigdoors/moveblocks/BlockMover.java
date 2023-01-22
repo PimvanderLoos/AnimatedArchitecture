@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.GlowingBlockSpawner;
-import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -16,7 +15,6 @@ import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimationHook;
 import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
-import nl.pim16aap2.bigdoors.audio.IAudioPlayer;
 import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
 import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
 import nl.pim16aap2.bigdoors.managers.AnimationHookManager;
@@ -30,8 +28,6 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
-import javax.inject.Inject;
-import javax.inject.Named;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -210,50 +206,49 @@ public abstract class BlockMover
      *
      * @param movable
      *     The {@link AbstractMovable}.
-     * @param snapshot
-     *     A snapshot of the movable created before the toggle.
-     * @param time
-     *     See {@link #time}.
-     * @param skipAnimation
-     *     If the movable should be opened instantly (i.e. skip animation) or not.
-     * @param openDirection
-     *     The direction the {@link AbstractMovable} will move.
-     * @param player
-     *     The player who opened this movable.
-     * @param newCuboid
-     *     The {@link Cuboid} representing the area the movable will take up after the toggle.
+     * @param data
+     *     The data of the movement request.
+     * @param movementDirection
+     *     The direction of the movement.
      */
-    protected BlockMover(
-        Context context, AbstractMovable movable, MovableSnapshot snapshot, double time, boolean skipAnimation,
-        RotateDirection openDirection, IPPlayer player, Cuboid newCuboid,
-        MovableActionCause cause, MovableActionType actionType)
+    protected BlockMover(AbstractMovable movable, MovementRequestData data, RotateDirection movementDirection)
         throws Exception
     {
-        executor = context.getExecutor();
-        movableActivityManager = context.getMovableActivityManager();
-        autoCloseScheduler = context.getAutoCloseScheduler();
-        animatedBlockFactory = context.getAnimatedBlockFactory();
-        locationFactory = context.getLocationFactory();
-        animationHookManager = context.getAnimationHookManager();
-        glowingBlockSpawner = context.getGlowingBlockSpawner();
-        serverTickTime = context.getServerTickTime();
+        executor = data.getExecutor();
+        movableActivityManager = data.getMovableActivityManager();
+        autoCloseScheduler = data.getAutoCloseScheduler();
+        animatedBlockFactory = data.getAnimatedBlockFactory();
+        locationFactory = data.getLocationFactory();
+        animationHookManager = data.getAnimationHookManager();
+        glowingBlockSpawner = data.getGlowingBlockSpawner();
+        serverTickTime = data.getServerTickTime();
 
-        autoCloseScheduler.unscheduleAutoClose(snapshot.getUid());
+        autoCloseScheduler.unscheduleAutoClose(data.getSnapshotOfMovable().getUid());
         this.movable = movable;
-        this.snapshot = snapshot;
-        this.time = time;
-        this.skipAnimation = skipAnimation;
-        this.openDirection = openDirection;
-        this.player = player;
+        this.snapshot = data.getSnapshotOfMovable();
+        this.time = data.getAnimationTime();
+        this.skipAnimation = data.isAnimationSkipped();
+        this.openDirection = movementDirection;
+        this.player = data.getResponsible();
         privateAnimatedBlocks = new CopyOnWriteArrayList<>();
         animatedBlocks = Collections.unmodifiableList(privateAnimatedBlocks);
-        this.newCuboid = newCuboid;
+        this.newCuboid = data.getNewCuboid();
         this.oldCuboid = snapshot.getCuboid();
-        this.cause = cause;
-        this.actionType = actionType;
+        this.cause = data.getCause();
+        this.actionType = data.getActionType();
         this.perpetualMovement = movable instanceof IPerpetualMover perpetualMover && perpetualMover.isPerpetual();
 
         this.animationDuration = (int) Math.min(Integer.MAX_VALUE, Math.round(1000 * this.time / serverTickTime));
+    }
+
+    /**
+     * See {@link #BlockMover(AbstractMovable, MovementRequestData, RotateDirection)}, with
+     * {@link RotateDirection#NONE}.
+     */
+    protected BlockMover(AbstractMovable movable, MovementRequestData data)
+        throws Exception
+    {
+        this(movable, data, RotateDirection.NONE);
     }
 
     public void abort()
@@ -759,46 +754,6 @@ public abstract class BlockMover
                 log.atSevere().withCause(e)
                    .log("Failed to execute '%s' for hook '%s'!", actionName, hook.getName());
             }
-        }
-    }
-
-    @Getter
-    public static final class Context
-    {
-        private final MovableActivityManager movableActivityManager;
-        private final AutoCloseScheduler autoCloseScheduler;
-        private final IPLocationFactory locationFactory;
-        private final IAudioPlayer audioPlayer;
-        private final IPExecutor executor;
-        private final IAnimatedBlockFactory animatedBlockFactory;
-        private final AnimationHookManager animationHookManager;
-        private final GlowingBlockSpawner glowingBlockSpawner;
-        private final IConfigLoader config;
-        private final int serverTickTime;
-
-        @Inject
-        public Context(
-            MovableActivityManager movableActivityManager,
-            AutoCloseScheduler autoCloseScheduler,
-            IPLocationFactory locationFactory,
-            IAudioPlayer audioPlayer,
-            IPExecutor executor,
-            IAnimatedBlockFactory animatedBlockFactory,
-            AnimationHookManager animationHookManager,
-            GlowingBlockSpawner glowingBlockSpawner,
-            IConfigLoader config,
-            @Named("serverTickTime") int serverTickTime)
-        {
-            this.movableActivityManager = movableActivityManager;
-            this.autoCloseScheduler = autoCloseScheduler;
-            this.locationFactory = locationFactory;
-            this.audioPlayer = audioPlayer;
-            this.executor = executor;
-            this.animatedBlockFactory = animatedBlockFactory;
-            this.animationHookManager = animationHookManager;
-            this.glowingBlockSpawner = glowingBlockSpawner;
-            this.config = config;
-            this.serverTickTime = serverTickTime;
         }
     }
 

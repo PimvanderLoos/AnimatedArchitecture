@@ -13,7 +13,6 @@ import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
-import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
@@ -22,8 +21,6 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.MovableRegistry;
 import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
-import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
-import nl.pim16aap2.bigdoors.moveblocks.MovableActivityManager;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -31,7 +28,6 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.concurrent.GuardedBy;
-import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -61,6 +57,8 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor
 
     @Getter
     private final IPWorld world;
+
+    private final MovableToggleRequestBuilder movableToggleRequestBuilder;
 
     @GuardedBy("lock")
     @Getter(onMethod_ = @Locked.Read)
@@ -139,29 +137,29 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor
     private final DatabaseManager databaseManager;
 
     @EqualsAndHashCode.Exclude
-    private final MovableActivityManager movableActivityManager;
-
-    @EqualsAndHashCode.Exclude
-    private final MovableToggleRequestBuilder movableToggleRequestBuilder;
-
-    @EqualsAndHashCode.Exclude
     private final IPPlayerFactory playerFactory;
 
-    @EqualsAndHashCode.Exclude
-    private final Provider<BlockMover.Context> blockMoverContextProvider;
-
-    @AssistedInject //
-    MovableBase(
-        @Assisted long uid, @Assisted String name, @Assisted Cuboid cuboid,
-        @Assisted("rotationPoint") Vector3Di rotationPoint, @Assisted("powerBlock") Vector3Di powerBlock,
-        @Assisted IPWorld world, @Assisted("isOpen") boolean isOpen, @Assisted("isLocked") boolean isLocked,
-        @Assisted RotateDirection openDir, @Assisted MovableOwner primeOwner,
-        @Assisted @Nullable Map<UUID, MovableOwner> owners, ILocalizer localizer,
-        DatabaseManager databaseManager, MovableRegistry movableRegistry, MovableActivityManager movableActivityManager,
-        AutoCloseScheduler autoCloseScheduler, MovableOpeningHelper movableOpeningHelper,
-        MovableToggleRequestBuilder movableToggleRequestBuilder, IPPlayerFactory playerFactory,
-        Provider<BlockMover.Context> blockMoverContextProvider,
-        IPExecutor executor, IConfigLoader config)
+    @AssistedInject MovableBase(
+        @Assisted long uid,
+        @Assisted String name,
+        @Assisted Cuboid cuboid,
+        @Assisted("rotationPoint") Vector3Di rotationPoint,
+        @Assisted("powerBlock") Vector3Di powerBlock,
+        @Assisted IPWorld world,
+        @Assisted("isOpen") boolean isOpen,
+        @Assisted("isLocked") boolean isLocked,
+        @Assisted RotateDirection openDir,
+        @Assisted MovableOwner primeOwner,
+        @Assisted @Nullable Map<UUID, MovableOwner> owners,
+        ILocalizer localizer,
+        DatabaseManager databaseManager,
+        MovableRegistry movableRegistry,
+        AutoCloseScheduler autoCloseScheduler,
+        MovableOpeningHelper movableOpeningHelper,
+        MovableToggleRequestBuilder movableToggleRequestBuilder,
+        IPPlayerFactory playerFactory,
+        IPExecutor executor,
+        IConfigLoader config)
     {
         this.uid = uid;
         this.name = name;
@@ -187,12 +185,10 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor
         this.localizer = localizer;
         this.databaseManager = databaseManager;
         this.movableRegistry = movableRegistry;
-        this.movableActivityManager = movableActivityManager;
         this.autoCloseScheduler = autoCloseScheduler;
         this.movableOpeningHelper = movableOpeningHelper;
         this.movableToggleRequestBuilder = movableToggleRequestBuilder;
         this.playerFactory = playerFactory;
-        this.blockMoverContextProvider = blockMoverContextProvider;
         this.executor = executor;
     }
 
@@ -292,51 +288,6 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor
     public void setCoordinates(Cuboid newCuboid)
     {
         cuboid = newCuboid;
-    }
-
-    /**
-     * Registers a {@link BlockMover} with the {@link MovableActivityManager}.
-     * <p>
-     * movableBase method MUST BE CALLED FROM THE MAIN THREAD! (Because of MC, spawning entities needs to happen
-     * synchronously)
-     *
-     * @param abstractMovable
-     *     The {@link AbstractMovable} to use.
-     * @param cause
-     *     What caused movableBase action.
-     * @param time
-     *     The amount of time movableBase {@link MovableBase} will try to use to move. The maximum speed is limited, so
-     *     at a certain point lower values will not increase movable speed.
-     * @param skipAnimation
-     *     If the {@link MovableBase} should be opened instantly (i.e. skip animation) or not.
-     * @param newCuboid
-     *     The {@link Cuboid} representing the area the movable will take up after the toggle.
-     * @param responsible
-     *     The {@link IPPlayer} responsible for the movable action.
-     * @param actionType
-     *     The type of action that will be performed by the BlockMover.
-     * @return True when everything went all right, otherwise false.
-     */
-    boolean registerBlockMover(
-        AbstractMovable abstractMovable, MovableSnapshot snapshot, MovableActionCause cause, double time,
-        boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
-        MovableActionType actionType)
-    {
-        try
-        {
-            final BlockMover blockMover = abstractMovable.constructBlockMover(
-                blockMoverContextProvider.get(), snapshot, cause, time, skipAnimation, newCuboid, responsible,
-                actionType);
-
-            movableActivityManager.addBlockMover(blockMover);
-            executor.scheduleOnMainThread(blockMover::startAnimation);
-        }
-        catch (Exception e)
-        {
-            log.atSevere().withCause(e).log();
-            return false;
-        }
-        return true;
     }
 
     /**

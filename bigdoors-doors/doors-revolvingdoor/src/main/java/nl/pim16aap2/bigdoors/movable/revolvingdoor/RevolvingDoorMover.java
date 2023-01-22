@@ -1,13 +1,9 @@
 package nl.pim16aap2.bigdoors.movable.revolvingdoor;
 
-import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
-import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
-import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
-import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.MathUtil;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.IVector3D;
@@ -26,14 +22,11 @@ public class RevolvingDoorMover extends BlockMover
     private final double step;
     private final double endStepSum;
 
-    @SuppressWarnings("unused")
     public RevolvingDoorMover(
-        Context context, AbstractMovable movable, MovableSnapshot snapshot, double time, double multiplier,
-        RotateDirection rotateDirection, IPPlayer player, int quarterCircles, MovableActionCause cause,
-        Cuboid newCuboid, MovableActionType actionType)
+        AbstractMovable movable, MovementRequestData data, RotateDirection rotateDirection, int quarterCircles)
         throws Exception
     {
-        super(context, movable, snapshot, time, false, rotateDirection, player, newCuboid, cause, actionType);
+        super(movable, data, rotateDirection);
 
         switch (rotateDirection)
         {
