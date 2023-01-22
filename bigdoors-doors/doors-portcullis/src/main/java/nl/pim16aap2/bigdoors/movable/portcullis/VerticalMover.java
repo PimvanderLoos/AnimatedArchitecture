@@ -4,7 +4,6 @@ import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 
@@ -21,7 +20,7 @@ public class VerticalMover extends BlockMover
     public VerticalMover(AbstractMovable movable, MovementRequestData data, int blocksToMove)
         throws Exception
     {
-        super(movable, data, RotateDirection.NONE);
+        super(movable, data);
         this.blocksToMove = blocksToMove;
         step = ((double) blocksToMove) / ((double) super.animationDuration);
     }

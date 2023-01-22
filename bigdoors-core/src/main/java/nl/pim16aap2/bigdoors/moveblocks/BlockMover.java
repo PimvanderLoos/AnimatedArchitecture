@@ -241,6 +241,16 @@ public abstract class BlockMover
         this.animationDuration = (int) Math.min(Integer.MAX_VALUE, Math.round(1000 * this.time / serverTickTime));
     }
 
+    /**
+     * See {@link #BlockMover(AbstractMovable, MovementRequestData, RotateDirection)}, with
+     * {@link RotateDirection#NONE}.
+     */
+    protected BlockMover(AbstractMovable movable, MovementRequestData data)
+        throws Exception
+    {
+        this(movable, data, RotateDirection.NONE);
+    }
+
     public void abort()
     {
         final @Nullable TimerTask moverTask0 = moverTask;

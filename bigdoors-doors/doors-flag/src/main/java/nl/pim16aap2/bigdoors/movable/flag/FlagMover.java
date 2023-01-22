@@ -5,7 +5,6 @@ import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -31,7 +30,7 @@ public class FlagMover extends BlockMover
     public FlagMover(Flag movable, MovementRequestData data)
         throws Exception
     {
-        super(movable, data, RotateDirection.NONE);
+        super(movable, data);
 
         this.config = data.getConfig();
 
