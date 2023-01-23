@@ -42,6 +42,8 @@ public abstract class ProtectionCompatDefinition implements IProtectionCompatDef
                 return PlotSquared5ProtectionCompat.class;
             case "6.":
                 return PlotSquared6ProtectionCompat.class;
+            case "7.":
+                return PlotSquared7ProtectionCompat.class;
             default:
                 logUnsupportedVersion("PlotSquared", version);
                 return null;

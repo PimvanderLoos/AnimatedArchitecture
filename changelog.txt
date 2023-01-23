@@ -1,5 +1,5 @@
 Alpha 0.1.8.44
--
+- Add support for PlotSquared 7. Thanks, Bloody_Mind, for the suggestion!
 
 Alpha 0.1.8.43
 - Fix startup issue on older versions of MC. Thanks, Trombettino, for the report!
