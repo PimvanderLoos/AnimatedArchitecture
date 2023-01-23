@@ -116,6 +116,11 @@ public final class CommandDefinition
                               PREFIX_USER + "setname",
                               null);
 
+    public static final CommandDefinition SET_OPEN_STATUS =
+        new CommandDefinition("SET_OPEN_STATUS",
+                              PREFIX_USER + "base",
+                              PREFIX_ADMIN + "bypass.setopenstatus");
+
     public static final CommandDefinition SET_OPEN_DIRECTION =
         new CommandDefinition("SET_OPEN_DIRECTION",
                               PREFIX_USER + "base",

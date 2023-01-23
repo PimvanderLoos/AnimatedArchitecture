@@ -50,6 +50,11 @@ public enum MovableAttribute
     AUTO_CLOSE_TIMER(PermissionLevel.ADMIN),
 
     /**
+     * The open status of a movable.
+     */
+    OPEN_STATUS(PermissionLevel.USER),
+
+    /**
      * The open direction of a movable.
      */
     OPEN_DIRECTION(PermissionLevel.USER),
