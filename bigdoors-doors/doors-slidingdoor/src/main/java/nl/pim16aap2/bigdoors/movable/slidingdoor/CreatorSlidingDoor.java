@@ -47,6 +47,7 @@ public class CreatorSlidingDoor extends Creator
                              factorySetFirstPos.messageKey("creator.sliding_door.step_1").construct(),
                              factorySetSecondPos.messageKey("creator.sliding_door.step_2").construct(),
                              factorySetPowerBlockPos.construct(),
+                             factorySetOpenStatus.construct(),
                              factorySetOpenDir.construct(),
                              stepBlocksToMove,
                              factoryConfirmPrice.construct(),

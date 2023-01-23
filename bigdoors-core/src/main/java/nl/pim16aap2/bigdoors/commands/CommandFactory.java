@@ -43,6 +43,8 @@ public final class CommandFactory
     @Delegate
     private final Toggle.IFactory toggleFactory;
     @Delegate
+    private final SetOpenStatus.IFactory setOpenStatusFactory;
+    @Delegate
     private final SetOpenDirection.IFactory setOpenDirectionFactory;
     @Delegate
     private final StopMovables.IFactory stopDoorsFactory;
@@ -66,6 +68,8 @@ public final class CommandFactory
     @Getter
     private final SetOpenDirectionDelayed setOpenDirectionDelayed;
     @Getter
+    private final SetOpenStatusDelayed setOpenStatusDelayed;
+    @Getter
     private final SetBlocksToMoveDelayed setBlocksToMoveDelayed;
 
     @Inject //
@@ -86,6 +90,7 @@ public final class CommandFactory
         SetAutoCloseTime.IFactory setAutoCloseTimeFactory, SetAutoCloseTimeDelayed setAutoCloseTimeDelayed,
         SetBlocksToMove.IFactory setBlocksToMoveFactory, SetBlocksToMoveDelayed setBlocksToMoveDelayed,
         SetName.IFactory setNameFactory,
+        SetOpenStatus.IFactory setOpenStatusFactory, SetOpenStatusDelayed setOpenStatusDelayed,
         SetOpenDirection.IFactory setOpenDirectionFactory, SetOpenDirectionDelayed setOpenDirectionDelayed,
         Specify.IFactory specifyFactory,
         StopMovables.IFactory stopDoorsFactory,
@@ -98,6 +103,8 @@ public final class CommandFactory
         this.confirmFactory = confirmFactory;
         this.inspectPowerBlockFactory = inspectPowerBlockFactory;
         this.restartFactory = restartFactory;
+        this.setOpenStatusFactory = setOpenStatusFactory;
+        this.setOpenStatusDelayed = setOpenStatusDelayed;
         this.setOpenDirectionDelayed = setOpenDirectionDelayed;
         this.versionFactory = versionFactory;
         this.cancelFactory = cancelFactory;

@@ -54,7 +54,10 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     @EqualsAndHashCode.Exclude
     private final ILocalizer localizer;
 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private final ITextFactory textFactory;
+
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private final DelayedCommandInputManager delayedCommandInputManager;

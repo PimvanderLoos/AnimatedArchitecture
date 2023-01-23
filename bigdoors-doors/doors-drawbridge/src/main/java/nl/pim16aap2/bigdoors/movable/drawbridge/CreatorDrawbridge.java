@@ -33,6 +33,7 @@ public class CreatorDrawbridge extends Creator
                              factorySetSecondPos.messageKey("creator.draw_bridge.step_2").construct(),
                              factorySetRotationPointPos.messageKey("creator.draw_bridge.step_3").construct(),
                              factorySetPowerBlockPos.construct(),
+                             factorySetOpenStatus.construct(),
                              factorySetOpenDir.construct(),
                              factoryConfirmPrice.construct(),
                              factoryCompleteProcess.messageKey("creator.draw_bridge.success").construct());

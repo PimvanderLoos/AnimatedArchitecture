@@ -33,6 +33,7 @@ public class CreatorBigDoor extends Creator
                              factorySetSecondPos.messageKey("creator.big_door.step_2").construct(),
                              factorySetRotationPointPos.messageKey("creator.big_door.step_3").construct(),
                              factorySetPowerBlockPos.construct(),
+                             factorySetOpenStatus.construct(),
                              factorySetOpenDir.construct(),
                              factoryConfirmPrice.construct(),
                              factoryCompleteProcess.messageKey("creator.big_door.success").construct());

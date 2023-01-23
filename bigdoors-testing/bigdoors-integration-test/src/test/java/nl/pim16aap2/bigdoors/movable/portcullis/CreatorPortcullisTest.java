@@ -38,6 +38,7 @@ class CreatorPortcullisTest extends CreatorTestsUtil
                      min.toLocation(locationFactory, world),
                      max.toLocation(locationFactory, world),
                      powerblock.toLocation(locationFactory, world),
+                     false,
                      openDirection,
                      blocksToMove,
                      true);
