@@ -13,7 +13,6 @@ import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
 import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.moveblocks.MovableActivityManager;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
@@ -44,7 +43,6 @@ public class MovableToggleRequest
 
     private final ILocalizer localizer;
     private final MovableActivityManager movableActivityManager;
-    private final AutoCloseScheduler autoCloseScheduler;
     private final IPPlayerFactory playerFactory;
     private final IPExecutor executor;
 
@@ -53,8 +51,8 @@ public class MovableToggleRequest
         @Assisted MovableRetriever movableRetriever, @Assisted MovableActionCause movableActionCause,
         @Assisted IMessageable messageReceiver, @Assisted @Nullable IPPlayer responsible,
         @Assisted @Nullable Double time, @Assisted boolean skipAnimation, @Assisted MovableActionType movableActionType,
-        ILocalizer localizer, MovableActivityManager movableActivityManager, AutoCloseScheduler autoCloseScheduler,
-        IPPlayerFactory playerFactory, IPExecutor executor)
+        ILocalizer localizer, MovableActivityManager movableActivityManager, IPPlayerFactory playerFactory,
+        IPExecutor executor)
     {
         this.movableRetriever = movableRetriever;
         this.movableActionCause = movableActionCause;
@@ -65,7 +63,6 @@ public class MovableToggleRequest
         this.movableActionType = movableActionType;
         this.localizer = localizer;
         this.movableActivityManager = movableActivityManager;
-        this.autoCloseScheduler = autoCloseScheduler;
         this.playerFactory = playerFactory;
         this.executor = executor;
     }

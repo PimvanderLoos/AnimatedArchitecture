@@ -37,7 +37,6 @@ import nl.pim16aap2.bigdoors.managers.MovableSpecificationManager;
 import nl.pim16aap2.bigdoors.managers.MovableTypeManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
-import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.moveblocks.MovableActivityManager;
 import nl.pim16aap2.bigdoors.spigot.comands.CommandManager;
 import nl.pim16aap2.bigdoors.spigot.compatiblity.ProtectionCompatManagerModule;
@@ -202,8 +201,6 @@ interface BigDoorsSpigotComponent
     DatabaseManager getDatabaseManager();
 
     MovableRegistry getDoorRegistry();
-
-    AutoCloseScheduler getAutoCloseScheduler();
 
     MovableActivityManager getDoorActivityManager();
 

@@ -16,7 +16,6 @@ import nl.pim16aap2.bigdoors.managers.MovableSpecificationManager;
 import nl.pim16aap2.bigdoors.managers.MovableTypeManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
-import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.moveblocks.MovableActivityManager;
 
 /**
@@ -148,13 +147,6 @@ public interface IBigDoorsPlatform
      * @return The {@link MovableRegistry}.
      */
     MovableRegistry getDoorRegistry();
-
-    /**
-     * Gets the {@link AutoCloseScheduler} instance.
-     *
-     * @return The {@link AutoCloseScheduler} instance.
-     */
-    AutoCloseScheduler getAutoCloseScheduler();
 
     /**
      * @return The instance of the {@link IConfigLoader} for this platform.

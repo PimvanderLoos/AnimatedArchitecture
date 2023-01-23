@@ -153,22 +153,6 @@ class AttributeButtonFactory
         );
     }
 
-    private GuiElement autoCloseTimerButton(AbstractMovable movable, PPlayerSpigot player, char slotChar)
-    {
-        return new StaticGuiElement(
-            slotChar,
-            new ItemStack(Material.CLOCK),
-            click ->
-            {
-                commandFactory.getSetAutoCloseTimeDelayed().runDelayed(player, movableRetrieverFactory.of(movable));
-                GuiUtil.closeAllGuis(player);
-                return true;
-            },
-            localizer.getMessage("gui.info_page.attribute.auto_close_timer",
-                                 localizer.getMessage(movable.getType().getLocalizationKey()))
-        );
-    }
-
     private void isOpenButtonExecute(
         boolean isOpen, GuiElement.Click change, AbstractMovable movable, PPlayerSpigot player)
     {
@@ -280,7 +264,6 @@ class AttributeButtonFactory
                 case INFO -> this.infoButton(movable, player, slotChar);
                 case DELETE -> this.deleteButton(movable, player, slotChar);
                 case RELOCATE_POWERBLOCK -> this.relocatePowerBlockButton(movable, player, slotChar);
-                case AUTO_CLOSE_TIMER -> this.autoCloseTimerButton(movable, player, slotChar);
                 case OPEN_STATUS -> this.openStatusButton(movable, player, slotChar);
                 case OPEN_DIRECTION -> this.openDirectionButton(movable, player, slotChar);
                 case BLOCKS_TO_MOVE -> this.blocksToMoveButton(movable, player, slotChar);

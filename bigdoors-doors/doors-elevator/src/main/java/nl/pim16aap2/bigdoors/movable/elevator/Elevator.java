@@ -18,14 +18,9 @@ public class Elevator extends Portcullis
 {
     private static final MovableType MOVABLE_TYPE = MovableTypeElevator.get();
 
-    public Elevator(MovableBase base, int blocksToMove, int autoCloseTime, int autoOpenTime)
-    {
-        super(base, blocksToMove, autoCloseTime, autoOpenTime);
-    }
-
     public Elevator(MovableBase base, int blocksToMove)
     {
-        super(base, blocksToMove, -1, -1);
+        super(base, blocksToMove);
     }
 
     @SuppressWarnings("unused")

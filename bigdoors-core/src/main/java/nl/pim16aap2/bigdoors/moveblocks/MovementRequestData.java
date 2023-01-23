@@ -26,7 +26,6 @@ import javax.inject.Named;
 public final class MovementRequestData
 {
     private final MovableActivityManager movableActivityManager;
-    private final AutoCloseScheduler autoCloseScheduler;
     private final IPLocationFactory locationFactory;
     private final IAudioPlayer audioPlayer;
     private final IPExecutor executor;
@@ -45,7 +44,6 @@ public final class MovementRequestData
 
     @AssistedInject MovementRequestData(
         MovableActivityManager movableActivityManager,
-        AutoCloseScheduler autoCloseScheduler,
         IPLocationFactory locationFactory,
         IAudioPlayer audioPlayer,
         IPExecutor executor,
@@ -63,7 +61,6 @@ public final class MovementRequestData
         @Assisted MovableActionType actionType)
     {
         this.movableActivityManager = movableActivityManager;
-        this.autoCloseScheduler = autoCloseScheduler;
         this.locationFactory = locationFactory;
         this.audioPlayer = audioPlayer;
         this.executor = executor;

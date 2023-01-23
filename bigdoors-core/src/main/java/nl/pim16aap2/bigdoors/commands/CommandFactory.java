@@ -39,8 +39,6 @@ public final class CommandFactory
     @Delegate
     private final RemoveOwner.IFactory removeOwnerFactory;
     @Delegate
-    private final SetAutoCloseTime.IFactory setAutoCloseTimeFactory;
-    @Delegate
     private final Toggle.IFactory toggleFactory;
     @Delegate
     private final SetOpenStatus.IFactory setOpenStatusFactory;
@@ -64,8 +62,6 @@ public final class CommandFactory
     @Getter
     private final RemoveOwnerDelayed removeOwnerDelayed;
     @Getter
-    private final SetAutoCloseTimeDelayed setAutoCloseTimeDelayed;
-    @Getter
     private final SetOpenDirectionDelayed setOpenDirectionDelayed;
     @Getter
     private final SetOpenStatusDelayed setOpenStatusDelayed;
@@ -87,7 +83,6 @@ public final class CommandFactory
         NewMovable.IFactory newDoorFactory,
         RemoveOwner.IFactory removeOwnerFactory, RemoveOwnerDelayed removeOwnerDelayed,
         Restart.IFactory restartFactory,
-        SetAutoCloseTime.IFactory setAutoCloseTimeFactory, SetAutoCloseTimeDelayed setAutoCloseTimeDelayed,
         SetBlocksToMove.IFactory setBlocksToMoveFactory, SetBlocksToMoveDelayed setBlocksToMoveDelayed,
         SetName.IFactory setNameFactory,
         SetOpenStatus.IFactory setOpenStatusFactory, SetOpenStatusDelayed setOpenStatusDelayed,
@@ -113,7 +108,6 @@ public final class CommandFactory
         this.debugFactory = debugFactory;
         this.menuFactory = menuFactory;
         this.removeOwnerFactory = removeOwnerFactory;
-        this.setAutoCloseTimeFactory = setAutoCloseTimeFactory;
         this.toggleFactory = toggleFactory;
         this.setOpenDirectionFactory = setOpenDirectionFactory;
         this.stopDoorsFactory = stopDoorsFactory;
@@ -124,7 +118,6 @@ public final class CommandFactory
         this.listDoorsFactory = listDoorsFactory;
         this.addOwnerDelayed = addOwnerDelayed;
         this.removeOwnerDelayed = removeOwnerDelayed;
-        this.setAutoCloseTimeDelayed = setAutoCloseTimeDelayed;
         this.setBlocksToMoveDelayed = setBlocksToMoveDelayed;
     }
 }

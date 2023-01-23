@@ -140,18 +140,6 @@ class CommandExecutor
         commandFactory.newRestart(context.getSender()).run();
     }
 
-    void setAutoCloseTime(CommandContext<ICommandSender> context)
-    {
-        final int autoCloseTime = context.get("autoCloseTime");
-        final @Nullable MovableRetriever movableRetriever = nullable(context, "movableRetriever");
-
-        final ICommandSender commandSender = context.getSender();
-        if (movableRetriever != null)
-            commandFactory.newSetAutoCloseTime(commandSender, movableRetriever, autoCloseTime).run();
-        else
-            commandFactory.getSetAutoCloseTimeDelayed().provideDelayedInput(commandSender, autoCloseTime);
-    }
-
     void setBlocksToMove(CommandContext<ICommandSender> context)
     {
         final int blocksToMove = context.get("blocksToMove");

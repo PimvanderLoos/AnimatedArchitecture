@@ -24,7 +24,6 @@ import nl.pim16aap2.bigdoors.movable.bigdoor.BigDoor;
 import nl.pim16aap2.bigdoors.movable.bigdoor.MovableBigDoor;
 import nl.pim16aap2.bigdoors.movable.drawbridge.Drawbridge;
 import nl.pim16aap2.bigdoors.movable.drawbridge.MovableTypeDrawbridge;
-import nl.pim16aap2.bigdoors.movable.movablearchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.movable.portcullis.MovableTypePortcullis;
 import nl.pim16aap2.bigdoors.movable.portcullis.Portcullis;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
@@ -475,28 +474,6 @@ public class SQLiteJDBCDriverConnectionTest
             Assertions.assertDoesNotThrow(() -> new MovableSerializer<>(movable3.getType().getMovableClass()));
         Assertions.assertNotNull(serializer);
 
-        // Test changing autoCloseTime value.  (i.e. syncing type-specific data).
-        {
-            ITimerToggleable timerToggleable = (ITimerToggleable) movable3;
-            final int movable3AutoCloseTime = timerToggleable.getAutoCloseTime();
-            final int testAutoCloseTime = 20;
-
-            timerToggleable.setAutoCloseTime(testAutoCloseTime);
-            Assertions.assertTrue(storage.syncMovableData(movable3.getSnapshot(), Assertions
-                .assertDoesNotThrow(() -> serializer.serialize(movable3))));
-            UnitTestUtil.optionalEquals(testAutoCloseTime, storage.getMovable(3L),
-                                        (movable) -> ((ITimerToggleable) movable).getAutoCloseTime());
-
-            timerToggleable.setAutoCloseTime(movable3AutoCloseTime);
-            Assertions.assertTrue(storage.syncMovableData(movable3.getSnapshot(), Assertions
-                .assertDoesNotThrow(() -> serializer.serialize(movable3))));
-
-            UnitTestUtil.optionalEquals(movable3AutoCloseTime, storage.getMovable(3L),
-                                        (movable) -> ((ITimerToggleable) movable).getAutoCloseTime());
-
-            UnitTestUtil.optionalEquals(movable3, storage.getMovable(3L));
-        }
-
         // Test (un)locking (i.e. syncing base data).
         {
             movable3.setLocked(true);
@@ -618,8 +595,6 @@ public class SQLiteJDBCDriverConnectionTest
         Vector3Di max = new Vector3Di(144, 131, 167);
         Vector3Di powerBlock = new Vector3Di(144, 75, 153);
         Vector3Di rotationPoint = new Vector3Di(144, 75, 153);
-        int autoOpen = 0;
-        int autoClose = 0;
         movable1 = new BigDoor(movableBaseBuilder.builder()
                                                  .uid(1).name(MOVABLE_1_NAME).cuboid(min, max)
                                                  .rotationPoint(rotationPoint)
@@ -628,16 +603,13 @@ public class SQLiteJDBCDriverConnectionTest
                                                  .openDir(RotateDirection.EAST)
                                                  .primeOwner(
                                                      new MovableOwner(1, PermissionLevel.CREATOR, PLAYER_DATA_1))
-                                                 .build(),
-                               autoClose, autoOpen);
+                                                 .build());
 
 
         min = new Vector3Di(144, 75, 168);
         max = new Vector3Di(144, 131, 182);
         rotationPoint = new Vector3Di(144, 75, 153);
         powerBlock = new Vector3Di(144, 75, 153);
-        autoOpen = 10;
-        autoClose = -1;
         boolean modeUp = true;
         movable2 = new Drawbridge(movableBaseBuilder.builder()
                                                     .uid(2).name(MOVABLES_2_3_NAME).cuboid(min, max)
@@ -647,15 +619,13 @@ public class SQLiteJDBCDriverConnectionTest
                                                     .primeOwner(
                                                         new MovableOwner(2, PermissionLevel.CREATOR, PLAYER_DATA_1))
                                                     .build(),
-                                  autoClose, autoOpen, modeUp);
+                                  modeUp);
 
 
         min = new Vector3Di(144, 70, 168);
         max = new Vector3Di(144, 151, 112);
         rotationPoint = new Vector3Di(144, 75, 153);
         powerBlock = new Vector3Di(144, 75, 153);
-        autoOpen = 0;
-        autoClose = 3;
         int blocksToMove = 8;
         movable3 = new Portcullis(movableBaseBuilder.builder()
                                                     .uid(3).name(MOVABLES_2_3_NAME).cuboid(min, max)
@@ -665,7 +635,7 @@ public class SQLiteJDBCDriverConnectionTest
                                                     .primeOwner(
                                                         new MovableOwner(3, PermissionLevel.CREATOR, PLAYER_DATA_2))
                                                     .build(),
-                                  blocksToMove, autoClose, autoOpen);
+                                  blocksToMove);
     }
 
     private static IPPlayer createPlayer(PPlayerData data)
