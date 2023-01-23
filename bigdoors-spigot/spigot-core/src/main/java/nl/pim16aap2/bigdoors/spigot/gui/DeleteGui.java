@@ -72,7 +72,7 @@ class DeleteGui implements IGuiPage
                              inventoryHolder.getBukkitPlayer(),
                              localizer.getMessage("gui.delete_page.title",
                                                   localizer.getMessage(movable.getType().getLocalizationKey()),
-                                                  movable.getName()),
+                                                  movable.getNameAndUid()),
                              guiSetup);
         gui.setFiller(FILLER);
 

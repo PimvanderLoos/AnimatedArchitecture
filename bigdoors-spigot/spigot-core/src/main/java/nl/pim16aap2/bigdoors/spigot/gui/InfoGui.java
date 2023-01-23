@@ -93,7 +93,7 @@ class InfoGui implements IGuiPage
         final InventoryGui gui =
             new InventoryGui(bigDoorsPlugin,
                              inventoryHolder.getBukkitPlayer(),
-                             localizer.getMessage("gui.info_page.title", movable.getName()),
+                             localizer.getMessage("gui.info_page.title", movable.getNameAndUid()),
                              guiSetup);
         gui.setFiller(FILLER);
 
@@ -114,7 +114,7 @@ class InfoGui implements IGuiPage
             'h',
             new ItemStack(Material.BOOK),
             localizer.getMessage("gui.info_page.header",
-                                 localizer.getMessage(movable.getType().getLocalizationKey()), movable.getName())
+                                 localizer.getMessage(movable.getType().getLocalizationKey()), movable.getNameAndUid())
         ));
     }
 

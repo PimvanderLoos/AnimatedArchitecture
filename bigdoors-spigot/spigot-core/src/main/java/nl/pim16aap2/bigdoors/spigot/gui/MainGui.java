@@ -126,7 +126,7 @@ class MainGui implements IGuiPage.IGuiMovableDeletionListener
                                                              });
                     return true;
                 },
-                movable.getName());
+                movable.getNameAndUid());
             group.addElement(guiElement);
         }
         group.setFiller(FILLER);
