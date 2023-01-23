@@ -169,6 +169,18 @@ class CommandExecutor
         commandFactory.newSetName(context.getSender(), context.get("name")).run();
     }
 
+    void setOpenStatus(CommandContext<ICommandSender> context)
+    {
+        final boolean isOpen = context.get("isOpen");
+        final ICommandSender commandSender = context.getSender();
+        final @Nullable MovableRetriever movableRetriever = nullable(context, "movableRetriever");
+
+        if (movableRetriever != null)
+            commandFactory.newSetOpenStatus(commandSender, movableRetriever, isOpen).run();
+        else
+            commandFactory.getSetOpenStatusDelayed().provideDelayedInput(commandSender, isOpen);
+    }
+
     void setOpenDirection(CommandContext<ICommandSender> context)
     {
         final RotateDirection direction = context.get("direction");

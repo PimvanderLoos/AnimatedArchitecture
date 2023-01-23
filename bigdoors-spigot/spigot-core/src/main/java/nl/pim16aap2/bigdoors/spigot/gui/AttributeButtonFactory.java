@@ -169,6 +169,40 @@ class AttributeButtonFactory
         );
     }
 
+    private void isOpenButtonExecute(
+        boolean isOpen, GuiElement.Click change, AbstractMovable movable, PPlayerSpigot player)
+    {
+        commandFactory
+            .newSetOpenStatus(player, movableRetrieverFactory.of(movable), isOpen).run()
+            // Force a draw with dynamic fields update to ensure the correct
+            // state is displayed in case the command did not change the status.
+            .thenRun(() -> executor.runOnMainThread(() -> change.getGui().draw(player.getBukkitPlayer(), true, false)));
+    }
+
+    private GuiElement openStatusButton(AbstractMovable movable, PPlayerSpigot player, char slotChar)
+    {
+        final GuiStateElement element = new GuiStateElement(
+            slotChar,
+            () -> movable.isOpen() ? "isOpen" : "isClosed",
+            new GuiStateElement.State(
+                change -> isOpenButtonExecute(true, change, movable, player),
+                "isOpen",
+                new ItemStack(Material.WARPED_DOOR),
+                localizer.getMessage("gui.info_page.attribute.set_open",
+                                     localizer.getMessage(movable.getType().getLocalizationKey()))
+            ),
+            new GuiStateElement.State(
+                change -> isOpenButtonExecute(false, change, movable, player),
+                "isClosed",
+                new ItemStack(Material.MANGROVE_DOOR),
+                localizer.getMessage("gui.info_page.attribute.set_closed",
+                                     localizer.getMessage(movable.getType().getLocalizationKey()))
+            )
+        );
+        element.setState(movable.isOpen() ? "isOpen" : "isClosed");
+        return element;
+    }
+
     private GuiElement openDirectionButton(AbstractMovable movable, PPlayerSpigot player, char slotChar)
     {
         return new StaticGuiElement(
@@ -247,6 +281,7 @@ class AttributeButtonFactory
                 case DELETE -> this.deleteButton(movable, player, slotChar);
                 case RELOCATE_POWERBLOCK -> this.relocatePowerBlockButton(movable, player, slotChar);
                 case AUTO_CLOSE_TIMER -> this.autoCloseTimerButton(movable, player, slotChar);
+                case OPEN_STATUS -> this.openStatusButton(movable, player, slotChar);
                 case OPEN_DIRECTION -> this.openDirectionButton(movable, player, slotChar);
                 case BLOCKS_TO_MOVE -> this.blocksToMoveButton(movable, player, slotChar);
                 case ADD_OWNER -> this.addOwnerButton(movable, player, slotChar);

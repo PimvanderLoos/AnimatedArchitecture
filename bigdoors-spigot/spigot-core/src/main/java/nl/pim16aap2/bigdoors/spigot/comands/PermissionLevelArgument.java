@@ -6,8 +6,8 @@ import cloud.commandframework.arguments.parser.ArgumentParseResult;
 import cloud.commandframework.arguments.parser.ArgumentParser;
 import cloud.commandframework.context.CommandContext;
 import nl.pim16aap2.bigdoors.commands.ICommandSender;
-import nl.pim16aap2.bigdoors.movable.PermissionLevel;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.movable.PermissionLevel;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
@@ -90,8 +90,8 @@ public class PermissionLevelArgument extends CommandArgument<ICommandSender, Per
         @Override
         public List<String> suggestions(CommandContext<ICommandSender> commandContext, String input)
         {
-            return invertedSuggestions.values().stream()
-                                      .filter(val -> val.startsWith(input.toLowerCase(Locale.ROOT))).toList();
+            final String lowerCaseInput = input.toLowerCase(Locale.ROOT);
+            return invertedSuggestions.values().stream().filter(val -> val.startsWith(lowerCaseInput)).toList();
         }
     }
 }

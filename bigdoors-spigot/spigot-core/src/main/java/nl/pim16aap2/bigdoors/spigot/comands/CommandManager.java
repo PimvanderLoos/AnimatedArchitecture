@@ -49,13 +49,14 @@ public final class CommandManager
     private final BukkitAudiences bukkitAudiences;
     private final MovableTypeParser movableTypeParser;
     private final DirectionParser directionParser;
+    private final IsOpenParser isOpenParser;
     private final CommandExecutor executor;
 
     @Inject//
     CommandManager(
         JavaPlugin plugin, ILocalizer localizer, ITextFactory textFactory,
         MovableRetrieverFactory movableRetrieverFactory, MovableTypeParser movableTypeParser,
-        DirectionParser directionParser, CommandExecutor executor)
+        DirectionParser directionParser, IsOpenParser isOpenParser, CommandExecutor executor)
     {
         this.plugin = plugin;
         this.localizer = localizer;
@@ -64,6 +65,7 @@ public final class CommandManager
         this.movableTypeParser = movableTypeParser;
         this.directionParser = directionParser;
         this.bukkitAudiences = BukkitAudiences.create(plugin);
+        this.isOpenParser = isOpenParser;
         this.executor = executor;
     }
 
@@ -134,6 +136,7 @@ public final class CommandManager
         initCmdSetAutoCloseTime(manager, builder);
         initCmdSetBlocksToMove(manager, builder);
         initCmdSetName(manager, builder);
+        initCmdSetOpenStatus(manager, builder);
         initCmdSetOpenDirection(manager, builder);
         initCmdSpecify(manager, builder);
         initCmdStopMovables(manager, builder);
@@ -349,6 +352,17 @@ public final class CommandManager
         );
     }
 
+    private void initCmdSetOpenStatus(
+        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+    {
+        manager.command(
+            baseInit(builder, CommandDefinition.SET_OPEN_STATUS, "commands.set_open_status.description")
+                .argument(defaultOpenStatusArgument(true).build())
+                .argument(defaultMovableArgument(false, PermissionLevel.ADMIN).build())
+                .handler(executor::setOpenStatus)
+        );
+    }
+
     private void initCmdSetOpenDirection(
         BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
@@ -405,10 +419,14 @@ public final class CommandManager
                               .movableRetrieverFactory(movableRetrieverFactory).maxPermission(maxPermission);
     }
 
+    private IsOpenArgument.IsOpenArgumentBuilder defaultOpenStatusArgument(boolean required)
+    {
+        return IsOpenArgument.builder().required(required).name("isOpen").parser(isOpenParser);
+    }
+
     private DirectionArgument.DirectionArgumentBuilder defaultDirectionArgument(boolean required)
     {
-        return DirectionArgument.builder().required(required).name("direction")
-                                .parser(directionParser);
+        return DirectionArgument.builder().required(required).name("direction").parser(directionParser);
     }
 
     private MovableTypeArgument.MovableTypeArgumentBuilder defaultMovableTypeArgument(boolean required)
