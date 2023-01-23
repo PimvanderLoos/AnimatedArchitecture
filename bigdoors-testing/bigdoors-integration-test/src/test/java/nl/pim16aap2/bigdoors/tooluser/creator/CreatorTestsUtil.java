@@ -19,6 +19,7 @@ import nl.pim16aap2.bigdoors.commands.DelayedCommand;
 import nl.pim16aap2.bigdoors.commands.DelayedCommandInputRequest;
 import nl.pim16aap2.bigdoors.commands.SetBlocksToMoveDelayed;
 import nl.pim16aap2.bigdoors.commands.SetOpenDirectionDelayed;
+import nl.pim16aap2.bigdoors.commands.SetOpenStatusDelayed;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
@@ -214,11 +215,17 @@ public class CreatorTestsUtil
         final AssistedFactoryMocker<DelayedCommandInputRequest, DelayedCommandInputRequest.IFactory> assistedFactory =
             new AssistedFactoryMocker<>(DelayedCommandInputRequest.class, DelayedCommandInputRequest.IFactory.class)
                 .setMock(ILocalizer.class, localizer)
+                .setMock(ITextFactory.class, ITextFactory.getSimpleTextFactory())
                 .setMock(DelayedCommandInputManager.class, delayedCommandInputManager);
 
         final var commandContext = new DelayedCommand.Context(delayedCommandInputManager, localizer,
                                                               ITextFactory.getSimpleTextFactory(),
                                                               () -> commandFactory);
+
+        final SetOpenStatusDelayed setOpenStatusDelayed =
+            new SetOpenStatusDelayed(commandContext, assistedFactory.getFactory());
+        Mockito.when(commandFactory.getSetOpenStatusDelayed()).thenReturn(setOpenStatusDelayed);
+
         final SetOpenDirectionDelayed setOpenDirectionDelayed =
             new SetOpenDirectionDelayed(commandContext, assistedFactory.getFactory());
         Mockito.when(commandFactory.getSetOpenDirectionDelayed()).thenReturn(setOpenDirectionDelayed);

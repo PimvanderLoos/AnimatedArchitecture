@@ -28,6 +28,7 @@ class CreatorBigDoorTest extends CreatorTestsUtil
                      max.toLocation(locationFactory, world),
                      rotationPoint.toLocation(locationFactory, world),
                      powerblock.toLocation(locationFactory, world),
+                     false,
                      openDirection);
     }
 }

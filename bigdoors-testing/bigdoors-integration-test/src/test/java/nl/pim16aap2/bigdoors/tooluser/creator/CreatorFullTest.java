@@ -52,6 +52,7 @@ class CreatorFullTest extends CreatorTestsUtil
                      UnitTestUtil.getLocation(max, world),
                      UnitTestUtil.getLocation(rotationPoint, world),
                      UnitTestUtil.getLocation(powerblock, world),
+                     false,
                      openDirection,
                      true);
     }
@@ -83,6 +84,8 @@ class CreatorFullTest extends CreatorTestsUtil
                    UnitTestUtil.getLocation(rotationPoint, world),
                    UnitTestUtil.getLocation(powerblock, world));
 
+        Assertions.assertDoesNotThrow(() -> delayedCommandInputManager.getInputRequest(player).get()
+                                                                      .provide(false).join());
         Assertions.assertDoesNotThrow(() -> delayedCommandInputManager.getInputRequest(player).get()
                                                                       .provide(RotateDirection.EAST).join());
         Assertions.assertDoesNotThrow(() -> delayedCommandInputManager.getInputRequest(player).get()
