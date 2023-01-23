@@ -13,8 +13,8 @@ import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.Rectangle;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -86,9 +86,9 @@ public class Portcullis extends AbstractMovable implements IDiscreteMovement
 
     @Override
     @Locked.Read
-    public RotateDirection getCurrentToggleDir()
+    public MovementDirection getCurrentToggleDir()
     {
-        return isOpen() ? getOpenDir() : RotateDirection.getOpposite(getOpenDir());
+        return isOpen() ? getOpenDir() : MovementDirection.getOpposite(getOpenDir());
     }
 
     @Override
@@ -102,7 +102,7 @@ public class Portcullis extends AbstractMovable implements IDiscreteMovement
      */
     private boolean isCurrentToggleDirUp()
     {
-        return getCurrentToggleDir() == RotateDirection.UP;
+        return getCurrentToggleDir() == MovementDirection.UP;
     }
 
     /**

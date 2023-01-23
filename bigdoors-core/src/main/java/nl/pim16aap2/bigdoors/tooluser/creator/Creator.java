@@ -27,7 +27,7 @@ import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorString;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorVoid;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.Limit;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
@@ -90,7 +90,7 @@ public abstract class Creator extends ToolUser
     /**
      * The opening direction selected by the user.
      */
-    protected @Nullable RotateDirection openDir;
+    protected @Nullable MovementDirection openDir;
 
     /**
      * The {@link IPWorld} this movable is created in.
@@ -450,10 +450,10 @@ public abstract class Creator extends ToolUser
      * If the open direction is not valid for this type, nothing changes.
      *
      * @param direction
-     *     The {@link RotateDirection} that was selected by the player.
+     *     The {@link MovementDirection} that was selected by the player.
      * @return True if the {@link #openDir} was set successfully.
      */
-    protected boolean completeSetOpenDirStep(RotateDirection direction)
+    protected boolean completeSetOpenDirStep(MovementDirection direction)
     {
         if (!getValidOpenDirections().contains(direction))
         {
@@ -568,7 +568,7 @@ public abstract class Creator extends ToolUser
      *
      * @return The list of valid open directions for this type given its current physical dimensions.
      */
-    public Set<RotateDirection> getValidOpenDirections()
+    public Set<MovementDirection> getValidOpenDirections()
     {
         return getMovableType().getValidOpenDirections();
     }

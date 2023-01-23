@@ -21,7 +21,7 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.MovableRegistry;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
@@ -85,7 +85,7 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor
     @GuardedBy("lock")
     @Getter(onMethod_ = @Locked.Read)
     @Setter(onMethod_ = @Locked.Write)
-    private RotateDirection openDir;
+    private MovementDirection openDir;
 
     /**
      * Represents the locked status of this movable. True = locked, False = unlocked.
@@ -143,7 +143,7 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor
         @Assisted IPWorld world,
         @Assisted("isOpen") boolean isOpen,
         @Assisted("isLocked") boolean isLocked,
-        @Assisted RotateDirection openDir,
+        @Assisted MovementDirection openDir,
         @Assisted MovableOwner primeOwner,
         @Assisted @Nullable Map<UUID, MovableOwner> owners,
         ILocalizer localizer,
@@ -304,6 +304,6 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor
             long movableUID, String name, Cuboid cuboid, @Assisted("rotationPoint") Vector3Di rotationPoint,
             @Assisted("powerBlock") Vector3Di powerBlock, @Assisted IPWorld world,
             @Assisted("isOpen") boolean isOpen, @Assisted("isLocked") boolean isLocked,
-            RotateDirection openDir, MovableOwner primeOwner, @Nullable Map<UUID, MovableOwner> movableOwners);
+            MovementDirection openDir, MovableOwner primeOwner, @Nullable Map<UUID, MovableOwner> movableOwners);
     }
 }

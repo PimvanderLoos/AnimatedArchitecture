@@ -14,8 +14,8 @@ import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.MathUtil;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.Rectangle;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -80,32 +80,32 @@ public class Drawbridge extends AbstractMovable implements IHorizontalAxisAligne
 
     @Override
     @Locked.Read
-    public RotateDirection getCurrentToggleDir()
+    public MovementDirection getCurrentToggleDir()
     {
-        return isOpen() ? RotateDirection.getOpposite(getOpenDir()) : getOpenDir();
+        return isOpen() ? MovementDirection.getOpposite(getOpenDir()) : getOpenDir();
     }
 
     @Override
     @Locked.Read
     public Optional<Cuboid> getPotentialNewCoordinates()
     {
-        final RotateDirection rotateDirection = getCurrentToggleDir();
+        final MovementDirection movementDirection = getCurrentToggleDir();
         final Cuboid cuboid = getCuboid();
         final Vector3Di rotationPoint = getRotationPoint();
 
         final double angle;
-        if (rotateDirection == RotateDirection.NORTH || rotateDirection == RotateDirection.WEST)
+        if (movementDirection == MovementDirection.NORTH || movementDirection == MovementDirection.WEST)
             angle = -MathUtil.HALF_PI;
-        else if (rotateDirection == RotateDirection.SOUTH || rotateDirection == RotateDirection.EAST)
+        else if (movementDirection == MovementDirection.SOUTH || movementDirection == MovementDirection.EAST)
             angle = MathUtil.HALF_PI;
         else
         {
             log.atSevere()
-               .log("Invalid open direction '%s' for door: %d", rotateDirection.name(), getUid());
+               .log("Invalid open direction '%s' for door: %d", movementDirection.name(), getUid());
             return Optional.empty();
         }
 
-        if (rotateDirection == RotateDirection.NORTH || rotateDirection == RotateDirection.SOUTH)
+        if (movementDirection == MovementDirection.NORTH || movementDirection == MovementDirection.SOUTH)
             return Optional.of(cuboid.updatePositions(vec -> vec.rotateAroundXAxis(rotationPoint, angle)));
         else
             return Optional.of(cuboid.updatePositions(vec -> vec.rotateAroundZAxis(rotationPoint, angle)));
@@ -122,8 +122,8 @@ public class Drawbridge extends AbstractMovable implements IHorizontalAxisAligne
     @Override
     public boolean isNorthSouthAligned()
     {
-        final RotateDirection openDir = getOpenDir();
-        return openDir == RotateDirection.NORTH || openDir == RotateDirection.SOUTH;
+        final MovementDirection openDir = getOpenDir();
+        return openDir == MovementDirection.NORTH || openDir == MovementDirection.SOUTH;
     }
 
     /**

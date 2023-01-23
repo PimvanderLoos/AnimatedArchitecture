@@ -5,7 +5,7 @@ import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.util.Constants;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -19,8 +19,8 @@ public final class MovableTypeClock extends MovableType
     private MovableTypeClock()
     {
         super(Constants.PLUGIN_NAME, "Clock", TYPE_VERSION,
-              Arrays.asList(RotateDirection.NORTH, RotateDirection.EAST,
-                            RotateDirection.SOUTH, RotateDirection.WEST), "movable.type.clock");
+              Arrays.asList(MovementDirection.NORTH, MovementDirection.EAST,
+                            MovementDirection.SOUTH, MovementDirection.WEST), "movable.type.clock");
     }
 
     /**

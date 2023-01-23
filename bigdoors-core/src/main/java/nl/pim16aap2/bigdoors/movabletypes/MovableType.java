@@ -8,7 +8,7 @@ import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.movable.MovableSerializer;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumSet;
@@ -63,14 +63,14 @@ public abstract class MovableType
     private final String fullName;
 
     /**
-     * Gets a list of all theoretically valid {@link RotateDirection} for this given type. It does NOT take the physical
-     * aspects of the {@link MovableBase} into consideration. Therefore, the actual list of valid
-     * {@link RotateDirection}s is most likely going to be a subset of those returned by this method.
+     * Gets a list of all theoretically valid {@link MovementDirection} for this given type. It does NOT take the
+     * physical aspects of the {@link MovableBase} into consideration. Therefore, the actual list of valid
+     * {@link MovementDirection}s is most likely going to be a subset of those returned by this method.
      *
-     * @return A list of all valid {@link RotateDirection} for this given type.
+     * @return A list of all valid {@link MovementDirection} for this given type.
      */
     @Getter
-    private final Set<RotateDirection> validOpenDirections;
+    private final Set<MovementDirection> validOpenDirections;
 
     private volatile @Nullable MovableSerializer<?> movableSerializer;
 
@@ -88,14 +88,15 @@ public abstract class MovableType
      *     constructor for this type need to be changed.
      */
     protected MovableType(
-        String pluginName, String simpleName, int typeVersion, List<RotateDirection> validOpenDirections,
+        String pluginName, String simpleName, int typeVersion, List<MovementDirection> validOpenDirections,
         String localizationKey)
     {
         this.pluginName = pluginName;
         this.simpleName = simpleName.toLowerCase(Locale.ENGLISH);
         this.typeVersion = typeVersion;
         this.validOpenDirections =
-            validOpenDirections.isEmpty() ? EnumSet.noneOf(RotateDirection.class) : EnumSet.copyOf(validOpenDirections);
+            validOpenDirections.isEmpty() ? EnumSet.noneOf(MovementDirection.class) :
+            EnumSet.copyOf(validOpenDirections);
         this.localizationKey = localizationKey;
         fullName = String.format("%s_%s_%d", getPluginName(), getSimpleName(), getTypeVersion())
                          .toLowerCase(Locale.ENGLISH);
@@ -120,15 +121,15 @@ public abstract class MovableType
     }
 
     /**
-     * Checks if a given {@link RotateDirection} is valid for this type.
+     * Checks if a given {@link MovementDirection} is valid for this type.
      *
-     * @param rotateDirection
-     *     The {@link RotateDirection} to check.
-     * @return True if the provided {@link RotateDirection} is valid for this type, otherwise false.
+     * @param movementDirection
+     *     The {@link MovementDirection} to check.
+     * @return True if the provided {@link MovementDirection} is valid for this type, otherwise false.
      */
-    public final boolean isValidOpenDirection(RotateDirection rotateDirection)
+    public final boolean isValidOpenDirection(MovementDirection movementDirection)
     {
-        return validOpenDirections.contains(rotateDirection);
+        return validOpenDirections.contains(movementDirection);
     }
 
     /**

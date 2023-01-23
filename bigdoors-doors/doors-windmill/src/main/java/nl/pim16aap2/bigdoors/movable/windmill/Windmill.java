@@ -16,8 +16,8 @@ import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.MathUtil;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.Rectangle;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
 
 import javax.annotation.concurrent.GuardedBy;
 import java.util.Optional;
@@ -89,7 +89,7 @@ public class Windmill extends AbstractMovable implements IHorizontalAxisAligned,
     }
 
     @Override
-    public RotateDirection getCurrentToggleDir()
+    public MovementDirection getCurrentToggleDir()
     {
         return getOpenDir();
     }
@@ -97,17 +97,17 @@ public class Windmill extends AbstractMovable implements IHorizontalAxisAligned,
     @Override
     public boolean isNorthSouthAligned()
     {
-        final RotateDirection openDir = getOpenDir();
-        return openDir == RotateDirection.EAST || openDir == RotateDirection.WEST;
+        final MovementDirection openDir = getOpenDir();
+        return openDir == MovementDirection.EAST || openDir == MovementDirection.WEST;
     }
 
     @Override
-    public RotateDirection cycleOpenDirection()
+    public MovementDirection cycleOpenDirection()
     {
-        final RotateDirection openDir = getOpenDir();
-        return openDir.equals(RotateDirection.NORTH) ? RotateDirection.EAST :
-               openDir.equals(RotateDirection.EAST) ? RotateDirection.SOUTH :
-               openDir.equals(RotateDirection.SOUTH) ? RotateDirection.WEST : RotateDirection.NORTH;
+        final MovementDirection openDir = getOpenDir();
+        return openDir.equals(MovementDirection.NORTH) ? MovementDirection.EAST :
+               openDir.equals(MovementDirection.EAST) ? MovementDirection.SOUTH :
+               openDir.equals(MovementDirection.SOUTH) ? MovementDirection.WEST : MovementDirection.NORTH;
     }
 
     @Override

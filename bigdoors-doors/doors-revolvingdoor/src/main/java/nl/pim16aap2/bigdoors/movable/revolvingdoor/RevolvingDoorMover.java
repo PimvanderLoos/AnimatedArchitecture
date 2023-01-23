@@ -5,7 +5,7 @@ import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.MathUtil;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 
@@ -23,12 +23,12 @@ public class RevolvingDoorMover extends BlockMover
     private final double endStepSum;
 
     public RevolvingDoorMover(
-        AbstractMovable movable, MovementRequestData data, RotateDirection rotateDirection, int quarterCircles)
+        AbstractMovable movable, MovementRequestData data, MovementDirection movementDirection, int quarterCircles)
         throws Exception
     {
-        super(movable, data, rotateDirection);
+        super(movable, data, movementDirection);
 
-        switch (rotateDirection)
+        switch (movementDirection)
         {
             case CLOCKWISE:
                 getGoalPos = this::getGoalPosClockwise;
@@ -38,8 +38,8 @@ public class RevolvingDoorMover extends BlockMover
                 break;
             default:
                 throw new IllegalStateException(
-                    String.format("Failed to open movable '%d'. Reason: Invalid rotateDirection '%s'",
-                                  getMovableUID(), rotateDirection.name()));
+                    String.format("Failed to open movable '%d'. Reason: Invalid movement direction '%s'",
+                                  getMovableUID(), movementDirection.name()));
         }
 
         step = (MathUtil.HALF_PI * quarterCircles) / super.animationDuration * -1.0;
@@ -81,7 +81,7 @@ public class RevolvingDoorMover extends BlockMover
                                                 (int) startLocation.yD(),
                                                 (int) startLocation.zD());
 
-        if (openDirection == RotateDirection.CLOCKWISE)
+        if (openDirection == MovementDirection.CLOCKWISE)
             return getGoalPosClockwise(radius, startAngle, startLocation.yD(), endStepSum);
         return getGoalPosCounterClockwise(radius, startAngle, startLocation.yD(), endStepSum);
     }

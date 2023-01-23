@@ -29,7 +29,7 @@ import nl.pim16aap2.bigdoors.movable.portcullis.Portcullis;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.testimplementations.TestPWorld;
 import nl.pim16aap2.bigdoors.testimplementations.TestPWorldFactory;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.testing.AssertionsUtil;
@@ -492,8 +492,8 @@ public class SQLiteJDBCDriverConnectionTest
             Portcullis pc = ((Portcullis) movable3);
 
             // Save the current data
-            final RotateDirection oldDir = movable3.getOpenDir();
-            final RotateDirection newDir = RotateDirection.getOpposite(oldDir);
+            final MovementDirection oldDir = movable3.getOpenDir();
+            final MovementDirection newDir = MovementDirection.getOpposite(oldDir);
             Assertions.assertNotSame(oldDir, newDir);
 
             final Vector3Di oldPowerBlock = movable3.getPowerBlock();
@@ -600,7 +600,7 @@ public class SQLiteJDBCDriverConnectionTest
                                                  .rotationPoint(rotationPoint)
                                                  .powerBlock(powerBlock)
                                                  .world(WORLD).isOpen(false).isLocked(false)
-                                                 .openDir(RotateDirection.EAST)
+                                                 .openDir(MovementDirection.EAST)
                                                  .primeOwner(
                                                      new MovableOwner(1, PermissionLevel.CREATOR, PLAYER_DATA_1))
                                                  .build());
@@ -615,7 +615,7 @@ public class SQLiteJDBCDriverConnectionTest
                                                     .uid(2).name(MOVABLES_2_3_NAME).cuboid(min, max)
                                                     .rotationPoint(rotationPoint)
                                                     .powerBlock(powerBlock).world(WORLD).isOpen(false)
-                                                    .isLocked(false).openDir(RotateDirection.NONE)
+                                                    .isLocked(false).openDir(MovementDirection.NONE)
                                                     .primeOwner(
                                                         new MovableOwner(2, PermissionLevel.CREATOR, PLAYER_DATA_1))
                                                     .build(),
@@ -631,7 +631,7 @@ public class SQLiteJDBCDriverConnectionTest
                                                     .uid(3).name(MOVABLES_2_3_NAME).cuboid(min, max)
                                                     .rotationPoint(rotationPoint)
                                                     .powerBlock(powerBlock).world(WORLD).isOpen(false)
-                                                    .isLocked(false).openDir(RotateDirection.UP)
+                                                    .isLocked(false).openDir(MovementDirection.UP)
                                                     .primeOwner(
                                                         new MovableOwner(3, PermissionLevel.CREATOR, PLAYER_DATA_2))
                                                     .build(),

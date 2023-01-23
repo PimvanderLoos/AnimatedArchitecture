@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.api.animatedblock;
 
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
@@ -19,13 +19,13 @@ public interface IAnimatedBlockData
     boolean canRotate();
 
     /**
-     * Rotates this block in a provided {@link RotateDirection}.
+     * Rotates this block in a provided {@link MovementDirection}.
      *
-     * @param rotDir
-     *     The {@link RotateDirection} to rotate this block in.
+     * @param movementDirection
+     *     The {@link MovementDirection} to rotate this block in.
      * @return True if the block was rotated.
      */
-    boolean rotateBlock(RotateDirection rotDir);
+    boolean rotateBlock(MovementDirection movementDirection);
 
     /**
      * @param loc

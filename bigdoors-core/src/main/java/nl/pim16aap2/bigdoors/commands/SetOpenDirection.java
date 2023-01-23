@@ -10,7 +10,7 @@ import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.MovableAttribute;
 import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.text.TextType;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 
@@ -26,15 +26,15 @@ public class SetOpenDirection extends MovableTargetCommand
 {
     public static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.SET_OPEN_DIRECTION;
 
-    private final RotateDirection rotateDirection;
+    private final MovementDirection movementDirection;
 
     @AssistedInject //
     SetOpenDirection(
         @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
-        @Assisted MovableRetriever movableRetriever, @Assisted RotateDirection rotateDirection)
+        @Assisted MovableRetriever movableRetriever, @Assisted MovementDirection movementDirection)
     {
         super(commandSender, localizer, textFactory, movableRetriever, MovableAttribute.OPEN_DIRECTION);
-        this.rotateDirection = rotateDirection;
+        this.movementDirection = movementDirection;
     }
 
     @Override
@@ -54,18 +54,18 @@ public class SetOpenDirection extends MovableTargetCommand
     @Override
     protected CompletableFuture<?> performAction(AbstractMovable movable)
     {
-        if (!movable.getType().isValidOpenDirection(rotateDirection))
+        if (!movable.getType().isValidOpenDirection(movementDirection))
         {
             getCommandSender().sendMessage(
                 textFactory, TextType.ERROR,
                 localizer.getMessage("commands.set_open_direction.error.invalid_rotation",
-                                     localizer.getMessage(rotateDirection.getLocalizationKey()),
+                                     localizer.getMessage(movementDirection.getLocalizationKey()),
                                      localizer.getMovableType(movable), movable.getBasicInfo()));
 
             return CompletableFuture.completedFuture(null);
         }
 
-        movable.setOpenDir(rotateDirection);
+        movable.setOpenDir(movementDirection);
         return movable.syncData().thenAccept(this::handleDatabaseActionResult);
     }
 
@@ -80,11 +80,11 @@ public class SetOpenDirection extends MovableTargetCommand
          * @param movableRetriever
          *     A {@link MovableRetrieverFactory} representing the {@link MovableBase} for which the open direction will
          *     be modified.
-         * @param rotateDirection
-         *     The new open direction.
+         * @param movementDirection
+         *     The new movement direction.
          * @return See {@link BaseCommand#run()}.
          */
         SetOpenDirection newSetOpenDirection(
-            ICommandSender commandSender, MovableRetriever movableRetriever, RotateDirection rotateDirection);
+            ICommandSender commandSender, MovableRetriever movableRetriever, MovementDirection movementDirection);
     }
 }

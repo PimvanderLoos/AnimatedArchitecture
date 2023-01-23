@@ -3,8 +3,8 @@ package nl.pim16aap2.bigdoors.movable.garagedoor;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -25,18 +25,17 @@ public class GarageDoorMover extends BlockMover
     private final double step;
     private final boolean isOpen;
 
-    public GarageDoorMover(
-        GarageDoor movable, MovementRequestData data, RotateDirection rotateDirection)
+    public GarageDoorMover(GarageDoor movable, MovementRequestData data, MovementDirection movementDirection)
         throws Exception
     {
-        super(movable, data, rotateDirection);
+        super(movable, data, movementDirection);
 
         isOpen = snapshot.isOpen();
 
         resultHeight = oldCuboid.getMax().y() + 1.0D;
 
         BiFunction<IAnimatedBlock, Double, Vector3Dd> getVectorTmp;
-        switch (rotateDirection)
+        switch (movementDirection)
         {
             case NORTH:
                 directionVec = PBlockFace.getDirection(PBlockFace.NORTH);
@@ -60,8 +59,8 @@ public class GarageDoorMover extends BlockMover
                 break;
             default:
                 throw new IllegalStateException("Failed to open garage door \"" + getMovableUID()
-                                                    + "\". Reason: Invalid rotateDirection \"" +
-                                                    rotateDirection + "\"");
+                                                    + "\". Reason: Invalid movement direction \"" +
+                                                    movementDirection + "\"");
         }
 
         final Vector3Di dims = oldCuboid.getDimensions();

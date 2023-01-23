@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.movable.portcullis;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.tooluser.creator.CreatorTestsUtil;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,7 +25,7 @@ class CreatorPortcullisTest extends CreatorTestsUtil
     void createPortcullis()
     {
         rotationPoint = new Cuboid(min, max).getCenterBlock();
-        openDirection = RotateDirection.UP;
+        openDirection = MovementDirection.UP;
 
         setEconomyEnabled(true);
         setEconomyPrice(12.34);

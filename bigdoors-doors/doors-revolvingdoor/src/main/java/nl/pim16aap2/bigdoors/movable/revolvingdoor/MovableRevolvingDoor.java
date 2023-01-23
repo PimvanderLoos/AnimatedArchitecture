@@ -7,7 +7,7 @@ import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.util.Constants;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -25,7 +25,7 @@ public final class MovableRevolvingDoor extends MovableType
     private MovableRevolvingDoor()
     {
         super(Constants.PLUGIN_NAME, "RevolvingDoor", TYPE_VERSION,
-              Arrays.asList(RotateDirection.CLOCKWISE, RotateDirection.COUNTERCLOCKWISE),
+              Arrays.asList(MovementDirection.CLOCKWISE, MovementDirection.COUNTERCLOCKWISE),
               "movable.type.revolving_door");
     }
 

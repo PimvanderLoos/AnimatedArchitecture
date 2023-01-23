@@ -15,8 +15,8 @@ import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.MathUtil;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.Rectangle;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
 
 import javax.annotation.concurrent.GuardedBy;
 import java.util.Optional;
@@ -81,13 +81,13 @@ public class RevolvingDoor extends AbstractMovable
     @Locked.Read
     public Optional<Cuboid> getPotentialNewCoordinates()
     {
-        final RotateDirection rotateDirection = getCurrentToggleDir();
-        final double angle = rotateDirection == RotateDirection.CLOCKWISE ? MathUtil.HALF_PI :
-                             rotateDirection == RotateDirection.COUNTERCLOCKWISE ? -MathUtil.HALF_PI : 0.0D;
+        final MovementDirection movementDirection = getCurrentToggleDir();
+        final double angle = movementDirection == MovementDirection.CLOCKWISE ? MathUtil.HALF_PI :
+                             movementDirection == MovementDirection.COUNTERCLOCKWISE ? -MathUtil.HALF_PI : 0.0D;
         if (angle == 0.0D)
         {
             log.atSevere()
-               .log("Invalid open direction '%s' for revolving door: %d", rotateDirection.name(), getUid());
+               .log("Invalid movement direction '%s' for revolving door: %d", movementDirection.name(), getUid());
             return Optional.empty();
         }
 
@@ -95,7 +95,7 @@ public class RevolvingDoor extends AbstractMovable
     }
 
     @Override
-    public RotateDirection getCurrentToggleDir()
+    public MovementDirection getCurrentToggleDir()
     {
         return getOpenDir();
     }

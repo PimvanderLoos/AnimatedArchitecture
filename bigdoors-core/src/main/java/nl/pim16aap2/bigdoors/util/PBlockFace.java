@@ -137,7 +137,7 @@ public enum PBlockFace
     }
 
     /**
-     * Rotate the {@link PBlockFace} in counter clockwise direction from a perspective of looking down on the world. For
+     * Rotate the {@link PBlockFace} in counterclockwise direction from a perspective of looking down on the world. For
      * example, {@link PBlockFace#NORTH} would return {@link PBlockFace#WEST}.
      *
      * @param myFace
@@ -282,14 +282,14 @@ public enum PBlockFace
     /**
      * Get the appropriate function for rotating a BlockFace. Different rotation directions use different methods.
      *
-     * @param rotDir
-     *     The {@link RotateDirection} to rotate in.
+     * @param movementDirection
+     *     The {@link MovementDirection} to rotate in.
      * @return The appropriate function for rotating the {@link PBlockFace} in the given direction.
      */
     // TODO: OPTIONAL
-    public static @Nullable UnaryOperator<PBlockFace> getDirFun(RotateDirection rotDir)
+    public static @Nullable UnaryOperator<PBlockFace> getDirFun(MovementDirection movementDirection)
     {
-        switch (rotDir)
+        switch (movementDirection)
         {
             case NORTH:
                 return PBlockFace::rotateVerticallyNorth;

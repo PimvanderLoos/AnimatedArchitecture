@@ -7,7 +7,7 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 import org.junit.jupiter.api.Assertions;
@@ -57,29 +57,30 @@ class SetOpenDirectionTest
 
         Mockito.when(factory.newSetOpenDirection(Mockito.any(ICommandSender.class),
                                                  Mockito.any(MovableRetriever.class),
-                                                 Mockito.any(RotateDirection.class)))
+                                                 Mockito.any(MovementDirection.class)))
                .thenAnswer(invoc -> new SetOpenDirection(invoc.getArgument(0, ICommandSender.class), localizer,
                                                          ITextFactory.getSimpleTextFactory(),
                                                          invoc.getArgument(1, MovableRetriever.class),
-                                                         invoc.getArgument(2, RotateDirection.class)));
+                                                         invoc.getArgument(2, MovementDirection.class)));
     }
 
     @Test
     void testOpenDirValidity()
     {
-        final RotateDirection rotateDirection = RotateDirection.CLOCKWISE;
+        final MovementDirection movementDirection = MovementDirection.CLOCKWISE;
 
         Mockito.when(movableType.isValidOpenDirection(Mockito.any())).thenReturn(false);
-        final SetOpenDirection command = factory.newSetOpenDirection(commandSender, movableRetriever, rotateDirection);
+        final SetOpenDirection command =
+            factory.newSetOpenDirection(commandSender, movableRetriever, movementDirection);
 
         Assertions.assertDoesNotThrow(() -> command.performAction(movable).get(1, TimeUnit.SECONDS));
         Mockito.verify(movable, Mockito.never()).syncData();
-        Mockito.verify(movable, Mockito.never()).setOpenDir(rotateDirection);
+        Mockito.verify(movable, Mockito.never()).setOpenDir(movementDirection);
 
 
-        Mockito.when(movableType.isValidOpenDirection(rotateDirection)).thenReturn(true);
+        Mockito.when(movableType.isValidOpenDirection(movementDirection)).thenReturn(true);
         Assertions.assertDoesNotThrow(() -> command.performAction(movable).get(1, TimeUnit.SECONDS));
-        Mockito.verify(movable).setOpenDir(rotateDirection);
+        Mockito.verify(movable).setOpenDir(movementDirection);
         Mockito.verify(movable).syncData();
     }
 }

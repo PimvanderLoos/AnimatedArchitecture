@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.movable.elevator;
 
 import nl.pim16aap2.bigdoors.tooluser.creator.CreatorTestsUtil;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,7 +20,7 @@ class CreatorElevatorTest extends CreatorTestsUtil
     void createElevator()
     {
         rotationPoint = new Cuboid(min, max).getCenterBlock();
-        openDirection = RotateDirection.UP;
+        openDirection = MovementDirection.UP;
 
         final Elevator actualMovable = new Elevator(constructMovableBase(), blocksToMove);
         final CreatorElevator creator = new CreatorElevator(context, player);

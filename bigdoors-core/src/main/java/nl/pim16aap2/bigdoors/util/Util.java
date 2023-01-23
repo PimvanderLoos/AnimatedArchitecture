@@ -69,10 +69,10 @@ public final class Util
      */
     private static final Random RANDOM = new Random();
 
-    private static final Map<PBlockFace, RotateDirection> TO_ROTATE_DIRECTION =
+    private static final Map<PBlockFace, MovementDirection> TO_MOVEMENT_DIRECTION =
         new EnumMap<>(PBlockFace.class);
-    private static final Map<RotateDirection, PBlockFace> TO_PBLOCK_FACE =
-        new EnumMap<>(RotateDirection.class);
+    private static final Map<MovementDirection, PBlockFace> TO_PBLOCK_FACE =
+        new EnumMap<>(MovementDirection.class);
 
     /**
      * Looks for top-level .properties files.
@@ -91,17 +91,17 @@ public final class Util
     {
         for (final var pbf : PBlockFace.values())
         {
-            RotateDirection mappedRotDir;
+            MovementDirection mappedMoveDir;
             try
             {
-                mappedRotDir = RotateDirection.valueOf(pbf.toString());
+                mappedMoveDir = MovementDirection.valueOf(pbf.toString());
             }
             catch (IllegalArgumentException e)
             {
-                mappedRotDir = RotateDirection.NONE;
+                mappedMoveDir = MovementDirection.NONE;
             }
-            TO_ROTATE_DIRECTION.put(pbf, mappedRotDir);
-            TO_PBLOCK_FACE.put(mappedRotDir, pbf);
+            TO_MOVEMENT_DIRECTION.put(pbf, mappedMoveDir);
+            TO_PBLOCK_FACE.put(mappedMoveDir, pbf);
         }
     }
 
@@ -325,29 +325,29 @@ public final class Util
     }
 
     /**
-     * Gets the {@link RotateDirection} equivalent of a {@link PBlockFace} if it exists.
+     * Gets the {@link MovementDirection} equivalent of a {@link PBlockFace} if it exists.
      *
      * @param pBlockFace
      *     The {@link PBlockFace}.
-     * @return The {@link RotateDirection} equivalent of a {@link PBlockFace} if it exists and otherwise
-     * {@link RotateDirection#NONE}.
+     * @return The {@link MovementDirection} equivalent of a {@link PBlockFace} if it exists and otherwise
+     * {@link MovementDirection#NONE}.
      */
-    public static RotateDirection getRotateDirection(PBlockFace pBlockFace)
+    public static MovementDirection getMovementDirection(PBlockFace pBlockFace)
     {
-        return TO_ROTATE_DIRECTION.getOrDefault(pBlockFace, RotateDirection.NONE);
+        return TO_MOVEMENT_DIRECTION.getOrDefault(pBlockFace, MovementDirection.NONE);
     }
 
     /**
-     * Gets the {@link PBlockFace} equivalent of a {@link RotateDirection} if it exists.
+     * Gets the {@link PBlockFace} equivalent of a {@link MovementDirection} if it exists.
      *
-     * @param rotateDirection
-     *     The {@link RotateDirection}.
-     * @return The {@link PBlockFace} equivalent of a {@link RotateDirection} if it exists and otherwise
+     * @param movementDirection
+     *     The {@link MovementDirection}.
+     * @return The {@link PBlockFace} equivalent of a {@link MovementDirection} if it exists and otherwise
      * {@link PBlockFace#NONE}.
      */
-    public static PBlockFace getPBlockFace(RotateDirection rotateDirection)
+    public static PBlockFace getPBlockFace(MovementDirection movementDirection)
     {
-        return TO_PBLOCK_FACE.getOrDefault(rotateDirection, PBlockFace.NONE);
+        return TO_PBLOCK_FACE.getOrDefault(movementDirection, PBlockFace.NONE);
     }
 
     /**
