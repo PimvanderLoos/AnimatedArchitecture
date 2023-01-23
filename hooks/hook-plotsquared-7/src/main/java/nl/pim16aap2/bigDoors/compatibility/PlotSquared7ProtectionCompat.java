@@ -21,13 +21,13 @@ import org.bukkit.plugin.java.JavaPlugin;
  * @author Pim
  * @see IProtectionCompat
  */
-public class PlotSquared6ProtectionCompat implements IProtectionCompat
+public class PlotSquared7ProtectionCompat implements IProtectionCompat
 {
     private final JavaPlugin plotSquaredPlugin;
     private final HookContext hookContext;
     private final boolean success;
 
-    public PlotSquared6ProtectionCompat(HookContext hookContext)
+    public PlotSquared7ProtectionCompat(HookContext hookContext)
     {
         this.hookContext = hookContext;
         plotSquaredPlugin = JavaPlugin.getPlugin(BukkitPlatform.class);
