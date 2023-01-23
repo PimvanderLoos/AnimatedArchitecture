@@ -109,8 +109,6 @@ public abstract class Creator extends ToolUser
 
     /**
      * IFactory for the {@link IStep} that sets the name.
-     * <p>
-     * Don't forget to set the message before using it!
      */
     @ToString.Exclude
     protected Step.Factory factorySetName;
@@ -142,24 +140,24 @@ public abstract class Creator extends ToolUser
 
     /**
      * IFactory for the {@link IStep} that sets the position of the movable's power block.
-     * <p>
-     * Don't forget to set the message before using it!
      */
     @ToString.Exclude
     protected Step.Factory factorySetPowerBlockPos;
 
     /**
+     * IFactory for the {@link IStep} that sets the open status of the movable.
+     */
+    @ToString.Exclude
+    protected Step.Factory factorySetOpenStatus;
+
+    /**
      * IFactory for the {@link IStep} that sets the open direction of the movable.
-     * <p>
-     * Don't forget to set the message before using it!
      */
     @ToString.Exclude
     protected Step.Factory factorySetOpenDir;
 
     /**
      * IFactory for the {@link IStep} that allows the player to confirm or reject the price of the movable.
-     * <p>
-     * Don't forget to set the message before using it!
      */
     @ToString.Exclude
     protected Step.Factory factoryConfirmPrice;
@@ -217,6 +215,15 @@ public abstract class Creator extends ToolUser
             .messageKey("creator.base.set_power_block")
             .stepExecutor(new StepExecutorPLocation(this::completeSetPowerBlockStep));
 
+        factorySetOpenStatus = stepFactory
+            .stepName("SET_OPEN_STATUS")
+            .stepExecutor(new StepExecutorBoolean(this::completeSetOpenStatusStep))
+            .stepPreparation(this::prepareSetOpenStatus)
+            .messageKey("creator.base.set_open_status")
+            .messageVariableRetrievers(() -> localizer.getMovableType(getMovableType()),
+                                       () -> localizer.getMessage("constants.open_status.open"),
+                                       () -> localizer.getMessage("constants.open_status.closed"));
+
         factorySetOpenDir = stepFactory
             .stepName("SET_OPEN_DIRECTION")
             .stepExecutor(new StepExecutorOpenDirection(this::completeSetOpenDirStep))
@@ -240,6 +247,15 @@ public abstract class Creator extends ToolUser
             .stepName("COMPLETE_CREATION_PROCESS")
             .stepExecutor(new StepExecutorVoid(this::completeCreationProcess))
             .waitForUserInput(false);
+    }
+
+    /**
+     * Prepares the step that sets the open status.
+     */
+    protected void prepareSetOpenStatus()
+    {
+        commandFactory.getSetOpenStatusDelayed().runDelayed(getPlayer(), this, status ->
+            CompletableFuture.completedFuture(handleInput(status)), null);
     }
 
     /**
@@ -412,6 +428,19 @@ public abstract class Creator extends ToolUser
         }
 
         getProcedure().goToNextStep();
+        return true;
+    }
+
+    /**
+     * Attempts to complete the step that sets the {@link #isOpen}.
+     *
+     * @param isOpen
+     *     True if the current status of the movable is open.
+     * @return True if the {@link #isOpen} was set successfully.
+     */
+    protected boolean completeSetOpenStatusStep(boolean isOpen)
+    {
+        this.isOpen = isOpen;
         return true;
     }
 

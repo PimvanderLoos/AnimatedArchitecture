@@ -47,6 +47,7 @@ public class CreatorPortcullis extends Creator
                              factorySetFirstPos.messageKey("creator.portcullis.step_1").construct(),
                              factorySetSecondPos.messageKey("creator.portcullis.step_2").construct(),
                              factorySetPowerBlockPos.construct(),
+                             factorySetOpenStatus.construct(),
                              factorySetOpenDir.construct(),
                              stepBlocksToMove,
                              factoryConfirmPrice.construct(),

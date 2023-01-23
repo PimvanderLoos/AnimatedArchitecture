@@ -53,6 +53,7 @@ public class CreatorGarageDoor extends Creator
                              factorySetFirstPos.messageKey("creator.garage_door.step_1").construct(),
                              factorySetSecondPos.messageKey("creator.garage_door.step_2").construct(),
                              factorySetPowerBlockPos.construct(),
+                             factorySetOpenStatus.construct(),
                              factorySetOpenDir.construct(),
                              factoryConfirmPrice.construct(),
                              factoryCompleteProcess.messageKey("creator.garage_door.success").construct());

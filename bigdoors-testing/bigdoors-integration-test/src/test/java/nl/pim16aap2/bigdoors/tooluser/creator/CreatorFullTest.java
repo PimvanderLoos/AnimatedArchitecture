@@ -110,6 +110,7 @@ class CreatorFullTest extends CreatorTestsUtil
                                  factorySetSecondPos.messageKey("CREATOR_BIG_DOOR_STEP2").construct(),
                                  factorySetRotationPointPos.messageKey("CREATOR_BIG_DOOR_STEP3").construct(),
                                  factorySetPowerBlockPos.messageKey("CREATOR_BASE_SET_POWER_BLOCK").construct(),
+                                 factorySetOpenStatus.messageKey("CREATOR_BASE_SET_OPEN_DIR").construct(),
                                  factorySetOpenDir.messageKey("CREATOR_BASE_SET_OPEN_DIR").construct(),
                                  factoryConfirmPrice.messageKey("CREATOR_BASE_CONFIRM_PRICE").construct(),
                                  factoryCompleteProcess.messageKey("CREATOR_BIG_DOOR_SUCCESS").construct());

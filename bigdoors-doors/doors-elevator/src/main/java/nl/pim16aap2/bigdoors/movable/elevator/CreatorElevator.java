@@ -43,6 +43,7 @@ public class CreatorElevator extends CreatorPortcullis
                              factorySetFirstPos.messageKey("creator.elevator.step_1").construct(),
                              factorySetSecondPos.messageKey("creator.elevator.step_2").construct(),
                              factorySetPowerBlockPos.construct(),
+                             factorySetOpenStatus.construct(),
                              factorySetOpenDir.construct(),
                              stepBlocksToMove,
                              factoryConfirmPrice.construct(),
