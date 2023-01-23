@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
-import nl.pim16aap2.bigdoors.movable.movablearchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
@@ -31,7 +30,7 @@ import java.util.stream.Stream;
  */
 @EqualsAndHashCode(callSuper = true)
 @Flogger
-public class Drawbridge extends AbstractMovable implements IHorizontalAxisAligned, ITimerToggleable
+public class Drawbridge extends AbstractMovable implements IHorizontalAxisAligned
 {
     private static final MovableType MOVABLE_TYPE = MovableTypeDrawbridge.get();
 
@@ -43,18 +42,6 @@ public class Drawbridge extends AbstractMovable implements IHorizontalAxisAligne
 
     @Getter
     private final Rectangle animationRange;
-
-    @PersistentVariable
-    @GuardedBy("lock")
-    @Getter(onMethod_ = @Locked.Read)
-    @Setter(onMethod_ = @Locked.Write)
-    protected int autoCloseTime;
-
-    @PersistentVariable
-    @GuardedBy("lock")
-    @Getter(onMethod_ = @Locked.Read)
-    @Setter(onMethod_ = @Locked.Write)
-    protected int autoOpenTime;
 
     /**
      * Describes if this drawbridge's vertical position points (when taking the rotation point Y value as center) up
@@ -68,22 +55,15 @@ public class Drawbridge extends AbstractMovable implements IHorizontalAxisAligne
     @Setter(onMethod_ = @Locked.Write)
     protected boolean modeUp;
 
-    public Drawbridge(MovableBase base, int autoCloseTime, int autoOpenTime, boolean modeUp)
+    public Drawbridge(MovableBase base, boolean modeUp)
     {
         super(base);
         this.lock = getLock();
-        this.autoOpenTime = autoOpenTime;
-        this.autoCloseTime = autoCloseTime;
         this.modeUp = modeUp;
 
         final double maxRadius = getMaxRadius(isNorthSouthAligned(), getCuboid(), getRotationPoint());
         this.longestAnimationCycleDistance = maxRadius * MathUtil.HALF_PI;
         this.animationRange = calculateAnimationRange(maxRadius, getCuboid());
-    }
-
-    public Drawbridge(MovableBase base, boolean modeUp)
-    {
-        this(base, -1, -1, modeUp);
     }
 
     @SuppressWarnings("unused")

@@ -45,11 +45,6 @@ public enum MovableAttribute
     RELOCATE_POWERBLOCK(PermissionLevel.ADMIN),
 
     /**
-     * The auto close timer of this movable. i.e. the amount of time it will wait before automatically closing.
-     */
-    AUTO_CLOSE_TIMER(PermissionLevel.ADMIN),
-
-    /**
      * The open status of a movable.
      */
     OPEN_STATUS(PermissionLevel.USER),

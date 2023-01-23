@@ -20,7 +20,6 @@ import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.MovableRegistry;
-import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -126,10 +125,6 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor
 
     @EqualsAndHashCode.Exclude
     @Getter(AccessLevel.PACKAGE)
-    private final AutoCloseScheduler autoCloseScheduler;
-
-    @EqualsAndHashCode.Exclude
-    @Getter(AccessLevel.PACKAGE)
     private final IPExecutor executor;
 
     @EqualsAndHashCode.Exclude
@@ -154,7 +149,6 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor
         ILocalizer localizer,
         DatabaseManager databaseManager,
         MovableRegistry movableRegistry,
-        AutoCloseScheduler autoCloseScheduler,
         MovableOpeningHelper movableOpeningHelper,
         MovableToggleRequestBuilder movableToggleRequestBuilder,
         IPPlayerFactory playerFactory,
@@ -185,7 +179,6 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor
         this.localizer = localizer;
         this.databaseManager = databaseManager;
         this.movableRegistry = movableRegistry;
-        this.autoCloseScheduler = autoCloseScheduler;
         this.movableOpeningHelper = movableOpeningHelper;
         this.movableToggleRequestBuilder = movableToggleRequestBuilder;
         this.playerFactory = playerFactory;

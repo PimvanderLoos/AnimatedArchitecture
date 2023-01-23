@@ -1,18 +1,12 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import dagger.Lazy;
-import nl.pim16aap2.bigdoors.api.IConfigLoader;
-import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.events.IBigDoorsEventCaller;
 import nl.pim16aap2.bigdoors.managers.MovableDeletionManager;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.IMovableConst;
 import nl.pim16aap2.bigdoors.movable.MovableBase;
-import nl.pim16aap2.bigdoors.movable.movablearchetypes.ITimerToggleable;
-import nl.pim16aap2.bigdoors.util.Constants;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -32,9 +26,6 @@ public final class MovableActivityManager extends Restartable implements Movable
 {
     private final Map<Long, Optional<BlockMover>> busyMovables = new ConcurrentHashMap<>();
 
-    private final Lazy<AutoCloseScheduler> autoCloseScheduler;
-    private final IConfigLoader config;
-    private final IPExecutor executor;
     private final IBigDoorsEventFactory eventFactory;
     private final IBigDoorsEventCaller bigDoorsEventCaller;
 
@@ -43,20 +34,14 @@ public final class MovableActivityManager extends Restartable implements Movable
      *
      * @param holder
      *     The {@link RestartableHolder} that manages this object.
-     * @param autoCloseScheduler
-     *     The {@link AutoCloseScheduler} to use for scheduling auto close actions when required.
      */
     @Inject
     public MovableActivityManager(
-        RestartableHolder holder, Lazy<AutoCloseScheduler> autoCloseScheduler,
-        IConfigLoader config, IPExecutor executor, IBigDoorsEventFactory eventFactory,
-        IBigDoorsEventCaller bigDoorsEventCaller, MovableDeletionManager movableDeletionManager)
+        RestartableHolder holder, IBigDoorsEventFactory eventFactory, IBigDoorsEventCaller bigDoorsEventCaller,
+        MovableDeletionManager movableDeletionManager)
     {
         super(holder);
         movableDeletionManager.registerDeletionListener(this);
-        this.autoCloseScheduler = autoCloseScheduler;
-        this.config = config;
-        this.executor = executor;
         this.eventFactory = eventFactory;
         this.bigDoorsEventCaller = bigDoorsEventCaller;
     }
@@ -111,33 +96,21 @@ public final class MovableActivityManager extends Restartable implements Movable
      *
      * @param blockMover
      *     The {@link BlockMover} to post-process.
-     * @param allowReschedule
-     *     Whether to allow rescheduling (e.g. autoClose).
      */
-    void processFinishedBlockMover(BlockMover blockMover, boolean allowReschedule)
+    void processFinishedBlockMover(BlockMover blockMover)
     {
-        final int delay = Math.max(Constants.MINIMUM_MOVABLE_DELAY, config.coolDown() * 20);
-
-        executor.runSyncLater(() -> handleFinishedBlockMover(blockMover, allowReschedule), delay);
+        handleFinishedBlockMover(blockMover);
     }
 
-    private void handleFinishedBlockMover(BlockMover blockMover, boolean allowReschedule)
+    private void handleFinishedBlockMover(BlockMover blockMover)
     {
         setMovableAvailable(blockMover.getMovable().getUid());
-
-        if (!allowReschedule)
-            return;
 
         bigDoorsEventCaller.callBigDoorsEvent(
             eventFactory.createToggleEndEvent(
                 blockMover.getMovable(), blockMover.getSnapshot(), blockMover.getCause(),
                 blockMover.getActionType(), blockMover.getPlayer(), blockMover.getTime(),
                 blockMover.isSkipAnimation()));
-
-        if (blockMover.getMovable() instanceof ITimerToggleable)
-            autoCloseScheduler.get().scheduleAutoClose(blockMover.getPlayer(),
-                                                       (AbstractMovable & ITimerToggleable) blockMover.getMovable(),
-                                                       blockMover.getTime(), blockMover.isSkipAnimation());
     }
 
     /**

@@ -38,7 +38,6 @@ import nl.pim16aap2.bigdoors.managers.MovableSpecificationManager;
 import nl.pim16aap2.bigdoors.managers.MovableTypeManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
-import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.moveblocks.MovableActivityManager;
 import nl.pim16aap2.bigdoors.spigot.comands.CommandManager;
 import nl.pim16aap2.bigdoors.spigot.exceptions.InitializationException;
@@ -115,9 +114,6 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
 
     @Getter
     private final MovableRegistry doorRegistry;
-
-    @Getter
-    private final AutoCloseScheduler autoCloseScheduler;
 
     @Getter
     private final IChunkLoader chunkLoader;
@@ -268,7 +264,6 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
         messagingInterface = safeGetter(BigDoorsSpigotComponent::getIMessagingInterface);
         messageableServer = safeGetter(BigDoorsSpigotComponent::getMessageable);
         bigDoorsToolUtil = safeGetter(BigDoorsSpigotComponent::getBigDoorsToolUtilSpigot);
-        autoCloseScheduler = safeGetter(BigDoorsSpigotComponent::getAutoCloseScheduler);
         localizer = safeGetter(BigDoorsSpigotComponent::getILocalizer);
         blockAnalyzer = safeGetter(BigDoorsSpigotComponent::getBlockAnalyzer);
         doorTypeLoader = safeGetter(BigDoorsSpigotComponent::getDoorTypeLoader);

@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.movable.garagedoor;
 import com.google.common.flogger.StackSize;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
@@ -11,7 +10,6 @@ import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
-import nl.pim16aap2.bigdoors.movable.movablearchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
@@ -22,7 +20,6 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
-import javax.annotation.concurrent.GuardedBy;
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -34,7 +31,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @Flogger
-public class GarageDoor extends AbstractMovable implements IHorizontalAxisAligned, ITimerToggleable
+public class GarageDoor extends AbstractMovable implements IHorizontalAxisAligned
 {
     private static final MovableType MOVABLE_TYPE = MovableGarageDoor.get();
 
@@ -56,30 +53,11 @@ public class GarageDoor extends AbstractMovable implements IHorizontalAxisAligne
     @PersistentVariable
     protected final boolean northSouthAligned;
 
-    @PersistentVariable
-    @GuardedBy("lock")
-    @Getter(onMethod_ = @Locked.Read)
-    @Setter(onMethod_ = @Locked.Write)
-    protected int autoCloseTime;
-
-    @PersistentVariable
-    @GuardedBy("lock")
-    @Getter(onMethod_ = @Locked.Read)
-    @Setter(onMethod_ = @Locked.Write)
-    protected int autoOpenTime;
-
-    public GarageDoor(MovableBase base, int autoCloseTime, int autoOpenTime, boolean northSouthAligned)
+    public GarageDoor(MovableBase base, boolean northSouthAligned)
     {
         super(base);
         this.lock = getLock();
-        this.autoCloseTime = autoCloseTime;
-        this.autoOpenTime = autoOpenTime;
         this.northSouthAligned = northSouthAligned;
-    }
-
-    public GarageDoor(MovableBase base, boolean northSouthAligned)
-    {
-        this(base, -1, -1, northSouthAligned);
     }
 
     @SuppressWarnings("unused")

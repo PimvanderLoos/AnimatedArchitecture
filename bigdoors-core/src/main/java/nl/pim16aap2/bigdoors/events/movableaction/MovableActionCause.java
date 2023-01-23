@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.events.movableaction;
 
 import nl.pim16aap2.bigdoors.movable.MovableBase;
-import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
 
 /**
  * Represents the different kind of causes that can be the reason of a {@link MovableBase} action.
@@ -26,13 +25,13 @@ public enum MovableActionCause
     SERVER,
 
     /**
-     * The action was intiated by the auto close system. See {@link AutoCloseScheduler}.
+     * The {@link MovableBase} was toggled by another plugin.
      */
-    AUTOCLOSE,
+    PLUGIN,
 
     /**
      * The action was initiated because this type is always moving (e.g. clocks, flags, windmills).
      */
-    PERPETUALMOVEMENT,
+    PERPETUAL_MOVEMENT,
 
 }

@@ -133,7 +133,6 @@ public final class CommandManager
         initCmdNewMovable(manager, builder);
         initCmdRemoveOwner(manager, builder);
         initCmdRestart(manager, builder);
-        initCmdSetAutoCloseTime(manager, builder);
         initCmdSetBlocksToMove(manager, builder);
         initCmdSetName(manager, builder);
         initCmdSetOpenStatus(manager, builder);
@@ -317,17 +316,6 @@ public final class CommandManager
         manager.command(
             baseInit(builder, CommandDefinition.RESTART, "commands.restart.description")
                 .handler(executor::restart)
-        );
-    }
-
-    private void initCmdSetAutoCloseTime(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
-    {
-        manager.command(
-            baseInit(builder, CommandDefinition.SET_AUTO_CLOSE_TIME, "commands.set_auto_close_time.description")
-                .argument(IntegerArgument.of("autoCloseTime"))
-                .argument(defaultMovableArgument(false, PermissionLevel.ADMIN).build())
-                .handler(executor::setAutoCloseTime)
         );
     }
 

@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IDiscreteMovement;
-import nl.pim16aap2.bigdoors.movable.movablearchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
@@ -30,7 +29,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class Portcullis extends AbstractMovable implements IDiscreteMovement, ITimerToggleable
+public class Portcullis extends AbstractMovable implements IDiscreteMovement
 {
     private static final MovableType MOVABLE_TYPE = MovableTypePortcullis.get();
 
@@ -43,30 +42,11 @@ public class Portcullis extends AbstractMovable implements IDiscreteMovement, IT
     @Setter(onMethod_ = @Locked.Write)
     protected int blocksToMove;
 
-    @PersistentVariable
-    @GuardedBy("lock")
-    @Getter(onMethod_ = @Locked.Read)
-    @Setter(onMethod_ = @Locked.Write)
-    protected int autoCloseTime;
-
-    @PersistentVariable
-    @GuardedBy("lock")
-    @Getter(onMethod_ = @Locked.Read)
-    @Setter(onMethod_ = @Locked.Write)
-    protected int autoOpenTime;
-
-    public Portcullis(MovableBase base, int blocksToMove, int autoCloseTime, int autoOpenTime)
+    public Portcullis(MovableBase base, int blocksToMove)
     {
         super(base);
         this.lock = getLock();
         this.blocksToMove = blocksToMove;
-        this.autoCloseTime = autoCloseTime;
-        this.autoOpenTime = autoOpenTime;
-    }
-
-    public Portcullis(MovableBase base, int blocksToMove)
-    {
-        this(base, blocksToMove, -1, -1);
     }
 
     @SuppressWarnings("unused")

@@ -101,11 +101,6 @@ public final class CommandDefinition
                               null,
                               PREFIX_ADMIN + "restart");
 
-    public static final CommandDefinition SET_AUTO_CLOSE_TIME =
-        new CommandDefinition("SET_AUTO_CLOSE_TIME",
-                              PREFIX_USER + "setautoclosetime",
-                              PREFIX_ADMIN + "bypass.setautoclosetime");
-
     public static final CommandDefinition SET_BLOCKS_TO_MOVE =
         new CommandDefinition("SET_BLOCKS_TO_MOVE",
                               PREFIX_USER + "base",

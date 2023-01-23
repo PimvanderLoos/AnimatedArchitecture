@@ -2,14 +2,11 @@ package nl.pim16aap2.bigdoors.movable.bigdoor;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.MovableBase;
-import nl.pim16aap2.bigdoors.movable.movablearchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
@@ -19,7 +16,6 @@ import nl.pim16aap2.bigdoors.util.Rectangle;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
-import javax.annotation.concurrent.GuardedBy;
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Stream;
@@ -33,7 +29,7 @@ import java.util.stream.Stream;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @Flogger
-public class BigDoor extends AbstractMovable implements ITimerToggleable
+public class BigDoor extends AbstractMovable
 {
     private static final MovableType MOVABLE_TYPE = MovableBigDoor.get();
 
@@ -46,33 +42,14 @@ public class BigDoor extends AbstractMovable implements ITimerToggleable
     @Getter
     private final Rectangle animationRange;
 
-    @PersistentVariable
-    @GuardedBy("lock")
-    @Getter(onMethod_ = @Locked.Read)
-    @Setter(onMethod_ = @Locked.Write)
-    protected int autoCloseTime;
-
-    @PersistentVariable
-    @GuardedBy("lock")
-    @Getter(onMethod_ = @Locked.Read)
-    @Setter(onMethod_ = @Locked.Write)
-    protected int autoOpenTime;
-
-    public BigDoor(MovableBase base, int autoCloseTime, int autoOpenTime)
+    public BigDoor(MovableBase base)
     {
         super(base);
         this.lock = getLock();
-        this.autoCloseTime = autoCloseTime;
-        this.autoOpenTime = autoOpenTime;
 
         final double maxRadius = getMaxRadius(getCuboid(), getRotationPoint());
         this.longestAnimationCycleDistance = maxRadius * MathUtil.HALF_PI;
         this.animationRange = calculateAnimationRange(maxRadius, getCuboid());
-    }
-
-    public BigDoor(MovableBase base)
-    {
-        this(base, -1, -1); // Add tmp/default values
     }
 
     @Override

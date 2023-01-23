@@ -95,9 +95,6 @@ public abstract class BlockMover
     protected final MovableActivityManager movableActivityManager;
 
     @ToString.Exclude
-    protected final AutoCloseScheduler autoCloseScheduler;
-
-    @ToString.Exclude
     protected final IPExecutor executor;
 
     @ToString.Exclude
@@ -216,14 +213,12 @@ public abstract class BlockMover
     {
         executor = data.getExecutor();
         movableActivityManager = data.getMovableActivityManager();
-        autoCloseScheduler = data.getAutoCloseScheduler();
         animatedBlockFactory = data.getAnimatedBlockFactory();
         locationFactory = data.getLocationFactory();
         animationHookManager = data.getAnimationHookManager();
         glowingBlockSpawner = data.getGlowingBlockSpawner();
         serverTickTime = data.getServerTickTime();
 
-        autoCloseScheduler.unscheduleAutoClose(data.getSnapshotOfMovable().getUid());
         this.movable = movable;
         this.snapshot = data.getSnapshotOfMovable();
         this.time = data.getAnimationTime();
@@ -256,7 +251,7 @@ public abstract class BlockMover
         final @Nullable TimerTask moverTask0 = moverTask;
         if (moverTask0 != null)
             executor.cancel(moverTask0, Objects.requireNonNull(moverTaskID));
-        putBlocks(true);
+        putBlocks();
     }
 
     /**
@@ -381,7 +376,7 @@ public abstract class BlockMover
         this.hooks = animationHookManager.instantiateHooks(animation);
 
         if (animationSkipped)
-            putBlocks(false);
+            putBlocks();
         else
             animateEntities(animation);
     }
@@ -459,7 +454,7 @@ public abstract class BlockMover
             }
         }
         privateAnimatedBlocks.clear();
-        movableActivityManager.processFinishedBlockMover(this, false);
+        movableActivityManager.processFinishedBlockMover(this);
     }
 
     /**
@@ -529,7 +524,7 @@ public abstract class BlockMover
 
         forEachHook("onAnimationEnding", IAnimationHook::onAnimationEnding);
 
-        putBlocks(false);
+        putBlocks();
 
         final @Nullable TimerTask moverTask0 = moverTask;
         if (moverTask0 == null)
@@ -644,7 +639,7 @@ public abstract class BlockMover
         return -1;
     }
 
-    private void putBlocks0(boolean onDisable)
+    private void putBlocks0()
     {
         executor.assertMainThread("Attempting async block placement!");
 
@@ -661,27 +656,19 @@ public abstract class BlockMover
 
         forEachHook("onAnimationCompleted", IAnimationHook::onAnimationCompleted);
 
-        if (onDisable)
-            return;
-
-        movableActivityManager.processFinishedBlockMover(this, true);
+        movableActivityManager.processFinishedBlockMover(this);
     }
 
     /**
      * Places all the blocks of the movable in their final position and kills all the animated blocks.
-     * <p>
-     * When the plugin is currently not in the process of disabling, it also schedules the auto close.
-     *
-     * @param onDisable
-     *     Whether the plugin is currently being disabled.
      */
-    public final void putBlocks(boolean onDisable)
+    public final void putBlocks()
     {
         // Only allow this method to be run once! If it can be run multiple times, it'll cause movable corruption
         // because while the blocks have already been placed, the coordinates can still be toggled!
         if (isFinished.getAndSet(true))
             return;
-        executor.runOnMainThread(() -> putBlocks0(onDisable));
+        executor.runOnMainThread(this::putBlocks0);
     }
 
     /**
