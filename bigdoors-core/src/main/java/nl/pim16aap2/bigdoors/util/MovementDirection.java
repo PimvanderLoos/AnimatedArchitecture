@@ -102,27 +102,17 @@ public enum MovementDirection
      */
     public static MovementDirection getOpposite(MovementDirection dir)
     {
-        switch (dir)
-        {
-            case DOWN:
-                return MovementDirection.UP;
-            case EAST:
-                return MovementDirection.WEST;
-            case NORTH:
-                return MovementDirection.SOUTH;
-            case SOUTH:
-                return MovementDirection.NORTH;
-            case UP:
-                return MovementDirection.DOWN;
-            case WEST:
-                return MovementDirection.EAST;
-            case CLOCKWISE:
-                return MovementDirection.COUNTERCLOCKWISE;
-            case COUNTERCLOCKWISE:
-                return MovementDirection.CLOCKWISE;
-            case NONE:
-            default:
-                return MovementDirection.NONE;
-        }
+        return switch (dir)
+            {
+                case DOWN -> MovementDirection.UP;
+                case EAST -> MovementDirection.WEST;
+                case NORTH -> MovementDirection.SOUTH;
+                case SOUTH -> MovementDirection.NORTH;
+                case UP -> MovementDirection.DOWN;
+                case WEST -> MovementDirection.EAST;
+                case CLOCKWISE -> MovementDirection.COUNTERCLOCKWISE;
+                case COUNTERCLOCKWISE -> MovementDirection.CLOCKWISE;
+                default -> MovementDirection.NONE;
+            };
     }
 }

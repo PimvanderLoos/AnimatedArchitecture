@@ -37,30 +37,33 @@ public class GarageDoorMover extends BlockMover
         BiFunction<IAnimatedBlock, Double, Vector3Dd> getVectorTmp;
         switch (movementDirection)
         {
-            case NORTH:
+            case NORTH ->
+            {
                 directionVec = PBlockFace.getDirection(PBlockFace.NORTH);
                 getVectorTmp = this::getVectorDownNorth;
                 northSouth = true;
-                break;
-            case EAST:
+            }
+            case EAST ->
+            {
                 directionVec = PBlockFace.getDirection(PBlockFace.EAST);
                 getVectorTmp = this::getVectorDownEast;
                 northSouth = false;
-                break;
-            case SOUTH:
+            }
+            case SOUTH ->
+            {
                 directionVec = PBlockFace.getDirection(PBlockFace.SOUTH);
                 getVectorTmp = this::getVectorDownSouth;
                 northSouth = true;
-                break;
-            case WEST:
+            }
+            case WEST ->
+            {
                 directionVec = PBlockFace.getDirection(PBlockFace.WEST);
                 getVectorTmp = this::getVectorDownWest;
                 northSouth = false;
-                break;
-            default:
-                throw new IllegalStateException("Failed to open garage door \"" + getMovableUID()
-                                                    + "\". Reason: Invalid movement direction \"" +
-                                                    movementDirection + "\"");
+            }
+            default -> throw new IllegalStateException("Failed to open garage door \"" + getMovableUID()
+                                                           + "\". Reason: Invalid movement direction \"" +
+                                                           movementDirection + "\"");
         }
 
         final Vector3Di dims = oldCuboid.getDimensions();

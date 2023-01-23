@@ -30,16 +30,11 @@ public class RevolvingDoorMover extends BlockMover
 
         switch (movementDirection)
         {
-            case CLOCKWISE:
-                getGoalPos = this::getGoalPosClockwise;
-                break;
-            case COUNTERCLOCKWISE:
-                getGoalPos = this::getGoalPosCounterClockwise;
-                break;
-            default:
-                throw new IllegalStateException(
-                    String.format("Failed to open movable '%d'. Reason: Invalid movement direction '%s'",
-                                  getMovableUID(), movementDirection.name()));
+            case CLOCKWISE -> getGoalPos = this::getGoalPosClockwise;
+            case COUNTERCLOCKWISE -> getGoalPos = this::getGoalPosCounterClockwise;
+            default -> throw new IllegalStateException(
+                String.format("Failed to open movable '%d'. Reason: Invalid movement direction '%s'",
+                              getMovableUID(), movementDirection.name()));
         }
 
         step = (MathUtil.HALF_PI * quarterCircles) / super.animationDuration * -1.0;

@@ -37,25 +37,28 @@ public class BridgeMover<T extends AbstractMovable & IHorizontalAxisAligned> ext
 
         switch (movementDirection)
         {
-            case NORTH:
+            case NORTH ->
+            {
                 angle = -MathUtil.HALF_PI;
                 rotator = Vector3Dd::rotateAroundXAxis;
-                break;
-            case SOUTH:
+            }
+            case SOUTH ->
+            {
                 angle = MathUtil.HALF_PI;
                 rotator = Vector3Dd::rotateAroundXAxis;
-                break;
-            case EAST:
+            }
+            case EAST ->
+            {
                 angle = MathUtil.HALF_PI;
                 rotator = Vector3Dd::rotateAroundZAxis;
-                break;
-            case WEST:
+            }
+            case WEST ->
+            {
                 angle = -MathUtil.HALF_PI;
                 rotator = Vector3Dd::rotateAroundZAxis;
-                break;
-            default:
-                throw new IllegalArgumentException("Movement direction \"" + movementDirection.name() +
-                                                       "\" is not valid for this type!");
+            }
+            default -> throw new IllegalArgumentException("Movement direction \"" + movementDirection.name() +
+                                                              "\" is not valid for this type!");
         }
 
         step = angle / super.animationDuration;
