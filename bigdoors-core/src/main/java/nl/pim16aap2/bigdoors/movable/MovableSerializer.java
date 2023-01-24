@@ -51,10 +51,13 @@ public class MovableSerializer<T extends AbstractMovable>
 
     private static final @Nullable Unsafe UNSAFE = UnsafeGetter.getUnsafe();
 
-    private final @Nullable FastFieldSetter<AbstractMovable, MovableBase> fieldCopierMovableBase =
-        getFieldCopierInAbstractMovable(UNSAFE, MovableBase.class, "base");
-    private final @Nullable FastFieldSetter<AbstractMovable, ReentrantReadWriteLock> fieldCopierLock =
-        getFieldCopierInAbstractMovable(UNSAFE, ReentrantReadWriteLock.class, "lock");
+    private final @Nullable FastFieldSetter<AbstractMovable, MovableBase> fieldSetterMovableBase =
+        getFieldSetterInAbstractMovable(UNSAFE, MovableBase.class, "base");
+    private final @Nullable FastFieldSetter<AbstractMovable, ReentrantReadWriteLock> fieldSetterLock =
+        getFieldSetterInAbstractMovable(UNSAFE, ReentrantReadWriteLock.class, "lock");
+    @SuppressWarnings("rawtypes")
+    private final @Nullable FastFieldSetter<AbstractMovable, MovableSerializer> fieldSetterSerializer =
+        getFieldSetterInAbstractMovable(UNSAFE, MovableSerializer.class, "serializer");
 
     public MovableSerializer(Class<T> movableClass)
     {
@@ -232,13 +235,19 @@ public class MovableSerializer<T extends AbstractMovable>
     private @Nullable T instantiateUnsafe(MovableBase movableBase)
         throws InstantiationException
     {
-        if (UNSAFE == null || fieldCopierMovableBase == null || fieldCopierLock == null)
+        if (UNSAFE == null ||
+            fieldSetterMovableBase == null ||
+            fieldSetterLock == null ||
+            fieldSetterSerializer == null)
             return null;
 
         @SuppressWarnings("unchecked") //
         final T movable = (T) UNSAFE.allocateInstance(movableClass);
-        fieldCopierMovableBase.copy(movable, movableBase);
-        fieldCopierLock.copy(movable, movableBase.getLock());
+
+        fieldSetterMovableBase.copy(movable, movableBase);
+        fieldSetterLock.copy(movable, movableBase.getLock());
+        fieldSetterSerializer.copy(movable, this);
+
         return movable;
     }
 
@@ -304,7 +313,7 @@ public class MovableSerializer<T extends AbstractMovable>
         return sb.toString();
     }
 
-    private static @Nullable <T> FastFieldSetter<AbstractMovable, T> getFieldCopierInAbstractMovable(
+    private static @Nullable <T> FastFieldSetter<AbstractMovable, T> getFieldSetterInAbstractMovable(
         @Nullable Unsafe unsafe, Class<T> type, String fieldName)
     {
         if (unsafe == null)
