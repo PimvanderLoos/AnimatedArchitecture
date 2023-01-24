@@ -10,7 +10,6 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
 import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
-import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.MovableRegistry;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
@@ -46,36 +45,20 @@ public abstract class AbstractMovable implements IMovable
     private final ReentrantReadWriteLock lock;
     private final MovableSerializer<?> serializer;
 
-    protected final ILocalizer localizer;
-    protected final IConfigLoader config;
-    protected final MovableOpeningHelper movableOpeningHelper;
-
     @Getter
     @EqualsAndHashCode.Include
     protected final MovableBase base;
 
-    private AbstractMovable(
-        MovableBase base,
-        ILocalizer localizer,
-        MovableRegistry movableRegistry,
-        MovableOpeningHelper movableOpeningHelper)
+    protected AbstractMovable(MovableBase base)
     {
         serializer = getType().getMovableSerializer();
         this.lock = base.getLock();
         this.base = base;
-        this.localizer = localizer;
-        this.config = base.getConfig();
-        this.movableOpeningHelper = movableOpeningHelper;
 
         log.atFinest().log("Instantiating movable: %d", base.getUid());
-        if (base.getUid() > 0 && !movableRegistry.registerMovable(new Registrable()))
+        if (base.getUid() > 0 && !base.getMovableRegistry().registerMovable(new Registrable()))
             throw new IllegalStateException("Tried to create new movable \"" + base.getUid() +
                                                 "\" while it is already registered!");
-    }
-
-    protected AbstractMovable(MovableBase base)
-    {
-        this(base, base.getLocalizer(), base.getMovableRegistry(), base.getMovableOpeningHelper());
     }
 
     /**
@@ -124,7 +107,7 @@ public abstract class AbstractMovable implements IMovable
     {
         final double realTarget = target != null ?
                                   target :
-                                  config.getAnimationSpeedMultiplier(getType()) * getBaseAnimationTime();
+                                  base.getConfig().getAnimationSpeedMultiplier(getType()) * getBaseAnimationTime();
         return calculateAnimationTime(realTarget);
     }
 
@@ -165,7 +148,7 @@ public abstract class AbstractMovable implements IMovable
      */
     public double getMinimumAnimationTime()
     {
-        return getLongestAnimationCycleDistance() / config.maxBlockSpeed();
+        return getLongestAnimationCycleDistance() / base.getConfig().maxBlockSpeed();
     }
 
     /**
@@ -177,7 +160,8 @@ public abstract class AbstractMovable implements IMovable
      */
     public double getBaseAnimationTime()
     {
-        return getLongestAnimationCycleDistance() / Math.min(getDefaultAnimationSpeed(), config.maxBlockSpeed());
+        return getLongestAnimationCycleDistance() /
+            Math.min(getDefaultAnimationSpeed(), base.getConfig().maxBlockSpeed());
     }
 
     /**
@@ -283,7 +267,7 @@ public abstract class AbstractMovable implements IMovable
         MovableActionCause cause, IMessageable messageReceiver, IPPlayer responsible, @Nullable Double targetTime,
         boolean skipAnimation, MovableActionType actionType)
     {
-        return movableOpeningHelper.toggle(
+        return base.getMovableOpeningHelper().toggle(
             this, cause, messageReceiver, responsible, targetTime, skipAnimation, actionType);
     }
 
