@@ -12,11 +12,11 @@ import net.minecraft.world.level.block.state.BlockBase;
 import net.minecraft.world.level.block.state.IBlockData;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlockData;
+import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlockHook;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
+import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import org.bukkit.Axis;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -44,6 +44,7 @@ public class NMSBlock_V1_19_R2 extends BlockBase implements IAnimatedBlockData
 {
     @SuppressWarnings("unused") // Appears unused, but it's referenced in annotations.
     private final Object blockDataLock = new Object();
+    private final CustomEntityFallingBlock_V1_19_R2 animatedBlock;
     private final IPExecutor executor;
     private final WorldServer worldServer;
     private final World bukkitWorld;
@@ -72,9 +73,12 @@ public class NMSBlock_V1_19_R2 extends BlockBase implements IAnimatedBlockData
      * @param z
      *     The z coordinate of the NMS block.
      */
-    NMSBlock_V1_19_R2(IPExecutor executor, WorldServer worldServer, int x, int y, int z)
+    NMSBlock_V1_19_R2(
+        CustomEntityFallingBlock_V1_19_R2 AnimatedBlock, IPExecutor executor,
+        WorldServer worldServer, int x, int y, int z)
     {
         super(newBlockInfo(worldServer.getWorld(), new BlockPosition(x, y, z)));
+        animatedBlock = AnimatedBlock;
         this.executor = executor;
         this.worldServer = worldServer;
         this.bukkitWorld = worldServer.getWorld();
@@ -152,26 +156,14 @@ public class NMSBlock_V1_19_R2 extends BlockBase implements IAnimatedBlockData
 
     @Override
     @Synchronized("blockDataLock")
-    public void putBlock(Vector3Di position)
-    {
-        putBlock(new BlockPosition(position.x(), position.y(), position.z()));
-    }
-
-    @Override
-    @Synchronized("blockDataLock")
-    public void putBlock(Vector3Dd position)
-    {
-        putBlock(new BlockPosition(position.x(), position.y(), position.z()));
-    }
-
-    @GuardedBy("blockDataLock")
-    private void putBlock(BlockPosition blockPosition)
+    public void putBlock(IVector3D position)
     {
         if (!executor.isMainThread())
         {
             log.atSevere().withStackTrace(StackSize.FULL).log("Caught async block placement! THIS IS A BUG!");
             return;
         }
+        final BlockPosition blockPosition = new BlockPosition(position.xD(), position.yD(), position.zD());
 
         // net.minecraft.world.level.block.state.BlockState getBlockState(net.minecraft.core.BlockPos)
         final IBlockData old = worldServer.a_(blockPosition);
@@ -182,6 +174,8 @@ public class NMSBlock_V1_19_R2 extends BlockBase implements IAnimatedBlockData
             // sendBlockUpdated(net.minecraft.core.BlockPos,net.minecraft.world.level.block.state.BlockState,
             //                  net.minecraft.world.level.block.state.BlockState,int)
             worldServer.getMinecraftWorld().a(blockPosition, old, blockData, 3);
+
+        animatedBlock.forEachHook("putBlock", IAnimatedBlockHook::onBlockPlace);
     }
 
     /**
@@ -367,6 +361,8 @@ public class NMSBlock_V1_19_R2 extends BlockBase implements IAnimatedBlockData
             bukkitWorld.getBlockAt(loc).setType(Material.CAVE_AIR, false);
             bukkitWorld.getBlockAt(loc).setType(Material.AIR, true);
         }
+
+        animatedBlock.forEachHook("deleteOriginalBlock", IAnimatedBlockHook::onDeleteOriginalBlock);
     }
 
     @Override

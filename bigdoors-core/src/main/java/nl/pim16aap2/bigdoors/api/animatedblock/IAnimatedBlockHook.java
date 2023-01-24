@@ -39,6 +39,20 @@ public interface IAnimatedBlockHook
     }
 
     /**
+     * Fires after the original block that serves as template for the animated block has been removed from the world.
+     */
+    default void onDeleteOriginalBlock()
+    {
+    }
+
+    /**
+     * Fires after the block has been placed back into the world when the animation ends.
+     */
+    default void onBlockPlace()
+    {
+    }
+
+    /**
      * Fires after an animated block has been teleported.
      * <p>
      * This may be called asynchronously.
