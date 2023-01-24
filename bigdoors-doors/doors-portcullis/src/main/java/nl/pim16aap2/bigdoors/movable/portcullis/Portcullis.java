@@ -120,6 +120,7 @@ public class Portcullis extends AbstractMovable implements IDiscreteMovement
         return new VerticalMover(this, data, getDirectedBlocksToMove());
     }
 
+    @Override
     @Locked.Write
     public void setBlocksToMove(int blocksToMove)
     {

@@ -125,6 +125,7 @@ public class SlidingDoor extends AbstractMovable implements IDiscreteMovement
         return new SlidingMover(this, data, getCurrentToggleDir(), getBlocksToMove());
     }
 
+    @Override
     @Locked.Write
     public void setBlocksToMove(int blocksToMove)
     {
