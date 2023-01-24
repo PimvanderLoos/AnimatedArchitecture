@@ -45,6 +45,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -52,6 +53,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * An implementation of {@link IStorage} for SQLite.
@@ -445,19 +448,41 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
             final long movableUID = executeTransaction(conn -> insert(conn, movable, typeName, typeData), -1L);
             if (movableUID > 0)
+            {
                 return Optional.of(serializer.deserialize(
-                    movableBaseBuilder.builder().uid(movableUID).name(movable.getName()).cuboid(movable.getCuboid())
-                                      .rotationPoint(movable.getRotationPoint()).powerBlock(movable.getPowerBlock())
-                                      .world(movable.getWorld())
-                                      .isOpen(movable.isOpen()).isLocked(movable.isLocked())
-                                      .openDir(movable.getOpenDir())
-                                      .primeOwner(movable.getPrimeOwner()).build(), typeData));
+                    movableBaseBuilder
+                        .builder()
+                        .uid(movableUID)
+                        .name(movable.getName())
+                        .cuboid(movable.getCuboid())
+                        .rotationPoint(movable.getRotationPoint())
+                        .powerBlock(movable.getPowerBlock())
+                        .world(movable.getWorld())
+                        .isOpen(movable.isOpen())
+                        .isLocked(movable.isLocked())
+                        .openDir(movable.getOpenDir())
+                        .primeOwner(remapMovableOwner(movable.getPrimeOwner(), movableUID))
+                        .ownersOfMovable(remapMovableOwners(movable.getOwners(), movableUID))
+                        .build(),
+                    typeData));
+            }
         }
         catch (Exception t)
         {
             log.atSevere().withCause(t).log();
         }
         return Optional.empty();
+    }
+
+    static Map<UUID, MovableOwner> remapMovableOwners(Collection<MovableOwner> current, long newUid)
+    {
+        return current.stream().map(owner -> remapMovableOwner(owner, newUid))
+                      .collect(Collectors.toMap(owner1 -> owner1.pPlayerData().getUUID(), Function.identity()));
+    }
+
+    static MovableOwner remapMovableOwner(MovableOwner current, long newUid)
+    {
+        return new MovableOwner(newUid, current.permission(), current.pPlayerData());
     }
 
     @Override
