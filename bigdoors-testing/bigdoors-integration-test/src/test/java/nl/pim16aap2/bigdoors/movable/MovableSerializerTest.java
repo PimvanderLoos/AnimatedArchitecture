@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.movable;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import nl.pim16aap2.bigdoors.annotations.InheritedLockField;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.managers.MovableRegistry;
@@ -14,6 +15,7 @@ import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.Rectangle;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.testing.AssistedFactoryMocker;
+import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 class MovableSerializerTest
 {
@@ -110,6 +113,22 @@ class MovableSerializerTest
         Assertions.assertEquals(testMovableSubType1, testMovableSubType2);
     }
 
+    @Test
+    void testLocks()
+    {
+        final var instantiator = Assertions.assertDoesNotThrow(
+            () -> new MovableSerializer<>(TestMovableSubType.class));
+        final TestMovableSubType testMovableSubType1 = new TestMovableSubType(movableBase, "test", true, 42, 6);
+
+        final byte[] serialized = Assertions.assertDoesNotThrow(() -> instantiator.serialize(testMovableSubType1));
+        final var testMovableSubType2 = Assertions.assertDoesNotThrow(
+            () -> instantiator.deserialize(movableBase, serialized));
+
+        Assertions.assertEquals(movableBase.getLock(), testMovableSubType2.getLockTestMovableType());
+        Assertions.assertEquals(movableBase.getLock(), testMovableSubType2.getLockTestMovableSubTypeAnnotated());
+        Assertions.assertNull(testMovableSubType2.getLockTestMovableSubTypeUnannotated());
+    }
+
     // This class is a nullability nightmare, but that doesn't matter, because none of the methods are used;
     // It's only used for testing serialization and the methods are therefore just stubs.
     @SuppressWarnings("ConstantConditions")
@@ -118,6 +137,10 @@ class MovableSerializerTest
     @EqualsAndHashCode(callSuper = false)
     private static class TestMovableType extends AbstractMovable
     {
+        @InheritedLockField
+        @EqualsAndHashCode.Exclude
+        private final ReentrantReadWriteLock lock;
+
         @PersistentVariable
         @Getter
         protected String testName;
@@ -136,14 +159,21 @@ class MovableSerializerTest
         public TestMovableType(MovableBase movableBase)
         {
             super(movableBase);
+            this.lock = movableBase.getLock();
         }
 
         public TestMovableType(MovableBase movableBase, String testName, boolean isCoolType, int blockTestCount)
         {
             super(movableBase);
+            this.lock = movableBase.getLock();
             this.testName = testName;
             this.isCoolType = isCoolType;
             this.blockTestCount = blockTestCount;
+        }
+
+        public final ReentrantReadWriteLock getLockTestMovableType()
+        {
+            return this.lock;
         }
 
         @Override
@@ -198,6 +228,13 @@ class MovableSerializerTest
     @EqualsAndHashCode(callSuper = true)
     private static class TestMovableSubType extends TestMovableType
     {
+        @InheritedLockField
+        @EqualsAndHashCode.Exclude
+        private final ReentrantReadWriteLock nonStandardLockName;
+
+        @EqualsAndHashCode.Exclude
+        private final ReentrantReadWriteLock lock;
+
         @PersistentVariable
         @Getter
         private final int subclassTestValue;
@@ -206,11 +243,23 @@ class MovableSerializerTest
             MovableBase movableBase, String testName, boolean isCoolType, int blockTestCount, int subclassTestValue)
         {
             super(movableBase, testName, isCoolType, blockTestCount);
+            this.nonStandardLockName = movableBase.getLock();
+            this.lock = movableBase.getLock();
 
             this.testName = testName;
             this.isCoolType = isCoolType;
 
             this.subclassTestValue = subclassTestValue;
+        }
+
+        public final @Nullable ReentrantReadWriteLock getLockTestMovableSubTypeAnnotated()
+        {
+            return this.nonStandardLockName;
+        }
+
+        public final @Nullable ReentrantReadWriteLock getLockTestMovableSubTypeUnannotated()
+        {
+            return this.lock;
         }
     }
 }

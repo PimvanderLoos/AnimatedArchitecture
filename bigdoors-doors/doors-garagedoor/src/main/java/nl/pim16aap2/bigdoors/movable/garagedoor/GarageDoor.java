@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.bigdoors.annotations.InheritedLockField;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.MovableBase;
@@ -36,6 +37,7 @@ public class GarageDoor extends AbstractMovable implements IHorizontalAxisAligne
     private static final MovableType MOVABLE_TYPE = MovableGarageDoor.get();
 
     @EqualsAndHashCode.Exclude
+    @InheritedLockField
     private final ReentrantReadWriteLock lock;
 
     /**

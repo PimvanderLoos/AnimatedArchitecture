@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.bigdoors.annotations.InheritedLockField;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
@@ -34,6 +35,7 @@ public class BigDoor extends AbstractMovable
     private static final MovableType MOVABLE_TYPE = MovableBigDoor.get();
 
     @EqualsAndHashCode.Exclude
+    @InheritedLockField
     private final ReentrantReadWriteLock lock;
 
     @Getter

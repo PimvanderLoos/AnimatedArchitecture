@@ -4,6 +4,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.Locked;
+import nl.pim16aap2.bigdoors.annotations.InheritedLockField;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.MovableBase;
@@ -31,6 +32,7 @@ public class Clock extends AbstractMovable implements IHorizontalAxisAligned
     private static final MovableType MOVABLE_TYPE = MovableTypeClock.get();
 
     @EqualsAndHashCode.Exclude
+    @InheritedLockField
     private final ReentrantReadWriteLock lock;
 
     /**

@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.movable;
 
 import com.google.common.flogger.StackSize;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.bigdoors.annotations.InheritedLockField;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.util.FastFieldSetter;
 import nl.pim16aap2.bigdoors.util.UnsafeGetter;
@@ -34,9 +35,16 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class MovableSerializer<T extends AbstractMovable>
 {
     /**
-     * The list of serializable fields in the target class {@link #movableClass}.
+     * The list of serializable fields in the target class {@link #movableClass} that are annotated with
+     * {@link PersistentVariable}.
      */
     private final List<Field> fields = new ArrayList<>();
+
+    /**
+     * The list of {@link ReentrantReadWriteLock} fields annotated with {@link InheritedLockField} in the target class
+     * {@link #movableClass}.
+     */
+    private final List<Field> lockFields = new ArrayList<>();
 
     /**
      * The target class.
@@ -117,6 +125,16 @@ public class MovableSerializer<T extends AbstractMovable>
                         String.format("Type %s of field %s for movable type %s is not serializable!",
                                       field.getType().getName(), field.getName(), getMovableTypeName()));
                 fields.add(field);
+            }
+            else if (field.isAnnotationPresent(InheritedLockField.class))
+            {
+                field.setAccessible(true);
+                if (field.getType() != ReentrantReadWriteLock.class)
+                    throw new UnsupportedOperationException(
+                        String.format(
+                            "Field %s for movable type %s is of type %s, but expected ReentrantReadWriteLock!",
+                            field.getName(), getMovableTypeName(), field.getType().getName()));
+                lockFields.add(field);
             }
     }
 
@@ -200,8 +218,14 @@ public class MovableSerializer<T extends AbstractMovable>
             final @Nullable T movable = instantiate(movableBase);
             if (movable == null)
                 throw new IllegalStateException("Failed to initialize movable!");
+
             for (int idx = 0; idx < fields.size(); ++idx)
                 fields.get(idx).set(movable, values.get(idx));
+
+            final ReentrantReadWriteLock lock = movableBase.getLock();
+            for (final Field field : lockFields)
+                field.set(movable, lock);
+
             return movable;
         }
         catch (Exception t)
