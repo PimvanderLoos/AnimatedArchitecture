@@ -38,14 +38,6 @@ public class Windmill extends AbstractMovable implements IHorizontalAxisAligned,
     @InheritedLockField
     private final ReentrantReadWriteLock lock;
 
-    @Getter
-    @EqualsAndHashCode.Exclude @ToString.Exclude
-    private final double longestAnimationCycleDistance;
-
-    @Getter
-    @EqualsAndHashCode.Exclude @ToString.Exclude
-    private final Rectangle animationRange;
-
     /**
      * The number of quarter circles (so 90 degree rotations) this movable will make before stopping.
      *
@@ -62,10 +54,6 @@ public class Windmill extends AbstractMovable implements IHorizontalAxisAligned,
         super(base);
         this.lock = getLock();
         this.quarterCircles = quarterCircles;
-
-        final double maxRadius = Drawbridge.getMaxRadius(isNorthSouthAligned(), getCuboid(), getRotationPoint());
-        this.longestAnimationCycleDistance = maxRadius * MathUtil.HALF_PI;
-        this.animationRange = Drawbridge.calculateAnimationRange(maxRadius, getCuboid());
     }
 
     public Windmill(AbstractMovable.MovableBaseHolder doorBase)
@@ -102,6 +90,22 @@ public class Windmill extends AbstractMovable implements IHorizontalAxisAligned,
     {
         final MovementDirection openDir = getOpenDir();
         return openDir == MovementDirection.EAST || openDir == MovementDirection.WEST;
+    }
+
+    @Override
+    @Locked.Read
+    protected double calculateAnimationCycleDistance()
+    {
+        final double maxRadius = Drawbridge.getMaxRadius(isNorthSouthAligned(), getCuboid(), getRotationPoint());
+        return maxRadius * MathUtil.HALF_PI;
+    }
+
+    @Override
+    @Locked.Read
+    protected Rectangle calculateAnimationRange()
+    {
+        final double maxRadius = Drawbridge.getMaxRadius(isNorthSouthAligned(), getCuboid(), getRotationPoint());
+        return Drawbridge.calculateAnimationRange(maxRadius, getCuboid());
     }
 
     @Override

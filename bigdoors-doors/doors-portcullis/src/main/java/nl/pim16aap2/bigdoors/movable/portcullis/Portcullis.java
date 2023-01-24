@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.movable.portcullis;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Locked;
 import nl.pim16aap2.bigdoors.annotations.InheritedLockField;
@@ -39,7 +38,6 @@ public class Portcullis extends AbstractMovable implements IDiscreteMovement
     @PersistentVariable
     @GuardedBy("lock")
     @Getter(onMethod_ = @Locked.Read)
-    @Setter(onMethod_ = @Locked.Write)
     protected int blocksToMove;
 
     public Portcullis(AbstractMovable.MovableBaseHolder base, int blocksToMove)
@@ -57,7 +55,7 @@ public class Portcullis extends AbstractMovable implements IDiscreteMovement
 
     @Override
     @Locked.Read
-    protected double getLongestAnimationCycleDistance()
+    protected double calculateAnimationCycleDistance()
     {
         return blocksToMove;
     }
@@ -69,13 +67,14 @@ public class Portcullis extends AbstractMovable implements IDiscreteMovement
     }
 
     @Override
-    public Rectangle getAnimationRange()
+    @Locked.Read
+    protected Rectangle calculateAnimationRange()
     {
         final Cuboid cuboid = getCuboid();
         final Vector3Di min = cuboid.getMin();
         final Vector3Di max = cuboid.getMax();
 
-        return new Cuboid(min.add(0, -getBlocksToMove(), 0), max.add(0, getBlocksToMove(), 0)).asFlatRectangle();
+        return new Cuboid(min.add(0, -blocksToMove, 0), max.add(0, blocksToMove, 0)).asFlatRectangle();
     }
 
     @Override
@@ -119,5 +118,12 @@ public class Portcullis extends AbstractMovable implements IDiscreteMovement
         throws Exception
     {
         return new VerticalMover(this, data, getDirectedBlocksToMove());
+    }
+
+    @Locked.Write
+    public void setBlocksToMove(int blocksToMove)
+    {
+        this.blocksToMove = blocksToMove;
+        super.invalidateAnimationData();
     }
 }

@@ -78,20 +78,15 @@ public class Clock extends AbstractMovable implements IHorizontalAxisAligned
     }
 
     @Override
-    public MovementDirection cycleOpenDirection()
-    {
-        return getOpenDir();
-    }
-
-    @Override
-    protected double getLongestAnimationCycleDistance()
+    protected double calculateAnimationCycleDistance()
     {
         // Not needed for this type, as it is not affected by time/speed calculations anyway.
-        return 0.0D;
+        return 0;
     }
 
     @Override
-    public Rectangle getAnimationRange()
+    @Locked.Read
+    protected Rectangle calculateAnimationRange()
     {
         final Cuboid cuboid = getCuboid();
 
@@ -102,6 +97,12 @@ public class Clock extends AbstractMovable implements IHorizontalAxisAligned
         final int delta = boxRadius - circleRadius;
 
         return (isNorthSouthAligned() ? cuboid.grow(0, delta, delta) : cuboid.grow(delta, delta, 0)).asFlatRectangle();
+    }
+
+    @Override
+    public MovementDirection cycleOpenDirection()
+    {
+        return getOpenDir();
     }
 
     @Override

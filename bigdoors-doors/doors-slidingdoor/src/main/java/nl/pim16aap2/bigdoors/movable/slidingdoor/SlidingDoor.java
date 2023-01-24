@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.movable.slidingdoor;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Locked;
 import nl.pim16aap2.bigdoors.annotations.InheritedLockField;
@@ -41,7 +40,6 @@ public class SlidingDoor extends AbstractMovable implements IDiscreteMovement
     @PersistentVariable
     @GuardedBy("lock")
     @Getter(onMethod_ = @Locked.Read)
-    @Setter(onMethod_ = @Locked.Write)
     protected int blocksToMove;
 
     public SlidingDoor(AbstractMovable.MovableBaseHolder base, int blocksToMove)
@@ -65,14 +63,14 @@ public class SlidingDoor extends AbstractMovable implements IDiscreteMovement
 
     @Override
     @Locked.Read
-    protected double getLongestAnimationCycleDistance()
+    protected double calculateAnimationCycleDistance()
     {
         return blocksToMove;
     }
 
     @Override
     @Locked.Read
-    public Rectangle getAnimationRange()
+    protected Rectangle calculateAnimationRange()
     {
         final Cuboid cuboid = getCuboid();
         final Vector3Di min = cuboid.getMin();
@@ -125,5 +123,12 @@ public class SlidingDoor extends AbstractMovable implements IDiscreteMovement
         throws Exception
     {
         return new SlidingMover(this, data, getCurrentToggleDir(), getBlocksToMove());
+    }
+
+    @Locked.Write
+    public void setBlocksToMove(int blocksToMove)
+    {
+        this.blocksToMove = blocksToMove;
+        super.invalidateAnimationData();
     }
 }

@@ -36,14 +36,6 @@ public class RevolvingDoor extends AbstractMovable
     @EqualsAndHashCode.Exclude
     private final ReentrantReadWriteLock lock;
 
-    @Getter
-    @EqualsAndHashCode.Exclude @ToString.Exclude
-    private final double longestAnimationCycleDistance;
-
-    @Getter
-    @EqualsAndHashCode.Exclude @ToString.Exclude
-    private final Rectangle animationRange;
-
     /**
      * The number of quarter circles (so 90 degree rotations) this movable will make before stopping.
      *
@@ -60,15 +52,26 @@ public class RevolvingDoor extends AbstractMovable
         super(base);
         this.lock = getLock();
         this.quarterCircles = quarterCircles;
-
-        final double maxRadius = BigDoor.getMaxRadius(getCuboid(), getRotationPoint());
-        this.longestAnimationCycleDistance = maxRadius * MathUtil.HALF_PI;
-        this.animationRange = BigDoor.calculateAnimationRange(maxRadius, getCuboid());
     }
 
     public RevolvingDoor(AbstractMovable.MovableBaseHolder base)
     {
         this(base, 1);
+    }
+
+    @Override
+    @Locked.Read
+    protected double calculateAnimationCycleDistance()
+    {
+        return BigDoor.getMaxRadius(getCuboid(), getRotationPoint()) * MathUtil.HALF_PI;
+    }
+
+    @Override
+    @Locked.Read
+    protected Rectangle calculateAnimationRange()
+    {
+        final double maxRadius = BigDoor.getMaxRadius(getCuboid(), getRotationPoint());
+        return BigDoor.calculateAnimationRange(maxRadius, getCuboid());
     }
 
     @Override

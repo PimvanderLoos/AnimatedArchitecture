@@ -5,6 +5,7 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.annotations.InheritedLockField;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.util.FastFieldSetter;
+import nl.pim16aap2.bigdoors.util.LazyValue;
 import nl.pim16aap2.bigdoors.util.UnsafeGetter;
 import nl.pim16aap2.util.SafeStringBuilder;
 import org.jetbrains.annotations.Nullable;
@@ -66,6 +67,12 @@ public class MovableSerializer<T extends AbstractMovable>
     @SuppressWarnings("rawtypes")
     private final @Nullable FastFieldSetter<AbstractMovable, MovableSerializer> fieldSetterSerializer =
         getFieldSetterInAbstractMovable(UNSAFE, MovableSerializer.class, "serializer");
+    @SuppressWarnings("rawtypes")
+    private final @Nullable FastFieldSetter<AbstractMovable, LazyValue> fieldSetterAnimationRange =
+        getFieldSetterInAbstractMovable(UNSAFE, LazyValue.class, "animationRange");
+    @SuppressWarnings("rawtypes")
+    private final @Nullable FastFieldSetter<AbstractMovable, LazyValue> fieldSetterCycleDistance =
+        getFieldSetterInAbstractMovable(UNSAFE, LazyValue.class, "animationCycleDistance");
 
     public MovableSerializer(Class<T> movableClass)
     {
@@ -262,6 +269,8 @@ public class MovableSerializer<T extends AbstractMovable>
         if (UNSAFE == null ||
             fieldSetterMovableBase == null ||
             fieldSetterLock == null ||
+            fieldSetterAnimationRange == null ||
+            fieldSetterCycleDistance == null ||
             fieldSetterSerializer == null)
             return null;
 
@@ -271,6 +280,8 @@ public class MovableSerializer<T extends AbstractMovable>
         fieldSetterMovableBase.copy(movable, movableBase);
         fieldSetterLock.copy(movable, movableBase.getLock());
         fieldSetterSerializer.copy(movable, this);
+        fieldSetterAnimationRange.copy(movable, AbstractMovable.newAnimationRangeVal(movable));
+        fieldSetterCycleDistance.copy(movable, AbstractMovable.newAnimationCycleDistanceVal(movable));
 
         return movable;
     }

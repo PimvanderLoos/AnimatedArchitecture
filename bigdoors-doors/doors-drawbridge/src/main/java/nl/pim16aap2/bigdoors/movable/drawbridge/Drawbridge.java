@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.movable.drawbridge;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.annotations.InheritedLockField;
@@ -39,14 +38,6 @@ public class Drawbridge extends AbstractMovable implements IHorizontalAxisAligne
     @InheritedLockField
     private final ReentrantReadWriteLock lock;
 
-    @Getter
-    @EqualsAndHashCode.Exclude @ToString.Exclude
-    private final double longestAnimationCycleDistance;
-
-    @Getter
-    @EqualsAndHashCode.Exclude @ToString.Exclude
-    private final Rectangle animationRange;
-
     /**
      * Describes if this drawbridge's vertical position points (when taking the rotation point Y value as center) up
      * <b>(= TRUE)</b> or down <b>(= FALSE)</b>
@@ -64,10 +55,6 @@ public class Drawbridge extends AbstractMovable implements IHorizontalAxisAligne
         super(base);
         this.lock = getLock();
         this.modeUp = modeUp;
-
-        final double maxRadius = getMaxRadius(isNorthSouthAligned(), getCuboid(), getRotationPoint());
-        this.longestAnimationCycleDistance = maxRadius * MathUtil.HALF_PI;
-        this.animationRange = calculateAnimationRange(maxRadius, getCuboid());
     }
 
     @SuppressWarnings("unused")
@@ -128,6 +115,22 @@ public class Drawbridge extends AbstractMovable implements IHorizontalAxisAligne
     {
         final MovementDirection openDir = getOpenDir();
         return openDir == MovementDirection.NORTH || openDir == MovementDirection.SOUTH;
+    }
+
+    @Override
+    @Locked.Read
+    protected double calculateAnimationCycleDistance()
+    {
+        final double maxRadius = getMaxRadius(isNorthSouthAligned(), getCuboid(), getRotationPoint());
+        return maxRadius * MathUtil.HALF_PI;
+    }
+
+    @Override
+    @Locked.Read
+    protected Rectangle calculateAnimationRange()
+    {
+        final double maxRadius = getMaxRadius(isNorthSouthAligned(), getCuboid(), getRotationPoint());
+        return calculateAnimationRange(maxRadius, getCuboid());
     }
 
     /**

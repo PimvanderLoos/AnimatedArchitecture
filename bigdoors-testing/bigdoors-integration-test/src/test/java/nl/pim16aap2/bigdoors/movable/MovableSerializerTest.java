@@ -13,6 +13,7 @@ import nl.pim16aap2.bigdoors.testimplementations.TestPWorld;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.Rectangle;
+import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.testing.AssistedFactoryMocker;
 import org.jetbrains.annotations.Nullable;
@@ -178,27 +179,27 @@ class MovableSerializerTest
         }
 
         @Override
-        protected double getLongestAnimationCycleDistance()
-        {
-            return 0;
-        }
-
-        @Override
         public MovableType getType()
         {
             return MOVABLE_TYPE;
         }
 
         @Override
-        public boolean canSkipAnimation()
+        protected double calculateAnimationCycleDistance()
         {
-            return false;
+            return 0;
         }
 
         @Override
-        public Rectangle getAnimationRange()
+        protected Rectangle calculateAnimationRange()
         {
-            return null;
+            return new Rectangle(new Vector2Di(0, 0), new Vector2Di(0, 0));
+        }
+
+        @Override
+        public boolean canSkipAnimation()
+        {
+            return false;
         }
 
         @Override

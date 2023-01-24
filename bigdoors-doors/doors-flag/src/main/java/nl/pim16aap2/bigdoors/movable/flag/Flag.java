@@ -67,13 +67,14 @@ public class Flag extends AbstractMovable implements IHorizontalAxisAligned, IPe
     }
 
     @Override
-    protected double getLongestAnimationCycleDistance()
+    protected double calculateAnimationCycleDistance()
     {
         return 0.0D;
     }
 
     @Override
-    public Rectangle getAnimationRange()
+    @Locked.Read
+    protected Rectangle calculateAnimationRange()
     {
         final Cuboid cuboid = getCuboid();
         final Vector3Di rotationPoint = getRotationPoint();

@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.movable.bigdoor;
 
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
@@ -37,22 +36,10 @@ public class BigDoor extends AbstractMovable
     @InheritedLockField
     private final ReentrantReadWriteLock lock;
 
-    @Getter
-    @EqualsAndHashCode.Exclude @ToString.Exclude
-    private final double longestAnimationCycleDistance;
-
-    @Getter
-    @EqualsAndHashCode.Exclude @ToString.Exclude
-    private final Rectangle animationRange;
-
     public BigDoor(AbstractMovable.MovableBaseHolder base)
     {
         super(base);
         this.lock = getLock();
-
-        final double maxRadius = getMaxRadius(getCuboid(), getRotationPoint());
-        this.longestAnimationCycleDistance = maxRadius * MathUtil.HALF_PI;
-        this.animationRange = calculateAnimationRange(maxRadius, getCuboid());
     }
 
     @Override
@@ -96,6 +83,22 @@ public class BigDoor extends AbstractMovable
         }
 
         return Optional.of(getCuboid().updatePositions(vec -> vec.rotateAroundYAxis(getRotationPoint(), angle)));
+    }
+
+    @Override
+    @Locked.Read
+    protected double calculateAnimationCycleDistance()
+    {
+        final double maxRadius = getMaxRadius(getCuboid(), getRotationPoint());
+        return maxRadius * MathUtil.HALF_PI;
+    }
+
+    @Override
+    @Locked.Read
+    protected Rectangle calculateAnimationRange()
+    {
+        final double maxRadius = getMaxRadius(getCuboid(), getRotationPoint());
+        return calculateAnimationRange(maxRadius, getCuboid());
     }
 
     /**

@@ -75,7 +75,7 @@ public class GarageDoor extends AbstractMovable implements IHorizontalAxisAligne
 
     @Override
     @Locked.Read
-    protected double getLongestAnimationCycleDistance()
+    protected double calculateAnimationCycleDistance()
     {
         final Cuboid cuboid = getCuboid();
         final Vector3Di dims = cuboid.getDimensions();
@@ -90,7 +90,8 @@ public class GarageDoor extends AbstractMovable implements IHorizontalAxisAligne
     }
 
     @Override
-    public Rectangle getAnimationRange()
+    @Locked.Read
+    protected Rectangle calculateAnimationRange()
     {
         final Cuboid cuboid = getCuboid();
         if (isOpen())
