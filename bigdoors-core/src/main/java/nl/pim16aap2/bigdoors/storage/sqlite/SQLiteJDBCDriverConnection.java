@@ -53,7 +53,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * An implementation of {@link IStorage} for SQLite.
@@ -754,13 +753,13 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    public ConcurrentHashMap<Integer, List<Long>> getPowerBlockData(long chunkId)
+    public Map<Integer, List<Long>> getPowerBlockData(long chunkId)
     {
         return executeQuery(SQLStatement.GET_POWER_BLOCK_DATA_IN_CHUNK.constructPPreparedStatement()
                                                                       .setLong(1, chunkId),
                             resultSet ->
                             {
-                                final ConcurrentHashMap<Integer, List<Long>> movables = new ConcurrentHashMap<>();
+                                final Map<Integer, List<Long>> movables = new HashMap<>();
                                 while (resultSet.next())
                                 {
                                     final int locationHash =
@@ -772,7 +771,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                                     movables.get(locationHash).add(resultSet.getLong("id"));
                                 }
                                 return movables;
-                            }, new ConcurrentHashMap<>());
+                            }, Collections.emptyMap());
     }
 
     @Override

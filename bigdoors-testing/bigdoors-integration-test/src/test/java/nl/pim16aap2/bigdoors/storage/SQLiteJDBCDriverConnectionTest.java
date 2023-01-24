@@ -48,10 +48,11 @@ import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 public class SQLiteJDBCDriverConnectionTest
@@ -460,9 +461,11 @@ public class SQLiteJDBCDriverConnectionTest
         Assertions.assertTrue(storage.updatePlayerData(PLAYER_DATA_2));
 
         chunkId = Util.getChunkId(movable1.getPowerBlock());
-        final ConcurrentHashMap<Integer, List<Long>> powerBlockData = storage.getPowerBlockData(chunkId);
+        final Map<Integer, List<Long>> powerBlockData = storage.getPowerBlockData(chunkId);
         Assertions.assertNotNull(powerBlockData);
-        Assertions.assertEquals(3, powerBlockData.elements().nextElement().size());
+        final List<List<Long>> entries = new ArrayList<>(powerBlockData.values());
+        Assertions.assertEquals(1, entries.size());
+        Assertions.assertEquals(3, entries.get(0).size());
     }
 
     /**

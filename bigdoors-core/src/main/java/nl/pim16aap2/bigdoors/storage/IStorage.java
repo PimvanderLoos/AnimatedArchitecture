@@ -12,9 +12,9 @@ import nl.pim16aap2.bigdoors.util.IBitFlag;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 /**
@@ -219,7 +219,7 @@ public interface IStorage
      *     The id of the chunk the movables are in.
      * @return A map of location hashes and their connected powerblocks for all movables in a chunk.
      */
-    ConcurrentHashMap<Integer, List<Long>> getPowerBlockData(long chunkId);
+    Map<Integer, List<Long>> getPowerBlockData(long chunkId);
 
     /**
      * Gets a list of movable UIDs that have their rotation point in a given chunk.

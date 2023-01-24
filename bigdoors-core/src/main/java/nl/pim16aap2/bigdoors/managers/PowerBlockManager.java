@@ -329,7 +329,7 @@ public final class PowerBlockManager extends Restartable implements MovableDelet
 
         private void setPowerBlocks(Map<Integer, List<Long>> powerBlocks)
         {
-            this.powerBlocks = powerBlocks;
+            this.powerBlocks = new ConcurrentHashMap<>(powerBlocks);
         }
 
         /**
