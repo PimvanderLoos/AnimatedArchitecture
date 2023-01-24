@@ -14,7 +14,6 @@ import nl.pim16aap2.bigdoors.managers.MovableRegistry;
 import nl.pim16aap2.bigdoors.managers.MovableTypeManager;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.IMovableConst;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.movable.MovableBaseBuilder;
 import nl.pim16aap2.bigdoors.movable.MovableOwner;
 import nl.pim16aap2.bigdoors.movable.MovableSerializer;
@@ -361,18 +360,20 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             playerData);
 
         final Map<UUID, MovableOwner> ownersOfMovable = getOwnersOfMovable(movableUID);
-        final MovableBase movableData = movableBaseBuilder.builder()
-                                                          .uid(movableUID)
-                                                          .name(name)
-                                                          .cuboid(new Cuboid(min, max))
-                                                          .rotationPoint(rotationPoint)
-                                                          .powerBlock(powerBlock)
-                                                          .world(world)
-                                                          .isOpen(isOpen)
-                                                          .isLocked(isLocked)
-                                                          .openDir(openDirection.get())
-                                                          .primeOwner(primeOwner)
-                                                          .ownersOfMovable(ownersOfMovable).build();
+        final AbstractMovable.MovableBaseHolder movableData =
+            movableBaseBuilder.builder()
+                              .uid(movableUID)
+                              .name(name)
+                              .cuboid(new Cuboid(min, max))
+                              .rotationPoint(rotationPoint)
+                              .powerBlock(powerBlock)
+                              .world(world)
+                              .isOpen(isOpen)
+                              .isLocked(isLocked)
+                              .openDir(openDirection.get())
+                              .primeOwner(primeOwner)
+                              .ownersOfMovable(ownersOfMovable)
+                              .build();
 
         final byte[] rawTypeData = movableBaseRS.getBytes("typeData");
         return Optional.of(serializer.deserialize(movableData, rawTypeData));
@@ -551,14 +552,14 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     /**
-     * Attempts to construct a subclass of {@link MovableBase} from a ResultSet containing all data pertaining the
-     * {@link MovableBase} (as stored in the "movableBase" table), as well as the owner (name, UUID, permission) and the
-     * typeTableName.
+     * Attempts to construct a subclass of {@link AbstractMovable} from a ResultSet containing all data pertaining the
+     * {@link AbstractMovable} (as stored in the "movableBase" table), as well as the owner (name, UUID, permission) and
+     * the typeTableName.
      *
      * @param movableBaseRS
      *     The {@link ResultSet} containing a row from the "movableBase" table as well as a row from the
      *     "MovableOwnerPlayer" table and "typeTableName" from the "MovableType" table.
-     * @return An instance of a subclass of {@link MovableBase} if it could be created.
+     * @return An instance of a subclass of {@link AbstractMovable} if it could be created.
      */
     private Optional<AbstractMovable> getMovable(ResultSet movableBaseRS)
         throws Exception
@@ -571,14 +572,14 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     /**
-     * Attempts to construct a list of subclasses of {@link MovableBase} from a ResultSet containing all data pertaining
-     * to one or more {@link MovableBase}s (as stored in the "movableBase" table), as well as the owner (name, UUID,
-     * permission) and the typeTableName.
+     * Attempts to construct a list of subclasses of {@link AbstractMovable} from a ResultSet containing all data
+     * pertaining to one or more {@link AbstractMovable}s (as stored in the "movableBase" table), as well as the owner
+     * (name, UUID, permission) and the typeTableName.
      *
      * @param movableBaseRS
      *     The {@link ResultSet} containing one or more rows from the "movableBase" table as well as matching rows from
      *     the "MovableOwnerPlayer" table and "typeTableName" from the "MovableType" table.
-     * @return An optional with a list of {@link MovableBase}s if any could be constructed. If none could be
+     * @return An optional with a list of {@link AbstractMovable}s if any could be constructed. If none could be
      * constructed, an empty {@link Optional} is returned instead.
      */
     private List<AbstractMovable> getMovables(ResultSet movableBaseRS)
@@ -589,6 +590,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             return Collections.emptyList();
 
         final List<AbstractMovable> movables = new ArrayList<>();
+
         while (movableBaseRS.next())
             constructMovable(movableBaseRS).ifPresent(movables::add);
         return movables;
@@ -1192,6 +1194,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         }
         catch (Exception e)
         {
+            e.printStackTrace();
             log.atSevere().withCause(e).log("Failed to execute query: %s", pPreparedStatement);
         }
         return fallback;

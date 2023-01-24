@@ -8,7 +8,6 @@ import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.MovableAttribute;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
@@ -197,14 +196,14 @@ public abstract class BaseCommand
     }
 
     /**
-     * Attempts to get an {@link MovableBase} based on the provided {@link MovableRetrieverFactory} and the current
+     * Attempts to get an {@link AbstractMovable} based on the provided {@link MovableRetrieverFactory} and the current
      * {@link ICommandSender}.
      * <p>
      * If no movable is found, the {@link ICommandSender} will be informed.
      *
      * @param doorRetriever
      *     The {@link MovableRetrieverFactory} to use
-     * @return The {@link MovableBase} if one could be retrieved.
+     * @return The {@link AbstractMovable} if one could be retrieved.
      */
     protected CompletableFuture<Optional<AbstractMovable>> getMovable(MovableRetriever doorRetriever)
     {

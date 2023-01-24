@@ -9,7 +9,6 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.annotations.InheritedLockField;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
@@ -55,7 +54,7 @@ public class GarageDoor extends AbstractMovable implements IHorizontalAxisAligne
     @PersistentVariable
     protected final boolean northSouthAligned;
 
-    public GarageDoor(MovableBase base, boolean northSouthAligned)
+    public GarageDoor(AbstractMovable.MovableBaseHolder base, boolean northSouthAligned)
     {
         super(base);
         this.lock = getLock();
@@ -63,7 +62,7 @@ public class GarageDoor extends AbstractMovable implements IHorizontalAxisAligne
     }
 
     @SuppressWarnings("unused")
-    private GarageDoor(MovableBase base)
+    private GarageDoor(AbstractMovable.MovableBaseHolder base)
     {
         this(base, false); // Add tmp/default values
     }

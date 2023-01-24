@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.events.movableaction;
 
-import nl.pim16aap2.bigdoors.movable.MovableBase;
+import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 
 /**
- * Represents the different kind of causes that can be the reason of a {@link MovableBase} action.
+ * Represents the different kind of causes that can be the reason of a {@link AbstractMovable} action.
  *
  * @author Pim
  */
@@ -20,12 +20,12 @@ public enum MovableActionCause
     REDSTONE,
 
     /**
-     * The {@link MovableBase} was toggled from the console or by a command block.
+     * The {@link AbstractMovable} was toggled from the console or by a command block.
      */
     SERVER,
 
     /**
-     * The {@link MovableBase} was toggled by another plugin.
+     * The {@link AbstractMovable} was toggled by another plugin.
      */
     PLUGIN,
 

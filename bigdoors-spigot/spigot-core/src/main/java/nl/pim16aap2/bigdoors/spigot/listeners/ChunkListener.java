@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovableActivityManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
@@ -58,7 +57,8 @@ public class ChunkListener extends AbstractListener
     }
 
     /**
-     * Listens to chunks being unloaded and checks if it intersects with the region of the active {@link MovableBase}s.
+     * Listens to chunks being unloaded and checks if it intersects with the region of the active
+     * {@link AbstractMovable}s.
      */
     @EventHandler(priority = EventPriority.LOWEST)
     public void onChunkUnload(ChunkUnloadEvent event)

@@ -8,7 +8,6 @@ import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.MovableAttribute;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
@@ -78,8 +77,8 @@ public class SetOpenDirection extends MovableTargetCommand
          * @param commandSender
          *     The {@link ICommandSender} responsible for changing open direction of the movable.
          * @param movableRetriever
-         *     A {@link MovableRetrieverFactory} representing the {@link MovableBase} for which the open direction will
-         *     be modified.
+         *     A {@link MovableRetrieverFactory} representing the {@link AbstractMovable} for which the open direction
+         *     will be modified.
          * @param movementDirection
          *     The new movement direction.
          * @return See {@link BaseCommand#run()}.

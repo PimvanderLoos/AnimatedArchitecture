@@ -7,7 +7,6 @@ import lombok.experimental.Locked;
 import nl.pim16aap2.bigdoors.annotations.InheritedLockField;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
@@ -64,7 +63,7 @@ public class Clock extends AbstractMovable implements IHorizontalAxisAligned
     @Getter
     protected final PBlockFace hourArmSide;
 
-    public Clock(MovableBase base, boolean northSouthAligned, PBlockFace hourArmSide)
+    public Clock(AbstractMovable.MovableBaseHolder base, boolean northSouthAligned, PBlockFace hourArmSide)
     {
         super(base);
         this.lock = getLock();

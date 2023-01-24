@@ -29,7 +29,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 class MovableSerializerTest
 {
-    private MovableBase movableBase;
+    private AbstractMovable.MovableBaseHolder movableBase;
 
     @BeforeEach
     void init()
@@ -124,8 +124,8 @@ class MovableSerializerTest
         final var testMovableSubType2 = Assertions.assertDoesNotThrow(
             () -> instantiator.deserialize(movableBase, serialized));
 
-        Assertions.assertEquals(movableBase.getLock(), testMovableSubType2.getLockTestMovableType());
-        Assertions.assertEquals(movableBase.getLock(), testMovableSubType2.getLockTestMovableSubTypeAnnotated());
+        Assertions.assertEquals(movableBase.get().getLock(), testMovableSubType2.getLockTestMovableType());
+        Assertions.assertEquals(movableBase.get().getLock(), testMovableSubType2.getLockTestMovableSubTypeAnnotated());
         Assertions.assertNull(testMovableSubType2.getLockTestMovableSubTypeUnannotated());
     }
 
@@ -156,16 +156,17 @@ class MovableSerializerTest
         private static final MovableType MOVABLE_TYPE = Mockito.mock(MovableType.class);
 
         @SuppressWarnings("unused")
-        public TestMovableType(MovableBase movableBase)
+        public TestMovableType(AbstractMovable.MovableBaseHolder movableBase)
         {
             super(movableBase);
-            this.lock = movableBase.getLock();
+            this.lock = movableBase.get().getLock();
         }
 
-        public TestMovableType(MovableBase movableBase, String testName, boolean isCoolType, int blockTestCount)
+        public TestMovableType(
+            AbstractMovable.MovableBaseHolder movableBase, String testName, boolean isCoolType, int blockTestCount)
         {
             super(movableBase);
-            this.lock = movableBase.getLock();
+            this.lock = movableBase.get().getLock();
             this.testName = testName;
             this.isCoolType = isCoolType;
             this.blockTestCount = blockTestCount;
@@ -240,15 +241,16 @@ class MovableSerializerTest
         private final int subclassTestValue;
 
         public TestMovableSubType(
-            MovableBase movableBase, String testName, boolean isCoolType, int blockTestCount, int subclassTestValue)
+            AbstractMovable.MovableBaseHolder base, String testName, boolean isCoolType, int blockTestCount,
+            int subclassTestValue)
         {
-            super(movableBase, testName, isCoolType, blockTestCount);
-            this.nonStandardLockName = movableBase.getLock();
-            this.lock = movableBase.getLock();
+            super(base, testName, isCoolType, blockTestCount);
+
+            this.nonStandardLockName = base.get().getLock();
+            this.lock = base.get().getLock();
 
             this.testName = testName;
             this.isCoolType = isCoolType;
-
             this.subclassTestValue = subclassTestValue;
         }
 

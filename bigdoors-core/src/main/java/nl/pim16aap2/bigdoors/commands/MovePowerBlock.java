@@ -10,7 +10,6 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.MovableAttribute;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.tooluser.PowerBlockRelocator;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
@@ -69,8 +68,8 @@ public class MovePowerBlock extends MovableTargetCommand
          * @param commandSender
          *     The {@link ICommandSender} responsible for moving the powerblock for the movable.
          * @param movableRetriever
-         *     A {@link MovableRetrieverFactory} representing the {@link MovableBase} for which the powerblock will be
-         *     moved.
+         *     A {@link MovableRetrieverFactory} representing the {@link AbstractMovable} for which the powerblock will
+         *     be moved.
          * @return See {@link BaseCommand#run()}.
          */
         MovePowerBlock newMovePowerBlock(ICommandSender commandSender, MovableRetriever movableRetriever);

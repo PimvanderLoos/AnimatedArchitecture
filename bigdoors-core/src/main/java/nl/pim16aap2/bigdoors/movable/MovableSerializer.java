@@ -173,7 +173,7 @@ public class MovableSerializer<T extends AbstractMovable>
      *     The serialized type-specific data.
      * @return The newly created instance.
      */
-    public T deserialize(MovableBase movable, byte[] data)
+    public T deserialize(AbstractMovable.MovableBaseHolder movable, byte[] data)
         throws Exception
     {
         return instantiate(movable, fromByteArray(data));
@@ -206,7 +206,7 @@ public class MovableSerializer<T extends AbstractMovable>
         }
     }
 
-    T instantiate(MovableBase movableBase, ArrayList<Object> values)
+    T instantiate(AbstractMovable.MovableBaseHolder movableBase, ArrayList<Object> values)
         throws Exception
     {
         if (values.size() != fields.size())
@@ -215,14 +215,14 @@ public class MovableSerializer<T extends AbstractMovable>
 
         try
         {
-            final @Nullable T movable = instantiate(movableBase);
+            final @Nullable T movable = instantiate(movableBase.get());
             if (movable == null)
                 throw new IllegalStateException("Failed to initialize movable!");
 
             for (int idx = 0; idx < fields.size(); ++idx)
                 fields.get(idx).set(movable, values.get(idx));
 
-            final ReentrantReadWriteLock lock = movableBase.getLock();
+            final ReentrantReadWriteLock lock = movableBase.get().getLock();
             for (final Field field : lockFields)
                 field.set(movable, lock);
 

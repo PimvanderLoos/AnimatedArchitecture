@@ -8,7 +8,6 @@ import lombok.experimental.Locked;
 import nl.pim16aap2.bigdoors.annotations.InheritedLockField;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.movable.drawbridge.Drawbridge;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IPerpetualMover;
@@ -40,9 +39,11 @@ public class Windmill extends AbstractMovable implements IHorizontalAxisAligned,
     private final ReentrantReadWriteLock lock;
 
     @Getter
+    @EqualsAndHashCode.Exclude @ToString.Exclude
     private final double longestAnimationCycleDistance;
 
     @Getter
+    @EqualsAndHashCode.Exclude @ToString.Exclude
     private final Rectangle animationRange;
 
     /**
@@ -56,7 +57,7 @@ public class Windmill extends AbstractMovable implements IHorizontalAxisAligned,
     @Setter(onMethod_ = @Locked.Write)
     private int quarterCircles;
 
-    public Windmill(MovableBase base, int quarterCircles)
+    public Windmill(AbstractMovable.MovableBaseHolder base, int quarterCircles)
     {
         super(base);
         this.lock = getLock();
@@ -67,7 +68,7 @@ public class Windmill extends AbstractMovable implements IHorizontalAxisAligned,
         this.animationRange = Drawbridge.calculateAnimationRange(maxRadius, getCuboid());
     }
 
-    public Windmill(MovableBase doorBase)
+    public Windmill(AbstractMovable.MovableBaseHolder doorBase)
     {
         this(doorBase, 1);
     }

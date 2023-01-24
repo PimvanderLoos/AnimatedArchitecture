@@ -7,7 +7,6 @@ import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.annotations.InheritedLockField;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
@@ -39,12 +38,14 @@ public class BigDoor extends AbstractMovable
     private final ReentrantReadWriteLock lock;
 
     @Getter
+    @EqualsAndHashCode.Exclude @ToString.Exclude
     private final double longestAnimationCycleDistance;
 
     @Getter
+    @EqualsAndHashCode.Exclude @ToString.Exclude
     private final Rectangle animationRange;
 
-    public BigDoor(MovableBase base)
+    public BigDoor(AbstractMovable.MovableBaseHolder base)
     {
         super(base);
         this.lock = getLock();

@@ -28,7 +28,6 @@ import nl.pim16aap2.bigdoors.managers.MovableDeletionManager;
 import nl.pim16aap2.bigdoors.managers.MovableRegistry;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.movable.MovableBaseBuilder;
 import nl.pim16aap2.bigdoors.movable.MovableOwner;
 import nl.pim16aap2.bigdoors.movable.PermissionLevel;
@@ -58,6 +57,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import static nl.pim16aap2.bigdoors.UnitTestUtil.getWorld;
+import static nl.pim16aap2.bigdoors.UnitTestUtil.newMovableBaseBuilder;
 
 public class CreatorTestsUtil
 {
@@ -149,14 +149,13 @@ public class CreatorTestsUtil
         localizer = UnitTestUtil.initLocalizer();
         limitsManager = new LimitsManager(permissionsManager, configLoader);
 
-        final MovableBase.IFactory movableBaseIFactory =
-            new AssistedFactoryMocker<>(MovableBase.class, MovableBase.IFactory.class)
-                .setMock(ILocalizer.class, localizer)
-                .setMock(MovableRegistry.class,
-                         MovableRegistry.unCached(Mockito.mock(RestartableHolder.class), debuggableRegistry,
-                                                  Mockito.mock(MovableDeletionManager.class)))
-                .getFactory();
-        movableBaseBuilder = new MovableBaseBuilder(movableBaseIFactory);
+        final var builderResult = newMovableBaseBuilder();
+        builderResult.assistedFactoryMocker()
+                     .setMock(ILocalizer.class, localizer)
+                     .setMock(MovableRegistry.class,
+                              MovableRegistry.unCached(Mockito.mock(RestartableHolder.class), debuggableRegistry,
+                                                       Mockito.mock(MovableDeletionManager.class)));
+        movableBaseBuilder = builderResult.movableBaseBuilder();
 
         final var assistedStepFactory = Mockito.mock(Step.Factory.IFactory.class);
         //noinspection deprecation
@@ -261,7 +260,7 @@ public class CreatorTestsUtil
     }
 
 
-    protected MovableBase constructMovableBase()
+    protected AbstractMovable.MovableBaseHolder constructMovableBase()
     {
         return movableBaseBuilder.builder()
                                  .uid(-1).name(movableName).cuboid(new Cuboid(min, max)).rotationPoint(rotationPoint)

@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.movable.movablearchetypes;
 
-import nl.pim16aap2.bigdoors.movable.MovableBase;
+import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 
 /**
@@ -9,12 +9,12 @@ import nl.pim16aap2.bigdoors.movabletypes.MovableType;
  * Only movables with a depth of 1 block can be extended.
  *
  * @author Pim
- * @see MovableBase
+ * @see AbstractMovable
  */
 public interface IHorizontalAxisAligned
 {
     /**
-     * Checks if the {@link MovableBase} is aligned with the z-axis (North/South).
+     * Checks if the {@link AbstractMovable} is aligned with the z-axis (North/South).
      */
     boolean isNorthSouthAligned();
 }

@@ -43,8 +43,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @author Pim
  */
 @EqualsAndHashCode(callSuper = false)
-@Flogger
-public final class MovableBase extends DatabaseManager.FriendMovableAccessor
+@Flogger final class MovableBase extends DatabaseManager.FriendMovableAccessor
 {
     @Getter(AccessLevel.PACKAGE)
     @EqualsAndHashCode.Exclude @ToString.Exclude
@@ -56,6 +55,7 @@ public final class MovableBase extends DatabaseManager.FriendMovableAccessor
     @Getter
     private final IPWorld world;
 
+    @EqualsAndHashCode.Exclude @ToString.Exclude
     private final MovableToggleRequestBuilder movableToggleRequestBuilder;
 
     @GuardedBy("lock")

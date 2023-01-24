@@ -8,7 +8,6 @@ import lombok.experimental.Locked;
 import nl.pim16aap2.bigdoors.annotations.InheritedLockField;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IDiscreteMovement;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
@@ -45,7 +44,7 @@ public class SlidingDoor extends AbstractMovable implements IDiscreteMovement
     @Setter(onMethod_ = @Locked.Write)
     protected int blocksToMove;
 
-    public SlidingDoor(MovableBase base, int blocksToMove)
+    public SlidingDoor(AbstractMovable.MovableBaseHolder base, int blocksToMove)
     {
         super(base);
         this.lock = getLock();
@@ -53,7 +52,7 @@ public class SlidingDoor extends AbstractMovable implements IDiscreteMovement
     }
 
     @SuppressWarnings("unused")
-    private SlidingDoor(MovableBase base)
+    private SlidingDoor(AbstractMovable.MovableBaseHolder base)
     {
         this(base, -1); // Add tmp/default values
     }

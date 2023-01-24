@@ -19,7 +19,6 @@ import nl.pim16aap2.bigdoors.events.IMovableCreatedEvent;
 import nl.pim16aap2.bigdoors.events.IMovablePrepareCreateEvent;
 import nl.pim16aap2.bigdoors.events.IMovablePrepareDeleteEvent;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.movable.MovableOwner;
 import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
 import nl.pim16aap2.bigdoors.movable.PermissionLevel;
@@ -524,8 +523,8 @@ public final class DatabaseManager extends Restartable implements IDebuggable
                         return ActionResult.FAIL;
                     }
 
-                    ((FriendMovableAccessor) movable.getBase())
-                        .addOwner(player.getUUID(), new MovableOwner(movable.getUid(), permission, playerData));
+                    movable.getFriendMovableAccessor()
+                           .addOwner(player.getUUID(), new MovableOwner(movable.getUid(), permission, playerData));
 
                     return ActionResult.SUCCESS;
                 }, threadPool).exceptionally(ex -> Util.exceptionally(ex, ActionResult.FAIL));
@@ -644,7 +643,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
                         return ActionResult.FAIL;
                     }
 
-                    ((FriendMovableAccessor) movable.getBase()).removeOwner(playerUUID);
+                    movable.getFriendMovableAccessor().removeOwner(playerUUID);
                     return ActionResult.SUCCESS;
                 }, threadPool).exceptionally(ex -> Util.exceptionally(ex, ActionResult.FAIL));
     }
@@ -653,7 +652,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      * Updates the all data of an {@link AbstractMovable}. This includes both the base data and the type-specific data.
      *
      * @param snapshot
-     *     The {@link MovableBase} that describes the base data of movable.
+     *     The {@link AbstractMovable} that describes the base data of movable.
      * @param typeData
      *     The type-specific data of this movable.
      * @return The result of the operation.

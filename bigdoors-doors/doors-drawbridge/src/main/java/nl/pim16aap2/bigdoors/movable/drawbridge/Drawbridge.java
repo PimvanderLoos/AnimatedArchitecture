@@ -3,12 +3,12 @@ package nl.pim16aap2.bigdoors.movable.drawbridge;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.annotations.InheritedLockField;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
@@ -40,9 +40,11 @@ public class Drawbridge extends AbstractMovable implements IHorizontalAxisAligne
     private final ReentrantReadWriteLock lock;
 
     @Getter
+    @EqualsAndHashCode.Exclude @ToString.Exclude
     private final double longestAnimationCycleDistance;
 
     @Getter
+    @EqualsAndHashCode.Exclude @ToString.Exclude
     private final Rectangle animationRange;
 
     /**
@@ -57,7 +59,7 @@ public class Drawbridge extends AbstractMovable implements IHorizontalAxisAligne
     @Setter(onMethod_ = @Locked.Write)
     protected boolean modeUp;
 
-    public Drawbridge(MovableBase base, boolean modeUp)
+    public Drawbridge(AbstractMovable.MovableBaseHolder base, boolean modeUp)
     {
         super(base);
         this.lock = getLock();
@@ -69,7 +71,7 @@ public class Drawbridge extends AbstractMovable implements IHorizontalAxisAligne
     }
 
     @SuppressWarnings("unused")
-    private Drawbridge(MovableBase base)
+    private Drawbridge(AbstractMovable.MovableBaseHolder base)
     {
         this(base, false); // Add tmp/default values
     }

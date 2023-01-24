@@ -8,7 +8,6 @@ import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.movable.bigdoor.BigDoor;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
@@ -26,7 +25,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * Represents a Revolving Door movable type.
  *
  * @author Pim
- * @see MovableBase
  */
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -39,9 +37,11 @@ public class RevolvingDoor extends AbstractMovable
     private final ReentrantReadWriteLock lock;
 
     @Getter
+    @EqualsAndHashCode.Exclude @ToString.Exclude
     private final double longestAnimationCycleDistance;
 
     @Getter
+    @EqualsAndHashCode.Exclude @ToString.Exclude
     private final Rectangle animationRange;
 
     /**
@@ -55,7 +55,7 @@ public class RevolvingDoor extends AbstractMovable
     @Setter(onMethod_ = @Locked.Write)
     private int quarterCircles;
 
-    public RevolvingDoor(MovableBase base, int quarterCircles)
+    public RevolvingDoor(AbstractMovable.MovableBaseHolder base, int quarterCircles)
     {
         super(base);
         this.lock = getLock();
@@ -66,7 +66,7 @@ public class RevolvingDoor extends AbstractMovable
         this.animationRange = BigDoor.calculateAnimationRange(maxRadius, getCuboid());
     }
 
-    public RevolvingDoor(MovableBase base)
+    public RevolvingDoor(AbstractMovable.MovableBaseHolder base)
     {
         this(base, 1);
     }

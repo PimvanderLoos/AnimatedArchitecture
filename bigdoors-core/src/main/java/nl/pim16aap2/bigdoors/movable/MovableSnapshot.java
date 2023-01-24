@@ -52,7 +52,7 @@ public final class MovableSnapshot implements IMovableConst
             movable.getOpenDir(),
             movable.isLocked(),
             movable.getPrimeOwner(),
-            Map.copyOf(movable.getBase().getOwnersView())
+            Map.copyOf(movable.getOwnersView())
         );
     }
 

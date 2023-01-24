@@ -8,7 +8,6 @@ import lombok.experimental.Locked;
 import nl.pim16aap2.bigdoors.annotations.InheritedLockField;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IDiscreteMovement;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
@@ -26,7 +25,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * Represents a Portcullis movable type.
  *
  * @author Pim
- * @see MovableBase
  */
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -44,7 +42,7 @@ public class Portcullis extends AbstractMovable implements IDiscreteMovement
     @Setter(onMethod_ = @Locked.Write)
     protected int blocksToMove;
 
-    public Portcullis(MovableBase base, int blocksToMove)
+    public Portcullis(AbstractMovable.MovableBaseHolder base, int blocksToMove)
     {
         super(base);
         this.lock = getLock();
@@ -52,7 +50,7 @@ public class Portcullis extends AbstractMovable implements IDiscreteMovement
     }
 
     @SuppressWarnings("unused")
-    private Portcullis(MovableBase base)
+    private Portcullis(AbstractMovable.MovableBaseHolder base)
     {
         this(base, -1); // Add tmp/default values
     }

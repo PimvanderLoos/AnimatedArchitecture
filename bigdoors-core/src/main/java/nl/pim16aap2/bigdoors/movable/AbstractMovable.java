@@ -1,7 +1,9 @@
 package nl.pim16aap2.bigdoors.movable;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.ToString;
 import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
@@ -23,6 +25,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -45,20 +49,24 @@ public abstract class AbstractMovable implements IMovable
     private final ReentrantReadWriteLock lock;
     private final MovableSerializer<?> serializer;
 
-    @Getter
     @EqualsAndHashCode.Include
-    protected final MovableBase base;
+    private final MovableBase base;
 
-    protected AbstractMovable(MovableBase base)
+    private AbstractMovable(MovableBase base)
     {
         serializer = getType().getMovableSerializer();
         this.lock = base.getLock();
-        this.base = base;
+        this.base = Objects.requireNonNull(base);
 
         log.atFinest().log("Instantiating movable: %d", base.getUid());
         if (base.getUid() > 0 && !base.getMovableRegistry().registerMovable(new Registrable()))
             throw new IllegalStateException("Tried to create new movable \"" + base.getUid() +
                                                 "\" while it is already registered!");
+    }
+
+    protected AbstractMovable(MovableBaseHolder holder)
+    {
+        this(holder.base);
     }
 
     /**
@@ -437,6 +445,14 @@ public abstract class AbstractMovable implements IMovable
     }
 
     /**
+     * @return A map-based view of the owners.
+     */
+    final Map<UUID, MovableOwner> getOwnersView()
+    {
+        return base.getOwnersView();
+    }
+
+    /**
      * @return The locking object used by both this class and its {@link MovableBase}.
      */
     protected final ReentrantReadWriteLock getLock()
@@ -572,6 +588,19 @@ public abstract class AbstractMovable implements IMovable
     }
 
     /**
+     * Gets the friend accessor for this movable.
+     * <p>
+     * Please do not use this!
+     *
+     * @return The friend accessor.
+     */
+    // TODO: Remove this.
+    public DatabaseManager.FriendMovableAccessor getFriendMovableAccessor()
+    {
+        return base;
+    }
+
+    /**
      * Represents the part of this movable that can be registered in registries and such.
      * <p>
      * This is handled via this registrable to ensure that this {@link AbstractMovable} class has private access to
@@ -590,6 +619,17 @@ public abstract class AbstractMovable implements IMovable
         public AbstractMovable getAbstractMovableBase()
         {
             return AbstractMovable.this;
+        }
+    }
+
+    @AllArgsConstructor(access = AccessLevel.PACKAGE) @ToString @EqualsAndHashCode
+    public static final class MovableBaseHolder
+    {
+        private final MovableBase base;
+
+        MovableBase get()
+        {
+            return base;
         }
     }
 }

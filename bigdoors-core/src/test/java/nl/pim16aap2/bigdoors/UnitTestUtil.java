@@ -4,10 +4,12 @@ import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.movable.MovableBaseBuilder;
 import nl.pim16aap2.bigdoors.text.Text;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
+import nl.pim16aap2.testing.AssistedFactoryMocker;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.function.Executable;
@@ -16,7 +18,9 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
@@ -95,6 +99,28 @@ public class UnitTestUtil
         Mockito.when(loc.getChunk()).thenReturn(new Vector2Di(((int) x) << 4, ((int) z) << 4));
 
         return loc;
+    }
+
+    /**
+     * Creates a new {@link MovableBaseBuilder} and accompanying MovableBase factory.
+     *
+     * @return The result of the creation.
+     */
+    public static MovableBaseBuilderResult newMovableBaseBuilder()
+        throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException,
+               IllegalAccessException
+    {
+        final Class<?> classMovableBase = Class.forName("nl.pim16aap2.bigdoors.movable.MovableBase");
+        final Class<?> classMovableBaseFactory = Class.forName("nl.pim16aap2.bigdoors.movable.MovableBase$IFactory");
+
+        final AssistedFactoryMocker<?, ?> assistedFactoryMocker =
+            new AssistedFactoryMocker<>(classMovableBase, classMovableBaseFactory);
+
+        final Constructor<?> ctorMovableBaseBuilder =
+            MovableBaseBuilder.class.getDeclaredConstructor(classMovableBaseFactory);
+
+        final var builder = (MovableBaseBuilder) ctorMovableBaseBuilder.newInstance(assistedFactoryMocker.getFactory());
+        return new MovableBaseBuilderResult(builder, assistedFactoryMocker);
     }
 
     /**
@@ -269,4 +295,16 @@ public class UnitTestUtil
     {
         return ITextFactory.getSimpleTextFactory().newText().append(string);
     }
+
+    /**
+     * The result of creating a new {@link MovableBaseBuilder}.
+     *
+     * @param movableBaseBuilder
+     *     The builder that was created.
+     * @param assistedFactoryMocker
+     *     The mocker for the factory. Use {@link AssistedFactoryMocker#setMock(Class, Object)} to set its parameters.
+     */
+    public record MovableBaseBuilderResult(
+        MovableBaseBuilder movableBaseBuilder, AssistedFactoryMocker<?, ?> assistedFactoryMocker)
+    {}
 }

@@ -8,7 +8,6 @@ import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.MovableAttribute;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IDiscreteMovement;
 import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
@@ -76,7 +75,7 @@ public class SetBlocksToMove extends MovableTargetCommand
          * @param commandSender
          *     The {@link ICommandSender} responsible for changing the blocks-to-move distance of the movable.
          * @param movableRetriever
-         *     A {@link MovableRetrieverFactory} representing the {@link MovableBase} for which the blocks-to-move
+         *     A {@link MovableRetrieverFactory} representing the {@link AbstractMovable} for which the blocks-to-move
          *     distance will be modified.
          * @param blocksToMove
          *     The new blocks-to-move distance.
