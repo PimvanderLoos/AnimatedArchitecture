@@ -1,6 +1,8 @@
 package nl.pim16aap2.bigdoors.storage;
 
 import com.google.common.flogger.LogSiteStackTrace;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.longs.LongList;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -48,7 +50,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -459,7 +460,7 @@ public class SQLiteJDBCDriverConnectionTest
         Assertions.assertTrue(storage.updatePlayerData(PLAYER_DATA_2));
 
         chunkId = Util.getChunkId(movable1.getPowerBlock());
-        final Map<Integer, List<Long>> powerBlockData = storage.getPowerBlockData(chunkId);
+        final Int2ObjectMap<LongList> powerBlockData = storage.getPowerBlockData(chunkId);
         Assertions.assertNotNull(powerBlockData);
         final List<List<Long>> entries = new ArrayList<>(powerBlockData.values());
         Assertions.assertEquals(1, entries.size());

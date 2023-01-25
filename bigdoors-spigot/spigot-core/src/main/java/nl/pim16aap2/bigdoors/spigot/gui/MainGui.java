@@ -7,6 +7,8 @@ import de.themoep.inventorygui.GuiElementGroup;
 import de.themoep.inventorygui.GuiPageElement;
 import de.themoep.inventorygui.InventoryGui;
 import de.themoep.inventorygui.StaticGuiElement;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import lombok.Getter;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
@@ -24,9 +26,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 @ToString(onlyExplicitlyIncluded = true)
 class MainGui implements IGuiPage.IGuiMovableDeletionListener
@@ -43,7 +43,7 @@ class MainGui implements IGuiPage.IGuiMovableDeletionListener
     private @Nullable AbstractMovable selectedMovable;
 
     @ToString.Include
-    private final Map<Long, AbstractMovable> movables;
+    private final Long2ObjectMap<AbstractMovable> movables;
 
     @Getter
     @ToString.Include
@@ -71,9 +71,9 @@ class MainGui implements IGuiPage.IGuiMovableDeletionListener
         deletionManager.registerDeletionListener(this);
     }
 
-    private static Map<Long, AbstractMovable> getMovablesMap(List<AbstractMovable> movables)
+    private static Long2ObjectMap<AbstractMovable> getMovablesMap(List<AbstractMovable> movables)
     {
-        final Map<Long, AbstractMovable> ret = new LinkedHashMap<>(movables.size());
+        final Long2ObjectMap<AbstractMovable> ret = new Long2ObjectOpenHashMap<>(movables.size());
         movables.stream().sorted(Comparator.comparing(AbstractMovable::getName))
                 .forEach(movable -> ret.put(movable.getUid(), movable));
         return ret;
@@ -139,10 +139,12 @@ class MainGui implements IGuiPage.IGuiMovableDeletionListener
             'f', new ItemStack(Material.ARROW), GuiPageElement.PageAction.FIRST,
             localizer.getMessage("gui.main_page.nav.first_page")));
 
+        //noinspection SpellCheckingInspection
         gui.addElement(new GuiPageElement(
             'p', new ItemStack(Material.BIRCH_SIGN), GuiPageElement.PageAction.PREVIOUS,
             localizer.getMessage("gui.main_page.nav.previous_page", "%prevpage%", "%pages%")));
 
+        //noinspection SpellCheckingInspection
         gui.addElement(new GuiPageElement(
             'n', new ItemStack(Material.BIRCH_SIGN), GuiPageElement.PageAction.NEXT,
             localizer.getMessage("gui.main_page.nav.next_page", "%nextpage%", "%pages%")));
@@ -196,6 +198,7 @@ class MainGui implements IGuiPage.IGuiMovableDeletionListener
 
     private void onMovableDeletion0(IMovableConst movable, boolean notify)
     {
+        //noinspection ConstantValue
         if (movables.remove(movable.getUid()) != null)
         {
             if (selectedMovable == null || selectedMovable.getUid() == movable.getUid())

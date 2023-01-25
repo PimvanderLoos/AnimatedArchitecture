@@ -142,7 +142,12 @@ public final class MovableOpeningHelper
             else
             {
                 final Level level = result == MovableToggleResult.BUSY ? Level.FINE : Level.INFO;
-                log.at(level).log("Failed to toggle movable: %d, reason: %s", movable.getUid(), result.name());
+
+                if (result.equals(MovableToggleResult.INSTANCE_UNREGISTERED))
+                    log.at(level).withStackTrace(StackSize.FULL)
+                       .log("Encountered unregistered movable movable: %d", movable.getUid());
+                else
+                    log.at(level).log("Failed to toggle movable: %d, reason: %s", movable.getUid(), result.name());
             }
         }
         return result;
