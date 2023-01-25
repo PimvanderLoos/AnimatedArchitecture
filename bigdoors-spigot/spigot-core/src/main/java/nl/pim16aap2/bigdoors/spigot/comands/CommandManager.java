@@ -205,7 +205,7 @@ public final class CommandManager
         BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
         manager.command(
-            baseInit(builder, CommandDefinition.CONFIRM, "commands.cancel.description")
+            baseInit(builder, CommandDefinition.CONFIRM, "commands.confirm.description")
                 .handler(executor::confirm)
         );
     }
@@ -252,7 +252,7 @@ public final class CommandManager
         BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
         manager.command(
-            baseInit(builder, CommandDefinition.LIST_MOVABLES, "commands.list_doors.description")
+            baseInit(builder, CommandDefinition.LIST_MOVABLES, "commands.list_movables.description")
                 .argument(StringArgument.optional("movableName"))
                 .handler(executor::listMovables)
         );
@@ -292,7 +292,7 @@ public final class CommandManager
         BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
         manager.command(
-            baseInit(builder, CommandDefinition.NEW_MOVABLE, "commands.new_door.description")
+            baseInit(builder, CommandDefinition.NEW_MOVABLE, "commands.new_movable.description")
                 .argument(defaultMovableTypeArgument(true).build())
                 .argument(StringArgument.<ICommandSender>builder("movableName").asOptional().build())
                 .handler(executor::newMovable)
@@ -375,7 +375,7 @@ public final class CommandManager
         BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
         manager.command(
-            baseInit(builder, CommandDefinition.STOP_MOVABLES, "commands.stop_doors.description")
+            baseInit(builder, CommandDefinition.STOP_MOVABLES, "commands.stop_movables.description")
                 .handler(executor::stopMovables)
         );
     }
