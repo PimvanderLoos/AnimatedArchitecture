@@ -63,13 +63,24 @@ public abstract class AbstractMovable implements IMovable
         this.lock = base.getLock();
         this.base = Objects.requireNonNull(base);
 
+        animationRange = newAnimationRangeVal(this);
+        animationCycleDistance = newAnimationCycleDistanceVal(this);
+
+        registerInRegistry();
+    }
+
+    /**
+     * Registers this movable with the {@link MovableRegistry}.
+     *
+     * @throws IllegalStateException
+     */
+    private void registerInRegistry()
+        throws IllegalStateException
+    {
         log.atFinest().log("Instantiating movable: %d", base.getUid());
         if (base.getUid() > 0 && !base.getMovableRegistry().registerMovable(new Registrable()))
             throw new IllegalStateException("Tried to create new movable \"" + base.getUid() +
                                                 "\" while it is already registered!");
-
-        animationRange = newAnimationRangeVal(this);
-        animationCycleDistance = newAnimationCycleDistanceVal(this);
     }
 
     protected AbstractMovable(MovableBaseHolder holder)
