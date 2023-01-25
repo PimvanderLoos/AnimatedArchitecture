@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.util.FastFieldSetter;
 import nl.pim16aap2.bigdoors.util.LazyValue;
 import nl.pim16aap2.bigdoors.util.UnsafeGetter;
+import nl.pim16aap2.reflection.ReflectionBuilder;
 import nl.pim16aap2.util.SafeStringBuilder;
 import org.jetbrains.annotations.Nullable;
 import sun.misc.Unsafe;
@@ -19,6 +20,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,6 +60,8 @@ public class MovableSerializer<T extends AbstractMovable>
      */
     private final @Nullable Constructor<T> ctor;
 
+    private final Method methodRegisterInRegistry;
+
     private static final @Nullable Unsafe UNSAFE = UnsafeGetter.getUnsafe();
 
     private final @Nullable FastFieldSetter<AbstractMovable, MovableBase> fieldSetterMovableBase =
@@ -80,6 +84,10 @@ public class MovableSerializer<T extends AbstractMovable>
 
         if (Modifier.isAbstract(movableClass.getModifiers()))
             throw new IllegalArgumentException("THe MovableSerializer only works for concrete classes!");
+
+        methodRegisterInRegistry =
+            ReflectionBuilder.findMethod().inClass(AbstractMovable.class)
+                             .withName("registerInRegistry").setAccessible().get();
 
         @Nullable Constructor<T> ctorTmp = null;
         try
@@ -264,7 +272,7 @@ public class MovableSerializer<T extends AbstractMovable>
     }
 
     private @Nullable T instantiateUnsafe(MovableBase movableBase)
-        throws InstantiationException
+        throws InstantiationException, InvocationTargetException, IllegalAccessException
     {
         if (UNSAFE == null ||
             fieldSetterMovableBase == null ||
@@ -282,6 +290,8 @@ public class MovableSerializer<T extends AbstractMovable>
         fieldSetterSerializer.copy(movable, this);
         fieldSetterAnimationRange.copy(movable, AbstractMovable.newAnimationRangeVal(movable));
         fieldSetterCycleDistance.copy(movable, AbstractMovable.newAnimationCycleDistanceVal(movable));
+
+        methodRegisterInRegistry.invoke(movable);
 
         return movable;
     }
