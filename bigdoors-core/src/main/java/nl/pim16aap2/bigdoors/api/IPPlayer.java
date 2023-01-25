@@ -38,4 +38,9 @@ public interface IPPlayer extends IPPlayerDataContainer, ICommandSender
 
     @Override
     CompletableFuture<PermissionsStatus> hasPermission(CommandDefinition command);
+
+    /**
+     * @return True if this player is online.
+     */
+    boolean isOnline();
 }
