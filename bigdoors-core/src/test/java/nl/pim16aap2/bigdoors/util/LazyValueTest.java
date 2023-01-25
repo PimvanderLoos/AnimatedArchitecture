@@ -40,7 +40,7 @@ class LazyValueTest
 
         Mockito.when(supplier.get()).thenReturn(16);
         Assertions.assertEquals(16, lazyValue.get());
-        Mockito.verify(supplier, Mockito.times(2));
+        Mockito.verify(supplier, Mockito.times(2)).get();
     }
 
     @Test
