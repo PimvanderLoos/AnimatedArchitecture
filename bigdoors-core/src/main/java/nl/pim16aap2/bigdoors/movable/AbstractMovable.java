@@ -649,17 +649,14 @@ public abstract class AbstractMovable implements IMovable
         return base.getPrimeOwner();
     }
 
-    /**
-     * Gets the friend accessor for this movable.
-     * <p>
-     * Please do not use this!
-     *
-     * @return The friend accessor.
-     */
-    // TODO: Remove this.
-    public DatabaseManager.FriendMovableAccessor getFriendMovableAccessor()
+    @Locked.Write final @Nullable MovableOwner removeOwner(UUID ownerUUID)
     {
-        return base;
+        return base.removeOwner(ownerUUID);
+    }
+
+    @Locked.Write final boolean addOwner(MovableOwner movableOwner)
+    {
+        return base.addOwner(movableOwner);
     }
 
     /**

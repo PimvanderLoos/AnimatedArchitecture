@@ -43,7 +43,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @author Pim
  */
 @EqualsAndHashCode(callSuper = false)
-@Flogger final class MovableBase extends DatabaseManager.FriendMovableAccessor
+@Flogger final class MovableBase
 {
     @Getter(AccessLevel.PACKAGE)
     @EqualsAndHashCode.Exclude @ToString.Exclude
@@ -185,18 +185,32 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
         this.executor = executor;
     }
 
-    @Override
     @Locked.Write
-    protected void addOwner(UUID uuid, MovableOwner movableOwner)
+    boolean addOwner(MovableOwner movableOwner)
     {
         if (movableOwner.permission() == PermissionLevel.CREATOR)
         {
             log.atSevere().withStackTrace(StackSize.FULL)
                .log("Failed to add Owner '%s' as owner to movable: %d because a permission level of 0 is not allowed!",
                     movableOwner.pPlayerData(), this.getUid());
-            return;
+            return false;
         }
-        owners.put(uuid, movableOwner);
+        owners.put(movableOwner.pPlayerData().getUUID(), movableOwner);
+        return true;
+    }
+
+    @Locked.Write
+    @Nullable MovableOwner removeOwner(UUID uuid)
+    {
+        if (primeOwner.pPlayerData().getUUID().equals(uuid))
+        {
+            log.atSevere().withStackTrace(StackSize.FULL)
+               .log("Failed to remove owner: '%s' as owner from movable: '%d'" +
+                        " because removing an owner with a permission level of 0 is not allowed!",
+                    primeOwner.pPlayerData(), this.getUid());
+            return null;
+        }
+        return owners.remove(uuid);
     }
 
     @Locked.Read void onRedstoneChange(AbstractMovable movable, int newCurrent)
@@ -218,21 +232,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
                                        .responsible(playerFactory.create(getPrimeOwner().pPlayerData()))
                                        .build()
                                        .execute();
-    }
-
-    @Override
-    @Locked.Write
-    protected boolean removeOwner(UUID uuid)
-    {
-        if (primeOwner.pPlayerData().getUUID().equals(uuid))
-        {
-            log.atSevere().withStackTrace(StackSize.FULL)
-               .log("Failed to remove owner: '%s' as owner from movable: '%d'" +
-                        " because removing an owner with a permission level of 0 is not allowed!",
-                    primeOwner.pPlayerData(), this.getUid());
-            return false;
-        }
-        return owners.remove(uuid) != null;
     }
 
     @Locked.Read
