@@ -94,10 +94,12 @@ public class FieldFinder
      */
     public static final class NamedFieldFinder
         extends ReflectionFinder<Field, NamedFieldFinder>
+        implements IAccessibleSetter<NamedFieldFinder>
     {
         private final String name;
         private final Class<?> source;
         private @Nullable Class<?> fieldType = null;
+        private boolean setAccessible = false;
 
         private NamedFieldFinder(String name, Class<?> source)
         {
@@ -109,7 +111,7 @@ public class FieldFinder
         public Field get()
         {
             //noinspection ConstantConditions
-            return Objects.requireNonNull(ReflectionBackend.getField(source, name, modifiers, fieldType),
+            return Objects.requireNonNull(ReflectionBackend.getField(source, name, modifiers, fieldType, setAccessible),
                                           String.format("Failed to find field [%s %s %s.%s].",
                                                         optionalModifiersToString(modifiers),
                                                         ReflectionBackend.formatOptionalValue(fieldType,
@@ -120,7 +122,14 @@ public class FieldFinder
         @Override
         public @Nullable Field getNullable()
         {
-            return ReflectionBackend.getField(source, name, modifiers, fieldType);
+            return ReflectionBackend.getField(source, name, modifiers, fieldType, setAccessible);
+        }
+
+        @Override
+        public NamedFieldFinder setAccessible()
+        {
+            setAccessible = true;
+            return this;
         }
 
         /**
@@ -144,9 +153,11 @@ public class FieldFinder
      */
     public static final class TypedFieldFinder
         extends ReflectionFinder<Field, TypedFieldFinder>
+        implements IAccessibleSetter<TypedFieldFinder>
     {
         private final Class<?> source;
         private final Class<?> fieldType;
+        private boolean setAccessible = false;
 
         private TypedFieldFinder(Class<?> source, Class<?> fieldType)
         {
@@ -166,7 +177,14 @@ public class FieldFinder
         @Override
         public @Nullable Field getNullable()
         {
-            return ReflectionBackend.getField(source, modifiers, fieldType);
+            return ReflectionBackend.getField(source, modifiers, fieldType, setAccessible);
+        }
+
+        @Override
+        public TypedFieldFinder setAccessible()
+        {
+            setAccessible = true;
+            return this;
         }
     }
 
@@ -175,12 +193,14 @@ public class FieldFinder
      */
     public static final class TypedMultipleFieldsFinder
         extends ReflectionFinder<List<Field>, TypedMultipleFieldsFinder>
+        implements IAccessibleSetter<TypedMultipleFieldsFinder>
     {
         private final Class<?> source;
         private final Class<?> fieldType;
         private int expected = -1;
         private int atMost = -1;
         private int atLeast = -1;
+        private boolean setAccessible = false;
 
         private TypedMultipleFieldsFinder(Class<?> source, Class<?> fieldType)
         {
@@ -216,7 +236,7 @@ public class FieldFinder
         @CheckReturnValue @Contract(pure = true)
         private List<Field> getResult(boolean nonnull)
         {
-            final List<Field> found = ReflectionBackend.getFields(source, modifiers, fieldType);
+            final List<Field> found = ReflectionBackend.getFields(source, modifiers, fieldType, setAccessible);
             if (expected >= 0 && expected != found.size())
                 return handleInvalid(nonnull, "Expected %d fields of type %s in class %s " +
                                          "with modifiers %d, but found %d",
@@ -238,8 +258,9 @@ public class FieldFinder
         // when nothing is found to keep in line with the rest of the API.
         @SuppressWarnings("PMD.AvoidThrowingNullPointerException")
         @Contract(value = "true, _, _, _, _, _, _ -> fail", pure = true)
-        private static List<Field> handleInvalid(boolean nonnull, String str, int val, Class<?> fieldType,
-                                                 Class<?> source, int modifiers, int foundSize)
+        private static List<Field> handleInvalid(
+            boolean nonnull, String str, int val, Class<?> fieldType,
+            Class<?> source, int modifiers, int foundSize)
         {
             if (nonnull)
                 throw new NullPointerException(String.format(str, val, fieldType, modifiers, fieldType));
@@ -249,9 +270,9 @@ public class FieldFinder
         /**
          * Configures the lower bound number of fields that have to be found.
          * <p>
-         * For example, when this is set to 2 and only 1 field could be found with the current configuration, {@link
-         * #getNullable()} will either return null (when null values are allowed) or throw a {@link
-         * IllegalStateException} (default).
+         * For example, when this is set to 2 and only 1 field could be found with the current configuration,
+         * {@link #getNullable()} will either return null (when null values are allowed) or throw a
+         * {@link IllegalStateException} (default).
          *
          * @param val
          *     The minimum number of fields that have to be found for this finder to be able to complete successfully.
@@ -266,9 +287,9 @@ public class FieldFinder
         /**
          * Configures the upper bound number of fields that have to be found.
          * <p>
-         * For example, when this is set to 2 and 3 fields could be found with the current configuration, {@link
-         * #getNullable()} will either return null (when null values are allowed) or throw a {@link
-         * IllegalStateException} (default).
+         * For example, when this is set to 2 and 3 fields could be found with the current configuration,
+         * {@link #getNullable()} will either return null (when null values are allowed) or throw a
+         * {@link IllegalStateException} (default).
          *
          * @param val
          *     The maximum number of fields that can be found for this finder to be able to complete successfully.
@@ -283,9 +304,9 @@ public class FieldFinder
         /**
          * Configures the exact number of fields that have to be found.
          * <p>
-         * For example, when this is set to 2 and 1 or 3 fields could be found with the current configuration, {@link
-         * #getNullable()} will either return null (when null values are allowed) or throw a {@link
-         * IllegalStateException} (default).
+         * For example, when this is set to 2 and 1 or 3 fields could be found with the current configuration,
+         * {@link #getNullable()} will either return null (when null values are allowed) or throw a
+         * {@link IllegalStateException} (default).
          *
          * @param val
          *     The exact number of fields that must be found for this finder to be able to complete successfully.
@@ -294,6 +315,13 @@ public class FieldFinder
         public TypedMultipleFieldsFinder exactCount(int val)
         {
             expected = val;
+            return this;
+        }
+
+        @Override
+        public TypedMultipleFieldsFinder setAccessible()
+        {
+            setAccessible = true;
             return this;
         }
     }

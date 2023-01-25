@@ -33,8 +33,10 @@ public class ConstructorFinder
      */
     public static final class ConstructorFinderInSource
         extends ReflectionFinder.ReflectionFinderWithParameters<Constructor<?>, ConstructorFinderInSource>
+        implements IAccessibleSetter<ConstructorFinderInSource>
     {
         private final Class<?> source;
+        private boolean setAccessible = false;
 
         private ConstructorFinderInSource(Class<?> source)
         {
@@ -54,7 +56,14 @@ public class ConstructorFinder
         @Override
         public @Nullable Constructor<?> getNullable()
         {
-            return ReflectionBackend.findCTor(source, modifiers, parameters);
+            return ReflectionBackend.findCTor(source, modifiers, parameters, setAccessible);
+        }
+
+        @Override
+        public ConstructorFinderInSource setAccessible()
+        {
+            setAccessible = true;
+            return this;
         }
     }
 }

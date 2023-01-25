@@ -74,10 +74,12 @@ public final class MethodFinder
      */
     public abstract static class MethodFinderBase
         extends ReflectionFinder.ReflectionFinderWithParameters<Method, MethodFinderBase>
+        implements IAccessibleSetter<MethodFinderBase>
     {
         protected final Class<?> source;
         protected boolean checkSuperClasses = false;
         protected boolean checkInterfaces = false;
+        protected boolean setAccessible = false;
 
         private MethodFinderBase(Class<?> source)
         {
@@ -91,6 +93,13 @@ public final class MethodFinder
             source = other.source;
             checkSuperClasses = other.checkSuperClasses;
             checkInterfaces = other.checkInterfaces;
+        }
+
+        @Override
+        public MethodFinderBase setAccessible()
+        {
+            setAccessible = true;
+            return this;
         }
 
         /**
@@ -183,8 +192,8 @@ public final class MethodFinder
         @Override
         public @Nullable Method getNullable()
         {
-            return ReflectionBackend.findMethod(checkSuperClasses, checkInterfaces,
-                                                source, name, modifiers, parameters, null);
+            return ReflectionBackend.findMethod(
+                checkSuperClasses, checkInterfaces, source, name, modifiers, parameters, null, setAccessible);
         }
     }
 
@@ -211,8 +220,8 @@ public final class MethodFinder
         @Override
         public @Nullable Method getNullable()
         {
-            return ReflectionBackend.findMethod(checkSuperClasses, checkInterfaces,
-                                                source, null, modifiers, parameters, returnType);
+            return ReflectionBackend.findMethod(
+                checkSuperClasses, checkInterfaces, source, null, modifiers, parameters, returnType, setAccessible);
         }
     }
 }

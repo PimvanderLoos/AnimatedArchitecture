@@ -3,6 +3,7 @@ package nl.pim16aap2.reflection;
 import lombok.extern.flogger.Flogger;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -123,7 +124,7 @@ final class ReflectionBackend
 
     /**
      * Attempts to find a field in a class based on the input configuration. If all fields matching the specification
-     * are desired, use {@link #getFields(Class, int, Class)} instead.
+     * are desired, use {@link #getFields(Class, int, Class, boolean)} instead.
      *
      * @param source
      *     The class in which to look for the field.
@@ -136,11 +137,12 @@ final class ReflectionBackend
      *     When a mix of two or more modifiers is needed, {@link #getModifiers(int...)} can be used.
      * @param type
      *     The type of the field to search for.
+     * @param setAccessible
+     *     True to use {@link AccessibleObject#setAccessible(boolean)}.
      * @return The first field that matches the specification.
      */
     public static @Nullable Field getField(
-        Class<?> source, String name, int modifiers,
-        @Nullable Class<?> type)
+        Class<?> source, String name, int modifiers, @Nullable Class<?> type, boolean setAccessible)
     {
         for (final Field field : source.getDeclaredFields())
         {
@@ -150,14 +152,14 @@ final class ReflectionBackend
                 continue;
             if (!field.getName().equals(name))
                 continue;
-            return field;
+            return setAccessibleIfNeeded(field, setAccessible);
         }
         return null;
     }
 
     /**
      * Attempts to find a field in a class. Only the first field that matches the desired specification is returned. If
-     * all fields matching the specification are desired, use {@link #getFields(Class, int, Class)} instead.
+     * all fields matching the specification are desired, use {@link #getFields(Class, int, Class, boolean)} instead.
      *
      * @param source
      *     The class in which to look for the field.
@@ -168,9 +170,11 @@ final class ReflectionBackend
      *     When a mix of two or more modifiers is needed, {@link #getModifiers(int...)} can be used.
      * @param type
      *     The type of the field to search for.
+     * @param setAccessible
+     *     True to use {@link AccessibleObject#setAccessible(boolean)}.
      * @return The first field that matches the specification.
      */
-    public static @Nullable Field getField(Class<?> source, int modifiers, Class<?> type)
+    public static @Nullable Field getField(Class<?> source, int modifiers, Class<?> type, boolean setAccessible)
     {
         for (final Field field : source.getDeclaredFields())
         {
@@ -180,7 +184,7 @@ final class ReflectionBackend
             if (!field.getType().equals(type))
                 continue;
 
-            return field;
+            return setAccessibleIfNeeded(field, setAccessible);
         }
         return null;
     }
@@ -197,9 +201,11 @@ final class ReflectionBackend
      *     When a mix of two or more modifiers is needed, {@link #getModifiers(int...)} can be used.
      * @param type
      *     The type of the field to search for.
+     * @param setAccessible
+     *     True to use {@link AccessibleObject#setAccessible(boolean)}.
      * @return All fields in the source class that match the input configuration.
      */
-    public static List<Field> getFields(Class<?> source, int modifiers, Class<?> type)
+    public static List<Field> getFields(Class<?> source, int modifiers, Class<?> type, boolean setAccessible)
     {
         final List<Field> ret = new ArrayList<>();
         for (final Field field : source.getDeclaredFields())
@@ -210,7 +216,7 @@ final class ReflectionBackend
             if (!field.getType().equals(type))
                 continue;
 
-            ret.add(field);
+            ret.add(setAccessibleIfNeeded(field, setAccessible));
         }
         return ret;
     }
@@ -234,8 +240,8 @@ final class ReflectionBackend
      * @return The method matching the specified description.
      */
     private static @Nullable Method findMethod(
-        Class<?> source, @Nullable String name, int modifiers,
-        @Nullable ParameterGroup parameters, @Nullable Class<?> returnType)
+        Class<?> source, @Nullable String name, int modifiers, @Nullable ParameterGroup parameters,
+        @Nullable Class<?> returnType)
     {
         for (final Method method : source.getDeclaredMethods())
         {
@@ -250,6 +256,13 @@ final class ReflectionBackend
             return method;
         }
         return null;
+    }
+
+    private static <T extends AccessibleObject> T setAccessibleIfNeeded(T obj, boolean setAccessible)
+    {
+        if (setAccessible)
+            obj.setAccessible(true);
+        return obj;
     }
 
     /**
@@ -275,16 +288,18 @@ final class ReflectionBackend
      *     The parameters of the method. When this is null, the method's parameters are ignored.
      * @param returnType
      *     The return type the method should have. When this is null, the return type will be ignored.
+     * @param setAccessible
+     *     True to use {@link AccessibleObject#setAccessible(boolean)}.
      * @return The method matching the specified description.
      */
     public static @Nullable Method findMethod(
         final boolean checkSuperClasses, final boolean checkInterfaces,
         Class<?> source, @Nullable String name, int modifiers,
-        @Nullable ParameterGroup parameters, @Nullable Class<?> returnType)
+        @Nullable ParameterGroup parameters, @Nullable Class<?> returnType, boolean setAccessible)
     {
         @Nullable Method m = findMethod(source, name, modifiers, parameters, returnType);
         if (m != null)
-            return m;
+            return setAccessibleIfNeeded(m, setAccessible);
 
         boolean continueSuperClassChecking = checkSuperClasses;
         boolean continueInterfaceChecking = checkInterfaces;
@@ -301,9 +316,10 @@ final class ReflectionBackend
                     continue;
                 }
 
-                m = findMethod(true, continueInterfaceChecking, superClass, name, modifiers, parameters, returnType);
+                m = findMethod(true, continueInterfaceChecking, superClass, name, modifiers, parameters, returnType,
+                               setAccessible);
                 if (m != null)
-                    return m;
+                    return setAccessibleIfNeeded(m, setAccessible);
             }
 
             if (continueInterfaceChecking)
@@ -318,9 +334,9 @@ final class ReflectionBackend
 
                 for (final Class<?> superInterface : superInterfaces)
                 {
-                    m = findMethod(false, true, superInterface, name, modifiers, parameters, returnType);
+                    m = findMethod(false, true, superInterface, name, modifiers, parameters, returnType, setAccessible);
                     if (m != null)
-                        return m;
+                        return setAccessibleIfNeeded(m, setAccessible);
                 }
             }
         }
@@ -339,9 +355,12 @@ final class ReflectionBackend
      *     When a mix of two or more modifiers is needed, {@link #getModifiers(int...)} can be used.
      * @param parameters
      *     The parameters of the constructor. When this is null, the constructor's parameters are ignored.
+     * @param setAccessible
+     *     True to use {@link AccessibleObject#setAccessible(boolean)}.
      * @return The constructor matching the specified description.
      */
-    public static @Nullable Constructor<?> findCTor(Class<?> source, int modifiers, @Nullable ParameterGroup parameters)
+    public static @Nullable Constructor<?> findCTor(
+        Class<?> source, int modifiers, @Nullable ParameterGroup parameters, boolean setAccessible)
     {
         for (final Constructor<?> ctor : source.getDeclaredConstructors())
         {
@@ -349,7 +368,7 @@ final class ReflectionBackend
                 continue;
             if (parameters != null && !parameters.matches(ctor.getParameterTypes()))
                 continue;
-            return ctor;
+            return setAccessibleIfNeeded(ctor, setAccessible);
         }
         return null;
     }
