@@ -29,7 +29,7 @@ import nl.pim16aap2.bigdoors.movable.portcullis.Portcullis;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.testimplementations.TestPWorld;
 import nl.pim16aap2.bigdoors.testimplementations.TestPWorldFactory;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.testing.AssertionsUtil;
@@ -48,10 +48,11 @@ import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 public class SQLiteJDBCDriverConnectionTest
@@ -460,9 +461,11 @@ public class SQLiteJDBCDriverConnectionTest
         Assertions.assertTrue(storage.updatePlayerData(PLAYER_DATA_2));
 
         chunkId = Util.getChunkId(movable1.getPowerBlock());
-        final ConcurrentHashMap<Integer, List<Long>> powerBlockData = storage.getPowerBlockData(chunkId);
+        final Map<Integer, List<Long>> powerBlockData = storage.getPowerBlockData(chunkId);
         Assertions.assertNotNull(powerBlockData);
-        Assertions.assertEquals(3, powerBlockData.elements().nextElement().size());
+        final List<List<Long>> entries = new ArrayList<>(powerBlockData.values());
+        Assertions.assertEquals(1, entries.size());
+        Assertions.assertEquals(3, entries.get(0).size());
     }
 
     /**
@@ -492,8 +495,8 @@ public class SQLiteJDBCDriverConnectionTest
             Portcullis pc = ((Portcullis) movable3);
 
             // Save the current data
-            final RotateDirection oldDir = movable3.getOpenDir();
-            final RotateDirection newDir = RotateDirection.getOpposite(oldDir);
+            final MovementDirection oldDir = movable3.getOpenDir();
+            final MovementDirection newDir = MovementDirection.getOpposite(oldDir);
             Assertions.assertNotSame(oldDir, newDir);
 
             final Vector3Di oldPowerBlock = movable3.getPowerBlock();
@@ -600,7 +603,7 @@ public class SQLiteJDBCDriverConnectionTest
                                                  .rotationPoint(rotationPoint)
                                                  .powerBlock(powerBlock)
                                                  .world(WORLD).isOpen(false).isLocked(false)
-                                                 .openDir(RotateDirection.EAST)
+                                                 .openDir(MovementDirection.EAST)
                                                  .primeOwner(
                                                      new MovableOwner(1, PermissionLevel.CREATOR, PLAYER_DATA_1))
                                                  .build());
@@ -615,7 +618,7 @@ public class SQLiteJDBCDriverConnectionTest
                                                     .uid(2).name(MOVABLES_2_3_NAME).cuboid(min, max)
                                                     .rotationPoint(rotationPoint)
                                                     .powerBlock(powerBlock).world(WORLD).isOpen(false)
-                                                    .isLocked(false).openDir(RotateDirection.NONE)
+                                                    .isLocked(false).openDir(MovementDirection.NONE)
                                                     .primeOwner(
                                                         new MovableOwner(2, PermissionLevel.CREATOR, PLAYER_DATA_1))
                                                     .build(),
@@ -631,7 +634,7 @@ public class SQLiteJDBCDriverConnectionTest
                                                     .uid(3).name(MOVABLES_2_3_NAME).cuboid(min, max)
                                                     .rotationPoint(rotationPoint)
                                                     .powerBlock(powerBlock).world(WORLD).isOpen(false)
-                                                    .isLocked(false).openDir(RotateDirection.UP)
+                                                    .isLocked(false).openDir(MovementDirection.UP)
                                                     .primeOwner(
                                                         new MovableOwner(3, PermissionLevel.CREATOR, PLAYER_DATA_2))
                                                     .build(),

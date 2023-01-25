@@ -10,8 +10,8 @@ import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.testimplementations.TestPWorld;
 import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.Rectangle;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.testing.AssistedFactoryMocker;
 import org.junit.jupiter.api.Assertions;
@@ -48,7 +48,7 @@ class MovableSerializerTest
 
         movableBase = factory.builder().uid(1).name(movableName).cuboid(new Cuboid(zeroPos, zeroPos))
                              .rotationPoint(zeroPos).powerBlock(zeroPos).world(new TestPWorld("worldName"))
-                             .isOpen(false).isLocked(false).openDir(RotateDirection.DOWN).primeOwner(movableOwner)
+                             .isOpen(false).isLocked(false).openDir(MovementDirection.DOWN).primeOwner(movableOwner)
                              .build();
     }
 
@@ -171,7 +171,7 @@ class MovableSerializerTest
         }
 
         @Override
-        public RotateDirection getCurrentToggleDir()
+        public MovementDirection getCurrentToggleDir()
         {
             return null;
         }
@@ -183,7 +183,7 @@ class MovableSerializerTest
         }
 
         @Override
-        public RotateDirection cycleOpenDirection()
+        public MovementDirection cycleOpenDirection()
         {
             return null;
         }

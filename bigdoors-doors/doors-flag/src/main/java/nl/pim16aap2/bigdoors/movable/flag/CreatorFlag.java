@@ -7,7 +7,7 @@ import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
@@ -90,9 +90,9 @@ public class CreatorFlag extends Creator
         Util.requireNonNull(cuboid, "cuboid");
         Util.requireNonNull(rotationPoint, "rotationPoint");
         if (northSouthAligned)
-            openDir = rotationPoint.z() == cuboid.getMin().z() ? RotateDirection.SOUTH : RotateDirection.NORTH;
+            openDir = rotationPoint.z() == cuboid.getMin().z() ? MovementDirection.SOUTH : MovementDirection.NORTH;
         else
-            openDir = rotationPoint.x() == cuboid.getMin().x() ? RotateDirection.EAST : RotateDirection.WEST;
+            openDir = rotationPoint.x() == cuboid.getMin().x() ? MovementDirection.EAST : MovementDirection.WEST;
 
         return new Flag(constructMovableData(), northSouthAligned);
     }

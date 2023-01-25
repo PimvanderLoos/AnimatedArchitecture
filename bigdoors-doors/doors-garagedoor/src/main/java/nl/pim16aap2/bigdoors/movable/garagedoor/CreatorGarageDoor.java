@@ -7,7 +7,7 @@ import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
@@ -24,14 +24,14 @@ public class CreatorGarageDoor extends Creator
     /**
      * The valid open directions when the movable is positioned along the north/south axis.
      */
-    private static final Set<RotateDirection> NORTH_SOUTH_AXIS_OPEN_DIRS =
-        EnumSet.of(RotateDirection.EAST, RotateDirection.WEST);
+    private static final Set<MovementDirection> NORTH_SOUTH_AXIS_OPEN_DIRS =
+        EnumSet.of(MovementDirection.EAST, MovementDirection.WEST);
 
     /**
      * The valid open directions when the movable is positioned along the east/west axis.
      */
-    private static final Set<RotateDirection> EAST_WEST_AXIS_OPEN_DIRS =
-        EnumSet.of(RotateDirection.NORTH, RotateDirection.SOUTH);
+    private static final Set<MovementDirection> EAST_WEST_AXIS_OPEN_DIRS =
+        EnumSet.of(MovementDirection.NORTH, MovementDirection.SOUTH);
 
     private boolean northSouthAligned;
 
@@ -82,7 +82,7 @@ public class CreatorGarageDoor extends Creator
     }
 
     @Override
-    public Set<RotateDirection> getValidOpenDirections()
+    public Set<MovementDirection> getValidOpenDirections()
     {
         if (isOpen)
             return getMovableType().getValidOpenDirections();
@@ -97,14 +97,14 @@ public class CreatorGarageDoor extends Creator
     }
 
     @Override
-    protected boolean completeSetOpenDirStep(RotateDirection direction)
+    protected boolean completeSetOpenDirStep(MovementDirection direction)
     {
         if (super.completeSetOpenDirStep(direction))
         {
             // This may seem counter-intuitive, but if it's positioned along the north/south axis,
             // then it can only open in east/west direction, because there isn't any space in the other
             // directions.
-            if (openDir == RotateDirection.NORTH || openDir == RotateDirection.SOUTH)
+            if (openDir == MovementDirection.NORTH || openDir == MovementDirection.SOUTH)
                 northSouthAligned = false;
             return true;
         }
@@ -136,13 +136,13 @@ public class CreatorGarageDoor extends Creator
         int newX = rotationPointTmp.x();
         int newZ = rotationPointTmp.z();
 
-        if (openDir == RotateDirection.NORTH)
+        if (openDir == MovementDirection.NORTH)
             newZ = cuboid.getMax().z() + 1;
-        else if (openDir == RotateDirection.EAST)
+        else if (openDir == MovementDirection.EAST)
             newX = cuboid.getMin().x() - 1;
-        else if (openDir == RotateDirection.SOUTH)
+        else if (openDir == MovementDirection.SOUTH)
             newZ = cuboid.getMin().z() - 1;
-        else if (openDir == RotateDirection.WEST)
+        else if (openDir == MovementDirection.WEST)
             newX = cuboid.getMax().x() + 1;
 
         rotationPoint = new Vector3Di(newX, rotationPointY, newZ);

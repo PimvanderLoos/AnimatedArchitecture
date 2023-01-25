@@ -13,9 +13,9 @@ import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.Rectangle;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
@@ -95,19 +95,19 @@ public class SlidingDoor extends AbstractMovable implements IDiscreteMovement
     }
 
     @Override
-    public RotateDirection cycleOpenDirection()
+    public MovementDirection cycleOpenDirection()
     {
-        final RotateDirection openDirection = getOpenDir();
-        return openDirection.equals(RotateDirection.NORTH) ? RotateDirection.EAST :
-               openDirection.equals(RotateDirection.EAST) ? RotateDirection.SOUTH :
-               openDirection.equals(RotateDirection.SOUTH) ? RotateDirection.WEST : RotateDirection.NORTH;
+        final MovementDirection openDirection = getOpenDir();
+        return openDirection.equals(MovementDirection.NORTH) ? MovementDirection.EAST :
+               openDirection.equals(MovementDirection.EAST) ? MovementDirection.SOUTH :
+               openDirection.equals(MovementDirection.SOUTH) ? MovementDirection.WEST : MovementDirection.NORTH;
     }
 
     @Override
     @Locked.Read
-    public RotateDirection getCurrentToggleDir()
+    public MovementDirection getCurrentToggleDir()
     {
-        return isOpen() ? getOpenDir() : RotateDirection.getOpposite(getOpenDir());
+        return isOpen() ? getOpenDir() : MovementDirection.getOpposite(getOpenDir());
     }
 
     @Override

@@ -7,7 +7,7 @@ import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.MathUtil;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
@@ -23,10 +23,10 @@ public class WindmillMover<T extends AbstractMovable & IHorizontalAxisAligned> e
 
     private final double step;
 
-    public WindmillMover(T movable, MovementRequestData data, RotateDirection rotateDirection)
+    public WindmillMover(T movable, MovementRequestData data, MovementDirection movementDirection)
         throws Exception
     {
-        super(movable, data, rotateDirection);
+        super(movable, data, movementDirection);
 
         step = MathUtil.HALF_PI / (20.0f * super.time * 2.0f);
     }

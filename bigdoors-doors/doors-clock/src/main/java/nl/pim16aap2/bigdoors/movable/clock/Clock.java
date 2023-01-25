@@ -12,9 +12,9 @@ import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.Rectangle;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
 
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -77,7 +77,7 @@ public class Clock extends AbstractMovable implements IHorizontalAxisAligned
     }
 
     @Override
-    public RotateDirection cycleOpenDirection()
+    public MovementDirection cycleOpenDirection()
     {
         return getOpenDir();
     }
@@ -141,7 +141,7 @@ public class Clock extends AbstractMovable implements IHorizontalAxisAligned
      * Always the same as {@link #getOpenDir()}, as this archetype makes no distinction between opening and closing.
      */
     @Override
-    public RotateDirection getCurrentToggleDir()
+    public MovementDirection getCurrentToggleDir()
     {
         return getOpenDir();
     }

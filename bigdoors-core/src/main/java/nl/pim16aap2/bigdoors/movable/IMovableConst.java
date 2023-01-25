@@ -3,8 +3,8 @@ package nl.pim16aap2.bigdoors.movable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.Rectangle;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
@@ -163,14 +163,14 @@ public interface IMovableConst
     }
 
     /**
-     * Gets the {@link RotateDirection} this {@link IMovable} will open if currently closed.
+     * Gets the {@link MovementDirection} this {@link IMovable} will open if currently closed.
      * <p>
      * Note that if it's currently in the open status, it is supposed go in the opposite direction, as the closing
      * direction is the opposite of the opening direction. This isn't taken into account by this method.
      *
-     * @return The {@link RotateDirection} this {@link IMovable} will open in.
+     * @return The {@link MovementDirection} this {@link IMovable} will open in.
      */
-    RotateDirection getOpenDir();
+    MovementDirection getOpenDir();
 
     /**
      * Gets the position of power block of this movable.

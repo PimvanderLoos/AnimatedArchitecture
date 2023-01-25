@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,7 +52,7 @@ public final class MovableBaseBuilder
         private IPWorld world;
         private boolean isOpen;
         private boolean isLocked;
-        private RotateDirection openDir;
+        private MovementDirection openDir;
         private MovableOwner primeOwner;
         private @Nullable Map<UUID, MovableOwner> doorOwners;
 
@@ -122,7 +122,7 @@ public final class MovableBaseBuilder
 
         @Override
         @Initializer
-        public IBuilderPrimeOwner openDir(RotateDirection openDir)
+        public IBuilderPrimeOwner openDir(MovementDirection openDir)
         {
             this.openDir = openDir;
             return this;
@@ -271,7 +271,7 @@ public final class MovableBaseBuilder
          *     The rotation direction.
          * @return The next step of the guided builder process.
          */
-        IBuilderPrimeOwner openDir(RotateDirection openDir);
+        IBuilderPrimeOwner openDir(MovementDirection openDir);
     }
 
     public interface IBuilderPrimeOwner

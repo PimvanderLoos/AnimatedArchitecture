@@ -59,24 +59,16 @@ public enum PBlockFace
     @SuppressWarnings("unused")
     public static PBlockFace getOpposite(PBlockFace dir)
     {
-        switch (dir)
-        {
-            case DOWN:
-                return PBlockFace.UP;
-            case EAST:
-                return PBlockFace.WEST;
-            case NORTH:
-                return PBlockFace.SOUTH;
-            case SOUTH:
-                return PBlockFace.NORTH;
-            case UP:
-                return PBlockFace.DOWN;
-            case WEST:
-                return PBlockFace.EAST;
-            case NONE:
-            default:
-                return PBlockFace.NONE;
-        }
+        return switch (dir)
+            {
+                case DOWN -> PBlockFace.UP;
+                case EAST -> PBlockFace.WEST;
+                case NORTH -> PBlockFace.SOUTH;
+                case SOUTH -> PBlockFace.NORTH;
+                case UP -> PBlockFace.DOWN;
+                case WEST -> PBlockFace.EAST;
+                default -> PBlockFace.NONE;
+            };
     }
 
     /**
@@ -118,48 +110,36 @@ public enum PBlockFace
      *     The current {@link PBlockFace}.
      * @return The rotated {@link PBlockFace}.
      */
-    @SuppressWarnings("DuplicatedCode") // It's actually different from rotating counterclockwise...
     public static PBlockFace rotateClockwise(PBlockFace myFace)
     {
-        switch (myFace)
-        {
-            case NORTH:
-                return EAST;
-            case EAST:
-                return SOUTH;
-            case SOUTH:
-                return WEST;
-            case WEST:
-                return NORTH;
-            default:
-                return myFace;
-        }
+        return switch (myFace)
+            {
+                case NORTH -> EAST;
+                case EAST -> SOUTH;
+                case SOUTH -> WEST;
+                case WEST -> NORTH;
+                default -> myFace;
+            };
     }
 
     /**
-     * Rotate the {@link PBlockFace} in counter clockwise direction from a perspective of looking down on the world. For
+     * Rotate the {@link PBlockFace} in counterclockwise direction from a perspective of looking down on the world. For
      * example, {@link PBlockFace#NORTH} would return {@link PBlockFace#WEST}.
      *
      * @param myFace
      *     The current {@link PBlockFace}.
      * @return The rotated {@link PBlockFace}.
      */
-    @SuppressWarnings("DuplicatedCode") // It's actually different from rotating clockwise...
     public static PBlockFace rotateCounterClockwise(PBlockFace myFace)
     {
-        switch (myFace)
-        {
-            case NORTH:
-                return WEST;
-            case EAST:
-                return NORTH;
-            case SOUTH:
-                return EAST;
-            case WEST:
-                return SOUTH;
-            default:
-                return myFace;
-        }
+        return switch (myFace)
+            {
+                case NORTH -> WEST;
+                case EAST -> NORTH;
+                case SOUTH -> EAST;
+                case WEST -> SOUTH;
+                default -> myFace;
+            };
     }
 
     /**
@@ -172,20 +152,14 @@ public enum PBlockFace
      */
     public static PBlockFace rotateVerticallyNorth(PBlockFace curFace)
     {
-        switch (curFace)
-        {
-            case DOWN:
-                return PBlockFace.SOUTH;
-            case NORTH:
-                return PBlockFace.DOWN;
-            case SOUTH:
-                return PBlockFace.UP;
-            case UP:
-                return PBlockFace.NORTH;
-            case EAST, WEST:
-            default:
-                return curFace;
-        }
+        return switch (curFace)
+            {
+                case DOWN -> PBlockFace.SOUTH;
+                case NORTH -> PBlockFace.DOWN;
+                case SOUTH -> PBlockFace.UP;
+                case UP -> PBlockFace.NORTH;
+                default -> curFace;
+            };
     }
 
     /**
@@ -198,20 +172,14 @@ public enum PBlockFace
      */
     public static PBlockFace rotateVerticallySouth(PBlockFace curFace)
     {
-        switch (curFace)
-        {
-            case DOWN:
-                return PBlockFace.NORTH;
-            case NORTH:
-                return PBlockFace.UP;
-            case SOUTH:
-                return PBlockFace.DOWN;
-            case UP:
-                return PBlockFace.SOUTH;
-            case EAST, WEST:
-            default:
-                return curFace;
-        }
+        return switch (curFace)
+            {
+                case DOWN -> PBlockFace.NORTH;
+                case NORTH -> PBlockFace.UP;
+                case SOUTH -> PBlockFace.DOWN;
+                case UP -> PBlockFace.SOUTH;
+                default -> curFace;
+            };
     }
 
     /**
@@ -224,20 +192,14 @@ public enum PBlockFace
      */
     public static PBlockFace rotateVerticallyEast(PBlockFace curFace)
     {
-        switch (curFace)
-        {
-            case DOWN:
-                return PBlockFace.WEST;
-            case EAST:
-                return PBlockFace.DOWN;
-            case WEST:
-                return PBlockFace.UP;
-            case UP:
-                return PBlockFace.EAST;
-            case NORTH, SOUTH:
-            default:
-                return curFace;
-        }
+        return switch (curFace)
+            {
+                case DOWN -> PBlockFace.WEST;
+                case EAST -> PBlockFace.DOWN;
+                case WEST -> PBlockFace.UP;
+                case UP -> PBlockFace.EAST;
+                default -> curFace;
+            };
     }
 
     /**
@@ -250,20 +212,14 @@ public enum PBlockFace
      */
     public static PBlockFace rotateVerticallyWest(PBlockFace curFace)
     {
-        switch (curFace)
-        {
-            case DOWN:
-                return PBlockFace.EAST;
-            case EAST:
-                return PBlockFace.UP;
-            case WEST:
-                return PBlockFace.DOWN;
-            case UP:
-                return PBlockFace.WEST;
-            case NORTH, SOUTH:
-            default:
-                return curFace;
-        }
+        return switch (curFace)
+            {
+                case DOWN -> PBlockFace.EAST;
+                case EAST -> PBlockFace.UP;
+                case WEST -> PBlockFace.DOWN;
+                case UP -> PBlockFace.WEST;
+                default -> curFace;
+            };
     }
 
     /**
@@ -282,31 +238,23 @@ public enum PBlockFace
     /**
      * Get the appropriate function for rotating a BlockFace. Different rotation directions use different methods.
      *
-     * @param rotDir
-     *     The {@link RotateDirection} to rotate in.
+     * @param movementDirection
+     *     The {@link MovementDirection} to rotate in.
      * @return The appropriate function for rotating the {@link PBlockFace} in the given direction.
      */
     // TODO: OPTIONAL
-    public static @Nullable UnaryOperator<PBlockFace> getDirFun(RotateDirection rotDir)
+    public static @Nullable UnaryOperator<PBlockFace> getDirFun(MovementDirection movementDirection)
     {
-        switch (rotDir)
-        {
-            case NORTH:
-                return PBlockFace::rotateVerticallyNorth;
-            case EAST:
-                return PBlockFace::rotateVerticallyEast;
-            case SOUTH:
-                return PBlockFace::rotateVerticallySouth;
-            case WEST:
-                return PBlockFace::rotateVerticallyWest;
-            case CLOCKWISE:
-                return PBlockFace::rotateClockwise;
-            case COUNTERCLOCKWISE:
-                return PBlockFace::rotateCounterClockwise;
-            case DOWN, UP, NONE:
-            default:
-                return null;
-        }
+        return switch (movementDirection)
+            {
+                case NORTH -> PBlockFace::rotateVerticallyNorth;
+                case EAST -> PBlockFace::rotateVerticallyEast;
+                case SOUTH -> PBlockFace::rotateVerticallySouth;
+                case WEST -> PBlockFace::rotateVerticallyWest;
+                case CLOCKWISE -> PBlockFace::rotateClockwise;
+                case COUNTERCLOCKWISE -> PBlockFace::rotateCounterClockwise;
+                default -> null;
+            };
     }
 
     /**

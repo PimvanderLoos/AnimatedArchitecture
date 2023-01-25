@@ -6,7 +6,7 @@ import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.movable.windmill.WindmillMover;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.WorldTime;
 import nl.pim16aap2.bigdoors.util.vector.IVector3D;
@@ -48,15 +48,15 @@ public class ClockMover<T extends AbstractMovable & IHorizontalAxisAligned> exte
      */
     protected final int angleDirectionMultiplier;
 
-    public ClockMover(T movable, MovementRequestData data, RotateDirection rotateDirection)
+    public ClockMover(T movable, MovementRequestData data, MovementDirection movementDirection)
         throws Exception
     {
-        super(movable, data, rotateDirection);
+        super(movable, data, movementDirection);
         super.movementMethod = MovementMethod.TELEPORT;
 
         isHourArm = northSouth ? this::isHourArmNS : this::isHourArmEW;
         angleDirectionMultiplier =
-            (rotateDirection == RotateDirection.EAST || rotateDirection == RotateDirection.SOUTH) ? -1 : 1;
+            (movementDirection == MovementDirection.EAST || movementDirection == MovementDirection.SOUTH) ? -1 : 1;
     }
 
     /**

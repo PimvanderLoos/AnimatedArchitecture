@@ -151,7 +151,7 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
         // Do not round x and z because they are at half blocks; Given x;z 10;5, the block will be spawned at
         // 10.5;5.5. Rounding it would retrieve the blocks at 11;6.
         this.animatedBlockData =
-            new NMSBlock_V1_19_R2(executor, worldServer, (int) Math.floor(posX), (int) Math.round(posY),
+            new NMSBlock_V1_19_R2(this, executor, worldServer, (int) Math.floor(posX), (int) Math.round(posY),
                                   (int) Math.floor(posZ));
         this.startLocation = new PLocationSpigot(new Location(bukkitWorld, posX, posY, posZ));
         this.startPosition = new Vector3Dd(startLocation.getX(), startLocation.getY(), startLocation.getZ());
@@ -459,7 +459,7 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
         return this.b;
     }
 
-    private void forEachHook(String actionName, Consumer<IAnimatedBlockHook> call)
+    void forEachHook(String actionName, Consumer<IAnimatedBlockHook> call)
     {
         for (final IAnimatedBlockHook hook : hooks)
         {

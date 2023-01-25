@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
 
 import javax.inject.Inject;
@@ -8,12 +8,12 @@ import javax.inject.Singleton;
 import java.util.concurrent.CompletableFuture;
 
 @Singleton
-public class SetOpenDirectionDelayed extends DelayedCommand<RotateDirection>
+public class SetOpenDirectionDelayed extends DelayedCommand<MovementDirection>
 {
     @Inject public SetOpenDirectionDelayed(
-        Context context, DelayedCommandInputRequest.IFactory<RotateDirection> inputRequestFactory)
+        Context context, DelayedCommandInputRequest.IFactory<MovementDirection> inputRequestFactory)
     {
-        super(context, inputRequestFactory, RotateDirection.class);
+        super(context, inputRequestFactory, MovementDirection.class);
     }
 
     @Override
@@ -24,7 +24,7 @@ public class SetOpenDirectionDelayed extends DelayedCommand<RotateDirection>
 
     @Override
     protected CompletableFuture<?> delayedInputExecutor(
-        ICommandSender commandSender, MovableRetriever movableRetriever, RotateDirection openDir)
+        ICommandSender commandSender, MovableRetriever movableRetriever, MovementDirection openDir)
     {
         return commandFactory.get().newSetOpenDirection(commandSender, movableRetriever, openDir).run();
     }

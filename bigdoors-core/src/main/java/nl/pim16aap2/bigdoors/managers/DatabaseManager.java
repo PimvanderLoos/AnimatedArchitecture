@@ -32,11 +32,11 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
@@ -708,10 +708,10 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      *     The id of the chunk the movables are in.
      * @return A map of location hashes and their connected powerblocks for all movables in a chunk.
      */
-    CompletableFuture<ConcurrentHashMap<Integer, List<Long>>> getPowerBlockData(long chunkId)
+    CompletableFuture<Map<Integer, List<Long>>> getPowerBlockData(long chunkId)
     {
         return CompletableFuture.supplyAsync(() -> db.getPowerBlockData(chunkId), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, new ConcurrentHashMap<>(0)));
+                                .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyMap()));
     }
 
     @Override

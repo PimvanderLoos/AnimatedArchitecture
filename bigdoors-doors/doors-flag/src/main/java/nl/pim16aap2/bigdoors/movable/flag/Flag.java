@@ -13,8 +13,8 @@ import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.Rectangle;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
 import java.util.Optional;
@@ -93,7 +93,7 @@ public class Flag extends AbstractMovable implements IHorizontalAxisAligned, IPe
      * @return The current open direction.
      */
     @Override
-    public RotateDirection cycleOpenDirection()
+    public MovementDirection cycleOpenDirection()
     {
         return getOpenDir();
     }
@@ -119,7 +119,7 @@ public class Flag extends AbstractMovable implements IHorizontalAxisAligned, IPe
     }
 
     @Override
-    public RotateDirection getCurrentToggleDir()
+    public MovementDirection getCurrentToggleDir()
     {
         return getOpenDir();
     }

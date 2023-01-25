@@ -5,8 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.Rectangle;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
 import java.util.Collection;
@@ -33,7 +33,7 @@ public final class MovableSnapshot implements IMovableConst
     private String name;
     private Cuboid cuboid;
     private boolean isOpen;
-    private RotateDirection openDir;
+    private MovementDirection openDir;
     private boolean isLocked;
     private final MovableOwner primeOwner;
     private final Map<UUID, MovableOwner> owners;

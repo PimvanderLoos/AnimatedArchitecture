@@ -37,7 +37,7 @@ import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.testing.AssistedFactoryMocker;
 import org.jetbrains.annotations.Nullable;
@@ -67,7 +67,7 @@ public class CreatorTestsUtil
     protected final String movableName = "testDoor123";
     protected final IPWorld world = getWorld();
     protected Vector3Di rotationPoint = new Vector3Di(20, 15, 25);
-    protected RotateDirection openDirection = RotateDirection.COUNTERCLOCKWISE;
+    protected MovementDirection openDirection = MovementDirection.COUNTERCLOCKWISE;
 
     protected MovableOwner movableOwner;
 

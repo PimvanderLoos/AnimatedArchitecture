@@ -10,8 +10,8 @@ import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorPLocation;
 import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
@@ -31,14 +31,14 @@ public class CreatorClock extends Creator
     /**
      * The valid open directions when the movable is positioned along the north/south axis.
      */
-    private static final Set<RotateDirection> NORTH_SOUTH_AXIS_OPEN_DIRS =
-        EnumSet.of(RotateDirection.EAST, RotateDirection.WEST);
+    private static final Set<MovementDirection> NORTH_SOUTH_AXIS_OPEN_DIRS =
+        EnumSet.of(MovementDirection.EAST, MovementDirection.WEST);
 
     /**
      * The valid open directions when the movable is positioned along the east/west axis.
      */
-    private static final Set<RotateDirection> EAST_WEST_AXIS_OPEN_DIRS =
-        EnumSet.of(RotateDirection.NORTH, RotateDirection.SOUTH);
+    private static final Set<MovementDirection> EAST_WEST_AXIS_OPEN_DIRS =
+        EnumSet.of(MovementDirection.NORTH, MovementDirection.SOUTH);
 
     private boolean northSouthAligned;
 
@@ -148,7 +148,7 @@ public class CreatorClock extends Creator
     }
 
     @Override
-    public Set<RotateDirection> getValidOpenDirections()
+    public Set<MovementDirection> getValidOpenDirections()
     {
         if (isOpen)
             return getMovableType().getValidOpenDirections();
@@ -179,9 +179,9 @@ public class CreatorClock extends Creator
     protected void setOpenDirection()
     {
         if (northSouthAligned)
-            openDir = hourArmSide == PBlockFace.NORTH ? RotateDirection.WEST : RotateDirection.EAST;
+            openDir = hourArmSide == PBlockFace.NORTH ? MovementDirection.WEST : MovementDirection.EAST;
         else
-            openDir = hourArmSide == PBlockFace.EAST ? RotateDirection.NORTH : RotateDirection.SOUTH;
+            openDir = hourArmSide == PBlockFace.EAST ? MovementDirection.NORTH : MovementDirection.SOUTH;
     }
 
     @Override

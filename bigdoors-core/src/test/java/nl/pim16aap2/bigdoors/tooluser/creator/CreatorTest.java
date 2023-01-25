@@ -19,7 +19,7 @@ import nl.pim16aap2.bigdoors.tooluser.Procedure;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
@@ -236,20 +236,20 @@ class CreatorTest
                .thenReturn(Mockito.mock(SetOpenDirectionDelayed.class));
 
         final MovableType movableType = Mockito.mock(MovableType.class);
-        final Set<RotateDirection> validOpenDirections = EnumSet.of(RotateDirection.EAST, RotateDirection.WEST);
+        final Set<MovementDirection> validOpenDirections = EnumSet.of(MovementDirection.EAST, MovementDirection.WEST);
         Mockito.when(movableType.getValidOpenDirections()).thenReturn(validOpenDirections);
 
         Mockito.when(creator.getMovableType()).thenReturn(movableType);
 
-        Assertions.assertFalse(creator.completeSetOpenDirStep(RotateDirection.NONE));
-        Assertions.assertFalse(creator.completeSetOpenDirStep(RotateDirection.NORTH));
-        Assertions.assertTrue(creator.completeSetOpenDirStep(RotateDirection.EAST));
-        Assertions.assertFalse(creator.completeSetOpenDirStep(RotateDirection.SOUTH));
-        Assertions.assertTrue(creator.completeSetOpenDirStep(RotateDirection.WEST));
-        Assertions.assertFalse(creator.completeSetOpenDirStep(RotateDirection.CLOCKWISE));
-        Assertions.assertFalse(creator.completeSetOpenDirStep(RotateDirection.COUNTERCLOCKWISE));
-        Assertions.assertFalse(creator.completeSetOpenDirStep(RotateDirection.UP));
-        Assertions.assertFalse(creator.completeSetOpenDirStep(RotateDirection.DOWN));
+        Assertions.assertFalse(creator.completeSetOpenDirStep(MovementDirection.NONE));
+        Assertions.assertFalse(creator.completeSetOpenDirStep(MovementDirection.NORTH));
+        Assertions.assertTrue(creator.completeSetOpenDirStep(MovementDirection.EAST));
+        Assertions.assertFalse(creator.completeSetOpenDirStep(MovementDirection.SOUTH));
+        Assertions.assertTrue(creator.completeSetOpenDirStep(MovementDirection.WEST));
+        Assertions.assertFalse(creator.completeSetOpenDirStep(MovementDirection.CLOCKWISE));
+        Assertions.assertFalse(creator.completeSetOpenDirStep(MovementDirection.COUNTERCLOCKWISE));
+        Assertions.assertFalse(creator.completeSetOpenDirStep(MovementDirection.UP));
+        Assertions.assertFalse(creator.completeSetOpenDirStep(MovementDirection.DOWN));
     }
 
     @Test

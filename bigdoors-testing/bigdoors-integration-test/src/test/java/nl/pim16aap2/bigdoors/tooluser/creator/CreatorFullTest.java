@@ -7,7 +7,7 @@ import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -31,11 +31,11 @@ class CreatorFullTest extends CreatorTestsUtil
     void runThroughProcess()
     {
         rotationPoint = new Cuboid(min, max).getCenterBlock();
-        openDirection = RotateDirection.NORTH;
+        openDirection = MovementDirection.NORTH;
 
         movableType = Mockito.mock(MovableType.class);
         Mockito.when(movableType.getValidOpenDirections())
-               .thenReturn(EnumSet.of(RotateDirection.NORTH, RotateDirection.SOUTH));
+               .thenReturn(EnumSet.of(MovementDirection.NORTH, MovementDirection.SOUTH));
 
         final var movable = Mockito.mock(AbstractMovable.class);
         Mockito.when(movable.getType()).thenReturn(movableType);
@@ -62,11 +62,11 @@ class CreatorFullTest extends CreatorTestsUtil
     void delayedOpenDirectionInput()
     {
         rotationPoint = new Cuboid(min, max).getCenterBlock();
-        openDirection = RotateDirection.NORTH;
+        openDirection = MovementDirection.NORTH;
 
         movableType = Mockito.mock(MovableType.class);
         Mockito.when(movableType.getValidOpenDirections())
-               .thenReturn(EnumSet.of(RotateDirection.NORTH, RotateDirection.SOUTH));
+               .thenReturn(EnumSet.of(MovementDirection.NORTH, MovementDirection.SOUTH));
 
         final var movable = Mockito.mock(AbstractMovable.class);
         Mockito.when(movable.getType()).thenReturn(movableType);
@@ -87,7 +87,7 @@ class CreatorFullTest extends CreatorTestsUtil
         Assertions.assertDoesNotThrow(() -> delayedCommandInputManager.getInputRequest(player).get()
                                                                       .provide(false).join());
         Assertions.assertDoesNotThrow(() -> delayedCommandInputManager.getInputRequest(player).get()
-                                                                      .provide(RotateDirection.EAST).join());
+                                                                      .provide(MovementDirection.EAST).join());
         Assertions.assertDoesNotThrow(() -> delayedCommandInputManager.getInputRequest(player).get()
                                                                       .provide(openDirection).join());
 

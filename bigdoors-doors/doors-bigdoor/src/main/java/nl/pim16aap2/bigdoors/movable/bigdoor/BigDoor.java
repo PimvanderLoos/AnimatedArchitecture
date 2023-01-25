@@ -12,8 +12,8 @@ import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.MathUtil;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.Rectangle;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
 import java.util.Optional;
@@ -65,30 +65,30 @@ public class BigDoor extends AbstractMovable
     }
 
     @Override
-    public RotateDirection cycleOpenDirection()
+    public MovementDirection cycleOpenDirection()
     {
-        return getOpenDir().equals(RotateDirection.CLOCKWISE) ?
-               RotateDirection.COUNTERCLOCKWISE : RotateDirection.CLOCKWISE;
+        return getOpenDir().equals(MovementDirection.CLOCKWISE) ?
+               MovementDirection.COUNTERCLOCKWISE : MovementDirection.CLOCKWISE;
     }
 
     @Override
     @Locked.Read
-    public RotateDirection getCurrentToggleDir()
+    public MovementDirection getCurrentToggleDir()
     {
-        return isOpen() ? RotateDirection.getOpposite(getOpenDir()) : getOpenDir();
+        return isOpen() ? MovementDirection.getOpposite(getOpenDir()) : getOpenDir();
     }
 
     @Override
     @Locked.Read
     public Optional<Cuboid> getPotentialNewCoordinates()
     {
-        final RotateDirection rotateDirection = getCurrentToggleDir();
-        final double angle = rotateDirection == RotateDirection.CLOCKWISE ? MathUtil.HALF_PI :
-                             rotateDirection == RotateDirection.COUNTERCLOCKWISE ? -MathUtil.HALF_PI : 0.0D;
+        final MovementDirection movementDirection = getCurrentToggleDir();
+        final double angle = movementDirection == MovementDirection.CLOCKWISE ? MathUtil.HALF_PI :
+                             movementDirection == MovementDirection.COUNTERCLOCKWISE ? -MathUtil.HALF_PI : 0.0D;
         if (angle == 0.0D)
         {
             log.atSevere()
-               .log("Invalid open direction '%s' for door: %d", rotateDirection.name(), getUid());
+               .log("Invalid movement direction '%s' for door: %d", movementDirection.name(), getUid());
             return Optional.empty();
         }
 

@@ -7,7 +7,7 @@ import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.util.Constants;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -25,7 +25,7 @@ public final class MovableTypeElevator extends MovableType
     private MovableTypeElevator()
     {
         super(Constants.PLUGIN_NAME, "Elevator", TYPE_VERSION,
-              Arrays.asList(RotateDirection.UP, RotateDirection.DOWN), "movable.type.elevator");
+              Arrays.asList(MovementDirection.UP, MovementDirection.DOWN), "movable.type.elevator");
     }
 
     /**

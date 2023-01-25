@@ -14,9 +14,9 @@ import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.Rectangle;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
@@ -112,27 +112,27 @@ public class GarageDoor extends AbstractMovable implements IHorizontalAxisAligne
 
     @Override
     @Locked.Read
-    public RotateDirection getCurrentToggleDir()
+    public MovementDirection getCurrentToggleDir()
     {
-        final RotateDirection rotDir = getOpenDir();
+        final MovementDirection movementDirection = getOpenDir();
         if (isOpen())
-            return RotateDirection.getOpposite(rotDir);
-        return rotDir;
+            return MovementDirection.getOpposite(movementDirection);
+        return movementDirection;
     }
 
     @Override
-    public RotateDirection cycleOpenDirection()
+    public MovementDirection cycleOpenDirection()
     {
         if (isNorthSouthAligned())
-            return getOpenDir().equals(RotateDirection.EAST) ? RotateDirection.WEST : RotateDirection.EAST;
-        return getOpenDir().equals(RotateDirection.NORTH) ? RotateDirection.SOUTH : RotateDirection.NORTH;
+            return getOpenDir().equals(MovementDirection.EAST) ? MovementDirection.WEST : MovementDirection.EAST;
+        return getOpenDir().equals(MovementDirection.NORTH) ? MovementDirection.SOUTH : MovementDirection.NORTH;
     }
 
     @Override
     @Locked.Read
     public Optional<Cuboid> getPotentialNewCoordinates()
     {
-        final RotateDirection rotateDirection = getCurrentToggleDir();
+        final MovementDirection movementDirection = getCurrentToggleDir();
         final Cuboid cuboid = getCuboid();
 
         final Vector3Di dimensions = cuboid.getDimensions();
@@ -152,13 +152,13 @@ public class GarageDoor extends AbstractMovable implements IHorizontalAxisAligne
         final Vector3Di rotateVec;
         try
         {
-            rotateVec = PBlockFace.getDirection(Util.getPBlockFace(rotateDirection));
+            rotateVec = PBlockFace.getDirection(Util.getPBlockFace(movementDirection));
         }
         catch (Exception e)
         {
             log.atSevere().withStackTrace(StackSize.FULL)
-               .log("RotateDirection '%s' is not a valid direction for a movable of type '%s'",
-                    rotateDirection.name(), getType());
+               .log("MovementDirection '%s' is not a valid direction for a movable of type '%s'",
+                    movementDirection.name(), getType());
             return Optional.empty();
         }
 
@@ -177,22 +177,22 @@ public class GarageDoor extends AbstractMovable implements IHorizontalAxisAligne
             minY -= Math.abs(rotateVec.z() * zLen);
             minY -= 1;
 
-            if (rotateDirection.equals(RotateDirection.SOUTH))
+            if (movementDirection.equals(MovementDirection.SOUTH))
             {
                 maxZ = maxZ + 1;
                 minZ = maxZ;
             }
-            else if (rotateDirection.equals(RotateDirection.NORTH))
+            else if (movementDirection.equals(MovementDirection.NORTH))
             {
                 maxZ = minZ - 1;
                 minZ = maxZ;
             }
-            if (rotateDirection.equals(RotateDirection.EAST))
+            if (movementDirection.equals(MovementDirection.EAST))
             {
                 maxX = maxX + 1;
                 minX = maxX;
             }
-            else if (rotateDirection.equals(RotateDirection.WEST))
+            else if (movementDirection.equals(MovementDirection.WEST))
             {
                 maxX = minX - 1;
                 minX = maxX;

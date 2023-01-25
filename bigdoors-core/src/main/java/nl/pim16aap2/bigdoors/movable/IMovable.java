@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.movable;
 
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
 /**
@@ -36,15 +36,15 @@ public interface IMovable extends IMovableConst
     void setName(String name);
 
     /**
-     * Sets the {@link RotateDirection} this {@link IMovable} will open if currently closed.
+     * Sets the {@link MovementDirection} this {@link IMovable} will open if currently closed.
      * <p>
      * Note that if it's currently in the open status, it is supposed go in the opposite direction, as the closing
      * direction is the opposite of the opening direction.
      *
-     * @param rotateDirection
-     *     The {@link RotateDirection} this {@link IMovable} will open in.
+     * @param openDirection
+     *     The {@link MovementDirection} this {@link IMovable} will open in.
      */
-    void setOpenDir(RotateDirection rotateDirection);
+    void setOpenDir(MovementDirection openDirection);
 
     /**
      * Updates the position of the powerblock.

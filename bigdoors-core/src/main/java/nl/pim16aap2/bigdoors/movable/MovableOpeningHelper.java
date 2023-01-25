@@ -32,7 +32,7 @@ import nl.pim16aap2.bigdoors.moveblocks.MovableActivityManager;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.Limit;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
@@ -243,7 +243,7 @@ public final class MovableOpeningHelper
     private MovableToggleResult toggle(
         MovableSnapshot snapshot, AbstractMovable targetMovable, MovementRequestData data, IMessageable messageReceiver)
     {
-        if (snapshot.getOpenDir() == RotateDirection.NONE)
+        if (snapshot.getOpenDir() == MovementDirection.NONE)
         {
             log.atSevere().withStackTrace(StackSize.FULL).log("OpenDir cannot be 'NONE'!");
             return MovableToggleResult.ERROR;

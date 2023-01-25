@@ -12,11 +12,11 @@ import net.minecraft.world.level.block.state.BlockBase;
 import net.minecraft.world.level.block.state.IBlockData;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlockData;
+import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlockHook;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
+import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import org.bukkit.Axis;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -44,6 +44,7 @@ public class NMSBlock_V1_19_R2 extends BlockBase implements IAnimatedBlockData
 {
     @SuppressWarnings("unused") // Appears unused, but it's referenced in annotations.
     private final Object blockDataLock = new Object();
+    private final CustomEntityFallingBlock_V1_19_R2 animatedBlock;
     private final IPExecutor executor;
     private final WorldServer worldServer;
     private final World bukkitWorld;
@@ -72,9 +73,12 @@ public class NMSBlock_V1_19_R2 extends BlockBase implements IAnimatedBlockData
      * @param z
      *     The z coordinate of the NMS block.
      */
-    NMSBlock_V1_19_R2(IPExecutor executor, WorldServer worldServer, int x, int y, int z)
+    NMSBlock_V1_19_R2(
+        CustomEntityFallingBlock_V1_19_R2 AnimatedBlock, IPExecutor executor,
+        WorldServer worldServer, int x, int y, int z)
     {
         super(newBlockInfo(worldServer.getWorld(), new BlockPosition(x, y, z)));
+        animatedBlock = AnimatedBlock;
         this.executor = executor;
         this.worldServer = worldServer;
         this.bukkitWorld = worldServer.getWorld();
@@ -130,20 +134,20 @@ public class NMSBlock_V1_19_R2 extends BlockBase implements IAnimatedBlockData
 
     @Override
     @Synchronized("blockDataLock")
-    public boolean rotateBlock(RotateDirection rotDir)
+    public boolean rotateBlock(MovementDirection movementDirection)
     {
         final org.bukkit.block.data.BlockData bd = bukkitBlockData;
         // When rotating stairs vertically, they need to be rotated twice, as they cannot point up/down.
         if (bd instanceof Stairs &&
-            (rotDir.equals(RotateDirection.NORTH) || rotDir.equals(RotateDirection.EAST) ||
-                rotDir.equals(RotateDirection.SOUTH) || rotDir.equals(RotateDirection.WEST)))
-            rotateDirectional((Directional) bd, rotDir, 2);
+            (movementDirection.equals(MovementDirection.NORTH) || movementDirection.equals(MovementDirection.EAST) ||
+                movementDirection.equals(MovementDirection.SOUTH) || movementDirection.equals(MovementDirection.WEST)))
+            rotateDirectional((Directional) bd, movementDirection, 2);
         else if (bd instanceof Orientable orientable)
-            rotateOrientable(orientable, rotDir);
+            rotateOrientable(orientable, movementDirection);
         else if (bd instanceof Directional directional)
-            rotateDirectional(directional, rotDir);
+            rotateDirectional(directional, movementDirection);
         else if (bd instanceof MultipleFacing multipleFacing)
-            rotateMultipleFacing(multipleFacing, rotDir);
+            rotateMultipleFacing(multipleFacing, movementDirection);
         else
             return false;
         constructBlockDataFromBukkit();
@@ -152,26 +156,14 @@ public class NMSBlock_V1_19_R2 extends BlockBase implements IAnimatedBlockData
 
     @Override
     @Synchronized("blockDataLock")
-    public void putBlock(Vector3Di position)
-    {
-        putBlock(new BlockPosition(position.x(), position.y(), position.z()));
-    }
-
-    @Override
-    @Synchronized("blockDataLock")
-    public void putBlock(Vector3Dd position)
-    {
-        putBlock(new BlockPosition(position.x(), position.y(), position.z()));
-    }
-
-    @GuardedBy("blockDataLock")
-    private void putBlock(BlockPosition blockPosition)
+    public void putBlock(IVector3D position)
     {
         if (!executor.isMainThread())
         {
             log.atSevere().withStackTrace(StackSize.FULL).log("Caught async block placement! THIS IS A BUG!");
             return;
         }
+        final BlockPosition blockPosition = new BlockPosition(position.xD(), position.yD(), position.zD());
 
         // net.minecraft.world.level.block.state.BlockState getBlockState(net.minecraft.core.BlockPos)
         final IBlockData old = worldServer.a_(blockPosition);
@@ -182,34 +174,37 @@ public class NMSBlock_V1_19_R2 extends BlockBase implements IAnimatedBlockData
             // sendBlockUpdated(net.minecraft.core.BlockPos,net.minecraft.world.level.block.state.BlockState,
             //                  net.minecraft.world.level.block.state.BlockState,int)
             worldServer.getMinecraftWorld().a(blockPosition, old, blockData, 3);
+
+        animatedBlock.forEachHook("putBlock", IAnimatedBlockHook::onBlockPlace);
     }
 
     /**
-     * Rotates {@link Orientable} blockData in the provided {@link RotateDirection}.
+     * Rotates {@link Orientable} blockData in the provided {@link MovementDirection}.
      *
      * @param bd
      *     The {@link Orientable} blockData that will be rotated.
      * @param dir
-     *     The {@link RotateDirection} the blockData will be rotated in.
+     *     The {@link MovementDirection} the blockData will be rotated in.
      */
     @GuardedBy("blockDataLock")
-    private void rotateOrientable(Orientable bd, RotateDirection dir)
+    private void rotateOrientable(Orientable bd, MovementDirection dir)
     {
         rotateOrientable(bd, dir, 1);
     }
 
     /**
-     * Rotates {@link Orientable} blockData in the provided {@link RotateDirection}.
+     * Rotates {@link Orientable} blockData in the provided {@link MovementDirection}.
      *
      * @param bd
      *     The {@link Orientable} blockData that will be rotated.
      * @param dir
-     *     The {@link RotateDirection} the blockData will be rotated in.
+     *     The {@link MovementDirection} the blockData will be rotated in.
      * @param steps
      *     the number of times the blockData will be rotated in the given direction.
      */
     @GuardedBy("blockDataLock")
-    private void rotateOrientable(Orientable bd, RotateDirection dir, @SuppressWarnings("SameParameterValue") int steps)
+    private void rotateOrientable(
+        Orientable bd, MovementDirection dir, @SuppressWarnings("SameParameterValue") int steps)
     {
         final Axis currentAxis = bd.getAxis();
         Axis newAxis = currentAxis;
@@ -220,21 +215,21 @@ public class NMSBlock_V1_19_R2 extends BlockBase implements IAnimatedBlockData
 
         while (realSteps-- > 0)
         {
-            if (dir.equals(RotateDirection.NORTH) || dir.equals(RotateDirection.SOUTH))
+            if (dir.equals(MovementDirection.NORTH) || dir.equals(MovementDirection.SOUTH))
             {
                 if (currentAxis.equals(Axis.Z))
                     newAxis = Axis.Y;
                 else if (currentAxis.equals(Axis.Y))
                     newAxis = Axis.Z;
             }
-            else if (dir.equals(RotateDirection.EAST) || dir.equals(RotateDirection.WEST))
+            else if (dir.equals(MovementDirection.EAST) || dir.equals(MovementDirection.WEST))
             {
                 if (currentAxis.equals(Axis.X))
                     newAxis = Axis.Y;
                 else if (currentAxis.equals(Axis.Y))
                     newAxis = Axis.X;
             }
-            else if (dir.equals(RotateDirection.CLOCKWISE) || dir.equals(RotateDirection.COUNTERCLOCKWISE))
+            else if (dir.equals(MovementDirection.CLOCKWISE) || dir.equals(MovementDirection.COUNTERCLOCKWISE))
             {
                 if (bd.getAxis().equals(Axis.X))
                     newAxis = Axis.Z;
@@ -247,31 +242,31 @@ public class NMSBlock_V1_19_R2 extends BlockBase implements IAnimatedBlockData
     }
 
     /**
-     * Rotates {@link Directional} blockData in the provided {@link RotateDirection}.
+     * Rotates {@link Directional} blockData in the provided {@link MovementDirection}.
      *
      * @param bd
      *     The {@link Directional} blockData that will be rotated.
      * @param dir
-     *     The {@link RotateDirection} the blockData will be rotated in.
+     *     The {@link MovementDirection} the blockData will be rotated in.
      */
     @GuardedBy("blockDataLock")
-    private void rotateDirectional(Directional bd, RotateDirection dir)
+    private void rotateDirectional(Directional bd, MovementDirection dir)
     {
         rotateDirectional(bd, dir, 1);
     }
 
     /**
-     * Rotates {@link Directional} blockData in the provided {@link RotateDirection}.
+     * Rotates {@link Directional} blockData in the provided {@link MovementDirection}.
      *
      * @param bd
      *     The {@link Directional} blockData that will be rotated.
      * @param dir
-     *     The {@link RotateDirection} the blockData will be rotated in.
+     *     The {@link MovementDirection} the blockData will be rotated in.
      * @param steps
      *     the number of times the blockData will be rotated in the given direction.
      */
     @GuardedBy("blockDataLock")
-    private void rotateDirectional(Directional bd, RotateDirection dir, int steps)
+    private void rotateDirectional(Directional bd, MovementDirection dir, int steps)
     {
         final @Nullable var mappedDir = PBlockFace.getDirFun(dir);
         if (mappedDir == null)
@@ -288,32 +283,32 @@ public class NMSBlock_V1_19_R2 extends BlockBase implements IAnimatedBlockData
     }
 
     /**
-     * Rotates {@link MultipleFacing} blockData in the provided {@link RotateDirection}.
+     * Rotates {@link MultipleFacing} blockData in the provided {@link MovementDirection}.
      *
      * @param bd
      *     The {@link MultipleFacing} blockData that will be rotated.
      * @param dir
-     *     The {@link RotateDirection} the blockData will be rotated in.
+     *     The {@link MovementDirection} the blockData will be rotated in.
      */
     @GuardedBy("blockDataLock")
-    private void rotateMultipleFacing(MultipleFacing bd, RotateDirection dir)
+    private void rotateMultipleFacing(MultipleFacing bd, MovementDirection dir)
     {
         rotateMultipleFacing(bd, dir, 1);
     }
 
     /**
-     * Rotates {@link MultipleFacing} blockData in the provided {@link RotateDirection}.
+     * Rotates {@link MultipleFacing} blockData in the provided {@link MovementDirection}.
      *
      * @param bd
      *     The {@link MultipleFacing} blockData that will be rotated.
      * @param dir
-     *     The {@link RotateDirection} the blockData will be rotated in.
+     *     The {@link MovementDirection} the blockData will be rotated in.
      * @param steps
      *     the number of times the blockData will be rotated in the given direction.
      */
     @GuardedBy("blockDataLock")
     private void rotateMultipleFacing(
-        MultipleFacing bd, RotateDirection dir, @SuppressWarnings("SameParameterValue") int steps)
+        MultipleFacing bd, MovementDirection dir, @SuppressWarnings("SameParameterValue") int steps)
     {
         final @Nullable var mappedDir = PBlockFace.getDirFun(dir);
         if (mappedDir == null)
@@ -366,6 +361,8 @@ public class NMSBlock_V1_19_R2 extends BlockBase implements IAnimatedBlockData
             bukkitWorld.getBlockAt(loc).setType(Material.CAVE_AIR, false);
             bukkitWorld.getBlockAt(loc).setType(Material.AIR, true);
         }
+
+        animatedBlock.forEachHook("deleteOriginalBlock", IAnimatedBlockHook::onDeleteOriginalBlock);
     }
 
     @Override

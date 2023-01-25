@@ -5,7 +5,7 @@ import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 import org.junit.jupiter.api.AfterEach;
@@ -37,7 +37,7 @@ class SetOpenDirectionDelayedTest
     ILocalizer localizer = UnitTestUtil.initLocalizer();
 
     @Mock
-    DelayedCommandInputRequest.IFactory<RotateDirection> inputRequestFactory;
+    DelayedCommandInputRequest.IFactory<MovementDirection> inputRequestFactory;
 
     @InjectMocks
     DelayedCommand.Context context;
@@ -95,12 +95,12 @@ class SetOpenDirectionDelayedTest
 
         final CompletableFuture<?> result0 = setOpenDirectionDelayed.runDelayed(commandSender, movableRetriever);
         final CompletableFuture<?> result1 =
-            setOpenDirectionDelayed.provideDelayedInput(commandSender, RotateDirection.UP);
+            setOpenDirectionDelayed.provideDelayedInput(commandSender, MovementDirection.UP);
 
         Assertions.assertDoesNotThrow(() -> result0.get(1, TimeUnit.SECONDS));
         Assertions.assertDoesNotThrow(() -> result1.get(1, TimeUnit.SECONDS));
 
         Mockito.verify(commandFactory, Mockito.times(1))
-               .newSetOpenDirection(commandSender, movableRetriever, RotateDirection.UP);
+               .newSetOpenDirection(commandSender, movableRetriever, MovementDirection.UP);
     }
 }

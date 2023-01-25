@@ -84,23 +84,20 @@ public final class Cuboid
         @Nullable Vector3Di max = null;
         switch (roundingMode)
         {
-            case NEAREST:
+            case NEAREST ->
             {
                 min = new Vector3Di((int) Math.round(xMin), (int) Math.round(yMin), (int) Math.round(zMin));
                 max = new Vector3Di((int) Math.round(xMax), (int) Math.round(yMax), (int) Math.round(zMax));
-                break;
             }
-            case INWARD:
+            case INWARD ->
             {
                 min = new Vector3Di((int) Math.ceil(xMin), (int) Math.ceil(yMin), (int) Math.ceil(zMin));
                 max = new Vector3Di((int) Math.floor(xMax), (int) Math.floor(yMax), (int) Math.floor(zMax));
-                break;
             }
-            case OUTWARD:
+            case OUTWARD ->
             {
                 min = new Vector3Di((int) Math.floor(xMin), (int) Math.floor(yMin), (int) Math.floor(zMin));
                 max = new Vector3Di((int) Math.ceil(xMax), (int) Math.ceil(yMax), (int) Math.ceil(zMax));
-                break;
             }
         }
         return new Cuboid(Util.requireNonNull(min, "Minimum"), Util.requireNonNull(max, "Maximum"));

@@ -25,7 +25,7 @@ import nl.pim16aap2.bigdoors.storage.PPreparedStatement;
 import nl.pim16aap2.bigdoors.storage.SQLStatement;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.IBitFlag;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.functional.CheckedFunction;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -53,7 +53,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * An implementation of {@link IStorage} for SQLite.
@@ -324,8 +323,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         if (registeredMovable.isPresent())
             return registeredMovable;
 
-        final Optional<RotateDirection> openDirection =
-            Optional.ofNullable(RotateDirection.valueOf(movableBaseRS.getInt("openDirection")));
+        final Optional<MovementDirection> openDirection =
+            Optional.ofNullable(MovementDirection.valueOf(movableBaseRS.getInt("openDirection")));
 
         if (openDirection.isEmpty())
             return Optional.empty();
@@ -415,7 +414,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                                                             .setNextInt(movable.getPowerBlock().y())
                                                             .setNextInt(movable.getPowerBlock().z())
                                                             .setNextLong(Util.getChunkId(movable.getPowerBlock()))
-                                                            .setNextInt(RotateDirection.getValue(movable.getOpenDir()))
+                                                            .setNextInt(
+                                                                MovementDirection.getValue(movable.getOpenDir()))
                                                             .setNextLong(getFlag(movable))
                                                             .setNextString(movableType)
                                                             .setNextBytes(typeSpecificData));
@@ -485,7 +485,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                                  .setNextInt(movable.getPowerBlock().z())
                                  .setNextLong(Util.getChunkId(movable.getPowerBlock()))
 
-                                 .setNextInt(RotateDirection.getValue(movable.getOpenDir()))
+                                 .setNextInt(MovementDirection.getValue(movable.getOpenDir()))
                                  .setNextLong(getFlag(movable.isOpen(), movable.isLocked()))
                                  .setNextBytes(typeData)
 
@@ -753,13 +753,13 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    public ConcurrentHashMap<Integer, List<Long>> getPowerBlockData(long chunkId)
+    public Map<Integer, List<Long>> getPowerBlockData(long chunkId)
     {
         return executeQuery(SQLStatement.GET_POWER_BLOCK_DATA_IN_CHUNK.constructPPreparedStatement()
                                                                       .setLong(1, chunkId),
                             resultSet ->
                             {
-                                final ConcurrentHashMap<Integer, List<Long>> movables = new ConcurrentHashMap<>();
+                                final Map<Integer, List<Long>> movables = new HashMap<>();
                                 while (resultSet.next())
                                 {
                                     final int locationHash =
@@ -771,7 +771,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                                     movables.get(locationHash).add(resultSet.getLong("id"));
                                 }
                                 return movables;
-                            }, new ConcurrentHashMap<>());
+                            }, Collections.emptyMap());
     }
 
     @Override

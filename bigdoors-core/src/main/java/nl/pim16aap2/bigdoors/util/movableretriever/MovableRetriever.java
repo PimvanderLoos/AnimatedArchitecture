@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.util.movableretriever;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
@@ -164,6 +165,7 @@ public sealed abstract class MovableRetriever
      */
     @ToString
     @AllArgsConstructor
+    @Flogger
     static final class MovableNameRetriever extends MovableRetriever
     {
         @ToString.Exclude
@@ -245,6 +247,7 @@ public sealed abstract class MovableRetriever
                 {
                     if (movablesList.size() == 1)
                         return Optional.of(movablesList.get(0));
+                    log.atWarning().log("Tried to get 1 movable but received %d!", movablesList.size());
                     return Optional.empty();
                 }).exceptionally(Util::exceptionallyOptional);
         }
@@ -319,6 +322,7 @@ public sealed abstract class MovableRetriever
     @ToString
     @AllArgsConstructor()
     @EqualsAndHashCode(callSuper = false, doNotUseGetters = true)
+    @Flogger
     static final class MovableListRetriever extends MovableRetriever
     {
         private final List<AbstractMovable> movables;
@@ -332,9 +336,11 @@ public sealed abstract class MovableRetriever
         @Override
         public CompletableFuture<Optional<AbstractMovable>> getMovable()
         {
-            return movables.size() == 1 ?
-                   CompletableFuture.completedFuture(Optional.of(movables.get(0))) :
-                   CompletableFuture.completedFuture(Optional.empty());
+            if (movables.size() == 1)
+                return CompletableFuture.completedFuture(Optional.of(movables.get(0)));
+
+            log.atWarning().log("Tried to get 1 movable but received %d!", movables.size());
+            return CompletableFuture.completedFuture(Optional.empty());
         }
 
         @Override
@@ -359,7 +365,12 @@ public sealed abstract class MovableRetriever
         public CompletableFuture<Optional<AbstractMovable>> getMovable(IPPlayer player)
         {
             final List<AbstractMovable> ret = getMovables0(player);
-            return CompletableFuture.completedFuture(ret.size() == 1 ? Optional.of(ret.get(0)) : Optional.empty());
+
+            if (ret.size() == 1)
+                return CompletableFuture.completedFuture(Optional.of(ret.get(0)));
+
+            log.atWarning().log("Tried to get 1 movable but received %d!", ret.size());
+            return CompletableFuture.completedFuture(Optional.empty());
         }
     }
 
@@ -370,6 +381,7 @@ public sealed abstract class MovableRetriever
      */
     @ToString
     @EqualsAndHashCode(callSuper = false, doNotUseGetters = true)
+    @Flogger
     static final class FutureMovableListRetriever extends MovableRetriever
     {
         private final CompletableFuture<List<AbstractMovable>> movables;
@@ -388,7 +400,14 @@ public sealed abstract class MovableRetriever
         @Override
         public CompletableFuture<Optional<AbstractMovable>> getMovable()
         {
-            return movables.thenApply(lst -> lst.size() > 0 ? Optional.of(lst.get(0)) : Optional.empty());
+            return movables.thenApply(
+                lst ->
+                {
+                    if (lst.size() == 1)
+                        return Optional.of(lst.get(0));
+                    log.atWarning().log("Tried to get 1 movable but received %d!", lst.size());
+                    return Optional.empty();
+                });
         }
 
         @Override
@@ -400,9 +419,8 @@ public sealed abstract class MovableRetriever
         private CompletableFuture<List<AbstractMovable>> getMovables0(IPPlayer player)
         {
             final UUID playerUUID = player.getUUID();
-            return movables
-                .thenApply(retrieved -> retrieved.stream().filter(movable -> movable.isOwner(playerUUID))
-                                                 .toList());
+            return movables.thenApply(
+                retrieved -> retrieved.stream().filter(movable -> movable.isOwner(playerUUID)).toList());
         }
 
         @Override
@@ -414,8 +432,14 @@ public sealed abstract class MovableRetriever
         @Override
         public CompletableFuture<Optional<AbstractMovable>> getMovable(IPPlayer player)
         {
-            return getMovables0(player)
-                .thenApply(lst -> lst.size() == 1 ? Optional.of(lst.get(0)) : Optional.empty());
+            return getMovables0(player).thenApply(
+                lst ->
+                {
+                    if (lst.size() == 1)
+                        return Optional.of(lst.get(0));
+                    log.atWarning().log("Tried to get 1 movable but received %d!", lst.size());
+                    return Optional.empty();
+                });
         }
     }
 

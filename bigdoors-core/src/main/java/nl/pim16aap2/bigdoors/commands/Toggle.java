@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import com.google.common.flogger.StackSize;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -85,19 +84,12 @@ public class Toggle extends BaseCommand
      */
     protected final boolean canToggle(AbstractMovable movable)
     {
-        switch (movableActionType)
-        {
-            case TOGGLE:
-                return true;
-            case OPEN:
-                return movable.isCloseable();
-            case CLOSE:
-                return movable.isOpenable();
-            default:
-                log.atSevere()
-                   .withStackTrace(StackSize.FULL).log("Reached unregistered case: '%s'!", movableActionType.name());
-                return false;
-        }
+        return switch (movableActionType)
+            {
+                case TOGGLE -> true;
+                case OPEN -> movable.isCloseable();
+                case CLOSE -> movable.isOpenable();
+            };
     }
 
     private void toggleMovable(AbstractMovable movable, MovableActionCause cause, boolean hasBypassPermission)

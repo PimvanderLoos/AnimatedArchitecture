@@ -4,14 +4,14 @@ import cloud.commandframework.ArgumentDescription;
 import cloud.commandframework.arguments.CommandArgument;
 import cloud.commandframework.context.CommandContext;
 import nl.pim16aap2.bigdoors.commands.ICommandSender;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
 
-public class DirectionArgument extends CommandArgument<ICommandSender, RotateDirection>
+public class DirectionArgument extends CommandArgument<ICommandSender, MovementDirection>
 {
     @lombok.Builder
     public DirectionArgument(
@@ -19,7 +19,7 @@ public class DirectionArgument extends CommandArgument<ICommandSender, RotateDir
         @Nullable BiFunction<CommandContext<ICommandSender>, String, List<String>> suggestionsProvider,
         @Nullable ArgumentDescription defaultDescription, DirectionParser parser)
     {
-        super(required, name, parser, Objects.requireNonNullElse(defaultValue, ""), RotateDirection.class,
+        super(required, name, parser, Objects.requireNonNullElse(defaultValue, ""), MovementDirection.class,
               suggestionsProvider, Objects.requireNonNullElse(defaultDescription, ArgumentDescription.empty()));
     }
 }

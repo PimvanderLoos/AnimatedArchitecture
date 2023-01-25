@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
@@ -148,56 +147,6 @@ public final class SpigotUtil
     public static void messagePlayer(Player player, String msg)
     {
         messagePlayer(player, ChatColor.WHITE, msg);
-    }
-
-    /**
-     * Certain material types need to be refreshed when being placed down.
-     *
-     * @param mat
-     *     Material to be checked.
-     * @return True if it needs to be refreshed.
-     *
-     * @deprecated I'm pretty sure this is no longer needed.
-     */
-    @Deprecated
-    public static boolean needsRefresh(Material mat)
-    {
-        switch (mat)
-        {
-            case ACACIA_FENCE:
-            case ACACIA_FENCE_GATE:
-            case BIRCH_FENCE:
-            case BIRCH_FENCE_GATE:
-            case DARK_OAK_FENCE:
-            case DARK_OAK_FENCE_GATE:
-            case JUNGLE_FENCE:
-            case JUNGLE_FENCE_GATE:
-            case OAK_FENCE:
-            case OAK_FENCE_GATE:
-            case SPRUCE_FENCE:
-            case SPRUCE_FENCE_GATE:
-            case NETHER_BRICK_FENCE:
-
-            case COBBLESTONE_WALL:
-            case IRON_BARS:
-
-            case WHITE_STAINED_GLASS_PANE:
-            case YELLOW_STAINED_GLASS_PANE:
-            case PURPLE_STAINED_GLASS_PANE:
-            case LIGHT_BLUE_STAINED_GLASS_PANE:
-            case MAGENTA_STAINED_GLASS_PANE:
-            case GRAY_STAINED_GLASS_PANE:
-            case GREEN_STAINED_GLASS_PANE:
-            case BLACK_STAINED_GLASS_PANE:
-            case LIME_STAINED_GLASS_PANE:
-            case BLUE_STAINED_GLASS_PANE:
-            case BROWN_STAINED_GLASS_PANE:
-            case CYAN_STAINED_GLASS_PANE:
-            case RED_STAINED_GLASS_PANE:
-                return true;
-            default:
-                return false;
-        }
     }
 
     static int getPermissionSuffixValue(String permissionNode, String permissionBase)

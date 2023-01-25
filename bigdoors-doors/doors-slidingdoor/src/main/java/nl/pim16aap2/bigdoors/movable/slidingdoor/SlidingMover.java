@@ -4,7 +4,7 @@ import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import org.jetbrains.annotations.Nullable;
@@ -27,13 +27,14 @@ public class SlidingMover extends BlockMover
     protected final int blocksToMove;
 
     public SlidingMover(
-        AbstractMovable movable, MovementRequestData data, RotateDirection movementDirection, int blocksToMove)
+        AbstractMovable movable, MovementRequestData data, MovementDirection movementDirection, int blocksToMove)
         throws Exception
     {
         super(movable, data, movementDirection);
         this.blocksToMove = blocksToMove;
 
-        northSouth = movementDirection.equals(RotateDirection.NORTH) || movementDirection.equals(RotateDirection.SOUTH);
+        northSouth =
+            movementDirection.equals(MovementDirection.NORTH) || movementDirection.equals(MovementDirection.SOUTH);
 
         moveX = northSouth ? 0 : blocksToMove;
         moveZ = northSouth ? blocksToMove : 0;

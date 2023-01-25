@@ -22,7 +22,7 @@ import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IPerpetualMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -135,7 +135,7 @@ public abstract class BlockMover
     /**
      * The direction in of the movement.
      */
-    protected final RotateDirection openDirection;
+    protected final MovementDirection openDirection;
 
     /**
      * The modifiable list of animated blocks.
@@ -208,7 +208,7 @@ public abstract class BlockMover
      * @param movementDirection
      *     The direction of the movement.
      */
-    protected BlockMover(AbstractMovable movable, MovementRequestData data, RotateDirection movementDirection)
+    protected BlockMover(AbstractMovable movable, MovementRequestData data, MovementDirection movementDirection)
         throws Exception
     {
         executor = data.getExecutor();
@@ -237,13 +237,13 @@ public abstract class BlockMover
     }
 
     /**
-     * See {@link #BlockMover(AbstractMovable, MovementRequestData, RotateDirection)}, with
-     * {@link RotateDirection#NONE}.
+     * See {@link #BlockMover(AbstractMovable, MovementRequestData, MovementDirection)}, with
+     * {@link MovementDirection#NONE}.
      */
     protected BlockMover(AbstractMovable movable, MovementRequestData data)
         throws Exception
     {
-        this(movable, data, RotateDirection.NONE);
+        this(movable, data, MovementDirection.NONE);
     }
 
     public void abort()

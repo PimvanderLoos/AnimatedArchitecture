@@ -17,7 +17,7 @@ import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
@@ -212,27 +212,27 @@ public abstract class AbstractMovable implements IMovable
      *
      * @return The direction the movable would go if it were to be toggled.
      */
-    public abstract RotateDirection getCurrentToggleDir();
+    public abstract MovementDirection getCurrentToggleDir();
 
     /**
-     * Cycle the {@link RotateDirection} direction this {@link IMovable} will open in. By default, it'll set and return
-     * the opposite direction of the current direction.
+     * Cycle the {@link MovementDirection} direction this {@link IMovable} will open in. By default, it'll set and
+     * return the opposite direction of the current direction.
      * <p>
      * Note that this does not actually change the open direction; it merely tells you which direction comes next!
      *
-     * @return The new {@link RotateDirection} direction this {@link IMovable} will open in.
+     * @return The new {@link MovementDirection} direction this {@link IMovable} will open in.
      */
     @SuppressWarnings("unused")
-    public RotateDirection cycleOpenDirection()
+    public MovementDirection cycleOpenDirection()
     {
-        final Set<RotateDirection> validOpenDirections = getType().getValidOpenDirections();
-        final RotateDirection currentDir = getOpenDir();
+        final Set<MovementDirection> validOpenDirections = getType().getValidOpenDirections();
+        final MovementDirection currentDir = getOpenDir();
 
-        @Nullable RotateDirection first = null;
-        final Iterator<RotateDirection> it = validOpenDirections.iterator();
+        @Nullable MovementDirection first = null;
+        final Iterator<MovementDirection> it = validOpenDirections.iterator();
         while (it.hasNext())
         {
-            final RotateDirection dir = it.next();
+            final MovementDirection dir = it.next();
             if (first == null)
                 first = dir;
 
@@ -249,7 +249,7 @@ public abstract class AbstractMovable implements IMovable
            .log(
                "Failed to cycle open direction for movable of type '%s' with open dir '%s' given valid directions '%s'",
                getType(), currentDir, validOpenDirections);
-        return RotateDirection.NONE;
+        return MovementDirection.NONE;
     }
 
     /**
@@ -520,7 +520,7 @@ public abstract class AbstractMovable implements IMovable
     }
 
     @Override
-    public void setOpenDir(RotateDirection openDir)
+    public void setOpenDir(MovementDirection openDir)
     {
         assertWriteLockable();
         base.setOpenDir(openDir);
@@ -570,7 +570,7 @@ public abstract class AbstractMovable implements IMovable
     }
 
     @Override
-    public RotateDirection getOpenDir()
+    public MovementDirection getOpenDir()
     {
         return base.getOpenDir();
     }

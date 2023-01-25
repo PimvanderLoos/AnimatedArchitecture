@@ -9,7 +9,7 @@ import nl.pim16aap2.bigdoors.commands.ICommandSender;
 import nl.pim16aap2.bigdoors.movable.PermissionLevel;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 import org.bukkit.entity.Player;
@@ -171,7 +171,7 @@ class CommandExecutor
 
     void setOpenDirection(CommandContext<ICommandSender> context)
     {
-        final RotateDirection direction = context.get("direction");
+        final MovementDirection direction = context.get("direction");
         final ICommandSender commandSender = context.getSender();
         final @Nullable MovableRetriever movableRetriever = nullable(context, "movableRetriever");
 

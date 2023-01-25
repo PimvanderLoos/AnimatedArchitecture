@@ -6,7 +6,7 @@ import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.MathUtil;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 
@@ -18,16 +18,17 @@ public class BigDoorMover extends BlockMover
     private final double angle;
     private final double step;
 
-    public BigDoorMover(AbstractMovable movable, MovementRequestData data, RotateDirection rotDirection)
+    public BigDoorMover(AbstractMovable movable, MovementRequestData data, MovementDirection movementDirection)
         throws Exception
     {
-        super(movable, data, rotDirection);
+        super(movable, data, movementDirection);
 
-        angle = rotDirection == RotateDirection.CLOCKWISE ? MathUtil.HALF_PI :
-                rotDirection == RotateDirection.COUNTERCLOCKWISE ? -MathUtil.HALF_PI : 0.0D;
+        angle = movementDirection == MovementDirection.CLOCKWISE ? MathUtil.HALF_PI :
+                movementDirection == MovementDirection.COUNTERCLOCKWISE ? -MathUtil.HALF_PI : 0.0D;
 
         if (angle == 0.0D)
-            log.atSevere().log("Invalid open direction '%s' for movable: %d", rotDirection.name(), getMovableUID());
+            log.atSevere()
+               .log("Invalid open direction '%s' for movable: %d", movementDirection.name(), getMovableUID());
 
         rotationCenter = new Vector3Dd(
             snapshot.getRotationPoint().x() + 0.5, oldCuboid.getMin().y(),

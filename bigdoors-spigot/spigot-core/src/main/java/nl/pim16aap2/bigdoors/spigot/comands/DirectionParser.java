@@ -11,7 +11,7 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -30,12 +30,12 @@ import java.util.stream.Stream;
  *
  * @author Pim
  */
-public class DirectionParser implements ArgumentParser<ICommandSender, RotateDirection>, IRestartable
+public class DirectionParser implements ArgumentParser<ICommandSender, MovementDirection>, IRestartable
 {
     private final ToolUserManager toolUserManager;
     private final ILocalizer localizer;
-    private final Map<String, RotateDirection> suggestions = new LinkedHashMap<>(RotateDirection.values().length);
-    private final Map<RotateDirection, String> invertedSuggestions = new EnumMap<>(RotateDirection.class);
+    private final Map<String, MovementDirection> suggestions = new LinkedHashMap<>(MovementDirection.values().length);
+    private final Map<MovementDirection, String> invertedSuggestions = new EnumMap<>(MovementDirection.class);
 
     @Inject DirectionParser(RestartableHolder restartableHolder, ToolUserManager toolUserManager, ILocalizer localizer)
     {
@@ -46,21 +46,21 @@ public class DirectionParser implements ArgumentParser<ICommandSender, RotateDir
 
     private void fillSuggestions()
     {
-        for (final RotateDirection rotateDirection : RotateDirection.values())
+        for (final MovementDirection movementDirection : MovementDirection.values())
         {
-            final String name = rotateDirection.name().toLowerCase(Locale.ROOT);
+            final String name = movementDirection.name().toLowerCase(Locale.ROOT);
             final String localized = localizer.getMessage("constants.rotate_direction." + name);
-            suggestions.put(localized.toLowerCase(Locale.ROOT), rotateDirection);
-            invertedSuggestions.put(rotateDirection, localized);
+            suggestions.put(localized.toLowerCase(Locale.ROOT), movementDirection);
+            invertedSuggestions.put(movementDirection, localized);
         }
     }
 
     @Override
-    public ArgumentParseResult<RotateDirection> parse(
+    public ArgumentParseResult<MovementDirection> parse(
         CommandContext<ICommandSender> commandContext, Queue<String> inputQueue)
     {
         final @Nullable String input = inputQueue.peek();
-        final @Nullable RotateDirection direction =
+        final @Nullable MovementDirection direction =
             input == null ? null : suggestions.get(input.toLowerCase(Locale.ROOT));
 
         if (direction == null)
