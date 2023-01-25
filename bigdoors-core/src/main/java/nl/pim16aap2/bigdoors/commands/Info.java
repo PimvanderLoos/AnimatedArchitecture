@@ -12,7 +12,6 @@ import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.MovableAttribute;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
@@ -74,8 +73,8 @@ public class Info extends MovableTargetCommand
          *     The {@link ICommandSender} responsible for retrieving the movable info and the receiver of the movable's
          *     information.
          * @param movableRetriever
-         *     A {@link MovableRetrieverFactory} representing the {@link MovableBase} for which the information will be
-         *     retrieved.
+         *     A {@link MovableRetrieverFactory} representing the {@link AbstractMovable} for which the information will
+         *     be retrieved.
          * @return See {@link BaseCommand#run()}.
          */
         Info newInfo(ICommandSender commandSender, MovableRetriever movableRetriever);

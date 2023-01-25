@@ -5,8 +5,8 @@ import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.events.IBigDoorsEventCaller;
 import nl.pim16aap2.bigdoors.managers.MovableDeletionManager;
+import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.IMovableConst;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -47,11 +47,11 @@ public final class MovableActivityManager extends Restartable implements Movable
     }
 
     /**
-     * Checks if a {@link MovableBase} is 'busy', i.e. currently being animated.
+     * Checks if a {@link AbstractMovable} is 'busy', i.e. currently being animated.
      *
      * @param movableUID
-     *     The UID of the {@link MovableBase}.
-     * @return True if the {@link MovableBase} is busy.
+     *     The UID of the {@link AbstractMovable}.
+     * @return True if the {@link AbstractMovable} is busy.
      */
     @SuppressWarnings("unused")
     public boolean isMovableBusy(long movableUID)
@@ -91,7 +91,7 @@ public final class MovableActivityManager extends Restartable implements Movable
     /**
      * Processed a finished {@link BlockMover}.
      * <p>
-     * The {@link MovableBase} that was being used by the {@link BlockMover} will be registered as inactive and any
+     * The {@link AbstractMovable} that was being used by the {@link BlockMover} will be registered as inactive and any
      * scheduling that is required will be performed.
      *
      * @param blockMover
@@ -136,11 +136,11 @@ public final class MovableActivityManager extends Restartable implements Movable
     }
 
     /**
-     * Gets the {@link BlockMover} of a busy {@link MovableBase}, if it has been registered.
+     * Gets the {@link BlockMover} of a busy {@link AbstractMovable}, if it has been registered.
      *
      * @param movableUID
-     *     The UID of the {@link MovableBase}.
-     * @return The {@link BlockMover} of a busy {@link MovableBase}.
+     *     The UID of the {@link AbstractMovable}.
+     * @return The {@link BlockMover} of a busy {@link AbstractMovable}.
      */
     public Optional<BlockMover> getBlockMover(long movableUID)
     {

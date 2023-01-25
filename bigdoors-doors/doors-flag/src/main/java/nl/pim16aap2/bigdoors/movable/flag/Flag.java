@@ -4,9 +4,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.Locked;
+import nl.pim16aap2.bigdoors.annotations.InheritedLockField;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IPerpetualMover;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
@@ -24,7 +24,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * Represents a Flag movable type.
  *
  * @author Pim
- * @see MovableBase
  */
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -33,6 +32,7 @@ public class Flag extends AbstractMovable implements IHorizontalAxisAligned, IPe
     private static final MovableType MOVABLE_TYPE = MovableTypeFlag.get();
 
     @EqualsAndHashCode.Exclude
+    @InheritedLockField
     private final ReentrantReadWriteLock lock;
 
     /**
@@ -48,14 +48,14 @@ public class Flag extends AbstractMovable implements IHorizontalAxisAligned, IPe
     @PersistentVariable
     protected final boolean northSouthAligned;
 
-    public Flag(MovableBase base, boolean northSouthAligned)
+    public Flag(AbstractMovable.MovableBaseHolder base, boolean northSouthAligned)
     {
         super(base);
         this.lock = getLock();
         this.northSouthAligned = northSouthAligned;
     }
 
-    private Flag(MovableBase base)
+    private Flag(AbstractMovable.MovableBaseHolder base)
     {
         this(base, false); // Add tmp/default values
     }
@@ -67,13 +67,14 @@ public class Flag extends AbstractMovable implements IHorizontalAxisAligned, IPe
     }
 
     @Override
-    protected double getLongestAnimationCycleDistance()
+    protected double calculateAnimationCycleDistance()
     {
         return 0.0D;
     }
 
     @Override
-    public Rectangle getAnimationRange()
+    @Locked.Read
+    protected Rectangle calculateAnimationRange()
     {
         final Cuboid cuboid = getCuboid();
         final Vector3Di rotationPoint = getRotationPoint();

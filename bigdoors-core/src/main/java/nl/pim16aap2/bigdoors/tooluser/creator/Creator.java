@@ -10,7 +10,6 @@ import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.movable.MovableBaseBuilder;
 import nl.pim16aap2.bigdoors.movable.MovableOwner;
 import nl.pim16aap2.bigdoors.movable.PermissionLevel;
@@ -268,11 +267,12 @@ public abstract class Creator extends ToolUser
     }
 
     /**
-     * Constructs the {@link MovableBase} for the current movable. This is the same for all movables.
+     * Constructs the {@link AbstractMovable.MovableBaseHolder} for the current movable. This is the same for all
+     * movables.
      *
-     * @return The {@link MovableBase} for the current movable.
+     * @return The {@link AbstractMovable.MovableBaseHolder} for the current movable.
      */
-    protected final MovableBase constructMovableData()
+    protected final AbstractMovable.MovableBaseHolder constructMovableData()
     {
         final long movableUID = -1;
         final var owner = new MovableOwner(movableUID, PermissionLevel.CREATOR, getPlayer().getPPlayerData());

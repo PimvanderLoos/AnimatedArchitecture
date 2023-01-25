@@ -7,7 +7,6 @@ import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.data.cache.timed.TimedCache;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.IMovableConst;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -82,13 +81,13 @@ public final class PowerBlockManager extends Restartable implements MovableDelet
     }
 
     /**
-     * Gets all {@link MovableBase}s that have a powerblock at a location in a world.
+     * Gets all {@link AbstractMovable}s that have a powerblock at a location in a world.
      *
      * @param loc
      *     The location.
      * @param worldName
      *     The name of the world.
-     * @return All {@link MovableBase}s that have a powerblock at a location in a world.
+     * @return All {@link AbstractMovable}s that have a powerblock at a location in a world.
      */
     // TODO: Try to have about 50% less CompletableFuture here.
     public CompletableFuture<List<CompletableFuture<Optional<AbstractMovable>>>> movablesFromPowerBlockLoc(
@@ -129,10 +128,10 @@ public final class PowerBlockManager extends Restartable implements MovableDelet
     }
 
     /**
-     * Updates the position of the power block of a {@link MovableBase} in the database.
+     * Updates the position of the power block of a {@link AbstractMovable} in the database.
      *
      * @param movable
-     *     The {@link MovableBase}.
+     *     The {@link AbstractMovable}.
      * @param oldPos
      *     The old position.
      * @param newPos

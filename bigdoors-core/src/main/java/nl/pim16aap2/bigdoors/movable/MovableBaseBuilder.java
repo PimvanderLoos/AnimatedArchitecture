@@ -144,10 +144,11 @@ public final class MovableBaseBuilder
         }
 
         @Override
-        public MovableBase build()
+        public AbstractMovable.MovableBaseHolder build()
         {
-            return doorBaseFactory.create(movableUID, name, cuboid, rotationPoint, powerBlock, world, isOpen,
-                                          isLocked, openDir, primeOwner, doorOwners);
+            return new AbstractMovable.MovableBaseHolder(
+                doorBaseFactory.create(movableUID, name, cuboid, rotationPoint, powerBlock, world, isOpen,
+                                       isLocked, openDir, primeOwner, doorOwners));
         }
     }
 
@@ -306,6 +307,6 @@ public final class MovableBaseBuilder
          *
          * @return The next step of the guided builder process.
          */
-        MovableBase build();
+        AbstractMovable.MovableBaseHolder build();
     }
 }

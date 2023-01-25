@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.MovableAttribute;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 
@@ -70,7 +69,7 @@ public class Delete extends MovableTargetCommand
          * @param commandSender
          *     The {@link ICommandSender} responsible for deleting the movable.
          * @param movableRetriever
-         *     A {@link MovableRetrieverFactory} representing the {@link MovableBase} which will be targeted for
+         *     A {@link MovableRetrieverFactory} representing the {@link AbstractMovable} which will be targeted for
          *     deletion.
          * @return See {@link BaseCommand#run()}.
          */

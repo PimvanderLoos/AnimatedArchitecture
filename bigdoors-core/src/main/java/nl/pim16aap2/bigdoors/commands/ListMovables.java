@@ -8,7 +8,6 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
@@ -81,7 +80,7 @@ public class ListMovables extends BaseCommand
          *     <p>
          *     This is also the entity that will be informed about the movables that were found.
          * @param movableRetriever
-         *     A {@link MovableRetrieverFactory} representing any number of {@link MovableBase}s.
+         *     A {@link MovableRetrieverFactory} representing any number of {@link AbstractMovable}s.
          * @return See {@link BaseCommand#run()}.
          */
         ListMovables newListMovables(ICommandSender commandSender, MovableRetriever movableRetriever);

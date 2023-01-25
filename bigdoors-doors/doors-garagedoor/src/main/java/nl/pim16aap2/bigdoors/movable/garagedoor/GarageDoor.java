@@ -6,9 +6,9 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.bigdoors.annotations.InheritedLockField;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
@@ -36,6 +36,7 @@ public class GarageDoor extends AbstractMovable implements IHorizontalAxisAligne
     private static final MovableType MOVABLE_TYPE = MovableGarageDoor.get();
 
     @EqualsAndHashCode.Exclude
+    @InheritedLockField
     private final ReentrantReadWriteLock lock;
 
     /**
@@ -53,7 +54,7 @@ public class GarageDoor extends AbstractMovable implements IHorizontalAxisAligne
     @PersistentVariable
     protected final boolean northSouthAligned;
 
-    public GarageDoor(MovableBase base, boolean northSouthAligned)
+    public GarageDoor(AbstractMovable.MovableBaseHolder base, boolean northSouthAligned)
     {
         super(base);
         this.lock = getLock();
@@ -61,7 +62,7 @@ public class GarageDoor extends AbstractMovable implements IHorizontalAxisAligne
     }
 
     @SuppressWarnings("unused")
-    private GarageDoor(MovableBase base)
+    private GarageDoor(AbstractMovable.MovableBaseHolder base)
     {
         this(base, false); // Add tmp/default values
     }
@@ -74,7 +75,7 @@ public class GarageDoor extends AbstractMovable implements IHorizontalAxisAligne
 
     @Override
     @Locked.Read
-    protected double getLongestAnimationCycleDistance()
+    protected double calculateAnimationCycleDistance()
     {
         final Cuboid cuboid = getCuboid();
         final Vector3Di dims = cuboid.getDimensions();
@@ -89,7 +90,8 @@ public class GarageDoor extends AbstractMovable implements IHorizontalAxisAligne
     }
 
     @Override
-    public Rectangle getAnimationRange()
+    @Locked.Read
+    protected Rectangle calculateAnimationRange()
     {
         final Cuboid cuboid = getCuboid();
         if (isOpen())

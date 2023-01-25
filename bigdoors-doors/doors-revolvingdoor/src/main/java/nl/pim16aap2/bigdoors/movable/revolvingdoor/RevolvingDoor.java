@@ -8,7 +8,6 @@ import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.movable.bigdoor.BigDoor;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
@@ -26,7 +25,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * Represents a Revolving Door movable type.
  *
  * @author Pim
- * @see MovableBase
  */
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -37,12 +35,6 @@ public class RevolvingDoor extends AbstractMovable
 
     @EqualsAndHashCode.Exclude
     private final ReentrantReadWriteLock lock;
-
-    @Getter
-    private final double longestAnimationCycleDistance;
-
-    @Getter
-    private final Rectangle animationRange;
 
     /**
      * The number of quarter circles (so 90 degree rotations) this movable will make before stopping.
@@ -55,20 +47,31 @@ public class RevolvingDoor extends AbstractMovable
     @Setter(onMethod_ = @Locked.Write)
     private int quarterCircles;
 
-    public RevolvingDoor(MovableBase base, int quarterCircles)
+    public RevolvingDoor(AbstractMovable.MovableBaseHolder base, int quarterCircles)
     {
         super(base);
         this.lock = getLock();
         this.quarterCircles = quarterCircles;
-
-        final double maxRadius = BigDoor.getMaxRadius(getCuboid(), getRotationPoint());
-        this.longestAnimationCycleDistance = maxRadius * MathUtil.HALF_PI;
-        this.animationRange = BigDoor.calculateAnimationRange(maxRadius, getCuboid());
     }
 
-    public RevolvingDoor(MovableBase base)
+    public RevolvingDoor(AbstractMovable.MovableBaseHolder base)
     {
         this(base, 1);
+    }
+
+    @Override
+    @Locked.Read
+    protected double calculateAnimationCycleDistance()
+    {
+        return BigDoor.getMaxRadius(getCuboid(), getRotationPoint()) * MathUtil.HALF_PI;
+    }
+
+    @Override
+    @Locked.Read
+    protected Rectangle calculateAnimationRange()
+    {
+        final double maxRadius = BigDoor.getMaxRadius(getCuboid(), getRotationPoint());
+        return BigDoor.calculateAnimationRange(maxRadius, getCuboid());
     }
 
     @Override

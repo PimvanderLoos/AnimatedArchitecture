@@ -19,7 +19,7 @@ import nl.pim16aap2.bigdoors.events.IMovableCreatedEvent;
 import nl.pim16aap2.bigdoors.events.IMovablePrepareCreateEvent;
 import nl.pim16aap2.bigdoors.events.IMovablePrepareDeleteEvent;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
+import nl.pim16aap2.bigdoors.movable.MovableModifier;
 import nl.pim16aap2.bigdoors.movable.MovableOwner;
 import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
 import nl.pim16aap2.bigdoors.movable.PermissionLevel;
@@ -66,6 +66,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     private final IBigDoorsEventCaller bigDoorsEventCaller;
     private final Lazy<PowerBlockManager> powerBlockManager;
     private final IBigDoorsEventFactory bigDoorsEventFactory;
+    private final MovableModifier movableModifier;
 
     /**
      * Constructs a new {@link DatabaseManager}.
@@ -87,6 +88,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
         this.bigDoorsEventCaller = bigDoorsEventCaller;
         this.powerBlockManager = powerBlockManager;
         this.bigDoorsEventFactory = bigDoorsEventFactory;
+        this.movableModifier = MovableModifier.get(new FriendKey());
         initThreadPool();
         debuggableRegistry.registerDebuggable(this);
     }
@@ -516,16 +518,19 @@ public final class DatabaseManager extends Restartable implements IDebuggable
                     if (event.isCancelled())
                         return ActionResult.CANCELLED;
 
-                    final PPlayerData playerData = player.getPPlayerData();
-                    final boolean result = db.addOwner(movable.getUid(), playerData, permission);
-                    if (!result)
+                    if (!movableModifier.addOwner(movable, newOwner))
                     {
-                        log.atSevere().withStackTrace(StackSize.FULL).log("Failed to process event: %s", event);
+                        log.atSevere().log("Failed to add owner %s to movable %s!", newOwner, movable);
                         return ActionResult.FAIL;
                     }
 
-                    ((FriendMovableAccessor) movable.getBase())
-                        .addOwner(player.getUUID(), new MovableOwner(movable.getUid(), permission, playerData));
+                    final boolean result = db.addOwner(movable.getUid(), newOwner.pPlayerData(), permission);
+                    if (!result)
+                    {
+                        log.atSevere().withStackTrace(StackSize.FULL).log("Failed to process event: %s", event);
+                        movableModifier.removeOwner(movable, newOwner.pPlayerData().getUUID());
+                        return ActionResult.FAIL;
+                    }
 
                     return ActionResult.SUCCESS;
                 }, threadPool).exceptionally(ex -> Util.exceptionally(ex, ActionResult.FAIL));
@@ -637,14 +642,21 @@ public final class DatabaseManager extends Restartable implements IDebuggable
                     if (event.isCancelled())
                         return ActionResult.CANCELLED;
 
+                    final @Nullable MovableOwner oldOwner = movableModifier.removeOwner(movable, playerUUID);
+                    if (oldOwner == null)
+                    {
+                        log.atSevere().log("Failed to remove owner %s from movable %s!", movableOwner.get(), movable);
+                        return ActionResult.FAIL;
+                    }
+
                     final boolean result = db.removeOwner(movable.getUid(), playerUUID);
                     if (!result)
                     {
                         log.atSevere().withStackTrace(StackSize.FULL).log("Failed to process event: %s", event);
+                        movableModifier.addOwner(movable, oldOwner);
                         return ActionResult.FAIL;
                     }
 
-                    ((FriendMovableAccessor) movable.getBase()).removeOwner(playerUUID);
                     return ActionResult.SUCCESS;
                 }, threadPool).exceptionally(ex -> Util.exceptionally(ex, ActionResult.FAIL));
     }
@@ -653,7 +665,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      * Updates the all data of an {@link AbstractMovable}. This includes both the base data and the type-specific data.
      *
      * @param snapshot
-     *     The {@link MovableBase} that describes the base data of movable.
+     *     The {@link AbstractMovable} that describes the base data of movable.
      * @param typeData
      *     The type-specific data of this movable.
      * @return The result of the operation.
@@ -741,39 +753,11 @@ public final class DatabaseManager extends Restartable implements IDebuggable
         FAIL
     }
 
-    /**
-     * Provides private access to certain aspects of the {@link AbstractMovable} class. Kind of like an (inverted, more
-     * cumbersome, and less useful) friend in C++ terms.
-     */
-    // TODO: Consider if this should make work the other way around? That the Movable can access the 'private' methods
-    //       of this class? This has several advantages:
-    //       - The child classes of the movable class don't have access to stuff they shouldn't have access to (these
-    //         methods)
-    //       - All the commands that modify a movable can be pooled in the AbstractMovable class, instead of being split
-    //         over several classes.
-    //       Alternatively, consider creating a separate class with package-private access to either this class or
-    //       the movable one. Might be a bit cleaner.
-    public abstract static class FriendMovableAccessor
+    public static final class FriendKey
     {
-        /**
-         * Adds an owner to the map of Owners.
-         *
-         * @param uuid
-         *     The {@link UUID} of the owner.
-         * @param movableOwner
-         *     The {@link MovableOwner} to add.
-         */
-        protected abstract void addOwner(UUID uuid, MovableOwner movableOwner);
-
-        /**
-         * Removes a {@link MovableOwner} from the list of {@link MovableOwner}s, if possible.
-         *
-         * @param uuid
-         *     The {@link UUID} of the {@link MovableOwner} that is to be removed.
-         * @return True if removal was successful or false if there was no previous {@link MovableOwner} with the
-         * provided {@link UUID}.
-         */
-        protected abstract boolean removeOwner(UUID uuid);
+        private FriendKey()
+        {
+        }
     }
 
     /**

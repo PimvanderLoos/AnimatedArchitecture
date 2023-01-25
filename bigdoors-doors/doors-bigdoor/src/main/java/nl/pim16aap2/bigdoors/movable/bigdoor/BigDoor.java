@@ -1,12 +1,11 @@
 package nl.pim16aap2.bigdoors.movable.bigdoor;
 
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.bigdoors.annotations.InheritedLockField;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
@@ -34,22 +33,13 @@ public class BigDoor extends AbstractMovable
     private static final MovableType MOVABLE_TYPE = MovableBigDoor.get();
 
     @EqualsAndHashCode.Exclude
+    @InheritedLockField
     private final ReentrantReadWriteLock lock;
 
-    @Getter
-    private final double longestAnimationCycleDistance;
-
-    @Getter
-    private final Rectangle animationRange;
-
-    public BigDoor(MovableBase base)
+    public BigDoor(AbstractMovable.MovableBaseHolder base)
     {
         super(base);
         this.lock = getLock();
-
-        final double maxRadius = getMaxRadius(getCuboid(), getRotationPoint());
-        this.longestAnimationCycleDistance = maxRadius * MathUtil.HALF_PI;
-        this.animationRange = calculateAnimationRange(maxRadius, getCuboid());
     }
 
     @Override
@@ -93,6 +83,22 @@ public class BigDoor extends AbstractMovable
         }
 
         return Optional.of(getCuboid().updatePositions(vec -> vec.rotateAroundYAxis(getRotationPoint(), angle)));
+    }
+
+    @Override
+    @Locked.Read
+    protected double calculateAnimationCycleDistance()
+    {
+        final double maxRadius = getMaxRadius(getCuboid(), getRotationPoint());
+        return maxRadius * MathUtil.HALF_PI;
+    }
+
+    @Override
+    @Locked.Read
+    protected Rectangle calculateAnimationRange()
+    {
+        final double maxRadius = getMaxRadius(getCuboid(), getRotationPoint());
+        return calculateAnimationRange(maxRadius, getCuboid());
     }
 
     /**

@@ -1,7 +1,9 @@
 package nl.pim16aap2.bigdoors.movable;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.ToString;
 import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
@@ -10,20 +12,23 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
 import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
-import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.MovableRegistry;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.util.LazyValue;
 import nl.pim16aap2.bigdoors.util.MovementDirection;
+import nl.pim16aap2.bigdoors.util.Rectangle;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -46,36 +51,30 @@ public abstract class AbstractMovable implements IMovable
     private final ReentrantReadWriteLock lock;
     private final MovableSerializer<?> serializer;
 
-    protected final ILocalizer localizer;
-    protected final IConfigLoader config;
-    protected final MovableOpeningHelper movableOpeningHelper;
-
-    @Getter
     @EqualsAndHashCode.Include
-    protected final MovableBase base;
+    private final MovableBase base;
 
-    private AbstractMovable(
-        MovableBase base,
-        ILocalizer localizer,
-        MovableRegistry movableRegistry,
-        MovableOpeningHelper movableOpeningHelper)
+    private final LazyValue<Rectangle> animationRange;
+    private final LazyValue<Double> animationCycleDistance;
+
+    private AbstractMovable(MovableBase base)
     {
         serializer = getType().getMovableSerializer();
         this.lock = base.getLock();
-        this.base = base;
-        this.localizer = localizer;
-        this.config = base.getConfig();
-        this.movableOpeningHelper = movableOpeningHelper;
+        this.base = Objects.requireNonNull(base);
 
         log.atFinest().log("Instantiating movable: %d", base.getUid());
-        if (base.getUid() > 0 && !movableRegistry.registerMovable(new Registrable()))
+        if (base.getUid() > 0 && !base.getMovableRegistry().registerMovable(new Registrable()))
             throw new IllegalStateException("Tried to create new movable \"" + base.getUid() +
                                                 "\" while it is already registered!");
+
+        animationRange = newAnimationRangeVal(this);
+        animationCycleDistance = newAnimationCycleDistanceVal(this);
     }
 
-    protected AbstractMovable(MovableBase base)
+    protected AbstractMovable(MovableBaseHolder holder)
     {
-        this(base, base.getLocalizer(), base.getMovableRegistry(), base.getMovableOpeningHelper());
+        this(holder.base);
     }
 
     /**
@@ -124,12 +123,12 @@ public abstract class AbstractMovable implements IMovable
     {
         final double realTarget = target != null ?
                                   target :
-                                  config.getAnimationSpeedMultiplier(getType()) * getBaseAnimationTime();
+                                  base.getConfig().getAnimationSpeedMultiplier(getType()) * getBaseAnimationTime();
         return calculateAnimationTime(realTarget);
     }
 
     /**
-     * Gets the distance traveled per animation by the animated block that travels the furthest.
+     * Calculates the distance traveled per animation by the animated block that travels the furthest.
      * <p>
      * For example, for a circular object, this will be a block on the edge, as these blocks travel further per
      * revolution than the blocks closer to the center of the circle.
@@ -143,7 +142,42 @@ public abstract class AbstractMovable implements IMovable
      *
      * @return The longest distance traveled by an animated block measured in blocks.
      */
-    protected abstract double getLongestAnimationCycleDistance();
+    protected abstract double calculateAnimationCycleDistance();
+
+    /**
+     * See {@link #calculateAnimationRange()}.
+     */
+    protected final double getAnimationCycleDistance()
+    {
+        return animationCycleDistance.get();
+    }
+
+    /**
+     * Calculates the rectangle describing the limits within an animation of this door takes place.
+     * <p>
+     * At no point during an animation will any animated block leave this cuboid, though not guarantees are given
+     * regarding how tight the cuboid fits around the animated blocks.
+     *
+     * @return The animation range.
+     */
+    protected abstract Rectangle calculateAnimationRange();
+
+    @Override
+    @Locked.Read
+    public final Rectangle getAnimationRange()
+    {
+        return animationRange.get();
+    }
+
+    /**
+     * Certain actions may result in the animation range and animation cycle distance being changed. This method is
+     * called when that may happen.
+     */
+    protected final void invalidateAnimationData()
+    {
+        animationRange.invalidate();
+        animationCycleDistance.invalidate();
+    }
 
     /**
      * The default speed of the animation in blocks/second, as measured by the fastest-moving block in the movable.
@@ -165,7 +199,7 @@ public abstract class AbstractMovable implements IMovable
      */
     public double getMinimumAnimationTime()
     {
-        return getLongestAnimationCycleDistance() / config.maxBlockSpeed();
+        return getAnimationCycleDistance() / base.getConfig().maxBlockSpeed();
     }
 
     /**
@@ -177,7 +211,8 @@ public abstract class AbstractMovable implements IMovable
      */
     public double getBaseAnimationTime()
     {
-        return getLongestAnimationCycleDistance() / Math.min(getDefaultAnimationSpeed(), config.maxBlockSpeed());
+        return getAnimationCycleDistance() /
+            Math.min(getDefaultAnimationSpeed(), base.getConfig().maxBlockSpeed());
     }
 
     /**
@@ -243,8 +278,13 @@ public abstract class AbstractMovable implements IMovable
                 return it.next();
             break;
         }
+
         if (first != null)
+        {
+            invalidateAnimationData();
             return first;
+        }
+
         log.atFine()
            .log(
                "Failed to cycle open direction for movable of type '%s' with open dir '%s' given valid directions '%s'",
@@ -283,7 +323,7 @@ public abstract class AbstractMovable implements IMovable
         MovableActionCause cause, IMessageable messageReceiver, IPPlayer responsible, @Nullable Double targetTime,
         boolean skipAnimation, MovableActionType actionType)
     {
-        return movableOpeningHelper.toggle(
+        return base.getMovableOpeningHelper().toggle(
             this, cause, messageReceiver, responsible, targetTime, skipAnimation, actionType);
     }
 
@@ -453,11 +493,29 @@ public abstract class AbstractMovable implements IMovable
     }
 
     /**
+     * @return A map-based view of the owners.
+     */
+    final Map<UUID, MovableOwner> getOwnersView()
+    {
+        return base.getOwnersView();
+    }
+
+    /**
      * @return The locking object used by both this class and its {@link MovableBase}.
      */
     protected final ReentrantReadWriteLock getLock()
     {
         return lock;
+    }
+
+    static LazyValue<Rectangle> newAnimationRangeVal(AbstractMovable movable)
+    {
+        return new LazyValue<>(movable::calculateAnimationRange);
+    }
+
+    static LazyValue<Double> newAnimationCycleDistanceVal(AbstractMovable movable)
+    {
+        return new LazyValue<>(movable::calculateAnimationCycleDistance);
     }
 
     @Override
@@ -488,6 +546,7 @@ public abstract class AbstractMovable implements IMovable
     public void setCoordinates(Cuboid newCuboid)
     {
         assertWriteLockable();
+        invalidateAnimationData();
         base.setCoordinates(newCuboid);
     }
 
@@ -495,6 +554,7 @@ public abstract class AbstractMovable implements IMovable
     public void setRotationPoint(Vector3Di pos)
     {
         assertWriteLockable();
+        invalidateAnimationData();
         base.setRotationPoint(pos);
     }
 
@@ -516,6 +576,7 @@ public abstract class AbstractMovable implements IMovable
     public void setOpen(boolean open)
     {
         assertWriteLockable();
+        invalidateAnimationData();
         base.setOpen(open);
     }
 
@@ -523,6 +584,7 @@ public abstract class AbstractMovable implements IMovable
     public void setOpenDir(MovementDirection openDir)
     {
         assertWriteLockable();
+        invalidateAnimationData();
         base.setOpenDir(openDir);
     }
 
@@ -587,11 +649,21 @@ public abstract class AbstractMovable implements IMovable
         return base.getPrimeOwner();
     }
 
+    @Locked.Write final @Nullable MovableOwner removeOwner(UUID ownerUUID)
+    {
+        return base.removeOwner(ownerUUID);
+    }
+
+    @Locked.Write final boolean addOwner(MovableOwner movableOwner)
+    {
+        return base.addOwner(movableOwner);
+    }
+
     /**
      * Represents the part of this movable that can be registered in registries and such.
      * <p>
      * This is handled via this registrable to ensure that this {@link AbstractMovable} class has private access to
-     * certain registries (e.g. {@link MovableRegistry}, as no other objects will have access to this
+     * certain registries (e.g. {@link MovableRegistry}), as no other objects will have access to this
      * {@link Registrable}.
      */
     public final class Registrable
@@ -606,6 +678,17 @@ public abstract class AbstractMovable implements IMovable
         public AbstractMovable getAbstractMovableBase()
         {
             return AbstractMovable.this;
+        }
+    }
+
+    @AllArgsConstructor(access = AccessLevel.PACKAGE) @ToString @EqualsAndHashCode
+    public static final class MovableBaseHolder
+    {
+        private final MovableBase base;
+
+        MovableBase get()
+        {
+            return base;
         }
     }
 }

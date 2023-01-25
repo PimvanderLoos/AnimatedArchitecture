@@ -2,8 +2,10 @@ package nl.pim16aap2.bigdoors.movable;
 
 import com.google.common.flogger.StackSize;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.bigdoors.annotations.InheritedLockField;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.util.FastFieldSetter;
+import nl.pim16aap2.bigdoors.util.LazyValue;
 import nl.pim16aap2.bigdoors.util.UnsafeGetter;
 import nl.pim16aap2.util.SafeStringBuilder;
 import org.jetbrains.annotations.Nullable;
@@ -34,9 +36,16 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class MovableSerializer<T extends AbstractMovable>
 {
     /**
-     * The list of serializable fields in the target class {@link #movableClass}.
+     * The list of serializable fields in the target class {@link #movableClass} that are annotated with
+     * {@link PersistentVariable}.
      */
     private final List<Field> fields = new ArrayList<>();
+
+    /**
+     * The list of {@link ReentrantReadWriteLock} fields annotated with {@link InheritedLockField} in the target class
+     * {@link #movableClass}.
+     */
+    private final List<Field> lockFields = new ArrayList<>();
 
     /**
      * The target class.
@@ -51,10 +60,19 @@ public class MovableSerializer<T extends AbstractMovable>
 
     private static final @Nullable Unsafe UNSAFE = UnsafeGetter.getUnsafe();
 
-    private final @Nullable FastFieldSetter<AbstractMovable, MovableBase> fieldCopierMovableBase =
-        getFieldCopierInAbstractMovable(UNSAFE, MovableBase.class, "base");
-    private final @Nullable FastFieldSetter<AbstractMovable, ReentrantReadWriteLock> fieldCopierLock =
-        getFieldCopierInAbstractMovable(UNSAFE, ReentrantReadWriteLock.class, "lock");
+    private final @Nullable FastFieldSetter<AbstractMovable, MovableBase> fieldSetterMovableBase =
+        getFieldSetterInAbstractMovable(UNSAFE, MovableBase.class, "base");
+    private final @Nullable FastFieldSetter<AbstractMovable, ReentrantReadWriteLock> fieldSetterLock =
+        getFieldSetterInAbstractMovable(UNSAFE, ReentrantReadWriteLock.class, "lock");
+    @SuppressWarnings("rawtypes")
+    private final @Nullable FastFieldSetter<AbstractMovable, MovableSerializer> fieldSetterSerializer =
+        getFieldSetterInAbstractMovable(UNSAFE, MovableSerializer.class, "serializer");
+    @SuppressWarnings("rawtypes")
+    private final @Nullable FastFieldSetter<AbstractMovable, LazyValue> fieldSetterAnimationRange =
+        getFieldSetterInAbstractMovable(UNSAFE, LazyValue.class, "animationRange");
+    @SuppressWarnings("rawtypes")
+    private final @Nullable FastFieldSetter<AbstractMovable, LazyValue> fieldSetterCycleDistance =
+        getFieldSetterInAbstractMovable(UNSAFE, LazyValue.class, "animationCycleDistance");
 
     public MovableSerializer(Class<T> movableClass)
     {
@@ -115,6 +133,16 @@ public class MovableSerializer<T extends AbstractMovable>
                                       field.getType().getName(), field.getName(), getMovableTypeName()));
                 fields.add(field);
             }
+            else if (field.isAnnotationPresent(InheritedLockField.class))
+            {
+                field.setAccessible(true);
+                if (field.getType() != ReentrantReadWriteLock.class)
+                    throw new UnsupportedOperationException(
+                        String.format(
+                            "Field %s for movable type %s is of type %s, but expected ReentrantReadWriteLock!",
+                            field.getName(), getMovableTypeName(), field.getType().getName()));
+                lockFields.add(field);
+            }
     }
 
     /**
@@ -152,7 +180,7 @@ public class MovableSerializer<T extends AbstractMovable>
      *     The serialized type-specific data.
      * @return The newly created instance.
      */
-    public T deserialize(MovableBase movable, byte[] data)
+    public T deserialize(AbstractMovable.MovableBaseHolder movable, byte[] data)
         throws Exception
     {
         return instantiate(movable, fromByteArray(data));
@@ -185,7 +213,7 @@ public class MovableSerializer<T extends AbstractMovable>
         }
     }
 
-    T instantiate(MovableBase movableBase, ArrayList<Object> values)
+    T instantiate(AbstractMovable.MovableBaseHolder movableBase, ArrayList<Object> values)
         throws Exception
     {
         if (values.size() != fields.size())
@@ -194,11 +222,17 @@ public class MovableSerializer<T extends AbstractMovable>
 
         try
         {
-            final @Nullable T movable = instantiate(movableBase);
+            final @Nullable T movable = instantiate(movableBase.get());
             if (movable == null)
                 throw new IllegalStateException("Failed to initialize movable!");
+
             for (int idx = 0; idx < fields.size(); ++idx)
                 fields.get(idx).set(movable, values.get(idx));
+
+            final ReentrantReadWriteLock lock = movableBase.get().getLock();
+            for (final Field field : lockFields)
+                field.set(movable, lock);
+
             return movable;
         }
         catch (Exception t)
@@ -232,13 +266,23 @@ public class MovableSerializer<T extends AbstractMovable>
     private @Nullable T instantiateUnsafe(MovableBase movableBase)
         throws InstantiationException
     {
-        if (UNSAFE == null || fieldCopierMovableBase == null || fieldCopierLock == null)
+        if (UNSAFE == null ||
+            fieldSetterMovableBase == null ||
+            fieldSetterLock == null ||
+            fieldSetterAnimationRange == null ||
+            fieldSetterCycleDistance == null ||
+            fieldSetterSerializer == null)
             return null;
 
         @SuppressWarnings("unchecked") //
         final T movable = (T) UNSAFE.allocateInstance(movableClass);
-        fieldCopierMovableBase.copy(movable, movableBase);
-        fieldCopierLock.copy(movable, movableBase.getLock());
+
+        fieldSetterMovableBase.copy(movable, movableBase);
+        fieldSetterLock.copy(movable, movableBase.getLock());
+        fieldSetterSerializer.copy(movable, this);
+        fieldSetterAnimationRange.copy(movable, AbstractMovable.newAnimationRangeVal(movable));
+        fieldSetterCycleDistance.copy(movable, AbstractMovable.newAnimationCycleDistanceVal(movable));
+
         return movable;
     }
 
@@ -304,7 +348,7 @@ public class MovableSerializer<T extends AbstractMovable>
         return sb.toString();
     }
 
-    private static @Nullable <T> FastFieldSetter<AbstractMovable, T> getFieldCopierInAbstractMovable(
+    private static @Nullable <T> FastFieldSetter<AbstractMovable, T> getFieldSetterInAbstractMovable(
         @Nullable Unsafe unsafe, Class<T> type, String fieldName)
     {
         if (unsafe == null)

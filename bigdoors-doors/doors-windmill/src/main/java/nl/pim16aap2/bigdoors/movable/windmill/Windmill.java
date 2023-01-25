@@ -5,9 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Locked;
+import nl.pim16aap2.bigdoors.annotations.InheritedLockField;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.movable.drawbridge.Drawbridge;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IPerpetualMover;
@@ -35,13 +35,8 @@ public class Windmill extends AbstractMovable implements IHorizontalAxisAligned,
     private static final MovableType MOVABLE_TYPE = MovableTypeWindmill.get();
 
     @EqualsAndHashCode.Exclude
+    @InheritedLockField
     private final ReentrantReadWriteLock lock;
-
-    @Getter
-    private final double longestAnimationCycleDistance;
-
-    @Getter
-    private final Rectangle animationRange;
 
     /**
      * The number of quarter circles (so 90 degree rotations) this movable will make before stopping.
@@ -54,18 +49,14 @@ public class Windmill extends AbstractMovable implements IHorizontalAxisAligned,
     @Setter(onMethod_ = @Locked.Write)
     private int quarterCircles;
 
-    public Windmill(MovableBase base, int quarterCircles)
+    public Windmill(AbstractMovable.MovableBaseHolder base, int quarterCircles)
     {
         super(base);
         this.lock = getLock();
         this.quarterCircles = quarterCircles;
-
-        final double maxRadius = Drawbridge.getMaxRadius(isNorthSouthAligned(), getCuboid(), getRotationPoint());
-        this.longestAnimationCycleDistance = maxRadius * MathUtil.HALF_PI;
-        this.animationRange = Drawbridge.calculateAnimationRange(maxRadius, getCuboid());
     }
 
-    public Windmill(MovableBase doorBase)
+    public Windmill(AbstractMovable.MovableBaseHolder doorBase)
     {
         this(doorBase, 1);
     }
@@ -99,6 +90,22 @@ public class Windmill extends AbstractMovable implements IHorizontalAxisAligned,
     {
         final MovementDirection openDir = getOpenDir();
         return openDir == MovementDirection.EAST || openDir == MovementDirection.WEST;
+    }
+
+    @Override
+    @Locked.Read
+    protected double calculateAnimationCycleDistance()
+    {
+        final double maxRadius = Drawbridge.getMaxRadius(isNorthSouthAligned(), getCuboid(), getRotationPoint());
+        return maxRadius * MathUtil.HALF_PI;
+    }
+
+    @Override
+    @Locked.Read
+    protected Rectangle calculateAnimationRange()
+    {
+        final double maxRadius = Drawbridge.getMaxRadius(isNorthSouthAligned(), getCuboid(), getRotationPoint());
+        return Drawbridge.calculateAnimationRange(maxRadius, getCuboid());
     }
 
     @Override

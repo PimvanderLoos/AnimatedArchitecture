@@ -2,12 +2,11 @@ package nl.pim16aap2.bigdoors.movable.portcullis;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Locked;
+import nl.pim16aap2.bigdoors.annotations.InheritedLockField;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IDiscreteMovement;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
@@ -25,7 +24,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * Represents a Portcullis movable type.
  *
  * @author Pim
- * @see MovableBase
  */
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -34,15 +32,15 @@ public class Portcullis extends AbstractMovable implements IDiscreteMovement
     private static final MovableType MOVABLE_TYPE = MovableTypePortcullis.get();
 
     @EqualsAndHashCode.Exclude
+    @InheritedLockField
     private final ReentrantReadWriteLock lock;
 
     @PersistentVariable
     @GuardedBy("lock")
     @Getter(onMethod_ = @Locked.Read)
-    @Setter(onMethod_ = @Locked.Write)
     protected int blocksToMove;
 
-    public Portcullis(MovableBase base, int blocksToMove)
+    public Portcullis(AbstractMovable.MovableBaseHolder base, int blocksToMove)
     {
         super(base);
         this.lock = getLock();
@@ -50,14 +48,14 @@ public class Portcullis extends AbstractMovable implements IDiscreteMovement
     }
 
     @SuppressWarnings("unused")
-    private Portcullis(MovableBase base)
+    private Portcullis(AbstractMovable.MovableBaseHolder base)
     {
         this(base, -1); // Add tmp/default values
     }
 
     @Override
     @Locked.Read
-    protected double getLongestAnimationCycleDistance()
+    protected double calculateAnimationCycleDistance()
     {
         return blocksToMove;
     }
@@ -69,13 +67,14 @@ public class Portcullis extends AbstractMovable implements IDiscreteMovement
     }
 
     @Override
-    public Rectangle getAnimationRange()
+    @Locked.Read
+    protected Rectangle calculateAnimationRange()
     {
         final Cuboid cuboid = getCuboid();
         final Vector3Di min = cuboid.getMin();
         final Vector3Di max = cuboid.getMax();
 
-        return new Cuboid(min.add(0, -getBlocksToMove(), 0), max.add(0, getBlocksToMove(), 0)).asFlatRectangle();
+        return new Cuboid(min.add(0, -blocksToMove, 0), max.add(0, blocksToMove, 0)).asFlatRectangle();
     }
 
     @Override
@@ -119,5 +118,13 @@ public class Portcullis extends AbstractMovable implements IDiscreteMovement
         throws Exception
     {
         return new VerticalMover(this, data, getDirectedBlocksToMove());
+    }
+
+    @Override
+    @Locked.Write
+    public void setBlocksToMove(int blocksToMove)
+    {
+        this.blocksToMove = blocksToMove;
+        super.invalidateAnimationData();
     }
 }

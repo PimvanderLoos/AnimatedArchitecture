@@ -11,7 +11,6 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.MovableAttribute;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.movable.MovableOwner;
 import nl.pim16aap2.bigdoors.movable.PermissionLevel;
 import nl.pim16aap2.bigdoors.text.TextType;
@@ -124,8 +123,8 @@ public class RemoveOwner extends MovableTargetCommand
          * @param commandSender
          *     The {@link ICommandSender} responsible for removing a co-owner of the movable.
          * @param movableRetriever
-         *     A {@link MovableRetrieverFactory} representing the {@link MovableBase} for which a co-owner is requested
-         *     to be removed.
+         *     A {@link MovableRetrieverFactory} representing the {@link AbstractMovable} for which a co-owner is
+         *     requested to be removed.
          * @param targetPlayer
          *     The co-owner that is requested to be removed.
          * @return See {@link BaseCommand#run()}.

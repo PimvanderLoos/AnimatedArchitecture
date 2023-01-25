@@ -2,12 +2,11 @@ package nl.pim16aap2.bigdoors.movable.slidingdoor;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Locked;
+import nl.pim16aap2.bigdoors.annotations.InheritedLockField;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IDiscreteMovement;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
@@ -35,15 +34,15 @@ public class SlidingDoor extends AbstractMovable implements IDiscreteMovement
     private static final MovableType MOVABLE_TYPE = MovableSlidingDoor.get();
 
     @EqualsAndHashCode.Exclude
+    @InheritedLockField
     private final ReentrantReadWriteLock lock;
 
     @PersistentVariable
     @GuardedBy("lock")
     @Getter(onMethod_ = @Locked.Read)
-    @Setter(onMethod_ = @Locked.Write)
     protected int blocksToMove;
 
-    public SlidingDoor(MovableBase base, int blocksToMove)
+    public SlidingDoor(AbstractMovable.MovableBaseHolder base, int blocksToMove)
     {
         super(base);
         this.lock = getLock();
@@ -51,7 +50,7 @@ public class SlidingDoor extends AbstractMovable implements IDiscreteMovement
     }
 
     @SuppressWarnings("unused")
-    private SlidingDoor(MovableBase base)
+    private SlidingDoor(AbstractMovable.MovableBaseHolder base)
     {
         this(base, -1); // Add tmp/default values
     }
@@ -64,14 +63,14 @@ public class SlidingDoor extends AbstractMovable implements IDiscreteMovement
 
     @Override
     @Locked.Read
-    protected double getLongestAnimationCycleDistance()
+    protected double calculateAnimationCycleDistance()
     {
         return blocksToMove;
     }
 
     @Override
     @Locked.Read
-    public Rectangle getAnimationRange()
+    protected Rectangle calculateAnimationRange()
     {
         final Cuboid cuboid = getCuboid();
         final Vector3Di min = cuboid.getMin();
@@ -124,5 +123,13 @@ public class SlidingDoor extends AbstractMovable implements IDiscreteMovement
         throws Exception
     {
         return new SlidingMover(this, data, getCurrentToggleDir(), getBlocksToMove());
+    }
+
+    @Override
+    @Locked.Write
+    public void setBlocksToMove(int blocksToMove)
+    {
+        this.blocksToMove = blocksToMove;
+        super.invalidateAnimationData();
     }
 }

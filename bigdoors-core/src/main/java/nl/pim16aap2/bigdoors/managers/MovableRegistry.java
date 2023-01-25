@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.data.cache.timed.TimedCache;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.IMovableConst;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -109,12 +108,12 @@ public final class MovableRegistry extends Restartable implements IDebuggable, M
     }
 
     /**
-     * Attempts to get the {@link MovableBase} associated the given UID. It can only retrieve doors that still exist in
-     * the cache.
+     * Attempts to get the {@link AbstractMovable} associated the given UID. It can only retrieve doors that still exist
+     * in the cache.
      *
      * @param movableUID
      *     The UID of the movable.
-     * @return The {@link MovableBase} if it has been retrieved from the database.
+     * @return The {@link AbstractMovable} if it has been retrieved from the database.
      */
     public Optional<AbstractMovable> getRegisteredMovable(long movableUID)
     {
@@ -122,11 +121,11 @@ public final class MovableRegistry extends Restartable implements IDebuggable, M
     }
 
     /**
-     * Checks if a {@link MovableBase} associated with a given UID has been registered.
+     * Checks if a {@link AbstractMovable} associated with a given UID has been registered.
      *
      * @param movableUID
      *     The UID of the movable.
-     * @return True if an entry exists for the {@link MovableBase} with the given UID.
+     * @return True if an entry exists for the {@link AbstractMovable} with the given UID.
      */
     @SuppressWarnings("unused")
     public boolean isRegistered(long movableUID)
@@ -135,12 +134,12 @@ public final class MovableRegistry extends Restartable implements IDebuggable, M
     }
 
     /**
-     * Checks if the exact instance of the provided {@link MovableBase} has been registered. (i.e. it uses '==' to check
-     * if the cached entry is the same).
+     * Checks if the exact instance of the provided {@link AbstractMovable} has been registered. (i.e. it uses '==' to
+     * check if the cached entry is the same).
      *
      * @param movable
      *     The movable.
-     * @return True if an entry exists for the exact instance of the provided {@link MovableBase}.
+     * @return True if an entry exists for the exact instance of the provided {@link AbstractMovable}.
      */
     public boolean isRegistered(AbstractMovable movable)
     {
@@ -148,10 +147,11 @@ public final class MovableRegistry extends Restartable implements IDebuggable, M
     }
 
     /**
-     * Registers an {@link MovableBase} if it hasn't been registered yet.
+     * Registers an {@link AbstractMovable} if it hasn't been registered yet.
      *
      * @param registrable
-     *     The {@link AbstractMovable.Registrable} that belongs to the {@link MovableBase} that is to be registered.
+     *     The {@link AbstractMovable.Registrable} that belongs to the {@link AbstractMovable} that is to be
+     *     registered.
      * @return True if the movable was added successfully (and didn't exist yet).
      */
     public boolean registerMovable(AbstractMovable.Registrable registrable)

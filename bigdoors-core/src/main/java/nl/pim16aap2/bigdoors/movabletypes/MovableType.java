@@ -5,7 +5,6 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.audio.AudioSet;
 import nl.pim16aap2.bigdoors.managers.MovableTypeManager;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.movable.MovableSerializer;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.util.MovementDirection;
@@ -64,7 +63,7 @@ public abstract class MovableType
 
     /**
      * Gets a list of all theoretically valid {@link MovementDirection} for this given type. It does NOT take the
-     * physical aspects of the {@link MovableBase} into consideration. Therefore, the actual list of valid
+     * physical aspects of the {@link AbstractMovable} into consideration. Therefore, the actual list of valid
      * {@link MovementDirection}s is most likely going to be a subset of those returned by this method.
      *
      * @return A list of all valid {@link MovementDirection} for this given type.

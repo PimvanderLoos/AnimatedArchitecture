@@ -10,7 +10,6 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.MovableAttribute;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
@@ -127,7 +126,7 @@ public abstract class MovableTargetCommand extends BaseCommand
      * Performs the action of this command on the {@link AbstractMovable}.
      *
      * @param movable
-     *     The {@link MovableBase} to perform the action on.
+     *     The {@link AbstractMovable} to perform the action on.
      * @return The future of the command execution.
      */
     protected abstract CompletableFuture<?> performAction(AbstractMovable movable);

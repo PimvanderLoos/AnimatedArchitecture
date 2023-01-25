@@ -5,9 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.bigdoors.annotations.InheritedLockField;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
@@ -35,13 +35,8 @@ public class Drawbridge extends AbstractMovable implements IHorizontalAxisAligne
     private static final MovableType MOVABLE_TYPE = MovableTypeDrawbridge.get();
 
     @EqualsAndHashCode.Exclude
+    @InheritedLockField
     private final ReentrantReadWriteLock lock;
-
-    @Getter
-    private final double longestAnimationCycleDistance;
-
-    @Getter
-    private final Rectangle animationRange;
 
     /**
      * Describes if this drawbridge's vertical position points (when taking the rotation point Y value as center) up
@@ -55,19 +50,15 @@ public class Drawbridge extends AbstractMovable implements IHorizontalAxisAligne
     @Setter(onMethod_ = @Locked.Write)
     protected boolean modeUp;
 
-    public Drawbridge(MovableBase base, boolean modeUp)
+    public Drawbridge(AbstractMovable.MovableBaseHolder base, boolean modeUp)
     {
         super(base);
         this.lock = getLock();
         this.modeUp = modeUp;
-
-        final double maxRadius = getMaxRadius(isNorthSouthAligned(), getCuboid(), getRotationPoint());
-        this.longestAnimationCycleDistance = maxRadius * MathUtil.HALF_PI;
-        this.animationRange = calculateAnimationRange(maxRadius, getCuboid());
     }
 
     @SuppressWarnings("unused")
-    private Drawbridge(MovableBase base)
+    private Drawbridge(AbstractMovable.MovableBaseHolder base)
     {
         this(base, false); // Add tmp/default values
     }
@@ -124,6 +115,22 @@ public class Drawbridge extends AbstractMovable implements IHorizontalAxisAligne
     {
         final MovementDirection openDir = getOpenDir();
         return openDir == MovementDirection.NORTH || openDir == MovementDirection.SOUTH;
+    }
+
+    @Override
+    @Locked.Read
+    protected double calculateAnimationCycleDistance()
+    {
+        final double maxRadius = getMaxRadius(isNorthSouthAligned(), getCuboid(), getRotationPoint());
+        return maxRadius * MathUtil.HALF_PI;
+    }
+
+    @Override
+    @Locked.Read
+    protected Rectangle calculateAnimationRange()
+    {
+        final double maxRadius = getMaxRadius(isNorthSouthAligned(), getCuboid(), getRotationPoint());
+        return calculateAnimationRange(maxRadius, getCuboid());
     }
 
     /**

@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.storage;
 
 import com.google.common.flogger.LogSiteStackTrace;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
@@ -15,7 +15,6 @@ import nl.pim16aap2.bigdoors.managers.MovableDeletionManager;
 import nl.pim16aap2.bigdoors.managers.MovableRegistry;
 import nl.pim16aap2.bigdoors.managers.MovableTypeManager;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.movable.MovableBaseBuilder;
 import nl.pim16aap2.bigdoors.movable.MovableOwner;
 import nl.pim16aap2.bigdoors.movable.MovableSerializer;
@@ -33,7 +32,6 @@ import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.testing.AssertionsUtil;
-import nl.pim16aap2.testing.AssistedFactoryMocker;
 import nl.pim16aap2.testing.logging.LogInspector;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -54,7 +52,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-@Slf4j
+import static nl.pim16aap2.bigdoors.UnitTestUtil.newMovableBaseBuilder;
+
+@Flogger
 public class SQLiteJDBCDriverConnectionTest
 {
     /**
@@ -119,7 +119,7 @@ public class SQLiteJDBCDriverConnectionTest
 
     @BeforeEach
     void beforeEach()
-        throws NoSuchMethodException
+        throws Exception
     {
         MockitoAnnotations.openMocks(this);
 
@@ -129,11 +129,9 @@ public class SQLiteJDBCDriverConnectionTest
 
         movableTypeManager = new MovableTypeManager(restartableHolder, debuggableRegistry, localizationManager);
 
-        final AssistedFactoryMocker<MovableBase, MovableBase.IFactory> assistedFactoryMocker =
-            new AssistedFactoryMocker<>(MovableBase.class, MovableBase.IFactory.class)
-                .setMock(MovableRegistry.class, movableRegistry);
-
-        movableBaseBuilder = new MovableBaseBuilder(assistedFactoryMocker.getFactory());
+        final var builderResult = newMovableBaseBuilder();
+        builderResult.assistedFactoryMocker().setMock(MovableRegistry.class, movableRegistry);
+        movableBaseBuilder = builderResult.movableBaseBuilder();
 
         initMovables();
 
@@ -171,7 +169,7 @@ public class SQLiteJDBCDriverConnectionTest
         }
         catch (Exception exception)
         {
-            log.error("Failed to move database file to finished file.", exception);
+            log.atSevere().withCause(exception).log("Failed to move database file to finished file!");
         }
         try
         {

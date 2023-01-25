@@ -11,7 +11,6 @@ import nl.pim16aap2.bigdoors.events.IBigDoorsEventCaller;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.MovableAttribute;
-import nl.pim16aap2.bigdoors.movable.MovableBase;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
 
@@ -83,8 +82,8 @@ public class Lock extends MovableTargetCommand
          * @param commandSender
          *     The {@link ICommandSender} responsible for changing the locked status of the movable.
          * @param movableRetriever
-         *     A {@link MovableRetrieverFactory} representing the {@link MovableBase} for which the locked status will
-         *     be modified.
+         *     A {@link MovableRetrieverFactory} representing the {@link AbstractMovable} for which the locked status
+         *     will be modified.
          * @param lock
          *     The new lock status.
          * @return See {@link BaseCommand#run()}.
