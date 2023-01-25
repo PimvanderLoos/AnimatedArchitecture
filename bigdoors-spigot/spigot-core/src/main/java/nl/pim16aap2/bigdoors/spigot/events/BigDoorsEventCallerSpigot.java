@@ -6,6 +6,7 @@ import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.events.IBigDoorsEvent;
 import nl.pim16aap2.bigdoors.events.IBigDoorsEventCaller;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -20,11 +21,13 @@ import javax.inject.Singleton;
 public class BigDoorsEventCallerSpigot implements IBigDoorsEventCaller
 {
     private final IPExecutor executor;
+    private final JavaPlugin plugin;
 
     @Inject
-    public BigDoorsEventCallerSpigot(IPExecutor executor)
+    public BigDoorsEventCallerSpigot(IPExecutor executor, JavaPlugin plugin)
     {
         this.executor = executor;
+        this.plugin = plugin;
     }
 
     @Override
@@ -35,6 +38,12 @@ public class BigDoorsEventCallerSpigot implements IBigDoorsEventCaller
             log.atSevere().withStackTrace(StackSize.FULL)
                .log("Event '%s', is not a Spigot event, but it was called on the Spigot platform!",
                     bigDoorsEvent.getEventName());
+            return;
+        }
+
+        if (!plugin.isEnabled())
+        {
+            log.atFine().log("Is the server shutting down? Tried to call event while disabled: %s", bigDoorsEvent);
             return;
         }
 
