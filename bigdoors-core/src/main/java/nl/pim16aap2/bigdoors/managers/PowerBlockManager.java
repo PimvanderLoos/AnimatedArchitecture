@@ -6,6 +6,8 @@ import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.longs.LongLists;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.api.IPLocation;
+import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.data.cache.timed.TimedCache;
@@ -81,6 +83,32 @@ public final class PowerBlockManager extends Restartable implements MovableDelet
     public void loadWorld(String worldName)
     {
         powerBlockWorlds.put(worldName, new PowerBlockWorld(worldName));
+    }
+
+    /**
+     * Gets all {@link AbstractMovable}s that have a powerblock at a location in a world.
+     *
+     * @param location
+     *     The location.
+     * @return All {@link AbstractMovable}s that have a powerblock at a location in a world.
+     */
+    public CompletableFuture<List<AbstractMovable>> movablesFromPowerBlockLoc(IPLocation location)
+    {
+        return this.movablesFromPowerBlockLoc(location.getPosition(), location.getWorld().worldName());
+    }
+
+    /**
+     * Gets all {@link AbstractMovable}s that have a powerblock at a location in a world.
+     *
+     * @param loc
+     *     The location.
+     * @param world
+     *     The world.
+     * @return All {@link AbstractMovable}s that have a powerblock at a location in a world.
+     */
+    public CompletableFuture<List<AbstractMovable>> movablesFromPowerBlockLoc(Vector3Di loc, IPWorld world)
+    {
+        return this.movablesFromPowerBlockLoc(loc, world.worldName());
     }
 
     /**

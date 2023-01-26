@@ -6,6 +6,11 @@ import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
+import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
+import nl.pim16aap2.bigdoors.movable.AbstractMovable;
+import nl.pim16aap2.bigdoors.text.Text;
+import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorPLocation;
@@ -21,26 +26,26 @@ import java.util.List;
 @ToString
 public class PowerBlockInspector extends ToolUser
 {
+    private final PowerBlockManager powerBlockManager;
+
+    private final ITextFactory textFactory;
+
     /**
      * Whether this user has the bypass permission.
      * <p>
      * When this is true, the user does not have to be an owner of the movable to retrieve its location.
      */
-    @SuppressWarnings({"PMD.SingularField", "PMD.UnusedPrivateField"}) // Not used... YET!
-    // TODO: Use bypassPermission for PowerBlockInspector.
     private final boolean bypassPermission;
 
     @AssistedInject
-    public PowerBlockInspector(ToolUser.Context context, @Assisted IPPlayer player, @Assisted boolean bypassPermission)
+    public PowerBlockInspector(
+        ToolUser.Context context, PowerBlockManager powerBlockManager, ITextFactory textFactory,
+        @Assisted IPPlayer player, @Assisted boolean bypassPermission)
     {
         super(context, player);
+        this.powerBlockManager = powerBlockManager;
+        this.textFactory = textFactory;
         this.bypassPermission = bypassPermission;
-    }
-
-    @SuppressWarnings("unused")
-    public PowerBlockInspector(ToolUser.Context context, IPPlayer player)
-    {
-        this(context, player, false);
     }
 
     @Override
@@ -52,7 +57,33 @@ public class PowerBlockInspector extends ToolUser
 
     protected boolean inspectLoc(IPLocation loc)
     {
-        throw new UnsupportedOperationException("This action has not been implemented yet!");
+        powerBlockManager.movablesFromPowerBlockLoc(loc.getPosition(), loc.getWorld()).thenAccept(
+            lst ->
+            {
+                System.out.println("Found powerblocks: " + lst);
+                final List<AbstractMovable> filtered;
+                if (bypassPermission)
+                    filtered = lst;
+                else
+                    filtered = lst.stream().filter(movable -> movable.isOwner(getPlayer())).toList();
+                if (filtered.isEmpty())
+                    getPlayer().sendError(
+                        textFactory, localizer.getMessage("tool_user.power_block_inspected.error.no_movables_found"));
+                else
+                    sendPowerBlockInfo(getPlayer(), filtered);
+            });
+        return true;
+    }
+
+    private void sendPowerBlockInfo(IPPlayer player, List<AbstractMovable> filtered)
+    {
+        final Text text = textFactory.newText();
+        text.append(localizer.getMessage("tool_user.power_block_inspected.result.header"), TextType.INFO).append('\n');
+
+        for (final AbstractMovable movable : filtered)
+            text.append(" * ").append(movable.getNameAndUid(), TextType.HIGHLIGHT).append('\n');
+
+        player.sendMessage(text);
     }
 
     @Override
@@ -71,5 +102,10 @@ public class PowerBlockInspector extends ToolUser
     public interface IFactory
     {
         PowerBlockInspector create(IPPlayer player, boolean bypassPermission);
+
+        default PowerBlockInspector create(IPPlayer player)
+        {
+            return create(player, false);
+        }
     }
 }
