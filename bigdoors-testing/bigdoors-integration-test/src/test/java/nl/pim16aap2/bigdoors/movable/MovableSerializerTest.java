@@ -232,10 +232,10 @@ class MovableSerializerTest
     {
         @InheritedLockField
         @EqualsAndHashCode.Exclude
-        private final ReentrantReadWriteLock nonStandardLockName;
+        private final @Nullable ReentrantReadWriteLock nonStandardLockName;
 
         @EqualsAndHashCode.Exclude
-        private final ReentrantReadWriteLock lock;
+        private final @Nullable ReentrantReadWriteLock lock;
 
         @PersistentVariable
         @Getter
@@ -247,12 +247,18 @@ class MovableSerializerTest
         {
             super(base, testName, isCoolType, blockTestCount);
 
-            this.nonStandardLockName = base.get().getLock();
-            this.lock = base.get().getLock();
+            this.nonStandardLockName = null;
+            this.lock = null;
 
             this.testName = testName;
             this.isCoolType = isCoolType;
             this.subclassTestValue = subclassTestValue;
+        }
+
+        @SuppressWarnings("unused")
+        public TestMovableSubType(AbstractMovable.MovableBaseHolder base)
+        {
+            this(base, "", false, -1, -1);
         }
 
         public final @Nullable ReentrantReadWriteLock getLockTestMovableSubTypeAnnotated()

@@ -71,6 +71,11 @@ public class Clock extends AbstractMovable implements IHorizontalAxisAligned
         this.hourArmSide = hourArmSide;
     }
 
+    public Clock(AbstractMovable.MovableBaseHolder base)
+    {
+        this(base, false, PBlockFace.NONE);
+    }
+
     @Override
     public MovableType getType()
     {
