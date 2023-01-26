@@ -188,7 +188,7 @@ public final class BigDoorsPlugin extends JavaPlugin implements IBigDoorsPlatfor
     }
 
     // Synchronized to ensure visibility of the platform.
-    private synchronized @Nullable BigDoorsSpigotPlatform initPlatform()
+    private @Nullable BigDoorsSpigotPlatform initPlatform()
     {
         try
         {

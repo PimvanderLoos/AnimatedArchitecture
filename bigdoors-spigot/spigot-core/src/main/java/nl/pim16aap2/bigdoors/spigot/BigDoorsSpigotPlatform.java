@@ -308,7 +308,7 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     @Override
     public void restartPlugin()
     {
-        restartableHolder.restart();
+        pExecutor.runOnMainThread(restartableHolder::restart);
     }
 
     @Override
