@@ -2,6 +2,9 @@ package nl.pim16aap2.bigdoors.managers;
 
 import com.google.common.flogger.StackSize;
 import dagger.Lazy;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
+import it.unimi.dsi.fastutil.longs.LongList;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -32,7 +35,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.UUID;
@@ -720,10 +722,10 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      *     The id of the chunk the movables are in.
      * @return A map of location hashes and their connected powerblocks for all movables in a chunk.
      */
-    CompletableFuture<Map<Integer, List<Long>>> getPowerBlockData(long chunkId)
+    CompletableFuture<Int2ObjectMap<LongList>> getPowerBlockData(long chunkId)
     {
         return CompletableFuture.supplyAsync(() -> db.getPowerBlockData(chunkId), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyMap()));
+                                .exceptionally(ex -> Util.exceptionally(ex, Int2ObjectMaps.emptyMap()));
     }
 
     @Override

@@ -654,7 +654,7 @@ public final class Util
      *     The z-coordinate of the location.
      * @return The simple hash of the location in chunk-space.
      */
-    public static int simpleChunkSpaceLocationhash(int x, int y, int z)
+    public static int simpleChunkSpaceLocationHash(int x, int y, int z)
     {
         final int chunkSpaceX = x % 16;
         final int chunkSpaceZ = z % 16;

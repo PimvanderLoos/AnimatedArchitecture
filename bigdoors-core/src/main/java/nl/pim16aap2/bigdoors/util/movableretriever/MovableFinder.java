@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.util.movableretriever;
 
+import it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
@@ -153,7 +155,7 @@ public final class MovableFinder
     /**
      * See {@link #getMovableUIDs(boolean)}.
      */
-    public Optional<Set<Long>> getMovableUIDs()
+    public Optional<LongSet> getMovableUIDs()
     {
         return getMovableUIDs(false);
     }
@@ -165,7 +167,7 @@ public final class MovableFinder
      *     Defaults to false.
      * @return All movable UIDs that have been found if any have been found.
      */
-    public synchronized Optional<Set<Long>> getMovableUIDs(boolean fullMatch)
+    public synchronized Optional<LongSet> getMovableUIDs(boolean fullMatch)
     {
         if (cache == null)
             return Optional.empty();
@@ -470,12 +472,12 @@ public final class MovableFinder
      *     associated identifiers that fully match this value are included.
      * @return The UIDs as extracted from the provided descriptions.
      */
-    private static Set<Long> getUIDs(Collection<MinimalMovableDescription> descriptions, @Nullable String lastInput)
+    private static LongSet getUIDs(Collection<MinimalMovableDescription> descriptions, @Nullable String lastInput)
     {
         if (lastInput != null)
-            return new LinkedHashSet<>(getFullMatches(descriptions, lastInput))
-                .stream().map(MinimalMovableDescription::uid).collect(Collectors.toSet());
-        final LinkedHashSet<Long> ids = new LinkedHashSet<>();
+            return LongLinkedOpenHashSet.toSet(new LinkedHashSet<>(getFullMatches(descriptions, lastInput))
+                                                   .stream().mapToLong(MinimalMovableDescription::uid));
+        final LongSet ids = new LongLinkedOpenHashSet();
         descriptions.forEach(desc -> ids.add(desc.uid));
         return ids;
     }

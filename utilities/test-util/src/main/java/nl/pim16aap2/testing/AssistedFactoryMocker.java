@@ -3,6 +3,8 @@ package nl.pim16aap2.testing;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -21,9 +23,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -48,7 +48,7 @@ public class AssistedFactoryMocker<T, U>
     private final Method factoryMethod;
     private final Constructor<T> targetCtor;
     private final List<MappedParameter> mappedParameters;
-    private final Map<Integer, MappedParameter> mockedParameters;
+    private final Int2ObjectMap<MappedParameter> mockedParameters;
 
     private final U factory;
 
@@ -239,9 +239,9 @@ public class AssistedFactoryMocker<T, U>
      *
      * @return The map of the mocked parameters with the {@link MappedParameter#getNamedTypeHash()}
      */
-    private Map<Integer, MappedParameter> insertMocks()
+    private Int2ObjectMap<MappedParameter> insertMocks()
     {
-        final Map<Integer, MappedParameter> ret = new HashMap<>();
+        final Int2ObjectMap<MappedParameter> ret = new Int2ObjectOpenHashMap<>();
         for (final MappedParameter parameter : mappedParameters)
         {
             if (!parameter.isMocked())

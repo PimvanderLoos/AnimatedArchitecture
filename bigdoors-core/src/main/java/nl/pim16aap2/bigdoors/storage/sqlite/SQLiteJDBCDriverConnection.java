@@ -1,6 +1,11 @@
 package nl.pim16aap2.bigdoors.storage.sqlite;
 
 import com.google.common.flogger.StackSize;
+import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
+import it.unimi.dsi.fastutil.longs.LongList;
 import lombok.Getter;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -780,25 +785,25 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    public Map<Integer, List<Long>> getPowerBlockData(long chunkId)
+    public Int2ObjectMap<LongList> getPowerBlockData(long chunkId)
     {
         return executeQuery(SQLStatement.GET_POWER_BLOCK_DATA_IN_CHUNK.constructPPreparedStatement()
                                                                       .setLong(1, chunkId),
                             resultSet ->
                             {
-                                final Map<Integer, List<Long>> movables = new HashMap<>();
+                                final Int2ObjectMap<LongList> movables = new Int2ObjectLinkedOpenHashMap<>();
                                 while (resultSet.next())
                                 {
                                     final int locationHash =
-                                        Util.simpleChunkSpaceLocationhash(resultSet.getInt("powerBlockX"),
+                                        Util.simpleChunkSpaceLocationHash(resultSet.getInt("powerBlockX"),
                                                                           resultSet.getInt("powerBlockY"),
                                                                           resultSet.getInt("powerBlockZ"));
                                     if (!movables.containsKey(locationHash))
-                                        movables.put(locationHash, new ArrayList<>());
+                                        movables.put(locationHash, new LongArrayList());
                                     movables.get(locationHash).add(resultSet.getLong("id"));
                                 }
                                 return movables;
-                            }, Collections.emptyMap());
+                            }, Int2ObjectMaps.emptyMap());
     }
 
     @Override

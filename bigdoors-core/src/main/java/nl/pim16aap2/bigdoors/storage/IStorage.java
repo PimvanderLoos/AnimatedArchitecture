@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.storage;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.longs.LongList;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
@@ -12,7 +14,6 @@ import nl.pim16aap2.bigdoors.util.IBitFlag;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -219,7 +220,7 @@ public interface IStorage
      *     The id of the chunk the movables are in.
      * @return A map of location hashes and their connected powerblocks for all movables in a chunk.
      */
-    Map<Integer, List<Long>> getPowerBlockData(long chunkId);
+    Int2ObjectMap<LongList> getPowerBlockData(long chunkId);
 
     /**
      * Gets a list of movable UIDs that have their rotation point in a given chunk.
