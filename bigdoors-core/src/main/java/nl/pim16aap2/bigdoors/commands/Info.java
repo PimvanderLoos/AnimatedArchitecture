@@ -66,7 +66,7 @@ public class Info extends MovableTargetCommand
 
         // TODO: Localization
         output.append(localizer.getMovableType(movable.getType()), TextType.HIGHLIGHT)
-              .append(" '", TextType.INFO).append(movable.getName(), TextType.HIGHLIGHT)
+              .append(" '", TextType.INFO).append(movable.getNameAndUid(), TextType.HIGHLIGHT)
               .append("' at [", TextType.INFO)
               .append(String.format("%d %d %d", min.x(), min.y(), min.z()), TextType.HIGHLIGHT)
               .append(" ; ", TextType.INFO)
