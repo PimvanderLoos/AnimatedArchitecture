@@ -4,13 +4,9 @@ import com.google.common.flogger.StackSize;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.annotations.InheritedLockField;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
-import nl.pim16aap2.bigdoors.util.FastFieldSetter;
-import nl.pim16aap2.bigdoors.util.LazyValue;
-import nl.pim16aap2.bigdoors.util.UnsafeGetter;
 import nl.pim16aap2.reflection.ReflectionBuilder;
 import nl.pim16aap2.util.SafeStringBuilder;
-import org.jetbrains.annotations.Nullable;
-import sun.misc.Unsafe;
+import org.jetbrains.annotations.VisibleForTesting;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -19,8 +15,6 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,28 +49,9 @@ public class MovableSerializer<T extends AbstractMovable>
     private final Class<T> movableClass;
 
     /**
-     * The constructor in the {@link #movableClass} that takes exactly 1 argument of the type {@link MovableBase} if
-     * such a constructor exists.
+     * The constructor in the {@link #movableClass} that takes exactly 1 argument of the type {@link MovableBase}.
      */
-    private final @Nullable Constructor<T> ctor;
-
-    private final Method methodRegisterInRegistry;
-
-    private static final @Nullable Unsafe UNSAFE = UnsafeGetter.getUnsafe();
-
-    private final @Nullable FastFieldSetter<AbstractMovable, MovableBase> fieldSetterMovableBase =
-        getFieldSetterInAbstractMovable(UNSAFE, MovableBase.class, "base");
-    private final @Nullable FastFieldSetter<AbstractMovable, ReentrantReadWriteLock> fieldSetterLock =
-        getFieldSetterInAbstractMovable(UNSAFE, ReentrantReadWriteLock.class, "lock");
-    @SuppressWarnings("rawtypes")
-    private final @Nullable FastFieldSetter<AbstractMovable, MovableSerializer> fieldSetterSerializer =
-        getFieldSetterInAbstractMovable(UNSAFE, MovableSerializer.class, "serializer");
-    @SuppressWarnings("rawtypes")
-    private final @Nullable FastFieldSetter<AbstractMovable, LazyValue> fieldSetterAnimationRange =
-        getFieldSetterInAbstractMovable(UNSAFE, LazyValue.class, "animationRange");
-    @SuppressWarnings("rawtypes")
-    private final @Nullable FastFieldSetter<AbstractMovable, LazyValue> fieldSetterCycleDistance =
-        getFieldSetterInAbstractMovable(UNSAFE, LazyValue.class, "animationCycleDistance");
+    private final Constructor<T> ctor;
 
     public MovableSerializer(Class<T> movableClass)
     {
@@ -85,28 +60,11 @@ public class MovableSerializer<T extends AbstractMovable>
         if (Modifier.isAbstract(movableClass.getModifiers()))
             throw new IllegalArgumentException("THe MovableSerializer only works for concrete classes!");
 
-        methodRegisterInRegistry =
-            ReflectionBuilder.findMethod().inClass(AbstractMovable.class)
-                             .withName("registerInRegistry").setAccessible().get();
-
-        @Nullable Constructor<T> ctorTmp = null;
-        try
-        {
-            ctorTmp = movableClass.getDeclaredConstructor(MovableBase.class);
-            ctorTmp.setAccessible(true);
-        }
-        catch (Exception e)
-        {
-            log.atFiner().withCause(e)
-               .log("Class %s does not have a MovableData ctor! Using Unsafe instead!", getMovableTypeName());
-        }
-        ctor = ctorTmp;
-        if (ctor == null && UNSAFE == null)
-            throw new RuntimeException("Could not find CTOR for class " + getMovableTypeName() +
-                                           " and Unsafe is unavailable! This type cannot be enabled!");
-
-        log.atFine().log("Using %s construction method for class %s.",
-                         (ctor == null ? "Unsafe" : "Reflection"), getMovableTypeName());
+        //noinspection unchecked
+        ctor = (Constructor<T>)
+            ReflectionBuilder.findConstructor().inClass(movableClass)
+                             .withParameters(AbstractMovable.MovableBaseHolder.class)
+                             .setAccessible().get();
 
         findAnnotatedFields();
     }
@@ -205,7 +163,6 @@ public class MovableSerializer<T extends AbstractMovable>
         }
     }
 
-    @SuppressWarnings("unchecked")
     private static ArrayList<Object> fromByteArray(byte[] arr)
         throws Exception
     {
@@ -221,6 +178,7 @@ public class MovableSerializer<T extends AbstractMovable>
         }
     }
 
+    @VisibleForTesting
     T instantiate(AbstractMovable.MovableBaseHolder movableBase, ArrayList<Object> values)
         throws Exception
     {
@@ -230,10 +188,7 @@ public class MovableSerializer<T extends AbstractMovable>
 
         try
         {
-            final @Nullable T movable = instantiate(movableBase.get());
-            if (movable == null)
-                throw new IllegalStateException("Failed to initialize movable!");
-
+            final T movable = ctor.newInstance(movableBase);
             for (int idx = 0; idx < fields.size(); ++idx)
                 fields.get(idx).set(movable, values.get(idx));
 
@@ -247,53 +202,6 @@ public class MovableSerializer<T extends AbstractMovable>
         {
             throw new Exception("Failed to create new instance of type: " + getMovableTypeName(), t);
         }
-    }
-
-    /**
-     * Attempts to create a new instance of {@link #movableClass} using the provided base data.
-     * <p>
-     * When {@link #ctor} is available, {@link #instantiateReflection(MovableBase, Constructor)} is used. If that is not
-     * the case, {@link #instantiateUnsafe(MovableBase)} is used instead.
-     *
-     * @param movableBase
-     *     The {@link MovableBase} to use for basic {@link AbstractMovable} initialization.
-     * @return A new instance of {@link #movableClass} if one could be constructed.
-     */
-    private @Nullable T instantiate(MovableBase movableBase)
-        throws IllegalAccessException, InstantiationException, InvocationTargetException
-    {
-        return ctor == null ? instantiateUnsafe(movableBase) : instantiateReflection(movableBase, ctor);
-    }
-
-    private T instantiateReflection(MovableBase movableBase, Constructor<T> ctor)
-        throws IllegalAccessException, InvocationTargetException, InstantiationException
-    {
-        return ctor.newInstance(movableBase);
-    }
-
-    private @Nullable T instantiateUnsafe(MovableBase movableBase)
-        throws InstantiationException, InvocationTargetException, IllegalAccessException
-    {
-        if (UNSAFE == null ||
-            fieldSetterMovableBase == null ||
-            fieldSetterLock == null ||
-            fieldSetterAnimationRange == null ||
-            fieldSetterCycleDistance == null ||
-            fieldSetterSerializer == null)
-            return null;
-
-        @SuppressWarnings("unchecked") //
-        final T movable = (T) UNSAFE.allocateInstance(movableClass);
-
-        fieldSetterMovableBase.copy(movable, movableBase);
-        fieldSetterLock.copy(movable, movableBase.getLock());
-        fieldSetterSerializer.copy(movable, this);
-        fieldSetterAnimationRange.copy(movable, AbstractMovable.newAnimationRangeVal(movable));
-        fieldSetterCycleDistance.copy(movable, AbstractMovable.newAnimationCycleDistanceVal(movable));
-
-        methodRegisterInRegistry.invoke(movable);
-
-        return movable;
     }
 
     public String getMovableTypeName()
@@ -337,18 +245,11 @@ public class MovableSerializer<T extends AbstractMovable>
         return sb.toString();
     }
 
-    private String getConstructionModeName()
-    {
-        if (this.ctor == null && UNSAFE == null)
-            return "No method available!";
-        return this.ctor == null ? "Unsafe" : "Constructor";
-    }
-
     @Override
     public String toString()
     {
         final SafeStringBuilder sb = new SafeStringBuilder("MovableSerializer: ")
-            .append(getMovableTypeName()).append(", Construction Mode: ").append(getConstructionModeName())
+            .append(getMovableTypeName())
             .append(", fields:\n");
 
         for (final Field field : fields)
@@ -356,22 +257,5 @@ public class MovableSerializer<T extends AbstractMovable>
               .append(", name: \"").append(field.getName())
               .append("\"\n");
         return sb.toString();
-    }
-
-    private static @Nullable <T> FastFieldSetter<AbstractMovable, T> getFieldSetterInAbstractMovable(
-        @Nullable Unsafe unsafe, Class<T> type, String fieldName)
-    {
-        if (unsafe == null)
-            return null;
-        try
-        {
-            return FastFieldSetter.of(unsafe, type, AbstractMovable.class, fieldName);
-        }
-        catch (Exception e)
-        {
-            log.atFine().withCause(e).log("Failed to get FastFieldSetter for %s AbstractMovableBase#%s",
-                                          type.getName(), fieldName);
-            return null;
-        }
     }
 }
