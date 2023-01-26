@@ -13,7 +13,6 @@ import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
 import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
-import nl.pim16aap2.bigdoors.managers.MovableRegistry;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
@@ -65,22 +64,6 @@ public abstract class AbstractMovable implements IMovable
 
         animationRange = newAnimationRangeVal(this);
         animationCycleDistance = newAnimationCycleDistanceVal(this);
-
-        registerInRegistry();
-    }
-
-    /**
-     * Registers this movable with the {@link MovableRegistry}.
-     *
-     * @throws IllegalStateException
-     */
-    private void registerInRegistry()
-        throws IllegalStateException
-    {
-        log.atFinest().log("Instantiating movable: %d", base.getUid());
-        if (base.getUid() > 0 && !base.getMovableRegistry().registerMovable(new Registrable()))
-            throw new IllegalStateException("Tried to create new movable \"" + base.getUid() +
-                                                "\" while it is already registered!");
     }
 
     protected AbstractMovable(MovableBaseHolder holder)
@@ -668,28 +651,6 @@ public abstract class AbstractMovable implements IMovable
     @Locked.Write final boolean addOwner(MovableOwner movableOwner)
     {
         return base.addOwner(movableOwner);
-    }
-
-    /**
-     * Represents the part of this movable that can be registered in registries and such.
-     * <p>
-     * This is handled via this registrable to ensure that this {@link AbstractMovable} class has private access to
-     * certain registries (e.g. {@link MovableRegistry}), as no other objects will have access to this
-     * {@link Registrable}.
-     */
-    public final class Registrable
-    {
-        private Registrable()
-        {
-        }
-
-        /**
-         * @return The {@link MovableBase} that is associated with this {@link Registrable}.
-         */
-        public AbstractMovable getAbstractMovableBase()
-        {
-            return AbstractMovable.this;
-        }
     }
 
     @AllArgsConstructor(access = AccessLevel.PACKAGE) @ToString @EqualsAndHashCode

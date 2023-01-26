@@ -15,12 +15,12 @@ import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.debugging.IDebuggable;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
-import nl.pim16aap2.bigdoors.managers.MovableRegistry;
 import nl.pim16aap2.bigdoors.managers.MovableTypeManager;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.IMovableConst;
 import nl.pim16aap2.bigdoors.movable.MovableBaseBuilder;
 import nl.pim16aap2.bigdoors.movable.MovableOwner;
+import nl.pim16aap2.bigdoors.movable.MovableRegistry;
 import nl.pim16aap2.bigdoors.movable.MovableSerializer;
 import nl.pim16aap2.bigdoors.movable.PermissionLevel;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
@@ -384,7 +384,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                               .build();
 
         final byte[] rawTypeData = movableBaseRS.getBytes("typeData");
-        return Optional.of(serializer.deserialize(movableData, rawTypeData));
+        return Optional.of(serializer.deserialize(movableRegistry, movableData, rawTypeData));
     }
 
     @Override
@@ -455,6 +455,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             if (movableUID > 0)
             {
                 return Optional.of(serializer.deserialize(
+                    movableRegistry,
                     movableBaseBuilder
                         .builder()
                         .uid(movableUID)

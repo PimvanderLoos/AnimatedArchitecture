@@ -1,5 +1,6 @@
-package nl.pim16aap2.bigdoors.managers;
+package nl.pim16aap2.bigdoors.movable;
 
+import com.google.common.flogger.StackSize;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
@@ -7,13 +8,14 @@ import nl.pim16aap2.bigdoors.api.debugging.IDebuggable;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.data.cache.timed.TimedCache;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.IMovableConst;
+import nl.pim16aap2.bigdoors.managers.MovableDeletionManager;
+import nl.pim16aap2.bigdoors.util.Util;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.Duration;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * Represents a registry of movables.
@@ -147,19 +149,27 @@ public final class MovableRegistry extends Restartable implements IDebuggable, M
     }
 
     /**
-     * Registers an {@link AbstractMovable} if it hasn't been registered yet.
+     * Puts a new {@link AbstractMovable} in the cache if it does not exist yet.
      *
-     * @param registrable
-     *     The {@link AbstractMovable.Registrable} that belongs to the {@link AbstractMovable} that is to be
-     *     registered.
-     * @return True if the movable was added successfully (and didn't exist yet).
+     * @param uid
+     *     The UID of the movable.
+     * @param supplier
+     *     The supplier that will create a new movable if no mapping exists yet for the provided UID.
+     * @return The {@link AbstractMovable} that ends up being in the cache. If a mapping already existed, this will be
+     * the old movable. If not, the newly created one will be returned instead.
      */
-    public boolean registerMovable(AbstractMovable.Registrable registrable)
+    AbstractMovable computeIfAbsent(long uid, Supplier<AbstractMovable> supplier)
     {
-        if (!acceptNewEntries)
-            return true;
-        final AbstractMovable movable = registrable.getAbstractMovableBase();
-        return movableCache.putIfAbsent(movable.getUid(), movable).isEmpty();
+        if (uid <= 0)
+            throw new IllegalArgumentException("Trying to register movable with UID " + uid);
+
+        return movableCache.compute(uid, (key, value) ->
+        {
+            if (value == null)
+                return Util.requireNonNull(supplier.get(), "Supplied Movable");
+            log.atFine().withStackTrace(StackSize.FULL).log("Caught attempted double registering of movable %d", uid);
+            return value;
+        });
     }
 
     @Override
@@ -180,7 +190,7 @@ public final class MovableRegistry extends Restartable implements IDebuggable, M
             movableCache = TimedCache.emptyCache();
         else
             movableCache = TimedCache.<Long, AbstractMovable>builder()
-                                     .cleanup(Duration.ofMinutes(5))
+                                     .cleanup(Duration.ofMinutes(15))
                                      .softReference(true)
                                      .keepAfterTimeOut(true)
                                      .duration(cacheExpiry)

@@ -29,7 +29,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @author Pim
  */
 @Flogger
-public class MovableSerializer<T extends AbstractMovable>
+public final class MovableSerializer<T extends AbstractMovable>
 {
     /**
      * The list of serializable fields in the target class {@link #movableClass} that are annotated with
@@ -140,16 +140,32 @@ public class MovableSerializer<T extends AbstractMovable>
      * <p>
      * The movable and the deserialized data are then used to create an instance of the movable type.
      *
+     * @param registry
+     *     The registry to use for any potential registration.
      * @param movable
      *     The base movable data.
      * @param data
      *     The serialized type-specific data.
      * @return The newly created instance.
      */
-    public T deserialize(AbstractMovable.MovableBaseHolder movable, byte[] data)
-        throws Exception
+    public T deserialize(MovableRegistry registry, AbstractMovable.MovableBaseHolder movable, byte[] data)
     {
-        return instantiate(movable, fromByteArray(data));
+        //noinspection unchecked
+        return (T) registry.computeIfAbsent(movable.get().getUid(), () -> deserialize(movable, data));
+    }
+
+    @VisibleForTesting
+    T deserialize(AbstractMovable.MovableBaseHolder movable, byte[] data)
+    {
+        try
+        {
+            return instantiate(movable, fromByteArray(data));
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException("Failed to deserialize movable " + movable +
+                                           "\nWith Data: " + Arrays.toString(data), e);
+        }
     }
 
     private static byte[] toByteArray(Serializable serializable)

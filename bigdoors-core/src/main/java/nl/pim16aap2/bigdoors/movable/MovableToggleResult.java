@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.movable;
 
 import lombok.Getter;
-import nl.pim16aap2.bigdoors.managers.MovableRegistry;
 
 /**
  * Represent the possible outcomes of trying to toggle a movable.
