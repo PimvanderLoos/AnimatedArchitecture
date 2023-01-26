@@ -5,7 +5,6 @@ import lombok.Getter;
 import nl.pim16aap2.bigdoors.annotations.InheritedLockField;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
-import nl.pim16aap2.bigdoors.managers.MovableRegistry;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
@@ -27,6 +26,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Supplier;
 
 class MovableSerializerTest
 {
@@ -40,7 +40,8 @@ class MovableSerializerTest
             new AssistedFactoryMocker<>(MovableBase.class, MovableBase.IFactory.class);
 
         final MovableRegistry movableRegistry = assistedFactoryMocker.getMock(MovableRegistry.class);
-        Mockito.when(movableRegistry.registerMovable(Mockito.any())).thenReturn(true);
+        Mockito.when(movableRegistry.computeIfAbsent(Mockito.anyLong(), Mockito.any()))
+               .thenAnswer(invocation -> invocation.getArgument(1, Supplier.class).get());
 
         final MovableBaseBuilder factory = new MovableBaseBuilder(assistedFactoryMocker.getFactory());
 
