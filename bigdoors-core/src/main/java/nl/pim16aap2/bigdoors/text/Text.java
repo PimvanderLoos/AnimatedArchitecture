@@ -151,6 +151,21 @@ public class Text
     }
 
     /**
+     * Appends some unstyled character to the current text.
+     *
+     * @param ch
+     *     The unstyled character to add.
+     * @return The current {@link Text} instance.
+     */
+    @Contract("_ -> this")
+    public Text append(char ch)
+    {
+        stringBuilder.append(ch);
+        ++styledSize;
+        return this;
+    }
+
+    /**
      * Appends some styled text to the current text.
      *
      * @param text

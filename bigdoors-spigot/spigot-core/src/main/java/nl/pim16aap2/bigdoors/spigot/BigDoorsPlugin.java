@@ -12,7 +12,6 @@ import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
 import nl.pim16aap2.bigdoors.spigot.listeners.BackupCommandListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.LoginMessageListener;
 import nl.pim16aap2.bigdoors.spigot.logging.ConsoleAppender;
-import nl.pim16aap2.bigdoors.spigot.managers.UpdateManager;
 import nl.pim16aap2.bigdoors.spigot.util.DebugReporterSpigot;
 import nl.pim16aap2.logging.LogBackConfigurator;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -166,8 +165,6 @@ public final class BigDoorsPlugin extends JavaPlugin implements IBigDoorsPlatfor
 
         if (firstInit)
             initCommands(bigDoorsSpigotPlatform);
-        // TODO: Remove this before any release.
-        printDebug();
     }
 
     private void initCommands(BigDoorsSpigotPlatform bigDoorsSpigotPlatform)
@@ -190,7 +187,7 @@ public final class BigDoorsPlugin extends JavaPlugin implements IBigDoorsPlatfor
     }
 
     // Synchronized to ensure visibility of the platform.
-    private synchronized @Nullable BigDoorsSpigotPlatform initPlatform()
+    private @Nullable BigDoorsSpigotPlatform initPlatform()
     {
         try
         {
@@ -227,16 +224,7 @@ public final class BigDoorsPlugin extends JavaPlugin implements IBigDoorsPlatfor
      */
     private void registerFailureLoginListener()
     {
-        @Nullable UpdateManager updateManager;
-        try
-        {
-            updateManager = bigDoorsSpigotComponent.getUpdateManager();
-        }
-        catch (Exception e)
-        {
-            updateManager = null;
-        }
-        new LoginMessageListener(this, updateManager, null);
+        new LoginMessageListener(this, null);
     }
 
     @Override
@@ -251,21 +239,5 @@ public final class BigDoorsPlugin extends JavaPlugin implements IBigDoorsPlatfor
         if (!successfulInit)
             return;
         restartableHolder.restart();
-    }
-
-    /**
-     * Prints debug information to stdout.
-     * <p>
-     * Should be removed before any release.
-     */
-    // TODO: Remove this before any release.
-    private void printDebug()
-    {
-        final DebugReporterSpigot drs;
-        if (bigDoorsSpigotPlatform == null)
-            drs = new DebugReporterSpigot(this, this, null, new DebuggableRegistry());
-        else
-            drs = (DebugReporterSpigot) bigDoorsSpigotComponent.getDebugReporter();
-        System.out.println(drs.getDebugReport());
     }
 }

@@ -63,6 +63,12 @@ public final class PPlayerSpigot implements IPPlayer
     }
 
     @Override
+    public boolean isOnline()
+    {
+        return true;
+    }
+
+    @Override
     public int getMovableSizeLimit()
     {
         if (spigotPlayer.isOp())

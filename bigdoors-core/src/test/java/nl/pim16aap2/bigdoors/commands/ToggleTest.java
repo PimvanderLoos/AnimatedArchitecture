@@ -42,6 +42,9 @@ class ToggleTest
     @Mock
     private AbstractMovable movable;
 
+    @Mock
+    private MovableType movableType;
+
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private MovableToggleRequest.IFactory movableToggleRequestFactory;
 
@@ -63,8 +66,11 @@ class ToggleTest
 
         initCommandSenderPermissions(commandSender, true, true);
 
+        Mockito.when(movableType.getLocalizationKey()).thenReturn("MovableType");
+
         Mockito.when(movable.isOwner(Mockito.any(UUID.class))).thenReturn(true);
         Mockito.when(movable.isOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
+        Mockito.when(movable.getType()).thenReturn(movableType);
 
         movableRetriever = MovableRetrieverFactory.ofMovable(movable);
 

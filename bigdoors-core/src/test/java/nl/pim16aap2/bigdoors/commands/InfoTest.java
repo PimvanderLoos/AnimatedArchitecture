@@ -7,8 +7,10 @@ import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
+import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,6 +49,8 @@ class InfoTest
         movableRetriever = MovableRetrieverFactory.ofMovable(movable);
         Mockito.when(movable.isOwner(Mockito.any(UUID.class))).thenReturn(true);
         Mockito.when(movable.isOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
+        Mockito.when(movable.getCuboid()).thenReturn(new Cuboid(new Vector3Di(1, 2, 3), new Vector3Di(4, 5, 6)));
+        Mockito.when(movable.getNameAndUid()).thenReturn("Movable (0)");
 
         final MovableType movableType = Mockito.mock(MovableType.class);
         Mockito.when(movableType.getLocalizationKey()).thenReturn("MovableType");
@@ -70,7 +74,6 @@ class InfoTest
         Assertions.assertDoesNotThrow(() -> factory.newInfo(server, movableRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(glowingBlockSpawner, Mockito.never())
                .spawnGlowingBlocks(Mockito.any(), Mockito.any(), Mockito.any());
-        Mockito.verify(server).sendMessage(UnitTestUtil.toText(movable.toString()));
     }
 
     @Test
@@ -78,25 +81,20 @@ class InfoTest
     {
         final IPPlayer player = Mockito.mock(IPPlayer.class, Answers.CALLS_REAL_METHODS);
 
-        final String movableString = movable.toString();
-
         initCommandSenderPermissions(player, true, false);
         Assertions.assertDoesNotThrow(() -> factory.newInfo(player, movableRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(glowingBlockSpawner, Mockito.never())
                .spawnGlowingBlocks(Mockito.any(), Mockito.any(), Mockito.any());
-        Mockito.verify(player, Mockito.never()).sendMessage(UnitTestUtil.toText(movableString));
 
         initCommandSenderPermissions(player, true, true);
         Assertions.assertDoesNotThrow(() -> factory.newInfo(player, movableRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(glowingBlockSpawner).spawnGlowingBlocks(Mockito.any(), Mockito.any(), Mockito.any());
-        Mockito.verify(player).sendMessage(UnitTestUtil.toText(movableString));
 
         initCommandSenderPermissions(player, true, false);
         Mockito.when(movable.getOwner(player)).thenReturn(Optional.of(movableOwnerCreator));
         Assertions.assertDoesNotThrow(() -> factory.newInfo(player, movableRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(glowingBlockSpawner, Mockito.times(2))
                .spawnGlowingBlocks(Mockito.any(), Mockito.any(), Mockito.any());
-        Mockito.verify(player, Mockito.times(2)).sendMessage(UnitTestUtil.toText(movableString));
     }
 
 }

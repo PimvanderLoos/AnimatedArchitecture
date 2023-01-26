@@ -57,6 +57,12 @@ public final class OfflinePPlayerSpigot implements IPPlayer
         return CompletableFuture.completedFuture(new PermissionsStatus(isOp(), isOp()));
     }
 
+    @Override
+    public boolean isOnline()
+    {
+        return false;
+    }
+
     /**
      * Gets the bukkit {@link OfflinePlayer} represented by this {@link IPPlayer} if it exists.
      *

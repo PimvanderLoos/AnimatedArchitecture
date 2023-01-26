@@ -63,7 +63,6 @@ import nl.pim16aap2.bigdoors.spigot.managers.HeadManager;
 import nl.pim16aap2.bigdoors.spigot.managers.PlatformManagerSpigotModule;
 import nl.pim16aap2.bigdoors.spigot.managers.PowerBlockRedstoneManagerSpigotModule;
 import nl.pim16aap2.bigdoors.spigot.managers.SubPlatformManager;
-import nl.pim16aap2.bigdoors.spigot.managers.UpdateManager;
 import nl.pim16aap2.bigdoors.spigot.managers.VaultManager;
 import nl.pim16aap2.bigdoors.spigot.managers.VaultManagerModule;
 import nl.pim16aap2.bigdoors.spigot.util.DebugReporterSpigotModule;
@@ -168,8 +167,6 @@ interface BigDoorsSpigotComponent
     LimitsManager getLimitsManager();
 
     HeadManager getHeadManager();
-
-    UpdateManager getUpdateManager();
 
     IPServer getIPServer();
 
