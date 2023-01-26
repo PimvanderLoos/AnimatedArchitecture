@@ -18,7 +18,6 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -93,9 +92,7 @@ public final class PowerBlockManager extends Restartable implements MovableDelet
      *     The name of the world.
      * @return All {@link AbstractMovable}s that have a powerblock at a location in a world.
      */
-    // TODO: Try to have about 50% less CompletableFuture here.
-    public CompletableFuture<List<CompletableFuture<Optional<AbstractMovable>>>> movablesFromPowerBlockLoc(
-        Vector3Di loc, String worldName)
+    public CompletableFuture<List<AbstractMovable>> movablesFromPowerBlockLoc(Vector3Di loc, String worldName)
     {
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
@@ -104,13 +101,11 @@ public final class PowerBlockManager extends Restartable implements MovableDelet
             return CompletableFuture.completedFuture(Collections.emptyList());
         }
 
-        return powerBlockWorld.getPowerBlocks(loc).handle(
-            (list, throwable) ->
-            {
-                final List<CompletableFuture<Optional<AbstractMovable>>> movables = new ArrayList<>();
-                list.forEach(movableUID -> movables.add(databaseManager.getMovable(movableUID)));
-                return movables;
-            }).exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
+        return powerBlockWorld
+            .getPowerBlocks(loc)
+            .thenApplyAsync(lst -> lst.longStream().mapToObj(databaseManager::getMovable).toList())
+            .thenCompose(Util::getAllCompletableFutureResults)
+            .thenApply(lst -> lst.stream().filter(Optional::isPresent).map(Optional::get).toList());
     }
 
     /**
