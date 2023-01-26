@@ -12,7 +12,6 @@ import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
 import nl.pim16aap2.bigdoors.spigot.listeners.BackupCommandListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.LoginMessageListener;
 import nl.pim16aap2.bigdoors.spigot.logging.ConsoleAppender;
-import nl.pim16aap2.bigdoors.spigot.managers.UpdateManager;
 import nl.pim16aap2.bigdoors.spigot.util.DebugReporterSpigot;
 import nl.pim16aap2.logging.LogBackConfigurator;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -225,16 +224,7 @@ public final class BigDoorsPlugin extends JavaPlugin implements IBigDoorsPlatfor
      */
     private void registerFailureLoginListener()
     {
-        @Nullable UpdateManager updateManager;
-        try
-        {
-            updateManager = bigDoorsSpigotComponent.getUpdateManager();
-        }
-        catch (Exception e)
-        {
-            updateManager = null;
-        }
-        new LoginMessageListener(this, updateManager, null);
+        new LoginMessageListener(this, null);
     }
 
     @Override

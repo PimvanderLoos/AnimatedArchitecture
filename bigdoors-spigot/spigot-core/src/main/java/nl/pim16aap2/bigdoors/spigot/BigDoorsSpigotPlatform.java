@@ -49,7 +49,6 @@ import nl.pim16aap2.bigdoors.spigot.listeners.RedstoneListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.WorldListener;
 import nl.pim16aap2.bigdoors.spigot.managers.HeadManager;
 import nl.pim16aap2.bigdoors.spigot.managers.SubPlatformManager;
-import nl.pim16aap2.bigdoors.spigot.managers.UpdateManager;
 import nl.pim16aap2.bigdoors.spigot.util.api.IBigDoorsSpigotSubPlatform;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import org.jetbrains.annotations.Nullable;
@@ -167,9 +166,6 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     private final HeadManager headManager;
 
     @Getter
-    private final UpdateManager updateManager;
-
-    @Getter
     private final IPowerBlockRedstoneManager powerBlockRedstoneManager;
 
     @Getter
@@ -227,7 +223,6 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
         permissionsManager = safeGetter(BigDoorsSpigotComponent::getVaultManager);
         limitsManager = safeGetter(BigDoorsSpigotComponent::getLimitsManager);
         headManager = safeGetter(BigDoorsSpigotComponent::getHeadManager);
-        updateManager = safeGetter(BigDoorsSpigotComponent::getUpdateManager);
         powerBlockManager = safeGetter(BigDoorsSpigotComponent::getPowerBlockManager);
         doorRegistry = safeGetter(BigDoorsSpigotComponent::getDoorRegistry);
         localizationManager = safeGetter(BigDoorsSpigotComponent::getLocalizationManager);

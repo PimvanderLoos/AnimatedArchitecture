@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.spigot.listeners;
 
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsPlugin;
-import nl.pim16aap2.bigdoors.spigot.managers.UpdateManager;
 import nl.pim16aap2.bigdoors.util.Constants;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -23,15 +22,13 @@ import javax.inject.Singleton;
 public final class LoginMessageListener extends AbstractListener
 {
     private final BigDoorsPlugin plugin;
-    private final @Nullable UpdateManager updateManager;
 
     @Inject
     public LoginMessageListener(
-        BigDoorsPlugin javaPlugin, @Nullable UpdateManager updateManager, @Nullable RestartableHolder restartableHolder)
+        BigDoorsPlugin javaPlugin, @Nullable RestartableHolder restartableHolder)
     {
         super(restartableHolder, javaPlugin);
         this.plugin = javaPlugin;
-        this.updateManager = updateManager;
         register();
     }
 
@@ -64,7 +61,6 @@ public final class LoginMessageListener extends AbstractListener
         String ret = "";
         ret += formatMessage("Error", plugin.getInitErrorMessage());
         ret += formatMessage("Warning", getDevBuildWarning());
-        ret += formatMessage(null, getUpdateMessage());
         return ret.isBlank() ? null : ret;
     }
 
@@ -72,19 +68,6 @@ public final class LoginMessageListener extends AbstractListener
     {
         if (Constants.DEV_BUILD)
             return "You are running a dev-build!";
-        return null;
-    }
-
-    private @Nullable String getUpdateMessage()
-    {
-        if (updateManager == null)
-            return null;
-
-        if (updateManager.hasUpdateBeenDownloaded())
-            return "A new update (" + updateManager.getNewestVersion() + ") has been downloaded! " +
-                "Restart your server to apply the update!";
-        if (updateManager.updateAvailable())
-            return "A new update is available: " + updateManager.getNewestVersion() + "!";
         return null;
     }
 
