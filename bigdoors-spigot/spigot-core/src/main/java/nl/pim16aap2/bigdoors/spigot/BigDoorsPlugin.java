@@ -166,8 +166,6 @@ public final class BigDoorsPlugin extends JavaPlugin implements IBigDoorsPlatfor
 
         if (firstInit)
             initCommands(bigDoorsSpigotPlatform);
-        // TODO: Remove this before any release.
-        printDebug();
     }
 
     private void initCommands(BigDoorsSpigotPlatform bigDoorsSpigotPlatform)
@@ -251,21 +249,5 @@ public final class BigDoorsPlugin extends JavaPlugin implements IBigDoorsPlatfor
         if (!successfulInit)
             return;
         restartableHolder.restart();
-    }
-
-    /**
-     * Prints debug information to stdout.
-     * <p>
-     * Should be removed before any release.
-     */
-    // TODO: Remove this before any release.
-    private void printDebug()
-    {
-        final DebugReporterSpigot drs;
-        if (bigDoorsSpigotPlatform == null)
-            drs = new DebugReporterSpigot(this, this, null, new DebuggableRegistry());
-        else
-            drs = (DebugReporterSpigot) bigDoorsSpigotComponent.getDebugReporter();
-        System.out.println(drs.getDebugReport());
     }
 }
