@@ -27,6 +27,7 @@ import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.managers.MovableTypeManager;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.AnimationBlockManager;
+import nl.pim16aap2.bigdoors.moveblocks.AnimationType;
 import nl.pim16aap2.bigdoors.moveblocks.Animator;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.MovableActivityManager;
@@ -234,11 +235,20 @@ public final class MovableOpeningHelper
      */
     boolean registerBlockMover(AbstractMovable movable, MovementRequestData data)
     {
+        return registerBlockMover(movable, data, AnimationType.MOVE_BLOCKS);
+    }
+
+    /**
+     * Registers a new block mover. Must be called from the main thread.
+     */
+    boolean registerBlockMover(AbstractMovable movable, MovementRequestData data, AnimationType animationType)
+    {
         try
         {
             final IAnimationComponent component = movable.constructAnimationComponent(data);
             final AnimationBlockManager animationBlockManager = animationBlockManagerFactory.newManager();
-            final Animator blockMover = new Animator(movable, data, component, animationBlockManager, true);
+            final Animator blockMover =
+                new Animator(movable, data, component, animationBlockManager, animationType.affectsWorld());
 
             movableActivityManager.addBlockMover(blockMover);
             executor.runOnMainThread(blockMover::startAnimation);
