@@ -244,7 +244,7 @@ public final class MovableOpeningHelper
                 animationBlockManagerFactory.newManager(animationType, player);
 
             final Animator blockMover =
-                new Animator(movable, data, component, animationBlockManager, animationType.affectsWorld());
+                new Animator(movable, data, component, animationBlockManager);
 
             movableActivityManager.addBlockMover(blockMover);
             executor.runOnMainThread(blockMover::startAnimation);
@@ -332,7 +332,7 @@ public final class MovableOpeningHelper
 
             data = movementRequestDataFactory.newToggleRequestData(
                 snapshot, request.getCause(), animationTime, request.isSkipAnimation(), newCuboid.get(), responsible,
-                request.getActionType());
+                request.getAnimationType(), request.getActionType());
             component = movable.constructAnimationComponent(data);
         }
         finally

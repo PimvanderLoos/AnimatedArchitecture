@@ -36,6 +36,7 @@ public final class MovementRequestData
     private final boolean animationSkipped;
     private final Cuboid newCuboid;
     private final IPPlayer responsible;
+    private final AnimationType animationType;
     private final MovableActionType actionType;
 
     @AssistedInject MovementRequestData(
@@ -52,6 +53,7 @@ public final class MovementRequestData
         @Assisted boolean animationSkipped,
         @Assisted Cuboid newCuboid,
         @Assisted IPPlayer responsible,
+        @Assisted AnimationType animationType,
         @Assisted MovableActionType actionType)
     {
         this.movableActivityManager = movableActivityManager;
@@ -67,6 +69,7 @@ public final class MovementRequestData
         this.animationSkipped = animationSkipped;
         this.newCuboid = newCuboid;
         this.responsible = responsible;
+        this.animationType = animationType;
         this.actionType = actionType;
     }
 
@@ -90,12 +93,15 @@ public final class MovementRequestData
          *     The cuboid that described the coordinates of the movable after the animation has concluded.
          * @param responsible
          *     The player responsible for the movement.
+         * @param animationType
+         *     The type of animation to apply.
          * @param actionType
          *     The type of movement to apply.
          * @return The new {@link MovementRequestData}.
          */
         MovementRequestData newToggleRequestData(
             MovableSnapshot movableSnapshot, MovableActionCause cause, double time,
-            boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible, MovableActionType actionType);
+            boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible, AnimationType animationType,
+            MovableActionType actionType);
     }
 }

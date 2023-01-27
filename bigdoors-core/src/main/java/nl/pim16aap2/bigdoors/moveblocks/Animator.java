@@ -135,6 +135,9 @@ public final class Animator implements IAnimator
      */
     private final AtomicBoolean hasStarted = new AtomicBoolean(false);
 
+    @Getter
+    private final AnimationType animationType;
+
     private volatile @Nullable List<IAnimationHook<IAnimatedBlock>> hooks;
 
     /**
@@ -165,12 +168,6 @@ public final class Animator implements IAnimator
     private final Cuboid newCuboid;
 
     /**
-     * Whether this animation affects the world. When true, the coordinates of the movable and the 'isOpen' status will
-     * be updated once the animation has finished.
-     */
-    private final boolean affectsWorld;
-
-    /**
      * Constructs a {@link Animator}.
      * <p>
      * Once created, the animation does not start immediately. Use {@link #startAnimation()} to start it.
@@ -183,13 +180,10 @@ public final class Animator implements IAnimator
      *     The animation component to use for the animation. This determines the type of animation.
      * @param animationBlockManager
      *     The manager of the animated blocks. This is responsible for handling the lifecycle of the animated blocks.
-     * @param affectsWorld
-     *     Whether this animation affects the world. When true, the coordinates of the movable and the 'isOpen' status
-     *     will be updated once the animation has finished.
      */
     public Animator(
         AbstractMovable movable, MovementRequestData data, IAnimationComponent animationComponent,
-        IAnimationBlockManager animationBlockManager, boolean affectsWorld)
+        IAnimationBlockManager animationBlockManager)
     {
         executor = data.getExecutor();
         movableActivityManager = data.getMovableActivityManager();
@@ -206,9 +200,9 @@ public final class Animator implements IAnimator
         this.animationComponent = animationComponent;
         this.animationBlockManager = animationBlockManager;
         this.newCuboid = data.getNewCuboid();
-        this.affectsWorld = affectsWorld;
         this.oldCuboid = snapshot.getCuboid();
         this.cause = data.getCause();
+        this.animationType = data.getAnimationType();
         this.actionType = data.getActionType();
         this.perpetualMovement = movable instanceof IPerpetualMover perpetualMover && perpetualMover.isPerpetual();
 
@@ -480,7 +474,7 @@ public final class Animator implements IAnimator
 
         animationBlockManager.handleAnimationCompletion();
 
-        if (affectsWorld)
+        if (animationType.affectsWorld())
             // Tell the movable object it has been opened and what its new coordinates are.
             movable.withWriteLock(this::updateCoords);
 
