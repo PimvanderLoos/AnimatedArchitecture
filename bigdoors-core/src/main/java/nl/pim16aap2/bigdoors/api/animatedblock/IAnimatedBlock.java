@@ -45,7 +45,7 @@ public interface IAnimatedBlock
      *
      * @return The world this animated block exists in.
      */
-    IPWorld getPWorld();
+    IPWorld getWorld();
 
     /**
      * Moves this animated block to the target.

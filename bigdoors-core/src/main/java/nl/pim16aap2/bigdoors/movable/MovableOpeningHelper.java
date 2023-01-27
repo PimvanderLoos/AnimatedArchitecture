@@ -247,7 +247,9 @@ public final class MovableOpeningHelper
     {
         try
         {
-            final IAnimationBlockManager animationBlockManager = animationBlockManagerFactory.newManager(animationType);
+            final IAnimationBlockManager animationBlockManager =
+                animationBlockManagerFactory.newManager(animationType, null);
+
             final Animator blockMover =
                 new Animator(movable, data, component, animationBlockManager, animationType.affectsWorld());
 
