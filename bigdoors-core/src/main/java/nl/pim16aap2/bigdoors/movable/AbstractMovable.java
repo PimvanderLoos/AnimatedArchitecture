@@ -312,8 +312,7 @@ public abstract class AbstractMovable implements IMovable
      *     The data for the toggle request.
      * @return A new {@link Animator} for this type of movable.
      */
-    protected abstract IAnimationComponent constructAnimationComponent(MovementRequestData data)
-        throws Exception;
+    protected abstract IAnimationComponent constructAnimationComponent(MovementRequestData data);
 
     /**
      * Attempts to toggle a movable. Think twice before using this method. Instead, please look at

@@ -26,9 +26,10 @@ import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.managers.MovableTypeManager;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
-import nl.pim16aap2.bigdoors.moveblocks.AnimationBlockManager;
+import nl.pim16aap2.bigdoors.moveblocks.AnimationBlockManagerFactory;
 import nl.pim16aap2.bigdoors.moveblocks.AnimationType;
 import nl.pim16aap2.bigdoors.moveblocks.Animator;
+import nl.pim16aap2.bigdoors.moveblocks.IAnimationBlockManager;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.MovableActivityManager;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
@@ -68,7 +69,7 @@ public final class MovableOpeningHelper
     private final IChunkLoader chunkLoader;
     private final LimitsManager limitsManager;
     private final IBigDoorsEventCaller bigDoorsEventCaller;
-    private final AnimationBlockManager.IFactory animationBlockManagerFactory;
+    private final AnimationBlockManagerFactory animationBlockManagerFactory;
     private final MovementRequestData.IFactory movementRequestDataFactory;
 
     @Inject //
@@ -88,7 +89,7 @@ public final class MovableOpeningHelper
         IChunkLoader chunkLoader,
         LimitsManager limitsManager,
         IBigDoorsEventCaller bigDoorsEventCaller,
-        AnimationBlockManager.IFactory animationBlockManagerFactory,
+        AnimationBlockManagerFactory animationBlockManagerFactory,
         MovementRequestData.IFactory movementRequestDataFactory)
     {
         this.localizer = localizer;
@@ -233,20 +234,20 @@ public final class MovableOpeningHelper
     /**
      * Registers a new block mover. Must be called from the main thread.
      */
-    boolean registerBlockMover(AbstractMovable movable, MovementRequestData data)
+    boolean registerBlockMover(AbstractMovable movable, IAnimationComponent component, MovementRequestData data)
     {
-        return registerBlockMover(movable, data, AnimationType.MOVE_BLOCKS);
+        return registerBlockMover(movable, data, component, AnimationType.MOVE_BLOCKS);
     }
 
     /**
      * Registers a new block mover. Must be called from the main thread.
      */
-    boolean registerBlockMover(AbstractMovable movable, MovementRequestData data, AnimationType animationType)
+    boolean registerBlockMover(
+        AbstractMovable movable, MovementRequestData data, IAnimationComponent component, AnimationType animationType)
     {
         try
         {
-            final IAnimationComponent component = movable.constructAnimationComponent(data);
-            final AnimationBlockManager animationBlockManager = animationBlockManagerFactory.newManager();
+            final IAnimationBlockManager animationBlockManager = animationBlockManagerFactory.newManager(animationType);
             final Animator blockMover =
                 new Animator(movable, data, component, animationBlockManager, animationType.affectsWorld());
 
@@ -262,7 +263,8 @@ public final class MovableOpeningHelper
     }
 
     private MovableToggleResult toggle(
-        MovableSnapshot snapshot, AbstractMovable targetMovable, MovementRequestData data, IMessageable messageReceiver)
+        MovableSnapshot snapshot, AbstractMovable targetMovable, MovementRequestData data,
+        IAnimationComponent component, IMessageable messageReceiver)
     {
         if (snapshot.getOpenDir() == MovementDirection.NONE)
         {
@@ -295,7 +297,7 @@ public final class MovableOpeningHelper
             return abort(targetMovable, MovableToggleResult.NO_PERMISSION, data.getCause(), data.getResponsible(),
                          messageReceiver);
 
-        final boolean scheduled = registerBlockMover(targetMovable, data);
+        final boolean scheduled = registerBlockMover(targetMovable, component, data);
         if (!scheduled)
             return MovableToggleResult.ERROR;
 
@@ -312,6 +314,7 @@ public final class MovableOpeningHelper
         final double animationTime;
         final MovableSnapshot snapshot;
         final MovementRequestData data;
+        final IAnimationComponent component;
 
         movable.getLock().readLock().lock();
         try
@@ -331,12 +334,13 @@ public final class MovableOpeningHelper
 
             data = movementRequestDataFactory.newToggleRequestData(
                 snapshot, cause, animationTime, skipAnimation, newCuboid.get(), responsible, actionType);
+            component = movable.constructAnimationComponent(data);
         }
         finally
         {
             movable.getLock().readLock().unlock();
         }
-        return toggle(snapshot, movable, data, messageReceiver);
+        return toggle(snapshot, movable, data, component, messageReceiver);
     }
 
     /**

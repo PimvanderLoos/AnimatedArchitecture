@@ -1,7 +1,5 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import dagger.assisted.AssistedFactory;
-import dagger.assisted.AssistedInject;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -42,7 +40,7 @@ public class AnimationBlockManager implements IAnimationBlockManager
     @ToString.Include @EqualsAndHashCode.Include
     private final List<IAnimatedBlock> animatedBlocks;
 
-    @AssistedInject AnimationBlockManager(
+    AnimationBlockManager(
         IPLocationFactory locationFactory, IAnimatedBlockFactory animatedBlockFactory, IPExecutor executor)
     {
         this.locationFactory = locationFactory;
@@ -169,11 +167,5 @@ public class AnimationBlockManager implements IAnimationBlockManager
             animatedBlock.getAnimatedBlockData().putBlock(animatedBlock.getFinalPosition());
         }
         privateAnimatedBlocks.clear();
-    }
-
-    @AssistedFactory
-    public interface IFactory
-    {
-        AnimationBlockManager newManager();
     }
 }
