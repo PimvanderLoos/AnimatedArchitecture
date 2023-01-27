@@ -204,9 +204,22 @@ public final class Animator implements IAnimator
         this.cause = data.getCause();
         this.animationType = data.getAnimationType();
         this.actionType = data.getActionType();
-        this.perpetualMovement = movable instanceof IPerpetualMover perpetualMover && perpetualMover.isPerpetual();
 
-        this.animationDuration = AnimationUtil.getAnimationTicks(data.getAnimationTime(), data.getServerTickTime());
+        // Some animation types may place constraints on the duration of the animation.
+        // When this is the case, we limit the duration here.
+        // The components do not need to take this into account, as they use the duration
+        // to figure out how fast they need to move, which should not change because of a time limit.
+        final double animationTime = Math.min(animationType.getAnimationDurationLimit(), data.getAnimationTime());
+        this.animationDuration = AnimationUtil.getAnimationTicks(animationTime, data.getServerTickTime());
+
+        this.perpetualMovement = isPerpetualMovement();
+    }
+
+    private boolean isPerpetualMovement()
+    {
+        return this.animationType.allowsPerpetualAnimation() &&
+            movable instanceof IPerpetualMover perpetualMover &&
+            perpetualMover.isPerpetual();
     }
 
     public void abort()

@@ -11,21 +11,25 @@ public enum AnimationType
      * Animates the movement of blocks from their starting position to their final position, which may be somewhere
      * else.
      */
-    MOVE_BLOCKS(true),
+    MOVE_BLOCKS(true, true, Double.MAX_VALUE),
 
     /**
      * Animates a preview of an animation. No blocks are affected in the world.
      * <p>
      * Note that this type requires an online {@link IPPlayer} to target.
      */
-    PREVIEW(false),
+    PREVIEW(false, false, 3),
     ;
 
     private final boolean affectsWorld;
+    private final boolean supportsPerpetualAnimation;
+    private final double animationDurationLimit;
 
-    AnimationType(boolean affectsWorld)
+    AnimationType(boolean affectsWorld, boolean supportsPerpetualAnimation, double animationDurationLimit)
     {
         this.affectsWorld = affectsWorld;
+        this.supportsPerpetualAnimation = supportsPerpetualAnimation;
+        this.animationDurationLimit = animationDurationLimit;
     }
 
     /**
@@ -35,5 +39,15 @@ public enum AnimationType
     public boolean affectsWorld()
     {
         return affectsWorld;
+    }
+
+    public boolean allowsPerpetualAnimation()
+    {
+        return supportsPerpetualAnimation;
+    }
+
+    public double getAnimationDurationLimit()
+    {
+        return animationDurationLimit;
     }
 }
