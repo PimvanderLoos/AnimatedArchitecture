@@ -9,7 +9,7 @@ import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IDiscreteMovement;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
-import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.MovementDirection;
@@ -119,10 +119,9 @@ public class SlidingDoor extends AbstractMovable implements IDiscreteMovement
 
     @Override
     @Locked.Read
-    protected BlockMover constructBlockMover(MovementRequestData data)
-        throws Exception
+    protected IAnimationComponent constructAnimationComponent(MovementRequestData data)
     {
-        return new SlidingMover(this, data, getCurrentToggleDir(), getBlocksToMove());
+        return new SlidingDoorAnimationComponent(data, getCurrentToggleDir(), getBlocksToMove());
     }
 
     @Override

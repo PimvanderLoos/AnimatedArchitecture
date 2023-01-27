@@ -1,8 +1,11 @@
 package nl.pim16aap2.bigdoors.movable.revolvingdoor;
 
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
+import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
+import nl.pim16aap2.bigdoors.moveblocks.AnimationUtil;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
+import nl.pim16aap2.bigdoors.moveblocks.IAnimator;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.MathUtil;
 import nl.pim16aap2.bigdoors.util.MovementDirection;
@@ -16,17 +19,19 @@ import java.util.function.BiFunction;
  *
  * @author Pim
  */
-public class RevolvingDoorMover extends BlockMover
+public class RevolvingDoorAnimationComponent implements IAnimationComponent
 {
     private final BiFunction<IAnimatedBlock, Double, Vector3Dd> getGoalPos;
+    private final MovableSnapshot snapshot;
     private final double step;
     private final double endStepSum;
+    private final MovementDirection openDirection;
 
-    public RevolvingDoorMover(
-        AbstractMovable movable, MovementRequestData data, MovementDirection movementDirection, int quarterCircles)
-        throws Exception
+    public RevolvingDoorAnimationComponent(
+        MovementRequestData data, MovementDirection movementDirection, int quarterCircles)
     {
-        super(movable, data, movementDirection);
+        this.snapshot = data.getSnapshotOfMovable();
+        this.openDirection = movementDirection;
 
         switch (movementDirection)
         {
@@ -34,11 +39,13 @@ public class RevolvingDoorMover extends BlockMover
             case COUNTERCLOCKWISE -> getGoalPos = this::getGoalPosCounterClockwise;
             default -> throw new IllegalStateException(
                 String.format("Failed to open movable '%d'. Reason: Invalid movement direction '%s'",
-                              getMovableUID(), movementDirection.name()));
+                              snapshot.getUid(), movementDirection.name()));
         }
 
-        step = (MathUtil.HALF_PI * quarterCircles) / super.animationDuration * -1.0;
-        endStepSum = super.animationDuration * step;
+        final double animationDuration =
+            AnimationUtil.getAnimationTicks(data.getAnimationTime(), data.getServerTickTime());
+        step = (MathUtil.HALF_PI * quarterCircles) / animationDuration * -1.0;
+        endStepSum = animationDuration * step;
     }
 
     private Vector3Dd getGoalPosClockwise(double radius, double startAngle, double startY, double stepSum)
@@ -69,7 +76,7 @@ public class RevolvingDoorMover extends BlockMover
     }
 
     @Override
-    protected Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
+    public Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
     {
         // TODO: Redo all this, it's too hacky.
         final double startAngle = getStartAngle((int) startLocation.xD(),
@@ -82,16 +89,16 @@ public class RevolvingDoorMover extends BlockMover
     }
 
     @Override
-    protected void executeAnimationStep(int ticks, int ticksRemaining)
+    public void executeAnimationStep(IAnimator animator, int ticks, int ticksRemaining)
     {
         final double stepSum = step * ticks;
 
-        for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
-            applyMovement(animatedBlock, getGoalPos.apply(animatedBlock, stepSum), ticksRemaining);
+        for (final IAnimatedBlock animatedBlock : animator.getAnimatedBlocks())
+            animator.applyMovement(animatedBlock, getGoalPos.apply(animatedBlock, stepSum), ticksRemaining);
     }
 
     @Override
-    protected float getRadius(int xAxis, int yAxis, int zAxis)
+    public float getRadius(int xAxis, int yAxis, int zAxis)
     {
         final double deltaA = snapshot.getRotationPoint().xD() - xAxis;
         final double deltaB = snapshot.getRotationPoint().zD() - zAxis;
@@ -99,7 +106,7 @@ public class RevolvingDoorMover extends BlockMover
     }
 
     @Override
-    protected float getStartAngle(int xAxis, int yAxis, int zAxis)
+    public float getStartAngle(int xAxis, int yAxis, int zAxis)
     {
         return (float) Math.atan2(snapshot.getRotationPoint().xD() - xAxis,
                                   snapshot.getRotationPoint().zD() - zAxis);

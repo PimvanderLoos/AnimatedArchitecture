@@ -2,8 +2,10 @@ package nl.pim16aap2.bigdoors.movable.bigdoor;
 
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
+import nl.pim16aap2.bigdoors.moveblocks.AnimationUtil;
+import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
+import nl.pim16aap2.bigdoors.moveblocks.IAnimator;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.MathUtil;
 import nl.pim16aap2.bigdoors.util.MovementDirection;
@@ -11,51 +13,55 @@ import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 
 @Flogger
-public class BigDoorMover extends BlockMover
+public final class BigDoorAnimationComponent implements IAnimationComponent
 {
+    private final MovementDirection movementDirection;
+    private final MovableSnapshot snapshot;
     private final Vector3Dd rotationCenter;
     private final int halfEndCount;
     private final double angle;
     private final double step;
 
-    public BigDoorMover(AbstractMovable movable, MovementRequestData data, MovementDirection movementDirection)
-        throws Exception
+    public BigDoorAnimationComponent(MovementRequestData data, MovementDirection movementDirection)
     {
-        super(movable, data, movementDirection);
+        this.snapshot = data.getSnapshotOfMovable();
+        this.movementDirection = movementDirection;
 
         angle = movementDirection == MovementDirection.CLOCKWISE ? MathUtil.HALF_PI :
                 movementDirection == MovementDirection.COUNTERCLOCKWISE ? -MathUtil.HALF_PI : 0.0D;
 
         if (angle == 0.0D)
             log.atSevere()
-               .log("Invalid open direction '%s' for movable: %d", movementDirection.name(), getMovableUID());
+               .log("Invalid open direction '%s' for movable: %d", movementDirection.name(), snapshot.getUid());
 
         rotationCenter = new Vector3Dd(
-            snapshot.getRotationPoint().x() + 0.5, oldCuboid.getMin().y(),
+            snapshot.getRotationPoint().x() + 0.5, snapshot.getCuboid().getMin().y(),
             snapshot.getRotationPoint().z() + 0.5);
 
-        step = angle / super.animationDuration;
-        halfEndCount = super.animationDuration / 2;
+        final int animationDuration =
+            AnimationUtil.getAnimationTicks(data.getAnimationTime(), data.getServerTickTime());
+        step = angle / animationDuration;
+        halfEndCount = animationDuration / 2;
     }
 
     @Override
-    protected Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
+    public Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
     {
         return getGoalPos(angle, startLocation.xD(), startLocation.yD(), startLocation.zD());
     }
 
     @Override
-    protected void executeAnimationStep(int ticks, int ticksRemaining)
+    public void executeAnimationStep(IAnimator animator, int ticks, int ticksRemaining)
     {
         if (ticks == halfEndCount)
-            applyRotation();
+            animator.applyRotation(movementDirection);
 
         final double stepSum = step * ticks;
         final double cos = Math.cos(stepSum);
         final double sin = Math.sin(stepSum);
 
-        for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
-            applyMovement(animatedBlock, getGoalPos(animatedBlock, cos, sin), ticksRemaining);
+        for (final IAnimatedBlock animatedBlock : animator.getAnimatedBlocks())
+            animator.applyMovement(animatedBlock, getGoalPos(animatedBlock, cos, sin), ticksRemaining);
     }
 
     private Vector3Dd getGoalPos(double cos, double sin, double startX, double startY, double startZ)
@@ -87,13 +93,13 @@ public class BigDoorMover extends BlockMover
     }
 
     @Override
-    protected float getRadius(int xAxis, int yAxis, int zAxis)
+    public float getRadius(int xAxis, int yAxis, int zAxis)
     {
         return getRadius(snapshot.getRotationPoint(), xAxis, zAxis);
     }
 
     @Override
-    protected float getStartAngle(int xAxis, int yAxis, int zAxis)
+    public float getStartAngle(int xAxis, int yAxis, int zAxis)
     {
         return (float) Math.atan2(snapshot.getRotationPoint().xD() - xAxis,
                                   snapshot.getRotationPoint().zD() - zAxis);

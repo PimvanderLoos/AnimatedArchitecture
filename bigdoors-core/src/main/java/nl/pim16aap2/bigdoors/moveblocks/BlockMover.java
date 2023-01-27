@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
 import com.google.common.flogger.StackSize;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
@@ -47,7 +46,7 @@ import static nl.pim16aap2.bigdoors.api.animatedblock.IAnimation.AnimationState;
  */
 @ToString
 @Flogger
-public abstract class BlockMover
+public final class BlockMover implements IAnimator
 {
     /**
      * The delay (measured in milliseconds) between initialization of the animation and starting to move the blocks.
@@ -66,7 +65,7 @@ public abstract class BlockMover
      * A snapshot of the movable created before the toggle.
      */
     @Getter
-    protected final MovableSnapshot snapshot;
+    private final MovableSnapshot snapshot;
 
     /**
      * The player responsible for the movement.
@@ -74,7 +73,12 @@ public abstract class BlockMover
      * This player may be offline.
      */
     @Getter
-    protected final IPPlayer player;
+    private final IPPlayer player;
+
+    /**
+     * The animation component used to do all the animation stuff.
+     */
+    private final IAnimationComponent animationComponent;
 
     /**
      * What caused the movable to be moved.
@@ -89,34 +93,27 @@ public abstract class BlockMover
     private final MovableActionType actionType;
 
     @ToString.Exclude
-    protected final IAnimatedBlockFactory animatedBlockFactory;
+    private final IAnimatedBlockFactory animatedBlockFactory;
 
     @ToString.Exclude
-    protected final MovableActivityManager movableActivityManager;
+    private final MovableActivityManager movableActivityManager;
 
     @ToString.Exclude
-    protected final IPExecutor executor;
+    private final IPExecutor executor;
 
     @ToString.Exclude
-    protected final GlowingBlockSpawner glowingBlockSpawner;
+    private final GlowingBlockSpawner glowingBlockSpawner;
 
     @ToString.Exclude
-    protected final IPLocationFactory locationFactory;
+    private final IPLocationFactory locationFactory;
 
     @ToString.Exclude
     private final AnimationHookManager animationHookManager;
 
     @ToString.Exclude
-    protected final int serverTickTime;
+    private final int serverTickTime;
 
-    /**
-     * The type of movement to apply to animated blocks.
-     * <p>
-     * Subclasses are free to override this if a different type of movement is desired for that type.
-     * <p>
-     * Each animated block is moved using {@link MovementMethod#apply(IAnimatedBlock, Vector3Dd, int)}.
-     */
-    protected volatile MovementMethod movementMethod = MovementMethod.TELEPORT_VELOCITY;
+    private final MovementMethod movementMethod;
 
     /**
      * The amount of time (in seconds) that the animation will take.
@@ -124,18 +121,13 @@ public abstract class BlockMover
      * This excludes any additional time specified by {@link MovementMethod#finishDuration()}.
      */
     @Getter
-    protected final double time;
+    private final double time;
 
     /**
      * When true, the blocks are moved without animating them. No animated blocks are spawned.
      */
     @Getter
-    protected final boolean skipAnimation;
-
-    /**
-     * The direction in of the movement.
-     */
-    protected final MovementDirection openDirection;
+    private final boolean skipAnimation;
 
     /**
      * The modifiable list of animated blocks.
@@ -147,7 +139,7 @@ public abstract class BlockMover
      * The (unmodifiable) list of animated blocks.
      */
     @ToString.Exclude
-    @Getter(AccessLevel.PROTECTED)
+    @Getter
     private final List<IAnimatedBlock> animatedBlocks;
 
     /**
@@ -156,7 +148,7 @@ public abstract class BlockMover
      * <p>
      * False to have the movement be time-bound, such as for doors, drawbridges, etc.
      */
-    protected volatile boolean perpetualMovement;
+    private final boolean perpetualMovement;
 
     /**
      * Keeps track of whether the animation has finished.
@@ -175,28 +167,27 @@ public abstract class BlockMover
      * <p>
      * This will be null until the animation starts (if it does, see {@link #skipAnimation}).
      */
-    protected volatile @Nullable TimerTask moverTask = null;
+    private volatile @Nullable TimerTask moverTask = null;
 
     /**
      * The ID of the {@link #moverTask}.
      */
-    @Getter(AccessLevel.PROTECTED)
     private volatile @Nullable Integer moverTaskID = null;
 
     /**
      * The duration of the animation measured in ticks.
      */
-    protected final int animationDuration;
+    private final int animationDuration;
 
     /**
      * The cuboid that describes the location of the movable after the blocks have been moved.
      */
-    protected final Cuboid oldCuboid;
+    private final Cuboid oldCuboid;
 
     /**
      * The cuboid that describes the location of the movable after the blocks have been moved.
      */
-    protected final Cuboid newCuboid;
+    private final Cuboid newCuboid;
 
     /**
      * Constructs a {@link BlockMover}.
@@ -205,10 +196,9 @@ public abstract class BlockMover
      *     The {@link AbstractMovable}.
      * @param data
      *     The data of the movement request.
-     * @param movementDirection
-     *     The direction of the movement.
      */
-    protected BlockMover(AbstractMovable movable, MovementRequestData data, MovementDirection movementDirection)
+    public BlockMover(
+        AbstractMovable movable, MovementRequestData data, IAnimationComponent animationComponent)
         throws Exception
     {
         executor = data.getExecutor();
@@ -219,12 +209,13 @@ public abstract class BlockMover
         glowingBlockSpawner = data.getGlowingBlockSpawner();
         serverTickTime = data.getServerTickTime();
 
+        this.movementMethod = animationComponent.getMovementMethod();
         this.movable = movable;
         this.snapshot = data.getSnapshotOfMovable();
         this.time = data.getAnimationTime();
         this.skipAnimation = data.isAnimationSkipped();
-        this.openDirection = movementDirection;
         this.player = data.getResponsible();
+        this.animationComponent = animationComponent;
         privateAnimatedBlocks = new CopyOnWriteArrayList<>();
         animatedBlocks = Collections.unmodifiableList(privateAnimatedBlocks);
         this.newCuboid = data.getNewCuboid();
@@ -233,17 +224,7 @@ public abstract class BlockMover
         this.actionType = data.getActionType();
         this.perpetualMovement = movable instanceof IPerpetualMover perpetualMover && perpetualMover.isPerpetual();
 
-        this.animationDuration = (int) Math.min(Integer.MAX_VALUE, Math.round(1000 * this.time / serverTickTime));
-    }
-
-    /**
-     * See {@link #BlockMover(AbstractMovable, MovementRequestData, MovementDirection)}, with
-     * {@link MovementDirection#NONE}.
-     */
-    protected BlockMover(AbstractMovable movable, MovementRequestData data)
-        throws Exception
-    {
-        this(movable, data, MovementDirection.NONE);
+        this.animationDuration = AnimationUtil.getAnimationTicks(data.getAnimationTime(), data.getServerTickTime());
     }
 
     public void abort()
@@ -255,24 +236,21 @@ public abstract class BlockMover
     }
 
     /**
-     * Rotates in the {@link #openDirection} and then respawns the {@link IAnimatedBlock}. Note that this is executed on
+     * Rotates an {@link IAnimatedBlock} in the provided direction and then respawns it. Note that this is executed on
      * the thread it was called from, which MUST BE the main thread!
      */
-    private void applyRotationOnCurrentThread()
+    private void applyRotation0(MovementDirection direction)
     {
-        for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
+        for (final IAnimatedBlock animatedBlock : animatedBlocks)
             if (animatedBlock.getAnimatedBlockData().canRotate() &&
-                animatedBlock.getAnimatedBlockData().rotateBlock(openDirection))
+                animatedBlock.getAnimatedBlockData().rotateBlock(direction))
                 animatedBlock.respawn();
     }
 
-    /**
-     * Rotates in the {@link #openDirection} and then respawns an {@link IAnimatedBlock}. This is executed on the main
-     * thread.
-     */
-    protected void applyRotation()
+    @Override
+    public void applyRotation(MovementDirection direction)
     {
-        executor.runSync(this::applyRotationOnCurrentThread);
+        executor.runSync(() -> this.applyRotation0(direction));
     }
 
     /**
@@ -283,10 +261,8 @@ public abstract class BlockMover
         animatedBlocks.forEach(IAnimatedBlock::respawn);
     }
 
-    /**
-     * Respawns all blocks. This is executed on the main thread.
-     */
-    protected final void respawnBlocks()
+    @Override
+    public void respawnBlocks()
     {
         executor.runSync(this::respawnBlocksOnCurrentThread);
     }
@@ -297,7 +273,7 @@ public abstract class BlockMover
      * Note that if {@link #skipAnimation} is true, the blocks will be placed in the new position immediately without
      * any animations.
      */
-    public final void startAnimation()
+    public void startAnimation()
     {
         if (animationDuration < 0)
             throw new IllegalStateException("Trying to start an animation with invalid endCount value: " +
@@ -347,8 +323,8 @@ public abstract class BlockMover
                         final IPLocation location =
                             locationFactory.create(snapshot.getWorld(), xAxis + 0.5, yAxis, zAxis + 0.5);
                         final boolean bottom = (yAxis == yMin);
-                        final float radius = getRadius(xAxis, yAxis, zAxis);
-                        final float startAngle = getStartAngle(xAxis, yAxis, zAxis);
+                        final float radius = animationComponent.getRadius(xAxis, yAxis, zAxis);
+                        final float startAngle = animationComponent.getStartAngle(xAxis, yAxis, zAxis);
                         final Vector3Dd startPosition = new Vector3Dd(xAxis + 0.5, yAxis, zAxis + 0.5);
                         final Vector3Dd finalPosition = getFinalPosition(startPosition, radius);
 
@@ -457,14 +433,10 @@ public abstract class BlockMover
         movableActivityManager.processFinishedBlockMover(this);
     }
 
-    /**
-     * @param startLocation
-     *     The start location of a block.
-     * @param radius
-     *     The radius of the block to the rotation point.
-     * @return The final position of an {@link IAnimatedBlock}.
-     */
-    protected abstract Vector3Dd getFinalPosition(IVector3D startLocation, float radius);
+    private Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
+    {
+        return animationComponent.getFinalPosition(startLocation, radius);
+    }
 
     /**
      * Runs a single step of the animation.
@@ -473,7 +445,10 @@ public abstract class BlockMover
      *     The number of ticks that have passed since the start of the animation.
      * @param ticksRemaining
      */
-    protected abstract void executeAnimationStep(int ticks, int ticksRemaining);
+    private void executeAnimationStep(int ticks, int ticksRemaining)
+    {
+        animationComponent.executeAnimationStep(this, ticks, ticksRemaining);
+    }
 
     private void executeAnimationStep(int counter, Animation<IAnimatedBlock> animation)
     {
@@ -483,7 +458,8 @@ public abstract class BlockMover
         animation.setState(AnimationState.ACTIVE);
     }
 
-    protected final void applyMovement(IAnimatedBlock animatedBlock, IVector3D targetPosition, int ticksRemaining)
+    @Override
+    public void applyMovement(IAnimatedBlock animatedBlock, IVector3D targetPosition, int ticksRemaining)
     {
         if (drawDebugBlocks)
             drawDebugBlock(targetPosition);
@@ -503,7 +479,7 @@ public abstract class BlockMover
 
     private void executeFinishingStep(Animation<IAnimatedBlock> animation)
     {
-        for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
+        for (final IAnimatedBlock animatedBlock : animatedBlocks)
             applyMovement(animatedBlock, animatedBlock.getFinalPosition(), -1);
 
         animation.setRegion(getAnimationRegion());
@@ -543,10 +519,11 @@ public abstract class BlockMover
      * <p>
      * Overriding methods should not forget to either call this method or spawn the animated blocks themselves.
      */
-    protected void prepareAnimation()
+    private void prepareAnimation()
     {
         executor.assertMainThread("Animated blocks must be spawned on the main thread!");
-        getAnimatedBlocks().forEach(IAnimatedBlock::spawn);
+        animatedBlocks.forEach(IAnimatedBlock::spawn);
+        animationComponent.prepareAnimation(this);
     }
 
     /**
@@ -607,38 +584,6 @@ public abstract class BlockMover
         moverTaskID = executor.runAsyncRepeated(moverTask0, initialDelay, 1);
     }
 
-    /**
-     * Gets the radius of a block at the given coordinates.
-     *
-     * @param xAxis
-     *     The x coordinate.
-     * @param yAxis
-     *     The y coordinate.
-     * @param zAxis
-     *     The z coordinate.
-     * @return The radius of a block at the given coordinates.
-     */
-    protected float getRadius(int xAxis, int yAxis, int zAxis)
-    {
-        return -1;
-    }
-
-    /**
-     * Gets the starting angle of a block (in rads) at the given coordinates.
-     *
-     * @param xAxis
-     *     The x coordinate.
-     * @param yAxis
-     *     The y coordinate.
-     * @param zAxis
-     *     The z coordinate.
-     * @return The starting angle of a block at the given coordinates.
-     */
-    protected float getStartAngle(int xAxis, int yAxis, int zAxis)
-    {
-        return -1;
-    }
-
     private void putBlocks0()
     {
         executor.assertMainThread("Attempting async block placement!");
@@ -662,7 +607,7 @@ public abstract class BlockMover
     /**
      * Places all the blocks of the movable in their final position and kills all the animated blocks.
      */
-    public final void putBlocks()
+    private void putBlocks()
     {
         // Only allow this method to be run once! If it can be run multiple times, it'll cause movable corruption
         // because while the blocks have already been placed, the coordinates can still be toggled!
@@ -687,7 +632,7 @@ public abstract class BlockMover
      *
      * @return The UID of the {@link AbstractMovable} being moved.
      */
-    public final long getMovableUID()
+    public long getMovableUID()
     {
         return snapshot.getUid();
     }

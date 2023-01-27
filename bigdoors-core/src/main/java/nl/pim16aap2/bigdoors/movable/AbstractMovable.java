@@ -15,6 +15,7 @@ import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.LazyValue;
@@ -311,7 +312,7 @@ public abstract class AbstractMovable implements IMovable
      *     The data for the toggle request.
      * @return A new {@link BlockMover} for this type of movable.
      */
-    protected abstract BlockMover constructBlockMover(MovementRequestData data)
+    protected abstract IAnimationComponent constructAnimationComponent(MovementRequestData data)
         throws Exception;
 
     /**
