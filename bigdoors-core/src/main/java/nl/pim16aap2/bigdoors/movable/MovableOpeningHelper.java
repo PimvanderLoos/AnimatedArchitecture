@@ -124,7 +124,7 @@ public final class MovableOpeningHelper
      *     Who is responsible for the action.
      * @return The result.
      */
-    MovableToggleResult abort(
+    private MovableToggleResult abort(
         AbstractMovable movable, MovableToggleResult result, MovableActionCause cause, IPPlayer responsible,
         IMessageable messageReceiver)
     {
@@ -164,7 +164,7 @@ public final class MovableOpeningHelper
      * {@link IBigDoorsEventFactory#createTogglePrepareEvent(MovableSnapshot, MovableActionCause, MovableActionType,
      * IPPlayer, double, boolean, Cuboid)}.
      */
-    IMovableEventTogglePrepare callTogglePrepareEvent(
+    private IMovableEventTogglePrepare callTogglePrepareEvent(
         MovableSnapshot snapshot, MovableActionCause cause, MovableActionType actionType, IPPlayer responsible,
         double time, boolean skipAnimation, Cuboid newCuboid)
     {
@@ -180,7 +180,7 @@ public final class MovableOpeningHelper
      * {@link IBigDoorsEventFactory#createTogglePrepareEvent(MovableSnapshot, MovableActionCause, MovableActionType,
      * IPPlayer, double, boolean, Cuboid)}.
      */
-    IMovableEventTogglePrepare callTogglePrepareEvent(MovementRequestData data)
+    private IMovableEventTogglePrepare callTogglePrepareEvent(MovementRequestData data)
     {
         return callTogglePrepareEvent(
             data.getSnapshotOfMovable(),
@@ -197,7 +197,7 @@ public final class MovableOpeningHelper
      * {@link IBigDoorsEventFactory#createToggleStartEvent(AbstractMovable, MovableSnapshot, MovableActionCause,
      * MovableActionType, IPPlayer, double, boolean, Cuboid)}.
      */
-    IMovableEventToggleStart callToggleStartEvent(
+    private IMovableEventToggleStart callToggleStartEvent(
         AbstractMovable movable, MovableSnapshot snapshot, MovableActionCause cause, MovableActionType actionType,
         IPPlayer responsible, double time, boolean skipAnimation, Cuboid newCuboid)
     {
@@ -213,7 +213,7 @@ public final class MovableOpeningHelper
      * {@link IBigDoorsEventFactory#createToggleStartEvent(AbstractMovable, MovableSnapshot, MovableActionCause,
      * MovableActionType, IPPlayer, double, boolean, Cuboid)}.
      */
-    IMovableEventToggleStart callToggleStartEvent(AbstractMovable movable, MovementRequestData data)
+    private IMovableEventToggleStart callToggleStartEvent(AbstractMovable movable, MovementRequestData data)
     {
         return callToggleStartEvent(
             movable,
@@ -234,21 +234,23 @@ public final class MovableOpeningHelper
     /**
      * Registers a new block mover. Must be called from the main thread.
      */
-    boolean registerBlockMover(AbstractMovable movable, IAnimationComponent component, MovementRequestData data)
+    private boolean registerBlockMover(
+        AbstractMovable movable, IAnimationComponent component, MovementRequestData data, @Nullable IPPlayer player)
     {
-        return registerBlockMover(movable, data, component, AnimationType.MOVE_BLOCKS);
+        return registerBlockMover(movable, data, component, player, AnimationType.MOVE_BLOCKS);
     }
 
     /**
      * Registers a new block mover. Must be called from the main thread.
      */
-    boolean registerBlockMover(
-        AbstractMovable movable, MovementRequestData data, IAnimationComponent component, AnimationType animationType)
+    private boolean registerBlockMover(
+        AbstractMovable movable, MovementRequestData data, IAnimationComponent component, @Nullable IPPlayer player,
+        AnimationType animationType)
     {
         try
         {
             final IAnimationBlockManager animationBlockManager =
-                animationBlockManagerFactory.newManager(animationType, null);
+                animationBlockManagerFactory.newManager(animationType, player);
 
             final Animator blockMover =
                 new Animator(movable, data, component, animationBlockManager, animationType.affectsWorld());
@@ -266,7 +268,7 @@ public final class MovableOpeningHelper
 
     private MovableToggleResult toggle(
         MovableSnapshot snapshot, AbstractMovable targetMovable, MovementRequestData data,
-        IAnimationComponent component, IMessageable messageReceiver)
+        IAnimationComponent component, IMessageable messageReceiver, @Nullable IPPlayer player)
     {
         if (snapshot.getOpenDir() == MovementDirection.NONE)
         {
@@ -299,7 +301,7 @@ public final class MovableOpeningHelper
             return abort(targetMovable, MovableToggleResult.NO_PERMISSION, data.getCause(), data.getResponsible(),
                          messageReceiver);
 
-        final boolean scheduled = registerBlockMover(targetMovable, component, data);
+        final boolean scheduled = registerBlockMover(targetMovable, component, data, player);
         if (!scheduled)
             return MovableToggleResult.ERROR;
 
@@ -342,7 +344,7 @@ public final class MovableOpeningHelper
         {
             movable.getLock().readLock().unlock();
         }
-        return toggle(snapshot, movable, data, component, messageReceiver);
+        return toggle(snapshot, movable, data, component, messageReceiver, responsible);
     }
 
     /**
