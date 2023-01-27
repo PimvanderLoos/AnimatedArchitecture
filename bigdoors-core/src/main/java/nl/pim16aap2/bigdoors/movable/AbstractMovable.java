@@ -7,11 +7,8 @@ import lombok.ToString;
 import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
-import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
-import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
-import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.Animator;
@@ -318,27 +315,16 @@ public abstract class AbstractMovable implements IMovable
      * Attempts to toggle a movable. Think twice before using this method. Instead, please look at
      * {@link MovableToggleRequestBuilder}.
      *
-     * @param cause
-     *     What caused the toggle action.
-     * @param messageReceiver
-     *     Who will receive any messages that have to be sent.
+     * @param request
+     *     The toggle request to process.
      * @param responsible
      *     Who is responsible for this movable. Either the player who directly toggled it (via a command or the GUI), or
      *     the prime owner when this data is not available.
-     * @param targetTime
-     *     The amount of time this {@link MovableBase} will try to use to move. When null, the default speed is used.
-     * @param skipAnimation
-     *     If the {@link MovableBase} should be opened instantly (i.e. skip animation) or not.
-     * @param actionType
-     *     The type of action.
      * @return The result of the attempt.
      */
-    final MovableToggleResult toggle(
-        MovableActionCause cause, IMessageable messageReceiver, IPPlayer responsible, @Nullable Double targetTime,
-        boolean skipAnimation, MovableActionType actionType)
+    final MovableToggleResult toggle(MovableToggleRequest request, IPPlayer responsible)
     {
-        return base.getMovableOpeningHelper().toggle(
-            this, cause, messageReceiver, responsible, targetTime, skipAnimation, actionType);
+        return base.getMovableOpeningHelper().toggle(this, request, responsible);
     }
 
     /**

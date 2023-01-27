@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
 import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
+import nl.pim16aap2.bigdoors.moveblocks.AnimationType;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
@@ -66,6 +67,7 @@ public class MovableToggleRequestBuilder
         private @Nullable IMessageable messageReceiver = null;
         private @Nullable IPPlayer responsible = null;
         private @Nullable Double time = null;
+        private @Nullable AnimationType animationType = null;
         private boolean skipAnimation = false;
 
         @Override
@@ -149,12 +151,21 @@ public class MovableToggleRequestBuilder
         }
 
         @Override
+        public IBuilder animationType(AnimationType animationType)
+        {
+            this.animationType = animationType;
+            return this;
+        }
+
+        @Override
         public MovableToggleRequest build()
         {
             updateMessageReceiver();
-            return movableToggleRequestFactory.create(movableRetriever, movableActionCause,
-                                                      Util.requireNonNull(messageReceiver, "MessageReceiver"),
-                                                      responsible, time, skipAnimation, movableActionType);
+            return movableToggleRequestFactory.create(
+                movableRetriever, movableActionCause,
+                Util.requireNonNull(messageReceiver, "MessageReceiver"),
+                responsible, time, skipAnimation, movableActionType,
+                Objects.requireNonNullElse(animationType, AnimationType.MOVE_BLOCKS));
         }
 
         /**
@@ -259,6 +270,15 @@ public class MovableToggleRequestBuilder
          * Sets the server to be the message receiver.
          */
         IBuilder messageReceiverServer();
+
+        /**
+         * Sets the animation type of the animation. Defaults to {@link AnimationType#MOVE_BLOCKS}.
+         *
+         * @param animationType
+         *     The animation type to apply.
+         * @return The next step of the guided builder process.
+         */
+        IBuilder animationType(AnimationType animationType);
 
         /**
          * Constructs the new movable toggle request.

@@ -235,15 +235,6 @@ public final class MovableOpeningHelper
      * Registers a new block mover. Must be called from the main thread.
      */
     private boolean registerBlockMover(
-        AbstractMovable movable, IAnimationComponent component, MovementRequestData data, @Nullable IPPlayer player)
-    {
-        return registerBlockMover(movable, data, component, player, AnimationType.MOVE_BLOCKS);
-    }
-
-    /**
-     * Registers a new block mover. Must be called from the main thread.
-     */
-    private boolean registerBlockMover(
         AbstractMovable movable, MovementRequestData data, IAnimationComponent component, @Nullable IPPlayer player,
         AnimationType animationType)
     {
@@ -268,7 +259,8 @@ public final class MovableOpeningHelper
 
     private MovableToggleResult toggle(
         MovableSnapshot snapshot, AbstractMovable targetMovable, MovementRequestData data,
-        IAnimationComponent component, IMessageable messageReceiver, @Nullable IPPlayer player)
+        IAnimationComponent component, IMessageable messageReceiver, @Nullable IPPlayer player,
+        AnimationType animationType)
     {
         if (snapshot.getOpenDir() == MovementDirection.NONE)
         {
@@ -301,7 +293,7 @@ public final class MovableOpeningHelper
             return abort(targetMovable, MovableToggleResult.NO_PERMISSION, data.getCause(), data.getResponsible(),
                          messageReceiver);
 
-        final boolean scheduled = registerBlockMover(targetMovable, component, data, player);
+        final boolean scheduled = registerBlockMover(targetMovable, data, component, player, animationType);
         if (!scheduled)
             return MovableToggleResult.ERROR;
 
@@ -310,9 +302,7 @@ public final class MovableOpeningHelper
         return MovableToggleResult.SUCCESS;
     }
 
-    MovableToggleResult toggle(
-        AbstractMovable movable, MovableActionCause cause, IMessageable messageReceiver, IPPlayer responsible,
-        @Nullable Double targetTime, boolean skipAnimation, MovableActionType actionType)
+    MovableToggleResult toggle(AbstractMovable movable, MovableToggleRequest request, IPPlayer responsible)
     {
         final Optional<Cuboid> newCuboid;
         final double animationTime;
@@ -323,28 +313,34 @@ public final class MovableOpeningHelper
         movable.getLock().readLock().lock();
         try
         {
-            if (skipAnimation && !movable.canSkipAnimation())
-                return abort(movable, MovableToggleResult.ERROR, cause, responsible, messageReceiver);
+            if (request.isSkipAnimation() && !movable.canSkipAnimation())
+                return abort(
+                    movable, MovableToggleResult.ERROR, request.getCause(), responsible, request.getMessageReceiver());
 
             if (exceedSizeLimit(movable, responsible))
-                return abort(movable, MovableToggleResult.TOO_BIG, cause, responsible, messageReceiver);
+                return abort(
+                    movable, MovableToggleResult.TOO_BIG, request.getCause(), responsible,
+                    request.getMessageReceiver());
 
             newCuboid = movable.getPotentialNewCoordinates();
             if (newCuboid.isEmpty())
-                return abort(movable, MovableToggleResult.ERROR, cause, responsible, messageReceiver);
+                return abort(
+                    movable, MovableToggleResult.ERROR, request.getCause(), responsible, request.getMessageReceiver());
 
-            animationTime = movable.getAnimationTime(targetTime);
+            animationTime = movable.getAnimationTime(request.getTime());
             snapshot = movable.getSnapshot();
 
             data = movementRequestDataFactory.newToggleRequestData(
-                snapshot, cause, animationTime, skipAnimation, newCuboid.get(), responsible, actionType);
+                snapshot, request.getCause(), animationTime, request.isSkipAnimation(), newCuboid.get(), responsible,
+                request.getActionType());
             component = movable.constructAnimationComponent(data);
         }
         finally
         {
             movable.getLock().readLock().unlock();
         }
-        return toggle(snapshot, movable, data, component, messageReceiver, responsible);
+        return toggle(
+            snapshot, movable, data, component, request.getMessageReceiver(), responsible, request.getAnimationType());
     }
 
     /**

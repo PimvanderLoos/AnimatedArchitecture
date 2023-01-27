@@ -11,7 +11,9 @@ import nl.pim16aap2.bigdoors.api.animatedblock.AnimationContext;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
+import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,27 +61,31 @@ public class AnimationPreviewBlockManager implements IAnimationBlockManager
 
         try
         {
-            final int xMin = snapshot.getCuboid().getMin().x();
-            final int yMin = snapshot.getCuboid().getMin().y();
-            final int zMin = snapshot.getCuboid().getMin().z();
+            final Cuboid cuboid = snapshot.getCuboid();
+            final int xMin = cuboid.getMin().x();
+            final int yMin = cuboid.getMin().y();
+            final int zMin = cuboid.getMin().z();
 
-            final int xMax = snapshot.getCuboid().getMax().x();
-            final int yMax = snapshot.getCuboid().getMax().y();
-            final int zMax = snapshot.getCuboid().getMax().z();
+            final int xMax = cuboid.getMax().x();
+            final int yMax = cuboid.getMax().y();
+            final int zMax = cuboid.getMax().z();
 
             for (int xAxis = xMin; xAxis <= xMax; ++xAxis)
                 for (int yAxis = yMax; yAxis >= yMin; --yAxis)
                     for (int zAxis = zMin; zAxis <= zMax; ++zAxis)
                     {
+                        final Vector3Di position = new Vector3Di(xAxis, yAxis, zAxis);
+
                         final float radius = animationComponent.getRadius(xAxis, yAxis, zAxis);
                         final float startAngle = animationComponent.getStartAngle(xAxis, yAxis, zAxis);
+                        final PColor color = getColor(cuboid, position);
                         final Vector3Dd startPosition = new Vector3Dd(xAxis + 0.5, yAxis, zAxis + 0.5);
                         final Vector3Dd finalPosition = animationComponent.getFinalPosition(startPosition, radius);
 
                         animatedBlocksTmp.add(
                             new AnimatedPreviewBlock(
                                 locationFactory, glowingBlockSpawner, snapshot.getWorld(), player, startPosition,
-                                finalPosition, startAngle, radius, PColor.AQUA));
+                                finalPosition, startAngle, radius, color));
                     }
         }
         catch (Exception e)
@@ -91,6 +97,15 @@ public class AnimationPreviewBlockManager implements IAnimationBlockManager
 
         this.privateAnimatedBlocks.addAll(animatedBlocksTmp);
         return true;
+    }
+
+    private PColor getColor(Cuboid cuboid, Vector3Di position)
+    {
+        if (position.equals(cuboid.getMin()))
+            return PColor.RED;
+        if (position.equals(cuboid.getMax()))
+            return PColor.BLUE;
+        return PColor.AQUA;
     }
 
     @Override

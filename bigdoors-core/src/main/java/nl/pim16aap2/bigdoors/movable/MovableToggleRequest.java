@@ -13,6 +13,7 @@ import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
 import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.moveblocks.AnimationType;
 import nl.pim16aap2.bigdoors.moveblocks.MovableActivityManager;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
@@ -29,7 +30,7 @@ public class MovableToggleRequest
     @Getter
     private final MovableRetriever movableRetriever;
     @Getter
-    private final MovableActionCause movableActionCause;
+    private final MovableActionCause cause;
     @Getter
     private final IMessageable messageReceiver;
     @Getter
@@ -39,7 +40,9 @@ public class MovableToggleRequest
     @Getter
     private final boolean skipAnimation;
     @Getter
-    private final MovableActionType movableActionType;
+    private final MovableActionType actionType;
+    @Getter
+    private final AnimationType animationType;
 
     private final ILocalizer localizer;
     private final MovableActivityManager movableActivityManager;
@@ -48,19 +51,21 @@ public class MovableToggleRequest
 
     @AssistedInject
     public MovableToggleRequest(
-        @Assisted MovableRetriever movableRetriever, @Assisted MovableActionCause movableActionCause,
+        @Assisted MovableRetriever movableRetriever, @Assisted MovableActionCause cause,
         @Assisted IMessageable messageReceiver, @Assisted @Nullable IPPlayer responsible,
-        @Assisted @Nullable Double time, @Assisted boolean skipAnimation, @Assisted MovableActionType movableActionType,
+        @Assisted @Nullable Double time, @Assisted boolean skipAnimation, @Assisted MovableActionType actionType,
+        @Assisted AnimationType animationType,
         ILocalizer localizer, MovableActivityManager movableActivityManager, IPPlayerFactory playerFactory,
         IPExecutor executor)
     {
         this.movableRetriever = movableRetriever;
-        this.movableActionCause = movableActionCause;
+        this.cause = cause;
         this.messageReceiver = messageReceiver;
         this.responsible = responsible;
         this.time = time;
         this.skipAnimation = skipAnimation;
-        this.movableActionType = movableActionType;
+        this.actionType = actionType;
+        this.animationType = animationType;
         this.localizer = localizer;
         this.movableActivityManager = movableActivityManager;
         this.playerFactory = playerFactory;
@@ -88,12 +93,15 @@ public class MovableToggleRequest
         }
         final AbstractMovable movable = movableOpt.get();
         final IPPlayer actualResponsible = getActualResponsible(movable);
-        return execute(movable, actualResponsible);
+        verifyValidity(actualResponsible);
+
+        return movable.toggle(this, actualResponsible);
     }
 
-    private MovableToggleResult execute(AbstractMovable movable, IPPlayer responsible)
+    private void verifyValidity(IPPlayer actualResponsible)
     {
-        return movable.toggle(movableActionCause, messageReceiver, responsible, time, skipAnimation, movableActionType);
+        if (this.animationType == AnimationType.PREVIEW && !actualResponsible.isOnline())
+            throw new IllegalStateException("Trying to show preview to offline player: " + actualResponsible);
     }
 
     /**
@@ -119,6 +127,6 @@ public class MovableToggleRequest
         MovableToggleRequest create(
             MovableRetriever movableRetriever, MovableActionCause movableActionCause, IMessageable messageReceiver,
             @Nullable IPPlayer responsible, @Nullable Double time, boolean skipAnimation,
-            MovableActionType movableActionType);
+            MovableActionType movableActionType, AnimationType animationType);
     }
 }
