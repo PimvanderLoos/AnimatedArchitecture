@@ -6,7 +6,7 @@ import nl.pim16aap2.bigdoors.annotations.InheritedLockField;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
-import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.testimplementations.TestPWorld;
 import nl.pim16aap2.bigdoors.util.Cuboid;
@@ -222,7 +222,7 @@ class MovableSerializerTest
         }
 
         @Override
-        protected BlockMover constructBlockMover(MovementRequestData data)
+        protected IAnimationComponent constructAnimationComponent(MovementRequestData data)
         {
             return null;
         }

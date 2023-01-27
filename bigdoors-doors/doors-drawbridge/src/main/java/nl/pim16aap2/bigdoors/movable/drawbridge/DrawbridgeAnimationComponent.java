@@ -1,9 +1,11 @@
 package nl.pim16aap2.bigdoors.movable.drawbridge;
 
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
+import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
+import nl.pim16aap2.bigdoors.moveblocks.AnimationUtil;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
+import nl.pim16aap2.bigdoors.moveblocks.IAnimator;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.MathUtil;
 import nl.pim16aap2.bigdoors.util.MovementDirection;
@@ -17,22 +19,24 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
  *
  * @author Pim
  */
-public class BridgeMover<T extends AbstractMovable & IHorizontalAxisAligned> extends BlockMover
+public class DrawbridgeAnimationComponent implements IAnimationComponent
 {
     private final Vector3Dd rotationCenter;
     protected final boolean northSouth;
     protected final TriFunction<Vector3Dd, Vector3Dd, Double, Vector3Dd> rotator;
+    protected final MovableSnapshot snapshot;
+    protected final int animationDuration;
 
+    protected final double angle;
     private final int halfEndCount;
     private final double step;
-    protected final double angle;
 
-    public BridgeMover(T movable, MovementRequestData data, MovementDirection movementDirection)
-        throws Exception
+    public DrawbridgeAnimationComponent(
+        MovementRequestData data, MovementDirection movementDirection, boolean isNorthSouthAligned)
     {
-        super(movable, data, movementDirection);
+        this.snapshot = data.getSnapshotOfMovable();
 
-        northSouth = movable.isNorthSouthAligned();
+        northSouth = isNorthSouthAligned;
         rotationCenter = snapshot.getRotationPoint().toDouble().add(0.5, 0, 0.5);
 
         switch (movementDirection)
@@ -61,8 +65,9 @@ public class BridgeMover<T extends AbstractMovable & IHorizontalAxisAligned> ext
                                                               "\" is not valid for this type!");
         }
 
-        step = angle / super.animationDuration;
-        halfEndCount = super.animationDuration / 2;
+        animationDuration = AnimationUtil.getAnimationTicks(data.getAnimationTime(), data.getServerTickTime());
+        step = angle / animationDuration;
+        halfEndCount = animationDuration / 2;
     }
 
     protected Vector3Dd getGoalPos(double angle, double x, double y, double z)
@@ -76,22 +81,22 @@ public class BridgeMover<T extends AbstractMovable & IHorizontalAxisAligned> ext
     }
 
     @Override
-    protected Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
+    public Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
     {
         return getGoalPos(angle, startLocation.xD(), startLocation.yD(), startLocation.zD());
     }
 
     @Override
-    protected void executeAnimationStep(int ticks, int ticksRemaining)
+    public void executeAnimationStep(IAnimator animator, int ticks, int ticksRemaining)
     {
         final double stepSum = step * ticks;
         final boolean replace = ticks == halfEndCount;
 
         if (replace)
-            this.respawnBlocks();
+            animator.respawnBlocks();
 
-        for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
-            applyMovement(animatedBlock, getGoalPos(stepSum, animatedBlock), ticksRemaining);
+        for (final IAnimatedBlock animatedBlock : animator.getAnimatedBlocks())
+            animator.applyMovement(animatedBlock, getGoalPos(stepSum, animatedBlock), ticksRemaining);
     }
 
     public static float getRadius(boolean northSouthAligned, IVector3D rotationPoint, int xAxis, int yAxis, int zAxis)
@@ -104,13 +109,13 @@ public class BridgeMover<T extends AbstractMovable & IHorizontalAxisAligned> ext
     }
 
     @Override
-    protected float getRadius(int xAxis, int yAxis, int zAxis)
+    public float getRadius(int xAxis, int yAxis, int zAxis)
     {
         return getRadius(northSouth, snapshot.getRotationPoint(), xAxis, yAxis, zAxis);
     }
 
     @Override
-    protected float getStartAngle(int xAxis, int yAxis, int zAxis)
+    public float getStartAngle(int xAxis, int yAxis, int zAxis)
     {
         // Get the angle between the used axes (either x and y, or z and y).
         // When the rotation point is positioned along the NS axis, the Z values does not change.

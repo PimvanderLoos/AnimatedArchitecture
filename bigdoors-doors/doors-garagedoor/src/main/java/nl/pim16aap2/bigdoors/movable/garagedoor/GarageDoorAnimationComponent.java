@@ -1,8 +1,13 @@
 package nl.pim16aap2.bigdoors.movable.garagedoor;
 
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
+import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
+import nl.pim16aap2.bigdoors.moveblocks.AnimationUtil;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
+import nl.pim16aap2.bigdoors.moveblocks.IAnimator;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
+import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.vector.IVector3D;
@@ -16,20 +21,21 @@ import java.util.function.BiFunction;
  *
  * @author Pim
  */
-public class GarageDoorMover extends BlockMover
+public final class GarageDoorAnimationComponent implements IAnimationComponent
 {
+    private final MovableSnapshot snapshot;
     private final double resultHeight;
     private final Vector3Di directionVec;
     private final BiFunction<IAnimatedBlock, Double, Vector3Dd> getVector;
     private final boolean northSouth;
     private final double step;
     private final boolean isOpen;
+    private final Cuboid oldCuboid;
 
-    public GarageDoorMover(GarageDoor movable, MovementRequestData data, MovementDirection movementDirection)
-        throws Exception
+    public GarageDoorAnimationComponent(MovementRequestData data, MovementDirection movementDirection)
     {
-        super(movable, data, movementDirection);
-
+        this.snapshot = data.getSnapshotOfMovable();
+        this.oldCuboid = snapshot.getCuboid();
         isOpen = snapshot.isOpen();
 
         resultHeight = oldCuboid.getMax().y() + 1.0D;
@@ -61,14 +67,14 @@ public class GarageDoorMover extends BlockMover
                 getVectorTmp = this::getVectorDownWest;
                 northSouth = false;
             }
-            default -> throw new IllegalStateException("Failed to open garage door \"" + getMovableUID()
+            default -> throw new IllegalStateException("Failed to open garage door \"" + snapshot.getUid()
                                                            + "\". Reason: Invalid movement direction \"" +
                                                            movementDirection + "\"");
         }
 
         final Vector3Di dims = oldCuboid.getDimensions();
         int blocksToMove;
-        if (!movable.isOpen())
+        if (!snapshot.isOpen())
         {
             blocksToMove = dims.y();
             getVector = this::getVectorUp;
@@ -81,7 +87,9 @@ public class GarageDoorMover extends BlockMover
             getVector = getVectorTmp;
         }
 
-        step = (blocksToMove + 0.5f) / super.animationDuration;
+        final int animationDuration =
+            AnimationUtil.getAnimationTicks(data.getAnimationTime(), data.getServerTickTime());
+        step = (blocksToMove + 0.5f) / animationDuration;
     }
 
     private Vector3Dd getVectorUp(IAnimatedBlock animatedBlock, double stepSum)
@@ -181,7 +189,7 @@ public class GarageDoorMover extends BlockMover
     }
 
     @Override
-    protected Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
+    public Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
     {
         double newX;
         double newY;
@@ -218,15 +226,15 @@ public class GarageDoorMover extends BlockMover
     }
 
     @Override
-    protected void executeAnimationStep(int ticks, int ticksRemaining)
+    public void executeAnimationStep(IAnimator animator, int ticks, int ticksRemaining)
     {
         final double stepSum = step * ticks;
-        for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
-            applyMovement(animatedBlock, getVector.apply(animatedBlock, stepSum), ticksRemaining);
+        for (final IAnimatedBlock animatedBlock : animator.getAnimatedBlocks())
+            animator.applyMovement(animatedBlock, getVector.apply(animatedBlock, stepSum), ticksRemaining);
     }
 
     @Override
-    protected float getRadius(int xAxis, int yAxis, int zAxis)
+    public float getRadius(int xAxis, int yAxis, int zAxis)
     {
         if (!isOpen)
         {

@@ -1,10 +1,9 @@
 package nl.pim16aap2.bigdoors.movable.windmill;
 
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.drawbridge.BridgeMover;
-import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
+import nl.pim16aap2.bigdoors.movable.drawbridge.DrawbridgeAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.moveblocks.IAnimator;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.MathUtil;
 import nl.pim16aap2.bigdoors.util.MovementDirection;
@@ -17,36 +16,34 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
  *
  * @author Pim
  */
-public class WindmillMover<T extends AbstractMovable & IHorizontalAxisAligned> extends BridgeMover<T>
+public class WindmillAnimationComponent extends DrawbridgeAnimationComponent
 {
-    protected static final double EPS = 2 * Double.MIN_VALUE;
-
     private final double step;
 
-    public WindmillMover(T movable, MovementRequestData data, MovementDirection movementDirection)
-        throws Exception
+    public WindmillAnimationComponent(
+        MovementRequestData data, MovementDirection movementDirection, boolean isNorthSouthAligned)
     {
-        super(movable, data, movementDirection);
+        super(data, movementDirection, isNorthSouthAligned);
 
-        step = MathUtil.HALF_PI / (20.0f * super.time * 2.0f);
+        step = MathUtil.HALF_PI / animationDuration;
     }
 
     @Override
-    protected Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
+    public Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
     {
         return Vector3Dd.of(startLocation);
     }
 
     @Override
-    protected void executeAnimationStep(int ticks, int ticksRemaining)
+    public void executeAnimationStep(IAnimator animator, int ticks, int ticksRemaining)
     {
         final double stepSum = step * ticks;
-        for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
-            applyMovement(animatedBlock, getGoalPos(stepSum, animatedBlock), ticksRemaining);
+        for (final IAnimatedBlock animatedBlock : animator.getAnimatedBlocks())
+            animator.applyMovement(animatedBlock, getGoalPos(stepSum, animatedBlock), ticksRemaining);
     }
 
     @Override
-    protected float getRadius(int xAxis, int yAxis, int zAxis)
+    public float getRadius(int xAxis, int yAxis, int zAxis)
     {
         // Get the current radius of a block between used axis (either x and y, or z and y).
         // When the rotation point is positioned along the NS axis, the X values does not change for this type.
@@ -58,7 +55,7 @@ public class WindmillMover<T extends AbstractMovable & IHorizontalAxisAligned> e
     }
 
     @Override
-    protected float getStartAngle(int xAxis, int yAxis, int zAxis)
+    public float getStartAngle(int xAxis, int yAxis, int zAxis)
     {
         // Get the angle between the used axes (either x and y, or z and y).
         // When the rotation point is positioned along the NS axis, the X values does not change for this type.

@@ -3,8 +3,12 @@ package nl.pim16aap2.bigdoors.movable.flag;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
+import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
+import nl.pim16aap2.bigdoors.moveblocks.IAnimator;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
+import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -19,30 +23,35 @@ import java.util.function.BiFunction;
  */
 @SuppressWarnings({"FieldCanBeLocal", "unused", "squid:S1172", "PMD"})
 @Flogger
-public class FlagMover extends BlockMover
+public final class FlagAnimationComponent implements IAnimationComponent
 {
     private final IConfigLoader config;
     private final BiFunction<IAnimatedBlock, Integer, Vector3Dd> getGoalPos;
-    private final boolean NS;
+    private final MovableSnapshot snapshot;
+    private final boolean isNorthSouthAligned;
     private final int length;
     private final int minY;
+    private final Cuboid oldCuboid;
 
-    public FlagMover(Flag movable, MovementRequestData data)
-        throws Exception
+    public FlagAnimationComponent(MovementRequestData data, boolean isNorthSouthAligned)
     {
-        super(movable, data);
-
+        this.snapshot = data.getSnapshotOfMovable();
+        this.oldCuboid = snapshot.getCuboid();
         this.config = data.getConfig();
 
         final Vector3Di dims = oldCuboid.getDimensions();
         minY = snapshot.getMinimum().y();
 
-        NS = movable.isNorthSouthAligned();
-        getGoalPos = NS ? this::getGoalPosNS : this::getGoalPosEW;
+        this.isNorthSouthAligned = isNorthSouthAligned;
+        getGoalPos = this.isNorthSouthAligned ? this::getGoalPosNS : this::getGoalPosEW;
 
-        length = NS ? dims.z() : dims.x();
+        length = this.isNorthSouthAligned ? dims.z() : dims.x();
+    }
 
-        super.movementMethod = MovementMethod.TELEPORT;
+    @Override
+    public BlockMover.MovementMethod getMovementMethod()
+    {
+        return BlockMover.MovementMethod.TELEPORT;
     }
 
     private double getOffset(int counter, IAnimatedBlock animatedBlock)
@@ -80,22 +89,22 @@ public class FlagMover extends BlockMover
     }
 
     @Override
-    protected Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
+    public Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
     {
         return Vector3Dd.of(startLocation);
     }
 
     @Override
-    protected void executeAnimationStep(int ticks, int ticksRemaining)
+    public void executeAnimationStep(IAnimator animator, int ticks, int ticksRemaining)
     {
-        for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
-            applyMovement(animatedBlock, getGoalPos.apply(animatedBlock, ticks), ticksRemaining);
+        for (final IAnimatedBlock animatedBlock : animator.getAnimatedBlocks())
+            animator.applyMovement(animatedBlock, getGoalPos.apply(animatedBlock, ticks), ticksRemaining);
     }
 
     @Override
-    protected float getRadius(int xAxis, int yAxis, int zAxis)
+    public float getRadius(int xAxis, int yAxis, int zAxis)
     {
-        if (NS)
+        if (isNorthSouthAligned)
             return Math.abs((float) zAxis - snapshot.getRotationPoint().z());
         return Math.abs((float) xAxis - snapshot.getRotationPoint().x());
     }

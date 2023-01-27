@@ -1,11 +1,11 @@
 package nl.pim16aap2.bigdoors.movable.clock;
 
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
-import nl.pim16aap2.bigdoors.movable.windmill.WindmillMover;
+import nl.pim16aap2.bigdoors.movable.windmill.WindmillAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.moveblocks.IAnimator;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
+import nl.pim16aap2.bigdoors.util.MathUtil;
 import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.WorldTime;
@@ -19,44 +19,49 @@ import java.util.function.Function;
  *
  * @author Pim
  */
-public class ClockMover<T extends AbstractMovable & IHorizontalAxisAligned> extends WindmillMover<T>
+public final class ClockAnimationComponent extends WindmillAnimationComponent
 {
     /**
      * Method to determine if a given {@link IAnimatedBlock} is part of the little hand or the big hand of a clock.
      * Represented as a {@link Function} because TODO: Finish this sentence  ?? wut ??
      */
-    protected final Function<IAnimatedBlock, Boolean> isHourArm;
+    private final Function<IAnimatedBlock, Boolean> isHourArm;
 
     /**
      * The step of 1 minute on a clock, or 1/60th of a circle in radians.
      */
-    protected static final float MINUTE_STEP = (float) Math.PI / 30;
+    private static final float MINUTE_STEP = (float) Math.PI / 30;
 
     /**
      * The step of 1 hour on a clock, or 1/12th of a circle in radians.
      */
-    protected static final float HOUR_STEP = (float) Math.PI / 6;
+    private static final float HOUR_STEP = (float) Math.PI / 6;
 
     /**
      * The step of 1 minute between two full ours on a clock, or 1/720th of a circle in radians.
      */
-    protected static final float HOUR_SUB_STEP = (float) Math.PI / 360;
+    private static final float HOUR_SUB_STEP = (float) Math.PI / 360;
 
     /**
      * This value should be either 1 or -1. It is used to change the sign of the angle based on which way the clock
      * should rotate.
      */
-    protected final int angleDirectionMultiplier;
+    private final int angleDirectionMultiplier;
 
-    public ClockMover(T movable, MovementRequestData data, MovementDirection movementDirection)
-        throws Exception
+    public ClockAnimationComponent(
+        MovementRequestData data, MovementDirection movementDirection, boolean isNorthSouthAligned)
     {
-        super(movable, data, movementDirection);
-        super.movementMethod = MovementMethod.TELEPORT;
+        super(data, movementDirection, isNorthSouthAligned);
 
         isHourArm = northSouth ? this::isHourArmNS : this::isHourArmEW;
         angleDirectionMultiplier =
             (movementDirection == MovementDirection.EAST || movementDirection == MovementDirection.SOUTH) ? -1 : 1;
+    }
+
+    @Override
+    public BlockMover.MovementMethod getMovementMethod()
+    {
+        return BlockMover.MovementMethod.TELEPORT;
     }
 
     /**
@@ -80,24 +85,27 @@ public class ClockMover<T extends AbstractMovable & IHorizontalAxisAligned> exte
     }
 
     @Override
-    protected Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
+    public Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
     {
         return Vector3Dd.of(startLocation);
     }
 
     @Override
-    protected void executeAnimationStep(int ticks, int ticksRemaining)
+    public void executeAnimationStep(IAnimator animator, int ticks, int ticksRemaining)
     {
         final WorldTime worldTime = snapshot.getWorld().getTime();
-        final double hourAngle = angleDirectionMultiplier * ClockMover.hoursToAngle(worldTime.getHours(),
-                                                                                    worldTime.getMinutes());
-        final double minuteAngle = angleDirectionMultiplier * ClockMover.minutesToAngle(worldTime.getMinutes());
+
+        final double hourAngle = angleDirectionMultiplier *
+            ClockAnimationComponent.hoursToAngle(worldTime.getHours(), worldTime.getMinutes());
+
+        final double minuteAngle =
+            angleDirectionMultiplier * ClockAnimationComponent.minutesToAngle(worldTime.getMinutes());
 
         // Move the hour arm at a lower tickRate than the minute arm.
         final boolean moveHourArm = ticks % 10 == 0;
 
-        for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
-            if (Math.abs(animatedBlock.getRadius()) > EPS)
+        for (final IAnimatedBlock animatedBlock : animator.getAnimatedBlocks())
+            if (Math.abs(animatedBlock.getRadius()) > MathUtil.EPS)
             {
                 // Move the little hand at a lower interval than the big hand.
                 // TODO: Just store the hour and minute arms separately.
@@ -106,7 +114,7 @@ public class ClockMover<T extends AbstractMovable & IHorizontalAxisAligned> exte
                     continue;
 
                 final double timeAngle = hourArm ? hourAngle : minuteAngle;
-                applyMovement(animatedBlock, getGoalPos(timeAngle, animatedBlock), ticksRemaining);
+                animator.applyMovement(animatedBlock, getGoalPos(timeAngle, animatedBlock), ticksRemaining);
             }
     }
 

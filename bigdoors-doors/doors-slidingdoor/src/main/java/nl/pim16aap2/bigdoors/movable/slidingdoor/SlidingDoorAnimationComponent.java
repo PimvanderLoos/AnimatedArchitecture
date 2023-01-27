@@ -1,8 +1,10 @@
 package nl.pim16aap2.bigdoors.movable.slidingdoor;
 
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
+import nl.pim16aap2.bigdoors.moveblocks.AnimationUtil;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
+import nl.pim16aap2.bigdoors.moveblocks.IAnimator;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.vector.IVector3D;
@@ -14,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @author Pim
  */
-public class SlidingMover extends BlockMover
+public class SlidingDoorAnimationComponent implements IAnimationComponent
 {
     private final boolean northSouth;
     private final int moveX;
@@ -26,11 +28,9 @@ public class SlidingMover extends BlockMover
 
     protected final int blocksToMove;
 
-    public SlidingMover(
-        AbstractMovable movable, MovementRequestData data, MovementDirection movementDirection, int blocksToMove)
-        throws Exception
+    public SlidingDoorAnimationComponent(
+        MovementRequestData data, MovementDirection movementDirection, int blocksToMove)
     {
-        super(movable, data, movementDirection);
         this.blocksToMove = blocksToMove;
 
         northSouth =
@@ -39,21 +39,22 @@ public class SlidingMover extends BlockMover
         moveX = northSouth ? 0 : blocksToMove;
         moveZ = northSouth ? blocksToMove : 0;
 
-        step = ((double) blocksToMove) / ((double) super.animationDuration);
+        final double animationDuration =
+            AnimationUtil.getAnimationTicks(data.getAnimationTime(), data.getServerTickTime());
+        step = blocksToMove / animationDuration;
     }
 
     @Override
-    protected Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
+    public Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
     {
         return Vector3Dd.of(startLocation).add(moveX, 0, moveZ);
     }
 
     @Override
-    protected void prepareAnimation()
+    public void prepareAnimation(IAnimator animator)
     {
-        super.prepareAnimation();
         // Gets the first block, which will be used as a base for the movement of all other blocks in the animation.
-        firstBlockData = getAnimatedBlocks().isEmpty() ? null : getAnimatedBlocks().get(0);
+        firstBlockData = animator.getAnimatedBlocks().isEmpty() ? null : animator.getAnimatedBlocks().get(0);
     }
 
     protected Vector3Dd getGoalPos(IAnimatedBlock animatedBlock, double stepSum)
@@ -64,13 +65,13 @@ public class SlidingMover extends BlockMover
     }
 
     @Override
-    protected void executeAnimationStep(int ticks, int ticksRemaining)
+    public void executeAnimationStep(IAnimator animator, int ticks, int ticksRemaining)
     {
         if (firstBlockData == null)
             return;
 
         final double stepSum = step * ticks;
-        for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
-            applyMovement(animatedBlock, getGoalPos(animatedBlock, stepSum), ticksRemaining);
+        for (final IAnimatedBlock animatedBlock : animator.getAnimatedBlocks())
+            animator.applyMovement(animatedBlock, getGoalPos(animatedBlock, stepSum), ticksRemaining);
     }
 }
