@@ -53,8 +53,9 @@ public abstract class AbstractMovable implements IMovable
     @EqualsAndHashCode.Include
     private final MovableBase base;
 
-    private final LazyValue<Rectangle> animationRange;
-    private final LazyValue<Double> animationCycleDistance;
+    private final LazyValue<Rectangle> lazyAnimationRange;
+    private final LazyValue<Double> lazyAnimationCycleDistance;
+    private final LazyValue<MovableSnapshot> lazyMovableSnapshot;
 
     private AbstractMovable(MovableBase base)
     {
@@ -62,8 +63,9 @@ public abstract class AbstractMovable implements IMovable
         this.lock = base.getLock();
         this.base = Objects.requireNonNull(base);
 
-        animationRange = newAnimationRangeVal(this);
-        animationCycleDistance = newAnimationCycleDistanceVal(this);
+        lazyAnimationRange = new LazyValue<>(this::calculateAnimationRange);
+        lazyAnimationCycleDistance = new LazyValue<>(this::calculateAnimationCycleDistance);
+        lazyMovableSnapshot = new LazyValue<>(this::createNewSnapshot);
     }
 
     protected AbstractMovable(MovableBaseHolder holder)
@@ -143,7 +145,7 @@ public abstract class AbstractMovable implements IMovable
      */
     protected final double getAnimationCycleDistance()
     {
-        return animationCycleDistance.get();
+        return lazyAnimationCycleDistance.get();
     }
 
     /**
@@ -160,17 +162,34 @@ public abstract class AbstractMovable implements IMovable
     @Locked.Read
     public final Rectangle getAnimationRange()
     {
-        return animationRange.get();
+        return lazyAnimationRange.get();
     }
 
     /**
-     * Certain actions may result in the animation range and animation cycle distance being changed. This method is
-     * called when that may happen.
+     * Invalidates all cached animation data.
+     * <p>
+     * Certain actions may result in the animation range and animation cycle distance being changed. This method has to
+     * be called when that may happen.
      */
     protected final void invalidateAnimationData()
     {
-        animationRange.invalidate();
-        animationCycleDistance.invalidate();
+        lazyAnimationRange.invalidate();
+        lazyAnimationCycleDistance.invalidate();
+        invalidateBasicData();
+    }
+
+    /**
+     * Has to be called when any "basic data" is changed.
+     * <p>
+     * "Basic data" here means any data that does not affect the animation in any way that only exists in this class.
+     * The name of the movable is one such example. Any type of "basic data" also refers to "All data", but not
+     * necessarily the other way round.
+     * <p>
+     * If the animation may be affected in any way, use {@link #invalidateAnimationData()} instead.
+     */
+    private void invalidateBasicData()
+    {
+        lazyMovableSnapshot.invalidate();
     }
 
     /**
@@ -252,6 +271,7 @@ public abstract class AbstractMovable implements IMovable
      * @return The new {@link MovementDirection} direction this {@link IMovable} will open in.
      */
     @SuppressWarnings("unused")
+    @Locked.Write
     public MovementDirection cycleOpenDirection()
     {
         final Set<MovementDirection> validOpenDirections = getType().getValidOpenDirections();
@@ -341,11 +361,17 @@ public abstract class AbstractMovable implements IMovable
         base.onRedstoneChange(this, newCurrent);
     }
 
-    @Override
     @Locked.Read
-    public final MovableSnapshot getSnapshot()
+    private MovableSnapshot createNewSnapshot()
     {
         return new MovableSnapshot(this);
+    }
+
+    @Override
+    @Locked.Read
+    public MovableSnapshot getSnapshot()
+    {
+        return lazyMovableSnapshot.get();
     }
 
     /**
@@ -406,7 +432,9 @@ public abstract class AbstractMovable implements IMovable
         lock.writeLock().lock();
         try
         {
-            return supplier.get();
+            final T result = supplier.get();
+            invalidateAnimationData();
+            return result;
         }
         finally
         {
@@ -430,6 +458,7 @@ public abstract class AbstractMovable implements IMovable
         try
         {
             runnable.run();
+            invalidateAnimationData();
         }
         finally
         {
@@ -502,16 +531,6 @@ public abstract class AbstractMovable implements IMovable
         return lock;
     }
 
-    static LazyValue<Rectangle> newAnimationRangeVal(AbstractMovable movable)
-    {
-        return new LazyValue<>(movable::calculateAnimationRange);
-    }
-
-    static LazyValue<Double> newAnimationCycleDistanceVal(AbstractMovable movable)
-    {
-        return new LazyValue<>(movable::calculateAnimationCycleDistance);
-    }
-
     @Override
     public Cuboid getCuboid()
     {
@@ -556,6 +575,7 @@ public abstract class AbstractMovable implements IMovable
     public void setPowerBlock(Vector3Di pos)
     {
         assertWriteLockable();
+        invalidateBasicData();
         base.setPowerBlock(pos);
     }
 
@@ -563,6 +583,7 @@ public abstract class AbstractMovable implements IMovable
     public void setName(String name)
     {
         assertWriteLockable();
+        invalidateBasicData();
         base.setName(name);
     }
 
@@ -586,6 +607,7 @@ public abstract class AbstractMovable implements IMovable
     public void setLocked(boolean locked)
     {
         assertWriteLockable();
+        invalidateBasicData();
         base.setLocked(locked);
     }
 
@@ -645,15 +667,22 @@ public abstract class AbstractMovable implements IMovable
 
     @Locked.Write final @Nullable MovableOwner removeOwner(UUID ownerUUID)
     {
-        return base.removeOwner(ownerUUID);
+        final @Nullable MovableOwner removed = base.removeOwner(ownerUUID);
+        if (removed != null)
+            invalidateBasicData();
+        return removed;
     }
 
     @Locked.Write final boolean addOwner(MovableOwner movableOwner)
     {
-        return base.addOwner(movableOwner);
+        final boolean result = base.addOwner(movableOwner);
+        if (result)
+            invalidateBasicData();
+        return result;
     }
 
-    @AllArgsConstructor(access = AccessLevel.PACKAGE) @ToString @EqualsAndHashCode
+    @AllArgsConstructor(access = AccessLevel.PACKAGE)
+    @ToString @EqualsAndHashCode
     public static final class MovableBaseHolder
     {
         private final MovableBase base;
