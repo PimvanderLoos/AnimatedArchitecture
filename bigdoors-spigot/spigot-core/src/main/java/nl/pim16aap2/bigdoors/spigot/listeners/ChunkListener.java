@@ -6,7 +6,7 @@ import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.moveblocks.Animator;
 import nl.pim16aap2.bigdoors.moveblocks.MovableActivityManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.Rectangle;
@@ -77,7 +77,7 @@ public class ChunkListener extends AbstractListener
                 .getBlockMovers()
                 .filter(mover -> mover.getSnapshot().getWorld().equals(world))
                 .filter(mover -> chunkInsideAnimationRange(chunkCoords, mover.getSnapshot().getAnimationRange()))
-                .forEach(BlockMover::abort);
+                .forEach(Animator::abort);
         }
         catch (Exception e)
         {

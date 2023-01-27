@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.movable.revolvingdoor;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
 import nl.pim16aap2.bigdoors.moveblocks.AnimationUtil;
-import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.moveblocks.Animator;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimator;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
@@ -15,7 +15,7 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import java.util.function.BiFunction;
 
 /**
- * Represents a {@link BlockMover} for {@link RevolvingDoor}s.
+ * Represents a {@link Animator} for {@link RevolvingDoor}s.
  *
  * @author Pim
  */

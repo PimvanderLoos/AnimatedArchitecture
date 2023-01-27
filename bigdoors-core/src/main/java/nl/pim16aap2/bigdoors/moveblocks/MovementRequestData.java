@@ -8,8 +8,6 @@ import nl.pim16aap2.bigdoors.api.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockFactory;
-import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.audio.IAudioPlayer;
 import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
 import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
@@ -26,10 +24,8 @@ import javax.inject.Named;
 public final class MovementRequestData
 {
     private final MovableActivityManager movableActivityManager;
-    private final IPLocationFactory locationFactory;
     private final IAudioPlayer audioPlayer;
     private final IPExecutor executor;
-    private final IAnimatedBlockFactory animatedBlockFactory;
     private final AnimationHookManager animationHookManager;
     private final GlowingBlockSpawner glowingBlockSpawner;
     private final IConfigLoader config;
@@ -44,10 +40,8 @@ public final class MovementRequestData
 
     @AssistedInject MovementRequestData(
         MovableActivityManager movableActivityManager,
-        IPLocationFactory locationFactory,
         IAudioPlayer audioPlayer,
         IPExecutor executor,
-        IAnimatedBlockFactory animatedBlockFactory,
         AnimationHookManager animationHookManager,
         GlowingBlockSpawner glowingBlockSpawner,
         IConfigLoader config,
@@ -61,10 +55,8 @@ public final class MovementRequestData
         @Assisted MovableActionType actionType)
     {
         this.movableActivityManager = movableActivityManager;
-        this.locationFactory = locationFactory;
         this.audioPlayer = audioPlayer;
         this.executor = executor;
-        this.animatedBlockFactory = animatedBlockFactory;
         this.animationHookManager = animationHookManager;
         this.glowingBlockSpawner = glowingBlockSpawner;
         this.config = config;

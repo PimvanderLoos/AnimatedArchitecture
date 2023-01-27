@@ -4,7 +4,7 @@ import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.animatedblock.AnimationContext;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlockData;
-import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.moveblocks.Animator;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 
 import java.util.Optional;
@@ -40,6 +40,6 @@ public interface IAnimatedBlockFactory
      */
     Optional<IAnimatedBlock> create(
         IPLocation loc, float radius, float startAngle, boolean bottom, boolean onEdge, AnimationContext context,
-        Vector3Dd finalPosition, BlockMover.MovementMethod movementMethod)
+        Vector3Dd finalPosition, Animator.MovementMethod movementMethod)
         throws Exception;
 }

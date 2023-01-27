@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.movable.slidingdoor;
 
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.moveblocks.AnimationUtil;
-import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.moveblocks.Animator;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimator;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
@@ -12,7 +12,7 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Represents a {@link BlockMover} for {@link SlidingDoor}.
+ * Represents a {@link Animator} for {@link SlidingDoor}.
  *
  * @author Pim
  */

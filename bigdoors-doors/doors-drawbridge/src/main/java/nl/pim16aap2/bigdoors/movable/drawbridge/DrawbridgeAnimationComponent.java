@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.movable.drawbridge;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
 import nl.pim16aap2.bigdoors.moveblocks.AnimationUtil;
-import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.moveblocks.Animator;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimator;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
@@ -15,7 +15,7 @@ import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 
 /**
- * Represents a {@link BlockMover} for {@link Drawbridge}s.
+ * Represents a {@link Animator} for {@link Drawbridge}s.
  *
  * @author Pim
  */

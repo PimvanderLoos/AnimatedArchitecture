@@ -45,11 +45,11 @@ public interface IAnimationComponent
      * <p>
      * Subclasses are free to override this if a different type of movement is desired for that type.
      * <p>
-     * Each animated block is moved using {@link BlockMover.MovementMethod#apply(IAnimatedBlock, Vector3Dd, int)}.
+     * Each animated block is moved using {@link Animator.MovementMethod#apply(IAnimatedBlock, Vector3Dd, int)}.
      */
-    default BlockMover.MovementMethod getMovementMethod()
+    default Animator.MovementMethod getMovementMethod()
     {
-        return BlockMover.MovementMethod.TELEPORT_VELOCITY;
+        return Animator.MovementMethod.TELEPORT_VELOCITY;
     }
 
     /**

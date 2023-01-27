@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 @Singleton
 public final class MovableActivityManager extends Restartable implements MovableDeletionManager.IDeletionListener
 {
-    private final Map<Long, Optional<BlockMover>> busyMovables = new ConcurrentHashMap<>();
+    private final Map<Long, Optional<Animator>> busyMovables = new ConcurrentHashMap<>();
 
     private final IBigDoorsEventFactory eventFactory;
     private final IBigDoorsEventCaller bigDoorsEventCaller;
@@ -89,20 +89,20 @@ public final class MovableActivityManager extends Restartable implements Movable
     }
 
     /**
-     * Processed a finished {@link BlockMover}.
+     * Processed a finished {@link Animator}.
      * <p>
-     * The {@link AbstractMovable} that was being used by the {@link BlockMover} will be registered as inactive and any
+     * The {@link AbstractMovable} that was being used by the {@link Animator} will be registered as inactive and any
      * scheduling that is required will be performed.
      *
      * @param blockMover
-     *     The {@link BlockMover} to post-process.
+     *     The {@link Animator} to post-process.
      */
-    void processFinishedBlockMover(BlockMover blockMover)
+    void processFinishedBlockMover(Animator blockMover)
     {
         handleFinishedBlockMover(blockMover);
     }
 
-    private void handleFinishedBlockMover(BlockMover blockMover)
+    private void handleFinishedBlockMover(Animator blockMover)
     {
         setMovableAvailable(blockMover.getMovable().getUid());
 
@@ -114,35 +114,35 @@ public final class MovableActivityManager extends Restartable implements Movable
     }
 
     /**
-     * Stores a {@link BlockMover} in the appropriate slot in {@link #busyMovables}
+     * Stores a {@link Animator} in the appropriate slot in {@link #busyMovables}
      *
      * @param mover
-     *     The {@link BlockMover}.
+     *     The {@link Animator}.
      */
-    public void addBlockMover(BlockMover mover)
+    public void addBlockMover(Animator mover)
     {
         busyMovables.replace(mover.getMovableUID(), Optional.of(mover));
     }
 
     /**
-     * Gets all the currently active {@link BlockMover}s.
+     * Gets all the currently active {@link Animator}s.
      *
-     * @return All the currently active {@link BlockMover}s.
+     * @return All the currently active {@link Animator}s.
      */
     @SuppressWarnings("unused")
-    public Stream<BlockMover> getBlockMovers()
+    public Stream<Animator> getBlockMovers()
     {
         return busyMovables.values().stream().filter(Optional::isPresent).map(Optional::get);
     }
 
     /**
-     * Gets the {@link BlockMover} of a busy {@link AbstractMovable}, if it has been registered.
+     * Gets the {@link Animator} of a busy {@link AbstractMovable}, if it has been registered.
      *
      * @param movableUID
      *     The UID of the {@link AbstractMovable}.
-     * @return The {@link BlockMover} of a busy {@link AbstractMovable}.
+     * @return The {@link Animator} of a busy {@link AbstractMovable}.
      */
-    public Optional<BlockMover> getBlockMover(long movableUID)
+    public Optional<Animator> getBlockMover(long movableUID)
     {
         return Objects.requireNonNullElse(busyMovables.get(movableUID), Optional.empty());
     }
@@ -160,15 +160,15 @@ public final class MovableActivityManager extends Restartable implements Movable
      */
     public void stopMovables()
     {
-        busyMovables.forEach((key, value) -> value.ifPresent(BlockMover::abort));
+        busyMovables.forEach((key, value) -> value.ifPresent(Animator::abort));
         emptyBusyMovables();
     }
 
     @Override
     public void onMovableDeletion(IMovableConst movable)
     {
-        Objects.<Optional<BlockMover>>requireNonNullElse(busyMovables.remove(movable.getUid()), Optional.empty())
-               .ifPresent(BlockMover::abort);
+        Objects.<Optional<Animator>>requireNonNullElse(busyMovables.remove(movable.getUid()), Optional.empty())
+               .ifPresent(Animator::abort);
     }
 
     @Override

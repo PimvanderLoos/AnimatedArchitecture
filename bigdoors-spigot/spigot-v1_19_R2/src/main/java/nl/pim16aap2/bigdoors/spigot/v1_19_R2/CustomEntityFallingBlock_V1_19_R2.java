@@ -33,7 +33,7 @@ import nl.pim16aap2.bigdoors.api.animatedblock.AnimationContext;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlockHook;
 import nl.pim16aap2.bigdoors.managers.AnimatedBlockHookManager;
-import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.moveblocks.Animator;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.api.IAnimatedBlockSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PLocationSpigot;
@@ -85,7 +85,7 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
     @Getter
     private final float startAngle;
 
-    private final BlockMover.MovementMethod movementMethod;
+    private final Animator.MovementMethod movementMethod;
 
     @Getter
     private final boolean onEdge;
@@ -133,7 +133,7 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
 
     public CustomEntityFallingBlock_V1_19_R2(
         IPExecutor executor, IPWorld pWorld, World world, double posX, double posY, double posZ, float radius,
-        float startAngle, BlockMover.MovementMethod movementMethod,
+        float startAngle, Animator.MovementMethod movementMethod,
         boolean onEdge, AnimationContext context, AnimatedBlockHookManager animatedBlockHookManager,
         Vector3Dd finalPosition)
     {
