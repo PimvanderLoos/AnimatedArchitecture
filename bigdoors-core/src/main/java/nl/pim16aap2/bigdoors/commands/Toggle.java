@@ -14,6 +14,7 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.MovableAttribute;
 import nl.pim16aap2.bigdoors.movable.MovableToggleRequestBuilder;
+import nl.pim16aap2.bigdoors.moveblocks.AnimationType;
 import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
 import org.jetbrains.annotations.Nullable;
@@ -31,23 +32,26 @@ import java.util.concurrent.CompletableFuture;
 @Flogger
 public class Toggle extends BaseCommand
 {
-    protected static final MovableActionType DEFAULT_MOVABLE_ACTION_TYPE = MovableActionType.TOGGLE;
+    public static final MovableActionType DEFAULT_MOVABLE_ACTION_TYPE = MovableActionType.TOGGLE;
+    public static final AnimationType DEFAULT_ANIMATION_TYPE = AnimationType.MOVE_BLOCKS;
 
     private final MovableToggleRequestBuilder movableToggleRequestBuilder;
     private final MovableRetriever[] movableRetrievers;
     private final IMessageable messageableServer;
     private final MovableActionType movableActionType;
+    private final AnimationType animationType;
     private final @Nullable Double time;
 
     @AssistedInject //
     Toggle(
         @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
-        @Assisted MovableActionType movableActionType, @Assisted @Nullable Double time,
-        MovableToggleRequestBuilder movableToggleRequestBuilder,
+        @Assisted MovableActionType movableActionType, @Assisted AnimationType animationType,
+        @Assisted @Nullable Double time, MovableToggleRequestBuilder movableToggleRequestBuilder,
         @Named("MessageableServer") IMessageable messageableServer, @Assisted MovableRetriever... movableRetrievers)
     {
         super(commandSender, localizer, textFactory);
         this.movableActionType = movableActionType;
+        this.animationType = animationType;
         this.time = time;
         this.movableToggleRequestBuilder = movableToggleRequestBuilder;
         this.movableRetrievers = movableRetrievers;
@@ -62,6 +66,10 @@ public class Toggle extends BaseCommand
 
         getCommandSender().sendMessage(textFactory, TextType.ERROR,
                                        localizer.getMessage("commands.toggle.error.not_enough_movables"));
+
+        if (animationType == AnimationType.PREVIEW)
+            return getCommandSender() instanceof IPPlayer player && player.isOnline();
+
         return false;
     }
 
@@ -120,6 +128,7 @@ public class Toggle extends BaseCommand
                                    .movable(movable)
                                    .movableActionCause(cause)
                                    .movableActionType(movableActionType)
+                                   .animationType(animationType)
                                    .responsible(playerOpt.orElse(null))
                                    .messageReceiver(playerOpt.isPresent() ? playerOpt.get() : messageableServer)
                                    .time(time)
@@ -162,6 +171,8 @@ public class Toggle extends BaseCommand
          *     possible to open it (in most cases that would mean that it is currently closed).
          *     <p>
          *     {@link MovableActionType#TOGGLE}, however, is possible regardless of its current open/close status.
+         * @param animationType
+         *     The type of animation to use.
          * @param speedMultiplier
          *     The speed multiplier to apply to the animation.
          * @param movableRetrievers
@@ -169,40 +180,20 @@ public class Toggle extends BaseCommand
          * @return See {@link BaseCommand#run()}.
          */
         Toggle newToggle(
-            ICommandSender commandSender, MovableActionType actionType, @Nullable Double speedMultiplier,
-            MovableRetriever... movableRetrievers);
+            ICommandSender commandSender, MovableActionType actionType, AnimationType animationType,
+            @Nullable Double speedMultiplier, MovableRetriever... movableRetrievers);
 
         /**
-         * See {@link #newToggle(ICommandSender, MovableActionType, Double, MovableRetriever...)}.
+         * See {@link #newToggle(ICommandSender, MovableActionType, AnimationType, Double, MovableRetriever...)}.
          * <p>
-         * Defaults to null for the time multiplier.
-         */
-        default Toggle newToggle(
-            ICommandSender commandSender, MovableActionType actionType, MovableRetriever... movableRetrievers)
-        {
-            return newToggle(commandSender, actionType, null, movableRetrievers);
-        }
-
-        /**
-         * See {@link #newToggle(ICommandSender, MovableActionType, Double, MovableRetriever...)}.
-         * <p>
-         * Defaults to {@link Toggle#DEFAULT_MOVABLE_ACTION_TYPE} for the movable action type.
-         */
-        default Toggle newToggle(
-            ICommandSender commandSender, @Nullable Double speedMultiplier, MovableRetriever... movableRetrievers)
-        {
-            return newToggle(commandSender, Toggle.DEFAULT_MOVABLE_ACTION_TYPE, speedMultiplier, movableRetrievers);
-        }
-
-        /**
-         * See {@link #newToggle(ICommandSender, MovableActionType, Double, MovableRetriever...)}.
-         * <p>
-         * Defaults to null for the speed multiplier and to {@link Toggle#DEFAULT_MOVABLE_ACTION_TYPE} for the movable
-         * action type.
+         * Defaults to null for the speed multiplier, to {@link Toggle#DEFAULT_MOVABLE_ACTION_TYPE} for the movable
+         * action type, and to {@link Toggle#DEFAULT_ANIMATION_TYPE} for the animation type.
          */
         default Toggle newToggle(ICommandSender commandSender, MovableRetriever... movableRetrievers)
         {
-            return newToggle(commandSender, Toggle.DEFAULT_MOVABLE_ACTION_TYPE, null, movableRetrievers);
+            return newToggle(
+                commandSender, Toggle.DEFAULT_MOVABLE_ACTION_TYPE, Toggle.DEFAULT_ANIMATION_TYPE,
+                null, movableRetrievers);
         }
     }
 }

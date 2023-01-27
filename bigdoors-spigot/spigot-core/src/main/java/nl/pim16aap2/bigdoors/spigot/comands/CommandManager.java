@@ -140,6 +140,7 @@ public final class CommandManager
         initCmdSpecify(manager, builder);
         initCmdStopMovables(manager, builder);
         initCmdToggle(manager, builder);
+        initCmdPreview(manager, builder);
         initCmdVersion(manager, builder);
 
         builder.build();
@@ -387,6 +388,21 @@ public final class CommandManager
             baseInit(builder, CommandDefinition.TOGGLE, "commands.toggle.description")
                 .argument(defaultMovableArgument(true, PermissionLevel.USER).build())
                 .handler(executor::toggle)
+        );
+    }
+
+    private void initCmdPreview(
+        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+    {
+        final CommandDefinition previewDefinition =
+            new CommandDefinition("PREVIEW",
+                                  CommandDefinition.PREFIX_USER + "preview",
+                                  CommandDefinition.PREFIX_ADMIN + "bypass.preview");
+
+        manager.command(
+            baseInit(builder, previewDefinition, "commands.preview.description")
+                .argument(defaultMovableArgument(true, PermissionLevel.USER).build())
+                .handler(executor::preview)
         );
     }
 

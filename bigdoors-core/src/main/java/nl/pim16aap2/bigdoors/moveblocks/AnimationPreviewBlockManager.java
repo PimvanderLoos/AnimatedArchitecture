@@ -104,8 +104,8 @@ public class AnimationPreviewBlockManager implements IAnimationBlockManager
         if (position.equals(cuboid.getMin()))
             return PColor.RED;
         if (position.equals(cuboid.getMax()))
-            return PColor.BLUE;
-        return PColor.AQUA;
+            return PColor.GREEN;
+        return PColor.BLUE;
     }
 
     @Override

@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.commands.CommandFactory;
+import nl.pim16aap2.bigdoors.commands.Toggle;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.MovableAttribute;
@@ -82,8 +83,12 @@ class AttributeButtonFactory
             new ItemStack(Material.LEVER),
             click ->
             {
-                commandFactory.newToggle(player, config.getAnimationSpeedMultiplier(movable.getType()),
-                                         movableRetrieverFactory.of(movable)).run();
+                commandFactory.newToggle(
+                    player,
+                    Toggle.DEFAULT_MOVABLE_ACTION_TYPE,
+                    Toggle.DEFAULT_ANIMATION_TYPE,
+                    config.getAnimationSpeedMultiplier(movable.getType()),
+                    movableRetrieverFactory.of(movable)).run();
                 return true;
             },
             localizer.getMessage("gui.info_page.attribute.toggle",
