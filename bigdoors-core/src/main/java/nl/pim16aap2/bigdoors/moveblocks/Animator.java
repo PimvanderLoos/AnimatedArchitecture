@@ -165,17 +165,31 @@ public final class Animator implements IAnimator
     private final Cuboid newCuboid;
 
     /**
+     * Whether this animation affects the world. When true, the coordinates of the movable and the 'isOpen' status will
+     * be updated once the animation has finished.
+     */
+    private final boolean affectsWorld;
+
+    /**
      * Constructs a {@link Animator}.
+     * <p>
+     * Once created, the animation does not start immediately. Use {@link #startAnimation()} to start it.
      *
      * @param movable
-     *     The {@link AbstractMovable}.
+     *     The {@link AbstractMovable} that is being animated.
      * @param data
      *     The data of the movement request.
+     * @param animationComponent
+     *     The animation component to use for the animation. This determines the type of animation.
+     * @param animationBlockManager
+     *     The manager of the animated blocks. This is responsible for handling the lifecycle of the animated blocks.
+     * @param affectsWorld
+     *     Whether this animation affects the world. When true, the coordinates of the movable and the 'isOpen' status
+     *     will be updated once the animation has finished.
      */
     public Animator(
         AbstractMovable movable, MovementRequestData data, IAnimationComponent animationComponent,
-        IAnimationBlockManager animationBlockManager)
-        throws Exception
+        IAnimationBlockManager animationBlockManager, boolean affectsWorld)
     {
         executor = data.getExecutor();
         movableActivityManager = data.getMovableActivityManager();
@@ -192,6 +206,7 @@ public final class Animator implements IAnimator
         this.animationComponent = animationComponent;
         this.animationBlockManager = animationBlockManager;
         this.newCuboid = data.getNewCuboid();
+        this.affectsWorld = affectsWorld;
         this.oldCuboid = snapshot.getCuboid();
         this.cause = data.getCause();
         this.actionType = data.getActionType();
@@ -465,8 +480,9 @@ public final class Animator implements IAnimator
 
         animationBlockManager.handleAnimationCompletion();
 
-        // Tell the movable object it has been opened and what its new coordinates are.
-        movable.withWriteLock(this::updateCoords);
+        if (affectsWorld)
+            // Tell the movable object it has been opened and what its new coordinates are.
+            movable.withWriteLock(this::updateCoords);
 
         forEachHook("onAnimationCompleted", IAnimationHook::onAnimationCompleted);
 

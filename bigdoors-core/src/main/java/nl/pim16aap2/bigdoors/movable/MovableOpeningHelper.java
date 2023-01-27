@@ -238,7 +238,7 @@ public final class MovableOpeningHelper
         {
             final IAnimationComponent component = movable.constructAnimationComponent(data);
             final AnimationBlockManager animationBlockManager = animationBlockManagerFactory.newManager();
-            final Animator blockMover = new Animator(movable, data, component, animationBlockManager);
+            final Animator blockMover = new Animator(movable, data, component, animationBlockManager, true);
 
             movableActivityManager.addBlockMover(blockMover);
             executor.runOnMainThread(blockMover::startAnimation);
