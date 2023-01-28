@@ -9,6 +9,8 @@ import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlockData;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
+import nl.pim16aap2.bigdoors.util.MovementDirection;
+import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 
 import java.time.Duration;
@@ -19,6 +21,8 @@ public class AnimatedPreviewBlock implements IAnimatedBlock
      * We do not want to move this type every tick, so we only update it once in every MOVEMENT_RATE ticks.
      */
     private static final int MOVEMENT_RATE = 5;
+
+    private static final IAnimatedBlockData ANIMATED_BLOCK_DATA = new PreviewAnimatedBlockData();
 
     private int movementTicks = -1;
     private final IPLocationFactory locationFactory;
@@ -66,8 +70,7 @@ public class AnimatedPreviewBlock implements IAnimatedBlock
     @Override
     public IAnimatedBlockData getAnimatedBlockData()
     {
-        // TODO: Implement this
-        return null;
+        return ANIMATED_BLOCK_DATA;
     }
 
     @Override
@@ -105,6 +108,8 @@ public class AnimatedPreviewBlock implements IAnimatedBlock
     {
         if (++movementTicks % MOVEMENT_RATE != 0)
             return;
+
+        cycleTargets(target);
 
         glowingBlockSpawner
             .builder()
@@ -145,7 +150,7 @@ public class AnimatedPreviewBlock implements IAnimatedBlock
     @Override
     public int getTicksLived()
     {
-        return 0;
+        return movementTicks;
     }
 
     @Override
@@ -194,5 +199,30 @@ public class AnimatedPreviewBlock implements IAnimatedBlock
     public boolean isOnEdge()
     {
         return false;
+    }
+
+    private static final class PreviewAnimatedBlockData implements IAnimatedBlockData
+    {
+        @Override
+        public boolean canRotate()
+        {
+            return false;
+        }
+
+        @Override
+        public boolean rotateBlock(MovementDirection movementDirection)
+        {
+            return false;
+        }
+
+        @Override
+        public void putBlock(IVector3D loc)
+        {
+        }
+
+        @Override
+        public void deleteOriginalBlock(boolean applyPhysics)
+        {
+        }
     }
 }
