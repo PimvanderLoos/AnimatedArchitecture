@@ -74,6 +74,9 @@ public class AnimationPreviewBlockManager implements IAnimationBlockManager
                 for (int yAxis = yMax; yAxis >= yMin; --yAxis)
                     for (int zAxis = zMin; zAxis <= zMax; ++zAxis)
                     {
+                        if ((xAxis + yAxis + zAxis) % 2 == 0)
+                            continue;
+
                         final Vector3Di position = new Vector3Di(xAxis, yAxis, zAxis);
 
                         final float radius = animationComponent.getRadius(xAxis, yAxis, zAxis);
