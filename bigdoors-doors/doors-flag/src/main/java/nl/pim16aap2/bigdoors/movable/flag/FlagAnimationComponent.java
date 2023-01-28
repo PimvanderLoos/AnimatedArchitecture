@@ -4,7 +4,7 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
-import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.moveblocks.Animator;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimator;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
@@ -17,7 +17,7 @@ import nl.pim16aap2.jcalculator.JCalculator;
 import java.util.function.BiFunction;
 
 /**
- * Represents a {@link BlockMover} for {@link Flag}s.
+ * Represents a {@link Animator} for {@link Flag}s.
  *
  * @author Pim
  */
@@ -49,9 +49,9 @@ public final class FlagAnimationComponent implements IAnimationComponent
     }
 
     @Override
-    public BlockMover.MovementMethod getMovementMethod()
+    public Animator.MovementMethod getMovementMethod()
     {
-        return BlockMover.MovementMethod.TELEPORT;
+        return Animator.MovementMethod.TELEPORT;
     }
 
     private double getOffset(int counter, IAnimatedBlock animatedBlock)

@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.movable.clock;
 
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.movable.windmill.WindmillAnimationComponent;
-import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.moveblocks.Animator;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimator;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.MathUtil;
@@ -15,7 +15,7 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import java.util.function.Function;
 
 /**
- * Represents a {@link BlockMover} for {@link Clock}s.
+ * Represents a {@link Animator} for {@link Clock}s.
  *
  * @author Pim
  */
@@ -59,9 +59,9 @@ public final class ClockAnimationComponent extends WindmillAnimationComponent
     }
 
     @Override
-    public BlockMover.MovementMethod getMovementMethod()
+    public Animator.MovementMethod getMovementMethod()
     {
-        return BlockMover.MovementMethod.TELEPORT;
+        return Animator.MovementMethod.TELEPORT;
     }
 
     /**

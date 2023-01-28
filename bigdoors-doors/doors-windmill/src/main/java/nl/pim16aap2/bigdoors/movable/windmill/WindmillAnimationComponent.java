@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.movable.windmill;
 
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.movable.drawbridge.DrawbridgeAnimationComponent;
-import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.moveblocks.Animator;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimator;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.MathUtil;
@@ -12,7 +12,7 @@ import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 
 /**
- * Represents a {@link BlockMover} for {@link Windmill}s.
+ * Represents a {@link Animator} for {@link Windmill}s.
  *
  * @author Pim
  */

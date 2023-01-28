@@ -6,14 +6,11 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
-import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.api.animatedblock.AnimationContext;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimationHook;
-import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockFactory;
-import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
 import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
 import nl.pim16aap2.bigdoors.managers.AnimationHookManager;
@@ -24,16 +21,12 @@ import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.TimerTask;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -46,7 +39,7 @@ import static nl.pim16aap2.bigdoors.api.animatedblock.IAnimation.AnimationState;
  */
 @ToString
 @Flogger
-public final class BlockMover implements IAnimator
+public final class Animator implements IAnimator
 {
     /**
      * The delay (measured in milliseconds) between initialization of the animation and starting to move the blocks.
@@ -79,6 +72,7 @@ public final class BlockMover implements IAnimator
      * The animation component used to do all the animation stuff.
      */
     private final IAnimationComponent animationComponent;
+    private final IAnimationBlockManager animationBlockManager;
 
     /**
      * What caused the movable to be moved.
@@ -93,9 +87,6 @@ public final class BlockMover implements IAnimator
     private final MovableActionType actionType;
 
     @ToString.Exclude
-    private final IAnimatedBlockFactory animatedBlockFactory;
-
-    @ToString.Exclude
     private final MovableActivityManager movableActivityManager;
 
     @ToString.Exclude
@@ -103,9 +94,6 @@ public final class BlockMover implements IAnimator
 
     @ToString.Exclude
     private final GlowingBlockSpawner glowingBlockSpawner;
-
-    @ToString.Exclude
-    private final IPLocationFactory locationFactory;
 
     @ToString.Exclude
     private final AnimationHookManager animationHookManager;
@@ -128,19 +116,6 @@ public final class BlockMover implements IAnimator
      */
     @Getter
     private final boolean skipAnimation;
-
-    /**
-     * The modifiable list of animated blocks.
-     */
-    @ToString.Exclude
-    private final List<IAnimatedBlock> privateAnimatedBlocks;
-
-    /**
-     * The (unmodifiable) list of animated blocks.
-     */
-    @ToString.Exclude
-    @Getter
-    private final List<IAnimatedBlock> animatedBlocks;
 
     /**
      * True for types of movement that are supposed to keep going until otherwise stopped. For example, flags,
@@ -190,21 +165,20 @@ public final class BlockMover implements IAnimator
     private final Cuboid newCuboid;
 
     /**
-     * Constructs a {@link BlockMover}.
+     * Constructs a {@link Animator}.
      *
      * @param movable
      *     The {@link AbstractMovable}.
      * @param data
      *     The data of the movement request.
      */
-    public BlockMover(
-        AbstractMovable movable, MovementRequestData data, IAnimationComponent animationComponent)
+    public Animator(
+        AbstractMovable movable, MovementRequestData data, IAnimationComponent animationComponent,
+        IAnimationBlockManager animationBlockManager)
         throws Exception
     {
         executor = data.getExecutor();
         movableActivityManager = data.getMovableActivityManager();
-        animatedBlockFactory = data.getAnimatedBlockFactory();
-        locationFactory = data.getLocationFactory();
         animationHookManager = data.getAnimationHookManager();
         glowingBlockSpawner = data.getGlowingBlockSpawner();
         serverTickTime = data.getServerTickTime();
@@ -216,8 +190,7 @@ public final class BlockMover implements IAnimator
         this.skipAnimation = data.isAnimationSkipped();
         this.player = data.getResponsible();
         this.animationComponent = animationComponent;
-        privateAnimatedBlocks = new CopyOnWriteArrayList<>();
-        animatedBlocks = Collections.unmodifiableList(privateAnimatedBlocks);
+        this.animationBlockManager = animationBlockManager;
         this.newCuboid = data.getNewCuboid();
         this.oldCuboid = snapshot.getCuboid();
         this.cause = data.getCause();
@@ -241,10 +214,16 @@ public final class BlockMover implements IAnimator
      */
     private void applyRotation0(MovementDirection direction)
     {
-        for (final IAnimatedBlock animatedBlock : animatedBlocks)
+        for (final IAnimatedBlock animatedBlock : animationBlockManager.getAnimatedBlocks())
             if (animatedBlock.getAnimatedBlockData().canRotate() &&
                 animatedBlock.getAnimatedBlockData().rotateBlock(direction))
                 animatedBlock.respawn();
+    }
+
+    @Override
+    public List<IAnimatedBlock> getAnimatedBlocks()
+    {
+        return animationBlockManager.getAnimatedBlocks();
     }
 
     @Override
@@ -258,7 +237,7 @@ public final class BlockMover implements IAnimator
      */
     private void respawnBlocksOnCurrentThread()
     {
-        animatedBlocks.forEach(IAnimatedBlock::respawn);
+        getAnimatedBlocks().forEach(IAnimatedBlock::respawn);
     }
 
     @Override
@@ -296,58 +275,16 @@ public final class BlockMover implements IAnimator
             throw new IllegalStateException("Trying to start an animation again!");
 
         final Animation<IAnimatedBlock> animation = new Animation<>(
-            animationDuration, oldCuboid, animatedBlocks, snapshot, movable.getType());
-        final AnimationContext animationContext = new AnimationContext(movable.getType(), snapshot,
-                                                                       animation);
-        final List<IAnimatedBlock> newAnimatedBlocks = new ArrayList<>(snapshot.getBlockCount());
+            animationDuration, oldCuboid, getAnimatedBlocks(), snapshot, movable.getType());
+        final AnimationContext animationContext = new AnimationContext(movable.getType(), snapshot, animation);
 
-        try
+        if (!animationBlockManager.createAnimatedBlocks(snapshot, animationComponent, animationContext, movementMethod))
         {
-            final int xMin = oldCuboid.getMin().x();
-            final int yMin = oldCuboid.getMin().y();
-            final int zMin = oldCuboid.getMin().z();
-
-            final int xMax = oldCuboid.getMax().x();
-            final int yMax = oldCuboid.getMax().y();
-            final int zMax = oldCuboid.getMax().z();
-
-            for (int xAxis = xMin; xAxis <= xMax; ++xAxis)
-                for (int yAxis = yMax; yAxis >= yMin; --yAxis)
-                    for (int zAxis = zMin; zAxis <= zMax; ++zAxis)
-                    {
-                        final boolean onEdge =
-                            xAxis == xMin || xAxis == xMax ||
-                                yAxis == yMin || yAxis == yMax ||
-                                zAxis == zMin || zAxis == zMax;
-
-                        final IPLocation location =
-                            locationFactory.create(snapshot.getWorld(), xAxis + 0.5, yAxis, zAxis + 0.5);
-                        final boolean bottom = (yAxis == yMin);
-                        final float radius = animationComponent.getRadius(xAxis, yAxis, zAxis);
-                        final float startAngle = animationComponent.getStartAngle(xAxis, yAxis, zAxis);
-                        final Vector3Dd startPosition = new Vector3Dd(xAxis + 0.5, yAxis, zAxis + 0.5);
-                        final Vector3Dd finalPosition = getFinalPosition(startPosition, radius);
-
-                        animatedBlockFactory
-                            .create(location, radius, startAngle, bottom, onEdge, animationContext, finalPosition,
-                                    movementMethod)
-                            .ifPresent(newAnimatedBlocks::add);
-                    }
-            this.privateAnimatedBlocks.addAll(newAnimatedBlocks);
-        }
-        catch (Exception e)
-        {
-            log.atSevere().withCause(e).log();
-            // Add the block anyway, so we can deal with them in the initFailure method.
-            this.privateAnimatedBlocks.addAll(newAnimatedBlocks);
             handleInitFailure();
             return;
         }
 
-        if (!tryRemoveOriginalBlocks(false) || !tryRemoveOriginalBlocks(true))
-            return;
-
-        final boolean animationSkipped = skipAnimation || privateAnimatedBlocks.isEmpty();
+        final boolean animationSkipped = skipAnimation || getAnimatedBlocks().isEmpty();
         animation.setState(animationSkipped ? AnimationState.SKIPPED : AnimationState.ACTIVE);
         this.hooks = animationHookManager.instantiateHooks(animation);
 
@@ -355,40 +292,6 @@ public final class BlockMover implements IAnimator
             putBlocks();
         else
             animateEntities(animation);
-    }
-
-    /**
-     * Tries to remove the original blocks of all blocks in {@link #privateAnimatedBlocks}.
-     * <p>
-     * If an exception is thrown while removing the original blocks, the process is finished using
-     * {@link #handleInitFailure()}.
-     *
-     * @param edgePass
-     *     True to do a pass over the edges specifically.
-     * @return True if the original blocks could be spawned. If something went wrong and the process had to be aborted,
-     * false is returned instead.
-     */
-    private boolean tryRemoveOriginalBlocks(boolean edgePass)
-    {
-        executor.assertMainThread("Blocks must be removed on the main thread!");
-
-        for (final IAnimatedBlock animatedBlock : animatedBlocks)
-        {
-            try
-            {
-                if (edgePass && !animatedBlock.isOnEdge())
-                    continue;
-                animatedBlock.getAnimatedBlockData().deleteOriginalBlock(edgePass);
-            }
-            catch (Exception e)
-            {
-                log.atSevere().withCause(e)
-                   .log("Failed to remove original block. Trying to restore blocks now...");
-                handleInitFailure();
-                return false;
-            }
-        }
-        return true;
     }
 
     /**
@@ -406,36 +309,8 @@ public final class BlockMover implements IAnimator
             return;
         }
 
-        for (final IAnimatedBlock animatedBlock : animatedBlocks)
-        {
-            try
-            {
-                animatedBlock.kill();
-            }
-            catch (Exception e)
-            {
-                log.atSevere().withCause(e).log("Failed to kill animated block: %s", animatedBlock);
-            }
-            try
-            {
-                final Vector3Dd startPos = animatedBlock.getStartPosition();
-                final Vector3Di goalPos = new Vector3Di((int) startPos.x(),
-                                                        (int) Math.round(startPos.y()),
-                                                        (int) startPos.z());
-                animatedBlock.getAnimatedBlockData().putBlock(goalPos);
-            }
-            catch (Exception e)
-            {
-                log.atSevere().withCause(e).log("Failed to restore block: %s", animatedBlock);
-            }
-        }
-        privateAnimatedBlocks.clear();
+        animationBlockManager.restoreBlocksOnFailure();
         movableActivityManager.processFinishedBlockMover(this);
-    }
-
-    private Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
-    {
-        return animationComponent.getFinalPosition(startLocation, radius);
     }
 
     /**
@@ -479,7 +354,7 @@ public final class BlockMover implements IAnimator
 
     private void executeFinishingStep(Animation<IAnimatedBlock> animation)
     {
-        for (final IAnimatedBlock animatedBlock : animatedBlocks)
+        for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
             applyMovement(animatedBlock, animatedBlock.getFinalPosition(), -1);
 
         animation.setRegion(getAnimationRegion());
@@ -495,7 +370,7 @@ public final class BlockMover implements IAnimator
         animation.setRegion(getAnimationRegion());
         animation.setState(AnimationState.STOPPING);
 
-        for (final IAnimatedBlock animatedBlock : animatedBlocks)
+        for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
             animatedBlock.setVelocity(new Vector3Dd(0D, 0D, 0D));
 
         forEachHook("onAnimationEnding", IAnimationHook::onAnimationEnding);
@@ -522,7 +397,7 @@ public final class BlockMover implements IAnimator
     private void prepareAnimation()
     {
         executor.assertMainThread("Animated blocks must be spawned on the main thread!");
-        animatedBlocks.forEach(IAnimatedBlock::spawn);
+        getAnimatedBlocks().forEach(IAnimatedBlock::spawn);
         animationComponent.prepareAnimation(this);
     }
 
@@ -588,16 +463,10 @@ public final class BlockMover implements IAnimator
     {
         executor.assertMainThread("Attempting async block placement!");
 
-        for (final IAnimatedBlock animatedBlock : animatedBlocks)
-        {
-            animatedBlock.kill();
-            animatedBlock.getAnimatedBlockData().putBlock(animatedBlock.getFinalPosition());
-        }
+        animationBlockManager.handleAnimationCompletion();
 
         // Tell the movable object it has been opened and what its new coordinates are.
         movable.withWriteLock(this::updateCoords);
-
-        privateAnimatedBlocks.clear();
 
         forEachHook("onAnimationCompleted", IAnimationHook::onAnimationCompleted);
 
@@ -647,7 +516,7 @@ public final class BlockMover implements IAnimator
         double yMax = Double.MIN_VALUE;
         double zMax = Double.MIN_VALUE;
 
-        for (final IAnimatedBlock animatedBlock : animatedBlocks)
+        for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
         {
             final Vector3Dd pos = animatedBlock.getPosition();
             if (pos.x() < xMin)

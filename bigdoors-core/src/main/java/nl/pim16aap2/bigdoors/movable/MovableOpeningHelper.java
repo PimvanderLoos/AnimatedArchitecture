@@ -26,7 +26,8 @@ import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.managers.MovableTypeManager;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
-import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.moveblocks.AnimationBlockManager;
+import nl.pim16aap2.bigdoors.moveblocks.Animator;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.MovableActivityManager;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
@@ -66,6 +67,7 @@ public final class MovableOpeningHelper
     private final IChunkLoader chunkLoader;
     private final LimitsManager limitsManager;
     private final IBigDoorsEventCaller bigDoorsEventCaller;
+    private final AnimationBlockManager.IFactory animationBlockManagerFactory;
     private final MovementRequestData.IFactory movementRequestDataFactory;
 
     @Inject //
@@ -85,6 +87,7 @@ public final class MovableOpeningHelper
         IChunkLoader chunkLoader,
         LimitsManager limitsManager,
         IBigDoorsEventCaller bigDoorsEventCaller,
+        AnimationBlockManager.IFactory animationBlockManagerFactory,
         MovementRequestData.IFactory movementRequestDataFactory)
     {
         this.localizer = localizer;
@@ -102,6 +105,7 @@ public final class MovableOpeningHelper
         this.chunkLoader = chunkLoader;
         this.limitsManager = limitsManager;
         this.bigDoorsEventCaller = bigDoorsEventCaller;
+        this.animationBlockManagerFactory = animationBlockManagerFactory;
         this.movementRequestDataFactory = movementRequestDataFactory;
     }
 
@@ -233,7 +237,8 @@ public final class MovableOpeningHelper
         try
         {
             final IAnimationComponent component = movable.constructAnimationComponent(data);
-            final BlockMover blockMover = new BlockMover(movable, data, component);
+            final AnimationBlockManager animationBlockManager = animationBlockManagerFactory.newManager();
+            final Animator blockMover = new Animator(movable, data, component, animationBlockManager);
 
             movableActivityManager.addBlockMover(blockMover);
             executor.runOnMainThread(blockMover::startAnimation);
@@ -577,12 +582,11 @@ public final class MovableOpeningHelper
     }
 
     /**
-     * Checks if a {@link BlockMover} of a {@link IMovable} has been registered with the {@link DatabaseManager}.
+     * Checks if a {@link Animator} of a {@link IMovable} has been registered with the {@link DatabaseManager}.
      *
      * @param movableUID
      *     The UID of the {@link IMovable}.
-     * @return True if a {@link BlockMover} has been registered with the {@link DatabaseManager} for the
-     * {@link IMovable}.
+     * @return True if a {@link Animator} has been registered with the {@link DatabaseManager} for the {@link IMovable}.
      */
     @SuppressWarnings("unused")
     public boolean isBlockMoverRegistered(long movableUID)
@@ -591,13 +595,13 @@ public final class MovableOpeningHelper
     }
 
     /**
-     * Gets the {@link BlockMover} of a {@link IMovable} if it has been registered with the {@link DatabaseManager}.
+     * Gets the {@link Animator} of a {@link IMovable} if it has been registered with the {@link DatabaseManager}.
      *
      * @param movableUID
      *     The UID of the {@link IMovable}.
-     * @return The {@link BlockMover} of a {@link IMovable} if it has been registered with the {@link DatabaseManager}.
+     * @return The {@link Animator} of a {@link IMovable} if it has been registered with the {@link DatabaseManager}.
      */
-    public Optional<BlockMover> getBlockMover(long movableUID)
+    public Optional<Animator> getBlockMover(long movableUID)
     {
         return movableActivityManager.getBlockMover(movableUID);
     }
