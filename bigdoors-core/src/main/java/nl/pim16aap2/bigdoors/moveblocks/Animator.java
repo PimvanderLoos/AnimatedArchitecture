@@ -135,6 +135,9 @@ public final class Animator implements IAnimator
      */
     private final AtomicBoolean hasStarted = new AtomicBoolean(false);
 
+    @Getter
+    private final AnimationType animationType;
+
     private volatile @Nullable List<IAnimationHook<IAnimatedBlock>> hooks;
 
     /**
@@ -166,16 +169,21 @@ public final class Animator implements IAnimator
 
     /**
      * Constructs a {@link Animator}.
+     * <p>
+     * Once created, the animation does not start immediately. Use {@link #startAnimation()} to start it.
      *
      * @param movable
-     *     The {@link AbstractMovable}.
+     *     The {@link AbstractMovable} that is being animated.
      * @param data
      *     The data of the movement request.
+     * @param animationComponent
+     *     The animation component to use for the animation. This determines the type of animation.
+     * @param animationBlockManager
+     *     The manager of the animated blocks. This is responsible for handling the lifecycle of the animated blocks.
      */
     public Animator(
         AbstractMovable movable, MovementRequestData data, IAnimationComponent animationComponent,
         IAnimationBlockManager animationBlockManager)
-        throws Exception
     {
         executor = data.getExecutor();
         movableActivityManager = data.getMovableActivityManager();
@@ -194,10 +202,24 @@ public final class Animator implements IAnimator
         this.newCuboid = data.getNewCuboid();
         this.oldCuboid = snapshot.getCuboid();
         this.cause = data.getCause();
+        this.animationType = data.getAnimationType();
         this.actionType = data.getActionType();
-        this.perpetualMovement = movable instanceof IPerpetualMover perpetualMover && perpetualMover.isPerpetual();
 
-        this.animationDuration = AnimationUtil.getAnimationTicks(data.getAnimationTime(), data.getServerTickTime());
+        // Some animation types may place constraints on the duration of the animation.
+        // When this is the case, we limit the duration here.
+        // The components do not need to take this into account, as they use the duration
+        // to figure out how fast they need to move, which should not change because of a time limit.
+        final double animationTime = Math.min(animationType.getAnimationDurationLimit(), data.getAnimationTime());
+        this.animationDuration = AnimationUtil.getAnimationTicks(animationTime, data.getServerTickTime());
+
+        this.perpetualMovement = isPerpetualMovement();
+    }
+
+    private boolean isPerpetualMovement()
+    {
+        return this.animationType.allowsPerpetualAnimation() &&
+            movable instanceof IPerpetualMover perpetualMover &&
+            perpetualMover.isPerpetual();
     }
 
     public void abort()
@@ -310,7 +332,7 @@ public final class Animator implements IAnimator
         }
 
         animationBlockManager.restoreBlocksOnFailure();
-        movableActivityManager.processFinishedBlockMover(this);
+        movableActivityManager.processFinishedAnimation(this);
     }
 
     /**
@@ -465,12 +487,13 @@ public final class Animator implements IAnimator
 
         animationBlockManager.handleAnimationCompletion();
 
-        // Tell the movable object it has been opened and what its new coordinates are.
-        movable.withWriteLock(this::updateCoords);
+        if (animationType.affectsWorld())
+            // Tell the movable object it has been opened and what its new coordinates are.
+            movable.withWriteLock(this::updateCoords);
 
         forEachHook("onAnimationCompleted", IAnimationHook::onAnimationCompleted);
 
-        movableActivityManager.processFinishedBlockMover(this);
+        movableActivityManager.processFinishedAnimation(this);
     }
 
     /**

@@ -22,12 +22,13 @@ import nl.pim16aap2.bigdoors.events.movableaction.IMovableToggleEvent;
 import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
 import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.managers.MovableTypeManager;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
-import nl.pim16aap2.bigdoors.moveblocks.AnimationBlockManager;
+import nl.pim16aap2.bigdoors.moveblocks.AnimationBlockManagerFactory;
+import nl.pim16aap2.bigdoors.moveblocks.AnimationType;
 import nl.pim16aap2.bigdoors.moveblocks.Animator;
+import nl.pim16aap2.bigdoors.moveblocks.IAnimationBlockManager;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.MovableActivityManager;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
@@ -41,6 +42,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.inject.Inject;
 import java.time.Duration;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
@@ -67,7 +69,7 @@ public final class MovableOpeningHelper
     private final IChunkLoader chunkLoader;
     private final LimitsManager limitsManager;
     private final IBigDoorsEventCaller bigDoorsEventCaller;
-    private final AnimationBlockManager.IFactory animationBlockManagerFactory;
+    private final AnimationBlockManagerFactory animationBlockManagerFactory;
     private final MovementRequestData.IFactory movementRequestDataFactory;
 
     @Inject //
@@ -87,7 +89,7 @@ public final class MovableOpeningHelper
         IChunkLoader chunkLoader,
         LimitsManager limitsManager,
         IBigDoorsEventCaller bigDoorsEventCaller,
-        AnimationBlockManager.IFactory animationBlockManagerFactory,
+        AnimationBlockManagerFactory animationBlockManagerFactory,
         MovementRequestData.IFactory movementRequestDataFactory)
     {
         this.localizer = localizer;
@@ -120,11 +122,14 @@ public final class MovableOpeningHelper
      *     What caused the toggle in the first place.
      * @param responsible
      *     Who is responsible for the action.
-     * @return The result.
+     * @param stamp
+     *     The stamp of the animation. When this is not null, this stamp will be used to unregister the animation. This
+     *     will 'release the lock' for the UID.
+     * @return The same result that was passed in as argument.
      */
-    MovableToggleResult abort(
+    private MovableToggleResult abort(
         AbstractMovable movable, MovableToggleResult result, MovableActionCause cause, IPPlayer responsible,
-        IMessageable messageReceiver)
+        IMessageable messageReceiver, @Nullable Long stamp)
     {
         log.atFine().log("Aborted toggle for movable %d because of %s. Toggle Reason: %s, Responsible: %s",
                          movable.getUid(), result.name(), cause.name(), responsible.asString());
@@ -132,8 +137,8 @@ public final class MovableOpeningHelper
         // If the reason the toggle attempt was cancelled was because it was busy, it should obviously
         // not reset the busy status of this movable. However, in every other case it should, because the movable is
         // registered as busy before all the other checks take place.
-        if (!result.equals(MovableToggleResult.BUSY))
-            movableActivityManager.setMovableAvailable(movable.getUid());
+        if (stamp != null)
+            movableActivityManager.unregisterAnimation(movable.getUid(), stamp);
 
         if (!result.equals(MovableToggleResult.NO_PERMISSION))
         {
@@ -162,7 +167,7 @@ public final class MovableOpeningHelper
      * {@link IBigDoorsEventFactory#createTogglePrepareEvent(MovableSnapshot, MovableActionCause, MovableActionType,
      * IPPlayer, double, boolean, Cuboid)}.
      */
-    IMovableEventTogglePrepare callTogglePrepareEvent(
+    private IMovableEventTogglePrepare callTogglePrepareEvent(
         MovableSnapshot snapshot, MovableActionCause cause, MovableActionType actionType, IPPlayer responsible,
         double time, boolean skipAnimation, Cuboid newCuboid)
     {
@@ -178,7 +183,7 @@ public final class MovableOpeningHelper
      * {@link IBigDoorsEventFactory#createTogglePrepareEvent(MovableSnapshot, MovableActionCause, MovableActionType,
      * IPPlayer, double, boolean, Cuboid)}.
      */
-    IMovableEventTogglePrepare callTogglePrepareEvent(MovementRequestData data)
+    private IMovableEventTogglePrepare callTogglePrepareEvent(MovementRequestData data)
     {
         return callTogglePrepareEvent(
             data.getSnapshotOfMovable(),
@@ -195,7 +200,7 @@ public final class MovableOpeningHelper
      * {@link IBigDoorsEventFactory#createToggleStartEvent(AbstractMovable, MovableSnapshot, MovableActionCause,
      * MovableActionType, IPPlayer, double, boolean, Cuboid)}.
      */
-    IMovableEventToggleStart callToggleStartEvent(
+    private IMovableEventToggleStart callToggleStartEvent(
         AbstractMovable movable, MovableSnapshot snapshot, MovableActionCause cause, MovableActionType actionType,
         IPPlayer responsible, double time, boolean skipAnimation, Cuboid newCuboid)
     {
@@ -211,7 +216,7 @@ public final class MovableOpeningHelper
      * {@link IBigDoorsEventFactory#createToggleStartEvent(AbstractMovable, MovableSnapshot, MovableActionCause,
      * MovableActionType, IPPlayer, double, boolean, Cuboid)}.
      */
-    IMovableEventToggleStart callToggleStartEvent(AbstractMovable movable, MovementRequestData data)
+    private IMovableEventToggleStart callToggleStartEvent(AbstractMovable movable, MovementRequestData data)
     {
         return callToggleStartEvent(
             movable,
@@ -232,15 +237,19 @@ public final class MovableOpeningHelper
     /**
      * Registers a new block mover. Must be called from the main thread.
      */
-    boolean registerBlockMover(AbstractMovable movable, MovementRequestData data)
+    private boolean registerBlockMover(
+        AbstractMovable movable, MovementRequestData data, IAnimationComponent component, @Nullable IPPlayer player,
+        AnimationType animationType, long stamp)
     {
         try
         {
-            final IAnimationComponent component = movable.constructAnimationComponent(data);
-            final AnimationBlockManager animationBlockManager = animationBlockManagerFactory.newManager();
-            final Animator blockMover = new Animator(movable, data, component, animationBlockManager);
+            final IAnimationBlockManager animationBlockManager =
+                animationBlockManagerFactory.newManager(animationType, player);
 
-            movableActivityManager.addBlockMover(blockMover);
+            final Animator blockMover =
+                new Animator(movable, data, component, animationBlockManager);
+
+            movableActivityManager.addAnimator(stamp, blockMover);
             executor.runOnMainThread(blockMover::startAnimation);
         }
         catch (Exception e)
@@ -252,7 +261,9 @@ public final class MovableOpeningHelper
     }
 
     private MovableToggleResult toggle(
-        MovableSnapshot snapshot, AbstractMovable targetMovable, MovementRequestData data, IMessageable messageReceiver)
+        MovableSnapshot snapshot, AbstractMovable targetMovable, MovementRequestData data,
+        IAnimationComponent component, IMessageable messageReceiver, @Nullable IPPlayer player,
+        AnimationType animationType)
     {
         if (snapshot.getOpenDir() == MovementDirection.NONE)
         {
@@ -262,30 +273,37 @@ public final class MovableOpeningHelper
 
         if (!movableRegistry.isRegistered(targetMovable))
             return abort(targetMovable, MovableToggleResult.INSTANCE_UNREGISTERED, data.getCause(),
-                         data.getResponsible(), messageReceiver);
+                         data.getResponsible(), messageReceiver, null);
+
+        final OptionalLong registrationResult =
+            movableActivityManager.registerAnimation(snapshot.getUid(), animationType.isExclusive());
+        if (registrationResult.isEmpty())
+            return MovableToggleResult.BUSY;
+
+        final long stamp = registrationResult.getAsLong();
 
         final MovableToggleResult isOpenable =
             canBeToggled(snapshot, targetMovable.getType(), data.getNewCuboid(), data.getActionType());
 
         if (isOpenable != MovableToggleResult.SUCCESS)
-            return abort(targetMovable, isOpenable, data.getCause(), data.getResponsible(), messageReceiver);
+            return abort(targetMovable, isOpenable, data.getCause(), data.getResponsible(), messageReceiver, stamp);
 
         final IMovableEventTogglePrepare prepareEvent = callTogglePrepareEvent(data);
         if (prepareEvent.isCancelled())
             return abort(targetMovable, MovableToggleResult.CANCELLED, data.getCause(), data.getResponsible(),
-                         messageReceiver);
+                         messageReceiver, stamp);
 
         final @Nullable IPPlayer responsiblePlayer =
             data.getCause().equals(MovableActionCause.PLAYER) ? data.getResponsible() : null;
         if (!isLocationEmpty(data.getNewCuboid(), snapshot.getCuboid(), responsiblePlayer, snapshot.getWorld()))
             return abort(targetMovable, MovableToggleResult.OBSTRUCTED, data.getCause(), data.getResponsible(),
-                         messageReceiver);
+                         messageReceiver, stamp);
 
         if (!canBreakBlocksBetweenLocs(snapshot, data.getNewCuboid(), data.getResponsible()))
             return abort(targetMovable, MovableToggleResult.NO_PERMISSION, data.getCause(), data.getResponsible(),
-                         messageReceiver);
+                         messageReceiver, stamp);
 
-        final boolean scheduled = registerBlockMover(targetMovable, data);
+        final boolean scheduled = registerBlockMover(targetMovable, data, component, player, animationType, stamp);
         if (!scheduled)
             return MovableToggleResult.ERROR;
 
@@ -294,39 +312,47 @@ public final class MovableOpeningHelper
         return MovableToggleResult.SUCCESS;
     }
 
-    MovableToggleResult toggle(
-        AbstractMovable movable, MovableActionCause cause, IMessageable messageReceiver, IPPlayer responsible,
-        @Nullable Double targetTime, boolean skipAnimation, MovableActionType actionType)
+    MovableToggleResult toggle(AbstractMovable movable, MovableToggleRequest request, IPPlayer responsible)
     {
         final Optional<Cuboid> newCuboid;
         final double animationTime;
         final MovableSnapshot snapshot;
         final MovementRequestData data;
+        final IAnimationComponent component;
 
         movable.getLock().readLock().lock();
         try
         {
-            if (skipAnimation && !movable.canSkipAnimation())
-                return abort(movable, MovableToggleResult.ERROR, cause, responsible, messageReceiver);
+            if (request.isSkipAnimation() && !movable.canSkipAnimation())
+                return abort(
+                    movable, MovableToggleResult.ERROR, request.getCause(), responsible, request.getMessageReceiver(),
+                    null);
 
             if (exceedSizeLimit(movable, responsible))
-                return abort(movable, MovableToggleResult.TOO_BIG, cause, responsible, messageReceiver);
+                return abort(
+                    movable, MovableToggleResult.TOO_BIG, request.getCause(), responsible,
+                    request.getMessageReceiver(), null);
 
             newCuboid = movable.getPotentialNewCoordinates();
             if (newCuboid.isEmpty())
-                return abort(movable, MovableToggleResult.ERROR, cause, responsible, messageReceiver);
+                return abort(
+                    movable, MovableToggleResult.ERROR, request.getCause(), responsible, request.getMessageReceiver(),
+                    null);
 
-            animationTime = movable.getAnimationTime(targetTime);
+            animationTime = movable.getAnimationTime(request.getTime());
             snapshot = movable.getSnapshot();
 
             data = movementRequestDataFactory.newToggleRequestData(
-                snapshot, cause, animationTime, skipAnimation, newCuboid.get(), responsible, actionType);
+                snapshot, request.getCause(), animationTime, request.isSkipAnimation(), newCuboid.get(), responsible,
+                request.getAnimationType(), request.getActionType());
+            component = movable.constructAnimationComponent(data);
         }
         finally
         {
             movable.getLock().readLock().unlock();
         }
-        return toggle(snapshot, movable, data, messageReceiver);
+        return toggle(
+            snapshot, movable, data, component, request.getMessageReceiver(), responsible, request.getAnimationType());
     }
 
     /**
@@ -543,12 +569,9 @@ public final class MovableOpeningHelper
      *     The type of action.
      * @return {@link MovableToggleResult#SUCCESS} if it can be toggled
      */
-    MovableToggleResult canBeToggled(
+    private MovableToggleResult canBeToggled(
         IMovableConst movable, MovableType type, Cuboid newCuboid, MovableActionType actionType)
     {
-        if (!movableActivityManager.attemptRegisterAsBusy(movable.getUid()))
-            return MovableToggleResult.BUSY;
-
         if (actionType == MovableActionType.OPEN && !movable.isOpenable())
             return MovableToggleResult.ALREADY_OPEN;
         else if (actionType == MovableActionType.CLOSE && !movable.isCloseable())
@@ -579,30 +602,5 @@ public final class MovableOpeningHelper
             return false;
 
         return chunkLoader.checkChunks(movable.getWorld(), newCuboid, mode) != IChunkLoader.ChunkLoadResult.FAIL;
-    }
-
-    /**
-     * Checks if a {@link Animator} of a {@link IMovable} has been registered with the {@link DatabaseManager}.
-     *
-     * @param movableUID
-     *     The UID of the {@link IMovable}.
-     * @return True if a {@link Animator} has been registered with the {@link DatabaseManager} for the {@link IMovable}.
-     */
-    @SuppressWarnings("unused")
-    public boolean isBlockMoverRegistered(long movableUID)
-    {
-        return getBlockMover(movableUID).isPresent();
-    }
-
-    /**
-     * Gets the {@link Animator} of a {@link IMovable} if it has been registered with the {@link DatabaseManager}.
-     *
-     * @param movableUID
-     *     The UID of the {@link IMovable}.
-     * @return The {@link Animator} of a {@link IMovable} if it has been registered with the {@link DatabaseManager}.
-     */
-    public Optional<Animator> getBlockMover(long movableUID)
-    {
-        return movableActivityManager.getBlockMover(movableUID);
     }
 }

@@ -6,8 +6,10 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.commands.AddOwnerDelayed;
 import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.commands.ICommandSender;
+import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
 import nl.pim16aap2.bigdoors.movable.PermissionLevel;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
+import nl.pim16aap2.bigdoors.moveblocks.AnimationType;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
@@ -194,6 +196,13 @@ class CommandExecutor
     void toggle(CommandContext<ICommandSender> context)
     {
         commandFactory.newToggle(context.getSender(), context.<MovableRetriever>get("movableRetriever")).run();
+    }
+
+    void preview(CommandContext<ICommandSender> context)
+    {
+        commandFactory.newToggle(
+            context.getSender(), MovableActionType.TOGGLE, AnimationType.PREVIEW,
+            context.<MovableRetriever>get("movableRetriever")).run();
     }
 
     void version(CommandContext<ICommandSender> context)

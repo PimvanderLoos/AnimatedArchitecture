@@ -506,7 +506,7 @@ public class CustomEntityFallingBlock_V1_19_R2 extends EntityFallingBlock implem
     }
 
     @Override
-    public IPWorld getPWorld()
+    public IPWorld getWorld()
     {
         return pWorld;
     }

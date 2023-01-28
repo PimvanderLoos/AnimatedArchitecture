@@ -1,19 +1,32 @@
 package nl.pim16aap2.bigdoors.util;
 
-import org.jetbrains.annotations.Nullable;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
+import javax.annotation.concurrent.NotThreadSafe;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Class used to wrap immutable objects and as such make them mutable.
+ * Wrapper class with a mutable reference to an object.
+ * <p>
+ * This class makes no assumptions on the nullability of objects.
+ * <p>
+ * This class is not thread safe. When such functionality is required, use an alternative like {@link AtomicReference}
+ * instead.
  *
- * @author Pim
+ * @param <T>
+ *     The type of the object to store.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "NullableProblems"})
+@NotThreadSafe
+@ToString
+@EqualsAndHashCode
 public class Mutable<T>
 {
     /**
      * The value stored in this {@link Mutable}.
      */
-    private @Nullable T val;
+    private T val;
 
     /**
      * Constructs a new {@link Mutable} with a given value.
@@ -21,29 +34,17 @@ public class Mutable<T>
      * @param val
      *     The value to store.
      */
-    public Mutable(@Nullable T val)
+    public Mutable(T val)
     {
         this.val = val;
     }
 
     /**
-     * Gets the value stored in this {@link Mutable}.
-     *
      * @return The value stored in this {@link Mutable}.
      */
-    public @Nullable T getVal()
+    public T get()
     {
         return val;
-    }
-
-    /**
-     * Checks if the value stored in this {@link Mutable} is null.
-     *
-     * @return True if the value stored in this {@link Mutable} is null.
-     */
-    public boolean isEmpty()
-    {
-        return val == null;
     }
 
     /**
@@ -52,7 +53,7 @@ public class Mutable<T>
      * @param val
      *     The value that will be stored in this {@link Mutable}.
      */
-    public void setVal(@Nullable T val)
+    public void set(T val)
     {
         this.val = val;
     }
