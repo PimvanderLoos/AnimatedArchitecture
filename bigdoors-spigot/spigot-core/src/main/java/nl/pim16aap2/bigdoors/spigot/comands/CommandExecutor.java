@@ -201,7 +201,7 @@ class CommandExecutor
     void preview(CommandContext<ICommandSender> context)
     {
         commandFactory.newToggle(
-            context.getSender(), MovableActionType.TOGGLE, AnimationType.PREVIEW, null,
+            context.getSender(), MovableActionType.TOGGLE, AnimationType.PREVIEW,
             context.<MovableRetriever>get("movableRetriever")).run();
     }
 

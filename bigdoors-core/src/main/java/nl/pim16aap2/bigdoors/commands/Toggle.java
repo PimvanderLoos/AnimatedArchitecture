@@ -186,6 +186,19 @@ public class Toggle extends BaseCommand
         /**
          * See {@link #newToggle(ICommandSender, MovableActionType, AnimationType, Double, MovableRetriever...)}.
          * <p>
+         * Defaults to null for the speed multiplier.
+         */
+        default Toggle newToggle(
+            ICommandSender commandSender, MovableActionType actionType, AnimationType animationType,
+            MovableRetriever... movableRetrievers)
+        {
+            return newToggle(
+                commandSender, actionType, animationType, (Double) null, movableRetrievers);
+        }
+
+        /**
+         * See {@link #newToggle(ICommandSender, MovableActionType, AnimationType, Double, MovableRetriever...)}.
+         * <p>
          * Defaults to null for the speed multiplier, to {@link Toggle#DEFAULT_MOVABLE_ACTION_TYPE} for the movable
          * action type, and to {@link Toggle#DEFAULT_ANIMATION_TYPE} for the animation type.
          */

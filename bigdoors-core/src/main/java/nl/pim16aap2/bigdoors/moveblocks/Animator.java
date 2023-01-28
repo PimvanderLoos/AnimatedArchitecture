@@ -332,7 +332,7 @@ public final class Animator implements IAnimator
         }
 
         animationBlockManager.restoreBlocksOnFailure();
-        movableActivityManager.processFinishedBlockMover(this);
+        movableActivityManager.processFinishedAnimation(this);
     }
 
     /**
@@ -493,7 +493,7 @@ public final class Animator implements IAnimator
 
         forEachHook("onAnimationCompleted", IAnimationHook::onAnimationCompleted);
 
-        movableActivityManager.processFinishedBlockMover(this);
+        movableActivityManager.processFinishedAnimation(this);
     }
 
     /**
