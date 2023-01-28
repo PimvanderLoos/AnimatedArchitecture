@@ -18,7 +18,7 @@ public enum AnimationType
      * <p>
      * Note that this type requires an online {@link IPPlayer} to target.
      */
-    PREVIEW(false, false, 3, false),
+    PREVIEW(false, false, 10, false),
     ;
 
     private final boolean affectsWorld;

@@ -15,6 +15,12 @@ import java.time.Duration;
 
 public class AnimatedPreviewBlock implements IAnimatedBlock
 {
+    /**
+     * We do not want to move this type every tick, so we only update it once in every MOVEMENT_RATE ticks.
+     */
+    private static final int MOVEMENT_RATE = 5;
+
+    private int movementTicks = -1;
     private final IPLocationFactory locationFactory;
     private final GlowingBlockSpawner glowingBlockSpawner;
     @Getter
@@ -60,6 +66,7 @@ public class AnimatedPreviewBlock implements IAnimatedBlock
     @Override
     public IAnimatedBlockData getAnimatedBlockData()
     {
+        // TODO: Implement this
         return null;
     }
 
@@ -96,10 +103,13 @@ public class AnimatedPreviewBlock implements IAnimatedBlock
     @Override
     public void moveToTarget(Vector3Dd target, int ticksRemaining)
     {
+        if (++movementTicks % MOVEMENT_RATE != 0)
+            return;
+
         glowingBlockSpawner
             .builder()
             .forPlayer(player)
-            .forDuration(Duration.ofSeconds(1))
+            .forDuration(Duration.ofMillis(500))
             .inWorld(world)
             .atPosition(target)
             .withColor(color)
