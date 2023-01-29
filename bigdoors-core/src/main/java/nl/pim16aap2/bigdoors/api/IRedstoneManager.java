@@ -7,7 +7,7 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
  *
  * @author Pim
  */
-public interface IPowerBlockRedstoneManager
+public interface IRedstoneManager
 {
     /**
      * Checks if a block is a power block (correct block type) and if it is powered.
@@ -19,5 +19,17 @@ public interface IPowerBlockRedstoneManager
      * @return True if the block at the given position is a valid power block that is receiving an active redstone
      * signal.
      */
-    boolean isBlockPowered(IPWorld world, Vector3Di position);
+    RedstoneStatus isBlockPowered(IPWorld world, Vector3Di position);
+
+    default RedstoneStatus isBlockPowered(IPLocation location)
+    {
+        return isBlockPowered(location.getWorld(), location.getPosition());
+    }
+
+    enum RedstoneStatus
+    {
+        POWERED,
+        UNPOWERED,
+        DISABLED;
+    }
 }

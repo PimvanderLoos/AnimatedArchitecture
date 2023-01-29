@@ -338,13 +338,12 @@ public abstract class AbstractMovable implements IMovable
     /**
      * Handles a change in redstone current for this movable's powerblock.
      *
-     * @param newCurrent
-     *     The new current of the powerblock.
+     * @param isPowered
+     *     True if the powerblock is now powered.
      */
-    @SuppressWarnings("unused")
-    public void onRedstoneChange(int newCurrent)
+    public void onRedstoneChange(boolean isPowered)
     {
-        base.onRedstoneChange(this, newCurrent);
+        base.onRedstoneChange(this, isPowered);
     }
 
     @Locked.Read

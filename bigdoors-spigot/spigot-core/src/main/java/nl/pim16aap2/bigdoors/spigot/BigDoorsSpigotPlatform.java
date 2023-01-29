@@ -13,8 +13,8 @@ import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPermissionsManager;
-import nl.pim16aap2.bigdoors.api.IPowerBlockRedstoneManager;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
+import nl.pim16aap2.bigdoors.api.IRedstoneManager;
 import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.api.factories.IGuiFactory;
@@ -166,7 +166,7 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     private final HeadManager headManager;
 
     @Getter
-    private final IPowerBlockRedstoneManager powerBlockRedstoneManager;
+    private final IRedstoneManager powerBlockRedstoneManager;
 
     @Getter
     private final MovableTypeLoader doorTypeLoader;

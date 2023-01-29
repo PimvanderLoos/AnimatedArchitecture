@@ -212,25 +212,21 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
         return owners.remove(uuid);
     }
 
-    @Locked.Read void onRedstoneChange(AbstractMovable movable, int newCurrent)
+    @Locked.Read void onRedstoneChange(AbstractMovable movable, boolean isPowered)
     {
-        final @Nullable MovableActionType movableActionType;
-        if (newCurrent == 0 && movable.isCloseable())
-            movableActionType = MovableActionType.CLOSE;
-        else if (newCurrent > 0 && movable.isOpenable())
-            movableActionType = MovableActionType.OPEN;
-        else
-            movableActionType = null;
+        if (isPowered && movable.isOpen() || !isPowered && !movable.isOpen())
+            return;
 
-        if (movableActionType != null)
-            movableToggleRequestBuilder.builder()
-                                       .movable(movable)
-                                       .movableActionCause(MovableActionCause.REDSTONE)
-                                       .movableActionType(movableActionType)
-                                       .messageReceiverServer()
-                                       .responsible(playerFactory.create(getPrimeOwner().pPlayerData()))
-                                       .build()
-                                       .execute();
+        final MovableActionType type = isPowered ? MovableActionType.OPEN : MovableActionType.CLOSE;
+        movableToggleRequestBuilder
+            .builder()
+            .movable(movable)
+            .movableActionCause(MovableActionCause.REDSTONE)
+            .movableActionType(type)
+            .messageReceiverServer()
+            .responsible(playerFactory.create(getPrimeOwner().pPlayerData()))
+            .build()
+            .execute();
     }
 
     @Locked.Read

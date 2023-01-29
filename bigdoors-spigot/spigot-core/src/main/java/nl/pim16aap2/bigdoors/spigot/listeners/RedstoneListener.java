@@ -1,14 +1,12 @@
 package nl.pim16aap2.bigdoors.spigot.listeners;
 
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.bigdoors.api.IRedstoneManager;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
-import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
-import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
-import nl.pim16aap2.bigdoors.movable.MovableToggleRequestBuilder;
 import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.PLocationSpigot;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -33,20 +31,22 @@ import java.util.concurrent.CompletableFuture;
 @Flogger
 public class RedstoneListener extends AbstractListener
 {
+    private static final boolean REDSTONE_ENABLED = true;
+
     private final ConfigLoaderSpigot config;
-    private final MovableToggleRequestBuilder movableToggleRequestBuilder;
     private final Set<Material> powerBlockTypes = new HashSet<>();
     private final PowerBlockManager powerBlockManager;
+    private final IRedstoneManager redstoneManager;
 
     @Inject
     public RedstoneListener(
-        RestartableHolder holder, JavaPlugin plugin, ConfigLoaderSpigot config,
-        MovableToggleRequestBuilder movableToggleRequestBuilder, PowerBlockManager powerBlockManager)
+        RestartableHolder holder, JavaPlugin plugin, ConfigLoaderSpigot config, PowerBlockManager powerBlockManager,
+        IRedstoneManager redstoneManager)
     {
-        super(holder, plugin);
+        super(holder, plugin, () -> REDSTONE_ENABLED);
         this.config = config;
-        this.movableToggleRequestBuilder = movableToggleRequestBuilder;
         this.powerBlockManager = powerBlockManager;
+        this.redstoneManager = redstoneManager;
     }
 
     @Override
@@ -64,28 +64,23 @@ public class RedstoneListener extends AbstractListener
         powerBlockTypes.clear();
     }
 
-    private void checkMovables(Location loc)
+    private void checkMovables(PLocationSpigot loc, boolean isPowered)
     {
-        final String worldName = Objects.requireNonNull(loc.getWorld(), "World cannot be null!").getName();
-        powerBlockManager.movablesFromPowerBlockLoc(
-            new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()), worldName).whenComplete(
-            (movables, throwable) -> movables.forEach(
-                movable -> movableToggleRequestBuilder
-                    .builder()
-                    .movable(movable)
-                    .movableActionCause(MovableActionCause.REDSTONE)
-                    .movableActionType(MovableActionType.TOGGLE)
-                    .build().execute()));
+        powerBlockManager
+            .movablesFromPowerBlockLoc(loc)
+            .thenAccept(movables -> movables.forEach(movable -> movable.onRedstoneChange(isPowered)))
+            .exceptionally(Util::exceptionally);
     }
 
     /**
      * Processes a redstone event. This means that it looks for any power blocks around the block that was changed.
      *
      * @param event
-     *     The event.
+     *     The event to process.
      */
     private void processRedstoneEvent(BlockRedstoneEvent event)
     {
+        final boolean isPowered = event.getNewCurrent() > 0;
         try
         {
             final Block block = event.getBlock();
@@ -97,22 +92,22 @@ public class RedstoneListener extends AbstractListener
             final int z = location.getBlockZ();
 
             if (powerBlockTypes.contains(world.getBlockAt(x, y, z - 1).getType())) // North
-                checkMovables(new Location(world, x, y, z - 1.0));
+                checkMovables(new PLocationSpigot(world, x, y, z - 1.0), isPowered);
 
             if (powerBlockTypes.contains(world.getBlockAt(x + 1, y, z).getType())) // East
-                checkMovables(new Location(world, x + 1.0, y, z));
+                checkMovables(new PLocationSpigot(world, x + 1.0, y, z), isPowered);
 
             if (powerBlockTypes.contains(world.getBlockAt(x, y, z + 1).getType())) // South
-                checkMovables(new Location(world, x, y, z + 1.0));
+                checkMovables(new PLocationSpigot(world, x, y, z + 1.0), isPowered);
 
             if (powerBlockTypes.contains(world.getBlockAt(x - 1, y, z).getType())) // West
-                checkMovables(new Location(world, x - 1.0, y, z));
+                checkMovables(new PLocationSpigot(world, x - 1.0, y, z), isPowered);
 
-            if (y < 254 && powerBlockTypes.contains(world.getBlockAt(x, y + 1, z).getType())) // Above
-                checkMovables(new Location(world, x, y + 1.0, z));
+            if (powerBlockTypes.contains(world.getBlockAt(x, y + 1, z).getType())) // Above
+                checkMovables(new PLocationSpigot(world, x, y + 1.0, z), isPowered);
 
-            if (y > 0 && powerBlockTypes.contains(world.getBlockAt(x, y - 1, z).getType())) // Under
-                checkMovables(new Location(world, x, y - 1.0, z));
+            if (powerBlockTypes.contains(world.getBlockAt(x, y - 1, z).getType())) // Under
+                checkMovables(new PLocationSpigot(world, x, y - 1.0, z), isPowered);
         }
         catch (Exception e)
         {

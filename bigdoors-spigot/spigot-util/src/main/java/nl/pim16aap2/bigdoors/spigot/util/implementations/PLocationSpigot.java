@@ -43,6 +43,12 @@ public final class PLocationSpigot implements IPLocation
         this.world = world;
     }
 
+    public PLocationSpigot(World world, double x, double y, double z)
+    {
+        location = new Location(world, x, y, z);
+        this.world = new PWorldSpigot(world);
+    }
+
     public PLocationSpigot(Location location)
     {
         Util.requireNonNull(location.getWorld(), "world of location " + location);
