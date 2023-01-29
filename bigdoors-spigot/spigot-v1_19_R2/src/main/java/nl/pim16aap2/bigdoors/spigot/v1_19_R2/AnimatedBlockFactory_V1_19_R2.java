@@ -51,7 +51,7 @@ public final class AnimatedBlockFactory_V1_19_R2 implements IAnimatedBlockFactor
             return Optional.empty();
 
         final double offset = bottom ? 0.010_001 : 0;
-        final IPLocation spawnLoc = loc.add(0, offset - 0.020, 0);
+        final IPLocation spawnLoc = loc.add(0, offset, 0);
 
         final var animatedBlock = new CustomEntityFallingBlock_V1_19_R2(
             executor, loc.getWorld(), bukkitWorld, spawnLoc.getX(), spawnLoc.getY(), spawnLoc.getZ(), radius,
