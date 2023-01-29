@@ -78,22 +78,22 @@ public final class MovableActivityManager extends Restartable implements Movable
      * Attempts to register a new animation.
      * <p>
      * The registration attempt returns an optional long. This value is the stamp of the registry. In case the
-     * registered animation is registered with exclusive access, the stamp will be a unique, non-zero value.
+     * registered animation is registered with read/write access, the stamp will be a unique, non-zero value.
      * <p>
-     * Registrations with non-exclusive access all share a single stamp for all animators for the same movable UID. The
+     * Registrations with read-only access all share a single stamp for all animators for the same movable UID. The
      * stamp is still unique between each group of animators.
      * <p>
      * Once registered, the animator for the animation can be inserted using {@link #addAnimator(long, Animator)}.
      *
      * @param uid
      *     The UID of the movable being animated.
-     * @param exclusive
-     *     True to give the animation exclusive access to the
+     * @param requiresWriteAccess
+     *     True to register the animation with read/write access. Only one such animator can be active per movable.
      * @return The stamp of the animation entry if it was registered successfully. If the animation could not be
      * registered, {@link OptionalLong#empty()} is returned.
      */
     @CheckReturnValue
-    public OptionalLong registerAnimation(long uid, boolean exclusive)
+    public OptionalLong registerAnimation(long uid, boolean requiresWriteAccess)
     {
         @SuppressWarnings("NullAway") // NullAway doesn't see the @Nullable here
         final Mutable<@Nullable RegisteredAnimatorEntry> abortEntryRef = new Mutable<>(null);
@@ -105,22 +105,23 @@ public final class MovableActivityManager extends Restartable implements Movable
         {
             if (entry == null)
             {
-                final RegisteredAnimatorEntry newEntry = RegisteredAnimatorEntry.newAnimatorEntry(key, exclusive);
+                final RegisteredAnimatorEntry newEntry =
+                    RegisteredAnimatorEntry.newAnimatorEntry(key, requiresWriteAccess);
                 newEntryRef.set(newEntry);
                 return newEntry;
             }
 
-            // If the existing entry is exclusive, we cannot register a new animator.
-            if (entry.isExclusive())
+            // If the existing entry is requiresWriteAccess, we cannot register a new animator.
+            if (entry.requiresWriteAccess())
             {
                 log.atFine().withStackTrace(StackSize.FULL)
-                   .log("Trying to register animator with active exclusive entry: %s", entry);
+                   .log("Trying to register animator with active requiresWriteAccess entry: %s", entry);
                 return entry;
             }
 
-            // If the new animator is exclusive, but the old one(s) is/are not, we have to abort the
+            // If the new animator is requiresWriteAccess, but the old one(s) is/are not, we have to abort the
             // old one(s) to make space for the new one.
-            if (exclusive)
+            if (requiresWriteAccess)
             {
                 final RegisteredAnimatorEntry newEntry = RegisteredAnimatorEntry.newAnimatorEntry(key, true);
                 newEntryRef.set(newEntry);
@@ -128,7 +129,7 @@ public final class MovableActivityManager extends Restartable implements Movable
                 return newEntry;
             }
 
-            // If there's no exclusivity around, we can re-use the existing, non-exclusive registry entry.
+            // If there is nothing related to write access, we can re-use the existing, read-only registry entry.
             newEntryRef.set(entry);
             return entry;
         });
@@ -163,20 +164,20 @@ public final class MovableActivityManager extends Restartable implements Movable
     }
 
     /**
-     * Stops an active exclusive animator if one currently exists.
+     * Stops an active animator with write access if one currently exists for the movable with the provided UID.
      * <p>
      * See {@link Animator#stopAnimation()}.
      *
      * @param uid
      *     The UID of the movable being animated.
      */
-    public void stopExclusiveAnimators(long uid)
+    public void stopAnimatorsWithWriteAccess(long uid)
     {
         animators.compute(uid, (key, entry) ->
         {
             if (entry == null)
                 return null;
-            if (!entry.isExclusive())
+            if (!entry.requiresWriteAccess())
                 return entry;
             entry.stop();
             return entry;
@@ -292,7 +293,7 @@ public final class MovableActivityManager extends Restartable implements Movable
     /**
      * Represents a registered animator.
      * <p>
-     * In case of non-exclusive animators, more than one animator may be registered per movable.
+     * In case of read-only animators, more than one animator may be registered per movable.
      */
     private sealed abstract static class RegisteredAnimatorEntry
     {
@@ -304,9 +305,10 @@ public final class MovableActivityManager extends Restartable implements Movable
         /**
          * The stamp of this entry.
          * <p>
-         * If the entry is exclusive, the stamp will have a unique, non-zero value.
+         * If the entry has write access, the stamp will have a unique, non-zero value.
          * <p>
-         * Non-exclusive animation types will always return 0.
+         * For read-only entries, the stamp will be shared by all animators for a given movable. Between movables, the
+         * stamp will still be unique.
          */
         @Getter
         private final long stamp = STAMP_COUNTER.incrementAndGet();
@@ -316,17 +318,17 @@ public final class MovableActivityManager extends Restartable implements Movable
          *
          * @param key
          *     The key of the instance.
-         * @param exclusive
-         *     True if the entry is for an exclusive animator.
+         * @param isReadWrite
+         *     True if the entry is for an animator that requires write access.
          *     <p>
-         *     See {@link AnimationType#isExclusive()}.
+         *     See {@link AnimationType#requiresWriteAccess()}.
          * @return The newly created entry.
          */
-        static RegisteredAnimatorEntry newAnimatorEntry(Long key, boolean exclusive)
+        static RegisteredAnimatorEntry newAnimatorEntry(Long key, boolean isReadWrite)
         {
-            return exclusive ?
-                   new ExclusiveAnimatorEntry(key) :
-                   new NonExclusiveAnimatorEntry(key);
+            return isReadWrite ?
+                   new ReadWriteAnimatorEntry(key) :
+                   new ReadOnlyAnimatorEntry(key);
         }
 
         /**
@@ -383,11 +385,11 @@ public final class MovableActivityManager extends Restartable implements Movable
         public abstract long getKey();
 
         /**
-         * @return True if this entry describes an exclusive type of animation.
+         * @return True if this entry describes an animation that requires write access.
          * <p>
-         * See {@link AnimationType#isExclusive()}.
+         * See {@link AnimationType#requiresWriteAccess()}.
          */
-        public abstract boolean isExclusive();
+        public abstract boolean requiresWriteAccess();
 
         /**
          * Removes the animator from this entry.
@@ -401,14 +403,14 @@ public final class MovableActivityManager extends Restartable implements Movable
          */
         public abstract int size();
 
-        static final class NonExclusiveAnimatorEntry extends RegisteredAnimatorEntry
+        static final class ReadOnlyAnimatorEntry extends RegisteredAnimatorEntry
         {
             @Getter
             private final long key;
             private final Set<Animator> animators = Collections.newSetFromMap(new IdentityHashMap<>());
             private boolean isAborted = false;
 
-            NonExclusiveAnimatorEntry(long key)
+            ReadOnlyAnimatorEntry(long key)
             {
                 this.key = key;
             }
@@ -457,7 +459,7 @@ public final class MovableActivityManager extends Restartable implements Movable
             }
 
             @Override
-            public boolean isExclusive()
+            public boolean requiresWriteAccess()
             {
                 return false;
             }
@@ -467,7 +469,7 @@ public final class MovableActivityManager extends Restartable implements Movable
             {
                 if (o == this)
                     return true;
-                if (!(o instanceof NonExclusiveAnimatorEntry other))
+                if (!(o instanceof ReadOnlyAnimatorEntry other))
                     return false;
                 return this.isAborted != other.isAborted ||
                     this.key != other.key ||
@@ -489,12 +491,12 @@ public final class MovableActivityManager extends Restartable implements Movable
             @Override
             public synchronized String toString()
             {
-                return "NonExclusiveAnimatorEntry(stamp=" + this.getStamp() + ", key=" + this.key + ", animators=" +
+                return "ReadOnlyAnimatorEntry(stamp=" + this.getStamp() + ", key=" + this.key + ", animators=" +
                     this.animators + ", isAborted=" + this.isAborted + ")";
             }
         }
 
-        static final class ExclusiveAnimatorEntry extends RegisteredAnimatorEntry
+        static final class ReadWriteAnimatorEntry extends RegisteredAnimatorEntry
         {
             @Getter
             private final long key;
@@ -502,7 +504,7 @@ public final class MovableActivityManager extends Restartable implements Movable
             private boolean isAborted = false;
             private @Nullable Animator animator;
 
-            ExclusiveAnimatorEntry(long key)
+            ReadWriteAnimatorEntry(long key)
             {
                 this.key = key;
             }
@@ -535,7 +537,7 @@ public final class MovableActivityManager extends Restartable implements Movable
                 verifyStamp(stamp);
                 if (this.animator != null)
                     throw new IllegalStateException(
-                        "Trying to override existing exclusive animator " + this.animator + " with animator: " +
+                        "Trying to override existing ReadWrite animator " + this.animator + " with animator: " +
                             animator);
                 if (isAborted)
                     throw new IllegalStateException("Trying to register animator in aborted state: " + animator);
@@ -548,7 +550,7 @@ public final class MovableActivityManager extends Restartable implements Movable
                 if (animator != this.animator)
                 {
                     final String logStr = "Trying to remove animator %s while the entry actually contains animator %s";
-                    if (animator.getAnimationType().isExclusive())
+                    if (animator.getAnimationType().requiresWriteAccess())
                         throw new IllegalStateException(String.format(logStr, animator, this.animator));
                     log.atFiner().log(logStr, animator, this.animator);
                     return false;
@@ -565,7 +567,7 @@ public final class MovableActivityManager extends Restartable implements Movable
             }
 
             @Override
-            public boolean isExclusive()
+            public boolean requiresWriteAccess()
             {
                 return true;
             }
@@ -575,7 +577,7 @@ public final class MovableActivityManager extends Restartable implements Movable
             {
                 if (o == this)
                     return true;
-                if (!(o instanceof ExclusiveAnimatorEntry other))
+                if (!(o instanceof ReadWriteAnimatorEntry other))
                     return false;
                 return this.isAborted != other.isAborted ||
                     this.key != other.key ||
@@ -599,7 +601,7 @@ public final class MovableActivityManager extends Restartable implements Movable
             @Override
             public synchronized String toString()
             {
-                return "ExclusiveAnimatorEntry(stamp=" + this.getStamp() + ", key=" + this.key + ", isAborted=" +
+                return "ReadWriteAnimatorEntry(stamp=" + this.getStamp() + ", key=" + this.key + ", isAborted=" +
                     this.isAborted + ", animator=" + this.animator + ")";
             }
         }

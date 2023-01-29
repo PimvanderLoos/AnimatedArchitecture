@@ -309,7 +309,7 @@ public final class Animator implements IAnimator
             throw new IllegalStateException("Trying to start an animation again!");
 
         final Animation<IAnimatedBlock> animation = new Animation<>(
-            animationDuration, oldCuboid, getAnimatedBlocks(), snapshot, movable.getType());
+            animationDuration, oldCuboid, getAnimatedBlocks(), snapshot, movable.getType(), animationType);
         this.animationData = animation;
 
         final AnimationContext animationContext = new AnimationContext(movable.getType(), snapshot, animation);
@@ -496,7 +496,7 @@ public final class Animator implements IAnimator
 
         animationBlockManager.handleAnimationCompletion();
 
-        if (animationType.affectsWorld())
+        if (animationType.requiresWriteAccess())
             // Tell the movable object it has been opened and what its new coordinates are.
             movable.withWriteLock(this::updateCoords);
 

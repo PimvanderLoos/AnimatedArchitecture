@@ -28,15 +28,19 @@ public class Animation<T extends IAnimatedBlock> implements IAnimation<T>
     private volatile AnimationState state = AnimationState.PENDING;
     @Setter(AccessLevel.PACKAGE)
     private volatile int stepsExecuted = 0;
+    @Getter
+    private final AnimationType animationType;
 
     Animation(
-        int duration, Cuboid region, List<T> animatedBlocks, MovableSnapshot movableSnapshot, MovableType movableType)
+        int duration, Cuboid region, List<T> animatedBlocks, MovableSnapshot movableSnapshot, MovableType movableType,
+        AnimationType animationType)
     {
         this.duration = duration;
         this.region = region;
         this.animatedBlocks = Collections.unmodifiableList(animatedBlocks);
         this.movableSnapshot = movableSnapshot;
         this.movableType = movableType;
+        this.animationType = animationType;
     }
 
     @Override
