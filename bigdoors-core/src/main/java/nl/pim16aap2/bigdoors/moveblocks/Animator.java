@@ -220,6 +220,7 @@ public final class Animator implements IAnimator
         if (moverTask0 != null)
             executor.cancel(moverTask0, Objects.requireNonNull(moverTaskID));
         putBlocks();
+        forEachHook("onAnimationAborted", IAnimationHook::onAnimationAborted);
     }
 
     /**
