@@ -244,7 +244,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
     @Locked.Read void onRedstoneChange(AbstractMovable movable, boolean isPowered)
     {
-        if (isPowered && movable.isOpen() || !isPowered && !movable.isOpen())
+        if (isPowered && !movable.isOpenable() || !isPowered && !movable.isCloseable())
             return;
 
         final MovableActionType type = isPowered ? MovableActionType.OPEN : MovableActionType.CLOSE;
