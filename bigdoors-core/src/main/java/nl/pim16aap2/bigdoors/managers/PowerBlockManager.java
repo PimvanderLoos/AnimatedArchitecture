@@ -1,9 +1,10 @@
 package nl.pim16aap2.bigdoors.managers;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.longs.LongArrayList;
+import it.unimi.dsi.fastutil.longs.LongImmutableList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.longs.LongLists;
+import lombok.Getter;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IPLocation;
@@ -128,12 +129,36 @@ public final class PowerBlockManager extends Restartable implements MovableDelet
             log.atWarning().log("Failed to load power blocks for world: '%s'.", worldName);
             return CompletableFuture.completedFuture(Collections.emptyList());
         }
+        return mapUidsToMovables(powerBlockWorld.getPowerBlocksAtLocation(loc));
+    }
 
-        return powerBlockWorld
-            .getPowerBlocks(loc)
+    /**
+     * Retrieves all movables whose powerblocks exist in the same chunk as a given location.
+     *
+     * @param loc
+     *     The location.
+     * @param worldName
+     *     The name of the world to search in.
+     * @return The UIDs of the movables that whose powerblocks lie in the same chunk as the location.
+     */
+    public CompletableFuture<List<AbstractMovable>> movablesInChunk(Vector3Di loc, String worldName)
+    {
+        final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
+        if (powerBlockWorld == null)
+        {
+            log.atWarning().log("Failed to load power blocks for world: '%s'.", worldName);
+            return CompletableFuture.completedFuture(Collections.emptyList());
+        }
+        return mapUidsToMovables(powerBlockWorld.getPowerBlocksInChunk(loc));
+    }
+
+    private CompletableFuture<List<AbstractMovable>> mapUidsToMovables(CompletableFuture<LongList> uids)
+    {
+        return uids
             .thenApplyAsync(lst -> lst.longStream().mapToObj(databaseManager::getMovable).toList())
             .thenCompose(Util::getAllCompletableFutureResults)
-            .thenApply(lst -> lst.stream().filter(Optional::isPresent).map(Optional::get).toList());
+            .thenApply(lst -> lst.stream().filter(Optional::isPresent).map(Optional::get).toList())
+            .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
@@ -250,8 +275,8 @@ public final class PowerBlockManager extends Restartable implements MovableDelet
          * <p>
          * Value: The {@link PowerBlockChunk}s.
          */
-        private final TimedCache<Long, PowerBlockChunk> powerBlockChunks =
-            TimedCache.<Long, PowerBlockChunk>builder()
+        private final TimedCache<Long, CompletableFuture<PowerBlockChunk>> powerBlockChunks =
+            TimedCache.<Long, CompletableFuture<PowerBlockChunk>>builder()
                       .duration(Duration.ofMinutes(config.cacheTimeout()))
                       .cleanup(Duration.ofMinutes(Math.max(1, config.cacheTimeout())))
                       .softReference(true)
@@ -273,6 +298,32 @@ public final class PowerBlockManager extends Restartable implements MovableDelet
             return isBigDoorsWorld;
         }
 
+        private CompletableFuture<PowerBlockChunk> getPowerBlockChunk(Vector3Di loc)
+        {
+            if (!isBigDoorsWorld())
+                return CompletableFuture.failedFuture(
+                    new IllegalStateException("Cannot create PowerBlockChunks in non-BigDoors worlds!"));
+
+            final long chunkId = Util.getChunkId(loc);
+
+            return powerBlockChunks.computeIfAbsent(chunkId, chunkId0 ->
+                databaseManager.getPowerBlockData(chunkId).thenApply(PowerBlockChunk::new));
+        }
+
+        /**
+         * Gets all powerblocks in a chunk.
+         *
+         * @param loc
+         *     The location in a chunk.
+         * @return The UIDs of all movables whose powerblocks existing in the same chunk as the provided location.
+         */
+        private CompletableFuture<LongList> getPowerBlocksInChunk(Vector3Di loc)
+        {
+            if (!isBigDoorsWorld())
+                return CompletableFuture.completedFuture(LongLists.emptyList());
+            return getPowerBlockChunk(loc).thenApply(PowerBlockChunk::getPowerBlocks);
+        }
+
         /**
          * Gets all UIDs of movables whose power blocks are in the given location.
          *
@@ -280,32 +331,12 @@ public final class PowerBlockManager extends Restartable implements MovableDelet
          *     The location to check.
          * @return All UIDs of movables whose power blocks are in the given location.
          */
-        private CompletableFuture<LongList> getPowerBlocks(Vector3Di loc)
+        private CompletableFuture<LongList> getPowerBlocksAtLocation(Vector3Di loc)
         {
             if (!isBigDoorsWorld())
                 return CompletableFuture.completedFuture(LongLists.emptyList());
 
-            final long chunkId = Util.getChunkId(loc);
-
-            if (!powerBlockChunks.containsKey(chunkId))
-            {
-                final PowerBlockChunk powerBlockChunk =
-                    powerBlockChunks.put(chunkId, new PowerBlockChunk());
-
-                return databaseManager.getPowerBlockData(chunkId).handle(
-                    (map, exception) ->
-                    {
-                        powerBlockChunk.setPowerBlocks(map);
-
-                        final LongList movableUIDs = new LongArrayList(map.size());
-                        map.forEach((key, value) -> movableUIDs.addAll(value));
-                        return movableUIDs;
-                    }).exceptionally(ex -> Util.exceptionally(ex, LongLists.emptyList()));
-            }
-
-            return CompletableFuture.completedFuture(powerBlockChunks.get(chunkId)
-                                                                     .map((entry) -> entry.getPowerBlocks(loc))
-                                                                     .orElse(LongLists.emptyList()));
+            return getPowerBlockChunk(loc).thenApply(chunk -> chunk.getPowerBlocks(loc));
         }
 
         /**
@@ -326,7 +357,8 @@ public final class PowerBlockManager extends Restartable implements MovableDelet
          */
         private void checkBigDoorsWorldStatus()
         {
-            databaseManager.isBigDoorsWorld(worldName).whenComplete((result, throwable) -> isBigDoorsWorld = result)
+            databaseManager.isBigDoorsWorld(worldName)
+                           .thenAccept(result -> isBigDoorsWorld = result)
                            .exceptionally(Util::exceptionally);
         }
 
@@ -344,18 +376,26 @@ public final class PowerBlockManager extends Restartable implements MovableDelet
     private static final class PowerBlockChunk
     {
         /**
-         * Map that contains all power blocks in this chunk.
+         * Map that contains all power blocks in this chunk mapped to the hash for their location in the chunk.
          * <p>
          * Key: Hashed locations (in chunk-space coordinates),
          * {@link Util#simpleChunkSpaceLocationHash(int, int, int)}.
          * <p>
          * Value: List of UIDs of all movables whose power block occupy this space.
          */
-        private Map<Integer, LongList> powerBlocks = Collections.emptyMap();
+        private final Int2ObjectMap<LongList> powerBlocksMap;
 
-        private void setPowerBlocks(Int2ObjectMap<LongList> powerBlocks)
+        /**
+         * List of all the UIDs that have their powerblock in this chunk.
+         */
+        @Getter
+        private final LongList powerBlocks;
+
+        public PowerBlockChunk(Int2ObjectMap<LongList> powerBlocksMap)
         {
-            this.powerBlocks = new ConcurrentHashMap<>(powerBlocks);
+            this.powerBlocksMap = powerBlocksMap;
+            this.powerBlocks =
+                LongImmutableList.toList(powerBlocksMap.values().stream().flatMapToLong(LongList::longStream));
         }
 
         /**
@@ -370,8 +410,8 @@ public final class PowerBlockManager extends Restartable implements MovableDelet
             if (!isPowerBlockChunk())
                 return LongLists.emptyList();
 
-            return powerBlocks.getOrDefault(Util.simpleChunkSpaceLocationHash(loc.x(), loc.y(), loc.z()),
-                                            LongLists.emptyList());
+            return powerBlocksMap.getOrDefault(Util.simpleChunkSpaceLocationHash(loc.x(), loc.y(), loc.z()),
+                                               LongLists.emptyList());
         }
 
         /**
@@ -381,7 +421,7 @@ public final class PowerBlockManager extends Restartable implements MovableDelet
          */
         private boolean isPowerBlockChunk()
         {
-            return !powerBlocks.isEmpty();
+            return !powerBlocksMap.isEmpty();
         }
     }
 }

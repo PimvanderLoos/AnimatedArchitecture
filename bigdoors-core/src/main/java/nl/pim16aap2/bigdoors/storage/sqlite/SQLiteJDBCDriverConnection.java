@@ -803,7 +803,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                                         movables.put(locationHash, new LongArrayList());
                                     movables.get(locationHash).add(resultSet.getLong("id"));
                                 }
-                                return movables;
+                                return Int2ObjectMaps.unmodifiable(movables);
                             }, Int2ObjectMaps.emptyMap());
     }
 
