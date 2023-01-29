@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.listeners;
 
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.api.IRedstoneManager;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
@@ -36,17 +35,14 @@ public class RedstoneListener extends AbstractListener
     private final ConfigLoaderSpigot config;
     private final Set<Material> powerBlockTypes = new HashSet<>();
     private final PowerBlockManager powerBlockManager;
-    private final IRedstoneManager redstoneManager;
 
     @Inject
     public RedstoneListener(
-        RestartableHolder holder, JavaPlugin plugin, ConfigLoaderSpigot config, PowerBlockManager powerBlockManager,
-        IRedstoneManager redstoneManager)
+        RestartableHolder holder, JavaPlugin plugin, ConfigLoaderSpigot config, PowerBlockManager powerBlockManager)
     {
         super(holder, plugin, () -> REDSTONE_ENABLED);
         this.config = config;
         this.powerBlockManager = powerBlockManager;
-        this.redstoneManager = redstoneManager;
     }
 
     @Override

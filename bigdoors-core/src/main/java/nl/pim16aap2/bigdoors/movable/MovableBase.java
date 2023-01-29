@@ -14,6 +14,7 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.api.IRedstoneManager;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
 import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
@@ -96,6 +97,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
     @Getter
     private final MovableOwner primeOwner;
+    private final IRedstoneManager redstoneManager;
 
     @EqualsAndHashCode.Exclude
     @GuardedBy("lock")
@@ -152,6 +154,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
         MovableToggleRequestBuilder movableToggleRequestBuilder,
         IPPlayerFactory playerFactory,
         IPExecutor executor,
+        IRedstoneManager redstoneManager,
         IConfigLoader config)
     {
         this.uid = uid;
@@ -164,6 +167,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
         this.isLocked = isLocked;
         this.openDir = openDir;
         this.primeOwner = primeOwner;
+        this.redstoneManager = redstoneManager;
 
         final int initSize = owners == null ? 1 : owners.size();
         final Map<UUID, MovableOwner> movableOwnersTmp = new HashMap<>(initSize);
@@ -210,6 +214,19 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
             return null;
         }
         return owners.remove(uuid);
+    }
+
+    private void verifyRedstoneState(AbstractMovable movable, Vector3Di powerBlock)
+    {
+        final var result = redstoneManager.isBlockPowered(world, powerBlock);
+        if (result == IRedstoneManager.RedstoneStatus.DISABLED)
+            return;
+        onRedstoneChange(movable, result == IRedstoneManager.RedstoneStatus.POWERED);
+    }
+
+    public void verifyRedstoneState(AbstractMovable movable)
+    {
+        verifyRedstoneState(movable, getPowerBlock());
     }
 
     @Locked.Read void onRedstoneChange(AbstractMovable movable, boolean isPowered)

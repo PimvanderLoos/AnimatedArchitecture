@@ -44,6 +44,11 @@ public final class Animator implements IAnimator
     private static final int START_DELAY = 700;
 
     /**
+     * The delay (in ticks) before verifying the redstone state after the animation has ended.
+     */
+    private static final long VERIFY_REDSTONE_DELAY = 20;
+
+    /**
      * The movable whose blocks are going to be moved.
      */
     @Getter
@@ -389,6 +394,8 @@ public final class Animator implements IAnimator
 
         animation.setState(AnimationState.COMPLETED);
         animation.setRegion(oldCuboid);
+
+        executor.runAsyncLater(movable::verifyRedstoneState, VERIFY_REDSTONE_DELAY);
     }
 
     /**

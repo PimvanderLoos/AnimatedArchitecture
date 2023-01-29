@@ -335,6 +335,11 @@ public abstract class AbstractMovable implements IMovable
         // TODO: Implement this
     }
 
+    public void verifyRedstoneState()
+    {
+        base.verifyRedstoneState(this);
+    }
+
     /**
      * Handles a change in redstone current for this movable's powerblock.
      *
