@@ -165,6 +165,9 @@ public final class Animator implements IAnimator
      */
     private final Cuboid newCuboid;
 
+
+    private volatile @Nullable Animation<IAnimatedBlock> animationData;
+
     /**
      * Constructs a {@link Animator}.
      * <p>
@@ -219,6 +222,17 @@ public final class Animator implements IAnimator
             perpetualMover.isPerpetual();
     }
 
+    /**
+     * Stops the animation gracefully. May cause the animation to restart later.
+     */
+    public void stopAnimation()
+    {
+        this.stopAnimation(animationData);
+    }
+
+    /**
+     * Aborts the animation.
+     */
     public void abort()
     {
         final @Nullable TimerTask moverTask0 = moverTask;
@@ -296,6 +310,8 @@ public final class Animator implements IAnimator
 
         final Animation<IAnimatedBlock> animation = new Animation<>(
             animationDuration, oldCuboid, getAnimatedBlocks(), snapshot, movable.getType());
+        this.animationData = animation;
+
         final AnimationContext animationContext = new AnimationContext(movable.getType(), snapshot, animation);
 
         if (!animationBlockManager.createAnimatedBlocks(snapshot, animationComponent, animationContext, movementMethod))
@@ -372,10 +388,13 @@ public final class Animator implements IAnimator
      * Gracefully stops the animation: Freeze any animated blocks, kill the animation task and place the blocks in their
      * new location.
      */
-    private void stopAnimation(Animation<IAnimatedBlock> animation)
+    private void stopAnimation(@Nullable Animation<IAnimatedBlock> animation)
     {
-        animation.setRegion(getAnimationRegion());
-        animation.setState(AnimationState.STOPPING);
+        if (animation != null)
+        {
+            animation.setRegion(getAnimationRegion());
+            animation.setState(AnimationState.STOPPING);
+        }
 
         for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
             animatedBlock.setVelocity(new Vector3Dd(0D, 0D, 0D));
@@ -392,8 +411,11 @@ public final class Animator implements IAnimator
         }
         executor.cancel(moverTask0, Objects.requireNonNull(moverTaskID));
 
-        animation.setState(AnimationState.COMPLETED);
-        animation.setRegion(oldCuboid);
+        if (animation != null)
+        {
+            animation.setState(AnimationState.COMPLETED);
+            animation.setRegion(oldCuboid);
+        }
 
         executor.runAsyncLater(movable::verifyRedstoneState, VERIFY_REDSTONE_DELAY);
     }

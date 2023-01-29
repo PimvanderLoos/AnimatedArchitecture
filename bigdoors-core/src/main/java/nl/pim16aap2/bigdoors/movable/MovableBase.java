@@ -20,6 +20,8 @@ import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
 import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.movable.movablearchetypes.IPerpetualMover;
+import nl.pim16aap2.bigdoors.moveblocks.MovableActivityManager;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -98,6 +100,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
     @Getter
     private final MovableOwner primeOwner;
     private final IRedstoneManager redstoneManager;
+    private final MovableActivityManager movableActivityManager;
 
     @EqualsAndHashCode.Exclude
     @GuardedBy("lock")
@@ -155,6 +158,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
         IPPlayerFactory playerFactory,
         IPExecutor executor,
         IRedstoneManager redstoneManager,
+        MovableActivityManager movableActivityManager,
         IConfigLoader config)
     {
         this.uid = uid;
@@ -168,6 +172,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
         this.openDir = openDir;
         this.primeOwner = primeOwner;
         this.redstoneManager = redstoneManager;
+        this.movableActivityManager = movableActivityManager;
 
         final int initSize = owners == null ? 1 : owners.size();
         final Map<UUID, MovableOwner> movableOwnersTmp = new HashMap<>(initSize);
@@ -221,6 +226,14 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
         final var result = redstoneManager.isBlockPowered(world, powerBlock);
         if (result == IRedstoneManager.RedstoneStatus.DISABLED)
             return;
+        if (result == IRedstoneManager.RedstoneStatus.UNPOWERED &&
+            movable instanceof IPerpetualMover perpetualMover &&
+            perpetualMover.isPerpetual())
+        {
+            movableActivityManager.stopExclusiveAnimators(movable.getUid());
+            return;
+        }
+
         onRedstoneChange(movable, result == IRedstoneManager.RedstoneStatus.POWERED);
     }
 

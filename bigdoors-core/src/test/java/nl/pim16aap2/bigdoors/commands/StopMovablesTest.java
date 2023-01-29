@@ -46,6 +46,6 @@ class StopMovablesTest
     void test()
     {
         Assertions.assertDoesNotThrow(() -> factory.newStopMovables(commandSender).run().get(1, TimeUnit.SECONDS));
-        Mockito.verify(movableActivityManager).stopAnimators();
+        Mockito.verify(movableActivityManager).abortAnimators();
     }
 }
