@@ -11,6 +11,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.bigdoors.api.IChunkLoader;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPWorld;
@@ -25,6 +26,7 @@ import nl.pim16aap2.bigdoors.moveblocks.MovableActivityManager;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
@@ -101,6 +103,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
     private final MovableOwner primeOwner;
     private final IRedstoneManager redstoneManager;
     private final MovableActivityManager movableActivityManager;
+    private final IChunkLoader chunkLoader;
 
     @EqualsAndHashCode.Exclude
     @GuardedBy("lock")
@@ -159,6 +162,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
         IPExecutor executor,
         IRedstoneManager redstoneManager,
         MovableActivityManager movableActivityManager,
+        IChunkLoader chunkLoader,
         IConfigLoader config)
     {
         this.uid = uid;
@@ -173,6 +177,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
         this.primeOwner = primeOwner;
         this.redstoneManager = redstoneManager;
         this.movableActivityManager = movableActivityManager;
+        this.chunkLoader = chunkLoader;
 
         final int initSize = owners == null ? 1 : owners.size();
         final Map<UUID, MovableOwner> movableOwnersTmp = new HashMap<>(initSize);
@@ -219,6 +224,21 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
             return null;
         }
         return owners.remove(uuid);
+    }
+
+    private boolean isChunkLoaded(IVector3D position)
+    {
+        return chunkLoader.checkChunk(world, position, IChunkLoader.ChunkLoadMode.VERIFY_LOADED) ==
+            IChunkLoader.ChunkLoadResult.PASS;
+    }
+
+    @Locked.Read
+    public void onChunkLoad(AbstractMovable movable)
+    {
+        final Vector3Di powerBlock = getPowerBlock();
+        if (!isChunkLoaded(powerBlock) || !isChunkLoaded(getRotationPoint()))
+            return;
+        verifyRedstoneState(movable, powerBlock);
     }
 
     private void verifyRedstoneState(AbstractMovable movable, Vector3Di powerBlock)

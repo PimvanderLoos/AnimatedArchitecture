@@ -5,20 +5,25 @@ import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.functional.TriFunction;
+import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.World;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * Implementation of {@link IChunkLoader} for the Spigot platform.
  */
+@Singleton
 public class ChunkLoaderSpigot implements IChunkLoader
 {
+    private final IChunkLoadFunction[] chunkLoadFunctions;
+
     @Inject
     public ChunkLoaderSpigot()
     {
+        chunkLoadFunctions = new IChunkLoadFunction[]{this::verifyLoaded, this::attemptLoad};
     }
 
     public Cuboid getChunkCuboid(Cuboid cuboid)
@@ -32,11 +37,7 @@ public class ChunkLoaderSpigot implements IChunkLoader
     @Override
     public ChunkLoadResult checkChunks(IPWorld iWorld, Cuboid cuboid, ChunkLoadMode chunkLoadMode)
     {
-        final TriFunction<World, Integer, Integer, ChunkLoadResult> modeFun = switch (chunkLoadMode)
-            {
-                case VERIFY_LOADED -> this::verifyLoaded;
-                case ATTEMPT_LOAD -> this::attemptLoad;
-            };
+        final IChunkLoadFunction modeFun = chunkLoadFunctions[chunkLoadMode.ordinal()];
 
         final World world = Util.requireNonNull(SpigotAdapter.getBukkitWorld(iWorld), "Bukkit World");
         final Cuboid chunkCuboid = getChunkCuboid(cuboid);
@@ -54,6 +55,18 @@ public class ChunkLoaderSpigot implements IChunkLoader
         return requiredLoad ? ChunkLoadResult.REQUIRED_LOAD : ChunkLoadResult.PASS;
     }
 
+    @Override
+    public ChunkLoadResult checkChunk(IPWorld iWorld, IVector3D position, ChunkLoadMode chunkLoadMode)
+    {
+        final IChunkLoadFunction modeFun = chunkLoadFunctions[chunkLoadMode.ordinal()];
+        final World world = Util.requireNonNull(SpigotAdapter.getBukkitWorld(iWorld), "Bukkit World");
+
+        final int chunkX = ((int) Math.round(position.xD())) >> 4;
+        final int chunkZ = ((int) Math.round(position.zD())) >> 4;
+
+        return modeFun.apply(world, chunkX, chunkZ);
+    }
+
     private ChunkLoadResult attemptLoad(World world, final Integer chunkX, final Integer chunkZ)
     {
         if (verifyLoaded(world, chunkX, chunkZ) == ChunkLoadResult.PASS)
@@ -69,5 +82,11 @@ public class ChunkLoaderSpigot implements IChunkLoader
     private ChunkLoadResult verifyLoaded(World world, final Integer chunkX, final Integer chunkZ)
     {
         return world.isChunkLoaded(chunkX, chunkZ) ? ChunkLoadResult.PASS : ChunkLoadResult.FAIL;
+    }
+
+    @FunctionalInterface
+    private interface IChunkLoadFunction
+    {
+        ChunkLoadResult apply(World world, int chunkX, int chunkZ);
     }
 }

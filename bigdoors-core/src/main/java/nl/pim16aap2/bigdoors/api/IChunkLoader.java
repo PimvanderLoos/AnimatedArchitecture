@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.api;
 
 import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 
 /**
  * Tool that can be used to load chunks or check if they are already loaded.
@@ -18,10 +19,23 @@ public interface IChunkLoader
      * @param cuboid
      *     The region to check. All chunks that are at least partially inside this cuboid will be checked.
      * @param chunkLoadMode
-     *     The
+     *     The type of chunk loading to use if the chunk is not loaded.
      * @return The result of the action.
      */
     ChunkLoadResult checkChunks(IPWorld world, Cuboid cuboid, ChunkLoadMode chunkLoadMode);
+
+    /**
+     * Checks if the chunk a position exists in is loaded.
+     *
+     * @param world
+     *     The world whose chunks to check.
+     * @param position
+     *     The coordinates to check.
+     * @param chunkLoadMode
+     *     The type of chunk loading to use if the chunk is not loaded.
+     * @return The result of the action.
+     */
+    ChunkLoadResult checkChunk(IPWorld world, IVector3D position, ChunkLoadMode chunkLoadMode);
 
     /**
      * Represents the different modes of checking chunks.

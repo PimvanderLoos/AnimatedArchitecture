@@ -770,16 +770,19 @@ public final class Util
     }
 
     /**
-     * Gets a completable future that contains a list of results obtained from the input futures.
+     * Maps a group of CompletableFutures to a single CompletableFuture with a list of results.
      * <p>
      * The result will wait for each of the futures to complete and once all of them have completed gather the results
      * and return the list.
+     * <p>
+     * Each entry in the list maps to the result of a single future.
      *
      * @param futures
      *     The completable futures whose results to collect into a list.
      * @param <T>
      *     The type of data.
-     * @return The list of results obtained from the completable futures in the same order as provided.
+     * @return The list of results obtained from the CompletableFutures in the same order as provided. The list will
+     * have a size that matches the number of input futures.
      */
     @SafeVarargs
     public static <T> CompletableFuture<List<T>> getAllCompletableFutureResults(CompletableFuture<T>... futures)
@@ -792,6 +795,44 @@ public final class Util
                                     {
                                         ret.add(future.join());
                                     }
+                                    return ret;
+                                }).exceptionally(throwable -> exceptionally(throwable, Collections.emptyList()));
+    }
+
+    /**
+     * See {@link #getAllCompletableFutureResultsFlatMap(CompletableFuture[])}.
+     */
+    public static <T> CompletableFuture<List<T>> getAllCompletableFutureResultsFlatMap(
+        Collection<CompletableFuture<? extends Collection<T>>> futures)
+    {
+        //noinspection unchecked
+        return getAllCompletableFutureResultsFlatMap(futures.toArray(new CompletableFuture[0]));
+    }
+
+    /**
+     * Maps a group of CompletableFutures that each have a list as result to a single CompletableFuture with a list.
+     * <p>
+     * The result will wait for each of the futures to complete and once all of them have completed gather the results
+     * and return the list.
+     * <p>
+     * The results of the futures are flatMapped into a single list.
+     *
+     * @param futures
+     *     The completable futures whose results to flatMap into a list.
+     * @param <T>
+     *     The type of data in the lists.
+     * @return The list of results obtained from the CompletableFutures.
+     */
+    @SafeVarargs
+    public static <T> CompletableFuture<List<T>> getAllCompletableFutureResultsFlatMap(
+        CompletableFuture<? extends Collection<T>>... futures)
+    {
+        final CompletableFuture<Void> result = CompletableFuture.allOf(futures);
+        return result.thenApply(ignored ->
+                                {
+                                    final List<T> ret = new ArrayList<>();
+                                    for (final CompletableFuture<? extends Collection<T>> future : futures)
+                                        ret.addAll(future.join());
                                     return ret;
                                 }).exceptionally(throwable -> exceptionally(throwable, Collections.emptyList()));
     }

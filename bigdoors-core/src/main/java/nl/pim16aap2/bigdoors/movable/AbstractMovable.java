@@ -332,7 +332,7 @@ public abstract class AbstractMovable implements IMovable
      */
     public void onChunkLoad()
     {
-        // TODO: Implement this
+        base.onChunkLoad(this);
     }
 
     public void verifyRedstoneState()
