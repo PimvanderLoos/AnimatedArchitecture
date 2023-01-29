@@ -30,8 +30,6 @@ import java.util.concurrent.CompletableFuture;
 @Flogger
 public class RedstoneListener extends AbstractListener
 {
-    private static final boolean REDSTONE_ENABLED = true;
-
     private final ConfigLoaderSpigot config;
     private final Set<Material> powerBlockTypes = new HashSet<>();
     private final PowerBlockManager powerBlockManager;
@@ -40,7 +38,7 @@ public class RedstoneListener extends AbstractListener
     public RedstoneListener(
         RestartableHolder holder, JavaPlugin plugin, ConfigLoaderSpigot config, PowerBlockManager powerBlockManager)
     {
-        super(holder, plugin, () -> REDSTONE_ENABLED);
+        super(holder, plugin, config::isRedstoneEnabled);
         this.config = config;
         this.powerBlockManager = powerBlockManager;
     }

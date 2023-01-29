@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.movable;
 
 import lombok.RequiredArgsConstructor;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
+import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
@@ -30,16 +31,18 @@ public class MovableToggleRequestBuilder
     private final MovableToggleRequest.IFactory movableToggleRequestFactory;
     private final IMessageable messageableServer;
     private final IPPlayerFactory playerFactory;
+    private final IConfigLoader config;
 
     @Inject
     public MovableToggleRequestBuilder(
         MovableToggleRequest.IFactory movableToggleRequestFactory,
         @Named("MessageableServer") IMessageable messageableServer,
-        IPPlayerFactory playerFactory)
+        IPPlayerFactory playerFactory, IConfigLoader config)
     {
         this.movableToggleRequestFactory = movableToggleRequestFactory;
         this.messageableServer = messageableServer;
         this.playerFactory = playerFactory;
+        this.config = config;
     }
 
     /**
@@ -49,7 +52,7 @@ public class MovableToggleRequestBuilder
      */
     public IBuilderMovable builder()
     {
-        return new Builder(movableToggleRequestFactory, messageableServer, playerFactory);
+        return new Builder(movableToggleRequestFactory, messageableServer, playerFactory, config);
     }
 
     @RequiredArgsConstructor
@@ -59,6 +62,7 @@ public class MovableToggleRequestBuilder
         private final MovableToggleRequest.IFactory movableToggleRequestFactory;
         private final IMessageable messageableServer;
         private final IPPlayerFactory playerFactory;
+        private final IConfigLoader config;
 
         private MovableRetriever movableRetriever;
         private MovableActionCause movableActionCause;
@@ -157,10 +161,18 @@ public class MovableToggleRequestBuilder
             return this;
         }
 
+        private void verify()
+        {
+            if (movableActionCause == MovableActionCause.REDSTONE && !config.isRedstoneEnabled())
+                throw new IllegalStateException("Trying to execute redstone toggle while redstone is disabled!");
+        }
+
         @Override
         public MovableToggleRequest build()
         {
             updateMessageReceiver();
+            verify();
+
             return movableToggleRequestFactory.create(
                 movableRetriever, movableActionCause,
                 Util.requireNonNull(messageReceiver, "MessageReceiver"),
