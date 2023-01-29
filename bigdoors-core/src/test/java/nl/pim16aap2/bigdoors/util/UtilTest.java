@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.util;
 
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -37,6 +38,12 @@ class UtilTest
     {
         final long chunkId = Util.getChunkId(chunkCoords);
         Assertions.assertEquals(chunkCoords, Util.getChunkFromId(chunkId));
+    }
+
+    @Test
+    void testChunkCoords()
+    {
+        Assertions.assertEquals(new Vector2Di(7, 13), Util.getChunkCoords(new Vector3Di(126, 9999, 223)));
     }
 
     @Test

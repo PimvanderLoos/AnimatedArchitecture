@@ -523,7 +523,7 @@ public final class Util
      */
     public static long getChunkId(Vector3Di position)
     {
-        return getChunkId(position.x() << 4, position.z() << 4);
+        return getChunkId(position.x() >> 4, position.z() >> 4);
     }
 
     /**
@@ -539,7 +539,7 @@ public final class Util
      */
     public static long getChunkId(int x, int y, int z)
     {
-        return getChunkId(x << 4, z << 4);
+        return getChunkId(x >> 4, z >> 4);
     }
 
     /**
@@ -556,6 +556,8 @@ public final class Util
 
     /**
      * Gets the ID of the chunk from its coordinates.
+     * <p>
+     * The upper 32 bits store the x-coordinate of the chunk, and the lower 32 bits store the z coordinate.
      *
      * @param chunkX
      *     The x-coordinate of the chunk.
@@ -591,7 +593,7 @@ public final class Util
      */
     public static Vector2Di getChunkCoords(Vector3Di position)
     {
-        return new Vector2Di(position.x() << 4, position.z() << 4);
+        return new Vector2Di(position.x() >> 4, position.z() >> 4);
     }
 
     /**
