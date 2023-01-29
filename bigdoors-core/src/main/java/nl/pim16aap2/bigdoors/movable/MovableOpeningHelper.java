@@ -276,7 +276,7 @@ public final class MovableOpeningHelper
                          data.getResponsible(), messageReceiver, null);
 
         final OptionalLong registrationResult =
-            movableActivityManager.registerAnimation(snapshot.getUid(), animationType.isExclusive());
+            movableActivityManager.registerAnimation(snapshot.getUid(), animationType.requiresWriteAccess());
         if (registrationResult.isEmpty())
             return MovableToggleResult.BUSY;
 

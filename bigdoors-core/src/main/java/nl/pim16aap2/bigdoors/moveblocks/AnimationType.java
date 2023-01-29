@@ -11,37 +11,35 @@ public enum AnimationType
      * Animates the movement of blocks from their starting position to their final position, which may be somewhere
      * else.
      */
-    MOVE_BLOCKS(true, true, Double.MAX_VALUE, true),
+    MOVE_BLOCKS(true, true, Double.MAX_VALUE),
 
     /**
      * Animates a preview of an animation. No blocks are affected in the world.
      * <p>
      * Note that this type requires an online {@link IPPlayer} to target.
      */
-    PREVIEW(false, false, 10, false),
+    PREVIEW(false, false, 10),
     ;
 
-    private final boolean affectsWorld;
+    private final boolean requiresWriteAccess;
     private final boolean supportsPerpetualAnimation;
     private final double animationDurationLimit;
-    private final boolean isExclusive;
 
     AnimationType(
-        boolean affectsWorld, boolean supportsPerpetualAnimation, double animationDurationLimit, boolean isExclusive)
+        boolean requiresWriteAccess, boolean supportsPerpetualAnimation, double animationDurationLimit)
     {
-        this.affectsWorld = affectsWorld;
+        this.requiresWriteAccess = requiresWriteAccess;
         this.supportsPerpetualAnimation = supportsPerpetualAnimation;
         this.animationDurationLimit = animationDurationLimit;
-        this.isExclusive = isExclusive;
     }
 
     /**
-     * @return Whether this animation affects the world. When true, the coordinates of the movable and the 'isOpen'
-     * status will be updated once the animation has finished.
+     * @return Whether this animation needs write access. When true, the state of the world or the movable will be
+     * affected by the animation. When false, the animation is side effect free.
      */
-    public boolean affectsWorld()
+    public boolean requiresWriteAccess()
     {
-        return affectsWorld;
+        return requiresWriteAccess;
     }
 
     /**
@@ -59,17 +57,5 @@ public enum AnimationType
     public double getAnimationDurationLimit()
     {
         return animationDurationLimit;
-    }
-
-    /**
-     * @return True if this is an exclusive type of animation.
-     * <p>
-     * Exclusive here means that while an animation of this type is active, no other animation can be activated.
-     * <p>
-     * When false, more than one non-exclusive type of animation can be created.
-     */
-    public boolean isExclusive()
-    {
-        return isExclusive;
     }
 }

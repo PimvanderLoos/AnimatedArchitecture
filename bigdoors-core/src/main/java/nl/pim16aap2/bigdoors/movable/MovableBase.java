@@ -230,7 +230,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
             movable instanceof IPerpetualMover perpetualMover &&
             perpetualMover.isPerpetual())
         {
-            movableActivityManager.stopExclusiveAnimators(movable.getUid());
+            movableActivityManager.stopAnimatorsWithWriteAccess(movable.getUid());
             return;
         }
 
