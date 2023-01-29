@@ -4,10 +4,8 @@ import com.google.common.flogger.StackSize;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.api.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.api.animatedblock.AnimationContext;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimationHook;
@@ -23,7 +21,6 @@ import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import org.jetbrains.annotations.Nullable;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 import java.util.TimerTask;
@@ -45,8 +42,6 @@ public final class Animator implements IAnimator
      * The delay (measured in milliseconds) between initialization of the animation and starting to move the blocks.
      */
     private static final int START_DELAY = 700;
-
-    private final boolean drawDebugBlocks = false;
 
     /**
      * The movable whose blocks are going to be moved.
@@ -72,6 +67,7 @@ public final class Animator implements IAnimator
      * The animation component used to do all the animation stuff.
      */
     private final IAnimationComponent animationComponent;
+
     private final IAnimationBlockManager animationBlockManager;
 
     /**
@@ -91,9 +87,6 @@ public final class Animator implements IAnimator
 
     @ToString.Exclude
     private final IPExecutor executor;
-
-    @ToString.Exclude
-    private final GlowingBlockSpawner glowingBlockSpawner;
 
     @ToString.Exclude
     private final AnimationHookManager animationHookManager;
@@ -188,7 +181,6 @@ public final class Animator implements IAnimator
         executor = data.getExecutor();
         movableActivityManager = data.getMovableActivityManager();
         animationHookManager = data.getAnimationHookManager();
-        glowingBlockSpawner = data.getGlowingBlockSpawner();
         serverTickTime = data.getServerTickTime();
 
         this.movementMethod = animationComponent.getMovementMethod();
@@ -358,20 +350,7 @@ public final class Animator implements IAnimator
     @Override
     public void applyMovement(IAnimatedBlock animatedBlock, IVector3D targetPosition, int ticksRemaining)
     {
-        if (drawDebugBlocks)
-            drawDebugBlock(targetPosition);
         animatedBlock.moveToTarget(new Vector3Dd(targetPosition), ticksRemaining);
-    }
-
-    private void drawDebugBlock(IVector3D finalPosition)
-    {
-        glowingBlockSpawner.builder()
-                           .atPosition(finalPosition)
-                           .inWorld(snapshot.getWorld())
-                           .forDuration(Duration.ofMillis(250))
-                           .withColor(PColor.GOLD)
-                           .forPlayer(player)
-                           .build();
     }
 
     private void executeFinishingStep(Animation<IAnimatedBlock> animation)
