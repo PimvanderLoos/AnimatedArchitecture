@@ -110,13 +110,6 @@ public interface IConfigLoader extends IRestartable
     long downloadDelay();
 
     /**
-     * Checks if redstone should be used to toggle movables.
-     *
-     * @return True if redstone should be used to toggle movables.
-     */
-    boolean enableRedstone();
-
-    /**
      * @return True if we should try to load any unloaded chunks for a toggle.
      */
     boolean loadChunksForToggle();

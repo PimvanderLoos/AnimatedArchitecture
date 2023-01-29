@@ -163,6 +163,27 @@ public final class MovableActivityManager extends Restartable implements Movable
     }
 
     /**
+     * Stops an active exclusive animator if one currently exists.
+     * <p>
+     * See {@link Animator#stopAnimation()}.
+     *
+     * @param uid
+     *     The UID of the movable being animated.
+     */
+    public void stopExclusiveAnimators(long uid)
+    {
+        animators.compute(uid, (key, entry) ->
+        {
+            if (entry == null)
+                return null;
+            if (!entry.isExclusive())
+                return entry;
+            entry.stop();
+            return entry;
+        });
+    }
+
+    /**
      * Processed a finished {@link Animator}.
      * <p>
      * The {@link AbstractMovable} that was being used by the {@link Animator} will be registered as inactive and any
@@ -229,14 +250,16 @@ public final class MovableActivityManager extends Restartable implements Movable
      */
     public Stream<Animator> getBlockMovers()
     {
-        return animators.values().stream().map(RegisteredAnimatorEntry::getMovables)
+        return animators.values().stream().map(RegisteredAnimatorEntry::getAnimators)
                         .flatMap(Collection::stream);
     }
 
     /**
-     * Stops all block movers that are currently active.
+     * Aborts all block movers that are currently active.
+     * <p>
+     * See {@link Animator#abort()}.
      */
-    public void stopAnimators()
+    public void abortAnimators()
     {
         animators.values().forEach(RegisteredAnimatorEntry::abort);
     }
@@ -257,7 +280,7 @@ public final class MovableActivityManager extends Restartable implements Movable
     public void shutDown()
     {
         isActive = false;
-        stopAnimators();
+        abortAnimators();
     }
 
     @Override
@@ -320,9 +343,19 @@ public final class MovableActivityManager extends Restartable implements Movable
 
         /**
          * Aborts the registered animator and prevents new animators from being registered in this registry entry. If
-         * more than one is registered, all animators are aborts.
+         * more than one is registered, all animators are aborted.
+         * <p>
+         * See {@link Animator#abort()}.
          */
         public abstract void abort();
+
+        /**
+         * Gracefully the registered animator and prevents new animators from being registered in this registry entry.
+         * If more than one is registered, all animators are stopped.
+         * <p>
+         * See {@link Animator#stopAnimation()}.
+         */
+        public abstract void stop();
 
         /**
          * Adds a new animator to the current entry.
@@ -342,7 +375,7 @@ public final class MovableActivityManager extends Restartable implements Movable
         /**
          * @return All animators in this entry.
          */
-        public abstract Collection<Animator> getMovables();
+        public abstract Collection<Animator> getAnimators();
 
         /**
          * @return The key of the entry.
@@ -389,6 +422,13 @@ public final class MovableActivityManager extends Restartable implements Movable
             }
 
             @Override
+            synchronized public void stop()
+            {
+                animators.forEach(Animator::stopAnimation);
+                animators.clear();
+            }
+
+            @Override
             public synchronized int size()
             {
                 return animators.size();
@@ -411,7 +451,7 @@ public final class MovableActivityManager extends Restartable implements Movable
             }
 
             @Override
-            public synchronized Collection<Animator> getMovables()
+            public synchronized Collection<Animator> getAnimators()
             {
                 return Collections.unmodifiableSet(animators);
             }
@@ -476,6 +516,14 @@ public final class MovableActivityManager extends Restartable implements Movable
             }
 
             @Override
+            synchronized public void stop()
+            {
+                isAborted = true;
+                if (animator != null)
+                    animator.stopAnimation();
+            }
+
+            @Override
             public synchronized int size()
             {
                 return animator == null ? 0 : 1;
@@ -511,7 +559,7 @@ public final class MovableActivityManager extends Restartable implements Movable
             }
 
             @Override
-            public synchronized Collection<Animator> getMovables()
+            public synchronized Collection<Animator> getAnimators()
             {
                 return animator == null ? Collections.emptyList() : List.of(animator);
             }

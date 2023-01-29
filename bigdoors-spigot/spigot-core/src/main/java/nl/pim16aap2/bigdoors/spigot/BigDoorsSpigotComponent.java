@@ -8,7 +8,7 @@ import nl.pim16aap2.bigdoors.api.IChunkLoader;
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
-import nl.pim16aap2.bigdoors.api.IPowerBlockRedstoneManager;
+import nl.pim16aap2.bigdoors.api.IRedstoneManager;
 import nl.pim16aap2.bigdoors.api.debugging.DebugReporter;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockFactory;
@@ -189,7 +189,7 @@ interface BigDoorsSpigotComponent
 
     IBigDoorsEventFactory getIBigDoorsEventFactory();
 
-    IPowerBlockRedstoneManager getIPowerBlockRedstoneManager();
+    IRedstoneManager getIPowerBlockRedstoneManager();
 
     BigDoorsToolUtilSpigot getBigDoorsToolUtilSpigot();
 

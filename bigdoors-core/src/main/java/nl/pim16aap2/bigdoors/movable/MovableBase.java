@@ -14,11 +14,14 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.api.IRedstoneManager;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
 import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.movable.movablearchetypes.IPerpetualMover;
+import nl.pim16aap2.bigdoors.moveblocks.MovableActivityManager;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -96,6 +99,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
     @Getter
     private final MovableOwner primeOwner;
+    private final IRedstoneManager redstoneManager;
+    private final MovableActivityManager movableActivityManager;
 
     @EqualsAndHashCode.Exclude
     @GuardedBy("lock")
@@ -152,6 +157,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
         MovableToggleRequestBuilder movableToggleRequestBuilder,
         IPPlayerFactory playerFactory,
         IPExecutor executor,
+        IRedstoneManager redstoneManager,
+        MovableActivityManager movableActivityManager,
         IConfigLoader config)
     {
         this.uid = uid;
@@ -164,6 +171,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
         this.isLocked = isLocked;
         this.openDir = openDir;
         this.primeOwner = primeOwner;
+        this.redstoneManager = redstoneManager;
+        this.movableActivityManager = movableActivityManager;
 
         final int initSize = owners == null ? 1 : owners.size();
         final Map<UUID, MovableOwner> movableOwnersTmp = new HashMap<>(initSize);
@@ -212,25 +221,42 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
         return owners.remove(uuid);
     }
 
-    @Locked.Read void onRedstoneChange(AbstractMovable movable, int newCurrent)
+    private void verifyRedstoneState(AbstractMovable movable, Vector3Di powerBlock)
     {
-        final @Nullable MovableActionType movableActionType;
-        if (newCurrent == 0 && movable.isCloseable())
-            movableActionType = MovableActionType.CLOSE;
-        else if (newCurrent > 0 && movable.isOpenable())
-            movableActionType = MovableActionType.OPEN;
-        else
-            movableActionType = null;
+        final var result = redstoneManager.isBlockPowered(world, powerBlock);
+        if (result == IRedstoneManager.RedstoneStatus.DISABLED)
+            return;
+        if (result == IRedstoneManager.RedstoneStatus.UNPOWERED &&
+            movable instanceof IPerpetualMover perpetualMover &&
+            perpetualMover.isPerpetual())
+        {
+            movableActivityManager.stopExclusiveAnimators(movable.getUid());
+            return;
+        }
 
-        if (movableActionType != null)
-            movableToggleRequestBuilder.builder()
-                                       .movable(movable)
-                                       .movableActionCause(MovableActionCause.REDSTONE)
-                                       .movableActionType(movableActionType)
-                                       .messageReceiverServer()
-                                       .responsible(playerFactory.create(getPrimeOwner().pPlayerData()))
-                                       .build()
-                                       .execute();
+        onRedstoneChange(movable, result == IRedstoneManager.RedstoneStatus.POWERED);
+    }
+
+    public void verifyRedstoneState(AbstractMovable movable)
+    {
+        verifyRedstoneState(movable, getPowerBlock());
+    }
+
+    @Locked.Read void onRedstoneChange(AbstractMovable movable, boolean isPowered)
+    {
+        if (isPowered && !movable.isOpenable() || !isPowered && !movable.isCloseable())
+            return;
+
+        final MovableActionType type = isPowered ? MovableActionType.OPEN : MovableActionType.CLOSE;
+        movableToggleRequestBuilder
+            .builder()
+            .movable(movable)
+            .movableActionCause(MovableActionCause.REDSTONE)
+            .movableActionType(type)
+            .messageReceiverServer()
+            .responsible(playerFactory.create(getPrimeOwner().pPlayerData()))
+            .build()
+            .execute();
     }
 
     @Locked.Read

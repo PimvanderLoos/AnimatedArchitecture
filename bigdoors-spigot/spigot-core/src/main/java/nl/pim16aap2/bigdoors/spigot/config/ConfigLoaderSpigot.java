@@ -80,7 +80,6 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
     private int cacheTimeout;
     private boolean autoDLUpdate;
     private long downloadDelay;
-    private boolean enableRedstone;
     private boolean loadChunksForToggle;
     private boolean checkForUpdates;
     private Locale locale = Locale.ROOT;
@@ -147,8 +146,6 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
                 "toggling. If more than 1 chunk ",
             "needs to be loaded, the movable will skip its animation to avoid spawning a bunch of entities " +
                 "no one can see anyway."};
-        final String[] enableRedstoneComment = {
-            "Allow movables to be opened using redstone signals."};
         final String[] powerBlockTypeComment = {
             "Choose the type of the power block that is used to open movables using redstone.",
             "A list can be found here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html",
@@ -265,8 +262,6 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
 
         final IConfigReader config = new ConfigReaderSpigot(plugin.getConfig());
 
-
-        enableRedstone = addNewConfigEntry(config, "allowRedstone", true, enableRedstoneComment);
         loadChunksForToggle = addNewConfigEntry(config, "loadChunksForToggle", true, loadChunksForToggleComment);
 
         // No need to store the result here. It would be a list of Strings anyway, while we want blocks.
@@ -568,12 +563,6 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
         if (Constants.DEV_BUILD)
             return 0L;
         return downloadDelay;
-    }
-
-    @Override
-    public boolean enableRedstone()
-    {
-        return enableRedstone;
     }
 
     @Override

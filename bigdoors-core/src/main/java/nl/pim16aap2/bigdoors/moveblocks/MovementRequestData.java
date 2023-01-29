@@ -4,7 +4,6 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.Getter;
-import nl.pim16aap2.bigdoors.api.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -27,7 +26,6 @@ public final class MovementRequestData
     private final IAudioPlayer audioPlayer;
     private final IPExecutor executor;
     private final AnimationHookManager animationHookManager;
-    private final GlowingBlockSpawner glowingBlockSpawner;
     private final IConfigLoader config;
     private final int serverTickTime;
     private final MovableSnapshot snapshotOfMovable;
@@ -44,7 +42,6 @@ public final class MovementRequestData
         IAudioPlayer audioPlayer,
         IPExecutor executor,
         AnimationHookManager animationHookManager,
-        GlowingBlockSpawner glowingBlockSpawner,
         IConfigLoader config,
         @Named("serverTickTime") int serverTickTime,
         @Assisted MovableSnapshot snapshotOfMovable,
@@ -60,7 +57,6 @@ public final class MovementRequestData
         this.audioPlayer = audioPlayer;
         this.executor = executor;
         this.animationHookManager = animationHookManager;
-        this.glowingBlockSpawner = glowingBlockSpawner;
         this.config = config;
         this.serverTickTime = serverTickTime;
         this.snapshotOfMovable = snapshotOfMovable;

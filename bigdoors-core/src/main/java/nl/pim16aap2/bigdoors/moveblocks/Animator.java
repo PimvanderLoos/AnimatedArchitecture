@@ -4,10 +4,8 @@ import com.google.common.flogger.StackSize;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.api.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.api.animatedblock.AnimationContext;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimationHook;
@@ -23,7 +21,6 @@ import nl.pim16aap2.bigdoors.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import org.jetbrains.annotations.Nullable;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 import java.util.TimerTask;
@@ -46,7 +43,10 @@ public final class Animator implements IAnimator
      */
     private static final int START_DELAY = 700;
 
-    private final boolean drawDebugBlocks = false;
+    /**
+     * The delay (in ticks) before verifying the redstone state after the animation has ended.
+     */
+    private static final long VERIFY_REDSTONE_DELAY = 20;
 
     /**
      * The movable whose blocks are going to be moved.
@@ -72,6 +72,7 @@ public final class Animator implements IAnimator
      * The animation component used to do all the animation stuff.
      */
     private final IAnimationComponent animationComponent;
+
     private final IAnimationBlockManager animationBlockManager;
 
     /**
@@ -91,9 +92,6 @@ public final class Animator implements IAnimator
 
     @ToString.Exclude
     private final IPExecutor executor;
-
-    @ToString.Exclude
-    private final GlowingBlockSpawner glowingBlockSpawner;
 
     @ToString.Exclude
     private final AnimationHookManager animationHookManager;
@@ -167,6 +165,9 @@ public final class Animator implements IAnimator
      */
     private final Cuboid newCuboid;
 
+
+    private volatile @Nullable Animation<IAnimatedBlock> animationData;
+
     /**
      * Constructs a {@link Animator}.
      * <p>
@@ -188,7 +189,6 @@ public final class Animator implements IAnimator
         executor = data.getExecutor();
         movableActivityManager = data.getMovableActivityManager();
         animationHookManager = data.getAnimationHookManager();
-        glowingBlockSpawner = data.getGlowingBlockSpawner();
         serverTickTime = data.getServerTickTime();
 
         this.movementMethod = animationComponent.getMovementMethod();
@@ -222,12 +222,24 @@ public final class Animator implements IAnimator
             perpetualMover.isPerpetual();
     }
 
+    /**
+     * Stops the animation gracefully. May cause the animation to restart later.
+     */
+    public void stopAnimation()
+    {
+        this.stopAnimation(animationData);
+    }
+
+    /**
+     * Aborts the animation.
+     */
     public void abort()
     {
         final @Nullable TimerTask moverTask0 = moverTask;
         if (moverTask0 != null)
             executor.cancel(moverTask0, Objects.requireNonNull(moverTaskID));
         putBlocks();
+        forEachHook("onAnimationAborted", IAnimationHook::onAnimationAborted);
     }
 
     /**
@@ -298,6 +310,8 @@ public final class Animator implements IAnimator
 
         final Animation<IAnimatedBlock> animation = new Animation<>(
             animationDuration, oldCuboid, getAnimatedBlocks(), snapshot, movable.getType());
+        this.animationData = animation;
+
         final AnimationContext animationContext = new AnimationContext(movable.getType(), snapshot, animation);
 
         if (!animationBlockManager.createAnimatedBlocks(snapshot, animationComponent, animationContext, movementMethod))
@@ -358,20 +372,7 @@ public final class Animator implements IAnimator
     @Override
     public void applyMovement(IAnimatedBlock animatedBlock, IVector3D targetPosition, int ticksRemaining)
     {
-        if (drawDebugBlocks)
-            drawDebugBlock(targetPosition);
         animatedBlock.moveToTarget(new Vector3Dd(targetPosition), ticksRemaining);
-    }
-
-    private void drawDebugBlock(IVector3D finalPosition)
-    {
-        glowingBlockSpawner.builder()
-                           .atPosition(finalPosition)
-                           .inWorld(snapshot.getWorld())
-                           .forDuration(Duration.ofMillis(250))
-                           .withColor(PColor.GOLD)
-                           .forPlayer(player)
-                           .build();
     }
 
     private void executeFinishingStep(Animation<IAnimatedBlock> animation)
@@ -387,10 +388,13 @@ public final class Animator implements IAnimator
      * Gracefully stops the animation: Freeze any animated blocks, kill the animation task and place the blocks in their
      * new location.
      */
-    private void stopAnimation(Animation<IAnimatedBlock> animation)
+    private void stopAnimation(@Nullable Animation<IAnimatedBlock> animation)
     {
-        animation.setRegion(getAnimationRegion());
-        animation.setState(AnimationState.STOPPING);
+        if (animation != null)
+        {
+            animation.setRegion(getAnimationRegion());
+            animation.setState(AnimationState.STOPPING);
+        }
 
         for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
             animatedBlock.setVelocity(new Vector3Dd(0D, 0D, 0D));
@@ -407,8 +411,13 @@ public final class Animator implements IAnimator
         }
         executor.cancel(moverTask0, Objects.requireNonNull(moverTaskID));
 
-        animation.setState(AnimationState.COMPLETED);
-        animation.setRegion(oldCuboid);
+        if (animation != null)
+        {
+            animation.setState(AnimationState.COMPLETED);
+            animation.setRegion(oldCuboid);
+        }
+
+        executor.runAsyncLater(movable::verifyRedstoneState, VERIFY_REDSTONE_DELAY);
     }
 
     /**

@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.spigot.managers;
 
 import dagger.Binds;
 import dagger.Module;
-import nl.pim16aap2.bigdoors.api.IPowerBlockRedstoneManager;
+import nl.pim16aap2.bigdoors.api.IRedstoneManager;
 
 import javax.inject.Singleton;
 
@@ -11,5 +11,5 @@ public interface PowerBlockRedstoneManagerSpigotModule
 {
     @Binds
     @Singleton
-    IPowerBlockRedstoneManager getPowerBlockRedstoneManager(PowerBlockRedstoneManagerSpigot manager);
+    IRedstoneManager getPowerBlockRedstoneManager(RedstoneManagerSpigot manager);
 }

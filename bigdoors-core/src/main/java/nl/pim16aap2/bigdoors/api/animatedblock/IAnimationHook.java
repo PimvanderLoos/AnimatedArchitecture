@@ -57,6 +57,16 @@ public interface IAnimationHook<T extends IAnimatedBlock>
     }
 
     /**
+     * Executed when the animation has been aborted.
+     * <p>
+     * This is not part of the normal animation pipeline. It may occur when the plugin stops, or when the chunks for the
+     * animation are being unloaded.
+     */
+    default void onAnimationAborted()
+    {
+    }
+
+    /**
      * Executed when the animation finishes.
      */
     default void onAnimationCompleted()

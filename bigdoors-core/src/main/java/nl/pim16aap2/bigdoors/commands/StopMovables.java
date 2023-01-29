@@ -38,7 +38,7 @@ public class StopMovables extends BaseCommand
     @Override
     protected CompletableFuture<?> executeCommand(PermissionsStatus permissions)
     {
-        movableActivityManager.stopAnimators();
+        movableActivityManager.abortAnimators();
         getCommandSender().sendSuccess(textFactory, localizer.getMessage("commands.stop_movables.success"));
         return CompletableFuture.completedFuture(null);
     }
