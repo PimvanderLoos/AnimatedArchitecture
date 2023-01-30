@@ -4,6 +4,7 @@ import com.google.errorprone.annotations.CheckReturnValue;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.util.Objects;
 
@@ -33,10 +34,14 @@ public class ConstructorFinder
      */
     public static final class ConstructorFinderInSource
         extends ReflectionFinder.ReflectionFinderWithParameters<Constructor<?>, ConstructorFinderInSource>
-        implements IAccessibleSetter<ConstructorFinderInSource>
+        implements IAccessibleSetter<ConstructorFinderInSource>, IAnnotationFinder<ConstructorFinderInSource>
     {
         private final Class<?> source;
+
         private boolean setAccessible = false;
+
+        @SuppressWarnings("unchecked")
+        private Class<? extends Annotation>[] annotations = new Class[0];
 
         private ConstructorFinderInSource(Class<?> source)
         {
@@ -47,7 +52,8 @@ public class ConstructorFinder
         public Constructor<?> get()
         {
             return Objects.requireNonNull(getNullable(), String.format(
-                "Failed to find constructor [%s %s(%s)].",
+                "Failed to find constructor %s[%s %s(%s)]",
+                ReflectionBackend.formatAnnotations(annotations),
                 ReflectionBackend.optionalModifiersToString(modifiers),
                 source.getName(),
                 ReflectionBackend.formatOptionalValue(parameters)));
@@ -56,13 +62,21 @@ public class ConstructorFinder
         @Override
         public @Nullable Constructor<?> getNullable()
         {
-            return ReflectionBackend.findCTor(source, modifiers, parameters, setAccessible);
+            return ReflectionBackend.findCTor(source, modifiers, parameters, setAccessible, annotations);
         }
 
         @Override
         public ConstructorFinderInSource setAccessible()
         {
             setAccessible = true;
+            return this;
+        }
+
+        @Override
+        @SafeVarargs
+        public final ConstructorFinderInSource withAnnotations(Class<? extends Annotation>... annotations)
+        {
+            this.annotations = annotations;
             return this;
         }
     }

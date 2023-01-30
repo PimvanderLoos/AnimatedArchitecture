@@ -4,7 +4,9 @@ import com.google.errorprone.annotations.CheckReturnValue;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -76,16 +78,55 @@ public class FieldFinder
         }
 
         /**
-         * Creates a new {@link TypedMultipleFieldsFinder} to retrieve all the field with a given type.
+         * Creates a new {@link MultipleFieldsFinder} to retrieve all fields of a given type.
          *
          * @param type
          *     The type of the fields to look for.
-         * @return The new {@link TypedMultipleFieldsFinder}.
+         * @return The new {@link MultipleFieldsFinder}.
          */
         @CheckReturnValue @Contract(pure = true)
-        public TypedMultipleFieldsFinder allOfType(Class<?> type)
+        public MultipleFieldsFinder allOfType(Class<?> type)
         {
-            return new TypedMultipleFieldsFinder(source, type);
+            return new MultipleFieldsFinder(source, type);
+        }
+
+        /**
+         * Creates a new {@link MultipleFieldsFinder} to retrieve all fields annotated with the provided annotations.
+         *
+         * @param annotations
+         *     The type of the fields to look for.
+         * @return The new {@link MultipleFieldsFinder}.
+         */
+        @SafeVarargs @CheckReturnValue @Contract(pure = true)
+        public final MultipleFieldsFinder withAnnotations(Class<? extends Annotation>... annotations)
+        {
+            return new MultipleFieldsFinder(source, annotations);
+        }
+    }
+
+    private static abstract class ReflectionFieldFinder<T, U extends ReflectionFinder<T, U>>
+        extends ReflectionFinder<T, U>
+        implements IAccessibleSetter<U>, IAnnotationFinder<U>
+    {
+        protected boolean setAccessible = false;
+        @SuppressWarnings("unchecked")
+        protected Class<? extends Annotation>[] annotations = new Class[0];
+
+        @Override
+        public U setAccessible()
+        {
+            setAccessible = true;
+            //noinspection unchecked
+            return (U) this;
+        }
+
+        @Override
+        @SafeVarargs
+        public final U withAnnotations(Class<? extends Annotation>... annotations)
+        {
+            this.annotations = annotations;
+            //noinspection unchecked
+            return (U) this;
         }
     }
 
@@ -93,13 +134,11 @@ public class FieldFinder
      * Represents an implementation of {@link ReflectionFinder} to retrieve a field by its name.
      */
     public static final class NamedFieldFinder
-        extends ReflectionFinder<Field, NamedFieldFinder>
-        implements IAccessibleSetter<NamedFieldFinder>
+        extends ReflectionFieldFinder<Field, NamedFieldFinder>
     {
         private final String name;
         private final Class<?> source;
         private @Nullable Class<?> fieldType = null;
-        private boolean setAccessible = false;
 
         private NamedFieldFinder(String name, Class<?> source)
         {
@@ -111,25 +150,19 @@ public class FieldFinder
         public Field get()
         {
             //noinspection ConstantConditions
-            return Objects.requireNonNull(ReflectionBackend.getField(source, name, modifiers, fieldType, setAccessible),
-                                          String.format("Failed to find field [%s %s %s.%s].",
-                                                        optionalModifiersToString(modifiers),
-                                                        ReflectionBackend.formatOptionalValue(fieldType,
-                                                                                              Class::getName),
-                                                        source.getName(), name));
+            return Objects.requireNonNull(
+                getNullable(),
+                String.format("Failed to find field %s[%s %s %s.%s].",
+                              ReflectionBackend.formatAnnotations(annotations),
+                              optionalModifiersToString(modifiers),
+                              ReflectionBackend.formatOptionalValue(fieldType, Class::getName),
+                              source.getName(), name));
         }
 
         @Override
         public @Nullable Field getNullable()
         {
-            return ReflectionBackend.getField(source, name, modifiers, fieldType, setAccessible);
-        }
-
-        @Override
-        public NamedFieldFinder setAccessible()
-        {
-            setAccessible = true;
-            return this;
+            return ReflectionBackend.getField(source, name, modifiers, fieldType, setAccessible, annotations);
         }
 
         /**
@@ -152,12 +185,10 @@ public class FieldFinder
      * Represents an implementation of {@link ReflectionFinder} to retrieve a field by its type.
      */
     public static final class TypedFieldFinder
-        extends ReflectionFinder<Field, TypedFieldFinder>
-        implements IAccessibleSetter<TypedFieldFinder>
+        extends ReflectionFieldFinder<Field, TypedFieldFinder>
     {
         private final Class<?> source;
         private final Class<?> fieldType;
-        private boolean setAccessible = false;
 
         private TypedFieldFinder(Class<?> source, Class<?> fieldType)
         {
@@ -169,43 +200,45 @@ public class FieldFinder
         public Field get()
         {
             //noinspection ConstantConditions
-            return Objects.requireNonNull(getNullable(), String.format("Failed to find field: [%s %s %s.[*]].",
-                                                                       optionalModifiersToString(modifiers),
-                                                                       fieldType.getName(), source.getName()));
+            return Objects.requireNonNull(
+                getNullable(),
+                String.format("Failed to find field: %s[%s %s %s.[*]].",
+                              ReflectionBackend.formatAnnotations(annotations),
+                              optionalModifiersToString(modifiers),
+                              fieldType.getName(),
+                              source.getName()));
         }
 
         @Override
         public @Nullable Field getNullable()
         {
-            return ReflectionBackend.getField(source, modifiers, fieldType, setAccessible);
-        }
-
-        @Override
-        public TypedFieldFinder setAccessible()
-        {
-            setAccessible = true;
-            return this;
+            return ReflectionBackend.getField(source, modifiers, fieldType, setAccessible, annotations);
         }
     }
 
     /**
      * Represents an implementation of {@link ReflectionFinder} to retrieve all fields in a class of a given type.
      */
-    public static final class TypedMultipleFieldsFinder
-        extends ReflectionFinder<List<Field>, TypedMultipleFieldsFinder>
-        implements IAccessibleSetter<TypedMultipleFieldsFinder>
+    public static final class MultipleFieldsFinder
+        extends ReflectionFieldFinder<List<Field>, MultipleFieldsFinder>
     {
         private final Class<?> source;
-        private final Class<?> fieldType;
+        private @Nullable Class<?> fieldType;
         private int expected = -1;
         private int atMost = -1;
         private int atLeast = -1;
-        private boolean setAccessible = false;
 
-        private TypedMultipleFieldsFinder(Class<?> source, Class<?> fieldType)
+        private MultipleFieldsFinder(Class<?> source, Class<?> fieldType)
         {
             this.source = source;
-            this.fieldType = Objects.requireNonNull(fieldType, "Field type cannot be null!");
+            this.fieldType = fieldType;
+        }
+
+        @SafeVarargs
+        private MultipleFieldsFinder(Class<?> source, Class<? extends Annotation>... annotations)
+        {
+            this.source = source;
+            this.annotations = annotations;
         }
 
         /**
@@ -236,34 +269,37 @@ public class FieldFinder
         @CheckReturnValue @Contract(pure = true)
         private List<Field> getResult(boolean nonnull)
         {
-            final List<Field> found = ReflectionBackend.getFields(source, modifiers, fieldType, setAccessible);
+            final List<Field> found =
+                ReflectionBackend.getFields(source, modifiers, fieldType, setAccessible, annotations);
+
             if (expected >= 0 && expected != found.size())
                 return handleInvalid(nonnull, "Expected %d fields of type %s in class %s " +
-                                         "with modifiers %d, but found %d",
-                                     expected, fieldType, source, modifiers, found.size());
+                                         "with modifiers %d annotated with %s, but found %d",
+                                     expected, fieldType, source, modifiers, annotations, found.size());
 
             if (atMost >= 0 && found.size() > atMost)
                 return handleInvalid(nonnull, "Expected at most %d fields of type %s in class %s " +
-                                         "with modifiers %d, but found %d",
-                                     atMost, fieldType, source, modifiers, found.size());
+                                         "with modifiers %d annotated with %s, but found %d",
+                                     atMost, fieldType, source, modifiers, annotations, found.size());
 
             if (atLeast >= 0 && found.size() < atLeast)
                 return handleInvalid(nonnull, "Expected at least %d fields of type %s in class %s " +
-                                         "with modifiers %d, but found %d",
-                                     atLeast, fieldType, source, modifiers, found.size());
+                                         "with modifiers %d annotated with %s, but found %d",
+                                     atLeast, fieldType, source, modifiers, annotations, found.size());
             return found;
         }
 
         // Suppress AvoidThrowingNullPointerException because we want to throw an NPE manually
         // when nothing is found to keep in line with the rest of the API.
         @SuppressWarnings("PMD.AvoidThrowingNullPointerException")
-        @Contract(value = "true, _, _, _, _, _, _ -> fail", pure = true)
+        @Contract(value = "true, _, _, _, _, _, _, _ -> fail", pure = true)
         private static List<Field> handleInvalid(
-            boolean nonnull, String str, int val, Class<?> fieldType,
-            Class<?> source, int modifiers, int foundSize)
+            boolean nonnull, String str, int val, @Nullable Class<?> fieldType, Class<?> source, int modifiers,
+            Class<? extends Annotation>[] annotations, int foundSize)
         {
             if (nonnull)
-                throw new NullPointerException(String.format(str, val, fieldType, modifiers, fieldType));
+                throw new NullPointerException(
+                    String.format(str, val, fieldType, modifiers, Arrays.toString(annotations), fieldType));
             return Collections.emptyList();
         }
 
@@ -278,7 +314,7 @@ public class FieldFinder
          *     The minimum number of fields that have to be found for this finder to be able to complete successfully.
          * @return The instance of the current finder.
          */
-        public TypedMultipleFieldsFinder atLeast(int val)
+        public MultipleFieldsFinder atLeast(int val)
         {
             atLeast = val;
             return this;
@@ -295,7 +331,7 @@ public class FieldFinder
          *     The maximum number of fields that can be found for this finder to be able to complete successfully.
          * @return The instance of the current finder.
          */
-        public TypedMultipleFieldsFinder atMost(int val)
+        public MultipleFieldsFinder atMost(int val)
         {
             atMost = val;
             return this;
@@ -312,16 +348,9 @@ public class FieldFinder
          *     The exact number of fields that must be found for this finder to be able to complete successfully.
          * @return The instance of the current finder.
          */
-        public TypedMultipleFieldsFinder exactCount(int val)
+        public MultipleFieldsFinder exactCount(int val)
         {
             expected = val;
-            return this;
-        }
-
-        @Override
-        public TypedMultipleFieldsFinder setAccessible()
-        {
-            setAccessible = true;
             return this;
         }
     }

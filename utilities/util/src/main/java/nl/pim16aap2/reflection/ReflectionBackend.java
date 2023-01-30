@@ -3,6 +3,7 @@ package nl.pim16aap2.reflection;
 import lombok.extern.flogger.Flogger;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -124,7 +125,7 @@ final class ReflectionBackend
 
     /**
      * Attempts to find a field in a class based on the input configuration. If all fields matching the specification
-     * are desired, use {@link #getFields(Class, int, Class, boolean)} instead.
+     * are desired, use {@link #getFields(Class, int, Class, boolean, Class[])} instead.
      *
      * @param source
      *     The class in which to look for the field.
@@ -141,8 +142,10 @@ final class ReflectionBackend
      *     True to use {@link AccessibleObject#setAccessible(boolean)}.
      * @return The first field that matches the specification.
      */
+    @SafeVarargs
     public static @Nullable Field getField(
-        Class<?> source, String name, int modifiers, @Nullable Class<?> type, boolean setAccessible)
+        Class<?> source, String name, int modifiers, @Nullable Class<?> type, boolean setAccessible,
+        Class<? extends Annotation>... annotations)
     {
         for (final Field field : source.getDeclaredFields())
         {
@@ -152,6 +155,8 @@ final class ReflectionBackend
                 continue;
             if (!field.getName().equals(name))
                 continue;
+            if (!containsAnnotations(field, annotations))
+                continue;
             return setAccessibleIfNeeded(field, setAccessible);
         }
         return null;
@@ -159,7 +164,8 @@ final class ReflectionBackend
 
     /**
      * Attempts to find a field in a class. Only the first field that matches the desired specification is returned. If
-     * all fields matching the specification are desired, use {@link #getFields(Class, int, Class, boolean)} instead.
+     * all fields matching the specification are desired, use {@link #getFields(Class, int, Class, boolean, Class[])}
+     * instead.
      *
      * @param source
      *     The class in which to look for the field.
@@ -174,16 +180,19 @@ final class ReflectionBackend
      *     True to use {@link AccessibleObject#setAccessible(boolean)}.
      * @return The first field that matches the specification.
      */
-    public static @Nullable Field getField(Class<?> source, int modifiers, Class<?> type, boolean setAccessible)
+    @SafeVarargs
+    public static @Nullable Field getField(
+        Class<?> source, int modifiers, Class<?> type, boolean setAccessible,
+        Class<? extends Annotation>... annotations)
     {
         for (final Field field : source.getDeclaredFields())
         {
             if (modifiers != 0 && field.getModifiers() != modifiers)
                 continue;
-
             if (!field.getType().equals(type))
                 continue;
-
+            if (!containsAnnotations(field, annotations))
+                continue;
             return setAccessibleIfNeeded(field, setAccessible);
         }
         return null;
@@ -205,17 +214,20 @@ final class ReflectionBackend
      *     True to use {@link AccessibleObject#setAccessible(boolean)}.
      * @return All fields in the source class that match the input configuration.
      */
-    public static List<Field> getFields(Class<?> source, int modifiers, Class<?> type, boolean setAccessible)
+    @SafeVarargs
+    public static List<Field> getFields(
+        Class<?> source, int modifiers, @Nullable Class<?> type, boolean setAccessible,
+        Class<? extends Annotation>... annotations)
     {
         final List<Field> ret = new ArrayList<>();
         for (final Field field : source.getDeclaredFields())
         {
             if (modifiers != 0 && field.getModifiers() != modifiers)
                 continue;
-
             if (!field.getType().equals(type))
                 continue;
-
+            if (!containsAnnotations(field, annotations))
+                continue;
             ret.add(setAccessibleIfNeeded(field, setAccessible));
         }
         return ret;
@@ -344,6 +356,28 @@ final class ReflectionBackend
     }
 
     /**
+     * Checks if an object is annotated with the given annotations.
+     * <p>
+     * Any annotations on the object not in the provided array are ignored.
+     *
+     * @param obj
+     *     The object whose annotations to verify.
+     * @param annotations
+     *     The annotations that should be preset on the object.
+     * @return True if all provided annotations are present on the object. If at least one annotation is missing, the
+     * method will return false.
+     */
+    @SafeVarargs
+    private static boolean containsAnnotations(
+        AccessibleObject obj, Class<? extends Annotation>... annotations)
+    {
+        for (final Class<? extends Annotation> annotation : annotations)
+            if (!obj.isAnnotationPresent(annotation))
+                return false;
+        return true;
+    }
+
+    /**
      * Finds a constructor in a class.
      *
      * @param source
@@ -359,14 +393,18 @@ final class ReflectionBackend
      *     True to use {@link AccessibleObject#setAccessible(boolean)}.
      * @return The constructor matching the specified description.
      */
+    @SafeVarargs
     public static @Nullable Constructor<?> findCTor(
-        Class<?> source, int modifiers, @Nullable ParameterGroup parameters, boolean setAccessible)
+        Class<?> source, int modifiers, @Nullable ParameterGroup parameters, boolean setAccessible,
+        Class<? extends Annotation>... annotations)
     {
         for (final Constructor<?> ctor : source.getDeclaredConstructors())
         {
             if (modifiers != 0 && ctor.getModifiers() != modifiers)
                 continue;
             if (parameters != null && !parameters.matches(ctor.getParameterTypes()))
+                continue;
+            if (!containsAnnotations(ctor, annotations))
                 continue;
             return setAccessibleIfNeeded(ctor, setAccessible);
         }
@@ -432,5 +470,24 @@ final class ReflectionBackend
     public static <T> String formatOptionalValue(@Nullable T obj)
     {
         return formatOptionalValue(obj, Object::toString);
+    }
+
+    /**
+     * Formats an array of annotations to a single String.
+     *
+     * @param annotations
+     *     The annotations to format.
+     * @return The string representing the annotations. If the array is empty, the resulting String will also be empty.
+     * When one or more annotations are provided, the output will end with a blank space.
+     */
+    @SafeVarargs
+    public static String formatAnnotations(Class<? extends Annotation>... annotations)
+    {
+        if (annotations.length == 0)
+            return "";
+        final StringBuilder sb = new StringBuilder();
+        for (final var annotation : annotations)
+            sb.append('@').append(annotation.getName()).append(' ');
+        return sb.toString();
     }
 }
