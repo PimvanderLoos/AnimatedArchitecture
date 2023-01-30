@@ -4,11 +4,11 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.Locked;
-import nl.pim16aap2.bigdoors.annotations.InheritedLockField;
-import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IPerpetualMover;
+import nl.pim16aap2.bigdoors.movable.serialization.DeserializationConstructor;
+import nl.pim16aap2.bigdoors.movable.serialization.PersistentVariable;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
@@ -32,7 +32,7 @@ public class Flag extends AbstractMovable implements IHorizontalAxisAligned, IPe
     private static final MovableType MOVABLE_TYPE = MovableTypeFlag.get();
 
     @EqualsAndHashCode.Exclude
-    @InheritedLockField
+    @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
 
     /**
@@ -48,16 +48,12 @@ public class Flag extends AbstractMovable implements IHorizontalAxisAligned, IPe
     @PersistentVariable
     protected final boolean northSouthAligned;
 
+    @DeserializationConstructor
     public Flag(AbstractMovable.MovableBaseHolder base, boolean northSouthAligned)
     {
         super(base);
         this.lock = getLock();
         this.northSouthAligned = northSouthAligned;
-    }
-
-    private Flag(AbstractMovable.MovableBaseHolder base)
-    {
-        this(base, false); // Add tmp/default values
     }
 
     @Override

@@ -4,8 +4,8 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.annotations.InheritedLockField;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
+import nl.pim16aap2.bigdoors.movable.serialization.DeserializationConstructor;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
@@ -33,9 +33,10 @@ public class BigDoor extends AbstractMovable
     private static final MovableType MOVABLE_TYPE = MovableBigDoor.get();
 
     @EqualsAndHashCode.Exclude
-    @InheritedLockField
+    @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
 
+    @DeserializationConstructor
     public BigDoor(AbstractMovable.MovableBaseHolder base)
     {
         super(base);

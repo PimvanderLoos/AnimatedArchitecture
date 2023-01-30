@@ -5,12 +5,12 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Locked;
-import nl.pim16aap2.bigdoors.annotations.InheritedLockField;
-import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.drawbridge.Drawbridge;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IPerpetualMover;
+import nl.pim16aap2.bigdoors.movable.serialization.DeserializationConstructor;
+import nl.pim16aap2.bigdoors.movable.serialization.PersistentVariable;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
@@ -20,6 +20,7 @@ import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.Rectangle;
 
 import javax.annotation.concurrent.GuardedBy;
+import javax.inject.Named;
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -35,7 +36,7 @@ public class Windmill extends AbstractMovable implements IHorizontalAxisAligned,
     private static final MovableType MOVABLE_TYPE = MovableTypeWindmill.get();
 
     @EqualsAndHashCode.Exclude
-    @InheritedLockField
+    @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
 
     /**
@@ -43,13 +44,14 @@ public class Windmill extends AbstractMovable implements IHorizontalAxisAligned,
      *
      * @return The number of quarter circles this movable will rotate.
      */
-    @PersistentVariable
+    @PersistentVariable("quarterCircles")
     @GuardedBy("lock")
     @Getter(onMethod_ = @Locked.Read)
     @Setter(onMethod_ = @Locked.Write)
     private int quarterCircles;
 
-    public Windmill(AbstractMovable.MovableBaseHolder base, int quarterCircles)
+    @DeserializationConstructor
+    public Windmill(AbstractMovable.MovableBaseHolder base, @Named("quarterCircles") int quarterCircles)
     {
         super(base);
         this.lock = getLock();

@@ -4,10 +4,10 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.Locked;
-import nl.pim16aap2.bigdoors.annotations.InheritedLockField;
-import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
+import nl.pim16aap2.bigdoors.movable.serialization.DeserializationConstructor;
+import nl.pim16aap2.bigdoors.movable.serialization.PersistentVariable;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
@@ -31,7 +31,7 @@ public class Clock extends AbstractMovable implements IHorizontalAxisAligned
     private static final MovableType MOVABLE_TYPE = MovableTypeClock.get();
 
     @EqualsAndHashCode.Exclude
-    @InheritedLockField
+    @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
 
     /**
@@ -63,6 +63,7 @@ public class Clock extends AbstractMovable implements IHorizontalAxisAligned
     @Getter
     protected final PBlockFace hourArmSide;
 
+    @DeserializationConstructor
     public Clock(AbstractMovable.MovableBaseHolder base, boolean northSouthAligned, PBlockFace hourArmSide)
     {
         super(base);

@@ -5,10 +5,10 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.annotations.InheritedLockField;
-import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
+import nl.pim16aap2.bigdoors.movable.serialization.DeserializationConstructor;
+import nl.pim16aap2.bigdoors.movable.serialization.PersistentVariable;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
@@ -35,7 +35,7 @@ public class Drawbridge extends AbstractMovable implements IHorizontalAxisAligne
     private static final MovableType MOVABLE_TYPE = MovableTypeDrawbridge.get();
 
     @EqualsAndHashCode.Exclude
-    @InheritedLockField
+    @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
 
     /**
@@ -50,17 +50,12 @@ public class Drawbridge extends AbstractMovable implements IHorizontalAxisAligne
     @Setter(onMethod_ = @Locked.Write)
     protected boolean modeUp;
 
+    @DeserializationConstructor
     public Drawbridge(AbstractMovable.MovableBaseHolder base, boolean modeUp)
     {
         super(base);
         this.lock = getLock();
         this.modeUp = modeUp;
-    }
-
-    @SuppressWarnings("unused")
-    private Drawbridge(AbstractMovable.MovableBaseHolder base)
-    {
-        this(base, false); // Add tmp/default values
     }
 
     @Override

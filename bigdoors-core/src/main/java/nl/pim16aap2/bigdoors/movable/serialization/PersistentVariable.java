@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.annotations;
+package nl.pim16aap2.bigdoors.movable.serialization;
 
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 
@@ -14,4 +14,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface PersistentVariable
 {
+    String value() default "";
 }
