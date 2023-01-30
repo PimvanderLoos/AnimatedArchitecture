@@ -83,8 +83,6 @@ public final class MovableSerializer<T extends AbstractMovable>
             catch (Throwable t)
             {
                 log.atSevere().withCause(t).log("Failed to load class '%s'", clazz.getName());
-                if (clazz.getName().endsWith("BigDoor"))
-                    Runtime.getRuntime().exit(0);
             }
             clazz = clazz.getSuperclass();
         }
