@@ -104,10 +104,12 @@ class MovableSerializerTest
     }
 
     @Test
-    void testAmbiguity()
+    void testAmbiguityParams()
     {
         Assertions.assertThrows(IllegalArgumentException.class,
-                                () -> new MovableSerializer<>(TestMovableSubTypeAmbiguous.class));
+                                () -> new MovableSerializer<>(TestMovableSubTypeAmbiguousParameterTypes.class));
+        Assertions.assertThrows(IllegalArgumentException.class,
+                                () -> new MovableSerializer<>(TestMovableSubTypeAmbiguousParameterNames.class));
     }
 
     @Test
@@ -139,6 +141,15 @@ class MovableSerializerTest
             () -> instantiator.instantiate(movableBase,
                                            Map.of("testName", "testName",
                                                   "isCoolType", false)));
+    }
+
+    @Test
+    void testAmbiguousClass()
+    {
+        Assertions.assertThrows(Exception.class,
+                                () -> new MovableSerializer<>(TestMovableSubTypeAmbiguousFieldTypes.class));
+        Assertions.assertThrows(Exception.class,
+                                () -> new MovableSerializer<>(TestMovableSubTypeAmbiguousFieldNames.class));
     }
 
     // This class is a nullability nightmare, but that doesn't matter, because none of the methods are used;
@@ -270,13 +281,13 @@ class MovableSerializerTest
     }
 
     @EqualsAndHashCode(callSuper = true)
-    private static class TestMovableSubTypeAmbiguous extends TestMovableType
+    private static class TestMovableSubTypeAmbiguousParameterTypes extends TestMovableType
     {
         @PersistentVariable("ambiguousInteger1")
         private final int ambiguousInteger1;
 
         @DeserializationConstructor
-        public TestMovableSubTypeAmbiguous(
+        public TestMovableSubTypeAmbiguousParameterTypes(
             AbstractMovable.MovableBaseHolder base,
             String testName,
             int ambiguousInteger0,
@@ -287,6 +298,51 @@ class MovableSerializerTest
             this.ambiguousInteger1 = ambiguousInteger1;
             this.testName = testName;
             this.isCoolType = isCoolType;
+        }
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    private static class TestMovableSubTypeAmbiguousParameterNames extends TestMovableType
+    {
+        @DeserializationConstructor
+        public TestMovableSubTypeAmbiguousParameterNames(
+            AbstractMovable.MovableBaseHolder base,
+            @PersistentVariable("ambiguous") UUID o0,
+            @PersistentVariable("ambiguous") String o1)
+        {
+            super(base);
+        }
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    private static class TestMovableSubTypeAmbiguousFieldTypes extends TestMovableType
+    {
+        @PersistentVariable
+        private int ambiguousInteger0;
+
+        @PersistentVariable
+        private int ambiguousInteger1;
+
+        @DeserializationConstructor
+        public TestMovableSubTypeAmbiguousFieldTypes(AbstractMovable.MovableBaseHolder base)
+        {
+            super(base);
+        }
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    private static class TestMovableSubTypeAmbiguousFieldNames extends TestMovableType
+    {
+        @PersistentVariable("ambiguous")
+        private int field0;
+
+        @PersistentVariable("ambiguous")
+        private String field1;
+
+        @DeserializationConstructor
+        public TestMovableSubTypeAmbiguousFieldNames(AbstractMovable.MovableBaseHolder base)
+        {
+            super(base);
         }
     }
 }

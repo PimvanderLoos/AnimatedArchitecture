@@ -84,6 +84,7 @@ public final class MovableSerializer<T extends AbstractMovable>
         final List<ConstructorParameter> ret = new ArrayList<>(ctor.getParameterCount());
         boolean foundBase = false;
         final Set<Class<?>> unnamedParameters = new HashSet<>();
+        final Set<String> namedParameters = new HashSet<>();
 
         for (final Parameter parameter : ctor.getParameters())
         {
@@ -95,9 +96,12 @@ public final class MovableSerializer<T extends AbstractMovable>
             }
 
             final ConstructorParameter constructorParameter = ConstructorParameter.of(parameter);
-            if (constructorParameter.isUnnamed() && !unnamedParameters.add(parameter.getType()))
+            if (constructorParameter.name == null && !unnamedParameters.add(parameter.getType()))
                 throw new IllegalArgumentException(
-                    "Found ambiguous parameter " + parameter + " in constructor: " + ctor);
+                    "Found ambiguous parameter type " + parameter + " in constructor: " + ctor);
+            if (constructorParameter.name != null && !namedParameters.add(constructorParameter.name))
+                throw new IllegalArgumentException(
+                    "Found ambiguous parameter name " + parameter + " in constructor: " + ctor);
 
             ret.add(constructorParameter);
         }
@@ -112,7 +116,7 @@ public final class MovableSerializer<T extends AbstractMovable>
     private static List<AnnotatedField> findAnnotatedFields(Class<? extends AbstractMovable> movableClass)
         throws UnsupportedOperationException
     {
-        return ReflectionBuilder
+        final List<AnnotatedField> fields = ReflectionBuilder
             .findField().inClass(movableClass)
             .withAnnotations(PersistentVariable.class)
             .checkSuperClasses()
@@ -120,6 +124,20 @@ public final class MovableSerializer<T extends AbstractMovable>
             .get().stream()
             .map(AnnotatedField::of)
             .toList();
+
+        final Set<Class<?>> unnamedFields = new HashSet<>();
+        final Set<String> namedFields = new HashSet<>();
+        for (final AnnotatedField field : fields)
+        {
+            if (field.annotatedName == null && !unnamedFields.add(field.field.getType()))
+                throw new IllegalArgumentException(
+                    "Found ambiguous field type " + field + " in class: " + movableClass.getName());
+            if (field.annotatedName != null && !namedFields.add(field.annotatedName))
+                throw new IllegalArgumentException(
+                    "Found ambiguous field name " + field + " in class: " + movableClass.getName());
+        }
+
+        return fields;
     }
 
     /**
@@ -260,8 +278,8 @@ public final class MovableSerializer<T extends AbstractMovable>
             {
                 throw new IllegalArgumentException(
                     String.format("Could not set index %d in constructor from key %s from values %s.",
-                                  idx, (param.isUnnamed() ? param.type : param.name),
-                                  (param.isUnnamed() ? classes : values)), e);
+                                  idx, (param.name == null ? param.type : param.name),
+                                  (param.name == null ? classes : values)), e);
             }
         }
         return ret;
@@ -381,11 +399,6 @@ public final class MovableSerializer<T extends AbstractMovable>
             if (annotation == null)
                 return null;
             return annotation.value().isBlank() ? null : annotation.value();
-        }
-
-        boolean isUnnamed()
-        {
-            return name == null;
         }
 
         private static Class<?> remapPrimitives(Class<?> clz)
