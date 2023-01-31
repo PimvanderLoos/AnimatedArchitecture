@@ -49,7 +49,7 @@ public class DirectionParser implements ArgumentParser<ICommandSender, MovementD
         for (final MovementDirection movementDirection : MovementDirection.values())
         {
             final String name = movementDirection.name().toLowerCase(Locale.ROOT);
-            final String localized = localizer.getMessage("constants.rotate_direction." + name);
+            final String localized = localizer.getMessage("constants.movement_direction." + name);
             suggestions.put(localized.toLowerCase(Locale.ROOT), movementDirection);
             invertedSuggestions.put(movementDirection, localized);
         }
