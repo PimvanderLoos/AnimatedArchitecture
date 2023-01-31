@@ -15,6 +15,7 @@ import nl.pim16aap2.bigdoors.util.Rectangle;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.testing.AssistedFactoryMocker;
+import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -109,6 +110,37 @@ class MovableSerializerTest
                                 () -> new MovableSerializer<>(TestMovableSubTypeAmbiguous.class));
     }
 
+    @Test
+    void testMissingData()
+        throws Exception
+    {
+        final var instantiator = Assertions.assertDoesNotThrow(
+            () -> new MovableSerializer<>(TestMovableType.class));
+        final TestMovableType testMovableType0 = new TestMovableType(movableBase, null, true, 42);
+
+        final TestMovableType testMovableType1 =
+            instantiator.instantiate(movableBase,
+                                     Map.of("isCoolType", true,
+                                            "blockTestCount", 42));
+
+        Assertions.assertEquals(testMovableType0, testMovableType1);
+    }
+
+    @Test
+    void testInvalidMissingData()
+    {
+        final var instantiator = Assertions.assertDoesNotThrow(
+            () -> new MovableSerializer<>(TestMovableType.class));
+
+        // The mapping for 'int blockTestCount' is missing, in which case we throw an exception.
+        // Only objects can be missing.
+        Assertions.assertThrows(
+            Exception.class,
+            () -> instantiator.instantiate(movableBase,
+                                           Map.of("testName", "testName",
+                                                  "isCoolType", false)));
+    }
+
     // This class is a nullability nightmare, but that doesn't matter, because none of the methods are used;
     // It's only used for testing serialization and the methods are therefore just stubs.
     @SuppressWarnings("ConstantConditions")
@@ -123,7 +155,7 @@ class MovableSerializerTest
 
         @Getter
         @PersistentVariable
-        protected String testName;
+        protected @Nullable String testName;
 
         @Getter
         @PersistentVariable
@@ -144,7 +176,7 @@ class MovableSerializerTest
         @DeserializationConstructor
         public TestMovableType(
             AbstractMovable.MovableBaseHolder base,
-            String testName,
+            @Nullable String testName,
             boolean isCoolType,
             int blockTestCount)
         {
@@ -240,6 +272,9 @@ class MovableSerializerTest
     @EqualsAndHashCode(callSuper = true)
     private static class TestMovableSubTypeAmbiguous extends TestMovableType
     {
+        @PersistentVariable("ambiguousInteger1")
+        private final int ambiguousInteger1;
+
         @DeserializationConstructor
         public TestMovableSubTypeAmbiguous(
             AbstractMovable.MovableBaseHolder base,
@@ -249,6 +284,7 @@ class MovableSerializerTest
             int ambiguousInteger1)
         {
             super(base, testName, isCoolType, ambiguousInteger0);
+            this.ambiguousInteger1 = ambiguousInteger1;
             this.testName = testName;
             this.isCoolType = isCoolType;
         }

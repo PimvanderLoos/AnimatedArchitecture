@@ -19,6 +19,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -210,40 +211,73 @@ public final class MovableSerializer<T extends AbstractMovable>
         throws Exception
     {
         if (values.size() != fields.size())
-            throw new IllegalStateException(
-                String.format("Expected %d arguments but received %d for type %s",
-                              fields.size(), values.size(), getMovableTypeName()));
+            log.atWarning().log("Expected %d arguments but received %d for type %s",
+                                fields.size(), values.size(), getMovableTypeName());
+        @Nullable Object @Nullable [] deserializedParameters = null;
         try
         {
-            final Object[] deserializedParameters = deserializeParameters(movableBase, values);
+            deserializedParameters = deserializeParameters(movableBase, values);
             return ctor.newInstance(deserializedParameters);
         }
         catch (Exception t)
         {
-            throw new Exception("Failed to create new instance of type: " + getMovableTypeName(), t);
+            throw new Exception(
+                "Failed to create new instance of type: " + getMovableTypeName() + ", with parameters: " +
+                    Arrays.toString(deserializedParameters), t);
         }
     }
 
-    private Object[] deserializeParameters(AbstractMovable.MovableBaseHolder movableBase, Map<String, Object> values)
+    private Object[] deserializeParameters(AbstractMovable.MovableBaseHolder base, Map<String, Object> values)
     {
         final Map<Class<?>, Object> classes = new HashMap<>(values.size());
         for (final var entry : values.entrySet())
             classes.put(entry.getValue().getClass(), entry.getValue());
 
-        final Object[] ret = new Object[values.size() + 1];
+        final Object[] ret = new Object[this.parameters.size()];
         int idx = -1;
         for (final ConstructorParameter param : this.parameters)
         {
             ++idx;
 
-            if (param.type == AbstractMovable.MovableBaseHolder.class)
-                ret[idx] = movableBase;
-            else if (param.hasName())
-                ret[idx] = values.get(param.name);
-            else
-                ret[idx] = classes.get(param.type);
+            try
+            {
+                final @Nullable Object data;
+                if (param.type == AbstractMovable.MovableBaseHolder.class)
+                    data = base;
+                else if (param.name != null)
+                    data = getDeserializedObject(base, values, param.name);
+                else
+                    data = getDeserializedObject(base, classes, param.type);
+
+                if (param.isRemappedFromPrimitive && data == null)
+                    throw new IllegalArgumentException(
+                        "Received null parameter that cannot accept null values: " + param);
+
+                //noinspection DataFlowIssue
+                ret[idx] = data;
+            }
+            catch (Exception e)
+            {
+                throw new IllegalArgumentException(
+                    String.format("Could not set index %d in constructor from key %s from values %s.",
+                                  idx, (param.isUnnamed() ? param.type : param.name),
+                                  (param.isUnnamed() ? classes : values)), e);
+            }
         }
         return ret;
+    }
+
+    private static @Nullable <T> Object getDeserializedObject(
+        AbstractMovable.MovableBaseHolder base, Map<T, Object> map, T key)
+    {
+        final @Nullable Object ret = map.get(key);
+        if (ret != null)
+            return ret;
+
+        if (!map.containsKey(key))
+            log.atSevere().log("No value found for key '%s' for movable: %s", key, base);
+
+        return null;
     }
 
     public String getMovableTypeName()
@@ -328,12 +362,11 @@ public final class MovableSerializer<T extends AbstractMovable>
         }
     }
 
-    private record ConstructorParameter(@Nullable String name, Class<?> type)
+    private record ConstructorParameter(@Nullable String name, Class<?> type, boolean isRemappedFromPrimitive)
     {
         public ConstructorParameter(@Nullable String name, Class<?> type)
         {
-            this.name = name;
-            this.type = remapPrimitives(type);
+            this(name, remapPrimitives(type), type.isPrimitive());
         }
 
         public static ConstructorParameter of(Parameter parameter)
@@ -353,11 +386,6 @@ public final class MovableSerializer<T extends AbstractMovable>
         boolean isUnnamed()
         {
             return name == null;
-        }
-
-        boolean hasName()
-        {
-            return name != null;
         }
 
         private static Class<?> remapPrimitives(Class<?> clz)
