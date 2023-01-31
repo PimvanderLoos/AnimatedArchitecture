@@ -94,3 +94,6 @@ To also run all the tests, static analysis tools etc., you can run the following
 
 The `BigDoors-Spigot.jar` file can then be found in `bigdoors-spigot/spigot-core/target/BigDoors-Spigot.jar`.
 The jars for each door type can be found in `bigdoors-doors/DoorTypes/<DoorType>.jar`.
+
+## Documentation
+The javadocs for the current project can be found [here](https://pimvanderloos.github.io/BigDoors/javadoc/).
