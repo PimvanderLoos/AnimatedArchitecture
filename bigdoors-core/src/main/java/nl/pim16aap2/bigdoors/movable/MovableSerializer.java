@@ -29,6 +29,49 @@ import java.util.Set;
 
 /**
  * Manages the serialization aspects of the movables.
+ * <p>
+ * The {@link PersistentVariable} annotation is used on fields to determine which fields are serialized. If a name is
+ * provided to the annotation, the object will be serialized using that name. If more than one unnamed field of the same
+ * type is defined, the serializer will throw an exception on startup. Similarly, there can be no two fields with the
+ * same name.
+ * <p>
+ * In the constructor, the {@link PersistentVariable} annotation can be used to specify the name of the object to
+ * deserialize. If no name is provided, the object is matched using its type instead. Like with the variables, no
+ * ambiguity in parameter types or names is allowed.
+ * <p>
+ * The {@link AbstractMovable.MovableBaseHolder} object is always provided and does not need to be handled in any
+ * specific way.
+ * <p>
+ * When a value is missing during deserialization, null will be substituted in its place if it is not a primitive. If
+ * the type is a primitive, an exception will be thrown.
+ * <p>
+ * For example:
+ * <pre> {@code
+ * public class MyMovable extends AbstractMovable
+ * {
+ *     @PersistentVariable("ambiguousInteger0")
+ *     private int myInt0;
+ *
+ *     @PersistentVariable("ambiguousInteger1")
+ *     private int myInt1;
+ *
+ *     @PersistentVariable
+ *     private String nonAmbiguous
+ *
+ *     @DeserializationConstructor
+ *     public MyMovable(
+ *         AbstractMovable.Holder base,
+ *         @PersistentVariable("ambiguousInteger0") int0,
+ *         @PersistentVariable("ambiguousInteger1") int1,
+ *         String str)
+ *     {
+ *         super(base);
+ *         this.myInt0 = int0;
+ *         this.myInt1 = int1;
+ *         this.nonAmbiguous = str;
+ *     }
+ *     ...
+ * }}</pre>
  *
  * @param <T>
  *     The type of movable.
