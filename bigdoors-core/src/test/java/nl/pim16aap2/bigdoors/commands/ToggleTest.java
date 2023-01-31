@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import nl.pim16aap2.bigdoors.UnitTestUtil;
+import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
@@ -82,8 +83,9 @@ class ToggleTest
                                                         Mockito.any(), Mockito.any()))
                .thenReturn(movableToggleRequest);
 
-        movableToggleRequestBuilder = new MovableToggleRequestBuilder(movableToggleRequestFactory, messageableServer,
-                                                                      Mockito.mock(IPPlayerFactory.class));
+        movableToggleRequestBuilder = new MovableToggleRequestBuilder(
+            movableToggleRequestFactory, messageableServer, Mockito.mock(IPPlayerFactory.class),
+            Mockito.mock(IConfigLoader.class));
 
         Mockito.when(factory.newToggle(Mockito.any(ICommandSender.class), Mockito.any(MovableActionType.class),
                                        Mockito.any(AnimationType.class), Mockito.nullable(Double.class),

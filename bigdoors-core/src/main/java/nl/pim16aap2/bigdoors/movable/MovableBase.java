@@ -235,6 +235,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
     @Locked.Read
     public void onChunkLoad(AbstractMovable movable)
     {
+        if (!config.isRedstoneEnabled())
+            return;
+
         final Vector3Di powerBlock = getPowerBlock();
         if (!isChunkLoaded(powerBlock) || !isChunkLoaded(getRotationPoint()))
             return;
@@ -243,9 +246,13 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
     private void verifyRedstoneState(AbstractMovable movable, Vector3Di powerBlock)
     {
+        if (!config.isRedstoneEnabled())
+            return;
+
         final var result = redstoneManager.isBlockPowered(world, powerBlock);
         if (result == IRedstoneManager.RedstoneStatus.DISABLED)
             return;
+
         if (result == IRedstoneManager.RedstoneStatus.UNPOWERED &&
             movable instanceof IPerpetualMover perpetualMover &&
             perpetualMover.isPerpetual())
@@ -264,6 +271,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
     @Locked.Read void onRedstoneChange(AbstractMovable movable, boolean isPowered)
     {
+        if (!config.isRedstoneEnabled())
+            return;
+
         if (isPowered && !movable.isOpenable() || !isPowered && !movable.isCloseable())
             return;
 

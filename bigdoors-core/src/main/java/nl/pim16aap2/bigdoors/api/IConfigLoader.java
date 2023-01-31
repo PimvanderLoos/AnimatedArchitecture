@@ -17,11 +17,14 @@ import java.util.logging.Level;
 public interface IConfigLoader extends IRestartable
 {
     /**
-     * Checks if debug mode is enabled.
-     *
      * @return True if debug mode is enabled.
      */
     boolean debug();
+
+    /**
+     * @return True if redstone is enabled.
+     */
+    boolean isRedstoneEnabled();
 
     /**
      * The amount of time a user gets to specify which movable they meant in case of movableID collisions.
