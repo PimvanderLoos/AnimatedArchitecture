@@ -65,7 +65,7 @@ class MovableFinderTest
 
     @Test
     void testDelayedResults()
-        throws InterruptedException
+        throws InterruptedException, ExecutionException, TimeoutException
     {
         final CompletableFuture<List<MovableIdentifier>> databaseResult = new CompletableFuture<>();
         Mockito.when(databaseManager.getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any()))
@@ -82,7 +82,7 @@ class MovableFinderTest
         Thread.sleep(100); // Give it a slight delay to allow the notification to propagate.
         Assertions.assertTrue(returned.isDone());
 
-        final List<String> names = new ArrayList<>(returned.join());
+        final List<String> names = new ArrayList<>(returned.get(10, TimeUnit.SECONDS));
         Assertions.assertEquals(1, names.size());
         Assertions.assertEquals("MyDoor", names.get(0));
 
@@ -90,7 +90,7 @@ class MovableFinderTest
         final CompletableFuture<Set<String>> again = movableFinder.getMovableIdentifiers();
         Assertions.assertTrue(again.isDone());
 
-        final List<String> namesAgain = new ArrayList<>(again.join());
+        final List<String> namesAgain = new ArrayList<>(again.get(10, TimeUnit.SECONDS));
         Assertions.assertEquals(1, namesAgain.size());
         Assertions.assertEquals("MyDoor", namesAgain.get(0));
     }
@@ -111,7 +111,7 @@ class MovableFinderTest
     @Test
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     void testBasic()
-        throws ExecutionException, InterruptedException
+        throws ExecutionException, InterruptedException, TimeoutException
     {
         final List<Long> uids = List.of(0L, 1L, 2L);
         final List<String> names = List.of("MyDoor", "MyPortcullis", "MyDrawbridge");
@@ -127,7 +127,8 @@ class MovableFinderTest
         movableFinder.processInput("Myd"); // Repeating shouldn't change anything
         Assertions.assertEquals(Set.of("MyDoor", "MyDrawbridge"),
                                 movableFinder.getMovableIdentifiersIfAvailable().get());
-        Assertions.assertEquals(Set.of("MyDoor", "MyDrawbridge"), movableFinder.getMovableIdentifiers().get());
+        Assertions.assertEquals(Set.of("MyDoor", "MyDrawbridge"),
+                                movableFinder.getMovableIdentifiers().get(10, TimeUnit.SECONDS));
         Assertions.assertEquals(Set.of(0L, 2L), movableFinder.getMovableUIDs().get());
         Mockito.verify(databaseManager, Mockito.times(1))
                .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any());
@@ -187,7 +188,8 @@ class MovableFinderTest
         Assertions.assertTrue(movableFinder.getMovableUIDs().isEmpty());
         output.complete(identifiers);
         Assertions.assertFalse(movableFinder.getMovableUIDs().isEmpty());
-        Assertions.assertEquals(Set.of("TheirFlag"), movableFinder.getMovableIdentifiersIfAvailable().get());
+        Assertions.assertEquals(Set.of("TheirFlag"),
+                                movableFinder.getMovableIdentifiersIfAvailable().get());
 
         Mockito.verify(databaseManager, Mockito.times(2))
                .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any());
@@ -224,7 +226,8 @@ class MovableFinderTest
         movableFinder.processInput("T");
         Mockito.verify(databaseManager, Mockito.times(2))
                .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any());
-        Assertions.assertEquals(Set.of("TheirFlag"), movableFinder.getMovableIdentifiersIfAvailable().get());
+        Assertions.assertEquals(Set.of("TheirFlag"),
+                                movableFinder.getMovableIdentifiersIfAvailable().get());
     }
 
     @Test
@@ -234,19 +237,20 @@ class MovableFinderTest
         final List<String> names = List.of("MyDoor", "MyPortcullis", "MyDrawbridge", "TheirFlag");
         setDatabaseIdentifierResults(uids, names);
 
-        final MovableFinder movableFinder = new MovableFinder(movableRetrieverFactory, databaseManager, commandSender,
-                                                              "1");
+        final MovableFinder movableFinder =
+            new MovableFinder(movableRetrieverFactory, databaseManager, commandSender, "1");
 
         movableFinder.processInput("10");
         Assertions.assertTrue(movableFinder.getMovableIdentifiersIfAvailable().isPresent());
-        Assertions.assertEquals(Set.of("100", "101"), movableFinder.getMovableIdentifiersIfAvailable().get());
+        Assertions.assertEquals(Set.of("100", "101"),
+                                movableFinder.getMovableIdentifiersIfAvailable().get());
         Mockito.verify(databaseManager, Mockito.times(1))
                .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any());
     }
 
     @Test
     void exactMatch()
-        throws ExecutionException, InterruptedException
+        throws ExecutionException, InterruptedException, TimeoutException
     {
         final List<Long> uids = List.of(0L, 1L, 2L, 3L);
         final List<String> names = List.of("MyDoor", "MyPortcullis", "MyDrawbridge", "TheirFlag");
@@ -258,12 +262,13 @@ class MovableFinderTest
 
         Assertions.assertTrue(movableFinder.getMovableUIDs(true).isPresent());
         Assertions.assertTrue(movableFinder.getMovableUIDs(true).get().isEmpty());
-        Assertions.assertTrue(movableFinder.getMovableIdentifiers(true).get().isEmpty());
+        Assertions.assertTrue(movableFinder.getMovableIdentifiers(true).get(10, TimeUnit.SECONDS).isEmpty());
 
         movableFinder.processInput("MyDoor");
         Assertions.assertTrue(movableFinder.getMovableIdentifiersIfAvailable(true).isPresent());
-        Assertions.assertEquals(Set.of("MyDoor"), movableFinder.getMovableIdentifiersIfAvailable(true).get());
-        Assertions.assertEquals(Set.of("MyDoor"), movableFinder.getMovableIdentifiers(true).get());
+        Assertions.assertEquals(Set.of("MyDoor"),
+                                movableFinder.getMovableIdentifiersIfAvailable(true).get());
+        Assertions.assertEquals(Set.of("MyDoor"), movableFinder.getMovableIdentifiers(true).get(10, TimeUnit.SECONDS));
 
         Mockito.verify(databaseManager, Mockito.times(1))
                .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any());
