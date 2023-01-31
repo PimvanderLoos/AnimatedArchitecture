@@ -4,6 +4,7 @@ import com.google.errorprone.annotations.CheckReturnValue;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
@@ -74,12 +75,14 @@ public final class MethodFinder
      */
     public abstract static class MethodFinderBase
         extends ReflectionFinder.ReflectionFinderWithParameters<Method, MethodFinderBase>
-        implements IAccessibleSetter<MethodFinderBase>
+        implements IAccessibleSetter<MethodFinderBase>, IAnnotationFinder<MethodFinderBase>
     {
         protected final Class<?> source;
         protected boolean checkSuperClasses = false;
         protected boolean checkInterfaces = false;
         protected boolean setAccessible = false;
+        @SuppressWarnings("unchecked")
+        protected Class<? extends Annotation>[] annotations = new Class[0];
 
         private MethodFinderBase(Class<?> source)
         {
@@ -93,6 +96,16 @@ public final class MethodFinder
             source = other.source;
             checkSuperClasses = other.checkSuperClasses;
             checkInterfaces = other.checkInterfaces;
+            setAccessible = other.setAccessible;
+            annotations = other.annotations;
+        }
+
+        @Override
+        @SafeVarargs
+        public final MethodFinderBase withAnnotations(Class<? extends Annotation>... annotations)
+        {
+            this.annotations = annotations;
+            return this;
         }
 
         @Override

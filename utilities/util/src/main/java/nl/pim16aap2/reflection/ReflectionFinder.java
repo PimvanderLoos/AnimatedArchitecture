@@ -52,9 +52,6 @@ public abstract class ReflectionFinder<T, U extends ReflectionFinder<T, U>>
      *
      * @return The target reflection object(s) being searched for or null if no object(s) could be found.
      */
-    // Suppress nullable problems, because we do _NOT_ want to annotate all
-    // overriding methods with @NotNull, thank you very much, IntelliJ...
-    @SuppressWarnings("NullableProblems")
     @CheckReturnValue @Contract(pure = true)
     public abstract @Nullable T getNullable();
 
