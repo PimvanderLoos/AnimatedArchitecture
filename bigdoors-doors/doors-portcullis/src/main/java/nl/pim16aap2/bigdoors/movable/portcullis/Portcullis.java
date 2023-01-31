@@ -17,7 +17,6 @@ import nl.pim16aap2.bigdoors.util.Rectangle;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
 import javax.annotation.concurrent.GuardedBy;
-import javax.inject.Named;
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -42,7 +41,7 @@ public class Portcullis extends AbstractMovable implements IDiscreteMovement
     protected int blocksToMove;
 
     @DeserializationConstructor
-    public Portcullis(AbstractMovable.MovableBaseHolder base, @Named("blocksToMove") int blocksToMove)
+    public Portcullis(AbstractMovable.MovableBaseHolder base, @PersistentVariable("blocksToMove") int blocksToMove)
     {
         super(base);
         this.lock = getLock();

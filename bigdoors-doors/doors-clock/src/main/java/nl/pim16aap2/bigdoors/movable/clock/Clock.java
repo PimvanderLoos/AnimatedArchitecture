@@ -46,7 +46,7 @@ public class Clock extends AbstractMovable implements IHorizontalAxisAligned
      * @return True if this clock is situated along the north/south axis.
      */
     @Getter
-    @PersistentVariable
+    @PersistentVariable("northSouthAligned")
     protected final boolean northSouthAligned;
 
     /**
@@ -59,12 +59,14 @@ public class Clock extends AbstractMovable implements IHorizontalAxisAligned
      *
      * @return The side of the hour arm relative to the minute arm.
      */
-    @PersistentVariable
+    @PersistentVariable("hourArmSide")
     @Getter
     protected final PBlockFace hourArmSide;
 
     @DeserializationConstructor
-    public Clock(AbstractMovable.MovableBaseHolder base, boolean northSouthAligned, PBlockFace hourArmSide)
+    public Clock(
+        AbstractMovable.MovableBaseHolder base, @PersistentVariable("northSouthAligned") boolean northSouthAligned,
+        @PersistentVariable("hourArmSide") PBlockFace hourArmSide)
     {
         super(base);
         this.lock = getLock();

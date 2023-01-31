@@ -37,13 +37,13 @@ public class SlidingDoor extends AbstractMovable implements IDiscreteMovement
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
 
-    @PersistentVariable
+    @PersistentVariable("blocksToMove")
     @GuardedBy("lock")
     @Getter(onMethod_ = @Locked.Read)
     protected int blocksToMove;
 
     @DeserializationConstructor
-    public SlidingDoor(AbstractMovable.MovableBaseHolder base, int blocksToMove)
+    public SlidingDoor(AbstractMovable.MovableBaseHolder base, @PersistentVariable("blocksToMove") int blocksToMove)
     {
         super(base);
         this.lock = getLock();

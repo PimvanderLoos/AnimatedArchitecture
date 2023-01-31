@@ -44,14 +44,14 @@ public class Drawbridge extends AbstractMovable implements IHorizontalAxisAligne
      *
      * @return True if this {@link Drawbridge}'s vertical stance points up.
      */
-    @PersistentVariable
+    @PersistentVariable("modeUp")
     @GuardedBy("lock")
     @Getter(onMethod_ = @Locked.Read)
     @Setter(onMethod_ = @Locked.Write)
     protected boolean modeUp;
 
     @DeserializationConstructor
-    public Drawbridge(AbstractMovable.MovableBaseHolder base, boolean modeUp)
+    public Drawbridge(AbstractMovable.MovableBaseHolder base, @PersistentVariable("modeUp") boolean modeUp)
     {
         super(base);
         this.lock = getLock();

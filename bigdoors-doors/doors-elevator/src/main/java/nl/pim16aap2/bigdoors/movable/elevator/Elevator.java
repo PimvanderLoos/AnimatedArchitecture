@@ -5,9 +5,8 @@ import lombok.ToString;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.portcullis.Portcullis;
 import nl.pim16aap2.bigdoors.movable.serialization.DeserializationConstructor;
+import nl.pim16aap2.bigdoors.movable.serialization.PersistentVariable;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
-
-import javax.inject.Named;
 
 /**
  * Represents an Elevator movable type.
@@ -22,7 +21,7 @@ public class Elevator extends Portcullis
     private static final MovableType MOVABLE_TYPE = MovableTypeElevator.get();
 
     @DeserializationConstructor
-    public Elevator(AbstractMovable.MovableBaseHolder base, @Named("blocksToMove") int blocksToMove)
+    public Elevator(AbstractMovable.MovableBaseHolder base, @PersistentVariable("blocksToMove") int blocksToMove)
     {
         super(base, blocksToMove);
     }

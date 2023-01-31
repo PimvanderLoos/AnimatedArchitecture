@@ -9,7 +9,6 @@ import nl.pim16aap2.util.SafeStringBuilder;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
 
-import javax.inject.Named;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
@@ -20,13 +19,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -40,22 +37,24 @@ import java.util.Set;
 public final class MovableSerializer<T extends AbstractMovable>
 {
     /**
+     * The target class.
+     */
+    private final Class<T> movableClass;
+    /**
      * The list of serializable fields in the target class {@link #movableClass} that are annotated with
      * {@link PersistentVariable}.
      */
     private final List<AnnotatedField> fields;
 
-    private final List<ConstructorParameter> parameters;
-
-    /**
-     * The target class.
-     */
-    private final Class<T> movableClass;
-
     /**
      * The constructor in the {@link #movableClass} that takes exactly 1 argument of the type {@link MovableBase}.
      */
     private final Constructor<T> ctor;
+
+    /**
+     * The parameters of the {@link #ctor}.
+     */
+    private final List<ConstructorParameter> parameters;
 
     public MovableSerializer(Class<T> movableClass)
     {
@@ -64,9 +63,9 @@ public final class MovableSerializer<T extends AbstractMovable>
         if (Modifier.isAbstract(movableClass.getModifiers()))
             throw new IllegalArgumentException("THe MovableSerializer only works for concrete classes!");
 
+        fields = findAnnotatedFields(movableClass);
         ctor = getConstructor(movableClass);
         parameters = getConstructorParameters(ctor);
-        fields = findAnnotatedFields(movableClass);
     }
 
     private static <T> Constructor<T> getConstructor(Class<T> movableClass)
@@ -83,23 +82,23 @@ public final class MovableSerializer<T extends AbstractMovable>
     {
         final List<ConstructorParameter> ret = new ArrayList<>(ctor.getParameterCount());
         boolean foundBase = false;
-
         final Set<Class<?>> unnamedParameters = new HashSet<>();
+
         for (final Parameter parameter : ctor.getParameters())
         {
-            if (parameter.getType() == AbstractMovable.MovableBaseHolder.class)
+            if (parameter.getType() == AbstractMovable.MovableBaseHolder.class && !foundBase)
+            {
                 foundBase = true;
+                ret.add(new ConstructorParameter("", AbstractMovable.MovableBaseHolder.class));
+                continue;
+            }
 
-            final @Nullable Named annotation = parameter.getAnnotation(Named.class);
-            @SuppressWarnings("ConstantValue") // Yes, the annotation can actually be null...
-            final @Nullable String name =
-                annotation == null || annotation.value().isBlank() ? null : annotation.value();
-
-            if (name == null && !unnamedParameters.add(parameter.getType()))
+            final ConstructorParameter constructorParameter = ConstructorParameter.of(parameter);
+            if (constructorParameter.isUnnamed() && !unnamedParameters.add(parameter.getType()))
                 throw new IllegalArgumentException(
                     "Found ambiguous parameter " + parameter + " in constructor: " + ctor);
 
-            ret.add(new ConstructorParameter(name, parameter.getType()));
+            ret.add(constructorParameter);
         }
 
         if (!foundBase)
@@ -112,38 +111,14 @@ public final class MovableSerializer<T extends AbstractMovable>
     private static List<AnnotatedField> findAnnotatedFields(Class<? extends AbstractMovable> movableClass)
         throws UnsupportedOperationException
     {
-        final List<Field> fieldList = new ArrayList<>();
-        Class<?> clazz = movableClass;
-        while (!clazz.equals(AbstractMovable.class))
-        {
-            try
-            {
-                fieldList.addAll(0, Arrays.asList(clazz.getDeclaredFields()));
-            }
-            catch (Throwable t)
-            {
-                log.atSevere().withCause(t).log("Failed to load class '%s'", clazz.getName());
-            }
-            clazz = clazz.getSuperclass();
-        }
-
-        final List<AnnotatedField> ret = new ArrayList<>();
-        for (final Field field : fieldList)
-        {
-            final @Nullable PersistentVariable annotation = field.getAnnotation(PersistentVariable.class);
-            //noinspection ConstantValue
-            if (annotation == null)
-                continue;
-
-            field.setAccessible(true);
-            if (!field.getType().isPrimitive() && !Serializable.class.isAssignableFrom(field.getType()))
-                throw new UnsupportedOperationException(
-                    String.format("Type %s of field %s for movable type %s is not serializable!",
-                                  field.getType().getName(), field.getName(), movableClass.getName()));
-
-            ret.add(AnnotatedField.of(field, Objects.requireNonNull(annotation.value())));
-        }
-        return ret;
+        return ReflectionBuilder
+            .findField().inClass(movableClass)
+            .withAnnotations(PersistentVariable.class)
+            .checkSuperClasses()
+            .setAccessible()
+            .get().stream()
+            .map(AnnotatedField::of)
+            .toList();
     }
 
     /**
@@ -249,8 +224,7 @@ public final class MovableSerializer<T extends AbstractMovable>
         }
     }
 
-    private Object[] deserializeParameters(
-        AbstractMovable.MovableBaseHolder movableBase, Map<String, Object> values)
+    private Object[] deserializeParameters(AbstractMovable.MovableBaseHolder movableBase, Map<String, Object> values)
     {
         final Map<Class<?>, Object> classes = new HashMap<>(values.size());
         for (final var entry : values.entrySet())
@@ -330,13 +304,22 @@ public final class MovableSerializer<T extends AbstractMovable>
 
     private record AnnotatedField(Field field, @Nullable String annotatedName, String fieldName, String finalName)
     {
-        public static AnnotatedField of(Field field, @Nullable String annotatedName)
+        public static AnnotatedField of(Field field)
         {
-            final String annotatedName0 = Objects.requireNonNullElse(annotatedName, "");
+            verifyFieldType(field);
+            final String annotatedName = field.getAnnotation(PersistentVariable.class).value();
             final String fieldName = field.getName();
-            final String finalName = annotatedName0.isBlank() ? fieldName : annotatedName0;
-            final @Nullable String finalAnnotatedName = annotatedName0.isBlank() ? null : annotatedName0;
+            final String finalName = annotatedName.isBlank() ? fieldName : annotatedName;
+            final @Nullable String finalAnnotatedName = annotatedName.isBlank() ? null : annotatedName;
             return new AnnotatedField(field, finalAnnotatedName, fieldName, finalName);
+        }
+
+        private static void verifyFieldType(Field field)
+        {
+            if (!field.getType().isPrimitive() && !Serializable.class.isAssignableFrom(field.getType()))
+                throw new UnsupportedOperationException(
+                    String.format("Type %s of field %s is not serializable!",
+                                  field.getType().getName(), field.getName()));
         }
 
         public String typeName()
@@ -351,6 +334,30 @@ public final class MovableSerializer<T extends AbstractMovable>
         {
             this.name = name;
             this.type = remapPrimitives(type);
+        }
+
+        public static ConstructorParameter of(Parameter parameter)
+        {
+            return new ConstructorParameter(getName(parameter), parameter.getType());
+        }
+
+        private static @Nullable String getName(Parameter parameter)
+        {
+            final @Nullable var annotation = parameter.getAnnotation(PersistentVariable.class);
+            //noinspection ConstantValue
+            if (annotation == null)
+                return null;
+            return annotation.value().isBlank() ? null : annotation.value();
+        }
+
+        boolean isUnnamed()
+        {
+            return name == null;
+        }
+
+        boolean hasName()
+        {
+            return name != null;
         }
 
         private static Class<?> remapPrimitives(Class<?> clz)
@@ -374,11 +381,6 @@ public final class MovableSerializer<T extends AbstractMovable>
             if (clz == double.class)
                 return Double.class;
             throw new IllegalStateException("Processing unexpected class type: " + clz);
-        }
-
-        boolean hasName()
-        {
-            return name != null;
         }
     }
 }

@@ -51,11 +51,12 @@ public class GarageDoor extends AbstractMovable implements IHorizontalAxisAligne
      * @return True if this movable is animated along the North/South axis.
      */
     @Getter
-    @PersistentVariable
+    @PersistentVariable("northSouthAligned")
     protected final boolean northSouthAligned;
 
     @DeserializationConstructor
-    public GarageDoor(AbstractMovable.MovableBaseHolder base, boolean northSouthAligned)
+    public GarageDoor(
+        AbstractMovable.MovableBaseHolder base, @PersistentVariable("northSouthAligned") boolean northSouthAligned)
     {
         super(base);
         this.lock = getLock();

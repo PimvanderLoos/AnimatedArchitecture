@@ -20,7 +20,6 @@ import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.Rectangle;
 
 import javax.annotation.concurrent.GuardedBy;
-import javax.inject.Named;
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -51,7 +50,7 @@ public class Windmill extends AbstractMovable implements IHorizontalAxisAligned,
     private int quarterCircles;
 
     @DeserializationConstructor
-    public Windmill(AbstractMovable.MovableBaseHolder base, @Named("quarterCircles") int quarterCircles)
+    public Windmill(AbstractMovable.MovableBaseHolder base, @PersistentVariable("quarterCircles") int quarterCircles)
     {
         super(base);
         this.lock = getLock();

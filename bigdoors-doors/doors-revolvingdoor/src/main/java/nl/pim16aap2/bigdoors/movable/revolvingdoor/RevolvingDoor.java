@@ -43,14 +43,15 @@ public class RevolvingDoor extends AbstractMovable
      *
      * @return The number of quarter circles this movable will rotate.
      */
-    @PersistentVariable
+    @PersistentVariable("quarterCircles")
     @GuardedBy("lock")
     @Getter(onMethod_ = @Locked.Read)
     @Setter(onMethod_ = @Locked.Write)
     private int quarterCircles;
 
     @DeserializationConstructor
-    public RevolvingDoor(AbstractMovable.MovableBaseHolder base, int quarterCircles)
+    public RevolvingDoor(
+        AbstractMovable.MovableBaseHolder base, @PersistentVariable("quarterCircles") int quarterCircles)
     {
         super(base);
         this.lock = getLock();

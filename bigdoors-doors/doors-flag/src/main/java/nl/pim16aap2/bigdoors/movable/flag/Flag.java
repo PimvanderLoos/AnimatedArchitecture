@@ -45,11 +45,12 @@ public class Flag extends AbstractMovable implements IHorizontalAxisAligned, IPe
      * @return True if this movable is animated along the North/South axis.
      */
     @Getter
-    @PersistentVariable
+    @PersistentVariable("northSouthAligned")
     protected final boolean northSouthAligned;
 
     @DeserializationConstructor
-    public Flag(AbstractMovable.MovableBaseHolder base, boolean northSouthAligned)
+    public Flag(
+        AbstractMovable.MovableBaseHolder base, @PersistentVariable("northSouthAligned") boolean northSouthAligned)
     {
         super(base);
         this.lock = getLock();

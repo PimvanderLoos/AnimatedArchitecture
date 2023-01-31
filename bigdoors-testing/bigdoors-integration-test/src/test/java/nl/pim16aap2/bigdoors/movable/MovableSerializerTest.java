@@ -20,7 +20,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import javax.inject.Named;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -123,11 +122,11 @@ class MovableSerializerTest
         private final ReentrantReadWriteLock lock;
 
         @Getter
-        @PersistentVariable("testName")
+        @PersistentVariable
         protected String testName;
 
         @Getter
-        @PersistentVariable("isCoolType")
+        @PersistentVariable
         protected boolean isCoolType;
 
         @Getter
@@ -145,9 +144,9 @@ class MovableSerializerTest
         @DeserializationConstructor
         public TestMovableType(
             AbstractMovable.MovableBaseHolder base,
-            @Named("testName") String testName,
-            @Named("isCoolType") boolean isCoolType,
-            @Named("blockTestCount") int blockTestCount)
+            String testName,
+            boolean isCoolType,
+            int blockTestCount)
         {
             this(base);
             this.testName = testName;
@@ -219,9 +218,9 @@ class MovableSerializerTest
         public TestMovableSubType(
             AbstractMovable.MovableBaseHolder base,
             String testName,
-            @Named("subclassTestValue") int subclassTestValue,
+            @PersistentVariable("subclassTestValue") int subclassTestValue,
             boolean isCoolType,
-            @Named("blockTestCount") int blockTestCount)
+            @PersistentVariable("blockTestCount") int blockTestCount)
         {
             super(base, testName, isCoolType, blockTestCount);
             this.lock = super.getLock();
