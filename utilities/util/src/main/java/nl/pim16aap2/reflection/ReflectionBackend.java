@@ -123,9 +123,24 @@ final class ReflectionBackend
         return null;
     }
 
+    private static List<Field> getFields(Class<?> clz, boolean checkSuperClasses)
+    {
+        final List<Field> ret = new ArrayList<>(List.of(clz.getDeclaredFields()));
+        if (!checkSuperClasses)
+            return ret;
+
+        @Nullable Class<?> check = clz.getSuperclass();
+        while (check != null)
+        {
+            ret.addAll(List.of(check.getDeclaredFields()));
+            check = check.getSuperclass();
+        }
+        return ret;
+    }
+
     /**
      * Attempts to find a field in a class based on the input configuration. If all fields matching the specification
-     * are desired, use {@link #getFields(Class, int, Class, boolean, Class[])} instead.
+     * are desired, use {@link #getFields(Class, int, Class, boolean, boolean, Class[])} instead.
      *
      * @param source
      *     The class in which to look for the field.
@@ -145,9 +160,9 @@ final class ReflectionBackend
     @SafeVarargs
     public static @Nullable Field getField(
         Class<?> source, String name, int modifiers, @Nullable Class<?> type, boolean setAccessible,
-        Class<? extends Annotation>... annotations)
+        boolean checkSuperClasses, Class<? extends Annotation>... annotations)
     {
-        for (final Field field : source.getDeclaredFields())
+        for (final Field field : getFields(source, checkSuperClasses))
         {
             if (type != null && !field.getType().equals(type))
                 continue;
@@ -164,8 +179,8 @@ final class ReflectionBackend
 
     /**
      * Attempts to find a field in a class. Only the first field that matches the desired specification is returned. If
-     * all fields matching the specification are desired, use {@link #getFields(Class, int, Class, boolean, Class[])}
-     * instead.
+     * all fields matching the specification are desired, use
+     * {@link #getFields(Class, int, Class, boolean, boolean, Class[])} instead.
      *
      * @param source
      *     The class in which to look for the field.
@@ -182,10 +197,10 @@ final class ReflectionBackend
      */
     @SafeVarargs
     public static @Nullable Field getField(
-        Class<?> source, int modifiers, Class<?> type, boolean setAccessible,
+        Class<?> source, int modifiers, Class<?> type, boolean setAccessible, boolean checkSuperClasses,
         Class<? extends Annotation>... annotations)
     {
-        for (final Field field : source.getDeclaredFields())
+        for (final Field field : getFields(source, checkSuperClasses))
         {
             if (modifiers != 0 && field.getModifiers() != modifiers)
                 continue;
@@ -216,15 +231,15 @@ final class ReflectionBackend
      */
     @SafeVarargs
     public static List<Field> getFields(
-        Class<?> source, int modifiers, @Nullable Class<?> type, boolean setAccessible,
+        Class<?> source, int modifiers, @Nullable Class<?> type, boolean setAccessible, boolean checkSuperClasses,
         Class<? extends Annotation>... annotations)
     {
         final List<Field> ret = new ArrayList<>();
-        for (final Field field : source.getDeclaredFields())
+        for (final Field field : getFields(source, checkSuperClasses))
         {
             if (modifiers != 0 && field.getModifiers() != modifiers)
                 continue;
-            if (!field.getType().equals(type))
+            if (type != null && !field.getType().equals(type))
                 continue;
             if (!containsAnnotations(field, annotations))
                 continue;

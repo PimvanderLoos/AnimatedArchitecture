@@ -109,6 +109,7 @@ public class FieldFinder
         implements IAccessibleSetter<U>, IAnnotationFinder<U>
     {
         protected boolean setAccessible = false;
+        protected boolean checkSuperClasses = false;
         @SuppressWarnings("unchecked")
         protected Class<? extends Annotation>[] annotations = new Class[0];
 
@@ -125,6 +126,19 @@ public class FieldFinder
         public final U withAnnotations(Class<? extends Annotation>... annotations)
         {
             this.annotations = annotations;
+            //noinspection unchecked
+            return (U) this;
+        }
+
+        /**
+         * Used to configure the field finder to include the source class's superclasses when searching for the target
+         * field.
+         *
+         * @return The current field finder instance.
+         */
+        public U checkSuperClasses()
+        {
+            this.checkSuperClasses = true;
             //noinspection unchecked
             return (U) this;
         }
@@ -152,17 +166,19 @@ public class FieldFinder
             //noinspection ConstantConditions
             return Objects.requireNonNull(
                 getNullable(),
-                String.format("Failed to find field %s[%s %s %s.%s].",
+                String.format("Failed to find field %s[%s %s %s.%s]. Super classes were %s.",
                               ReflectionBackend.formatAnnotations(annotations),
                               optionalModifiersToString(modifiers),
                               ReflectionBackend.formatOptionalValue(fieldType, Class::getName),
-                              source.getName(), name));
+                              source.getName(), name,
+                              checkSuperClasses ? "included" : "excluded"));
         }
 
         @Override
         public @Nullable Field getNullable()
         {
-            return ReflectionBackend.getField(source, name, modifiers, fieldType, setAccessible, annotations);
+            return ReflectionBackend.getField(
+                source, name, modifiers, fieldType, setAccessible, checkSuperClasses, annotations);
         }
 
         /**
@@ -202,17 +218,19 @@ public class FieldFinder
             //noinspection ConstantConditions
             return Objects.requireNonNull(
                 getNullable(),
-                String.format("Failed to find field: %s[%s %s %s.[*]].",
+                String.format("Failed to find field: %s[%s %s %s.[*]]. Super classes were %s.",
                               ReflectionBackend.formatAnnotations(annotations),
                               optionalModifiersToString(modifiers),
                               fieldType.getName(),
-                              source.getName()));
+                              source.getName(),
+                              checkSuperClasses ? "included" : "excluded"));
         }
 
         @Override
         public @Nullable Field getNullable()
         {
-            return ReflectionBackend.getField(source, modifiers, fieldType, setAccessible, annotations);
+            return ReflectionBackend.getField(
+                source, modifiers, fieldType, setAccessible, checkSuperClasses, annotations);
         }
     }
 
@@ -270,36 +288,41 @@ public class FieldFinder
         private List<Field> getResult(boolean nonnull)
         {
             final List<Field> found =
-                ReflectionBackend.getFields(source, modifiers, fieldType, setAccessible, annotations);
+                ReflectionBackend.getFields(
+                    source, modifiers, fieldType, setAccessible, checkSuperClasses, annotations);
 
             if (expected >= 0 && expected != found.size())
                 return handleInvalid(nonnull, "Expected %d fields of type %s in class %s " +
-                                         "with modifiers %d annotated with %s, but found %d",
-                                     expected, fieldType, source, modifiers, annotations, found.size());
+                                         "with modifiers %d annotated with %s, but found %d.  Super classes were %s.",
+                                     expected, fieldType, source, modifiers, annotations, found.size(),
+                                     checkSuperClasses ? "included" : "excluded");
 
             if (atMost >= 0 && found.size() > atMost)
                 return handleInvalid(nonnull, "Expected at most %d fields of type %s in class %s " +
-                                         "with modifiers %d annotated with %s, but found %d",
-                                     atMost, fieldType, source, modifiers, annotations, found.size());
+                                         "with modifiers %d annotated with %s, but found %d.  Super classes were %s.",
+                                     atMost, fieldType, source, modifiers, annotations, found.size(),
+                                     checkSuperClasses ? "included" : "excluded");
 
             if (atLeast >= 0 && found.size() < atLeast)
                 return handleInvalid(nonnull, "Expected at least %d fields of type %s in class %s " +
-                                         "with modifiers %d annotated with %s, but found %d",
-                                     atLeast, fieldType, source, modifiers, annotations, found.size());
+                                         "with modifiers %d annotated with %s, but found %d.  Super classes were %s.",
+                                     atLeast, fieldType, source, modifiers, annotations, found.size(),
+                                     checkSuperClasses ? "included" : "excluded");
             return found;
         }
 
         // Suppress AvoidThrowingNullPointerException because we want to throw an NPE manually
         // when nothing is found to keep in line with the rest of the API.
         @SuppressWarnings("PMD.AvoidThrowingNullPointerException")
-        @Contract(value = "true, _, _, _, _, _, _, _ -> fail", pure = true)
+        @Contract(value = "true, _, _, _, _, _, _, _, _ -> fail", pure = true)
         private static List<Field> handleInvalid(
             boolean nonnull, String str, int val, @Nullable Class<?> fieldType, Class<?> source, int modifiers,
-            Class<? extends Annotation>[] annotations, int foundSize)
+            Class<? extends Annotation>[] annotations, int foundSize, String checkSuperClasses)
         {
             if (nonnull)
                 throw new NullPointerException(
-                    String.format(str, val, fieldType, modifiers, Arrays.toString(annotations), fieldType));
+                    String.format(str, val, fieldType, modifiers, Arrays.toString(annotations), fieldType,
+                                  checkSuperClasses));
             return Collections.emptyList();
         }
 
