@@ -6,10 +6,10 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.annotations.InheritedLockField;
-import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
+import nl.pim16aap2.bigdoors.movable.serialization.DeserializationConstructor;
+import nl.pim16aap2.bigdoors.movable.serialization.PersistentVariable;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
@@ -36,7 +36,7 @@ public class GarageDoor extends AbstractMovable implements IHorizontalAxisAligne
     private static final MovableType MOVABLE_TYPE = MovableGarageDoor.get();
 
     @EqualsAndHashCode.Exclude
-    @InheritedLockField
+    @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
 
     /**
@@ -51,20 +51,16 @@ public class GarageDoor extends AbstractMovable implements IHorizontalAxisAligne
      * @return True if this movable is animated along the North/South axis.
      */
     @Getter
-    @PersistentVariable
+    @PersistentVariable("northSouthAligned")
     protected final boolean northSouthAligned;
 
-    public GarageDoor(AbstractMovable.MovableBaseHolder base, boolean northSouthAligned)
+    @DeserializationConstructor
+    public GarageDoor(
+        AbstractMovable.MovableBaseHolder base, @PersistentVariable("northSouthAligned") boolean northSouthAligned)
     {
         super(base);
         this.lock = getLock();
         this.northSouthAligned = northSouthAligned;
-    }
-
-    @SuppressWarnings("unused")
-    private GarageDoor(AbstractMovable.MovableBaseHolder base)
-    {
-        this(base, false); // Add tmp/default values
     }
 
     @Override

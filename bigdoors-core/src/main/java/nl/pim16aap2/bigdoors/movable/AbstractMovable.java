@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.movable;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
@@ -672,7 +671,7 @@ public abstract class AbstractMovable implements IMovable
     }
 
     @AllArgsConstructor(access = AccessLevel.PACKAGE)
-    @ToString @EqualsAndHashCode
+    @EqualsAndHashCode
     public static final class MovableBaseHolder
     {
         private final MovableBase base;
@@ -680,6 +679,12 @@ public abstract class AbstractMovable implements IMovable
         MovableBase get()
         {
             return base;
+        }
+
+        @Override
+        public String toString()
+        {
+            return "Holder for movable base: " + base.getUid();
         }
     }
 }

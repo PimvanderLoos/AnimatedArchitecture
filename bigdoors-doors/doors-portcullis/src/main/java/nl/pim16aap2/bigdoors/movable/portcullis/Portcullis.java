@@ -4,10 +4,10 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.Locked;
-import nl.pim16aap2.bigdoors.annotations.InheritedLockField;
-import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IDiscreteMovement;
+import nl.pim16aap2.bigdoors.movable.serialization.DeserializationConstructor;
+import nl.pim16aap2.bigdoors.movable.serialization.PersistentVariable;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
@@ -32,25 +32,20 @@ public class Portcullis extends AbstractMovable implements IDiscreteMovement
     private static final MovableType MOVABLE_TYPE = MovableTypePortcullis.get();
 
     @EqualsAndHashCode.Exclude
-    @InheritedLockField
+    @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
 
-    @PersistentVariable
+    @PersistentVariable("blocksToMove")
     @GuardedBy("lock")
     @Getter(onMethod_ = @Locked.Read)
     protected int blocksToMove;
 
-    public Portcullis(AbstractMovable.MovableBaseHolder base, int blocksToMove)
+    @DeserializationConstructor
+    public Portcullis(AbstractMovable.MovableBaseHolder base, @PersistentVariable("blocksToMove") int blocksToMove)
     {
         super(base);
         this.lock = getLock();
         this.blocksToMove = blocksToMove;
-    }
-
-    @SuppressWarnings("unused")
-    private Portcullis(AbstractMovable.MovableBaseHolder base)
-    {
-        this(base, -1); // Add tmp/default values
     }
 
     @Override

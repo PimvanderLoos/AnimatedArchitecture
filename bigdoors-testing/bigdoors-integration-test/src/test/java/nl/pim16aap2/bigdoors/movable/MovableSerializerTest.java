@@ -2,9 +2,9 @@ package nl.pim16aap2.bigdoors.movable;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import nl.pim16aap2.bigdoors.annotations.InheritedLockField;
-import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
+import nl.pim16aap2.bigdoors.movable.serialization.DeserializationConstructor;
+import nl.pim16aap2.bigdoors.movable.serialization.PersistentVariable;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
@@ -21,8 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -64,28 +63,17 @@ class MovableSerializerTest
         final TestMovableType base = new TestMovableType(movableBase, "test", true, 42);
 
         TestMovableType test = Assertions.assertDoesNotThrow(
-            () -> instantiator.instantiate(movableBase, new ArrayList<>(Arrays.asList("test", true, 42))));
-        Assertions.assertEquals(base, test);
-
-        test = Assertions.assertDoesNotThrow(
-            () -> instantiator.instantiate(movableBase, new ArrayList<>(Arrays.asList("alternativeName", true, 42))));
-        Assertions.assertEquals("alternativeName", test.getTestName());
-    }
-
-    @Test
-    void instantiateUnsafe()
-    {
-        final var instantiator = Assertions.assertDoesNotThrow(
-            () -> new MovableSerializer<>(TestMovableSubType.class));
-        final TestMovableSubType base = new TestMovableSubType(movableBase, "test", true, 42, 1);
-
-        TestMovableType test = Assertions.assertDoesNotThrow(
-            () -> instantiator.instantiate(movableBase, new ArrayList<>(Arrays.asList("test", true, 42, 1))));
+            () -> instantiator.instantiate(movableBase,
+                                           Map.of("testName", "test",
+                                                  "isCoolType", true,
+                                                  "blockTestCount", 42)));
         Assertions.assertEquals(base, test);
 
         test = Assertions.assertDoesNotThrow(
             () -> instantiator.instantiate(movableBase,
-                                           new ArrayList<>(Arrays.asList("alternativeName", true, 42, 1))));
+                                           Map.of("testName", "alternativeName",
+                                                  "isCoolType", true,
+                                                  "blockTestCount", 42)));
         Assertions.assertEquals("alternativeName", test.getTestName());
     }
 
@@ -106,7 +94,7 @@ class MovableSerializerTest
     {
         final var instantiator = Assertions.assertDoesNotThrow(
             () -> new MovableSerializer<>(TestMovableSubType.class));
-        final TestMovableSubType testMovableSubType1 = new TestMovableSubType(movableBase, "test", true, 42, 6);
+        final TestMovableSubType testMovableSubType1 = new TestMovableSubType(movableBase, "testSubClass", 6, true, 42);
 
         final byte[] serialized = Assertions.assertDoesNotThrow(() -> instantiator.serialize(testMovableSubType1));
         final var testMovableSubType2 = Assertions.assertDoesNotThrow(
@@ -116,19 +104,52 @@ class MovableSerializerTest
     }
 
     @Test
-    void testLocks()
+    void testAmbiguityParams()
+    {
+        Assertions.assertThrows(IllegalArgumentException.class,
+                                () -> new MovableSerializer<>(TestMovableSubTypeAmbiguousParameterTypes.class));
+        Assertions.assertThrows(IllegalArgumentException.class,
+                                () -> new MovableSerializer<>(TestMovableSubTypeAmbiguousParameterNames.class));
+    }
+
+    @Test
+    void testMissingData()
+        throws Exception
     {
         final var instantiator = Assertions.assertDoesNotThrow(
-            () -> new MovableSerializer<>(TestMovableSubType.class));
-        final TestMovableSubType testMovableSubType1 = new TestMovableSubType(movableBase, "test", true, 42, 6);
+            () -> new MovableSerializer<>(TestMovableType.class));
+        final TestMovableType testMovableType0 = new TestMovableType(movableBase, null, true, 42);
 
-        final byte[] serialized = Assertions.assertDoesNotThrow(() -> instantiator.serialize(testMovableSubType1));
-        final var testMovableSubType2 = Assertions.assertDoesNotThrow(
-            () -> instantiator.deserialize(movableBase, serialized));
+        final TestMovableType testMovableType1 =
+            instantiator.instantiate(movableBase,
+                                     Map.of("isCoolType", true,
+                                            "blockTestCount", 42));
 
-        Assertions.assertEquals(movableBase.get().getLock(), testMovableSubType2.getLockTestMovableType());
-        Assertions.assertEquals(movableBase.get().getLock(), testMovableSubType2.getLockTestMovableSubTypeAnnotated());
-        Assertions.assertNull(testMovableSubType2.getLockTestMovableSubTypeUnannotated());
+        Assertions.assertEquals(testMovableType0, testMovableType1);
+    }
+
+    @Test
+    void testInvalidMissingData()
+    {
+        final var instantiator = Assertions.assertDoesNotThrow(
+            () -> new MovableSerializer<>(TestMovableType.class));
+
+        // The mapping for 'int blockTestCount' is missing, in which case we throw an exception.
+        // Only objects can be missing.
+        Assertions.assertThrows(
+            Exception.class,
+            () -> instantiator.instantiate(movableBase,
+                                           Map.of("testName", "testName",
+                                                  "isCoolType", false)));
+    }
+
+    @Test
+    void testAmbiguousClass()
+    {
+        Assertions.assertThrows(Exception.class,
+                                () -> new MovableSerializer<>(TestMovableSubTypeAmbiguousFieldTypes.class));
+        Assertions.assertThrows(Exception.class,
+                                () -> new MovableSerializer<>(TestMovableSubTypeAmbiguousFieldNames.class));
     }
 
     // This class is a nullability nightmare, but that doesn't matter, because none of the methods are used;
@@ -139,44 +160,41 @@ class MovableSerializerTest
     @EqualsAndHashCode(callSuper = false)
     private static class TestMovableType extends AbstractMovable
     {
-        @InheritedLockField
         @EqualsAndHashCode.Exclude
+        @SuppressWarnings({"unused", "FieldCanBeLocal"})
         private final ReentrantReadWriteLock lock;
 
-        @PersistentVariable
         @Getter
-        protected String testName;
+        @PersistentVariable
+        protected @Nullable String testName;
 
-        @PersistentVariable
         @Getter
+        @PersistentVariable
         protected boolean isCoolType;
 
-        @PersistentVariable
         @Getter
+        @PersistentVariable("blockTestCount")
         private int blockTestCount;
 
         private static final MovableType MOVABLE_TYPE = Mockito.mock(MovableType.class);
 
-        @SuppressWarnings("unused")
         public TestMovableType(AbstractMovable.MovableBaseHolder movableBase)
         {
             super(movableBase);
-            this.lock = movableBase.get().getLock();
+            this.lock = super.getLock();
         }
 
+        @DeserializationConstructor
         public TestMovableType(
-            AbstractMovable.MovableBaseHolder movableBase, String testName, boolean isCoolType, int blockTestCount)
+            AbstractMovable.MovableBaseHolder base,
+            @Nullable String testName,
+            boolean isCoolType,
+            int blockTestCount)
         {
-            super(movableBase);
-            this.lock = movableBase.get().getLock();
+            this(base);
             this.testName = testName;
             this.isCoolType = isCoolType;
             this.blockTestCount = blockTestCount;
-        }
-
-        public final ReentrantReadWriteLock getLockTestMovableType()
-        {
-            return this.lock;
         }
 
         @Override
@@ -231,25 +249,24 @@ class MovableSerializerTest
     @EqualsAndHashCode(callSuper = true)
     private static class TestMovableSubType extends TestMovableType
     {
-        @InheritedLockField
         @EqualsAndHashCode.Exclude
-        private final @Nullable ReentrantReadWriteLock nonStandardLockName;
+        @SuppressWarnings({"unused", "FieldCanBeLocal"})
+        private final ReentrantReadWriteLock lock;
 
-        @EqualsAndHashCode.Exclude
-        private final @Nullable ReentrantReadWriteLock lock;
-
-        @PersistentVariable
         @Getter
+        @PersistentVariable("subclassTestValue")
         private final int subclassTestValue;
 
+        @DeserializationConstructor
         public TestMovableSubType(
-            AbstractMovable.MovableBaseHolder base, String testName, boolean isCoolType, int blockTestCount,
-            int subclassTestValue)
+            AbstractMovable.MovableBaseHolder base,
+            String testName,
+            @PersistentVariable("subclassTestValue") int subclassTestValue,
+            boolean isCoolType,
+            @PersistentVariable("blockTestCount") int blockTestCount)
         {
             super(base, testName, isCoolType, blockTestCount);
-
-            this.nonStandardLockName = null;
-            this.lock = null;
+            this.lock = super.getLock();
 
             this.testName = testName;
             this.isCoolType = isCoolType;
@@ -259,17 +276,73 @@ class MovableSerializerTest
         @SuppressWarnings("unused")
         public TestMovableSubType(AbstractMovable.MovableBaseHolder base)
         {
-            this(base, "", false, -1, -1);
+            this(base, "", -1, false, -1);
         }
+    }
 
-        public final @Nullable ReentrantReadWriteLock getLockTestMovableSubTypeAnnotated()
+    @EqualsAndHashCode(callSuper = true)
+    private static class TestMovableSubTypeAmbiguousParameterTypes extends TestMovableType
+    {
+        @PersistentVariable("ambiguousInteger1")
+        private final int ambiguousInteger1;
+
+        @DeserializationConstructor
+        public TestMovableSubTypeAmbiguousParameterTypes(
+            AbstractMovable.MovableBaseHolder base,
+            String testName,
+            int ambiguousInteger0,
+            boolean isCoolType,
+            int ambiguousInteger1)
         {
-            return this.nonStandardLockName;
+            super(base, testName, isCoolType, ambiguousInteger0);
+            this.ambiguousInteger1 = ambiguousInteger1;
+            this.testName = testName;
+            this.isCoolType = isCoolType;
         }
+    }
 
-        public final @Nullable ReentrantReadWriteLock getLockTestMovableSubTypeUnannotated()
+    @EqualsAndHashCode(callSuper = true)
+    private static class TestMovableSubTypeAmbiguousParameterNames extends TestMovableType
+    {
+        @DeserializationConstructor
+        public TestMovableSubTypeAmbiguousParameterNames(
+            AbstractMovable.MovableBaseHolder base,
+            @PersistentVariable("ambiguous") UUID o0,
+            @PersistentVariable("ambiguous") String o1)
         {
-            return this.lock;
+            super(base);
+        }
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    private static class TestMovableSubTypeAmbiguousFieldTypes extends TestMovableType
+    {
+        @PersistentVariable
+        private int ambiguousInteger0;
+
+        @PersistentVariable
+        private int ambiguousInteger1;
+
+        @DeserializationConstructor
+        public TestMovableSubTypeAmbiguousFieldTypes(AbstractMovable.MovableBaseHolder base)
+        {
+            super(base);
+        }
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    private static class TestMovableSubTypeAmbiguousFieldNames extends TestMovableType
+    {
+        @PersistentVariable("ambiguous")
+        private int field0;
+
+        @PersistentVariable("ambiguous")
+        private String field1;
+
+        @DeserializationConstructor
+        public TestMovableSubTypeAmbiguousFieldNames(AbstractMovable.MovableBaseHolder base)
+        {
+            super(base);
         }
     }
 }

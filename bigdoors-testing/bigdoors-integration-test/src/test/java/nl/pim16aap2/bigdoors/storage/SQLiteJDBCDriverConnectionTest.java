@@ -597,47 +597,52 @@ public class SQLiteJDBCDriverConnectionTest
         Vector3Di max = new Vector3Di(144, 131, 167);
         Vector3Di powerBlock = new Vector3Di(144, 75, 153);
         Vector3Di rotationPoint = new Vector3Di(144, 75, 153);
-        movable1 = new BigDoor(movableBaseBuilder.builder()
-                                                 .uid(1).name(MOVABLE_1_NAME).cuboid(min, max)
-                                                 .rotationPoint(rotationPoint)
-                                                 .powerBlock(powerBlock)
-                                                 .world(WORLD).isOpen(false).isLocked(false)
-                                                 .openDir(MovementDirection.EAST)
-                                                 .primeOwner(
-                                                     new MovableOwner(1, PermissionLevel.CREATOR, PLAYER_DATA_1))
-                                                 .build());
-
+        movable1 = new BigDoor(
+            movableBaseBuilder
+                .builder()
+                .uid(1).name(MOVABLE_1_NAME).cuboid(min, max)
+                .rotationPoint(rotationPoint)
+                .powerBlock(powerBlock)
+                .world(WORLD).isOpen(false).isLocked(false)
+                .openDir(MovementDirection.EAST)
+                .primeOwner(
+                    new MovableOwner(1, PermissionLevel.CREATOR, PLAYER_DATA_1))
+                .build());
 
         min = new Vector3Di(144, 75, 168);
         max = new Vector3Di(144, 131, 182);
         rotationPoint = new Vector3Di(144, 75, 153);
         powerBlock = new Vector3Di(144, 75, 153);
         boolean modeUp = true;
-        movable2 = new Drawbridge(movableBaseBuilder.builder()
-                                                    .uid(2).name(MOVABLES_2_3_NAME).cuboid(min, max)
-                                                    .rotationPoint(rotationPoint)
-                                                    .powerBlock(powerBlock).world(WORLD).isOpen(false)
-                                                    .isLocked(false).openDir(MovementDirection.NONE)
-                                                    .primeOwner(
-                                                        new MovableOwner(2, PermissionLevel.CREATOR, PLAYER_DATA_1))
-                                                    .build(),
-                                  modeUp);
 
+        movable2 = new Drawbridge(
+            movableBaseBuilder
+                .builder()
+                .uid(2).name(MOVABLES_2_3_NAME).cuboid(min, max)
+                .rotationPoint(rotationPoint)
+                .powerBlock(powerBlock).world(WORLD).isOpen(false)
+                .isLocked(false).openDir(MovementDirection.NONE)
+                .primeOwner(
+                    new MovableOwner(2, PermissionLevel.CREATOR, PLAYER_DATA_1))
+                .build(),
+            modeUp);
 
         min = new Vector3Di(144, 70, 168);
         max = new Vector3Di(144, 151, 112);
         rotationPoint = new Vector3Di(144, 75, 153);
         powerBlock = new Vector3Di(144, 75, 153);
         int blocksToMove = 8;
-        movable3 = new Portcullis(movableBaseBuilder.builder()
-                                                    .uid(3).name(MOVABLES_2_3_NAME).cuboid(min, max)
-                                                    .rotationPoint(rotationPoint)
-                                                    .powerBlock(powerBlock).world(WORLD).isOpen(false)
-                                                    .isLocked(false).openDir(MovementDirection.UP)
-                                                    .primeOwner(
-                                                        new MovableOwner(3, PermissionLevel.CREATOR, PLAYER_DATA_2))
-                                                    .build(),
-                                  blocksToMove);
+        movable3 = new Portcullis(
+            movableBaseBuilder
+                .builder()
+                .uid(3).name(MOVABLES_2_3_NAME).cuboid(min, max)
+                .rotationPoint(rotationPoint)
+                .powerBlock(powerBlock).world(WORLD).isOpen(false)
+                .isLocked(false).openDir(MovementDirection.UP)
+                .primeOwner(
+                    new MovableOwner(3, PermissionLevel.CREATOR, PLAYER_DATA_2))
+                .build(),
+            blocksToMove);
     }
 
     private static IPPlayer createPlayer(PPlayerData data)
