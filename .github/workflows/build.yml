@@ -32,9 +32,11 @@ jobs:
 
       - name: Build the project and run static analysis tools.
         run: mvn --batch-mode clean -P=errorprone test package checkstyle:checkstyle pmd:check
+        if: github.event_name != 'push' || github.ref != 'refs/heads/master'
 
-      - name: Build the documentation site
-        run: mvn --batch-mode site
+      - name: Build the project and the site and run static analysis tools.
+        run: mvn --batch-mode clean -P=errorprone test package checkstyle:checkstyle pmd:check site
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
 
       - name: Upload doortypes
         uses: actions/upload-artifact@v3
@@ -55,4 +57,4 @@ jobs:
           branch: gh-pages
           folder: target/site/apidocs
           target-folder: javadoc
-        if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
