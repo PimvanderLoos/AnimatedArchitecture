@@ -114,11 +114,11 @@ public final class AssertionsUtil
         {
             final Class<?> expectedType = expectedTypes[idx];
 
-            if (!expectedType.isInstance(throwable))
+            // NullAway does not realize Class#isInstance is also a null check.
+            if (throwable == null || !expectedType.isInstance(throwable))
                 throw new AssertionFailedError(
                     String.format("Expected %s to be logged at pos %d, but instead the logger got %s!",
                                   expectedType, idx, throwable));
-
             throwable = throwable.getCause();
         }
     }
