@@ -669,10 +669,10 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      * @param snapshot
      *     The {@link AbstractMovable} that describes the base data of movable.
      * @param typeData
-     *     The type-specific data of this movable.
+     *     The type-specific data of this movable represented as a json String.
      * @return The result of the operation.
      */
-    public CompletableFuture<DatabaseManager.ActionResult> syncMovableData(MovableSnapshot snapshot, byte[] typeData)
+    public CompletableFuture<DatabaseManager.ActionResult> syncMovableData(MovableSnapshot snapshot, String typeData)
     {
         return CompletableFuture
             .supplyAsync(() -> db.syncMovableData(snapshot, typeData) ? ActionResult.SUCCESS : ActionResult.FAIL,

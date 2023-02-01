@@ -383,7 +383,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                               .ownersOfMovable(ownersOfMovable)
                               .build();
 
-        final byte[] rawTypeData = movableBaseRS.getBytes("typeData");
+        final String rawTypeData = movableBaseRS.getString("typeData");
         return Optional.of(serializer.deserialize(movableRegistry, movableData, rawTypeData));
     }
 
@@ -400,34 +400,34 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         return removed;
     }
 
-    private Long insert(Connection conn, AbstractMovable movable, String movableType, byte[] typeSpecificData)
+    private Long insert(Connection conn, AbstractMovable movable, String movableType, String typeSpecificData)
     {
         final PPlayerData playerData = movable.getPrimeOwner().pPlayerData();
         insertOrIgnorePlayer(conn, playerData);
 
         final String worldName = movable.getWorld().worldName();
-        executeUpdate(conn, SQLStatement.INSERT_MOVABLE_BASE.constructPPreparedStatement()
-                                                            .setNextString(movable.getName())
-                                                            .setNextString(worldName)
-                                                            .setNextInt(movable.getMinimum().x())
-                                                            .setNextInt(movable.getMinimum().y())
-                                                            .setNextInt(movable.getMinimum().z())
-                                                            .setNextInt(movable.getMaximum().x())
-                                                            .setNextInt(movable.getMaximum().y())
-                                                            .setNextInt(movable.getMaximum().z())
-                                                            .setNextInt(movable.getRotationPoint().x())
-                                                            .setNextInt(movable.getRotationPoint().y())
-                                                            .setNextInt(movable.getRotationPoint().z())
-                                                            .setNextLong(Util.getChunkId(movable.getRotationPoint()))
-                                                            .setNextInt(movable.getPowerBlock().x())
-                                                            .setNextInt(movable.getPowerBlock().y())
-                                                            .setNextInt(movable.getPowerBlock().z())
-                                                            .setNextLong(Util.getChunkId(movable.getPowerBlock()))
-                                                            .setNextInt(
-                                                                MovementDirection.getValue(movable.getOpenDir()))
-                                                            .setNextLong(getFlag(movable))
-                                                            .setNextString(movableType)
-                                                            .setNextBytes(typeSpecificData));
+        executeUpdate(conn, SQLStatement.INSERT_MOVABLE_BASE
+            .constructPPreparedStatement()
+            .setNextString(movable.getName())
+            .setNextString(worldName)
+            .setNextInt(movable.getMinimum().x())
+            .setNextInt(movable.getMinimum().y())
+            .setNextInt(movable.getMinimum().z())
+            .setNextInt(movable.getMaximum().x())
+            .setNextInt(movable.getMaximum().y())
+            .setNextInt(movable.getMaximum().z())
+            .setNextInt(movable.getRotationPoint().x())
+            .setNextInt(movable.getRotationPoint().y())
+            .setNextInt(movable.getRotationPoint().z())
+            .setNextLong(Util.getChunkId(movable.getRotationPoint()))
+            .setNextInt(movable.getPowerBlock().x())
+            .setNextInt(movable.getPowerBlock().y())
+            .setNextInt(movable.getPowerBlock().z())
+            .setNextLong(Util.getChunkId(movable.getPowerBlock()))
+            .setNextInt(MovementDirection.getValue(movable.getOpenDir()))
+            .setNextLong(getFlag(movable))
+            .setNextString(movableType)
+            .setNextString(typeSpecificData));
 
         // TODO: Just use the fact that the last-inserted movable has the current UID (that fact is already used by
         //       getTypeSpecificDataInsertStatement(MovableType)), so it can be done in a single statement.
@@ -449,7 +449,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         final String typeName = movable.getType().getFullName();
         try
         {
-            final byte[] typeData = serializer.serialize(movable);
+            final String typeData = serializer.serialize(movable);
 
             final long movableUID = executeTransaction(conn -> insert(conn, movable, typeName, typeData), -1L);
             if (movableUID > 0)
@@ -492,7 +492,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    public boolean syncMovableData(IMovableConst movable, byte[] typeData)
+    public boolean syncMovableData(IMovableConst movable, String typeData)
     {
         return executeUpdate(SQLStatement.UPDATE_MOVABLE_BASE
                                  .constructPPreparedStatement()
@@ -519,7 +519,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
                                  .setNextInt(MovementDirection.getValue(movable.getOpenDir()))
                                  .setNextLong(getFlag(movable.isOpen(), movable.isLocked()))
-                                 .setNextBytes(typeData)
+                                 .setNextString(typeData)
 
                                  .setNextLong(movable.getUid())) > 0;
     }

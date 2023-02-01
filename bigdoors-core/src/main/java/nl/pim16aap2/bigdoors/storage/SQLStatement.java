@@ -351,7 +351,7 @@ public enum SQLStatement
         powerBlockChunkId     INTEGER    NOT NULL,
         openDirection         INTEGER    NOT NULL,
         movableType           TEXT       NOT NULL,
-        typeData              BLOB       NOT NULL,
+        typeData              TEXT       NOT NULL,
         bitflag               INTEGER    NOT NULL);
         """
     ),

@@ -497,9 +497,18 @@ public abstract class AbstractMovable implements IMovable
     {
         String ret = base + "\n"
             + "Type-specific data:\n"
-            + "type: " + getType() + "\n";
+            + "type: " + getType() + "\n"
+            + "Type data: ";
 
-        ret += serializer.toString(this);
+        try
+        {
+            ret += serializer.serialize(this);
+        }
+        catch (Exception e)
+        {
+            ret += "NULL";
+            log.atSevere().withCause(e).log("Failed to get serialized data for movable %d", getUid());
+        }
 
         return ret;
     }

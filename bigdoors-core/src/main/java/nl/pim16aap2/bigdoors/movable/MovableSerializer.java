@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.movable;
 
-import com.google.common.flogger.StackSize;
+import com.alibaba.fastjson2.JSON;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.movable.serialization.DeserializationConstructor;
 import nl.pim16aap2.bigdoors.movable.serialization.PersistentVariable;
@@ -9,10 +9,6 @@ import nl.pim16aap2.util.SafeStringBuilder;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -22,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -188,12 +183,12 @@ public final class MovableSerializer<T extends AbstractMovable>
      *
      * @param movable
      *     The movable.
-     * @return The serialized type-specific data.
+     * @return The serialized type-specific data represented as a json string.
      */
-    public byte[] serialize(AbstractMovable movable)
+    public String serialize(AbstractMovable movable)
         throws Exception
     {
-        final LinkedHashMap<String, Object> values = new LinkedHashMap<>(fields.size());
+        final HashMap<String, Object> values = new HashMap<>(fields.size());
         for (final AnnotatedField field : fields)
             try
             {
@@ -204,7 +199,14 @@ public final class MovableSerializer<T extends AbstractMovable>
                 throw new Exception(String.format("Failed to get value of field %s (type %s) for movable type %s!",
                                                   field.fieldName(), field.typeName(), getMovableTypeName()), e);
             }
-        return toByteArray(values);
+        try
+        {
+            return JSON.toJSONString(values);
+        }
+        catch (Exception e)
+        {
+            throw new Exception("Failed to serialize data to json: " + values, e);
+        }
     }
 
     /**
@@ -216,54 +218,29 @@ public final class MovableSerializer<T extends AbstractMovable>
      *     The registry to use for any potential registration.
      * @param movable
      *     The base movable data.
-     * @param data
-     *     The serialized type-specific data.
+     * @param json
+     *     The serialized type-specific data represented as a json string.
      * @return The newly created instance.
      */
-    public T deserialize(MovableRegistry registry, AbstractMovable.MovableBaseHolder movable, byte[] data)
+    public T deserialize(MovableRegistry registry, AbstractMovable.MovableBaseHolder movable, String json)
     {
         //noinspection unchecked
-        return (T) registry.computeIfAbsent(movable.get().getUid(), () -> deserialize(movable, data));
+        return (T) registry.computeIfAbsent(movable.get().getUid(), () -> deserialize(movable, json));
     }
 
     @VisibleForTesting
-    T deserialize(AbstractMovable.MovableBaseHolder movable, byte[] data)
+    T deserialize(AbstractMovable.MovableBaseHolder movable, String json)
     {
         @Nullable Map<String, Object> dataAsMap = null;
         try
         {
-            dataAsMap = fromByteArray(data);
+            //noinspection unchecked
+            dataAsMap = JSON.parseObject(json, HashMap.class);
             return instantiate(movable, dataAsMap);
         }
         catch (Exception e)
         {
             throw new RuntimeException("Failed to deserialize movable " + movable + "\nWith Data: " + dataAsMap, e);
-        }
-    }
-
-    private static byte[] toByteArray(Serializable serializable)
-        throws Exception
-    {
-        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-             ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream))
-        {
-            objectOutputStream.writeObject(serializable);
-            return byteArrayOutputStream.toByteArray();
-        }
-    }
-
-    private static Map<String, Object> fromByteArray(byte[] arr)
-        throws Exception
-    {
-        try (ObjectInputStream objectInputStream = new ObjectInputStream(new ByteArrayInputStream(arr)))
-        {
-            final Object obj = objectInputStream.readObject();
-            if (!(obj instanceof LinkedHashMap))
-                throw new IllegalStateException(
-                    "Unexpected deserialization type! Expected ArrayList, but got " + obj.getClass().getName());
-
-            //noinspection unchecked
-            return (Map<String, Object>) obj;
         }
     }
 
@@ -344,42 +321,6 @@ public final class MovableSerializer<T extends AbstractMovable>
     public String getMovableTypeName()
     {
         return movableClass.getName();
-    }
-
-    /**
-     * Prints the persistent field names and values of a movable.
-     * <p>
-     * 1 field per line.
-     *
-     * @param movable
-     *     The {@link AbstractMovable} whose {@link PersistentVariable}s to print.
-     * @return A String containing the names and values of the persistent parameters of the provided movable.
-     */
-    public String toString(AbstractMovable movable)
-    {
-        if (!movableClass.isAssignableFrom(movable.getClass()))
-        {
-            log.atSevere().withStackTrace(StackSize.FULL)
-               .log("Expected type '%s' but received type '%s'!", getMovableTypeName(), movable.getClass().getName());
-            return "";
-        }
-
-        final StringBuilder sb = new StringBuilder();
-        for (final AnnotatedField field : fields)
-        {
-            String value;
-            try
-            {
-                value = field.field.get(movable).toString();
-            }
-            catch (IllegalAccessException e)
-            {
-                log.atSevere().withCause(e).log();
-                value = "ERROR";
-            }
-            sb.append(field.field.getName()).append(": ").append(value).append('\n');
-        }
-        return sb.toString();
     }
 
     @Override
