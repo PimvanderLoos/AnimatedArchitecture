@@ -4,6 +4,7 @@ import com.alibaba.fastjson2.JSON;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.movable.serialization.DeserializationConstructor;
 import nl.pim16aap2.bigdoors.movable.serialization.PersistentVariable;
+import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.reflection.ReflectionBuilder;
 import nl.pim16aap2.util.SafeStringBuilder;
 import org.jetbrains.annotations.Nullable;
@@ -218,11 +219,13 @@ public final class MovableSerializer<T extends AbstractMovable>
      *     The registry to use for any potential registration.
      * @param movable
      *     The base movable data.
+     * @param version
+     *     The version of the type to deserialize. See {@link MovableType#getVersion()}.
      * @param json
      *     The serialized type-specific data represented as a json string.
      * @return The newly created instance.
      */
-    public T deserialize(MovableRegistry registry, AbstractMovable.MovableBaseHolder movable, String json)
+    public T deserialize(MovableRegistry registry, AbstractMovable.MovableBaseHolder movable, int version, String json)
     {
         //noinspection unchecked
         return (T) registry.computeIfAbsent(movable.get().getUid(), () -> deserialize(movable, json));

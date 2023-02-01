@@ -384,7 +384,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                               .build();
 
         final String rawTypeData = movableBaseRS.getString("typeData");
-        return Optional.of(serializer.deserialize(movableRegistry, movableData, rawTypeData));
+        final int typeVersion = movableBaseRS.getInt("typeVersion");
+        return Optional.of(serializer.deserialize(movableRegistry, movableData, typeVersion, rawTypeData));
     }
 
     @Override
@@ -470,7 +471,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                         .primeOwner(remapMovableOwner(movable.getPrimeOwner(), movableUID))
                         .ownersOfMovable(remapMovableOwners(movable.getOwners(), movableUID))
                         .build(),
-                    typeData));
+                    movable.getType().getVersion(), typeData));
             }
         }
         catch (Exception t)
