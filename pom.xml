@@ -28,7 +28,7 @@
         <dependency.version.lombok>1.18.25-SNAPSHOT</dependency.version.lombok>
         <dependency.version.lombok-plugin>1.18.20.0</dependency.version.lombok-plugin>
         <dependency.version.errorprone>2.18.0</dependency.version.errorprone>
-        <dependency.version.nullaway>0.10.8</dependency.version.nullaway>
+        <dependency.version.nullaway>0.10.9</dependency.version.nullaway>
         <dependency.version.checker-framework>3.29.0</dependency.version.checker-framework>
         <dependency.version.checkstyle>10.7.0</dependency.version.checkstyle>
         <dependency.version.pmd>3.19.0</dependency.version.pmd>
