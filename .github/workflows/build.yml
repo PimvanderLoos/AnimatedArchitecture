@@ -50,6 +50,7 @@ jobs:
 
       - name: Build the documentation site
         run: mvn --batch-mode site
+        if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
 
       - name: Upload doortypes
         uses: actions/upload-artifact@v3
