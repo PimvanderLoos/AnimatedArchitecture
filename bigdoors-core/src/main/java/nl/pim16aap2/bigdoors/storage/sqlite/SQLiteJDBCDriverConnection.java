@@ -308,7 +308,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     private Optional<AbstractMovable> constructMovable(ResultSet movableBaseRS)
         throws Exception
     {
-        final @Nullable String movableTypeResult = movableBaseRS.getString("movableType");
+        final @Nullable String movableTypeResult = movableBaseRS.getString("type");
         final Optional<MovableType> movableType = movableTypeManager.getMovableTypeFromFullName(movableTypeResult);
 
         if (!movableType.map(movableTypeManager::isRegistered).orElse(false))
@@ -400,7 +400,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         return removed;
     }
 
-    private Long insert(Connection conn, AbstractMovable movable, String movableType, String typeSpecificData)
+    private Long insert(Connection conn, AbstractMovable movable, MovableType movableType, String typeSpecificData)
     {
         final PPlayerData playerData = movable.getPrimeOwner().pPlayerData();
         insertOrIgnorePlayer(conn, playerData);
@@ -426,7 +426,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             .setNextLong(Util.getChunkId(movable.getPowerBlock()))
             .setNextInt(MovementDirection.getValue(movable.getOpenDir()))
             .setNextLong(getFlag(movable))
-            .setNextString(movableType)
+            .setNextString(movableType.getFullName())
+            .setNextInt(movableType.getVersion())
             .setNextString(typeSpecificData));
 
         // TODO: Just use the fact that the last-inserted movable has the current UID (that fact is already used by
@@ -446,12 +447,11 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     {
         final MovableSerializer<?> serializer = movable.getType().getMovableSerializer();
 
-        final String typeName = movable.getType().getFullName();
         try
         {
             final String typeData = serializer.serialize(movable);
 
-            final long movableUID = executeTransaction(conn -> insert(conn, movable, typeName, typeData), -1L);
+            final long movableUID = executeTransaction(conn -> insert(conn, movable, movable.getType(), typeData), -1L);
             if (movableUID > 0)
             {
                 return Optional.of(serializer.deserialize(
@@ -477,6 +477,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         {
             log.atSevere().withCause(t).log();
         }
+        log.atSevere().withStackTrace(StackSize.FULL).log("Failed to insert movable: %s", movable);
         return Optional.empty();
     }
 
@@ -519,6 +520,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
                                  .setNextInt(MovementDirection.getValue(movable.getOpenDir()))
                                  .setNextLong(getFlag(movable.isOpen(), movable.isLocked()))
+                                 .setNextInt(movable.getType().getVersion())
                                  .setNextString(typeData)
 
                                  .setNextLong(movable.getUid())) > 0;
@@ -589,7 +591,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      *
      * @param movableBaseRS
      *     The {@link ResultSet} containing a row from the "movableBase" table as well as a row from the
-     *     "MovableOwnerPlayer" table and "typeTableName" from the "MovableType" table.
+     *     "MovableOwnerPlayer" table.
      * @return An instance of a subclass of {@link AbstractMovable} if it could be created.
      */
     private Optional<AbstractMovable> getMovable(ResultSet movableBaseRS)
@@ -609,7 +611,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      *
      * @param movableBaseRS
      *     The {@link ResultSet} containing one or more rows from the "movableBase" table as well as matching rows from
-     *     the "MovableOwnerPlayer" table and "typeTableName" from the "MovableType" table.
+     *     the "MovableOwnerPlayer" table.
      * @return An optional with a list of {@link AbstractMovable}s if any could be constructed. If none could be
      * constructed, an empty {@link Optional} is returned instead.
      */
@@ -1225,7 +1227,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         }
         catch (Exception e)
         {
-            e.printStackTrace();
             log.atSevere().withCause(e).log("Failed to execute query: %s", pPreparedStatement);
         }
         return fallback;

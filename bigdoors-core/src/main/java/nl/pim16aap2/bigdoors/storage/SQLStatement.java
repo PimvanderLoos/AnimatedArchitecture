@@ -31,6 +31,7 @@ public enum SQLStatement
         powerBlockChunkId = ?,
         openDirection  = ?,
         bitflag        = ?,
+        typeVersion    = ?,
         typeData       = ?
         WHERE id       = ?;
         """
@@ -56,7 +57,7 @@ public enum SQLStatement
     ),
 
     DELETE_MOVABLE_TYPE(
-        "DELETE FROM Movables WHERE Movables.movableType = ?;"
+        "DELETE FROM Movables WHERE Movables.type = ?;"
     ),
 
     GET_LATEST_ROW_ADDITION(
@@ -257,8 +258,8 @@ public enum SQLStatement
         INSERT INTO Movables
         (name, world, xMin, yMin, zMin, xMax, yMax, zMax, rotationPointX, rotationPointY, rotationPointZ,
          rotationPointChunkId, powerBlockX, powerBlockY, powerBlockZ, powerBlockChunkId, openDirection,
-         bitflag, movableType, typeData)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+         bitflag, type, typeVersion, typeData)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
         """
     ),
 
@@ -350,7 +351,8 @@ public enum SQLStatement
         powerBlockZ           INTEGER    NOT NULL,
         powerBlockChunkId     INTEGER    NOT NULL,
         openDirection         INTEGER    NOT NULL,
-        movableType           TEXT       NOT NULL,
+        type                  TEXT       NOT NULL,
+        typeVersion           INTEGER    NOT NULL,
         typeData              TEXT       NOT NULL,
         bitflag               INTEGER    NOT NULL);
         """
