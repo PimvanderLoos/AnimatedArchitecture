@@ -84,7 +84,7 @@ class MovableSerializerTest
             Assertions.assertDoesNotThrow(() -> new MovableSerializer<>(TestMovableType.class));
         final TestMovableType testMovableType = new TestMovableType(movableBase, "test", true, 42);
 
-        final byte[] serialized = Assertions.assertDoesNotThrow(() -> instantiator.serialize(testMovableType));
+        final String serialized = Assertions.assertDoesNotThrow(() -> instantiator.serialize(testMovableType));
         Assertions.assertEquals(testMovableType,
                                 Assertions.assertDoesNotThrow(() -> instantiator.deserialize(movableBase, serialized)));
     }
@@ -96,7 +96,7 @@ class MovableSerializerTest
             () -> new MovableSerializer<>(TestMovableSubType.class));
         final TestMovableSubType testMovableSubType1 = new TestMovableSubType(movableBase, "testSubClass", 6, true, 42);
 
-        final byte[] serialized = Assertions.assertDoesNotThrow(() -> instantiator.serialize(testMovableSubType1));
+        final String serialized = Assertions.assertDoesNotThrow(() -> instantiator.serialize(testMovableSubType1));
         final var testMovableSubType2 = Assertions.assertDoesNotThrow(
             () -> instantiator.deserialize(movableBase, serialized));
 

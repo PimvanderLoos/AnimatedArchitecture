@@ -252,7 +252,7 @@ public interface IStorage
      *     The type-specific data of this movable.
      * @return True if the update was successful.
      */
-    boolean syncMovableData(IMovableConst movable, byte[] typeData);
+    boolean syncMovableData(IMovableConst movable, String typeData);
 
     /**
      * Retrieves all {@link DatabaseManager.MovableIdentifier}s that start with the provided input.
