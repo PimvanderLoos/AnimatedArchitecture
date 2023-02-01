@@ -5,7 +5,7 @@ import lombok.ToString;
 import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.serialization.DeserializationConstructor;
+import nl.pim16aap2.bigdoors.movable.serialization.Deserialization;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.Cuboid;
@@ -33,7 +33,7 @@ public class BigDoor extends AbstractMovable
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
 
-    @DeserializationConstructor
+    @Deserialization
     public BigDoor(AbstractMovable.MovableBaseHolder base)
     {
         super(base, MovableBigDoor.get());

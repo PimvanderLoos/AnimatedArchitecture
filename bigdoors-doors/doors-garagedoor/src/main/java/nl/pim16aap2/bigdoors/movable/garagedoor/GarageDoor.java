@@ -8,7 +8,7 @@ import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
-import nl.pim16aap2.bigdoors.movable.serialization.DeserializationConstructor;
+import nl.pim16aap2.bigdoors.movable.serialization.Deserialization;
 import nl.pim16aap2.bigdoors.movable.serialization.PersistentVariable;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
@@ -51,7 +51,7 @@ public class GarageDoor extends AbstractMovable implements IHorizontalAxisAligne
     @PersistentVariable("northSouthAligned")
     protected final boolean northSouthAligned;
 
-    @DeserializationConstructor
+    @Deserialization
     public GarageDoor(
         AbstractMovable.MovableBaseHolder base, @PersistentVariable("northSouthAligned") boolean northSouthAligned)
     {

@@ -1,8 +1,12 @@
 package nl.pim16aap2.bigdoors.movable;
 
 import com.alibaba.fastjson2.JSON;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArraySet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.movable.serialization.DeserializationConstructor;
+import nl.pim16aap2.bigdoors.movable.serialization.Deserialization;
 import nl.pim16aap2.bigdoors.movable.serialization.PersistentVariable;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.reflection.ReflectionBuilder;
@@ -21,6 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -80,21 +85,16 @@ public final class MovableSerializer<T extends AbstractMovable>
      * The target class.
      */
     private final Class<T> movableClass;
+
     /**
      * The list of serializable fields in the target class {@link #movableClass} that are annotated with
      * {@link PersistentVariable}.
      */
     private final List<AnnotatedField> fields;
 
-    /**
-     * The constructor in the {@link #movableClass} that takes exactly 1 argument of the type {@link MovableBase}.
-     */
-    private final Constructor<T> ctor;
+    private final Int2ObjectMap<DeserializationConstructor> constructors;
 
-    /**
-     * The parameters of the {@link #ctor}.
-     */
-    private final List<ConstructorParameter> parameters;
+    private final @Nullable DeserializationConstructor defaultConstructor;
 
     public MovableSerializer(Class<T> movableClass)
     {
@@ -103,19 +103,47 @@ public final class MovableSerializer<T extends AbstractMovable>
         if (Modifier.isAbstract(movableClass.getModifiers()))
             throw new IllegalArgumentException("THe MovableSerializer only works for concrete classes!");
 
-        fields = findAnnotatedFields(movableClass);
-        ctor = getConstructor(movableClass);
-        parameters = getConstructorParameters(ctor);
+        this.fields = findAnnotatedFields(movableClass);
+        this.constructors = getConstructors(movableClass);
+        this.defaultConstructor = constructors.get(-1);
     }
 
-    private static <T> Constructor<T> getConstructor(Class<T> movableClass)
+    public MovableSerializer(MovableType type)
     {
-        @SuppressWarnings("unchecked") //
-        final Constructor<T> ctor = (Constructor<T>) ReflectionBuilder
+        //noinspection unchecked
+        this((Class<T>) type.getMovableClass());
+    }
+
+    private static Int2ObjectMap<DeserializationConstructor> getConstructors(Class<?> movableClass)
+    {
+        final List<Constructor<?>> annotatedCtors = ReflectionBuilder
             .findConstructor(movableClass)
-            .withAnnotations(DeserializationConstructor.class)
-            .setAccessible().get();
-        return ctor;
+            .withAnnotations(Deserialization.class)
+            .setAccessible().getAll();
+
+        if (annotatedCtors.isEmpty())
+            throw new IllegalStateException(
+                "Could not find any deserialization constructors in class: " + movableClass);
+
+        final IntSet versions = new IntArraySet(annotatedCtors.size());
+        final var deserializationCtors = new Int2ObjectOpenHashMap<DeserializationConstructor>(annotatedCtors.size());
+
+        for (final Constructor<?> annotatedCtor : annotatedCtors)
+        {
+            final int version = Objects.requireNonNull(annotatedCtor.getAnnotation(Deserialization.class)).version();
+
+            if (!versions.add(version))
+                throw new IllegalArgumentException(
+                    "Found multiple deserialization constructors for version " + version +
+                        " in class: " + movableClass);
+
+            final DeserializationConstructor ctor = new DeserializationConstructor(
+                version, annotatedCtor, getConstructorParameters(annotatedCtor));
+
+            deserializationCtors.put(version, ctor);
+        }
+
+        return deserializationCtors;
     }
 
     private static List<ConstructorParameter> getConstructorParameters(Constructor<?> ctor)
@@ -228,18 +256,18 @@ public final class MovableSerializer<T extends AbstractMovable>
     public T deserialize(MovableRegistry registry, AbstractMovable.MovableBaseHolder movable, int version, String json)
     {
         //noinspection unchecked
-        return (T) registry.computeIfAbsent(movable.get().getUid(), () -> deserialize(movable, json));
+        return (T) registry.computeIfAbsent(movable.get().getUid(), () -> deserialize(movable, version, json));
     }
 
     @VisibleForTesting
-    T deserialize(AbstractMovable.MovableBaseHolder movable, String json)
+    T deserialize(AbstractMovable.MovableBaseHolder movable, int version, String json)
     {
         @Nullable Map<String, Object> dataAsMap = null;
         try
         {
             //noinspection unchecked
             dataAsMap = JSON.parseObject(json, HashMap.class);
-            return instantiate(movable, dataAsMap);
+            return instantiate(movable, version, dataAsMap);
         }
         catch (Exception e)
         {
@@ -248,17 +276,35 @@ public final class MovableSerializer<T extends AbstractMovable>
     }
 
     @VisibleForTesting
-    T instantiate(AbstractMovable.MovableBaseHolder movableBase, Map<String, Object> values)
+    DeserializationConstructor getDeserializationConstructor(int version)
+    {
+        final @Nullable DeserializationConstructor ctor = constructors.get(version);
+        //noinspection ConstantValue
+        if (ctor != null)
+            return ctor;
+
+        if (defaultConstructor == null)
+            throw new IllegalArgumentException(
+                "Failed to find constructor for version " + version + " for type: " + movableClass.getName());
+        return defaultConstructor;
+    }
+
+    @VisibleForTesting
+    T instantiate(AbstractMovable.MovableBaseHolder movableBase, int version, Map<String, Object> values)
         throws Exception
     {
         if (values.size() != fields.size())
             log.atWarning().log("Expected %d arguments but received %d for type %s",
                                 fields.size(), values.size(), getMovableTypeName());
+
+        final DeserializationConstructor deserializationCtor = getDeserializationConstructor(version);
+
         @Nullable Object @Nullable [] deserializedParameters = null;
         try
         {
-            deserializedParameters = deserializeParameters(movableBase, values);
-            return ctor.newInstance(deserializedParameters);
+            deserializedParameters = deserializeParameters(deserializationCtor, movableBase, values);
+            //noinspection unchecked
+            return (T) deserializationCtor.ctor.newInstance(deserializedParameters);
         }
         catch (Exception t)
         {
@@ -268,15 +314,17 @@ public final class MovableSerializer<T extends AbstractMovable>
         }
     }
 
-    private Object[] deserializeParameters(AbstractMovable.MovableBaseHolder base, Map<String, Object> values)
+    private Object[] deserializeParameters(
+        DeserializationConstructor deserializationCtor, AbstractMovable.MovableBaseHolder base,
+        Map<String, Object> values)
     {
         final Map<Class<?>, Object> classes = new HashMap<>(values.size());
         for (final var entry : values.entrySet())
             classes.put(entry.getValue().getClass(), entry.getValue());
 
-        final Object[] ret = new Object[this.parameters.size()];
+        final Object[] ret = new Object[deserializationCtor.parameters.size()];
         int idx = -1;
-        for (final ConstructorParameter param : this.parameters)
+        for (final ConstructorParameter param : deserializationCtor.parameters)
         {
             ++idx;
 
@@ -410,5 +458,18 @@ public final class MovableSerializer<T extends AbstractMovable>
                 return Double.class;
             throw new IllegalStateException("Processing unexpected class type: " + clz);
         }
+    }
+
+    /**
+     * @param version
+     *     The version of the deserialization constructor. See {@link Deserialization#version()}.
+     * @param ctor
+     *     A constructor in the {@link #movableClass} that takes exactly 1 argument of the type {@link MovableBase} and
+     *     is annotated with {@link Deserialization}.
+     * @param parameters
+     *     The parameters of the {@link #ctor}.
+     */
+    private record DeserializationConstructor(int version, Constructor<?> ctor, List<ConstructorParameter> parameters)
+    {
     }
 }

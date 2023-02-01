@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.managers.MovableTypeManager;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.MovableSerializer;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
+import nl.pim16aap2.bigdoors.util.LazyValue;
 import nl.pim16aap2.bigdoors.util.MovementDirection;
 import org.jetbrains.annotations.Nullable;
 
@@ -71,7 +72,7 @@ public abstract class MovableType
     @Getter
     private final Set<MovementDirection> validOpenDirections;
 
-    private volatile @Nullable MovableSerializer<?> movableSerializer;
+    private final LazyValue<MovableSerializer<?>> lazyMovableSerializer;
 
     /**
      * Constructs a new {@link MovableType}. Don't forget to also register it using
@@ -96,6 +97,8 @@ public abstract class MovableType
             EnumSet.copyOf(validOpenDirections);
         this.localizationKey = localizationKey;
         fullName = String.format("%s_%s", getPluginName(), getSimpleName()).toLowerCase(Locale.ENGLISH);
+
+        lazyMovableSerializer = new LazyValue<>(() -> new MovableSerializer<>(this));
     }
 
     /**
@@ -103,17 +106,9 @@ public abstract class MovableType
      *
      * @return The {@link MovableSerializer}.
      */
-    @SuppressWarnings("ConstantConditions")
     public final MovableSerializer<?> getMovableSerializer()
     {
-        if (movableSerializer != null)
-            return movableSerializer;
-        synchronized (this)
-        {
-            if (movableSerializer == null)
-                movableSerializer = new MovableSerializer<>(getMovableClass());
-            return movableSerializer;
-        }
+        return lazyMovableSerializer.get();
     }
 
     /**
@@ -170,7 +165,8 @@ public abstract class MovableType
     @Override
     public final String toString()
     {
-        return getPluginName() + ":" + getSimpleName() + ":" + getVersion();
+        return "MovableType[@" + Integer.toHexString(hashCode()) + "] " +
+            getPluginName() + ":" + getSimpleName() + ":" + getVersion();
     }
 
     @Override

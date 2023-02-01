@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.movable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
-import nl.pim16aap2.bigdoors.movable.serialization.DeserializationConstructor;
+import nl.pim16aap2.bigdoors.movable.serialization.Deserialization;
 import nl.pim16aap2.bigdoors.movable.serialization.PersistentVariable;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
@@ -59,18 +59,19 @@ class MovableSerializerTest
     @Test
     void instantiate()
     {
-        final var instantiator = Assertions.assertDoesNotThrow(() -> new MovableSerializer<>(TestMovableType.class));
+        final var instantiator =
+            Assertions.assertDoesNotThrow(() -> new MovableSerializer<>(TestMovableType.class));
         final TestMovableType base = new TestMovableType(movableBase, "test", true, 42);
 
         TestMovableType test = Assertions.assertDoesNotThrow(
-            () -> instantiator.instantiate(movableBase,
+            () -> instantiator.instantiate(movableBase, 1,
                                            Map.of("testName", "test",
                                                   "isCoolType", true,
                                                   "blockTestCount", 42)));
         Assertions.assertEquals(base, test);
 
         test = Assertions.assertDoesNotThrow(
-            () -> instantiator.instantiate(movableBase,
+            () -> instantiator.instantiate(movableBase, 1,
                                            Map.of("testName", "alternativeName",
                                                   "isCoolType", true,
                                                   "blockTestCount", 42)));
@@ -85,8 +86,9 @@ class MovableSerializerTest
         final TestMovableType testMovableType = new TestMovableType(movableBase, "test", true, 42);
 
         final String serialized = Assertions.assertDoesNotThrow(() -> instantiator.serialize(testMovableType));
-        Assertions.assertEquals(testMovableType,
-                                Assertions.assertDoesNotThrow(() -> instantiator.deserialize(movableBase, serialized)));
+        Assertions.assertEquals(
+            testMovableType,
+            Assertions.assertDoesNotThrow(() -> instantiator.deserialize(movableBase, 1, serialized)));
     }
 
     @Test
@@ -98,7 +100,7 @@ class MovableSerializerTest
 
         final String serialized = Assertions.assertDoesNotThrow(() -> instantiator.serialize(testMovableSubType1));
         final var testMovableSubType2 = Assertions.assertDoesNotThrow(
-            () -> instantiator.deserialize(movableBase, serialized));
+            () -> instantiator.deserialize(movableBase, 1, serialized));
 
         Assertions.assertEquals(testMovableSubType1, testMovableSubType2);
     }
@@ -121,7 +123,7 @@ class MovableSerializerTest
         final TestMovableType testMovableType0 = new TestMovableType(movableBase, null, true, 42);
 
         final TestMovableType testMovableType1 =
-            instantiator.instantiate(movableBase,
+            instantiator.instantiate(movableBase, 1,
                                      Map.of("isCoolType", true,
                                             "blockTestCount", 42));
 
@@ -138,7 +140,7 @@ class MovableSerializerTest
         // Only objects can be missing.
         Assertions.assertThrows(
             Exception.class,
-            () -> instantiator.instantiate(movableBase,
+            () -> instantiator.instantiate(movableBase, 1,
                                            Map.of("testName", "testName",
                                                   "isCoolType", false)));
     }
@@ -184,7 +186,7 @@ class MovableSerializerTest
             this.lock = super.getLock();
         }
 
-        @DeserializationConstructor
+        @Deserialization
         public TestMovableType(
             AbstractMovable.MovableBaseHolder base,
             @Nullable String testName,
@@ -251,7 +253,7 @@ class MovableSerializerTest
         @PersistentVariable("subclassTestValue")
         private final int subclassTestValue;
 
-        @DeserializationConstructor
+        @Deserialization
         public TestMovableSubType(
             AbstractMovable.MovableBaseHolder base,
             String testName,
@@ -280,7 +282,7 @@ class MovableSerializerTest
         @PersistentVariable("ambiguousInteger1")
         private final int ambiguousInteger1;
 
-        @DeserializationConstructor
+        @Deserialization
         public TestMovableSubTypeAmbiguousParameterTypes(
             AbstractMovable.MovableBaseHolder base,
             String testName,
@@ -295,10 +297,11 @@ class MovableSerializerTest
         }
     }
 
+    @SuppressWarnings("unused")
     @EqualsAndHashCode(callSuper = true)
     private static class TestMovableSubTypeAmbiguousParameterNames extends TestMovableType
     {
-        @DeserializationConstructor
+        @Deserialization
         public TestMovableSubTypeAmbiguousParameterNames(
             AbstractMovable.MovableBaseHolder base,
             @PersistentVariable("ambiguous") UUID o0,
@@ -308,6 +311,7 @@ class MovableSerializerTest
         }
     }
 
+    @SuppressWarnings("unused")
     @EqualsAndHashCode(callSuper = true)
     private static class TestMovableSubTypeAmbiguousFieldTypes extends TestMovableType
     {
@@ -317,13 +321,14 @@ class MovableSerializerTest
         @PersistentVariable
         private int ambiguousInteger1;
 
-        @DeserializationConstructor
+        @Deserialization
         public TestMovableSubTypeAmbiguousFieldTypes(AbstractMovable.MovableBaseHolder base)
         {
             super(base);
         }
     }
 
+    @SuppressWarnings("unused")
     @EqualsAndHashCode(callSuper = true)
     private static class TestMovableSubTypeAmbiguousFieldNames extends TestMovableType
     {
@@ -333,7 +338,7 @@ class MovableSerializerTest
         @PersistentVariable("ambiguous")
         private String field1;
 
-        @DeserializationConstructor
+        @Deserialization
         public TestMovableSubTypeAmbiguousFieldNames(AbstractMovable.MovableBaseHolder base)
         {
             super(base);

@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.CONSTRUCTOR)
-public @interface DeserializationConstructor
+public @interface Deserialization
 {
     /**
      * @return The version of the data being deserialized.

@@ -9,7 +9,7 @@ import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.drawbridge.Drawbridge;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IPerpetualMover;
-import nl.pim16aap2.bigdoors.movable.serialization.DeserializationConstructor;
+import nl.pim16aap2.bigdoors.movable.serialization.Deserialization;
 import nl.pim16aap2.bigdoors.movable.serialization.PersistentVariable;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
@@ -46,7 +46,7 @@ public class Windmill extends AbstractMovable implements IHorizontalAxisAligned,
     @Setter(onMethod_ = @Locked.Write)
     private int quarterCircles;
 
-    @DeserializationConstructor
+    @Deserialization
     public Windmill(AbstractMovable.MovableBaseHolder base, @PersistentVariable("quarterCircles") int quarterCircles)
     {
         super(base, MovableTypeWindmill.get());

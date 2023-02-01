@@ -6,7 +6,7 @@ import lombok.ToString;
 import lombok.experimental.Locked;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
-import nl.pim16aap2.bigdoors.movable.serialization.DeserializationConstructor;
+import nl.pim16aap2.bigdoors.movable.serialization.Deserialization;
 import nl.pim16aap2.bigdoors.movable.serialization.PersistentVariable;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
@@ -60,7 +60,7 @@ public class Clock extends AbstractMovable implements IHorizontalAxisAligned
     @Getter
     protected final PBlockFace hourArmSide;
 
-    @DeserializationConstructor
+    @Deserialization
     public Clock(
         AbstractMovable.MovableBaseHolder base,
         @PersistentVariable("northSouthAligned") boolean northSouthAligned,

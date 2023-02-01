@@ -7,7 +7,7 @@ import lombok.experimental.Locked;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IPerpetualMover;
-import nl.pim16aap2.bigdoors.movable.serialization.DeserializationConstructor;
+import nl.pim16aap2.bigdoors.movable.serialization.Deserialization;
 import nl.pim16aap2.bigdoors.movable.serialization.PersistentVariable;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
@@ -45,7 +45,7 @@ public class Flag extends AbstractMovable implements IHorizontalAxisAligned, IPe
     @PersistentVariable("northSouthAligned")
     protected final boolean northSouthAligned;
 
-    @DeserializationConstructor
+    @Deserialization
     public Flag(
         AbstractMovable.MovableBaseHolder base, @PersistentVariable("northSouthAligned") boolean northSouthAligned)
     {

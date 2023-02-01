@@ -6,7 +6,7 @@ import lombok.ToString;
 import lombok.experimental.Locked;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IDiscreteMovement;
-import nl.pim16aap2.bigdoors.movable.serialization.DeserializationConstructor;
+import nl.pim16aap2.bigdoors.movable.serialization.Deserialization;
 import nl.pim16aap2.bigdoors.movable.serialization.PersistentVariable;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
@@ -48,7 +48,7 @@ public class Portcullis extends AbstractMovable implements IDiscreteMovement
         this.blocksToMove = blocksToMove;
     }
 
-    @DeserializationConstructor
+    @Deserialization
     public Portcullis(AbstractMovable.MovableBaseHolder base, @PersistentVariable("blocksToMove") int blocksToMove)
     {
         this(base, MovableTypePortcullis.get(), blocksToMove);

@@ -7,7 +7,7 @@ import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
-import nl.pim16aap2.bigdoors.movable.serialization.DeserializationConstructor;
+import nl.pim16aap2.bigdoors.movable.serialization.Deserialization;
 import nl.pim16aap2.bigdoors.movable.serialization.PersistentVariable;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
@@ -47,7 +47,7 @@ public class Drawbridge extends AbstractMovable implements IHorizontalAxisAligne
     @Setter(onMethod_ = @Locked.Write)
     protected boolean modeUp;
 
-    @DeserializationConstructor
+    @Deserialization
     public Drawbridge(AbstractMovable.MovableBaseHolder base, @PersistentVariable("modeUp") boolean modeUp)
     {
         super(base, MovableTypeDrawbridge.get());

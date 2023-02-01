@@ -8,7 +8,7 @@ import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.bigdoor.BigDoor;
-import nl.pim16aap2.bigdoors.movable.serialization.DeserializationConstructor;
+import nl.pim16aap2.bigdoors.movable.serialization.Deserialization;
 import nl.pim16aap2.bigdoors.movable.serialization.PersistentVariable;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
@@ -46,7 +46,7 @@ public class RevolvingDoor extends AbstractMovable
     @Setter(onMethod_ = @Locked.Write)
     private int quarterCircles;
 
-    @DeserializationConstructor
+    @Deserialization
     public RevolvingDoor(
         AbstractMovable.MovableBaseHolder base,
         @PersistentVariable("quarterCircles") int quarterCircles)
