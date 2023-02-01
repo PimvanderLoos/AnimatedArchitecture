@@ -29,8 +29,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 @EqualsAndHashCode(callSuper = true)
 public class Portcullis extends AbstractMovable implements IDiscreteMovement
 {
-    private static final MovableType MOVABLE_TYPE = MovableTypePortcullis.get();
-
     @EqualsAndHashCode.Exclude
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
@@ -40,12 +38,20 @@ public class Portcullis extends AbstractMovable implements IDiscreteMovement
     @Getter(onMethod_ = @Locked.Read)
     protected int blocksToMove;
 
+    protected Portcullis(
+        AbstractMovable.MovableBaseHolder base,
+        MovableType type,
+        @PersistentVariable("blocksToMove") int blocksToMove)
+    {
+        super(base, type);
+        this.lock = getLock();
+        this.blocksToMove = blocksToMove;
+    }
+
     @DeserializationConstructor
     public Portcullis(AbstractMovable.MovableBaseHolder base, @PersistentVariable("blocksToMove") int blocksToMove)
     {
-        super(base);
-        this.lock = getLock();
-        this.blocksToMove = blocksToMove;
+        this(base, MovableTypePortcullis.get(), blocksToMove);
     }
 
     @Override
@@ -70,12 +76,6 @@ public class Portcullis extends AbstractMovable implements IDiscreteMovement
         final Vector3Di max = cuboid.getMax();
 
         return new Cuboid(min.add(0, -blocksToMove, 0), max.add(0, blocksToMove, 0)).asFlatRectangle();
-    }
-
-    @Override
-    public MovableType getType()
-    {
-        return MOVABLE_TYPE;
     }
 
     @Override

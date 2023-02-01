@@ -11,7 +11,6 @@ import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IPerpetualMover;
 import nl.pim16aap2.bigdoors.movable.serialization.DeserializationConstructor;
 import nl.pim16aap2.bigdoors.movable.serialization.PersistentVariable;
-import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.Cuboid;
@@ -32,8 +31,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 @EqualsAndHashCode(callSuper = true)
 public class Windmill extends AbstractMovable implements IHorizontalAxisAligned, IPerpetualMover
 {
-    private static final MovableType MOVABLE_TYPE = MovableTypeWindmill.get();
-
     @EqualsAndHashCode.Exclude
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
@@ -52,7 +49,7 @@ public class Windmill extends AbstractMovable implements IHorizontalAxisAligned,
     @DeserializationConstructor
     public Windmill(AbstractMovable.MovableBaseHolder base, @PersistentVariable("quarterCircles") int quarterCircles)
     {
-        super(base);
+        super(base, MovableTypeWindmill.get());
         this.lock = getLock();
         this.quarterCircles = quarterCircles;
     }
@@ -60,12 +57,6 @@ public class Windmill extends AbstractMovable implements IHorizontalAxisAligned,
     public Windmill(AbstractMovable.MovableBaseHolder doorBase)
     {
         this(doorBase, 1);
-    }
-
-    @Override
-    public MovableType getType()
-    {
-        return MOVABLE_TYPE;
     }
 
     @Override

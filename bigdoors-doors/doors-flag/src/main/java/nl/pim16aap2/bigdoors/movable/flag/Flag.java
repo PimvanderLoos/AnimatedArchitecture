@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IPerpetualMover;
 import nl.pim16aap2.bigdoors.movable.serialization.DeserializationConstructor;
 import nl.pim16aap2.bigdoors.movable.serialization.PersistentVariable;
-import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.Cuboid;
@@ -29,8 +28,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 @EqualsAndHashCode(callSuper = true)
 public class Flag extends AbstractMovable implements IHorizontalAxisAligned, IPerpetualMover
 {
-    private static final MovableType MOVABLE_TYPE = MovableTypeFlag.get();
-
     @EqualsAndHashCode.Exclude
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
@@ -52,15 +49,9 @@ public class Flag extends AbstractMovable implements IHorizontalAxisAligned, IPe
     public Flag(
         AbstractMovable.MovableBaseHolder base, @PersistentVariable("northSouthAligned") boolean northSouthAligned)
     {
-        super(base);
+        super(base, MovableTypeFlag.get());
         this.lock = getLock();
         this.northSouthAligned = northSouthAligned;
-    }
-
-    @Override
-    public MovableType getType()
-    {
-        return MOVABLE_TYPE;
     }
 
     @Override

@@ -160,6 +160,8 @@ class MovableSerializerTest
     @EqualsAndHashCode(callSuper = false)
     private static class TestMovableType extends AbstractMovable
     {
+        private static final MovableType MOVABLE_TYPE = Mockito.mock(MovableType.class);
+
         @EqualsAndHashCode.Exclude
         @SuppressWarnings({"unused", "FieldCanBeLocal"})
         private final ReentrantReadWriteLock lock;
@@ -176,11 +178,9 @@ class MovableSerializerTest
         @PersistentVariable("blockTestCount")
         private int blockTestCount;
 
-        private static final MovableType MOVABLE_TYPE = Mockito.mock(MovableType.class);
-
         public TestMovableType(AbstractMovable.MovableBaseHolder movableBase)
         {
-            super(movableBase);
+            super(movableBase, MOVABLE_TYPE);
             this.lock = super.getLock();
         }
 
@@ -195,12 +195,6 @@ class MovableSerializerTest
             this.testName = testName;
             this.isCoolType = isCoolType;
             this.blockTestCount = blockTestCount;
-        }
-
-        @Override
-        public MovableType getType()
-        {
-            return MOVABLE_TYPE;
         }
 
         @Override

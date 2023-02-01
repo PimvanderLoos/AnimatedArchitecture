@@ -10,7 +10,6 @@ import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.movable.serialization.DeserializationConstructor;
 import nl.pim16aap2.bigdoors.movable.serialization.PersistentVariable;
-import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.Cuboid;
@@ -33,8 +32,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 @Flogger
 public class GarageDoor extends AbstractMovable implements IHorizontalAxisAligned
 {
-    private static final MovableType MOVABLE_TYPE = MovableGarageDoor.get();
-
     @EqualsAndHashCode.Exclude
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
@@ -58,15 +55,9 @@ public class GarageDoor extends AbstractMovable implements IHorizontalAxisAligne
     public GarageDoor(
         AbstractMovable.MovableBaseHolder base, @PersistentVariable("northSouthAligned") boolean northSouthAligned)
     {
-        super(base);
+        super(base, MovableGarageDoor.get());
         this.lock = getLock();
         this.northSouthAligned = northSouthAligned;
-    }
-
-    @Override
-    public MovableType getType()
-    {
-        return MOVABLE_TYPE;
     }
 
     @Override

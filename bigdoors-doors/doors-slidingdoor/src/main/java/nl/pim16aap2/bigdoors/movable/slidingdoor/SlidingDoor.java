@@ -8,7 +8,6 @@ import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IDiscreteMovement;
 import nl.pim16aap2.bigdoors.movable.serialization.DeserializationConstructor;
 import nl.pim16aap2.bigdoors.movable.serialization.PersistentVariable;
-import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.Cuboid;
@@ -31,8 +30,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 @EqualsAndHashCode(callSuper = true)
 public class SlidingDoor extends AbstractMovable implements IDiscreteMovement
 {
-    private static final MovableType MOVABLE_TYPE = MovableSlidingDoor.get();
-
     @EqualsAndHashCode.Exclude
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
@@ -45,15 +42,9 @@ public class SlidingDoor extends AbstractMovable implements IDiscreteMovement
     @DeserializationConstructor
     public SlidingDoor(AbstractMovable.MovableBaseHolder base, @PersistentVariable("blocksToMove") int blocksToMove)
     {
-        super(base);
+        super(base, MovableSlidingDoor.get());
         this.lock = getLock();
         this.blocksToMove = blocksToMove;
-    }
-
-    @Override
-    public MovableType getType()
-    {
-        return MOVABLE_TYPE;
     }
 
     @Override

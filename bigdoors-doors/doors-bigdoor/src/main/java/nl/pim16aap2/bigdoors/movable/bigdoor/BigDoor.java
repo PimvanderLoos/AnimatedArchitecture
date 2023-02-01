@@ -6,7 +6,6 @@ import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.serialization.DeserializationConstructor;
-import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.Cuboid;
@@ -30,8 +29,6 @@ import java.util.stream.Stream;
 @Flogger
 public class BigDoor extends AbstractMovable
 {
-    private static final MovableType MOVABLE_TYPE = MovableBigDoor.get();
-
     @EqualsAndHashCode.Exclude
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
@@ -39,14 +36,8 @@ public class BigDoor extends AbstractMovable
     @DeserializationConstructor
     public BigDoor(AbstractMovable.MovableBaseHolder base)
     {
-        super(base);
+        super(base, MovableBigDoor.get());
         this.lock = getLock();
-    }
-
-    @Override
-    public MovableType getType()
-    {
-        return MOVABLE_TYPE;
     }
 
     @Override

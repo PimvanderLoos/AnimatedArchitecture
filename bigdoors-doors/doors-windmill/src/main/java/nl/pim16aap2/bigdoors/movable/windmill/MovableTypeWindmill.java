@@ -30,8 +30,6 @@ public final class MovableTypeWindmill extends MovableType
     }
 
     /**
-     * Obtains the instance of this type.
-     *
      * @return The instance of this type.
      */
     public static MovableTypeWindmill get()

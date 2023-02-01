@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.Rectangle;
@@ -37,6 +38,7 @@ public final class MovableSnapshot implements IMovableConst
     private boolean isLocked;
     private final MovableOwner primeOwner;
     private final Map<UUID, MovableOwner> owners;
+    private final MovableType type;
 
     MovableSnapshot(AbstractMovable movable)
     {
@@ -52,7 +54,8 @@ public final class MovableSnapshot implements IMovableConst
             movable.getOpenDir(),
             movable.isLocked(),
             movable.getPrimeOwner(),
-            Map.copyOf(movable.getOwnersView())
+            Map.copyOf(movable.getOwnersView()),
+            movable.getType()
         );
     }
 

@@ -30,8 +30,6 @@ public final class MovableGarageDoor extends MovableType
     }
 
     /**
-     * Obtains the instance of this type.
-     *
      * @return The instance of this type.
      */
     public static MovableGarageDoor get()

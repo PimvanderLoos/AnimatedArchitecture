@@ -29,8 +29,6 @@ public final class MovableTypeElevator extends MovableType
     }
 
     /**
-     * Obtains the instance of this type.
-     *
      * @return The instance of this type.
      */
     public static MovableTypeElevator get()

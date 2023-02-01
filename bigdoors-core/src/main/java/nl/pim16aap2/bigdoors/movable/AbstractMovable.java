@@ -50,12 +50,15 @@ public abstract class AbstractMovable implements IMovable
     @EqualsAndHashCode.Include
     private final MovableBase base;
 
+    private final MovableType type;
+
     private final LazyValue<Rectangle> lazyAnimationRange;
     private final LazyValue<Double> lazyAnimationCycleDistance;
     private final LazyValue<MovableSnapshot> lazyMovableSnapshot;
 
-    private AbstractMovable(MovableBase base)
+    private AbstractMovable(MovableBase base, MovableType type)
     {
+        this.type = type;
         serializer = getType().getMovableSerializer();
         this.lock = base.getLock();
         this.base = Objects.requireNonNull(base);
@@ -65,15 +68,16 @@ public abstract class AbstractMovable implements IMovable
         lazyMovableSnapshot = new LazyValue<>(this::createNewSnapshot);
     }
 
-    protected AbstractMovable(MovableBaseHolder holder)
+    protected AbstractMovable(MovableBaseHolder holder, MovableType type)
     {
-        this(holder.base);
+        this(holder.base, type);
     }
 
-    /**
-     * @return The {@link MovableType} of this movable.
-     */
-    public abstract MovableType getType();
+    @Override
+    public final MovableType getType()
+    {
+        return type;
+    }
 
     /**
      * Gets the animation time of this movable.
