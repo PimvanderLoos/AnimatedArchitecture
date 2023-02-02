@@ -6,20 +6,20 @@ import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableAttribute;
-import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
-import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
+import nl.pim16aap2.bigdoors.structures.AbstractStructure;
+import nl.pim16aap2.bigdoors.structures.StructureAttribute;
+import nl.pim16aap2.bigdoors.util.structureretriever.StructureRetriever;
+import nl.pim16aap2.bigdoors.util.structureretriever.StructureRetrieverFactory;
 
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Represents the command that changes the opening status of movables.
+ * Represents the command that changes the opening status of structures.
  *
  * @author Pim
  */
 @ToString
-public class SetOpenStatus extends MovableTargetCommand
+public class SetOpenStatus extends StructureTargetCommand
 {
     public static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.SET_OPEN_STATUS;
 
@@ -28,9 +28,9 @@ public class SetOpenStatus extends MovableTargetCommand
     @AssistedInject //
     SetOpenStatus(
         @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
-        @Assisted MovableRetriever movableRetriever, @Assisted boolean isOpen)
+        @Assisted StructureRetriever structureRetriever, @Assisted boolean isOpen)
     {
-        super(commandSender, localizer, textFactory, movableRetriever, MovableAttribute.OPEN_STATUS);
+        super(commandSender, localizer, textFactory, structureRetriever, StructureAttribute.OPEN_STATUS);
         this.isOpen = isOpen;
     }
 
@@ -43,20 +43,20 @@ public class SetOpenStatus extends MovableTargetCommand
     @Override
     protected void handleDatabaseActionSuccess()
     {
-        final var desc = getRetrievedMovableDescription();
+        final var desc = getRetrievedStructureDescription();
         getCommandSender().sendSuccess(textFactory, localizer.getMessage("commands.set_open_status.success",
                                                                          desc.typeName(), desc.id()));
     }
 
     @Override
-    protected CompletableFuture<?> performAction(AbstractMovable movable)
+    protected CompletableFuture<?> performAction(AbstractStructure structure)
     {
-        if (movable.isOpen() == isOpen)
+        if (structure.isOpen() == isOpen)
         {
             getCommandSender().sendError(
                 textFactory,
                 localizer.getMessage("commands.set_open_status.error.status_not_changed",
-                                     localizer.getMovableType(movable), movable.getNameAndUid(),
+                                     localizer.getStructureType(structure), structure.getNameAndUid(),
                                      localizer.getMessage(isOpen ?
                                                           localizer.getMessage("constants.open_status.open") :
                                                           localizer.getMessage("constants.open_status.closed")
@@ -64,8 +64,8 @@ public class SetOpenStatus extends MovableTargetCommand
             return CompletableFuture.completedFuture(null);
         }
 
-        movable.setOpen(isOpen);
-        return movable.syncData().thenAccept(this::handleDatabaseActionResult);
+        structure.setOpen(isOpen);
+        return structure.syncData().thenAccept(this::handleDatabaseActionResult);
     }
 
     @AssistedFactory
@@ -75,15 +75,15 @@ public class SetOpenStatus extends MovableTargetCommand
          * Creates (but does not execute!) a new {@link SetOpenStatus} command.
          *
          * @param commandSender
-         *     The {@link ICommandSender} responsible for changing open status of the movable.
-         * @param movableRetriever
-         *     A {@link MovableRetrieverFactory} representing the {@link AbstractMovable} for which the open status will
-         *     be modified.
+         *     The {@link ICommandSender} responsible for changing open status of the structure.
+         * @param structureRetriever
+         *     A {@link StructureRetrieverFactory} representing the {@link AbstractStructure} for which the open status
+         *     will be modified.
          * @param isOpen
-         *     The new open status of the movable.
+         *     The new open status of the structure.
          * @return See {@link BaseCommand#run()}.
          */
         SetOpenStatus newSetOpenStatus(
-            ICommandSender commandSender, MovableRetriever movableRetriever, boolean isOpen);
+            ICommandSender commandSender, StructureRetriever structureRetriever, boolean isOpen);
     }
 }

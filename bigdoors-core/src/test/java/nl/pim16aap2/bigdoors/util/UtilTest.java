@@ -47,23 +47,23 @@ class UtilTest
     }
 
     @Test
-    void isValidMovableName()
+    void isValidStructureName()
     {
-        Assertions.assertFalse(Util.isValidMovableName(""));
-        Assertions.assertFalse(Util.isValidMovableName(null));
-        Assertions.assertFalse(Util.isValidMovableName("0"));
-        Assertions.assertFalse(Util.isValidMovableName("0999"));
-        Assertions.assertFalse(Util.isValidMovableName("321"));
-        Assertions.assertFalse(Util.isValidMovableName("my door"));
-        Assertions.assertFalse(Util.isValidMovableName("myDoor!"));
-        Assertions.assertFalse(Util.isValidMovableName("myDoor?"));
+        Assertions.assertFalse(Util.isValidStructureName(""));
+        Assertions.assertFalse(Util.isValidStructureName(null));
+        Assertions.assertFalse(Util.isValidStructureName("0"));
+        Assertions.assertFalse(Util.isValidStructureName("0999"));
+        Assertions.assertFalse(Util.isValidStructureName("321"));
+        Assertions.assertFalse(Util.isValidStructureName("my door"));
+        Assertions.assertFalse(Util.isValidStructureName("myDoor!"));
+        Assertions.assertFalse(Util.isValidStructureName("myDoor?"));
 
-        Assertions.assertTrue(Util.isValidMovableName("3-21"));
-        Assertions.assertTrue(Util.isValidMovableName("mydoor"));
-        Assertions.assertTrue(Util.isValidMovableName("MyDoor"));
-        Assertions.assertTrue(Util.isValidMovableName("A"));
-        Assertions.assertTrue(Util.isValidMovableName("a"));
-        Assertions.assertTrue(Util.isValidMovableName("a0"));
-        Assertions.assertTrue(Util.isValidMovableName("0a0"));
+        Assertions.assertTrue(Util.isValidStructureName("3-21"));
+        Assertions.assertTrue(Util.isValidStructureName("mydoor"));
+        Assertions.assertTrue(Util.isValidStructureName("MyDoor"));
+        Assertions.assertTrue(Util.isValidStructureName("A"));
+        Assertions.assertTrue(Util.isValidStructureName("a"));
+        Assertions.assertTrue(Util.isValidStructureName("a0"));
+        Assertions.assertTrue(Util.isValidStructureName("0a0"));
     }
 }

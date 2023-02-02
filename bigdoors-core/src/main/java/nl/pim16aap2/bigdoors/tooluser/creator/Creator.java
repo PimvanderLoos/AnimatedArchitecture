@@ -9,11 +9,11 @@ import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableBaseBuilder;
-import nl.pim16aap2.bigdoors.movable.MovableOwner;
-import nl.pim16aap2.bigdoors.movable.PermissionLevel;
-import nl.pim16aap2.bigdoors.movabletypes.MovableType;
+import nl.pim16aap2.bigdoors.structures.AbstractStructure;
+import nl.pim16aap2.bigdoors.structures.PermissionLevel;
+import nl.pim16aap2.bigdoors.structures.StructureBaseBuilder;
+import nl.pim16aap2.bigdoors.structures.StructureOwner;
+import nl.pim16aap2.bigdoors.structuretypes.StructureType;
 import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.tooluser.Procedure;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
@@ -39,7 +39,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Represents a specialization of the {@link ToolUser} that is used for creating new {@link AbstractMovable}s.
+ * Represents a specialization of the {@link ToolUser} that is used for creating new {@link AbstractStructure}s.
  *
  * @author Pim
  */
@@ -49,7 +49,7 @@ public abstract class Creator extends ToolUser
 {
     protected final LimitsManager limitsManager;
 
-    protected final MovableBaseBuilder movableBaseBuilder;
+    protected final StructureBaseBuilder structureBaseBuilder;
 
     protected final DatabaseManager databaseManager;
 
@@ -58,12 +58,12 @@ public abstract class Creator extends ToolUser
     protected final CommandFactory commandFactory;
 
     /**
-     * The name of the movable that is to be created.
+     * The name of the structure that is to be created.
      */
     protected @Nullable String name;
 
     /**
-     * The cuboid that defines the location and dimensions of the movable.
+     * The cuboid that defines the location and dimensions of the structure.
      * <p>
      * This region is defined by {@link #firstPos} and the second position selected by the user.
      */
@@ -92,17 +92,17 @@ public abstract class Creator extends ToolUser
     protected @Nullable MovementDirection openDir;
 
     /**
-     * The {@link IPWorld} this movable is created in.
+     * The {@link IPWorld} this structure is created in.
      */
     protected @Nullable IPWorld world;
 
     /**
-     * Whether the movable is created in the open (true) or closed (false) position.
+     * Whether the structure is created in the open (true) or closed (false) position.
      */
     protected boolean isOpen = false;
 
     /**
-     * Whether the movable is created in the locked (true) or unlocked (false) state.
+     * Whether the structure is created in the locked (true) or unlocked (false) state.
      */
     protected boolean isLocked = false;
 
@@ -113,7 +113,7 @@ public abstract class Creator extends ToolUser
     protected Step.Factory factorySetName;
 
     /**
-     * IFactory for the {@link IStep} that sets the first position of the area of the movable.
+     * IFactory for the {@link IStep} that sets the first position of the area of the structure.
      * <p>
      * Don't forget to set the message before using it!
      */
@@ -121,7 +121,7 @@ public abstract class Creator extends ToolUser
     protected Step.Factory factorySetFirstPos;
 
     /**
-     * IFactory for the {@link IStep} that sets the second position of the area of the movable, thus completing the
+     * IFactory for the {@link IStep} that sets the second position of the area of the structure, thus completing the
      * {@link Cuboid}.
      * <p>
      * Don't forget to set the message before using it!
@@ -130,7 +130,7 @@ public abstract class Creator extends ToolUser
     protected Step.Factory factorySetSecondPos;
 
     /**
-     * IFactory for the {@link IStep} that sets the position of the movable's rotation point.
+     * IFactory for the {@link IStep} that sets the position of the structure's rotation point.
      * <p>
      * Don't forget to set the message before using it!
      */
@@ -138,25 +138,25 @@ public abstract class Creator extends ToolUser
     protected Step.Factory factorySetRotationPointPos;
 
     /**
-     * IFactory for the {@link IStep} that sets the position of the movable's power block.
+     * IFactory for the {@link IStep} that sets the position of the structure's power block.
      */
     @ToString.Exclude
     protected Step.Factory factorySetPowerBlockPos;
 
     /**
-     * IFactory for the {@link IStep} that sets the open status of the movable.
+     * IFactory for the {@link IStep} that sets the open status of the structure.
      */
     @ToString.Exclude
     protected Step.Factory factorySetOpenStatus;
 
     /**
-     * IFactory for the {@link IStep} that sets the open direction of the movable.
+     * IFactory for the {@link IStep} that sets the open direction of the structure.
      */
     @ToString.Exclude
     protected Step.Factory factorySetOpenDir;
 
     /**
-     * IFactory for the {@link IStep} that allows the player to confirm or reject the price of the movable.
+     * IFactory for the {@link IStep} that allows the player to confirm or reject the price of the structure.
      */
     @ToString.Exclude
     protected Step.Factory factoryConfirmPrice;
@@ -175,7 +175,7 @@ public abstract class Creator extends ToolUser
     {
         super(context, player);
         limitsManager = context.getLimitsManager();
-        movableBaseBuilder = context.getMovableBaseBuilder();
+        structureBaseBuilder = context.getStructureBaseBuilder();
         databaseManager = context.getDatabaseManager();
         economyManager = context.getEconomyManager();
         commandFactory = context.getCommandFactory();
@@ -195,7 +195,7 @@ public abstract class Creator extends ToolUser
             .stepName("SET_NAME")
             .stepExecutor(new StepExecutorString(this::completeNamingStep))
             .messageKey("creator.base.give_name")
-            .messageVariableRetrievers(() -> localizer.getMovableType(getMovableType()));
+            .messageVariableRetrievers(() -> localizer.getStructureType(getStructureType()));
 
         factorySetFirstPos = stepFactory
             .stepName("SET_FIRST_POS")
@@ -219,7 +219,7 @@ public abstract class Creator extends ToolUser
             .stepExecutor(new StepExecutorBoolean(this::completeSetOpenStatusStep))
             .stepPreparation(this::prepareSetOpenStatus)
             .messageKey("creator.base.set_open_status")
-            .messageVariableRetrievers(() -> localizer.getMovableType(getMovableType()),
+            .messageVariableRetrievers(() -> localizer.getStructureType(getStructureType()),
                                        () -> localizer.getMessage("constants.open_status.open"),
                                        () -> localizer.getMessage("constants.open_status.closed"));
 
@@ -229,16 +229,16 @@ public abstract class Creator extends ToolUser
             .stepPreparation(this::prepareSetOpenDirection)
             .messageKey("creator.base.set_open_direction")
             .messageVariableRetrievers(
-                () -> localizer.getMovableType(getMovableType()),
+                () -> localizer.getStructureType(getStructureType()),
                 () -> getValidOpenDirections().stream().map(dir -> localizer.getMessage(dir.getLocalizationKey()))
                                               .toList().toString());
 
         factoryConfirmPrice = stepFactory
-            .stepName("CONFIRM_MOVABLE_PRICE")
+            .stepName("CONFIRM_STRUCTURE_PRICE")
             .stepExecutor(new StepExecutorBoolean(this::confirmPrice))
             .skipCondition(this::skipConfirmPrice)
-            .messageKey("creator.base.confirm_movable_price")
-            .messageVariableRetrievers(() -> localizer.getMovableType(getMovableType()),
+            .messageKey("creator.base.confirm_structure_price")
+            .messageVariableRetrievers(() -> localizer.getStructureType(getStructureType()),
                                        () -> String.format("%.2f", getPrice().orElse(0)))
             .implicitNextStep(false);
 
@@ -267,19 +267,19 @@ public abstract class Creator extends ToolUser
     }
 
     /**
-     * Constructs the {@link AbstractMovable.MovableBaseHolder} for the current movable. This is the same for all
-     * movables.
+     * Constructs the {@link AbstractStructure.BaseHolder} for the current structure. This is the same for all
+     * structures.
      *
-     * @return The {@link AbstractMovable.MovableBaseHolder} for the current movable.
+     * @return The {@link AbstractStructure.BaseHolder} for the current structure.
      */
-    protected final AbstractMovable.MovableBaseHolder constructMovableData()
+    protected final AbstractStructure.BaseHolder constructStructureData()
     {
-        final long movableUID = -1;
-        final var owner = new MovableOwner(movableUID, PermissionLevel.CREATOR, getPlayer().getPPlayerData());
+        final long structureUID = -1;
+        final var owner = new StructureOwner(structureUID, PermissionLevel.CREATOR, getPlayer().getPPlayerData());
 
-        return movableBaseBuilder
+        return structureBaseBuilder
             .builder()
-            .uid(movableUID)
+            .uid(structureUID)
             .name(Util.requireNonNull(name, "Name"))
             .cuboid(Util.requireNonNull(cuboid, "cuboid"))
             .rotationPoint(Util.requireNonNull(rotationPoint, "rotationPoint"))
@@ -293,7 +293,7 @@ public abstract class Creator extends ToolUser
     }
 
     /**
-     * Completes the creation process. It'll construct and insert the movable and complete the {@link ToolUser}
+     * Completes the creation process. It'll construct and insert the structure and complete the {@link ToolUser}
      * process.
      *
      * @return True, so that it fits the functional interface being used for the steps.
@@ -304,7 +304,7 @@ public abstract class Creator extends ToolUser
     protected boolean completeCreationProcess()
     {
         if (active)
-            insertMovable(constructMovable());
+            insertStructure(constructStructure());
         return true;
     }
 
@@ -319,20 +319,20 @@ public abstract class Creator extends ToolUser
      * Completes the naming step for this {@link Creator}. This means that it'll set the name, go to the next step, and
      * give the user the creator tool.
      * <p>
-     * Note that there are some requirements that the name must meet. See {@link Util#isValidMovableName(String)}.
+     * Note that there are some requirements that the name must meet. See {@link Util#isValidStructureName(String)}.
      *
      * @param str
-     *     The desired name of the movable.
+     *     The desired name of the structure.
      * @return True if the naming step was finished successfully.
      */
     protected boolean completeNamingStep(String str)
     {
-        if (!Util.isValidMovableName(str))
+        if (!Util.isValidStructureName(str))
         {
             log.atFine().log("Invalid name '%s' for selected Creator: %s", str, this);
             getPlayer().sendMessage(textFactory, TextType.ERROR,
                                     localizer.getMessage("creator.base.error.invalid_name",
-                                                         str, localizer.getMovableType(getMovableType())));
+                                                         str, localizer.getStructureType(getStructureType())));
             return false;
         }
 
@@ -376,13 +376,13 @@ public abstract class Creator extends ToolUser
         final Cuboid newCuboid = new Cuboid(Util.requireNonNull(firstPos, "firstPos"),
                                             new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
 
-        final OptionalInt sizeLimit = limitsManager.getLimit(getPlayer(), Limit.MOVABLE_SIZE);
+        final OptionalInt sizeLimit = limitsManager.getLimit(getPlayer(), Limit.STRUCTURE_SIZE);
         if (sizeLimit.isPresent() && newCuboid.getVolume() > sizeLimit.getAsInt())
         {
             getPlayer().sendMessage(
                 textFactory, TextType.ERROR,
                 localizer.getMessage("creator.base.error.area_too_big",
-                                     localizer.getMovableType(getMovableType()),
+                                     localizer.getStructureType(getStructureType()),
                                      Integer.toString(newCuboid.getVolume()),
                                      Integer.toString(sizeLimit.getAsInt())));
             return false;
@@ -394,15 +394,15 @@ public abstract class Creator extends ToolUser
     }
 
     /**
-     * Attempts to buy the movable for the player and advances the procedure if successful.
+     * Attempts to buy the structure for the player and advances the procedure if successful.
      * <p>
-     * Note that if the player does not end up buying the movable, either because of insufficient funds or because they
-     * rejected the offer, the current step is NOT advanced!
+     * Note that if the player does not end up buying the structure, either because of insufficient funds or because
+     * they rejected the offer, the current step is NOT advanced!
      *
      * @param confirm
-     *     Whether the player confirmed they want to buy this movable.
-     * @return Always returns true, because either they can and do buy the movable, or they cannot or refuse to buy the
-     * movable and the process is aborted.
+     *     Whether the player confirmed they want to buy this structure.
+     * @return Always returns true, because either they can and do buy the structure, or they cannot or refuse to buy
+     * the structure and the process is aborted.
      */
     // This method always returns the same value (S3516). However, in the case of this method, there is no reason to
     // return false as every input is valid and leads to a valid state.
@@ -416,12 +416,12 @@ public abstract class Creator extends ToolUser
             abort();
             return true;
         }
-        if (!buyMovable())
+        if (!buyStructure())
         {
 
             getPlayer().sendMessage(textFactory, TextType.ERROR,
                                     localizer.getMessage("creator.base.error.insufficient_funds",
-                                                         localizer.getMovableType(getMovableType()),
+                                                         localizer.getStructureType(getStructureType()),
                                                          DECIMAL_FORMAT.format(getPrice().orElse(0))));
             abort();
             return true;
@@ -435,7 +435,7 @@ public abstract class Creator extends ToolUser
      * Attempts to complete the step that sets the {@link #isOpen}.
      *
      * @param isOpen
-     *     True if the current status of the movable is open.
+     *     True if the current status of the structure is open.
      * @return True if the {@link #isOpen} was set successfully.
      */
     protected boolean completeSetOpenStatusStep(boolean isOpen)
@@ -467,18 +467,18 @@ public abstract class Creator extends ToolUser
     }
 
     /**
-     * Constructs the movable at the end of the creation process.
+     * Constructs the structure at the end of the creation process.
      *
-     * @return The newly-created movable.
+     * @return The newly-created structure.
      */
-    protected abstract AbstractMovable constructMovable();
+    protected abstract AbstractStructure constructStructure();
 
     /**
-     * Verifies that the world of the selected location matches the world that this movable is being created in.
+     * Verifies that the world of the selected location matches the world that this structure is being created in.
      *
      * @param targetWorld
      *     The world to check.
-     * @return True if the world is the same world this movable is being created in.
+     * @return True if the world is the same world this structure is being created in.
      */
     protected boolean verifyWorldMatch(IPWorld targetWorld)
     {
@@ -489,14 +489,14 @@ public abstract class Creator extends ToolUser
     }
 
     /**
-     * Takes care of inserting the movable.
+     * Takes care of inserting the structure.
      *
-     * @param movable
-     *     The movable to send to the {@link DatabaseManager}.
+     * @param structure
+     *     The structure to send to the {@link DatabaseManager}.
      */
-    protected void insertMovable(AbstractMovable movable)
+    protected void insertStructure(AbstractStructure structure)
     {
-        databaseManager.addMovable(movable, getPlayer()).whenComplete(
+        databaseManager.addStructure(structure, getPlayer()).whenComplete(
             (result, throwable) ->
             {
                 if (result.cancelled())
@@ -506,55 +506,55 @@ public abstract class Creator extends ToolUser
                     return;
                 }
 
-                if (result.movable().isEmpty())
+                if (result.structure().isEmpty())
                 {
                     getPlayer().sendMessage(textFactory, TextType.ERROR,
                                             localizer.getMessage("constants.error.generic"));
-                    log.atSevere().log("Failed to insert movable after creation!");
+                    log.atSevere().log("Failed to insert structure after creation!");
                 }
             }).exceptionally(Util::exceptionally);
     }
 
     /**
-     * Obtains the type of movable this creator will create.
+     * Obtains the type of structure this creator will create.
      *
-     * @return The type of movable that will be created.
+     * @return The type of structure that will be created.
      */
-    protected abstract MovableType getMovableType();
+    protected abstract StructureType getStructureType();
 
     /**
-     * Attempts to buy the movable for the current player.
+     * Attempts to buy the structure for the current player.
      *
-     * @return True if the player has bought the movable or if the economy is not enabled.
+     * @return True if the player has bought the structure or if the economy is not enabled.
      */
-    protected boolean buyMovable()
+    protected boolean buyStructure()
     {
         if (!economyManager.isEconomyEnabled())
             return true;
 
-        return economyManager.buyMovable(getPlayer(), Util.requireNonNull(world, "world"), getMovableType(),
-                                         Util.requireNonNull(cuboid, "cuboid").getVolume());
+        return economyManager.buyStructure(getPlayer(), Util.requireNonNull(world, "world"), getStructureType(),
+                                           Util.requireNonNull(cuboid, "cuboid").getVolume());
     }
 
     /**
-     * Gets the price of the movable based on its volume. If the movable is free because the price is <= 0 or the
+     * Gets the price of the structure based on its volume. If the structure is free because the price is <= 0 or the
      * {@link nl.pim16aap2.bigdoors.api.IEconomyManager} is disabled, the price will be empty.
      *
-     * @return The price of the movable if a positive price could be found.
+     * @return The price of the structure if a positive price could be found.
      */
     protected OptionalDouble getPrice()
     {
         if (!economyManager.isEconomyEnabled())
             return OptionalDouble.empty();
-        return economyManager.getPrice(getMovableType(), Util.requireNonNull(cuboid, "cuboid").getVolume());
+        return economyManager.getPrice(getStructureType(), Util.requireNonNull(cuboid, "cuboid").getVolume());
     }
 
     /**
-     * Checks if the step that asks the user to confirm that they want to buy the movable should be skipped.
+     * Checks if the step that asks the user to confirm that they want to buy the structure should be skipped.
      * <p>
-     * It should be skipped if the movable is free for whatever reason. See {@link #getPrice()}.
+     * It should be skipped if the structure is free for whatever reason. See {@link #getPrice()}.
      *
-     * @return True if the step that asks the user to confirm that they want to buy the movable should be skipped.
+     * @return True if the step that asks the user to confirm that they want to buy the structure should be skipped.
      */
     protected boolean skipConfirmPrice()
     {
@@ -563,19 +563,19 @@ public abstract class Creator extends ToolUser
 
     /**
      * Gets the list of valid open directions for this type. It returns a subset of
-     * {@link MovableType#getValidOpenDirections()} based on the current physical aspects of the
-     * {@link AbstractMovable}.
+     * {@link StructureType#getValidOpenDirections()} based on the current physical aspects of the
+     * {@link AbstractStructure}.
      *
      * @return The list of valid open directions for this type given its current physical dimensions.
      */
     public Set<MovementDirection> getValidOpenDirections()
     {
-        return getMovableType().getValidOpenDirections();
+        return getStructureType().getValidOpenDirections();
     }
 
     /**
      * Attempts to complete the step in the {@link Procedure} that sets the second position of the
-     * {@link AbstractMovable} that is being created.
+     * {@link AbstractStructure} that is being created.
      *
      * @param loc
      *     The selected location of the rotation point.
@@ -593,8 +593,8 @@ public abstract class Creator extends ToolUser
         if (Util.requireNonNull(cuboid, "cuboid").isPosInsideCuboid(pos))
         {
             getPlayer().sendMessage(textFactory, TextType.ERROR,
-                                    localizer.getMessage("creator.base.error.powerblock_inside_movable",
-                                                         localizer.getMovableType(getMovableType())));
+                                    localizer.getMessage("creator.base.error.powerblock_inside_structure",
+                                                         localizer.getStructureType(getStructureType())));
             return false;
         }
         final OptionalInt distanceLimit = limitsManager.getLimit(getPlayer(), Limit.POWERBLOCK_DISTANCE);
@@ -604,7 +604,7 @@ public abstract class Creator extends ToolUser
         {
             getPlayer().sendMessage(textFactory, TextType.ERROR,
                                     localizer.getMessage("creator.base.error.powerblock_too_far",
-                                                         localizer.getMovableType(getMovableType()),
+                                                         localizer.getStructureType(getStructureType()),
                                                          DECIMAL_FORMAT.format(distance),
                                                          Integer.toString(distanceLimit.getAsInt())));
             return false;
@@ -618,7 +618,7 @@ public abstract class Creator extends ToolUser
 
     /**
      * Attempts to complete the step in the {@link Procedure} that sets the location of the rotation point for the
-     * {@link AbstractMovable} that is being created.
+     * {@link AbstractStructure} that is being created.
      *
      * @param loc
      *     The selected location of the rotation point.

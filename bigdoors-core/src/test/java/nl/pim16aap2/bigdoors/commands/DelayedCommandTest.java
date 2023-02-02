@@ -5,10 +5,10 @@ import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
+import nl.pim16aap2.bigdoors.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.util.functional.TriFunction;
-import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
-import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
+import nl.pim16aap2.bigdoors.util.structureretriever.StructureRetriever;
+import nl.pim16aap2.bigdoors.util.structureretriever.StructureRetrieverFactory;
 import nl.pim16aap2.testing.logging.LogInspector;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -56,16 +56,16 @@ class DelayedCommandTest
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     ICommandSender commandSender;
 
-    MovableRetriever movableRetriever;
+    StructureRetriever structureRetriever;
 
     @Mock
-    AbstractMovable movable;
+    AbstractStructure structure;
 
     @InjectMocks
-    MovableRetrieverFactory movableRetrieverFactory;
+    StructureRetrieverFactory structureRetrieverFactory;
 
     @Mock
-    TriFunction<ICommandSender, MovableRetriever, Object, CompletableFuture<Boolean>> delayedFunction;
+    TriFunction<ICommandSender, StructureRetriever, Object, CompletableFuture<Boolean>> delayedFunction;
 
     AutoCloseable openMocks;
 
@@ -74,7 +74,7 @@ class DelayedCommandTest
     {
         openMocks = MockitoAnnotations.openMocks(this);
         initInputRequestFactory(inputRequestFactory, localizer, delayedCommandInputManager);
-        movableRetriever = movableRetrieverFactory.of(movable);
+        structureRetriever = structureRetrieverFactory.of(structure);
         LogInspector.get().clearHistory();
     }
 
@@ -90,7 +90,7 @@ class DelayedCommandTest
     {
         final DelayedCommandImpl delayedCommand = new DelayedCommandImpl(context, inputRequestFactory, delayedFunction);
 
-        delayedCommand.runDelayed(commandSender, movableRetriever);
+        delayedCommand.runDelayed(commandSender, structureRetriever);
         Mockito.verify(commandSender, Mockito.times(1))
                .sendMessage(UnitTestUtil.toText(DelayedCommandImpl.INPUT_REQUEST_MSG));
         Mockito.verify(inputRequestFactory, Mockito.times(1)).create(
@@ -99,7 +99,7 @@ class DelayedCommandTest
 
         final Object input = new Object();
         delayedCommand.provideDelayedInput(commandSender, input).join();
-        Mockito.verify(delayedFunction, Mockito.times(1)).apply(commandSender, movableRetriever, input);
+        Mockito.verify(delayedFunction, Mockito.times(1)).apply(commandSender, structureRetriever, input);
 
         delayedCommand.provideDelayedInput(commandSender, new Object());
         Mockito.verify(commandSender, Mockito.times(1))
@@ -122,7 +122,7 @@ class DelayedCommandTest
         Mockito.when(delayedFunction.apply(Mockito.any(), Mockito.any(), Mockito.any()))
                .thenThrow(RuntimeException.class);
         final DelayedCommandImpl delayedCommand = new DelayedCommandImpl(context, inputRequestFactory, delayedFunction);
-        delayedCommand.runDelayed(commandSender, movableRetriever);
+        delayedCommand.runDelayed(commandSender, structureRetriever);
         Assertions.assertEquals(0, LogInspector.get().getThrowingCount());
 
         Assertions.assertDoesNotThrow(
@@ -159,11 +159,11 @@ class DelayedCommandTest
 
         public static final String INPUT_REQUEST_MSG = "DelayedCommandImpl INPUT REQUEST MSG";
 
-        private final TriFunction<ICommandSender, MovableRetriever, Object, CompletableFuture<Boolean>> delayedFunction;
+        private final TriFunction<ICommandSender, StructureRetriever, Object, CompletableFuture<Boolean>> delayedFunction;
 
         DelayedCommandImpl(
             Context context, DelayedCommandInputRequest.IFactory<Object> inputRequestFactory,
-            TriFunction<ICommandSender, MovableRetriever, Object, CompletableFuture<Boolean>> delayedFunction)
+            TriFunction<ICommandSender, StructureRetriever, Object, CompletableFuture<Boolean>> delayedFunction)
         {
             super(context, inputRequestFactory, Object.class);
             this.delayedFunction = delayedFunction;
@@ -177,13 +177,13 @@ class DelayedCommandTest
 
         @Override
         protected CompletableFuture<?> delayedInputExecutor(
-            ICommandSender commandSender, MovableRetriever movableRetriever, Object delayedInput)
+            ICommandSender commandSender, StructureRetriever structureRetriever, Object delayedInput)
         {
-            return delayedFunction.apply(commandSender, movableRetriever, delayedInput);
+            return delayedFunction.apply(commandSender, structureRetriever, delayedInput);
         }
 
         @Override
-        protected String inputRequestMessage(ICommandSender commandSender, MovableRetriever movableRetriever)
+        protected String inputRequestMessage(ICommandSender commandSender, StructureRetriever structureRetriever)
         {
             return INPUT_REQUEST_MSG;
         }

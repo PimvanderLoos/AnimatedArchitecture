@@ -34,7 +34,7 @@ public enum AnimationType
     }
 
     /**
-     * @return Whether this animation needs write access. When true, the state of the world or the movable will be
+     * @return Whether this animation needs write access. When true, the state of the world or the structure will be
      * affected by the animation. When false, the animation is side effect free.
      */
     public boolean requiresWriteAccess()

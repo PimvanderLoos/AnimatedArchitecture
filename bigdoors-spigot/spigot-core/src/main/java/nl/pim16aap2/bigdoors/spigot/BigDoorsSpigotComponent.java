@@ -23,7 +23,7 @@ import nl.pim16aap2.bigdoors.audio.IAudioPlayer;
 import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.commands.IPServer;
 import nl.pim16aap2.bigdoors.events.IBigDoorsEventCaller;
-import nl.pim16aap2.bigdoors.extensions.MovableTypeLoader;
+import nl.pim16aap2.bigdoors.extensions.StructureTypeLoader;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.localization.LocalizationManager;
 import nl.pim16aap2.bigdoors.localization.LocalizationModule;
@@ -32,12 +32,11 @@ import nl.pim16aap2.bigdoors.managers.AnimationHookManager;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
-import nl.pim16aap2.bigdoors.managers.MovableSpecificationManager;
-import nl.pim16aap2.bigdoors.managers.MovableTypeManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
+import nl.pim16aap2.bigdoors.managers.StructureSpecificationManager;
+import nl.pim16aap2.bigdoors.managers.StructureTypeManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
-import nl.pim16aap2.bigdoors.movable.MovableRegistry;
-import nl.pim16aap2.bigdoors.moveblocks.MovableActivityManager;
+import nl.pim16aap2.bigdoors.moveblocks.StructureActivityManager;
 import nl.pim16aap2.bigdoors.spigot.comands.CommandManager;
 import nl.pim16aap2.bigdoors.spigot.compatiblity.ProtectionCompatManagerModule;
 import nl.pim16aap2.bigdoors.spigot.compatiblity.ProtectionCompatManagerSpigot;
@@ -73,6 +72,7 @@ import nl.pim16aap2.bigdoors.spigot.util.implementations.messageable.MessagingIn
 import nl.pim16aap2.bigdoors.spigot.util.implementations.pexecutor.PExecutorModule;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.pserver.PServerModule;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteStorageModule;
+import nl.pim16aap2.bigdoors.structures.StructureRegistry;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.inject.Named;
@@ -197,13 +197,13 @@ interface BigDoorsSpigotComponent
 
     DatabaseManager getDatabaseManager();
 
-    MovableRegistry getDoorRegistry();
+    StructureRegistry getDoorRegistry();
 
-    MovableActivityManager getDoorActivityManager();
+    StructureActivityManager getDoorActivityManager();
 
-    MovableSpecificationManager getDoorSpecificationManager();
+    StructureSpecificationManager getDoorSpecificationManager();
 
-    MovableTypeManager getDoorTypeManager();
+    StructureTypeManager getDoorTypeManager();
 
     ToolUserManager getToolUserManager();
 
@@ -217,7 +217,7 @@ interface BigDoorsSpigotComponent
 
     IBlockAnalyzer getBlockAnalyzer();
 
-    MovableTypeLoader getDoorTypeLoader();
+    StructureTypeLoader getDoorTypeLoader();
 
     CommandFactory getCommandFactory();
 

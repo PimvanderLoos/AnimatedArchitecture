@@ -2,29 +2,29 @@ package nl.pim16aap2.bigdoors.spigot.factories.bigdoorseventfactory;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
-import nl.pim16aap2.bigdoors.events.IMovableCreatedEvent;
-import nl.pim16aap2.bigdoors.events.IMovablePrepareAddOwnerEvent;
-import nl.pim16aap2.bigdoors.events.IMovablePrepareCreateEvent;
-import nl.pim16aap2.bigdoors.events.IMovablePrepareDeleteEvent;
-import nl.pim16aap2.bigdoors.events.IMovablePrepareLockChangeEvent;
-import nl.pim16aap2.bigdoors.events.IMovablePrepareRemoveOwnerEvent;
-import nl.pim16aap2.bigdoors.events.movableaction.IMovableEventToggleEnd;
-import nl.pim16aap2.bigdoors.events.movableaction.IMovableEventTogglePrepare;
-import nl.pim16aap2.bigdoors.events.movableaction.IMovableEventToggleStart;
-import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
-import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableOwner;
-import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
-import nl.pim16aap2.bigdoors.spigot.events.MovableCreatedEvent;
-import nl.pim16aap2.bigdoors.spigot.events.MovablePrepareAddOwnerEvent;
-import nl.pim16aap2.bigdoors.spigot.events.MovablePrepareCreateEvent;
-import nl.pim16aap2.bigdoors.spigot.events.MovablePrepareDeleteEvent;
-import nl.pim16aap2.bigdoors.spigot.events.MovablePrepareLockChangeEvent;
-import nl.pim16aap2.bigdoors.spigot.events.MovablePrepareRemoveOwnerEvent;
-import nl.pim16aap2.bigdoors.spigot.events.dooraction.MovableEventToggleEnd;
-import nl.pim16aap2.bigdoors.spigot.events.dooraction.MovableEventTogglePrepare;
-import nl.pim16aap2.bigdoors.spigot.events.dooraction.MovableEventToggleStart;
+import nl.pim16aap2.bigdoors.events.IStructureCreatedEvent;
+import nl.pim16aap2.bigdoors.events.IStructurePrepareAddOwnerEvent;
+import nl.pim16aap2.bigdoors.events.IStructurePrepareCreateEvent;
+import nl.pim16aap2.bigdoors.events.IStructurePrepareDeleteEvent;
+import nl.pim16aap2.bigdoors.events.IStructurePrepareLockChangeEvent;
+import nl.pim16aap2.bigdoors.events.IStructurePrepareRemoveOwnerEvent;
+import nl.pim16aap2.bigdoors.events.structureaction.IStructureEventToggleEnd;
+import nl.pim16aap2.bigdoors.events.structureaction.IStructureEventTogglePrepare;
+import nl.pim16aap2.bigdoors.events.structureaction.IStructureEventToggleStart;
+import nl.pim16aap2.bigdoors.events.structureaction.StructureActionCause;
+import nl.pim16aap2.bigdoors.events.structureaction.StructureActionType;
+import nl.pim16aap2.bigdoors.spigot.events.StructureCreatedEvent;
+import nl.pim16aap2.bigdoors.spigot.events.StructurePrepareAddOwnerEvent;
+import nl.pim16aap2.bigdoors.spigot.events.StructurePrepareCreateEvent;
+import nl.pim16aap2.bigdoors.spigot.events.StructurePrepareDeleteEvent;
+import nl.pim16aap2.bigdoors.spigot.events.StructurePrepareLockChangeEvent;
+import nl.pim16aap2.bigdoors.spigot.events.StructurePrepareRemoveOwnerEvent;
+import nl.pim16aap2.bigdoors.spigot.events.structureaction.StructureEventToggleEnd;
+import nl.pim16aap2.bigdoors.spigot.events.structureaction.StructureEventTogglePrepare;
+import nl.pim16aap2.bigdoors.spigot.events.structureaction.StructureEventToggleStart;
+import nl.pim16aap2.bigdoors.structures.AbstractStructure;
+import nl.pim16aap2.bigdoors.structures.StructureOwner;
+import nl.pim16aap2.bigdoors.structures.StructureSnapshot;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,75 +41,76 @@ public class BigDoorsEventFactorySpigot implements IBigDoorsEventFactory
 
 
     @Override
-    public IMovableCreatedEvent createMovableCreatedEvent(AbstractMovable preview, @Nullable IPPlayer responsible)
+    public IStructureCreatedEvent createStructureCreatedEvent(AbstractStructure preview, @Nullable IPPlayer responsible)
     {
-        return new MovableCreatedEvent(preview, responsible);
+        return new StructureCreatedEvent(preview, responsible);
     }
 
     @Override
-    public IMovablePrepareCreateEvent createPrepareMovableCreateEvent(
-        AbstractMovable movable, @Nullable IPPlayer responsible)
+    public IStructurePrepareCreateEvent createPrepareStructureCreateEvent(
+        AbstractStructure structure, @Nullable IPPlayer responsible)
     {
-        return new MovablePrepareCreateEvent(movable, responsible);
+        return new StructurePrepareCreateEvent(structure, responsible);
     }
 
     @Override
-    public IMovablePrepareDeleteEvent createPrepareDeleteMovableEvent(
-        AbstractMovable movable, @Nullable IPPlayer responsible)
+    public IStructurePrepareDeleteEvent createPrepareDeleteStructureEvent(
+        AbstractStructure structure, @Nullable IPPlayer responsible)
     {
-        return new MovablePrepareDeleteEvent(movable, responsible);
+        return new StructurePrepareDeleteEvent(structure, responsible);
     }
 
     @Override
-    public IMovablePrepareAddOwnerEvent createMovablePrepareAddOwnerEvent(
-        AbstractMovable movable, MovableOwner newOwner,
+    public IStructurePrepareAddOwnerEvent createStructurePrepareAddOwnerEvent(
+        AbstractStructure structure, StructureOwner newOwner,
         @Nullable IPPlayer responsible)
     {
-        return new MovablePrepareAddOwnerEvent(movable, responsible, newOwner);
+        return new StructurePrepareAddOwnerEvent(structure, responsible, newOwner);
     }
 
     @Override
-    public IMovablePrepareRemoveOwnerEvent createMovablePrepareRemoveOwnerEvent(
-        AbstractMovable movable, MovableOwner removedOwner,
+    public IStructurePrepareRemoveOwnerEvent createStructurePrepareRemoveOwnerEvent(
+        AbstractStructure structure, StructureOwner removedOwner,
         @Nullable IPPlayer responsible)
     {
-        return new MovablePrepareRemoveOwnerEvent(movable, responsible, removedOwner);
+        return new StructurePrepareRemoveOwnerEvent(structure, responsible, removedOwner);
     }
 
     @Override
-    public IMovablePrepareLockChangeEvent createMovablePrepareLockChangeEvent(
-        AbstractMovable movable, boolean newLockStatus,
+    public IStructurePrepareLockChangeEvent createStructurePrepareLockChangeEvent(
+        AbstractStructure structure, boolean newLockStatus,
         @Nullable IPPlayer responsible)
     {
-        return new MovablePrepareLockChangeEvent(movable, responsible, newLockStatus);
+        return new StructurePrepareLockChangeEvent(structure, responsible, newLockStatus);
     }
 
     @Override
-    public IMovableEventTogglePrepare createTogglePrepareEvent(
-        MovableSnapshot snapshot, MovableActionCause cause,
-        MovableActionType actionType, IPPlayer responsible,
+    public IStructureEventTogglePrepare createTogglePrepareEvent(
+        StructureSnapshot snapshot, StructureActionCause cause,
+        StructureActionType actionType, IPPlayer responsible,
         double time, boolean skipAnimation, Cuboid newCuboid)
     {
-        return new MovableEventTogglePrepare(snapshot, cause, actionType, responsible, time, skipAnimation, newCuboid);
+        return new StructureEventTogglePrepare(snapshot, cause, actionType, responsible, time, skipAnimation,
+                                               newCuboid);
     }
 
     @Override
-    public IMovableEventToggleStart createToggleStartEvent(
-        AbstractMovable movable, MovableSnapshot movableSnapshot, MovableActionCause cause,
-        MovableActionType actionType, IPPlayer responsible, double time,
+    public IStructureEventToggleStart createToggleStartEvent(
+        AbstractStructure structure, StructureSnapshot structureSnapshot, StructureActionCause cause,
+        StructureActionType actionType, IPPlayer responsible, double time,
         boolean skipAnimation, Cuboid newCuboid)
 
     {
-        return new MovableEventToggleStart(
-            movable, movableSnapshot, cause, actionType, responsible, time, skipAnimation, newCuboid);
+        return new StructureEventToggleStart(
+            structure, structureSnapshot, cause, actionType, responsible, time, skipAnimation, newCuboid);
     }
 
     @Override
-    public IMovableEventToggleEnd createToggleEndEvent(
-        AbstractMovable movable, MovableSnapshot snapshot, MovableActionCause cause,
-        MovableActionType actionType,
+    public IStructureEventToggleEnd createToggleEndEvent(
+        AbstractStructure structure, StructureSnapshot snapshot, StructureActionCause cause,
+        StructureActionType actionType,
         IPPlayer responsible, double time, boolean skipAnimation)
     {
-        return new MovableEventToggleEnd(movable, snapshot, cause, actionType, responsible, time, skipAnimation);
+        return new StructureEventToggleEnd(structure, snapshot, cause, actionType, responsible, time, skipAnimation);
     }
 }

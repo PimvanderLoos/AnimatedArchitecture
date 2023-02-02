@@ -10,10 +10,10 @@ import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.debugging.IDebuggable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.localization.LocalizationUtil;
-import nl.pim16aap2.bigdoors.managers.MovableTypeManager;
-import nl.pim16aap2.bigdoors.movabletypes.MovableType;
+import nl.pim16aap2.bigdoors.managers.StructureTypeManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.ConfigReaderSpigot;
+import nl.pim16aap2.bigdoors.structuretypes.StructureType;
 import nl.pim16aap2.bigdoors.util.ConfigEntry;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.Limit;
@@ -54,7 +54,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
     @ToString.Exclude
     private final JavaPlugin plugin;
     @ToString.Exclude
-    private final Lazy<MovableTypeManager> movableTypeManager;
+    private final Lazy<StructureTypeManager> structureTypeManager;
     private final Path baseDir;
 
     private static final List<String> DEFAULT_POWERBLOCK_TYPE = List.of("GOLD_BLOCK");
@@ -64,17 +64,17 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
     private final Set<Material> materialBlacklist = EnumSet.noneOf(Material.class);
     @ToString.Exclude
     private final List<ConfigEntry<?>> configEntries = new ArrayList<>();
-    private final Map<MovableType, String> movablePrices;
-    private final Map<MovableType, Double> movableSpeedMultipliers;
+    private final Map<StructureType, String> structurePrices;
+    private final Map<StructureType, Double> structureSpeedMultipliers;
     @ToString.Exclude
     private final String header;
 
     private int coolDown;
     private boolean allowStats;
-    private OptionalInt maxMovableSize = OptionalInt.empty();
+    private OptionalInt maxStructureSize = OptionalInt.empty();
     private OptionalInt maxPowerBlockDistance = OptionalInt.empty();
     private String resourcePack = "";
-    private OptionalInt maxMovableCount = OptionalInt.empty();
+    private OptionalInt maxStructureCount = OptionalInt.empty();
     private OptionalInt maxBlocksToMove = OptionalInt.empty();
     private double maxBlockSpeed;
     private int cacheTimeout;
@@ -98,14 +98,14 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
      */
     @Inject
     public ConfigLoaderSpigot(
-        RestartableHolder restartableHolder, JavaPlugin plugin, Lazy<MovableTypeManager> movableTypeManager,
+        RestartableHolder restartableHolder, JavaPlugin plugin, Lazy<StructureTypeManager> structureTypeManager,
         @Named("pluginBaseDirectory") Path baseDir, DebuggableRegistry debuggableRegistry)
     {
         this.plugin = plugin;
-        this.movableTypeManager = movableTypeManager;
+        this.structureTypeManager = structureTypeManager;
         this.baseDir = baseDir;
-        movablePrices = new HashMap<>();
-        movableSpeedMultipliers = new HashMap<>();
+        structurePrices = new HashMap<>();
+        structureSpeedMultipliers = new HashMap<>();
 
         header = "Config file for BigDoors. Don't forget to make a backup before making changes!";
 
@@ -125,8 +125,8 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
     {
         configEntries.clear();
         powerBlockTypes.clear();
-        movablePrices.clear();
-        movableSpeedMultipliers.clear();
+        structurePrices.clear();
+        structureSpeedMultipliers.clear();
     }
 
     /**
@@ -141,30 +141,30 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
         final String defResPackUrl1_13 = "https://www.dropbox.com/s/al4idl017ggpnuq/BigDoorsResourcePack-1_13.zip?dl=1";
 
         final String[] loadChunksForToggleComment = {
-            "Try to load chunks when a movable is toggled. When set to false, movables will not be toggled " +
+            "Try to load chunks when a structure is toggled. When set to false, structures will not be toggled " +
                 "if more than 1 chunk needs to be loaded.",
-            "When set to true, the plugin will try to load all chunks the movable will interact with before " +
+            "When set to true, the plugin will try to load all chunks the structure will interact with before " +
                 "toggling. If more than 1 chunk ",
-            "needs to be loaded, the movable will skip its animation to avoid spawning a bunch of entities " +
+            "needs to be loaded, the structure will skip its animation to avoid spawning a bunch of entities " +
                 "no one can see anyway."};
         final String[] enableRedstoneComment = {
-            "Allow movables to be opened using redstone signals."};
+            "Allow structures to be opened using redstone signals."};
         final String[] powerBlockTypeComment = {
-            "Choose the type of the power block that is used to open movables using redstone.",
+            "Choose the type of the power block that is used to open structures using redstone.",
             "A list can be found here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html",
-            "This is the block that will open the movable attached to it when it receives a redstone signal.",
+            "This is the block that will open the structure attached to it when it receives a redstone signal.",
             "Multiple types are allowed."};
         final String[] blacklistComment = {
             "List of blacklisted materials. Materials on this list can not be animated.",
             "Use the same list of materials as for the power blocks. For example, you would blacklist bedrock like so:",
             "  - BEDROCK"};
-        final String[] maxMovableCountComment = {
-            "Global maximum number of movables a player can own. You can set it to -1 to disable it this limit.",
+        final String[] maxStructureCountComment = {
+            "Global maximum number of structures a player can own. You can set it to -1 to disable it this limit.",
             "Not even admins and OPs can bypass this limit!",
             "Note that you can also use permissions for this, if you need more finely grained control using this node:",
-            "'" + Limit.MOVABLE_COUNT.getUserPermission() + "x', where 'x' can be any positive value."};
+            "'" + Limit.STRUCTURE_COUNT.getUserPermission() + "x', where 'x' can be any positive value."};
         final String[] maxBlocksToMoveComment = {
-            "Global maximum number of movables a player can own. You can set it to -1 to disable it this limit.",
+            "Global maximum number of structures a player can own. You can set it to -1 to disable it this limit.",
             "Not even admins and OPs can bypass this limit!",
             "Note that you can also use permissions for this, if you need more finely grained control using this node:",
             "'" + Limit.BLOCKS_TO_MOVE.getUserPermission() + "x', where 'x' can be any positive value."};
@@ -183,16 +183,17 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
             "Allow this plugin to send (anonymized) stats using bStats. Please consider keeping it enabled.",
             "It has a negligible impact on performance and more users on " +
                 "stats keeps me more motivated to support this plugin!"};
-        final String[] maxMovableSizeComment = {
-            "Global maximum number of blocks allowed in a movable. You can set it to -1 to disable it this limit.",
-            "If this number is exceeded, movables will open instantly and skip the animation.",
+        final String[] maxStructureSizeComment = {
+            "Global maximum number of blocks allowed in a structure. You can set it to -1 to disable it this limit.",
+            "If this number is exceeded, structures will open instantly and skip the animation.",
             "Not even admins and OPs can bypass this limit!",
             "Note that you can also use permissions for this, " +
                 "if you need more finely grained control using this node: ",
-            "'" + Limit.MOVABLE_SIZE.getUserPermission() + "x', where 'x' can be any positive value."};
+            "'" + Limit.STRUCTURE_SIZE.getUserPermission() + "x', where 'x' can be any positive value."};
         final String[] maxPowerBlockDistanceComment = {
-            "Global maximum distance between a movable and its powerblock. You can set it to -1 to disable this limit.",
-            "The distance is measured from the center of the movable.",
+            "Global maximum distance between a structure and its powerblock. " +
+                "You can set it to -1 to disable this limit.",
+            "The distance is measured from the center of the structure.",
             "Not even admins and OPs can bypass this limit!",
             "Note that you can also use permissions for this, " +
                 "if you need more finely grained control using this node: ",
@@ -212,15 +213,15 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
             "Higher values may result in choppier and/or glitchier animations."
         };
         final String[] speedMultiplierComment = {
-            "Change the animation time of each movable type.",
+            "Change the animation time of each structure type.",
             "Note that the maximum speed is limited by 'maxBlockSpeed', " +
-                "so there is a limit to how fast you can make the movables",
+                "so there is a limit to how fast you can make the structures",
             "The higher the value, the more time an animation will take. ",
             "For example, So 1.5 means it will take 50% as long, and 0.5 means it will only take half as long.",
             "To use the default values, set them to \"1.0\" (without quotation marks).",
             "Note that everything is optimized for default values, so it's recommended to leave this setting as-is."};
         final String[] coolDownComment = {
-            "Cool-down on using movables. Time is measured in seconds."};
+            "Cool-down on using structures. Time is measured in seconds."};
         final String[] cacheTimeoutComment = {
             "Amount of time (in minutes) to cache power block positions in a chunk. " +
                 "-1 means no caching (not recommended!), 0 = infinite cache (not recommended either!).",
@@ -238,7 +239,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
             "The return value of the formula is the horizontal displacement of a single block in the flag."
         };
         final String[] pricesComment = {
-            "When Vault is present, you can set the price of creation here for each type of movable.",
+            "When Vault is present, you can set the price of creation here for each type of structure.",
             "You can use the word \"blockCount\" (without quotation marks, case sensitive) as a " +
                 "variable that will be replaced by the actual blockCount.",
             "Furthermore, you can use these operators: -, +, *, /, sqrt(), ^, %, " +
@@ -276,14 +277,14 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
         addNewConfigEntry(config, "materialBlacklist", DEFAULT_BLACKLIST, blacklistComment,
                           new MaterialVerifier(materialBlacklist));
 
-        final int maxMovableCount = addNewConfigEntry(config, "maxMovableCount", -1, maxMovableCountComment);
-        this.maxMovableCount = maxMovableCount > 0 ? OptionalInt.of(maxMovableCount) : OptionalInt.empty();
+        final int maxStructureCount = addNewConfigEntry(config, "maxStructureCount", -1, maxStructureCountComment);
+        this.maxStructureCount = maxStructureCount > 0 ? OptionalInt.of(maxStructureCount) : OptionalInt.empty();
 
         final int maxBlocksToMove = addNewConfigEntry(config, "maxBlocksToMove", 100, maxBlocksToMoveComment);
         this.maxBlocksToMove = maxBlocksToMove > 0 ? OptionalInt.of(maxBlocksToMove) : OptionalInt.empty();
 
-        final int maxMovableSize = addNewConfigEntry(config, "maxMovableSize", 500, maxMovableSizeComment);
-        this.maxMovableSize = maxMovableSize > 0 ? OptionalInt.of(maxMovableSize) : OptionalInt.empty();
+        final int maxStructureSize = addNewConfigEntry(config, "maxStructureSize", 500, maxStructureSizeComment);
+        this.maxStructureSize = maxStructureSize > 0 ? OptionalInt.of(maxStructureSize) : OptionalInt.empty();
 
         final int maxPowerBlockDistance = addNewConfigEntry(config, "maxPowerBlockDistance", -1,
                                                             maxPowerBlockDistanceComment);
@@ -316,10 +317,11 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
 
         maxBlockSpeed = addNewConfigEntry(config, "maxBlockSpeed", 5.0D, maxBlockSpeedComment);
 
-        final List<MovableType> enabledMovableTypes = movableTypeManager.get().getEnabledMovableTypes();
-        parseForEachMovableType(movableSpeedMultipliers, config, enabledMovableTypes, speedMultiplierComment, 1.0D,
-                                "speed-multiplier_");
-        parseForEachMovableType(movablePrices, config, enabledMovableTypes, pricesComment, "0", "price_");
+        final List<StructureType> enabledStructureTypes = structureTypeManager.get().getEnabledStructureTypes();
+        parseForEachStructureType(structureSpeedMultipliers, config, enabledStructureTypes, speedMultiplierComment,
+                                  1.0D,
+                                  "speed-multiplier_");
+        parseForEachStructureType(structurePrices, config, enabledStructureTypes, pricesComment, "0", "price_");
 
         consoleLogging = addNewConfigEntry(config, "consoleLogging", true, consoleLoggingComment);
         final String logLevelName = addNewConfigEntry(config, "logLevel", "INFO", logLevelComment);
@@ -336,14 +338,14 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
         printInfo();
     }
 
-    private <T> void parseForEachMovableType(
-        Map<MovableType, T> target, IConfigReader config, List<MovableType> enabledMovableTypes,
+    private <T> void parseForEachStructureType(
+        Map<StructureType, T> target, IConfigReader config, List<StructureType> enabledStructureTypes,
         String[] header, T defaultValue, String startsWith)
     {
         final Map<String, Object> existingMappings = getKeysStartingWith(config, startsWith, defaultValue);
 
         String @Nullable [] comment = header;
-        for (final MovableType type : enabledMovableTypes)
+        for (final StructureType type : enabledStructureTypes)
         {
             final String key = startsWith + type.getSimpleName();
             target.put(type, addNewConfigEntry(config, key, defaultValue, comment));
@@ -351,7 +353,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
             comment = null;
         }
 
-        comment = comment == null ? new String[]{"# Unloaded MovableTypes "} : comment;
+        comment = comment == null ? new String[]{"# Unloaded StructureTypes "} : comment;
         // Add the unmapped entries so they aren't ignored.
         for (final var entry : existingMappings.entrySet())
         {
@@ -514,9 +516,9 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
     }
 
     @Override
-    public OptionalInt maxMovableSize()
+    public OptionalInt maxStructureSize()
     {
-        return maxMovableSize;
+        return maxStructureSize;
     }
 
     @Override
@@ -537,9 +539,9 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
     }
 
     @Override
-    public OptionalInt maxMovableCount()
+    public OptionalInt maxStructureCount()
     {
-        return maxMovableCount;
+        return maxStructureCount;
     }
 
     @Override
@@ -603,9 +605,9 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
     }
 
     @Override
-    public String getPrice(MovableType type)
+    public String getPrice(StructureType type)
     {
-        final String ret = movablePrices.get(type);
+        final String ret = structurePrices.get(type);
         if (ret != null)
             return ret;
         log.atSevere().withStackTrace(StackSize.FULL).log("No price found for type: '%s'", type);
@@ -613,9 +615,9 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
     }
 
     @Override
-    public double getAnimationSpeedMultiplier(MovableType type)
+    public double getAnimationSpeedMultiplier(StructureType type)
     {
-        return Math.max(0.0001D, movableSpeedMultipliers.getOrDefault(type, 1.0D));
+        return Math.max(0.0001D, structureSpeedMultipliers.getOrDefault(type, 1.0D));
     }
 
     @Override

@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.util;
 
 
-import nl.pim16aap2.bigdoors.movable.MovableAttribute;
+import nl.pim16aap2.bigdoors.structures.StructureAttribute;
 
 /**
  * Represents a list of constant variables.
@@ -27,10 +27,10 @@ public final class Constants
     public static final boolean DEV_BUILD = true;
 
     /**
-     * Minimum number of ticks a movable needs to cool down before it can be toggled again. This should help with some
+     * Minimum number of ticks a structure needs to cool down before it can be toggled again. This should help with some
      * rare cases of overlapping processes and whatnot.
      */
-    public static final int MINIMUM_MOVABLE_DELAY = 10;
+    public static final int MINIMUM_STRUCTURE_DELAY = 10;
 
     /**
      * The name of this plugin.
@@ -43,12 +43,12 @@ public final class Constants
     public static final String BIGDOORS_EXTENSIONS_FOLDER_NAME = "extensions";
 
     /**
-     * The amount of time (in seconds) a user has to complete the movable creation process.
+     * The amount of time (in seconds) a user has to complete the structure creation process.
      */
-    public static final int MOVABLE_CREATOR_TIME_LIMIT = 120 * 20;
+    public static final int STRUCTURE_CREATOR_TIME_LIMIT = 120 * 20;
 
     /**
-     * The prefix for the {@link MovableAttribute}-specific bypass permissions.
+     * The prefix for the {@link StructureAttribute}-specific bypass permissions.
      */
     public static final String ATTRIBUTE_BYPASS_PERMISSION_PREFIX = "bigdoors.admin.bypass.attribute.";
 }

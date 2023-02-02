@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.api;
 
-import nl.pim16aap2.bigdoors.movable.MovableAttribute;
+import nl.pim16aap2.bigdoors.structures.StructureAttribute;
 
 import java.util.OptionalInt;
 
@@ -34,16 +34,16 @@ public interface IPermissionsManager
     /**
      * Checks if a player has bypass permissions for a specific attribute.
      * <p>
-     * Having bypass permissions means that a player is able to access a given attribute for movables even if they are
-     * not co-owners of those movables.
+     * Having bypass permissions means that a player is able to access a given attribute for structures even if they are
+     * not co-owners of those structures.
      *
      * @param player
      *     The player whose permissions to check.
-     * @param movableAttribute
-     *     The attribute of the Movable for which to verify if the player has bypass permissions.
+     * @param structureAttribute
+     *     The attribute of the Structure for which to verify if the player has bypass permissions.
      * @return True if the player has bypass permissions for the attribute.
      */
-    boolean hasBypassPermissionsForAttribute(IPPlayer player, MovableAttribute movableAttribute);
+    boolean hasBypassPermissionsForAttribute(IPPlayer player, StructureAttribute structureAttribute);
 
     /**
      * Checks if the given player is a server operator or not.

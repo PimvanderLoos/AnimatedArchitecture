@@ -4,9 +4,9 @@ import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
-import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
+import nl.pim16aap2.bigdoors.structures.AbstractStructure;
+import nl.pim16aap2.bigdoors.util.structureretriever.StructureRetriever;
+import nl.pim16aap2.bigdoors.util.structureretriever.StructureRetrieverFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,9 +21,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Timeout(1)
-class ListMovablesTest
+class ListStructuresTest
 {
-    private List<AbstractMovable> movables;
+    private List<AbstractStructure> structures;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private IPPlayer playerCommandSender;
@@ -32,7 +32,7 @@ class ListMovablesTest
     private IPServer serverCommandSender;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
-    private ListMovables.IFactory factory;
+    private ListStructures.IFactory factory;
 
     @BeforeEach
     void init()
@@ -40,43 +40,43 @@ class ListMovablesTest
         MockitoAnnotations.openMocks(this);
 
         final int size = 3;
-        movables = new ArrayList<>(size);
+        structures = new ArrayList<>(size);
         for (int idx = 0; idx < size; ++idx)
-            movables.add(Mockito.mock(AbstractMovable.class));
+            structures.add(Mockito.mock(AbstractStructure.class));
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
-        Mockito.when(factory.newListMovables(Mockito.any(ICommandSender.class),
-                                             Mockito.any(MovableRetriever.class)))
-               .thenAnswer(invoc -> new ListMovables(invoc.getArgument(0, ICommandSender.class), localizer,
-                                                     ITextFactory.getSimpleTextFactory(),
-                                                     invoc.getArgument(1, MovableRetriever.class)));
+        Mockito.when(factory.newListStructures(Mockito.any(ICommandSender.class),
+                                               Mockito.any(StructureRetriever.class)))
+               .thenAnswer(invoc -> new ListStructures(invoc.getArgument(0, ICommandSender.class), localizer,
+                                                       ITextFactory.getSimpleTextFactory(),
+                                                       invoc.getArgument(1, StructureRetriever.class)));
     }
 
     @Test
     void testBypass()
     {
-        MovableRetriever retriever = MovableRetrieverFactory.ofMovables(movables);
+        StructureRetriever retriever = StructureRetrieverFactory.ofStructures(structures);
 
-        // No movables will be found, because the command sender is not an owner of any them.
+        // No structures will be found, because the command sender is not an owner of any them.
         CommandTestingUtil.initCommandSenderPermissions(playerCommandSender, true, false);
         Assertions.assertDoesNotThrow(
-            () -> factory.newListMovables(playerCommandSender, retriever).run().get(1, TimeUnit.SECONDS));
+            () -> factory.newListStructures(playerCommandSender, retriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(playerCommandSender)
-               .sendMessage(UnitTestUtil.toText("commands.list_movables.error.no_movables_found"));
+               .sendMessage(UnitTestUtil.toText("commands.list_structures.error.no_structures_found"));
 
         // Run it again, but now do so with admin permissions enabled.
-        // As a result, we should NOT get the "No movables found!" message again.
+        // As a result, we should NOT get the "No structures found!" message again.
         CommandTestingUtil.initCommandSenderPermissions(playerCommandSender, true, true);
         Assertions.assertDoesNotThrow(
-            () -> factory.newListMovables(playerCommandSender, retriever).run().get(1, TimeUnit.SECONDS));
+            () -> factory.newListStructures(playerCommandSender, retriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(playerCommandSender)
-               .sendMessage(UnitTestUtil.toText("commands.list_movables.error.no_movables_found"));
+               .sendMessage(UnitTestUtil.toText("commands.list_structures.error.no_structures_found"));
 
 
         Assertions.assertDoesNotThrow(
-            () -> factory.newListMovables(serverCommandSender, retriever).run().get(1, TimeUnit.SECONDS));
+            () -> factory.newListStructures(serverCommandSender, retriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(serverCommandSender, Mockito.never())
-               .sendMessage(UnitTestUtil.toText("commands.list_movables.error.no_movables_found"));
+               .sendMessage(UnitTestUtil.toText("commands.list_structures.error.no_structures_found"));
     }
 }

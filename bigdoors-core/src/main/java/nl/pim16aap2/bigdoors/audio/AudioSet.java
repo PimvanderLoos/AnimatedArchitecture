@@ -14,11 +14,11 @@ import java.lang.reflect.Type;
  * animation.
  *
  * @param activeAudio
- *     The audio to use while the animation is active. Taking a movable as an example, this could be sound of the
- *     scraping of the bottom part of the movable along the floor.
+ *     The audio to use while the animation is active. Taking a structure as an example, this could be sound of the
+ *     scraping of the bottom part of the structure along the floor.
  * @param endAudio
- *     The audio to use at the end of the animation when it is shutting down. Looking at a movable again, this could
- *     describe the sound of the movable slamming into the movable frame.
+ *     The audio to use at the end of the animation when it is shutting down. Looking at a structure again, this could
+ *     describe the sound of the structure slamming into the structure frame.
  */
 public record AudioSet(@Nullable AudioDescription activeAudio, @Nullable AudioDescription endAudio)
 {

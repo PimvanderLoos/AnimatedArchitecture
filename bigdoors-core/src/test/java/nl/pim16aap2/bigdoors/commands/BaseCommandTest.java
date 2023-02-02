@@ -4,8 +4,8 @@ import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableAttribute;
+import nl.pim16aap2.bigdoors.structures.AbstractStructure;
+import nl.pim16aap2.bigdoors.structures.StructureAttribute;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,7 +29,7 @@ class BaseCommandTest
     private BaseCommand baseCommand;
 
     @Mock
-    private AbstractMovable door;
+    private AbstractStructure door;
 
     @Mock
     private ICommandSender commandSender;
@@ -51,21 +51,21 @@ class BaseCommandTest
     @Test
     void testHasAccess()
     {
-        Assertions.assertTrue(baseCommand.hasAccessToAttribute(door, MovableAttribute.DELETE, true));
-        Assertions.assertTrue(baseCommand.hasAccessToAttribute(door, MovableAttribute.DELETE, false));
+        Assertions.assertTrue(baseCommand.hasAccessToAttribute(door, StructureAttribute.DELETE, true));
+        Assertions.assertTrue(baseCommand.hasAccessToAttribute(door, StructureAttribute.DELETE, false));
 
         final IPPlayer player = Mockito.mock(IPPlayer.class, Answers.CALLS_REAL_METHODS);
         UnitTestUtil.setField(BaseCommand.class, baseCommand, "commandSender", player);
 
-        Mockito.when(door.getOwner(player)).thenReturn(Optional.of(movableOwnerNoPerm));
-        Assertions.assertFalse(baseCommand.hasAccessToAttribute(door, MovableAttribute.DELETE, false));
-        Assertions.assertTrue(baseCommand.hasAccessToAttribute(door, MovableAttribute.DELETE, true));
+        Mockito.when(door.getOwner(player)).thenReturn(Optional.of(structureOwnerNoPerm));
+        Assertions.assertFalse(baseCommand.hasAccessToAttribute(door, StructureAttribute.DELETE, false));
+        Assertions.assertTrue(baseCommand.hasAccessToAttribute(door, StructureAttribute.DELETE, true));
 
-        Mockito.when(door.getOwner(player)).thenReturn(Optional.of(movableOwnerAdmin));
-        Assertions.assertFalse(baseCommand.hasAccessToAttribute(door, MovableAttribute.DELETE, false));
+        Mockito.when(door.getOwner(player)).thenReturn(Optional.of(structureOwnerAdmin));
+        Assertions.assertFalse(baseCommand.hasAccessToAttribute(door, StructureAttribute.DELETE, false));
 
-        Mockito.when(door.getOwner(player)).thenReturn(Optional.of(movableOwnerCreator));
-        Assertions.assertTrue(baseCommand.hasAccessToAttribute(door, MovableAttribute.DELETE, false));
+        Mockito.when(door.getOwner(player)).thenReturn(Optional.of(structureOwnerCreator));
+        Assertions.assertTrue(baseCommand.hasAccessToAttribute(door, StructureAttribute.DELETE, false));
     }
 
     @Test

@@ -12,8 +12,8 @@ import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.data.cache.timed.TimedCache;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.IMovableConst;
+import nl.pim16aap2.bigdoors.structures.AbstractStructure;
+import nl.pim16aap2.bigdoors.structures.IStructureConst;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -35,7 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Singleton
 @Flogger
-public final class PowerBlockManager extends Restartable implements MovableDeletionManager.IDeletionListener
+public final class PowerBlockManager extends Restartable implements StructureDeletionManager.IDeletionListener
 {
     private final Map<String, PowerBlockWorld> powerBlockWorlds = new ConcurrentHashMap<>();
     private final IConfigLoader config;
@@ -54,14 +54,14 @@ public final class PowerBlockManager extends Restartable implements MovableDelet
      */
     @Inject PowerBlockManager(
         RestartableHolder restartableHolder, IConfigLoader config, DatabaseManager databaseManager,
-        MovableDeletionManager movableDeletionManager)
+        StructureDeletionManager structureDeletionManager)
     {
         super(restartableHolder);
 
         this.config = config;
         this.databaseManager = databaseManager;
 
-        movableDeletionManager.registerDeletionListener(this);
+        structureDeletionManager.registerDeletionListener(this);
     }
 
     /**
@@ -87,41 +87,41 @@ public final class PowerBlockManager extends Restartable implements MovableDelet
     }
 
     /**
-     * Gets all {@link AbstractMovable}s that have a powerblock at a location in a world.
+     * Gets all {@link AbstractStructure}s that have a powerblock at a location in a world.
      *
      * @param location
      *     The location.
-     * @return All {@link AbstractMovable}s that have a powerblock at a location in a world.
+     * @return All {@link AbstractStructure}s that have a powerblock at a location in a world.
      */
-    public CompletableFuture<List<AbstractMovable>> movablesFromPowerBlockLoc(IPLocation location)
+    public CompletableFuture<List<AbstractStructure>> structuresFromPowerBlockLoc(IPLocation location)
     {
-        return this.movablesFromPowerBlockLoc(location.getPosition(), location.getWorld().worldName());
+        return this.structuresFromPowerBlockLoc(location.getPosition(), location.getWorld().worldName());
     }
 
     /**
-     * Gets all {@link AbstractMovable}s that have a powerblock at a location in a world.
+     * Gets all {@link AbstractStructure}s that have a powerblock at a location in a world.
      *
      * @param loc
      *     The location.
      * @param world
      *     The world.
-     * @return All {@link AbstractMovable}s that have a powerblock at a location in a world.
+     * @return All {@link AbstractStructure}s that have a powerblock at a location in a world.
      */
-    public CompletableFuture<List<AbstractMovable>> movablesFromPowerBlockLoc(Vector3Di loc, IPWorld world)
+    public CompletableFuture<List<AbstractStructure>> structuresFromPowerBlockLoc(Vector3Di loc, IPWorld world)
     {
-        return this.movablesFromPowerBlockLoc(loc, world.worldName());
+        return this.structuresFromPowerBlockLoc(loc, world.worldName());
     }
 
     /**
-     * Gets all {@link AbstractMovable}s that have a powerblock at a location in a world.
+     * Gets all {@link AbstractStructure}s that have a powerblock at a location in a world.
      *
      * @param loc
      *     The location.
      * @param worldName
      *     The name of the world.
-     * @return All {@link AbstractMovable}s that have a powerblock at a location in a world.
+     * @return All {@link AbstractStructure}s that have a powerblock at a location in a world.
      */
-    public CompletableFuture<List<AbstractMovable>> movablesFromPowerBlockLoc(Vector3Di loc, String worldName)
+    public CompletableFuture<List<AbstractStructure>> structuresFromPowerBlockLoc(Vector3Di loc, String worldName)
     {
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
@@ -129,19 +129,19 @@ public final class PowerBlockManager extends Restartable implements MovableDelet
             log.atWarning().log("Failed to load power blocks for world: '%s'.", worldName);
             return CompletableFuture.completedFuture(Collections.emptyList());
         }
-        return mapUidsToMovables(powerBlockWorld.getPowerBlocksAtLocation(loc));
+        return mapUidsToStructures(powerBlockWorld.getPowerBlocksAtLocation(loc));
     }
 
     /**
-     * Retrieves all movables whose powerblocks exist in the same chunk as a given location.
+     * Retrieves all structures whose powerblocks exist in the same chunk as a given location.
      *
      * @param loc
      *     The location.
      * @param worldName
      *     The name of the world to search in.
-     * @return The UIDs of the movables that whose powerblocks lie in the same chunk as the location.
+     * @return The UIDs of the structures that whose powerblocks lie in the same chunk as the location.
      */
-    public CompletableFuture<List<AbstractMovable>> movablesInChunk(Vector3Di loc, String worldName)
+    public CompletableFuture<List<AbstractStructure>> structuresInChunk(Vector3Di loc, String worldName)
     {
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
@@ -149,24 +149,24 @@ public final class PowerBlockManager extends Restartable implements MovableDelet
             log.atWarning().log("Failed to load power blocks for world: '%s'.", worldName);
             return CompletableFuture.completedFuture(Collections.emptyList());
         }
-        return mapUidsToMovables(powerBlockWorld.getPowerBlocksInChunk(loc));
+        return mapUidsToStructures(powerBlockWorld.getPowerBlocksInChunk(loc));
     }
 
-    private CompletableFuture<List<AbstractMovable>> mapUidsToMovables(CompletableFuture<LongList> uids)
+    private CompletableFuture<List<AbstractStructure>> mapUidsToStructures(CompletableFuture<LongList> uids)
     {
         return uids
-            .thenApplyAsync(lst -> lst.longStream().mapToObj(databaseManager::getMovable).toList())
+            .thenApplyAsync(lst -> lst.longStream().mapToObj(databaseManager::getStructure).toList())
             .thenCompose(Util::getAllCompletableFutureResults)
             .thenApply(lst -> lst.stream().filter(Optional::isPresent).map(Optional::get).toList())
             .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
-     * Checks if a world is a BigDoors world. In other words, it checks if a world contains more than 0 movables.
+     * Checks if a world is a BigDoors world. In other words, it checks if a world contains more than 0 structures.
      *
      * @param worldName
      *     The name of the world.
-     * @return True if the world contains at least 1 movable.
+     * @return True if the world contains at least 1 structure.
      */
     public boolean isBigDoorsWorld(String worldName)
     {
@@ -180,24 +180,24 @@ public final class PowerBlockManager extends Restartable implements MovableDelet
     }
 
     /**
-     * Updates the position of the power block of a {@link AbstractMovable} in the database.
+     * Updates the position of the power block of a {@link AbstractStructure} in the database.
      *
-     * @param movable
-     *     The {@link AbstractMovable}.
+     * @param structure
+     *     The {@link AbstractStructure}.
      * @param oldPos
      *     The old position.
      * @param newPos
      *     The new position.
      */
     @SuppressWarnings("unused")
-    public void updatePowerBlockLoc(AbstractMovable movable, Vector3Di oldPos, Vector3Di newPos)
+    public void updatePowerBlockLoc(AbstractStructure structure, Vector3Di oldPos, Vector3Di newPos)
     {
-        movable.setPowerBlock(newPos);
-        movable.syncData();
-        final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(movable.getWorld().worldName());
+        structure.setPowerBlock(newPos);
+        structure.syncData();
+        final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(structure.getWorld().worldName());
         if (powerBlockWorld == null)
         {
-            log.atWarning().log("Failed to load power blocks for world: '%s'.", movable.getWorld().worldName());
+            log.atWarning().log("Failed to load power blocks for world: '%s'.", structure.getWorld().worldName());
             return;
         }
 
@@ -207,14 +207,14 @@ public final class PowerBlockManager extends Restartable implements MovableDelet
     }
 
     /**
-     * Invalidates the cache for when a movable is either added to a world or removed from it.
+     * Invalidates the cache for when a structure is either added to a world or removed from it.
      *
      * @param worldName
-     *     The name of the world of the movable.
+     *     The name of the world of the structure.
      * @param pos
-     *     The position of the movable's power block.
+     *     The position of the structure's power block.
      */
-    public void onMovableAddOrRemove(String worldName, Vector3Di pos)
+    public void onStructureAddOrRemove(String worldName, Vector3Di pos)
     {
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
@@ -253,9 +253,9 @@ public final class PowerBlockManager extends Restartable implements MovableDelet
     }
 
     @Override
-    public void onMovableDeletion(IMovableConst movable)
+    public void onStructureDeletion(IStructureConst structure)
     {
-        onMovableAddOrRemove(movable.getWorld().worldName(), movable.getPowerBlock());
+        onStructureAddOrRemove(structure.getWorld().worldName(), structure.getPowerBlock());
     }
 
     /**
@@ -289,9 +289,9 @@ public final class PowerBlockManager extends Restartable implements MovableDelet
         }
 
         /**
-         * Checks if this world contains more than 0 movables (and power blocks by extension).
+         * Checks if this world contains more than 0 structures (and power blocks by extension).
          *
-         * @return True if this world contains more than 0 movables.
+         * @return True if this world contains more than 0 structures.
          */
         private boolean isBigDoorsWorld()
         {
@@ -315,7 +315,7 @@ public final class PowerBlockManager extends Restartable implements MovableDelet
          *
          * @param loc
          *     The location in a chunk.
-         * @return The UIDs of all movables whose powerblocks existing in the same chunk as the provided location.
+         * @return The UIDs of all structures whose powerblocks existing in the same chunk as the provided location.
          */
         private CompletableFuture<LongList> getPowerBlocksInChunk(Vector3Di loc)
         {
@@ -325,11 +325,11 @@ public final class PowerBlockManager extends Restartable implements MovableDelet
         }
 
         /**
-         * Gets all UIDs of movables whose power blocks are in the given location.
+         * Gets all UIDs of structures whose power blocks are in the given location.
          *
          * @param loc
          *     The location to check.
-         * @return All UIDs of movables whose power blocks are in the given location.
+         * @return All UIDs of structures whose power blocks are in the given location.
          */
         private CompletableFuture<LongList> getPowerBlocksAtLocation(Vector3Di loc)
         {
@@ -351,7 +351,7 @@ public final class PowerBlockManager extends Restartable implements MovableDelet
         }
 
         /**
-         * Updates if this world contains more than 0 movables in the database (and power blocks by extension).
+         * Updates if this world contains more than 0 structures in the database (and power blocks by extension).
          * <p>
          * This differs from {@link #isBigDoorsWorld()} in that this method queries the database.
          */
@@ -381,7 +381,7 @@ public final class PowerBlockManager extends Restartable implements MovableDelet
          * Key: Hashed locations (in chunk-space coordinates),
          * {@link Util#simpleChunkSpaceLocationHash(int, int, int)}.
          * <p>
-         * Value: List of UIDs of all movables whose power block occupy this space.
+         * Value: List of UIDs of all structures whose power block occupy this space.
          */
         private final Int2ObjectMap<LongList> powerBlocksMap;
 
@@ -399,11 +399,11 @@ public final class PowerBlockManager extends Restartable implements MovableDelet
         }
 
         /**
-         * Gets all UIDs of movables whose power blocks are in the given location.
+         * Gets all UIDs of structures whose power blocks are in the given location.
          *
          * @param loc
          *     The location to check.
-         * @return All UIDs of movables whose power blocks are in the given location.
+         * @return All UIDs of structures whose power blocks are in the given location.
          */
         private LongList getPowerBlocks(Vector3Di loc)
         {
@@ -417,7 +417,7 @@ public final class PowerBlockManager extends Restartable implements MovableDelet
         /**
          * Updates if this chunk contains more than 0 power blocks.
          *
-         * @return True if this chunk contains more than 0 movables.
+         * @return True if this chunk contains more than 0 structures.
          */
         private boolean isPowerBlockChunk()
         {

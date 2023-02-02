@@ -18,15 +18,15 @@ import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.events.IBigDoorsEventCaller;
 import nl.pim16aap2.bigdoors.events.ICancellableBigDoorsEvent;
-import nl.pim16aap2.bigdoors.events.IMovableCreatedEvent;
-import nl.pim16aap2.bigdoors.events.IMovablePrepareCreateEvent;
-import nl.pim16aap2.bigdoors.events.IMovablePrepareDeleteEvent;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableModifier;
-import nl.pim16aap2.bigdoors.movable.MovableOwner;
-import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
-import nl.pim16aap2.bigdoors.movable.PermissionLevel;
+import nl.pim16aap2.bigdoors.events.IStructureCreatedEvent;
+import nl.pim16aap2.bigdoors.events.IStructurePrepareCreateEvent;
+import nl.pim16aap2.bigdoors.events.IStructurePrepareDeleteEvent;
 import nl.pim16aap2.bigdoors.storage.IStorage;
+import nl.pim16aap2.bigdoors.structures.AbstractStructure;
+import nl.pim16aap2.bigdoors.structures.PermissionLevel;
+import nl.pim16aap2.bigdoors.structures.StructureModifier;
+import nl.pim16aap2.bigdoors.structures.StructureOwner;
+import nl.pim16aap2.bigdoors.structures.StructureSnapshot;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
@@ -64,11 +64,11 @@ public final class DatabaseManager extends Restartable implements IDebuggable
 
     private final IStorage db;
 
-    private final MovableDeletionManager movableDeletionManager;
+    private final StructureDeletionManager structureDeletionManager;
     private final IBigDoorsEventCaller bigDoorsEventCaller;
     private final Lazy<PowerBlockManager> powerBlockManager;
     private final IBigDoorsEventFactory bigDoorsEventFactory;
-    private final MovableModifier movableModifier;
+    private final StructureModifier structureModifier;
 
     /**
      * Constructs a new {@link DatabaseManager}.
@@ -80,17 +80,17 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      */
     @Inject
     public DatabaseManager(
-        RestartableHolder restartableHolder, IStorage storage, MovableDeletionManager movableDeletionManager,
+        RestartableHolder restartableHolder, IStorage storage, StructureDeletionManager structureDeletionManager,
         Lazy<PowerBlockManager> powerBlockManager, IBigDoorsEventFactory bigDoorsEventFactory,
         IBigDoorsEventCaller bigDoorsEventCaller, DebuggableRegistry debuggableRegistry)
     {
         super(restartableHolder);
         db = storage;
-        this.movableDeletionManager = movableDeletionManager;
+        this.structureDeletionManager = structureDeletionManager;
         this.bigDoorsEventCaller = bigDoorsEventCaller;
         this.powerBlockManager = powerBlockManager;
         this.bigDoorsEventFactory = bigDoorsEventFactory;
-        this.movableModifier = MovableModifier.get(new FriendKey());
+        this.structureModifier = StructureModifier.get(new FriendKey());
         initThreadPool();
         debuggableRegistry.registerDebuggable(this);
     }
@@ -123,223 +123,225 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Inserts a {@link AbstractMovable} into the database and assumes that the movable was NOT created by an
-     * {@link IPPlayer}. See {@link #addMovable(AbstractMovable, IPPlayer)}.
+     * Inserts a {@link AbstractStructure} into the database and assumes that the structure was NOT created by an
+     * {@link IPPlayer}. See {@link #addStructure(AbstractStructure, IPPlayer)}.
      *
-     * @param movable
-     *     The new {@link AbstractMovable}.
+     * @param structure
+     *     The new {@link AbstractStructure}.
      * @return The future result of the operation. If the operation was successful this will be true.
      */
-    public CompletableFuture<MovableInsertResult> addMovable(AbstractMovable movable)
+    public CompletableFuture<StructureInsertResult> addStructure(AbstractStructure structure)
     {
-        return addMovable(movable, null);
+        return addStructure(structure, null);
     }
 
     /**
-     * Inserts a {@link AbstractMovable} into the database.
+     * Inserts a {@link AbstractStructure} into the database.
      *
-     * @param movable
-     *     The new {@link AbstractMovable}.
+     * @param structure
+     *     The new {@link AbstractStructure}.
      * @param responsible
-     *     The {@link IPPlayer} responsible for creating the movable. This is used for the
-     *     {@link IMovablePrepareCreateEvent} and the {@link IMovableCreatedEvent}. This may be null.
+     *     The {@link IPPlayer} responsible for creating the structure. This is used for the
+     *     {@link IStructurePrepareCreateEvent} and the {@link IStructureCreatedEvent}. This may be null.
      * @return The future result of the operation.
      */
-    public CompletableFuture<MovableInsertResult> addMovable(AbstractMovable movable, @Nullable IPPlayer responsible)
+    public CompletableFuture<StructureInsertResult> addStructure(
+        AbstractStructure structure, @Nullable IPPlayer responsible)
     {
         final var ret = callCancellableEvent(
-            fact -> fact.createPrepareMovableCreateEvent(movable, responsible)).thenApplyAsync(
+            fact -> fact.createPrepareStructureCreateEvent(structure, responsible)).thenApplyAsync(
             event ->
             {
                 if (event.isCancelled())
-                    return new MovableInsertResult(Optional.empty(), true);
+                    return new StructureInsertResult(Optional.empty(), true);
 
-                final Optional<AbstractMovable> result = db.insert(movable);
+                final Optional<AbstractStructure> result = db.insert(structure);
                 result.ifPresentOrElse(
-                    newMovable -> powerBlockManager.get().onMovableAddOrRemove(
-                        newMovable.getWorld().worldName(),
-                        new Vector3Di(newMovable.getPowerBlock().x(),
-                                      newMovable.getPowerBlock().y(),
-                                      newMovable.getPowerBlock().z())),
+                    newStructure -> powerBlockManager.get().onStructureAddOrRemove(
+                        newStructure.getWorld().worldName(),
+                        new Vector3Di(newStructure.getPowerBlock().x(),
+                                      newStructure.getPowerBlock().y(),
+                                      newStructure.getPowerBlock().z())),
                     () -> log.atSevere().withStackTrace(StackSize.FULL).log("Failed to process event: %s", event));
 
-                return new MovableInsertResult(result, false);
+                return new StructureInsertResult(result, false);
             }, threadPool).exceptionally(
-            ex -> Util.exceptionally(ex, new MovableInsertResult(Optional.empty(), false)));
+            ex -> Util.exceptionally(ex, new StructureInsertResult(Optional.empty(), false)));
 
-        ret.thenAccept(result -> result.movable.ifPresent(unused -> callMovableCreatedEvent(result, responsible)));
+        ret.thenAccept(result -> result.structure.ifPresent(unused -> callStructureCreatedEvent(result, responsible)));
 
         return ret;
     }
 
     /**
-     * Calls the {@link IMovableCreatedEvent}.
+     * Calls the {@link IStructureCreatedEvent}.
      *
      * @param result
-     *     The result of trying to add a movable to the database.
+     *     The result of trying to add a structure to the database.
      * @param responsible
      *     The {@link IPPlayer} responsible for creating it, if an {@link IPPlayer} was responsible for it. If not, this
      *     is null.
      */
-    private void callMovableCreatedEvent(MovableInsertResult result, @Nullable IPPlayer responsible)
+    private void callStructureCreatedEvent(StructureInsertResult result, @Nullable IPPlayer responsible)
     {
         CompletableFuture.runAsync(
             () ->
             {
-                if (result.cancelled() || result.movable().isEmpty())
+                if (result.cancelled() || result.structure().isEmpty())
                     return;
 
-                final IMovableCreatedEvent movableCreatedEvent =
-                    bigDoorsEventFactory.createMovableCreatedEvent(result.movable().get(), responsible);
+                final IStructureCreatedEvent structureCreatedEvent =
+                    bigDoorsEventFactory.createStructureCreatedEvent(result.structure().get(), responsible);
 
-                bigDoorsEventCaller.callBigDoorsEvent(movableCreatedEvent);
+                bigDoorsEventCaller.callBigDoorsEvent(structureCreatedEvent);
             });
     }
 
     /**
-     * Removes a {@link AbstractMovable} from the database and assumes that the movable was NOT deleted by an
-     * {@link IPPlayer}. See {@link #deleteMovable(AbstractMovable, IPPlayer)}.
+     * Removes a {@link AbstractStructure} from the database and assumes that the structure was NOT deleted by an
+     * {@link IPPlayer}. See {@link #deleteStructure(AbstractStructure, IPPlayer)}.
      *
-     * @param movable
-     *     The movable that will be deleted.
+     * @param structure
+     *     The structure that will be deleted.
      * @return The future result of the operation.
      */
     @SuppressWarnings("unused")
-    public CompletableFuture<ActionResult> deleteMovable(AbstractMovable movable)
+    public CompletableFuture<ActionResult> deleteStructure(AbstractStructure structure)
     {
-        return deleteMovable(movable, null);
+        return deleteStructure(structure, null);
     }
 
     /**
-     * Removes a {@link AbstractMovable} from the database.
+     * Removes a {@link AbstractStructure} from the database.
      *
-     * @param movable
-     *     The movable that will be deleted.
+     * @param structure
+     *     The structure that will be deleted.
      * @param responsible
-     *     The {@link IPPlayer} responsible for creating the movable. This is used for the
-     *     {@link IMovablePrepareDeleteEvent}. This may be null.
+     *     The {@link IPPlayer} responsible for creating the structure. This is used for the
+     *     {@link IStructurePrepareDeleteEvent}. This may be null.
      * @return The future result of the operation.
      */
-    public CompletableFuture<ActionResult> deleteMovable(AbstractMovable movable, @Nullable IPPlayer responsible)
+    public CompletableFuture<ActionResult> deleteStructure(AbstractStructure structure, @Nullable IPPlayer responsible)
     {
-        return callCancellableEvent(fact -> fact.createPrepareDeleteMovableEvent(movable, responsible)).thenApplyAsync(
+        return callCancellableEvent(
+            fact -> fact.createPrepareDeleteStructureEvent(structure, responsible)).thenApplyAsync(
             event ->
             {
                 if (event.isCancelled())
                     return ActionResult.CANCELLED;
 
-                final MovableSnapshot snapshot = movable.getSnapshot();
-                final boolean result = db.removeMovable(snapshot.getUid());
+                final StructureSnapshot snapshot = structure.getSnapshot();
+                final boolean result = db.removeStructure(snapshot.getUid());
                 if (!result)
                 {
                     log.atSevere().withStackTrace(StackSize.FULL).log("Failed to process event: %s", event);
                     return ActionResult.FAIL;
                 }
 
-                movableDeletionManager.onMovableDeletion(snapshot);
+                structureDeletionManager.onStructureDeletion(snapshot);
 
                 return ActionResult.SUCCESS;
             }, threadPool).exceptionally(ex -> Util.exceptionally(ex, ActionResult.FAIL));
     }
 
     /**
-     * Gets a list of movable UIDs that have their rotation point in a given chunk.
+     * Gets a list of structure UIDs that have their rotation point in a given chunk.
      *
      * @param chunkX
      *     The x-coordinate of the chunk (in chunk space).
      * @param chunkZ
      *     The z-coordinate of the chunk (in chunk space).
-     * @return A list of movable UIDs that have their rotation point in a given chunk.
+     * @return A list of structure UIDs that have their rotation point in a given chunk.
      */
-    public CompletableFuture<List<AbstractMovable>> getMovablesInChunk(int chunkX, int chunkZ)
+    public CompletableFuture<List<AbstractStructure>> getStructuresInChunk(int chunkX, int chunkZ)
     {
         final long chunkId = Util.getChunkId(chunkX, chunkZ);
-        return CompletableFuture.supplyAsync(() -> db.getMovablesInChunk(chunkId), threadPool)
+        return CompletableFuture.supplyAsync(() -> db.getStructuresInChunk(chunkId), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
-     * Gets all {@link AbstractMovable} owned by a player. Only searches for {@link AbstractMovable} with a given name
-     * if one was provided.
+     * Gets all {@link AbstractStructure} owned by a player. Only searches for {@link AbstractStructure} with a given
+     * name if one was provided.
      *
      * @param playerUUID
      *     The {@link UUID} of the payer.
-     * @param movableID
-     *     The name or the UID of the {@link AbstractMovable} to search for. Can be null.
-     * @return All {@link AbstractMovable} owned by a player with a specific name.
+     * @param structureID
+     *     The name or the UID of the {@link AbstractStructure} to search for. Can be null.
+     * @return All {@link AbstractStructure} owned by a player with a specific name.
      */
-    public CompletableFuture<List<AbstractMovable>> getMovables(UUID playerUUID, String movableID)
+    public CompletableFuture<List<AbstractStructure>> getStructures(UUID playerUUID, String structureID)
     {
-        // Check if the name is actually the UID of the movable.
-        final OptionalLong movableUID = Util.parseLong(movableID);
-        if (movableUID.isPresent())
+        // Check if the name is actually the UID of the structure.
+        final OptionalLong structureUID = Util.parseLong(structureID);
+        if (structureUID.isPresent())
             return CompletableFuture
-                .supplyAsync(() -> db.getMovable(playerUUID, movableUID.getAsLong())
+                .supplyAsync(() -> db.getStructure(playerUUID, structureUID.getAsLong())
                                      .map(Collections::singletonList)
                                      .orElse(Collections.emptyList()), threadPool)
                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
 
-        return CompletableFuture.supplyAsync(() -> db.getMovables(playerUUID, movableID), threadPool)
+        return CompletableFuture.supplyAsync(() -> db.getStructures(playerUUID, structureID), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
-     * See {@link #getMovables(UUID, String)}.
+     * See {@link #getStructures(UUID, String)}.
      */
-    public CompletableFuture<List<AbstractMovable>> getMovables(IPPlayer player, String name)
+    public CompletableFuture<List<AbstractStructure>> getStructures(IPPlayer player, String name)
     {
-        return getMovables(player.getUUID(), name);
+        return getStructures(player.getUUID(), name);
     }
 
     /**
-     * Gets all {@link AbstractMovable} owned by a player.
+     * Gets all {@link AbstractStructure} owned by a player.
      *
      * @param playerUUID
      *     The {@link UUID} of the player.
-     * @return All {@link AbstractMovable} owned by a player.
+     * @return All {@link AbstractStructure} owned by a player.
      */
-    public CompletableFuture<List<AbstractMovable>> getMovables(UUID playerUUID)
+    public CompletableFuture<List<AbstractStructure>> getStructures(UUID playerUUID)
     {
-        return CompletableFuture.supplyAsync(() -> db.getMovables(playerUUID), threadPool)
+        return CompletableFuture.supplyAsync(() -> db.getStructures(playerUUID), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
-     * See {@link #getMovables(UUID)}.
+     * See {@link #getStructures(UUID)}.
      */
-    public CompletableFuture<List<AbstractMovable>> getMovables(IPPlayer player)
+    public CompletableFuture<List<AbstractStructure>> getStructures(IPPlayer player)
     {
-        return getMovables(player.getUUID());
+        return getStructures(player.getUUID());
     }
 
     /**
-     * Gets all {@link AbstractMovable} owned by a player with a specific name.
+     * Gets all {@link AbstractStructure} owned by a player with a specific name.
      *
      * @param playerUUID
      *     The {@link UUID} of the payer.
      * @param name
-     *     The name of the {@link AbstractMovable} to search for.
+     *     The name of the {@link AbstractStructure} to search for.
      * @param maxPermission
-     *     The maximum level of ownership (inclusive) this player has over the {@link AbstractMovable}s.
-     * @return All {@link AbstractMovable} owned by a player with a specific name.
+     *     The maximum level of ownership (inclusive) this player has over the {@link AbstractStructure}s.
+     * @return All {@link AbstractStructure} owned by a player with a specific name.
      */
-    public CompletableFuture<List<AbstractMovable>> getMovables(
+    public CompletableFuture<List<AbstractStructure>> getStructures(
         UUID playerUUID, String name, PermissionLevel maxPermission)
     {
-        return CompletableFuture.supplyAsync(() -> db.getMovables(playerUUID, name, maxPermission), threadPool)
+        return CompletableFuture.supplyAsync(() -> db.getStructures(playerUUID, name, maxPermission), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
-     * Gets all {@link AbstractMovable}s with a specific name, regardless over ownership.
+     * Gets all {@link AbstractStructure}s with a specific name, regardless over ownership.
      *
      * @param name
-     *     The name of the {@link AbstractMovable}s.
-     * @return All {@link AbstractMovable}s with a specific name.
+     *     The name of the {@link AbstractStructure}s.
+     * @return All {@link AbstractStructure}s with a specific name.
      */
-    public CompletableFuture<List<AbstractMovable>> getMovables(String name)
+    public CompletableFuture<List<AbstractStructure>> getStructures(String name)
     {
-        return CompletableFuture.supplyAsync(() -> db.getMovables(name), threadPool)
+        return CompletableFuture.supplyAsync(() -> db.getStructures(name), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
@@ -388,100 +390,100 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Gets the {@link AbstractMovable} with a specific UID.
+     * Gets the {@link AbstractStructure} with a specific UID.
      *
-     * @param movableUID
-     *     The UID of the {@link AbstractMovable}.
-     * @return The {@link AbstractMovable} if it exists.
+     * @param structureUID
+     *     The UID of the {@link AbstractStructure}.
+     * @return The {@link AbstractStructure} if it exists.
      */
-    public CompletableFuture<Optional<AbstractMovable>> getMovable(long movableUID)
+    public CompletableFuture<Optional<AbstractStructure>> getStructure(long structureUID)
     {
-        return CompletableFuture.supplyAsync(() -> db.getMovable(movableUID), threadPool)
+        return CompletableFuture.supplyAsync(() -> db.getStructure(structureUID), threadPool)
                                 .exceptionally(Util::exceptionallyOptional);
     }
 
     /**
-     * Gets the {@link AbstractMovable} with the given UID owned by the player. If the given player does not own the
-     * provided movable, no movable will be returned.
+     * Gets the {@link AbstractStructure} with the given UID owned by the player. If the given player does not own the
+     * provided structure, no structure will be returned.
      *
      * @param player
      *     The {@link IPPlayer}.
-     * @param movableUID
-     *     The UID of the {@link AbstractMovable}.
-     * @return The {@link AbstractMovable} with the given UID if it exists and the provided player owns it.
+     * @param structureUID
+     *     The UID of the {@link AbstractStructure}.
+     * @return The {@link AbstractStructure} with the given UID if it exists and the provided player owns it.
      */
-    public CompletableFuture<Optional<AbstractMovable>> getMovable(IPPlayer player, long movableUID)
+    public CompletableFuture<Optional<AbstractStructure>> getStructure(IPPlayer player, long structureUID)
     {
-        return getMovable(player.getUUID(), movableUID);
+        return getStructure(player.getUUID(), structureUID);
     }
 
     /**
-     * Gets the {@link AbstractMovable} with the given UID owned by the player. If the given player does not own the *
-     * provided movable, no movable will be returned.
+     * Gets the {@link AbstractStructure} with the given UID owned by the player. If the given player does not own the *
+     * provided structure, no structure will be returned.
      *
      * @param uuid
      *     The {@link UUID} of the player.
-     * @param movableUID
-     *     The UID of the {@link AbstractMovable}.
-     * @return The {@link AbstractMovable} with the given UID if it exists and the provided player owns it.
+     * @param structureUID
+     *     The UID of the {@link AbstractStructure}.
+     * @return The {@link AbstractStructure} with the given UID if it exists and the provided player owns it.
      */
-    public CompletableFuture<Optional<AbstractMovable>> getMovable(UUID uuid, long movableUID)
+    public CompletableFuture<Optional<AbstractStructure>> getStructure(UUID uuid, long structureUID)
     {
-        return CompletableFuture.supplyAsync(() -> db.getMovable(uuid, movableUID), threadPool)
+        return CompletableFuture.supplyAsync(() -> db.getStructure(uuid, structureUID), threadPool)
                                 .exceptionally(Util::exceptionallyOptional);
     }
 
     /**
-     * Gets the number of {@link AbstractMovable}s owned by a player.
+     * Gets the number of {@link AbstractStructure}s owned by a player.
      *
      * @param playerUUID
      *     The {@link UUID} of the player.
-     * @return The number of {@link AbstractMovable}s this player owns.
+     * @return The number of {@link AbstractStructure}s this player owns.
      */
     @SuppressWarnings("unused")
-    public CompletableFuture<Integer> countMovablesOwnedByPlayer(UUID playerUUID)
+    public CompletableFuture<Integer> countStructuresOwnedByPlayer(UUID playerUUID)
     {
-        return CompletableFuture.supplyAsync(() -> db.getMovableCountForPlayer(playerUUID), threadPool)
+        return CompletableFuture.supplyAsync(() -> db.getStructureCountForPlayer(playerUUID), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, -1));
     }
 
     /**
-     * Counts the number of {@link AbstractMovable}s with a specific name owned by a player.
+     * Counts the number of {@link AbstractStructure}s with a specific name owned by a player.
      *
      * @param playerUUID
      *     The {@link UUID} of the player.
-     * @param movableName
-     *     The name of the movable.
-     * @return The number of {@link AbstractMovable}s with a specific name owned by a player.
+     * @param structureName
+     *     The name of the structure.
+     * @return The number of {@link AbstractStructure}s with a specific name owned by a player.
      */
     @SuppressWarnings("unused")
-    public CompletableFuture<Integer> countMovablesOwnedByPlayer(UUID playerUUID, String movableName)
+    public CompletableFuture<Integer> countStructuresOwnedByPlayer(UUID playerUUID, String structureName)
     {
-        return CompletableFuture.supplyAsync(() -> db.getMovableCountForPlayer(playerUUID, movableName), threadPool)
+        return CompletableFuture.supplyAsync(() -> db.getStructureCountForPlayer(playerUUID, structureName), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, -1));
     }
 
     /**
-     * The number of {@link AbstractMovable}s in the database with a specific name.
+     * The number of {@link AbstractStructure}s in the database with a specific name.
      *
-     * @param movableName
-     *     The name of the {@link AbstractMovable}.
-     * @return The number of {@link AbstractMovable}s with a specific name.
+     * @param structureName
+     *     The name of the {@link AbstractStructure}.
+     * @return The number of {@link AbstractStructure}s with a specific name.
      */
     @SuppressWarnings("unused")
-    public CompletableFuture<Integer> countMovablesByName(String movableName)
+    public CompletableFuture<Integer> countStructuresByName(String structureName)
     {
-        return CompletableFuture.supplyAsync(() -> db.getMovableCountByName(movableName), threadPool)
+        return CompletableFuture.supplyAsync(() -> db.getStructureCountByName(structureName), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, -1));
     }
 
     /**
-     * Adds a player as owner to a {@link AbstractMovable} at a given level of ownership and assumes that the movable
-     * was NOT deleted by an {@link IPPlayer}. See
-     * {@link #addOwner(AbstractMovable, IPPlayer, PermissionLevel, IPPlayer)}.
+     * Adds a player as owner to a {@link AbstractStructure} at a given level of ownership and assumes that the
+     * structure was NOT deleted by an {@link IPPlayer}. See
+     * {@link #addOwner(AbstractStructure, IPPlayer, PermissionLevel, IPPlayer)}.
      *
-     * @param movable
-     *     The {@link AbstractMovable}.
+     * @param structure
+     *     The {@link AbstractStructure}.
      * @param player
      *     The {@link IPPlayer}.
      * @param permission
@@ -489,16 +491,16 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      * @return The future result of the operation.
      */
     public CompletableFuture<ActionResult> addOwner(
-        AbstractMovable movable, IPPlayer player, PermissionLevel permission)
+        AbstractStructure structure, IPPlayer player, PermissionLevel permission)
     {
-        return addOwner(movable, player, permission, null);
+        return addOwner(structure, player, permission, null);
     }
 
     /**
-     * Adds a player as owner to a {@link AbstractMovable} at a given level of ownership.
+     * Adds a player as owner to a {@link AbstractStructure} at a given level of ownership.
      *
-     * @param movable
-     *     The {@link AbstractMovable}.
+     * @param structure
+     *     The {@link AbstractStructure}.
      * @param player
      *     The {@link IPPlayer}.
      * @param permission
@@ -506,31 +508,31 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      * @return The future result of the operation.
      */
     public CompletableFuture<ActionResult> addOwner(
-        AbstractMovable movable, IPPlayer player, PermissionLevel permission, @Nullable IPPlayer responsible)
+        AbstractStructure structure, IPPlayer player, PermissionLevel permission, @Nullable IPPlayer responsible)
     {
         if (permission.getValue() < 1 || permission == PermissionLevel.NO_PERMISSION)
             return CompletableFuture.completedFuture(ActionResult.FAIL);
 
-        final var newOwner = new MovableOwner(movable.getUid(), permission, player.getPPlayerData());
+        final var newOwner = new StructureOwner(structure.getUid(), permission, player.getPPlayerData());
 
-        return callCancellableEvent(fact -> fact.createMovablePrepareAddOwnerEvent(movable, newOwner, responsible))
+        return callCancellableEvent(fact -> fact.createStructurePrepareAddOwnerEvent(structure, newOwner, responsible))
             .thenApplyAsync(
                 event ->
                 {
                     if (event.isCancelled())
                         return ActionResult.CANCELLED;
 
-                    if (!movableModifier.addOwner(movable, newOwner))
+                    if (!structureModifier.addOwner(structure, newOwner))
                     {
-                        log.atSevere().log("Failed to add owner %s to movable %s!", newOwner, movable);
+                        log.atSevere().log("Failed to add owner %s to structure %s!", newOwner, structure);
                         return ActionResult.FAIL;
                     }
 
-                    final boolean result = db.addOwner(movable.getUid(), newOwner.pPlayerData(), permission);
+                    final boolean result = db.addOwner(structure.getUid(), newOwner.pPlayerData(), permission);
                     if (!result)
                     {
                         log.atSevere().withStackTrace(StackSize.FULL).log("Failed to process event: %s", event);
-                        movableModifier.removeOwner(movable, newOwner.pPlayerData().getUUID());
+                        structureModifier.removeOwner(structure, newOwner.pPlayerData().getUUID());
                         return ActionResult.FAIL;
                     }
 
@@ -560,102 +562,103 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Remove a {@link IPPlayer} as owner of a {@link AbstractMovable}.
+     * Remove a {@link IPPlayer} as owner of a {@link AbstractStructure}.
      *
-     * @param movable
-     *     The {@link AbstractMovable}.
+     * @param structure
+     *     The {@link AbstractStructure}.
      * @param player
      *     The {@link IPPlayer}.
      * @return True if owner removal was successful.
      */
-    public CompletableFuture<ActionResult> removeOwner(AbstractMovable movable, IPPlayer player)
+    public CompletableFuture<ActionResult> removeOwner(AbstractStructure structure, IPPlayer player)
     {
-        return removeOwner(movable, player, null);
+        return removeOwner(structure, player, null);
     }
 
     /**
-     * Remove a {@link IPPlayer} as owner of a {@link AbstractMovable}.
+     * Remove a {@link IPPlayer} as owner of a {@link AbstractStructure}.
      *
-     * @param movable
-     *     The {@link AbstractMovable}.
+     * @param structure
+     *     The {@link AbstractStructure}.
      * @param player
      *     The {@link IPPlayer}.
      * @param responsible
-     *     The {@link IPPlayer} responsible for creating the movable. This is used for the
-     *     {@link IMovablePrepareDeleteEvent}. This may be null.
+     *     The {@link IPPlayer} responsible for creating the structure. This is used for the
+     *     {@link IStructurePrepareDeleteEvent}. This may be null.
      * @return The future result of the operation.
      */
     public CompletableFuture<ActionResult> removeOwner(
-        AbstractMovable movable, IPPlayer player, @Nullable IPPlayer responsible)
+        AbstractStructure structure, IPPlayer player, @Nullable IPPlayer responsible)
     {
-        return removeOwner(movable, player.getUUID(), responsible);
+        return removeOwner(structure, player.getUUID(), responsible);
     }
 
     /**
-     * Remove a {@link IPPlayer} as owner of a {@link AbstractMovable} and assumes that the movable was NOT deleted by
-     * an {@link IPPlayer}. See {@link #removeOwner(AbstractMovable, UUID, IPPlayer)}.
+     * Remove a {@link IPPlayer} as owner of a {@link AbstractStructure} and assumes that the structure was NOT deleted
+     * by an {@link IPPlayer}. See {@link #removeOwner(AbstractStructure, UUID, IPPlayer)}.
      *
-     * @param movable
-     *     The {@link AbstractMovable}.
+     * @param structure
+     *     The {@link AbstractStructure}.
      * @param playerUUID
      *     The {@link UUID} of the {@link IPPlayer}.
      * @return The future result of the operation.
      */
-    public CompletableFuture<ActionResult> removeOwner(AbstractMovable movable, UUID playerUUID)
+    public CompletableFuture<ActionResult> removeOwner(AbstractStructure structure, UUID playerUUID)
     {
-        return removeOwner(movable, playerUUID, null);
+        return removeOwner(structure, playerUUID, null);
     }
 
     /**
-     * Remove a {@link IPPlayer} as owner of a {@link AbstractMovable}.
+     * Remove a {@link IPPlayer} as owner of a {@link AbstractStructure}.
      *
-     * @param movable
-     *     The {@link AbstractMovable}.
+     * @param structure
+     *     The {@link AbstractStructure}.
      * @param playerUUID
      *     The {@link UUID} of the {@link IPPlayer}.
      * @param responsible
-     *     The {@link IPPlayer} responsible for creating the movable. This is used for the
-     *     {@link IMovablePrepareDeleteEvent}. This may be null.
+     *     The {@link IPPlayer} responsible for creating the structure. This is used for the
+     *     {@link IStructurePrepareDeleteEvent}. This may be null.
      * @return The future result of the operation.
      */
     public CompletableFuture<ActionResult> removeOwner(
-        AbstractMovable movable, UUID playerUUID, @Nullable IPPlayer responsible)
+        AbstractStructure structure, UUID playerUUID, @Nullable IPPlayer responsible)
     {
-        final Optional<MovableOwner> movableOwner = movable.getOwner(playerUUID);
-        if (movableOwner.isEmpty())
+        final Optional<StructureOwner> structureOwner = structure.getOwner(playerUUID);
+        if (structureOwner.isEmpty())
         {
-            log.atFine().log("Trying to remove player: %s from movable: %d, but the player is not an owner!",
-                             playerUUID, movable.getUid());
+            log.atFine().log("Trying to remove player: %s from structure: %d, but the player is not an owner!",
+                             playerUUID, structure.getUid());
             return CompletableFuture.completedFuture(ActionResult.FAIL);
         }
-        if (movableOwner.get().permission() == PermissionLevel.CREATOR)
+        if (structureOwner.get().permission() == PermissionLevel.CREATOR)
         {
-            log.atFine().log("Trying to remove player: %s from movable: %d, but the player is the prime owner! " +
+            log.atFine().log("Trying to remove player: %s from structure: %d, but the player is the prime owner! " +
                                  "This is not allowed!",
-                             playerUUID, movable.getUid());
+                             playerUUID, structure.getUid());
             return CompletableFuture.completedFuture(ActionResult.FAIL);
         }
 
         return callCancellableEvent(
-            fact -> fact.createMovablePrepareRemoveOwnerEvent(movable, movableOwner.get(), responsible))
+            fact -> fact.createStructurePrepareRemoveOwnerEvent(structure, structureOwner.get(), responsible))
             .thenApplyAsync(
                 event ->
                 {
                     if (event.isCancelled())
                         return ActionResult.CANCELLED;
 
-                    final @Nullable MovableOwner oldOwner = movableModifier.removeOwner(movable, playerUUID);
+                    final @Nullable StructureOwner oldOwner = structureModifier.removeOwner(structure, playerUUID);
                     if (oldOwner == null)
                     {
-                        log.atSevere().log("Failed to remove owner %s from movable %s!", movableOwner.get(), movable);
+                        log.atSevere()
+                           .log("Failed to remove owner %s from structure %s!", structureOwner.get(), structure);
                         return ActionResult.FAIL;
                     }
 
-                    final boolean result = db.removeOwner(movable.getUid(), playerUUID);
+                    final boolean result = db.removeOwner(structure.getUid(), playerUUID);
                     if (!result)
                     {
                         log.atSevere().withStackTrace(StackSize.FULL).log("Failed to process event: %s", event);
-                        movableModifier.addOwner(movable, oldOwner);
+                        structureModifier.addOwner(structure, oldOwner);
                         return ActionResult.FAIL;
                     }
 
@@ -664,35 +667,37 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Updates the all data of an {@link AbstractMovable}. This includes both the base data and the type-specific data.
+     * Updates the all data of an {@link AbstractStructure}. This includes both the base data and the type-specific
+     * data.
      *
      * @param snapshot
-     *     The {@link AbstractMovable} that describes the base data of movable.
+     *     The {@link AbstractStructure} that describes the base data of structure.
      * @param typeData
-     *     The type-specific data of this movable represented as a json String.
+     *     The type-specific data of this structure represented as a json String.
      * @return The result of the operation.
      */
-    public CompletableFuture<DatabaseManager.ActionResult> syncMovableData(MovableSnapshot snapshot, String typeData)
+    public CompletableFuture<DatabaseManager.ActionResult> syncStructureData(
+        StructureSnapshot snapshot, String typeData)
     {
         return CompletableFuture
-            .supplyAsync(() -> db.syncMovableData(snapshot, typeData) ? ActionResult.SUCCESS : ActionResult.FAIL,
+            .supplyAsync(() -> db.syncStructureData(snapshot, typeData) ? ActionResult.SUCCESS : ActionResult.FAIL,
                          threadPool)
             .exceptionally(ex -> Util.exceptionally(ex, ActionResult.FAIL));
     }
 
     /**
-     * Retrieves all {@link MovableIdentifier}s that start with the provided input.
+     * Retrieves all {@link StructureIdentifier}s that start with the provided input.
      * <p>
      * For example, this method can retrieve the identifiers "1", "10", "11", "100", etc from an input of "1" or
-     * "MyDoor", "MyPortcullis", "MyOtherMovable", etc. from an input of "My".
+     * "MyDoor", "MyPortcullis", "MyOtherStructure", etc. from an input of "My".
      *
      * @param input
      *     The partial identifier to look for.
      * @param player
-     *     The player that should own the movables. May be null to disregard ownership.
-     * @return All {@link MovableIdentifier}s that start with the provided input.
+     *     The player that should own the structures. May be null to disregard ownership.
+     * @return All {@link StructureIdentifier}s that start with the provided input.
      */
-    public CompletableFuture<List<MovableIdentifier>> getIdentifiersFromPartial(
+    public CompletableFuture<List<StructureIdentifier>> getIdentifiersFromPartial(
         String input, @Nullable IPPlayer player, PermissionLevel maxPermission)
     {
         return CompletableFuture.supplyAsync(() -> db.getPartialIdentifiers(input, player, maxPermission), threadPool)
@@ -700,11 +705,11 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Checks if a world contains any movables.
+     * Checks if a world contains any structures.
      *
      * @param worldName
      *     The name of the world.
-     * @return True if at least 1 movable exists in the world.
+     * @return True if at least 1 structure exists in the world.
      */
     CompletableFuture<Boolean> isBigDoorsWorld(String worldName)
     {
@@ -713,14 +718,14 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Gets a map of location hashes and their connected powerblocks for all movables in a chunk.
+     * Gets a map of location hashes and their connected powerblocks for all structures in a chunk.
      * <p>
-     * The key is the hashed location in chunk space, the value is the list of UIDs of the movables whose powerblocks
+     * The key is the hashed location in chunk space, the value is the list of UIDs of the structures whose powerblocks
      * occupies that location.
      *
      * @param chunkId
-     *     The id of the chunk the movables are in.
-     * @return A map of location hashes and their connected powerblocks for all movables in a chunk.
+     *     The id of the chunk the structures are in.
+     * @return A map of location hashes and their connected powerblocks for all structures in a chunk.
      */
     CompletableFuture<Int2ObjectMap<LongList>> getPowerBlockData(long chunkId)
     {
@@ -735,7 +740,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Represents the result of an action requested from the database. E.g. deleting a movable.
+     * Represents the result of an action requested from the database. E.g. deleting a structure.
      */
     public enum ActionResult
     {
@@ -763,27 +768,27 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Contains the result of an attempt to insert a movable into the database.
+     * Contains the result of an attempt to insert a structure into the database.
      */
     @AllArgsConstructor @EqualsAndHashCode @ToString
-    public static final class MovableInsertResult
+    public static final class StructureInsertResult
     {
         /**
-         * The movable as it was inserted into the database. This will be empty when inserted failed.
+         * The structure as it was inserted into the database. This will be empty when inserted failed.
          */
-        private final Optional<AbstractMovable> movable;
+        private final Optional<AbstractStructure> structure;
         /**
          * Whether the insertion was cancelled. An insertion may be cancelled if some listener cancels the
-         * {@link IMovablePrepareCreateEvent} event.
+         * {@link IStructurePrepareCreateEvent} event.
          */
         private final boolean cancelled;
 
         /**
-         * See {@link #movable}.
+         * See {@link #structure}.
          */
-        public Optional<AbstractMovable> movable()
+        public Optional<AbstractStructure> structure()
         {
-            return movable;
+            return structure;
         }
 
         /**
@@ -796,7 +801,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     @AllArgsConstructor @EqualsAndHashCode @ToString
-    public static final class MovableIdentifier
+    public static final class StructureIdentifier
     {
         private final long uid;
         private final String name;

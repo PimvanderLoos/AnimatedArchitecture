@@ -5,11 +5,11 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.movablearchetypes.IDiscreteMovement;
-import nl.pim16aap2.bigdoors.movabletypes.MovableType;
-import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
-import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
+import nl.pim16aap2.bigdoors.structures.AbstractStructure;
+import nl.pim16aap2.bigdoors.structures.structurearchetypes.IDiscreteMovement;
+import nl.pim16aap2.bigdoors.structuretypes.StructureType;
+import nl.pim16aap2.bigdoors.util.structureretriever.StructureRetriever;
+import nl.pim16aap2.bigdoors.util.structureretriever.StructureRetrieverFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,9 +27,9 @@ import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initCommandSende
 @Timeout(1)
 class SetBlocksToMoveTest
 {
-    private AbstractMovable movable;
+    private AbstractStructure structure;
 
-    private MovableRetriever movableRetriever;
+    private StructureRetriever structureRetriever;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private IPPlayer commandSender;
@@ -38,48 +38,49 @@ class SetBlocksToMoveTest
     private SetBlocksToMove.IFactory factory;
 
     @Mock
-    private MovableType movableType;
+    private StructureType structureType;
 
     @BeforeEach
     void init()
     {
         MockitoAnnotations.openMocks(this);
 
-        movable = Mockito.mock(AbstractMovable.class, Mockito.withSettings().extraInterfaces(IDiscreteMovement.class));
-        Mockito.when(movable.syncData())
+        structure = Mockito.mock(AbstractStructure.class,
+                                 Mockito.withSettings().extraInterfaces(IDiscreteMovement.class));
+        Mockito.when(structure.syncData())
                .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
 
-        Mockito.when(movableType.getLocalizationKey()).thenReturn("MovableType");
-        Mockito.when(movable.getType()).thenReturn(movableType);
+        Mockito.when(structureType.getLocalizationKey()).thenReturn("StructureType");
+        Mockito.when(structure.getType()).thenReturn(structureType);
 
         initCommandSenderPermissions(commandSender, true, true);
-        movableRetriever = MovableRetrieverFactory.ofMovable(movable);
+        structureRetriever = StructureRetrieverFactory.ofStructure(structure);
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
         Mockito.when(factory.newSetBlocksToMove(Mockito.any(ICommandSender.class),
-                                                Mockito.any(MovableRetriever.class),
+                                                Mockito.any(StructureRetriever.class),
                                                 Mockito.anyInt()))
                .thenAnswer(invoc -> new SetBlocksToMove(invoc.getArgument(0, ICommandSender.class), localizer,
                                                         ITextFactory.getSimpleTextFactory(),
-                                                        invoc.getArgument(1, MovableRetriever.class),
+                                                        invoc.getArgument(1, StructureRetriever.class),
                                                         invoc.getArgument(2, Integer.class)));
     }
 
     @Test
-    void testMovableTypes()
+    void testStructureTypes()
     {
         final int blocksToMove = 42;
 
-        final SetBlocksToMove command = factory.newSetBlocksToMove(commandSender, movableRetriever, blocksToMove);
-        final AbstractMovable altMovable = Mockito.mock(AbstractMovable.class);
-        Mockito.when(altMovable.getType()).thenReturn(movableType);
+        final SetBlocksToMove command = factory.newSetBlocksToMove(commandSender, structureRetriever, blocksToMove);
+        final AbstractStructure altStructure = Mockito.mock(AbstractStructure.class);
+        Mockito.when(altStructure.getType()).thenReturn(structureType);
 
-        Assertions.assertDoesNotThrow(() -> command.performAction(altMovable).get(1, TimeUnit.SECONDS));
-        Mockito.verify(altMovable, Mockito.never()).syncData();
+        Assertions.assertDoesNotThrow(() -> command.performAction(altStructure).get(1, TimeUnit.SECONDS));
+        Mockito.verify(altStructure, Mockito.never()).syncData();
 
-        Assertions.assertDoesNotThrow(() -> command.performAction(movable).get(1, TimeUnit.SECONDS));
-        Mockito.verify((IDiscreteMovement) movable).setBlocksToMove(blocksToMove);
-        Mockito.verify(movable).syncData();
+        Assertions.assertDoesNotThrow(() -> command.performAction(structure).get(1, TimeUnit.SECONDS));
+        Mockito.verify((IDiscreteMovement) structure).setBlocksToMove(blocksToMove);
+        Mockito.verify(structure).syncData();
     }
 }

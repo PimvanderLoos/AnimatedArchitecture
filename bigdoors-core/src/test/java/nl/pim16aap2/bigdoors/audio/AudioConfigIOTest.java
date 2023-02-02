@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.audio;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import nl.pim16aap2.bigdoors.movabletypes.MovableType;
+import nl.pim16aap2.bigdoors.structuretypes.StructureType;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -105,7 +105,7 @@ class AudioConfigIOTest
         final Path baseDir = fs.getPath("/");
         final Path file = baseDir.resolve("audio_config.json");
 
-        final Map<MovableType, @Nullable AudioSet> map = new LinkedHashMap<>();
+        final Map<StructureType, @Nullable AudioSet> map = new LinkedHashMap<>();
         map.put(newDoorType("slidingdoor"), SET_SLIDING_DOOR);
         map.put(newDoorType("flag"), null);
         map.put(newDoorType("garagedoor"), new AudioSet(null, null));
@@ -116,9 +116,9 @@ class AudioConfigIOTest
         Assertions.assertEquals(JSON, contents);
     }
 
-    private MovableType newDoorType(String simpleName)
+    private StructureType newDoorType(String simpleName)
     {
-        final MovableType doorType = Mockito.mock(MovableType.class);
+        final StructureType doorType = Mockito.mock(StructureType.class);
         Mockito.when(doorType.getSimpleName()).thenReturn(simpleName);
         return doorType;
     }

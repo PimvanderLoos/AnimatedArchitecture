@@ -5,11 +5,11 @@ import it.unimi.dsi.fastutil.longs.LongList;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.IMovableConst;
-import nl.pim16aap2.bigdoors.movable.MovableOwner;
-import nl.pim16aap2.bigdoors.movable.PermissionLevel;
-import nl.pim16aap2.bigdoors.movabletypes.MovableType;
+import nl.pim16aap2.bigdoors.structures.AbstractStructure;
+import nl.pim16aap2.bigdoors.structures.IStructureConst;
+import nl.pim16aap2.bigdoors.structures.PermissionLevel;
+import nl.pim16aap2.bigdoors.structures.StructureOwner;
+import nl.pim16aap2.bigdoors.structuretypes.StructureType;
 import nl.pim16aap2.bigdoors.util.IBitFlag;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,7 +19,7 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 /**
- * Represents storage of all movable related stuff.
+ * Represents storage of all structure related stuff.
  *
  * @author Pim
  */
@@ -40,53 +40,53 @@ public interface IStorage
     }
 
     /**
-     * Delete the movable with the given movableUID from the database.
+     * Delete the structure with the given structureUID from the database.
      *
-     * @param movableUID
-     *     The UID of the movable to delete.
-     * @return True if at least 1 movable was successfully removed.
+     * @param structureUID
+     *     The UID of the structure to delete.
+     * @return True if at least 1 structure was successfully removed.
      */
-    boolean removeMovable(long movableUID);
+    boolean removeStructure(long structureUID);
 
     /**
-     * Delete all movables owned by the given player with the given name.
+     * Delete all structures owned by the given player with the given name.
      *
      * @param playerUUID
-     *     The player whose movables to delete.
-     * @param movableName
-     *     The name of the movables to delete.
-     * @return True if at least 1 movable was successfully removed.
+     *     The player whose structures to delete.
+     * @param structureName
+     *     The name of the structures to delete.
+     * @return True if at least 1 structure was successfully removed.
      */
-    boolean removeMovables(UUID playerUUID, String movableName);
+    boolean removeStructures(UUID playerUUID, String structureName);
 
     /**
-     * Checks whether there are any movables in a given world.
+     * Checks whether there are any structures in a given world.
      *
      * @param worldName
      *     The name of the world.
-     * @return True if there are more than 0 movables in the given world.
+     * @return True if there are more than 0 structures in the given world.
      */
     boolean isBigDoorsWorld(String worldName);
 
     /**
-     * Gets the total number of movables own by the given player.
+     * Gets the total number of structures own by the given player.
      *
      * @param playerUUID
-     *     The uuid of the player whose movables to count.
-     * @return The total number of movables own by the given player.
+     *     The uuid of the player whose structures to count.
+     * @return The total number of structures own by the given player.
      */
-    int getMovableCountForPlayer(UUID playerUUID);
+    int getStructureCountForPlayer(UUID playerUUID);
 
     /**
-     * Gets the number of movables own by the given player with the given name.
+     * Gets the number of structures own by the given player with the given name.
      *
      * @param playerUUID
-     *     The uuid of the player whose movables to count.
-     * @param movableName
-     *     The name of the movable to search for.
-     * @return The number of movables own by the given player with the given name.
+     *     The uuid of the player whose structures to count.
+     * @param structureName
+     *     The name of the structure to search for.
+     * @return The number of structures own by the given player with the given name.
      */
-    int getMovableCountForPlayer(UUID playerUUID, String movableName);
+    int getStructureCountForPlayer(UUID playerUUID, String structureName);
 
     /**
      * Updates the {@link PPlayerData} for a given player.
@@ -119,143 +119,143 @@ public interface IStorage
     List<PPlayerData> getPlayerData(String playerName);
 
     /**
-     * Gets the total number of movables with the given name regardless of who owns them.
+     * Gets the total number of structures with the given name regardless of who owns them.
      *
-     * @param movableName
-     *     The name of the movables to search for.
-     * @return The total number of movables with the given name.
+     * @param structureName
+     *     The name of the structures to search for.
+     * @return The total number of structures with the given name.
      */
-    int getMovableCountByName(String movableName);
+    int getStructureCountByName(String structureName);
 
     /**
-     * Gets the total number of owners of a movable.
+     * Gets the total number of owners of a structure.
      *
-     * @param movableUID
-     *     The {@link AbstractMovable}.
-     * @return The total number of owners of this movable.
+     * @param structureUID
+     *     The {@link AbstractStructure}.
+     * @return The total number of owners of this structure.
      */
-    int getOwnerCountOfMovable(long movableUID);
+    int getOwnerCountOfStructure(long structureUID);
 
     /**
-     * Gets the movable with the given UID for the given player at the level of ownership this player has over the
-     * movable, if any.
+     * Gets the structure with the given UID for the given player at the level of ownership this player has over the
+     * structure, if any.
      *
      * @param playerUUID
      *     The UUID of the player.
-     * @param movableUID
-     *     The UID of the movable to retrieve.
-     * @return The movable if it exists and if the player is an owner of it.
+     * @param structureUID
+     *     The UID of the structure to retrieve.
+     * @return The structure if it exists and if the player is an owner of it.
      */
-    Optional<AbstractMovable> getMovable(UUID playerUUID, long movableUID);
+    Optional<AbstractStructure> getStructure(UUID playerUUID, long structureUID);
 
     /**
-     * Gets the movable with the given movableUID and the original creator as {@link MovableOwner};
+     * Gets the structure with the given structureUID and the original creator as {@link StructureOwner};
      *
-     * @param movableUID
-     *     The UID of the movable to retrieve.
-     * @return The movable with the given movableUID and the original creator.
+     * @param structureUID
+     *     The UID of the structure to retrieve.
+     * @return The structure with the given structureUID and the original creator.
      */
-    Optional<AbstractMovable> getMovable(long movableUID);
+    Optional<AbstractStructure> getStructure(long structureUID);
 
     /**
-     * Gets all the movables owned by the given player with the given name.
+     * Gets all the structures owned by the given player with the given name.
      *
      * @param playerUUID
      *     The UUID of the player to search for.
      * @param name
-     *     The name of the movables to search for.
-     * @return All movables owned by the given player with the given name.
+     *     The name of the structures to search for.
+     * @return All structures owned by the given player with the given name.
      */
-    List<AbstractMovable> getMovables(UUID playerUUID, String name);
+    List<AbstractStructure> getStructures(UUID playerUUID, String name);
 
     /**
-     * Gets all the movables owned by the given player.
+     * Gets all the structures owned by the given player.
      *
      * @param playerUUID
      *     The UUID of the player to search for.
-     * @return All movables owned by the given player.
+     * @return All structures owned by the given player.
      */
-    List<AbstractMovable> getMovables(UUID playerUUID);
+    List<AbstractStructure> getStructures(UUID playerUUID);
 
     /**
-     * Gets all the movables with the given name, regardless of who owns them.
+     * Gets all the structures with the given name, regardless of who owns them.
      *
      * @param name
-     *     The name of the movables to search for.
-     * @return All movables with the given name or an empty Optional if none exist.
+     *     The name of the structures to search for.
+     * @return All structures with the given name or an empty Optional if none exist.
      */
-    List<AbstractMovable> getMovables(String name);
+    List<AbstractStructure> getStructures(String name);
 
     /**
-     * Gets all the movables with the given name, owned by the player with at least a certain permission level.
+     * Gets all the structures with the given name, owned by the player with at least a certain permission level.
      *
      * @param playerUUID
-     *     The name of the player who owns the movables.
-     * @param movableName
-     *     The name of the movables to search for.
+     *     The name of the player who owns the structures.
+     * @param structureName
+     *     The name of the structures to search for.
      * @param maxPermission
-     *     The maximum level of ownership (inclusive) this player has over the movables.
-     * @return All the movables with the given name, owned the player with at least a certain permission level.
+     *     The maximum level of ownership (inclusive) this player has over the structures.
+     * @return All the structures with the given name, owned the player with at least a certain permission level.
      */
-    List<AbstractMovable> getMovables(UUID playerUUID, String movableName, PermissionLevel maxPermission);
+    List<AbstractStructure> getStructures(UUID playerUUID, String structureName, PermissionLevel maxPermission);
 
     /**
-     * Gets all the movables owned by a given player with at least a certain permission level.
+     * Gets all the structures owned by a given player with at least a certain permission level.
      *
      * @param playerUUID
-     *     The name of the player who owns the movables.
+     *     The name of the player who owns the structures.
      * @param maxPermission
-     *     The maximum level of ownership (inclusive) this player has over the movables.
-     * @return All the movables owned by the player with at least a certain permission level.
+     *     The maximum level of ownership (inclusive) this player has over the structures.
+     * @return All the structures owned by the player with at least a certain permission level.
      */
-    List<AbstractMovable> getMovables(UUID playerUUID, PermissionLevel maxPermission);
+    List<AbstractStructure> getStructures(UUID playerUUID, PermissionLevel maxPermission);
 
     /**
-     * Gets a map of location hashes and their connected powerblocks for all movables in a chunk.
+     * Gets a map of location hashes and their connected powerblocks for all structures in a chunk.
      * <p>
-     * The key is the hashed location in chunk space, the value is the list of UIDs of the movables whose powerblocks
+     * The key is the hashed location in chunk space, the value is the list of UIDs of the structures whose powerblocks
      * occupies that location.
      *
      * @param chunkId
-     *     The id of the chunk the movables are in.
-     * @return A map of location hashes and their connected powerblocks for all movables in a chunk.
+     *     The id of the chunk the structures are in.
+     * @return A map of location hashes and their connected powerblocks for all structures in a chunk.
      */
     Int2ObjectMap<LongList> getPowerBlockData(long chunkId);
 
     /**
-     * Gets a list of movable UIDs that have their rotation point in a given chunk.
+     * Gets a list of structure UIDs that have their rotation point in a given chunk.
      *
      * @param chunkId
-     *     The id of the chunk the movables are in.
-     * @return A list of movables that have their rotation point in a given chunk.
+     *     The id of the chunk the structures are in.
+     * @return A list of structures that have their rotation point in a given chunk.
      */
-    List<AbstractMovable> getMovablesInChunk(long chunkId);
+    List<AbstractStructure> getStructuresInChunk(long chunkId);
 
     /**
-     * Inserts a new movable in the database. If the insertion was successful, a new {@link AbstractMovable} will be
-     * created with the correct movableUID.
+     * Inserts a new structure in the database. If the insertion was successful, a new {@link AbstractStructure} will be
+     * created with the correct structureUID.
      *
-     * @param movable
-     *     The movable to insert.
-     * @return The {@link AbstractMovable} that was just inserted if insertion was successful. This is
+     * @param structure
+     *     The structure to insert.
+     * @return The {@link AbstractStructure} that was just inserted if insertion was successful. This is
      * <u><b>NOT!!</b></u> the same object as the one passed to this method.
      */
-    Optional<AbstractMovable> insert(AbstractMovable movable);
+    Optional<AbstractStructure> insert(AbstractStructure structure);
 
     /**
-     * Synchronizes an {@link AbstractMovable} movable with the database. This will synchronize both the base and the
-     * type-specific data of the {@link AbstractMovable}.
+     * Synchronizes an {@link AbstractStructure} structure with the database. This will synchronize both the base and
+     * the type-specific data of the {@link AbstractStructure}.
      *
-     * @param movable
-     *     The {@link IMovableConst} that describes the data of movable.
+     * @param structure
+     *     The {@link IStructureConst} that describes the data of structure.
      * @param typeData
-     *     The type-specific data of this movable.
+     *     The type-specific data of this structure.
      * @return True if the update was successful.
      */
-    boolean syncMovableData(IMovableConst movable, String typeData);
+    boolean syncStructureData(IStructureConst structure, String typeData);
 
     /**
-     * Retrieves all {@link DatabaseManager.MovableIdentifier}s that start with the provided input.
+     * Retrieves all {@link DatabaseManager.StructureIdentifier}s that start with the provided input.
      * <p>
      * For example, this method can retrieve the identifiers "1", "10", "11", "100", etc. from an input of "1" or
      * "MyDoor", "MyPortcullis", "MyOtherDoor", etc. from an input of "My".
@@ -263,81 +263,81 @@ public interface IStorage
      * @param input
      *     The partial identifier to look for.
      * @param player
-     *     The player that should own the movables. May be null to disregard ownership.
+     *     The player that should own the structures. May be null to disregard ownership.
      * @param maxPermission
-     *     The maximum level of ownership (inclusive) this player has over the movables.
-     * @return All {@link DatabaseManager.MovableIdentifier}s that start with the provided input.
+     *     The maximum level of ownership (inclusive) this player has over the structures.
+     * @return All {@link DatabaseManager.StructureIdentifier}s that start with the provided input.
      */
-    List<DatabaseManager.MovableIdentifier> getPartialIdentifiers(
+    List<DatabaseManager.StructureIdentifier> getPartialIdentifiers(
         String input, @Nullable IPPlayer player, PermissionLevel maxPermission);
 
     /**
-     * Deletes a {@link MovableType} and all {@link AbstractMovable}s of this type from the database.
+     * Deletes a {@link StructureType} and all {@link AbstractStructure}s of this type from the database.
      * <p>
-     * Note that the {@link MovableType} has to be registered before it can be deleted! It doesn't need to be enabled,
+     * Note that the {@link StructureType} has to be registered before it can be deleted! It doesn't need to be enabled,
      * though.
      *
-     * @param movableType
-     *     The {@link MovableType} to delete.
+     * @param structureType
+     *     The {@link StructureType} to delete.
      * @return True if deletion was successful.
      */
-    boolean deleteMovableType(MovableType movableType);
+    boolean deleteStructureType(StructureType structureType);
 
     /**
-     * Removes an owner of a movable. Note that the original creator can never be removed.
+     * Removes an owner of a structure. Note that the original creator can never be removed.
      *
-     * @param movableUID
-     *     The UID of the movable to modify.
+     * @param structureUID
+     *     The UID of the structure to modify.
      * @param playerUUID
-     *     The UUID of the player to remove as owner of the movable.
+     *     The UUID of the player to remove as owner of the structure.
      * @return True if an owner was removed.
      */
-    boolean removeOwner(long movableUID, UUID playerUUID);
+    boolean removeOwner(long structureUID, UUID playerUUID);
 
     /**
-     * Adds a player as owner of a movable with at a certain permission level to a movable.
+     * Adds a player as owner of a structure with at a certain permission level to a structure.
      * <p>
      * Note that permission level 0 is reserved for the creator, and negative values are not allowed.
      *
-     * @param movableUID
-     *     The UID of the movable to modify.
+     * @param structureUID
+     *     The UID of the structure to modify.
      * @param player
      *     The player to add as owner.
      * @param permission
-     *     The level of ownership the player will have over the movable.
+     *     The level of ownership the player will have over the structure.
      * @return True if the update was successful.
      */
-    boolean addOwner(long movableUID, PPlayerData player, PermissionLevel permission);
+    boolean addOwner(long structureUID, PPlayerData player, PermissionLevel permission);
 
     /**
-     * Gets the flag value of various boolean properties of a {@link AbstractMovable}.
+     * Gets the flag value of various boolean properties of a {@link AbstractStructure}.
      *
-     * @param movable
-     *     The {@link AbstractMovable}.
-     * @return The flag value of a {@link AbstractMovable}.
+     * @param structure
+     *     The {@link AbstractStructure}.
+     * @return The flag value of a {@link AbstractStructure}.
      */
-    default long getFlag(AbstractMovable movable)
+    default long getFlag(AbstractStructure structure)
     {
         long flag = 0;
-        flag = IBitFlag.changeFlag(MovableFlag.getFlagValue(MovableFlag.IS_OPEN), movable.isOpen(), flag);
-        flag = IBitFlag.changeFlag(MovableFlag.getFlagValue(MovableFlag.IS_LOCKED), movable.isLocked(), flag);
+        flag = IBitFlag.changeFlag(StructureFlag.getFlagValue(StructureFlag.IS_OPEN), structure.isOpen(), flag);
+        flag = IBitFlag.changeFlag(StructureFlag.getFlagValue(StructureFlag.IS_LOCKED), structure.isLocked(), flag);
         return flag;
     }
 
     /**
-     * Gets the flag value of various boolean properties of a {@link AbstractMovable}.
+     * Gets the flag value of various boolean properties of a {@link AbstractStructure}.
      *
      * @param isOpen
-     *     Whether the movable is currently open.
+     *     Whether the structure is currently open.
      * @param isLocked
-     *     Whether the movable is currently locked.
-     * @return The flag value of a {@link AbstractMovable}.
+     *     Whether the structure is currently locked.
+     * @return The flag value of a {@link AbstractStructure}.
      */
     default long getFlag(boolean isOpen, boolean isLocked)
     {
         long flag = 0;
-        flag = IBitFlag.changeFlag(MovableFlag.getFlagValue(MovableFlag.IS_OPEN), isOpen, flag);
-        flag = IBitFlag.changeFlag(MovableFlag.getFlagValue(MovableFlag.IS_LOCKED), isLocked, flag);
+        flag = IBitFlag.changeFlag(StructureFlag.getFlagValue(StructureFlag.IS_OPEN), isOpen, flag);
+        flag = IBitFlag.changeFlag(StructureFlag.getFlagValue(StructureFlag.IS_LOCKED), isLocked, flag);
         return flag;
     }
 
@@ -392,24 +392,24 @@ public interface IStorage
     }
 
     /**
-     * Set of bit flags to represent various properties of movables.
+     * Set of bit flags to represent various properties of structures.
      *
      * @author Pim
      */
-    enum MovableFlag implements IBitFlag
+    enum StructureFlag implements IBitFlag
     {
         /**
-         * Consider a movable to be opened if this flag is enabled.
+         * Consider a structure to be opened if this flag is enabled.
          */
         IS_OPEN(0b00000001),
 
         /**
-         * Consider a movable to be locked if this flag is enabled.
+         * Consider a structure to be locked if this flag is enabled.
          */
         IS_LOCKED(0b00000010),
 
         /**
-         * Consider a movable switched on if this flag is enabled. Used in cases of perpetual movement.
+         * Consider a structure switched on if this flag is enabled. Used in cases of perpetual movement.
          */
         IS_SWITCHED_ON(0b00000100),
         ;
@@ -419,19 +419,19 @@ public interface IStorage
          */
         private final long flagValue;
 
-        MovableFlag(long flagValue)
+        StructureFlag(long flagValue)
         {
             this.flagValue = flagValue;
         }
 
         /**
-         * Gets the flag value of a {@link MovableFlag}.
+         * Gets the flag value of a {@link StructureFlag}.
          *
          * @param flag
-         *     The {@link MovableFlag}.
-         * @return The flag value of a {@link MovableFlag}.
+         *     The {@link StructureFlag}.
+         * @return The flag value of a {@link StructureFlag}.
          */
-        public static long getFlagValue(MovableFlag flag)
+        public static long getFlagValue(StructureFlag flag)
         {
             return flag.flagValue;
         }

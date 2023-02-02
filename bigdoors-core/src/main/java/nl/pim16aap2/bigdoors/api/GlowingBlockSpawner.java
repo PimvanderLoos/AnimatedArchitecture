@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.api;
 
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.movable.IMovableConst;
+import nl.pim16aap2.bigdoors.structures.IStructureConst;
 import nl.pim16aap2.bigdoors.util.IGlowingBlock;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.IVector3D;
@@ -23,30 +23,30 @@ public abstract class GlowingBlockSpawner
         IPPlayer player, IPWorld world, Duration duration, double x, double y, double z, PColor pColor);
 
     /**
-     * Spawns the glowing blocks required to highlight a movable.
+     * Spawns the glowing blocks required to highlight a structure.
      *
-     * @param movable
-     *     The movable to highlight.
+     * @param structure
+     *     The structure to highlight.
      * @param player
-     *     The {@link IPPlayer} for whom to highlight the movable.
+     *     The {@link IPPlayer} for whom to highlight the structure.
      * @param duration
      *     The amount of time the glowing blocks should be visible for.
      * @return The list of {@link IGlowingBlock}s that were spawned.
      */
-    public List<IGlowingBlock> spawnGlowingBlocks(IMovableConst movable, IPPlayer player, Duration duration)
+    public List<IGlowingBlock> spawnGlowingBlocks(IStructureConst structure, IPPlayer player, Duration duration)
     {
         final List<IGlowingBlock> ret = new ArrayList<>(4);
-        final IPWorld world = movable.getWorld();
+        final IPWorld world = structure.getWorld();
 
-        spawnGlowingBlock(player, world, duration, movable.getPowerBlock().x() + 0.5,
-                          movable.getPowerBlock().y(), movable.getPowerBlock().z() + 0.5, PColor.GOLD);
-        spawnGlowingBlock(player, world, duration, movable.getRotationPoint().x() + 0.5,
-                          movable.getRotationPoint().y(), movable.getRotationPoint().z() + 0.5,
+        spawnGlowingBlock(player, world, duration, structure.getPowerBlock().x() + 0.5,
+                          structure.getPowerBlock().y(), structure.getPowerBlock().z() + 0.5, PColor.GOLD);
+        spawnGlowingBlock(player, world, duration, structure.getRotationPoint().x() + 0.5,
+                          structure.getRotationPoint().y(), structure.getRotationPoint().z() + 0.5,
                           PColor.DARK_PURPLE);
-        spawnGlowingBlock(player, world, duration, movable.getMinimum().x() + 0.5, movable.getMinimum().y(),
-                          movable.getMinimum().z() + 0.5, PColor.BLUE);
-        spawnGlowingBlock(player, world, duration, movable.getMaximum().x() + 0.5, movable.getMaximum().y(),
-                          movable.getMaximum().z() + 0.5, PColor.RED);
+        spawnGlowingBlock(player, world, duration, structure.getMinimum().x() + 0.5, structure.getMinimum().y(),
+                          structure.getMinimum().z() + 0.5, PColor.BLUE);
+        spawnGlowingBlock(player, world, duration, structure.getMaximum().x() + 0.5, structure.getMaximum().y(),
+                          structure.getMaximum().z() + 0.5, PColor.RED);
         return ret;
     }
 

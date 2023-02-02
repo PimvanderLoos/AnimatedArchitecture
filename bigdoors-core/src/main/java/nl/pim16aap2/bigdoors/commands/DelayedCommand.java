@@ -8,8 +8,8 @@ import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.delayedinput.DelayedInputRequest;
-import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
-import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
+import nl.pim16aap2.bigdoors.util.structureretriever.StructureRetriever;
+import nl.pim16aap2.bigdoors.util.structureretriever.StructureRetrieverFactory;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -22,13 +22,13 @@ import java.util.function.Supplier;
 /**
  * Represents a delayed command.
  * <p>
- * A delayed command allows "starting" the command while only knowing the target movable. This is useful when the
- * movable is already known (e.g. after having been selected in a GUI), but the other specific data is not.
+ * A delayed command allows "starting" the command while only knowing the target structure. This is useful when the
+ * structure is already known (e.g. after having been selected in a GUI), but the other specific data is not.
  * <p>
- * An example usage of this system could be changing the name of a movable via a GUI. Using the GUI, the user has to
- * select a movable to apply the change to, but we'll need to wait for user input to update the name. For a user, having
- * to use specify the movable they would need to change in a command or something would be rather awkward, so this way
- * we can remember that information and not require the user to input duplicate data.
+ * An example usage of this system could be changing the name of a structure via a GUI. Using the GUI, the user has to
+ * select a structure to apply the change to, but we'll need to wait for user input to update the name. For a user,
+ * having to use specify the structure they would need to change in a command or something would be rather awkward, so
+ * this way we can remember that information and not require the user to input duplicate data.
  *
  * @author Pim
  */
@@ -97,31 +97,31 @@ public abstract class DelayedCommand<T>
      * @param commandSender
      *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
      *     execution.
-     * @param movableRetriever
-     *     A {@link MovableRetrieverFactory} that references the target movable.
+     * @param structureRetriever
+     *     A {@link StructureRetrieverFactory} that references the target structure.
      * @return See {@link BaseCommand#run()}.
      */
-    public CompletableFuture<?> runDelayed(ICommandSender commandSender, MovableRetriever movableRetriever)
+    public CompletableFuture<?> runDelayed(ICommandSender commandSender, StructureRetriever structureRetriever)
     {
         log.atFinest()
-           .log("Creating delayed command for command '%s' with command sender: '%s' for MovableRetriever: %s",
-                getCommandDefinition(), commandSender, movableRetriever);
+           .log("Creating delayed command for command '%s' with command sender: '%s' for StructureRetriever: %s",
+                getCommandDefinition(), commandSender, structureRetriever);
 
         final int commandTimeout = Constants.COMMAND_WAITER_TIMEOUT;
         return inputRequestFactory.create(commandTimeout, commandSender, getCommandDefinition(),
-                                          getExecutor(commandSender, movableRetriever),
-                                          () -> inputRequestMessage(commandSender, movableRetriever), delayedInputClz)
+                                          getExecutor(commandSender, structureRetriever),
+                                          () -> inputRequestMessage(commandSender, structureRetriever), delayedInputClz)
                                   .getCommandOutput();
     }
 
     private Function<T, CompletableFuture<?>> getExecutor(
-        ICommandSender commandSender, MovableRetriever movableRetriever)
+        ICommandSender commandSender, StructureRetriever structureRetriever)
     {
         return delayedInput ->
         {
             try
             {
-                return delayedInputExecutor(commandSender, movableRetriever, delayedInput);
+                return delayedInputExecutor(commandSender, structureRetriever, delayedInput);
             }
             catch (Exception e)
             {
@@ -195,30 +195,30 @@ public abstract class DelayedCommand<T>
      * The method that is run once delayed input is received.
      * <p>
      * It processes the new input and executes the command using the previously-provided data (see
-     * {@link #runDelayed(ICommandSender, MovableRetriever)}).
+     * {@link #runDelayed(ICommandSender, StructureRetriever)}).
      *
      * @param commandSender
      *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
      *     execution.
-     * @param movableRetriever
-     *     A {@link MovableRetrieverFactory} that references the target movable.
+     * @param structureRetriever
+     *     A {@link StructureRetrieverFactory} that references the target structure.
      * @param delayedInput
      *     The delayed input that was retrieved.
      * @return See {@link BaseCommand#run()}.
      */
     protected abstract CompletableFuture<?> delayedInputExecutor(
-        ICommandSender commandSender, MovableRetriever movableRetriever, T delayedInput);
+        ICommandSender commandSender, StructureRetriever structureRetriever, T delayedInput);
 
     /**
      * Retrieves the message that will be sent to the command sender after initialization of a delayed input request.
      *
      * @param commandSender
      *     The user responsible for the delayed command.
-     * @param movableRetriever
-     *     The movable retriever as currently specified.
+     * @param structureRetriever
+     *     The structure retriever as currently specified.
      * @return The init message for the delayed input request.
      */
-    protected abstract String inputRequestMessage(ICommandSender commandSender, MovableRetriever movableRetriever);
+    protected abstract String inputRequestMessage(ICommandSender commandSender, StructureRetriever structureRetriever);
 
     @Singleton
     public static final class Context

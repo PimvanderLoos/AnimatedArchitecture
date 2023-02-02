@@ -8,22 +8,22 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableAttribute;
+import nl.pim16aap2.bigdoors.structures.AbstractStructure;
+import nl.pim16aap2.bigdoors.structures.StructureAttribute;
 import nl.pim16aap2.bigdoors.tooluser.PowerBlockRelocator;
 import nl.pim16aap2.bigdoors.util.Constants;
-import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
-import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
+import nl.pim16aap2.bigdoors.util.structureretriever.StructureRetriever;
+import nl.pim16aap2.bigdoors.util.structureretriever.StructureRetrieverFactory;
 
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Represents the command to initiate the process to move the powerblock of a movable to a different location.
+ * Represents the command to initiate the process to move the powerblock of a structure to a different location.
  *
  * @author Pim
  */
 @ToString
-public class MovePowerBlock extends MovableTargetCommand
+public class MovePowerBlock extends StructureTargetCommand
 {
     private final ToolUserManager toolUserManager;
     private final PowerBlockRelocator.IFactory powerBlockRelocatorFactory;
@@ -31,10 +31,10 @@ public class MovePowerBlock extends MovableTargetCommand
     @AssistedInject //
     MovePowerBlock(
         @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
-        @Assisted MovableRetriever movableRetriever, ToolUserManager toolUserManager,
+        @Assisted StructureRetriever structureRetriever, ToolUserManager toolUserManager,
         PowerBlockRelocator.IFactory powerBlockRelocatorFactory)
     {
-        super(commandSender, localizer, textFactory, movableRetriever, MovableAttribute.RELOCATE_POWERBLOCK);
+        super(commandSender, localizer, textFactory, structureRetriever, StructureAttribute.RELOCATE_POWERBLOCK);
         this.toolUserManager = toolUserManager;
         this.powerBlockRelocatorFactory = powerBlockRelocatorFactory;
     }
@@ -52,10 +52,10 @@ public class MovePowerBlock extends MovableTargetCommand
     }
 
     @Override
-    protected CompletableFuture<?> performAction(AbstractMovable movable)
+    protected CompletableFuture<?> performAction(AbstractStructure structure)
     {
-        toolUserManager.startToolUser(powerBlockRelocatorFactory.create((IPPlayer) getCommandSender(), movable),
-                                      Constants.MOVABLE_CREATOR_TIME_LIMIT);
+        toolUserManager.startToolUser(powerBlockRelocatorFactory.create((IPPlayer) getCommandSender(), structure),
+                                      Constants.STRUCTURE_CREATOR_TIME_LIMIT);
         return CompletableFuture.completedFuture(null);
     }
 
@@ -66,12 +66,12 @@ public class MovePowerBlock extends MovableTargetCommand
          * Creates (but does not execute!) a new {@link MovePowerBlock} command.
          *
          * @param commandSender
-         *     The {@link ICommandSender} responsible for moving the powerblock for the movable.
-         * @param movableRetriever
-         *     A {@link MovableRetrieverFactory} representing the {@link AbstractMovable} for which the powerblock will
-         *     be moved.
+         *     The {@link ICommandSender} responsible for moving the powerblock for the structure.
+         * @param structureRetriever
+         *     A {@link StructureRetrieverFactory} representing the {@link AbstractStructure} for which the powerblock
+         *     will be moved.
          * @return See {@link BaseCommand#run()}.
          */
-        MovePowerBlock newMovePowerBlock(ICommandSender commandSender, MovableRetriever movableRetriever);
+        MovePowerBlock newMovePowerBlock(ICommandSender commandSender, StructureRetriever structureRetriever);
     }
 }

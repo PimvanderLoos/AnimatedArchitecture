@@ -13,8 +13,8 @@ import nl.pim16aap2.bigdoors.commands.SetOpenDirectionDelayed;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
-import nl.pim16aap2.bigdoors.movable.MovableBaseBuilder;
-import nl.pim16aap2.bigdoors.movabletypes.MovableType;
+import nl.pim16aap2.bigdoors.structures.StructureBaseBuilder;
+import nl.pim16aap2.bigdoors.structuretypes.StructureType;
 import nl.pim16aap2.bigdoors.tooluser.Procedure;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
@@ -62,10 +62,10 @@ class CreatorTest
     {
         mocks = MockitoAnnotations.openMocks(this);
 
-        final MovableType movableType = Mockito.mock(MovableType.class);
-        Mockito.when(movableType.getLocalizationKey()).thenReturn("MovableType");
+        final StructureType structureType = Mockito.mock(StructureType.class);
+        Mockito.when(structureType.getLocalizationKey()).thenReturn("StructureType");
 
-        Mockito.when(creator.getMovableType()).thenReturn(movableType);
+        Mockito.when(creator.getStructureType()).thenReturn(structureType);
         Mockito.when(economyManager.isEconomyEnabled()).thenReturn(true);
 
         final IProtectionCompatManager protectionCompatManager = Mockito.mock(IProtectionCompatManager.class);
@@ -81,7 +81,7 @@ class CreatorTest
                .thenAnswer(invocation -> new Step.Factory(localizer, invocation.getArgument(0, String.class)));
 
         UnitTestUtil.setField(Creator.class, creator, "limitsManager", limitsManager);
-        UnitTestUtil.setField(Creator.class, creator, "movableBaseBuilder", Mockito.mock(MovableBaseBuilder.class));
+        UnitTestUtil.setField(Creator.class, creator, "structureBaseBuilder", Mockito.mock(StructureBaseBuilder.class));
         UnitTestUtil.setField(Creator.class, creator, "databaseManager", Mockito.mock(DatabaseManager.class));
         UnitTestUtil.setField(Creator.class, creator, "economyManager", economyManager);
         UnitTestUtil.setField(Creator.class, creator, "commandFactory", commandFactory);
@@ -108,7 +108,7 @@ class CreatorTest
         // Numerical names are not allowed.
         Assertions.assertFalse(creator.completeNamingStep(input));
         Mockito.verify(player)
-               .sendMessage(UnitTestUtil.toText("creator.base.error.invalid_name " + input + " MovableType"));
+               .sendMessage(UnitTestUtil.toText("creator.base.error.invalid_name " + input + " StructureType"));
 
         Assertions.assertTrue(creator.completeNamingStep("newDoor"));
         Mockito.verify(creator).giveTool();
@@ -176,7 +176,7 @@ class CreatorTest
         // Not allowed, because the selected area is too big.
         Assertions.assertFalse(creator.setSecondPos(loc));
         Mockito.verify(player)
-               .sendMessage(UnitTestUtil.toText(String.format("creator.base.error.area_too_big MovableType %d %d",
+               .sendMessage(UnitTestUtil.toText(String.format("creator.base.error.area_too_big StructureType %d %d",
                                                               cuboid.getVolume(), cuboid.getVolume() - 1)));
 
         Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any()))
@@ -202,19 +202,20 @@ class CreatorTest
         Mockito.verify(player).sendMessage(UnitTestUtil.toText("creator.base.error.creation_cancelled"));
 
         Mockito.doReturn(OptionalDouble.empty()).when(creator).getPrice();
-        Mockito.doReturn(false).when(creator).buyMovable();
+        Mockito.doReturn(false).when(creator).buyStructure();
 
         Assertions.assertTrue(creator.confirmPrice(true));
-        Mockito.verify(player).sendMessage(UnitTestUtil.toText("creator.base.error.insufficient_funds MovableType 0"));
+        Mockito.verify(player)
+               .sendMessage(UnitTestUtil.toText("creator.base.error.insufficient_funds StructureType 0"));
 
         double price = 123.41;
         Mockito.doReturn(OptionalDouble.of(price)).when(creator).getPrice();
-        Mockito.doReturn(false).when(creator).buyMovable();
+        Mockito.doReturn(false).when(creator).buyStructure();
         Assertions.assertTrue(creator.confirmPrice(true));
         Mockito.verify(player).sendMessage(
-            UnitTestUtil.toText(String.format("creator.base.error.insufficient_funds MovableType %.2f", price)));
+            UnitTestUtil.toText(String.format("creator.base.error.insufficient_funds StructureType %.2f", price)));
 
-        Mockito.doReturn(true).when(creator).buyMovable();
+        Mockito.doReturn(true).when(creator).buyStructure();
         Assertions.assertTrue(creator.confirmPrice(true));
         Mockito.verify(procedure).goToNextStep();
     }
@@ -235,11 +236,11 @@ class CreatorTest
         Mockito.when(commandFactory.getSetOpenDirectionDelayed())
                .thenReturn(Mockito.mock(SetOpenDirectionDelayed.class));
 
-        final MovableType movableType = Mockito.mock(MovableType.class);
+        final StructureType structureType = Mockito.mock(StructureType.class);
         final Set<MovementDirection> validOpenDirections = EnumSet.of(MovementDirection.EAST, MovementDirection.WEST);
-        Mockito.when(movableType.getValidOpenDirections()).thenReturn(validOpenDirections);
+        Mockito.when(structureType.getValidOpenDirections()).thenReturn(validOpenDirections);
 
-        Mockito.when(creator.getMovableType()).thenReturn(movableType);
+        Mockito.when(creator.getStructureType()).thenReturn(structureType);
 
         Assertions.assertFalse(creator.completeSetOpenDirStep(MovementDirection.NONE));
         Assertions.assertFalse(creator.completeSetOpenDirStep(MovementDirection.NORTH));
@@ -270,23 +271,23 @@ class CreatorTest
     }
 
     @Test
-    void testBuyMovable()
+    void testBuyStructure()
     {
         Mockito.when(economyManager.isEconomyEnabled()).thenReturn(false);
 
         final Cuboid cuboid = new Cuboid(new Vector3Di(1, 2, 3), new Vector3Di(4, 5, 6));
         setField("cuboid", cuboid);
-        Assertions.assertTrue(creator.buyMovable());
+        Assertions.assertTrue(creator.buyStructure());
 
         final IPWorld world = Mockito.mock(IPWorld.class);
         setField("world", world);
 
-        final MovableType MovableType = Mockito.mock(MovableType.class);
-        Mockito.when(creator.getMovableType()).thenReturn(MovableType);
+        final StructureType StructureType = Mockito.mock(StructureType.class);
+        Mockito.when(creator.getStructureType()).thenReturn(StructureType);
 
         Mockito.when(economyManager.isEconomyEnabled()).thenReturn(true);
-        creator.buyMovable();
-        Mockito.verify(economyManager).buyMovable(player, world, MovableType, cuboid.getVolume());
+        creator.buyStructure();
+        Mockito.verify(economyManager).buyStructure(player, world, StructureType, cuboid.getVolume());
     }
 
     @Test
@@ -315,7 +316,7 @@ class CreatorTest
         Assertions.assertFalse(creator.completeSetPowerBlockStep(insideCuboid));
 
         Mockito.verify(player)
-               .sendMessage(UnitTestUtil.toText("creator.base.error.powerblock_inside_movable MovableType"));
+               .sendMessage(UnitTestUtil.toText("creator.base.error.powerblock_inside_structure StructureType"));
 
         final double distance = cuboid.getCenter().getDistance(outsideCuboid.getPosition());
         final int lowLimit = (int) (distance - 1);
@@ -323,7 +324,7 @@ class CreatorTest
 
         Assertions.assertFalse(creator.completeSetPowerBlockStep(outsideCuboid));
         Mockito.verify(player).sendMessage(
-            UnitTestUtil.toText(String.format("creator.base.error.powerblock_too_far MovableType %.2f %d",
+            UnitTestUtil.toText(String.format("creator.base.error.powerblock_too_far StructureType %.2f %d",
                                               distance, lowLimit)));
 
         Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any())).thenReturn(OptionalInt.of(lowLimit + 10));

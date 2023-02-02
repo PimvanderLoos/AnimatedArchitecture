@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
+import nl.pim16aap2.bigdoors.util.structureretriever.StructureRetriever;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -23,13 +23,13 @@ public class SetBlocksToMoveDelayed extends DelayedCommand<Integer>
 
     @Override
     protected CompletableFuture<?> delayedInputExecutor(
-        ICommandSender commandSender, MovableRetriever movableRetriever, Integer distance)
+        ICommandSender commandSender, StructureRetriever structureRetriever, Integer distance)
     {
-        return commandFactory.get().newSetBlocksToMove(commandSender, movableRetriever, distance).run();
+        return commandFactory.get().newSetBlocksToMove(commandSender, structureRetriever, distance).run();
     }
 
     @Override
-    protected String inputRequestMessage(ICommandSender commandSender, MovableRetriever movableRetriever)
+    protected String inputRequestMessage(ICommandSender commandSender, StructureRetriever structureRetriever)
     {
         return localizer.getMessage("commands.set_blocks_to_move.delayed.init");
     }

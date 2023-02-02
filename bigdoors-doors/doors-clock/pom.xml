@@ -6,7 +6,7 @@
     <version>1</version>
 
     <properties>
-        <mainClass>nl.pim16aap2.bigdoors.movable.clock.MovableTypeClock</mainClass>
+        <mainClass>nl.pim16aap2.bigdoors.structures.clock.StructureTypeClock</mainClass>
         <typeName>Clock</typeName>
         <version>1</version>
         <TypeDependencies>windmill(1;1)</TypeDependencies>

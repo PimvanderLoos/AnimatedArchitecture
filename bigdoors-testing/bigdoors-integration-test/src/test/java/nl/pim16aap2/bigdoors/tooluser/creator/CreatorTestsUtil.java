@@ -24,13 +24,13 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
-import nl.pim16aap2.bigdoors.managers.MovableDeletionManager;
+import nl.pim16aap2.bigdoors.managers.StructureDeletionManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableBaseBuilder;
-import nl.pim16aap2.bigdoors.movable.MovableOwner;
-import nl.pim16aap2.bigdoors.movable.MovableRegistry;
-import nl.pim16aap2.bigdoors.movable.PermissionLevel;
+import nl.pim16aap2.bigdoors.structures.AbstractStructure;
+import nl.pim16aap2.bigdoors.structures.PermissionLevel;
+import nl.pim16aap2.bigdoors.structures.StructureBaseBuilder;
+import nl.pim16aap2.bigdoors.structures.StructureOwner;
+import nl.pim16aap2.bigdoors.structures.StructureRegistry;
 import nl.pim16aap2.bigdoors.testimplementations.TestPLocationFactory;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
@@ -57,21 +57,21 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import static nl.pim16aap2.bigdoors.UnitTestUtil.getWorld;
-import static nl.pim16aap2.bigdoors.UnitTestUtil.newMovableBaseBuilder;
+import static nl.pim16aap2.bigdoors.UnitTestUtil.newStructureBaseBuilder;
 
 public class CreatorTestsUtil
 {
     protected final Vector3Di min = new Vector3Di(10, 15, 20);
     protected final Vector3Di max = new Vector3Di(20, 25, 30);
     protected final Vector3Di powerblock = new Vector3Di(40, 40, 40);
-    protected final String movableName = "testDoor123";
+    protected final String structureName = "testDoor123";
     protected final IPWorld world = getWorld();
     protected Vector3Di rotationPoint = new Vector3Di(20, 15, 25);
     protected MovementDirection openDirection = MovementDirection.COUNTERCLOCKWISE;
 
-    protected MovableOwner movableOwner;
+    protected StructureOwner structureOwner;
 
-    protected MovableBaseBuilder movableBaseBuilder;
+    protected StructureBaseBuilder structureBaseBuilder;
 
     protected ILocalizer localizer;
 
@@ -122,20 +122,20 @@ public class CreatorTestsUtil
     {
         final var uuid = UUID.fromString("f373bb8d-dd2d-496e-a9c5-f9a0c45b2db5");
         final var name = "user";
-        var movableSizeLimit = 8;
-        var movableCountLimit = 9;
+        var structureSizeLimit = 8;
+        var structureCountLimit = 9;
 
-        playerData = new PPlayerData(uuid, name, movableSizeLimit, movableCountLimit, true, true);
+        playerData = new PPlayerData(uuid, name, structureSizeLimit, structureCountLimit, true, true);
 
-        movableOwner = new MovableOwner(-1, PermissionLevel.CREATOR, playerData);
+        structureOwner = new StructureOwner(-1, PermissionLevel.CREATOR, playerData);
 
         Mockito.when(player.getUUID()).thenReturn(uuid);
         Mockito.when(player.getName()).thenReturn(name);
-        Mockito.when(player.getMovableCountLimit()).thenReturn(movableCountLimit);
-        Mockito.when(player.getMovableSizeLimit()).thenReturn(movableSizeLimit);
+        Mockito.when(player.getStructureCountLimit()).thenReturn(structureCountLimit);
+        Mockito.when(player.getStructureSizeLimit()).thenReturn(structureSizeLimit);
         Mockito.when(player.isOp()).thenReturn(true);
         Mockito.when(player.hasProtectionBypassPermission()).thenReturn(true);
-        Mockito.when(player.getMovableSizeLimit()).thenReturn(movableSizeLimit);
+        Mockito.when(player.getStructureSizeLimit()).thenReturn(structureSizeLimit);
         Mockito.when(player.getLocation()).thenReturn(Optional.empty());
 
         Mockito.when(player.getPPlayerData()).thenReturn(playerData);
@@ -149,13 +149,13 @@ public class CreatorTestsUtil
         localizer = UnitTestUtil.initLocalizer();
         limitsManager = new LimitsManager(permissionsManager, configLoader);
 
-        final var builderResult = newMovableBaseBuilder();
+        final var builderResult = newStructureBaseBuilder();
         builderResult.assistedFactoryMocker()
                      .setMock(ILocalizer.class, localizer)
-                     .setMock(MovableRegistry.class,
-                              MovableRegistry.unCached(Mockito.mock(RestartableHolder.class), debuggableRegistry,
-                                                       Mockito.mock(MovableDeletionManager.class)));
-        movableBaseBuilder = builderResult.movableBaseBuilder();
+                     .setMock(StructureRegistry.class,
+                              StructureRegistry.unCached(Mockito.mock(RestartableHolder.class), debuggableRegistry,
+                                                         Mockito.mock(StructureDeletionManager.class)));
+        structureBaseBuilder = builderResult.structureBaseBuilder();
 
         final var assistedStepFactory = Mockito.mock(Step.Factory.IFactory.class);
         //noinspection deprecation
@@ -163,7 +163,7 @@ public class CreatorTestsUtil
                .thenAnswer(invocation -> new Step.Factory(localizer, invocation.getArgument(0, String.class)));
 
         context = new ToolUser.Context(
-            movableBaseBuilder, localizer, ITextFactory.getSimpleTextFactory(), toolUserManager, databaseManager,
+            structureBaseBuilder, localizer, ITextFactory.getSimpleTextFactory(), toolUserManager, databaseManager,
             limitsManager, economyManager, protectionCompatManager, bigDoorsToolUtil, commandFactory,
             assistedStepFactory);
 
@@ -175,21 +175,21 @@ public class CreatorTestsUtil
         Mockito.when(playerFactory.create(playerData.getUUID()))
                .thenReturn(CompletableFuture.completedFuture(Optional.of(player)));
 
-        // Immediately return whatever movable was being added to the database as if it was successful.
-        Mockito.when(databaseManager.addMovable(ArgumentMatchers.any())).thenAnswer(
-            (Answer<CompletableFuture<Optional<AbstractMovable>>>) invocation ->
-                CompletableFuture.completedFuture(Optional.of((AbstractMovable) invocation.getArguments()[0])));
+        // Immediately return whatever structure was being added to the database as if it was successful.
+        Mockito.when(databaseManager.addStructure(ArgumentMatchers.any())).thenAnswer(
+            (Answer<CompletableFuture<Optional<AbstractStructure>>>) invocation ->
+                CompletableFuture.completedFuture(Optional.of((AbstractStructure) invocation.getArguments()[0])));
 
         Mockito.when(
-                   databaseManager.addMovable(ArgumentMatchers.any(AbstractMovable.class), Mockito.any(IPPlayer.class)))
-               .thenAnswer((Answer<CompletableFuture<DatabaseManager.MovableInsertResult>>) invocation ->
-                   CompletableFuture.completedFuture(new DatabaseManager.MovableInsertResult(
-                       Optional.of(invocation.getArgument(0, AbstractMovable.class)), false)));
+                   databaseManager.addStructure(ArgumentMatchers.any(AbstractStructure.class), Mockito.any(IPPlayer.class)))
+               .thenAnswer((Answer<CompletableFuture<DatabaseManager.StructureInsertResult>>) invocation ->
+                   CompletableFuture.completedFuture(new DatabaseManager.StructureInsertResult(
+                       Optional.of(invocation.getArgument(0, AbstractStructure.class)), false)));
 
         Mockito.when(permissionsManager.hasPermission(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(true);
 
-        Mockito.when(configLoader.maxMovableSize()).thenReturn(OptionalInt.empty());
-        Mockito.when(configLoader.maxMovableCount()).thenReturn(OptionalInt.empty());
+        Mockito.when(configLoader.maxStructureSize()).thenReturn(OptionalInt.empty());
+        Mockito.when(configLoader.maxStructureCount()).thenReturn(OptionalInt.empty());
         Mockito.when(configLoader.maxPowerBlockDistance()).thenReturn(OptionalInt.empty());
         Mockito.when(configLoader.maxBlocksToMove()).thenReturn(OptionalInt.empty());
     }
@@ -252,21 +252,22 @@ public class CreatorTestsUtil
                .thenReturn(OptionalDouble.of(price));
     }
 
-    protected void setBuyMovable(boolean status)
+    protected void setBuyStructure(boolean status)
     {
-        Mockito.when(economyManager.buyMovable(ArgumentMatchers.any(), ArgumentMatchers.any(),
-                                               ArgumentMatchers.any(), ArgumentMatchers.anyInt()))
+        Mockito.when(economyManager.buyStructure(ArgumentMatchers.any(), ArgumentMatchers.any(),
+                                                 ArgumentMatchers.any(), ArgumentMatchers.anyInt()))
                .thenReturn(status);
     }
 
 
-    protected AbstractMovable.MovableBaseHolder constructMovableBase()
+    protected AbstractStructure.BaseHolder constructStructureBase()
     {
-        return movableBaseBuilder.builder()
-                                 .uid(-1).name(movableName).cuboid(new Cuboid(min, max)).rotationPoint(rotationPoint)
-                                 .powerBlock(powerblock).world(world).isOpen(false).isLocked(false)
-                                 .openDir(openDirection).primeOwner(movableOwner)
-                                 .build();
+        return structureBaseBuilder.builder()
+                                   .uid(-1).name(structureName).cuboid(new Cuboid(min, max))
+                                   .rotationPoint(rotationPoint)
+                                   .powerBlock(powerblock).world(world).isOpen(false).isLocked(false)
+                                   .openDir(openDirection).primeOwner(structureOwner)
+                                   .build();
     }
 
     public void applySteps(Creator creator, Object... input)
@@ -282,11 +283,11 @@ public class CreatorTestsUtil
         }
     }
 
-    public void testCreation(Creator creator, AbstractMovable actualMovable, Object... input)
+    public void testCreation(Creator creator, AbstractStructure actualStructure, Object... input)
     {
         applySteps(creator, input);
         Mockito.verify(creator.getPlayer(), Mockito.never())
                .sendMessage(UnitTestUtil.toText("creator.base.error.creation_cancelled"));
-        Mockito.verify(databaseManager).addMovable(actualMovable, player);
+        Mockito.verify(databaseManager).addStructure(actualStructure, player);
     }
 }

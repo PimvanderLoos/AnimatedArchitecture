@@ -4,9 +4,9 @@ import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movabletypes.MovableType;
-import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
+import nl.pim16aap2.bigdoors.structures.AbstractStructure;
+import nl.pim16aap2.bigdoors.structuretypes.StructureType;
+import nl.pim16aap2.bigdoors.util.structureretriever.StructureRetrieverFactory;
 import nl.pim16aap2.testing.AssertionsUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,16 +26,16 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initCommandSenderPermissions;
 
 @Timeout(1)
-class MovableTargetCommandTest
+class StructureTargetCommandTest
 {
     @Mock
-    private AbstractMovable movable;
+    private AbstractStructure structure;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private IPPlayer commandSender;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
-    private MovableTargetCommand movableTargetCommand;
+    private StructureTargetCommand structureTargetCommand;
 
     @BeforeEach
     void init()
@@ -43,66 +43,67 @@ class MovableTargetCommandTest
         MockitoAnnotations.openMocks(this);
 
         initCommandSenderPermissions(commandSender, true, true);
-        Mockito.when(movable.isOwner(Mockito.any(UUID.class))).thenReturn(true);
-        Mockito.when(movable.isOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
+        Mockito.when(structure.isOwner(Mockito.any(UUID.class))).thenReturn(true);
+        Mockito.when(structure.isOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
 
-        final MovableType movableType = Mockito.mock(MovableType.class);
-        Mockito.when(movableType.getLocalizationKey()).thenReturn("MovableType");
-        Mockito.when(movable.getType()).thenReturn(movableType);
+        final StructureType structureType = Mockito.mock(StructureType.class);
+        Mockito.when(structureType.getLocalizationKey()).thenReturn("StructureType");
+        Mockito.when(structure.getType()).thenReturn(structureType);
 
-        Mockito.doReturn(true).when(movableTargetCommand).isAllowed(Mockito.any(), Mockito.anyBoolean());
-        Mockito.when(movableTargetCommand.performAction(Mockito.any()))
+        Mockito.doReturn(true).when(structureTargetCommand).isAllowed(Mockito.any(), Mockito.anyBoolean());
+        Mockito.when(structureTargetCommand.performAction(Mockito.any()))
                .thenReturn(CompletableFuture.completedFuture(null));
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
-        UnitTestUtil.setField(MovableTargetCommand.class, movableTargetCommand, "movableRetriever",
-                              MovableRetrieverFactory.ofMovable(movable));
+        UnitTestUtil.setField(StructureTargetCommand.class, structureTargetCommand, "structureRetriever",
+                              StructureRetrieverFactory.ofStructure(structure));
 
-        UnitTestUtil.setField(MovableTargetCommand.class, movableTargetCommand, "lock", new ReentrantReadWriteLock());
-        UnitTestUtil.setField(BaseCommand.class, movableTargetCommand, "commandSender", commandSender);
-        UnitTestUtil.setField(BaseCommand.class, movableTargetCommand, "localizer", localizer);
-        UnitTestUtil.setField(BaseCommand.class, movableTargetCommand, "textFactory",
+        UnitTestUtil.setField(StructureTargetCommand.class, structureTargetCommand, "lock",
+                              new ReentrantReadWriteLock());
+        UnitTestUtil.setField(BaseCommand.class, structureTargetCommand, "commandSender", commandSender);
+        UnitTestUtil.setField(BaseCommand.class, structureTargetCommand, "localizer", localizer);
+        UnitTestUtil.setField(BaseCommand.class, structureTargetCommand, "textFactory",
                               ITextFactory.getSimpleTextFactory());
     }
 
     @Test
     void testExecutionSuccess()
     {
-        Assertions.assertDoesNotThrow(() -> movableTargetCommand.executeCommand(new PermissionsStatus(true, true))
-                                                                .get(1, TimeUnit.SECONDS));
-        Mockito.verify(movableTargetCommand).performAction(Mockito.any());
+        Assertions.assertDoesNotThrow(() -> structureTargetCommand.executeCommand(new PermissionsStatus(true, true))
+                                                                  .get(1, TimeUnit.SECONDS));
+        Mockito.verify(structureTargetCommand).performAction(Mockito.any());
     }
 
     @Test
-    void testExecutionFailureNoMovable()
+    void testExecutionFailureNoStructure()
     {
-        Mockito.when(movable.isOwner(Mockito.any(UUID.class))).thenReturn(false);
-        Mockito.when(movable.isOwner(Mockito.any(IPPlayer.class))).thenReturn(false);
+        Mockito.when(structure.isOwner(Mockito.any(UUID.class))).thenReturn(false);
+        Mockito.when(structure.isOwner(Mockito.any(IPPlayer.class))).thenReturn(false);
 
-        Assertions.assertDoesNotThrow(() -> movableTargetCommand.executeCommand(new PermissionsStatus(true, true))
-                                                                .get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(() -> structureTargetCommand.executeCommand(new PermissionsStatus(true, true))
+                                                                  .get(1, TimeUnit.SECONDS));
     }
 
     @Test
     void testExecutionFailureNoPermission()
     {
-        Mockito.doReturn(false).when(movableTargetCommand).isAllowed(Mockito.any(), Mockito.anyBoolean());
+        Mockito.doReturn(false).when(structureTargetCommand).isAllowed(Mockito.any(), Mockito.anyBoolean());
 
-        Assertions.assertDoesNotThrow(() -> movableTargetCommand.executeCommand(new PermissionsStatus(true, true))
-                                                                .get(1, TimeUnit.SECONDS));
-        Mockito.verify(movableTargetCommand, Mockito.never()).performAction(Mockito.any());
+        Assertions.assertDoesNotThrow(() -> structureTargetCommand.executeCommand(new PermissionsStatus(true, true))
+                                                                  .get(1, TimeUnit.SECONDS));
+        Mockito.verify(structureTargetCommand, Mockito.never()).performAction(Mockito.any());
     }
 
     @Test
     void testPerformActionFailure()
     {
-        Mockito.when(movableTargetCommand.performAction(Mockito.any()))
+        Mockito.when(structureTargetCommand.performAction(Mockito.any()))
                .thenThrow(new IllegalStateException("Generic Exception!"));
 
         AssertionsUtil.assertThrowablesLogged(
-            () -> movableTargetCommand.executeCommand(new PermissionsStatus(true, true)).get(1, TimeUnit.SECONDS),
-            // Thrown by the movableTargetCommand CompletableFuture's exception handler (via Util).
+            () -> structureTargetCommand.executeCommand(new PermissionsStatus(true, true)).get(1, TimeUnit.SECONDS),
+            // Thrown by the structureTargetCommand CompletableFuture's exception handler (via Util).
             CompletionException.class,
             // Thrown when the command action failed.
             RuntimeException.class,

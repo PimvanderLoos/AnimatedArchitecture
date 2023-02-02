@@ -7,7 +7,7 @@ import cloud.commandframework.arguments.parser.ArgumentParser;
 import cloud.commandframework.context.CommandContext;
 import nl.pim16aap2.bigdoors.commands.ICommandSender;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.movable.PermissionLevel;
+import nl.pim16aap2.bigdoors.structures.PermissionLevel;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;

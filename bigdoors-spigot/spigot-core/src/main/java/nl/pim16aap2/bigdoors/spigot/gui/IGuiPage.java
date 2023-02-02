@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.gui;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.managers.MovableDeletionManager;
+import nl.pim16aap2.bigdoors.managers.StructureDeletionManager;
 
 /**
  * Represents a Gui page.
@@ -13,9 +13,9 @@ interface IGuiPage
     IPPlayer getInventoryHolder();
 
     /**
-     * Represents a union type of {@link IGuiPage} and {@link MovableDeletionManager.IDeletionListener}.
+     * Represents a union type of {@link IGuiPage} and {@link StructureDeletionManager.IDeletionListener}.
      */
-    interface IGuiMovableDeletionListener extends IGuiPage, MovableDeletionManager.IDeletionListener
+    interface IGuiStructureDeletionListener extends IGuiPage, StructureDeletionManager.IDeletionListener
     {
     }
 }

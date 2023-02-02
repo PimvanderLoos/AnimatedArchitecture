@@ -46,22 +46,22 @@ interface IPPlayerDataContainer
     boolean hasProtectionBypassPermission();
 
     /**
-     * Gets the limit for the size of movables this player can create/operate based on their permission.
+     * Gets the limit for the size of structures this player can create/operate based on their permission.
      * <p>
      * Note that this does not take the global limit into account.
      *
-     * @return The maximum movable size this player can make/operate measured in number of blocks.
+     * @return The maximum structure size this player can make/operate measured in number of blocks.
      */
-    int getMovableSizeLimit();
+    int getStructureSizeLimit();
 
     /**
-     * Gets the limit for the number of movables this player can own based on their permission.
+     * Gets the limit for the number of structures this player can own based on their permission.
      * <p>
      * Note that this does not take the global limit into account.
      *
-     * @return The number of movables this player can own.
+     * @return The number of structures this player can own.
      */
-    int getMovableCountLimit();
+    int getStructureCountLimit();
 
     /**
      * Checks if this player is an OP or not.
@@ -77,7 +77,7 @@ interface IPPlayerDataContainer
      */
     default PPlayerData getPPlayerData()
     {
-        return new PPlayerData(getUUID(), getName(), getMovableSizeLimit(), getMovableCountLimit(),
+        return new PPlayerData(getUUID(), getName(), getStructureSizeLimit(), getStructureCountLimit(),
                                isOp(), hasProtectionBypassPermission());
     }
 

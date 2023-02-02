@@ -6,15 +6,15 @@ import nl.pim16aap2.bigdoors.api.debugging.DebugReporter;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsPlugin;
 import nl.pim16aap2.bigdoors.spigot.events.BigDoorsSpigotEvent;
-import nl.pim16aap2.bigdoors.spigot.events.MovableCreatedEvent;
-import nl.pim16aap2.bigdoors.spigot.events.MovablePrepareAddOwnerEvent;
-import nl.pim16aap2.bigdoors.spigot.events.MovablePrepareCreateEvent;
-import nl.pim16aap2.bigdoors.spigot.events.MovablePrepareDeleteEvent;
-import nl.pim16aap2.bigdoors.spigot.events.MovablePrepareLockChangeEvent;
-import nl.pim16aap2.bigdoors.spigot.events.MovablePrepareRemoveOwnerEvent;
-import nl.pim16aap2.bigdoors.spigot.events.dooraction.MovableEventToggleEnd;
-import nl.pim16aap2.bigdoors.spigot.events.dooraction.MovableEventTogglePrepare;
-import nl.pim16aap2.bigdoors.spigot.events.dooraction.MovableEventToggleStart;
+import nl.pim16aap2.bigdoors.spigot.events.StructureCreatedEvent;
+import nl.pim16aap2.bigdoors.spigot.events.StructurePrepareAddOwnerEvent;
+import nl.pim16aap2.bigdoors.spigot.events.StructurePrepareCreateEvent;
+import nl.pim16aap2.bigdoors.spigot.events.StructurePrepareDeleteEvent;
+import nl.pim16aap2.bigdoors.spigot.events.StructurePrepareLockChangeEvent;
+import nl.pim16aap2.bigdoors.spigot.events.StructurePrepareRemoveOwnerEvent;
+import nl.pim16aap2.bigdoors.spigot.events.structureaction.StructureEventToggleEnd;
+import nl.pim16aap2.bigdoors.spigot.events.structureaction.StructureEventTogglePrepare;
+import nl.pim16aap2.bigdoors.spigot.events.structureaction.StructureEventToggleStart;
 import nl.pim16aap2.bigdoors.spigot.util.api.IBigDoorsSpigotSubPlatform;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.util.SafeStringBuilder;
@@ -58,15 +58,15 @@ public class DebugReporterSpigot extends DebugReporter
 //            .append("Enabled protection hooks: ")
 //            .append(getAllProtectionHooksOrSomething())
 
-            .append("EventListeners:\n").append(getListeners(MovablePrepareAddOwnerEvent.class,
-                                                             MovablePrepareCreateEvent.class,
-                                                             MovablePrepareDeleteEvent.class,
-                                                             MovablePrepareLockChangeEvent.class,
-                                                             MovablePrepareRemoveOwnerEvent.class,
-                                                             MovableCreatedEvent.class,
-                                                             MovableEventToggleEnd.class,
-                                                             MovableEventTogglePrepare.class,
-                                                             MovableEventToggleStart.class))
+            .append("EventListeners:\n").append(getListeners(StructurePrepareAddOwnerEvent.class,
+                                                             StructurePrepareCreateEvent.class,
+                                                             StructurePrepareDeleteEvent.class,
+                                                             StructurePrepareLockChangeEvent.class,
+                                                             StructurePrepareRemoveOwnerEvent.class,
+                                                             StructureCreatedEvent.class,
+                                                             StructureEventToggleEnd.class,
+                                                             StructureEventTogglePrepare.class,
+                                                             StructureEventToggleStart.class))
             .append('\n')
             .toString();
     }

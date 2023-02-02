@@ -15,11 +15,11 @@ import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.IMovableConst;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsPlugin;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PPlayerSpigot;
+import nl.pim16aap2.bigdoors.structures.AbstractStructure;
+import nl.pim16aap2.bigdoors.structures.IStructureConst;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -29,7 +29,7 @@ import java.util.Comparator;
 import java.util.List;
 
 @ToString(onlyExplicitlyIncluded = true)
-class MainGui implements IGuiPage.IGuiMovableDeletionListener
+class MainGui implements IGuiPage.IGuiStructureDeletionListener
 {
     private static final ItemStack FILLER = new ItemStack(Material.GRAY_STAINED_GLASS_PANE, 1);
 
@@ -37,13 +37,13 @@ class MainGui implements IGuiPage.IGuiMovableDeletionListener
     private final ILocalizer localizer;
     private final InfoGui.IFactory infoGuiFactory;
     private final ITextFactory textFactory;
-    private final GuiMovableDeletionManager deletionManager;
+    private final GuiStructureDeletionManager deletionManager;
     private final IPExecutor executor;
     private InventoryGui inventoryGui;
-    private @Nullable AbstractMovable selectedMovable;
+    private @Nullable AbstractStructure selectedStructure;
 
     @ToString.Include
-    private final Long2ObjectMap<AbstractMovable> movables;
+    private final Long2ObjectMap<AbstractStructure> structures;
 
     @Getter
     @ToString.Include
@@ -52,8 +52,8 @@ class MainGui implements IGuiPage.IGuiMovableDeletionListener
     @AssistedInject//
     MainGui(
         BigDoorsPlugin bigDoorsPlugin, ILocalizer localizer, ITextFactory textFactory, InfoGui.IFactory infoGuiFactory,
-        GuiMovableDeletionManager deletionManager, IPExecutor executor, @Assisted IPPlayer inventoryHolder,
-        @Assisted List<AbstractMovable> movables)
+        GuiStructureDeletionManager deletionManager, IPExecutor executor, @Assisted IPPlayer inventoryHolder,
+        @Assisted List<AbstractStructure> structures)
     {
         this.textFactory = textFactory;
         this.deletionManager = deletionManager;
@@ -62,7 +62,7 @@ class MainGui implements IGuiPage.IGuiMovableDeletionListener
         this.localizer = localizer;
         this.infoGuiFactory = infoGuiFactory;
         this.inventoryHolder = Util.requireNonNull(SpigotAdapter.getPPlayerSpigot(inventoryHolder), "InventoryHolder");
-        this.movables = getMovablesMap(movables);
+        this.structures = getStructuresMap(structures);
 
         this.inventoryGui = createGUI();
 
@@ -71,11 +71,11 @@ class MainGui implements IGuiPage.IGuiMovableDeletionListener
         deletionManager.registerDeletionListener(this);
     }
 
-    private static Long2ObjectMap<AbstractMovable> getMovablesMap(List<AbstractMovable> movables)
+    private static Long2ObjectMap<AbstractStructure> getStructuresMap(List<AbstractStructure> structures)
     {
-        final Long2ObjectMap<AbstractMovable> ret = new Long2ObjectOpenHashMap<>(movables.size());
-        movables.stream().sorted(Comparator.comparing(AbstractMovable::getName))
-                .forEach(movable -> ret.put(movable.getUid(), movable));
+        final Long2ObjectMap<AbstractStructure> ret = new Long2ObjectOpenHashMap<>(structures.size());
+        structures.stream().sorted(Comparator.comparing(AbstractStructure::getName))
+                  .forEach(structure -> ret.put(structure.getUid(), structure));
         return ret;
     }
 
@@ -86,7 +86,7 @@ class MainGui implements IGuiPage.IGuiMovableDeletionListener
 
     private InventoryGui createGUI()
     {
-        final String[] guiSetup = GuiUtil.fillLinesWithChar('g', movables.size(), "fp     nl");
+        final String[] guiSetup = GuiUtil.fillLinesWithChar('g', structures.size(), "fp     nl");
 
         final InventoryGui gui =
             new InventoryGui(bigDoorsPlugin,
@@ -110,23 +110,23 @@ class MainGui implements IGuiPage.IGuiMovableDeletionListener
     private void addElementGroup(InventoryGui gui)
     {
         final GuiElementGroup group = new GuiElementGroup('g');
-        for (final AbstractMovable movable : movables.values())
+        for (final AbstractStructure structure : structures.values())
         {
             final StaticGuiElement guiElement = new StaticGuiElement(
                 'e',
                 new ItemStack(Material.OAK_DOOR),
                 click ->
                 {
-                    selectedMovable = movable;
-                    final InfoGui infoGui = infoGuiFactory.newInfoGUI(movable, inventoryHolder);
+                    selectedStructure = structure;
+                    final InfoGui infoGui = infoGuiFactory.newInfoGUI(structure, inventoryHolder);
                     infoGui.getInventoryGui().setCloseAction(close ->
                                                              {
-                                                                 this.selectedMovable = null;
+                                                                 this.selectedStructure = null;
                                                                  return true;
                                                              });
                     return true;
                 },
-                movable.getNameAndUid());
+                structure.getNameAndUid());
             group.addElement(guiElement);
         }
         group.setFiller(FILLER);
@@ -169,43 +169,43 @@ class MainGui implements IGuiPage.IGuiMovableDeletionListener
     }
 
     /**
-     * Removes a movable from the set of visible movables.
+     * Removes a structure from the set of visible structures.
      * <p>
      * Calling this method will result in the player being notified of the removal. If this is undesired, use
-     * {@link #onMovableDeletion(IMovableConst, boolean)} instead.
+     * {@link #onStructureDeletion(IStructureConst, boolean)} instead.
      *
-     * @param movable
-     *     The movable that was deleted.
+     * @param structure
+     *     The structure that was deleted.
      */
     @Override
-    public void onMovableDeletion(IMovableConst movable)
+    public void onStructureDeletion(IStructureConst structure)
     {
-        onMovableDeletion(movable, true);
+        onStructureDeletion(structure, true);
     }
 
     /**
-     * Removes a movable from the set of visible movables.
+     * Removes a structure from the set of visible structures.
      *
-     * @param movable
-     *     The movable that was deleted.
+     * @param structure
+     *     The structure that was deleted.
      * @param notify
-     *     Whether to notify the inventory holder that the movable was deleted.
+     *     Whether to notify the inventory holder that the structure was deleted.
      */
-    public void onMovableDeletion(IMovableConst movable, boolean notify)
+    public void onStructureDeletion(IStructureConst structure, boolean notify)
     {
-        executor.runOnMainThread(() -> onMovableDeletion0(movable, notify));
+        executor.runOnMainThread(() -> onStructureDeletion0(structure, notify));
     }
 
-    private void onMovableDeletion0(IMovableConst movable, boolean notify)
+    private void onStructureDeletion0(IStructureConst structure, boolean notify)
     {
         //noinspection ConstantValue
-        if (movables.remove(movable.getUid()) != null)
+        if (structures.remove(structure.getUid()) != null)
         {
-            if (selectedMovable == null || selectedMovable.getUid() == movable.getUid())
+            if (selectedStructure == null || selectedStructure.getUid() == structure.getUid())
                 this.redraw();
             if (notify)
-                inventoryHolder.sendInfo(textFactory, localizer.getMessage("gui.notification.movable_inaccessible",
-                                                                           movable.getNameAndUid()));
+                inventoryHolder.sendInfo(textFactory, localizer.getMessage("gui.notification.structure_inaccessible",
+                                                                           structure.getNameAndUid()));
         }
     }
 
@@ -223,9 +223,9 @@ class MainGui implements IGuiPage.IGuiMovableDeletionListener
          *
          * @param inventoryHolder
          *     The player for whom to create the GUI.
-         * @param movables
-         *     The movables to show in the GUI.
+         * @param structures
+         *     The structures to show in the GUI.
          */
-        MainGui newGUI(IPPlayer inventoryHolder, List<AbstractMovable> movables);
+        MainGui newGUI(IPPlayer inventoryHolder, List<AbstractStructure> structures);
     }
 }

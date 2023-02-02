@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.localization;
 
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movabletypes.MovableType;
+import nl.pim16aap2.bigdoors.structures.AbstractStructure;
+import nl.pim16aap2.bigdoors.structuretypes.StructureType;
 
 import java.util.List;
 import java.util.Locale;
@@ -42,23 +42,23 @@ public interface ILocalizer
     String getMessage(String key, Object... args);
 
     /**
-     * Shortcut {@link #getMessage(String, Object...)} for {@link MovableType#getLocalizationKey()}.
+     * Shortcut {@link #getMessage(String, Object...)} for {@link StructureType#getLocalizationKey()}.
      *
-     * @param movableType
-     *     The movable type to localize.
-     * @return The localized name of the movable type.
+     * @param structureType
+     *     The structure type to localize.
+     * @return The localized name of the structure type.
      */
-    default String getMovableType(MovableType movableType)
+    default String getStructureType(StructureType structureType)
     {
-        return getMessage(movableType.getLocalizationKey());
+        return getMessage(structureType.getLocalizationKey());
     }
 
     /**
-     * See {@link #getMovableType(MovableType)}
+     * See {@link #getStructureType(StructureType)}
      */
-    default String getMovableType(AbstractMovable movable)
+    default String getStructureType(AbstractStructure structure)
     {
-        return getMovableType(movable.getType());
+        return getStructureType(structure.getType());
     }
 
     /**

@@ -8,8 +8,8 @@ import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.debugging.IDebuggable;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
-import nl.pim16aap2.bigdoors.managers.MovableTypeManager;
-import nl.pim16aap2.bigdoors.movabletypes.MovableType;
+import nl.pim16aap2.bigdoors.managers.StructureTypeManager;
+import nl.pim16aap2.bigdoors.structuretypes.StructureType;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -30,35 +30,35 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
     private static final AudioSet EMPTY_AUDIO_SET = new AudioSet(null, null);
 
     private final AudioConfigIO audioConfigIO;
-    private final MovableTypeManager movableTypeManager;
+    private final StructureTypeManager structureTypeManager;
     @Getter(AccessLevel.PACKAGE)
-    private Map<MovableType, AudioSet> audioMap = new HashMap<>();
+    private Map<StructureType, AudioSet> audioMap = new HashMap<>();
 
     @Inject//
     AudioConfigurator(
         AudioConfigIO audioConfigIO, RestartableHolder restartableHolder,
-        DebuggableRegistry debuggableRegistry, MovableTypeManager movableTypeManager)
+        DebuggableRegistry debuggableRegistry, StructureTypeManager structureTypeManager)
     {
         this.audioConfigIO = audioConfigIO;
-        this.movableTypeManager = movableTypeManager;
+        this.structureTypeManager = structureTypeManager;
 
         restartableHolder.registerRestartable(this);
         debuggableRegistry.registerDebuggable(this);
     }
 
     /**
-     * Retrieves the audio set mapped for a movable.
+     * Retrieves the audio set mapped for a structure.
      * <p>
      * This method will use the user-specified configuration for retrieving the mapping. If the user did not modify
-     * this, the mapping is simply the same as the movable type's default audio set.
+     * this, the mapping is simply the same as the structure type's default audio set.
      *
-     * @param movableType
-     *     The type of the movable for which to retrieve the audio set to use.
-     * @return The audio set mapped for the given movable.
+     * @param structureType
+     *     The type of the structure for which to retrieve the audio set to use.
+     * @return The audio set mapped for the given structure.
      */
-    public AudioSet getAudioSet(MovableType movableType)
+    public AudioSet getAudioSet(StructureType structureType)
     {
-        final @Nullable AudioSet ret = audioMap.get(movableType);
+        final @Nullable AudioSet ret = audioMap.get(structureType);
         return ret == null ? EMPTY_AUDIO_SET : ret;
     }
 
@@ -78,10 +78,10 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
      *     The config data to use to generate the final map.
      * @return The generated final map.
      */
-    Map<MovableType, AudioSet> getFinalMap(ConfigData configData)
+    Map<StructureType, AudioSet> getFinalMap(ConfigData configData)
     {
         @SuppressWarnings("NullAway") // NullAway currently does not work well with nullable annotations in generics.
-        final Map<MovableType, AudioSet> ret = new LinkedHashMap<>(configData.sets.size());
+        final Map<StructureType, AudioSet> ret = new LinkedHashMap<>(configData.sets.size());
 
         final AudioSet fallback = configData.defaultSet == null ? EMPTY_AUDIO_SET : configData.defaultSet;
         configData.sets.forEach((key, val) -> ret.put(key, val == null ? fallback : val));
@@ -89,12 +89,12 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
     }
 
     /**
-     * @return The configured data based on the defaults provided by the movable types and the user-specified
+     * @return The configured data based on the defaults provided by the structure types and the user-specified
      * configurations.
      */
     ConfigData generateConfigData()
     {
-        final Map<MovableType, @Nullable AudioSet> defaults = getDefaults();
+        final Map<StructureType, @Nullable AudioSet> defaults = getDefaults();
         final Map<String, @Nullable AudioSet> parsed = audioConfigIO.readConfig();
 
         @SuppressWarnings("NullAway") // NullAway currently does not work well with nullable annotations in generics.
@@ -103,28 +103,28 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
     }
 
     /**
-     * @return The default audio set mappings for each movable type as specified by the movable type itself.
+     * @return The default audio set mappings for each structure type as specified by the structure type itself.
      */
-    private Map<MovableType, @Nullable AudioSet> getDefaults()
+    private Map<StructureType, @Nullable AudioSet> getDefaults()
     {
-        final Collection<MovableType> enabledenabledMovableTypesTypes = movableTypeManager.getEnabledMovableTypes();
-        final Map<MovableType, @Nullable AudioSet> defaultMap =
-            new LinkedHashMap<>(enabledenabledMovableTypesTypes.size());
-        movableTypeManager.getEnabledMovableTypes().forEach(type -> defaultMap.put(type, type.getAudioSet()));
+        final Collection<StructureType> enabledStructureTypesTypes = structureTypeManager.getEnabledStructureTypes();
+        final Map<StructureType, @Nullable AudioSet> defaultMap =
+            new LinkedHashMap<>(enabledStructureTypesTypes.size());
+        structureTypeManager.getEnabledStructureTypes().forEach(type -> defaultMap.put(type, type.getAudioSet()));
         return defaultMap;
     }
 
     // NullAway currently does not work well with nullable annotations in generics.
     @SuppressWarnings("NullAway")
-    private Map<MovableType, @Nullable AudioSet> mergeMaps(
-        Map<String, @Nullable AudioSet> parsed, Map<MovableType, @Nullable AudioSet> defaults)
+    private Map<StructureType, @Nullable AudioSet> mergeMaps(
+        Map<String, @Nullable AudioSet> parsed, Map<StructureType, @Nullable AudioSet> defaults)
     {
-        final LinkedHashMap<MovableType, @Nullable AudioSet> merged = new LinkedHashMap<>(defaults);
+        final LinkedHashMap<StructureType, @Nullable AudioSet> merged = new LinkedHashMap<>(defaults);
         for (final Map.Entry<String, @Nullable AudioSet> entry : parsed.entrySet())
         {
             if (KEY_DEFAULT.equals(entry.getKey()))
                 continue;
-            movableTypeManager.getMovableType(entry.getKey()).ifPresent(type -> merged.put(type, entry.getValue()));
+            structureTypeManager.getStructureType(entry.getKey()).ifPresent(type -> merged.put(type, entry.getValue()));
         }
         return merged;
     }
@@ -154,7 +154,7 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
     static class ConfigData
     {
         private final @Nullable AudioSet defaultSet;
-        private final Map<MovableType, @Nullable AudioSet> sets;
+        private final Map<StructureType, @Nullable AudioSet> sets;
 
         @Nullable AudioSet defaultSet()
         {
@@ -163,7 +163,7 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
 
         // NullAway currently does not work well with nullable annotations in generics.
         @SuppressWarnings("NullAway")
-        Map<MovableType, @Nullable AudioSet> sets()
+        Map<StructureType, @Nullable AudioSet> sets()
         {
             return sets;
         }

@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import nl.pim16aap2.bigdoors.util.MovementDirection;
-import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
+import nl.pim16aap2.bigdoors.util.structureretriever.StructureRetriever;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -24,13 +24,13 @@ public class SetOpenDirectionDelayed extends DelayedCommand<MovementDirection>
 
     @Override
     protected CompletableFuture<?> delayedInputExecutor(
-        ICommandSender commandSender, MovableRetriever movableRetriever, MovementDirection openDir)
+        ICommandSender commandSender, StructureRetriever structureRetriever, MovementDirection openDir)
     {
-        return commandFactory.get().newSetOpenDirection(commandSender, movableRetriever, openDir).run();
+        return commandFactory.get().newSetOpenDirection(commandSender, structureRetriever, openDir).run();
     }
 
     @Override
-    protected String inputRequestMessage(ICommandSender commandSender, MovableRetriever movableRetriever)
+    protected String inputRequestMessage(ICommandSender commandSender, StructureRetriever structureRetriever)
     {
         return localizer.getMessage("commands.set_open_direction.delayed.init");
     }

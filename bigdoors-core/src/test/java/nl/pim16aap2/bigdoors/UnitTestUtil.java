@@ -4,7 +4,7 @@ import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.movable.MovableBaseBuilder;
+import nl.pim16aap2.bigdoors.structures.StructureBaseBuilder;
 import nl.pim16aap2.bigdoors.text.Text;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
@@ -102,25 +102,27 @@ public class UnitTestUtil
     }
 
     /**
-     * Creates a new {@link MovableBaseBuilder} and accompanying MovableBase factory.
+     * Creates a new {@link StructureBaseBuilder} and accompanying StructureBase factory.
      *
      * @return The result of the creation.
      */
-    public static MovableBaseBuilderResult newMovableBaseBuilder()
+    public static StructureBaseBuilderResult newStructureBaseBuilder()
         throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException,
                IllegalAccessException
     {
-        final Class<?> classMovableBase = Class.forName("nl.pim16aap2.bigdoors.movable.MovableBase");
-        final Class<?> classMovableBaseFactory = Class.forName("nl.pim16aap2.bigdoors.movable.MovableBase$IFactory");
+        final Class<?> classStructureBase = Class.forName("nl.pim16aap2.bigdoors.structures.StructureBase");
+        final Class<?> classStructureBaseFactory = Class.forName(
+            "nl.pim16aap2.bigdoors.structures.StructureBase$IFactory");
 
         final AssistedFactoryMocker<?, ?> assistedFactoryMocker =
-            new AssistedFactoryMocker<>(classMovableBase, classMovableBaseFactory);
+            new AssistedFactoryMocker<>(classStructureBase, classStructureBaseFactory);
 
-        final Constructor<?> ctorMovableBaseBuilder =
-            MovableBaseBuilder.class.getDeclaredConstructor(classMovableBaseFactory);
+        final Constructor<?> ctorStructureBaseBuilder =
+            StructureBaseBuilder.class.getDeclaredConstructor(classStructureBaseFactory);
 
-        final var builder = (MovableBaseBuilder) ctorMovableBaseBuilder.newInstance(assistedFactoryMocker.getFactory());
-        return new MovableBaseBuilderResult(builder, assistedFactoryMocker);
+        final var builder = (StructureBaseBuilder) ctorStructureBaseBuilder.newInstance(
+            assistedFactoryMocker.getFactory());
+        return new StructureBaseBuilderResult(builder, assistedFactoryMocker);
     }
 
     /**
@@ -297,14 +299,14 @@ public class UnitTestUtil
     }
 
     /**
-     * The result of creating a new {@link MovableBaseBuilder}.
+     * The result of creating a new {@link StructureBaseBuilder}.
      *
-     * @param movableBaseBuilder
+     * @param structureBaseBuilder
      *     The builder that was created.
      * @param assistedFactoryMocker
      *     The mocker for the factory. Use {@link AssistedFactoryMocker#setMock(Class, Object)} to set its parameters.
      */
-    public record MovableBaseBuilderResult(
-        MovableBaseBuilder movableBaseBuilder, AssistedFactoryMocker<?, ?> assistedFactoryMocker)
+    public record StructureBaseBuilderResult(
+        StructureBaseBuilder structureBaseBuilder, AssistedFactoryMocker<?, ?> assistedFactoryMocker)
     {}
 }

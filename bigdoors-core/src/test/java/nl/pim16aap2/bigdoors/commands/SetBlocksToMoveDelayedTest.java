@@ -4,9 +4,9 @@ import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
-import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
+import nl.pim16aap2.bigdoors.structures.AbstractStructure;
+import nl.pim16aap2.bigdoors.util.structureretriever.StructureRetriever;
+import nl.pim16aap2.bigdoors.util.structureretriever.StructureRetrieverFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,13 +49,13 @@ class SetBlocksToMoveDelayedTest
     @Mock
     ICommandSender commandSender;
 
-    MovableRetriever movableRetriever;
+    StructureRetriever structureRetriever;
 
     @Mock
-    AbstractMovable movable;
+    AbstractStructure structure;
 
     @InjectMocks
-    MovableRetrieverFactory movableRetrieverFactory;
+    StructureRetrieverFactory structureRetrieverFactory;
 
     @Mock
     SetBlocksToMove setBlocksToMove;
@@ -69,7 +69,7 @@ class SetBlocksToMoveDelayedTest
 
         initInputRequestFactory(inputRequestFactory, localizer, delayedCommandInputManager);
 
-        movableRetriever = movableRetrieverFactory.of(movable);
+        structureRetriever = structureRetrieverFactory.of(structure);
 
         Mockito.when(setBlocksToMove.run()).thenReturn(CompletableFuture.completedFuture(null));
 
@@ -89,12 +89,12 @@ class SetBlocksToMoveDelayedTest
     {
         final SetBlocksToMoveDelayed setBlocksToMoveDelayed = new SetBlocksToMoveDelayed(context, inputRequestFactory);
 
-        final CompletableFuture<?> result0 = setBlocksToMoveDelayed.runDelayed(commandSender, movableRetriever);
+        final CompletableFuture<?> result0 = setBlocksToMoveDelayed.runDelayed(commandSender, structureRetriever);
         final CompletableFuture<?> result1 = setBlocksToMoveDelayed.provideDelayedInput(commandSender, 10);
 
         Assertions.assertDoesNotThrow(() -> result0.get(1, TimeUnit.SECONDS));
         Assertions.assertDoesNotThrow(() -> result1.get(1, TimeUnit.SECONDS));
 
-        Mockito.verify(commandFactory, Mockito.times(1)).newSetBlocksToMove(commandSender, movableRetriever, 10);
+        Mockito.verify(commandFactory, Mockito.times(1)).newSetBlocksToMove(commandSender, structureRetriever, 10);
     }
 }

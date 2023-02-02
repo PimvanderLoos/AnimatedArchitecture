@@ -8,7 +8,7 @@ import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
+import nl.pim16aap2.bigdoors.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.text.Text;
 import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
@@ -33,7 +33,7 @@ public class PowerBlockInspector extends ToolUser
     /**
      * Whether this user has the bypass permission.
      * <p>
-     * When this is true, the user does not have to be an owner of the movable to retrieve its location.
+     * When this is true, the user does not have to be an owner of the structure to retrieve its location.
      */
     private final boolean bypassPermission;
 
@@ -57,31 +57,31 @@ public class PowerBlockInspector extends ToolUser
 
     protected boolean inspectLoc(IPLocation loc)
     {
-        powerBlockManager.movablesFromPowerBlockLoc(loc.getPosition(), loc.getWorld()).thenAccept(
+        powerBlockManager.structuresFromPowerBlockLoc(loc.getPosition(), loc.getWorld()).thenAccept(
             lst ->
             {
                 System.out.println("Found powerblocks: " + lst);
-                final List<AbstractMovable> filtered;
+                final List<AbstractStructure> filtered;
                 if (bypassPermission)
                     filtered = lst;
                 else
-                    filtered = lst.stream().filter(movable -> movable.isOwner(getPlayer())).toList();
+                    filtered = lst.stream().filter(structure -> structure.isOwner(getPlayer())).toList();
                 if (filtered.isEmpty())
                     getPlayer().sendError(
-                        textFactory, localizer.getMessage("tool_user.power_block_inspected.error.no_movables_found"));
+                        textFactory, localizer.getMessage("tool_user.power_block_inspected.error.no_structures_found"));
                 else
                     sendPowerBlockInfo(getPlayer(), filtered);
             });
         return true;
     }
 
-    private void sendPowerBlockInfo(IPPlayer player, List<AbstractMovable> filtered)
+    private void sendPowerBlockInfo(IPPlayer player, List<AbstractStructure> filtered)
     {
         final Text text = textFactory.newText();
         text.append(localizer.getMessage("tool_user.power_block_inspected.result.header"), TextType.INFO).append('\n');
 
-        for (final AbstractMovable movable : filtered)
-            text.append(" * ").append(movable.getNameAndUid(), TextType.HIGHLIGHT).append('\n');
+        for (final AbstractStructure structure : filtered)
+            text.append(" * ").append(structure.getNameAndUid(), TextType.HIGHLIGHT).append('\n');
 
         player.sendMessage(text);
     }

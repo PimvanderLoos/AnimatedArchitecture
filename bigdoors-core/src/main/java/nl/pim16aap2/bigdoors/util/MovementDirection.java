@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Represents all possible movement directions of a Movable.
+ * Represents all possible movement directions of a Structure.
  *
  * @author Pim
  */

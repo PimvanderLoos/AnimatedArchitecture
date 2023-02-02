@@ -69,7 +69,7 @@ public final class PPlayerSpigot implements IPPlayer
     }
 
     @Override
-    public int getMovableSizeLimit()
+    public int getStructureSizeLimit()
     {
         if (spigotPlayer.isOp())
             return Integer.MAX_VALUE;
@@ -77,7 +77,7 @@ public final class PPlayerSpigot implements IPPlayer
     }
 
     @Override
-    public int getMovableCountLimit()
+    public int getStructureCountLimit()
     {
         if (spigotPlayer.isOp())
             return Integer.MAX_VALUE;

@@ -6,14 +6,14 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.commands.AddOwnerDelayed;
 import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.commands.ICommandSender;
-import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
-import nl.pim16aap2.bigdoors.movable.PermissionLevel;
-import nl.pim16aap2.bigdoors.movabletypes.MovableType;
+import nl.pim16aap2.bigdoors.events.structureaction.StructureActionType;
 import nl.pim16aap2.bigdoors.moveblocks.AnimationType;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
+import nl.pim16aap2.bigdoors.structures.PermissionLevel;
+import nl.pim16aap2.bigdoors.structuretypes.StructureType;
 import nl.pim16aap2.bigdoors.util.MovementDirection;
-import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
-import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
+import nl.pim16aap2.bigdoors.util.structureretriever.StructureRetriever;
+import nl.pim16aap2.bigdoors.util.structureretriever.StructureRetrieverFactory;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,14 +25,14 @@ import javax.inject.Singleton;
 class CommandExecutor
 {
     private final CommandFactory commandFactory;
-    private final MovableRetrieverFactory movableRetrieverFactory;
+    private final StructureRetrieverFactory structureRetrieverFactory;
 
     @Inject CommandExecutor(
         CommandFactory commandFactory,
-        MovableRetrieverFactory movableRetrieverFactory)
+        StructureRetrieverFactory structureRetrieverFactory)
     {
         this.commandFactory = commandFactory;
-        this.movableRetrieverFactory = movableRetrieverFactory;
+        this.structureRetrieverFactory = structureRetrieverFactory;
     }
 
     // NullAway doesn't see the @Nullable on permissionLevel. Not sure if this is because of Lombok or NullAway.
@@ -41,12 +41,12 @@ class CommandExecutor
     {
         final IPPlayer newOwner = SpigotAdapter.wrapPlayer(context.get("newOwner"));
         final @Nullable PermissionLevel permissionLevel = nullable(context, "permissionLevel");
-        final @Nullable MovableRetriever movableRetriever = nullable(context, "movableRetriever");
+        final @Nullable StructureRetriever structureRetriever = nullable(context, "structureRetriever");
 
         final ICommandSender commandSender = context.getSender();
-        if (movableRetriever != null)
+        if (structureRetriever != null)
         {
-            commandFactory.newAddOwner(commandSender, movableRetriever, newOwner, permissionLevel).run();
+            commandFactory.newAddOwner(commandSender, structureRetriever, newOwner, permissionLevel).run();
         }
         else
         {
@@ -72,14 +72,14 @@ class CommandExecutor
 
     void delete(CommandContext<ICommandSender> context)
     {
-        final MovableRetriever movableRetriever = context.get("movableRetriever");
-        commandFactory.newDelete(context.getSender(), movableRetriever).run();
+        final StructureRetriever structureRetriever = context.get("structureRetriever");
+        commandFactory.newDelete(context.getSender(), structureRetriever).run();
     }
 
     void info(CommandContext<ICommandSender> context)
     {
-        final MovableRetriever movableRetriever = context.get("movableRetriever");
-        commandFactory.newInfo(context.getSender(), movableRetriever).run();
+        final StructureRetriever structureRetriever = context.get("structureRetriever");
+        commandFactory.newInfo(context.getSender(), structureRetriever).run();
     }
 
     void inspectPowerBlock(CommandContext<ICommandSender> context)
@@ -87,19 +87,19 @@ class CommandExecutor
         commandFactory.newInspectPowerBlock(context.getSender()).run();
     }
 
-    void listMovables(CommandContext<ICommandSender> context)
+    void listStructures(CommandContext<ICommandSender> context)
     {
-        final @Nullable String query = context.<String>getOptional("movableName").orElse("");
-        final MovableRetriever retriever = movableRetrieverFactory.search(
-            context.getSender(), query, MovableRetrieverFactory.MovableFinderMode.NEW_INSTANCE).asRetriever(false);
-        commandFactory.newListMovables(context.getSender(), retriever).run();
+        final @Nullable String query = context.<String>getOptional("structureName").orElse("");
+        final StructureRetriever retriever = structureRetrieverFactory.search(
+            context.getSender(), query, StructureRetrieverFactory.StructureFinderMode.NEW_INSTANCE).asRetriever(false);
+        commandFactory.newListStructures(context.getSender(), retriever).run();
     }
 
     void lock(CommandContext<ICommandSender> context)
     {
-        final MovableRetriever movableRetriever = context.get("movableRetriever");
+        final StructureRetriever structureRetriever = context.get("structureRetriever");
         final boolean lockStatus = context.get("lockStatus");
-        commandFactory.newLock(context.getSender(), movableRetriever, lockStatus).run();
+        commandFactory.newLock(context.getSender(), structureRetriever, lockStatus).run();
     }
 
     void menu(CommandContext<ICommandSender> context)
@@ -117,24 +117,24 @@ class CommandExecutor
 
     void movePowerBlock(CommandContext<ICommandSender> context)
     {
-        final MovableRetriever movableRetriever = context.get("movableRetriever");
-        commandFactory.newMovePowerBlock(context.getSender(), movableRetriever).run();
+        final StructureRetriever structureRetriever = context.get("structureRetriever");
+        commandFactory.newMovePowerBlock(context.getSender(), structureRetriever).run();
     }
 
-    // NullAway doesn't see the @Nullable on movableName. Not sure if this is because of Lombok or NullAway.
+    // NullAway doesn't see the @Nullable on structureName. Not sure if this is because of Lombok or NullAway.
     @SuppressWarnings("NullAway")
-    void newMovable(CommandContext<ICommandSender> context)
+    void newStructure(CommandContext<ICommandSender> context)
     {
-        final MovableType movableType = context.get("movableType");
-        final @Nullable String movableName = nullable(context, "movableName");
-        commandFactory.newNewMovable(context.getSender(), movableType, movableName).run();
+        final StructureType structureType = context.get("structureType");
+        final @Nullable String structureName = nullable(context, "structureName");
+        commandFactory.newNewStructure(context.getSender(), structureType, structureName).run();
     }
 
     void removeOwner(CommandContext<ICommandSender> context)
     {
-        final MovableRetriever movableRetriever = context.get("movableRetriever");
+        final StructureRetriever structureRetriever = context.get("structureRetriever");
         final IPPlayer targetPlayer = SpigotAdapter.wrapPlayer(context.get("targetPlayer"));
-        commandFactory.newRemoveOwner(context.getSender(), movableRetriever, targetPlayer).run();
+        commandFactory.newRemoveOwner(context.getSender(), structureRetriever, targetPlayer).run();
     }
 
     void restart(CommandContext<ICommandSender> context)
@@ -145,11 +145,11 @@ class CommandExecutor
     void setBlocksToMove(CommandContext<ICommandSender> context)
     {
         final int blocksToMove = context.get("blocksToMove");
-        final @Nullable MovableRetriever movableRetriever = nullable(context, "movableRetriever");
+        final @Nullable StructureRetriever structureRetriever = nullable(context, "structureRetriever");
 
         final ICommandSender commandSender = context.getSender();
-        if (movableRetriever != null)
-            commandFactory.newSetBlocksToMove(commandSender, movableRetriever, blocksToMove).run();
+        if (structureRetriever != null)
+            commandFactory.newSetBlocksToMove(commandSender, structureRetriever, blocksToMove).run();
         else
             commandFactory.getSetBlocksToMoveDelayed().provideDelayedInput(commandSender, blocksToMove);
     }
@@ -163,10 +163,10 @@ class CommandExecutor
     {
         final boolean isOpen = context.get("isOpen");
         final ICommandSender commandSender = context.getSender();
-        final @Nullable MovableRetriever movableRetriever = nullable(context, "movableRetriever");
+        final @Nullable StructureRetriever structureRetriever = nullable(context, "structureRetriever");
 
-        if (movableRetriever != null)
-            commandFactory.newSetOpenStatus(commandSender, movableRetriever, isOpen).run();
+        if (structureRetriever != null)
+            commandFactory.newSetOpenStatus(commandSender, structureRetriever, isOpen).run();
         else
             commandFactory.getSetOpenStatusDelayed().provideDelayedInput(commandSender, isOpen);
     }
@@ -175,10 +175,10 @@ class CommandExecutor
     {
         final MovementDirection direction = context.get("direction");
         final ICommandSender commandSender = context.getSender();
-        final @Nullable MovableRetriever movableRetriever = nullable(context, "movableRetriever");
+        final @Nullable StructureRetriever structureRetriever = nullable(context, "structureRetriever");
 
-        if (movableRetriever != null)
-            commandFactory.newSetOpenDirection(commandSender, movableRetriever, direction).run();
+        if (structureRetriever != null)
+            commandFactory.newSetOpenDirection(commandSender, structureRetriever, direction).run();
         else
             commandFactory.getSetOpenDirectionDelayed().provideDelayedInput(commandSender, direction);
     }
@@ -188,21 +188,21 @@ class CommandExecutor
         throw new UnsupportedOperationException("Not implemented!");
     }
 
-    void stopMovables(CommandContext<ICommandSender> context)
+    void stopStructures(CommandContext<ICommandSender> context)
     {
-        commandFactory.newStopMovables(context.getSender()).run();
+        commandFactory.newStopStructures(context.getSender()).run();
     }
 
     void toggle(CommandContext<ICommandSender> context)
     {
-        commandFactory.newToggle(context.getSender(), context.<MovableRetriever>get("movableRetriever")).run();
+        commandFactory.newToggle(context.getSender(), context.<StructureRetriever>get("structureRetriever")).run();
     }
 
     void preview(CommandContext<ICommandSender> context)
     {
         commandFactory.newToggle(
-            context.getSender(), MovableActionType.TOGGLE, AnimationType.PREVIEW,
-            context.<MovableRetriever>get("movableRetriever")).run();
+            context.getSender(), StructureActionType.TOGGLE, AnimationType.PREVIEW,
+            context.<StructureRetriever>get("structureRetriever")).run();
     }
 
     void version(CommandContext<ICommandSender> context)

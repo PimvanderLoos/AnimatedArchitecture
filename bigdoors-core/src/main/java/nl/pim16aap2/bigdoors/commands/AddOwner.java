@@ -9,24 +9,24 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableAttribute;
-import nl.pim16aap2.bigdoors.movable.MovableOwner;
-import nl.pim16aap2.bigdoors.movable.PermissionLevel;
-import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
-import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
+import nl.pim16aap2.bigdoors.structures.AbstractStructure;
+import nl.pim16aap2.bigdoors.structures.PermissionLevel;
+import nl.pim16aap2.bigdoors.structures.StructureAttribute;
+import nl.pim16aap2.bigdoors.structures.StructureOwner;
+import nl.pim16aap2.bigdoors.util.structureretriever.StructureRetriever;
+import nl.pim16aap2.bigdoors.util.structureretriever.StructureRetrieverFactory;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Represents the command that adds co-owners to a given movable.
+ * Represents the command that adds co-owners to a given structure.
  *
  * @author Pim
  */
 @ToString
 @Flogger
-public class AddOwner extends MovableTargetCommand
+public class AddOwner extends StructureTargetCommand
 {
     public static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.ADD_OWNER;
 
@@ -36,7 +36,7 @@ public class AddOwner extends MovableTargetCommand
     protected static final PermissionLevel DEFAULT_PERMISSION_LEVEL = PermissionLevel.USER;
 
     /**
-     * The target player that will be added to the {@link #movableRetriever} as co-owner.
+     * The target player that will be added to the {@link #structureRetriever} as co-owner.
      * <p>
      * If this player is already an owner of the target door, their permission will be overridden provided that the
      * command sender is allowed to add/remove co-owners at both the old and the new target permission level.
@@ -53,10 +53,10 @@ public class AddOwner extends MovableTargetCommand
     @AssistedInject //
     AddOwner(
         @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
-        @Assisted MovableRetriever doorRetriever, @Assisted IPPlayer targetPlayer,
+        @Assisted StructureRetriever doorRetriever, @Assisted IPPlayer targetPlayer,
         @Assisted @Nullable PermissionLevel targetPermissionLevel, DatabaseManager databaseManager)
     {
-        super(commandSender, localizer, textFactory, doorRetriever, MovableAttribute.ADD_OWNER);
+        super(commandSender, localizer, textFactory, doorRetriever, StructureAttribute.ADD_OWNER);
         this.targetPlayer = targetPlayer;
         this.targetPermissionLevel = targetPermissionLevel == null ? DEFAULT_PERMISSION_LEVEL : targetPermissionLevel;
         this.databaseManager = databaseManager;
@@ -65,7 +65,7 @@ public class AddOwner extends MovableTargetCommand
     @Override
     protected void handleDatabaseActionSuccess()
     {
-        final var description = getRetrievedMovableDescription();
+        final var description = getRetrievedStructureDescription();
         final String rank = localizer.getMessage(targetPermissionLevel.getTranslationKey());
         getCommandSender().sendSuccess(textFactory,
                                        localizer.getMessage("commands.add_owner.success",
@@ -94,18 +94,18 @@ public class AddOwner extends MovableTargetCommand
     }
 
     @Override
-    protected CompletableFuture<?> performAction(AbstractMovable movable)
+    protected CompletableFuture<?> performAction(AbstractStructure structure)
     {
         return databaseManager
-            .addOwner(movable, targetPlayer, targetPermissionLevel, getCommandSender().getPlayer().orElse(null))
+            .addOwner(structure, targetPlayer, targetPermissionLevel, getCommandSender().getPlayer().orElse(null))
             .thenAccept(this::handleDatabaseActionResult);
     }
 
     @Override
-    protected boolean isAllowed(AbstractMovable movable, boolean hasBypassPermission)
+    protected boolean isAllowed(AbstractStructure structure, boolean hasBypassPermission)
     {
-        final PermissionLevel existingPermission = movable.getOwner(targetPlayer).map(MovableOwner::permission)
-                                                          .orElse(PermissionLevel.NO_PERMISSION);
+        final PermissionLevel existingPermission = structure.getOwner(targetPlayer).map(StructureOwner::permission)
+                                                            .orElse(PermissionLevel.NO_PERMISSION);
         if (!getCommandSender().isPlayer() || hasBypassPermission)
         {
             if (existingPermission == PermissionLevel.CREATOR)
@@ -117,19 +117,19 @@ public class AddOwner extends MovableTargetCommand
             return true;
         }
 
-        final var doorOwner = getCommandSender().getPlayer().flatMap(movable::getOwner);
+        final var doorOwner = getCommandSender().getPlayer().flatMap(structure::getOwner);
         if (doorOwner.isEmpty())
         {
             getCommandSender().sendError(textFactory, localizer.getMessage("commands.add_owner.error.not_an_owner",
-                                                                           localizer.getMovableType(movable)));
+                                                                           localizer.getStructureType(structure)));
             return false;
         }
 
         final PermissionLevel executorPermission = doorOwner.get().permission();
-        if (!MovableAttribute.ADD_OWNER.canAccessWith(doorOwner.get().permission()))
+        if (!StructureAttribute.ADD_OWNER.canAccessWith(doorOwner.get().permission()))
         {
             getCommandSender().sendError(textFactory, localizer.getMessage("commands.add_owner.error.not_allowed",
-                                                                           localizer.getMovableType(movable)));
+                                                                           localizer.getStructureType(structure)));
             return false;
         }
 
@@ -145,7 +145,7 @@ public class AddOwner extends MovableTargetCommand
             getCommandSender()
                 .sendError(textFactory, localizer.getMessage("commands.add_owner.error.target_already_owner",
                                                              targetPlayer.asString(),
-                                                             localizer.getMovableType(movable)));
+                                                             localizer.getStructureType(structure)));
             return false;
         }
 
@@ -162,9 +162,9 @@ public class AddOwner extends MovableTargetCommand
          *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
          *     execution.
          * @param doorRetriever
-         *     A {@link MovableRetrieverFactory} that references the target movable.
+         *     A {@link StructureRetrieverFactory} that references the target structure.
          * @param targetPlayer
-         *     The target player to add to this movable as co-owner.
+         *     The target player to add to this structure as co-owner.
          *     <p>
          *     If this player is already an owner of the target door, their permission will be overridden provided that
          *     the command sender is allowed to add/remove co-owners at both the old and the new target permission
@@ -174,16 +174,16 @@ public class AddOwner extends MovableTargetCommand
          * @return See {@link BaseCommand#run()}.
          */
         AddOwner newAddOwner(
-            ICommandSender commandSender, MovableRetriever doorRetriever, IPPlayer targetPlayer,
+            ICommandSender commandSender, StructureRetriever doorRetriever, IPPlayer targetPlayer,
             @Nullable PermissionLevel targetPermissionLevel);
 
         /**
-         * See {@link #newAddOwner(ICommandSender, MovableRetriever, IPPlayer, PermissionLevel)}.
+         * See {@link #newAddOwner(ICommandSender, StructureRetriever, IPPlayer, PermissionLevel)}.
          * <p>
          * The default permission node defined by {@link AddOwner#DEFAULT_PERMISSION_LEVEL} is used.
          */
         default AddOwner newAddOwner(
-            ICommandSender commandSender, MovableRetriever doorRetriever, IPPlayer targetPlayer)
+            ICommandSender commandSender, StructureRetriever doorRetriever, IPPlayer targetPlayer)
         {
             return newAddOwner(commandSender, doorRetriever, targetPlayer, null);
         }
