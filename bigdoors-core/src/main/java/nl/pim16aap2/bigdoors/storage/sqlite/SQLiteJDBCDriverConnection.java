@@ -274,7 +274,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
             // Check if the "structures" table already exists. If it does, assume the rest exists
             // as well and don't set it up.
-            if (conn.getMetaData().getTables(null, null, "Structures", new String[]{"TABLE"}).next())
+            if (conn.getMetaData().getTables(null, null, "Structure", new String[]{"TABLE"}).next())
             {
                 databaseState = DatabaseState.OUT_OF_DATE;
                 verifyDatabaseVersion(conn);
