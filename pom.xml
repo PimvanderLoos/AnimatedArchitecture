@@ -53,7 +53,7 @@
         <dependency.version.maven-jxr>3.3.0</dependency.version.maven-jxr>
         <dependency.version.maven-project-reports>3.4.2</dependency.version.maven-project-reports>
         <dependency.version.maven-checkstyle>3.2.1</dependency.version.maven-checkstyle>
-        <dependency.version.jdbc-sqlite>3.40.0.0</dependency.version.jdbc-sqlite>
+        <dependency.version.jdbc-sqlite>3.40.1.0</dependency.version.jdbc-sqlite>
         <dependency.version.jimfs>1.2</dependency.version.jimfs>
         <dependency.version.infentory-gui>1.6-SNAPSHOT</dependency.version.infentory-gui>
     </properties>
