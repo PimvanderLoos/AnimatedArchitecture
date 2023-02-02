@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.movable.PermissionLevel;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.mockito.Mock;
@@ -24,8 +25,8 @@ import java.util.concurrent.TimeoutException;
 import static nl.pim16aap2.bigdoors.managers.DatabaseManager.MovableIdentifier;
 import static org.mockito.ArgumentMatchers.eq;
 
-@SuppressWarnings("OptionalGetWithoutIsPresent")
-@Timeout(value = 1, unit = TimeUnit.MINUTES, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
+@SuppressWarnings({"OptionalGetWithoutIsPresent", "DefaultAnnotationParam"})
+@Timeout(value = 10, unit = TimeUnit.SECONDS, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
 class MovableFinderTest
 {
     @Mock
@@ -46,7 +47,6 @@ class MovableFinderTest
     @Test
     void propagateMaxPermission()
     {
-        System.out.println("propagateMaxPermission");
         final CompletableFuture<List<MovableIdentifier>> databaseResult = new CompletableFuture<>();
         Mockito.when(databaseManager.getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any()))
                .thenReturn(databaseResult);
@@ -64,11 +64,10 @@ class MovableFinderTest
                .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), eq(PermissionLevel.USER));
     }
 
-    @Test
+    @RepeatedTest(value = 30)
     void testDelayedResults()
         throws InterruptedException, ExecutionException, TimeoutException
     {
-        System.out.println("testDelayedResults");
         final CompletableFuture<List<MovableIdentifier>> databaseResult = new CompletableFuture<>();
         Mockito.when(databaseManager.getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any()))
                .thenReturn(databaseResult);
@@ -100,7 +99,6 @@ class MovableFinderTest
     @Test
     void startsWith()
     {
-        System.out.println("startsWith");
         Assertions.assertTrue(MovableFinder.startsWith("a", "ab"));
         Assertions.assertTrue(MovableFinder.startsWith("A", "ab"));
         Assertions.assertTrue(MovableFinder.startsWith("a", "Ab"));
@@ -115,7 +113,6 @@ class MovableFinderTest
     void testBasic()
         throws ExecutionException, InterruptedException, TimeoutException
     {
-        System.out.println("testBasic");
         final List<Long> uids = List.of(0L, 1L, 2L);
         final List<String> names = List.of("MyDoor", "MyPortcullis", "MyDrawbridge");
         setDatabaseIdentifierResults(uids, names);
@@ -140,7 +137,6 @@ class MovableFinderTest
     @Test
     void inputBeforeResults()
     {
-        System.out.println("inputBeforeResults");
         final List<Long> uids = List.of(0L, 1L, 2L, 3L);
         final List<String> names = List.of("MyDoor", "MyPortcullis", "MyDrawbridge", "TheirFlag");
         final List<MovableIdentifier> identifiers = createMovableIdentifiers(uids, names, true);
@@ -169,7 +165,6 @@ class MovableFinderTest
     @Test
     void changedInputBeforeResults()
     {
-        System.out.println("changedInputBeforeResults");
         final List<Long> uids = List.of(0L, 1L, 2L, 3L);
         final List<String> names = List.of("MyDoor", "MyPortcullis", "MyDrawbridge", "TheirFlag");
         final List<MovableIdentifier> identifiers = createMovableIdentifiers(uids, names, true);
@@ -203,7 +198,6 @@ class MovableFinderTest
     @Test
     void rollback()
     {
-        System.out.println("rollback");
         final List<Long> uids = List.of(0L, 1L, 2L, 3L);
         final List<String> names = List.of("MyDoor", "MyPortcullis", "MyDrawbridge", "TheirFlag");
         setDatabaseIdentifierResults(uids, names);
@@ -239,7 +233,6 @@ class MovableFinderTest
     @Test
     void numericalInput()
     {
-        System.out.println("numericalInput");
         final List<Long> uids = List.of(100L, 101L, 120L, 130L);
         final List<String> names = List.of("MyDoor", "MyPortcullis", "MyDrawbridge", "TheirFlag");
         setDatabaseIdentifierResults(uids, names);
@@ -259,14 +252,12 @@ class MovableFinderTest
     void exactMatch()
         throws ExecutionException, InterruptedException, TimeoutException
     {
-        System.out.println("exactMatch");
         final List<Long> uids = List.of(0L, 1L, 2L, 3L);
         final List<String> names = List.of("MyDoor", "MyPortcullis", "MyDrawbridge", "TheirFlag");
         setDatabaseIdentifierResults(uids, names);
 
-        final MovableFinder movableFinder = new MovableFinder(movableRetrieverFactory, databaseManager, commandSender,
-                                                              "M");
-
+        final MovableFinder movableFinder =
+            new MovableFinder(movableRetrieverFactory, databaseManager, commandSender, "M");
 
         Assertions.assertTrue(movableFinder.getMovableUIDs(true).isPresent());
         Assertions.assertTrue(movableFinder.getMovableUIDs(true).get().isEmpty());
@@ -286,7 +277,6 @@ class MovableFinderTest
     void getMovables()
         throws ExecutionException, InterruptedException, TimeoutException
     {
-        System.out.println("getMovables");
         final List<Long> uids = List.of(0L, 1L, 2L, 3L);
         final List<String> names = List.of("MyDoor", "MyPortcullis", "MyDrawbridge", "TheirFlag");
         setDatabaseIdentifierResults(uids, names);
