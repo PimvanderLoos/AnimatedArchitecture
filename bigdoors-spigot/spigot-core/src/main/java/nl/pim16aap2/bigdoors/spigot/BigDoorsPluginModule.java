@@ -44,7 +44,7 @@ public abstract class BigDoorsPluginModule
     @Named("databaseFile")
     static Path provideDatabaseFile(@Named("pluginBaseDirectory") Path pluginBaseDirectory)
     {
-        return pluginBaseDirectory.resolve("doorDB.db");
+        return pluginBaseDirectory.resolve("structures.db");
     }
 
     @Provides
