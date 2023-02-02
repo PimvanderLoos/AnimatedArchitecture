@@ -71,8 +71,8 @@ import java.util.stream.Collectors;
 public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 {
     private static final String DRIVER = "org.sqlite.JDBC";
-    private static final int DATABASE_VERSION = 13;
-    private static final int MIN_DATABASE_VERSION = 12;
+    private static final int DATABASE_VERSION = 100;
+    private static final int MIN_DATABASE_VERSION = 100;
 
     /**
      * A fake UUID that cannot exist normally. To be used for storing transient data across server restarts.
