@@ -101,7 +101,7 @@ public final class MovableSerializer<T extends AbstractMovable>
         this.movableClass = movableClass;
 
         if (Modifier.isAbstract(movableClass.getModifiers()))
-            throw new IllegalArgumentException("THe MovableSerializer only works for concrete classes!");
+            throw new IllegalArgumentException("The MovableSerializer only works for concrete classes!");
 
         this.fields = findAnnotatedFields(movableClass);
         this.constructors = getConstructors(movableClass);
@@ -275,8 +275,7 @@ public final class MovableSerializer<T extends AbstractMovable>
         }
     }
 
-    @VisibleForTesting
-    DeserializationConstructor getDeserializationConstructor(int version)
+    private DeserializationConstructor getDeserializationConstructor(int version)
     {
         final @Nullable DeserializationConstructor ctor = constructors.get(version);
         //noinspection ConstantValue

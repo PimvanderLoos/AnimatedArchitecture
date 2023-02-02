@@ -154,6 +154,35 @@ class MovableSerializerTest
                                 () -> new MovableSerializer<>(TestMovableSubTypeAmbiguousFieldNames.class));
     }
 
+    @Test
+    void testVersioning()
+    {
+        final var instantiator = Assertions.assertDoesNotThrow(
+            () -> new MovableSerializer<>(TestMovableSubTypeConstructorVersions.class));
+
+        Assertions.assertEquals(-1, instantiator.deserialize(movableBase, 999, "{}").version);
+        Assertions.assertEquals(1, instantiator.deserialize(movableBase, 1, "{}").version);
+        Assertions.assertEquals(2, instantiator.deserialize(movableBase, 2, "{}").version);
+    }
+
+    @Test
+    void testVersioningWithoutFallback()
+    {
+        final var instantiator = Assertions.assertDoesNotThrow(
+            () -> new MovableSerializer<>(TestMovableSubTypeConstructorVersionsNoFallback.class));
+
+        Assertions.assertThrows(RuntimeException.class, () -> instantiator.deserialize(movableBase, 999, "{}"));
+        Assertions.assertEquals(1, instantiator.deserialize(movableBase, 1, "{}").version);
+        Assertions.assertEquals(2, instantiator.deserialize(movableBase, 2, "{}").version);
+    }
+
+    @Test
+    void testAmbiguousVersions()
+    {
+        Assertions.assertThrows(IllegalArgumentException.class,
+                                () -> new MovableSerializer<>(TestMovableSubTypeAmbiguousConstructorVersions.class));
+    }
+
     // This class is a nullability nightmare, but that doesn't matter, because none of the methods are used;
     // It's only used for testing serialization and the methods are therefore just stubs.
     @SuppressWarnings("ConstantConditions")
@@ -340,6 +369,82 @@ class MovableSerializerTest
 
         @Deserialization
         public TestMovableSubTypeAmbiguousFieldNames(AbstractMovable.MovableBaseHolder base)
+        {
+            super(base);
+        }
+    }
+
+    @SuppressWarnings("unused")
+    @EqualsAndHashCode(callSuper = true)
+    private static class TestMovableSubTypeConstructorVersions extends TestMovableType
+    {
+        @Getter
+        private final int version;
+
+        private TestMovableSubTypeConstructorVersions(AbstractMovable.MovableBaseHolder base, int version)
+        {
+            super(base);
+            this.version = version;
+        }
+
+        @Deserialization
+        public TestMovableSubTypeConstructorVersions(AbstractMovable.MovableBaseHolder base)
+        {
+            this(base, -1);
+        }
+
+        @Deserialization(version = 1)
+        public TestMovableSubTypeConstructorVersions(AbstractMovable.MovableBaseHolder base, Object o0)
+        {
+            this(base, 1);
+        }
+
+        @Deserialization(version = 2)
+        public TestMovableSubTypeConstructorVersions(AbstractMovable.MovableBaseHolder base, Object o0, String o1)
+        {
+            this(base, 2);
+        }
+    }
+
+    @SuppressWarnings("unused")
+    @EqualsAndHashCode(callSuper = true)
+    private static class TestMovableSubTypeConstructorVersionsNoFallback extends TestMovableType
+    {
+        @Getter
+        private final int version;
+
+        private TestMovableSubTypeConstructorVersionsNoFallback(AbstractMovable.MovableBaseHolder base, int version)
+        {
+            super(base);
+            this.version = version;
+        }
+
+        @Deserialization(version = 1)
+        public TestMovableSubTypeConstructorVersionsNoFallback(AbstractMovable.MovableBaseHolder base, Object o0)
+        {
+            this(base, 1);
+        }
+
+        @Deserialization(version = 2)
+        public TestMovableSubTypeConstructorVersionsNoFallback(
+            AbstractMovable.MovableBaseHolder base, Object o0, String o1)
+        {
+            this(base, 2);
+        }
+    }
+
+    @SuppressWarnings("unused")
+    @EqualsAndHashCode(callSuper = true)
+    private static class TestMovableSubTypeAmbiguousConstructorVersions extends TestMovableType
+    {
+        @Deserialization(version = 1)
+        public TestMovableSubTypeAmbiguousConstructorVersions(AbstractMovable.MovableBaseHolder base)
+        {
+            super(base);
+        }
+
+        @Deserialization(version = 1)
+        public TestMovableSubTypeAmbiguousConstructorVersions(AbstractMovable.MovableBaseHolder base, Object o)
         {
             super(base);
         }
