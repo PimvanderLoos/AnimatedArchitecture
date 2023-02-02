@@ -377,12 +377,17 @@ public final class MovableFinder
      * @param input
      *     The input used to create the cache. This will be used for the first history item.
      */
-    private synchronized void setCache(List<MinimalMovableDescription> lst, String input)
+    private void setCache(List<MinimalMovableDescription> lst, String input)
     {
-        this.cache = lst;
-        history.add(new HistoryItem(input, Collections.emptyList()));
-        while (!postponedInputs.isEmpty())
-            applyFilter(postponedInputs.removeFirst());
+        // We do not want to have the lock on this object when notifying the object, as that may result
+        // in a deadlock when the notified object tries to obtain the same lock when using #isCacheAvailable().
+        synchronized (this)
+        {
+            this.cache = lst;
+            history.add(new HistoryItem(input, Collections.emptyList()));
+            while (!postponedInputs.isEmpty())
+                applyFilter(postponedInputs.removeFirst());
+        }
         synchronized (msg)
         {
             msg.notifyAll();
@@ -515,6 +520,7 @@ public final class MovableFinder
                     synchronized (msg)
                     {
                         final long deadline = System.nanoTime() + Duration.ofSeconds(DEFAULT_TIMEOUT).toNanos();
+
                         while (System.nanoTime() < deadline && !isCacheAvailable())
                         {
                             final long waitTime = Duration.ofNanos(deadline - System.nanoTime()).toMillis();
