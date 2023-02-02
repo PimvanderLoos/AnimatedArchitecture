@@ -3,7 +3,6 @@ package nl.pim16aap2.bigDoors.storage.sqlite;
 import com.google.common.io.Files;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
-import nl.pim16aap2.bigDoors.moveBlocks.Opener;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.DoorOwner;
 import nl.pim16aap2.bigDoors.util.DoorType;
@@ -95,9 +94,14 @@ public class SQLiteJDBCDriverConnection
         this.plugin = plugin;
         this.dbName = dbName;
         dbFile = new File(plugin.getDataFolder(), dbName);
-        url = "jdbc:sqlite:" + dbFile;
+        url = getConnectionUrl(dbFile);
         init();
         upgrade();
+    }
+
+    private static String getConnectionUrl(File file)
+    {
+        return "jdbc:sqlite:" + file;
     }
 
     private Connection getConnection()
@@ -141,13 +145,13 @@ public class SQLiteJDBCDriverConnection
         return conn;
     }
 
-    private Connection getConnectionUnsafe()
+    private Connection getConnectionUnsafe(String connectionUrl)
     {
         Connection conn = null;
         try
         {
             Class.forName(DRIVER);
-            conn = DriverManager.getConnection(url);
+            conn = DriverManager.getConnection(connectionUrl);
             conn.createStatement().execute("PRAGMA foreign_keys=ON");
         }
         catch (SQLException | NullPointerException ex)
@@ -159,6 +163,11 @@ public class SQLiteJDBCDriverConnection
             plugin.getMyLogger().logMessage("152: Failed to open connection: CLass not found!!", true, false);
         }
         return conn;
+    }
+
+    private Connection getConnectionUnsafe()
+    {
+        return getConnectionUnsafe(url);
     }
 
     // Initialize the tables.
@@ -214,8 +223,10 @@ public class SQLiteJDBCDriverConnection
 
                 Statement stmt2 = conn.createStatement();
                 String sql2 = "CREATE TABLE IF NOT EXISTS players \n"
-                    + "(id          INTEGER    PRIMARY KEY AUTOINCREMENT, \n" + " playerUUID  TEXT       NOT NULL, \n"
-                    + " playerName  TEXT       NOT NULL, \n" + " unique(playerUUID));";
+                    + "(id          INTEGER    PRIMARY KEY AUTOINCREMENT, \n"
+                    + " playerUUID  TEXT       NOT NULL, \n"
+                    + " playerName  TEXT       NOT NULL, \n"
+                    + " unique(playerUUID));";
                 stmt2.executeUpdate(sql2);
                 stmt2.close();
 
@@ -236,18 +247,9 @@ public class SQLiteJDBCDriverConnection
         }
     }
 
-    // Prepares the database for V2 of this plugin.
-    // This means replacing all occurrences of OpenDirection == RotateDirection.NONE
-    // for now.
-    // This may change to include more changes in the future.
     public void prepareForV2()
     {
-        if (true) // Bypass the unreachable code check
-            throw new UnsupportedOperationException();
-
-        // All code below is outdated and probably mostly useless.
-        // I can't be bothered to check it now, though, and I've
-        // given up on cleanliness ages ago, so... yeah...
+        plugin.getMyLogger().logMessage("Upgrading database to v2 of BigDoors!", true, true);
 
         if (getDatabaseVersion() != DATABASE_VERSION)
         {
@@ -257,23 +259,29 @@ public class SQLiteJDBCDriverConnection
             return;
         }
 
-        plugin.getMyLogger()
-            .logMessage("Upgrading database to v2 of BigDoors! Creating backup first! (ignores settings)", true, true);
-        if (!makeBackup(".BACKUPOFV1"))
+        final File v2File = new File(plugin.getDataFolder(), "structures.db");
+        try
         {
-            plugin.getMyLogger()
-                .logMessage("Failed to make a backup! Aborting upgrade process!! Please contact pim16aap2.", true,
-                            true);
-            return;
+            if (!dbFile.exists() && !dbFile.createNewFile())
+            {
+                plugin.getMyLogger().severe("Failed to create file: '" + v2File + "'! Database cannot be exported!");
+                return;
+            }
         }
+        catch (Exception e)
+        {
+            plugin.getMyLogger().severe("Failed to create v2 file!\n" + Util.throwableToString(e));
+        }
+        final String v2Url = getConnectionUrl(v2File);
+
         long startTime = System.nanoTime();
         locked.set(true);
 
         // Update the database version, to make sure it cannot be loaded again once the
         // upgrade has been started, even if it failed.
-        try (Connection conn = getConnectionUnsafe())
+        try (Connection connV2 = getConnectionUnsafe(v2Url))
         {
-            setDBVersion(conn, MAX_DATABASE_VERSION);
+            setDBVersion(connV2, 99);
         }
         catch (SQLException | NullPointerException e)
         {
@@ -284,177 +292,41 @@ public class SQLiteJDBCDriverConnection
         // drawbridge open directions.
         // v1 drawbridges use Clockwise/CounterClockwise while v2 drawbridges use
         // north/south/east/west.
-        try (Connection conn = getConnectionUnsafe())
+        try (Connection connV1 = getConnectionUnsafe();
+             Connection connV2 = getConnectionUnsafe(v2Url))
         {
-            plugin.getMyLogger().warn("Upgrading database: Replacing now-invalid open directions!");
-            // select all drawbridges. This is the only type that actually uses the
-            // engineSide variable.
-            PreparedStatement ps = conn.prepareStatement("SELECT * FROM doors;");
-            ResultSet rs = ps.executeQuery();
+            plugin.getMyLogger().warn("Upgrading database!");
 
-            int totalCount = conn.prepareStatement("SELECT COUNT(*) AS count FROM doors").executeQuery()
-                .getInt("count");
-            plugin.getMyLogger().info("Going to process " + totalCount + " doors.");
-            int processed = 0;
-            int tenPercent = totalCount / 10; // Cast to an integer. Won't be exact, but close enough. It's just
-                                              // cosmetic anyway.
+            final int seqPlayers;
+            final int seqDoors;
 
-            while (rs.next())
+            try(ResultSet seqPlayersRs = connV1
+                    .prepareStatement("SELECT * FROM sqlite_sequence WHERE name = 'players'").executeQuery();
+                ResultSet seqDoorsRs = connV1
+                    .prepareStatement("SELECT * FROM sqlite_sequence WHERE name = 'doors'").executeQuery())
             {
-                if ((++processed) % tenPercent == 0)
-                    plugin.getMyLogger().info(String.format("Processing doors: %3d%%", (10 * processed / tenPercent)));
-
-                if (rs.getInt("type") > 5) // This shouldn't do anything for regular users, but it's useful for me, as I
-                                           // have future types enabled.
-                    continue;
-
-                // Disregard current open direction. It should be somewhat stored in the
-                // engineSide.
-                // When it is opened in the northern direction, the engineSide will be South,
-                // even when closed (= upright).
-                Door door = newDoorFromRS(rs, rs.getLong("id"), 0, null, null, null);
-                RotateDirection currentOpenDir = door.getOpenDir();
-
-                Opener opener = plugin.getDoorOpener(door.getType());
-                if (door.getType().equals(DoorType.DRAWBRIDGE) || currentOpenDir.equals(RotateDirection.NONE) ||
-                    !opener.isRotateDirectionValid(door))
+                if (!seqPlayersRs.next())
                 {
-                    RotateDirection newOpenDir = opener.getRotateDirection(door);
-                    door.setOpenDir(newOpenDir);
-
-                    PreparedStatement ps2 = conn.prepareStatement("UPDATE doors SET openDirection=? WHERE id=?;");
-                    ps2.setInt(1, RotateDirection.getValue(newOpenDir));
-                    ps2.setString(2, Long.toString(rs.getLong("id")));
-                    ps2.executeUpdate();
-                    ps2.close();
+                    plugin.getMyLogger().severe("Could not find sequence for player table!");
+                    return;
                 }
-
-                if (door.getOpenDir().equals(RotateDirection.NONE))
-                    plugin.getMyLogger().logMessage("Door " + rs.getLong("id")
-                        + " is in an invalid state! Please contact pim16aap2 or delete this door!", true, false);
+                if (!seqDoorsRs.next())
+                {
+                    plugin.getMyLogger().severe("Could not find sequence for doors table!");
+                    return;
+                }
+                seqPlayers = Math.max(10, seqPlayersRs.getInt("seq"));
+                seqDoors = Math.max(10, seqDoorsRs.getInt("seq"));
             }
-            rs.close();
-            ps.close();
-            plugin.getMyLogger().info("All doors have been processed! Onto the next step!");
+
+            new V2ExportUtil(plugin, seqPlayers, seqDoors).export(connV1, connV2);
         }
         catch (SQLException | NullPointerException e)
         {
-            logMessage("314", e);
+            logMessage("434", e);
         }
 
-        try (Connection conn = getConnectionUnsafe())
-        {
-            plugin.getMyLogger().warn("Upgrading database: Adding BitFlag!");
-
-            String addColumn = "ALTER TABLE doors ADD COLUMN bitflag INTEGER NOT NULL DEFAULT 0";
-            conn.createStatement().execute(addColumn);
-
-            PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM doors;");
-            ResultSet rs1 = ps1.executeQuery();
-            String update;
-
-            while (rs1.next())
-            {
-                long UID = rs1.getLong("id");
-                boolean isOpen = rs1.getBoolean("isOpen");
-                boolean isLocked = rs1.getBoolean("isLocked");
-
-                // Hardcoded values because v1 doesn't have bitflags and the correct enums.
-                int flag = 0;
-                if (isOpen)
-                    flag |= 1;
-                if (isLocked)
-                    flag |= 2;
-
-                update = "UPDATE doors SET bitflag=? WHERE id=?;";
-                PreparedStatement ps2 = conn.prepareStatement(update);
-                ps2.setString(1, Integer.toString(flag));
-                ps2.setString(2, Long.toString(UID));
-                ps2.executeUpdate();
-                ps2.close();
-            }
-            ps1.close();
-            rs1.close();
-        }
-        catch (SQLException | NullPointerException e)
-        {
-            logMessage("410", e);
-        }
-
-        // Remove isOpen, isLocked, and engineSide from the doors table.
-        Connection conn = null;
-        try
-        {
-            plugin.getMyLogger().warn("Upgrading database: Removing isOpen, isLocked, engineSide!");
-            Class.forName(DRIVER);
-            conn = DriverManager.getConnection(url);
-//            conn.createStatement().execute("PRAGMA foreign_keys=OFF");
-            disableForeignKeys(conn);
-            conn.setAutoCommit(false);
-            conn.createStatement().execute("ALTER TABLE doors RENAME TO doors_old;");
-
-            String newDoors = "CREATE TABLE IF NOT EXISTS doors\n"
-                + "(id            INTEGER    PRIMARY KEY autoincrement,\n"
-                + " name          TEXT       NOT NULL,\n"
-                + " world         TEXT       NOT NULL,\n"
-                + " xMin          INTEGER    NOT NULL,\n"
-                + " yMin          INTEGER    NOT NULL,\n"
-                + " zMin          INTEGER    NOT NULL,\n"
-                + " xMax          INTEGER    NOT NULL,\n"
-                + " yMax          INTEGER    NOT NULL,\n"
-                + " zMax          INTEGER    NOT NULL,\n"
-                + " engineX       INTEGER    NOT NULL,\n"
-                + " engineY       INTEGER    NOT NULL,\n"
-                + " engineZ       INTEGER    NOT NULL,\n"
-                + " bitflag       INTEGER    NOT NULL DEFAULT 0,\n"
-                + " type          INTEGER    NOT NULL DEFAULT 0,\n"
-                + " powerBlockX   INTEGER    NOT NULL DEFAULT -1,\n"
-                + " powerBlockY   INTEGER    NOT NULL DEFAULT -1,\n"
-                + " powerBlockZ   INTEGER    NOT NULL DEFAULT -1,\n"
-                + " openDirection INTEGER    NOT NULL DEFAULT  0,\n"
-                + " autoClose     INTEGER    NOT NULL DEFAULT -1,\n"
-                + " chunkHash     INTEGER    NOT NULL DEFAULT -1,\n"
-                + " blocksToMove  INTEGER    NOT NULL DEFAULT -1);";
-            conn.createStatement().execute(newDoors);
-
-            String restoreData = "INSERT INTO doors\n" + "SELECT id, name, world, xMin, yMin, zMin, xMax, yMax, "
-                + "zMax, engineX, engineY, engineZ, bitflag, type, \n"
-                + "powerBlockX, powerBlockY, powerBlockZ, openDirection, autoClose, chunkHash, blocksToMove\n"
-                + "FROM doors_old;";
-            conn.createStatement().execute(restoreData);
-
-            conn.createStatement().execute("DROP TABLE IF EXISTS 'doors_old';");
-            conn.commit();
-            conn.setAutoCommit(true);
-        }
-        catch (SQLException | NullPointerException | ClassNotFoundException e)
-        {
-            if (conn != null)
-                try
-                {
-                    conn.rollback();
-                }
-                catch (SQLException | NullPointerException e1)
-                {
-                    logMessage("391", e1);
-                }
-            logMessage("421", e);
-        }
-        finally
-        {
-            if (conn != null)
-                try
-                {
-                    conn.close();
-                }
-                catch (SQLException | NullPointerException e)
-                {
-                    logMessage("432", e);
-                }
-        }
-        recreateTables();
         locked.set(false);
-        validVersion = false;
 
         long endTime = System.nanoTime();
         long duration = (endTime - startTime) / 1000000;
@@ -560,7 +432,7 @@ public class SQLiteJDBCDriverConnection
         }
         catch (SQLException | NullPointerException e)
         {
-            logMessage("314", e);
+            logMessage("670", e);
         }
 
         // Recreate the players table.

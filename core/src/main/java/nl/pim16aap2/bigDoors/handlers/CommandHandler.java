@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigDoors.handlers;
 
+import com.cryptomorin.xseries.XMaterial;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.GUI.GUI;
@@ -17,7 +18,6 @@ import nl.pim16aap2.bigDoors.util.DoorOpenResult;
 import nl.pim16aap2.bigDoors.util.DoorType;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
-import com.cryptomorin.xseries.XMaterial;
 import nl.pim16aap2.bigDoors.waitForCommand.WaitForAddOwner;
 import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 import nl.pim16aap2.bigDoors.waitForCommand.WaitForRemoveOwner;
@@ -26,7 +26,6 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForSetTime;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
-import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -38,6 +37,7 @@ import org.bukkit.scheduler.BukkitTask;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -369,34 +369,6 @@ public class CommandHandler implements CommandExecutor
                     entity.remove();
     }
 
-    private static final String upgradeWarning = "\n"
-        + "===================================================================================\n"
-        + "===================================== WARNING =====================================\n"
-        + "===================================================================================\n"
-        + "||  Are you absolutely sure you want to upgrade the database to v2 of BigDoors?  ||\n"
-        + "||  You will NOT BE ABLE to use this database on the current version anymore!    ||\n"
-        + "||  If you are aware of the consequences, execute the following command:         ||\n"
-        + "||  \"bigdoors upgradedatabaseforv2 confirm\"                                      ||\n"
-        + "===================================================================================\n"
-        + "===================================== WARNING =====================================\n"
-        + "===================================================================================";
-
-    private void prepareDatabaseForV2(CommandSender sender, Command cmd, String label, String[] args)
-    {
-        if (sender instanceof Player)
-        {
-            ((Player) sender).sendMessage(ChatColor.RED + "Players cannot execute this command!");
-            return;
-        }
-        if (sender instanceof Entity || sender instanceof BlockCommandSender)
-            return;
-
-        if (args.length == 2 && args[1].equals("confirm"))
-            plugin.getCommander().prepareDatabaseForV2();
-        else
-            plugin.getMyLogger().logMessageToConsoleOnly(upgradeWarning);
-    }
-
     // Handle commands.
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
@@ -411,20 +383,16 @@ public class CommandHandler implements CommandExecutor
         }
         else if (cmd.getName().equalsIgnoreCase("bigdoors"))
         {
-            String firstCommand = args.length == 0 ? "" : args[0].toLowerCase();
+            String firstCommand = args.length == 0 ? "" : args[0].toLowerCase(Locale.ROOT);
 
             switch (firstCommand)
             {
-//            case "upgradedatabaseforv2":
-//                if (player != null) // Only the server may use this command.
-//                    break;
-////                prepareDatabaseForV2(sender, cmd, label, args);
-//                plugin.getMyLogger()
-//                    .info("This command has been disabled! v2's database has changed significantly recently.");
-//                plugin.getMyLogger()
-//                    .info("The upgrade process will need to be updated because, as it stands, neither v1, nor v2 ");
-//                plugin.getMyLogger().info("Will be able to use the database after the \"upgrade\".");
-//                break;
+                case "preparedatabaseforv2":
+                    if (player != null) // Only the server may use this command.
+                        break;
+                    plugin.getCommander().prepareDatabaseForV2();
+                    break;
+
                 case "version":
                     if (player != null && !player.hasPermission("bigdoors.admin.version"))
                         break;
@@ -1242,7 +1210,7 @@ public class CommandHandler implements CommandExecutor
                                "Enables doors being toggled again. Has no effect if they are not currently disabled.");
         }
         if (player == null)
-            help += helpFormat("BigDoors upgradedatabaseforv2", "Prepares the database for v2 of BigDoors.");
+            help += helpFormat("BigDoors preparedatabaseforv2", "Prepares the database for v2 of BigDoors.");
 
         // Remove color codes for console.
         if (player == null)

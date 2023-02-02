@@ -1,5 +1,6 @@
 Alpha 0.1.8.44
 - Add support for PlotSquared 7. Thanks, Bloody_Mind, for the suggestion!
+- Added the "/BigDoors PrepareDatabaseForV2" command. This will export your database to the format used by v2. Note that both the export and v2 are still experimental!
 
 Alpha 0.1.8.43
 - Fix startup issue on older versions of MC. Thanks, Trombettino, for the report!
