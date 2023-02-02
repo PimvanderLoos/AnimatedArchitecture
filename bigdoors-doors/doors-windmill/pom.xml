@@ -6,7 +6,7 @@
     <version>1</version>
 
     <properties>
-        <mainClass>nl.pim16aap2.bigdoors.movable.windmill.MovableTypeWindmill</mainClass>
+        <mainClass>nl.pim16aap2.bigdoors.structures.windmill.StructureTypeWindmill</mainClass>
         <typeName>Windmill</typeName>
         <version>1</version>
         <TypeDependencies>drawbridge(1;1)</TypeDependencies>

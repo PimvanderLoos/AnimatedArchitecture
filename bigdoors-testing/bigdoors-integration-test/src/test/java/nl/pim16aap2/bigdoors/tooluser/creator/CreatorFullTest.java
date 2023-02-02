@@ -2,8 +2,8 @@ package nl.pim16aap2.bigdoors.tooluser.creator;
 
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movabletypes.MovableType;
+import nl.pim16aap2.bigdoors.structures.AbstractStructure;
+import nl.pim16aap2.bigdoors.structuretypes.StructureType;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.util.Cuboid;
@@ -25,7 +25,7 @@ import java.util.List;
 @Timeout(1)
 class CreatorFullTest extends CreatorTestsUtil
 {
-    private static MovableType movableType;
+    private static StructureType structureType;
 
     @Test
     void runThroughProcess()
@@ -33,21 +33,21 @@ class CreatorFullTest extends CreatorTestsUtil
         rotationPoint = new Cuboid(min, max).getCenterBlock();
         openDirection = MovementDirection.NORTH;
 
-        movableType = Mockito.mock(MovableType.class);
-        Mockito.when(movableType.getValidOpenDirections())
+        structureType = Mockito.mock(StructureType.class);
+        Mockito.when(structureType.getValidOpenDirections())
                .thenReturn(EnumSet.of(MovementDirection.NORTH, MovementDirection.SOUTH));
 
-        final var movable = Mockito.mock(AbstractMovable.class);
-        Mockito.when(movable.getType()).thenReturn(movableType);
+        final var structure = Mockito.mock(AbstractStructure.class);
+        Mockito.when(structure.getType()).thenReturn(structureType);
 
-        final var creator = new CreatorTestImpl(context, player, movable);
+        final var creator = new CreatorTestImpl(context, player, structure);
 
         setEconomyEnabled(true);
         setEconomyPrice(12.34);
-        setBuyMovable(true);
+        setBuyStructure(true);
 
-        testCreation(creator, movable,
-                     movableName,
+        testCreation(creator, structure,
+                     structureName,
                      UnitTestUtil.getLocation(min, world),
                      UnitTestUtil.getLocation(max, world),
                      UnitTestUtil.getLocation(rotationPoint, world),
@@ -64,21 +64,21 @@ class CreatorFullTest extends CreatorTestsUtil
         rotationPoint = new Cuboid(min, max).getCenterBlock();
         openDirection = MovementDirection.NORTH;
 
-        movableType = Mockito.mock(MovableType.class);
-        Mockito.when(movableType.getValidOpenDirections())
+        structureType = Mockito.mock(StructureType.class);
+        Mockito.when(structureType.getValidOpenDirections())
                .thenReturn(EnumSet.of(MovementDirection.NORTH, MovementDirection.SOUTH));
 
-        final var movable = Mockito.mock(AbstractMovable.class);
-        Mockito.when(movable.getType()).thenReturn(movableType);
+        final var structure = Mockito.mock(AbstractStructure.class);
+        Mockito.when(structure.getType()).thenReturn(structureType);
 
-        final var creator = new CreatorTestImpl(context, player, movable);
+        final var creator = new CreatorTestImpl(context, player, structure);
 
         setEconomyEnabled(true);
         setEconomyPrice(12.34);
-        setBuyMovable(true);
+        setBuyStructure(true);
 
         applySteps(creator,
-                   movableName,
+                   structureName,
                    UnitTestUtil.getLocation(min, world),
                    UnitTestUtil.getLocation(max, world),
                    UnitTestUtil.getLocation(rotationPoint, world),
@@ -91,17 +91,17 @@ class CreatorFullTest extends CreatorTestsUtil
         Assertions.assertDoesNotThrow(() -> delayedCommandInputManager.getInputRequest(player).get()
                                                                       .provide(openDirection).join());
 
-        testCreation(creator, movable, true);
+        testCreation(creator, structure, true);
     }
 
     private static class CreatorTestImpl extends Creator
     {
-        private final AbstractMovable movable;
+        private final AbstractStructure structure;
 
-        protected CreatorTestImpl(ToolUser.Context context, IPPlayer player, AbstractMovable movable)
+        protected CreatorTestImpl(ToolUser.Context context, IPPlayer player, AbstractStructure structure)
         {
             super(context, player, null);
-            this.movable = movable;
+            this.structure = structure;
         }
 
         @Override
@@ -125,15 +125,15 @@ class CreatorFullTest extends CreatorTestsUtil
         }
 
         @Override
-        protected AbstractMovable constructMovable()
+        protected AbstractStructure constructStructure()
         {
-            return movable;
+            return structure;
         }
 
         @Override
-        protected MovableType getMovableType()
+        protected StructureType getStructureType()
         {
-            return movableType;
+            return structureType;
         }
     }
 }

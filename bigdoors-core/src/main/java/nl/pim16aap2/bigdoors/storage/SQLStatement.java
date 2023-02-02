@@ -10,9 +10,9 @@ import nl.pim16aap2.bigdoors.util.Util;
 @SuppressWarnings("unused")
 public enum SQLStatement
 {
-    UPDATE_MOVABLE_BASE(
+    UPDATE_STRUCTURE_BASE(
         """
-        UPDATE Movables SET
+        UPDATE Structures SET
         name           = ?,
         world          = ?,
         xMin           = ?,
@@ -37,57 +37,61 @@ public enum SQLStatement
         """
     ),
 
-    UPDATE_MOVABLE_OWNER_PERMISSION(
-        "UPDATE MovableOwnerPlayer SET permission = ? WHERE playerID = ? and movableUID = ?;"
+    UPDATE_STRUCTURE_OWNER_PERMISSION(
+        "UPDATE StructureOwnerPlayer SET permission = ? WHERE playerID = ? and structureUID = ?;"
     ),
 
-    GET_MOVABLE_OWNER_PLAYER(
-        "SELECT * FROM MovableOwnerPlayer WHERE playerID = ? AND movableUID = ?;"
+    GET_STRUCTURE_OWNER_PLAYER(
+        "SELECT * FROM StructureOwnerPlayer WHERE playerID = ? AND structureUID = ?;"
     ),
 
-    DELETE_NAMED_MOVABLE_OF_PLAYER(
+    DELETE_NAMED_STRUCTURE_OF_PLAYER(
         """
-        DELETE FROM Movables
-        WHERE Movables.id IN
+        DELETE FROM Structures
+        WHERE Structures.id IN
             (SELECT D.id
-            FROM Movables AS D INNER JOIN MovableOwnerPlayer AS U ON U.movableUID = D.id,
+            FROM Structures AS D INNER JOIN StructureOwnerPlayer AS U ON U.structureUID = D.id,
                 (SELECT P.id FROM Player as P WHERE P.playerUUID = ?) AS R
                 WHERE D.name = ? AND R.id = U.playerID);
         """
     ),
 
-    DELETE_MOVABLE_TYPE(
-        "DELETE FROM Movables WHERE Movables.type = ?;"
+    DELETE_STRUCTURE_TYPE(
+        "DELETE FROM Structures WHERE Structures.type = ?;"
     ),
 
     GET_LATEST_ROW_ADDITION(
         "SELECT last_insert_rowid() AS lastId;"
     ),
 
-    INSERT_MOVABLE_OWNER(
-        "INSERT INTO MovableOwnerPlayer (permission, playerID, movableUID) VALUES (?,?,?);"
+    INSERT_STRUCTURE_OWNER(
+        "INSERT INTO StructureOwnerPlayer (permission, playerID, structureUID) VALUES (?,?,?);"
     ),
 
-    REMOVE_MOVABLE_OWNER(
+    REMOVE_STRUCTURE_OWNER(
         """
         DELETE
-        FROM MovableOwnerPlayer
-        WHERE MovableOwnerPlayer.id IN
+        FROM StructureOwnerPlayer
+        WHERE StructureOwnerPlayer.id IN
             (SELECT O.id
-            FROM MovableOwnerPlayer AS O INNER JOIN Player AS P on O.playerID = P.id
-            WHERE P.playerUUID = ? AND O.permission > '0' AND O.movableUID = ?);
+            FROM StructureOwnerPlayer AS O INNER JOIN Player AS P on O.playerID = P.id
+            WHERE P.playerUUID = ? AND O.permission > '0' AND O.structureUID = ?);
         """
     ),
 
     GET_POWER_BLOCK_DATA_IN_CHUNK(
-        "SELECT id, powerBlockX, powerBlockY, powerBlockZ, powerBlockChunkId FROM Movables WHERE powerBlockChunkId = ?;"
+        """
+        SELECT id, powerBlockX, powerBlockY, powerBlockZ, powerBlockChunkId
+        FROM Structures
+        WHERE powerBlockChunkId = ?;
+        """
     ),
 
     /**
-     * Gets all the movables that have their <b>rotationPoint</b> in the chunk with the given chunk hash.
+     * Gets all the structures that have their <b>rotationPoint</b> in the chunk with the given chunk hash.
      */
-    GET_MOVABLE_IN_CHUNK(
-        "SELECT * FROM Movables WHERE rotationPointChunkId = ?;"
+    GET_STRUCTURE_IN_CHUNK(
+        "SELECT * FROM Structures WHERE rotationPointChunkId = ?;"
     ),
 
     INSERT_OR_IGNORE_PLAYER_DATA(
@@ -101,8 +105,8 @@ public enum SQLStatement
     GET_IDENTIFIERS_FROM_PARTIAL_NAME_MATCH_WITH_OWNER(
         """
         SELECT D.id, D.name
-        FROM Movables AS D
-        INNER JOIN MovableOwnerPlayer AS O ON D.id = O.movableUID
+        FROM Structures AS D
+        INNER JOIN StructureOwnerPlayer AS O ON D.id = O.structureUID
         INNER JOIN Player AS P ON O.playerID = P.id
         WHERE D.name like ? || '%' AND O.permission <= ? AND (? IS NULL OR P.playerUUID IS ?)
         GROUP BY D.id;
@@ -112,8 +116,8 @@ public enum SQLStatement
     GET_IDENTIFIERS_FROM_PARTIAL_UID_MATCH_WITH_OWNER(
         """
         SELECT D.id, D.name
-        FROM Movables AS D
-        INNER JOIN MovableOwnerPlayer AS O ON D.id = O.movableUID
+        FROM Structures AS D
+        INNER JOIN StructureOwnerPlayer AS O ON D.id = O.structureUID
         INNER JOIN Player AS P ON O.playerID = P.id
         WHERE D.id like ? || '%' AND O.permission <= ? AND (? IS NULL OR P.playerUUID IS ?)
         GROUP BY D.id;
@@ -139,28 +143,28 @@ public enum SQLStatement
         "SELECT * FROM Player WHERE playerName = ?;"
     ),
 
-    GET_OWNER_COUNT_OF_MOVABLE(
-        "SELECT COUNT(*) AS total FROM MovableOwnerPlayer WHERE movableUID = ?;"
+    GET_OWNER_COUNT_OF_STRUCTURE(
+        "SELECT COUNT(*) AS total FROM StructureOwnerPlayer WHERE structureUID = ?;"
     ),
 
-    GET_MOVABLE_COUNT_BY_NAME(
-        "SELECT COUNT(*) AS total FROM Movables WHERE name = ?;"
+    GET_STRUCTURE_COUNT_BY_NAME(
+        "SELECT COUNT(*) AS total FROM Structures WHERE name = ?;"
     ),
 
-    GET_PLAYER_MOVABLE_COUNT(
+    GET_PLAYER_STRUCTURE_COUNT(
         """
         SELECT COUNT(*) AS total
-        FROM MovableOwnerPlayer AS U
+        FROM StructureOwnerPlayer AS U
         INNER JOIN Player AS P on U.playerID = P.id
-        INNER JOIN Movables AS D ON U.movableUID = D.id
+        INNER JOIN Structures AS D ON U.structureUID = D.id
         WHERE P.playerUUID = ? AND D.name = ?;
         """
     ),
 
-    GET_MOVABLE_COUNT_FOR_PLAYER(
+    GET_STRUCTURE_COUNT_FOR_PLAYER(
         """
         SELECT COUNT(*) AS total
-        FROM MovableOwnerPlayer AS U INNER JOIN Player AS P on U.playerID = P.id
+        FROM StructureOwnerPlayer AS U INNER JOIN Player AS P on U.playerID = P.id
         WHERE P.playerUUID = ?;
         """
     ),
@@ -168,94 +172,94 @@ public enum SQLStatement
     IS_BIGDOORS_WORLD(
         """
         SELECT world
-        FROM Movables
+        FROM Structures
         WHERE world = ?
         LIMIT 1;
         """
     ),
 
-    DELETE_MOVABLE(
-        "DELETE FROM Movables WHERE id = ?;"
+    DELETE_STRUCTURE(
+        "DELETE FROM Structures WHERE id = ?;"
     ),
 
     GET_PLAYER_ID(
         "SELECT id FROM Player WHERE playerUUID = ?;"
     ),
 
-    GET_MOVABLE_BASE_FROM_ID(
+    GET_STRUCTURE_BASE_FROM_ID(
         """
-        SELECT Movables.*, Player.*, MovableOwnerPlayer.permission
-        FROM Movables
-        INNER JOIN MovableOwnerPlayer ON Movables.id = MovableOwnerPlayer.movableUID
-        INNER JOIN Player ON MovableOwnerPlayer.playerID = Player.id
-        WHERE Movables.id = ? AND MovableOwnerPlayer.permission = 0;
+        SELECT Structures.*, Player.*, StructureOwnerPlayer.permission
+        FROM Structures
+        INNER JOIN StructureOwnerPlayer ON Structures.id = StructureOwnerPlayer.structureUID
+        INNER JOIN Player ON StructureOwnerPlayer.playerID = Player.id
+        WHERE Structures.id = ? AND StructureOwnerPlayer.permission = 0;
         """
     ),
 
     /**
-     * Obtains the movables whose rotationPoint's chunk hash value has a certain value.
+     * Obtains the structures whose rotationPoint's chunk hash value has a certain value.
      */
-    GET_MOVABLES_IN_CHUNK(
+    GET_STRUCTURES_IN_CHUNK(
         """
-        SELECT Movables.*, Player.*, MovableOwnerPlayer.permission
-        FROM Movables
-        INNER JOIN MovableOwnerPlayer ON Movables.id = MovableOwnerPlayer.movableUID
-        INNER JOIN Player ON MovableOwnerPlayer.playerID = Player.id
-        WHERE Movables.rotationPointChunkId = ?;
-        """
-    ),
-
-    GET_MOVABLE_BASE_FROM_ID_FOR_PLAYER(
-        """
-        SELECT Movables.*, Player.*, MovableOwnerPlayer.permission
-        FROM Movables
-        INNER JOIN MovableOwnerPlayer ON Movables.id = MovableOwnerPlayer.movableUID
-        INNER JOIN Player ON MovableOwnerPlayer.playerID = Player.id
-        WHERE Movables.id = ? AND Player.playerUUID = ?;
+        SELECT Structures.*, Player.*, StructureOwnerPlayer.permission
+        FROM Structures
+        INNER JOIN StructureOwnerPlayer ON Structures.id = StructureOwnerPlayer.structureUID
+        INNER JOIN Player ON StructureOwnerPlayer.playerID = Player.id
+        WHERE Structures.rotationPointChunkId = ?;
         """
     ),
 
-    GET_NAMED_MOVABLES_OWNED_BY_PLAYER(
+    GET_STRUCTURE_BASE_FROM_ID_FOR_PLAYER(
         """
-        SELECT Movables.*, Player.*, MovableOwnerPlayer.permission
-        FROM Movables
-        INNER JOIN MovableOwnerPlayer ON Movables.id = MovableOwnerPlayer.movableUID
-        INNER JOIN Player ON MovableOwnerPlayer.playerID = Player.id
-        WHERE Player.playerUUID = ? AND Movables.name = ? And MovableOwnerPlayer.permission <= ?;
-        """
-    ),
-
-    GET_MOVABLES_WITH_NAME(
-        """
-        SELECT Movables.*, Player.*, MovableOwnerPlayer.permission
-        FROM Movables
-        INNER JOIN MovableOwnerPlayer ON Movables.id = MovableOwnerPlayer.movableUID
-        INNER JOIN Player ON MovableOwnerPlayer.playerID = Player.id
-        WHERE Movables.name = ? And MovableOwnerPlayer.permission = 0;
+        SELECT Structures.*, Player.*, StructureOwnerPlayer.permission
+        FROM Structures
+        INNER JOIN StructureOwnerPlayer ON Structures.id = StructureOwnerPlayer.structureUID
+        INNER JOIN Player ON StructureOwnerPlayer.playerID = Player.id
+        WHERE Structures.id = ? AND Player.playerUUID = ?;
         """
     ),
 
-    GET_MOVABLES_OWNED_BY_PLAYER_WITH_LEVEL(
+    GET_NAMED_STRUCTURES_OWNED_BY_PLAYER(
         """
-        SELECT Movables.*, Player.*, MovableOwnerPlayer.permission
-        FROM Movables
-        INNER JOIN MovableOwnerPlayer ON Movables.id = MovableOwnerPlayer.movableUID
-        INNER JOIN Player ON MovableOwnerPlayer.playerID = Player.id
-        WHERE Player.playerUUID = ? AND MovableOwnerPlayer.permission <= ?;
-        """
-    ),
-
-    GET_MOVABLE_OWNERS(
-        """
-        SELECT O.movableUID, O.permission, P.*
-        FROM MovableOwnerPlayer AS O INNER JOIN Player AS P ON O.playerID = P.id
-        WHERE movableUID = ?;
+        SELECT Structures.*, Player.*, StructureOwnerPlayer.permission
+        FROM Structures
+        INNER JOIN StructureOwnerPlayer ON Structures.id = StructureOwnerPlayer.structureUID
+        INNER JOIN Player ON StructureOwnerPlayer.playerID = Player.id
+        WHERE Player.playerUUID = ? AND Structures.name = ? And StructureOwnerPlayer.permission <= ?;
         """
     ),
 
-    INSERT_MOVABLE_BASE(
+    GET_STRUCTURES_WITH_NAME(
         """
-        INSERT INTO Movables
+        SELECT Structures.*, Player.*, StructureOwnerPlayer.permission
+        FROM Structures
+        INNER JOIN StructureOwnerPlayer ON Structures.id = StructureOwnerPlayer.structureUID
+        INNER JOIN Player ON StructureOwnerPlayer.playerID = Player.id
+        WHERE Structures.name = ? And StructureOwnerPlayer.permission = 0;
+        """
+    ),
+
+    GET_STRUCTURES_OWNED_BY_PLAYER_WITH_LEVEL(
+        """
+        SELECT Structures.*, Player.*, StructureOwnerPlayer.permission
+        FROM Structures
+        INNER JOIN StructureOwnerPlayer ON Structures.id = StructureOwnerPlayer.structureUID
+        INNER JOIN Player ON StructureOwnerPlayer.playerID = Player.id
+        WHERE Player.playerUUID = ? AND StructureOwnerPlayer.permission <= ?;
+        """
+    ),
+
+    GET_STRUCTURE_OWNERS(
+        """
+        SELECT O.structureUID, O.permission, P.*
+        FROM StructureOwnerPlayer AS O INNER JOIN Player AS P ON O.playerID = P.id
+        WHERE structureUID = ?;
+        """
+    ),
+
+    INSERT_STRUCTURE_BASE(
+        """
+        INSERT INTO Structures
         (name, world, xMin, yMin, zMin, xMax, yMax, zMax, rotationPointX, rotationPointY, rotationPointZ,
          rotationPointChunkId, powerBlockX, powerBlockY, powerBlockZ, powerBlockChunkId, openDirection,
          bitflag, type, typeVersion, typeData)
@@ -264,28 +268,28 @@ public enum SQLStatement
     ),
 
     /**
-     * Inserts a new movable creator. This is a movable owner with permission level 0.
+     * Inserts a new structure creator. This is a structure owner with permission level 0.
      * <p>
-     * This statement is intended to be used in the same transaction that inserted the Movables.
+     * This statement is intended to be used in the same transaction that inserted the Structures.
      */
     INSERT_PRIME_OWNER(
         """
-        INSERT INTO MovableOwnerPlayer (permission, playerID, movableUID)
+        INSERT INTO StructureOwnerPlayer (permission, playerID, structureUID)
         VALUES (0,
             (SELECT id
             FROM Player
             WHERE Player.playerUUID = ?),
             (SELECT seq
             FROM sqlite_sequence
-            WHERE sqlite_sequence.name = "Movables"));
+            WHERE sqlite_sequence.name = "Structures"));
         """
     ),
 
-    SELECT_MOST_RECENT_MOVABLE(
+    SELECT_MOST_RECENT_STRUCTURE(
         """
         SELECT seq
         FROM sqlite_sequence
-        WHERE sqlite_sequence.name = "Movables";
+        WHERE sqlite_sequence.name = "Structures";
         """
     ),
 
@@ -309,12 +313,12 @@ public enum SQLStatement
         "UPDATE SQLITE_SEQUENCE SET seq = 100 WHERE name = 'Player' and seq < 100;"
     ),
 
-    RESERVE_IDS_MOVABLE(
-        "UPDATE SQLITE_SEQUENCE SET seq = 100 WHERE name = 'Movables' and seq < 100;"
+    RESERVE_IDS_STRUCTURE(
+        "UPDATE SQLITE_SEQUENCE SET seq = 100 WHERE name = 'Structures' and seq < 100;"
     ),
 
-    RESERVE_IDS_MOVABLE_OWNER_PLAYER(
-        "UPDATE SQLITE_SEQUENCE SET seq = 100 WHERE name = 'MovableOwnerPlayer' and seq < 100;"
+    RESERVE_IDS_STRUCTURE_OWNER_PLAYER(
+        "UPDATE SQLITE_SEQUENCE SET seq = 100 WHERE name = 'StructureOwnerPlayer' and seq < 100;"
     ),
 
     CREATE_TABLE_PLAYER(
@@ -330,9 +334,9 @@ public enum SQLStatement
         """
     ),
 
-    CREATE_TABLE_MOVABLE(
+    CREATE_TABLE_STRUCTURE(
         """
-        CREATE TABLE IF NOT EXISTS Movables
+        CREATE TABLE IF NOT EXISTS Structures
         (id                   INTEGER    PRIMARY KEY AUTOINCREMENT,
         name                  TEXT       NOT NULL,
         world                 TEXT       NOT NULL,
@@ -358,14 +362,14 @@ public enum SQLStatement
         """
     ),
 
-    CREATE_TABLE_MOVABLE_OWNER_PLAYER(
+    CREATE_TABLE_STRUCTURE_OWNER_PLAYER(
         """
-        CREATE TABLE IF NOT EXISTS MovableOwnerPlayer
+        CREATE TABLE IF NOT EXISTS StructureOwnerPlayer
         (id          INTEGER    PRIMARY KEY AUTOINCREMENT,
         permission   INTEGER    NOT NULL,
         playerID     REFERENCES Player(id)   ON UPDATE CASCADE ON DELETE CASCADE,
-        movableUID   REFERENCES Movables(id) ON UPDATE CASCADE ON DELETE CASCADE,
-        unique (playerID, movableUID));
+        structureUID REFERENCES Structures(id) ON UPDATE CASCADE ON DELETE CASCADE,
+        unique (playerID, structureUID));
         """
     ),
 

@@ -71,9 +71,9 @@ public class Menu extends BaseCommand
          *     This is the entity to which the menu will be shown, and as such this must be an {@link IPPlayer} (menus
          *     aren't supported for servers/command blocks).
          * @param source
-         *     The {@link IPPlayer} whose movables will be used.
+         *     The {@link IPPlayer} whose structures will be used.
          *     <p>
-         *     When this is null (default), the command sender's own movables will be used.
+         *     When this is null (default), the command sender's own structures will be used.
          * @return See {@link BaseCommand#run()}.
          */
         Menu newMenu(ICommandSender commandSender, @Nullable IPPlayer source);

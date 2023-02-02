@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.api.animatedblock;
 
-import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
-import nl.pim16aap2.bigdoors.movabletypes.MovableType;
+import nl.pim16aap2.bigdoors.structures.StructureSnapshot;
+import nl.pim16aap2.bigdoors.structuretypes.StructureType;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 
 import java.util.List;
@@ -49,14 +49,14 @@ public interface IAnimation<T extends IAnimatedBlock>
     List<T> getAnimatedBlocks();
 
     /**
-     * @return A snapshot of the movable being animated, created before the movement started.
+     * @return A snapshot of the structure being animated, created before the movement started.
      */
-    MovableSnapshot getMovableSnapshot();
+    StructureSnapshot getStructureSnapshot();
 
     /**
-     * @return The type of the movable being toggled.
+     * @return The type of the structure being toggled.
      */
-    MovableType getMovableType();
+    StructureType getStructureType();
 
     /**
      * @return The current state of the animation.
@@ -98,7 +98,7 @@ public interface IAnimation<T extends IAnimatedBlock>
          * The animation was skipped. This can happen either because it was requested to skip the animation or because
          * there are no blocks to animate.
          * <p>
-         * Note that this only applies to the animation itself; the movable itself is still toggled and all blocks (if
+         * Note that this only applies to the animation itself; the structure itself is still toggled and all blocks (if
          * applicable) are moved to the next location.
          */
         SKIPPED

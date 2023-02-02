@@ -43,7 +43,7 @@ public final class Cuboid
     private final int volume;
 
     /**
-     * Gets the dimensions of this movable.
+     * Gets the dimensions of this structure.
      */
     @Getter
     @EqualsAndHashCode.Exclude

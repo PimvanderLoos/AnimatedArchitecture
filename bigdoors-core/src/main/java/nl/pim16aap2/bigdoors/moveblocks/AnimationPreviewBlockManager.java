@@ -10,7 +10,7 @@ import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.api.animatedblock.AnimationContext;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
-import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
+import nl.pim16aap2.bigdoors.structures.StructureSnapshot;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -54,7 +54,7 @@ public class AnimationPreviewBlockManager implements IAnimationBlockManager
 
     @Override
     public boolean createAnimatedBlocks(
-        MovableSnapshot snapshot, IAnimationComponent animationComponent, AnimationContext animationContext,
+        StructureSnapshot snapshot, IAnimationComponent animationComponent, AnimationContext animationContext,
         Animator.MovementMethod movementMethod)
     {
         final List<IAnimatedBlock> animatedBlocksTmp = new ArrayList<>(snapshot.getBlockCount());

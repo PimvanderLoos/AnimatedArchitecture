@@ -14,16 +14,16 @@ import java.util.Deque;
     }
 
     /**
-     * Creates a new CloseAction that unregisters a deletion listener from the movables registry.
+     * Creates a new CloseAction that unregisters a deletion listener from the structures registry.
      *
      * @param manager
-     *     The MovableDeletion manager for the GUI to unregister from.
+     *     The StructureDeletion manager for the GUI to unregister from.
      * @param listener
      *     The listener to unregister.
      * @return The CloseAction.
      */
     public static InventoryGui.CloseAction getDeletionListenerUnregisterCloseAction(
-        GuiMovableDeletionManager manager, IGuiPage.IGuiMovableDeletionListener listener)
+        GuiStructureDeletionManager manager, IGuiPage.IGuiStructureDeletionListener listener)
     {
         return close ->
         {

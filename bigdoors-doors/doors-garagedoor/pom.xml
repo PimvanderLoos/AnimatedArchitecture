@@ -6,7 +6,7 @@
     <version>1</version>
 
     <properties>
-        <mainClass>nl.pim16aap2.bigdoors.movable.garagedoor.MovableGarageDoor</mainClass>
+        <mainClass>nl.pim16aap2.bigdoors.structures.garagedoor.StructureTypeGarageDoor</mainClass>
         <typeName>GarageDoor</typeName>
         <version>1</version>
     </properties>

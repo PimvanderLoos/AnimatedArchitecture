@@ -14,9 +14,9 @@ public interface IGuiFactory
      * @param inventoryHolder
      *     The player for whom to create the inventory.
      * @param source
-     *     The {@link IPPlayer} whose movables will be accessed.
+     *     The {@link IPPlayer} whose structures will be accessed.
      *     <p>
-     *     When this is null (default), the inventory holders own movables will be used.
+     *     When this is null (default), the inventory holders own structures will be used.
      */
     void newGUI(IPPlayer inventoryHolder, @Nullable IPPlayer source);
 

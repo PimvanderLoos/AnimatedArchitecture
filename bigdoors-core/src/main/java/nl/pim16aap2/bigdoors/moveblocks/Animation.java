@@ -5,8 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimation;
-import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
-import nl.pim16aap2.bigdoors.movabletypes.MovableType;
+import nl.pim16aap2.bigdoors.structures.StructureSnapshot;
+import nl.pim16aap2.bigdoors.structuretypes.StructureType;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 
 import java.util.Collections;
@@ -21,9 +21,9 @@ public class Animation<T extends IAnimatedBlock> implements IAnimation<T>
     @Getter
     private final List<T> animatedBlocks;
     @Getter
-    private final MovableSnapshot movableSnapshot;
+    private final StructureSnapshot structureSnapshot;
     @Getter
-    private final MovableType movableType;
+    private final StructureType structureType;
     @Setter(AccessLevel.PACKAGE)
     private volatile AnimationState state = AnimationState.PENDING;
     @Setter(AccessLevel.PACKAGE)
@@ -32,14 +32,15 @@ public class Animation<T extends IAnimatedBlock> implements IAnimation<T>
     private final AnimationType animationType;
 
     Animation(
-        int duration, Cuboid region, List<T> animatedBlocks, MovableSnapshot movableSnapshot, MovableType movableType,
+        int duration, Cuboid region, List<T> animatedBlocks, StructureSnapshot structureSnapshot,
+        StructureType structureType,
         AnimationType animationType)
     {
         this.duration = duration;
         this.region = region;
         this.animatedBlocks = Collections.unmodifiableList(animatedBlocks);
-        this.movableSnapshot = movableSnapshot;
-        this.movableType = movableType;
+        this.structureSnapshot = structureSnapshot;
+        this.structureType = structureType;
         this.animationType = animationType;
     }
 

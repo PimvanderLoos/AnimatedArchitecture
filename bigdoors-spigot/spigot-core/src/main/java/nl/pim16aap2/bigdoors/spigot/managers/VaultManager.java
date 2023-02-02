@@ -13,10 +13,10 @@ import nl.pim16aap2.bigdoors.api.IPermissionsManager;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.managers.MovableTypeManager;
-import nl.pim16aap2.bigdoors.movable.MovableAttribute;
-import nl.pim16aap2.bigdoors.movabletypes.MovableType;
+import nl.pim16aap2.bigdoors.managers.StructureTypeManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
+import nl.pim16aap2.bigdoors.structures.StructureAttribute;
+import nl.pim16aap2.bigdoors.structuretypes.StructureType;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.jcalculator.JCalculator;
@@ -45,7 +45,7 @@ import java.util.Set;
 @Flogger
 public final class VaultManager implements IRestartable, IEconomyManager, IPermissionsManager
 {
-    private final Map<MovableType, Double> flatPrices;
+    private final Map<StructureType, Double> flatPrices;
     private boolean economyEnabled = false;
     private boolean permissionsEnabled = false;
     private @Nullable Economy economy = null;
@@ -53,17 +53,17 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     private final ILocalizer localizer;
     private final ITextFactory textFactory;
     private final IConfigLoader configLoader;
-    private final MovableTypeManager movableTypeManager;
+    private final StructureTypeManager structureTypeManager;
 
     @Inject
     public VaultManager(
         ILocalizer localizer, ITextFactory textFactory, IConfigLoader configLoader,
-        MovableTypeManager movableTypeManager)
+        StructureTypeManager structureTypeManager)
     {
         this.localizer = localizer;
         this.textFactory = textFactory;
         this.configLoader = configLoader;
-        this.movableTypeManager = movableTypeManager;
+        this.structureTypeManager = structureTypeManager;
 
         flatPrices = new HashMap<>();
         if (isVaultInstalled())
@@ -74,7 +74,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     }
 
     @Override
-    public boolean buyMovable(IPPlayer player, IPWorld world, MovableType type, int blockCount)
+    public boolean buyStructure(IPPlayer player, IPWorld world, StructureType type, int blockCount)
     {
         if (!economyEnabled)
             return true;
@@ -110,13 +110,13 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     }
 
     /**
-     * Tries to get a flat price from the config for a {@link MovableType}. Useful in case the price is set to zero, so
-     * the plugin won't have to parse the formula every time if it is disabled.
+     * Tries to get a flat price from the config for a {@link StructureType}. Useful in case the price is set to zero,
+     * so the plugin won't have to parse the formula every time if it is disabled.
      *
      * @param type
-     *     The {@link MovableType}.
+     *     The {@link StructureType}.
      */
-    private void getFlatPrice(MovableType type)
+    private void getFlatPrice(StructureType type)
     {
         Util.parseDouble(configLoader.getPrice(type)).ifPresent(price -> flatPrices.put(type, price));
     }
@@ -141,8 +141,8 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
      * @param formula
      *     The formula of the price.
      * @param blockCount
-     *     The number of blocks in the movable.
-     * @return The price of the movable given the formula and the blockCount variable.
+     *     The number of blocks in the structure.
+     * @return The price of the structure given the formula and the blockCount variable.
      */
     private double evaluateFormula(String formula, int blockCount)
     {
@@ -153,14 +153,14 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         catch (Exception e)
         {
             log.atSevere().withCause(e)
-               .log("Failed to determine movable creation price! Please contact pim16aap2! "
+               .log("Failed to determine structure creation price! Please contact pim16aap2! "
                         + "Include this: '%s' and stacktrace:", formula);
             return 0.0d;
         }
     }
 
     @Override
-    public OptionalDouble getPrice(MovableType type, int blockCount)
+    public OptionalDouble getPrice(StructureType type, int blockCount)
     {
         if (!economyEnabled)
             return OptionalDouble.empty();
@@ -327,7 +327,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     @Override
     public void initialize()
     {
-        for (final MovableType type : movableTypeManager.getEnabledMovableTypes())
+        for (final StructureType type : structureTypeManager.getEnabledStructureTypes())
             getFlatPrice(type);
     }
 
@@ -376,7 +376,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     }
 
     @Override
-    public boolean hasBypassPermissionsForAttribute(IPPlayer player, MovableAttribute movableAttribute)
+    public boolean hasBypassPermissionsForAttribute(IPPlayer player, StructureAttribute structureAttribute)
     {
         final @Nullable Player bukkitPlayer = getBukkitPlayer(player);
         if (bukkitPlayer == null)
@@ -384,7 +384,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
 
         return bukkitPlayer.isOp() ||
             bukkitPlayer.hasPermission(
-                Constants.ATTRIBUTE_BYPASS_PERMISSION_PREFIX + movableAttribute.name().toLowerCase(Locale.ROOT));
+                Constants.ATTRIBUTE_BYPASS_PERMISSION_PREFIX + structureAttribute.name().toLowerCase(Locale.ROOT));
     }
 
     @Override

@@ -7,13 +7,13 @@ import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.managers.MovableSpecificationManager;
+import nl.pim16aap2.bigdoors.managers.StructureSpecificationManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Represents the cancel command, which cancels any processes waiting for user input (e.g. movable creation).
+ * Represents the cancel command, which cancels any processes waiting for user input (e.g. structure creation).
  *
  * @author Pim
  */
@@ -21,12 +21,12 @@ import java.util.concurrent.CompletableFuture;
 public class Cancel extends BaseCommand
 {
     private final ToolUserManager toolUserManager;
-    private final MovableSpecificationManager doorSpecificationManager;
+    private final StructureSpecificationManager doorSpecificationManager;
 
     @AssistedInject //
     Cancel(
         @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
-        ToolUserManager toolUserManager, MovableSpecificationManager doorSpecificationManager)
+        ToolUserManager toolUserManager, StructureSpecificationManager doorSpecificationManager)
     {
         super(commandSender, localizer, textFactory);
         this.toolUserManager = toolUserManager;

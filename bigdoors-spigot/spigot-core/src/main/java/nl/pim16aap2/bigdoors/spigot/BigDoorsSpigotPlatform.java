@@ -25,7 +25,7 @@ import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.audio.IAudioPlayer;
 import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.commands.IPServer;
-import nl.pim16aap2.bigdoors.extensions.MovableTypeLoader;
+import nl.pim16aap2.bigdoors.extensions.StructureTypeLoader;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.localization.LocalizationManager;
 import nl.pim16aap2.bigdoors.managers.AnimatedBlockHookManager;
@@ -33,12 +33,11 @@ import nl.pim16aap2.bigdoors.managers.AnimationHookManager;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
-import nl.pim16aap2.bigdoors.managers.MovableSpecificationManager;
-import nl.pim16aap2.bigdoors.managers.MovableTypeManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
+import nl.pim16aap2.bigdoors.managers.StructureSpecificationManager;
+import nl.pim16aap2.bigdoors.managers.StructureTypeManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
-import nl.pim16aap2.bigdoors.movable.MovableRegistry;
-import nl.pim16aap2.bigdoors.moveblocks.MovableActivityManager;
+import nl.pim16aap2.bigdoors.moveblocks.StructureActivityManager;
 import nl.pim16aap2.bigdoors.spigot.comands.CommandManager;
 import nl.pim16aap2.bigdoors.spigot.exceptions.InitializationException;
 import nl.pim16aap2.bigdoors.spigot.listeners.ChunkListener;
@@ -51,6 +50,7 @@ import nl.pim16aap2.bigdoors.spigot.managers.HeadManager;
 import nl.pim16aap2.bigdoors.spigot.managers.SubPlatformManager;
 import nl.pim16aap2.bigdoors.spigot.util.api.IBigDoorsSpigotSubPlatform;
 import nl.pim16aap2.bigdoors.storage.IStorage;
+import nl.pim16aap2.bigdoors.structures.StructureRegistry;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Singleton;
@@ -112,7 +112,7 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     private final IPServer pServer;
 
     @Getter
-    private final MovableRegistry doorRegistry;
+    private final StructureRegistry doorRegistry;
 
     @Getter
     private final IChunkLoader chunkLoader;
@@ -121,13 +121,13 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     private final DatabaseManager databaseManager;
 
     @Getter
-    private final MovableActivityManager doorActivityManager;
+    private final StructureActivityManager doorActivityManager;
 
     @Getter
-    private final MovableSpecificationManager doorSpecificationManager;
+    private final StructureSpecificationManager doorSpecificationManager;
 
     @Getter
-    private final MovableTypeManager doorTypeManager;
+    private final StructureTypeManager doorTypeManager;
 
     @Getter
     private final ToolUserManager toolUserManager;
@@ -169,7 +169,7 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     private final IRedstoneManager powerBlockRedstoneManager;
 
     @Getter
-    private final MovableTypeLoader doorTypeLoader;
+    private final StructureTypeLoader doorTypeLoader;
 
     @Getter
     private final LocalizationManager localizationManager;

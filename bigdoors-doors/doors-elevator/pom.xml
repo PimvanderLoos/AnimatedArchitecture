@@ -6,7 +6,7 @@
     <version>1</version>
 
     <properties>
-        <mainClass>nl.pim16aap2.bigdoors.movable.elevator.MovableTypeElevator</mainClass>
+        <mainClass>nl.pim16aap2.bigdoors.structures.elevator.StructureTypeElevator</mainClass>
         <typeName>Elevator</typeName>
         <version>1</version>
         <TypeDependencies>portcullis(1;1)</TypeDependencies>

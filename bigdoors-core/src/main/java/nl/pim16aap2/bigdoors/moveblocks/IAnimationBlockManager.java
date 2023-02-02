@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.moveblocks;
 
 import nl.pim16aap2.bigdoors.api.animatedblock.AnimationContext;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
-import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
+import nl.pim16aap2.bigdoors.structures.StructureSnapshot;
 
 import java.util.List;
 
@@ -20,7 +20,7 @@ public interface IAnimationBlockManager
      * Attempts to create and spawn the animated blocks for the given input.
      *
      * @param snapshot
-     *     The snapshot of the movable to create the animated blocks for.
+     *     The snapshot of the structure to create the animated blocks for.
      * @param animationComponent
      *     The animation component to use for retrieving additional information for the animated blocks.
      * @param animationContext
@@ -30,7 +30,7 @@ public interface IAnimationBlockManager
      * @return The result of the attempted creation of the animated blocks.
      */
     boolean createAnimatedBlocks(
-        MovableSnapshot snapshot, IAnimationComponent animationComponent, AnimationContext animationContext,
+        StructureSnapshot snapshot, IAnimationComponent animationComponent, AnimationContext animationContext,
         Animator.MovementMethod movementMethod);
 
     /**

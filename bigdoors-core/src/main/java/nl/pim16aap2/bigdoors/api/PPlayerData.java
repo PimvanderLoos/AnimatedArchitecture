@@ -18,22 +18,22 @@ public final class PPlayerData implements IPPlayerDataContainer
     private final String name;
 
     @Getter
-    private final int movableSizeLimit;
+    private final int structureSizeLimit;
 
     @Getter
-    private final int movableCountLimit;
+    private final int structureCountLimit;
 
     @Getter
     private final boolean isOp;
 
     private final boolean hasProtectionBypassPermission;
 
-    public PPlayerData(UUID uuid, String name, int movableSizeLimit, int movableCountLimit, long permissionsFlag)
+    public PPlayerData(UUID uuid, String name, int structureSizeLimit, int structureCountLimit, long permissionsFlag)
     {
         this.uuid = uuid;
         this.name = name;
-        this.movableSizeLimit = movableSizeLimit;
-        this.movableCountLimit = movableCountLimit;
+        this.structureSizeLimit = structureSizeLimit;
+        this.structureCountLimit = structureCountLimit;
         isOp = PermissionFlag.hasFlag(PermissionFlag.OP, permissionsFlag);
         hasProtectionBypassPermission = PermissionFlag.hasFlag(PermissionFlag.BYPASS, permissionsFlag);
     }

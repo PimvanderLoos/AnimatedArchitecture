@@ -21,10 +21,10 @@ import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.commands.CommandDefinition;
 import nl.pim16aap2.bigdoors.commands.ICommandSender;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.movable.PermissionLevel;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
+import nl.pim16aap2.bigdoors.structures.PermissionLevel;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
+import nl.pim16aap2.bigdoors.util.structureretriever.StructureRetrieverFactory;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,11 +43,11 @@ public final class CommandManager
     private final JavaPlugin plugin;
     private final ILocalizer localizer;
     private final ITextFactory textFactory;
-    private final MovableRetrieverFactory movableRetrieverFactory;
+    private final StructureRetrieverFactory structureRetrieverFactory;
     private volatile @Nullable BukkitCommandManager<ICommandSender> manager;
     private boolean asyncCompletions = false;
     private final BukkitAudiences bukkitAudiences;
-    private final MovableTypeParser movableTypeParser;
+    private final StructureTypeParser structureTypeParser;
     private final DirectionParser directionParser;
     private final IsOpenParser isOpenParser;
     private final CommandExecutor executor;
@@ -55,14 +55,14 @@ public final class CommandManager
     @Inject//
     CommandManager(
         JavaPlugin plugin, ILocalizer localizer, ITextFactory textFactory,
-        MovableRetrieverFactory movableRetrieverFactory, MovableTypeParser movableTypeParser,
+        StructureRetrieverFactory structureRetrieverFactory, StructureTypeParser structureTypeParser,
         DirectionParser directionParser, IsOpenParser isOpenParser, CommandExecutor executor)
     {
         this.plugin = plugin;
         this.localizer = localizer;
         this.textFactory = textFactory;
-        this.movableRetrieverFactory = movableRetrieverFactory;
-        this.movableTypeParser = movableTypeParser;
+        this.structureRetrieverFactory = structureRetrieverFactory;
+        this.structureTypeParser = structureTypeParser;
         this.directionParser = directionParser;
         this.bukkitAudiences = BukkitAudiences.create(plugin);
         this.isOpenParser = isOpenParser;
@@ -126,11 +126,11 @@ public final class CommandManager
         initCmdDelete(manager, builder);
         initCmdInfo(manager, builder);
         initCmdInspectPowerBlock(manager, builder);
-        initCmdListMovables(manager, builder);
+        initCmdListStructures(manager, builder);
         initCmdLock(manager, builder);
         initCmdMenu(manager, builder);
         initCmdMovePowerBlock(manager, builder);
-        initCmdNewMovable(manager, builder);
+        initCmdNewStructure(manager, builder);
         initCmdRemoveOwner(manager, builder);
         initCmdRestart(manager, builder);
         initCmdSetBlocksToMove(manager, builder);
@@ -138,7 +138,7 @@ public final class CommandManager
         initCmdSetOpenStatus(manager, builder);
         initCmdSetOpenDirection(manager, builder);
         initCmdSpecify(manager, builder);
-        initCmdStopMovables(manager, builder);
+        initCmdStopStructures(manager, builder);
         initCmdToggle(manager, builder);
         initCmdPreview(manager, builder);
         initCmdVersion(manager, builder);
@@ -188,7 +188,7 @@ public final class CommandManager
                               .defaultDescription(ArgumentDescription.of(
                                   localizer.getMessage("commands.add_owner.param.permission_level.description")))
                               .build())
-                .argument(defaultMovableArgument(false, PermissionLevel.ADMIN).build())
+                .argument(defaultStructureArgument(false, PermissionLevel.ADMIN).build())
                 .handler(executor::addOwner)
         );
     }
@@ -225,7 +225,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.DELETE, "commands.delete.description")
-                .argument(defaultMovableArgument(true, PermissionLevel.ADMIN).build())
+                .argument(defaultStructureArgument(true, PermissionLevel.ADMIN).build())
                 .handler(executor::delete)
         );
     }
@@ -235,7 +235,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.INFO, "commands.info.description")
-                .argument(defaultMovableArgument(true, PermissionLevel.USER).build())
+                .argument(defaultStructureArgument(true, PermissionLevel.USER).build())
                 .handler(executor::info)
         );
     }
@@ -249,13 +249,13 @@ public final class CommandManager
         );
     }
 
-    private void initCmdListMovables(
+    private void initCmdListStructures(
         BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
         manager.command(
-            baseInit(builder, CommandDefinition.LIST_MOVABLES, "commands.list_movables.description")
-                .argument(StringArgument.optional("movableName"))
-                .handler(executor::listMovables)
+            baseInit(builder, CommandDefinition.LIST_STRUCTURES, "commands.list_structures.description")
+                .argument(StringArgument.optional("structureName"))
+                .handler(executor::listStructures)
         );
     }
 
@@ -284,19 +284,19 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.MOVE_POWER_BLOCK, "commands.move_power_block.description")
-                .argument(defaultMovableArgument(true, PermissionLevel.ADMIN).build())
+                .argument(defaultStructureArgument(true, PermissionLevel.ADMIN).build())
                 .handler(executor::movePowerBlock)
         );
     }
 
-    private void initCmdNewMovable(
+    private void initCmdNewStructure(
         BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
         manager.command(
-            baseInit(builder, CommandDefinition.NEW_MOVABLE, "commands.new_movable.description")
-                .argument(defaultMovableTypeArgument(true).build())
-                .argument(StringArgument.<ICommandSender>builder("movableName").asOptional().build())
-                .handler(executor::newMovable)
+            baseInit(builder, CommandDefinition.NEW_STRUCTURE, "commands.new_structure.description")
+                .argument(defaultStructureTypeArgument(true).build())
+                .argument(StringArgument.<ICommandSender>builder("structureName").asOptional().build())
+                .handler(executor::newStructure)
         );
     }
 
@@ -305,7 +305,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.REMOVE_OWNER, "commands.remove_owner.description")
-                .argument(defaultMovableArgument(true, PermissionLevel.ADMIN).build())
+                .argument(defaultStructureArgument(true, PermissionLevel.ADMIN).build())
                 .argument(PlayerArgument.of("targetPlayer"))
                 .handler(executor::removeOwner)
         );
@@ -326,7 +326,7 @@ public final class CommandManager
         manager.command(
             baseInit(builder, CommandDefinition.SET_BLOCKS_TO_MOVE, "commands.set_blocks_to_move.description")
                 .argument(IntegerArgument.of("blocksToMove"))
-                .argument(defaultMovableArgument(false, PermissionLevel.ADMIN).build())
+                .argument(defaultStructureArgument(false, PermissionLevel.ADMIN).build())
                 .handler(executor::setBlocksToMove)
         );
     }
@@ -347,7 +347,7 @@ public final class CommandManager
         manager.command(
             baseInit(builder, CommandDefinition.SET_OPEN_STATUS, "commands.set_open_status.description")
                 .argument(defaultOpenStatusArgument(true).build())
-                .argument(defaultMovableArgument(false, PermissionLevel.ADMIN).build())
+                .argument(defaultStructureArgument(false, PermissionLevel.ADMIN).build())
                 .handler(executor::setOpenStatus)
         );
     }
@@ -358,7 +358,7 @@ public final class CommandManager
         manager.command(
             baseInit(builder, CommandDefinition.SET_OPEN_DIRECTION, "commands.set_open_direction.description")
                 .argument(defaultDirectionArgument(true).build())
-                .argument(defaultMovableArgument(false, PermissionLevel.ADMIN).build())
+                .argument(defaultStructureArgument(false, PermissionLevel.ADMIN).build())
                 .handler(executor::setOpenDirection)
         );
     }
@@ -372,12 +372,12 @@ public final class CommandManager
         );
     }
 
-    private void initCmdStopMovables(
+    private void initCmdStopStructures(
         BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
         manager.command(
-            baseInit(builder, CommandDefinition.STOP_MOVABLES, "commands.stop_movables.description")
-                .handler(executor::stopMovables)
+            baseInit(builder, CommandDefinition.STOP_STRUCTURES, "commands.stop_structures.description")
+                .handler(executor::stopStructures)
         );
     }
 
@@ -386,7 +386,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.TOGGLE, "commands.toggle.description")
-                .argument(defaultMovableArgument(true, PermissionLevel.USER).build())
+                .argument(defaultStructureArgument(true, PermissionLevel.USER).build())
                 .handler(executor::toggle)
         );
     }
@@ -401,7 +401,7 @@ public final class CommandManager
 
         manager.command(
             baseInit(builder, previewDefinition, "commands.preview.description")
-                .argument(defaultMovableArgument(true, PermissionLevel.USER).build())
+                .argument(defaultStructureArgument(true, PermissionLevel.USER).build())
                 .handler(executor::preview)
         );
     }
@@ -415,12 +415,12 @@ public final class CommandManager
         );
     }
 
-    private MovableArgument.MovableArgumentBuilder defaultMovableArgument(
+    private StructureArgument.StructureArgumentBuilder defaultStructureArgument(
         boolean required, PermissionLevel maxPermission)
     {
-        return MovableArgument.builder().required(required).name("movableRetriever")
-                              .asyncSuggestions(asyncCompletions)
-                              .movableRetrieverFactory(movableRetrieverFactory).maxPermission(maxPermission);
+        return StructureArgument.builder().required(required).name("structureRetriever")
+                                .asyncSuggestions(asyncCompletions)
+                                .structureRetrieverFactory(structureRetrieverFactory).maxPermission(maxPermission);
     }
 
     private IsOpenArgument.IsOpenArgumentBuilder defaultOpenStatusArgument(boolean required)
@@ -433,9 +433,9 @@ public final class CommandManager
         return DirectionArgument.builder().required(required).name("direction").parser(directionParser);
     }
 
-    private MovableTypeArgument.MovableTypeArgumentBuilder defaultMovableTypeArgument(boolean required)
+    private StructureTypeArgument.StructureTypeArgumentBuilder defaultStructureTypeArgument(boolean required)
     {
-        return MovableTypeArgument.builder().required(required).name("movableType").parser(movableTypeParser);
+        return StructureTypeArgument.builder().required(required).name("structureType").parser(structureTypeParser);
     }
 
     private static void registerBrigadier(BukkitCommandManager<ICommandSender> manager)

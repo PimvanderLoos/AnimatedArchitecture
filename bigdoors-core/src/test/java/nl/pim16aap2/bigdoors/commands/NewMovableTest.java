@@ -5,7 +5,7 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
-import nl.pim16aap2.bigdoors.movabletypes.MovableType;
+import nl.pim16aap2.bigdoors.structuretypes.StructureType;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.util.Constants;
 import org.junit.jupiter.api.Assertions;
@@ -22,19 +22,19 @@ import java.util.concurrent.TimeUnit;
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initCommandSenderPermissions;
 
 @Timeout(1)
-class NewMovableTest
+class NewStructureTest
 {
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private IPPlayer commandSender;
 
     @Mock
-    private MovableType doorType;
+    private StructureType doorType;
 
     @Mock
     private ToolUserManager toolUserManager;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
-    private NewMovable.IFactory factory;
+    private NewStructure.IFactory factory;
 
     @Mock
     javax.inject.Provider<Creator.Context> creatorContextProvider;
@@ -48,13 +48,13 @@ class NewMovableTest
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
-        Mockito.when(factory.newNewMovable(Mockito.any(ICommandSender.class), Mockito.any(MovableType.class),
-                                           Mockito.any()))
-               .thenAnswer(invoc -> new NewMovable(invoc.getArgument(0, ICommandSender.class), localizer,
-                                                   ITextFactory.getSimpleTextFactory(),
-                                                   invoc.getArgument(1, MovableType.class),
-                                                   invoc.getArgument(2, String.class),
-                                                   toolUserManager, creatorContextProvider));
+        Mockito.when(factory.newNewStructure(Mockito.any(ICommandSender.class), Mockito.any(StructureType.class),
+                                             Mockito.any()))
+               .thenAnswer(invoc -> new NewStructure(invoc.getArgument(0, ICommandSender.class), localizer,
+                                                     ITextFactory.getSimpleTextFactory(),
+                                                     invoc.getArgument(1, StructureType.class),
+                                                     invoc.getArgument(2, String.class),
+                                                     toolUserManager, creatorContextProvider));
     }
 
     @Test
@@ -62,7 +62,7 @@ class NewMovableTest
     {
         final IPServer server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
         Assertions.assertDoesNotThrow(
-            () -> factory.newNewMovable(server, doorType, null).run().get(1, TimeUnit.SECONDS));
+            () -> factory.newNewStructure(server, doorType, null).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(toolUserManager, Mockito.never()).startToolUser(Mockito.any(), Mockito.anyInt());
     }
 
@@ -78,11 +78,11 @@ class NewMovableTest
                .thenAnswer(inv -> name.equals(inv.getArgument(2, String.class)) ? namedCreator : unnamedCreator);
 
         Assertions.assertDoesNotThrow(
-            () -> factory.newNewMovable(commandSender, doorType).run().get(1, TimeUnit.SECONDS));
-        Mockito.verify(toolUserManager).startToolUser(unnamedCreator, Constants.MOVABLE_CREATOR_TIME_LIMIT);
+            () -> factory.newNewStructure(commandSender, doorType).run().get(1, TimeUnit.SECONDS));
+        Mockito.verify(toolUserManager).startToolUser(unnamedCreator, Constants.STRUCTURE_CREATOR_TIME_LIMIT);
 
         Assertions.assertDoesNotThrow(
-            () -> factory.newNewMovable(commandSender, doorType, name).run().get(1, TimeUnit.SECONDS));
-        Mockito.verify(toolUserManager).startToolUser(namedCreator, Constants.MOVABLE_CREATOR_TIME_LIMIT);
+            () -> factory.newNewStructure(commandSender, doorType, name).run().get(1, TimeUnit.SECONDS));
+        Mockito.verify(toolUserManager).startToolUser(namedCreator, Constants.STRUCTURE_CREATOR_TIME_LIMIT);
     }
 }

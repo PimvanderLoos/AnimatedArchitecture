@@ -4,7 +4,7 @@ import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.managers.MovableSpecificationManager;
+import nl.pim16aap2.bigdoors.managers.StructureSpecificationManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,7 +27,7 @@ class CancelTest
     private IPPlayer commandSender;
 
     @Mock
-    private MovableSpecificationManager doorSpecificationManager;
+    private StructureSpecificationManager doorSpecificationManager;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private Cancel.IFactory factory;

@@ -11,12 +11,12 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
-import nl.pim16aap2.bigdoors.managers.MovableSpecificationManager;
-import nl.pim16aap2.bigdoors.managers.MovableTypeManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
+import nl.pim16aap2.bigdoors.managers.StructureSpecificationManager;
+import nl.pim16aap2.bigdoors.managers.StructureTypeManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
-import nl.pim16aap2.bigdoors.movable.MovableRegistry;
-import nl.pim16aap2.bigdoors.moveblocks.MovableActivityManager;
+import nl.pim16aap2.bigdoors.moveblocks.StructureActivityManager;
+import nl.pim16aap2.bigdoors.structures.StructureRegistry;
 
 /**
  * Represents a set of getter methods to get access to the internals of BigDoors.
@@ -142,11 +142,11 @@ public interface IBigDoorsPlatform
     IPServer getPServer();
 
     /**
-     * Gets the {@link MovableRegistry}.
+     * Gets the {@link StructureRegistry}.
      *
-     * @return The {@link MovableRegistry}.
+     * @return The {@link StructureRegistry}.
      */
-    MovableRegistry getDoorRegistry();
+    StructureRegistry getDoorRegistry();
 
     /**
      * @return The instance of the {@link IConfigLoader} for this platform.
@@ -161,25 +161,25 @@ public interface IBigDoorsPlatform
     DatabaseManager getDatabaseManager();
 
     /**
-     * Gets the {@link MovableActivityManager} instance.
+     * Gets the {@link StructureActivityManager} instance.
      *
-     * @return The {@link MovableActivityManager} instance.
+     * @return The {@link StructureActivityManager} instance.
      */
-    MovableActivityManager getDoorActivityManager();
+    StructureActivityManager getDoorActivityManager();
 
     /**
-     * Gets the {@link MovableSpecificationManager} instance.
+     * Gets the {@link StructureSpecificationManager} instance.
      *
-     * @return The {@link MovableSpecificationManager} instance.
+     * @return The {@link StructureSpecificationManager} instance.
      */
-    MovableSpecificationManager getDoorSpecificationManager();
+    StructureSpecificationManager getDoorSpecificationManager();
 
     /**
-     * Gets the {@link MovableTypeManager} instance.
+     * Gets the {@link StructureTypeManager} instance.
      *
-     * @return The {@link MovableTypeManager} instance.
+     * @return The {@link StructureTypeManager} instance.
      */
-    MovableTypeManager getDoorTypeManager();
+    StructureTypeManager getDoorTypeManager();
 
     /**
      * Gets the {@link ToolUserManager} instance.

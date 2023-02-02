@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
+import nl.pim16aap2.bigdoors.util.structureretriever.StructureRetriever;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -23,13 +23,13 @@ public class SetOpenStatusDelayed extends DelayedCommand<Boolean>
 
     @Override
     protected CompletableFuture<?> delayedInputExecutor(
-        ICommandSender commandSender, MovableRetriever movableRetriever, Boolean isOpen)
+        ICommandSender commandSender, StructureRetriever structureRetriever, Boolean isOpen)
     {
-        return commandFactory.get().newSetOpenStatus(commandSender, movableRetriever, isOpen).run();
+        return commandFactory.get().newSetOpenStatus(commandSender, structureRetriever, isOpen).run();
     }
 
     @Override
-    protected String inputRequestMessage(ICommandSender commandSender, MovableRetriever movableRetriever)
+    protected String inputRequestMessage(ICommandSender commandSender, StructureRetriever structureRetriever)
     {
         return localizer.getMessage("commands.set_open_status.delayed.init");
     }

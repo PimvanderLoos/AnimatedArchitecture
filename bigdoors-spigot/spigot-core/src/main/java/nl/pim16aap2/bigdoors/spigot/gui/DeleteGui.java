@@ -9,10 +9,10 @@ import lombok.Getter;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsPlugin;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PPlayerSpigot;
-import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
+import nl.pim16aap2.bigdoors.structures.AbstractStructure;
+import nl.pim16aap2.bigdoors.util.structureretriever.StructureRetrieverFactory;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -24,11 +24,11 @@ class DeleteGui implements IGuiPage
     private final BigDoorsPlugin bigDoorsPlugin;
     private final ILocalizer localizer;
     private final CommandFactory commandFactory;
-    private final MovableRetrieverFactory movableRetrieverFactory;
+    private final StructureRetrieverFactory structureRetrieverFactory;
     private final InventoryGui inventoryGui;
 
     @ToString.Include
-    private final AbstractMovable movable;
+    private final AbstractStructure structure;
 
     @Getter
     @ToString.Include
@@ -37,14 +37,14 @@ class DeleteGui implements IGuiPage
     @AssistedInject //
     DeleteGui(
         BigDoorsPlugin bigDoorsPlugin, ILocalizer localizer, CommandFactory commandFactory,
-        MovableRetrieverFactory movableRetrieverFactory,
-        @Assisted AbstractMovable movable, @Assisted PPlayerSpigot inventoryHolder)
+        StructureRetrieverFactory structureRetrieverFactory,
+        @Assisted AbstractStructure structure, @Assisted PPlayerSpigot inventoryHolder)
     {
         this.bigDoorsPlugin = bigDoorsPlugin;
         this.localizer = localizer;
         this.commandFactory = commandFactory;
-        this.movableRetrieverFactory = movableRetrieverFactory;
-        this.movable = movable;
+        this.structureRetrieverFactory = structureRetrieverFactory;
+        this.structure = structure;
         this.inventoryHolder = inventoryHolder;
 
         this.inventoryGui = createGUI();
@@ -71,8 +71,8 @@ class DeleteGui implements IGuiPage
             new InventoryGui(bigDoorsPlugin,
                              inventoryHolder.getBukkitPlayer(),
                              localizer.getMessage("gui.delete_page.title",
-                                                  localizer.getMessage(movable.getType().getLocalizationKey()),
-                                                  movable.getNameAndUid()),
+                                                  localizer.getMessage(structure.getType().getLocalizationKey()),
+                                                  structure.getNameAndUid()),
                              guiSetup);
         gui.setFiller(FILLER);
 
@@ -92,19 +92,19 @@ class DeleteGui implements IGuiPage
                 return true;
             },
             localizer.getMessage("gui.delete_page.cancel",
-                                 localizer.getMessage(movable.getType().getLocalizationKey()))
+                                 localizer.getMessage(structure.getType().getLocalizationKey()))
         ));
         gui.addElement(new StaticGuiElement(
             'd',
             new ItemStack(Material.BARRIER),
             click ->
             {
-                commandFactory.newDelete(inventoryHolder, movableRetrieverFactory.of(movable)).run();
+                commandFactory.newDelete(inventoryHolder, structureRetrieverFactory.of(structure)).run();
                 GuiUtil.closeGuiPage(gui, inventoryHolder);
                 return true;
             },
             localizer.getMessage("gui.delete_page.confirm",
-                                 localizer.getMessage(movable.getType().getLocalizationKey()))
+                                 localizer.getMessage(structure.getType().getLocalizationKey()))
         ));
     }
 
@@ -117,6 +117,6 @@ class DeleteGui implements IGuiPage
     @AssistedFactory
     interface IFactory
     {
-        DeleteGui newDeleteGui(AbstractMovable movable, PPlayerSpigot playerSpigot);
+        DeleteGui newDeleteGui(AbstractStructure structure, PPlayerSpigot playerSpigot);
     }
 }

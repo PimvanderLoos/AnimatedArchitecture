@@ -4,10 +4,10 @@ import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
+import nl.pim16aap2.bigdoors.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.util.MovementDirection;
-import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
-import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
+import nl.pim16aap2.bigdoors.util.structureretriever.StructureRetriever;
+import nl.pim16aap2.bigdoors.util.structureretriever.StructureRetrieverFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,13 +52,13 @@ class SetOpenDirectionDelayedTest
     @Mock
     ICommandSender commandSender;
 
-    MovableRetriever movableRetriever;
+    StructureRetriever structureRetriever;
 
     @Mock
-    AbstractMovable movable;
+    AbstractStructure structure;
 
     @InjectMocks
-    MovableRetrieverFactory movableRetrieverFactory;
+    StructureRetrieverFactory structureRetrieverFactory;
 
     @Mock
     SetOpenDirection setOpenDirection;
@@ -72,7 +72,7 @@ class SetOpenDirectionDelayedTest
 
         initInputRequestFactory(inputRequestFactory, localizer, delayedCommandInputManager);
 
-        movableRetriever = movableRetrieverFactory.of(movable);
+        structureRetriever = structureRetrieverFactory.of(structure);
 
         Mockito.when(setOpenDirection.run()).thenReturn(CompletableFuture.completedFuture(null));
 
@@ -93,7 +93,7 @@ class SetOpenDirectionDelayedTest
         final SetOpenDirectionDelayed setOpenDirectionDelayed =
             new SetOpenDirectionDelayed(context, inputRequestFactory);
 
-        final CompletableFuture<?> result0 = setOpenDirectionDelayed.runDelayed(commandSender, movableRetriever);
+        final CompletableFuture<?> result0 = setOpenDirectionDelayed.runDelayed(commandSender, structureRetriever);
         final CompletableFuture<?> result1 =
             setOpenDirectionDelayed.provideDelayedInput(commandSender, MovementDirection.UP);
 
@@ -101,6 +101,6 @@ class SetOpenDirectionDelayedTest
         Assertions.assertDoesNotThrow(() -> result1.get(1, TimeUnit.SECONDS));
 
         Mockito.verify(commandFactory, Mockito.times(1))
-               .newSetOpenDirection(commandSender, movableRetriever, MovementDirection.UP);
+               .newSetOpenDirection(commandSender, structureRetriever, MovementDirection.UP);
     }
 }

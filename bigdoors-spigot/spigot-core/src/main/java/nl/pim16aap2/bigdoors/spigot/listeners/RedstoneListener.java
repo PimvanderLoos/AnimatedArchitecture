@@ -58,11 +58,11 @@ public class RedstoneListener extends AbstractListener
         powerBlockTypes.clear();
     }
 
-    private void checkMovables(PLocationSpigot loc, boolean isPowered)
+    private void checkStructures(PLocationSpigot loc, boolean isPowered)
     {
         powerBlockManager
-            .movablesFromPowerBlockLoc(loc)
-            .thenAccept(movables -> movables.forEach(movable -> movable.onRedstoneChange(isPowered)))
+            .structuresFromPowerBlockLoc(loc)
+            .thenAccept(structures -> structures.forEach(structure -> structure.onRedstoneChange(isPowered)))
             .exceptionally(Util::exceptionally);
     }
 
@@ -86,22 +86,22 @@ public class RedstoneListener extends AbstractListener
             final int z = location.getBlockZ();
 
             if (powerBlockTypes.contains(world.getBlockAt(x, y, z - 1).getType())) // North
-                checkMovables(new PLocationSpigot(world, x, y, z - 1.0), isPowered);
+                checkStructures(new PLocationSpigot(world, x, y, z - 1.0), isPowered);
 
             if (powerBlockTypes.contains(world.getBlockAt(x + 1, y, z).getType())) // East
-                checkMovables(new PLocationSpigot(world, x + 1.0, y, z), isPowered);
+                checkStructures(new PLocationSpigot(world, x + 1.0, y, z), isPowered);
 
             if (powerBlockTypes.contains(world.getBlockAt(x, y, z + 1).getType())) // South
-                checkMovables(new PLocationSpigot(world, x, y, z + 1.0), isPowered);
+                checkStructures(new PLocationSpigot(world, x, y, z + 1.0), isPowered);
 
             if (powerBlockTypes.contains(world.getBlockAt(x - 1, y, z).getType())) // West
-                checkMovables(new PLocationSpigot(world, x - 1.0, y, z), isPowered);
+                checkStructures(new PLocationSpigot(world, x - 1.0, y, z), isPowered);
 
             if (powerBlockTypes.contains(world.getBlockAt(x, y + 1, z).getType())) // Above
-                checkMovables(new PLocationSpigot(world, x, y + 1.0, z), isPowered);
+                checkStructures(new PLocationSpigot(world, x, y + 1.0, z), isPowered);
 
             if (powerBlockTypes.contains(world.getBlockAt(x, y - 1, z).getType())) // Under
-                checkMovables(new PLocationSpigot(world, x, y - 1.0, z), isPowered);
+                checkStructures(new PLocationSpigot(world, x, y - 1.0, z), isPowered);
         }
         catch (Exception e)
         {
@@ -110,8 +110,8 @@ public class RedstoneListener extends AbstractListener
     }
 
     /**
-     * Listens to redstone changes and checks if there are any movables attached to it. Any movables that are found are
-     * then toggled, if possible.
+     * Listens to redstone changes and checks if there are any structures attached to it. Any structures that are found
+     * are then toggled, if possible.
      *
      * @param event
      *     The {@link BlockRedstoneEvent}.

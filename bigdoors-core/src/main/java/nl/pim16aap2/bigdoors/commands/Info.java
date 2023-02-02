@@ -10,35 +10,35 @@ import nl.pim16aap2.bigdoors.api.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableAttribute;
+import nl.pim16aap2.bigdoors.structures.AbstractStructure;
+import nl.pim16aap2.bigdoors.structures.StructureAttribute;
 import nl.pim16aap2.bigdoors.text.Text;
 import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
-import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
+import nl.pim16aap2.bigdoors.util.structureretriever.StructureRetriever;
+import nl.pim16aap2.bigdoors.util.structureretriever.StructureRetrieverFactory;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Represents the information command that provides the issuer with more information about the movable.
+ * Represents the information command that provides the issuer with more information about the structure.
  *
  * @author Pim
  */
 @ToString
 @Flogger
-public class Info extends MovableTargetCommand
+public class Info extends StructureTargetCommand
 {
     private final GlowingBlockSpawner glowingBlockSpawner;
 
     @AssistedInject //
     Info(
         @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
-        @Assisted MovableRetriever movableRetriever, GlowingBlockSpawner glowingBlockSpawner)
+        @Assisted StructureRetriever structureRetriever, GlowingBlockSpawner glowingBlockSpawner)
     {
-        super(commandSender, localizer, textFactory, movableRetriever, MovableAttribute.INFO);
+        super(commandSender, localizer, textFactory, structureRetriever, StructureAttribute.INFO);
         this.glowingBlockSpawner = glowingBlockSpawner;
     }
 
@@ -49,24 +49,24 @@ public class Info extends MovableTargetCommand
     }
 
     @Override
-    protected CompletableFuture<?> performAction(AbstractMovable movable)
+    protected CompletableFuture<?> performAction(AbstractStructure structure)
     {
-        sendInfoMessage(movable);
-        highlightBlocks(movable);
+        sendInfoMessage(structure);
+        highlightBlocks(structure);
         return CompletableFuture.completedFuture(null);
     }
 
-    protected void sendInfoMessage(AbstractMovable movable)
+    protected void sendInfoMessage(AbstractStructure structure)
     {
-        final Cuboid cuboid = movable.getCuboid();
+        final Cuboid cuboid = structure.getCuboid();
         final Vector3Di min = cuboid.getMin();
         final Vector3Di max = cuboid.getMax();
 
         final Text output = textFactory.newText();
 
         // TODO: Localization
-        output.append(localizer.getMovableType(movable.getType()), TextType.HIGHLIGHT)
-              .append(" '", TextType.INFO).append(movable.getNameAndUid(), TextType.HIGHLIGHT)
+        output.append(localizer.getStructureType(structure.getType()), TextType.HIGHLIGHT)
+              .append(" '", TextType.INFO).append(structure.getNameAndUid(), TextType.HIGHLIGHT)
               .append("' at [", TextType.INFO)
               .append(String.format("%d %d %d", min.x(), min.y(), min.z()), TextType.HIGHLIGHT)
               .append(" ; ", TextType.INFO)
@@ -74,28 +74,28 @@ public class Info extends MovableTargetCommand
               .append("]\n", TextType.INFO)
 
               .append("It is currently ", TextType.INFO)
-              .append(localizer.getMessage(movable.isOpen() ?
+              .append(localizer.getMessage(structure.isOpen() ?
                                            "constants.open_status.open" : "constants.open_status.closed"))
               .append('\n')
 
               .append("Its open direction is: ", TextType.INFO).append("counter-clockwise\n", TextType.HIGHLIGHT)
 
               .append("It is ", TextType.INFO)
-              .append(localizer.getMessage(movable.isLocked() ?
+              .append(localizer.getMessage(structure.isLocked() ?
                                            "constants.locked_status.locked" : "constants.locked_status.unlocked"));
 
 
         getCommandSender().sendMessage(output);
     }
 
-    protected void highlightBlocks(AbstractMovable movable)
+    protected void highlightBlocks(AbstractStructure structure)
     {
         if (!(getCommandSender() instanceof IPPlayer player))
         {
             log.atSevere().withStackTrace(StackSize.FULL).log("Non-player command sender tried to highlight blocks!");
             return;
         }
-        glowingBlockSpawner.spawnGlowingBlocks(movable, player, Duration.ofSeconds(3));
+        glowingBlockSpawner.spawnGlowingBlocks(structure, player, Duration.ofSeconds(3));
     }
 
     @AssistedFactory
@@ -105,13 +105,13 @@ public class Info extends MovableTargetCommand
          * Creates (but does not execute!) a new {@link Info} command.
          *
          * @param commandSender
-         *     The {@link ICommandSender} responsible for retrieving the movable info and the receiver of the movable's
-         *     information.
-         * @param movableRetriever
-         *     A {@link MovableRetrieverFactory} representing the {@link AbstractMovable} for which the information will
-         *     be retrieved.
+         *     The {@link ICommandSender} responsible for retrieving the structure info and the receiver of the
+         *     structure's information.
+         * @param structureRetriever
+         *     A {@link StructureRetrieverFactory} representing the {@link AbstractStructure} for which the information
+         *     will be retrieved.
          * @return See {@link BaseCommand#run()}.
          */
-        Info newInfo(ICommandSender commandSender, MovableRetriever movableRetriever);
+        Info newInfo(ICommandSender commandSender, StructureRetriever structureRetriever);
     }
 }

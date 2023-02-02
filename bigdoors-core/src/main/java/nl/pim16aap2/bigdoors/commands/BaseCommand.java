@@ -6,11 +6,11 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableAttribute;
+import nl.pim16aap2.bigdoors.structures.AbstractStructure;
+import nl.pim16aap2.bigdoors.structures.StructureAttribute;
 import nl.pim16aap2.bigdoors.text.TextType;
-import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
-import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
+import nl.pim16aap2.bigdoors.util.structureretriever.StructureRetriever;
+import nl.pim16aap2.bigdoors.util.structureretriever.StructureRetrieverFactory;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -64,18 +64,18 @@ public abstract class BaseCommand
     }
 
     /**
-     * Checks if the {@link #commandSender} has access to a given {@link MovableAttribute} for a given movable.
+     * Checks if the {@link #commandSender} has access to a given {@link StructureAttribute} for a given structure.
      *
      * @param door
-     *     The movable to check.
+     *     The structure to check.
      * @param doorAttribute
-     *     The {@link MovableAttribute} to check.
+     *     The {@link StructureAttribute} to check.
      * @param hasBypassPermission
      *     Whether the {@link #commandSender} has bypass permission or not.
-     * @return True if the command sender has access to the provided attribute for the given movable.
+     * @return True if the command sender has access to the provided attribute for the given structure.
      */
     protected boolean hasAccessToAttribute(
-        AbstractMovable door, MovableAttribute doorAttribute, boolean hasBypassPermission)
+        AbstractStructure door, StructureAttribute doorAttribute, boolean hasBypassPermission)
     {
         if (hasBypassPermission || !commandSender.isPlayer())
             return true;
@@ -196,26 +196,26 @@ public abstract class BaseCommand
     }
 
     /**
-     * Attempts to get an {@link AbstractMovable} based on the provided {@link MovableRetrieverFactory} and the current
-     * {@link ICommandSender}.
+     * Attempts to get an {@link AbstractStructure} based on the provided {@link StructureRetrieverFactory} and the
+     * current {@link ICommandSender}.
      * <p>
-     * If no movable is found, the {@link ICommandSender} will be informed.
+     * If no structure is found, the {@link ICommandSender} will be informed.
      *
      * @param doorRetriever
-     *     The {@link MovableRetrieverFactory} to use
-     * @return The {@link AbstractMovable} if one could be retrieved.
+     *     The {@link StructureRetrieverFactory} to use
+     * @return The {@link AbstractStructure} if one could be retrieved.
      */
-    protected CompletableFuture<Optional<AbstractMovable>> getMovable(MovableRetriever doorRetriever)
+    protected CompletableFuture<Optional<AbstractStructure>> getStructure(StructureRetriever doorRetriever)
     {
-        return commandSender.getPlayer().map(doorRetriever::getMovableInteractive)
-                            .orElseGet(doorRetriever::getMovable).thenApplyAsync(
-                movable ->
+        return commandSender.getPlayer().map(doorRetriever::getStructureInteractive)
+                            .orElseGet(doorRetriever::getStructure).thenApplyAsync(
+                structure ->
                 {
-                    log.atFine().log("Retrieved movable %s for command: %s", movable, this);
-                    if (movable.isPresent())
-                        return movable;
+                    log.atFine().log("Retrieved structure %s for command: %s", structure, this);
+                    if (structure.isPresent())
+                        return structure;
                     commandSender.sendMessage(textFactory, TextType.ERROR,
-                                              localizer.getMessage("commands.base.error.cannot_find_target_movable"));
+                                              localizer.getMessage("commands.base.error.cannot_find_target_structure"));
                     return Optional.empty();
                 });
     }

@@ -5,9 +5,9 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
-import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
+import nl.pim16aap2.bigdoors.structures.AbstractStructure;
+import nl.pim16aap2.bigdoors.util.structureretriever.StructureRetriever;
+import nl.pim16aap2.bigdoors.util.structureretriever.StructureRetrieverFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,13 +52,13 @@ class RemoveOwnerDelayedTest
     @Mock
     ICommandSender commandSender;
 
-    MovableRetriever movableRetriever;
+    StructureRetriever structureRetriever;
 
     @Mock
-    AbstractMovable movable;
+    AbstractStructure structure;
 
     @InjectMocks
-    MovableRetrieverFactory movableRetrieverFactory;
+    StructureRetrieverFactory structureRetrieverFactory;
 
     @Mock
     RemoveOwner removeOwner;
@@ -75,7 +75,7 @@ class RemoveOwnerDelayedTest
 
         initInputRequestFactory(inputRequestFactory, localizer, delayedCommandInputManager);
 
-        movableRetriever = movableRetrieverFactory.of(movable);
+        structureRetriever = structureRetrieverFactory.of(structure);
 
         Mockito.when(removeOwner.run()).thenReturn(CompletableFuture.completedFuture(null));
 
@@ -95,12 +95,13 @@ class RemoveOwnerDelayedTest
     {
         final RemoveOwnerDelayed removeOwnerDelayed = new RemoveOwnerDelayed(context, inputRequestFactory);
 
-        final CompletableFuture<?> result0 = removeOwnerDelayed.runDelayed(commandSender, movableRetriever);
+        final CompletableFuture<?> result0 = removeOwnerDelayed.runDelayed(commandSender, structureRetriever);
         final CompletableFuture<?> result1 = removeOwnerDelayed.provideDelayedInput(commandSender, targetPlayer);
 
         Assertions.assertDoesNotThrow(() -> result0.get(1, TimeUnit.SECONDS));
         Assertions.assertDoesNotThrow(() -> result1.get(1, TimeUnit.SECONDS));
 
-        Mockito.verify(commandFactory, Mockito.times(1)).newRemoveOwner(commandSender, movableRetriever, targetPlayer);
+        Mockito.verify(commandFactory, Mockito.times(1))
+               .newRemoveOwner(commandSender, structureRetriever, targetPlayer);
     }
 }

@@ -13,21 +13,21 @@ import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.localization.LocalizationManager;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
-import nl.pim16aap2.bigdoors.managers.MovableDeletionManager;
-import nl.pim16aap2.bigdoors.managers.MovableTypeManager;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableBaseBuilder;
-import nl.pim16aap2.bigdoors.movable.MovableOwner;
-import nl.pim16aap2.bigdoors.movable.MovableRegistry;
-import nl.pim16aap2.bigdoors.movable.MovableSerializer;
-import nl.pim16aap2.bigdoors.movable.PermissionLevel;
-import nl.pim16aap2.bigdoors.movable.bigdoor.BigDoor;
-import nl.pim16aap2.bigdoors.movable.bigdoor.MovableBigDoor;
-import nl.pim16aap2.bigdoors.movable.drawbridge.Drawbridge;
-import nl.pim16aap2.bigdoors.movable.drawbridge.MovableTypeDrawbridge;
-import nl.pim16aap2.bigdoors.movable.portcullis.MovableTypePortcullis;
-import nl.pim16aap2.bigdoors.movable.portcullis.Portcullis;
+import nl.pim16aap2.bigdoors.managers.StructureDeletionManager;
+import nl.pim16aap2.bigdoors.managers.StructureTypeManager;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
+import nl.pim16aap2.bigdoors.structures.AbstractStructure;
+import nl.pim16aap2.bigdoors.structures.PermissionLevel;
+import nl.pim16aap2.bigdoors.structures.StructureBaseBuilder;
+import nl.pim16aap2.bigdoors.structures.StructureOwner;
+import nl.pim16aap2.bigdoors.structures.StructureRegistry;
+import nl.pim16aap2.bigdoors.structures.StructureSerializer;
+import nl.pim16aap2.bigdoors.structures.bigdoor.BigDoor;
+import nl.pim16aap2.bigdoors.structures.bigdoor.StructureTypeBigDoor;
+import nl.pim16aap2.bigdoors.structures.drawbridge.Drawbridge;
+import nl.pim16aap2.bigdoors.structures.drawbridge.StructureTypeDrawbridge;
+import nl.pim16aap2.bigdoors.structures.portcullis.Portcullis;
+import nl.pim16aap2.bigdoors.structures.portcullis.StructureTypePortcullis;
 import nl.pim16aap2.bigdoors.testimplementations.TestPWorld;
 import nl.pim16aap2.bigdoors.testimplementations.TestPWorldFactory;
 import nl.pim16aap2.bigdoors.util.MovementDirection;
@@ -53,22 +53,22 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static nl.pim16aap2.bigdoors.UnitTestUtil.newMovableBaseBuilder;
+import static nl.pim16aap2.bigdoors.UnitTestUtil.newStructureBaseBuilder;
 
 @Flogger
 public class SQLiteJDBCDriverConnectionTest
 {
     /**
-     * Name of movable 1.
+     * Name of structure 1.
      */
-    private static final String MOVABLE_1_NAME = "random_door_name";
+    private static final String STRUCTURE_1_NAME = "random_door_name";
 
     /**
-     * Name of movables 2 and 3.
+     * Name of structures 2 and 3.
      */
-    private static final String MOVABLES_2_3_NAME = "popular_door_name";
+    private static final String STRUCTURES_2_3_NAME = "popular_door_name";
 
-    private static final String DELETE_MOVABLE_NAME = "delete_meh";
+    private static final String DELETE_STRUCTURE_NAME = "delete_meh";
 
     private static final String WORLD_NAME = "TestWorld";
 
@@ -90,9 +90,9 @@ public class SQLiteJDBCDriverConnectionTest
 
     private SQLiteJDBCDriverConnection storage;
 
-    private AbstractMovable movable1;
-    private AbstractMovable movable2;
-    private AbstractMovable movable3;
+    private AbstractStructure structure1;
+    private AbstractStructure structure2;
+    private AbstractStructure structure3;
 
     static
     {
@@ -103,11 +103,11 @@ public class SQLiteJDBCDriverConnectionTest
 
     private IPWorldFactory worldFactory;
 
-    private MovableTypeManager movableTypeManager;
+    private StructureTypeManager structureTypeManager;
 
-    private MovableBaseBuilder movableBaseBuilder;
+    private StructureBaseBuilder structureBaseBuilder;
 
-    private MovableRegistry movableRegistry;
+    private StructureRegistry structureRegistry;
 
     @Mock
     private RestartableHolder restartableHolder;
@@ -125,16 +125,16 @@ public class SQLiteJDBCDriverConnectionTest
         MockitoAnnotations.openMocks(this);
 
         worldFactory = new TestPWorldFactory();
-        movableRegistry = MovableRegistry.unCached(
-            restartableHolder, debuggableRegistry, Mockito.mock(MovableDeletionManager.class));
+        structureRegistry = StructureRegistry.unCached(
+            restartableHolder, debuggableRegistry, Mockito.mock(StructureDeletionManager.class));
 
-        movableTypeManager = new MovableTypeManager(restartableHolder, debuggableRegistry, localizationManager);
+        structureTypeManager = new StructureTypeManager(restartableHolder, debuggableRegistry, localizationManager);
 
-        final var builderResult = newMovableBaseBuilder();
-        builderResult.assistedFactoryMocker().setMock(MovableRegistry.class, movableRegistry);
-        movableBaseBuilder = builderResult.movableBaseBuilder();
+        final var builderResult = newStructureBaseBuilder();
+        builderResult.assistedFactoryMocker().setMock(StructureRegistry.class, structureRegistry);
+        structureBaseBuilder = builderResult.structureBaseBuilder();
 
-        initMovables();
+        initStructures();
 
         initStorage();
     }
@@ -182,26 +182,26 @@ public class SQLiteJDBCDriverConnectionTest
         }
     }
 
-    private void deleteMovableTypes()
+    private void deleteStructureTypes()
     {
         // Just make sure it still exists, to make debugging easier.
-        Assertions.assertTrue(storage.getMovable(3L).isPresent());
-        Assertions.assertTrue(storage.deleteMovableType(MovableTypePortcullis.get()));
-        Assertions.assertTrue(storage.getMovable(1L).isPresent());
-        Assertions.assertTrue(storage.getMovable(2L).isPresent());
-        Assertions.assertFalse(storage.getMovable(3L).isPresent());
+        Assertions.assertTrue(storage.getStructure(3L).isPresent());
+        Assertions.assertTrue(storage.deleteStructureType(StructureTypePortcullis.get()));
+        Assertions.assertTrue(storage.getStructure(1L).isPresent());
+        Assertions.assertTrue(storage.getStructure(2L).isPresent());
+        Assertions.assertFalse(storage.getStructure(3L).isPresent());
     }
 
-    private void testMovableTypes()
+    private void testStructureTypes()
     {
-        deleteMovableTypes();
+        deleteStructureTypes();
     }
 
-    private void registerMovableTypes()
+    private void registerStructureTypes()
     {
-        movableTypeManager.registerMovableType(MovableBigDoor.get());
-        movableTypeManager.registerMovableType(MovableTypePortcullis.get());
-        movableTypeManager.registerMovableType(MovableTypeDrawbridge.get());
+        structureTypeManager.registerStructureType(StructureTypeBigDoor.get());
+        structureTypeManager.registerStructureType(StructureTypePortcullis.get());
+        structureTypeManager.registerStructureType(StructureTypeDrawbridge.get());
     }
 
     /**
@@ -211,95 +211,95 @@ public class SQLiteJDBCDriverConnectionTest
     void runTests()
         throws IllegalAccessException, NoSuchFieldException
     {
-        registerMovableTypes();
-        insertMovables();
-        verifyMovables();
+        registerStructureTypes();
+        insertStructures();
+        verifyStructures();
         partialIdentifiersFromName();
         auxiliaryMethods();
-        modifyMovables();
+        modifyStructures();
 
-        testMovableTypes();
+        testStructureTypes();
         failures();
 
-        insertBulkMovables();
+        insertBulkStructures();
         partialIdentifiersFromId();
     }
 
-    private void insertBulkMovables()
+    private void insertBulkStructures()
     {
         for (int idx = 0; idx < 10; ++idx)
-            Assertions.assertTrue(storage.insert(movable3).isPresent());
+            Assertions.assertTrue(storage.insert(structure3).isPresent());
     }
 
     /**
-     * Tests inserting movables in the database.
+     * Tests inserting structures in the database.
      */
-    public void insertMovables()
+    public void insertStructures()
     {
-        Assertions.assertTrue(storage.insert(movable1).isPresent());
-        Assertions.assertTrue(storage.insert(movable2).isPresent());
-        Assertions.assertTrue(storage.insert(movable3).isPresent());
+        Assertions.assertTrue(storage.insert(structure1).isPresent());
+        Assertions.assertTrue(storage.insert(structure2).isPresent());
+        Assertions.assertTrue(storage.insert(structure3).isPresent());
     }
 
     /**
-     * Checks if a movable was successfully added to the database and that all data in intact.
+     * Checks if a structure was successfully added to the database and that all data in intact.
      *
-     * @param movable
-     *     The movable to verify.
+     * @param structure
+     *     The structure to verify.
      */
-    private void testRetrieval(AbstractMovable movable)
+    private void testRetrieval(AbstractStructure structure)
     {
         Assertions.assertNotNull(storage);
-        Assertions.assertNotNull(movable);
-        Assertions.assertNotNull(movable.getPrimeOwner().toString());
-        Assertions.assertNotNull(movable.getName());
+        Assertions.assertNotNull(structure);
+        Assertions.assertNotNull(structure.getPrimeOwner().toString());
+        Assertions.assertNotNull(structure.getName());
 
-        List<AbstractMovable> test = storage.getMovables(movable.getPrimeOwner().pPlayerData().getUUID(),
-                                                         movable.getName());
+        List<AbstractStructure> test = storage.getStructures(structure.getPrimeOwner().pPlayerData().getUUID(),
+                                                             structure.getName());
         Assertions.assertEquals(1, test.size());
 
-        Assertions.assertEquals(movable.getPrimeOwner(), test.get(0).getPrimeOwner());
+        Assertions.assertEquals(structure.getPrimeOwner(), test.get(0).getPrimeOwner());
 
-        if (!movable.equals(test.get(0)))
+        if (!structure.equals(test.get(0)))
             Assertions.fail(
-                "Data of retrieved movable is not the same! ID = " + movable.getUid() + ", name = " +
-                    movable.getName() +
+                "Data of retrieved structure is not the same! ID = " + structure.getUid() + ", name = " +
+                    structure.getName() +
                     ", found ID = " + test.get(0).getUid() + ", found name = " + test.get(0).getName());
     }
 
     /**
-     * Verifies that the data of all movables that have been added to the database so far is correct.
+     * Verifies that the data of all structures that have been added to the database so far is correct.
      */
-    public void verifyMovables()
+    public void verifyStructures()
     {
-        testRetrieval(movable1);
-        testRetrieval(movable2);
-        testRetrieval(movable3);
+        testRetrieval(structure1);
+        testRetrieval(structure2);
+        testRetrieval(structure3);
     }
 
     public void partialIdentifiersFromName()
     {
-        Assertions.assertEquals(List.of(new DatabaseManager.MovableIdentifier(2, "popular_door_name"),
-                                        new DatabaseManager.MovableIdentifier(3, "popular_door_name")),
+        Assertions.assertEquals(List.of(new DatabaseManager.StructureIdentifier(2, "popular_door_name"),
+                                        new DatabaseManager.StructureIdentifier(3, "popular_door_name")),
                                 storage.getPartialIdentifiers("popular_", null, PermissionLevel.NO_PERMISSION));
 
         final IPPlayer player1 = createPlayer(PLAYER_DATA_1);
-        Assertions.assertEquals(List.of(new DatabaseManager.MovableIdentifier(2, "popular_door_name")),
+        Assertions.assertEquals(List.of(new DatabaseManager.StructureIdentifier(2, "popular_door_name")),
                                 storage.getPartialIdentifiers("popular_", player1, PermissionLevel.NO_PERMISSION));
     }
 
     public void partialIdentifiersFromId()
     {
-        Assertions.assertEquals(List.of(new DatabaseManager.MovableIdentifier(1, "random_door_name"),
-                                        new DatabaseManager.MovableIdentifier(15, "popular_door_name"),
-                                        new DatabaseManager.MovableIdentifier(16, "popular_door_name"),
-                                        new DatabaseManager.MovableIdentifier(17, "popular_door_name"),
-                                        new DatabaseManager.MovableIdentifier(18, "popular_door_name"),
-                                        new DatabaseManager.MovableIdentifier(19, "popular_door_name")),
+        Assertions.assertEquals(List.of(new DatabaseManager.StructureIdentifier(1, "random_door_name"),
+                                        new DatabaseManager.StructureIdentifier(15, "popular_door_name"),
+                                        new DatabaseManager.StructureIdentifier(16, "popular_door_name"),
+                                        new DatabaseManager.StructureIdentifier(17, "popular_door_name"),
+                                        new DatabaseManager.StructureIdentifier(18, "popular_door_name"),
+                                        new DatabaseManager.StructureIdentifier(19, "popular_door_name")),
                                 storage.getPartialIdentifiers("1", null, PermissionLevel.NO_PERMISSION));
 
         final IPPlayer player1 = createPlayer(PLAYER_DATA_1);
-        Assertions.assertEquals(List.of(new DatabaseManager.MovableIdentifier(1, "random_door_name")),
+        Assertions.assertEquals(List.of(new DatabaseManager.StructureIdentifier(1, "random_door_name")),
                                 storage.getPartialIdentifiers("1", player1, PermissionLevel.NO_PERMISSION));
     }
 
@@ -309,133 +309,136 @@ public class SQLiteJDBCDriverConnectionTest
     public void auxiliaryMethods()
     {
         // Check simple methods.
-        Assertions.assertEquals(1, storage.getMovableCountForPlayer(PLAYER_DATA_1.getUUID(), MOVABLE_1_NAME));
-        Assertions.assertEquals(2, storage.getMovableCountForPlayer(PLAYER_DATA_1.getUUID()));
-        Assertions.assertEquals(1, storage.getMovableCountForPlayer(PLAYER_DATA_2.getUUID()));
-        Assertions.assertEquals(1, storage.getMovableCountByName(MOVABLE_1_NAME));
-        Assertions.assertTrue(storage.getMovable(PLAYER_DATA_1.getUUID(), 1).isPresent());
-        Assertions.assertEquals(movable1, storage.getMovable(PLAYER_DATA_1.getUUID(), 1).get());
-        Assertions.assertFalse(storage.getMovable(PLAYER_DATA_1.getUUID(), 3).isPresent());
-        final Optional<AbstractMovable> testMovable1 = storage.getMovable(1L);
-        Assertions.assertTrue(testMovable1.isPresent());
-        Assertions.assertEquals(movable1.getPrimeOwner(), testMovable1.get().getPrimeOwner());
-        Assertions.assertEquals(movable1, testMovable1.get());
-        Assertions.assertFalse(storage.getMovable(9999999).isPresent());
+        Assertions.assertEquals(1, storage.getStructureCountForPlayer(PLAYER_DATA_1.getUUID(), STRUCTURE_1_NAME));
+        Assertions.assertEquals(2, storage.getStructureCountForPlayer(PLAYER_DATA_1.getUUID()));
+        Assertions.assertEquals(1, storage.getStructureCountForPlayer(PLAYER_DATA_2.getUUID()));
+        Assertions.assertEquals(1, storage.getStructureCountByName(STRUCTURE_1_NAME));
+        Assertions.assertTrue(storage.getStructure(PLAYER_DATA_1.getUUID(), 1).isPresent());
+        Assertions.assertEquals(structure1, storage.getStructure(PLAYER_DATA_1.getUUID(), 1).get());
+        Assertions.assertFalse(storage.getStructure(PLAYER_DATA_1.getUUID(), 3).isPresent());
+        final Optional<AbstractStructure> testStructure1 = storage.getStructure(1L);
+        Assertions.assertTrue(testStructure1.isPresent());
+        Assertions.assertEquals(structure1.getPrimeOwner(), testStructure1.get().getPrimeOwner());
+        Assertions.assertEquals(structure1, testStructure1.get());
+        Assertions.assertFalse(storage.getStructure(9999999).isPresent());
         Assertions.assertTrue(storage.isBigDoorsWorld(WORLD_NAME));
         Assertions.assertFalse(storage.isBigDoorsWorld("fakeWorld"));
 
-        Assertions.assertEquals(1, storage.getOwnerCountOfMovable(1L));
+        Assertions.assertEquals(1, storage.getOwnerCountOfStructure(1L));
 
-        long chunkId = Util.getChunkId(movable1.getPowerBlock());
-        Assertions.assertEquals(3, storage.getMovablesInChunk(chunkId).size());
+        long chunkId = Util.getChunkId(structure1.getPowerBlock());
+        Assertions.assertEquals(3, storage.getStructuresInChunk(chunkId).size());
 
         // Check if adding owners works correctly.
-        UnitTestUtil.optionalEquals(1, storage.getMovable(1L), (movable) -> movable.getOwners().size());
+        UnitTestUtil.optionalEquals(1, storage.getStructure(1L), (structure) -> structure.getOwners().size());
 
-        // Try adding playerData2 as owner of movable 2.
+        // Try adding playerData2 as owner of structure 2.
         Assertions.assertTrue(storage.addOwner(2L, PLAYER_DATA_2, PermissionLevel.ADMIN));
 
-        // Try adding player 1 as owner of movable 2, while player 1 is already the creator! This is not allowed.
+        // Try adding player 1 as owner of structure 2, while player 1 is already the creator! This is not allowed.
         Assertions.assertFalse(storage.addOwner(2L, PLAYER_DATA_1, PermissionLevel.CREATOR));
 
-        // Try adding player 2 as owner of movable 2, while player 1 is already the creator! This is not allowed.
+        // Try adding player 2 as owner of structure 2, while player 1 is already the creator! This is not allowed.
         Assertions.assertFalse(storage.addOwner(2L, PLAYER_DATA_2, PermissionLevel.CREATOR));
 
         // Try adding a player that is not in the database yet as owner.
-        UnitTestUtil.optionalEquals(1, storage.getMovable(1L), (movable) -> movable.getOwners().size());
+        UnitTestUtil.optionalEquals(1, storage.getStructure(1L), (structure) -> structure.getOwners().size());
         Assertions.assertTrue(storage.addOwner(1L, PLAYER_DATA_3, PermissionLevel.ADMIN));
-        UnitTestUtil.optionalEquals(2, storage.getMovable(1L), (movable) -> movable.getOwners().size());
+        UnitTestUtil.optionalEquals(2, storage.getStructure(1L), (structure) -> structure.getOwners().size());
 
-        // Verify the permission level of player 2 over movable 2.
-        UnitTestUtil.optionalEquals(PermissionLevel.ADMIN, storage.getMovable(2L),
-                                    (movable) -> movable.getOwner(PLAYER_DATA_2.getUUID())
-                                                        .map(MovableOwner::permission)
-                                                        .orElse(PermissionLevel.NO_PERMISSION));
-        // Verify there are only 2 owners of movable 2 (player 1 didn't get copied).
-        UnitTestUtil.optionalEquals(2, storage.getMovable(2L), (movable) -> movable.getOwners().size());
+        // Verify the permission level of player 2 over structure 2.
+        UnitTestUtil.optionalEquals(PermissionLevel.ADMIN, storage.getStructure(2L),
+                                    (structure) -> structure.getOwner(PLAYER_DATA_2.getUUID())
+                                                            .map(StructureOwner::permission)
+                                                            .orElse(PermissionLevel.NO_PERMISSION));
+        // Verify there are only 2 owners of structure 2 (player 1 didn't get copied).
+        UnitTestUtil.optionalEquals(2, storage.getStructure(2L), (structure) -> structure.getOwners().size());
 
-        // Verify that player 2 is the creator of exactly 1 movable.
-        Assertions.assertEquals(1, storage.getMovables(PLAYER_DATA_2.getUUID(), PermissionLevel.CREATOR).size());
+        // Verify that player 2 is the creator of exactly 1 structure.
+        Assertions.assertEquals(1, storage.getStructures(PLAYER_DATA_2.getUUID(), PermissionLevel.CREATOR).size());
 
-        // Verify that player 2 is owner with permission level <= 1 of exactly 2 movables (movable 3 (0) and movable 2 (1)).
-        Assertions.assertEquals(2, storage.getMovables(PLAYER_DATA_2.getUUID(), PermissionLevel.ADMIN).size());
+        // Verify that player 2 is owner with permission level <= 1 of exactly 2 structures (structure 3 (0) and structure 2 (1)).
+        Assertions.assertEquals(2, storage.getStructures(PLAYER_DATA_2.getUUID(), PermissionLevel.ADMIN).size());
 
-        // Verify that player 2 is owner with permission level <= 1 of exactly 2 movables,
-        // with the name shared between movables 2 and 3.
+        // Verify that player 2 is owner with permission level <= 1 of exactly 2 structures,
+        // with the name shared between structures 2 and 3.
         Assertions.assertEquals(2,
-                                storage.getMovables(PLAYER_DATA_2.getUUID(), MOVABLES_2_3_NAME, PermissionLevel.ADMIN)
+                                storage.getStructures(PLAYER_DATA_2.getUUID(), STRUCTURES_2_3_NAME,
+                                                      PermissionLevel.ADMIN)
                                        .size());
 
-        // Verify that player 2 is owner with permission level <= 1 of exactly 1 movable,
-        // with the name shared between movables 2 and 3.
+        // Verify that player 2 is owner with permission level <= 1 of exactly 1 structure,
+        // with the name shared between structures 2 and 3.
         Assertions.assertEquals(1,
-                                storage.getMovables(PLAYER_DATA_2.getUUID(), MOVABLES_2_3_NAME, PermissionLevel.CREATOR)
+                                storage.getStructures(PLAYER_DATA_2.getUUID(), STRUCTURES_2_3_NAME,
+                                                      PermissionLevel.CREATOR)
                                        .size());
 
         // Verify that adding an existing owner overrides the permission level.
         Assertions.assertTrue(storage.addOwner(2L, PLAYER_DATA_2, PermissionLevel.USER));
-        UnitTestUtil.optionalEquals(PermissionLevel.USER, storage.getMovable(2L),
-                                    (movable) -> movable.getOwner(PLAYER_DATA_2.getUUID())
-                                                        .map(MovableOwner::permission)
-                                                        .orElse(PermissionLevel.NO_PERMISSION));
+        UnitTestUtil.optionalEquals(PermissionLevel.USER, storage.getStructure(2L),
+                                    (structure) -> structure.getOwner(PLAYER_DATA_2.getUUID())
+                                                            .map(StructureOwner::permission)
+                                                            .orElse(PermissionLevel.NO_PERMISSION));
 
-        // Remove player 2 as owner of movable 2.
+        // Remove player 2 as owner of structure 2.
         Assertions.assertTrue(storage.removeOwner(2L, PLAYER_DATA_2.getUUID()));
-        UnitTestUtil.optionalEquals(1, storage.getMovable(2L), (movable) -> movable.getOwners().size());
+        UnitTestUtil.optionalEquals(1, storage.getStructure(2L), (structure) -> structure.getOwners().size());
 
-        // Try to remove player 1 (creator) of movable 2. This is not allowed.
+        // Try to remove player 1 (creator) of structure 2. This is not allowed.
         Assertions.assertFalse(storage.removeOwner(2L, PLAYER_DATA_1.getUUID()));
-        UnitTestUtil.optionalEquals(1, storage.getMovable(2L), (movable) -> movable.getOwners().size());
+        UnitTestUtil.optionalEquals(1, storage.getStructure(2L), (structure) -> structure.getOwners().size());
 
         // Verify that after deletion of player 2 as owner, player 2 is now owner with permission level <= 1
-        // of exactly 1 movable, with the name shared between movables 2 and 3. This will be movable 3.
+        // of exactly 1 structure, with the name shared between structures 2 and 3. This will be structure 3.
         Assertions.assertEquals(1,
-                                storage.getMovables(PLAYER_DATA_2.getUUID(), MOVABLES_2_3_NAME, PermissionLevel.ADMIN)
+                                storage.getStructures(PLAYER_DATA_2.getUUID(), STRUCTURES_2_3_NAME,
+                                                      PermissionLevel.ADMIN)
                                        .size());
 
-        // Verify that player 1 is owner of exactly 1 movable with the name shared between movables 2 and 3.
-        Assertions.assertEquals(1, storage.getMovables(PLAYER_DATA_1.getUUID(), MOVABLES_2_3_NAME).size());
+        // Verify that player 1 is owner of exactly 1 structure with the name shared between structures 2 and 3.
+        Assertions.assertEquals(1, storage.getStructures(PLAYER_DATA_1.getUUID(), STRUCTURES_2_3_NAME).size());
 
-        // Verify that player 1 owns exactly 2 movables.
-        Assertions.assertEquals(2, storage.getMovables(PLAYER_DATA_1.getUUID()).size());
+        // Verify that player 1 owns exactly 2 structures.
+        Assertions.assertEquals(2, storage.getStructures(PLAYER_DATA_1.getUUID()).size());
 
-        // Verify that there are exactly 2 movables with the name shared between movables 2 and 3 in the database.
-        Assertions.assertEquals(2, storage.getMovables(MOVABLES_2_3_NAME).size());
+        // Verify that there are exactly 2 structures with the name shared between structures 2 and 3 in the database.
+        Assertions.assertEquals(2, storage.getStructures(STRUCTURES_2_3_NAME).size());
 
-        // Insert a copy of movable 1 in the database (will have movableUID = 4).
-        Assertions.assertTrue(storage.insert(movable1).isPresent());
+        // Insert a copy of structure 1 in the database (will have structureUID = 4).
+        Assertions.assertTrue(storage.insert(structure1).isPresent());
 
-        // Verify there are now exactly 2 movables with the name of movable 1 in the database.
-        Assertions.assertEquals(2, storage.getMovables(MOVABLE_1_NAME).size());
+        // Verify there are now exactly 2 structures with the name of structure 1 in the database.
+        Assertions.assertEquals(2, storage.getStructures(STRUCTURE_1_NAME).size());
 
-        // Remove the just-added copy of movable 1 (movableUID = 4) from the database.
-        Assertions.assertTrue(storage.removeMovable(4L));
+        // Remove the just-added copy of structure 1 (structureUID = 4) from the database.
+        Assertions.assertTrue(storage.removeStructure(4L));
 
-        // Verify that after removal of the copy of movable 1 (movableUID = 4), there is now exactly 1 movable named
-        // MOVABLE_1_NAME in the database again.
-        Assertions.assertEquals(1, storage.getMovables(MOVABLE_1_NAME).size());
+        // Verify that after removal of the copy of structure 1 (structureUID = 4), there is now exactly 1 structure named
+        // STRUCTURE_1_NAME in the database again.
+        Assertions.assertEquals(1, storage.getStructures(STRUCTURE_1_NAME).size());
 
-        // Verify that player 2 cannot delete movables they do not own (movable 1 belongs to player 1).
+        // Verify that player 2 cannot delete structures they do not own (structure 1 belongs to player 1).
         Assertions.assertFalse(storage.removeOwner(1L, PLAYER_DATA_2.getUUID()));
-        Assertions.assertEquals(1, storage.getMovables(MOVABLE_1_NAME).size());
+        Assertions.assertEquals(1, storage.getStructures(STRUCTURE_1_NAME).size());
 
-        // Add 10 copies of movable3 with a different name to the database.
-        movable3.setName(DELETE_MOVABLE_NAME);
-        // Verify there are currently exactly 0 movables with this different name in the database.
-        Assertions.assertEquals(0, storage.getMovables(DELETE_MOVABLE_NAME).size());
+        // Add 10 copies of structure3 with a different name to the database.
+        structure3.setName(DELETE_STRUCTURE_NAME);
+        // Verify there are currently exactly 0 structures with this different name in the database.
+        Assertions.assertEquals(0, storage.getStructures(DELETE_STRUCTURE_NAME).size());
 
         for (int idx = 0; idx < 10; ++idx)
-            Assertions.assertTrue(storage.insert(movable3).isPresent());
+            Assertions.assertTrue(storage.insert(structure3).isPresent());
 
-        // Verify there are now exactly 10 movables with this different name in the database.
-        Assertions.assertEquals(10, storage.getMovables(DELETE_MOVABLE_NAME).size());
+        // Verify there are now exactly 10 structures with this different name in the database.
+        Assertions.assertEquals(10, storage.getStructures(DELETE_STRUCTURE_NAME).size());
 
-        // Remove all 10 movables we just added (owned by player 2) and verify there are exactly 0 entries of the movable with
-        // the new name after batch removal. Also revert the name change of movable 3.
-        Assertions.assertTrue(storage.removeMovables(PLAYER_DATA_2.getUUID(), DELETE_MOVABLE_NAME));
-        Assertions.assertEquals(0, storage.getMovables(DELETE_MOVABLE_NAME).size());
-        Assertions.assertTrue(storage.getMovable(3L).isPresent());
-        movable3.setName(storage.getMovable(3L).get().getName());
+        // Remove all 10 structures we just added (owned by player 2) and verify there are exactly 0 entries of the structure with
+        // the new name after batch removal. Also revert the name change of structure 3.
+        Assertions.assertTrue(storage.removeStructures(PLAYER_DATA_2.getUUID(), DELETE_STRUCTURE_NAME));
+        Assertions.assertEquals(0, storage.getStructures(DELETE_STRUCTURE_NAME).size());
+        Assertions.assertTrue(storage.getStructure(3L).isPresent());
+        structure3.setName(storage.getStructure(3L).get().getName());
 
 
         // Make sure the player name corresponds to the correct UUID.
@@ -459,7 +462,7 @@ public class SQLiteJDBCDriverConnectionTest
         // Revert name change of player 2.
         Assertions.assertTrue(storage.updatePlayerData(PLAYER_DATA_2));
 
-        chunkId = Util.getChunkId(movable1.getPowerBlock());
+        chunkId = Util.getChunkId(structure1.getPowerBlock());
         final Int2ObjectMap<LongList> powerBlockData = storage.getPowerBlockData(chunkId);
         Assertions.assertNotNull(powerBlockData);
         final List<List<Long>> entries = new ArrayList<>(powerBlockData.values());
@@ -468,58 +471,58 @@ public class SQLiteJDBCDriverConnectionTest
     }
 
     /**
-     * Runs tests of the methods that modify movables in the database.
+     * Runs tests of the methods that modify structures in the database.
      */
-    public void modifyMovables()
+    public void modifyStructures()
     {
-        MovableSerializer<?> serializer =
-            Assertions.assertDoesNotThrow(() -> new MovableSerializer<>(movable3.getType().getMovableClass()));
+        StructureSerializer<?> serializer =
+            Assertions.assertDoesNotThrow(() -> new StructureSerializer<>(structure3.getType().getStructureClass()));
         Assertions.assertNotNull(serializer);
 
         // Test (un)locking (i.e. syncing base data).
         {
-            movable3.setLocked(true);
-            Assertions.assertTrue(storage.syncMovableData(movable3.getSnapshot(), Assertions
-                .assertDoesNotThrow(() -> serializer.serialize(movable3))));
-            UnitTestUtil.optionalEquals(true, storage.getMovable(3L), AbstractMovable::isLocked);
+            structure3.setLocked(true);
+            Assertions.assertTrue(storage.syncStructureData(structure3.getSnapshot(), Assertions
+                .assertDoesNotThrow(() -> serializer.serialize(structure3))));
+            UnitTestUtil.optionalEquals(true, storage.getStructure(3L), AbstractStructure::isLocked);
 
-            movable3.setLocked(false);
-            Assertions.assertTrue(storage.syncMovableData(movable3.getSnapshot(), Assertions
-                .assertDoesNotThrow(() -> serializer.serialize(movable3))));
-            UnitTestUtil.optionalEquals(false, storage.getMovable(3L), AbstractMovable::isLocked);
+            structure3.setLocked(false);
+            Assertions.assertTrue(storage.syncStructureData(structure3.getSnapshot(), Assertions
+                .assertDoesNotThrow(() -> serializer.serialize(structure3))));
+            UnitTestUtil.optionalEquals(false, storage.getStructure(3L), AbstractStructure::isLocked);
         }
 
         // Test syncing all data.
         {
-            Portcullis pc = ((Portcullis) movable3);
+            Portcullis pc = ((Portcullis) structure3);
 
             // Save the current data
-            final MovementDirection oldDir = movable3.getOpenDir();
+            final MovementDirection oldDir = structure3.getOpenDir();
             final MovementDirection newDir = MovementDirection.getOpposite(oldDir);
             Assertions.assertNotSame(oldDir, newDir);
 
-            final Vector3Di oldPowerBlock = movable3.getPowerBlock();
+            final Vector3Di oldPowerBlock = structure3.getPowerBlock();
             final Vector3Di newPowerBlock = new Vector3Di(oldPowerBlock.x(),
                                                           (oldPowerBlock.x() + 30) % 256,
                                                           oldPowerBlock.z());
 
-            final Vector3Di oldMin = movable3.getMinimum();
-            final Vector3Di oldMax = movable3.getMaximum();
+            final Vector3Di oldMin = structure3.getMinimum();
+            final Vector3Di oldMax = structure3.getMaximum();
             final Vector3Di newMin = oldMin.add(0, 20, 10);
             final Vector3Di newMax = oldMax.add(40, 0, 20);
             Assertions.assertNotSame(oldMin, newMin);
             Assertions.assertNotSame(oldMax, newMax);
 
-            final boolean isLocked = movable3.isLocked();
-            final boolean isOpen = movable3.isOpen();
+            final boolean isLocked = structure3.isLocked();
+            final boolean isOpen = structure3.isOpen();
 
 
             // update some general data.
-            movable3.setLocked(!isLocked);
-            movable3.setOpen(!isOpen);
-            movable3.setPowerBlock(newPowerBlock);
-            movable3.setCoordinates(newMin, newMax);
-            movable3.setOpenDir(newDir);
+            structure3.setLocked(!isLocked);
+            structure3.setOpen(!isOpen);
+            structure3.setPowerBlock(newPowerBlock);
+            structure3.setCoordinates(newMin, newMax);
+            structure3.setOpenDir(newDir);
 
 
             // Update some type-specific data
@@ -528,10 +531,10 @@ public class SQLiteJDBCDriverConnectionTest
             Assertions.assertNotSame(0, blocksToMove);
             pc.setBlocksToMove(newBlocksToMove);
 
-            Assertions.assertTrue(storage.syncMovableData(movable3.getSnapshot(), Assertions
-                .assertDoesNotThrow(() -> serializer.serialize(movable3))));
+            Assertions.assertTrue(storage.syncStructureData(structure3.getSnapshot(), Assertions
+                .assertDoesNotThrow(() -> serializer.serialize(structure3))));
 
-            Optional<AbstractMovable> retrievedOpt = storage.getMovable(3L);
+            Optional<AbstractStructure> retrievedOpt = storage.getStructure(3L);
             Assertions.assertTrue(retrievedOpt.isPresent());
             Portcullis retrieved = (Portcullis) retrievedOpt.get();
 
@@ -548,17 +551,17 @@ public class SQLiteJDBCDriverConnectionTest
 
 
             // reset base data
-            movable3.setLocked(isLocked);
-            movable3.setOpen(isOpen);
-            movable3.setPowerBlock(oldPowerBlock);
-            movable3.setCoordinates(oldMin, oldMax);
-            movable3.setOpenDir(oldDir);
+            structure3.setLocked(isLocked);
+            structure3.setOpen(isOpen);
+            structure3.setPowerBlock(oldPowerBlock);
+            structure3.setCoordinates(oldMin, oldMax);
+            structure3.setOpenDir(oldDir);
 
             // Reset type-specific data
             pc.setBlocksToMove(blocksToMove);
 
-            Assertions.assertTrue(storage.syncMovableData(movable3.getSnapshot(), Assertions
-                .assertDoesNotThrow(() -> serializer.serialize(movable3))));
+            Assertions.assertTrue(storage.syncStructureData(structure3.getSnapshot(), Assertions
+                .assertDoesNotThrow(() -> serializer.serialize(structure3))));
         }
     }
 
@@ -573,12 +576,12 @@ public class SQLiteJDBCDriverConnectionTest
         databaseLock.setAccessible(true);
         databaseLock.set(storage, IStorage.DatabaseState.ERROR);
 
-        AssertionsUtil.assertThrowablesLogged(() -> storage.getMovable(PLAYER_DATA_1.getUUID(), 1L),
+        AssertionsUtil.assertThrowablesLogged(() -> storage.getStructure(PLAYER_DATA_1.getUUID(), 1L),
                                               LogSiteStackTrace.class);
 
-        // Set the database state to enabled again and verify that it's now possible to retrieve movables again.
+        // Set the database state to enabled again and verify that it's now possible to retrieve structures again.
         databaseLock.set(storage, IStorage.DatabaseState.OK);
-        Assertions.assertTrue(storage.getMovable(PLAYER_DATA_1.getUUID(), 1L).isPresent());
+        Assertions.assertTrue(storage.getStructure(PLAYER_DATA_1.getUUID(), 1L).isPresent());
     }
 
     /**
@@ -586,27 +589,27 @@ public class SQLiteJDBCDriverConnectionTest
      */
     private void initStorage()
     {
-        storage = new SQLiteJDBCDriverConnection(DB_FILE, movableBaseBuilder, movableRegistry, movableTypeManager,
+        storage = new SQLiteJDBCDriverConnection(DB_FILE, structureBaseBuilder, structureRegistry, structureTypeManager,
                                                  worldFactory,
                                                  debuggableRegistry);
     }
 
-    private void initMovables()
+    private void initStructures()
     {
         Vector3Di min = new Vector3Di(144, 75, 153);
         Vector3Di max = new Vector3Di(144, 131, 167);
         Vector3Di powerBlock = new Vector3Di(144, 75, 153);
         Vector3Di rotationPoint = new Vector3Di(144, 75, 153);
-        movable1 = new BigDoor(
-            movableBaseBuilder
+        structure1 = new BigDoor(
+            structureBaseBuilder
                 .builder()
-                .uid(1).name(MOVABLE_1_NAME).cuboid(min, max)
+                .uid(1).name(STRUCTURE_1_NAME).cuboid(min, max)
                 .rotationPoint(rotationPoint)
                 .powerBlock(powerBlock)
                 .world(WORLD).isOpen(false).isLocked(false)
                 .openDir(MovementDirection.EAST)
                 .primeOwner(
-                    new MovableOwner(1, PermissionLevel.CREATOR, PLAYER_DATA_1))
+                    new StructureOwner(1, PermissionLevel.CREATOR, PLAYER_DATA_1))
                 .build());
 
         min = new Vector3Di(144, 75, 168);
@@ -615,15 +618,15 @@ public class SQLiteJDBCDriverConnectionTest
         powerBlock = new Vector3Di(144, 75, 153);
         boolean modeUp = true;
 
-        movable2 = new Drawbridge(
-            movableBaseBuilder
+        structure2 = new Drawbridge(
+            structureBaseBuilder
                 .builder()
-                .uid(2).name(MOVABLES_2_3_NAME).cuboid(min, max)
+                .uid(2).name(STRUCTURES_2_3_NAME).cuboid(min, max)
                 .rotationPoint(rotationPoint)
                 .powerBlock(powerBlock).world(WORLD).isOpen(false)
                 .isLocked(false).openDir(MovementDirection.NONE)
                 .primeOwner(
-                    new MovableOwner(2, PermissionLevel.CREATOR, PLAYER_DATA_1))
+                    new StructureOwner(2, PermissionLevel.CREATOR, PLAYER_DATA_1))
                 .build(),
             modeUp);
 
@@ -632,15 +635,15 @@ public class SQLiteJDBCDriverConnectionTest
         rotationPoint = new Vector3Di(144, 75, 153);
         powerBlock = new Vector3Di(144, 75, 153);
         int blocksToMove = 8;
-        movable3 = new Portcullis(
-            movableBaseBuilder
+        structure3 = new Portcullis(
+            structureBaseBuilder
                 .builder()
-                .uid(3).name(MOVABLES_2_3_NAME).cuboid(min, max)
+                .uid(3).name(STRUCTURES_2_3_NAME).cuboid(min, max)
                 .rotationPoint(rotationPoint)
                 .powerBlock(powerBlock).world(WORLD).isOpen(false)
                 .isLocked(false).openDir(MovementDirection.UP)
                 .primeOwner(
-                    new MovableOwner(3, PermissionLevel.CREATOR, PLAYER_DATA_2))
+                    new StructureOwner(3, PermissionLevel.CREATOR, PLAYER_DATA_2))
                 .build(),
             blocksToMove);
     }

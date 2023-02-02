@@ -9,12 +9,12 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.animatedblock.AnimationContext;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimationHook;
-import nl.pim16aap2.bigdoors.events.movableaction.MovableActionCause;
-import nl.pim16aap2.bigdoors.events.movableaction.MovableActionType;
+import nl.pim16aap2.bigdoors.events.structureaction.StructureActionCause;
+import nl.pim16aap2.bigdoors.events.structureaction.StructureActionType;
 import nl.pim16aap2.bigdoors.managers.AnimationHookManager;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableSnapshot;
-import nl.pim16aap2.bigdoors.movable.movablearchetypes.IPerpetualMover;
+import nl.pim16aap2.bigdoors.structures.AbstractStructure;
+import nl.pim16aap2.bigdoors.structures.StructureSnapshot;
+import nl.pim16aap2.bigdoors.structures.structurearchetypes.IPerpetualMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.vector.IVector3D;
@@ -49,16 +49,16 @@ public final class Animator implements IAnimator
     private static final long VERIFY_REDSTONE_DELAY = 20;
 
     /**
-     * The movable whose blocks are going to be moved.
+     * The structure whose blocks are going to be moved.
      */
     @Getter
-    private final AbstractMovable movable;
+    private final AbstractStructure structure;
 
     /**
-     * A snapshot of the movable created before the toggle.
+     * A snapshot of the structure created before the toggle.
      */
     @Getter
-    private final MovableSnapshot snapshot;
+    private final StructureSnapshot snapshot;
 
     /**
      * The player responsible for the movement.
@@ -76,19 +76,19 @@ public final class Animator implements IAnimator
     private final IAnimationBlockManager animationBlockManager;
 
     /**
-     * What caused the movable to be moved.
+     * What caused the structure to be moved.
      */
     @Getter
-    private final MovableActionCause cause;
+    private final StructureActionCause cause;
 
     /**
-     * The type of action that is fulfilled by moving the movable.
+     * The type of action that is fulfilled by moving the structure.
      */
     @Getter
-    private final MovableActionType actionType;
+    private final StructureActionType actionType;
 
     @ToString.Exclude
-    private final MovableActivityManager movableActivityManager;
+    private final StructureActivityManager structureActivityManager;
 
     @ToString.Exclude
     private final IPExecutor executor;
@@ -156,12 +156,12 @@ public final class Animator implements IAnimator
     private final int animationDuration;
 
     /**
-     * The cuboid that describes the location of the movable after the blocks have been moved.
+     * The cuboid that describes the location of the structure after the blocks have been moved.
      */
     private final Cuboid oldCuboid;
 
     /**
-     * The cuboid that describes the location of the movable after the blocks have been moved.
+     * The cuboid that describes the location of the structure after the blocks have been moved.
      */
     private final Cuboid newCuboid;
 
@@ -173,8 +173,8 @@ public final class Animator implements IAnimator
      * <p>
      * Once created, the animation does not start immediately. Use {@link #startAnimation()} to start it.
      *
-     * @param movable
-     *     The {@link AbstractMovable} that is being animated.
+     * @param structure
+     *     The {@link AbstractStructure} that is being animated.
      * @param data
      *     The data of the movement request.
      * @param animationComponent
@@ -183,17 +183,17 @@ public final class Animator implements IAnimator
      *     The manager of the animated blocks. This is responsible for handling the lifecycle of the animated blocks.
      */
     public Animator(
-        AbstractMovable movable, MovementRequestData data, IAnimationComponent animationComponent,
+        AbstractStructure structure, StructureRequestData data, IAnimationComponent animationComponent,
         IAnimationBlockManager animationBlockManager)
     {
         executor = data.getExecutor();
-        movableActivityManager = data.getMovableActivityManager();
+        structureActivityManager = data.getStructureActivityManager();
         animationHookManager = data.getAnimationHookManager();
         serverTickTime = data.getServerTickTime();
 
         this.movementMethod = animationComponent.getMovementMethod();
-        this.movable = movable;
-        this.snapshot = data.getSnapshotOfMovable();
+        this.structure = structure;
+        this.snapshot = data.getStructureSnapshot();
         this.time = data.getAnimationTime();
         this.skipAnimation = data.isAnimationSkipped();
         this.player = data.getResponsible();
@@ -218,7 +218,7 @@ public final class Animator implements IAnimator
     private boolean isPerpetualMovement()
     {
         return this.animationType.allowsPerpetualAnimation() &&
-            movable instanceof IPerpetualMover perpetualMover &&
+            structure instanceof IPerpetualMover perpetualMover &&
             perpetualMover.isPerpetual();
     }
 
@@ -281,7 +281,7 @@ public final class Animator implements IAnimator
     }
 
     /**
-     * Replaces all blocks of the {@link AbstractMovable} with animated blocks and starts the animation.
+     * Replaces all blocks of the {@link AbstractStructure} with animated blocks and starts the animation.
      * <p>
      * Note that if {@link #skipAnimation} is true, the blocks will be placed in the new position immediately without
      * any animations.
@@ -309,10 +309,10 @@ public final class Animator implements IAnimator
             throw new IllegalStateException("Trying to start an animation again!");
 
         final Animation<IAnimatedBlock> animation = new Animation<>(
-            animationDuration, oldCuboid, getAnimatedBlocks(), snapshot, movable.getType(), animationType);
+            animationDuration, oldCuboid, getAnimatedBlocks(), snapshot, structure.getType(), animationType);
         this.animationData = animation;
 
-        final AnimationContext animationContext = new AnimationContext(movable.getType(), snapshot, animation);
+        final AnimationContext animationContext = new AnimationContext(structure.getType(), snapshot, animation);
 
         if (!animationBlockManager.createAnimatedBlocks(snapshot, animationComponent, animationContext, movementMethod))
         {
@@ -346,7 +346,7 @@ public final class Animator implements IAnimator
         }
 
         animationBlockManager.restoreBlocksOnFailure();
-        movableActivityManager.processFinishedAnimation(this);
+        structureActivityManager.processFinishedAnimation(this);
     }
 
     /**
@@ -417,7 +417,7 @@ public final class Animator implements IAnimator
             animation.setRegion(oldCuboid);
         }
 
-        executor.runAsyncLater(movable::verifyRedstoneState, VERIFY_REDSTONE_DELAY);
+        executor.runAsyncLater(structure::verifyRedstoneState, VERIFY_REDSTONE_DELAY);
     }
 
     /**
@@ -497,20 +497,20 @@ public final class Animator implements IAnimator
         animationBlockManager.handleAnimationCompletion();
 
         if (animationType.requiresWriteAccess())
-            // Tell the movable object it has been opened and what its new coordinates are.
-            movable.withWriteLock(this::updateCoords);
+            // Tell the structure object it has been opened and what its new coordinates are.
+            structure.withWriteLock(this::updateCoords);
 
         forEachHook("onAnimationCompleted", IAnimationHook::onAnimationCompleted);
 
-        movableActivityManager.processFinishedAnimation(this);
+        structureActivityManager.processFinishedAnimation(this);
     }
 
     /**
-     * Places all the blocks of the movable in their final position and kills all the animated blocks.
+     * Places all the blocks of the structure in their final position and kills all the animated blocks.
      */
     private void putBlocks()
     {
-        // Only allow this method to be run once! If it can be run multiple times, it'll cause movable corruption
+        // Only allow this method to be run once! If it can be run multiple times, it'll cause structure corruption
         // because while the blocks have already been placed, the coordinates can still be toggled!
         if (isFinished.getAndSet(true))
             return;
@@ -518,22 +518,22 @@ public final class Animator implements IAnimator
     }
 
     /**
-     * Updates the coordinates of a {@link AbstractMovable} and toggles its open status.
+     * Updates the coordinates of a {@link AbstractStructure} and toggles its open status.
      */
     private void updateCoords()
     {
-        movable.setOpen(!snapshot.isOpen());
+        structure.setOpen(!snapshot.isOpen());
         if (!newCuboid.equals(snapshot.getCuboid()))
-            movable.setCoordinates(newCuboid);
-        movable.syncData();
+            structure.setCoordinates(newCuboid);
+        structure.syncData();
     }
 
     /**
-     * Gets the UID of the {@link AbstractMovable} being moved.
+     * Gets the UID of the {@link AbstractStructure} being moved.
      *
-     * @return The UID of the {@link AbstractMovable} being moved.
+     * @return The UID of the {@link AbstractStructure} being moved.
      */
-    public long getMovableUID()
+    public long getStructureUID()
     {
         return snapshot.getUid();
     }

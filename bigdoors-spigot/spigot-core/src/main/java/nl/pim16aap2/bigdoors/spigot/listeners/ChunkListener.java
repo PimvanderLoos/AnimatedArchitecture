@@ -6,10 +6,10 @@ import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.moveblocks.Animator;
-import nl.pim16aap2.bigdoors.moveblocks.MovableActivityManager;
+import nl.pim16aap2.bigdoors.moveblocks.StructureActivityManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
+import nl.pim16aap2.bigdoors.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.util.Rectangle;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
@@ -37,43 +37,44 @@ import java.util.concurrent.CompletableFuture;
 public class ChunkListener extends AbstractListener
 {
     /**
-     * Add a delay to give the chunks surrounding the movable a chance to load as well.
+     * Add a delay to give the chunks surrounding the structure a chance to load as well.
      */
     private static final int PROCESS_LOAD_DELAY = 40;
 
     private final DatabaseManager databaseManager;
     private final PowerBlockManager powerBlockManager;
-    private final MovableActivityManager movableActivityManager;
+    private final StructureActivityManager structureActivityManager;
     private final IPExecutor executor;
 
     @Inject
     public ChunkListener(
         JavaPlugin javaPlugin, DatabaseManager databaseManager, PowerBlockManager powerBlockManager,
-        RestartableHolder restartableHolder, MovableActivityManager movableActivityManager, IPExecutor executor)
+        RestartableHolder restartableHolder, StructureActivityManager structureActivityManager, IPExecutor executor)
     {
         super(restartableHolder, javaPlugin);
         this.databaseManager = databaseManager;
         this.powerBlockManager = powerBlockManager;
-        this.movableActivityManager = movableActivityManager;
+        this.structureActivityManager = structureActivityManager;
         this.executor = executor;
         register();
     }
 
     private void onChunkLoad(World world, Chunk chunk)
     {
-        final CompletableFuture<List<AbstractMovable>> rotationPoints =
-            databaseManager.getMovablesInChunk(chunk.getX(), chunk.getZ());
+        final CompletableFuture<List<AbstractStructure>> rotationPoints =
+            databaseManager.getStructuresInChunk(chunk.getX(), chunk.getZ());
 
-        final CompletableFuture<List<AbstractMovable>> powerBlocks =
-            powerBlockManager.movablesInChunk(new Vector3Di(chunk.getX() << 4, 0, chunk.getZ() << 4), world.getName());
+        final CompletableFuture<List<AbstractStructure>> powerBlocks =
+            powerBlockManager.structuresInChunk(new Vector3Di(chunk.getX() << 4, 0, chunk.getZ() << 4),
+                                                world.getName());
 
         Util.getAllCompletableFutureResultsFlatMap(rotationPoints, powerBlocks)
-            .thenAccept(lst -> lst.forEach(AbstractMovable::onChunkLoad));
+            .thenAccept(lst -> lst.forEach(AbstractStructure::onChunkLoad));
     }
 
     /**
-     * Listens to chunks being loaded and ensures that {@link AbstractMovable#onChunkLoad()} is called for any movables
-     * whose rotation point lies in the chunk that is being loaded.
+     * Listens to chunks being loaded and ensures that {@link AbstractStructure#onChunkLoad()} is called for any
+     * structures whose rotation point lies in the chunk that is being loaded.
      */
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onChunkLoad(ChunkLoadEvent event)
@@ -83,7 +84,7 @@ public class ChunkListener extends AbstractListener
 
     /**
      * Listens to chunks being unloaded and checks if it intersects with the region of the active
-     * {@link AbstractMovable}s.
+     * {@link AbstractStructure}s.
      */
     @EventHandler(priority = EventPriority.LOWEST)
     public void onChunkUnload(ChunkUnloadEvent event)
@@ -98,7 +99,7 @@ public class ChunkListener extends AbstractListener
             final IPWorld world = SpigotAdapter.wrapWorld(event.getWorld());
 
             // Abort all currently active BlockMovers that (might) interact with the chunk that is being unloaded.
-            movableActivityManager
+            structureActivityManager
                 .getBlockMovers()
                 .filter(mover -> mover.getSnapshot().getWorld().equals(world))
                 .filter(mover -> chunkInsideAnimationRange(chunkCoords, mover.getSnapshot().getAnimationRange()))

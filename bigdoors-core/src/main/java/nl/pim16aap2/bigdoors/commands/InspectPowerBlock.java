@@ -8,7 +8,7 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
+import nl.pim16aap2.bigdoors.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.tooluser.PowerBlockInspector;
 import nl.pim16aap2.bigdoors.util.Constants;
 
@@ -52,7 +52,7 @@ public class InspectPowerBlock extends BaseCommand
     {
         toolUserManager.startToolUser(inspectPowerBlockFactory.create((IPPlayer) getCommandSender(),
                                                                       permissions.hasAdminPermission()),
-                                      Constants.MOVABLE_CREATOR_TIME_LIMIT);
+                                      Constants.STRUCTURE_CREATOR_TIME_LIMIT);
         return CompletableFuture.completedFuture(null);
     }
 
@@ -65,8 +65,8 @@ public class InspectPowerBlock extends BaseCommand
          * @param commandSender
          *     The {@link ICommandSender} responsible for inspecting the powerblocks.
          *     <p>
-         *     They can only discover {@link AbstractMovable}s attached to specific locations if they both have access
-         *     to the specific location and access to the specific movable(s).
+         *     They can only discover {@link AbstractStructure}s attached to specific locations if they both have access
+         *     to the specific location and access to the specific structure(s).
          * @return See {@link BaseCommand#run()}.
          */
         InspectPowerBlock newInspectPowerBlock(ICommandSender commandSender);

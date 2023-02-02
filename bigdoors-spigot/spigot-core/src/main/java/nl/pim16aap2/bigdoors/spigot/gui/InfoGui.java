@@ -12,12 +12,12 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPermissionsManager;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.MovableAttribute;
-import nl.pim16aap2.bigdoors.movable.MovableOwner;
-import nl.pim16aap2.bigdoors.movable.PermissionLevel;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsPlugin;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PPlayerSpigot;
+import nl.pim16aap2.bigdoors.structures.AbstractStructure;
+import nl.pim16aap2.bigdoors.structures.PermissionLevel;
+import nl.pim16aap2.bigdoors.structures.StructureAttribute;
+import nl.pim16aap2.bigdoors.structures.StructureOwner;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -26,9 +26,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Represents the info menu for a movable.
+ * Represents the info menu for a structure.
  * <p>
- * This contains all the options for a single movable.
+ * This contains all the options for a single structure.
  */
 @Flogger
 @ToString(onlyExplicitlyIncluded = true)
@@ -44,34 +44,34 @@ class InfoGui implements IGuiPage
     private final InventoryGui inventoryGui;
 
     @ToString.Include
-    private final AbstractMovable movable;
+    private final AbstractStructure structure;
 
     @ToString.Include
-    private final List<MovableAttribute> allowedAttributes;
+    private final List<StructureAttribute> allowedAttributes;
 
     @Getter
     @ToString.Include
     private final PPlayerSpigot inventoryHolder;
 
     // Currently not used, but it's needed later on when we can update the elements
-    // When the field in the movable changes.
+    // When the field in the structure changes.
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
-    private final Map<MovableAttribute, GuiElement> attributeElements;
+    private final Map<StructureAttribute, GuiElement> attributeElements;
 
     @AssistedInject //
     InfoGui(
         BigDoorsPlugin bigDoorsPlugin, ILocalizer localizer, IPermissionsManager permissionsManager,
         AttributeButtonFactory attributeButtonFactory,
-        @Assisted AbstractMovable movable, @Assisted PPlayerSpigot inventoryHolder)
+        @Assisted AbstractStructure structure, @Assisted PPlayerSpigot inventoryHolder)
     {
         this.bigDoorsPlugin = bigDoorsPlugin;
         this.localizer = localizer;
         this.attributeButtonFactory = attributeButtonFactory;
-        this.movable = movable;
+        this.structure = structure;
         this.inventoryHolder = inventoryHolder;
 
-        final MovableOwner movableOwner = movable.getOwner(inventoryHolder).orElseGet(this::getDummyOwner);
-        this.allowedAttributes = analyzeAttributes(movableOwner, inventoryHolder, permissionsManager);
+        final StructureOwner structureOwner = structure.getOwner(inventoryHolder).orElseGet(this::getDummyOwner);
+        this.allowedAttributes = analyzeAttributes(structureOwner, inventoryHolder, permissionsManager);
 
         this.attributeElements = new HashMap<>(this.allowedAttributes.size());
 
@@ -93,7 +93,7 @@ class InfoGui implements IGuiPage
         final InventoryGui gui =
             new InventoryGui(bigDoorsPlugin,
                              inventoryHolder.getBukkitPlayer(),
-                             localizer.getMessage("gui.info_page.title", movable.getNameAndUid()),
+                             localizer.getMessage("gui.info_page.title", structure.getNameAndUid()),
                              guiSetup);
         gui.setFiller(FILLER);
 
@@ -114,17 +114,18 @@ class InfoGui implements IGuiPage
             'h',
             new ItemStack(Material.BOOK),
             localizer.getMessage("gui.info_page.header",
-                                 localizer.getMessage(movable.getType().getLocalizationKey()), movable.getNameAndUid())
+                                 localizer.getMessage(structure.getType().getLocalizationKey()),
+                                 structure.getNameAndUid())
         ));
     }
 
     private void addElements(InventoryGui gui)
     {
         final GuiElementGroup group = new GuiElementGroup('g');
-        for (final MovableAttribute attribute : allowedAttributes)
+        for (final StructureAttribute attribute : allowedAttributes)
         {
             final GuiElement element =
-                attributeButtonFactory.of(attribute, movable, inventoryHolder, 'g');
+                attributeButtonFactory.of(attribute, structure, inventoryHolder, 'g');
             attributeElements.put(attribute, element);
             group.addElement(element);
         }
@@ -132,25 +133,25 @@ class InfoGui implements IGuiPage
         gui.addElement(group);
     }
 
-    private MovableOwner getDummyOwner()
+    private StructureOwner getDummyOwner()
     {
-        log.atSevere().log("Player '%s' does not have access to movable: '%s'!", inventoryHolder, movable);
-        return new MovableOwner(movable.getUid(), PermissionLevel.NO_PERMISSION,
-                                inventoryHolder.getPPlayerData());
+        log.atSevere().log("Player '%s' does not have access to structure: '%s'!", inventoryHolder, structure);
+        return new StructureOwner(structure.getUid(), PermissionLevel.NO_PERMISSION,
+                                  inventoryHolder.getPPlayerData());
     }
 
-    static List<MovableAttribute> analyzeAttributes(
-        MovableOwner movableOwner, PPlayerSpigot player, IPermissionsManager permissionsManager)
+    static List<StructureAttribute> analyzeAttributes(
+        StructureOwner structureOwner, PPlayerSpigot player, IPermissionsManager permissionsManager)
     {
-        final PermissionLevel perm = movableOwner.permission();
-        return MovableAttribute.getValues().stream()
-                               .filter(attr -> hasAccessToAttribute(player, attr, perm, permissionsManager))
-                               .filter(attr -> attr != MovableAttribute.SWITCH)
-                               .toList();
+        final PermissionLevel perm = structureOwner.permission();
+        return StructureAttribute.getValues().stream()
+                                 .filter(attr -> hasAccessToAttribute(player, attr, perm, permissionsManager))
+                                 .filter(attr -> attr != StructureAttribute.SWITCH)
+                                 .toList();
     }
 
     private static boolean hasAccessToAttribute(
-        PPlayerSpigot player, MovableAttribute attribute, PermissionLevel permissionLevel,
+        PPlayerSpigot player, StructureAttribute attribute, PermissionLevel permissionLevel,
         IPermissionsManager permissionsManager)
     {
         return attribute.canAccessWith(permissionLevel) ||
@@ -166,6 +167,6 @@ class InfoGui implements IGuiPage
     @AssistedFactory
     interface IFactory
     {
-        InfoGui newInfoGUI(AbstractMovable movable, PPlayerSpigot playerSpigot);
+        InfoGui newInfoGUI(AbstractStructure structure, PPlayerSpigot playerSpigot);
     }
 }

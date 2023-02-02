@@ -5,10 +5,10 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.PermissionLevel;
-import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetriever;
-import nl.pim16aap2.bigdoors.util.movableretriever.MovableRetrieverFactory;
+import nl.pim16aap2.bigdoors.structures.AbstractStructure;
+import nl.pim16aap2.bigdoors.structures.PermissionLevel;
+import nl.pim16aap2.bigdoors.util.structureretriever.StructureRetriever;
+import nl.pim16aap2.bigdoors.util.structureretriever.StructureRetrieverFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,13 +53,13 @@ class AddOwnerDelayedTest
     @Mock
     ICommandSender commandSender;
 
-    MovableRetriever movableRetriever;
+    StructureRetriever structureRetriever;
 
     @Mock
-    AbstractMovable movable;
+    AbstractStructure structure;
 
     @InjectMocks
-    MovableRetrieverFactory movableRetrieverFactory;
+    StructureRetrieverFactory structureRetrieverFactory;
 
     @Mock
     AddOwner addOwner;
@@ -76,7 +76,7 @@ class AddOwnerDelayedTest
 
         initInputRequestFactory(inputRequestFactory, localizer, delayedCommandInputManager);
 
-        movableRetriever = movableRetrieverFactory.of(movable);
+        structureRetriever = structureRetrieverFactory.of(structure);
 
         Mockito.when(addOwner.run()).thenReturn(CompletableFuture.completedFuture(null));
 
@@ -96,7 +96,7 @@ class AddOwnerDelayedTest
     {
         final AddOwnerDelayed addOwnerDelayed = new AddOwnerDelayed(context, inputRequestFactory);
 
-        final CompletableFuture<?> result0 = addOwnerDelayed.runDelayed(commandSender, movableRetriever);
+        final CompletableFuture<?> result0 = addOwnerDelayed.runDelayed(commandSender, structureRetriever);
         final AddOwnerDelayed.DelayedInput input = new AddOwnerDelayed.DelayedInput(targetPlayer);
         final CompletableFuture<?> result1 = addOwnerDelayed.provideDelayedInput(commandSender, input);
 
@@ -104,6 +104,6 @@ class AddOwnerDelayedTest
         Assertions.assertDoesNotThrow(() -> result1.get(1, TimeUnit.SECONDS));
 
         Mockito.verify(commandFactory, Mockito.times(1))
-               .newAddOwner(commandSender, movableRetriever, input.getTargetPlayer(), PermissionLevel.USER);
+               .newAddOwner(commandSender, structureRetriever, input.getTargetPlayer(), PermissionLevel.USER);
     }
 }

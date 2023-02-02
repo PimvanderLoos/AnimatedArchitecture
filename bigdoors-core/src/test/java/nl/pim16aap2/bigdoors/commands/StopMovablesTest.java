@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.commands;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.moveblocks.MovableActivityManager;
+import nl.pim16aap2.bigdoors.moveblocks.StructureActivityManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,16 +16,16 @@ import org.mockito.MockitoAnnotations;
 import java.util.concurrent.TimeUnit;
 
 @Timeout(1)
-class StopMovablesTest
+class StopStructuresTest
 {
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private IPServer commandSender;
 
     @Mock
-    private MovableActivityManager movableActivityManager;
+    private StructureActivityManager structureActivityManager;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
-    private StopMovables.IFactory factory;
+    private StopStructures.IFactory factory;
 
     @BeforeEach
     void init()
@@ -36,16 +36,16 @@ class StopMovablesTest
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
-        Mockito.when(factory.newStopMovables(Mockito.any(ICommandSender.class)))
-               .thenAnswer(invoc -> new StopMovables(invoc.getArgument(0, ICommandSender.class),
-                                                     localizer, ITextFactory.getSimpleTextFactory(),
-                                                     movableActivityManager));
+        Mockito.when(factory.newStopStructures(Mockito.any(ICommandSender.class)))
+               .thenAnswer(invoc -> new StopStructures(invoc.getArgument(0, ICommandSender.class),
+                                                       localizer, ITextFactory.getSimpleTextFactory(),
+                                                       structureActivityManager));
     }
 
     @Test
     void test()
     {
-        Assertions.assertDoesNotThrow(() -> factory.newStopMovables(commandSender).run().get(1, TimeUnit.SECONDS));
-        Mockito.verify(movableActivityManager).abortAnimators();
+        Assertions.assertDoesNotThrow(() -> factory.newStopStructures(commandSender).run().get(1, TimeUnit.SECONDS));
+        Mockito.verify(structureActivityManager).abortAnimators();
     }
 }

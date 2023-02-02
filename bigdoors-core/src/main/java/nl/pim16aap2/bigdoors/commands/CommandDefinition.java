@@ -20,14 +20,14 @@ public final class CommandDefinition
     /**
      * The prefix of all permissions that a regular user should have access to for normal usage.
      * <p>
-     * This will include stuff like creating new movables and managing movables that you own.
+     * This will include stuff like creating new structures and managing structures that you own.
      */
     public static final String PREFIX_USER = "bigdoors.user.";
 
     /**
      * The prefix of all permissions for admin-related actions.
      * <p>
-     * This should include stuff like affecting server settings and managing movables owned by other players.
+     * This should include stuff like affecting server settings and managing structures owned by other players.
      */
     public static final String PREFIX_ADMIN = "bigdoors.admin.";
 
@@ -71,10 +71,10 @@ public final class CommandDefinition
                               PREFIX_USER + "inspect",
                               PREFIX_ADMIN + "bypass.inspect");
 
-    public static final CommandDefinition LIST_MOVABLES =
-        new CommandDefinition("LIST_MOVABLES",
-                              PREFIX_USER + "listmovables",
-                              PREFIX_ADMIN + "bypass.listmovables");
+    public static final CommandDefinition LIST_STRUCTURES =
+        new CommandDefinition("LIST_STRUCTURES",
+                              PREFIX_USER + "liststructures",
+                              PREFIX_ADMIN + "bypass.liststructures");
 
     public static final CommandDefinition LOCK =
         new CommandDefinition("LOCK",
@@ -86,9 +86,9 @@ public final class CommandDefinition
                               PREFIX_USER + "movepowerblock",
                               PREFIX_ADMIN + "bypass.movepowerblock");
 
-    public static final CommandDefinition NEW_MOVABLE =
-        new CommandDefinition("NEW_MOVABLE",
-                              PREFIX_USER + "newmovable",
+    public static final CommandDefinition NEW_STRUCTURE =
+        new CommandDefinition("NEW_STRUCTURE",
+                              PREFIX_USER + "newstructure",
                               null);
 
     public static final CommandDefinition REMOVE_OWNER =
@@ -126,10 +126,10 @@ public final class CommandDefinition
                               PREFIX_USER + "base",
                               null);
 
-    public static final CommandDefinition STOP_MOVABLES =
-        new CommandDefinition("STOP_MOVABLES",
+    public static final CommandDefinition STOP_STRUCTURES =
+        new CommandDefinition("STOP_STRUCTURES",
                               null,
-                              PREFIX_ADMIN + "stopmovables");
+                              PREFIX_ADMIN + "stopstructures");
 
     public static final CommandDefinition VERSION =
         new CommandDefinition("VERSION",

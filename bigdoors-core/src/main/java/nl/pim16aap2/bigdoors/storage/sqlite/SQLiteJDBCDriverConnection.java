@@ -15,18 +15,18 @@ import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.debugging.IDebuggable;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
-import nl.pim16aap2.bigdoors.managers.MovableTypeManager;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movable.IMovableConst;
-import nl.pim16aap2.bigdoors.movable.MovableBaseBuilder;
-import nl.pim16aap2.bigdoors.movable.MovableOwner;
-import nl.pim16aap2.bigdoors.movable.MovableRegistry;
-import nl.pim16aap2.bigdoors.movable.MovableSerializer;
-import nl.pim16aap2.bigdoors.movable.PermissionLevel;
-import nl.pim16aap2.bigdoors.movabletypes.MovableType;
+import nl.pim16aap2.bigdoors.managers.StructureTypeManager;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.storage.PPreparedStatement;
 import nl.pim16aap2.bigdoors.storage.SQLStatement;
+import nl.pim16aap2.bigdoors.structures.AbstractStructure;
+import nl.pim16aap2.bigdoors.structures.IStructureConst;
+import nl.pim16aap2.bigdoors.structures.PermissionLevel;
+import nl.pim16aap2.bigdoors.structures.StructureBaseBuilder;
+import nl.pim16aap2.bigdoors.structures.StructureOwner;
+import nl.pim16aap2.bigdoors.structures.StructureRegistry;
+import nl.pim16aap2.bigdoors.structures.StructureSerializer;
+import nl.pim16aap2.bigdoors.structuretypes.StructureType;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.IBitFlag;
 import nl.pim16aap2.bigdoors.util.MovementDirection;
@@ -95,11 +95,11 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     @Getter
     private volatile DatabaseState databaseState = DatabaseState.UNINITIALIZED;
 
-    private final MovableBaseBuilder movableBaseBuilder;
+    private final StructureBaseBuilder structureBaseBuilder;
 
-    private final MovableRegistry movableRegistry;
+    private final StructureRegistry structureRegistry;
 
-    private final MovableTypeManager movableTypeManager;
+    private final StructureTypeManager structureTypeManager;
 
     private final IPWorldFactory worldFactory;
 
@@ -113,13 +113,14 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      */
     @Inject
     public SQLiteJDBCDriverConnection(
-        @Named("databaseFile") Path dbFile, MovableBaseBuilder movableBaseBuilder, MovableRegistry movableRegistry,
-        MovableTypeManager movableTypeManager, IPWorldFactory worldFactory, DebuggableRegistry debuggableRegistry)
+        @Named("databaseFile") Path dbFile, StructureBaseBuilder structureBaseBuilder,
+        StructureRegistry structureRegistry,
+        StructureTypeManager structureTypeManager, IPWorldFactory worldFactory, DebuggableRegistry debuggableRegistry)
     {
         this.dbFile = dbFile;
-        this.movableBaseBuilder = movableBaseBuilder;
-        this.movableRegistry = movableRegistry;
-        this.movableTypeManager = movableTypeManager;
+        this.structureBaseBuilder = structureBaseBuilder;
+        this.structureRegistry = structureRegistry;
+        this.structureTypeManager = structureTypeManager;
         this.worldFactory = worldFactory;
 
         try
@@ -276,9 +277,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 return;
             }
 
-            // Check if the "movables" table already exists. If it does, assume the rest exists
+            // Check if the "structures" table already exists. If it does, assume the rest exists
             // as well and don't set it up.
-            if (conn.getMetaData().getTables(null, null, "Movables", new String[]{"TABLE"}).next())
+            if (conn.getMetaData().getTables(null, null, "Structures", new String[]{"TABLE"}).next())
             {
                 databaseState = DatabaseState.OUT_OF_DATE;
                 verifyDatabaseVersion(conn);
@@ -288,11 +289,11 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 executeUpdate(conn, SQLStatement.CREATE_TABLE_PLAYER.constructPPreparedStatement());
                 executeUpdate(conn, SQLStatement.RESERVE_IDS_PLAYER.constructPPreparedStatement());
 
-                executeUpdate(conn, SQLStatement.CREATE_TABLE_MOVABLE.constructPPreparedStatement());
-                executeUpdate(conn, SQLStatement.RESERVE_IDS_MOVABLE.constructPPreparedStatement());
+                executeUpdate(conn, SQLStatement.CREATE_TABLE_STRUCTURE.constructPPreparedStatement());
+                executeUpdate(conn, SQLStatement.RESERVE_IDS_STRUCTURE.constructPPreparedStatement());
 
-                executeUpdate(conn, SQLStatement.CREATE_TABLE_MOVABLE_OWNER_PLAYER.constructPPreparedStatement());
-                executeUpdate(conn, SQLStatement.RESERVE_IDS_MOVABLE_OWNER_PLAYER.constructPPreparedStatement());
+                executeUpdate(conn, SQLStatement.CREATE_TABLE_STRUCTURE_OWNER_PLAYER.constructPPreparedStatement());
+                executeUpdate(conn, SQLStatement.RESERVE_IDS_STRUCTURE_OWNER_PLAYER.constructPPreparedStatement());
 
                 updateDBVersion(conn);
                 databaseState = DatabaseState.OK;
@@ -305,230 +306,233 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         }
     }
 
-    private Optional<AbstractMovable> constructMovable(ResultSet movableBaseRS)
+    private Optional<AbstractStructure> constructStructure(ResultSet structureBaseRS)
         throws Exception
     {
-        final @Nullable String movableTypeResult = movableBaseRS.getString("type");
-        final Optional<MovableType> movableType = movableTypeManager.getMovableTypeFromFullName(movableTypeResult);
+        final @Nullable String structureTypeResult = structureBaseRS.getString("type");
+        final Optional<StructureType> structureType = structureTypeManager.getStructureTypeFromFullName(
+            structureTypeResult);
 
-        if (!movableType.map(movableTypeManager::isRegistered).orElse(false))
+        if (!structureType.map(structureTypeManager::isRegistered).orElse(false))
         {
             log.atSevere()
                .withStackTrace(StackSize.FULL)
-               .log("Type with ID: '%s' has not been registered (yet)!", movableTypeResult);
+               .log("Type with ID: '%s' has not been registered (yet)!", structureTypeResult);
             return Optional.empty();
         }
 
-        final long movableUID = movableBaseRS.getLong("id");
+        final long structureUID = structureBaseRS.getLong("id");
 
-        // SonarLint assumes that movableType could be empty (S3655) (appears to miss the mapping operation above),
+        // SonarLint assumes that structureType could be empty (S3655) (appears to miss the mapping operation above),
         // while this actually won't happen.
         @SuppressWarnings("squid:S3655") //
-        final MovableSerializer<?> serializer = movableType.get().getMovableSerializer();
+        final StructureSerializer<?> serializer = structureType.get().getStructureSerializer();
 
-        final Optional<AbstractMovable> registeredMovable = movableRegistry.getRegisteredMovable(movableUID);
-        if (registeredMovable.isPresent())
-            return registeredMovable;
+        final Optional<AbstractStructure> registeredStructure = structureRegistry.getRegisteredStructure(structureUID);
+        if (registeredStructure.isPresent())
+            return registeredStructure;
 
         final Optional<MovementDirection> openDirection =
-            Optional.ofNullable(MovementDirection.valueOf(movableBaseRS.getInt("openDirection")));
+            Optional.ofNullable(MovementDirection.valueOf(structureBaseRS.getInt("openDirection")));
 
         if (openDirection.isEmpty())
             return Optional.empty();
 
-        final Vector3Di min = new Vector3Di(movableBaseRS.getInt("xMin"),
-                                            movableBaseRS.getInt("yMin"),
-                                            movableBaseRS.getInt("zMin"));
-        final Vector3Di max = new Vector3Di(movableBaseRS.getInt("xMax"),
-                                            movableBaseRS.getInt("yMax"),
-                                            movableBaseRS.getInt("zMax"));
-        final Vector3Di rotationPoint = new Vector3Di(movableBaseRS.getInt("rotationPointX"),
-                                                      movableBaseRS.getInt("rotationPointY"),
-                                                      movableBaseRS.getInt("rotationPointZ"));
-        final Vector3Di powerBlock = new Vector3Di(movableBaseRS.getInt("powerBlockX"),
-                                                   movableBaseRS.getInt("powerBlockY"),
-                                                   movableBaseRS.getInt("powerBlockZ"));
+        final Vector3Di min = new Vector3Di(structureBaseRS.getInt("xMin"),
+                                            structureBaseRS.getInt("yMin"),
+                                            structureBaseRS.getInt("zMin"));
+        final Vector3Di max = new Vector3Di(structureBaseRS.getInt("xMax"),
+                                            structureBaseRS.getInt("yMax"),
+                                            structureBaseRS.getInt("zMax"));
+        final Vector3Di rotationPoint = new Vector3Di(structureBaseRS.getInt("rotationPointX"),
+                                                      structureBaseRS.getInt("rotationPointY"),
+                                                      structureBaseRS.getInt("rotationPointZ"));
+        final Vector3Di powerBlock = new Vector3Di(structureBaseRS.getInt("powerBlockX"),
+                                                   structureBaseRS.getInt("powerBlockY"),
+                                                   structureBaseRS.getInt("powerBlockZ"));
 
-        final IPWorld world = worldFactory.create(movableBaseRS.getString("world"));
+        final IPWorld world = worldFactory.create(structureBaseRS.getString("world"));
 
-        final long bitflag = movableBaseRS.getLong("bitflag");
-        final boolean isOpen = IBitFlag.hasFlag(MovableFlag.getFlagValue(MovableFlag.IS_OPEN), bitflag);
-        final boolean isLocked = IBitFlag.hasFlag(MovableFlag.getFlagValue(MovableFlag.IS_LOCKED), bitflag);
+        final long bitflag = structureBaseRS.getLong("bitflag");
+        final boolean isOpen = IBitFlag.hasFlag(StructureFlag.getFlagValue(StructureFlag.IS_OPEN), bitflag);
+        final boolean isLocked = IBitFlag.hasFlag(StructureFlag.getFlagValue(StructureFlag.IS_LOCKED), bitflag);
 
-        final String name = movableBaseRS.getString("name");
+        final String name = structureBaseRS.getString("name");
 
-        final PPlayerData playerData = new PPlayerData(UUID.fromString(movableBaseRS.getString("playerUUID")),
-                                                       movableBaseRS.getString("playerName"),
-                                                       movableBaseRS.getInt("sizeLimit"),
-                                                       movableBaseRS.getInt("countLimit"),
-                                                       movableBaseRS.getLong("permissions"));
+        final PPlayerData playerData = new PPlayerData(UUID.fromString(structureBaseRS.getString("playerUUID")),
+                                                       structureBaseRS.getString("playerName"),
+                                                       structureBaseRS.getInt("sizeLimit"),
+                                                       structureBaseRS.getInt("countLimit"),
+                                                       structureBaseRS.getLong("permissions"));
 
-        final MovableOwner primeOwner = new MovableOwner(
-            movableUID, Objects.requireNonNull(PermissionLevel.fromValue(movableBaseRS.getInt("permission"))),
+        final StructureOwner primeOwner = new StructureOwner(
+            structureUID, Objects.requireNonNull(PermissionLevel.fromValue(structureBaseRS.getInt("permission"))),
             playerData);
 
-        final Map<UUID, MovableOwner> ownersOfMovable = getOwnersOfMovable(movableUID);
-        final AbstractMovable.MovableBaseHolder movableData =
-            movableBaseBuilder.builder()
-                              .uid(movableUID)
-                              .name(name)
-                              .cuboid(new Cuboid(min, max))
-                              .rotationPoint(rotationPoint)
-                              .powerBlock(powerBlock)
-                              .world(world)
-                              .isOpen(isOpen)
-                              .isLocked(isLocked)
-                              .openDir(openDirection.get())
-                              .primeOwner(primeOwner)
-                              .ownersOfMovable(ownersOfMovable)
-                              .build();
+        final Map<UUID, StructureOwner> ownersOfStructure = getOwnersOfStructure(structureUID);
+        final AbstractStructure.BaseHolder structureData =
+            structureBaseBuilder.builder()
+                                .uid(structureUID)
+                                .name(name)
+                                .cuboid(new Cuboid(min, max))
+                                .rotationPoint(rotationPoint)
+                                .powerBlock(powerBlock)
+                                .world(world)
+                                .isOpen(isOpen)
+                                .isLocked(isLocked)
+                                .openDir(openDirection.get())
+                                .primeOwner(primeOwner)
+                                .ownersOfStructure(ownersOfStructure)
+                                .build();
 
-        final String rawTypeData = movableBaseRS.getString("typeData");
-        final int typeVersion = movableBaseRS.getInt("typeVersion");
-        return Optional.of(serializer.deserialize(movableRegistry, movableData, typeVersion, rawTypeData));
+        final String rawTypeData = structureBaseRS.getString("typeData");
+        final int typeVersion = structureBaseRS.getInt("typeVersion");
+        return Optional.of(serializer.deserialize(structureRegistry, structureData, typeVersion, rawTypeData));
     }
 
     @Override
-    public boolean deleteMovableType(MovableType movableType)
+    public boolean deleteStructureType(StructureType structureType)
     {
         final boolean removed = executeTransaction(
-            conn -> executeUpdate(SQLStatement.DELETE_MOVABLE_TYPE
+            conn -> executeUpdate(SQLStatement.DELETE_STRUCTURE_TYPE
                                       .constructPPreparedStatement()
-                                      .setNextString(movableType.getFullName())) > 0, false);
+                                      .setNextString(structureType.getFullName())) > 0, false);
 
         if (removed)
-            movableTypeManager.unregisterMovableType(movableType);
+            structureTypeManager.unregisterStructureType(structureType);
         return removed;
     }
 
-    private Long insert(Connection conn, AbstractMovable movable, MovableType movableType, String typeSpecificData)
+    private Long insert(
+        Connection conn, AbstractStructure structure, StructureType structureType, String typeSpecificData)
     {
-        final PPlayerData playerData = movable.getPrimeOwner().pPlayerData();
+        final PPlayerData playerData = structure.getPrimeOwner().pPlayerData();
         insertOrIgnorePlayer(conn, playerData);
 
-        final String worldName = movable.getWorld().worldName();
-        executeUpdate(conn, SQLStatement.INSERT_MOVABLE_BASE
+        final String worldName = structure.getWorld().worldName();
+        executeUpdate(conn, SQLStatement.INSERT_STRUCTURE_BASE
             .constructPPreparedStatement()
-            .setNextString(movable.getName())
+            .setNextString(structure.getName())
             .setNextString(worldName)
-            .setNextInt(movable.getMinimum().x())
-            .setNextInt(movable.getMinimum().y())
-            .setNextInt(movable.getMinimum().z())
-            .setNextInt(movable.getMaximum().x())
-            .setNextInt(movable.getMaximum().y())
-            .setNextInt(movable.getMaximum().z())
-            .setNextInt(movable.getRotationPoint().x())
-            .setNextInt(movable.getRotationPoint().y())
-            .setNextInt(movable.getRotationPoint().z())
-            .setNextLong(Util.getChunkId(movable.getRotationPoint()))
-            .setNextInt(movable.getPowerBlock().x())
-            .setNextInt(movable.getPowerBlock().y())
-            .setNextInt(movable.getPowerBlock().z())
-            .setNextLong(Util.getChunkId(movable.getPowerBlock()))
-            .setNextInt(MovementDirection.getValue(movable.getOpenDir()))
-            .setNextLong(getFlag(movable))
-            .setNextString(movableType.getFullName())
-            .setNextInt(movableType.getVersion())
+            .setNextInt(structure.getMinimum().x())
+            .setNextInt(structure.getMinimum().y())
+            .setNextInt(structure.getMinimum().z())
+            .setNextInt(structure.getMaximum().x())
+            .setNextInt(structure.getMaximum().y())
+            .setNextInt(structure.getMaximum().z())
+            .setNextInt(structure.getRotationPoint().x())
+            .setNextInt(structure.getRotationPoint().y())
+            .setNextInt(structure.getRotationPoint().z())
+            .setNextLong(Util.getChunkId(structure.getRotationPoint()))
+            .setNextInt(structure.getPowerBlock().x())
+            .setNextInt(structure.getPowerBlock().y())
+            .setNextInt(structure.getPowerBlock().z())
+            .setNextLong(Util.getChunkId(structure.getPowerBlock()))
+            .setNextInt(MovementDirection.getValue(structure.getOpenDir()))
+            .setNextLong(getFlag(structure))
+            .setNextString(structureType.getFullName())
+            .setNextInt(structureType.getVersion())
             .setNextString(typeSpecificData));
 
-        // TODO: Just use the fact that the last-inserted movable has the current UID (that fact is already used by
-        //       getTypeSpecificDataInsertStatement(MovableType)), so it can be done in a single statement.
-        final long movableUID = executeQuery(conn,
-                                             SQLStatement.SELECT_MOST_RECENT_MOVABLE.constructPPreparedStatement(),
-                                             rs -> rs.next() ? rs.getLong("seq") : -1, -1L);
+        // TODO: Just use the fact that the last-inserted structure has the current UID (that fact is already used by
+        //       getTypeSpecificDataInsertStatement(StructureType)), so it can be done in a single statement.
+        final long structureUID = executeQuery(conn,
+                                               SQLStatement.SELECT_MOST_RECENT_STRUCTURE.constructPPreparedStatement(),
+                                               rs -> rs.next() ? rs.getLong("seq") : -1, -1L);
 
         executeUpdate(conn, SQLStatement.INSERT_PRIME_OWNER.constructPPreparedStatement()
                                                            .setString(1, playerData.getUUID().toString()));
 
-        return movableUID;
+        return structureUID;
     }
 
     @Override
-    public Optional<AbstractMovable> insert(AbstractMovable movable)
+    public Optional<AbstractStructure> insert(AbstractStructure structure)
     {
-        final MovableSerializer<?> serializer = movable.getType().getMovableSerializer();
+        final StructureSerializer<?> serializer = structure.getType().getStructureSerializer();
 
         try
         {
-            final String typeData = serializer.serialize(movable);
+            final String typeData = serializer.serialize(structure);
 
-            final long movableUID = executeTransaction(conn -> insert(conn, movable, movable.getType(), typeData), -1L);
-            if (movableUID > 0)
+            final long structureUID = executeTransaction(conn -> insert(conn, structure, structure.getType(), typeData),
+                                                         -1L);
+            if (structureUID > 0)
             {
                 return Optional.of(serializer.deserialize(
-                    movableRegistry,
-                    movableBaseBuilder
+                    structureRegistry,
+                    structureBaseBuilder
                         .builder()
-                        .uid(movableUID)
-                        .name(movable.getName())
-                        .cuboid(movable.getCuboid())
-                        .rotationPoint(movable.getRotationPoint())
-                        .powerBlock(movable.getPowerBlock())
-                        .world(movable.getWorld())
-                        .isOpen(movable.isOpen())
-                        .isLocked(movable.isLocked())
-                        .openDir(movable.getOpenDir())
-                        .primeOwner(remapMovableOwner(movable.getPrimeOwner(), movableUID))
-                        .ownersOfMovable(remapMovableOwners(movable.getOwners(), movableUID))
+                        .uid(structureUID)
+                        .name(structure.getName())
+                        .cuboid(structure.getCuboid())
+                        .rotationPoint(structure.getRotationPoint())
+                        .powerBlock(structure.getPowerBlock())
+                        .world(structure.getWorld())
+                        .isOpen(structure.isOpen())
+                        .isLocked(structure.isLocked())
+                        .openDir(structure.getOpenDir())
+                        .primeOwner(remapStructureOwner(structure.getPrimeOwner(), structureUID))
+                        .ownersOfStructure(remapStructureOwners(structure.getOwners(), structureUID))
                         .build(),
-                    movable.getType().getVersion(), typeData));
+                    structure.getType().getVersion(), typeData));
             }
         }
         catch (Exception t)
         {
             log.atSevere().withCause(t).log();
         }
-        log.atSevere().withStackTrace(StackSize.FULL).log("Failed to insert movable: %s", movable);
+        log.atSevere().withStackTrace(StackSize.FULL).log("Failed to insert structure: %s", structure);
         return Optional.empty();
     }
 
-    static Map<UUID, MovableOwner> remapMovableOwners(Collection<MovableOwner> current, long newUid)
+    static Map<UUID, StructureOwner> remapStructureOwners(Collection<StructureOwner> current, long newUid)
     {
-        return current.stream().map(owner -> remapMovableOwner(owner, newUid))
+        return current.stream().map(owner -> remapStructureOwner(owner, newUid))
                       .collect(Collectors.toMap(owner1 -> owner1.pPlayerData().getUUID(), Function.identity()));
     }
 
-    static MovableOwner remapMovableOwner(MovableOwner current, long newUid)
+    static StructureOwner remapStructureOwner(StructureOwner current, long newUid)
     {
-        return new MovableOwner(newUid, current.permission(), current.pPlayerData());
+        return new StructureOwner(newUid, current.permission(), current.pPlayerData());
     }
 
     @Override
-    public boolean syncMovableData(IMovableConst movable, String typeData)
+    public boolean syncStructureData(IStructureConst structure, String typeData)
     {
-        return executeUpdate(SQLStatement.UPDATE_MOVABLE_BASE
+        return executeUpdate(SQLStatement.UPDATE_STRUCTURE_BASE
                                  .constructPPreparedStatement()
-                                 .setNextString(movable.getName())
-                                 .setNextString(movable.getWorld().worldName())
+                                 .setNextString(structure.getName())
+                                 .setNextString(structure.getWorld().worldName())
 
-                                 .setNextInt(movable.getCuboid().getMin().x())
-                                 .setNextInt(movable.getCuboid().getMin().y())
-                                 .setNextInt(movable.getCuboid().getMin().z())
+                                 .setNextInt(structure.getCuboid().getMin().x())
+                                 .setNextInt(structure.getCuboid().getMin().y())
+                                 .setNextInt(structure.getCuboid().getMin().z())
 
-                                 .setNextInt(movable.getCuboid().getMax().x())
-                                 .setNextInt(movable.getCuboid().getMax().y())
-                                 .setNextInt(movable.getCuboid().getMax().z())
+                                 .setNextInt(structure.getCuboid().getMax().x())
+                                 .setNextInt(structure.getCuboid().getMax().y())
+                                 .setNextInt(structure.getCuboid().getMax().z())
 
-                                 .setNextInt(movable.getRotationPoint().x())
-                                 .setNextInt(movable.getRotationPoint().y())
-                                 .setNextInt(movable.getRotationPoint().z())
-                                 .setNextLong(Util.getChunkId(movable.getRotationPoint()))
+                                 .setNextInt(structure.getRotationPoint().x())
+                                 .setNextInt(structure.getRotationPoint().y())
+                                 .setNextInt(structure.getRotationPoint().z())
+                                 .setNextLong(Util.getChunkId(structure.getRotationPoint()))
 
-                                 .setNextInt(movable.getPowerBlock().x())
-                                 .setNextInt(movable.getPowerBlock().y())
-                                 .setNextInt(movable.getPowerBlock().z())
-                                 .setNextLong(Util.getChunkId(movable.getPowerBlock()))
+                                 .setNextInt(structure.getPowerBlock().x())
+                                 .setNextInt(structure.getPowerBlock().y())
+                                 .setNextInt(structure.getPowerBlock().z())
+                                 .setNextLong(Util.getChunkId(structure.getPowerBlock()))
 
-                                 .setNextInt(MovementDirection.getValue(movable.getOpenDir()))
-                                 .setNextLong(getFlag(movable.isOpen(), movable.isLocked()))
-                                 .setNextInt(movable.getType().getVersion())
+                                 .setNextInt(MovementDirection.getValue(structure.getOpenDir()))
+                                 .setNextLong(getFlag(structure.isOpen(), structure.isLocked()))
+                                 .setNextInt(structure.getType().getVersion())
                                  .setNextString(typeData)
 
-                                 .setNextLong(movable.getUid())) > 0;
+                                 .setNextLong(structure.getUid())) > 0;
     }
 
     @Override
-    public List<DatabaseManager.MovableIdentifier> getPartialIdentifiers(
+    public List<DatabaseManager.StructureIdentifier> getPartialIdentifiers(
         String input, @Nullable IPPlayer player, PermissionLevel maxPermission)
     {
         final PPreparedStatement query = Util.isNumerical(input) ?
@@ -546,13 +550,13 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         return executeQuery(query, this::collectIdentifiers, Collections.emptyList());
     }
 
-    private List<DatabaseManager.MovableIdentifier> collectIdentifiers(ResultSet resultSet)
+    private List<DatabaseManager.StructureIdentifier> collectIdentifiers(ResultSet resultSet)
         throws SQLException
     {
-        final List<DatabaseManager.MovableIdentifier> ret = new ArrayList<>();
+        final List<DatabaseManager.StructureIdentifier> ret = new ArrayList<>();
 
         while (resultSet.next())
-            ret.add(new DatabaseManager.MovableIdentifier(resultSet.getLong("id"), resultSet.getString("name")));
+            ret.add(new DatabaseManager.StructureIdentifier(resultSet.getLong("id"), resultSet.getString("name")));
         return ret;
     }
 
@@ -561,8 +565,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         executeUpdate(conn, SQLStatement.INSERT_OR_IGNORE_PLAYER_DATA.constructPPreparedStatement()
                                                                      .setNextString(playerData.getUUID().toString())
                                                                      .setNextString(playerData.getName())
-                                                                     .setNextInt(playerData.getMovableSizeLimit())
-                                                                     .setNextInt(playerData.getMovableCountLimit())
+                                                                     .setNextInt(playerData.getStructureSizeLimit())
+                                                                     .setNextInt(playerData.getStructureCountLimit())
                                                                      .setNextLong(playerData.getPermissionsFlag()));
     }
 
@@ -571,95 +575,95 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      *
      * @param conn
      *     The connection to the database.
-     * @param movableOwner
-     *     The owner of the movable whose player ID to retrieve.
+     * @param structureOwner
+     *     The owner of the structure whose player ID to retrieve.
      * @return The database ID of the player.
      */
-    private long getPlayerID(Connection conn, MovableOwner movableOwner)
+    private long getPlayerID(Connection conn, StructureOwner structureOwner)
     {
-        insertOrIgnorePlayer(conn, movableOwner.pPlayerData());
+        insertOrIgnorePlayer(conn, structureOwner.pPlayerData());
 
         return executeQuery(conn, SQLStatement.GET_PLAYER_ID
                                 .constructPPreparedStatement()
-                                .setString(1, movableOwner.pPlayerData().getUUID().toString()),
+                                .setString(1, structureOwner.pPlayerData().getUUID().toString()),
                             rs -> rs.next() ? rs.getLong("id") : -1, -1L);
     }
 
     /**
-     * Attempts to construct a subclass of {@link AbstractMovable} from a ResultSet containing all data pertaining the
-     * {@link AbstractMovable} (as stored in the "movableBase" table), as well as the owner (name, UUID, permission) and
-     * the typeTableName.
+     * Attempts to construct a subclass of {@link AbstractStructure} from a ResultSet containing all data pertaining the
+     * {@link AbstractStructure} (as stored in the "structureBase" table), as well as the owner (name, UUID, permission)
+     * and the typeTableName.
      *
-     * @param movableBaseRS
-     *     The {@link ResultSet} containing a row from the "movableBase" table as well as a row from the
-     *     "MovableOwnerPlayer" table.
-     * @return An instance of a subclass of {@link AbstractMovable} if it could be created.
+     * @param structureBaseRS
+     *     The {@link ResultSet} containing a row from the "structureBase" table as well as a row from the
+     *     "StructureOwnerPlayer" table.
+     * @return An instance of a subclass of {@link AbstractStructure} if it could be created.
      */
-    private Optional<AbstractMovable> getMovable(ResultSet movableBaseRS)
+    private Optional<AbstractStructure> getStructure(ResultSet structureBaseRS)
         throws Exception
     {
         // Make sure the ResultSet isn't empty.
-        if (!movableBaseRS.isBeforeFirst())
+        if (!structureBaseRS.isBeforeFirst())
             return Optional.empty();
 
-        return constructMovable(movableBaseRS);
+        return constructStructure(structureBaseRS);
     }
 
     /**
-     * Attempts to construct a list of subclasses of {@link AbstractMovable} from a ResultSet containing all data
-     * pertaining to one or more {@link AbstractMovable}s (as stored in the "movableBase" table), as well as the owner
-     * (name, UUID, permission) and the typeTableName.
+     * Attempts to construct a list of subclasses of {@link AbstractStructure} from a ResultSet containing all data
+     * pertaining to one or more {@link AbstractStructure}s (as stored in the "structureBase" table), as well as the
+     * owner (name, UUID, permission) and the typeTableName.
      *
-     * @param movableBaseRS
-     *     The {@link ResultSet} containing one or more rows from the "movableBase" table as well as matching rows from
-     *     the "MovableOwnerPlayer" table.
-     * @return An optional with a list of {@link AbstractMovable}s if any could be constructed. If none could be
+     * @param structureBaseRS
+     *     The {@link ResultSet} containing one or more rows from the "structureBase" table as well as matching rows
+     *     from the "StructureOwnerPlayer" table.
+     * @return An optional with a list of {@link AbstractStructure}s if any could be constructed. If none could be
      * constructed, an empty {@link Optional} is returned instead.
      */
-    private List<AbstractMovable> getMovables(ResultSet movableBaseRS)
+    private List<AbstractStructure> getStructures(ResultSet structureBaseRS)
         throws Exception
     {
         // Make sure the ResultSet isn't empty.
-        if (!movableBaseRS.isBeforeFirst())
+        if (!structureBaseRS.isBeforeFirst())
             return Collections.emptyList();
 
-        final List<AbstractMovable> movables = new ArrayList<>();
+        final List<AbstractStructure> structures = new ArrayList<>();
 
-        while (movableBaseRS.next())
-            constructMovable(movableBaseRS).ifPresent(movables::add);
-        return movables;
+        while (structureBaseRS.next())
+            constructStructure(structureBaseRS).ifPresent(structures::add);
+        return structures;
     }
 
     @Override
-    public Optional<AbstractMovable> getMovable(long movableUID)
+    public Optional<AbstractStructure> getStructure(long structureUID)
     {
-        return executeQuery(SQLStatement.GET_MOVABLE_BASE_FROM_ID.constructPPreparedStatement()
-                                                                 .setLong(1, movableUID),
-                            this::getMovable, Optional.empty());
+        return executeQuery(SQLStatement.GET_STRUCTURE_BASE_FROM_ID.constructPPreparedStatement()
+                                                                   .setLong(1, structureUID),
+                            this::getStructure, Optional.empty());
     }
 
     @Override
-    public Optional<AbstractMovable> getMovable(UUID playerUUID, long movableUID)
+    public Optional<AbstractStructure> getStructure(UUID playerUUID, long structureUID)
     {
-        return executeQuery(SQLStatement.GET_MOVABLE_BASE_FROM_ID_FOR_PLAYER.constructPPreparedStatement()
-                                                                            .setLong(1, movableUID)
-                                                                            .setString(2, playerUUID.toString()),
-                            this::getMovable, Optional.empty());
+        return executeQuery(SQLStatement.GET_STRUCTURE_BASE_FROM_ID_FOR_PLAYER.constructPPreparedStatement()
+                                                                              .setLong(1, structureUID)
+                                                                              .setString(2, playerUUID.toString()),
+                            this::getStructure, Optional.empty());
     }
 
     @Override
-    public boolean removeMovable(long movableUID)
+    public boolean removeStructure(long structureUID)
     {
-        return executeUpdate(SQLStatement.DELETE_MOVABLE.constructPPreparedStatement()
-                                                        .setLong(1, movableUID)) > 0;
+        return executeUpdate(SQLStatement.DELETE_STRUCTURE.constructPPreparedStatement()
+                                                          .setLong(1, structureUID)) > 0;
     }
 
     @Override
-    public boolean removeMovables(UUID playerUUID, String movableName)
+    public boolean removeStructures(UUID playerUUID, String structureName)
     {
-        return executeUpdate(SQLStatement.DELETE_NAMED_MOVABLE_OF_PLAYER.constructPPreparedStatement()
-                                                                        .setString(1, playerUUID.toString())
-                                                                        .setString(2, movableName)) > 0;
+        return executeUpdate(SQLStatement.DELETE_NAMED_STRUCTURE_OF_PLAYER.constructPPreparedStatement()
+                                                                          .setString(1, playerUUID.toString())
+                                                                          .setString(2, structureName)) > 0;
     }
 
     @Override
@@ -671,75 +675,75 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    public int getMovableCountForPlayer(UUID playerUUID)
+    public int getStructureCountForPlayer(UUID playerUUID)
     {
-        return executeQuery(SQLStatement.GET_MOVABLE_COUNT_FOR_PLAYER.constructPPreparedStatement()
-                                                                     .setString(1, playerUUID.toString()),
+        return executeQuery(SQLStatement.GET_STRUCTURE_COUNT_FOR_PLAYER.constructPPreparedStatement()
+                                                                       .setString(1, playerUUID.toString()),
                             resultSet -> resultSet.next() ? resultSet.getInt("total") : -1, -1);
     }
 
     @Override
-    public int getMovableCountForPlayer(UUID playerUUID, String movableName)
+    public int getStructureCountForPlayer(UUID playerUUID, String structureName)
     {
-        return executeQuery(SQLStatement.GET_PLAYER_MOVABLE_COUNT.constructPPreparedStatement()
-                                                                 .setString(1, playerUUID.toString())
-                                                                 .setString(2, movableName),
+        return executeQuery(SQLStatement.GET_PLAYER_STRUCTURE_COUNT.constructPPreparedStatement()
+                                                                   .setString(1, playerUUID.toString())
+                                                                   .setString(2, structureName),
                             resultSet -> resultSet.next() ? resultSet.getInt("total") : -1, -1);
     }
 
     @Override
-    public int getMovableCountByName(String movableName)
+    public int getStructureCountByName(String structureName)
     {
-        return executeQuery(SQLStatement.GET_MOVABLE_COUNT_BY_NAME.constructPPreparedStatement()
-                                                                  .setString(1, movableName),
+        return executeQuery(SQLStatement.GET_STRUCTURE_COUNT_BY_NAME.constructPPreparedStatement()
+                                                                    .setString(1, structureName),
                             resultSet -> resultSet.next() ? resultSet.getInt("total") : -1, -1);
     }
 
     @Override
-    public int getOwnerCountOfMovable(long movableUID)
+    public int getOwnerCountOfStructure(long structureUID)
     {
-        return executeQuery(SQLStatement.GET_OWNER_COUNT_OF_MOVABLE.constructPPreparedStatement()
-                                                                   .setLong(1, movableUID),
+        return executeQuery(SQLStatement.GET_OWNER_COUNT_OF_STRUCTURE.constructPPreparedStatement()
+                                                                     .setLong(1, structureUID),
                             resultSet -> resultSet.next() ? resultSet.getInt("total") : -1, -1);
     }
 
     @Override
-    public List<AbstractMovable> getMovables(UUID playerUUID, String movableName, PermissionLevel maxPermission)
+    public List<AbstractStructure> getStructures(UUID playerUUID, String structureName, PermissionLevel maxPermission)
     {
-        return executeQuery(SQLStatement.GET_NAMED_MOVABLES_OWNED_BY_PLAYER.constructPPreparedStatement()
-                                                                           .setString(1, playerUUID.toString())
-                                                                           .setString(2, movableName)
-                                                                           .setInt(3, maxPermission.getValue()),
-                            this::getMovables, Collections.emptyList());
+        return executeQuery(SQLStatement.GET_NAMED_STRUCTURES_OWNED_BY_PLAYER.constructPPreparedStatement()
+                                                                             .setString(1, playerUUID.toString())
+                                                                             .setString(2, structureName)
+                                                                             .setInt(3, maxPermission.getValue()),
+                            this::getStructures, Collections.emptyList());
     }
 
     @Override
-    public List<AbstractMovable> getMovables(UUID playerUUID, String name)
+    public List<AbstractStructure> getStructures(UUID playerUUID, String name)
     {
-        return getMovables(playerUUID, name, PermissionLevel.CREATOR);
+        return getStructures(playerUUID, name, PermissionLevel.CREATOR);
     }
 
     @Override
-    public List<AbstractMovable> getMovables(String name)
+    public List<AbstractStructure> getStructures(String name)
     {
-        return executeQuery(SQLStatement.GET_MOVABLES_WITH_NAME.constructPPreparedStatement()
-                                                               .setString(1, name),
-                            this::getMovables, Collections.emptyList());
+        return executeQuery(SQLStatement.GET_STRUCTURES_WITH_NAME.constructPPreparedStatement()
+                                                                 .setString(1, name),
+                            this::getStructures, Collections.emptyList());
     }
 
     @Override
-    public List<AbstractMovable> getMovables(UUID playerUUID, PermissionLevel maxPermission)
+    public List<AbstractStructure> getStructures(UUID playerUUID, PermissionLevel maxPermission)
     {
-        return executeQuery(SQLStatement.GET_MOVABLES_OWNED_BY_PLAYER_WITH_LEVEL.constructPPreparedStatement()
-                                                                                .setString(1, playerUUID.toString())
-                                                                                .setInt(2, maxPermission.getValue()),
-                            this::getMovables, Collections.emptyList());
+        return executeQuery(SQLStatement.GET_STRUCTURES_OWNED_BY_PLAYER_WITH_LEVEL.constructPPreparedStatement()
+                                                                                  .setString(1, playerUUID.toString())
+                                                                                  .setInt(2, maxPermission.getValue()),
+                            this::getStructures, Collections.emptyList());
     }
 
     @Override
-    public List<AbstractMovable> getMovables(UUID playerUUID)
+    public List<AbstractStructure> getStructures(UUID playerUUID)
     {
-        return getMovables(playerUUID, PermissionLevel.CREATOR);
+        return getStructures(playerUUID, PermissionLevel.CREATOR);
     }
 
     @Override
@@ -747,8 +751,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     {
         return executeUpdate(SQLStatement.UPDATE_PLAYER_DATA.constructPPreparedStatement()
                                                             .setNextString(playerData.getName())
-                                                            .setNextInt(playerData.getMovableSizeLimit())
-                                                            .setNextInt(playerData.getMovableCountLimit())
+                                                            .setNextInt(playerData.getStructureSizeLimit())
+                                                            .setNextInt(playerData.getStructureCountLimit())
                                                             .setNextLong(playerData.getPermissionsFlag())
                                                             .setNextString(playerData.getUUID().toString())) > 0;
     }
@@ -795,44 +799,44 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                                                                       .setLong(1, chunkId),
                             resultSet ->
                             {
-                                final Int2ObjectMap<LongList> movables = new Int2ObjectLinkedOpenHashMap<>();
+                                final Int2ObjectMap<LongList> structures = new Int2ObjectLinkedOpenHashMap<>();
                                 while (resultSet.next())
                                 {
                                     final int locationHash =
                                         Util.simpleChunkSpaceLocationHash(resultSet.getInt("powerBlockX"),
                                                                           resultSet.getInt("powerBlockY"),
                                                                           resultSet.getInt("powerBlockZ"));
-                                    if (!movables.containsKey(locationHash))
-                                        movables.put(locationHash, new LongArrayList());
-                                    movables.get(locationHash).add(resultSet.getLong("id"));
+                                    if (!structures.containsKey(locationHash))
+                                        structures.put(locationHash, new LongArrayList());
+                                    structures.get(locationHash).add(resultSet.getLong("id"));
                                 }
-                                return Int2ObjectMaps.unmodifiable(movables);
+                                return Int2ObjectMaps.unmodifiable(structures);
                             }, Int2ObjectMaps.emptyMap());
     }
 
     @Override
-    public List<AbstractMovable> getMovablesInChunk(long chunkId)
+    public List<AbstractStructure> getStructuresInChunk(long chunkId)
     {
-        return executeQuery(SQLStatement.GET_MOVABLES_IN_CHUNK.constructPPreparedStatement()
-                                                              .setLong(1, chunkId),
-                            this::getMovables, new ArrayList<>(0));
+        return executeQuery(SQLStatement.GET_STRUCTURES_IN_CHUNK.constructPPreparedStatement()
+                                                                .setLong(1, chunkId),
+                            this::getStructures, new ArrayList<>(0));
     }
 
     @Override
-    public boolean removeOwner(long movableUID, UUID playerUUID)
+    public boolean removeOwner(long structureUID, UUID playerUUID)
     {
-        return executeUpdate(SQLStatement.REMOVE_MOVABLE_OWNER.constructPPreparedStatement()
-                                                              .setString(1, playerUUID.toString())
-                                                              .setLong(2, movableUID)) > 0;
+        return executeUpdate(SQLStatement.REMOVE_STRUCTURE_OWNER.constructPPreparedStatement()
+                                                                .setString(1, playerUUID.toString())
+                                                                .setLong(2, structureUID)) > 0;
     }
 
-    private Map<UUID, MovableOwner> getOwnersOfMovable(long movableUID)
+    private Map<UUID, StructureOwner> getOwnersOfStructure(long structureUID)
     {
-        return executeQuery(SQLStatement.GET_MOVABLE_OWNERS.constructPPreparedStatement()
-                                                           .setLong(1, movableUID),
+        return executeQuery(SQLStatement.GET_STRUCTURE_OWNERS.constructPPreparedStatement()
+                                                             .setLong(1, structureUID),
                             resultSet ->
                             {
-                                final Map<UUID, MovableOwner> ret = new HashMap<>();
+                                final Map<UUID, StructureOwner> ret = new HashMap<>();
                                 while (resultSet.next())
                                 {
                                     final UUID uuid = UUID.fromString(resultSet.getString("playerUUID"));
@@ -843,8 +847,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                                                         resultSet.getInt("countLimit"),
                                                         resultSet.getLong("permissions"));
 
-                                    ret.put(uuid, new MovableOwner(
-                                        resultSet.getLong("movableUID"),
+                                    ret.put(uuid, new StructureOwner(
+                                        resultSet.getLong("structureUID"),
                                         Objects.requireNonNull(
                                             PermissionLevel.fromValue(resultSet.getInt("permission"))),
                                         playerData));
@@ -854,7 +858,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    public boolean addOwner(long movableUID, PPlayerData player, PermissionLevel permission)
+    public boolean addOwner(long structureUID, PPlayerData player, PermissionLevel permission)
     {
         // permission level 0 is reserved for the creator, and negative values are not allowed.
         if (permission.getValue() < 1 || permission == PermissionLevel.NO_PERMISSION)
@@ -868,30 +872,31 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             conn ->
             {
                 final long playerID = getPlayerID(conn,
-                                                  new MovableOwner(movableUID, permission, player.getPPlayerData()));
+                                                  new StructureOwner(structureUID, permission,
+                                                                     player.getPPlayerData()));
 
                 if (playerID == -1)
                     throw new IllegalArgumentException(
-                        "Trying to add player \"" + player.getUUID() + "\" as owner of movable " + movableUID +
+                        "Trying to add player \"" + player.getUUID() + "\" as owner of structure " + structureUID +
                             ", but that player is not registered in the database! Aborting...");
 
                 return executeQuery(
-                    conn, SQLStatement.GET_MOVABLE_OWNER_PLAYER.constructPPreparedStatement()
-                                                               .setLong(1, playerID)
-                                                               .setLong(2, movableUID),
+                    conn, SQLStatement.GET_STRUCTURE_OWNER_PLAYER.constructPPreparedStatement()
+                                                                 .setLong(1, playerID)
+                                                                 .setLong(2, structureUID),
                     rs ->
                     {
                         final SQLStatement statement =
                             (rs.next() && (rs.getInt("permission") != permission.getValue())) ?
-                            SQLStatement.UPDATE_MOVABLE_OWNER_PERMISSION :
-                            SQLStatement.INSERT_MOVABLE_OWNER;
+                            SQLStatement.UPDATE_STRUCTURE_OWNER_PERMISSION :
+                            SQLStatement.INSERT_STRUCTURE_OWNER;
 
                         return
                             executeUpdate(conn, statement
                                 .constructPPreparedStatement()
                                 .setInt(1, permission.getValue())
                                 .setLong(2, playerID)
-                                .setLong(3, movableUID)) > 0;
+                                .setLong(3, structureUID)) > 0;
                     }, false);
             }, false);
     }

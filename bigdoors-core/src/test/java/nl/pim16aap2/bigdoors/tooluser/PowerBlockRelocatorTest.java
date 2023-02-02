@@ -7,8 +7,8 @@ import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.movable.AbstractMovable;
-import nl.pim16aap2.bigdoors.movabletypes.MovableType;
+import nl.pim16aap2.bigdoors.structures.AbstractStructure;
+import nl.pim16aap2.bigdoors.structuretypes.StructureType;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.junit.jupiter.api.Assertions;
@@ -24,7 +24,7 @@ import java.util.Optional;
 class PowerBlockRelocatorTest
 {
     @Mock
-    private AbstractMovable movable;
+    private AbstractStructure structure;
 
     @Mock
     private IPWorld world;
@@ -47,12 +47,12 @@ class PowerBlockRelocatorTest
     {
         MockitoAnnotations.openMocks(this);
 
-        Mockito.when(movable.getWorld()).thenReturn(world);
-        Mockito.when(movable.getPowerBlock()).thenReturn(currentPowerBlockLoc);
+        Mockito.when(structure.getWorld()).thenReturn(world);
+        Mockito.when(structure.getPowerBlock()).thenReturn(currentPowerBlockLoc);
 
-        final MovableType movableTypeType = Mockito.mock(MovableType.class);
-        Mockito.when(movable.getType()).thenReturn(movableTypeType);
-        Mockito.when(movableTypeType.getLocalizationKey()).thenReturn("MovableType");
+        final StructureType structureTypeType = Mockito.mock(StructureType.class);
+        Mockito.when(structure.getType()).thenReturn(structureTypeType);
+        Mockito.when(structureTypeType.getLocalizationKey()).thenReturn("StructureType");
 
         compatManager = Mockito.mock(IProtectionCompatManager.class);
         Mockito.when(compatManager.canBreakBlock(Mockito.any(), Mockito.any())).thenReturn(Optional.empty());
@@ -73,21 +73,21 @@ class PowerBlockRelocatorTest
                .thenAnswer(invocation -> new Step.Factory(localizer, invocation.getArgument(0, String.class)));
         Mockito.when(context.getStepFactory()).thenReturn(assistedStepFactory);
 
-        Mockito.when(factory.create(Mockito.any(IPPlayer.class), Mockito.any(AbstractMovable.class)))
+        Mockito.when(factory.create(Mockito.any(IPPlayer.class), Mockito.any(AbstractStructure.class)))
                .thenAnswer(invoc -> new PowerBlockRelocator(context, invoc.getArgument(0, IPPlayer.class),
-                                                            invoc.getArgument(1, AbstractMovable.class)));
+                                                            invoc.getArgument(1, AbstractStructure.class)));
     }
 
     @Test
     void testMoveToLocWorld()
     {
-        final PowerBlockRelocator relocator = factory.create(player, movable);
+        final PowerBlockRelocator relocator = factory.create(player, structure);
 
         Mockito.when(location.getWorld()).thenReturn(Mockito.mock(IPWorld.class));
 
         Assertions.assertFalse(relocator.moveToLoc(location));
         Mockito.verify(player)
-               .sendMessage(UnitTestUtil.toText("tool_user.powerblock_relocator.error.world_mismatch MovableType"));
+               .sendMessage(UnitTestUtil.toText("tool_user.powerblock_relocator.error.world_mismatch StructureType"));
 
         Mockito.when(location.getWorld()).thenReturn(Mockito.mock(IPWorld.class));
     }
@@ -95,7 +95,7 @@ class PowerBlockRelocatorTest
     @Test
     void testMoveToLocDuplicated()
     {
-        final PowerBlockRelocator relocator = factory.create(player, movable);
+        final PowerBlockRelocator relocator = factory.create(player, structure);
 
         Mockito.when(location.getWorld()).thenReturn(world);
 
@@ -109,7 +109,7 @@ class PowerBlockRelocatorTest
     @Test
     void testMoveToLocNoAccess()
     {
-        final PowerBlockRelocator relocator = factory.create(player, movable);
+        final PowerBlockRelocator relocator = factory.create(player, structure);
 
         final String compat = "TestCompat";
         Mockito.when(compatManager.canBreakBlock(Mockito.any(), Mockito.any())).thenReturn(Optional.of(compat));
@@ -123,26 +123,26 @@ class PowerBlockRelocatorTest
     @Test
     void testExecution()
     {
-        final PowerBlockRelocator relocator = factory.create(player, movable);
+        final PowerBlockRelocator relocator = factory.create(player, structure);
 
         Mockito.when(location.getWorld()).thenReturn(world);
         Mockito.when(location.getPosition()).thenReturn(new Vector3Di(0, 0, 0));
 
         Assertions.assertTrue(relocator.handleInput(location));
 
-        Mockito.verify(movable).syncData();
+        Mockito.verify(structure).syncData();
     }
 
     @Test
     void testExecutionUnchanged()
     {
-        final PowerBlockRelocator relocator = factory.create(player, movable);
+        final PowerBlockRelocator relocator = factory.create(player, structure);
 
         Mockito.when(location.getWorld()).thenReturn(world);
         Mockito.when(location.getPosition()).thenReturn(currentPowerBlockLoc);
 
         Assertions.assertTrue(relocator.handleInput(location));
 
-        Mockito.verify(movable, Mockito.never()).syncData();
+        Mockito.verify(structure, Mockito.never()).syncData();
     }
 }

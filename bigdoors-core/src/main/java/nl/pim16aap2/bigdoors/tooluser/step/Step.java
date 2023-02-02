@@ -18,7 +18,8 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 // TODO: Consider adding another method for PrepareStep or something. For example, the setFirstPos would prepare by
-//       giving the player the creator stick, and CONFIRM_PRICE would prepare by skipping itself if the movable is free.
+//       giving the player the creator stick, and CONFIRM_PRICE would prepare by skipping itself if
+//       the structure is free.
 @ToString
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Step implements IStep

@@ -26,7 +26,7 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 /**
- * Represents an argument parser that can be used to retrieve and suggest movable types.
+ * Represents an argument parser that can be used to retrieve and suggest structure types.
  *
  * @author Pim
  */

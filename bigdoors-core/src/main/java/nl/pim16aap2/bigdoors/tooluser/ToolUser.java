@@ -16,7 +16,7 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
-import nl.pim16aap2.bigdoors.movable.MovableBaseBuilder;
+import nl.pim16aap2.bigdoors.structures.StructureBaseBuilder;
 import nl.pim16aap2.bigdoors.text.TextType;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
@@ -345,7 +345,7 @@ public abstract class ToolUser
     @Getter
     public static final class Context
     {
-        private final MovableBaseBuilder movableBaseBuilder;
+        private final StructureBaseBuilder structureBaseBuilder;
         private final ILocalizer localizer;
         private final ITextFactory textFactory;
         private final ToolUserManager toolUserManager;
@@ -359,13 +359,13 @@ public abstract class ToolUser
 
         @Inject
         public Context(
-            MovableBaseBuilder movableBaseBuilder, ILocalizer localizer, ITextFactory textFactory,
+            StructureBaseBuilder structureBaseBuilder, ILocalizer localizer, ITextFactory textFactory,
             ToolUserManager toolUserManager, DatabaseManager databaseManager, LimitsManager limitsManager,
             IEconomyManager economyManager, IProtectionCompatManager protectionCompatManager,
             IBigDoorsToolUtil bigDoorsToolUtil, CommandFactory commandFactory,
             Step.Factory.IFactory stepFactory)
         {
-            this.movableBaseBuilder = movableBaseBuilder;
+            this.structureBaseBuilder = structureBaseBuilder;
             this.localizer = localizer;
             this.toolUserManager = toolUserManager;
             this.databaseManager = databaseManager;
