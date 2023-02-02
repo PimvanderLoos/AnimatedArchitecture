@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.managers.MovableTypeManager;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.MovableSerializer;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
+import nl.pim16aap2.bigdoors.util.LazyValue;
 import nl.pim16aap2.bigdoors.util.MovementDirection;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,7 +46,7 @@ public abstract class MovableType
      * @return The version of this {@link MovableType}.
      */
     @Getter
-    protected final int typeVersion;
+    protected final int version;
 
     /**
      * Obtains the value of this type that represents the key in the translation system.
@@ -56,7 +57,7 @@ public abstract class MovableType
     protected final String localizationKey;
 
     /**
-     * The fully-qualified name of this {@link MovableType}.
+     * The fully-qualified name of this {@link MovableType} formatted as "pluginName_simpleName".
      */
     @Getter
     private final String fullName;
@@ -71,7 +72,7 @@ public abstract class MovableType
     @Getter
     private final Set<MovementDirection> validOpenDirections;
 
-    private volatile @Nullable MovableSerializer<?> movableSerializer;
+    private final LazyValue<MovableSerializer<?>> lazyMovableSerializer;
 
     /**
      * Constructs a new {@link MovableType}. Don't forget to also register it using
@@ -81,24 +82,23 @@ public abstract class MovableType
      *     The name of the plugin that owns this {@link MovableType}.
      * @param simpleName
      *     The 'simple' name of this {@link MovableType}. E.g. "Flag", or "Windmill".
-     * @param typeVersion
-     *     The version of this {@link MovableType}. Note that changing the version results in a completely new
-     *     {@link MovableType}, as far as the database is concerned. This fact can be used if the parameters of the
-     *     constructor for this type need to be changed.
+     * @param version
+     *     The version of this {@link MovableType}.
      */
     protected MovableType(
-        String pluginName, String simpleName, int typeVersion, List<MovementDirection> validOpenDirections,
+        String pluginName, String simpleName, int version, List<MovementDirection> validOpenDirections,
         String localizationKey)
     {
         this.pluginName = pluginName;
         this.simpleName = simpleName.toLowerCase(Locale.ENGLISH);
-        this.typeVersion = typeVersion;
+        this.version = version;
         this.validOpenDirections =
             validOpenDirections.isEmpty() ? EnumSet.noneOf(MovementDirection.class) :
             EnumSet.copyOf(validOpenDirections);
         this.localizationKey = localizationKey;
-        fullName = String.format("%s_%s_%d", getPluginName(), getSimpleName(), getTypeVersion())
-                         .toLowerCase(Locale.ENGLISH);
+        fullName = String.format("%s_%s", getPluginName(), getSimpleName()).toLowerCase(Locale.ENGLISH);
+
+        lazyMovableSerializer = new LazyValue<>(() -> new MovableSerializer<>(this));
     }
 
     /**
@@ -106,17 +106,9 @@ public abstract class MovableType
      *
      * @return The {@link MovableSerializer}.
      */
-    @SuppressWarnings("ConstantConditions")
     public final MovableSerializer<?> getMovableSerializer()
     {
-        if (movableSerializer != null)
-            return movableSerializer;
-        synchronized (this)
-        {
-            if (movableSerializer == null)
-                movableSerializer = new MovableSerializer<>(getMovableClass());
-            return movableSerializer;
-        }
+        return lazyMovableSerializer.get();
     }
 
     /**
@@ -173,7 +165,8 @@ public abstract class MovableType
     @Override
     public final String toString()
     {
-        return getPluginName() + ":" + getSimpleName() + ":" + getTypeVersion();
+        return "MovableType[@" + Integer.toHexString(hashCode()) + "] " +
+            getPluginName() + ":" + getSimpleName() + ":" + getVersion();
     }
 
     @Override

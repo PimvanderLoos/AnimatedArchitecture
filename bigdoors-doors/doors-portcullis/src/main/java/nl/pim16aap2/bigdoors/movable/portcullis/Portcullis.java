@@ -6,7 +6,7 @@ import lombok.ToString;
 import lombok.experimental.Locked;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IDiscreteMovement;
-import nl.pim16aap2.bigdoors.movable.serialization.DeserializationConstructor;
+import nl.pim16aap2.bigdoors.movable.serialization.Deserialization;
 import nl.pim16aap2.bigdoors.movable.serialization.PersistentVariable;
 import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
@@ -29,8 +29,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 @EqualsAndHashCode(callSuper = true)
 public class Portcullis extends AbstractMovable implements IDiscreteMovement
 {
-    private static final MovableType MOVABLE_TYPE = MovableTypePortcullis.get();
-
     @EqualsAndHashCode.Exclude
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
@@ -40,12 +38,20 @@ public class Portcullis extends AbstractMovable implements IDiscreteMovement
     @Getter(onMethod_ = @Locked.Read)
     protected int blocksToMove;
 
-    @DeserializationConstructor
-    public Portcullis(AbstractMovable.MovableBaseHolder base, @PersistentVariable("blocksToMove") int blocksToMove)
+    protected Portcullis(
+        AbstractMovable.MovableBaseHolder base,
+        MovableType type,
+        @PersistentVariable("blocksToMove") int blocksToMove)
     {
-        super(base);
+        super(base, type);
         this.lock = getLock();
         this.blocksToMove = blocksToMove;
+    }
+
+    @Deserialization
+    public Portcullis(AbstractMovable.MovableBaseHolder base, @PersistentVariable("blocksToMove") int blocksToMove)
+    {
+        this(base, MovableTypePortcullis.get(), blocksToMove);
     }
 
     @Override
@@ -70,12 +76,6 @@ public class Portcullis extends AbstractMovable implements IDiscreteMovement
         final Vector3Di max = cuboid.getMax();
 
         return new Cuboid(min.add(0, -blocksToMove, 0), max.add(0, blocksToMove, 0)).asFlatRectangle();
-    }
-
-    @Override
-    public MovableType getType()
-    {
-        return MOVABLE_TYPE;
     }
 
     @Override

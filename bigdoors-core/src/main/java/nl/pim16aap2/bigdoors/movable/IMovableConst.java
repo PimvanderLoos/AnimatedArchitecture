@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.movable;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.MovementDirection;
 import nl.pim16aap2.bigdoors.util.Rectangle;
@@ -24,6 +25,11 @@ public interface IMovableConst
      * @return A {@link MovableSnapshot} of this {@link MovableBase}.
      */
     MovableSnapshot getSnapshot();
+
+    /**
+     * @return The {@link MovableType} of this movable.
+     */
+    MovableType getType();
 
     /**
      * Checks if this movable can be opened right now.

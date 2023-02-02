@@ -7,9 +7,8 @@ import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
-import nl.pim16aap2.bigdoors.movable.serialization.DeserializationConstructor;
+import nl.pim16aap2.bigdoors.movable.serialization.Deserialization;
 import nl.pim16aap2.bigdoors.movable.serialization.PersistentVariable;
-import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.Cuboid;
@@ -32,8 +31,6 @@ import java.util.stream.Stream;
 @Flogger
 public class Drawbridge extends AbstractMovable implements IHorizontalAxisAligned
 {
-    private static final MovableType MOVABLE_TYPE = MovableTypeDrawbridge.get();
-
     @EqualsAndHashCode.Exclude
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
@@ -50,18 +47,12 @@ public class Drawbridge extends AbstractMovable implements IHorizontalAxisAligne
     @Setter(onMethod_ = @Locked.Write)
     protected boolean modeUp;
 
-    @DeserializationConstructor
+    @Deserialization
     public Drawbridge(AbstractMovable.MovableBaseHolder base, @PersistentVariable("modeUp") boolean modeUp)
     {
-        super(base);
+        super(base, MovableTypeDrawbridge.get());
         this.lock = getLock();
         this.modeUp = modeUp;
-    }
-
-    @Override
-    public MovableType getType()
-    {
-        return MOVABLE_TYPE;
     }
 
     @Override

@@ -24,8 +24,6 @@ public final class MovableTypeClock extends MovableType
     }
 
     /**
-     * Obtains the instance of this type.
-     *
      * @return The instance of this type.
      */
     public static MovableTypeClock get()

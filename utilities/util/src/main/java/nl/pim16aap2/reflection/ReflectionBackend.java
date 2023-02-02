@@ -406,13 +406,16 @@ final class ReflectionBackend
      *     The parameters of the constructor. When this is null, the constructor's parameters are ignored.
      * @param setAccessible
      *     True to use {@link AccessibleObject#setAccessible(boolean)}.
-     * @return The constructor matching the specified description.
+     * @param maxCount
+     *     The maximum number of constructors to return.
+     * @return All constructors matching the specified description.
      */
     @SafeVarargs
-    public static @Nullable Constructor<?> findCTor(
-        Class<?> source, int modifiers, @Nullable ParameterGroup parameters, boolean setAccessible,
+    public static List<Constructor<?>> findCTor(
+        Class<?> source, int modifiers, @Nullable ParameterGroup parameters, boolean setAccessible, int maxCount,
         Class<? extends Annotation>... annotations)
     {
+        final List<Constructor<?>> ret = new ArrayList<>();
         for (final Constructor<?> ctor : source.getDeclaredConstructors())
         {
             if (modifiers != 0 && ctor.getModifiers() != modifiers)
@@ -421,9 +424,11 @@ final class ReflectionBackend
                 continue;
             if (!containsAnnotations(ctor, annotations))
                 continue;
-            return setAccessibleIfNeeded(ctor, setAccessible);
+            ret.add(setAccessibleIfNeeded(ctor, setAccessible));
+            if (ret.size() >= maxCount)
+                break;
         }
-        return null;
+        return ret;
     }
 
     /**

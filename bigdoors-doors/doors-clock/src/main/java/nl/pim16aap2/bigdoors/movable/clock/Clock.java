@@ -6,9 +6,8 @@ import lombok.ToString;
 import lombok.experimental.Locked;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.movablearchetypes.IHorizontalAxisAligned;
-import nl.pim16aap2.bigdoors.movable.serialization.DeserializationConstructor;
+import nl.pim16aap2.bigdoors.movable.serialization.Deserialization;
 import nl.pim16aap2.bigdoors.movable.serialization.PersistentVariable;
-import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.Cuboid;
@@ -28,8 +27,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 @EqualsAndHashCode(callSuper = true)
 public class Clock extends AbstractMovable implements IHorizontalAxisAligned
 {
-    private static final MovableType MOVABLE_TYPE = MovableTypeClock.get();
-
     @EqualsAndHashCode.Exclude
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
@@ -63,12 +60,13 @@ public class Clock extends AbstractMovable implements IHorizontalAxisAligned
     @Getter
     protected final PBlockFace hourArmSide;
 
-    @DeserializationConstructor
+    @Deserialization
     public Clock(
-        AbstractMovable.MovableBaseHolder base, @PersistentVariable("northSouthAligned") boolean northSouthAligned,
+        AbstractMovable.MovableBaseHolder base,
+        @PersistentVariable("northSouthAligned") boolean northSouthAligned,
         @PersistentVariable("hourArmSide") PBlockFace hourArmSide)
     {
-        super(base);
+        super(base, MovableTypeClock.get());
         this.lock = getLock();
         this.northSouthAligned = northSouthAligned;
         this.hourArmSide = hourArmSide;
@@ -77,12 +75,6 @@ public class Clock extends AbstractMovable implements IHorizontalAxisAligned
     public Clock(AbstractMovable.MovableBaseHolder base)
     {
         this(base, false, PBlockFace.NONE);
-    }
-
-    @Override
-    public MovableType getType()
-    {
-        return MOVABLE_TYPE;
     }
 
     @Override

@@ -4,9 +4,8 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.portcullis.Portcullis;
-import nl.pim16aap2.bigdoors.movable.serialization.DeserializationConstructor;
+import nl.pim16aap2.bigdoors.movable.serialization.Deserialization;
 import nl.pim16aap2.bigdoors.movable.serialization.PersistentVariable;
-import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 
 /**
  * Represents an Elevator movable type.
@@ -18,17 +17,9 @@ import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 @EqualsAndHashCode(callSuper = true)
 public class Elevator extends Portcullis
 {
-    private static final MovableType MOVABLE_TYPE = MovableTypeElevator.get();
-
-    @DeserializationConstructor
+    @Deserialization
     public Elevator(AbstractMovable.MovableBaseHolder base, @PersistentVariable("blocksToMove") int blocksToMove)
     {
-        super(base, blocksToMove);
-    }
-
-    @Override
-    public MovableType getType()
-    {
-        return MOVABLE_TYPE;
+        super(base, MovableTypeElevator.get(), blocksToMove);
     }
 }

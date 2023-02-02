@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -59,10 +60,21 @@ public class ConstructorFinder
                 ReflectionBackend.formatOptionalValue(parameters)));
         }
 
+        /**
+         * @return All constructors that match the provided data.
+         */
+        public List<Constructor<?>> getAll()
+        {
+            return ReflectionBackend.findCTor(
+                source, modifiers, parameters, setAccessible, Integer.MAX_VALUE, annotations);
+        }
+
         @Override
         public @Nullable Constructor<?> getNullable()
         {
-            return ReflectionBackend.findCTor(source, modifiers, parameters, setAccessible, annotations);
+            final List<Constructor<?>> ctors =
+                ReflectionBackend.findCTor(source, modifiers, parameters, setAccessible, 1, annotations);
+            return ctors.isEmpty() ? null : ctors.get(0);
         }
 
         @Override

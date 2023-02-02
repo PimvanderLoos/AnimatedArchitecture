@@ -8,9 +8,8 @@ import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.movable.AbstractMovable;
 import nl.pim16aap2.bigdoors.movable.bigdoor.BigDoor;
-import nl.pim16aap2.bigdoors.movable.serialization.DeserializationConstructor;
+import nl.pim16aap2.bigdoors.movable.serialization.Deserialization;
 import nl.pim16aap2.bigdoors.movable.serialization.PersistentVariable;
-import nl.pim16aap2.bigdoors.movabletypes.MovableType;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.moveblocks.MovementRequestData;
 import nl.pim16aap2.bigdoors.util.Cuboid;
@@ -32,8 +31,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 @Flogger
 public class RevolvingDoor extends AbstractMovable
 {
-    private static final MovableType MOVABLE_TYPE = MovableRevolvingDoor.get();
-
     @EqualsAndHashCode.Exclude
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
@@ -49,11 +46,12 @@ public class RevolvingDoor extends AbstractMovable
     @Setter(onMethod_ = @Locked.Write)
     private int quarterCircles;
 
-    @DeserializationConstructor
+    @Deserialization
     public RevolvingDoor(
-        AbstractMovable.MovableBaseHolder base, @PersistentVariable("quarterCircles") int quarterCircles)
+        AbstractMovable.MovableBaseHolder base,
+        @PersistentVariable("quarterCircles") int quarterCircles)
     {
-        super(base);
+        super(base, MovableRevolvingDoor.get());
         this.lock = getLock();
         this.quarterCircles = quarterCircles;
     }
@@ -76,12 +74,6 @@ public class RevolvingDoor extends AbstractMovable
     {
         final double maxRadius = BigDoor.getMaxRadius(getCuboid(), getRotationPoint());
         return BigDoor.calculateAnimationRange(maxRadius, getCuboid());
-    }
-
-    @Override
-    public MovableType getType()
-    {
-        return MOVABLE_TYPE;
     }
 
     @Override
