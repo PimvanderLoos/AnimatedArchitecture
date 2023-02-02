@@ -12,7 +12,7 @@ public enum SQLStatement
 {
     UPDATE_STRUCTURE_BASE(
         """
-        UPDATE Structures SET
+        UPDATE Structure SET
         name           = ?,
         world          = ?,
         xMin           = ?,
@@ -47,17 +47,17 @@ public enum SQLStatement
 
     DELETE_NAMED_STRUCTURE_OF_PLAYER(
         """
-        DELETE FROM Structures
-        WHERE Structures.id IN
-            (SELECT D.id
-            FROM Structures AS D INNER JOIN StructureOwnerPlayer AS U ON U.structureUID = D.id,
+        DELETE FROM Structure
+        WHERE Structure.id IN
+            (SELECT S.id
+            FROM Structure AS S INNER JOIN StructureOwnerPlayer AS U ON U.structureUID = S.id,
                 (SELECT P.id FROM Player as P WHERE P.playerUUID = ?) AS R
-                WHERE D.name = ? AND R.id = U.playerID);
+                WHERE S.name = ? AND R.id = U.playerID);
         """
     ),
 
     DELETE_STRUCTURE_TYPE(
-        "DELETE FROM Structures WHERE Structures.type = ?;"
+        "DELETE FROM Structure WHERE Structure.type = ?;"
     ),
 
     GET_LATEST_ROW_ADDITION(
@@ -82,7 +82,7 @@ public enum SQLStatement
     GET_POWER_BLOCK_DATA_IN_CHUNK(
         """
         SELECT id, powerBlockX, powerBlockY, powerBlockZ, powerBlockChunkId
-        FROM Structures
+        FROM Structure
         WHERE powerBlockChunkId = ?;
         """
     ),
@@ -91,7 +91,7 @@ public enum SQLStatement
      * Gets all the structures that have their <b>rotationPoint</b> in the chunk with the given chunk hash.
      */
     GET_STRUCTURE_IN_CHUNK(
-        "SELECT * FROM Structures WHERE rotationPointChunkId = ?;"
+        "SELECT * FROM Structure WHERE rotationPointChunkId = ?;"
     ),
 
     INSERT_OR_IGNORE_PLAYER_DATA(
@@ -104,23 +104,23 @@ public enum SQLStatement
 
     GET_IDENTIFIERS_FROM_PARTIAL_NAME_MATCH_WITH_OWNER(
         """
-        SELECT D.id, D.name
-        FROM Structures AS D
-        INNER JOIN StructureOwnerPlayer AS O ON D.id = O.structureUID
+        SELECT S.id, S.name
+        FROM Structure AS S
+        INNER JOIN StructureOwnerPlayer AS O ON S.id = O.structureUID
         INNER JOIN Player AS P ON O.playerID = P.id
-        WHERE D.name like ? || '%' AND O.permission <= ? AND (? IS NULL OR P.playerUUID IS ?)
-        GROUP BY D.id;
+        WHERE S.name like ? || '%' AND O.permission <= ? AND (? IS NULL OR P.playerUUID IS ?)
+        GROUP BY S.id;
         """
     ),
 
     GET_IDENTIFIERS_FROM_PARTIAL_UID_MATCH_WITH_OWNER(
         """
-        SELECT D.id, D.name
-        FROM Structures AS D
-        INNER JOIN StructureOwnerPlayer AS O ON D.id = O.structureUID
+        SELECT S.id, S.name
+        FROM Structure AS S
+        INNER JOIN StructureOwnerPlayer AS O ON S.id = O.structureUID
         INNER JOIN Player AS P ON O.playerID = P.id
-        WHERE D.id like ? || '%' AND O.permission <= ? AND (? IS NULL OR P.playerUUID IS ?)
-        GROUP BY D.id;
+        WHERE S.id like ? || '%' AND O.permission <= ? AND (? IS NULL OR P.playerUUID IS ?)
+        GROUP BY S.id;
         """
     ),
 
@@ -148,7 +148,7 @@ public enum SQLStatement
     ),
 
     GET_STRUCTURE_COUNT_BY_NAME(
-        "SELECT COUNT(*) AS total FROM Structures WHERE name = ?;"
+        "SELECT COUNT(*) AS total FROM Structure WHERE name = ?;"
     ),
 
     GET_PLAYER_STRUCTURE_COUNT(
@@ -156,8 +156,8 @@ public enum SQLStatement
         SELECT COUNT(*) AS total
         FROM StructureOwnerPlayer AS U
         INNER JOIN Player AS P on U.playerID = P.id
-        INNER JOIN Structures AS D ON U.structureUID = D.id
-        WHERE P.playerUUID = ? AND D.name = ?;
+        INNER JOIN Structure AS S ON U.structureUID = S.id
+        WHERE P.playerUUID = ? AND S.name = ?;
         """
     ),
 
@@ -172,14 +172,14 @@ public enum SQLStatement
     IS_BIGDOORS_WORLD(
         """
         SELECT world
-        FROM Structures
+        FROM Structure
         WHERE world = ?
         LIMIT 1;
         """
     ),
 
     DELETE_STRUCTURE(
-        "DELETE FROM Structures WHERE id = ?;"
+        "DELETE FROM Structure WHERE id = ?;"
     ),
 
     GET_PLAYER_ID(
@@ -188,11 +188,11 @@ public enum SQLStatement
 
     GET_STRUCTURE_BASE_FROM_ID(
         """
-        SELECT Structures.*, Player.*, StructureOwnerPlayer.permission
-        FROM Structures
-        INNER JOIN StructureOwnerPlayer ON Structures.id = StructureOwnerPlayer.structureUID
+        SELECT Structure.*, Player.*, StructureOwnerPlayer.permission
+        FROM Structure
+        INNER JOIN StructureOwnerPlayer ON Structure.id = StructureOwnerPlayer.structureUID
         INNER JOIN Player ON StructureOwnerPlayer.playerID = Player.id
-        WHERE Structures.id = ? AND StructureOwnerPlayer.permission = 0;
+        WHERE Structure.id = ? AND StructureOwnerPlayer.permission = 0;
         """
     ),
 
@@ -201,49 +201,49 @@ public enum SQLStatement
      */
     GET_STRUCTURES_IN_CHUNK(
         """
-        SELECT Structures.*, Player.*, StructureOwnerPlayer.permission
-        FROM Structures
-        INNER JOIN StructureOwnerPlayer ON Structures.id = StructureOwnerPlayer.structureUID
+        SELECT Structure.*, Player.*, StructureOwnerPlayer.permission
+        FROM Structure
+        INNER JOIN StructureOwnerPlayer ON Structure.id = StructureOwnerPlayer.structureUID
         INNER JOIN Player ON StructureOwnerPlayer.playerID = Player.id
-        WHERE Structures.rotationPointChunkId = ?;
+        WHERE Structure.rotationPointChunkId = ?;
         """
     ),
 
     GET_STRUCTURE_BASE_FROM_ID_FOR_PLAYER(
         """
-        SELECT Structures.*, Player.*, StructureOwnerPlayer.permission
-        FROM Structures
-        INNER JOIN StructureOwnerPlayer ON Structures.id = StructureOwnerPlayer.structureUID
+        SELECT Structure.*, Player.*, StructureOwnerPlayer.permission
+        FROM Structure
+        INNER JOIN StructureOwnerPlayer ON Structure.id = StructureOwnerPlayer.structureUID
         INNER JOIN Player ON StructureOwnerPlayer.playerID = Player.id
-        WHERE Structures.id = ? AND Player.playerUUID = ?;
+        WHERE Structure.id = ? AND Player.playerUUID = ?;
         """
     ),
 
     GET_NAMED_STRUCTURES_OWNED_BY_PLAYER(
         """
-        SELECT Structures.*, Player.*, StructureOwnerPlayer.permission
-        FROM Structures
-        INNER JOIN StructureOwnerPlayer ON Structures.id = StructureOwnerPlayer.structureUID
+        SELECT Structure.*, Player.*, StructureOwnerPlayer.permission
+        FROM Structure
+        INNER JOIN StructureOwnerPlayer ON Structure.id = StructureOwnerPlayer.structureUID
         INNER JOIN Player ON StructureOwnerPlayer.playerID = Player.id
-        WHERE Player.playerUUID = ? AND Structures.name = ? And StructureOwnerPlayer.permission <= ?;
+        WHERE Player.playerUUID = ? AND Structure.name = ? And StructureOwnerPlayer.permission <= ?;
         """
     ),
 
     GET_STRUCTURES_WITH_NAME(
         """
-        SELECT Structures.*, Player.*, StructureOwnerPlayer.permission
-        FROM Structures
-        INNER JOIN StructureOwnerPlayer ON Structures.id = StructureOwnerPlayer.structureUID
+        SELECT Structure.*, Player.*, StructureOwnerPlayer.permission
+        FROM Structure
+        INNER JOIN StructureOwnerPlayer ON Structure.id = StructureOwnerPlayer.structureUID
         INNER JOIN Player ON StructureOwnerPlayer.playerID = Player.id
-        WHERE Structures.name = ? And StructureOwnerPlayer.permission = 0;
+        WHERE Structure.name = ? And StructureOwnerPlayer.permission = 0;
         """
     ),
 
     GET_STRUCTURES_OWNED_BY_PLAYER_WITH_LEVEL(
         """
-        SELECT Structures.*, Player.*, StructureOwnerPlayer.permission
-        FROM Structures
-        INNER JOIN StructureOwnerPlayer ON Structures.id = StructureOwnerPlayer.structureUID
+        SELECT Structure.*, Player.*, StructureOwnerPlayer.permission
+        FROM Structure
+        INNER JOIN StructureOwnerPlayer ON Structure.id = StructureOwnerPlayer.structureUID
         INNER JOIN Player ON StructureOwnerPlayer.playerID = Player.id
         WHERE Player.playerUUID = ? AND StructureOwnerPlayer.permission <= ?;
         """
@@ -259,7 +259,7 @@ public enum SQLStatement
 
     INSERT_STRUCTURE_BASE(
         """
-        INSERT INTO Structures
+        INSERT INTO Structure
         (name, world, xMin, yMin, zMin, xMax, yMax, zMax, rotationPointX, rotationPointY, rotationPointZ,
          rotationPointChunkId, powerBlockX, powerBlockY, powerBlockZ, powerBlockChunkId, openDirection,
          bitflag, type, typeVersion, typeData)
@@ -281,7 +281,7 @@ public enum SQLStatement
             WHERE Player.playerUUID = ?),
             (SELECT seq
             FROM sqlite_sequence
-            WHERE sqlite_sequence.name = "Structures"));
+            WHERE sqlite_sequence.name = "Structure"));
         """
     ),
 
@@ -289,7 +289,7 @@ public enum SQLStatement
         """
         SELECT seq
         FROM sqlite_sequence
-        WHERE sqlite_sequence.name = "Structures";
+        WHERE sqlite_sequence.name = "Structure";
         """
     ),
 
@@ -309,16 +309,20 @@ public enum SQLStatement
         "PRAGMA foreign_keys = OFF;"
     ),
 
+    INSERT_SQLITE_SEQ(
+        "INSERT OR IGNORE INTO SQLITE_SEQUENCE (name, seq) VALUES (?, ?);"
+    ),
+
     RESERVE_IDS_PLAYER(
-        "UPDATE SQLITE_SEQUENCE SET seq = 100 WHERE name = 'Player' and seq < 100;"
+        "INSERT OR IGNORE INTO SQLITE_SEQUENCE (name, seq) VALUES ('Player', 10);"
     ),
 
     RESERVE_IDS_STRUCTURE(
-        "UPDATE SQLITE_SEQUENCE SET seq = 100 WHERE name = 'Structures' and seq < 100;"
+        "INSERT OR IGNORE INTO SQLITE_SEQUENCE (name, seq) VALUES ('Structure', 10);"
     ),
 
     RESERVE_IDS_STRUCTURE_OWNER_PLAYER(
-        "UPDATE SQLITE_SEQUENCE SET seq = 100 WHERE name = 'StructureOwnerPlayer' and seq < 100;"
+        "INSERT OR IGNORE INTO SQLITE_SEQUENCE (name, seq) VALUES ('StructureOwnerPlayer', 10);"
     ),
 
     CREATE_TABLE_PLAYER(
@@ -336,7 +340,7 @@ public enum SQLStatement
 
     CREATE_TABLE_STRUCTURE(
         """
-        CREATE TABLE IF NOT EXISTS Structures
+        CREATE TABLE IF NOT EXISTS Structure
         (id                   INTEGER    PRIMARY KEY AUTOINCREMENT,
         name                  TEXT       NOT NULL,
         world                 TEXT       NOT NULL,
@@ -367,8 +371,8 @@ public enum SQLStatement
         CREATE TABLE IF NOT EXISTS StructureOwnerPlayer
         (id          INTEGER    PRIMARY KEY AUTOINCREMENT,
         permission   INTEGER    NOT NULL,
-        playerID     REFERENCES Player(id)   ON UPDATE CASCADE ON DELETE CASCADE,
-        structureUID REFERENCES Structures(id) ON UPDATE CASCADE ON DELETE CASCADE,
+        playerID     REFERENCES Player(id)    ON UPDATE CASCADE ON DELETE CASCADE,
+        structureUID REFERENCES Structure(id) ON UPDATE CASCADE ON DELETE CASCADE,
         unique (playerID, structureUID));
         """
     ),

@@ -103,8 +103,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
     private final IPWorldFactory worldFactory;
 
-    private @Nullable Connection connection;
-
     /**
      * Constructor of the SQLite driver connection.
      *
@@ -181,7 +179,14 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             return null;
         }
 
-        return connection;
+        try
+        {
+            return openConnection();
+        }
+        catch (SQLException e)
+        {
+            throw new RuntimeException("Failed to open database connection!", e);
+        }
     }
 
     /**
@@ -257,29 +262,19 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             return;
         }
 
-        try
-        {
-            this.connection = openConnection();
-        }
-        catch (SQLException e)
-        {
-            log.atSevere().withCause(e).log("Failed to open SQLite connections!");
-            return;
-        }
-
         // Table creation
-        try
+        try (@Nullable Connection conn = getConnection(DatabaseState.UNINITIALIZED))
         {
-            final @Nullable Connection conn = getConnection(DatabaseState.UNINITIALIZED);
             if (conn == null)
             {
+                log.atSevere().log("Failed to initialize database: Connection is null.");
                 databaseState = DatabaseState.ERROR;
                 return;
             }
 
             // Check if the "structures" table already exists. If it does, assume the rest exists
             // as well and don't set it up.
-            if (conn.getMetaData().getTables(null, null, "Structures", new String[]{"TABLE"}).next())
+            if (conn.getMetaData().getTables(null, null, "Structure", new String[]{"TABLE"}).next())
             {
                 databaseState = DatabaseState.OUT_OF_DATE;
                 verifyDatabaseVersion(conn);
@@ -952,9 +947,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      */
     private void upgrade()
     {
-        try
+        try (@Nullable Connection conn = getConnection(DatabaseState.OUT_OF_DATE))
         {
-            final @Nullable Connection conn = getConnection(DatabaseState.OUT_OF_DATE);
             if (conn == null)
             {
                 log.atSevere().withStackTrace(StackSize.FULL)
@@ -1032,11 +1026,11 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      */
     private int executeUpdate(PPreparedStatement pPreparedStatement)
     {
-        try
+        try (@Nullable Connection conn = getConnection())
         {
-            final @Nullable Connection conn = getConnection();
             if (conn == null)
             {
+                log.atSevere().withStackTrace(StackSize.FULL).log("Failed to execute update: Connection is null!");
                 logStatement(pPreparedStatement);
                 return -1;
             }
@@ -1083,9 +1077,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     @SuppressWarnings("unused")
     private int executeUpdateReturnGeneratedKeys(PPreparedStatement pPreparedStatement)
     {
-        try
+        try (@Nullable Connection conn = getConnection())
         {
-            final @Nullable Connection conn = getConnection();
             if (conn == null)
             {
                 logStatement(pPreparedStatement);
@@ -1136,7 +1129,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     /**
      * Executes a query defined by a {@link PPreparedStatement} and applies a function to the result.
      *
-     * @param pPreparedStatement
+     * @param query
      *     The {@link PPreparedStatement}.
      * @param fun
      *     The function to apply to the {@link ResultSet}.
@@ -1148,21 +1141,21 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      */
     @Contract(" _, _, !null -> !null;")
     private @Nullable <T> T executeQuery(
-        PPreparedStatement pPreparedStatement, CheckedFunction<ResultSet, T, Exception> fun, @Nullable T fallback)
+        PPreparedStatement query, CheckedFunction<ResultSet, T, Exception> fun, @Nullable T fallback)
     {
-        try
+        try (@Nullable Connection conn = getConnection())
         {
-            final @Nullable Connection conn = getConnection();
             if (conn == null)
             {
-                logStatement(pPreparedStatement);
+                log.atSevere().withStackTrace(StackSize.FULL).log("Failed to execute query: Connection is null!");
+                logStatement(query);
                 return fallback;
             }
-            return executeQuery(conn, pPreparedStatement, fun, fallback);
+            return executeQuery(conn, query, fun, fallback);
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to execute query: %s", pPreparedStatement);
+            log.atSevere().withCause(e).log("Failed to execute query: %s", query);
         }
         return fallback;
     }
@@ -1170,7 +1163,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     /**
      * Executes a batched query defined by a {@link PPreparedStatement} and applies a function to the result.
      *
-     * @param pPreparedStatement
+     * @param query
      *     The {@link PPreparedStatement}.
      * @param fun
      *     The function to apply to the {@link ResultSet}.
@@ -1182,25 +1175,25 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      */
     @SuppressWarnings("unused") @Contract(" _, _, !null -> !null;")
     private @Nullable <T> T executeBatchQuery(
-        PPreparedStatement pPreparedStatement, CheckedFunction<ResultSet, T, Exception> fun, @Nullable T fallback)
+        PPreparedStatement query, CheckedFunction<ResultSet, T, Exception> fun, @Nullable T fallback)
     {
-        try
+        try (@Nullable Connection conn = getConnection())
         {
-            final @Nullable Connection conn = getConnection();
             if (conn == null)
             {
-                logStatement(pPreparedStatement);
+                log.atSevere().withStackTrace(StackSize.FULL).log("Failed to execute query: Connection is null!");
+                logStatement(query);
                 return fallback;
             }
             conn.setAutoCommit(false);
-            final @Nullable T result = executeQuery(conn, pPreparedStatement, fun, fallback);
+            final @Nullable T result = executeQuery(conn, query, fun, fallback);
             conn.commit();
             conn.setAutoCommit(true);
             return result;
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to execute batch query: %s", pPreparedStatement);
+            log.atSevere().withCause(e).log("Failed to execute batch query: %s", query);
         }
         return fallback;
     }
@@ -1273,18 +1266,21 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         CheckedFunction<Connection, T, Exception> fun, @Nullable T fallback,
         FailureAction failureAction)
     {
-        try
+        try (@Nullable Connection conn = getConnection())
         {
-            final @Nullable Connection conn = getConnection();
             try
             {
                 if (conn == null)
+                {
+                    log.atSevere().withStackTrace(StackSize.FULL)
+                       .log("Failed to execute function: Connection is null!");
                     return fallback;
+                }
                 return fun.apply(conn);
             }
             catch (Exception e)
             {
-                if (failureAction == FailureAction.ROLLBACK)
+                if (conn != null && failureAction == FailureAction.ROLLBACK)
                     conn.rollback();
                 log.atSevere().withCause(e).log();
             }
