@@ -71,7 +71,7 @@ final class V2ExportUtil
                 {
                     int idx = 0;
 
-                    ps.setInt(++idx, permission);
+                    ps.setInt(++idx, permission * 100);
                     ps.setLong(++idx, playerID);
                     ps.setLong(++idx, doorUid);
 
