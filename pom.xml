@@ -29,6 +29,7 @@
         <dependency.version.slf4j>1.7.36</dependency.version.slf4j>
         <dependency.version.logback>1.2.11</dependency.version.logback>
         <dependency.version.annotations>24.0.0</dependency.version.annotations>
+        <dependency.version.eclipse-annotations>2.2.700</dependency.version.eclipse-annotations>
         <dependency.version.lombok>1.18.25-SNAPSHOT</dependency.version.lombok>
         <dependency.version.lombok-plugin>1.18.20.0</dependency.version.lombok-plugin>
         <dependency.version.errorprone>2.18.0</dependency.version.errorprone>
@@ -116,6 +117,13 @@
             <groupId>com.google.dagger</groupId>
             <artifactId>dagger-compiler</artifactId>
             <version>${dependency.version.dagger}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.eclipse.jdt</groupId>
+            <artifactId>org.eclipse.jdt.annotation</artifactId>
+            <version>${dependency.version.eclipse-annotations}</version>
             <scope>provided</scope>
         </dependency>
 
