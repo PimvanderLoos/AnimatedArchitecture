@@ -13,6 +13,10 @@
         <lombok.encoding>UTF-8</lombok.encoding>
         <maven.compiler.release>19</maven.compiler.release>
 
+        <project.root-dir>${project.basedir}</project.root-dir>
+        <delombok.source>${project.build.sourceDirectory}</delombok.source>
+        <delombok.output>${project.root-dir}/delombok</delombok.output>
+
         <dependency.version.jcalculator>1.10</dependency.version.jcalculator>
         <dependency.version.gson>2.10.1</dependency.version.gson>
         <dependency.version.fastutil>8.5.11</dependency.version.fastutil>
@@ -253,6 +257,13 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>${dependency.version.maven-clean}</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>${delombok.output}</directory>
+                        </fileset>
+                    </filesets>
+                </configuration>
             </plugin>
 
             <plugin>
@@ -262,37 +273,41 @@
             </plugin>
 
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>${dependency.version.maven-javadoc}</version>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok-maven-plugin</artifactId>
+                <version>${dependency.version.lombok-plugin}</version>
+                <configuration>
+                    <sourceDirectory>${delombok.source}</sourceDirectory>
+                    <outputDirectory>${delombok.output}</outputDirectory>
+                    <addOutputDirectory>false</addOutputDirectory>
+                </configuration>
                 <executions>
                     <execution>
-                        <id>generate-javadoc</id>
+                        <id>delombok</id>
+                        <phase>generate-sources</phase>
                         <goals>
-                            <goal>javadoc</goal>
-                        </goals>
-                        <phase>package</phase>
-                    </execution>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
+                            <goal>delombok</goal>
                         </goals>
                     </execution>
                 </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.projectlombok</groupId>
+                        <artifactId>lombok</artifactId>
+                        <version>${dependency.version.lombok}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${dependency.version.maven-javadoc}</version>
                 <configuration>
                     <quiet>true</quiet>
                     <failOnError>false</failOnError>
-                    <additionalOptions>-Xdoclint:none</additionalOptions>
-                    <sourceFileExcludes>
-                        <!-- Exclude Dagger2 files -->
-                        <exclude>**/*_Impl.java</exclude>
-                        <exclude>**/*_MembersInjector.java</exclude>
-                        <exclude>**/*Dagger*Component.java</exclude>
-                        <exclude>**/*Dagger*Component$Builder.java</exclude>
-                        <exclude>**/*Module_*.java</exclude>
-                        <exclude>**/*_Factory.java</exclude>
-                    </sourceFileExcludes>
+                    <doclint>none</doclint>
+                    <sourcepath>${delombok.output}</sourcepath>
                 </configuration>
             </plugin>
 
@@ -673,25 +688,12 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>${dependency.version.maven-javadoc}</version>
-                <reportSets>
-                    <reportSet>
-                        <id>aggregate</id>
-                        <inherited>false</inherited>
-                        <reports>
-                            <report>aggregate</report>
-                        </reports>
-                    </reportSet>
-                    <reportSet>
-                        <id>default</id>
-                        <reports>
-                            <report>javadoc</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
                 <configuration>
+                    <!-- Default configuration for all reports -->
                     <quiet>true</quiet>
                     <failOnError>false</failOnError>
-                    <additionalOptions>-Xdoclint:none</additionalOptions>
+                    <doclint>none</doclint>
+                    <sourcepath>${delombok.output}</sourcepath>
                     <sourceFileExcludes>
                         <!-- Exclude Dagger2 files -->
                         <exclude>**/*_Impl.java</exclude>
@@ -702,6 +704,30 @@
                         <exclude>**/*_Factory.java</exclude>
                     </sourceFileExcludes>
                 </configuration>
+                <reportSets>
+                    <reportSet>
+                        <id>non-aggregate</id>
+                        <configuration>
+                            <!-- Specific configuration for the non-aggregate report -->
+                            <failOnError>false</failOnError>
+                            <doclint>none</doclint>
+                        </configuration>
+                        <reports>
+                            <report>javadoc</report>
+                        </reports>
+                    </reportSet>
+                    <reportSet>
+                        <id>aggregate</id>
+                        <configuration>
+                            <!-- Specific configuration for the aggregate report -->
+                            <failOnError>false</failOnError>
+                            <doclint>none</doclint>
+                        </configuration>
+                        <reports>
+                            <report>aggregate</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
             </plugin>
         </plugins>
     </reporting>

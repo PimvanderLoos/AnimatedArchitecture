@@ -9,6 +9,7 @@
         <mainClass>nl.pim16aap2.bigdoors.structures.portcullis.StructureTypePortcullis</mainClass>
         <typeName>Portcullis</typeName>
         <version>1</version>
+        <project.root-dir>${project.basedir}/../..</project.root-dir>
     </properties>
 
     <parent>

@@ -11,6 +11,10 @@
 
     <artifactId>test-util</artifactId>
 
+    <properties>
+        <project.root-dir>${project.basedir}/../..</project.root-dir>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>nl.pim16aap2</groupId>
@@ -50,5 +54,4 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
-
 </project>
