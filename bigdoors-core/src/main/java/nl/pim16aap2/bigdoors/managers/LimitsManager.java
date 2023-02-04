@@ -56,8 +56,8 @@ public class LimitsManager
     }
 
     /**
-     * Checks if a given value exceeds the limit for this player. For more info, see {@link #getLimit(IPPlayer,
-     * Limit)}.
+     * Checks if a given value exceeds the limit for this player. For more info, see
+     * {@link #getLimit(IPPlayer, Limit)}.
      *
      * @param player
      *     The player for whom to check the limit.
@@ -65,7 +65,7 @@ public class LimitsManager
      *     The {@link Limit} to check.
      * @param value
      *     The value to compare to the limit.
-     * @return True if the given value exceeds the limit for this player. If value <= limit, this will return false.
+     * @return True if the given value exceeds the limit for this player. If value &lt;= limit, this will return false.
      */
     public boolean exceedsLimit(IPPlayer player, Limit limit, int value)
     {

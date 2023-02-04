@@ -29,6 +29,7 @@ public class FakePlayerCreator
      *
      * @deprecated
      */
+    @Deprecated
     public Optional<Player> getFakePlayer(OfflinePlayer oPlayer, String playerName, World world)
     {
         throw new UnsupportedOperationException();

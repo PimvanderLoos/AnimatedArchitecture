@@ -20,11 +20,8 @@ import java.util.regex.Pattern;
 @ToString//
 final class StructureTypeInfo
 {
-    @ToString.Exclude
     private static final Pattern NAME_MATCH = Pattern.compile("^[a-zA-Z]*");
-    @ToString.Exclude
     private static final Pattern MIN_VERSION_MATCH = Pattern.compile("[0-9]*;");
-    @ToString.Exclude
     private static final Pattern MAX_VERSION_MATCH = Pattern.compile(";[0-9]*");
 
     @Getter

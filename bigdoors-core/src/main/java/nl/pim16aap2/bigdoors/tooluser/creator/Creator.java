@@ -537,8 +537,8 @@ public abstract class Creator extends ToolUser
     }
 
     /**
-     * Gets the price of the structure based on its volume. If the structure is free because the price is <= 0 or the
-     * {@link nl.pim16aap2.bigdoors.api.IEconomyManager} is disabled, the price will be empty.
+     * Gets the price of the structure based on its volume. If the structure is free because the price is &lt;= 0 or the
+     * {@link IEconomyManager} is disabled, the price will be empty.
      *
      * @return The price of the structure if a positive price could be found.
      */

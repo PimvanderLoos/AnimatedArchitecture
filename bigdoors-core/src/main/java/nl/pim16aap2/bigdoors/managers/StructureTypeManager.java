@@ -198,7 +198,6 @@ public final class StructureTypeManager extends Restartable implements IDebuggab
      *
      * @param structureType
      *     The {@link StructureType} to register.
-     * @return True if registration was successful.
      */
     public void registerStructureType(StructureType structureType)
     {

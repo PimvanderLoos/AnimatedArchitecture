@@ -57,7 +57,7 @@ public final class SpigotUtil
     /**
      * Gets the number of ticks required to cover a duration.
      * <p>
-     * For example, given a tick duration of 50ms, any duration > 0 ms and <= 50ms will return 1 tick.
+     * For example, given a tick duration of 50ms, any duration &gt; 0 ms and &lt;= 50ms will return 1 tick.
      * <p>
      * If the duration is negative or zero, 0 is returned.
      *
