@@ -18,10 +18,6 @@ public final class AssertionsUtil
         // Utility class
     }
 
-    // FIXME: Get rid of the suppress warnings for NullAway here.
-    //        The issue is that NullAway does not realise that Class#isInstance(Object)
-    //        returning true means that the object cannot be null.
-    @SuppressWarnings("NullAway")
     private static Throwable getThrowableLoggedByExecutable(
         @Nullable Class<?> source, Executable executable, Class<?> expectedType, Level level)
     {
@@ -42,7 +38,9 @@ public final class AssertionsUtil
                 String.format("Expected %s to be logged, but nothing was logged!", expectedType));
 
         final @Nullable Throwable throwable = inspector.getLastThrowable(source, level, true).orElse(null);
-        if (expectedType.isInstance(throwable))
+        // PointlessNullCheck to suppress NullAway false positive.
+        //noinspection PointlessNullCheck
+        if (throwable != null && expectedType.isInstance(throwable))
             return throwable;
 
         throw new AssertionFailedError(String.format("Expected %s to be logged, but instead the logger got: %s",
