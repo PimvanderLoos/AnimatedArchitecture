@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>bigdoors-doors</artifactId>
+    <artifactId>structures</artifactId>
     <packaging>pom</packaging>
     <description>Modules for the different types of Doors</description>
     <version>1</version>
@@ -13,16 +13,16 @@
     </parent>
 
     <modules>
-        <module>doors-bigdoor</module>
-        <module>doors-clock</module>
-        <module>doors-drawbridge</module>
-        <module>doors-elevator</module>
-        <module>doors-flag</module>
-        <module>doors-garagedoor</module>
-        <module>doors-portcullis</module>
-        <module>doors-revolvingdoor</module>
-        <module>doors-slidingdoor</module>
-        <module>doors-windmill</module>
+        <module>structure-bigdoor</module>
+        <module>structure-clock</module>
+        <module>structure-drawbridge</module>
+        <module>structure-elevator</module>
+        <module>structure-flag</module>
+        <module>structure-garagedoor</module>
+        <module>structure-portcullis</module>
+        <module>structure-revolvingdoor</module>
+        <module>structure-slidingdoor</module>
+        <module>structure-windmill</module>
     </modules>
 
     <dependencies>
@@ -49,7 +49,7 @@
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>${dependency.version.maven-jar}</version>
                     <configuration>
-                        <outputDirectory>../DoorTypes/</outputDirectory>
+                        <outputDirectory>../StructuresOutput/</outputDirectory>
                         <archive>
                             <manifest>
                                 <addClasspath>true</addClasspath>
