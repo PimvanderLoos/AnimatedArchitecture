@@ -248,7 +248,7 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
      * Gets the path from the leaves (i.e. nodes without parents) down to the base of the graph.
      * <p>
      * This means that for an entry `x` in position n in this list, `x` might have one or more dependencies on any
-     * entries with `index < n`, but not on any entries with `index > n`.
+     * entries with `index &lt; n`, but not on any entries with `index &gt; n`.
      *
      * @return The leaf path.
      *

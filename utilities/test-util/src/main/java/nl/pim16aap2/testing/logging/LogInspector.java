@@ -59,12 +59,13 @@ public final class LogInspector extends AppenderBase<ILoggingEvent>
      *     The cutoff level. All logging events under this level will be filtered out.
      * @param includeHigherLevels
      *     Whether to include levels above the provided level in the search. When this is true, errors logged at, for
-     *     example, {@link Level#ERROR} will also be included in the search when the provided level is {@link
-     *     Level#INFO}.
+     *     example, {@link Level#ERROR} will also be included in the search when the provided level is
+     *     {@link Level#INFO}.
      * @return The filtered list of logging events.
      */
-    public List<ILoggingEvent> getLogHistory(@Nullable Class<?> source, boolean onlyThrowing,
-                                             Level level, boolean includeHigherLevels)
+    public List<ILoggingEvent> getLogHistory(
+        @Nullable Class<?> source, boolean onlyThrowing,
+        Level level, boolean includeHigherLevels)
     {
         return getWithHistoryLock(hist -> hist.getSelection(source, onlyThrowing, level, includeHigherLevels));
     }
@@ -119,8 +120,8 @@ public final class LogInspector extends AppenderBase<ILoggingEvent>
      *     The cutoff level. All logging events under this level will be filtered out.
      * @param includeHigherLevels
      *     Whether to include levels above the provided level in the search. When this is true, errors logged at, for
-     *     example, {@link Level#ERROR} will also be included in the search when the provided level is {@link
-     *     Level#INFO}.
+     *     example, {@link Level#ERROR} will also be included in the search when the provided level is
+     *     {@link Level#INFO}.
      * @return The number of entries in the log history that match the provided parameters.
      */
     public int getLogCount(@Nullable Class<?> source, boolean onlyThrowing, Level level, boolean includeHigherLevels)
@@ -175,8 +176,8 @@ public final class LogInspector extends AppenderBase<ILoggingEvent>
      *     The cutoff level. All logging events under this level will be filtered out.
      * @param includeHigherLevels
      *     Whether to include levels above the provided level in the search. When this is true, errors logged at, for
-     *     example, {@link Level#ERROR} will also be included in the search when the provided level is {@link
-     *     Level#INFO}.
+     *     example, {@link Level#ERROR} will also be included in the search when the provided level is
+     *     {@link Level#INFO}.
      * @return The most recent entry in the logging event history that contained a throwable.
      */
     public Optional<Throwable> getLastThrowable(@Nullable Class<?> source, Level level, boolean includeHigherLevels)
@@ -185,8 +186,8 @@ public final class LogInspector extends AppenderBase<ILoggingEvent>
     }
 
     /**
-     * Gets the most recent entry in the logging event history that contained a throwable and was logged at {@link
-     * Level#ERROR} or above.
+     * Gets the most recent entry in the logging event history that contained a throwable and was logged at
+     * {@link Level#ERROR} or above.
      *
      * @param source
      *     The class the logging events were logged from. This may be null to process all logging events regardless of
@@ -198,8 +199,8 @@ public final class LogInspector extends AppenderBase<ILoggingEvent>
     }
 
     /**
-     * Gets the most recent entry in the logging event history that contained a throwable and was logged at {@link
-     * Level#ERROR} or above.
+     * Gets the most recent entry in the logging event history that contained a throwable and was logged at
+     * {@link Level#ERROR} or above.
      */
     public Optional<Throwable> getLastThrowable()
     {
@@ -214,8 +215,6 @@ public final class LogInspector extends AppenderBase<ILoggingEvent>
 
     /**
      * Clears the history.
-     *
-     * @return The current log inspector.
      */
     public void clearHistory()
     {

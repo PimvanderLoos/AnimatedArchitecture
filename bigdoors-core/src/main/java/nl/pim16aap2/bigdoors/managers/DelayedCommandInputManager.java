@@ -49,8 +49,6 @@ public class DelayedCommandInputManager implements IDebuggable
      *
      * @param commandSender
      *     The {@link ICommandSender} for which to deregister the input requests.
-     * @return True if a {@link DelayedCommandInputRequest} was previously registered for the {@link ICommandSender}.
-     * When nothing was registered and nothing was removed, this method will return false.
      */
     public void deregisterAll(ICommandSender commandSender)
     {

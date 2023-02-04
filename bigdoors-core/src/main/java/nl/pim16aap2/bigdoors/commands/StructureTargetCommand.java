@@ -176,7 +176,6 @@ public abstract class StructureTargetCommand extends BaseCommand
      *
      * @param result
      *     The result obtained from the database.
-     * @return True in all cases, as it is assumed that this is not user error.
      */
     protected final void handleDatabaseActionResult(DatabaseManager.ActionResult result)
     {
