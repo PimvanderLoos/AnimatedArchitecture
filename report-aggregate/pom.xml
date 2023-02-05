@@ -29,52 +29,52 @@
 
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
-            <artifactId>doors-bigdoor</artifactId>
+            <artifactId>structure-bigdoor</artifactId>
             <version>1</version>
         </dependency>
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
-            <artifactId>doors-clock</artifactId>
+            <artifactId>structure-clock</artifactId>
             <version>1</version>
         </dependency>
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
-            <artifactId>doors-drawbridge</artifactId>
+            <artifactId>structure-drawbridge</artifactId>
             <version>1</version>
         </dependency>
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
-            <artifactId>doors-elevator</artifactId>
+            <artifactId>structure-elevator</artifactId>
             <version>1</version>
         </dependency>
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
-            <artifactId>doors-flag</artifactId>
+            <artifactId>structure-flag</artifactId>
             <version>1</version>
         </dependency>
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
-            <artifactId>doors-garagedoor</artifactId>
+            <artifactId>structure-garagedoor</artifactId>
             <version>1</version>
         </dependency>
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
-            <artifactId>doors-portcullis</artifactId>
+            <artifactId>structure-portcullis</artifactId>
             <version>1</version>
         </dependency>
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
-            <artifactId>doors-revolvingdoor</artifactId>
+            <artifactId>structure-revolvingdoor</artifactId>
             <version>1</version>
         </dependency>
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
-            <artifactId>doors-slidingdoor</artifactId>
+            <artifactId>structure-slidingdoor</artifactId>
             <version>1</version>
         </dependency>
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
-            <artifactId>doors-windmill</artifactId>
+            <artifactId>structure-windmill</artifactId>
             <version>1</version>
         </dependency>
 

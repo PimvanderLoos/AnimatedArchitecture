@@ -34,8 +34,8 @@ public final class LazyInit<T>
     }
 
     /**
-     * Gets the lazily initialized object. If it does not exist yet, a new instance will be created using {@link
-     * #supplier}.
+     * Gets the lazily initialized object. If it does not exist yet, a new instance will be created using
+     * {@link #supplier}.
      *
      * @return The lazily initialized object.
      */

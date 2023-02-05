@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.util.implementations;
 
-import nl.pim16aap2.bigdoors.api.IConfigReader;
+import nl.pim16aap2.bigdoors.core.api.IConfigReader;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.Nullable;
 

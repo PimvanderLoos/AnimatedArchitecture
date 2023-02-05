@@ -1,7 +1,7 @@
 # BigDoors v2
 
 BigDoors is a plugin for the Minecraft server mod [Spigot](https://spigotmc.org). Its aim is to enhance your server with
-animated blocks that can be used to create, amongst other things, big (animated) doors.
+animated blocks that can be used to create many kinds of animated structures. For example, big doors.
 
 BigDoors v2 is the new upcoming release of BigDoors. It is currently still very much a work in progress without a
 planned release date.<br>
@@ -19,7 +19,7 @@ Before you try to use v2, please be aware that this project is still very much i
   you encounter.
 * Many of the current systems are just placeholders that will be replaced when I get around to them.
 * There is currently no upgrade path from v1; this will be added (much) later on in the development process.
-* <ins><b>Any doors you create now may be reset at any time</ins></b>.
+* <ins><b>Any structures you create now may be reset at any time</ins></b>.
 
 ### Requirements:
 
@@ -29,11 +29,11 @@ Before you try to use v2, please be aware that this project is still very much i
 ### Installation:
 
 * Grab the latest release from the [actions page](https://github.com/PimvanderLoos/BigDoors/actions). I would recommend
-  picking a build from the master branch. You will need both `BigDoors-Spigot.zip` and `DoorTypes.zip` files.
+  picking a build from the master branch. You will need both `BigDoors-Spigot.zip` and `Structures.zip` files.
 * Extract both zip files.
 * Place the `BigDoors-Spigot.jar` in the plugins directory of your server.
 * Create the following folder (or start the server to generate it automatically): `plugins/BigDoors2/extensions`.
-* Move all the jars from the `DoorTypes.zip` file to the new `extensions` directory.
+* Move all the jars from the `Structures.zip` file to the new `extensions` directory.
 * (Re)start your server.
 
 ## Translations
@@ -93,7 +93,8 @@ To also run all the tests, static analysis tools etc., you can run the following
 ```mvn -P=errorprone test package checkstyle:checkstyle pmd:check```
 
 The `BigDoors-Spigot.jar` file can then be found in `bigdoors-spigot/spigot-core/target/BigDoors-Spigot.jar`.
-The jars for each door type can be found in `bigdoors-doors/DoorTypes/<DoorType>.jar`.
+The jars for each structure type can be found in `structures/StructuresOutput/<StructureType>.jar`.
 
 ## Documentation
+
 The javadocs for the current project can be found [here](https://pimvanderloos.github.io/BigDoors/javadoc/).

@@ -41,8 +41,8 @@ jobs:
       - name: Upload structure types
         uses: actions/upload-artifact@v3
         with:
-          name: DoorTypes
-          path: bigdoors-doors/DoorTypes/*.jar
+          name: Structures
+          path: structures/StructuresOutput/*.jar
 
       - name: Upload BigDoors-Spigot
         uses: actions/upload-artifact@v3

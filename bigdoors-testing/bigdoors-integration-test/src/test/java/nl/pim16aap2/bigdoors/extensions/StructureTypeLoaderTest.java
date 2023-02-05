@@ -1,8 +1,9 @@
 package nl.pim16aap2.bigdoors.extensions;
 
-import nl.pim16aap2.bigdoors.api.IConfigLoader;
-import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
-import nl.pim16aap2.bigdoors.managers.StructureTypeManager;
+import nl.pim16aap2.bigdoors.core.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.core.api.restartable.RestartableHolder;
+import nl.pim16aap2.bigdoors.core.extensions.StructureTypeLoader;
+import nl.pim16aap2.bigdoors.core.managers.StructureTypeManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,8 +50,8 @@ class StructureTypeLoaderTest
     {
         final Path basePath = Path.of("");
         final String extensionsPath =
-            basePath.toAbsolutePath().getParent().getParent().resolve("bigdoors-doors")
-                    .resolve("DoorTypes").toAbsolutePath().toString();
+            basePath.toAbsolutePath().getParent().getParent().resolve("structures")
+                    .resolve("StructuresOutput").toAbsolutePath().toString();
         final int inputCount = Objects.requireNonNull(new File(extensionsPath).list()).length;
 
         final var structureTypeLoader =

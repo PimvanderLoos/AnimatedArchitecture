@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.spigot.util.implementations.pserver;
 
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.commands.IPServer;
-import nl.pim16aap2.bigdoors.text.Text;
+import nl.pim16aap2.bigdoors.core.commands.IPServer;
+import nl.pim16aap2.bigdoors.core.text.Text;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;

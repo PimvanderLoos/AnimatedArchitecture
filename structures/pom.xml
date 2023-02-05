@@ -1,0 +1,106 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>structures</artifactId>
+    <packaging>pom</packaging>
+    <description>Modules for the different types of Doors</description>
+    <version>1</version>
+
+    <parent>
+        <groupId>nl.pim16aap2.bigdoors</groupId>
+        <artifactId>bigdoors-parent</artifactId>
+        <version>1</version>
+    </parent>
+
+    <modules>
+        <module>structure-bigdoor</module>
+        <module>structure-clock</module>
+        <module>structure-drawbridge</module>
+        <module>structure-elevator</module>
+        <module>structure-flag</module>
+        <module>structure-garagedoor</module>
+        <module>structure-portcullis</module>
+        <module>structure-revolvingdoor</module>
+        <module>structure-slidingdoor</module>
+        <module>structure-windmill</module>
+    </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>bigdoors-core</artifactId>
+            <version>1</version>
+        </dependency>
+    </dependencies>
+
+    <properties>
+        <project.root-dir>${project.basedir}/..</project.root-dir>
+        <mainClass>UNDEFINED</mainClass>
+        <typeName>UNDEFINED</typeName>
+        <version>UNDEFINED</version>
+        <TypeDependencies/>
+    </properties>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>${dependency.version.maven-jar}</version>
+                    <configuration>
+                        <outputDirectory>../StructuresOutput/</outputDirectory>
+                        <archive>
+                            <manifest>
+                                <addClasspath>true</addClasspath>
+                                <mainClass>${mainClass}</mainClass>
+                            </manifest>
+                            <manifestSections>
+                                <manifestSection>
+                                    <name>TypeName</name>
+                                    <manifestEntries>
+                                        <TypeName>${typeName}</TypeName>
+                                    </manifestEntries>
+                                </manifestSection>
+                                <manifestSection>
+                                    <name>Version</name>
+                                    <manifestEntries>
+                                        <Version>${version}</Version>
+                                    </manifestEntries>
+                                </manifestSection>
+                                <manifestSection>
+                                    <name>TypeDependencies</name>
+                                    <manifestEntries>
+                                        <TypeDependencies>${TypeDependencies}</TypeDependencies>
+                                    </manifestEntries>
+                                </manifestSection>
+                            </manifestSections>
+                        </archive>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <configuration>
+                        <!-- We do not want to shade anything into the resulting jars
+                        This is explicitly required here because we're exporting to separate jars -->
+                        <artifactSet>
+                            <includes>
+                                <include>nl.pim16aap2.bigdoors.doors:*</include>
+                            </includes>
+                        </artifactSet>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>shade</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>

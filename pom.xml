@@ -65,7 +65,7 @@
     <modules>
         <module>bigdoors-core</module>
         <module>bigdoors-spigot</module>
-        <module>bigdoors-doors</module>
+        <module>structures</module>
         <module>utilities</module>
         <module>report-aggregate</module>
         <module>bigdoors-testing</module>
