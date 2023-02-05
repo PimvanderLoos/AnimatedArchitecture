@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.testimplementations;
 
-import nl.pim16aap2.bigdoors.api.IPWorld;
-import nl.pim16aap2.bigdoors.util.WorldTime;
+import nl.pim16aap2.bigdoors.core.api.IPWorld;
+import nl.pim16aap2.bigdoors.core.util.WorldTime;
 import org.jetbrains.annotations.Nullable;
 
 public final class TestPWorld implements IPWorld

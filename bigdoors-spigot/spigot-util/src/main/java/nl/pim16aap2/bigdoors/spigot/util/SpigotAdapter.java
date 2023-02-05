@@ -1,16 +1,16 @@
 package nl.pim16aap2.bigdoors.spigot.util;
 
-import nl.pim16aap2.bigdoors.api.IPLocation;
-import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.api.IPWorld;
-import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
-import nl.pim16aap2.bigdoors.commands.ICommandSender;
+import nl.pim16aap2.bigdoors.core.api.IPLocation;
+import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPWorld;
+import nl.pim16aap2.bigdoors.core.api.factories.IPPlayerFactory;
+import nl.pim16aap2.bigdoors.core.commands.ICommandSender;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PLocationSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PPlayerSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PWorldSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.pserver.PServer;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
+import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
+import nl.pim16aap2.bigdoors.core.util.vector.Vector3Di;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;

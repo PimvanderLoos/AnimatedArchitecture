@@ -1,15 +1,15 @@
 package nl.pim16aap2.bigdoors.structures.windmill;
 
-import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
-import nl.pim16aap2.bigdoors.moveblocks.Animator;
-import nl.pim16aap2.bigdoors.moveblocks.IAnimator;
-import nl.pim16aap2.bigdoors.moveblocks.StructureRequestData;
+import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlock;
+import nl.pim16aap2.bigdoors.core.moveblocks.Animator;
+import nl.pim16aap2.bigdoors.core.moveblocks.IAnimator;
+import nl.pim16aap2.bigdoors.core.moveblocks.StructureRequestData;
 import nl.pim16aap2.bigdoors.structures.drawbridge.DrawbridgeAnimationComponent;
-import nl.pim16aap2.bigdoors.util.MathUtil;
-import nl.pim16aap2.bigdoors.util.MovementDirection;
-import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.vector.IVector3D;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
+import nl.pim16aap2.bigdoors.core.util.MathUtil;
+import nl.pim16aap2.bigdoors.core.util.MovementDirection;
+import nl.pim16aap2.bigdoors.core.util.Util;
+import nl.pim16aap2.bigdoors.core.util.vector.IVector3D;
+import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
 
 /**
  * Represents a {@link Animator} for {@link Windmill}s.

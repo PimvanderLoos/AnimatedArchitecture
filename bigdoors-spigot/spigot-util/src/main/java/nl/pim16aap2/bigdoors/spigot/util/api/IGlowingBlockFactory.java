@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.util.api;
 
-import nl.pim16aap2.bigdoors.api.PColor;
-import nl.pim16aap2.bigdoors.util.IGlowingBlock;
+import nl.pim16aap2.bigdoors.core.api.PColor;
+import nl.pim16aap2.bigdoors.core.util.IGlowingBlock;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Team;

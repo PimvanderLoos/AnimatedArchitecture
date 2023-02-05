@@ -3,8 +3,8 @@ package nl.pim16aap2.bigdoors.structures.elevator;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.structures.portcullis.Portcullis;
-import nl.pim16aap2.bigdoors.structures.serialization.Deserialization;
-import nl.pim16aap2.bigdoors.structures.serialization.PersistentVariable;
+import nl.pim16aap2.bigdoors.core.structures.serialization.Deserialization;
+import nl.pim16aap2.bigdoors.core.structures.serialization.PersistentVariable;
 
 /**
  * Represents an Elevator structure type.

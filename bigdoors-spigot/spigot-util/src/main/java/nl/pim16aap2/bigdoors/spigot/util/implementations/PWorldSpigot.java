@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.spigot.util.implementations;
 
-import nl.pim16aap2.bigdoors.api.IPWorld;
-import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.WorldTime;
+import nl.pim16aap2.bigdoors.core.api.IPWorld;
+import nl.pim16aap2.bigdoors.core.util.Util;
+import nl.pim16aap2.bigdoors.core.util.WorldTime;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.jetbrains.annotations.Nullable;

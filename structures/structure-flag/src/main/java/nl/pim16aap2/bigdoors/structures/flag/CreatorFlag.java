@@ -1,15 +1,15 @@
 package nl.pim16aap2.bigdoors.structures.flag;
 
-import nl.pim16aap2.bigdoors.api.IPLocation;
-import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.structures.AbstractStructure;
-import nl.pim16aap2.bigdoors.structuretypes.StructureType;
-import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
-import nl.pim16aap2.bigdoors.tooluser.step.IStep;
-import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.MovementDirection;
-import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
+import nl.pim16aap2.bigdoors.core.api.IPLocation;
+import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
+import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
+import nl.pim16aap2.bigdoors.core.tooluser.creator.Creator;
+import nl.pim16aap2.bigdoors.core.tooluser.step.IStep;
+import nl.pim16aap2.bigdoors.core.util.Cuboid;
+import nl.pim16aap2.bigdoors.core.util.MovementDirection;
+import nl.pim16aap2.bigdoors.core.util.Util;
+import nl.pim16aap2.bigdoors.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;

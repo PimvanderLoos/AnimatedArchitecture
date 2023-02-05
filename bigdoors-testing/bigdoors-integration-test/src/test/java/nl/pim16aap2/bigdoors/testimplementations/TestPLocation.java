@@ -1,11 +1,11 @@
 package nl.pim16aap2.bigdoors.testimplementations;
 
 import lombok.Getter;
-import nl.pim16aap2.bigdoors.api.IPLocation;
-import nl.pim16aap2.bigdoors.api.IPWorld;
-import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
+import nl.pim16aap2.bigdoors.core.api.IPLocation;
+import nl.pim16aap2.bigdoors.core.api.IPWorld;
+import nl.pim16aap2.bigdoors.core.util.vector.Vector2Di;
+import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
+import nl.pim16aap2.bigdoors.core.util.vector.Vector3Di;
 
 public final class TestPLocation implements IPLocation
 {

@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.util.implementations.messageable;
 
-import nl.pim16aap2.bigdoors.api.IMessagingInterface;
-import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IMessagingInterface;
+import nl.pim16aap2.bigdoors.core.api.IPPlayer;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

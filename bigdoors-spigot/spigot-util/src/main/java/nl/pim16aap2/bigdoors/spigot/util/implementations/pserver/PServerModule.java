@@ -2,8 +2,8 @@ package nl.pim16aap2.bigdoors.spigot.util.implementations.pserver;
 
 import dagger.Binds;
 import dagger.Module;
-import nl.pim16aap2.bigdoors.api.IMessageable;
-import nl.pim16aap2.bigdoors.commands.IPServer;
+import nl.pim16aap2.bigdoors.core.api.IMessageable;
+import nl.pim16aap2.bigdoors.core.commands.IPServer;
 
 import javax.inject.Named;
 import javax.inject.Singleton;

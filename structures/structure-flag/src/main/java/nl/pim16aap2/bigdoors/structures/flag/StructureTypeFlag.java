@@ -1,10 +1,10 @@
 package nl.pim16aap2.bigdoors.structures.flag;
 
-import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.structures.AbstractStructure;
-import nl.pim16aap2.bigdoors.structuretypes.StructureType;
-import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
-import nl.pim16aap2.bigdoors.util.Constants;
+import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
+import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
+import nl.pim16aap2.bigdoors.core.tooluser.creator.Creator;
+import nl.pim16aap2.bigdoors.core.util.Constants;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;

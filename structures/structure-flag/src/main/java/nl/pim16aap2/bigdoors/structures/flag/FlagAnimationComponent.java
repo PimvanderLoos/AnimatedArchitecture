@@ -1,17 +1,17 @@
 package nl.pim16aap2.bigdoors.structures.flag;
 
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.api.IConfigLoader;
-import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
-import nl.pim16aap2.bigdoors.moveblocks.Animator;
-import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
-import nl.pim16aap2.bigdoors.moveblocks.IAnimator;
-import nl.pim16aap2.bigdoors.moveblocks.StructureRequestData;
-import nl.pim16aap2.bigdoors.structures.StructureSnapshot;
-import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.vector.IVector3D;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
+import nl.pim16aap2.bigdoors.core.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlock;
+import nl.pim16aap2.bigdoors.core.moveblocks.Animator;
+import nl.pim16aap2.bigdoors.core.moveblocks.IAnimationComponent;
+import nl.pim16aap2.bigdoors.core.moveblocks.IAnimator;
+import nl.pim16aap2.bigdoors.core.moveblocks.StructureRequestData;
+import nl.pim16aap2.bigdoors.core.structures.StructureSnapshot;
+import nl.pim16aap2.bigdoors.core.util.Cuboid;
+import nl.pim16aap2.bigdoors.core.util.vector.IVector3D;
+import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
+import nl.pim16aap2.bigdoors.core.util.vector.Vector3Di;
 import nl.pim16aap2.jcalculator.JCalculator;
 
 import java.util.function.BiFunction;

@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.structures.portcullis;
 
-import nl.pim16aap2.bigdoors.UnitTestUtil;
+import nl.pim16aap2.bigdoors.core.UnitTestUtil;
+import nl.pim16aap2.bigdoors.core.util.Cuboid;
+import nl.pim16aap2.bigdoors.core.util.MovementDirection;
 import nl.pim16aap2.bigdoors.tooluser.creator.CreatorTestsUtil;
-import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.MovementDirection;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

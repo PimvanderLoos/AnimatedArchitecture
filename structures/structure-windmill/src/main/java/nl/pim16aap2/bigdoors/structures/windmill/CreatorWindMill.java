@@ -1,10 +1,10 @@
 package nl.pim16aap2.bigdoors.structures.windmill;
 
-import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.structures.AbstractStructure;
-import nl.pim16aap2.bigdoors.structuretypes.StructureType;
-import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
-import nl.pim16aap2.bigdoors.tooluser.step.IStep;
+import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
+import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
+import nl.pim16aap2.bigdoors.core.tooluser.creator.Creator;
+import nl.pim16aap2.bigdoors.core.tooluser.step.IStep;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;

@@ -2,9 +2,9 @@ package nl.pim16aap2.bigdoors.spigot.util;
 
 import lombok.Getter;
 import lombok.Setter;
-import nl.pim16aap2.bigdoors.api.PColor;
-import nl.pim16aap2.bigdoors.util.PBlockFace;
-import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.core.api.PColor;
+import nl.pim16aap2.bigdoors.core.util.PBlockFace;
+import nl.pim16aap2.bigdoors.core.util.Util;
 import org.bukkit.ChatColor;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;

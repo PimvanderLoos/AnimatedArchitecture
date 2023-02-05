@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.util.api;
 
-import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
+import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlock;
 import org.bukkit.Material;
 import org.bukkit.World;
 

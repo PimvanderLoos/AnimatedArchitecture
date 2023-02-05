@@ -1,16 +1,16 @@
 package nl.pim16aap2.bigdoors.structures.bigdoor;
 
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
-import nl.pim16aap2.bigdoors.moveblocks.AnimationUtil;
-import nl.pim16aap2.bigdoors.moveblocks.IAnimationComponent;
-import nl.pim16aap2.bigdoors.moveblocks.IAnimator;
-import nl.pim16aap2.bigdoors.moveblocks.StructureRequestData;
-import nl.pim16aap2.bigdoors.structures.StructureSnapshot;
-import nl.pim16aap2.bigdoors.util.MathUtil;
-import nl.pim16aap2.bigdoors.util.MovementDirection;
-import nl.pim16aap2.bigdoors.util.vector.IVector3D;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
+import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlock;
+import nl.pim16aap2.bigdoors.core.moveblocks.AnimationUtil;
+import nl.pim16aap2.bigdoors.core.moveblocks.IAnimationComponent;
+import nl.pim16aap2.bigdoors.core.moveblocks.IAnimator;
+import nl.pim16aap2.bigdoors.core.moveblocks.StructureRequestData;
+import nl.pim16aap2.bigdoors.core.structures.StructureSnapshot;
+import nl.pim16aap2.bigdoors.core.util.MathUtil;
+import nl.pim16aap2.bigdoors.core.util.MovementDirection;
+import nl.pim16aap2.bigdoors.core.util.vector.IVector3D;
+import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
 
 @Flogger
 public final class BigDoorAnimationComponent implements IAnimationComponent

@@ -1,14 +1,14 @@
 package nl.pim16aap2.bigdoors.structures.slidingdoor;
 
-import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.structures.AbstractStructure;
-import nl.pim16aap2.bigdoors.structuretypes.StructureType;
-import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
-import nl.pim16aap2.bigdoors.tooluser.step.IStep;
-import nl.pim16aap2.bigdoors.tooluser.step.Step;
-import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorInteger;
-import nl.pim16aap2.bigdoors.util.Limit;
-import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
+import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
+import nl.pim16aap2.bigdoors.core.tooluser.creator.Creator;
+import nl.pim16aap2.bigdoors.core.tooluser.step.IStep;
+import nl.pim16aap2.bigdoors.core.tooluser.step.Step;
+import nl.pim16aap2.bigdoors.core.tooluser.stepexecutor.StepExecutorInteger;
+import nl.pim16aap2.bigdoors.core.util.Limit;
+import nl.pim16aap2.bigdoors.core.util.Util;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;

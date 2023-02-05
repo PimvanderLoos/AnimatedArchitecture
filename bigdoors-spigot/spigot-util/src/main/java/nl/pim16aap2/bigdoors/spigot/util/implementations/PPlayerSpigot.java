@@ -1,13 +1,13 @@
 package nl.pim16aap2.bigdoors.spigot.util.implementations;
 
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.api.IPLocation;
-import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.commands.CommandDefinition;
-import nl.pim16aap2.bigdoors.commands.PermissionsStatus;
+import nl.pim16aap2.bigdoors.core.api.IPLocation;
+import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.commands.CommandDefinition;
+import nl.pim16aap2.bigdoors.core.commands.PermissionsStatus;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
-import nl.pim16aap2.bigdoors.text.Text;
+import nl.pim16aap2.bigdoors.core.text.Text;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
