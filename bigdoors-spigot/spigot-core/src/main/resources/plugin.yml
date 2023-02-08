@@ -1,5 +1,5 @@
 name: BigDoors2
-main: nl.pim16aap2.bigdoors.spigot.BigDoorsPlugin
+main: nl.pim16aap2.bigdoors.spigot.core.BigDoorsPlugin
 version: ${project.version}
 author: pim16aap2
 api-version: 1.19
