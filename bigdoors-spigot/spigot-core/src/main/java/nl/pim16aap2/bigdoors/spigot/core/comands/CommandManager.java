@@ -21,10 +21,10 @@ import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.commands.CommandDefinition;
 import nl.pim16aap2.bigdoors.core.commands.ICommandSender;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.core.structures.PermissionLevel;
 import nl.pim16aap2.bigdoors.core.util.Util;
 import nl.pim16aap2.bigdoors.core.util.structureretriever.StructureRetrieverFactory;
+import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,7 +44,7 @@ public final class CommandManager
     private final ILocalizer localizer;
     private final ITextFactory textFactory;
     private final StructureRetrieverFactory structureRetrieverFactory;
-    private volatile @Nullable BukkitCommandManager<ICommandSender> manager;
+    private volatile @Nullable PaperCommandManager<ICommandSender> manager;
     private boolean asyncCompletions = false;
     private final BukkitAudiences bukkitAudiences;
     private final StructureTypeParser structureTypeParser;
@@ -452,10 +452,10 @@ public final class CommandManager
         }
     }
 
-    private BukkitCommandManager<ICommandSender> newManager()
+    private PaperCommandManager<ICommandSender> newManager()
         throws Exception
     {
-        return new BukkitCommandManager<>(
+        return new PaperCommandManager<>(
             plugin,
             CommandExecutionCoordinator.simpleCoordinator(),
             SpigotAdapter::wrapCommandSender,
