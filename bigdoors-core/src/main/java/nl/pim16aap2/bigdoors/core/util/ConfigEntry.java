@@ -4,7 +4,6 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.api.IConfigReader;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -18,7 +17,7 @@ public final class ConfigEntry<V>
     private final IConfigReader config;
     private final String optionName;
     private final V defaultValue;
-    private final String @Nullable [] comment;
+    private final @Nullable String comment;
     private final @Nullable ConfigEntry.ITestValue<V> verifyValue;
     private V value;
 
@@ -37,7 +36,7 @@ public final class ConfigEntry<V>
      *     Function to use to verify the validity of a value and change it if necessary.
      */
     public ConfigEntry(
-        IConfigReader config, String optionName, V defaultValue, String @Nullable [] comment,
+        IConfigReader config, String optionName, V defaultValue, @Nullable String comment,
         @Nullable ConfigEntry.ITestValue<V> verifyValue)
     {
         this.config = config;
@@ -60,7 +59,7 @@ public final class ConfigEntry<V>
      * @param comment
      *     The comment that will precede this option.
      */
-    public ConfigEntry(IConfigReader config, String optionName, V defaultValue, String @Nullable ... comment)
+    public ConfigEntry(IConfigReader config, String optionName, V defaultValue, @Nullable String comment)
     {
         this(config, optionName, defaultValue, comment, null);
     }
@@ -101,9 +100,9 @@ public final class ConfigEntry<V>
      *
      * @return The comment of the config option.
      */
-    public String @Nullable [] getComment()
+    public @Nullable String getComment()
     {
-        return comment == null ? null : Arrays.copyOf(comment, comment.length);
+        return comment;
     }
 
     /**
@@ -119,9 +118,7 @@ public final class ConfigEntry<V>
 
         // Print the comments, if there are any.
         if (comment != null)
-            for (final String comLine : comment)
-                // Prefix every line by a comment-sign (#).
-                sb.append("# ").append(comLine).append('\n');
+            sb.append(comment);
 
         sb.append(optionName).append(": ");
         if (value.getClass().isAssignableFrom(String.class))

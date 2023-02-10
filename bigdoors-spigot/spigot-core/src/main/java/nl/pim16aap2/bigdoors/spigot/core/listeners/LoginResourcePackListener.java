@@ -40,7 +40,7 @@ public class LoginResourcePackListener extends AbstractListener
      */
     private static boolean shouldBeEnabled(ConfigSpigot config)
     {
-        return !config.resourcePack().isBlank();
+        return config.isResourcePackEnabled();
     }
 
     /**

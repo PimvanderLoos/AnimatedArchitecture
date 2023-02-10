@@ -107,7 +107,7 @@ public abstract class AbstractStructure implements IStructure
      * <p>
      * The animation time is calculated using this structure's {@link #getBaseAnimationTime()}, its
      * {@link #getMinimumAnimationTime()}, and the multiplier for this type as described by
-     * {@link IConfig#getAnimationSpeedMultiplier(StructureType)}.
+     * {@link IConfig#getAnimationTimeMultiplier(StructureType)}.
      * <p>
      * If the target is not null, the returned value will simply be the maximum value of the target and
      * {@link #getBaseAnimationTime()}. Note that the time multiplier is ignored in this case.
@@ -120,7 +120,7 @@ public abstract class AbstractStructure implements IStructure
     {
         final double realTarget = target != null ?
                                   target :
-                                  base.getConfig().getAnimationSpeedMultiplier(getType()) * getBaseAnimationTime();
+                                  base.getConfig().getAnimationTimeMultiplier(getType()) * getBaseAnimationTime();
         return calculateAnimationTime(realTarget);
     }
 

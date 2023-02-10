@@ -87,7 +87,7 @@ class AttributeButtonFactory
                     player,
                     Toggle.DEFAULT_STRUCTURE_ACTION_TYPE,
                     Toggle.DEFAULT_ANIMATION_TYPE,
-                    config.getAnimationSpeedMultiplier(structure.getType()),
+                    config.getAnimationTimeMultiplier(structure.getType()),
                     structureRetrieverFactory.of(structure)).run();
                 return true;
             },

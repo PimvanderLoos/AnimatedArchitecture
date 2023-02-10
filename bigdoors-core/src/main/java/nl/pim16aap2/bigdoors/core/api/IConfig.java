@@ -139,7 +139,7 @@ public interface IConfig extends IRestartable
      *     The structure type.
      * @return The animation time multiplier for the structure type.
      */
-    double getAnimationSpeedMultiplier(StructureType type);
+    double getAnimationTimeMultiplier(StructureType type);
 
     /**
      * @return The global maximum speed of a block.
