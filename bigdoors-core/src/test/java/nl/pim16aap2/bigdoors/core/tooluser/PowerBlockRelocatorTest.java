@@ -1,10 +1,10 @@
 package nl.pim16aap2.bigdoors.core.tooluser;
 
 import nl.pim16aap2.bigdoors.core.UnitTestUtil;
-import nl.pim16aap2.bigdoors.core.api.IPLocation;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
-import nl.pim16aap2.bigdoors.core.api.IPWorld;
+import nl.pim16aap2.bigdoors.core.api.ILocation;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.IProtectionCompatManager;
+import nl.pim16aap2.bigdoors.core.api.IWorld;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
@@ -27,17 +27,17 @@ class PowerBlockRelocatorTest
     private AbstractStructure structure;
 
     @Mock
-    private IPWorld world;
+    private IWorld world;
 
     private final Vector3Di currentPowerBlockLoc = new Vector3Di(2, 58, 2384);
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
-    private IPPlayer player;
+    private IPlayer player;
 
     private IProtectionCompatManager compatManager;
 
     @Mock
-    private IPLocation location;
+    private ILocation location;
 
     @Mock
     private PowerBlockRelocator.IFactory factory;
@@ -73,8 +73,8 @@ class PowerBlockRelocatorTest
                .thenAnswer(invocation -> new Step.Factory(localizer, invocation.getArgument(0, String.class)));
         Mockito.when(context.getStepFactory()).thenReturn(assistedStepFactory);
 
-        Mockito.when(factory.create(Mockito.any(IPPlayer.class), Mockito.any(AbstractStructure.class)))
-               .thenAnswer(invoc -> new PowerBlockRelocator(context, invoc.getArgument(0, IPPlayer.class),
+        Mockito.when(factory.create(Mockito.any(IPlayer.class), Mockito.any(AbstractStructure.class)))
+               .thenAnswer(invoc -> new PowerBlockRelocator(context, invoc.getArgument(0, IPlayer.class),
                                                             invoc.getArgument(1, AbstractStructure.class)));
     }
 
@@ -83,13 +83,13 @@ class PowerBlockRelocatorTest
     {
         final PowerBlockRelocator relocator = factory.create(player, structure);
 
-        Mockito.when(location.getWorld()).thenReturn(Mockito.mock(IPWorld.class));
+        Mockito.when(location.getWorld()).thenReturn(Mockito.mock(IWorld.class));
 
         Assertions.assertFalse(relocator.moveToLoc(location));
         Mockito.verify(player)
                .sendMessage(UnitTestUtil.toText("tool_user.powerblock_relocator.error.world_mismatch StructureType"));
 
-        Mockito.when(location.getWorld()).thenReturn(Mockito.mock(IPWorld.class));
+        Mockito.when(location.getWorld()).thenReturn(Mockito.mock(IWorld.class));
     }
 
     @Test

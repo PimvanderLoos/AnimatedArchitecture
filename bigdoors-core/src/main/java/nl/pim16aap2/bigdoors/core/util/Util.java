@@ -3,8 +3,8 @@ package nl.pim16aap2.bigdoors.core.util;
 import lombok.experimental.UtilityClass;
 import lombok.extern.flogger.Flogger;
 import lombok.val;
-import nl.pim16aap2.bigdoors.core.api.IPLocation;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.ILocation;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.structures.IStructureConst;
 import nl.pim16aap2.bigdoors.core.structures.StructureAttribute;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector2Di;
@@ -246,11 +246,11 @@ public final class Util
     }
 
     /**
-     * See {@link #getDistanceToStructure(IPLocation, IStructureConst)}.
+     * See {@link #getDistanceToStructure(ILocation, IStructureConst)}.
      * <p>
      * If the player object has no location, -2 is returned.
      */
-    public static double getDistanceToStructure(IPPlayer player, IStructureConst structure)
+    public static double getDistanceToStructure(IPlayer player, IStructureConst structure)
     {
         return player.getLocation().map(location -> getDistanceToStructure(location, structure)).orElse(-2d);
     }
@@ -265,7 +265,7 @@ public final class Util
      *     The structure to check.
      * @return The distance between the location and the structure if they lie in the same world, otherwise -1.
      */
-    public static double getDistanceToStructure(IPLocation location, IStructureConst structure)
+    public static double getDistanceToStructure(ILocation location, IStructureConst structure)
     {
         if (!location.getWorld().equals(structure.getWorld()))
             return -1;
@@ -493,7 +493,7 @@ public final class Util
     }
 
     public static boolean hasPermissionForAction(
-        IPPlayer player, IStructureConst structure, StructureAttribute attribute)
+        IPlayer player, IStructureConst structure, StructureAttribute attribute)
     {
         return hasPermissionForAction(player.getUUID(), structure, attribute);
     }

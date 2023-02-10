@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.spigot.core.managers;
 
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.api.IBigDoorsPlatform;
-import nl.pim16aap2.bigdoors.core.api.IPExecutor;
+import nl.pim16aap2.bigdoors.core.api.IExecutor;
 import nl.pim16aap2.bigdoors.core.managers.AnimatedBlockHookManager;
 import nl.pim16aap2.bigdoors.spigot.core.BigDoorsPlugin;
 import nl.pim16aap2.bigdoors.spigot.util.api.IBigDoorsSpigotSubPlatform;
@@ -36,7 +36,7 @@ public final class SubPlatformManager
      */
     @Inject
     public SubPlatformManager(
-        BigDoorsPlugin bigDoorsPlugin, AnimatedBlockHookManager animatedBlockHookManager, IPExecutor executor)
+        BigDoorsPlugin bigDoorsPlugin, AnimatedBlockHookManager animatedBlockHookManager, IExecutor executor)
     {
         serverVersion = Bukkit.getServer().getClass().getPackage().getName();
 
@@ -113,7 +113,7 @@ public final class SubPlatformManager
             {
                 @Override
                 public @Nullable IBigDoorsSpigotSubPlatform getPlatform(
-                    AnimatedBlockHookManager animatedBlockHookManager, IPExecutor executor)
+                    AnimatedBlockHookManager animatedBlockHookManager, IExecutor executor)
                 {
                     return null;
                 }
@@ -122,7 +122,7 @@ public final class SubPlatformManager
             {
                 @Override
                 public IBigDoorsSpigotSubPlatform getPlatform(
-                    AnimatedBlockHookManager animatedBlockHookManager, IPExecutor executor)
+                    AnimatedBlockHookManager animatedBlockHookManager, IExecutor executor)
                 {
                     return new BigDoorsSpigotSubPlatform(animatedBlockHookManager, executor);
                 }
@@ -133,7 +133,7 @@ public final class SubPlatformManager
          * @return The instance of the {@link IBigDoorsSpigotSubPlatform} for this {@link Version}.
          */
         public abstract @Nullable IBigDoorsSpigotSubPlatform getPlatform(
-            AnimatedBlockHookManager animatedBlockHookManager, IPExecutor executor)
+            AnimatedBlockHookManager animatedBlockHookManager, IExecutor executor)
             throws UnsupportedOperationException;
 
         public static Version parseVersion(String version)

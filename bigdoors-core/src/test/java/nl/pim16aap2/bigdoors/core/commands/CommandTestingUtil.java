@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.core.commands;
 
-import nl.pim16aap2.bigdoors.core.api.PPlayerData;
+import nl.pim16aap2.bigdoors.core.api.PlayerData;
 import nl.pim16aap2.bigdoors.core.structures.PermissionLevel;
 import nl.pim16aap2.bigdoors.core.structures.StructureOwner;
 import org.mockito.Mockito;
@@ -9,7 +9,7 @@ import java.util.concurrent.CompletableFuture;
 
 class CommandTestingUtil
 {
-    public static final PPlayerData playerData = Mockito.mock(PPlayerData.class);
+    public static final PlayerData playerData = Mockito.mock(PlayerData.class);
     public static final StructureOwner structureOwnerCreator = new StructureOwner(0, PermissionLevel.CREATOR,
                                                                                   playerData);
     public static final StructureOwner structureOwnerAdmin = new StructureOwner(0, PermissionLevel.ADMIN, playerData);

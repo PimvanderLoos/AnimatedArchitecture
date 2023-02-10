@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.structures.flag;
 
-import nl.pim16aap2.bigdoors.core.api.IPLocation;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.ILocation;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
 import nl.pim16aap2.bigdoors.core.tooluser.creator.Creator;
@@ -20,12 +20,12 @@ public class CreatorFlag extends Creator
     private static final StructureType STRUCTURE_TYPE = StructureTypeFlag.get();
     protected boolean northSouthAligned;
 
-    public CreatorFlag(Creator.Context context, IPPlayer player, @Nullable String name)
+    public CreatorFlag(Creator.Context context, IPlayer player, @Nullable String name)
     {
         super(context, player, name);
     }
 
-    public CreatorFlag(Creator.Context context, IPPlayer player)
+    public CreatorFlag(Creator.Context context, IPlayer player)
     {
         this(context, player, null);
     }
@@ -50,7 +50,7 @@ public class CreatorFlag extends Creator
     }
 
     @Override
-    protected boolean setSecondPos(IPLocation loc)
+    protected boolean setSecondPos(ILocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;
@@ -71,7 +71,7 @@ public class CreatorFlag extends Creator
     }
 
     @Override
-    protected boolean completeSetRotationPointStep(IPLocation loc)
+    protected boolean completeSetRotationPointStep(ILocation loc)
     {
         Util.requireNonNull(cuboid, "cuboid");
         // For flags, the rotation point has to be a corner of the total area.

@@ -18,7 +18,7 @@ import nl.pim16aap2.bigdoors.core.structures.StructureAttribute;
 import nl.pim16aap2.bigdoors.core.structures.StructureOwner;
 import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import nl.pim16aap2.bigdoors.spigot.core.BigDoorsPlugin;
-import nl.pim16aap2.bigdoors.spigot.util.implementations.PPlayerSpigot;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.PlayerSpigot;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -52,7 +52,7 @@ class InfoGui implements IGuiPage
 
     @Getter
     @ToString.Include
-    private final PPlayerSpigot inventoryHolder;
+    private final PlayerSpigot inventoryHolder;
 
     // Currently not used, but it's needed later on when we can update the elements
     // When the field in the structure changes.
@@ -63,7 +63,7 @@ class InfoGui implements IGuiPage
     InfoGui(
         BigDoorsPlugin bigDoorsPlugin, ILocalizer localizer, IPermissionsManager permissionsManager,
         AttributeButtonFactory attributeButtonFactory,
-        @Assisted AbstractStructure structure, @Assisted PPlayerSpigot inventoryHolder)
+        @Assisted AbstractStructure structure, @Assisted PlayerSpigot inventoryHolder)
     {
         this.bigDoorsPlugin = bigDoorsPlugin;
         this.localizer = localizer;
@@ -138,11 +138,11 @@ class InfoGui implements IGuiPage
     {
         log.atSevere().log("Player '%s' does not have access to structure: '%s'!", inventoryHolder, structure);
         return new StructureOwner(structure.getUid(), PermissionLevel.NO_PERMISSION,
-                                  inventoryHolder.getPPlayerData());
+                                  inventoryHolder.getPlayerData());
     }
 
     static List<StructureAttribute> analyzeAttributes(
-        StructureOwner structureOwner, PPlayerSpigot player, IPermissionsManager permissionsManager)
+        StructureOwner structureOwner, PlayerSpigot player, IPermissionsManager permissionsManager)
     {
         final PermissionLevel perm = structureOwner.permission();
         return StructureAttribute.getValues().stream()
@@ -152,7 +152,7 @@ class InfoGui implements IGuiPage
     }
 
     private static boolean hasAccessToAttribute(
-        PPlayerSpigot player, StructureAttribute attribute, PermissionLevel permissionLevel,
+        PlayerSpigot player, StructureAttribute attribute, PermissionLevel permissionLevel,
         IPermissionsManager permissionsManager)
     {
         return attribute.canAccessWith(permissionLevel) ||
@@ -168,6 +168,6 @@ class InfoGui implements IGuiPage
     @AssistedFactory
     interface IFactory
     {
-        InfoGui newInfoGUI(AbstractStructure structure, PPlayerSpigot playerSpigot);
+        InfoGui newInfoGUI(AbstractStructure structure, PlayerSpigot playerSpigot);
     }
 }

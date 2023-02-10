@@ -20,7 +20,7 @@ import java.util.Optional;
 public abstract class GlowingBlockSpawner
 {
     protected abstract Optional<IGlowingBlock> spawnGlowingBlock(
-        IPPlayer player, IPWorld world, Duration duration, double x, double y, double z, PColor pColor);
+        IPlayer player, IWorld world, Duration duration, double x, double y, double z, Color color);
 
     /**
      * Spawns the glowing blocks required to highlight a structure.
@@ -28,25 +28,25 @@ public abstract class GlowingBlockSpawner
      * @param structure
      *     The structure to highlight.
      * @param player
-     *     The {@link IPPlayer} for whom to highlight the structure.
+     *     The {@link IPlayer} for whom to highlight the structure.
      * @param duration
      *     The amount of time the glowing blocks should be visible for.
      * @return The list of {@link IGlowingBlock}s that were spawned.
      */
-    public List<IGlowingBlock> spawnGlowingBlocks(IStructureConst structure, IPPlayer player, Duration duration)
+    public List<IGlowingBlock> spawnGlowingBlocks(IStructureConst structure, IPlayer player, Duration duration)
     {
         final List<IGlowingBlock> ret = new ArrayList<>(4);
-        final IPWorld world = structure.getWorld();
+        final IWorld world = structure.getWorld();
 
         spawnGlowingBlock(player, world, duration, structure.getPowerBlock().x() + 0.5,
-                          structure.getPowerBlock().y(), structure.getPowerBlock().z() + 0.5, PColor.GOLD);
+                          structure.getPowerBlock().y(), structure.getPowerBlock().z() + 0.5, Color.GOLD);
         spawnGlowingBlock(player, world, duration, structure.getRotationPoint().x() + 0.5,
                           structure.getRotationPoint().y(), structure.getRotationPoint().z() + 0.5,
-                          PColor.DARK_PURPLE);
+                          Color.DARK_PURPLE);
         spawnGlowingBlock(player, world, duration, structure.getMinimum().x() + 0.5, structure.getMinimum().y(),
-                          structure.getMinimum().z() + 0.5, PColor.BLUE);
+                          structure.getMinimum().z() + 0.5, Color.BLUE);
         spawnGlowingBlock(player, world, duration, structure.getMaximum().x() + 0.5, structure.getMaximum().y(),
-                          structure.getMaximum().z() + 0.5, PColor.RED);
+                          structure.getMaximum().z() + 0.5, Color.RED);
         return ret;
     }
 
@@ -67,13 +67,13 @@ public abstract class GlowingBlockSpawner
     {
         private final GlowingBlockSpawner glowingBlockSpawner;
 
-        private @Nullable IPPlayer player;
-        private @Nullable IPWorld world;
+        private @Nullable IPlayer player;
+        private @Nullable IWorld world;
         private double x;
         private double y;
         private double z;
         private Duration duration = Duration.ofSeconds(1);
-        private PColor color = PColor.RED;
+        private Color color = Color.RED;
 
         private Builder(GlowingBlockSpawner glowingBlockSpawner)
         {
@@ -84,7 +84,7 @@ public abstract class GlowingBlockSpawner
          * @param player
          *     The player who will see the glowing block.
          */
-        public Builder forPlayer(IPPlayer player)
+        public Builder forPlayer(IPlayer player)
         {
             this.player = player;
             return this;
@@ -94,7 +94,7 @@ public abstract class GlowingBlockSpawner
          * @param location
          *     The location where the glowing block will be spawned. This sets the coordinates and the world.
          */
-        public Builder atLocation(IPLocation location)
+        public Builder atLocation(ILocation location)
         {
             this.world = location.getWorld();
             this.x = location.getX();
@@ -107,7 +107,7 @@ public abstract class GlowingBlockSpawner
          * @param world
          *     The world the glowing block will be spawned in.
          */
-        public Builder inWorld(IPWorld world)
+        public Builder inWorld(IWorld world)
         {
             this.world = world;
             return this;
@@ -150,7 +150,7 @@ public abstract class GlowingBlockSpawner
          * @param color
          *     The color of the glowing block.
          */
-        public Builder withColor(PColor color)
+        public Builder withColor(Color color)
         {
             this.color = color;
             return this;

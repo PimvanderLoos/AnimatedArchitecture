@@ -4,12 +4,12 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.bigdoors.core.api.Color;
 import nl.pim16aap2.bigdoors.core.api.GlowingBlockSpawner;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
-import nl.pim16aap2.bigdoors.core.api.PColor;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.AnimationContext;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlock;
-import nl.pim16aap2.bigdoors.core.api.factories.IPLocationFactory;
+import nl.pim16aap2.bigdoors.core.api.factories.ILocationFactory;
 import nl.pim16aap2.bigdoors.core.structures.StructureSnapshot;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
@@ -25,9 +25,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @ToString(onlyExplicitlyIncluded = true)
 public class AnimationPreviewBlockManager implements IAnimationBlockManager
 {
-    private final IPLocationFactory locationFactory;
+    private final ILocationFactory locationFactory;
     private final GlowingBlockSpawner glowingBlockSpawner;
-    private final IPPlayer player;
+    private final IPlayer player;
 
     /**
      * The modifiable list of animated blocks.
@@ -42,7 +42,7 @@ public class AnimationPreviewBlockManager implements IAnimationBlockManager
     private final List<IAnimatedBlock> animatedBlocks;
 
     AnimationPreviewBlockManager(
-        IPLocationFactory locationFactory, GlowingBlockSpawner glowingBlockSpawner, IPPlayer player)
+        ILocationFactory locationFactory, GlowingBlockSpawner glowingBlockSpawner, IPlayer player)
     {
         this.locationFactory = locationFactory;
         this.glowingBlockSpawner = glowingBlockSpawner;
@@ -81,7 +81,7 @@ public class AnimationPreviewBlockManager implements IAnimationBlockManager
 
                         final float radius = animationComponent.getRadius(xAxis, yAxis, zAxis);
                         final float startAngle = animationComponent.getStartAngle(xAxis, yAxis, zAxis);
-                        final PColor color = getColor(cuboid, position);
+                        final Color color = getColor(cuboid, position);
                         final Vector3Dd startPosition = new Vector3Dd(xAxis + 0.5, yAxis, zAxis + 0.5);
                         final Vector3Dd finalPosition = animationComponent.getFinalPosition(startPosition, radius);
 
@@ -102,13 +102,13 @@ public class AnimationPreviewBlockManager implements IAnimationBlockManager
         return true;
     }
 
-    private PColor getColor(Cuboid cuboid, Vector3Di position)
+    private Color getColor(Cuboid cuboid, Vector3Di position)
     {
         if (position.equals(cuboid.getMin()))
-            return PColor.RED;
+            return Color.RED;
         if (position.equals(cuboid.getMax()))
-            return PColor.GREEN;
-        return PColor.BLUE;
+            return Color.GREEN;
+        return Color.BLUE;
     }
 
     @Override

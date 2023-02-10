@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.core.moveblocks;
 
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 
 /**
  * Represents several types of animation.
@@ -16,7 +16,7 @@ public enum AnimationType
     /**
      * Animates a preview of an animation. No blocks are affected in the world.
      * <p>
-     * Note that this type requires an online {@link IPPlayer} to target.
+     * Note that this type requires an online {@link IPlayer} to target.
      */
     PREVIEW(false, false, 10),
     ;

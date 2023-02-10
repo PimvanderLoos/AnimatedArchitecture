@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.spigot.v1_19_R2;
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.core.annotations.Initializer;
 import nl.pim16aap2.bigdoors.core.api.IBlockAnalyzer;
-import nl.pim16aap2.bigdoors.core.api.IPExecutor;
+import nl.pim16aap2.bigdoors.core.api.IExecutor;
 import nl.pim16aap2.bigdoors.core.api.factories.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.core.managers.AnimatedBlockHookManager;
 import nl.pim16aap2.bigdoors.spigot.util.api.IBigDoorsSpigotSubPlatform;
@@ -28,10 +28,10 @@ public final class BigDoorsSpigotSubPlatform implements IBigDoorsSpigotSubPlatfo
     private IGlowingBlockFactory glowingBlockFactory;
 
     private final AnimatedBlockHookManager animatedBlockHookManager;
-    private final IPExecutor executor;
+    private final IExecutor executor;
 
     @Inject
-    public BigDoorsSpigotSubPlatform(AnimatedBlockHookManager animatedBlockHookManager, IPExecutor executor)
+    public BigDoorsSpigotSubPlatform(AnimatedBlockHookManager animatedBlockHookManager, IExecutor executor)
     {
         this.animatedBlockHookManager = animatedBlockHookManager;
         this.executor = executor;

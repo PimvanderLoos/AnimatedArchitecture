@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.core.commands;
 
 import nl.pim16aap2.bigdoors.core.UnitTestUtil;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.managers.DatabaseManager;
@@ -42,10 +42,10 @@ class AddOwnerTest
     private AbstractStructure door;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
-    private IPPlayer commandSender;
+    private IPlayer commandSender;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
-    private IPPlayer target;
+    private IPlayer target;
 
     private AddOwner addOwnerCreator;
     private AddOwner addOwnerAdmin;
@@ -67,13 +67,13 @@ class AddOwnerTest
 
         Mockito.when(factory.newAddOwner(Mockito.any(ICommandSender.class),
                                          Mockito.any(StructureRetriever.class),
-                                         Mockito.any(IPPlayer.class),
+                                         Mockito.any(IPlayer.class),
                                          Mockito.any(PermissionLevel.class)))
                .thenAnswer((Answer<AddOwner>) invoc ->
                    new AddOwner(invoc.getArgument(0, ICommandSender.class), localizer,
                                 ITextFactory.getSimpleTextFactory(),
                                 invoc.getArgument(1, StructureRetriever.class),
-                                invoc.getArgument(2, IPPlayer.class), invoc.getArgument(3, PermissionLevel.class),
+                                invoc.getArgument(2, IPlayer.class), invoc.getArgument(3, PermissionLevel.class),
                                 databaseManager));
 
         CommandTestingUtil.initCommandSenderPermissions(commandSender, true, true);
@@ -164,7 +164,7 @@ class AddOwnerTest
         Mockito.when(door.getOwner(commandSender)).thenReturn(Optional.of(CommandTestingUtil.structureOwnerCreator));
         Mockito.when(door.getOwner(target)).thenReturn(Optional.of(CommandTestingUtil.structureOwnerAdmin));
         Mockito.when(door.isOwner(Mockito.any(UUID.class))).thenReturn(true);
-        Mockito.when(door.isOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
+        Mockito.when(door.isOwner(Mockito.any(IPlayer.class))).thenReturn(true);
 
         final CompletableFuture<?> result =
             factory.newAddOwner(commandSender, doorRetriever, target, AddOwner.DEFAULT_PERMISSION_LEVEL).run();

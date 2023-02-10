@@ -5,7 +5,7 @@ import nl.pim16aap2.bigdoors.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.core.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.core.util.Util;
 import nl.pim16aap2.bigdoors.spigot.core.config.ConfigSpigot;
-import nl.pim16aap2.bigdoors.spigot.util.implementations.PLocationSpigot;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.LocationSpigot;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -58,7 +58,7 @@ public class RedstoneListener extends AbstractListener
         powerBlockTypes.clear();
     }
 
-    private void checkStructures(PLocationSpigot loc, boolean isPowered)
+    private void checkStructures(LocationSpigot loc, boolean isPowered)
     {
         powerBlockManager
             .structuresFromPowerBlockLoc(loc)
@@ -86,22 +86,22 @@ public class RedstoneListener extends AbstractListener
             final int z = location.getBlockZ();
 
             if (powerBlockTypes.contains(world.getBlockAt(x, y, z - 1).getType())) // North
-                checkStructures(new PLocationSpigot(world, x, y, z - 1.0), isPowered);
+                checkStructures(new LocationSpigot(world, x, y, z - 1.0), isPowered);
 
             if (powerBlockTypes.contains(world.getBlockAt(x + 1, y, z).getType())) // East
-                checkStructures(new PLocationSpigot(world, x + 1.0, y, z), isPowered);
+                checkStructures(new LocationSpigot(world, x + 1.0, y, z), isPowered);
 
             if (powerBlockTypes.contains(world.getBlockAt(x, y, z + 1).getType())) // South
-                checkStructures(new PLocationSpigot(world, x, y, z + 1.0), isPowered);
+                checkStructures(new LocationSpigot(world, x, y, z + 1.0), isPowered);
 
             if (powerBlockTypes.contains(world.getBlockAt(x - 1, y, z).getType())) // West
-                checkStructures(new PLocationSpigot(world, x - 1.0, y, z), isPowered);
+                checkStructures(new LocationSpigot(world, x - 1.0, y, z), isPowered);
 
             if (powerBlockTypes.contains(world.getBlockAt(x, y + 1, z).getType())) // Above
-                checkStructures(new PLocationSpigot(world, x, y + 1.0, z), isPowered);
+                checkStructures(new LocationSpigot(world, x, y + 1.0, z), isPowered);
 
             if (powerBlockTypes.contains(world.getBlockAt(x, y - 1, z).getType())) // Under
-                checkStructures(new PLocationSpigot(world, x, y - 1.0, z), isPowered);
+                checkStructures(new LocationSpigot(world, x, y - 1.0, z), isPowered);
         }
         catch (Exception e)
         {

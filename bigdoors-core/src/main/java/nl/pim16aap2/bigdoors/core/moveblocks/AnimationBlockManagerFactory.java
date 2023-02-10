@@ -1,10 +1,10 @@
 package nl.pim16aap2.bigdoors.core.moveblocks;
 
 import nl.pim16aap2.bigdoors.core.api.GlowingBlockSpawner;
-import nl.pim16aap2.bigdoors.core.api.IPExecutor;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IExecutor;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.factories.IAnimatedBlockFactory;
-import nl.pim16aap2.bigdoors.core.api.factories.IPLocationFactory;
+import nl.pim16aap2.bigdoors.core.api.factories.ILocationFactory;
 import nl.pim16aap2.bigdoors.core.util.Util;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,15 +14,15 @@ import javax.inject.Singleton;
 @Singleton
 public class AnimationBlockManagerFactory
 {
-    private final IPLocationFactory locationFactory;
+    private final ILocationFactory locationFactory;
     private final IAnimatedBlockFactory animatedBlockFactory;
-    private final IPExecutor executor;
+    private final IExecutor executor;
     private final GlowingBlockSpawner glowingBlockSpawner;
 
     @Inject AnimationBlockManagerFactory(
-        IPLocationFactory locationFactory,
+        ILocationFactory locationFactory,
         IAnimatedBlockFactory animatedBlockFactory,
-        IPExecutor executor, GlowingBlockSpawner glowingBlockSpawner)
+        IExecutor executor, GlowingBlockSpawner glowingBlockSpawner)
     {
         this.locationFactory = locationFactory;
         this.animatedBlockFactory = animatedBlockFactory;
@@ -30,7 +30,7 @@ public class AnimationBlockManagerFactory
         this.glowingBlockSpawner = glowingBlockSpawner;
     }
 
-    public IAnimationBlockManager newManager(AnimationType animationType, @Nullable IPPlayer player)
+    public IAnimationBlockManager newManager(AnimationType animationType, @Nullable IPlayer player)
     {
         return switch (animationType)
             {
@@ -39,7 +39,7 @@ public class AnimationBlockManagerFactory
             };
     }
 
-    private IAnimationBlockManager newPreviewBlockManager(@Nullable IPPlayer player)
+    private IAnimationBlockManager newPreviewBlockManager(@Nullable IPlayer player)
     {
         return new AnimationPreviewBlockManager(
             locationFactory, glowingBlockSpawner, Util.requireNonNull(player, "Player for preview blocks"));

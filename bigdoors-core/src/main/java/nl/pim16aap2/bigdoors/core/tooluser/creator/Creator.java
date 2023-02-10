@@ -3,9 +3,9 @@ package nl.pim16aap2.bigdoors.core.tooluser.creator;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.api.IEconomyManager;
-import nl.pim16aap2.bigdoors.core.api.IPLocation;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
-import nl.pim16aap2.bigdoors.core.api.IPWorld;
+import nl.pim16aap2.bigdoors.core.api.ILocation;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
+import nl.pim16aap2.bigdoors.core.api.IWorld;
 import nl.pim16aap2.bigdoors.core.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.core.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.core.managers.LimitsManager;
@@ -15,14 +15,14 @@ import nl.pim16aap2.bigdoors.core.structures.StructureBaseBuilder;
 import nl.pim16aap2.bigdoors.core.structures.StructureOwner;
 import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
 import nl.pim16aap2.bigdoors.core.text.TextType;
-import nl.pim16aap2.bigdoors.core.tooluser.ToolUser;
-import nl.pim16aap2.bigdoors.core.tooluser.step.Step;
-import nl.pim16aap2.bigdoors.core.tooluser.stepexecutor.StepExecutorString;
 import nl.pim16aap2.bigdoors.core.tooluser.Procedure;
+import nl.pim16aap2.bigdoors.core.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.core.tooluser.step.IStep;
+import nl.pim16aap2.bigdoors.core.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.core.tooluser.stepexecutor.StepExecutorBoolean;
+import nl.pim16aap2.bigdoors.core.tooluser.stepexecutor.StepExecutorLocation;
 import nl.pim16aap2.bigdoors.core.tooluser.stepexecutor.StepExecutorOpenDirection;
-import nl.pim16aap2.bigdoors.core.tooluser.stepexecutor.StepExecutorPLocation;
+import nl.pim16aap2.bigdoors.core.tooluser.stepexecutor.StepExecutorString;
 import nl.pim16aap2.bigdoors.core.tooluser.stepexecutor.StepExecutorVoid;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
 import nl.pim16aap2.bigdoors.core.util.Limit;
@@ -92,9 +92,9 @@ public abstract class Creator extends ToolUser
     protected @Nullable MovementDirection openDir;
 
     /**
-     * The {@link IPWorld} this structure is created in.
+     * The {@link IWorld} this structure is created in.
      */
-    protected @Nullable IPWorld world;
+    protected @Nullable IWorld world;
 
     /**
      * Whether the structure is created in the open (true) or closed (false) position.
@@ -171,7 +171,7 @@ public abstract class Creator extends ToolUser
 
     private static final MyDecimalFormat DECIMAL_FORMAT = new MyDecimalFormat();
 
-    protected Creator(Context context, IPPlayer player, @Nullable String name)
+    protected Creator(Context context, IPlayer player, @Nullable String name)
     {
         super(context, player);
         limitsManager = context.getLimitsManager();
@@ -199,20 +199,20 @@ public abstract class Creator extends ToolUser
 
         factorySetFirstPos = stepFactory
             .stepName("SET_FIRST_POS")
-            .stepExecutor(new StepExecutorPLocation(this::setFirstPos));
+            .stepExecutor(new StepExecutorLocation(this::setFirstPos));
 
         factorySetSecondPos = stepFactory
             .stepName("SET_SECOND_POS")
-            .stepExecutor(new StepExecutorPLocation(this::setSecondPos));
+            .stepExecutor(new StepExecutorLocation(this::setSecondPos));
 
         factorySetRotationPointPos = stepFactory
             .stepName("SET_ROTATION_POINT")
-            .stepExecutor(new StepExecutorPLocation(this::completeSetRotationPointStep));
+            .stepExecutor(new StepExecutorLocation(this::completeSetRotationPointStep));
 
         factorySetPowerBlockPos = stepFactory
             .stepName("SET_POWER_BLOCK_POS")
             .messageKey("creator.base.set_power_block")
-            .stepExecutor(new StepExecutorPLocation(this::completeSetPowerBlockStep));
+            .stepExecutor(new StepExecutorLocation(this::completeSetPowerBlockStep));
 
         factorySetOpenStatus = stepFactory
             .stepName("SET_OPEN_STATUS")
@@ -275,7 +275,7 @@ public abstract class Creator extends ToolUser
     protected final AbstractStructure.BaseHolder constructStructureData()
     {
         final long structureUID = -1;
-        final var owner = new StructureOwner(structureUID, PermissionLevel.CREATOR, getPlayer().getPPlayerData());
+        final var owner = new StructureOwner(structureUID, PermissionLevel.CREATOR, getPlayer().getPlayerData());
 
         return structureBaseBuilder
             .builder()
@@ -348,7 +348,7 @@ public abstract class Creator extends ToolUser
      *     The first location of the cuboid.
      * @return True if setting the location was successful.
      */
-    protected boolean setFirstPos(IPLocation loc)
+    protected boolean setFirstPos(ILocation loc)
     {
         if (!playerHasAccessToLocation(loc))
             return false;
@@ -365,7 +365,7 @@ public abstract class Creator extends ToolUser
      *     The second location of the cuboid.
      * @return True if setting the location was successful.
      */
-    protected boolean setSecondPos(IPLocation loc)
+    protected boolean setSecondPos(ILocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;
@@ -480,7 +480,7 @@ public abstract class Creator extends ToolUser
      *     The world to check.
      * @return True if the world is the same world this structure is being created in.
      */
-    protected boolean verifyWorldMatch(IPWorld targetWorld)
+    protected boolean verifyWorldMatch(IWorld targetWorld)
     {
         if (Util.requireNonNull(world, "world").worldName().equals(targetWorld.worldName()))
             return true;
@@ -581,7 +581,7 @@ public abstract class Creator extends ToolUser
      *     The selected location of the rotation point.
      * @return True if the location of the area was set successfully.
      */
-    protected boolean completeSetPowerBlockStep(IPLocation loc)
+    protected boolean completeSetPowerBlockStep(ILocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;
@@ -624,7 +624,7 @@ public abstract class Creator extends ToolUser
      *     The selected location of the rotation point.
      * @return True if the location of the rotation point was set successfully.
      */
-    protected boolean completeSetRotationPointStep(IPLocation loc)
+    protected boolean completeSetRotationPointStep(ILocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;

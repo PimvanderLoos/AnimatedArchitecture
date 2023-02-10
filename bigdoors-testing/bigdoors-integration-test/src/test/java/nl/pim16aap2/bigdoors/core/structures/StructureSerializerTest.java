@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.core.structures;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import nl.pim16aap2.bigdoors.core.api.PPlayerData;
+import nl.pim16aap2.bigdoors.core.api.PlayerData;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.core.moveblocks.StructureRequestData;
 import nl.pim16aap2.bigdoors.core.structures.serialization.Deserialization;
@@ -13,7 +13,7 @@ import nl.pim16aap2.bigdoors.core.util.MovementDirection;
 import nl.pim16aap2.bigdoors.core.util.Rectangle;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Di;
-import nl.pim16aap2.bigdoors.testimplementations.TestPWorld;
+import nl.pim16aap2.bigdoors.testimplementations.TestWorld;
 import nl.pim16aap2.testing.AssistedFactoryMocker;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
@@ -47,11 +47,11 @@ class StructureSerializerTest
 
         final String structureName = "randomDoorName";
         final Vector3Di zeroPos = new Vector3Di(0, 0, 0);
-        final PPlayerData playerData = new PPlayerData(UUID.randomUUID(), "player", -1, -1, true, true);
+        final PlayerData playerData = new PlayerData(UUID.randomUUID(), "player", -1, -1, true, true);
         final StructureOwner structureOwner = new StructureOwner(1, PermissionLevel.CREATOR, playerData);
 
         structureBase = factory.builder().uid(1).name(structureName).cuboid(new Cuboid(zeroPos, zeroPos))
-                               .rotationPoint(zeroPos).powerBlock(zeroPos).world(new TestPWorld("worldName"))
+                               .rotationPoint(zeroPos).powerBlock(zeroPos).world(new TestWorld("worldName"))
                                .isOpen(false).isLocked(false).openDir(MovementDirection.DOWN).primeOwner(structureOwner)
                                .build();
     }

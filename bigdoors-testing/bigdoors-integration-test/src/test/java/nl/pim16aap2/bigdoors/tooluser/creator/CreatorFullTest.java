@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.tooluser.creator;
 
 import nl.pim16aap2.bigdoors.core.UnitTestUtil;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
 import nl.pim16aap2.bigdoors.core.tooluser.ToolUser;
@@ -100,7 +100,7 @@ class CreatorFullTest extends CreatorTestsUtil
     {
         private final AbstractStructure structure;
 
-        protected CreatorTestImpl(ToolUser.Context context, IPPlayer player, AbstractStructure structure)
+        protected CreatorTestImpl(ToolUser.Context context, IPlayer player, AbstractStructure structure)
         {
             super(context, player, null);
             this.structure = structure;

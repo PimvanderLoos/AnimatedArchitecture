@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.spigot.core.events;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.events.IStructurePrepareRemoveOwnerEvent;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.structures.StructureOwner;
@@ -34,7 +34,7 @@ public class StructurePrepareRemoveOwnerEvent extends StructureEvent implements 
     private final StructureOwner removedStructureOwner;
 
     public StructurePrepareRemoveOwnerEvent(
-        AbstractStructure structure, @Nullable IPPlayer responsible, StructureOwner removedStructureOwner)
+        AbstractStructure structure, @Nullable IPlayer responsible, StructureOwner removedStructureOwner)
     {
         super(structure, responsible);
         this.removedStructureOwner = removedStructureOwner;

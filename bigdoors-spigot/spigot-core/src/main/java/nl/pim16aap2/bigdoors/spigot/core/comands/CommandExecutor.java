@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.spigot.core.comands;
 
 import cloud.commandframework.context.CommandContext;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.commands.AddOwnerDelayed;
 import nl.pim16aap2.bigdoors.core.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.core.commands.ICommandSender;
@@ -39,7 +39,7 @@ class CommandExecutor
     @SuppressWarnings("NullAway")
     void addOwner(CommandContext<ICommandSender> context)
     {
-        final IPPlayer newOwner = SpigotAdapter.wrapPlayer(context.get("newOwner"));
+        final IPlayer newOwner = SpigotAdapter.wrapPlayer(context.get("newOwner"));
         final @Nullable PermissionLevel permissionLevel = nullable(context, "permissionLevel");
         final @Nullable StructureRetriever structureRetriever = nullable(context, "structureRetriever");
 
@@ -106,7 +106,7 @@ class CommandExecutor
     {
         final @Nullable Player player = nullable(context, "targetPlayer");
         final ICommandSender commandSender = context.getSender();
-        final IPPlayer targetPlayer;
+        final IPlayer targetPlayer;
         if (player != null)
             targetPlayer = SpigotAdapter.wrapPlayer(player);
         else
@@ -133,7 +133,7 @@ class CommandExecutor
     void removeOwner(CommandContext<ICommandSender> context)
     {
         final StructureRetriever structureRetriever = context.get("structureRetriever");
-        final IPPlayer targetPlayer = SpigotAdapter.wrapPlayer(context.get("targetPlayer"));
+        final IPlayer targetPlayer = SpigotAdapter.wrapPlayer(context.get("targetPlayer"));
         commandFactory.newRemoveOwner(context.getSender(), structureRetriever, targetPlayer).run();
     }
 

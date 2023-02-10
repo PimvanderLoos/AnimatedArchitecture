@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.core.commands;
 
 import nl.pim16aap2.bigdoors.core.UnitTestUtil;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.managers.DatabaseManager;
@@ -32,10 +32,10 @@ class RemoveOwnerTest
     private AbstractStructure door;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
-    private IPPlayer commandSender;
+    private IPlayer commandSender;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
-    private IPPlayer target;
+    private IPlayer target;
 
     @Mock
     private DatabaseManager databaseManager;
@@ -55,22 +55,22 @@ class RemoveOwnerTest
         Mockito.when(door.getType()).thenReturn(doorType);
 
         Mockito.when(door.isOwner(Mockito.any(UUID.class))).thenReturn(true);
-        Mockito.when(door.isOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
+        Mockito.when(door.isOwner(Mockito.any(IPlayer.class))).thenReturn(true);
         doorRetriever = StructureRetrieverFactory.ofStructure(door);
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
-        Mockito.when(databaseManager.removeOwner(Mockito.any(AbstractStructure.class), Mockito.any(IPPlayer.class),
-                                                 Mockito.any(IPPlayer.class)))
+        Mockito.when(databaseManager.removeOwner(Mockito.any(AbstractStructure.class), Mockito.any(IPlayer.class),
+                                                 Mockito.any(IPlayer.class)))
                .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
 
         Mockito.when(factory.newRemoveOwner(Mockito.any(ICommandSender.class),
                                             Mockito.any(StructureRetriever.class),
-                                            Mockito.any(IPPlayer.class)))
+                                            Mockito.any(IPlayer.class)))
                .thenAnswer(invoc -> new RemoveOwner(invoc.getArgument(0, ICommandSender.class), localizer,
                                                     ITextFactory.getSimpleTextFactory(),
                                                     invoc.getArgument(1, StructureRetriever.class),
-                                                    invoc.getArgument(2, IPPlayer.class), databaseManager));
+                                                    invoc.getArgument(2, IPlayer.class), databaseManager));
     }
 
     /**

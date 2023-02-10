@@ -19,9 +19,9 @@ public interface IRedstoneManager
      * @return True if the block at the given position is a valid power block that is receiving an active redstone
      * signal.
      */
-    RedstoneStatus isBlockPowered(IPWorld world, Vector3Di position);
+    RedstoneStatus isBlockPowered(IWorld world, Vector3Di position);
 
-    default RedstoneStatus isBlockPowered(IPLocation location)
+    default RedstoneStatus isBlockPowered(ILocation location)
     {
         return isBlockPowered(location.getWorld(), location.getPosition());
     }

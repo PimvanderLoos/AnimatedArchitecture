@@ -4,7 +4,7 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.managers.ToolUserManager;
@@ -50,7 +50,7 @@ public class InspectPowerBlock extends BaseCommand
     @Override
     protected CompletableFuture<?> executeCommand(PermissionsStatus permissions)
     {
-        toolUserManager.startToolUser(inspectPowerBlockFactory.create((IPPlayer) getCommandSender(),
+        toolUserManager.startToolUser(inspectPowerBlockFactory.create((IPlayer) getCommandSender(),
                                                                       permissions.hasAdminPermission()),
                                       Constants.STRUCTURE_CREATOR_TIME_LIMIT);
         return CompletableFuture.completedFuture(null);

@@ -6,12 +6,12 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.core.api.IPLocation;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.ILocation;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.core.tooluser.step.Step;
-import nl.pim16aap2.bigdoors.core.tooluser.stepexecutor.StepExecutorPLocation;
+import nl.pim16aap2.bigdoors.core.tooluser.stepexecutor.StepExecutorLocation;
 import nl.pim16aap2.bigdoors.core.tooluser.stepexecutor.StepExecutorVoid;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,11 +28,11 @@ import java.util.List;
 public class PowerBlockRelocator extends ToolUser
 {
     private final AbstractStructure structure;
-    private @Nullable IPLocation newLoc;
+    private @Nullable ILocation newLoc;
 
     @AssistedInject
     public PowerBlockRelocator(
-        ToolUser.Context context, @Assisted IPPlayer player, @Assisted AbstractStructure structure)
+        ToolUser.Context context, @Assisted IPlayer player, @Assisted AbstractStructure structure)
     {
         super(context, player);
         this.structure = structure;
@@ -45,7 +45,7 @@ public class PowerBlockRelocator extends ToolUser
                  "tool_user.powerblock_relocator.init");
     }
 
-    protected boolean moveToLoc(IPLocation loc)
+    protected boolean moveToLoc(ILocation loc)
     {
         if (!loc.getWorld().equals(structure.getWorld()))
         {
@@ -95,7 +95,7 @@ public class PowerBlockRelocator extends ToolUser
         final Step stepPowerblockRelocatorInit = stepFactory
             .stepName("RELOCATE_POWER_BLOCK_INIT")
             .messageKey("tool_user.powerblock_relocator.init")
-            .stepExecutor(new StepExecutorPLocation(this::moveToLoc))
+            .stepExecutor(new StepExecutorLocation(this::moveToLoc))
             .waitForUserInput(true).construct();
 
         final Step stepPowerblockRelocatorCompleted = stepFactory
@@ -110,6 +110,6 @@ public class PowerBlockRelocator extends ToolUser
     @AssistedFactory
     public interface IFactory
     {
-        PowerBlockRelocator create(IPPlayer player, AbstractStructure structure);
+        PowerBlockRelocator create(IPlayer player, AbstractStructure structure);
     }
 }

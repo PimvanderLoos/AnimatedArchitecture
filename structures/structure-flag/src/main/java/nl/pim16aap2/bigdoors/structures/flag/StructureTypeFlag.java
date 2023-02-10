@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.structures.flag;
 
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
 import nl.pim16aap2.bigdoors.core.tooluser.creator.Creator;
@@ -35,7 +35,7 @@ public final class StructureTypeFlag extends StructureType
     }
 
     @Override
-    public Creator getCreator(Creator.Context context, IPPlayer player, @Nullable String name)
+    public Creator getCreator(Creator.Context context, IPlayer player, @Nullable String name)
     {
         return new CreatorFlag(context, player, name);
     }

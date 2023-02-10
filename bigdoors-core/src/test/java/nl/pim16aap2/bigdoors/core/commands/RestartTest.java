@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 class RestartTest
 {
     @Mock(answer = Answers.CALLS_REAL_METHODS)
-    private IPServer commandSender;
+    private IServer commandSender;
 
     @Mock
     private IBigDoorsPlatformProvider platformProvider;

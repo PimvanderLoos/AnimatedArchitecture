@@ -4,7 +4,7 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.managers.StructureSpecificationManager;
@@ -46,7 +46,7 @@ public class Cancel extends BaseCommand
         return CompletableFuture.completedFuture(null);
     }
 
-    private void cancelPlayer(IPPlayer player)
+    private void cancelPlayer(IPlayer player)
     {
         if (toolUserManager.cancelToolUser(player) || doorSpecificationManager.cancelRequest(player))
             getCommandSender().sendSuccess(textFactory, localizer.getMessage("commands.cancel.success"));

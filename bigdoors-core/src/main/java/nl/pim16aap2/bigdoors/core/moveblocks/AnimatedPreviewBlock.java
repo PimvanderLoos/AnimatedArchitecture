@@ -1,14 +1,14 @@
 package nl.pim16aap2.bigdoors.core.moveblocks;
 
 import lombok.Getter;
+import nl.pim16aap2.bigdoors.core.api.Color;
 import nl.pim16aap2.bigdoors.core.api.GlowingBlockSpawner;
-import nl.pim16aap2.bigdoors.core.api.IPLocation;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
-import nl.pim16aap2.bigdoors.core.api.IPWorld;
-import nl.pim16aap2.bigdoors.core.api.PColor;
+import nl.pim16aap2.bigdoors.core.api.ILocation;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
+import nl.pim16aap2.bigdoors.core.api.IWorld;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlockData;
-import nl.pim16aap2.bigdoors.core.api.factories.IPLocationFactory;
+import nl.pim16aap2.bigdoors.core.api.factories.ILocationFactory;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
 import nl.pim16aap2.bigdoors.core.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
@@ -25,14 +25,14 @@ public class AnimatedPreviewBlock implements IAnimatedBlock
     private static final IAnimatedBlockData ANIMATED_BLOCK_DATA = new PreviewAnimatedBlockData();
 
     private int movementTicks = -1;
-    private final IPLocationFactory locationFactory;
+    private final ILocationFactory locationFactory;
     private final GlowingBlockSpawner glowingBlockSpawner;
     @Getter
-    private final IPWorld world;
+    private final IWorld world;
     private final float startAngle;
     private final float startRadius;
-    private final PColor color;
-    private final IPPlayer player;
+    private final Color color;
+    private final IPlayer player;
     private final Vector3Dd startPosition;
     private final Vector3Dd finalPosition;
 
@@ -40,8 +40,8 @@ public class AnimatedPreviewBlock implements IAnimatedBlock
     private volatile Vector3Dd currentTarget;
 
     public AnimatedPreviewBlock(
-        IPLocationFactory locationFactory, GlowingBlockSpawner glowingBlockSpawner, IPWorld world, IPPlayer player,
-        Vector3Dd position, Vector3Dd finalPosition, float startAngle, float startRadius, PColor color)
+        ILocationFactory locationFactory, GlowingBlockSpawner glowingBlockSpawner, IWorld world, IPlayer player,
+        Vector3Dd position, Vector3Dd finalPosition, float startAngle, float startRadius, Color color)
     {
         this.locationFactory = locationFactory;
         this.glowingBlockSpawner = glowingBlockSpawner;
@@ -92,7 +92,7 @@ public class AnimatedPreviewBlock implements IAnimatedBlock
     }
 
     @Override
-    public IPLocation getPLocation()
+    public ILocation getLocation()
     {
         return getCurrentPosition().toLocation(locationFactory, getWorld());
     }

@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.core.commands;
 
 import nl.pim16aap2.bigdoors.core.UnitTestUtil;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.managers.DatabaseManager;
@@ -36,7 +36,7 @@ class SetOpenDirectionTest
     private StructureRetriever structureRetriever;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
-    private IPPlayer commandSender;
+    private IPlayer commandSender;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private SetOpenDirection.IFactory factory;

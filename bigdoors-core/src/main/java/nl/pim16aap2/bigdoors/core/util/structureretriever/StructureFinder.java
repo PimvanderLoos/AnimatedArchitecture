@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.commands.ICommandSender;
 import nl.pim16aap2.bigdoors.core.data.cache.RollingCache;
 import nl.pim16aap2.bigdoors.core.managers.DatabaseManager;
@@ -439,7 +439,7 @@ public final class StructureFinder
      */
     private CompletableFuture<List<MinimalStructureDescription>> getNewStructureIdentifiers(String input)
     {
-        final @Nullable IPPlayer player = commandSender.getPlayer().orElse(null);
+        final @Nullable IPlayer player = commandSender.getPlayer().orElse(null);
         return databaseManager.getIdentifiersFromPartial(input, player, maxPermission).thenApply(
             ids ->
             {

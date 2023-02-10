@@ -7,7 +7,7 @@ import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.api.GlowingBlockSpawner;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
@@ -90,7 +90,7 @@ public class Info extends StructureTargetCommand
 
     protected void highlightBlocks(AbstractStructure structure)
     {
-        if (!(getCommandSender() instanceof IPPlayer player))
+        if (!(getCommandSender() instanceof IPlayer player))
         {
             log.atSevere().withStackTrace(StackSize.FULL).log("Non-player command sender tried to highlight blocks!");
             return;

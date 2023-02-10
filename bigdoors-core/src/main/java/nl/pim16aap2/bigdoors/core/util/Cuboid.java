@@ -4,7 +4,7 @@ import com.google.errorprone.annotations.CheckReturnValue;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.core.api.IPLocation;
+import nl.pim16aap2.bigdoors.core.api.ILocation;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Di;
@@ -187,7 +187,7 @@ public final class Cuboid
      * See {@link #isInRange(int, int, int, int)}
      */
     @CheckReturnValue @Contract(pure = true)
-    public boolean isInRange(IPLocation loc, int range)
+    public boolean isInRange(ILocation loc, int range)
     {
         return isInRange(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), range);
     }

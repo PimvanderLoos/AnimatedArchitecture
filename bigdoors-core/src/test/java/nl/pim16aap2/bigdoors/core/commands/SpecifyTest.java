@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.core.commands;
 
 import nl.pim16aap2.bigdoors.core.UnitTestUtil;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.managers.StructureSpecificationManager;
@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 class SpecifyTest
 {
     @Mock(answer = Answers.CALLS_REAL_METHODS)
-    private IPPlayer commandSender;
+    private IPlayer commandSender;
 
     @Mock
     private StructureSpecificationManager structureSpecificationManager;
@@ -47,7 +47,7 @@ class SpecifyTest
     @Test
     void testServer()
     {
-        final IPServer server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
+        final IServer server = Mockito.mock(IServer.class, Answers.CALLS_REAL_METHODS);
         Assertions.assertDoesNotThrow(() -> factory.newSpecify(server, "newDoor").run().get(1, TimeUnit.SECONDS));
         Mockito.verify(structureSpecificationManager, Mockito.never()).handleInput(Mockito.any(), Mockito.any());
     }

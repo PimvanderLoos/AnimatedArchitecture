@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.spigot.core.events.structureaction;
 
 import lombok.Getter;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.events.structureaction.IStructureEventToggleEnd;
 import nl.pim16aap2.bigdoors.core.events.structureaction.StructureActionCause;
 import nl.pim16aap2.bigdoors.core.events.structureaction.StructureActionType;
@@ -44,7 +44,7 @@ public class StructureEventToggleEnd extends StructureToggleEvent implements ISt
     public StructureEventToggleEnd(
         AbstractStructure structure, StructureSnapshot snapshot, StructureActionCause cause,
         StructureActionType actionType,
-        IPPlayer responsible, double time, boolean skipAnimation)
+        IPlayer responsible, double time, boolean skipAnimation)
     {
         super(snapshot, cause, actionType, responsible, time, skipAnimation);
         this.structure = structure;

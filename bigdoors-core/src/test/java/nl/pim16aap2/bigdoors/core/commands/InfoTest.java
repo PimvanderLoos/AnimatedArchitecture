@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.core.commands;
 
 import nl.pim16aap2.bigdoors.core.UnitTestUtil;
 import nl.pim16aap2.bigdoors.core.api.GlowingBlockSpawner;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
@@ -45,7 +45,7 @@ class InfoTest
 
         structureRetriever = StructureRetrieverFactory.ofStructure(structure);
         Mockito.when(structure.isOwner(Mockito.any(UUID.class))).thenReturn(true);
-        Mockito.when(structure.isOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
+        Mockito.when(structure.isOwner(Mockito.any(IPlayer.class))).thenReturn(true);
         Mockito.when(structure.getCuboid()).thenReturn(new Cuboid(new Vector3Di(1, 2, 3), new Vector3Di(4, 5, 6)));
         Mockito.when(structure.getNameAndUid()).thenReturn("Structure (0)");
 
@@ -66,7 +66,7 @@ class InfoTest
     @Test
     void testServer()
     {
-        final IPServer server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
+        final IServer server = Mockito.mock(IServer.class, Answers.CALLS_REAL_METHODS);
 
         Assertions.assertDoesNotThrow(() -> factory.newInfo(server, structureRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(glowingBlockSpawner, Mockito.never())
@@ -76,7 +76,7 @@ class InfoTest
     @Test
     void testPlayer()
     {
-        final IPPlayer player = Mockito.mock(IPPlayer.class, Answers.CALLS_REAL_METHODS);
+        final IPlayer player = Mockito.mock(IPlayer.class, Answers.CALLS_REAL_METHODS);
 
         CommandTestingUtil.initCommandSenderPermissions(player, true, false);
         Assertions.assertDoesNotThrow(() -> factory.newInfo(player, structureRetriever).run().get(1, TimeUnit.SECONDS));

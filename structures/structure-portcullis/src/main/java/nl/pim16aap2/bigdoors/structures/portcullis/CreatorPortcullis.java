@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.structures.portcullis;
 
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
 import nl.pim16aap2.bigdoors.core.tooluser.creator.Creator;
@@ -22,12 +22,12 @@ public class CreatorPortcullis extends Creator
 
     protected int blocksToMove;
 
-    public CreatorPortcullis(Creator.Context context, IPPlayer player, @Nullable String name)
+    public CreatorPortcullis(Creator.Context context, IPlayer player, @Nullable String name)
     {
         super(context, player, name);
     }
 
-    public CreatorPortcullis(Creator.Context context, IPPlayer player)
+    public CreatorPortcullis(Creator.Context context, IPlayer player)
     {
         this(context, player, null);
     }

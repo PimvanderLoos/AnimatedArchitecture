@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.core.gui;
 
-import nl.pim16aap2.bigdoors.core.api.IPExecutor;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IExecutor;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.factories.IGuiFactory;
 import nl.pim16aap2.bigdoors.core.util.Util;
 import nl.pim16aap2.bigdoors.core.util.structureretriever.StructureRetrieverFactory;
@@ -17,10 +17,10 @@ public class GuiFactory implements IGuiFactory
 {
     private final MainGui.IFactory factory;
     private final StructureRetrieverFactory structureRetrieverFactory;
-    private final IPExecutor executor;
+    private final IExecutor executor;
 
     @Inject //
-    GuiFactory(MainGui.IFactory factory, StructureRetrieverFactory structureRetrieverFactory, IPExecutor executor)
+    GuiFactory(MainGui.IFactory factory, StructureRetrieverFactory structureRetrieverFactory, IExecutor executor)
     {
         this.factory = factory;
         this.structureRetrieverFactory = structureRetrieverFactory;
@@ -28,9 +28,9 @@ public class GuiFactory implements IGuiFactory
     }
 
     @Override
-    public void newGUI(IPPlayer inventoryHolder, @Nullable IPPlayer source)
+    public void newGUI(IPlayer inventoryHolder, @Nullable IPlayer source)
     {
-        final IPPlayer finalSource = Objects.requireNonNullElse(source, inventoryHolder);
+        final IPlayer finalSource = Objects.requireNonNullElse(source, inventoryHolder);
         structureRetrieverFactory
             .search(finalSource, "", StructureRetrieverFactory.StructureFinderMode.NEW_INSTANCE)
             .getStructures()

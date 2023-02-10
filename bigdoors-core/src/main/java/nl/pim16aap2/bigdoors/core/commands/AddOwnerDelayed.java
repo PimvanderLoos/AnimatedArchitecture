@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.core.commands;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.structures.PermissionLevel;
 import nl.pim16aap2.bigdoors.core.util.structureretriever.StructureRetriever;
 import org.jetbrains.annotations.Nullable;
@@ -50,7 +50,7 @@ public class AddOwnerDelayed extends DelayedCommand<AddOwnerDelayed.DelayedInput
     @Getter
     public static final class DelayedInput
     {
-        private final IPPlayer targetPlayer;
+        private final IPlayer targetPlayer;
         private final PermissionLevel targetPermissionLevel;
 
         /**
@@ -64,7 +64,7 @@ public class AddOwnerDelayed extends DelayedCommand<AddOwnerDelayed.DelayedInput
          *     The permission level of the new owner's ownership. Defaults to
          *     {@link AddOwner#DEFAULT_PERMISSION_LEVEL}.
          */
-        public DelayedInput(IPPlayer targetPlayer, @Nullable PermissionLevel targetPermissionLevel)
+        public DelayedInput(IPlayer targetPlayer, @Nullable PermissionLevel targetPermissionLevel)
         {
             this.targetPlayer = targetPlayer;
             this.targetPermissionLevel =
@@ -72,9 +72,9 @@ public class AddOwnerDelayed extends DelayedCommand<AddOwnerDelayed.DelayedInput
         }
 
         /**
-         * See {@link #DelayedInput(IPPlayer, PermissionLevel)}.
+         * See {@link #DelayedInput(IPlayer, PermissionLevel)}.
          */
-        public DelayedInput(IPPlayer targetPlayer)
+        public DelayedInput(IPlayer targetPlayer)
         {
             this(targetPlayer, null);
         }

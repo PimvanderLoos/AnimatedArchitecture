@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.core.structures;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import nl.pim16aap2.bigdoors.core.api.IPWorld;
+import nl.pim16aap2.bigdoors.core.api.IWorld;
 import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
@@ -27,7 +27,7 @@ import java.util.UUID;
 public final class StructureSnapshot implements IStructureConst
 {
     private final long uid;
-    private final IPWorld world;
+    private final IWorld world;
     private final Rectangle animationRange;
     private Vector3Di rotationPoint;
     private Vector3Di powerBlock;

@@ -1,10 +1,10 @@
 package nl.pim16aap2.bigdoors.spigot.core.compatiblity;
 
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.core.api.IPLocation;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
-import nl.pim16aap2.bigdoors.core.api.IPWorld;
+import nl.pim16aap2.bigdoors.core.api.ILocation;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.IProtectionCompatManager;
+import nl.pim16aap2.bigdoors.core.api.IWorld;
 import nl.pim16aap2.bigdoors.core.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Di;
@@ -47,13 +47,13 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
     }
 
     @Override
-    public Optional<String> canBreakBlock(IPPlayer player, IPLocation pLoc)
+    public Optional<String> canBreakBlock(IPlayer player, ILocation pLoc)
     {
         return Optional.empty();
     }
 
     @Override
-    public Optional<String> canBreakBlocksBetweenLocs(IPPlayer player, Vector3Di pos1, Vector3Di pos2, IPWorld world)
+    public Optional<String> canBreakBlocksBetweenLocs(IPlayer player, Vector3Di pos1, Vector3Di pos2, IWorld world)
     {
         return Optional.empty();
     }

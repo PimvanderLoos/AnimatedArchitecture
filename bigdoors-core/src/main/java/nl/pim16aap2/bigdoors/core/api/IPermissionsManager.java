@@ -18,7 +18,7 @@ public interface IPermissionsManager
      *     The base permission. In the example above, this would be "permission.node." (note the '.' at the end).
      * @return The highest numerical suffix of the base permission node if it exists, otherwise an empty OptionalInt.
      */
-    OptionalInt getMaxPermissionSuffix(IPPlayer player, String permissionBase);
+    OptionalInt getMaxPermissionSuffix(IPlayer player, String permissionBase);
 
     /**
      * Checks if a player has a certain permission node or not.
@@ -29,7 +29,7 @@ public interface IPermissionsManager
      *     The permission node to check.
      * @return True if the player has the permission node.
      */
-    boolean hasPermission(IPPlayer player, String permissionNode);
+    boolean hasPermission(IPlayer player, String permissionNode);
 
     /**
      * Checks if a player has bypass permissions for a specific attribute.
@@ -43,7 +43,7 @@ public interface IPermissionsManager
      *     The attribute of the Structure for which to verify if the player has bypass permissions.
      * @return True if the player has bypass permissions for the attribute.
      */
-    boolean hasBypassPermissionsForAttribute(IPPlayer player, StructureAttribute structureAttribute);
+    boolean hasBypassPermissionsForAttribute(IPlayer player, StructureAttribute structureAttribute);
 
     /**
      * Checks if the given player is a server operator or not.
@@ -52,5 +52,5 @@ public interface IPermissionsManager
      *     The player to check.
      * @return True if the player is a server operator on this server.
      */
-    boolean isOp(IPPlayer player);
+    boolean isOp(IPlayer player);
 }

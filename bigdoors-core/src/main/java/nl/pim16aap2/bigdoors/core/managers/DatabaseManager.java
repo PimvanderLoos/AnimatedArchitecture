@@ -9,8 +9,8 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
-import nl.pim16aap2.bigdoors.core.api.PPlayerData;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
+import nl.pim16aap2.bigdoors.core.api.PlayerData;
 import nl.pim16aap2.bigdoors.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.core.api.debugging.IDebuggable;
 import nl.pim16aap2.bigdoors.core.api.factories.IBigDoorsEventFactory;
@@ -124,7 +124,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
 
     /**
      * Inserts a {@link AbstractStructure} into the database and assumes that the structure was NOT created by an
-     * {@link IPPlayer}. See {@link #addStructure(AbstractStructure, IPPlayer)}.
+     * {@link IPlayer}. See {@link #addStructure(AbstractStructure, IPlayer)}.
      *
      * @param structure
      *     The new {@link AbstractStructure}.
@@ -141,12 +141,12 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      * @param structure
      *     The new {@link AbstractStructure}.
      * @param responsible
-     *     The {@link IPPlayer} responsible for creating the structure. This is used for the
+     *     The {@link IPlayer} responsible for creating the structure. This is used for the
      *     {@link IStructurePrepareCreateEvent} and the {@link IStructureCreatedEvent}. This may be null.
      * @return The future result of the operation.
      */
     public CompletableFuture<StructureInsertResult> addStructure(
-        AbstractStructure structure, @Nullable IPPlayer responsible)
+        AbstractStructure structure, @Nullable IPlayer responsible)
     {
         final var ret = callCancellableEvent(
             fact -> fact.createPrepareStructureCreateEvent(structure, responsible)).thenApplyAsync(
@@ -179,10 +179,10 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      * @param result
      *     The result of trying to add a structure to the database.
      * @param responsible
-     *     The {@link IPPlayer} responsible for creating it, if an {@link IPPlayer} was responsible for it. If not, this
+     *     The {@link IPlayer} responsible for creating it, if an {@link IPlayer} was responsible for it. If not, this
      *     is null.
      */
-    private void callStructureCreatedEvent(StructureInsertResult result, @Nullable IPPlayer responsible)
+    private void callStructureCreatedEvent(StructureInsertResult result, @Nullable IPlayer responsible)
     {
         CompletableFuture.runAsync(
             () ->
@@ -199,7 +199,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
 
     /**
      * Removes a {@link AbstractStructure} from the database and assumes that the structure was NOT deleted by an
-     * {@link IPPlayer}. See {@link #deleteStructure(AbstractStructure, IPPlayer)}.
+     * {@link IPlayer}. See {@link #deleteStructure(AbstractStructure, IPlayer)}.
      *
      * @param structure
      *     The structure that will be deleted.
@@ -217,11 +217,11 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      * @param structure
      *     The structure that will be deleted.
      * @param responsible
-     *     The {@link IPPlayer} responsible for creating the structure. This is used for the
+     *     The {@link IPlayer} responsible for creating the structure. This is used for the
      *     {@link IStructurePrepareDeleteEvent}. This may be null.
      * @return The future result of the operation.
      */
-    public CompletableFuture<ActionResult> deleteStructure(AbstractStructure structure, @Nullable IPPlayer responsible)
+    public CompletableFuture<ActionResult> deleteStructure(AbstractStructure structure, @Nullable IPlayer responsible)
     {
         return callCancellableEvent(
             fact -> fact.createPrepareDeleteStructureEvent(structure, responsible)).thenApplyAsync(
@@ -288,7 +288,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     /**
      * See {@link #getStructures(UUID, String)}.
      */
-    public CompletableFuture<List<AbstractStructure>> getStructures(IPPlayer player, String name)
+    public CompletableFuture<List<AbstractStructure>> getStructures(IPlayer player, String name)
     {
         return getStructures(player.getUUID(), name);
     }
@@ -309,7 +309,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     /**
      * See {@link #getStructures(UUID)}.
      */
-    public CompletableFuture<List<AbstractStructure>> getStructures(IPPlayer player)
+    public CompletableFuture<List<AbstractStructure>> getStructures(IPlayer player)
     {
         return getStructures(player.getUUID());
     }
@@ -353,20 +353,20 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      * @return The future result of the operation. If the operation was successful this will be true.
      */
     @SuppressWarnings({"unused", "UnusedReturnValue"})
-    public CompletableFuture<Boolean> updatePlayer(IPPlayer player)
+    public CompletableFuture<Boolean> updatePlayer(IPlayer player)
     {
-        return CompletableFuture.supplyAsync(() -> db.updatePlayerData(player.getPPlayerData()), threadPool)
+        return CompletableFuture.supplyAsync(() -> db.updatePlayerData(player.getPlayerData()), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
     }
 
     /**
-     * Tries to find the {@link PPlayerData} for a player with the given {@link UUID}.
+     * Tries to find the {@link PlayerData} for a player with the given {@link UUID}.
      *
      * @param uuid
      *     The {@link UUID} of a player.
-     * @return The {@link PPlayerData} that represents the player.
+     * @return The {@link PlayerData} that represents the player.
      */
-    public CompletableFuture<Optional<PPlayerData>> getPlayerData(UUID uuid)
+    public CompletableFuture<Optional<PlayerData>> getPlayerData(UUID uuid)
     {
         return CompletableFuture.supplyAsync(() -> db.getPlayerData(uuid), threadPool)
                                 .exceptionally(Util::exceptionallyOptional);
@@ -383,7 +383,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      * @return All the players with the given name.
      */
     @SuppressWarnings("unused")
-    public CompletableFuture<List<PPlayerData>> getPlayerData(String playerName)
+    public CompletableFuture<List<PlayerData>> getPlayerData(String playerName)
     {
         return CompletableFuture.supplyAsync(() -> db.getPlayerData(playerName), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
@@ -407,12 +407,12 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      * provided structure, no structure will be returned.
      *
      * @param player
-     *     The {@link IPPlayer}.
+     *     The {@link IPlayer}.
      * @param structureUID
      *     The UID of the {@link AbstractStructure}.
      * @return The {@link AbstractStructure} with the given UID if it exists and the provided player owns it.
      */
-    public CompletableFuture<Optional<AbstractStructure>> getStructure(IPPlayer player, long structureUID)
+    public CompletableFuture<Optional<AbstractStructure>> getStructure(IPlayer player, long structureUID)
     {
         return getStructure(player.getUUID(), structureUID);
     }
@@ -479,19 +479,19 @@ public final class DatabaseManager extends Restartable implements IDebuggable
 
     /**
      * Adds a player as owner to a {@link AbstractStructure} at a given level of ownership and assumes that the
-     * structure was NOT deleted by an {@link IPPlayer}. See
-     * {@link #addOwner(AbstractStructure, IPPlayer, PermissionLevel, IPPlayer)}.
+     * structure was NOT deleted by an {@link IPlayer}. See
+     * {@link #addOwner(AbstractStructure, IPlayer, PermissionLevel, IPlayer)}.
      *
      * @param structure
      *     The {@link AbstractStructure}.
      * @param player
-     *     The {@link IPPlayer}.
+     *     The {@link IPlayer}.
      * @param permission
      *     The level of ownership.
      * @return The future result of the operation.
      */
     public CompletableFuture<ActionResult> addOwner(
-        AbstractStructure structure, IPPlayer player, PermissionLevel permission)
+        AbstractStructure structure, IPlayer player, PermissionLevel permission)
     {
         return addOwner(structure, player, permission, null);
     }
@@ -502,18 +502,18 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      * @param structure
      *     The {@link AbstractStructure}.
      * @param player
-     *     The {@link IPPlayer}.
+     *     The {@link IPlayer}.
      * @param permission
      *     The level of ownership.
      * @return The future result of the operation.
      */
     public CompletableFuture<ActionResult> addOwner(
-        AbstractStructure structure, IPPlayer player, PermissionLevel permission, @Nullable IPPlayer responsible)
+        AbstractStructure structure, IPlayer player, PermissionLevel permission, @Nullable IPlayer responsible)
     {
         if (permission.getValue() < 1 || permission == PermissionLevel.NO_PERMISSION)
             return CompletableFuture.completedFuture(ActionResult.FAIL);
 
-        final var newOwner = new StructureOwner(structure.getUid(), permission, player.getPPlayerData());
+        final var newOwner = new StructureOwner(structure.getUid(), permission, player.getPlayerData());
 
         return callCancellableEvent(fact -> fact.createStructurePrepareAddOwnerEvent(structure, newOwner, responsible))
             .thenApplyAsync(
@@ -528,11 +528,11 @@ public final class DatabaseManager extends Restartable implements IDebuggable
                         return ActionResult.FAIL;
                     }
 
-                    final boolean result = db.addOwner(structure.getUid(), newOwner.pPlayerData(), permission);
+                    final boolean result = db.addOwner(structure.getUid(), newOwner.playerData(), permission);
                     if (!result)
                     {
                         log.atSevere().withStackTrace(StackSize.FULL).log("Failed to process event: %s", event);
-                        structureModifier.removeOwner(structure, newOwner.pPlayerData().getUUID());
+                        structureModifier.removeOwner(structure, newOwner.playerData().getUUID());
                         return ActionResult.FAIL;
                     }
 
@@ -562,45 +562,45 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Remove a {@link IPPlayer} as owner of a {@link AbstractStructure}.
+     * Remove a {@link IPlayer} as owner of a {@link AbstractStructure}.
      *
      * @param structure
      *     The {@link AbstractStructure}.
      * @param player
-     *     The {@link IPPlayer}.
+     *     The {@link IPlayer}.
      * @return True if owner removal was successful.
      */
-    public CompletableFuture<ActionResult> removeOwner(AbstractStructure structure, IPPlayer player)
+    public CompletableFuture<ActionResult> removeOwner(AbstractStructure structure, IPlayer player)
     {
         return removeOwner(structure, player, null);
     }
 
     /**
-     * Remove a {@link IPPlayer} as owner of a {@link AbstractStructure}.
+     * Remove a {@link IPlayer} as owner of a {@link AbstractStructure}.
      *
      * @param structure
      *     The {@link AbstractStructure}.
      * @param player
-     *     The {@link IPPlayer}.
+     *     The {@link IPlayer}.
      * @param responsible
-     *     The {@link IPPlayer} responsible for creating the structure. This is used for the
+     *     The {@link IPlayer} responsible for creating the structure. This is used for the
      *     {@link IStructurePrepareDeleteEvent}. This may be null.
      * @return The future result of the operation.
      */
     public CompletableFuture<ActionResult> removeOwner(
-        AbstractStructure structure, IPPlayer player, @Nullable IPPlayer responsible)
+        AbstractStructure structure, IPlayer player, @Nullable IPlayer responsible)
     {
         return removeOwner(structure, player.getUUID(), responsible);
     }
 
     /**
-     * Remove a {@link IPPlayer} as owner of a {@link AbstractStructure} and assumes that the structure was NOT deleted
-     * by an {@link IPPlayer}. See {@link #removeOwner(AbstractStructure, UUID, IPPlayer)}.
+     * Remove a {@link IPlayer} as owner of a {@link AbstractStructure} and assumes that the structure was NOT deleted
+     * by an {@link IPlayer}. See {@link #removeOwner(AbstractStructure, UUID, IPlayer)}.
      *
      * @param structure
      *     The {@link AbstractStructure}.
      * @param playerUUID
-     *     The {@link UUID} of the {@link IPPlayer}.
+     *     The {@link UUID} of the {@link IPlayer}.
      * @return The future result of the operation.
      */
     public CompletableFuture<ActionResult> removeOwner(AbstractStructure structure, UUID playerUUID)
@@ -609,19 +609,19 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Remove a {@link IPPlayer} as owner of a {@link AbstractStructure}.
+     * Remove a {@link IPlayer} as owner of a {@link AbstractStructure}.
      *
      * @param structure
      *     The {@link AbstractStructure}.
      * @param playerUUID
-     *     The {@link UUID} of the {@link IPPlayer}.
+     *     The {@link UUID} of the {@link IPlayer}.
      * @param responsible
-     *     The {@link IPPlayer} responsible for creating the structure. This is used for the
+     *     The {@link IPlayer} responsible for creating the structure. This is used for the
      *     {@link IStructurePrepareDeleteEvent}. This may be null.
      * @return The future result of the operation.
      */
     public CompletableFuture<ActionResult> removeOwner(
-        AbstractStructure structure, UUID playerUUID, @Nullable IPPlayer responsible)
+        AbstractStructure structure, UUID playerUUID, @Nullable IPlayer responsible)
     {
         final Optional<StructureOwner> structureOwner = structure.getOwner(playerUUID);
         if (structureOwner.isEmpty())
@@ -698,7 +698,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      * @return All {@link StructureIdentifier}s that start with the provided input.
      */
     public CompletableFuture<List<StructureIdentifier>> getIdentifiersFromPartial(
-        String input, @Nullable IPPlayer player, PermissionLevel maxPermission)
+        String input, @Nullable IPlayer player, PermissionLevel maxPermission)
     {
         return CompletableFuture.supplyAsync(() -> db.getPartialIdentifiers(input, player, maxPermission), threadPool)
                                 .exceptionally(t -> Util.exceptionally(t, Collections.emptyList()));

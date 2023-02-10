@@ -5,7 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.api.IConfig;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.commands.ICommandSender;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
@@ -60,15 +60,15 @@ public sealed abstract class StructureRetriever
      * this happens, no structures are returned.
      *
      * @param player
-     *     The {@link IPPlayer} that owns the structure.
+     *     The {@link IPlayer} that owns the structure.
      * @return The {@link AbstractStructure} if it can be found.
      */
-    public abstract CompletableFuture<Optional<AbstractStructure>> getStructure(IPPlayer player);
+    public abstract CompletableFuture<Optional<AbstractStructure>> getStructure(IPlayer player);
 
     /**
      * Gets the structure referenced by this {@link StructureRetriever}.
      * <p>
-     * If the {@link ICommandSender} is a player, see {@link #getStructure(IPPlayer)}, otherwise see
+     * If the {@link ICommandSender} is a player, see {@link #getStructure(IPlayer)}, otherwise see
      * {@link #getStructure()}.
      *
      * @param commandSender
@@ -77,13 +77,13 @@ public sealed abstract class StructureRetriever
      */
     public CompletableFuture<Optional<AbstractStructure>> getStructure(ICommandSender commandSender)
     {
-        if (commandSender instanceof IPPlayer player)
+        if (commandSender instanceof IPlayer player)
             return getStructure(player);
         return getStructure();
     }
 
     /**
-     * Attempts to retrieve a structure from its specification (see {@link #getStructure(IPPlayer)}).
+     * Attempts to retrieve a structure from its specification (see {@link #getStructure(IPlayer)}).
      * <p>
      * If more than 1 match was found, the player will be asked to specify which one they asked for specifically.
      * <p>
@@ -97,7 +97,7 @@ public sealed abstract class StructureRetriever
      * match was found.
      */
     // TODO: Implement the interactive system.
-    public CompletableFuture<Optional<AbstractStructure>> getStructureInteractive(IPPlayer player)
+    public CompletableFuture<Optional<AbstractStructure>> getStructureInteractive(IPlayer player)
     {
         return getStructure(player);
     }
@@ -117,10 +117,10 @@ public sealed abstract class StructureRetriever
      * with any permission level.
      *
      * @param player
-     *     The {@link IPPlayer} that owns all matching structures.
+     *     The {@link IPlayer} that owns all matching structures.
      * @return All structures referenced by this {@link StructureRetriever}.
      */
-    public CompletableFuture<List<AbstractStructure>> getStructures(IPPlayer player)
+    public CompletableFuture<List<AbstractStructure>> getStructures(IPlayer player)
     {
         return optionalToList(getStructure(player));
     }
@@ -128,7 +128,7 @@ public sealed abstract class StructureRetriever
     /**
      * Gets all structures referenced by this {@link StructureRetriever}.
      * <p>
-     * If the {@link ICommandSender} is a player, see {@link #getStructures(IPPlayer)}, otherwise see
+     * If the {@link ICommandSender} is a player, see {@link #getStructures(IPlayer)}, otherwise see
      * {@link #getStructures()}.
      *
      * @param commandSender
@@ -137,7 +137,7 @@ public sealed abstract class StructureRetriever
      */
     public CompletableFuture<List<AbstractStructure>> getStructures(ICommandSender commandSender)
     {
-        if (commandSender instanceof IPPlayer player)
+        if (commandSender instanceof IPlayer player)
             return getStructures(player);
         return getStructures();
     }
@@ -192,7 +192,7 @@ public sealed abstract class StructureRetriever
         }
 
         @Override
-        public CompletableFuture<Optional<AbstractStructure>> getStructure(IPPlayer player)
+        public CompletableFuture<Optional<AbstractStructure>> getStructure(IPlayer player)
         {
             return listToOptional(databaseManager.getStructures(player, name));
         }
@@ -205,14 +205,14 @@ public sealed abstract class StructureRetriever
         }
 
         @Override
-        public CompletableFuture<List<AbstractStructure>> getStructures(IPPlayer player)
+        public CompletableFuture<List<AbstractStructure>> getStructures(IPlayer player)
         {
             return databaseManager.getStructures(player, name)
                                   .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
         }
 
         @Override
-        public CompletableFuture<Optional<AbstractStructure>> getStructureInteractive(IPPlayer player)
+        public CompletableFuture<Optional<AbstractStructure>> getStructureInteractive(IPlayer player)
         {
             return getStructures(player).thenCompose(
                 structuresList ->
@@ -276,7 +276,7 @@ public sealed abstract class StructureRetriever
         }
 
         @Override
-        public CompletableFuture<Optional<AbstractStructure>> getStructure(IPPlayer player)
+        public CompletableFuture<Optional<AbstractStructure>> getStructure(IPlayer player)
         {
             return databaseManager.getStructure(player, uid).exceptionally(Util::exceptionallyOptional);
         }
@@ -307,7 +307,7 @@ public sealed abstract class StructureRetriever
         }
 
         @Override
-        public CompletableFuture<Optional<AbstractStructure>> getStructure(IPPlayer player)
+        public CompletableFuture<Optional<AbstractStructure>> getStructure(IPlayer player)
         {
             return structure != null && structure.isOwner(player) ?
                    getStructure() : CompletableFuture.completedFuture(Optional.empty());
@@ -349,20 +349,20 @@ public sealed abstract class StructureRetriever
             return CompletableFuture.completedFuture(structures);
         }
 
-        private List<AbstractStructure> getStructures0(IPPlayer player)
+        private List<AbstractStructure> getStructures0(IPlayer player)
         {
             final UUID playerUUID = player.getUUID();
             return structures.stream().filter(structure -> structure.isOwner(playerUUID)).collect(Collectors.toList());
         }
 
         @Override
-        public CompletableFuture<List<AbstractStructure>> getStructures(IPPlayer player)
+        public CompletableFuture<List<AbstractStructure>> getStructures(IPlayer player)
         {
             return CompletableFuture.completedFuture(getStructures0(player));
         }
 
         @Override
-        public CompletableFuture<Optional<AbstractStructure>> getStructure(IPPlayer player)
+        public CompletableFuture<Optional<AbstractStructure>> getStructure(IPlayer player)
         {
             final List<AbstractStructure> ret = getStructures0(player);
 
@@ -416,7 +416,7 @@ public sealed abstract class StructureRetriever
             return structures;
         }
 
-        private CompletableFuture<List<AbstractStructure>> getStructures0(IPPlayer player)
+        private CompletableFuture<List<AbstractStructure>> getStructures0(IPlayer player)
         {
             final UUID playerUUID = player.getUUID();
             return structures.thenApply(
@@ -424,13 +424,13 @@ public sealed abstract class StructureRetriever
         }
 
         @Override
-        public CompletableFuture<List<AbstractStructure>> getStructures(IPPlayer player)
+        public CompletableFuture<List<AbstractStructure>> getStructures(IPlayer player)
         {
             return getStructures0(player);
         }
 
         @Override
-        public CompletableFuture<Optional<AbstractStructure>> getStructure(IPPlayer player)
+        public CompletableFuture<Optional<AbstractStructure>> getStructure(IPlayer player)
         {
             return getStructures0(player).thenApply(
                 lst ->
@@ -469,7 +469,7 @@ public sealed abstract class StructureRetriever
         }
 
         @Override
-        public CompletableFuture<Optional<AbstractStructure>> getStructure(IPPlayer player)
+        public CompletableFuture<Optional<AbstractStructure>> getStructure(IPlayer player)
         {
             return futureStructure.thenApply(
                 structureOpt ->

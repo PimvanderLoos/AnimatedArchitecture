@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.core.commands;
 
 import nl.pim16aap2.bigdoors.core.UnitTestUtil;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.managers.DelayedCommandInputManager;
@@ -36,7 +36,7 @@ class RemoveOwnerDelayedTest
     ILocalizer localizer = UnitTestUtil.initLocalizer();
 
     @Mock
-    DelayedCommandInputRequest.IFactory<IPPlayer> inputRequestFactory;
+    DelayedCommandInputRequest.IFactory<IPlayer> inputRequestFactory;
 
     @InjectMocks
     DelayedCommand.Context context;
@@ -63,7 +63,7 @@ class RemoveOwnerDelayedTest
     RemoveOwner removeOwner;
 
     @Mock
-    IPPlayer targetPlayer;
+    IPlayer targetPlayer;
 
     AutoCloseable openMocks;
 

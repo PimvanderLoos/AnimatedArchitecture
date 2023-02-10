@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.spigot.core.events;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.events.IStructurePrepareLockChangeEvent;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import org.bukkit.event.HandlerList;
@@ -27,7 +27,7 @@ public class StructurePrepareLockChangeEvent extends StructureEvent implements I
     private final boolean newLockStatus;
 
     public StructurePrepareLockChangeEvent(
-        AbstractStructure structure, @Nullable IPPlayer responsible, boolean newLockStatus)
+        AbstractStructure structure, @Nullable IPlayer responsible, boolean newLockStatus)
     {
         super(structure, responsible);
         this.newLockStatus = newLockStatus;

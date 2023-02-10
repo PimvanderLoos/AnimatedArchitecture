@@ -4,8 +4,8 @@ import com.google.common.flogger.StackSize;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.core.api.IPExecutor;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IExecutor;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.AnimationContext;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimationHook;
@@ -66,7 +66,7 @@ public final class Animator implements IAnimator
      * This player may be offline.
      */
     @Getter
-    private final IPPlayer player;
+    private final IPlayer player;
 
     /**
      * The animation component used to do all the animation stuff.
@@ -91,7 +91,7 @@ public final class Animator implements IAnimator
     private final StructureActivityManager structureActivityManager;
 
     @ToString.Exclude
-    private final IPExecutor executor;
+    private final IExecutor executor;
 
     @ToString.Exclude
     private final AnimationHookManager animationHookManager;
@@ -297,7 +297,7 @@ public final class Animator implements IAnimator
     /**
      * @throws IllegalStateException
      *     1) When called asynchronously; this method needs to be called on the main thread as determined by
-     *     {@link IPExecutor#isMainThread()}.
+     *     {@link IExecutor#isMainThread()}.
      *     <p>
      *     2) When {@link #hasStarted} has already been set to true.
      */

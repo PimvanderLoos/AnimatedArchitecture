@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.core.commands;
 
 import nl.pim16aap2.bigdoors.core.UnitTestUtil;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.managers.ToolUserManager;
@@ -26,7 +26,7 @@ import static nl.pim16aap2.bigdoors.core.commands.CommandTestingUtil.initCommand
 class ConfirmTest
 {
     @Mock(answer = Answers.CALLS_REAL_METHODS)
-    private IPPlayer commandSender;
+    private IPlayer commandSender;
 
     @Mock
     private ToolUser toolUser;
@@ -62,7 +62,7 @@ class ConfirmTest
     {
         // Ensure the server running the method does not result in a ToolUser being started.
         Assertions.assertDoesNotThrow(
-            () -> factory.newConfirm(Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS)).run()
+            () -> factory.newConfirm(Mockito.mock(IServer.class, Answers.CALLS_REAL_METHODS)).run()
                          .get(1, TimeUnit.SECONDS));
         Mockito.verify(toolUserManager, Mockito.never()).getToolUser(Mockito.any(UUID.class));
     }

@@ -5,8 +5,8 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.core.api.IConfig;
-import nl.pim16aap2.bigdoors.core.api.IPExecutor;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IExecutor;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.audio.IAudioPlayer;
 import nl.pim16aap2.bigdoors.core.events.structureaction.StructureActionCause;
 import nl.pim16aap2.bigdoors.core.events.structureaction.StructureActionType;
@@ -24,7 +24,7 @@ public final class StructureRequestData
 {
     private final StructureActivityManager structureActivityManager;
     private final IAudioPlayer audioPlayer;
-    private final IPExecutor executor;
+    private final IExecutor executor;
     private final AnimationHookManager animationHookManager;
     private final IConfig config;
     private final int serverTickTime;
@@ -33,14 +33,14 @@ public final class StructureRequestData
     private final double animationTime;
     private final boolean animationSkipped;
     private final Cuboid newCuboid;
-    private final IPPlayer responsible;
+    private final IPlayer responsible;
     private final AnimationType animationType;
     private final StructureActionType actionType;
 
     @AssistedInject StructureRequestData(
         StructureActivityManager structureActivityManager,
         IAudioPlayer audioPlayer,
-        IPExecutor executor,
+        IExecutor executor,
         AnimationHookManager animationHookManager,
         IConfig config,
         @Named("serverTickTime") int serverTickTime,
@@ -49,7 +49,7 @@ public final class StructureRequestData
         @Assisted double animationTime,
         @Assisted boolean animationSkipped,
         @Assisted Cuboid newCuboid,
-        @Assisted IPPlayer responsible,
+        @Assisted IPlayer responsible,
         @Assisted AnimationType animationType,
         @Assisted StructureActionType actionType)
     {
@@ -97,7 +97,7 @@ public final class StructureRequestData
          */
         StructureRequestData newToggleRequestData(
             StructureSnapshot structureSnapshot, StructureActionCause cause, double time,
-            boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible, AnimationType animationType,
+            boolean skipAnimation, Cuboid newCuboid, IPlayer responsible, AnimationType animationType,
             StructureActionType actionType);
     }
 }

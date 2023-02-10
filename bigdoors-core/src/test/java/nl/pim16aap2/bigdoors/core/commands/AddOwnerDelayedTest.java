@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.core.commands;
 
 import nl.pim16aap2.bigdoors.core.UnitTestUtil;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.managers.DelayedCommandInputManager;
@@ -64,7 +64,7 @@ class AddOwnerDelayedTest
     AddOwner addOwner;
 
     @Mock
-    IPPlayer targetPlayer;
+    IPlayer targetPlayer;
 
     AutoCloseable openMocks;
 

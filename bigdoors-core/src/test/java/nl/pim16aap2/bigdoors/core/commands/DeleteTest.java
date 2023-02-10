@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.core.commands;
 
 import nl.pim16aap2.bigdoors.core.UnitTestUtil;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.managers.DatabaseManager;
@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 class DeleteTest
 {
     @Mock(answer = Answers.CALLS_REAL_METHODS)
-    private IPPlayer commandSender;
+    private IPlayer commandSender;
 
     @Mock
     private DatabaseManager databaseManager;
@@ -52,7 +52,7 @@ class DeleteTest
         Mockito.when(door.getType()).thenReturn(doorType);
 
         Mockito.when(door.isOwner(Mockito.any(UUID.class))).thenReturn(true);
-        Mockito.when(door.isOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
+        Mockito.when(door.isOwner(Mockito.any(IPlayer.class))).thenReturn(true);
         doorRetriever = StructureRetrieverFactory.ofStructure(door);
 
         Mockito.when(databaseManager.deleteStructure(Mockito.any(), Mockito.any()))
@@ -71,7 +71,7 @@ class DeleteTest
     @Test
     void testServer()
     {
-        final IPServer server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
+        final IServer server = Mockito.mock(IServer.class, Answers.CALLS_REAL_METHODS);
         Assertions.assertDoesNotThrow(() -> factory.newDelete(server, doorRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(databaseManager).deleteStructure(door, null);
     }

@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.structures.windmill;
 
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
 import nl.pim16aap2.bigdoors.core.tooluser.creator.Creator;
@@ -14,12 +14,12 @@ public class CreatorWindMill extends Creator
 {
     private static final StructureType STRUCTURE_TYPE = StructureTypeWindmill.get();
 
-    public CreatorWindMill(Creator.Context context, IPPlayer player, @Nullable String name)
+    public CreatorWindMill(Creator.Context context, IPlayer player, @Nullable String name)
     {
         super(context, player, name);
     }
 
-    public CreatorWindMill(Creator.Context context, IPPlayer player)
+    public CreatorWindMill(Creator.Context context, IPlayer player)
     {
         this(context, player, null);
     }

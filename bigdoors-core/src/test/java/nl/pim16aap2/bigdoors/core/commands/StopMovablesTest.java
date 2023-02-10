@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 class StopStructuresTest
 {
     @Mock(answer = Answers.CALLS_REAL_METHODS)
-    private IPServer commandSender;
+    private IServer commandSender;
 
     @Mock
     private StructureActivityManager structureActivityManager;

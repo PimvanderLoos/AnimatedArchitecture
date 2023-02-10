@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.core.structures;
 
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
-import nl.pim16aap2.bigdoors.core.api.PPlayerData;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
+import nl.pim16aap2.bigdoors.core.api.PlayerData;
 
 /**
  * Contains all details needed about the owner of a Structure.
@@ -10,10 +10,10 @@ import nl.pim16aap2.bigdoors.core.api.PPlayerData;
  *     The UID of the structure that is owned.
  * @param permission
  *     The {@link PermissionLevel} level at which the player owns the structure.
- * @param pPlayerData
- *     The {@link IPPlayer} object represented by this {@link StructureOwner}.
+ * @param playerData
+ *     The {@link IPlayer} object represented by this {@link StructureOwner}.
  * @author Pim
  */
-public record StructureOwner(long structureUID, PermissionLevel permission, PPlayerData pPlayerData)
+public record StructureOwner(long structureUID, PermissionLevel permission, PlayerData playerData)
 {
 }

@@ -4,14 +4,14 @@ import nl.pim16aap2.bigdoors.core.UnitTestUtil;
 import nl.pim16aap2.bigdoors.core.api.IBigDoorsToolUtil;
 import nl.pim16aap2.bigdoors.core.api.IConfig;
 import nl.pim16aap2.bigdoors.core.api.IEconomyManager;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
-import nl.pim16aap2.bigdoors.core.api.IPWorld;
 import nl.pim16aap2.bigdoors.core.api.IPermissionsManager;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.IProtectionCompatManager;
-import nl.pim16aap2.bigdoors.core.api.PPlayerData;
+import nl.pim16aap2.bigdoors.core.api.IWorld;
+import nl.pim16aap2.bigdoors.core.api.PlayerData;
 import nl.pim16aap2.bigdoors.core.api.debugging.DebuggableRegistry;
-import nl.pim16aap2.bigdoors.core.api.factories.IPLocationFactory;
-import nl.pim16aap2.bigdoors.core.api.factories.IPPlayerFactory;
+import nl.pim16aap2.bigdoors.core.api.factories.ILocationFactory;
+import nl.pim16aap2.bigdoors.core.api.factories.IPlayerFactory;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.core.commands.CommandFactory;
@@ -38,7 +38,7 @@ import nl.pim16aap2.bigdoors.core.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Di;
-import nl.pim16aap2.bigdoors.testimplementations.TestPLocationFactory;
+import nl.pim16aap2.bigdoors.testimplementations.TestLocationFactory;
 import nl.pim16aap2.testing.AssistedFactoryMocker;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
@@ -66,7 +66,7 @@ public class CreatorTestsUtil
     protected final Vector3Di max = new Vector3Di(20, 25, 30);
     protected final Vector3Di powerblock = new Vector3Di(40, 40, 40);
     protected final String structureName = "testDoor123";
-    protected final IPWorld world = getWorld();
+    protected final IWorld world = getWorld();
     protected Vector3Di rotationPoint = new Vector3Di(20, 15, 25);
     protected MovementDirection openDirection = MovementDirection.COUNTERCLOCKWISE;
 
@@ -76,10 +76,10 @@ public class CreatorTestsUtil
 
     protected ILocalizer localizer;
 
-    protected PPlayerData playerData;
+    protected PlayerData playerData;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
-    protected IPPlayer player;
+    protected IPlayer player;
 
     @Mock
     protected DatabaseManager databaseManager;
@@ -110,7 +110,7 @@ public class CreatorTestsUtil
     @Mock
     protected CommandFactory commandFactory;
 
-    protected IPLocationFactory locationFactory = new TestPLocationFactory();
+    protected ILocationFactory locationFactory = new TestLocationFactory();
 
     protected ToolUser.Context context;
 
@@ -126,7 +126,7 @@ public class CreatorTestsUtil
         var structureSizeLimit = 8;
         var structureCountLimit = 9;
 
-        playerData = new PPlayerData(uuid, name, structureSizeLimit, structureCountLimit, true, true);
+        playerData = new PlayerData(uuid, name, structureSizeLimit, structureCountLimit, true, true);
 
         structureOwner = new StructureOwner(-1, PermissionLevel.CREATOR, playerData);
 
@@ -139,7 +139,7 @@ public class CreatorTestsUtil
         Mockito.when(player.getStructureSizeLimit()).thenReturn(structureSizeLimit);
         Mockito.when(player.getLocation()).thenReturn(Optional.empty());
 
-        Mockito.when(player.getPPlayerData()).thenReturn(playerData);
+        Mockito.when(player.getPlayerData()).thenReturn(playerData);
     }
 
     private void beforeEach0()
@@ -172,7 +172,7 @@ public class CreatorTestsUtil
 
         initPlayer();
 
-        final IPPlayerFactory playerFactory = Mockito.mock(IPPlayerFactory.class);
+        final IPlayerFactory playerFactory = Mockito.mock(IPlayerFactory.class);
         Mockito.when(playerFactory.create(playerData.getUUID()))
                .thenReturn(CompletableFuture.completedFuture(Optional.of(player)));
 
@@ -182,7 +182,7 @@ public class CreatorTestsUtil
                 CompletableFuture.completedFuture(Optional.of((AbstractStructure) invocation.getArguments()[0])));
 
         Mockito.when(
-                   databaseManager.addStructure(ArgumentMatchers.any(AbstractStructure.class), Mockito.any(IPPlayer.class)))
+                   databaseManager.addStructure(ArgumentMatchers.any(AbstractStructure.class), Mockito.any(IPlayer.class)))
                .thenAnswer((Answer<CompletableFuture<DatabaseManager.StructureInsertResult>>) invocation ->
                    CompletableFuture.completedFuture(new DatabaseManager.StructureInsertResult(
                        Optional.of(invocation.getArgument(0, AbstractStructure.class)), false)));

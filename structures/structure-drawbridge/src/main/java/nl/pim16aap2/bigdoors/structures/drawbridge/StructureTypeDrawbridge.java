@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.structures.drawbridge;
 
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.audio.AudioDescription;
 import nl.pim16aap2.bigdoors.core.audio.AudioSet;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
@@ -30,7 +30,7 @@ public final class StructureTypeDrawbridge extends StructureType
     }
 
     @Override
-    public Creator getCreator(Creator.Context context, IPPlayer player, @Nullable String name)
+    public Creator getCreator(Creator.Context context, IPlayer player, @Nullable String name)
     {
         return new CreatorDrawbridge(context, player, name);
     }

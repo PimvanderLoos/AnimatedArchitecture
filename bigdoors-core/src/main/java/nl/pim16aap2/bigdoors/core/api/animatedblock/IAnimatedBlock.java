@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.core.api.animatedblock;
 
-import nl.pim16aap2.bigdoors.core.api.IPLocation;
-import nl.pim16aap2.bigdoors.core.api.IPWorld;
+import nl.pim16aap2.bigdoors.core.api.ILocation;
+import nl.pim16aap2.bigdoors.core.api.IWorld;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
 
 /**
@@ -45,7 +45,7 @@ public interface IAnimatedBlock
      *
      * @return The world this animated block exists in.
      */
-    IPWorld getWorld();
+    IWorld getWorld();
 
     /**
      * Moves this animated block to the target.
@@ -141,7 +141,7 @@ public interface IAnimatedBlock
      * Note that this will not reflect the new location after the animated block is teleported until after the next
      * tick.
      */
-    IPLocation getPLocation();
+    ILocation getLocation();
 
     /**
      * @return The current position of this entity.

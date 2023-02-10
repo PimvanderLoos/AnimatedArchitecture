@@ -1,12 +1,12 @@
 package nl.pim16aap2.bigdoors.core.api;
 
 import nl.pim16aap2.bigdoors.core.api.factories.IAnimatedBlockFactory;
-import nl.pim16aap2.bigdoors.core.api.factories.IPLocationFactory;
-import nl.pim16aap2.bigdoors.core.api.factories.IPPlayerFactory;
-import nl.pim16aap2.bigdoors.core.api.factories.IPWorldFactory;
+import nl.pim16aap2.bigdoors.core.api.factories.ILocationFactory;
+import nl.pim16aap2.bigdoors.core.api.factories.IPlayerFactory;
+import nl.pim16aap2.bigdoors.core.api.factories.IWorldFactory;
 import nl.pim16aap2.bigdoors.core.audio.IAudioPlayer;
 import nl.pim16aap2.bigdoors.core.commands.DelayedCommandInputRequest;
-import nl.pim16aap2.bigdoors.core.commands.IPServer;
+import nl.pim16aap2.bigdoors.core.commands.IServer;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.core.managers.DelayedCommandInputManager;
@@ -51,18 +51,18 @@ public interface IBigDoorsPlatform
     IBigDoorsToolUtil getBigDoorsToolUtil();
 
     /**
-     * Gets the instance of the {@link IPWorldFactory} for this platform.
+     * Gets the instance of the {@link IWorldFactory} for this platform.
      *
-     * @return The instance of the {@link IPWorldFactory} for this platform.
+     * @return The instance of the {@link IWorldFactory} for this platform.
      */
-    IPWorldFactory getPWorldFactory();
+    IWorldFactory getWorldFactory();
 
     /**
-     * Gets the instance of the {@link IPLocationFactory} for this platform.
+     * Gets the instance of the {@link ILocationFactory} for this platform.
      *
-     * @return The instance of the {@link IPLocationFactory} for this platform.
+     * @return The instance of the {@link ILocationFactory} for this platform.
      */
-    IPLocationFactory getPLocationFactory();
+    ILocationFactory getLocationFactory();
 
     /**
      * Gets the instance of the {@link IAnimatedBlockFactory} for this platform.
@@ -72,11 +72,11 @@ public interface IBigDoorsPlatform
     IAnimatedBlockFactory getAnimatedBlockFactory();
 
     /**
-     * Gets the instance of the {@link IPPlayerFactory} for this platform.
+     * Gets the instance of the {@link IPlayerFactory} for this platform.
      *
-     * @return The instance of the {@link IPPlayerFactory} for this platform.
+     * @return The instance of the {@link IPlayerFactory} for this platform.
      */
-    IPPlayerFactory getPPlayerFactory();
+    IPlayerFactory getPlayerFactory();
 
     /**
      * Gets the instance of the {@link IConfig} for this platform.
@@ -100,11 +100,11 @@ public interface IBigDoorsPlatform
     IBlockAnalyzer getBlockAnalyzer();
 
     /**
-     * Constructs a new {@link IPExecutor}.
+     * Constructs a new {@link IExecutor}.
      *
-     * @return A new {@link IPExecutor}.
+     * @return A new {@link IExecutor}.
      */
-    IPExecutor getPExecutor();
+    IExecutor getExecutor();
 
     /**
      * Gets the {@link GlowingBlockSpawner} for the current platform.
@@ -135,11 +135,11 @@ public interface IBigDoorsPlatform
     IMessageable getMessageableServer();
 
     /**
-     * Gets the {@link IPServer} instance.
+     * Gets the {@link IServer} instance.
      *
-     * @return The {@link IPServer} instance.
+     * @return The {@link IServer} instance.
      */
-    IPServer getPServer();
+    IServer getServer();
 
     /**
      * Gets the {@link StructureRegistry}.

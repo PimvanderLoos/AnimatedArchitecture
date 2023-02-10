@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.spigot.core.events.structureaction;
 
 import lombok.Getter;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.events.structureaction.IStructureEventToggleStart;
 import nl.pim16aap2.bigdoors.core.events.structureaction.StructureActionCause;
 import nl.pim16aap2.bigdoors.core.events.structureaction.StructureActionType;
@@ -51,7 +51,7 @@ public class StructureEventToggleStart extends StructureToggleEvent implements I
      */
     public StructureEventToggleStart(
         AbstractStructure structure, StructureSnapshot snapshot, StructureActionCause cause,
-        StructureActionType actionType, IPPlayer responsible, double time, boolean skipAnimation, Cuboid newCuboid)
+        StructureActionType actionType, IPlayer responsible, double time, boolean skipAnimation, Cuboid newCuboid)
     {
         super(snapshot, cause, actionType, responsible, time, skipAnimation);
         this.newCuboid = newCuboid;

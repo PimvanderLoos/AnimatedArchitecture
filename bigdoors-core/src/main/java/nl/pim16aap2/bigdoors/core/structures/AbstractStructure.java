@@ -6,8 +6,8 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.api.IConfig;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
-import nl.pim16aap2.bigdoors.core.api.IPWorld;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
+import nl.pim16aap2.bigdoors.core.api.IWorld;
 import nl.pim16aap2.bigdoors.core.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.core.moveblocks.Animator;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimationComponent;
@@ -326,7 +326,7 @@ public abstract class AbstractStructure implements IStructure
      *     or the prime owner when this data is not available.
      * @return The result of the attempt.
      */
-    final StructureToggleResult toggle(StructureToggleRequest request, IPPlayer responsible)
+    final StructureToggleResult toggle(StructureToggleRequest request, IPlayer responsible)
     {
         return base.getStructureOpeningHelper().toggle(this, request, responsible);
     }
@@ -622,7 +622,7 @@ public abstract class AbstractStructure implements IStructure
     }
 
     @Override
-    public IPWorld getWorld()
+    public IWorld getWorld()
     {
         return base.getWorld();
     }

@@ -11,10 +11,10 @@ import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.server.network.PlayerConnection;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.monster.EntityMagmaCube;
-import nl.pim16aap2.bigdoors.core.api.PColor;
-import nl.pim16aap2.bigdoors.spigot.util.api.IGlowingBlockFactory;
+import nl.pim16aap2.bigdoors.core.api.Color;
 import nl.pim16aap2.bigdoors.core.util.IGlowingBlock;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
+import nl.pim16aap2.bigdoors.spigot.util.api.IGlowingBlockFactory;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_19_R2.CraftWorld;
 import org.bukkit.craftbukkit.v1_19_R2.entity.CraftPlayer;
@@ -41,11 +41,11 @@ public class GlowingBlock implements IGlowingBlock
 
     private final AtomicBoolean alive = new AtomicBoolean(false);
 
-    private final Map<PColor, Team> teams;
+    private final Map<Color, Team> teams;
     private final Player player;
 
     public GlowingBlock(
-        Player player, World world, PColor pColor, double x, double y, double z, Map<PColor, Team> teams)
+        Player player, World world, Color pColor, double x, double y, double z, Map<Color, Team> teams)
     {
         this.player = player;
         this.teams = teams;
@@ -85,7 +85,7 @@ public class GlowingBlock implements IGlowingBlock
         getConnection().ifPresent(connection -> connection.a(new PacketPlayOutGlowingBlockTeleport(position)));
     }
 
-    private void spawn(PColor pColor, double x, double y, double z)
+    private void spawn(Color pColor, double x, double y, double z)
     {
         final @Nullable Team team = teams.get(pColor);
         if (team == null)
@@ -152,8 +152,8 @@ public class GlowingBlock implements IGlowingBlock
     {
         @Override
         public Optional<IGlowingBlock> createGlowingBlock(
-            Player player, World world, PColor pColor,
-            double x, double y, double z, Map<PColor, Team> teams)
+            Player player, World world, Color pColor,
+            double x, double y, double z, Map<Color, Team> teams)
         {
             try
             {

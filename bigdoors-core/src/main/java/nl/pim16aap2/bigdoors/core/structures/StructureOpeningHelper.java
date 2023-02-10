@@ -2,18 +2,18 @@ package nl.pim16aap2.bigdoors.core.structures;
 
 import com.google.common.flogger.StackSize;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.bigdoors.core.api.Color;
 import nl.pim16aap2.bigdoors.core.api.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.core.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.core.api.IChunkLoader;
 import nl.pim16aap2.bigdoors.core.api.IConfig;
+import nl.pim16aap2.bigdoors.core.api.IExecutor;
 import nl.pim16aap2.bigdoors.core.api.IMessageable;
-import nl.pim16aap2.bigdoors.core.api.IPExecutor;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
-import nl.pim16aap2.bigdoors.core.api.IPWorld;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.IProtectionCompatManager;
-import nl.pim16aap2.bigdoors.core.api.PColor;
+import nl.pim16aap2.bigdoors.core.api.IWorld;
 import nl.pim16aap2.bigdoors.core.api.factories.IBigDoorsEventFactory;
-import nl.pim16aap2.bigdoors.core.api.factories.IPLocationFactory;
+import nl.pim16aap2.bigdoors.core.api.factories.ILocationFactory;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.events.IBigDoorsEventCaller;
 import nl.pim16aap2.bigdoors.core.events.structureaction.IStructureEventTogglePrepare;
@@ -60,9 +60,9 @@ public final class StructureOpeningHelper
     private final StructureActivityManager structureActivityManager;
     private final StructureTypeManager structureTypeManager;
     private final IConfig config;
-    private final IPExecutor executor;
+    private final IExecutor executor;
     private final IBlockAnalyzer blockAnalyzer;
-    private final IPLocationFactory locationFactory;
+    private final ILocationFactory locationFactory;
     private final IProtectionCompatManager protectionCompatManager;
     private final GlowingBlockSpawner glowingBlockSpawner;
     private final IBigDoorsEventFactory bigDoorsEventFactory;
@@ -80,9 +80,9 @@ public final class StructureOpeningHelper
         StructureActivityManager structureActivityManager,
         StructureTypeManager structureTypeManager,
         IConfig config,
-        IPExecutor executor,
+        IExecutor executor,
         IBlockAnalyzer blockAnalyzer,
-        IPLocationFactory locationFactory,
+        ILocationFactory locationFactory,
         IProtectionCompatManager protectionCompatManager,
         GlowingBlockSpawner glowingBlockSpawner,
         IBigDoorsEventFactory bigDoorsEventFactory,
@@ -129,7 +129,7 @@ public final class StructureOpeningHelper
      * @return The same result that was passed in as argument.
      */
     private StructureToggleResult abort(
-        AbstractStructure structure, StructureToggleResult result, StructureActionCause cause, IPPlayer responsible,
+        AbstractStructure structure, StructureToggleResult result, StructureActionCause cause, IPlayer responsible,
         IMessageable messageReceiver, @Nullable Long stamp)
     {
         log.atFine().log("Aborted toggle for structure %d because of %s. Toggle Reason: %s, Responsible: %s",
@@ -143,7 +143,7 @@ public final class StructureOpeningHelper
 
         if (!result.equals(StructureToggleResult.NO_PERMISSION))
         {
-            if (messageReceiver instanceof IPPlayer)
+            if (messageReceiver instanceof IPlayer)
                 messageReceiver.sendError(
                     textFactory,
                     localizer.getMessage(result.getLocalizationKey(),
@@ -166,10 +166,10 @@ public final class StructureOpeningHelper
     /**
      * See
      * {@link IBigDoorsEventFactory#createTogglePrepareEvent(StructureSnapshot, StructureActionCause,
-     * StructureActionType, IPPlayer, double, boolean, Cuboid)}.
+     * StructureActionType, IPlayer, double, boolean, Cuboid)}.
      */
     private IStructureEventTogglePrepare callTogglePrepareEvent(
-        StructureSnapshot snapshot, StructureActionCause cause, StructureActionType actionType, IPPlayer responsible,
+        StructureSnapshot snapshot, StructureActionCause cause, StructureActionType actionType, IPlayer responsible,
         double time, boolean skipAnimation, Cuboid newCuboid)
     {
         final IStructureEventTogglePrepare event =
@@ -182,7 +182,7 @@ public final class StructureOpeningHelper
     /**
      * See
      * {@link IBigDoorsEventFactory#createTogglePrepareEvent(StructureSnapshot, StructureActionCause,
-     * StructureActionType, IPPlayer, double, boolean, Cuboid)}.
+     * StructureActionType, IPlayer, double, boolean, Cuboid)}.
      */
     private IStructureEventTogglePrepare callTogglePrepareEvent(StructureRequestData data)
     {
@@ -199,12 +199,12 @@ public final class StructureOpeningHelper
     /**
      * See
      * {@link IBigDoorsEventFactory#createToggleStartEvent(AbstractStructure, StructureSnapshot, StructureActionCause,
-     * StructureActionType, IPPlayer, double, boolean, Cuboid)}.
+     * StructureActionType, IPlayer, double, boolean, Cuboid)}.
      */
     private IStructureEventToggleStart callToggleStartEvent(
         AbstractStructure structure, StructureSnapshot snapshot, StructureActionCause cause,
         StructureActionType actionType,
-        IPPlayer responsible, double time, boolean skipAnimation, Cuboid newCuboid)
+        IPlayer responsible, double time, boolean skipAnimation, Cuboid newCuboid)
     {
         final IStructureEventToggleStart event =
             bigDoorsEventFactory.createToggleStartEvent(
@@ -216,7 +216,7 @@ public final class StructureOpeningHelper
     /**
      * See
      * {@link IBigDoorsEventFactory#createToggleStartEvent(AbstractStructure, StructureSnapshot, StructureActionCause,
-     * StructureActionType, IPPlayer, double, boolean, Cuboid)}.
+     * StructureActionType, IPlayer, double, boolean, Cuboid)}.
      */
     private IStructureEventToggleStart callToggleStartEvent(AbstractStructure structure, StructureRequestData data)
     {
@@ -241,7 +241,7 @@ public final class StructureOpeningHelper
      */
     private boolean registerBlockMover(
         AbstractStructure structure, StructureRequestData data, IAnimationComponent component,
-        @Nullable IPPlayer player,
+        @Nullable IPlayer player,
         AnimationType animationType, long stamp)
     {
         try
@@ -265,7 +265,7 @@ public final class StructureOpeningHelper
 
     private StructureToggleResult toggle(
         StructureSnapshot snapshot, AbstractStructure targetStructure, StructureRequestData data,
-        IAnimationComponent component, IMessageable messageReceiver, @Nullable IPPlayer player,
+        IAnimationComponent component, IMessageable messageReceiver, @Nullable IPlayer player,
         AnimationType animationType)
     {
         if (snapshot.getOpenDir() == MovementDirection.NONE)
@@ -296,7 +296,7 @@ public final class StructureOpeningHelper
             return abort(targetStructure, StructureToggleResult.CANCELLED, data.getCause(), data.getResponsible(),
                          messageReceiver, stamp);
 
-        final @Nullable IPPlayer responsiblePlayer =
+        final @Nullable IPlayer responsiblePlayer =
             data.getCause().equals(StructureActionCause.PLAYER) ? data.getResponsible() : null;
         if (!isLocationEmpty(data.getNewCuboid(), snapshot.getCuboid(), responsiblePlayer, snapshot.getWorld()))
             return abort(targetStructure, StructureToggleResult.OBSTRUCTED, data.getCause(), data.getResponsible(),
@@ -315,7 +315,7 @@ public final class StructureOpeningHelper
         return StructureToggleResult.SUCCESS;
     }
 
-    StructureToggleResult toggle(AbstractStructure structure, StructureToggleRequest request, IPPlayer responsible)
+    StructureToggleResult toggle(AbstractStructure structure, StructureToggleRequest request, IPlayer responsible)
     {
         final Optional<Cuboid> newCuboid;
         final double animationTime;
@@ -364,14 +364,14 @@ public final class StructureOpeningHelper
     /**
      * Checks if this structure exceeds the size limit for the given player.
      * <p>
-     * See {@link LimitsManager#exceedsLimit(IPPlayer, Limit, int)}.
+     * See {@link LimitsManager#exceedsLimit(IPlayer, Limit, int)}.
      *
      * @param player
      *     The player whose limit to compare against this structure's size.
      * @return True if {@link AbstractStructure#getBlockCount()} exceeds the {@link Limit#STRUCTURE_SIZE} for this
      * structure.
      */
-    private boolean exceedSizeLimit(AbstractStructure structure, IPPlayer player)
+    private boolean exceedSizeLimit(AbstractStructure structure, IPlayer player)
     {
         return limitsManager.exceedsLimit(player, Limit.STRUCTURE_SIZE, structure.getBlockCount());
     }
@@ -389,7 +389,7 @@ public final class StructureOpeningHelper
      *     Who is responsible for the action.
      * @return True if the player is allowed to break the block(s).
      */
-    public boolean canBreakBlocksBetweenLocs(IStructureConst structure, Cuboid cuboid, IPPlayer responsible)
+    public boolean canBreakBlocksBetweenLocs(IStructureConst structure, Cuboid cuboid, IPlayer responsible)
     {
         if (protectionCompatManager.canSkipCheck())
             return true;
@@ -407,7 +407,7 @@ public final class StructureOpeningHelper
         }
     }
 
-    private boolean canBreakBlocksBetweenLocs0(IStructureConst structure, Cuboid cuboid, IPPlayer responsible)
+    private boolean canBreakBlocksBetweenLocs0(IStructureConst structure, Cuboid cuboid, IPlayer responsible)
     {
         // If the returned value is an empty Optional, the player is allowed to break blocks.
         return protectionCompatManager.canBreakBlocksBetweenLocs(responsible, cuboid.getMin(), cuboid.getMax(),
@@ -429,12 +429,12 @@ public final class StructureOpeningHelper
      *     The {@link Cuboid} representing the area the structure currently takes up. Any parts of the new cuboid
      *     overlapping this cuboid will be ignored.
      * @param player
-     *     The {@link IPPlayer} to notify of violations. May be null.
+     *     The {@link IPlayer} to notify of violations. May be null.
      * @param world
      *     The world to check the blocks in.
      * @return True if the area is not empty.
      */
-    public boolean isLocationEmpty(Cuboid newCuboid, Cuboid currentCuboid, @Nullable IPPlayer player, IPWorld world)
+    public boolean isLocationEmpty(Cuboid newCuboid, Cuboid currentCuboid, @Nullable IPlayer player, IWorld world)
     {
         final Vector3Di newMin = newCuboid.getMin();
         final Vector3Di newMax = newCuboid.getMax();
@@ -461,7 +461,7 @@ public final class StructureOpeningHelper
                             return false;
 
                         glowingBlockSpawner
-                            .builder().forPlayer(player).withColor(PColor.RED).forDuration(Duration.ofSeconds(4))
+                            .builder().forPlayer(player).withColor(Color.RED).forDuration(Duration.ofSeconds(4))
                             .atPosition(xAxis + 0.5, yAxis, zAxis + 0.5).inWorld(world).build();
                         isEmpty = false;
                     }
@@ -489,7 +489,7 @@ public final class StructureOpeningHelper
      *     The number of blocks to try move.
      * @return Gets the number of blocks this structure can move in the given direction.
      */
-    public int getBlocksInDir(Vector3Di vec, @Nullable IPPlayer player, IPWorld world, Cuboid cuboid, int blocksToMove)
+    public int getBlocksInDir(Vector3Di vec, @Nullable IPlayer player, IWorld world, Cuboid cuboid, int blocksToMove)
     {
         final Vector3Di curMin = cuboid.getMin();
         final Vector3Di curMax = cuboid.getMax();

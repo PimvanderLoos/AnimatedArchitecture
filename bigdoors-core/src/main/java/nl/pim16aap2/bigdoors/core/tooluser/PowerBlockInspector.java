@@ -4,16 +4,16 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.core.api.IPLocation;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.ILocation;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.text.Text;
 import nl.pim16aap2.bigdoors.core.text.TextType;
-import nl.pim16aap2.bigdoors.core.tooluser.step.Step;
-import nl.pim16aap2.bigdoors.core.tooluser.stepexecutor.StepExecutorPLocation;
 import nl.pim16aap2.bigdoors.core.tooluser.step.IStep;
+import nl.pim16aap2.bigdoors.core.tooluser.step.Step;
+import nl.pim16aap2.bigdoors.core.tooluser.stepexecutor.StepExecutorLocation;
 
 import java.util.Collections;
 import java.util.List;
@@ -40,7 +40,7 @@ public class PowerBlockInspector extends ToolUser
     @AssistedInject
     public PowerBlockInspector(
         ToolUser.Context context, PowerBlockManager powerBlockManager, ITextFactory textFactory,
-        @Assisted IPPlayer player, @Assisted boolean bypassPermission)
+        @Assisted IPlayer player, @Assisted boolean bypassPermission)
     {
         super(context, player);
         this.powerBlockManager = powerBlockManager;
@@ -55,7 +55,7 @@ public class PowerBlockInspector extends ToolUser
                  "tool_user.powerblock_inspector.init");
     }
 
-    protected boolean inspectLoc(IPLocation loc)
+    protected boolean inspectLoc(ILocation loc)
     {
         powerBlockManager.structuresFromPowerBlockLoc(loc.getPosition(), loc.getWorld()).thenAccept(
             lst ->
@@ -75,7 +75,7 @@ public class PowerBlockInspector extends ToolUser
         return true;
     }
 
-    private void sendPowerBlockInfo(IPPlayer player, List<AbstractStructure> filtered)
+    private void sendPowerBlockInfo(IPlayer player, List<AbstractStructure> filtered)
     {
         final Text text = textFactory.newText();
         text.append(localizer.getMessage("tool_user.power_block_inspected.result.header"), TextType.INFO).append('\n');
@@ -93,7 +93,7 @@ public class PowerBlockInspector extends ToolUser
         final Step stepBlocksToMove = stepFactory
             .stepName("INSPECT_POWER_BLOCK")
             .messageKey("tool_user.powerblock_inspector.init")
-            .stepExecutor(new StepExecutorPLocation(this::inspectLoc))
+            .stepExecutor(new StepExecutorLocation(this::inspectLoc))
             .waitForUserInput(true).construct();
         return Collections.singletonList(stepBlocksToMove);
     }
@@ -101,9 +101,9 @@ public class PowerBlockInspector extends ToolUser
     @AssistedFactory
     public interface IFactory
     {
-        PowerBlockInspector create(IPPlayer player, boolean bypassPermission);
+        PowerBlockInspector create(IPlayer player, boolean bypassPermission);
 
-        default PowerBlockInspector create(IPPlayer player)
+        default PowerBlockInspector create(IPlayer player)
         {
             return create(player, false);
         }

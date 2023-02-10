@@ -4,7 +4,7 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.managers.StructureSpecificationManager;
@@ -50,7 +50,7 @@ public class Specify extends BaseCommand
     @Override
     protected CompletableFuture<?> executeCommand(PermissionsStatus permissions)
     {
-        if (!structureSpecificationManager.handleInput((IPPlayer) getCommandSender(), input))
+        if (!structureSpecificationManager.handleInput((IPlayer) getCommandSender(), input))
             getCommandSender().sendMessage(
                 textFactory, TextType.ERROR, localizer.getMessage("commands.base.error.no_pending_process"));
         return CompletableFuture.completedFuture(null);

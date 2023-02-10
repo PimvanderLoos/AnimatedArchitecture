@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.core.gui;
 
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.managers.StructureDeletionManager;
 
 /**
@@ -10,7 +10,7 @@ interface IGuiPage
 {
     String getPageName();
 
-    IPPlayer getInventoryHolder();
+    IPlayer getInventoryHolder();
 
     /**
      * Represents a union type of {@link IGuiPage} and {@link StructureDeletionManager.IDeletionListener}.

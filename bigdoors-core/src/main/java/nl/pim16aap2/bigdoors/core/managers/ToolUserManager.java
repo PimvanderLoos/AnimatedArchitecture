@@ -6,8 +6,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.core.api.IPExecutor;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IExecutor;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.core.api.restartable.RestartableHolder;
@@ -32,14 +32,14 @@ public final class ToolUserManager extends Restartable
     private final Map<UUID, ToolUserEntry> toolUsers = new ConcurrentHashMap<>();
     private final ILocalizer localizer;
     private final ITextFactory textFactory;
-    private final IPExecutor executor;
+    private final IExecutor executor;
 
     @Inject
     public ToolUserManager(
         RestartableHolder holder,
         ILocalizer localizer,
         ITextFactory textFactory,
-        IPExecutor executor)
+        IExecutor executor)
     {
         super(holder);
         this.localizer = localizer;
@@ -61,7 +61,7 @@ public final class ToolUserManager extends Restartable
     }
 
     @SuppressWarnings("unused")
-    public boolean isToolUser(IPPlayer player)
+    public boolean isToolUser(IPlayer player)
     {
         return isToolUser(player.getUUID());
     }
@@ -72,7 +72,7 @@ public final class ToolUserManager extends Restartable
     }
 
     @SuppressWarnings("unused")
-    public Optional<ToolUser> getToolUser(IPPlayer player)
+    public Optional<ToolUser> getToolUser(IPlayer player)
     {
         return getToolUser(player.getUUID());
     }
@@ -89,7 +89,7 @@ public final class ToolUserManager extends Restartable
      *     The player whose tool user process to cancel.
      * @return True if a process was cancelled.
      */
-    public boolean cancelToolUser(IPPlayer player)
+    public boolean cancelToolUser(IPlayer player)
     {
         return cancelToolUser(player.getUUID());
     }
@@ -186,14 +186,14 @@ public final class ToolUserManager extends Restartable
     }
 
     /**
-     * Stops and removes an {@link IPPlayer} if it is currently active. "Stop" here means that it will make sure to
+     * Stops and removes an {@link IPlayer} if it is currently active. "Stop" here means that it will make sure to
      * properly clean up the {@link ToolUser}.
      *
      * @param player
-     *     The {@link IPPlayer} whose {@link ToolUser} to stop and remove.
+     *     The {@link IPlayer} whose {@link ToolUser} to stop and remove.
      */
     @SuppressWarnings("unused")
-    public void abortToolUser(IPPlayer player)
+    public void abortToolUser(IPlayer player)
     {
         abortToolUser(player.getUUID());
     }

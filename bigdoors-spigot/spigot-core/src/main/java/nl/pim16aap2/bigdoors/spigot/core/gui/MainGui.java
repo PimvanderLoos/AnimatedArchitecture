@@ -11,16 +11,16 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import lombok.Getter;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.core.api.IPExecutor;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IExecutor;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.spigot.core.BigDoorsPlugin;
-import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
-import nl.pim16aap2.bigdoors.spigot.util.implementations.PPlayerSpigot;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.structures.IStructureConst;
 import nl.pim16aap2.bigdoors.core.util.Util;
+import nl.pim16aap2.bigdoors.spigot.core.BigDoorsPlugin;
+import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.PlayerSpigot;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -38,7 +38,7 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
     private final InfoGui.IFactory infoGuiFactory;
     private final ITextFactory textFactory;
     private final GuiStructureDeletionManager deletionManager;
-    private final IPExecutor executor;
+    private final IExecutor executor;
     private InventoryGui inventoryGui;
     private @Nullable AbstractStructure selectedStructure;
 
@@ -47,12 +47,12 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
 
     @Getter
     @ToString.Include
-    private final PPlayerSpigot inventoryHolder;
+    private final PlayerSpigot inventoryHolder;
 
     @AssistedInject//
     MainGui(
         BigDoorsPlugin bigDoorsPlugin, ILocalizer localizer, ITextFactory textFactory, InfoGui.IFactory infoGuiFactory,
-        GuiStructureDeletionManager deletionManager, IPExecutor executor, @Assisted IPPlayer inventoryHolder,
+        GuiStructureDeletionManager deletionManager, IExecutor executor, @Assisted IPlayer inventoryHolder,
         @Assisted List<AbstractStructure> structures)
     {
         this.textFactory = textFactory;
@@ -61,7 +61,7 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
         this.bigDoorsPlugin = bigDoorsPlugin;
         this.localizer = localizer;
         this.infoGuiFactory = infoGuiFactory;
-        this.inventoryHolder = Util.requireNonNull(SpigotAdapter.getPPlayerSpigot(inventoryHolder), "InventoryHolder");
+        this.inventoryHolder = Util.requireNonNull(SpigotAdapter.getPlayerSpigot(inventoryHolder), "InventoryHolder");
         this.structures = getStructuresMap(structures);
 
         this.inventoryGui = createGUI();
@@ -226,6 +226,6 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
          * @param structures
          *     The structures to show in the GUI.
          */
-        MainGui newGUI(IPPlayer inventoryHolder, List<AbstractStructure> structures);
+        MainGui newGUI(IPlayer inventoryHolder, List<AbstractStructure> structures);
     }
 }

@@ -6,7 +6,7 @@ import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.api.IMessageable;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.events.structureaction.StructureActionCause;
 import nl.pim16aap2.bigdoors.core.events.structureaction.StructureActionType;
@@ -68,7 +68,7 @@ public class Toggle extends BaseCommand
                                        localizer.getMessage("commands.toggle.error.not_enough_structures"));
 
         if (animationType == AnimationType.PREVIEW)
-            return getCommandSender() instanceof IPPlayer player && player.isOnline();
+            return getCommandSender() instanceof IPlayer player && player.isOnline();
 
         return false;
     }
@@ -123,7 +123,7 @@ public class Toggle extends BaseCommand
             return;
         }
 
-        final Optional<IPPlayer> playerOpt = getCommandSender().getPlayer();
+        final Optional<IPlayer> playerOpt = getCommandSender().getPlayer();
         structureToggleRequestBuilder.builder()
                                      .structure(structure)
                                      .structureActionCause(cause)

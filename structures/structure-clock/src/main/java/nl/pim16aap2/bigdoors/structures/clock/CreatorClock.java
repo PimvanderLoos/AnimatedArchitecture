@@ -1,14 +1,14 @@
 package nl.pim16aap2.bigdoors.structures.clock;
 
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.core.api.IPLocation;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.ILocation;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
 import nl.pim16aap2.bigdoors.core.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.core.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.core.tooluser.step.Step;
-import nl.pim16aap2.bigdoors.core.tooluser.stepexecutor.StepExecutorPLocation;
+import nl.pim16aap2.bigdoors.core.tooluser.stepexecutor.StepExecutorLocation;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
 import nl.pim16aap2.bigdoors.core.util.PBlockFace;
@@ -42,13 +42,13 @@ public class CreatorClock extends Creator
 
     private boolean northSouthAligned;
 
-    public CreatorClock(Creator.Context context, IPPlayer player, @Nullable String name)
+    public CreatorClock(Creator.Context context, IPlayer player, @Nullable String name)
     {
         super(context, player, name);
     }
 
     @SuppressWarnings("unused")
-    public CreatorClock(Creator.Context context, IPPlayer player)
+    public CreatorClock(Creator.Context context, IPlayer player)
     {
         this(context, player, null);
     }
@@ -60,7 +60,7 @@ public class CreatorClock extends Creator
         final Step stepSelectHourArm = stepFactory
             .stepName("SELECT_HOUR_ARM")
             .messageKey("creator.clock.step_3")
-            .stepExecutor(new StepExecutorPLocation(this::completeSelectHourArmStep))
+            .stepExecutor(new StepExecutorLocation(this::completeSelectHourArmStep))
             .waitForUserInput(true).construct();
 
         return Arrays.asList(factorySetName.construct(),
@@ -79,7 +79,7 @@ public class CreatorClock extends Creator
      *     The selected location.
      * @return True if step finished successfully.
      */
-    protected boolean completeSelectHourArmStep(IPLocation loc)
+    protected boolean completeSelectHourArmStep(ILocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;
@@ -96,7 +96,7 @@ public class CreatorClock extends Creator
     }
 
     @Override
-    protected boolean setSecondPos(IPLocation loc)
+    protected boolean setSecondPos(ILocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;

@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.core.api.factories;
 
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -14,16 +14,16 @@ public interface IGuiFactory
      * @param inventoryHolder
      *     The player for whom to create the inventory.
      * @param source
-     *     The {@link IPPlayer} whose structures will be accessed.
+     *     The {@link IPlayer} whose structures will be accessed.
      *     <p>
      *     When this is null (default), the inventory holders own structures will be used.
      */
-    void newGUI(IPPlayer inventoryHolder, @Nullable IPPlayer source);
+    void newGUI(IPlayer inventoryHolder, @Nullable IPlayer source);
 
     /**
-     * See {@link #newGUI(IPPlayer, IPPlayer)}.
+     * See {@link #newGUI(IPlayer, IPlayer)}.
      */
-    default void newGUI(IPPlayer inventoryHolder)
+    default void newGUI(IPlayer inventoryHolder)
     {
         newGUI(inventoryHolder, null);
     }

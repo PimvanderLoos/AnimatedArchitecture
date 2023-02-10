@@ -9,22 +9,22 @@ import nl.pim16aap2.bigdoors.core.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.core.api.IChunkLoader;
 import nl.pim16aap2.bigdoors.core.api.IConfig;
 import nl.pim16aap2.bigdoors.core.api.IEconomyManager;
+import nl.pim16aap2.bigdoors.core.api.IExecutor;
 import nl.pim16aap2.bigdoors.core.api.IMessageable;
 import nl.pim16aap2.bigdoors.core.api.IMessagingInterface;
-import nl.pim16aap2.bigdoors.core.api.IPExecutor;
 import nl.pim16aap2.bigdoors.core.api.IPermissionsManager;
 import nl.pim16aap2.bigdoors.core.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.core.api.IRedstoneManager;
 import nl.pim16aap2.bigdoors.core.api.factories.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.core.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.core.api.factories.IGuiFactory;
-import nl.pim16aap2.bigdoors.core.api.factories.IPLocationFactory;
-import nl.pim16aap2.bigdoors.core.api.factories.IPPlayerFactory;
-import nl.pim16aap2.bigdoors.core.api.factories.IPWorldFactory;
+import nl.pim16aap2.bigdoors.core.api.factories.ILocationFactory;
+import nl.pim16aap2.bigdoors.core.api.factories.IPlayerFactory;
+import nl.pim16aap2.bigdoors.core.api.factories.IWorldFactory;
 import nl.pim16aap2.bigdoors.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.core.audio.IAudioPlayer;
 import nl.pim16aap2.bigdoors.core.commands.CommandFactory;
-import nl.pim16aap2.bigdoors.core.commands.IPServer;
+import nl.pim16aap2.bigdoors.core.commands.IServer;
 import nl.pim16aap2.bigdoors.core.extensions.StructureTypeLoader;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.localization.LocalizationManager;
@@ -70,10 +70,10 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     private final IBigDoorsToolUtil bigDoorsToolUtil;
 
     @Getter
-    private final IPWorldFactory pWorldFactory;
+    private final IWorldFactory worldFactory;
 
     @Getter
-    private final IPLocationFactory pLocationFactory;
+    private final ILocationFactory locationFactory;
 
     @Getter
     private final IAnimatedBlockFactory animatedBlockFactory;
@@ -82,7 +82,7 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     private final IGuiFactory guiFactory;
 
     @Getter
-    private final IPPlayerFactory pPlayerFactory;
+    private final IPlayerFactory playerFactory;
 
     @Getter
     private final IConfig bigDoorsConfig;
@@ -94,7 +94,7 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     private final IBlockAnalyzer blockAnalyzer;
 
     @Getter
-    private final IPExecutor pExecutor;
+    private final IExecutor executor;
 
     @Getter
     private final GlowingBlockSpawner glowingBlockSpawner;
@@ -109,7 +109,7 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     private final IMessageable messageableServer;
 
     @Getter
-    private final IPServer pServer;
+    private final IServer server;
 
     @Getter
     private final StructureRegistry doorRegistry;
@@ -236,9 +236,9 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
         animatedBlockHookManager = safeGetter(BigDoorsSpigotComponent::getAnimatedBlockHookManager);
         animationHookManager = safeGetter(BigDoorsSpigotComponent::getAnimationHookManager);
 
-        pLocationFactory = safeGetter(BigDoorsSpigotComponent::getIPLocationFactory);
-        pWorldFactory = safeGetter(BigDoorsSpigotComponent::getIPWorldFactory);
-        pPlayerFactory = safeGetter(BigDoorsSpigotComponent::getIPPlayerFactory);
+        locationFactory = safeGetter(BigDoorsSpigotComponent::getLocationFactory);
+        worldFactory = safeGetter(BigDoorsSpigotComponent::getWorldFactory);
+        playerFactory = safeGetter(BigDoorsSpigotComponent::getPlayerFactory);
         commandFactory = safeGetter(BigDoorsSpigotComponent::getCommandFactory);
         animatedBlockFactory = safeGetter(BigDoorsSpigotComponent::getAnimatedBlockFactory);
         bigDoorsEventFactory = safeGetter(BigDoorsSpigotComponent::getIBigDoorsEventFactory);
@@ -251,10 +251,10 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
         loginMessageListener = safeGetter(BigDoorsSpigotComponent::getLoginMessageListener);
 
         bigDoorsConfig = safeGetter(BigDoorsSpigotComponent::getConfig);
-        pExecutor = safeGetter(BigDoorsSpigotComponent::getPExecutor);
+        executor = safeGetter(BigDoorsSpigotComponent::getExecutor);
         worldListener = safeGetter(BigDoorsSpigotComponent::getWorldListener);
         glowingBlockSpawner = safeGetter(BigDoorsSpigotComponent::getIGlowingBlockSpawner);
-        pServer = safeGetter(BigDoorsSpigotComponent::getIPServer);
+        server = safeGetter(BigDoorsSpigotComponent::getServer);
         audioPlayer = safeGetter(BigDoorsSpigotComponent::getIAudioPlayer);
         messagingInterface = safeGetter(BigDoorsSpigotComponent::getIMessagingInterface);
         messageableServer = safeGetter(BigDoorsSpigotComponent::getMessageable);
@@ -303,7 +303,7 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     @Override
     public void restartPlugin()
     {
-        pExecutor.runOnMainThread(restartableHolder::restart);
+        executor.runOnMainThread(restartableHolder::restart);
     }
 
     @Override

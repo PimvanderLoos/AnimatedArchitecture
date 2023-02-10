@@ -4,12 +4,12 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.core.api.IPExecutor;
-import nl.pim16aap2.bigdoors.core.api.IPLocation;
+import nl.pim16aap2.bigdoors.core.api.IExecutor;
+import nl.pim16aap2.bigdoors.core.api.ILocation;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.AnimationContext;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.core.api.factories.IAnimatedBlockFactory;
-import nl.pim16aap2.bigdoors.core.api.factories.IPLocationFactory;
+import nl.pim16aap2.bigdoors.core.api.factories.ILocationFactory;
 import nl.pim16aap2.bigdoors.core.structures.StructureSnapshot;
 import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
@@ -25,9 +25,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @ToString(onlyExplicitlyIncluded = true)
 public class AnimationBlockManager implements IAnimationBlockManager
 {
-    private final IPLocationFactory locationFactory;
+    private final ILocationFactory locationFactory;
     private final IAnimatedBlockFactory animatedBlockFactory;
-    private final IPExecutor executor;
+    private final IExecutor executor;
 
     /**
      * The modifiable list of animated blocks.
@@ -42,7 +42,7 @@ public class AnimationBlockManager implements IAnimationBlockManager
     private final List<IAnimatedBlock> animatedBlocks;
 
     AnimationBlockManager(
-        IPLocationFactory locationFactory, IAnimatedBlockFactory animatedBlockFactory, IPExecutor executor)
+        ILocationFactory locationFactory, IAnimatedBlockFactory animatedBlockFactory, IExecutor executor)
     {
         this.locationFactory = locationFactory;
         this.animatedBlockFactory = animatedBlockFactory;
@@ -78,7 +78,7 @@ public class AnimationBlockManager implements IAnimationBlockManager
                                 yAxis == yMin || yAxis == yMax ||
                                 zAxis == zMin || zAxis == zMax;
 
-                        final IPLocation location =
+                        final ILocation location =
                             locationFactory.create(snapshot.getWorld(), xAxis + 0.5, yAxis, zAxis + 0.5);
                         final boolean bottom = (yAxis == yMin);
                         final float radius = animationComponent.getRadius(xAxis, yAxis, zAxis);

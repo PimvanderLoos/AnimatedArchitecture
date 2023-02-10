@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.util.api;
 
-import nl.pim16aap2.bigdoors.core.api.PColor;
+import nl.pim16aap2.bigdoors.core.api.Color;
 import nl.pim16aap2.bigdoors.core.util.IGlowingBlock;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -23,5 +23,5 @@ public interface IGlowingBlockFactory
      * @return The {@link IGlowingBlock} that was spawned.
      */
     Optional<IGlowingBlock> createGlowingBlock(
-        Player player, World world, PColor pColor, double x, double y, double z, Map<PColor, Team> teams);
+        Player player, World world, Color pColor, double x, double y, double z, Map<Color, Team> teams);
 }

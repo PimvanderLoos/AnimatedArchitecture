@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import nl.pim16aap2.bigdoors.core.annotations.Initializer;
 import nl.pim16aap2.bigdoors.core.api.IConfig;
 import nl.pim16aap2.bigdoors.core.api.IMessageable;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
-import nl.pim16aap2.bigdoors.core.api.PPlayerData;
-import nl.pim16aap2.bigdoors.core.api.factories.IPPlayerFactory;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
+import nl.pim16aap2.bigdoors.core.api.PlayerData;
+import nl.pim16aap2.bigdoors.core.api.factories.IPlayerFactory;
 import nl.pim16aap2.bigdoors.core.events.structureaction.StructureActionCause;
 import nl.pim16aap2.bigdoors.core.events.structureaction.StructureActionType;
 import nl.pim16aap2.bigdoors.core.moveblocks.AnimationType;
@@ -30,14 +30,14 @@ public class StructureToggleRequestBuilder
 {
     private final StructureToggleRequest.IFactory structureToggleRequestFactory;
     private final IMessageable messageableServer;
-    private final IPPlayerFactory playerFactory;
+    private final IPlayerFactory playerFactory;
     private final IConfig config;
 
     @Inject
     public StructureToggleRequestBuilder(
         StructureToggleRequest.IFactory structureToggleRequestFactory,
         @Named("MessageableServer") IMessageable messageableServer,
-        IPPlayerFactory playerFactory, IConfig config)
+        IPlayerFactory playerFactory, IConfig config)
     {
         this.structureToggleRequestFactory = structureToggleRequestFactory;
         this.messageableServer = messageableServer;
@@ -61,7 +61,7 @@ public class StructureToggleRequestBuilder
     {
         private final StructureToggleRequest.IFactory structureToggleRequestFactory;
         private final IMessageable messageableServer;
-        private final IPPlayerFactory playerFactory;
+        private final IPlayerFactory playerFactory;
         private final IConfig config;
 
         private StructureRetriever structureRetriever;
@@ -69,7 +69,7 @@ public class StructureToggleRequestBuilder
         private StructureActionType structureActionType;
 
         private @Nullable IMessageable messageReceiver = null;
-        private @Nullable IPPlayer responsible = null;
+        private @Nullable IPlayer responsible = null;
         private @Nullable Double time = null;
         private @Nullable AnimationType animationType = null;
         private boolean skipAnimation = false;
@@ -89,14 +89,14 @@ public class StructureToggleRequestBuilder
         }
 
         @Override
-        public IBuilder responsible(@Nullable IPPlayer responsible)
+        public IBuilder responsible(@Nullable IPlayer responsible)
         {
             this.responsible = responsible;
             return this;
         }
 
         @Override
-        public IBuilder responsible(@Nullable PPlayerData playerData)
+        public IBuilder responsible(@Nullable PlayerData playerData)
         {
             if (playerData == null)
             {
@@ -114,7 +114,7 @@ public class StructureToggleRequestBuilder
                 responsible = null;
                 return this;
             }
-            return responsible(structureOwner.pPlayerData());
+            return responsible(structureOwner.playerData());
         }
 
         @Override
@@ -252,15 +252,15 @@ public class StructureToggleRequestBuilder
          *     things like checking access to certain areas.
          * @return The next step of the guided builder process.
          */
-        IBuilder responsible(@Nullable IPPlayer responsible);
+        IBuilder responsible(@Nullable IPlayer responsible);
 
         /**
-         * See {@link #responsible(IPPlayer)}.
+         * See {@link #responsible(IPlayer)}.
          */
-        IBuilder responsible(@Nullable PPlayerData playerData);
+        IBuilder responsible(@Nullable PlayerData playerData);
 
         /**
-         * See {@link #responsible(IPPlayer)}.
+         * See {@link #responsible(IPlayer)}.
          */
         IBuilder responsible(@Nullable StructureOwner structureOwnerOwner);
 

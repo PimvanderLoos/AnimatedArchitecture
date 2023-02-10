@@ -3,18 +3,18 @@ package nl.pim16aap2.bigdoors.spigot.util.implementations.glowingblocks;
 import com.google.common.flogger.StackSize;
 import lombok.Getter;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.bigdoors.core.api.Color;
 import nl.pim16aap2.bigdoors.core.api.GlowingBlockSpawner;
-import nl.pim16aap2.bigdoors.core.api.IPExecutor;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
-import nl.pim16aap2.bigdoors.core.api.IPWorld;
-import nl.pim16aap2.bigdoors.core.api.PColor;
+import nl.pim16aap2.bigdoors.core.api.IExecutor;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
+import nl.pim16aap2.bigdoors.core.api.IWorld;
 import nl.pim16aap2.bigdoors.core.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.core.api.restartable.RestartableHolder;
+import nl.pim16aap2.bigdoors.core.util.IGlowingBlock;
+import nl.pim16aap2.bigdoors.core.util.Util;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.spigot.util.api.IGlowingBlockFactory;
-import nl.pim16aap2.bigdoors.core.util.IGlowingBlock;
-import nl.pim16aap2.bigdoors.core.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -38,7 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class GlowingBlockSpawnerSpigot extends GlowingBlockSpawner implements IRestartable
 {
     @Getter
-    private final Map<PColor, Team> teams = new EnumMap<>(PColor.class);
+    private final Map<Color, Team> teams = new EnumMap<>(Color.class);
 
     private final Map<IGlowingBlock, BukkitRunnable> spawnedBlocks = new ConcurrentHashMap<>(128);
 
@@ -46,11 +46,11 @@ public class GlowingBlockSpawnerSpigot extends GlowingBlockSpawner implements IR
 
     private @Nullable Scoreboard scoreboard;
 
-    private final IPExecutor executor;
+    private final IExecutor executor;
 
     @Inject
     public GlowingBlockSpawnerSpigot(
-        RestartableHolder holder, IGlowingBlockFactory glowingBlockFactory, IPExecutor executor)
+        RestartableHolder holder, IGlowingBlockFactory glowingBlockFactory, IExecutor executor)
     {
         this.glowingBlockFactory = glowingBlockFactory;
         this.executor = executor;
@@ -59,7 +59,7 @@ public class GlowingBlockSpawnerSpigot extends GlowingBlockSpawner implements IR
 
     @Override
     public Optional<IGlowingBlock> spawnGlowingBlock(
-        IPPlayer player, IPWorld world, Duration duration, double x, double y, double z, PColor pColor)
+        IPlayer player, IWorld world, Duration duration, double x, double y, double z, Color color)
     {
         if (scoreboard == null)
         {
@@ -67,10 +67,10 @@ public class GlowingBlockSpawnerSpigot extends GlowingBlockSpawner implements IR
             return Optional.empty();
         }
 
-        if (teams.get(pColor) == null)
+        if (teams.get(color) == null)
         {
             // FINER because it will already have been logged on startup.
-            log.atFiner().log("GlowingBlock Color %s was not registered properly!", pColor.name());
+            log.atFiner().log("GlowingBlock Color %s was not registered properly!", color.name());
             return Optional.empty();
         }
 
@@ -98,7 +98,7 @@ public class GlowingBlockSpawnerSpigot extends GlowingBlockSpawner implements IR
         }
 
         final Optional<IGlowingBlock> blockOpt =
-            glowingBlockFactory.createGlowingBlock(spigotPlayer, spigotWorld, pColor, x, y, z, teams);
+            glowingBlockFactory.createGlowingBlock(spigotPlayer, spigotWorld, color, x, y, z, teams);
         blockOpt.ifPresent(block -> onBlockSpawn(block, ticks));
         return blockOpt;
     }
@@ -124,7 +124,7 @@ public class GlowingBlockSpawnerSpigot extends GlowingBlockSpawner implements IR
      * @param color
      *     The color to register the team for.
      */
-    private void registerTeam(PColor color, Scoreboard scoreboard)
+    private void registerTeam(Color color, Scoreboard scoreboard)
     {
         final ChatColor chatColor = SpigotUtil.toBukkitColor(color);
         final String name = "BigDoors" + color.ordinal();
@@ -142,7 +142,7 @@ public class GlowingBlockSpawnerSpigot extends GlowingBlockSpawner implements IR
      */
     private void registerTeams(Scoreboard scoreboard)
     {
-        for (final PColor col : PColor.values())
+        for (final Color col : Color.values())
             registerTeam(col, scoreboard);
     }
 

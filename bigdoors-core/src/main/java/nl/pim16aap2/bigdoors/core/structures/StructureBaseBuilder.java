@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.core.structures;
 
 import lombok.RequiredArgsConstructor;
 import nl.pim16aap2.bigdoors.core.annotations.Initializer;
-import nl.pim16aap2.bigdoors.core.api.IPWorld;
+import nl.pim16aap2.bigdoors.core.api.IWorld;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Di;
@@ -49,7 +49,7 @@ public final class StructureBaseBuilder
         private Cuboid cuboid;
         private Vector3Di rotationPoint;
         private Vector3Di powerBlock;
-        private IPWorld world;
+        private IWorld world;
         private boolean isOpen;
         private boolean isLocked;
         private MovementDirection openDir;
@@ -98,7 +98,7 @@ public final class StructureBaseBuilder
 
         @Override
         @Initializer
-        public IBuilderIsOpen world(IPWorld world)
+        public IBuilderIsOpen world(IWorld world)
         {
             this.world = world;
             return this;
@@ -237,7 +237,7 @@ public final class StructureBaseBuilder
          *     The world.
          * @return The next step of the guided builder process.
          */
-        IBuilderIsOpen world(IPWorld world);
+        IBuilderIsOpen world(IWorld world);
     }
 
     public interface IBuilderIsOpen

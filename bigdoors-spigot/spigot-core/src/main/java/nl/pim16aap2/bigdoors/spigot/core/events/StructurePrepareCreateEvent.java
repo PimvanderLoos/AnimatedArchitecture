@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.spigot.core.events;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.events.IStructurePrepareCreateEvent;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import org.bukkit.event.HandlerList;
@@ -24,7 +24,7 @@ public class StructurePrepareCreateEvent extends StructureEvent implements IStru
     @Setter
     private boolean isCancelled = false;
 
-    public StructurePrepareCreateEvent(AbstractStructure structure, @Nullable IPPlayer responsible)
+    public StructurePrepareCreateEvent(AbstractStructure structure, @Nullable IPlayer responsible)
     {
         super(structure, responsible);
     }

@@ -19,7 +19,7 @@ public interface IEconomyManager
      *     The number of blocks in the structure.
      * @return True if the player bought the structure successfully.
      */
-    boolean buyStructure(IPPlayer player, IPWorld world, StructureType type, int blockCount);
+    boolean buyStructure(IPlayer player, IWorld world, StructureType type, int blockCount);
 
     /**
      * Gets the price of {@link StructureType} for a specific number of blocks.

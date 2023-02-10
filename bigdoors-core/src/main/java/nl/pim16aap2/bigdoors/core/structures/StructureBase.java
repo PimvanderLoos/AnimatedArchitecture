@@ -13,10 +13,10 @@ import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.api.IChunkLoader;
 import nl.pim16aap2.bigdoors.core.api.IConfig;
-import nl.pim16aap2.bigdoors.core.api.IPExecutor;
-import nl.pim16aap2.bigdoors.core.api.IPWorld;
+import nl.pim16aap2.bigdoors.core.api.IExecutor;
 import nl.pim16aap2.bigdoors.core.api.IRedstoneManager;
-import nl.pim16aap2.bigdoors.core.api.factories.IPPlayerFactory;
+import nl.pim16aap2.bigdoors.core.api.IWorld;
+import nl.pim16aap2.bigdoors.core.api.factories.IPlayerFactory;
 import nl.pim16aap2.bigdoors.core.events.structureaction.StructureActionCause;
 import nl.pim16aap2.bigdoors.core.events.structureaction.StructureActionType;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
@@ -57,7 +57,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
     private final long uid;
 
     @Getter
-    private final IPWorld world;
+    private final IWorld world;
 
     @EqualsAndHashCode.Exclude @ToString.Exclude
     private final StructureToggleRequestBuilder structureToggleRequestBuilder;
@@ -132,14 +132,14 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
     @EqualsAndHashCode.Exclude
     @Getter(AccessLevel.PACKAGE)
-    private final IPExecutor executor;
+    private final IExecutor executor;
 
     @EqualsAndHashCode.Exclude
     @Getter(AccessLevel.PACKAGE)
     private final DatabaseManager databaseManager;
 
     @EqualsAndHashCode.Exclude
-    private final IPPlayerFactory playerFactory;
+    private final IPlayerFactory playerFactory;
 
     @AssistedInject StructureBase(
         @Assisted long uid,
@@ -147,7 +147,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
         @Assisted Cuboid cuboid,
         @Assisted("rotationPoint") Vector3Di rotationPoint,
         @Assisted("powerBlock") Vector3Di powerBlock,
-        @Assisted IPWorld world,
+        @Assisted IWorld world,
         @Assisted("isOpen") boolean isOpen,
         @Assisted("isLocked") boolean isLocked,
         @Assisted MovementDirection openDir,
@@ -158,8 +158,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
         StructureRegistry structureRegistry,
         StructureOpeningHelper structureOpeningHelper,
         StructureToggleRequestBuilder structureToggleRequestBuilder,
-        IPPlayerFactory playerFactory,
-        IPExecutor executor,
+        IPlayerFactory playerFactory,
+        IExecutor executor,
         IRedstoneManager redstoneManager,
         StructureActivityManager structureActivityManager,
         IChunkLoader chunkLoader,
@@ -181,7 +181,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
         this.owners = new HashMap<>();
         if (owners == null)
-            this.owners.put(primeOwner.pPlayerData().getUUID(), primeOwner);
+            this.owners.put(primeOwner.playerData().getUUID(), primeOwner);
         else
             this.owners.putAll(owners);
         this.ownersView = Collections.unmodifiableMap(this.owners);
@@ -204,22 +204,22 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
             log.atSevere().withStackTrace(StackSize.FULL)
                .log(
                    "Failed to add Owner '%s' as owner to structure: %d because a permission level of 0 is not allowed!",
-                   structureOwner.pPlayerData(), this.getUid());
+                   structureOwner.playerData(), this.getUid());
             return false;
         }
-        owners.put(structureOwner.pPlayerData().getUUID(), structureOwner);
+        owners.put(structureOwner.playerData().getUUID(), structureOwner);
         return true;
     }
 
     @Locked.Write
     @Nullable StructureOwner removeOwner(UUID uuid)
     {
-        if (primeOwner.pPlayerData().getUUID().equals(uuid))
+        if (primeOwner.playerData().getUUID().equals(uuid))
         {
             log.atSevere().withStackTrace(StackSize.FULL)
                .log("Failed to remove owner: '%s' as owner from structure: '%d'" +
                         " because removing an owner with a permission level of 0 is not allowed!",
-                    primeOwner.pPlayerData(), this.getUid());
+                    primeOwner.playerData(), this.getUid());
             return null;
         }
         return owners.remove(uuid);
@@ -283,7 +283,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
             .structureActionCause(StructureActionCause.REDSTONE)
             .structureActionType(type)
             .messageReceiverServer()
-            .responsible(playerFactory.create(getPrimeOwner().pPlayerData()))
+            .responsible(playerFactory.create(getPrimeOwner().playerData()))
             .build()
             .execute();
     }
@@ -355,7 +355,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
     {
         StructureBase create(
             long structureUID, String name, Cuboid cuboid, @Assisted("rotationPoint") Vector3Di rotationPoint,
-            @Assisted("powerBlock") Vector3Di powerBlock, @Assisted IPWorld world,
+            @Assisted("powerBlock") Vector3Di powerBlock, @Assisted IWorld world,
             @Assisted("isOpen") boolean isOpen, @Assisted("isLocked") boolean isLocked,
             MovementDirection openDir, StructureOwner primeOwner, @Nullable Map<UUID, StructureOwner> structureOwners);
     }

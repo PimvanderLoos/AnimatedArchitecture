@@ -19,7 +19,7 @@ public interface IBigDoorsToolUtil
      * @param lore
      *     The lore of the tool.
      */
-    void giveToPlayer(IPPlayer player, String name, String lore);
+    void giveToPlayer(IPlayer player, String name, String lore);
 
     /**
      * Removes any BigDoors tools from a player's inventory.
@@ -27,7 +27,7 @@ public interface IBigDoorsToolUtil
      * @param player
      *     The player whose inventory will be checked.
      */
-    void removeTool(IPPlayer player);
+    void removeTool(IPlayer player);
 
     /**
      * Checks if a player is currently holding a BigDoors tool in their main hand.
@@ -36,5 +36,5 @@ public interface IBigDoorsToolUtil
      *     The player to check.
      * @return True if they are currently holding a BigDoors tool in their main hand.
      */
-    boolean isPlayerHoldingTool(IPPlayer player);
+    boolean isPlayerHoldingTool(IPlayer player);
 }

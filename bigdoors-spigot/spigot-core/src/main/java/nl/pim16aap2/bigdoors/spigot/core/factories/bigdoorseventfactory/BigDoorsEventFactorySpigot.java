@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.core.factories.bigdoorseventfactory;
 
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.core.events.IStructureCreatedEvent;
 import nl.pim16aap2.bigdoors.core.events.IStructurePrepareAddOwnerEvent;
@@ -41,21 +41,21 @@ public class BigDoorsEventFactorySpigot implements IBigDoorsEventFactory
 
 
     @Override
-    public IStructureCreatedEvent createStructureCreatedEvent(AbstractStructure preview, @Nullable IPPlayer responsible)
+    public IStructureCreatedEvent createStructureCreatedEvent(AbstractStructure preview, @Nullable IPlayer responsible)
     {
         return new StructureCreatedEvent(preview, responsible);
     }
 
     @Override
     public IStructurePrepareCreateEvent createPrepareStructureCreateEvent(
-        AbstractStructure structure, @Nullable IPPlayer responsible)
+        AbstractStructure structure, @Nullable IPlayer responsible)
     {
         return new StructurePrepareCreateEvent(structure, responsible);
     }
 
     @Override
     public IStructurePrepareDeleteEvent createPrepareDeleteStructureEvent(
-        AbstractStructure structure, @Nullable IPPlayer responsible)
+        AbstractStructure structure, @Nullable IPlayer responsible)
     {
         return new StructurePrepareDeleteEvent(structure, responsible);
     }
@@ -63,7 +63,7 @@ public class BigDoorsEventFactorySpigot implements IBigDoorsEventFactory
     @Override
     public IStructurePrepareAddOwnerEvent createStructurePrepareAddOwnerEvent(
         AbstractStructure structure, StructureOwner newOwner,
-        @Nullable IPPlayer responsible)
+        @Nullable IPlayer responsible)
     {
         return new StructurePrepareAddOwnerEvent(structure, responsible, newOwner);
     }
@@ -71,7 +71,7 @@ public class BigDoorsEventFactorySpigot implements IBigDoorsEventFactory
     @Override
     public IStructurePrepareRemoveOwnerEvent createStructurePrepareRemoveOwnerEvent(
         AbstractStructure structure, StructureOwner removedOwner,
-        @Nullable IPPlayer responsible)
+        @Nullable IPlayer responsible)
     {
         return new StructurePrepareRemoveOwnerEvent(structure, responsible, removedOwner);
     }
@@ -79,7 +79,7 @@ public class BigDoorsEventFactorySpigot implements IBigDoorsEventFactory
     @Override
     public IStructurePrepareLockChangeEvent createStructurePrepareLockChangeEvent(
         AbstractStructure structure, boolean newLockStatus,
-        @Nullable IPPlayer responsible)
+        @Nullable IPlayer responsible)
     {
         return new StructurePrepareLockChangeEvent(structure, responsible, newLockStatus);
     }
@@ -87,7 +87,7 @@ public class BigDoorsEventFactorySpigot implements IBigDoorsEventFactory
     @Override
     public IStructureEventTogglePrepare createTogglePrepareEvent(
         StructureSnapshot snapshot, StructureActionCause cause,
-        StructureActionType actionType, IPPlayer responsible,
+        StructureActionType actionType, IPlayer responsible,
         double time, boolean skipAnimation, Cuboid newCuboid)
     {
         return new StructureEventTogglePrepare(snapshot, cause, actionType, responsible, time, skipAnimation,
@@ -97,7 +97,7 @@ public class BigDoorsEventFactorySpigot implements IBigDoorsEventFactory
     @Override
     public IStructureEventToggleStart createToggleStartEvent(
         AbstractStructure structure, StructureSnapshot structureSnapshot, StructureActionCause cause,
-        StructureActionType actionType, IPPlayer responsible, double time,
+        StructureActionType actionType, IPlayer responsible, double time,
         boolean skipAnimation, Cuboid newCuboid)
 
     {
@@ -109,7 +109,7 @@ public class BigDoorsEventFactorySpigot implements IBigDoorsEventFactory
     public IStructureEventToggleEnd createToggleEndEvent(
         AbstractStructure structure, StructureSnapshot snapshot, StructureActionCause cause,
         StructureActionType actionType,
-        IPPlayer responsible, double time, boolean skipAnimation)
+        IPlayer responsible, double time, boolean skipAnimation)
     {
         return new StructureEventToggleEnd(structure, snapshot, cause, actionType, responsible, time, skipAnimation);
     }

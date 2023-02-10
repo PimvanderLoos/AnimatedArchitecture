@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.core.events.structureaction;
 
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.events.IBigDoorsEvent;
 import nl.pim16aap2.bigdoors.core.structures.StructureSnapshot;
 
@@ -30,7 +30,7 @@ public interface IStructureToggleEvent extends IBigDoorsEvent
      *
      * @return The player that is responsible for this event.
      */
-    IPPlayer getResponsible();
+    IPlayer getResponsible();
 
     /**
      * Gets the type of the requested action.
