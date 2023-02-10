@@ -39,9 +39,9 @@ nl.pim16aap2.bigdoors.spigot.core.events
 nl.pim16aap2.bigdoors.spigot.core.events.structureaction
 nl.pim16aap2.bigdoors.spigot.core.exceptions
 nl.pim16aap2.bigdoors.spigot.core.factories.bigdoorseventfactory
-nl.pim16aap2.bigdoors.spigot.core.factories.plocationfactory
-nl.pim16aap2.bigdoors.spigot.core.factories.pplayerfactory
-nl.pim16aap2.bigdoors.spigot.core.factories.pworldfactory
+nl.pim16aap2.bigdoors.spigot.core.factories.locationfactory
+nl.pim16aap2.bigdoors.spigot.core.factories.playerfactory
+nl.pim16aap2.bigdoors.spigot.core.factories.worldfactory
 nl.pim16aap2.bigdoors.spigot.core.gui
 nl.pim16aap2.bigdoors.spigot.core.implementations
 nl.pim16aap2.bigdoors.spigot.core.listeners
@@ -51,10 +51,10 @@ nl.pim16aap2.bigdoors.spigot.util
 nl.pim16aap2.bigdoors.spigot.util.api
 nl.pim16aap2.bigdoors.spigot.util.implementations
 nl.pim16aap2.bigdoors.spigot.util.implementations.audio
+nl.pim16aap2.bigdoors.spigot.util.implementations.executor
 nl.pim16aap2.bigdoors.spigot.util.implementations.glowingblocks
 nl.pim16aap2.bigdoors.spigot.util.implementations.messageable
-nl.pim16aap2.bigdoors.spigot.util.implementations.pexecutor
-nl.pim16aap2.bigdoors.spigot.util.implementations.pserver
+nl.pim16aap2.bigdoors.spigot.util.implementations.server
 nl.pim16aap2.bigdoors.spigot.v1_19_R2
 nl.pim16aap2.bigdoors.structures.bigdoor
 nl.pim16aap2.bigdoors.structures.clock
