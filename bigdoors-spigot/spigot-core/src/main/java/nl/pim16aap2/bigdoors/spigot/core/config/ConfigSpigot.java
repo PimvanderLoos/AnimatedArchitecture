@@ -266,7 +266,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable
             # With a multiplier of 1.5, the animation will take 15 seconds, while a multiplier of 0.5 will result in a
             # duration of 5 seconds.
             #
-            # Note that the maximum speed of the animated blocks is limited by 'maxBlockSpeed', so there is a limit to 
+            # Note that the maximum speed of the animated blocks is limited by 'maxBlockSpeed', so there is a limit to
             # how fast you can make the structures.
             """;
 
