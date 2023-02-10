@@ -34,7 +34,6 @@
         <dependency.version.lombok-plugin>1.18.20.0</dependency.version.lombok-plugin>
         <dependency.version.errorprone>2.18.0</dependency.version.errorprone>
         <dependency.version.nullaway>0.10.9</dependency.version.nullaway>
-        <dependency.version.checker-framework>3.30.0</dependency.version.checker-framework>
         <dependency.version.checkstyle>10.7.0</dependency.version.checkstyle>
         <dependency.version.pmd>3.19.0</dependency.version.pmd>
         <dependency.version.dagger>2.45</dependency.version.dagger>
@@ -234,13 +233,6 @@
             <groupId>com.google.errorprone</groupId>
             <artifactId>error_prone_annotations</artifactId>
             <version>${dependency.version.errorprone}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.checkerframework</groupId>
-            <artifactId>checker-qual</artifactId>
-            <version>${dependency.version.checker-framework}</version>
             <scope>provided</scope>
         </dependency>
 

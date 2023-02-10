@@ -1,4 +1,4 @@
 @NonNullByDefault
-package nl.pim16aap2.util.reflection;
+package nl.pim16aap2.bigdoors.core.api.debugging;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;

@@ -149,7 +149,7 @@ public final class SpigotUtil
         messagePlayer(player, ChatColor.WHITE, msg);
     }
 
-    static int getPermissionSuffixValue(String permissionNode, String permissionBase)
+    public static int getPermissionSuffixValue(String permissionNode, String permissionBase)
     {
         if (permissionNode.startsWith(permissionBase))
         {
