@@ -77,7 +77,7 @@ public class StructureTypeParser implements ArgumentParser<ICommandSender, Struc
     public synchronized void initialize()
     {
         final Collection<StructureType> types = structureTypeManager.getEnabledStructureTypes();
-        this.suggestions = new LinkedHashMap<>(types.size());
+        this.suggestions = new LinkedHashMap<>((int) Math.ceil(1.25 * types.size()));
         types.forEach(type -> suggestions.put(format(type), type));
     }
 

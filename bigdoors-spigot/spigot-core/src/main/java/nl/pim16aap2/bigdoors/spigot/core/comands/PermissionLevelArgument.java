@@ -44,7 +44,7 @@ public class PermissionLevelArgument extends CommandArgument<ICommandSender, Per
     public static final class PermissionLevelArgumentParser implements ArgumentParser<ICommandSender, PermissionLevel>
     {
         private final Map<String, PermissionLevel> suggestions =
-            new LinkedHashMap<>(PermissionLevel.getValues().size());
+            new LinkedHashMap<>((int) Math.ceil(1.25 * PermissionLevel.getValues().size()));
         private final Map<PermissionLevel, String> invertedSuggestions = new EnumMap<>(PermissionLevel.class);
         private final ILocalizer localizer;
 

@@ -179,13 +179,11 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
         this.structureActivityManager = structureActivityManager;
         this.chunkLoader = chunkLoader;
 
-        final int initSize = owners == null ? 1 : owners.size();
-        final Map<UUID, StructureOwner> structureOwnersTmp = new HashMap<>(initSize);
+        this.owners = new HashMap<>();
         if (owners == null)
-            structureOwnersTmp.put(primeOwner.pPlayerData().getUUID(), primeOwner);
+            this.owners.put(primeOwner.pPlayerData().getUUID(), primeOwner);
         else
-            structureOwnersTmp.putAll(owners);
-        this.owners = structureOwnersTmp;
+            this.owners.putAll(owners);
         this.ownersView = Collections.unmodifiableMap(this.owners);
 
         this.config = config;

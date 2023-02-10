@@ -12,12 +12,12 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.api.IPermissionsManager;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.spigot.core.BigDoorsPlugin;
-import nl.pim16aap2.bigdoors.spigot.util.implementations.PPlayerSpigot;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.structures.PermissionLevel;
 import nl.pim16aap2.bigdoors.core.structures.StructureAttribute;
 import nl.pim16aap2.bigdoors.core.structures.StructureOwner;
+import nl.pim16aap2.bigdoors.spigot.core.BigDoorsPlugin;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.PPlayerSpigot;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -73,7 +73,7 @@ class InfoGui implements IGuiPage
         final StructureOwner structureOwner = structure.getOwner(inventoryHolder).orElseGet(this::getDummyOwner);
         this.allowedAttributes = analyzeAttributes(structureOwner, inventoryHolder, permissionsManager);
 
-        this.attributeElements = new HashMap<>(this.allowedAttributes.size());
+        this.attributeElements = new HashMap<>((int) Math.ceil(1.25 * this.allowedAttributes.size()));
 
         this.inventoryGui = createGUI();
 

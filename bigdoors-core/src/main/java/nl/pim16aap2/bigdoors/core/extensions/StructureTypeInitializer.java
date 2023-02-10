@@ -83,7 +83,7 @@ final class StructureTypeInitializer
 
     DirectedAcyclicGraph<Loadable> createGraph(List<StructureTypeInfo> structureTypeInfos, boolean debug)
     {
-        final Map<String, Loadable> loadables = new HashMap<>(structureTypeInfos.size());
+        final Map<String, Loadable> loadables = new HashMap<>((int) Math.ceil(1.25 * structureTypeInfos.size()));
         structureTypeInfos.forEach(info -> loadables.put(info.getTypeName(), new Loadable(info)));
 
         final DirectedAcyclicGraph<Loadable> graph = new DirectedAcyclicGraph<>(debug);

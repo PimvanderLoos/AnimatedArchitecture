@@ -353,7 +353,7 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
             throw new IllegalStateException("Graph has no leaves and must therefore be cyclic!");
 
         final LinkedList<Node<T>> leafQueue = new LinkedList<>(leaves);
-        final Set<Node<T>> removed = new LinkedHashSet<>(nodes.size());
+        final Set<Node<T>> removed = new LinkedHashSet<>((int) Math.ceil(1.25 * nodes.size()));
 
         // The general idea of finding whether the graph has any cyclic dependencies
         // is to remove all leaf nodes (those that do not have any parents).

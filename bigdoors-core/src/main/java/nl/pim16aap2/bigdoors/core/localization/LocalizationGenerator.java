@@ -190,7 +190,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
      */
     static void mergeWithPatches(List<String> lines, Map<String, String> patches)
     {
-        final Set<String> usedPatches = new HashSet<>(patches.size());
+        final Set<String> usedPatches = new HashSet<>((int) Math.ceil(1.25 * patches.size()));
         for (int idx = 0; idx < lines.size(); ++idx)
         {
             final @Nullable LocalizationEntry entry = LocalizationUtil.getEntryFromLine(lines.get(idx));

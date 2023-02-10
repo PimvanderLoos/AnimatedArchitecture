@@ -51,7 +51,7 @@ class SpigotUtilTest
         final Player player = Mockito.mock(Player.class);
         final PermissionAttachment permissionAttachment = Mockito.mock(PermissionAttachment.class);
 
-        final Set<PermissionAttachmentInfo> effectivePermissions = new HashSet<>(nodes.length);
+        final Set<PermissionAttachmentInfo> effectivePermissions = new HashSet<>((int) Math.ceil(1.25 * nodes.length));
         for (final String node : nodes)
             effectivePermissions.add(new PermissionAttachmentInfo(player, node, permissionAttachment, true));
 

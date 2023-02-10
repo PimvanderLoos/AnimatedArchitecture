@@ -175,7 +175,7 @@ public final class LocalizationUtil
      */
     static Set<String> getKeySet(List<String> lines)
     {
-        final Set<String> ret = new LinkedHashSet<>(lines.size());
+        final Set<String> ret = new LinkedHashSet<>((int) Math.ceil(1.25 * lines.size()));
         for (final String line : lines)
         {
             final @Nullable LocalizationEntry entry = getEntryFromLine(line);
