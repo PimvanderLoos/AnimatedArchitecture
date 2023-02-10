@@ -79,11 +79,11 @@ public interface IBigDoorsPlatform
     IPPlayerFactory getPPlayerFactory();
 
     /**
-     * Gets the instance of the {@link IConfigLoader} for this platform.
+     * Gets the instance of the {@link IConfig} for this platform.
      *
-     * @return The instance of the {@link IConfigLoader} for this platform.
+     * @return The instance of the {@link IConfig} for this platform.
      */
-    IConfigLoader getBigDoorsConfig();
+    IConfig getBigDoorsConfig();
 
     /**
      * Gets the instance of the {@link IAudioPlayer} for this platform.
@@ -149,7 +149,7 @@ public interface IBigDoorsPlatform
     StructureRegistry getDoorRegistry();
 
     /**
-     * @return The instance of the {@link IConfigLoader} for this platform.
+     * @return The instance of the {@link IConfig} for this platform.
      */
     IChunkLoader getChunkLoader();
 

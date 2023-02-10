@@ -6,7 +6,7 @@ import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.longs.LongLists;
 import lombok.Getter;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.core.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.core.api.IConfig;
 import nl.pim16aap2.bigdoors.core.api.IPLocation;
 import nl.pim16aap2.bigdoors.core.api.IPWorld;
 import nl.pim16aap2.bigdoors.core.api.restartable.Restartable;
@@ -38,7 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class PowerBlockManager extends Restartable implements StructureDeletionManager.IDeletionListener
 {
     private final Map<String, PowerBlockWorld> powerBlockWorlds = new ConcurrentHashMap<>();
-    private final IConfigLoader config;
+    private final IConfig config;
     private final DatabaseManager databaseManager;
 
     /**
@@ -53,7 +53,7 @@ public final class PowerBlockManager extends Restartable implements StructureDel
      *     The database manager to use for power block retrieval.
      */
     @Inject PowerBlockManager(
-        RestartableHolder restartableHolder, IConfigLoader config, DatabaseManager databaseManager,
+        RestartableHolder restartableHolder, IConfig config, DatabaseManager databaseManager,
         StructureDeletionManager structureDeletionManager)
     {
         super(restartableHolder);

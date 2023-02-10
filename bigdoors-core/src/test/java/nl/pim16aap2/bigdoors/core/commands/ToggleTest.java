@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.core.commands;
 
 import nl.pim16aap2.bigdoors.core.UnitTestUtil;
-import nl.pim16aap2.bigdoors.core.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.core.api.IConfig;
 import nl.pim16aap2.bigdoors.core.api.IMessageable;
 import nl.pim16aap2.bigdoors.core.api.IPPlayer;
 import nl.pim16aap2.bigdoors.core.api.factories.IPPlayerFactory;
@@ -83,7 +83,7 @@ class ToggleTest
 
         structureToggleRequestBuilder = new StructureToggleRequestBuilder(
             structureToggleRequestFactory, messageableServer, Mockito.mock(IPPlayerFactory.class),
-            Mockito.mock(IConfigLoader.class));
+            Mockito.mock(IConfig.class));
 
         Mockito.when(factory.newToggle(Mockito.any(ICommandSender.class), Mockito.any(StructureActionType.class),
                                        Mockito.any(AnimationType.class), Mockito.nullable(Double.class),

@@ -2,14 +2,14 @@ package nl.pim16aap2.bigdoors.spigot.core.config;
 
 import dagger.Binds;
 import dagger.Module;
-import nl.pim16aap2.bigdoors.core.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.core.api.IConfig;
 
 import javax.inject.Singleton;
 
 @Module
-public interface ConfigLoaderSpigotModule
+public interface ConfigSpigotModule
 {
     @Binds
     @Singleton
-    IConfigLoader getConfig(ConfigLoaderSpigot config);
+    IConfig getConfig(ConfigSpigot config);
 }

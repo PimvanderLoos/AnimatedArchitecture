@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.core.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.core.api.IConfig;
 import nl.pim16aap2.bigdoors.core.api.IPPlayer;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.commands.ICommandSender;
@@ -87,7 +87,7 @@ public sealed abstract class StructureRetriever
      * <p>
      * If more than 1 match was found, the player will be asked to specify which one they asked for specifically.
      * <p>
-     * The amount of time to wait (when required) is determined by {@link IConfigLoader#specificationTimeout()}.
+     * The amount of time to wait (when required) is determined by {@link IConfig#specificationTimeout()}.
      * <p>
      * See {@link DelayedStructureSpecificationInputRequest}.
      *
@@ -172,7 +172,7 @@ public sealed abstract class StructureRetriever
         private final DatabaseManager databaseManager;
 
         @ToString.Exclude
-        private IConfigLoader config;
+        private IConfig config;
 
         @ToString.Exclude
         private StructureSpecificationManager structureSpecificationManager;

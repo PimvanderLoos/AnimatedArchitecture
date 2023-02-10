@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.core.util.structureretriever;
 
-import nl.pim16aap2.bigdoors.core.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.core.api.IConfig;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.commands.ICommandSender;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
@@ -25,7 +25,7 @@ import java.util.concurrent.CompletableFuture;
 public final class StructureRetrieverFactory
 {
     private final DatabaseManager databaseManager;
-    private final IConfigLoader config;
+    private final IConfig config;
     private final StructureSpecificationManager structureSpecificationManager;
     private final StructureFinderCache structureFinderCache;
     private final ILocalizer localizer;
@@ -33,7 +33,7 @@ public final class StructureRetrieverFactory
 
     @Inject
     public StructureRetrieverFactory(
-        DatabaseManager databaseManager, IConfigLoader config,
+        DatabaseManager databaseManager, IConfig config,
         StructureSpecificationManager structureSpecificationManager,
         StructureFinderCache structureFinderCache, ILocalizer localizer,
         ITextFactory textFactory)

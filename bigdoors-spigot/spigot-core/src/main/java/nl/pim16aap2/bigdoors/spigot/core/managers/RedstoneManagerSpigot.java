@@ -1,11 +1,11 @@
 package nl.pim16aap2.bigdoors.spigot.core.managers;
 
-import nl.pim16aap2.bigdoors.core.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.core.api.IConfig;
 import nl.pim16aap2.bigdoors.core.api.IPWorld;
 import nl.pim16aap2.bigdoors.core.api.IRedstoneManager;
-import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.core.util.Util;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Di;
+import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -27,18 +27,18 @@ public final class RedstoneManagerSpigot implements IRedstoneManager
                 BlockFace.UP, BlockFace.DOWN,
                 BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST);
 
-    private final IConfigLoader configLoader;
+    private final IConfig config;
 
     @Inject
-    public RedstoneManagerSpigot(IConfigLoader configLoader)
+    public RedstoneManagerSpigot(IConfig config)
     {
-        this.configLoader = configLoader;
+        this.config = config;
     }
 
     @Override
     public RedstoneStatus isBlockPowered(IPWorld world, Vector3Di position)
     {
-        if (!configLoader.isRedstoneEnabled())
+        if (!config.isRedstoneEnabled())
             return RedstoneStatus.DISABLED;
 
         final World bukkitWorld = Util.requireNonNull(SpigotAdapter.getBukkitWorld(world), "bukkitWorld");

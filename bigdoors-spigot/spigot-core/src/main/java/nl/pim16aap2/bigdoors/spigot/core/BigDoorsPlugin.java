@@ -5,10 +5,10 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.core.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.core.api.IBigDoorsPlatformProvider;
-import nl.pim16aap2.bigdoors.core.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.core.api.IConfig;
 import nl.pim16aap2.bigdoors.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.core.api.restartable.RestartableHolder;
-import nl.pim16aap2.bigdoors.spigot.core.config.ConfigLoaderSpigot;
+import nl.pim16aap2.bigdoors.spigot.core.config.ConfigSpigot;
 import nl.pim16aap2.bigdoors.spigot.core.implementations.DebugReporterSpigot;
 import nl.pim16aap2.bigdoors.spigot.core.listeners.BackupCommandListener;
 import nl.pim16aap2.bigdoors.spigot.core.listeners.LoginMessageListener;
@@ -86,7 +86,7 @@ public final class BigDoorsPlugin extends JavaPlugin implements IBigDoorsPlatfor
     }
 
     /**
-     * Tries to update the logger using {@link IConfigLoader#logLevel()}.
+     * Tries to update the logger using {@link IConfig#logLevel()}.
      * <p>
      * If the config is not available for some reason, the log level defaults to {@link Level#ALL}.
      */
@@ -161,7 +161,7 @@ public final class BigDoorsPlugin extends JavaPlugin implements IBigDoorsPlatfor
 
         // Rewrite the config after everything has been loaded to ensure all
         // extensions/addons have their hooks in.
-        ((ConfigLoaderSpigot) (bigDoorsSpigotPlatform.getBigDoorsConfig())).rewriteConfig();
+        ((ConfigSpigot) (bigDoorsSpigotPlatform.getBigDoorsConfig())).rewriteConfig(false);
 
         if (firstInit)
             initCommands(bigDoorsSpigotPlatform);

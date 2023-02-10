@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.core.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.core.api.IConfig;
 import nl.pim16aap2.bigdoors.core.api.IPPlayer;
 import nl.pim16aap2.bigdoors.core.api.IPWorld;
 import nl.pim16aap2.bigdoors.core.managers.DatabaseManager;
@@ -107,7 +107,7 @@ public abstract class AbstractStructure implements IStructure
      * <p>
      * The animation time is calculated using this structure's {@link #getBaseAnimationTime()}, its
      * {@link #getMinimumAnimationTime()}, and the multiplier for this type as described by
-     * {@link IConfigLoader#getAnimationSpeedMultiplier(StructureType)}.
+     * {@link IConfig#getAnimationTimeMultiplier(StructureType)}.
      * <p>
      * If the target is not null, the returned value will simply be the maximum value of the target and
      * {@link #getBaseAnimationTime()}. Note that the time multiplier is ignored in this case.
@@ -120,7 +120,7 @@ public abstract class AbstractStructure implements IStructure
     {
         final double realTarget = target != null ?
                                   target :
-                                  base.getConfig().getAnimationSpeedMultiplier(getType()) * getBaseAnimationTime();
+                                  base.getConfig().getAnimationTimeMultiplier(getType()) * getBaseAnimationTime();
         return calculateAnimationTime(realTarget);
     }
 
@@ -204,8 +204,8 @@ public abstract class AbstractStructure implements IStructure
     /**
      * Gets the lower time limit for an animation.
      * <p>
-     * Because animated blocks have a speed limit, as determined by {@link IConfigLoader#maxBlockSpeed()}, there is also
-     * a minimum amount of time for its animation.
+     * Because animated blocks have a speed limit, as determined by {@link IConfig#maxBlockSpeed()}, there is also a
+     * minimum amount of time for its animation.
      * <p>
      * The exact time limit depends on the shape, size, and type of structure.
      *

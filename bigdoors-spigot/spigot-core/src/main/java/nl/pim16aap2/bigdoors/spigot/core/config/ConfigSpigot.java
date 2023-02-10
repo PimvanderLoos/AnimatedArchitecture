@@ -4,20 +4,20 @@ import com.google.common.flogger.StackSize;
 import dagger.Lazy;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.core.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.core.api.IConfig;
 import nl.pim16aap2.bigdoors.core.api.IConfigReader;
 import nl.pim16aap2.bigdoors.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.core.api.debugging.IDebuggable;
 import nl.pim16aap2.bigdoors.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.core.localization.LocalizationUtil;
 import nl.pim16aap2.bigdoors.core.managers.StructureTypeManager;
-import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
-import nl.pim16aap2.bigdoors.spigot.util.implementations.ConfigReaderSpigot;
 import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
 import nl.pim16aap2.bigdoors.core.util.ConfigEntry;
 import nl.pim16aap2.bigdoors.core.util.Constants;
 import nl.pim16aap2.bigdoors.core.util.Limit;
 import nl.pim16aap2.bigdoors.core.util.Util;
+import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.ConfigReaderSpigot;
 import org.bukkit.Material;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
@@ -49,7 +49,7 @@ import java.util.logging.Level;
 @ToString
 @Singleton
 @Flogger
-public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
+public final class ConfigSpigot implements IConfig, IDebuggable
 {
     @ToString.Exclude
     private final JavaPlugin plugin;
@@ -65,7 +65,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
     @ToString.Exclude
     private final List<ConfigEntry<?>> configEntries = new ArrayList<>();
     private final Map<StructureType, String> structurePrices;
-    private final Map<StructureType, Double> structureSpeedMultipliers;
+    private final Map<StructureType, Double> structureAnimationTimeMultipliers;
     @ToString.Exclude
     private final String header;
 
@@ -73,7 +73,9 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
     private boolean allowStats;
     private OptionalInt maxStructureSize = OptionalInt.empty();
     private OptionalInt maxPowerBlockDistance = OptionalInt.empty();
-    private String resourcePack = "";
+    private boolean resourcePackEnabled = false;
+    private final String resourcePack =
+        "https://www.dropbox.com/s/8vpwzjkd9jnp1xu/BigDoorsResourcePack-Format12.zip?dl=1";
     private OptionalInt maxStructureCount = OptionalInt.empty();
     private OptionalInt maxBlocksToMove = OptionalInt.empty();
     private double maxBlockSpeed;
@@ -91,13 +93,13 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
     private String flagMovementFormula = "";
 
     /**
-     * Constructs a new {@link ConfigLoaderSpigot}.
+     * Constructs a new {@link ConfigSpigot}.
      *
      * @param plugin
      *     The Spigot core.
      */
     @Inject
-    public ConfigLoaderSpigot(
+    public ConfigSpigot(
         RestartableHolder restartableHolder, JavaPlugin plugin, Lazy<StructureTypeManager> structureTypeManager,
         @Named("pluginBaseDirectory") Path baseDir, DebuggableRegistry debuggableRegistry)
     {
@@ -105,7 +107,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
         this.structureTypeManager = structureTypeManager;
         this.baseDir = baseDir;
         structurePrices = new HashMap<>();
-        structureSpeedMultipliers = new HashMap<>();
+        structureAnimationTimeMultipliers = new HashMap<>();
 
         header = "Config file for BigDoors. Don't forget to make a backup before making changes!";
 
@@ -117,7 +119,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
     public void initialize()
     {
         plugin.reloadConfig();
-        rewriteConfig();
+        rewriteConfig(true);
     }
 
     @Override
@@ -126,142 +128,221 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
         configEntries.clear();
         powerBlockTypes.clear();
         structurePrices.clear();
-        structureSpeedMultipliers.clear();
+        structureAnimationTimeMultipliers.clear();
     }
 
     /**
      * Read the current config file and rewrite the file.
      */
-    public void rewriteConfig()
+    public void rewriteConfig(boolean printResults)
     {
         plugin.reloadConfig();
         shutDown();
 
-        final String defResPackUrl = "https://www.dropbox.com/s/0q6h8jkfjqrn1tp/BigDoorsResourcePack.zip?dl=1";
-        final String defResPackUrl1_13 = "https://www.dropbox.com/s/al4idl017ggpnuq/BigDoorsResourcePack-1_13.zip?dl=1";
+        final String loadChunksForToggleComment =
+            """
+            # Try to load chunks when a structure is toggled. When set to false, structures will not be toggled if more
+            # than 1 chunk needs to be loaded.
+            # When set to true, the plugin will try to load all chunks the structure will interact with before toggling.
+            # If more than 1 chunk needs to be loaded, the structure will skip its animation to avoid spawning a bunch
+            # of entities no one can see anyway.
+            """;
 
-        final String[] loadChunksForToggleComment = {
-            "Try to load chunks when a structure is toggled. When set to false, structures will not be toggled " +
-                "if more than 1 chunk needs to be loaded.",
-            "When set to true, the plugin will try to load all chunks the structure will interact with before " +
-                "toggling. If more than 1 chunk ",
-            "needs to be loaded, the structure will skip its animation to avoid spawning a bunch of entities " +
-                "no one can see anyway."};
-        final String[] enableRedstoneComment = {
-            "Allow structures to be opened using redstone signals."};
-        final String[] powerBlockTypeComment = {
-            "Choose the type of the power block that is used to open structures using redstone.",
-            "A list can be found here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html",
-            "This is the block that will open the structure attached to it when it receives a redstone signal.",
-            "Multiple types are allowed."};
-        final String[] blacklistComment = {
-            "List of blacklisted materials. Materials on this list can not be animated.",
-            "Use the same list of materials as for the power blocks. For example, you would blacklist bedrock like so:",
-            "  - BEDROCK"};
-        final String[] maxStructureCountComment = {
-            "Global maximum number of structures a player can own. You can set it to -1 to disable it this limit.",
-            "Not even admins and OPs can bypass this limit!",
-            "Note that you can also use permissions for this, if you need more finely grained control using this node:",
-            "'" + Limit.STRUCTURE_COUNT.getUserPermission() + "x', where 'x' can be any positive value."};
-        final String[] maxBlocksToMoveComment = {
-            "Global maximum number of structures a player can own. You can set it to -1 to disable it this limit.",
-            "Not even admins and OPs can bypass this limit!",
-            "Note that you can also use permissions for this, if you need more finely grained control using this node:",
-            "'" + Limit.BLOCKS_TO_MOVE.getUserPermission() + "x', where 'x' can be any positive value."};
-        final String[] checkForUpdatesComment = {
-            "Allow this plugin to check for updates on startup. It will not download new versions!"};
-        final String[] downloadDelayComment = {
-            "Time (in minutes) to delay auto downloading updates after their release.",
-            "Setting it to 1440 means that updates will be downloaded 24h after their release.",
-            "This is useful, as it will mean that the update won't get downloaded " +
-                "if I decide to pull it for some reason",
-            "(within the specified timeframe, of course). Note that updates cannot be " +
-                "deferred for more than 1 week (10080 minutes)."};
-        final String[] autoDLUpdateComment = {
-            "Allow this plugin to automatically download new updates. They will be applied on restart."};
-        final String[] allowStatsComment = {
-            "Allow this plugin to send (anonymized) stats using bStats. Please consider keeping it enabled.",
-            "It has a negligible impact on performance and more users on " +
-                "stats keeps me more motivated to support this plugin!"};
-        final String[] maxStructureSizeComment = {
-            "Global maximum number of blocks allowed in a structure. You can set it to -1 to disable it this limit.",
-            "If this number is exceeded, structures will open instantly and skip the animation.",
-            "Not even admins and OPs can bypass this limit!",
-            "Note that you can also use permissions for this, " +
-                "if you need more finely grained control using this node: ",
-            "'" + Limit.STRUCTURE_SIZE.getUserPermission() + "x', where 'x' can be any positive value."};
-        final String[] maxPowerBlockDistanceComment = {
-            "Global maximum distance between a structure and its powerblock. " +
-                "You can set it to -1 to disable this limit.",
-            "The distance is measured from the center of the structure.",
-            "Not even admins and OPs can bypass this limit!",
-            "Note that you can also use permissions for this, " +
-                "if you need more finely grained control using this node: ",
-            "'" + Limit.POWERBLOCK_DISTANCE.getUserPermission() + "x', where 'x' can be any positive value."};
-        final String[] localeComment = {
-            "Determines which locale to use. Defaults to root."
-        };
-        final String[] resourcePackComment = {
-            "This plugin uses a support resource pack for things such as sound.",
-            "Note that this may cause issues if you server or another plugin also uses a resource pack!",
-            "When this is the case, it's recommended to disable this option and merge the pack with the other one.",
-            "The default resource pack for 1.11.x/1.12.x is: '" + defResPackUrl + "'",
-            "The default resource pack for 1.13.x is: '" + defResPackUrl1_13 + "'"};
-        final String[] maxBlockSpeedComment = {
-            "Determines the global speed limit of animated blocks measured in blocks/second.",
-            "Animated objects will slow down when necessary to avoid any of their animated blocks exceeding this limit",
-            "Higher values may result in choppier and/or glitchier animations."
-        };
-        final String[] speedMultiplierComment = {
-            "Change the animation time of each structure type.",
-            "Note that the maximum speed is limited by 'maxBlockSpeed', " +
-                "so there is a limit to how fast you can make the structures",
-            "The higher the value, the more time an animation will take. ",
-            "For example, So 1.5 means it will take 50% as long, and 0.5 means it will only take half as long.",
-            "To use the default values, set them to \"1.0\" (without quotation marks).",
-            "Note that everything is optimized for default values, so it's recommended to leave this setting as-is."};
-        final String[] coolDownComment = {
-            "Cool-down on using structures. Time is measured in seconds."};
-        final String[] cacheTimeoutComment = {
-            "Amount of time (in minutes) to cache power block positions in a chunk. " +
-                "-1 means no caching (not recommended!), 0 = infinite cache (not recommended either!).",
-            "It doesn't take up too much RAM, so it's recommended to leave this value high. " +
-                "It'll get updated automatically when needed anyway."};
-        final String[] flagMovementFormulaComment = {
-            "The movement formula of the blocks for flags.",
-            "You can find a list of supported operators in the formula here: " +
-                "https://github.com/PimvanderLoos/JCalculator",
-            "The formula can use the following variables:",
-            "'radius':  The distance of the block to the pole it is connected to.",
-            "'counter': The number of steps that have passed in the animation.",
-            "'length':  The total length of the flag.",
-            "'height':  The height of the block for which the formula is used. The bottom row has a height of 0.",
-            "The return value of the formula is the horizontal displacement of a single block in the flag."
-        };
-        final String[] pricesComment = {
-            "When Vault is present, you can set the price of creation here for each type of structure.",
-            "You can use the word \"blockCount\" (without quotation marks, case sensitive) as a " +
-                "variable that will be replaced by the actual blockCount.",
-            "Furthermore, you can use these operators: -, +, *, /, sqrt(), ^, %, " +
-                "min(a,b), max(a,b), abs(), and parentheses.",
-            "For example: \"price='max(10, sqrt(16)^4/100*blockCount)'\" " +
-                "would return 10 for a blockCount of 0 to 3 and 10.24 for a blockCount of 4.",
-            "You must always put the formula or simple value or whatever in quotation marks! " +
-                "Also, these settings do nothing if Vault isn't installed!"};
-        final String[] headCacheTimeoutComment = {
-            "Amount of time (in minutes) to cache player heads. -1 means no caching (not recommended!), " +
-                "0 = infinite cache (not recommended either!).",
-            "Takes up a bit more space than the powerblock caching, but makes GUI much faster."};
-        final String[] debugComment = {
-            "Don't use this. Just leave it on false."};
-        final String[] consoleLoggingComment = {
-            "Write errors and exceptions to console. If disabled, they will only be written to the bigdoors log. ",
-            "If enabled, they will be written to both the console and the bigdoors log."};
-        final String[] logLevelComment = {
-            "The log level to use. Note that levels lower than INFO aren't shown in the console by default, " +
-                "regardless of this setting.",
-            "Supported levels are: OFF, SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST, ALL.",
-            "This will default to INFO in case an invalid option is provided."};
+        final String enableRedstoneComment =
+            """
+            # Allow structures to be opened using redstone signals.
+            """;
+
+        final String powerBlockTypeComment =
+            """
+            # Choose the type of the power block that is used to open structures using redstone.
+            # This is the block that will open the structure attached to it when it receives a redstone signal.
+            # Multiple types are allowed.
+            #
+            # A list of options can be found here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html
+            """;
+
+        final String blacklistComment =
+            """
+            # List of blacklisted materials. Materials on this list can not be animated.
+            #
+            # Use the same list of materials as for the power blocks. For example, you would blacklist bedrock like so:
+            #   - BEDROCK
+            """;
+
+        final String maxStructureCountComment = String.format(
+            """
+            # Global maximum number of structures a player can own. You can set it to -1 to disable it this limit.
+            #
+            # Not even admins and OPs can bypass this limit!
+            #
+            # You can use permissions if you need more finely grained control using this node:
+            # '%s.x', where 'x' can be any positive value.
+            """, Limit.STRUCTURE_COUNT.getUserPermission());
+
+        final String maxBlocksToMoveComment = String.format(
+            """
+            # Global maximum number of structures a player can own. You can set it to -1 to disable it this limit.
+            #
+            # Not even admins and OPs can bypass this limit!
+            #
+            # You can use permissions if you need more finely grained control using this node:
+            # '%s.x', where 'x' can be any positive value.
+            """, Limit.BLOCKS_TO_MOVE.getUserPermission());
+
+        final String checkForUpdatesComment =
+            """
+            # Allow this plugin to check for updates on startup. It will not download new versions!
+            """;
+
+        final String downloadDelayComment =
+            """
+            # Time (in minutes) to delay downloading updates after their release.
+            # Setting it to 1440 means that updates will be downloaded 24h after their release.
+            # This is useful to avoid automatically updating to an update that may be retracted after release.
+            # Note that updates cannot be deferred for more than 1 week (10080 minutes)."
+            """;
+
+        final String autoDLUpdateComment =
+            """
+            # Allow this plugin to automatically download new updates. They will be applied on restart.
+            """;
+
+        final String allowStatsComment =
+            """
+            # Allow this plugin to send (anonymized) stats using bStats. Please consider keeping it enabled.
+            # It has a negligible impact on performance and it helps me choose what to work on.
+            """;
+
+        final String maxStructureSizeComment = String.format(
+            """
+            # Global maximum number of blocks allowed in a structure. You can set it to -1 to disable it this limit.
+            # If this number is exceeded, structures will open instantly and skip the animation.
+            #
+            # Not even admins and OPs can bypass this limit!
+            #
+            # You can use permissions if you need more finely grained control using this node:
+            # '%s.x', where 'x' can be any positive value.
+            """, Limit.STRUCTURE_SIZE.getUserPermission());
+
+        final String maxPowerBlockDistanceComment = String.format(
+            """
+            # Global maximum distance between a structure and its powerblock.
+            # The distance is measured from the center of the structure.
+            #
+            # Not even admins and OPs can bypass this limit!
+            #
+            # You can set it to -1 to disable this limit.
+            #
+            # You can use permissions if you need more finely grained control using this node:
+            # '%s.x', where 'x' can be any positive value."
+            """, Limit.POWERBLOCK_DISTANCE.getUserPermission());
+
+        final String localeComment =
+            """
+            # Determines which locale to use. Defaults to root."
+            """;
+
+        final String resourcePackComment =
+            """
+            # This plugin uses a support resource pack for things such as sound.
+            # Enabling this may cause issues if you server or another plugin also uses a resource pack!
+            # When this is the case, it's recommended to disable this option and merge the pack with the other one.
+            """;
+
+        final String maxBlockSpeedComment =
+            """
+            # Determines the global speed limit of animated blocks measured in blocks/second.
+            # Animated objects will slow down when necessary to avoid any of their animated blocks exceeding this limit
+            # Higher values may result in choppier and/or glitchier animations."
+            """;
+
+        final String animationTimeMultiplierComment =
+            """
+            # Change the animation time of each structure type.
+            # The higher the value, the more time an animation will take.
+            #
+            # For example, we have a structure with a default animation duration of 10 seconds.
+            # With a multiplier of 1.5, the animation will take 15 seconds, while a multiplier of 0.5 will result in a
+            # duration of 5 seconds.
+            #
+            # Note that the maximum speed of the animated blocks is limited by 'maxBlockSpeed', so there is a limit to 
+            # how fast you can make the structures.
+            """;
+
+        final String coolDownComment =
+            """
+            # Cool-down on using structures. Time is measured in seconds."
+            """;
+
+        final String cacheTimeoutComment =
+            """
+            # Amount of time (in minutes) to cache power block positions in a chunk.
+            # -1 means no caching (not recommended!), 0 = infinite cache (not recommended either!).
+            # It doesn't take up too much RAM, so it's recommended to leave this value high.
+            # It'll get updated automatically when needed anyway.
+            """;
+
+        final String flagMovementFormulaComment =
+            """
+            # The movement formula of the blocks for flags. THe formula is evaluated for each block
+            # for each step in the animation.
+            #
+            # You can find a list of supported operators in the formula here:
+            # https://github.com/PimvanderLoos/JCalculator
+            #
+            # The formula can use the following variables:
+            #   'radius':  The distance of the block to the pole it is connected to.
+            #   'counter': The number of steps that have passed in the animation.
+            #   'length':  The total length of the flag.
+            #   'height':  The height of the block for which the formula is used. The bottom row has a height of 0.
+            #
+            # The return value of the formula is the horizontal displacement of a single block in the flag.
+            """;
+
+        final String pricesComment =
+            """
+            # When Vault is present, you can set the price of creation here for each type of structure.
+            # You can use the word "blockCount" (without quotation marks, case sensitive) as a variable that will be
+            # replaced by the actual blockCount.
+            #
+            # You can use the following operators:
+            #   -, +, *, /, sqrt(), ^, %, min(a,b), max(a,b), abs(), and parentheses.
+            #
+            # For example: "price='max(10, sqrt(16)^4/100*blockCount)'
+            # would return 10 for a blockCount of 0 to 3 and 10.24 for a blockCount of 4.
+            # You must always put the formula or simple value or whatever in quotation marks!
+            # Also, these settings do nothing if Vault isn't installed!
+            """;
+
+        final String headCacheTimeoutComment =
+            """
+            # Amount of time (in minutes) to cache player heads.
+            #   -1 = no caching (not recommended!)
+            #    0 = infinite cache (not recommended either!)
+            """;
+
+        final String debugComment =
+            """
+            # Don't use this. Just leave it on false.
+            """;
+
+        final String consoleLoggingComment =
+            """
+            # Write errors and exceptions to console. If disabled, they will only be written to the bigdoors log.
+            # If enabled, they will be written to both the console and the bigdoors log.
+            """;
+
+        final String logLevelComment =
+            """
+            # The log level to use. Note that levels lower than INFO aren't shown in the console by default,
+            # regardless of this setting.
+            #
+            # Supported levels are:
+            #   OFF, SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST, ALL.
+            #
+            # This will default to INFO in case an invalid option is provided.
+            """;
 
 
         final IConfigReader config = new ConfigReaderSpigot(plugin.getConfig());
@@ -305,7 +386,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
             localeStr = "";
         locale = LocalizationUtil.getLocale(localeStr);
 
-        resourcePack = addNewConfigEntry(config, "resourcePack", defResPackUrl1_13, resourcePackComment);
+        resourcePackEnabled = addNewConfigEntry(config, "resourcePackEnabled", false, resourcePackComment);
         headCacheTimeout = addNewConfigEntry(config, "headCacheTimeout", 120, headCacheTimeoutComment);
         coolDown = addNewConfigEntry(config, "coolDown", 0, coolDownComment);
         cacheTimeout = addNewConfigEntry(config, "cacheTimeout", 120, cacheTimeoutComment);
@@ -318,9 +399,10 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
         maxBlockSpeed = addNewConfigEntry(config, "maxBlockSpeed", 5.0D, maxBlockSpeedComment);
 
         final List<StructureType> enabledStructureTypes = structureTypeManager.get().getEnabledStructureTypes();
-        parseForEachStructureType(structureSpeedMultipliers, config, enabledStructureTypes, speedMultiplierComment,
+        parseForEachStructureType(structureAnimationTimeMultipliers, config, enabledStructureTypes,
+                                  animationTimeMultiplierComment,
                                   1.0D,
-                                  "speed-multiplier_");
+                                  "animation-time-multiplier_");
         parseForEachStructureType(structurePrices, config, enabledStructureTypes, pricesComment, "0", "price_");
 
         consoleLogging = addNewConfigEntry(config, "consoleLogging", true, consoleLoggingComment);
@@ -328,23 +410,23 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
         final @Nullable Level logLevelTmp = Util.parseLogLevelStrict(logLevelName);
         logLevel = logLevelTmp == null ? Level.INFO : logLevelTmp;
 
-
-        // This is a bit special, as it's public static (for SpigotUtil debug messages).
         debug = addNewConfigEntry(config, "DEBUG", false, debugComment);
-        if (debug)
+        if (debug && printResults)
             SpigotUtil.setPrintDebugMessages(true);
 
         writeConfig();
-        printInfo();
+
+        if (printResults)
+            printInfo();
     }
 
     private <T> void parseForEachStructureType(
         Map<StructureType, T> target, IConfigReader config, List<StructureType> enabledStructureTypes,
-        String[] header, T defaultValue, String startsWith)
+        String header, T defaultValue, String startsWith)
     {
         final Map<String, Object> existingMappings = getKeysStartingWith(config, startsWith, defaultValue);
 
-        String @Nullable [] comment = header;
+        @Nullable String comment = header;
         for (final StructureType type : enabledStructureTypes)
         {
             final String key = startsWith + type.getSimpleName();
@@ -353,7 +435,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
             comment = null;
         }
 
-        comment = comment == null ? new String[]{"# Unloaded StructureTypes "} : comment;
+        comment = comment == null ? "# Unloaded StructureTypes " : comment;
         // Add the unmapped entries so they aren't ignored.
         for (final var entry : existingMappings.entrySet())
         {
@@ -406,7 +488,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
      * @return The value as read from the config file if it exists or the default value.
      */
     private <T> T addNewConfigEntry(
-        IConfigReader config, String optionName, T defaultValue, String @Nullable ... comment)
+        IConfigReader config, String optionName, T defaultValue, @Nullable String comment)
     {
         final ConfigEntry<T> option = new ConfigEntry<>(config, optionName, defaultValue, comment);
         configEntries.add(option);
@@ -431,7 +513,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
      * @return The value as read from the config file if it exists or the default value.
      */
     private <T> T addNewConfigEntry(
-        IConfigReader config, String optionName, T defaultValue, String[] comment,
+        IConfigReader config, String optionName, T defaultValue, @Nullable String comment,
         ConfigEntry.ITestValue<T> verifyValue)
     {
         final ConfigEntry<T> option = new ConfigEntry<>(config, optionName, defaultValue, comment, verifyValue);
@@ -533,6 +615,11 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
         return cacheTimeout;
     }
 
+    public boolean isResourcePackEnabled()
+    {
+        return resourcePackEnabled;
+    }
+
     public String resourcePack()
     {
         return resourcePack;
@@ -615,9 +702,9 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
     }
 
     @Override
-    public double getAnimationSpeedMultiplier(StructureType type)
+    public double getAnimationTimeMultiplier(StructureType type)
     {
-        return Math.max(0.0001D, structureSpeedMultipliers.getOrDefault(type, 1.0D));
+        return Math.max(0.0001D, structureAnimationTimeMultipliers.getOrDefault(type, 1.0D));
     }
 
     @Override

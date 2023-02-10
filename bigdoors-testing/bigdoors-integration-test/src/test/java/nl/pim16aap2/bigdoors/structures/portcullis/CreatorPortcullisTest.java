@@ -49,7 +49,7 @@ class CreatorPortcullisTest extends CreatorTestsUtil
     {
         final CreatorPortcullis creator = new CreatorPortcullis(context, player);
         final int blocksToMoveLimit = blocksToMove - 1;
-        Mockito.when(configLoader.maxBlocksToMove()).thenReturn(OptionalInt.of(blocksToMoveLimit));
+        Mockito.when(config.maxBlocksToMove()).thenReturn(OptionalInt.of(blocksToMoveLimit));
 
         Assertions.assertFalse(creator.setBlocksToMove(blocksToMove));
         Mockito.verify(player).sendMessage(
@@ -57,7 +57,7 @@ class CreatorPortcullisTest extends CreatorTestsUtil
                 String.format("creator.base.error.blocks_to_move_too_far structure.type.portcullis %d %d",
                               blocksToMove, blocksToMoveLimit)));
 
-        Mockito.when(configLoader.maxBlocksToMove()).thenReturn(OptionalInt.of(blocksToMove));
+        Mockito.when(config.maxBlocksToMove()).thenReturn(OptionalInt.of(blocksToMove));
         Assertions.assertTrue(creator.setBlocksToMove(blocksToMove));
     }
 }

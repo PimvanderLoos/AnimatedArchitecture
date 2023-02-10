@@ -1,34 +1,34 @@
 package nl.pim16aap2.bigdoors.core.util;
 
 import lombok.Getter;
-import nl.pim16aap2.bigdoors.core.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.core.api.IConfig;
 
 import java.util.OptionalInt;
 import java.util.function.Function;
 
 public enum Limit
 {
-    STRUCTURE_SIZE("door_size", IConfigLoader::maxStructureSize),
-    STRUCTURE_COUNT("door_count", IConfigLoader::maxStructureCount),
-    POWERBLOCK_DISTANCE("powerblock_distance", IConfigLoader::maxPowerBlockDistance),
-    BLOCKS_TO_MOVE("blocks_to_move", IConfigLoader::maxBlocksToMove),
+    STRUCTURE_SIZE("door_size", IConfig::maxStructureSize),
+    STRUCTURE_COUNT("door_count", IConfig::maxStructureCount),
+    POWERBLOCK_DISTANCE("powerblock_distance", IConfig::maxPowerBlockDistance),
+    BLOCKS_TO_MOVE("blocks_to_move", IConfig::maxBlocksToMove),
     ;
 
     @Getter
     private final String userPermission;
     @Getter
     private final String adminPermission;
-    private final Function<IConfigLoader, OptionalInt> globalLimitSupplier;
+    private final Function<IConfig, OptionalInt> globalLimitSupplier;
 
-    Limit(String permissionName, Function<IConfigLoader, OptionalInt> globalLimitSupplier)
+    Limit(String permissionName, Function<IConfig, OptionalInt> globalLimitSupplier)
     {
         userPermission = "bigdoors.limit." + permissionName + ".";
         adminPermission = "bigdoors.admin.bypass.limit." + permissionName;
         this.globalLimitSupplier = globalLimitSupplier;
     }
 
-    public OptionalInt getGlobalLimit(IConfigLoader configLoader)
+    public OptionalInt getGlobalLimit(IConfig config)
     {
-        return globalLimitSupplier.apply(configLoader);
+        return globalLimitSupplier.apply(config);
     }
 }

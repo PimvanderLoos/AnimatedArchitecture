@@ -5,7 +5,7 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.api.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.core.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.core.api.IChunkLoader;
-import nl.pim16aap2.bigdoors.core.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.core.api.IConfig;
 import nl.pim16aap2.bigdoors.core.api.IMessageable;
 import nl.pim16aap2.bigdoors.core.api.IPExecutor;
 import nl.pim16aap2.bigdoors.core.api.IPPlayer;
@@ -59,7 +59,7 @@ public final class StructureOpeningHelper
     private final ITextFactory textFactory;
     private final StructureActivityManager structureActivityManager;
     private final StructureTypeManager structureTypeManager;
-    private final IConfigLoader config;
+    private final IConfig config;
     private final IPExecutor executor;
     private final IBlockAnalyzer blockAnalyzer;
     private final IPLocationFactory locationFactory;
@@ -79,7 +79,7 @@ public final class StructureOpeningHelper
         ITextFactory textFactory,
         StructureActivityManager structureActivityManager,
         StructureTypeManager structureTypeManager,
-        IConfigLoader config,
+        IConfig config,
         IPExecutor executor,
         IBlockAnalyzer blockAnalyzer,
         IPLocationFactory locationFactory,

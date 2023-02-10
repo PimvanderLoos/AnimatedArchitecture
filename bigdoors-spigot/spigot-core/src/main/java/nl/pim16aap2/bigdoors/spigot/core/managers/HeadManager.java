@@ -4,8 +4,8 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.core.data.cache.timed.TimedCache;
-import nl.pim16aap2.bigdoors.spigot.core.config.ConfigLoaderSpigot;
 import nl.pim16aap2.bigdoors.core.util.Util;
+import nl.pim16aap2.bigdoors.spigot.core.config.ConfigSpigot;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -36,7 +36,7 @@ public final class HeadManager extends Restartable
      * Value: The player's head as item.
      */
     private @Nullable TimedCache<UUID, Optional<ItemStack>> headMap;
-    private final ConfigLoaderSpigot config;
+    private final ConfigSpigot config;
 
     /**
      * Constructs a new {@link HeadManager}.
@@ -47,7 +47,7 @@ public final class HeadManager extends Restartable
      *     The BigDoors configuration.
      */
     @Inject
-    public HeadManager(RestartableHolder holder, ConfigLoaderSpigot config)
+    public HeadManager(RestartableHolder holder, ConfigSpigot config)
     {
         super(holder);
         this.config = config;

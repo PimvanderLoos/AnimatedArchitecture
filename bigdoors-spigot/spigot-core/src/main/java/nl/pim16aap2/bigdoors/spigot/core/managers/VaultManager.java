@@ -5,7 +5,7 @@ import lombok.extern.flogger.Flogger;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import net.milkbowl.vault.permission.Permission;
-import nl.pim16aap2.bigdoors.core.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.core.api.IConfig;
 import nl.pim16aap2.bigdoors.core.api.IEconomyManager;
 import nl.pim16aap2.bigdoors.core.api.IPPlayer;
 import nl.pim16aap2.bigdoors.core.api.IPWorld;
@@ -14,11 +14,11 @@ import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.managers.StructureTypeManager;
-import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.core.structures.StructureAttribute;
 import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
 import nl.pim16aap2.bigdoors.core.util.Constants;
 import nl.pim16aap2.bigdoors.core.util.Util;
+import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.jcalculator.JCalculator;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -52,17 +52,16 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     private @Nullable Permission perms = null;
     private final ILocalizer localizer;
     private final ITextFactory textFactory;
-    private final IConfigLoader configLoader;
+    private final IConfig config;
     private final StructureTypeManager structureTypeManager;
 
     @Inject
     public VaultManager(
-        ILocalizer localizer, ITextFactory textFactory, IConfigLoader configLoader,
-        StructureTypeManager structureTypeManager)
+        ILocalizer localizer, ITextFactory textFactory, IConfig config, StructureTypeManager structureTypeManager)
     {
         this.localizer = localizer;
         this.textFactory = textFactory;
-        this.configLoader = configLoader;
+        this.config = config;
         this.structureTypeManager = structureTypeManager;
 
         flatPrices = new HashMap<>();
@@ -118,7 +117,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
      */
     private void getFlatPrice(StructureType type)
     {
-        Util.parseDouble(configLoader.getPrice(type)).ifPresent(price -> flatPrices.put(type, price));
+        Util.parseDouble(config.getPrice(type)).ifPresent(price -> flatPrices.put(type, price));
     }
 
     /**
@@ -167,7 +166,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
 
         // TODO: Store flat prices as OptionalDoubles.
         final double price = flatPrices
-            .getOrDefault(type, evaluateFormula(configLoader.getPrice(type), blockCount));
+            .getOrDefault(type, evaluateFormula(config.getPrice(type), blockCount));
 
         return price <= 0 ? OptionalDouble.empty() : OptionalDouble.of(price);
     }

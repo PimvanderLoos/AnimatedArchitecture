@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.core.managers;
 
-import nl.pim16aap2.bigdoors.core.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.core.api.IConfig;
 import nl.pim16aap2.bigdoors.core.api.IPPlayer;
 import nl.pim16aap2.bigdoors.core.api.IPermissionsManager;
 import nl.pim16aap2.bigdoors.core.util.Limit;
@@ -14,10 +14,10 @@ public class LimitsManager
 {
 
     private final IPermissionsManager permissionsManager;
-    private final IConfigLoader config;
+    private final IConfig config;
 
     @Inject
-    public LimitsManager(IPermissionsManager permissionsManager, IConfigLoader config)
+    public LimitsManager(IPermissionsManager permissionsManager, IConfig config)
     {
         this.permissionsManager = permissionsManager;
         this.config = config;
@@ -33,8 +33,8 @@ public class LimitsManager
      *     The {@link Limit} to check.
      * @return The value of the limit for the given player, or an empty OptionalInt if none was found.
      * <p>
-     * If there is a global limit in place (see {@link Limit#getGlobalLimit(IConfigLoader)}), the returned value cannot
-     * exceed this. Not even admins and OPs can bypass this limit.
+     * If there is a global limit in place (see {@link Limit#getGlobalLimit(IConfig)}), the returned value cannot exceed
+     * this. Not even admins and OPs can bypass this limit.
      * <p>
      * If the player has a player limit as well as a global limit, the lowest value of the two will be used.
      */

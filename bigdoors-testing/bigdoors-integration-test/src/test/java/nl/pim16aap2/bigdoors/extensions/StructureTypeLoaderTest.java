@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.extensions;
 
-import nl.pim16aap2.bigdoors.core.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.core.api.IConfig;
 import nl.pim16aap2.bigdoors.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.core.extensions.StructureTypeLoader;
 import nl.pim16aap2.bigdoors.core.managers.StructureTypeManager;
@@ -26,7 +26,7 @@ class StructureTypeLoaderTest
     private StructureTypeManager structureTypeManager;
 
     @Mock
-    private IConfigLoader configLoader;
+    private IConfig config;
 
     private AutoCloseable mocks;
 
@@ -34,7 +34,7 @@ class StructureTypeLoaderTest
     public void init()
     {
         mocks = MockitoAnnotations.openMocks(this);
-        Mockito.when(configLoader.debug()).thenReturn(true);
+        Mockito.when(config.debug()).thenReturn(true);
     }
 
     @AfterEach
@@ -55,7 +55,7 @@ class StructureTypeLoaderTest
         final int inputCount = Objects.requireNonNull(new File(extensionsPath).list()).length;
 
         final var structureTypeLoader =
-            new StructureTypeLoader(restartableHolder, structureTypeManager, configLoader, basePath);
+            new StructureTypeLoader(restartableHolder, structureTypeManager, config, basePath);
         structureTypeLoader.initialize();
         Assertions.assertEquals(inputCount,
                                 structureTypeLoader.loadStructureTypesFromDirectory(Path.of(extensionsPath)).size());
