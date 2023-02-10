@@ -117,7 +117,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable
     public void initialize()
     {
         plugin.reloadConfig();
-        rewriteConfig();
+        rewriteConfig(true);
     }
 
     @Override
@@ -132,7 +132,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable
     /**
      * Read the current config file and rewrite the file.
      */
-    public void rewriteConfig()
+    public void rewriteConfig(boolean printResults)
     {
         plugin.reloadConfig();
         shutDown();
@@ -328,14 +328,14 @@ public final class ConfigSpigot implements IConfig, IDebuggable
         final @Nullable Level logLevelTmp = Util.parseLogLevelStrict(logLevelName);
         logLevel = logLevelTmp == null ? Level.INFO : logLevelTmp;
 
-
-        // This is a bit special, as it's public static (for SpigotUtil debug messages).
         debug = addNewConfigEntry(config, "DEBUG", false, debugComment);
-        if (debug)
+        if (debug && printResults)
             SpigotUtil.setPrintDebugMessages(true);
 
         writeConfig();
-        printInfo();
+
+        if (printResults)
+            printInfo();
     }
 
     private <T> void parseForEachStructureType(

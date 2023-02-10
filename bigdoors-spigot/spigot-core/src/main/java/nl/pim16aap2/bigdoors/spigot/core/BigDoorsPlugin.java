@@ -161,7 +161,7 @@ public final class BigDoorsPlugin extends JavaPlugin implements IBigDoorsPlatfor
 
         // Rewrite the config after everything has been loaded to ensure all
         // extensions/addons have their hooks in.
-        ((ConfigSpigot) (bigDoorsSpigotPlatform.getBigDoorsConfig())).rewriteConfig();
+        ((ConfigSpigot) (bigDoorsSpigotPlatform.getBigDoorsConfig())).rewriteConfig(false);
 
         if (firstInit)
             initCommands(bigDoorsSpigotPlatform);
