@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.spigot.util;
 
 import lombok.Getter;
 import lombok.Setter;
-import nl.pim16aap2.bigdoors.core.api.PColor;
+import nl.pim16aap2.bigdoors.core.api.Color;
 import nl.pim16aap2.bigdoors.core.util.PBlockFace;
 import nl.pim16aap2.bigdoors.core.util.Util;
 import org.bukkit.ChatColor;
@@ -41,11 +41,11 @@ public final class SpigotUtil
         }
     }
 
-    private static final Map<PColor, ChatColor> TO_BUKKIT_COLOR = new EnumMap<>(PColor.class);
+    private static final Map<Color, ChatColor> TO_BUKKIT_COLOR = new EnumMap<>(Color.class);
 
     static
     {
-        for (final PColor pColor : PColor.values())
+        for (final Color pColor : Color.values())
             TO_BUKKIT_COLOR.put(pColor, ChatColor.valueOf(pColor.name()));
     }
 
@@ -78,13 +78,13 @@ public final class SpigotUtil
     }
 
     /**
-     * Gets the bukkit version of a {@link PColor}.
+     * Gets the bukkit version of a {@link Color}.
      *
      * @param pColor
-     *     The {@link PColor}.
-     * @return The bukkit version of the {@link PColor}.
+     *     The {@link Color}.
+     * @return The bukkit version of the {@link Color}.
      */
-    public static ChatColor toBukkitColor(PColor pColor)
+    public static ChatColor toBukkitColor(Color pColor)
     {
         return TO_BUKKIT_COLOR.getOrDefault(pColor, ChatColor.WHITE);
     }

@@ -4,7 +4,7 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
@@ -48,7 +48,7 @@ public class ListStructures extends BaseCommand
         if (permissions.hasAdminPermission() || !getCommandSender().isPlayer())
             structures = structureRetriever.getStructures();
         else
-            structures = structureRetriever.getStructures((IPPlayer) getCommandSender());
+            structures = structureRetriever.getStructures((IPlayer) getCommandSender());
 
         return structures.thenAccept(this::sendStructureList);
     }

@@ -26,9 +26,9 @@ import net.minecraft.world.level.block.state.IBlockData;
 import net.minecraft.world.level.entity.EntityInLevelCallback;
 import net.minecraft.world.level.entity.PersistentEntitySectionManager;
 import net.minecraft.world.phys.Vec3D;
-import nl.pim16aap2.bigdoors.core.api.IPExecutor;
-import nl.pim16aap2.bigdoors.core.api.IPLocation;
-import nl.pim16aap2.bigdoors.core.api.IPWorld;
+import nl.pim16aap2.bigdoors.core.api.IExecutor;
+import nl.pim16aap2.bigdoors.core.api.ILocation;
+import nl.pim16aap2.bigdoors.core.api.IWorld;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.AnimationContext;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlockHook;
@@ -40,7 +40,7 @@ import nl.pim16aap2.bigdoors.core.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.api.IAnimatedBlockSpigot;
-import nl.pim16aap2.bigdoors.spigot.util.implementations.PLocationSpigot;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.LocationSpigot;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -68,7 +68,7 @@ import java.util.function.Consumer;
 public class CustomEntityFallingBlock extends EntityFallingBlock implements IAnimatedBlockSpigot
 {
     @ToString.Exclude @EqualsAndHashCode.Exclude
-    private final IPExecutor executor;
+    private final IExecutor executor;
 
     @Getter
     @ToString.Exclude @EqualsAndHashCode.Exclude
@@ -91,7 +91,7 @@ public class CustomEntityFallingBlock extends EntityFallingBlock implements IAni
     @Getter
     private final boolean onEdge;
 
-    private final IPWorld pWorld;
+    private final IWorld world;
 
     private final List<IAnimatedBlockHook> hooks;
 
@@ -124,7 +124,7 @@ public class CustomEntityFallingBlock extends EntityFallingBlock implements IAni
     private final AtomicReference<@Nullable Vector3Dd> teleportedTo = new AtomicReference<>();
 
     @Getter
-    private final IPLocation startLocation;
+    private final ILocation startLocation;
 
     @Getter
     private final Vector3Dd startPosition;
@@ -133,28 +133,28 @@ public class CustomEntityFallingBlock extends EntityFallingBlock implements IAni
     private final Vector3Dd finalPosition;
 
     public CustomEntityFallingBlock(
-        IPExecutor executor, IPWorld pWorld, World world, double posX, double posY, double posZ, float radius,
+        IExecutor executor, IWorld world, World bukkitWorld, double posX, double posY, double posZ, float radius,
         float startAngle, Animator.MovementMethod movementMethod,
         boolean onEdge, AnimationContext context, AnimatedBlockHookManager animatedBlockHookManager,
         Vector3Dd finalPosition)
     {
-        super(EntityTypes.F, ((CraftWorld) world).getHandle());
+        super(EntityTypes.F, ((CraftWorld) bukkitWorld).getHandle());
         this.executor = executor;
-        this.pWorld = pWorld;
-        bukkitWorld = world;
+        this.world = world;
+        this.bukkitWorld = bukkitWorld;
         this.radius = radius;
         this.startAngle = startAngle;
         this.movementMethod = movementMethod;
         this.onEdge = onEdge;
         this.context = context;
         this.finalPosition = finalPosition;
-        worldServer = ((CraftWorld) bukkitWorld).getHandle();
+        worldServer = ((CraftWorld) this.bukkitWorld).getHandle();
         // Do not round x and z because they are at half blocks; Given x;z 10;5, the block will be spawned at
         // 10.5;5.5. Rounding it would retrieve the blocks at 11;6.
         this.animatedBlockData =
             new NMSBlock(this, executor, worldServer,
                          MathUtil.floor(posX), MathUtil.round(posY), MathUtil.floor(posZ));
-        this.startLocation = new PLocationSpigot(new Location(bukkitWorld, posX, posY, posZ));
+        this.startLocation = new LocationSpigot(new Location(this.bukkitWorld, posX, posY, posZ));
         this.startPosition = new Vector3Dd(startLocation.getX(), startLocation.getY(), startLocation.getZ());
 
         previousPosition = new Vector3Dd(posX, posY, posZ);
@@ -507,9 +507,9 @@ public class CustomEntityFallingBlock extends EntityFallingBlock implements IAni
     }
 
     @Override
-    public IPWorld getWorld()
+    public IWorld getWorld()
     {
-        return pWorld;
+        return world;
     }
 
     @Override
@@ -537,7 +537,7 @@ public class CustomEntityFallingBlock extends EntityFallingBlock implements IAni
     }
 
     @Override
-    public IPLocation getPLocation()
+    public ILocation getLocation()
     {
         return SpigotAdapter.wrapLocation(new Location(bukkitWorld, dk(), dm(), dq(), dv(), dx()));
     }

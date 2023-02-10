@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.v1_19_R2;
 
 import nl.pim16aap2.bigdoors.core.api.IBlockAnalyzer;
-import nl.pim16aap2.bigdoors.core.api.IPLocation;
+import nl.pim16aap2.bigdoors.core.api.ILocation;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -232,19 +232,19 @@ public final class BlockAnalyzer implements IBlockAnalyzer
     }
 
     /**
-     * Gets the material of a block at an {@link IPLocation}.
+     * Gets the material of a block at an {@link ILocation}.
      *
      * @param location
      *     The location.
      * @return The material of the block at the location.
      */
-    private static Material getMaterial(IPLocation location)
+    private static Material getMaterial(ILocation location)
     {
         return SpigotAdapter.getBukkitLocation(location).getBlock().getType();
     }
 
     /**
-     * See {@link #isAirOrLiquid(IPLocation)}.
+     * See {@link #isAirOrLiquid(ILocation)}.
      */
     public static boolean isAirOrLiquidStatic(Block block)
     {
@@ -253,7 +253,7 @@ public final class BlockAnalyzer implements IBlockAnalyzer
     }
 
     /**
-     * See {@link #isAllowedBlock(IPLocation)}.
+     * See {@link #isAllowedBlock(ILocation)}.
      */
     public static boolean isAllowedBlockStatic(Material mat)
     {
@@ -261,9 +261,9 @@ public final class BlockAnalyzer implements IBlockAnalyzer
     }
 
     /**
-     * See {@link #isAirOrLiquid(IPLocation)}.
+     * See {@link #isAirOrLiquid(ILocation)}.
      */
-    public static boolean isAirOrLiquidStatic(IPLocation location)
+    public static boolean isAirOrLiquidStatic(ILocation location)
     {
         final Block block = SpigotAdapter.getBukkitLocation(location).getBlock();
         // Empty means it's air.
@@ -271,21 +271,21 @@ public final class BlockAnalyzer implements IBlockAnalyzer
     }
 
     /**
-     * See {@link #isAllowedBlock(IPLocation)}.
+     * See {@link #isAllowedBlock(ILocation)}.
      */
-    public static boolean isAllowedBlockStatic(IPLocation location)
+    public static boolean isAllowedBlockStatic(ILocation location)
     {
         return isAllowedBlockStatic(getMaterial(location));
     }
 
     @Override
-    public boolean isAirOrLiquid(IPLocation location)
+    public boolean isAirOrLiquid(ILocation location)
     {
         return isAirOrLiquidStatic(location);
     }
 
     @Override
-    public boolean isAllowedBlock(IPLocation location)
+    public boolean isAllowedBlock(ILocation location)
     {
         return isAllowedBlockStatic(location);
     }

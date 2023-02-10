@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.util.implementations.messageable;
 
 import nl.pim16aap2.bigdoors.core.api.IMessagingInterface;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -37,7 +37,7 @@ public class MessagingInterfaceSpigot implements IMessagingInterface
     }
 
     @Override
-    public void messagePlayer(IPPlayer player, String message)
+    public void messagePlayer(IPlayer player, String message)
     {
         final @Nullable Player bukkitPlayer = Bukkit.getPlayer(player.getUUID());
         if (bukkitPlayer == null)

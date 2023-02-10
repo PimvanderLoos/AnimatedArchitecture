@@ -9,10 +9,10 @@ import lombok.Getter;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.core.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.spigot.core.BigDoorsPlugin;
-import nl.pim16aap2.bigdoors.spigot.util.implementations.PPlayerSpigot;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.util.structureretriever.StructureRetrieverFactory;
+import nl.pim16aap2.bigdoors.spigot.core.BigDoorsPlugin;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.PlayerSpigot;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -32,13 +32,13 @@ class DeleteGui implements IGuiPage
 
     @Getter
     @ToString.Include
-    private final PPlayerSpigot inventoryHolder;
+    private final PlayerSpigot inventoryHolder;
 
     @AssistedInject //
     DeleteGui(
         BigDoorsPlugin bigDoorsPlugin, ILocalizer localizer, CommandFactory commandFactory,
         StructureRetrieverFactory structureRetrieverFactory,
-        @Assisted AbstractStructure structure, @Assisted PPlayerSpigot inventoryHolder)
+        @Assisted AbstractStructure structure, @Assisted PlayerSpigot inventoryHolder)
     {
         this.bigDoorsPlugin = bigDoorsPlugin;
         this.localizer = localizer;
@@ -117,6 +117,6 @@ class DeleteGui implements IGuiPage
     @AssistedFactory
     interface IFactory
     {
-        DeleteGui newDeleteGui(AbstractStructure structure, PPlayerSpigot playerSpigot);
+        DeleteGui newDeleteGui(AbstractStructure structure, PlayerSpigot playerSpigot);
     }
 }

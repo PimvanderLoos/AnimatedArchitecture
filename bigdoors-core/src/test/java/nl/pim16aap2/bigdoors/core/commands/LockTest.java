@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.core.commands;
 
 import nl.pim16aap2.bigdoors.core.UnitTestUtil;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.events.IBigDoorsEventCaller;
@@ -35,7 +35,7 @@ class LockTest
     private AbstractStructure door;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
-    private IPPlayer commandSender;
+    private IPlayer commandSender;
 
     @Mock
     private IStructurePrepareLockChangeEvent event;
@@ -50,7 +50,7 @@ class LockTest
 
         initCommandSenderPermissions(commandSender, true, true);
         Mockito.when(door.isOwner(Mockito.any(UUID.class))).thenReturn(true);
-        Mockito.when(door.isOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
+        Mockito.when(door.isOwner(Mockito.any(IPlayer.class))).thenReturn(true);
         doorRetriever = StructureRetrieverFactory.ofStructure(door);
 
         Mockito.when(door.syncData())

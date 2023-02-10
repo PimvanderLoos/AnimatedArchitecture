@@ -5,23 +5,23 @@ import dagger.Component;
 import nl.pim16aap2.bigdoors.core.api.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.core.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.core.api.IChunkLoader;
+import nl.pim16aap2.bigdoors.core.api.IExecutor;
 import nl.pim16aap2.bigdoors.core.api.IMessageable;
 import nl.pim16aap2.bigdoors.core.api.IMessagingInterface;
-import nl.pim16aap2.bigdoors.core.api.IPExecutor;
 import nl.pim16aap2.bigdoors.core.api.IRedstoneManager;
 import nl.pim16aap2.bigdoors.core.api.debugging.DebugReporter;
 import nl.pim16aap2.bigdoors.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.core.api.factories.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.core.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.core.api.factories.IGuiFactory;
-import nl.pim16aap2.bigdoors.core.api.factories.IPLocationFactory;
-import nl.pim16aap2.bigdoors.core.api.factories.IPPlayerFactory;
-import nl.pim16aap2.bigdoors.core.api.factories.IPWorldFactory;
+import nl.pim16aap2.bigdoors.core.api.factories.ILocationFactory;
+import nl.pim16aap2.bigdoors.core.api.factories.IPlayerFactory;
+import nl.pim16aap2.bigdoors.core.api.factories.IWorldFactory;
 import nl.pim16aap2.bigdoors.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.core.audio.AudioAnimationHook;
 import nl.pim16aap2.bigdoors.core.audio.IAudioPlayer;
 import nl.pim16aap2.bigdoors.core.commands.CommandFactory;
-import nl.pim16aap2.bigdoors.core.commands.IPServer;
+import nl.pim16aap2.bigdoors.core.commands.IServer;
 import nl.pim16aap2.bigdoors.core.events.IBigDoorsEventCaller;
 import nl.pim16aap2.bigdoors.core.extensions.StructureTypeLoader;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
@@ -45,9 +45,9 @@ import nl.pim16aap2.bigdoors.spigot.core.compatiblity.ProtectionCompatManagerSpi
 import nl.pim16aap2.bigdoors.spigot.core.config.ConfigSpigot;
 import nl.pim16aap2.bigdoors.spigot.core.config.ConfigSpigotModule;
 import nl.pim16aap2.bigdoors.spigot.core.factories.bigdoorseventfactory.BigDoorsEventsSpigotModule;
-import nl.pim16aap2.bigdoors.spigot.core.factories.plocationfactory.PLocationFactorySpigotModule;
-import nl.pim16aap2.bigdoors.spigot.core.factories.pplayerfactory.PPlayerFactorySpigotModule;
-import nl.pim16aap2.bigdoors.spigot.core.factories.pworldfactory.PWorldFactorySpigotModule;
+import nl.pim16aap2.bigdoors.spigot.core.factories.locationfactory.LocationFactorySpigotModule;
+import nl.pim16aap2.bigdoors.spigot.core.factories.playerfactory.PlayerFactorySpigotModule;
+import nl.pim16aap2.bigdoors.spigot.core.factories.worldfactory.WorldFactorySpigotModule;
 import nl.pim16aap2.bigdoors.spigot.core.gui.GuiFactorySpigotModule;
 import nl.pim16aap2.bigdoors.spigot.core.implementations.BigDoorsToolUtilSpigot;
 import nl.pim16aap2.bigdoors.spigot.core.implementations.BigDoorsToolUtilSpigotModule;
@@ -69,10 +69,10 @@ import nl.pim16aap2.bigdoors.spigot.core.managers.VaultManager;
 import nl.pim16aap2.bigdoors.spigot.core.managers.VaultManagerModule;
 import nl.pim16aap2.bigdoors.spigot.util.api.IBigDoorsSpigotSubPlatform;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.audio.AudioPlayerSpigotModule;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.executor.ExecutorModule;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.glowingblocks.GlowingBlockSpawnerModule;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.messageable.MessagingInterfaceSpigotModule;
-import nl.pim16aap2.bigdoors.spigot.util.implementations.pexecutor.PExecutorModule;
-import nl.pim16aap2.bigdoors.spigot.util.implementations.pserver.PServerModule;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.server.SpigotServerModule;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.inject.Named;
@@ -86,13 +86,13 @@ import javax.inject.Singleton;
     ProtectionCompatManagerModule.class,
     ConfigSpigotModule.class,
     LocalizationModule.class,
-    PExecutorModule.class,
+    ExecutorModule.class,
     GlowingBlockSpawnerModule.class,
-    PServerModule.class,
-    PWorldFactorySpigotModule.class,
-    PLocationFactorySpigotModule.class,
+    SpigotServerModule.class,
+    WorldFactorySpigotModule.class,
+    LocationFactorySpigotModule.class,
     BigDoorsEventsSpigotModule.class,
-    PPlayerFactorySpigotModule.class,
+    PlayerFactorySpigotModule.class,
     MessagingInterfaceSpigotModule.class,
     AudioPlayerSpigotModule.class,
     PowerBlockRedstoneManagerSpigotModule.class,
@@ -148,7 +148,7 @@ interface BigDoorsSpigotComponent
 
     LoginResourcePackListener getLoginResourcePackListener();
 
-    IPExecutor getPExecutor();
+    IExecutor getExecutor();
 
     PowerBlockManager getPowerBlockManager();
 
@@ -168,13 +168,13 @@ interface BigDoorsSpigotComponent
 
     HeadManager getHeadManager();
 
-    IPServer getIPServer();
+    IServer getServer();
 
-    IPLocationFactory getIPLocationFactory();
+    ILocationFactory getLocationFactory();
 
-    IPWorldFactory getIPWorldFactory();
+    IWorldFactory getWorldFactory();
 
-    IPPlayerFactory getIPPlayerFactory();
+    IPlayerFactory getPlayerFactory();
 
     IAudioPlayer getIAudioPlayer();
 

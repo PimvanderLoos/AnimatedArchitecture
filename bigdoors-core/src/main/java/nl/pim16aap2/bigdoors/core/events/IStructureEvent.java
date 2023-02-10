@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.core.events;
 
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 
 import java.util.Optional;
@@ -20,10 +20,10 @@ public interface IStructureEvent extends IBigDoorsEvent
     AbstractStructure getStructure();
 
     /**
-     * Gets the {@link IPPlayer} that was responsible for the creation this structure.
+     * Gets the {@link IPlayer} that was responsible for the creation this structure.
      *
-     * @return The {@link IPPlayer} that created if the creation was requested by a player. If it was requested by
+     * @return The {@link IPlayer} that created if the creation was requested by a player. If it was requested by
      * something else (e.g. the server), an empty optional is returned.
      */
-    Optional<IPPlayer> getResponsible();
+    Optional<IPlayer> getResponsible();
 }

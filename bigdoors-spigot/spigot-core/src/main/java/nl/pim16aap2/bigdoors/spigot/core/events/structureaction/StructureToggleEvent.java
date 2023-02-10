@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.spigot.core.events.structureaction;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.events.structureaction.IStructureToggleEvent;
 import nl.pim16aap2.bigdoors.core.events.structureaction.StructureActionCause;
 import nl.pim16aap2.bigdoors.core.events.structureaction.StructureActionType;
@@ -24,7 +24,7 @@ abstract class StructureToggleEvent extends BigDoorsSpigotEvent implements IStru
     protected final StructureActionType actionType;
 
     @Getter
-    protected final IPPlayer responsible;
+    protected final IPlayer responsible;
 
     @Getter
     protected final double time;

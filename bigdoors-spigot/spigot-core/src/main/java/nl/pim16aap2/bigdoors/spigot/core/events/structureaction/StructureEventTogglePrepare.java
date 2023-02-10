@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.spigot.core.events.structureaction;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.events.structureaction.IStructureEventTogglePrepare;
 import nl.pim16aap2.bigdoors.core.events.structureaction.StructureActionCause;
 import nl.pim16aap2.bigdoors.core.events.structureaction.StructureActionType;
@@ -49,7 +49,7 @@ public class StructureEventTogglePrepare extends StructureToggleEvent implements
      *     The {@link Cuboid} representing the area the structure will take up after the toggle.
      */
     public StructureEventTogglePrepare(
-        StructureSnapshot snapshot, StructureActionCause cause, StructureActionType actionType, IPPlayer responsible,
+        StructureSnapshot snapshot, StructureActionCause cause, StructureActionType actionType, IPlayer responsible,
         double time, boolean animationSkipped, Cuboid newCuboid)
     {
         super(snapshot, cause, actionType, responsible, time, animationSkipped);

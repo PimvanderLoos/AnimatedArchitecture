@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.structures.elevator;
 
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.structures.portcullis.CreatorPortcullis;
 import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
@@ -18,12 +18,12 @@ public class CreatorElevator extends CreatorPortcullis
 {
     private static final StructureType STRUCTURE_TYPE = StructureTypeElevator.get();
 
-    public CreatorElevator(Creator.Context context, IPPlayer player, @Nullable String name)
+    public CreatorElevator(Creator.Context context, IPlayer player, @Nullable String name)
     {
         super(context, player, name);
     }
 
-    public CreatorElevator(Creator.Context context, IPPlayer player)
+    public CreatorElevator(Creator.Context context, IPlayer player)
     {
         this(context, player, null);
     }

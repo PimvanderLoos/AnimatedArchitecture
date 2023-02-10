@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.core.commands;
 
 import nl.pim16aap2.bigdoors.core.UnitTestUtil;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
@@ -26,10 +26,10 @@ class ListStructuresTest
     private List<AbstractStructure> structures;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
-    private IPPlayer playerCommandSender;
+    private IPlayer playerCommandSender;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
-    private IPServer serverCommandSender;
+    private IServer serverCommandSender;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private ListStructures.IFactory factory;

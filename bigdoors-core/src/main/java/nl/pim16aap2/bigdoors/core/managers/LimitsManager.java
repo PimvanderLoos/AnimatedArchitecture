@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.core.managers;
 
 import nl.pim16aap2.bigdoors.core.api.IConfig;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.IPermissionsManager;
 import nl.pim16aap2.bigdoors.core.util.Limit;
 
@@ -38,7 +38,7 @@ public class LimitsManager
      * <p>
      * If the player has a player limit as well as a global limit, the lowest value of the two will be used.
      */
-    public OptionalInt getLimit(IPPlayer player, Limit limit)
+    public OptionalInt getLimit(IPlayer player, Limit limit)
     {
         final boolean hasBypass = permissionsManager.hasPermission(player, limit.getAdminPermission());
         final OptionalInt globalLimit = limit.getGlobalLimit(config);
@@ -57,7 +57,7 @@ public class LimitsManager
 
     /**
      * Checks if a given value exceeds the limit for this player. For more info, see
-     * {@link #getLimit(IPPlayer, Limit)}.
+     * {@link #getLimit(IPlayer, Limit)}.
      *
      * @param player
      *     The player for whom to check the limit.
@@ -67,7 +67,7 @@ public class LimitsManager
      *     The value to compare to the limit.
      * @return True if the given value exceeds the limit for this player. If value &lt;= limit, this will return false.
      */
-    public boolean exceedsLimit(IPPlayer player, Limit limit, int value)
+    public boolean exceedsLimit(IPlayer player, Limit limit, int value)
     {
         final OptionalInt limitValue = getLimit(player, limit);
         return limitValue.isPresent() && value > limitValue.getAsInt();

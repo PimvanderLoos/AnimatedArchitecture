@@ -3,10 +3,10 @@ package nl.pim16aap2.bigdoors.core.tooluser.creator;
 import nl.pim16aap2.bigdoors.core.UnitTestUtil;
 import nl.pim16aap2.bigdoors.core.api.IBigDoorsToolUtil;
 import nl.pim16aap2.bigdoors.core.api.IEconomyManager;
-import nl.pim16aap2.bigdoors.core.api.IPLocation;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
-import nl.pim16aap2.bigdoors.core.api.IPWorld;
+import nl.pim16aap2.bigdoors.core.api.ILocation;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.IProtectionCompatManager;
+import nl.pim16aap2.bigdoors.core.api.IWorld;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.core.commands.SetOpenDirectionDelayed;
@@ -44,7 +44,7 @@ public class CreatorTest
     private Creator creator;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
-    private IPPlayer player;
+    private IPlayer player;
 
     @Mock
     private IEconomyManager economyManager;
@@ -117,7 +117,7 @@ public class CreatorTest
     @Test
     void testFirstLocation()
     {
-        final IPLocation loc = UnitTestUtil.getLocation(12.7, 128, 56.12);
+        final ILocation loc = UnitTestUtil.getLocation(12.7, 128, 56.12);
 
         Mockito.doReturn(false).when(creator).playerHasAccessToLocation(Mockito.any());
         // No access to location
@@ -132,13 +132,13 @@ public class CreatorTest
     @Test
     void testWorldMatch()
     {
-        final IPWorld world = UnitTestUtil.getWorld();
+        final IWorld world = UnitTestUtil.getWorld();
         final String worldName = world.worldName();
         setField("world", world);
 
-        final IPWorld secondWorld = UnitTestUtil.getWorld();
+        final IWorld secondWorld = UnitTestUtil.getWorld();
         // Different world, so no match!
-        Assertions.assertFalse(creator.verifyWorldMatch(Mockito.mock(IPWorld.class)));
+        Assertions.assertFalse(creator.verifyWorldMatch(Mockito.mock(IWorld.class)));
 
         Mockito.when(secondWorld.worldName()).thenReturn(worldName);
         // Same world name, so match!
@@ -156,7 +156,7 @@ public class CreatorTest
     {
         Mockito.doReturn(false).when(creator).playerHasAccessToLocation(Mockito.any());
 
-        final IPWorld world = UnitTestUtil.getWorld();
+        final IWorld world = UnitTestUtil.getWorld();
 
         final Vector3Di vec1 = new Vector3Di(12, 128, 56);
         final Vector3Di vec2 = vec1.add(10, 10, 10);
@@ -165,7 +165,7 @@ public class CreatorTest
         setField("firstPos", vec1);
         setField("world", world);
 
-        final IPLocation loc = UnitTestUtil.getLocation(vec2, world);
+        final ILocation loc = UnitTestUtil.getLocation(vec2, world);
 
         // Not allowed, because no access to location
         Assertions.assertFalse(creator.setSecondPos(loc));
@@ -279,7 +279,7 @@ public class CreatorTest
         setField("cuboid", cuboid);
         Assertions.assertTrue(creator.buyStructure());
 
-        final IPWorld world = Mockito.mock(IPWorld.class);
+        final IWorld world = Mockito.mock(IWorld.class);
         setField("world", world);
 
         final StructureType StructureType = Mockito.mock(StructureType.class);
@@ -295,14 +295,14 @@ public class CreatorTest
     {
         Mockito.doNothing().when(creator).abort();
 
-        final IPWorld world = UnitTestUtil.getWorld();
+        final IWorld world = UnitTestUtil.getWorld();
 
         final Vector3Di cuboidMin = new Vector3Di(10, 20, 30);
         final Vector3Di cuboidMax = new Vector3Di(40, 50, 60);
         final Cuboid cuboid = new Cuboid(cuboidMin, cuboidMax);
 
-        final IPLocation outsideCuboid = UnitTestUtil.getLocation(70, 80, 90, world);
-        final IPLocation insideCuboid = UnitTestUtil.getLocation(25, 35, 45, world);
+        final ILocation outsideCuboid = UnitTestUtil.getLocation(70, 80, 90, world);
+        final ILocation insideCuboid = UnitTestUtil.getLocation(25, 35, 45, world);
 
         setField("cuboid", cuboid);
         setField("world", world);
@@ -334,7 +334,7 @@ public class CreatorTest
     @Test
     void testCompleteSetRotationPointStep()
     {
-        final IPWorld world = UnitTestUtil.getWorld();
+        final IWorld world = UnitTestUtil.getWorld();
 
         final Vector3Di cuboidMin = new Vector3Di(10, 20, 30);
         final Vector3Di cuboidMax = new Vector3Di(40, 50, 60);

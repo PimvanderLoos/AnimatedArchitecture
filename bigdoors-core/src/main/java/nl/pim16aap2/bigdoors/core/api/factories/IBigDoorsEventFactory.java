@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.core.api.factories;
 
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.events.IBigDoorsEvent;
 import nl.pim16aap2.bigdoors.core.events.IStructureCreatedEvent;
 import nl.pim16aap2.bigdoors.core.events.IStructurePrepareAddOwnerEvent;
@@ -32,15 +32,15 @@ public interface IBigDoorsEventFactory
      * @param preview
      *     The preview of the structure that is to be created.
      * @param responsible
-     *     The {@link IPPlayer} responsible for the action, if a player was responsible for it.
+     *     The {@link IPlayer} responsible for the action, if a player was responsible for it.
      */
-    IStructureCreatedEvent createStructureCreatedEvent(AbstractStructure preview, @Nullable IPPlayer responsible);
+    IStructureCreatedEvent createStructureCreatedEvent(AbstractStructure preview, @Nullable IPlayer responsible);
 
     /**
-     * Constructs a new {@link IStructureCreatedEvent} and assumes it was not created by an {@link IPPlayer}.
+     * Constructs a new {@link IStructureCreatedEvent} and assumes it was not created by an {@link IPlayer}.
      * <p>
-     * When the structure is created by an {@link IPPlayer}, consider using
-     * {@link #createStructureCreatedEvent(AbstractStructure, IPPlayer)} instead.
+     * When the structure is created by an {@link IPlayer}, consider using
+     * {@link #createStructureCreatedEvent(AbstractStructure, IPlayer)} instead.
      *
      * @param preview
      *     The preview of the structure that is to be created.
@@ -56,16 +56,16 @@ public interface IBigDoorsEventFactory
      * @param structure
      *     The structure that was created.
      * @param responsible
-     *     The {@link IPPlayer} responsible for the action, if a player was responsible for it.
+     *     The {@link IPlayer} responsible for the action, if a player was responsible for it.
      */
     IStructurePrepareCreateEvent createPrepareStructureCreateEvent(
-        AbstractStructure structure, @Nullable IPPlayer responsible);
+        AbstractStructure structure, @Nullable IPlayer responsible);
 
     /**
-     * Constructs a new {@link IStructurePrepareCreateEvent} and assumes it was not created by an {@link IPPlayer}.
+     * Constructs a new {@link IStructurePrepareCreateEvent} and assumes it was not created by an {@link IPlayer}.
      * <p>
      * When the structure is created by a player, consider using
-     * {@link #createPrepareStructureCreateEvent(AbstractStructure, IPPlayer)} instead.
+     * {@link #createPrepareStructureCreateEvent(AbstractStructure, IPlayer)} instead.
      *
      * @param structure
      *     The structure that was created.
@@ -81,16 +81,16 @@ public interface IBigDoorsEventFactory
      * @param structure
      *     The {@link AbstractStructure} that will be deleted.
      * @param responsible
-     *     The {@link IPPlayer} responsible for the action, if a player was responsible for it.
+     *     The {@link IPlayer} responsible for the action, if a player was responsible for it.
      */
     IStructurePrepareDeleteEvent createPrepareDeleteStructureEvent(
-        AbstractStructure structure, @Nullable IPPlayer responsible);
+        AbstractStructure structure, @Nullable IPlayer responsible);
 
     /**
-     * Constructs a new {@link IStructurePrepareDeleteEvent} and assumes it was not deleted by an {@link IPPlayer}.
+     * Constructs a new {@link IStructurePrepareDeleteEvent} and assumes it was not deleted by an {@link IPlayer}.
      * <p>
      * When the structure is deleted by a player, consider using
-     * {@link #createPrepareDeleteStructureEvent(AbstractStructure, IPPlayer)} instead.
+     * {@link #createPrepareDeleteStructureEvent(AbstractStructure, IPlayer)} instead.
      *
      * @param structure
      *     The {@link AbstractStructure} that will be deleted.
@@ -108,16 +108,16 @@ public interface IBigDoorsEventFactory
      * @param newOwner
      *     The new {@link StructureOwner} that is to be added to the structure.
      * @param responsible
-     *     The {@link IPPlayer} responsible for the action, if a player was responsible for it.
+     *     The {@link IPlayer} responsible for the action, if a player was responsible for it.
      */
     IStructurePrepareAddOwnerEvent createStructurePrepareAddOwnerEvent(
-        AbstractStructure structure, StructureOwner newOwner, @Nullable IPPlayer responsible);
+        AbstractStructure structure, StructureOwner newOwner, @Nullable IPlayer responsible);
 
     /**
-     * Constructs a new {@link IStructurePrepareAddOwnerEvent} and assumes it was not added by an {@link IPPlayer}.
+     * Constructs a new {@link IStructurePrepareAddOwnerEvent} and assumes it was not added by an {@link IPlayer}.
      * <p>
-     * If the owner is added by an {@link IPPlayer}, consider using
-     * {@link #createStructurePrepareAddOwnerEvent(AbstractStructure, StructureOwner, IPPlayer)} instead.
+     * If the owner is added by an {@link IPlayer}, consider using
+     * {@link #createStructurePrepareAddOwnerEvent(AbstractStructure, StructureOwner, IPlayer)} instead.
      *
      * @param structure
      *     The structure to which a new owner is to be added.
@@ -138,17 +138,17 @@ public interface IBigDoorsEventFactory
      * @param removedOwner
      *     The {@link StructureOwner} that is to be removed from the structure.
      * @param responsible
-     *     The {@link IPPlayer} responsible for the action, if a player was responsible for it.
+     *     The {@link IPlayer} responsible for the action, if a player was responsible for it.
      */
     IStructurePrepareRemoveOwnerEvent createStructurePrepareRemoveOwnerEvent(
-        AbstractStructure structure, StructureOwner removedOwner, @Nullable IPPlayer responsible);
+        AbstractStructure structure, StructureOwner removedOwner, @Nullable IPlayer responsible);
 
     /**
      * Constructs a new {@link IStructurePrepareRemoveOwnerEvent} and assumes the owner was not removed by an
-     * {@link IPPlayer}.
+     * {@link IPlayer}.
      * <p>
      * If the owner is removed by a player, consider using
-     * {@link #createStructurePrepareRemoveOwnerEvent(AbstractStructure, StructureOwner, IPPlayer)} instead.
+     * {@link #createStructurePrepareRemoveOwnerEvent(AbstractStructure, StructureOwner, IPlayer)} instead.
      *
      * @param structure
      *     The structure from which an owner will be removed.
@@ -170,16 +170,16 @@ public interface IBigDoorsEventFactory
      * @param newLockStatus
      *     The new locked status of the structure.
      * @param responsible
-     *     The {@link IPPlayer} responsible for the action, if a player was responsible for it.
+     *     The {@link IPlayer} responsible for the action, if a player was responsible for it.
      */
     IStructurePrepareLockChangeEvent createStructurePrepareLockChangeEvent(
-        AbstractStructure structure, boolean newLockStatus, @Nullable IPPlayer responsible);
+        AbstractStructure structure, boolean newLockStatus, @Nullable IPlayer responsible);
 
     /**
-     * Constructs a new {@link IStructurePrepareLockChangeEvent} and assumes it was not added by an {@link IPPlayer}.
+     * Constructs a new {@link IStructurePrepareLockChangeEvent} and assumes it was not added by an {@link IPlayer}.
      * <p>
      * If the owner is added by a player, consider using
-     * {@link #createStructurePrepareLockChangeEvent(AbstractStructure, boolean, IPPlayer)} instead.
+     * {@link #createStructurePrepareLockChangeEvent(AbstractStructure, boolean, IPlayer)} instead.
      *
      * @param structure
      *     The structure to which the lock status is to be changed
@@ -213,7 +213,7 @@ public interface IBigDoorsEventFactory
      *     The {@link Cuboid} representing the area the structure will take up after the toggle.
      */
     IStructureEventTogglePrepare createTogglePrepareEvent(
-        StructureSnapshot snapshot, StructureActionCause cause, StructureActionType actionType, IPPlayer responsible,
+        StructureSnapshot snapshot, StructureActionCause cause, StructureActionType actionType, IPlayer responsible,
         double time, boolean skipAnimation, Cuboid newCuboid);
 
     /**
@@ -240,7 +240,7 @@ public interface IBigDoorsEventFactory
      */
     IStructureEventToggleStart createToggleStartEvent(
         AbstractStructure structure, StructureSnapshot structureSnapshot, StructureActionCause cause,
-        StructureActionType actionType, IPPlayer responsible, double time, boolean skipAnimation, Cuboid newCuboid);
+        StructureActionType actionType, IPlayer responsible, double time, boolean skipAnimation, Cuboid newCuboid);
 
     /**
      * Constructs a {@link IStructureEventToggleEnd}.
@@ -264,5 +264,5 @@ public interface IBigDoorsEventFactory
      */
     IStructureEventToggleEnd createToggleEndEvent(
         AbstractStructure structure, StructureSnapshot snapshot, StructureActionCause cause,
-        StructureActionType actionType, IPPlayer responsible, double time, boolean skipAnimation);
+        StructureActionType actionType, IPlayer responsible, double time, boolean skipAnimation);
 }

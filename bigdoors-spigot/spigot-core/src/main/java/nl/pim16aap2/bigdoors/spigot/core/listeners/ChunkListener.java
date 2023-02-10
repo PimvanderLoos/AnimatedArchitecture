@@ -1,19 +1,19 @@
 package nl.pim16aap2.bigdoors.spigot.core.listeners;
 
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.core.api.IPExecutor;
-import nl.pim16aap2.bigdoors.core.api.IPWorld;
+import nl.pim16aap2.bigdoors.core.api.IExecutor;
+import nl.pim16aap2.bigdoors.core.api.IWorld;
 import nl.pim16aap2.bigdoors.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.core.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.core.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.core.moveblocks.Animator;
 import nl.pim16aap2.bigdoors.core.moveblocks.StructureActivityManager;
-import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.util.Rectangle;
 import nl.pim16aap2.bigdoors.core.util.Util;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Di;
+import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;
@@ -44,12 +44,12 @@ public class ChunkListener extends AbstractListener
     private final DatabaseManager databaseManager;
     private final PowerBlockManager powerBlockManager;
     private final StructureActivityManager structureActivityManager;
-    private final IPExecutor executor;
+    private final IExecutor executor;
 
     @Inject
     public ChunkListener(
         JavaPlugin javaPlugin, DatabaseManager databaseManager, PowerBlockManager powerBlockManager,
-        RestartableHolder restartableHolder, StructureActivityManager structureActivityManager, IPExecutor executor)
+        RestartableHolder restartableHolder, StructureActivityManager structureActivityManager, IExecutor executor)
     {
         super(restartableHolder, javaPlugin);
         this.databaseManager = databaseManager;
@@ -96,7 +96,7 @@ public class ChunkListener extends AbstractListener
             if (event.getChunk().isForceLoaded())
                 return;
 
-            final IPWorld world = SpigotAdapter.wrapWorld(event.getWorld());
+            final IWorld world = SpigotAdapter.wrapWorld(event.getWorld());
 
             // Abort all currently active BlockMovers that (might) interact with the chunk that is being unloaded.
             structureActivityManager

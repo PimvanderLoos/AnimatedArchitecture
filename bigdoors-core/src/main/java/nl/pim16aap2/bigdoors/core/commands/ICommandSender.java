@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.core.commands;
 
 import nl.pim16aap2.bigdoors.core.api.IMessageable;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -9,12 +9,12 @@ import java.util.concurrent.CompletableFuture;
 public interface ICommandSender extends IMessageable
 {
     /**
-     * Gets the {@link IPPlayer} that issued the command.
+     * Gets the {@link IPlayer} that issued the command.
      *
-     * @return The {@link IPPlayer} that issued the command, if it was a player that issued the command. Otherwise, an
+     * @return The {@link IPlayer} that issued the command, if it was a player that issued the command. Otherwise, an
      * empty Optional is returned.
      */
-    Optional<IPPlayer> getPlayer();
+    Optional<IPlayer> getPlayer();
 
     /**
      * Checks if the command sender is a player.

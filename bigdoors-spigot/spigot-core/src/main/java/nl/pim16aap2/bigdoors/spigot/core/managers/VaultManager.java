@@ -7,9 +7,9 @@ import net.milkbowl.vault.economy.EconomyResponse;
 import net.milkbowl.vault.permission.Permission;
 import nl.pim16aap2.bigdoors.core.api.IConfig;
 import nl.pim16aap2.bigdoors.core.api.IEconomyManager;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
-import nl.pim16aap2.bigdoors.core.api.IPWorld;
 import nl.pim16aap2.bigdoors.core.api.IPermissionsManager;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
+import nl.pim16aap2.bigdoors.core.api.IWorld;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
@@ -73,7 +73,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     }
 
     @Override
-    public boolean buyStructure(IPPlayer player, IPWorld world, StructureType type, int blockCount)
+    public boolean buyStructure(IPlayer player, IWorld world, StructureType type, int blockCount)
     {
         if (!economyEnabled)
             return true;
@@ -337,7 +337,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     }
 
     @Override
-    public OptionalInt getMaxPermissionSuffix(IPPlayer player, String permissionBase)
+    public OptionalInt getMaxPermissionSuffix(IPlayer player, String permissionBase)
     {
         final @Nullable Player bukkitPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (bukkitPlayer == null)
@@ -361,7 +361,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     }
 
     @Override
-    public boolean hasPermission(IPPlayer player, String permissionNode)
+    public boolean hasPermission(IPlayer player, String permissionNode)
     {
         final @Nullable Player bukkitPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (bukkitPlayer == null)
@@ -375,7 +375,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     }
 
     @Override
-    public boolean hasBypassPermissionsForAttribute(IPPlayer player, StructureAttribute structureAttribute)
+    public boolean hasBypassPermissionsForAttribute(IPlayer player, StructureAttribute structureAttribute)
     {
         final @Nullable Player bukkitPlayer = getBukkitPlayer(player);
         if (bukkitPlayer == null)
@@ -387,13 +387,13 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     }
 
     @Override
-    public boolean isOp(IPPlayer player)
+    public boolean isOp(IPlayer player)
     {
         final @Nullable Player bukkitPlayer = getBukkitPlayer(player);
         return bukkitPlayer != null && bukkitPlayer.isOp();
     }
 
-    private @Nullable Player getBukkitPlayer(IPPlayer player)
+    private @Nullable Player getBukkitPlayer(IPlayer player)
     {
         final @Nullable Player bukkitPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (bukkitPlayer == null)

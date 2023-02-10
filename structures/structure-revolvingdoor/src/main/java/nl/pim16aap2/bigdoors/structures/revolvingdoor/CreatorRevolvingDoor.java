@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.structures.revolvingdoor;
 
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.structures.bigdoor.CreatorBigDoor;
 import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
@@ -15,7 +15,7 @@ public class CreatorRevolvingDoor extends CreatorBigDoor
 {
     private static final StructureType STRUCTURE_TYPE = StructureTypeRevolvingDoor.get();
 
-    public CreatorRevolvingDoor(Creator.Context context, IPPlayer player, @Nullable String name)
+    public CreatorRevolvingDoor(Creator.Context context, IPlayer player, @Nullable String name)
     {
         super(context, player);
         if (name != null)
@@ -23,7 +23,7 @@ public class CreatorRevolvingDoor extends CreatorBigDoor
         prepareCurrentStep();
     }
 
-    public CreatorRevolvingDoor(Creator.Context context, IPPlayer player)
+    public CreatorRevolvingDoor(Creator.Context context, IPlayer player)
     {
         this(context, player, null);
     }

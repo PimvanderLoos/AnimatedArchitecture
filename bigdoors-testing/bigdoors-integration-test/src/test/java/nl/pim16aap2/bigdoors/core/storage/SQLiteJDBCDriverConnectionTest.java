@@ -5,11 +5,11 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.longs.LongList;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.UnitTestUtil;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
-import nl.pim16aap2.bigdoors.core.api.IPWorld;
-import nl.pim16aap2.bigdoors.core.api.PPlayerData;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
+import nl.pim16aap2.bigdoors.core.api.IWorld;
+import nl.pim16aap2.bigdoors.core.api.PlayerData;
 import nl.pim16aap2.bigdoors.core.api.debugging.DebuggableRegistry;
-import nl.pim16aap2.bigdoors.core.api.factories.IPWorldFactory;
+import nl.pim16aap2.bigdoors.core.api.factories.IWorldFactory;
 import nl.pim16aap2.bigdoors.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.core.localization.LocalizationManager;
 import nl.pim16aap2.bigdoors.core.managers.DatabaseManager;
@@ -31,8 +31,8 @@ import nl.pim16aap2.bigdoors.structures.drawbridge.Drawbridge;
 import nl.pim16aap2.bigdoors.structures.drawbridge.StructureTypeDrawbridge;
 import nl.pim16aap2.bigdoors.structures.portcullis.Portcullis;
 import nl.pim16aap2.bigdoors.structures.portcullis.StructureTypePortcullis;
-import nl.pim16aap2.bigdoors.testimplementations.TestPWorld;
-import nl.pim16aap2.bigdoors.testimplementations.TestPWorldFactory;
+import nl.pim16aap2.bigdoors.testimplementations.TestWorld;
+import nl.pim16aap2.bigdoors.testimplementations.TestWorldFactory;
 import nl.pim16aap2.testing.AssertionsUtil;
 import nl.pim16aap2.testing.logging.LogInspector;
 import org.junit.jupiter.api.AfterAll;
@@ -74,16 +74,16 @@ public class SQLiteJDBCDriverConnectionTest
 
     private static final String PLAYER_2_NAME_ALT = "TestMan";
 
-    private static final PPlayerData PLAYER_DATA_1 =
-        new PPlayerData(UUID.fromString("27e6c556-4f30-32bf-a005-c80a46ddd935"), "pim16aap2", 10, 11, true, true);
+    private static final PlayerData PLAYER_DATA_1 =
+        new PlayerData(UUID.fromString("27e6c556-4f30-32bf-a005-c80a46ddd935"), "pim16aap2", 10, 11, true, true);
 
-    private static final PPlayerData PLAYER_DATA_2 =
-        new PPlayerData(UUID.fromString("af5c6f36-445d-3786-803d-c2e3ba0dc3ed"), "TestBoiii", 20, 22, true, false);
+    private static final PlayerData PLAYER_DATA_2 =
+        new PlayerData(UUID.fromString("af5c6f36-445d-3786-803d-c2e3ba0dc3ed"), "TestBoiii", 20, 22, true, false);
 
-    private static final PPlayerData PLAYER_DATA_3 =
-        new PPlayerData(UUID.fromString("b50ad385-829d-3141-a216-7e7d7539ba7f"), "thirdWheel", 30, 33, false, true);
+    private static final PlayerData PLAYER_DATA_3 =
+        new PlayerData(UUID.fromString("b50ad385-829d-3141-a216-7e7d7539ba7f"), "thirdWheel", 30, 33, false, true);
 
-    private static final IPWorld WORLD = new TestPWorld(WORLD_NAME);
+    private static final IWorld WORLD = new TestWorld(WORLD_NAME);
 
     private static final Path DB_FILE;
     private static final Path DB_FILE_BACKUP;
@@ -101,7 +101,7 @@ public class SQLiteJDBCDriverConnectionTest
         DB_FILE_BACKUP = DB_FILE.resolveSibling(DB_FILE.getFileName() + ".BACKUP");
     }
 
-    private IPWorldFactory worldFactory;
+    private IWorldFactory worldFactory;
 
     private StructureTypeManager structureTypeManager;
 
@@ -124,7 +124,7 @@ public class SQLiteJDBCDriverConnectionTest
     {
         MockitoAnnotations.openMocks(this);
 
-        worldFactory = new TestPWorldFactory();
+        worldFactory = new TestWorldFactory();
         structureRegistry = StructureRegistry.unCached(
             restartableHolder, debuggableRegistry, Mockito.mock(StructureDeletionManager.class));
 
@@ -254,7 +254,7 @@ public class SQLiteJDBCDriverConnectionTest
         Assertions.assertNotNull(structure.getPrimeOwner().toString());
         Assertions.assertNotNull(structure.getName());
 
-        List<AbstractStructure> test = storage.getStructures(structure.getPrimeOwner().pPlayerData().getUUID(),
+        List<AbstractStructure> test = storage.getStructures(structure.getPrimeOwner().playerData().getUUID(),
                                                              structure.getName());
         Assertions.assertEquals(1, test.size());
 
@@ -283,7 +283,7 @@ public class SQLiteJDBCDriverConnectionTest
                                         new DatabaseManager.StructureIdentifier(13L, "popular_door_name")),
                                 storage.getPartialIdentifiers("popular_", null, PermissionLevel.NO_PERMISSION));
 
-        final IPPlayer player1 = createPlayer(PLAYER_DATA_1);
+        final IPlayer player1 = createPlayer(PLAYER_DATA_1);
         Assertions.assertEquals(List.of(new DatabaseManager.StructureIdentifier(12L, "popular_door_name")),
                                 storage.getPartialIdentifiers("popular_", player1, PermissionLevel.NO_PERMISSION));
     }
@@ -297,7 +297,7 @@ public class SQLiteJDBCDriverConnectionTest
                                         new DatabaseManager.StructureIdentifier(29L, "popular_door_name")),
                                 storage.getPartialIdentifiers("2", null, PermissionLevel.NO_PERMISSION));
 
-        final IPPlayer player1 = createPlayer(PLAYER_DATA_1);
+        final IPlayer player1 = createPlayer(PLAYER_DATA_1);
         Assertions.assertEquals(List.of(new DatabaseManager.StructureIdentifier(11L, "random_door_name"),
                                         new DatabaseManager.StructureIdentifier(12L, "popular_door_name")),
                                 storage.getPartialIdentifiers("1", player1, PermissionLevel.NO_PERMISSION));
@@ -448,9 +448,9 @@ public class SQLiteJDBCDriverConnectionTest
         Assertions.assertEquals(PLAYER_DATA_2, storage.getPlayerData(PLAYER_DATA_2.getUUID()).get());
 
         // Update player 2's name to their alt name and make sure the old name is gone and the new one is reachable.
-        final PPlayerData playerData2ALT =
-            new PPlayerData(UUID.fromString("af5c6f36-445d-3786-803d-c2e3ba0dc3ed"), PLAYER_2_NAME_ALT,
-                            20, 22, true, false);
+        final PlayerData playerData2ALT =
+            new PlayerData(UUID.fromString("af5c6f36-445d-3786-803d-c2e3ba0dc3ed"), PLAYER_2_NAME_ALT,
+                           20, 22, true, false);
 
         Assertions.assertTrue(storage.updatePlayerData(playerData2ALT));
         UnitTestUtil.optionalEquals(playerData2ALT, storage.getPlayerData(PLAYER_DATA_2.getUUID()));
@@ -646,12 +646,12 @@ public class SQLiteJDBCDriverConnectionTest
             blocksToMove);
     }
 
-    private static IPPlayer createPlayer(PPlayerData data)
+    private static IPlayer createPlayer(PlayerData data)
     {
-        final IPPlayer player = Mockito.mock(IPPlayer.class);
+        final IPlayer player = Mockito.mock(IPlayer.class);
         Mockito.when(player.getName()).thenReturn(data.getName());
         Mockito.when(player.getUUID()).thenReturn(data.getUUID());
-        Mockito.when(player.getPPlayerData()).thenReturn(data);
+        Mockito.when(player.getPlayerData()).thenReturn(data);
         Mockito.when(player.getLocation()).thenReturn(Optional.empty());
         return player;
     }

@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.structures.garagedoor;
 
-import nl.pim16aap2.bigdoors.core.api.IPLocation;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.ILocation;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
 import nl.pim16aap2.bigdoors.core.tooluser.creator.Creator;
@@ -35,12 +35,12 @@ public class CreatorGarageDoor extends Creator
 
     private boolean northSouthAligned;
 
-    public CreatorGarageDoor(Creator.Context context, IPPlayer player, @Nullable String name)
+    public CreatorGarageDoor(Creator.Context context, IPlayer player, @Nullable String name)
     {
         super(context, player, name);
     }
 
-    public CreatorGarageDoor(Creator.Context context, IPPlayer player)
+    public CreatorGarageDoor(Creator.Context context, IPlayer player)
     {
         this(context, player, null);
     }
@@ -60,7 +60,7 @@ public class CreatorGarageDoor extends Creator
     }
 
     @Override
-    protected boolean setSecondPos(IPLocation loc)
+    protected boolean setSecondPos(ILocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;

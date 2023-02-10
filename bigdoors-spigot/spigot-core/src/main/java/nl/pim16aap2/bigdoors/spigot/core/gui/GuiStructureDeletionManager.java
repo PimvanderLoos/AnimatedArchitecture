@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.spigot.core.gui;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.core.api.IPExecutor;
+import nl.pim16aap2.bigdoors.core.api.IExecutor;
 import nl.pim16aap2.bigdoors.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.core.api.debugging.IDebuggable;
 import nl.pim16aap2.bigdoors.core.managers.StructureDeletionManager;
@@ -32,10 +32,10 @@ class GuiStructureDeletionManager implements StructureDeletionManager.IDeletionL
 {
     @GuardedBy("this")
     private final Deque<IGuiPage.IGuiStructureDeletionListener> listeners = new ArrayDeque<>();
-    private final IPExecutor executor;
+    private final IExecutor executor;
 
     @Inject GuiStructureDeletionManager(
-        StructureDeletionManager structureDeletionManager, IPExecutor executor, DebuggableRegistry debuggableRegistry)
+        StructureDeletionManager structureDeletionManager, IExecutor executor, DebuggableRegistry debuggableRegistry)
     {
         this.executor = executor;
 

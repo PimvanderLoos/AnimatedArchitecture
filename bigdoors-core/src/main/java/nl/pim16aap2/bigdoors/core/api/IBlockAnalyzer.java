@@ -15,7 +15,7 @@ public interface IBlockAnalyzer
      *     The location of the block.
      * @return True if it is air or liquid.
      */
-    boolean isAirOrLiquid(IPLocation location);
+    boolean isAirOrLiquid(ILocation location);
 
     /**
      * Check if a block is on the blacklist of types/materials that is not allowed for animations.
@@ -24,7 +24,7 @@ public interface IBlockAnalyzer
      *     The location of the block.
      * @return True if the block can be used for animations.
      */
-    boolean isAllowedBlock(IPLocation location);
+    boolean isAllowedBlock(ILocation location);
 
     /**
      * Represents the status of a material.

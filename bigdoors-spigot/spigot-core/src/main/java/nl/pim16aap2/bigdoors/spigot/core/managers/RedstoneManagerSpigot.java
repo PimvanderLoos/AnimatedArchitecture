@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.spigot.core.managers;
 
 import nl.pim16aap2.bigdoors.core.api.IConfig;
-import nl.pim16aap2.bigdoors.core.api.IPWorld;
 import nl.pim16aap2.bigdoors.core.api.IRedstoneManager;
+import nl.pim16aap2.bigdoors.core.api.IWorld;
 import nl.pim16aap2.bigdoors.core.util.Util;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
@@ -36,7 +36,7 @@ public final class RedstoneManagerSpigot implements IRedstoneManager
     }
 
     @Override
-    public RedstoneStatus isBlockPowered(IPWorld world, Vector3Di position)
+    public RedstoneStatus isBlockPowered(IWorld world, Vector3Di position)
     {
         if (!config.isRedstoneEnabled())
             return RedstoneStatus.DISABLED;

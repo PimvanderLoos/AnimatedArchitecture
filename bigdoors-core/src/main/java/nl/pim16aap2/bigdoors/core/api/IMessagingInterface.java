@@ -28,7 +28,7 @@ public interface IMessagingInterface
      * @param message
      *     The message.
      */
-    void messagePlayer(IPPlayer player, String message);
+    void messagePlayer(IPlayer player, String message);
 
     /**
      * Send a message to whomever or whatever issued a command at a given level (if applicable).

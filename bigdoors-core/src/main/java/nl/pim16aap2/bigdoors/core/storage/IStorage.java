@@ -2,8 +2,8 @@ package nl.pim16aap2.bigdoors.core.storage;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.longs.LongList;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
-import nl.pim16aap2.bigdoors.core.api.PPlayerData;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
+import nl.pim16aap2.bigdoors.core.api.PlayerData;
 import nl.pim16aap2.bigdoors.core.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.structures.IStructureConst;
@@ -89,22 +89,22 @@ public interface IStorage
     int getStructureCountForPlayer(UUID playerUUID, String structureName);
 
     /**
-     * Updates the {@link PPlayerData} for a given player.
+     * Updates the {@link PlayerData} for a given player.
      *
      * @param playerData
-     *     The {@link PPlayerData} the represents a player.
+     *     The {@link PlayerData} the represents a player.
      * @return True if at least 1 record was modified.
      */
-    boolean updatePlayerData(PPlayerData playerData);
+    boolean updatePlayerData(PlayerData playerData);
 
     /**
-     * Tries to find the {@link PPlayerData} for a player with the given {@link UUID}.
+     * Tries to find the {@link PlayerData} for a player with the given {@link UUID}.
      *
      * @param uuid
      *     The {@link UUID} of a player.
-     * @return The {@link PPlayerData} that represents the player.
+     * @return The {@link PlayerData} that represents the player.
      */
-    Optional<PPlayerData> getPlayerData(UUID uuid);
+    Optional<PlayerData> getPlayerData(UUID uuid);
 
     /**
      * Tries to get all the players with a given name. Because names are not unique, this may result in any number of
@@ -116,7 +116,7 @@ public interface IStorage
      *     The name of the player(s).
      * @return All the players with the given name.
      */
-    List<PPlayerData> getPlayerData(String playerName);
+    List<PlayerData> getPlayerData(String playerName);
 
     /**
      * Gets the total number of structures with the given name regardless of who owns them.
@@ -269,7 +269,7 @@ public interface IStorage
      * @return All {@link DatabaseManager.StructureIdentifier}s that start with the provided input.
      */
     List<DatabaseManager.StructureIdentifier> getPartialIdentifiers(
-        String input, @Nullable IPPlayer player, PermissionLevel maxPermission);
+        String input, @Nullable IPlayer player, PermissionLevel maxPermission);
 
     /**
      * Deletes a {@link StructureType} and all {@link AbstractStructure}s of this type from the database.
@@ -307,7 +307,7 @@ public interface IStorage
      *     The level of ownership the player will have over the structure.
      * @return True if the update was successful.
      */
-    boolean addOwner(long structureUID, PPlayerData player, PermissionLevel permission);
+    boolean addOwner(long structureUID, PlayerData player, PermissionLevel permission);
 
     /**
      * Gets the flag value of various boolean properties of a {@link AbstractStructure}.

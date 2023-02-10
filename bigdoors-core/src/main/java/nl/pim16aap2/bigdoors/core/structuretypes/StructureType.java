@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.core.structuretypes;
 
 import lombok.Getter;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.audio.AudioSet;
 import nl.pim16aap2.bigdoors.core.managers.StructureTypeManager;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
@@ -146,7 +146,7 @@ public abstract class StructureType
      *     The player who will own the {@link Creator}.
      * @return The newly created {@link Creator}.
      */
-    public Creator getCreator(Creator.Context context, IPPlayer player)
+    public Creator getCreator(Creator.Context context, IPlayer player)
     {
         return getCreator(context, player, null);
     }
@@ -162,7 +162,7 @@ public abstract class StructureType
      *     The name that will be given to the structure.
      * @return The newly created {@link Creator}.
      */
-    public abstract Creator getCreator(Creator.Context context, IPPlayer player, @Nullable String name);
+    public abstract Creator getCreator(Creator.Context context, IPlayer player, @Nullable String name);
 
     public @Nullable AudioSet getAudioSet()
     {

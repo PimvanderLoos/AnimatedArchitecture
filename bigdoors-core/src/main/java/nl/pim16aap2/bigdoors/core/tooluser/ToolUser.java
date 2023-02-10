@@ -6,10 +6,10 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.annotations.Initializer;
 import nl.pim16aap2.bigdoors.core.api.IBigDoorsToolUtil;
 import nl.pim16aap2.bigdoors.core.api.IEconomyManager;
-import nl.pim16aap2.bigdoors.core.api.IPLocation;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
-import nl.pim16aap2.bigdoors.core.api.IPWorld;
+import nl.pim16aap2.bigdoors.core.api.ILocation;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.IProtectionCompatManager;
+import nl.pim16aap2.bigdoors.core.api.IWorld;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public abstract class ToolUser
 {
     @Getter
-    private final IPPlayer player;
+    private final IPlayer player;
 
     protected final ILocalizer localizer;
 
@@ -69,7 +69,7 @@ public abstract class ToolUser
      */
     protected boolean playerHasStick = false;
 
-    protected ToolUser(Context context, IPPlayer player)
+    protected ToolUser(Context context, IPlayer player)
     {
         stepFactory = context.getStepFactory();
         this.player = player;
@@ -301,7 +301,7 @@ public abstract class ToolUser
      *     The location to check.
      * @return True if the player is allowed to break the block at the given location.
      */
-    public boolean playerHasAccessToLocation(IPLocation loc)
+    public boolean playerHasAccessToLocation(ILocation loc)
     {
         final Optional<String> result = protectionCompatManager.canBreakBlock(getPlayer(), loc);
         result.ifPresent(
@@ -327,7 +327,7 @@ public abstract class ToolUser
      *     The world to check in.
      * @return True if the player is allowed to break all blocks inside the cuboid.
      */
-    public boolean playerHasAccessToCuboid(Cuboid cuboid, IPWorld world)
+    public boolean playerHasAccessToCuboid(Cuboid cuboid, IWorld world)
     {
         final Optional<String> result = protectionCompatManager.canBreakBlocksBetweenLocs(getPlayer(), cuboid.getMin(),
                                                                                           cuboid.getMax(), world);

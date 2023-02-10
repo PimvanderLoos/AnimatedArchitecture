@@ -4,7 +4,7 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.factories.IGuiFactory;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
@@ -21,12 +21,12 @@ import java.util.concurrent.CompletableFuture;
 public class Menu extends BaseCommand
 {
     private final IGuiFactory guiFactory;
-    private final @Nullable IPPlayer source;
+    private final @Nullable IPlayer source;
 
     @AssistedInject //
     Menu(
         @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
-        IGuiFactory guiFactory, @Assisted @Nullable IPPlayer source)
+        IGuiFactory guiFactory, @Assisted @Nullable IPlayer source)
     {
         super(commandSender, localizer, textFactory);
         this.guiFactory = guiFactory;
@@ -68,18 +68,18 @@ public class Menu extends BaseCommand
          * @param commandSender
          *     The {@link ICommandSender} responsible for opening the menu.
          *     <p>
-         *     This is the entity to which the menu will be shown, and as such this must be an {@link IPPlayer} (menus
+         *     This is the entity to which the menu will be shown, and as such this must be an {@link IPlayer} (menus
          *     aren't supported for servers/command blocks).
          * @param source
-         *     The {@link IPPlayer} whose structures will be used.
+         *     The {@link IPlayer} whose structures will be used.
          *     <p>
          *     When this is null (default), the command sender's own structures will be used.
          * @return See {@link BaseCommand#run()}.
          */
-        Menu newMenu(ICommandSender commandSender, @Nullable IPPlayer source);
+        Menu newMenu(ICommandSender commandSender, @Nullable IPlayer source);
 
         /**
-         * See {@link #newMenu(ICommandSender, IPPlayer)}.
+         * See {@link #newMenu(ICommandSender, IPlayer)}.
          */
         default Menu newMenu(ICommandSender commandSender)
         {

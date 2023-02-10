@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.core.events;
 
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.events.IStructureCreatedEvent;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import org.bukkit.event.HandlerList;
@@ -18,7 +18,7 @@ public class StructureCreatedEvent extends StructureEvent implements IStructureC
 {
     private static final HandlerList HANDLERS_LIST = new HandlerList();
 
-    public StructureCreatedEvent(AbstractStructure structure, @Nullable IPPlayer responsible)
+    public StructureCreatedEvent(AbstractStructure structure, @Nullable IPlayer responsible)
     {
         super(structure, responsible);
     }

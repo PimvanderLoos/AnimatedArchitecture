@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.core.commands;
 
 import nl.pim16aap2.bigdoors.core.UnitTestUtil;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.managers.ToolUserManager;
@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 class MovePowerBlockTest
 {
     @Mock(answer = Answers.CALLS_REAL_METHODS)
-    private IPPlayer commandSender;
+    private IPlayer commandSender;
 
     @Mock
     private ToolUser toolUser;
@@ -53,7 +53,7 @@ class MovePowerBlockTest
         CommandTestingUtil.initCommandSenderPermissions(commandSender, true, true);
         doorRetriever = StructureRetrieverFactory.ofStructure(door);
         Mockito.when(door.isOwner(uuid)).thenReturn(true);
-        Mockito.when(door.isOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
+        Mockito.when(door.isOwner(Mockito.any(IPlayer.class))).thenReturn(true);
         Mockito.when(commandSender.getUUID()).thenReturn(uuid);
         Mockito.when(toolUserManager.getToolUser(uuid)).thenReturn(Optional.of(toolUser));
 
@@ -75,7 +75,7 @@ class MovePowerBlockTest
     @Test
     void testServer()
     {
-        final IPServer server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
+        final IServer server = Mockito.mock(IServer.class, Answers.CALLS_REAL_METHODS);
         Assertions.assertDoesNotThrow(
             () -> factory.newMovePowerBlock(server, doorRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(toolUserManager, Mockito.never()).startToolUser(Mockito.any(), Mockito.anyInt());

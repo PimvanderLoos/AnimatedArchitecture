@@ -5,7 +5,7 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.managers.DatabaseManager;
@@ -41,7 +41,7 @@ public class AddOwner extends StructureTargetCommand
      * If this player is already an owner of the target door, their permission will be overridden provided that the
      * command sender is allowed to add/remove co-owners at both the old and the new target permission level.
      */
-    private final IPPlayer targetPlayer;
+    private final IPlayer targetPlayer;
 
     /**
      * The permission level of the new owner's ownership.
@@ -53,7 +53,7 @@ public class AddOwner extends StructureTargetCommand
     @AssistedInject //
     AddOwner(
         @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
-        @Assisted StructureRetriever doorRetriever, @Assisted IPPlayer targetPlayer,
+        @Assisted StructureRetriever doorRetriever, @Assisted IPlayer targetPlayer,
         @Assisted @Nullable PermissionLevel targetPermissionLevel, DatabaseManager databaseManager)
     {
         super(commandSender, localizer, textFactory, doorRetriever, StructureAttribute.ADD_OWNER);
@@ -174,16 +174,16 @@ public class AddOwner extends StructureTargetCommand
          * @return See {@link BaseCommand#run()}.
          */
         AddOwner newAddOwner(
-            ICommandSender commandSender, StructureRetriever doorRetriever, IPPlayer targetPlayer,
+            ICommandSender commandSender, StructureRetriever doorRetriever, IPlayer targetPlayer,
             @Nullable PermissionLevel targetPermissionLevel);
 
         /**
-         * See {@link #newAddOwner(ICommandSender, StructureRetriever, IPPlayer, PermissionLevel)}.
+         * See {@link #newAddOwner(ICommandSender, StructureRetriever, IPlayer, PermissionLevel)}.
          * <p>
          * The default permission node defined by {@link AddOwner#DEFAULT_PERMISSION_LEVEL} is used.
          */
         default AddOwner newAddOwner(
-            ICommandSender commandSender, StructureRetriever doorRetriever, IPPlayer targetPlayer)
+            ICommandSender commandSender, StructureRetriever doorRetriever, IPlayer targetPlayer)
         {
             return newAddOwner(commandSender, doorRetriever, targetPlayer, null);
         }

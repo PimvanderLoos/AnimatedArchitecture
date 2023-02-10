@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.core.api.factories;
 
-import nl.pim16aap2.bigdoors.core.api.IPLocation;
+import nl.pim16aap2.bigdoors.core.api.ILocation;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.AnimationContext;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlockData;
@@ -39,7 +39,7 @@ public interface IAnimatedBlockFactory
      * @return The {@link IAnimatedBlock} that was constructed if it could be constructed.
      */
     Optional<IAnimatedBlock> create(
-        IPLocation loc, float radius, float startAngle, boolean bottom, boolean onEdge, AnimationContext context,
+        ILocation loc, float radius, float startAngle, boolean bottom, boolean onEdge, AnimationContext context,
         Vector3Dd finalPosition, Animator.MovementMethod movementMethod)
         throws Exception;
 }

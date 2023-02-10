@@ -10,13 +10,13 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBase;
 import net.minecraft.world.level.block.state.IBlockData;
-import nl.pim16aap2.bigdoors.core.api.IPExecutor;
+import nl.pim16aap2.bigdoors.core.api.IExecutor;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlockData;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlockHook;
-import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
 import nl.pim16aap2.bigdoors.core.util.PBlockFace;
 import nl.pim16aap2.bigdoors.core.util.vector.IVector3D;
+import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import org.bukkit.Axis;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -45,7 +45,7 @@ public class NMSBlock extends BlockBase implements IAnimatedBlockData
     @SuppressWarnings("unused") // Appears unused, but it's referenced in annotations.
     private final Object blockDataLock = new Object();
     private final CustomEntityFallingBlock animatedBlock;
-    private final IPExecutor executor;
+    private final IExecutor executor;
     private final WorldServer worldServer;
     private final World bukkitWorld;
 
@@ -73,7 +73,7 @@ public class NMSBlock extends BlockBase implements IAnimatedBlockData
      *     The z coordinate of the NMS block.
      */
     NMSBlock(
-        CustomEntityFallingBlock AnimatedBlock, IPExecutor executor,
+        CustomEntityFallingBlock AnimatedBlock, IExecutor executor,
         WorldServer worldServer, int x, int y, int z)
     {
         super(newBlockInfo(worldServer.getWorld(), new BlockPosition(x, y, z)));

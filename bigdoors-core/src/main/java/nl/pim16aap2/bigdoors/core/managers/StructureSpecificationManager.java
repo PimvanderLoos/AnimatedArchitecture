@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.core.managers;
 
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.core.util.delayedinput.DelayedInputRequest;
@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Singleton
 public final class StructureSpecificationManager extends Restartable
 {
-    private final Map<IPPlayer, DelayedInputRequest<String>> requests = new ConcurrentHashMap<>();
+    private final Map<IPlayer, DelayedInputRequest<String>> requests = new ConcurrentHashMap<>();
 
     @Inject
     public StructureSpecificationManager(RestartableHolder holder)
@@ -35,7 +35,7 @@ public final class StructureSpecificationManager extends Restartable
      * @return True if there is an open structure specification request for the player.
      */
     @SuppressWarnings("unused")
-    public boolean isActive(IPPlayer player)
+    public boolean isActive(IPlayer player)
     {
         return requests.containsKey(player);
     }
@@ -51,7 +51,7 @@ public final class StructureSpecificationManager extends Restartable
      * @param request
      *     The request.
      */
-    public void placeRequest(IPPlayer player, DelayedInputRequest<String> request)
+    public void placeRequest(IPlayer player, DelayedInputRequest<String> request)
     {
         requests.compute(
             player, (key, value) ->
@@ -72,7 +72,7 @@ public final class StructureSpecificationManager extends Restartable
      *     The input to handle.
      * @return False if no request could be found for the player.
      */
-    public boolean handleInput(IPPlayer player, String input)
+    public boolean handleInput(IPlayer player, String input)
     {
         final @Nullable DelayedInputRequest<String> request = requests.get(player);
         if (request == null)
@@ -89,7 +89,7 @@ public final class StructureSpecificationManager extends Restartable
      *     The player whose requests to cancel.
      * @return True if a request was cancelled.
      */
-    public boolean cancelRequest(IPPlayer player)
+    public boolean cancelRequest(IPlayer player)
     {
         final @Nullable DelayedInputRequest<String> removed = requests.remove(player);
         if (removed == null)

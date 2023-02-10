@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.spigot.core.gui;
 
 import de.themoep.inventorygui.InventoryGui;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.spigot.util.implementations.PPlayerSpigot;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.PlayerSpigot;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Deque;
@@ -38,7 +38,7 @@ import java.util.Deque;
      * @param player
      *     The player whose guis to close.
      */
-    public static void closeAllGuis(PPlayerSpigot player)
+    public static void closeAllGuis(PlayerSpigot player)
     {
         final Deque<InventoryGui> history = InventoryGui.getHistory(player.getBukkitPlayer());
         @Nullable InventoryGui finalGui = null;
@@ -59,7 +59,7 @@ import java.util.Deque;
         InventoryGui.clearHistory(player.getBukkitPlayer());
     }
 
-    public static void closeGuiPage(InventoryGui guiPage, PPlayerSpigot player)
+    public static void closeGuiPage(InventoryGui guiPage, PlayerSpigot player)
     {
         final Deque<InventoryGui> history = InventoryGui.getHistory(player.getBukkitPlayer());
         while (!history.isEmpty())

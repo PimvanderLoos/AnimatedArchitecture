@@ -4,7 +4,7 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.managers.ToolUserManager;
@@ -49,7 +49,7 @@ public class Confirm extends BaseCommand
     @Override
     protected CompletableFuture<?> executeCommand(PermissionsStatus permissions)
     {
-        final var toolUser = toolUserManager.getToolUser(((IPPlayer) getCommandSender()).getUUID());
+        final var toolUser = toolUserManager.getToolUser(((IPlayer) getCommandSender()).getUUID());
         if (toolUser.isPresent())
             toolUser.get().handleInput(true);
         else

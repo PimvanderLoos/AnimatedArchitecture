@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.core.commands;
 
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.util.structureretriever.StructureRetriever;
 
 import javax.inject.Inject;
@@ -8,12 +8,12 @@ import javax.inject.Singleton;
 import java.util.concurrent.CompletableFuture;
 
 @Singleton
-public class RemoveOwnerDelayed extends DelayedCommand<IPPlayer>
+public class RemoveOwnerDelayed extends DelayedCommand<IPlayer>
 {
     @Inject RemoveOwnerDelayed(
-        Context context, DelayedCommandInputRequest.IFactory<IPPlayer> inputRequestFactory)
+        Context context, DelayedCommandInputRequest.IFactory<IPlayer> inputRequestFactory)
     {
-        super(context, inputRequestFactory, IPPlayer.class);
+        super(context, inputRequestFactory, IPlayer.class);
     }
 
     @Override
@@ -24,7 +24,7 @@ public class RemoveOwnerDelayed extends DelayedCommand<IPPlayer>
 
     @Override
     protected CompletableFuture<?> delayedInputExecutor(
-        ICommandSender commandSender, StructureRetriever structureRetriever, IPPlayer targetPlayer)
+        ICommandSender commandSender, StructureRetriever structureRetriever, IPlayer targetPlayer)
     {
         return commandFactory.get().newRemoveOwner(commandSender, structureRetriever, targetPlayer).run();
     }

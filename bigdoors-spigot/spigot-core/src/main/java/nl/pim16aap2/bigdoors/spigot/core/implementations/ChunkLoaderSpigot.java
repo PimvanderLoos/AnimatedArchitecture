@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.core.implementations;
 
 import nl.pim16aap2.bigdoors.core.api.IChunkLoader;
-import nl.pim16aap2.bigdoors.core.api.IPWorld;
+import nl.pim16aap2.bigdoors.core.api.IWorld;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
 import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import nl.pim16aap2.bigdoors.core.util.Util;
@@ -36,7 +36,7 @@ public class ChunkLoaderSpigot implements IChunkLoader
     }
 
     @Override
-    public ChunkLoadResult checkChunks(IPWorld iWorld, Cuboid cuboid, ChunkLoadMode chunkLoadMode)
+    public ChunkLoadResult checkChunks(IWorld iWorld, Cuboid cuboid, ChunkLoadMode chunkLoadMode)
     {
         final IChunkLoadFunction modeFun = chunkLoadFunctions[chunkLoadMode.ordinal()];
 
@@ -57,7 +57,7 @@ public class ChunkLoaderSpigot implements IChunkLoader
     }
 
     @Override
-    public ChunkLoadResult checkChunk(IPWorld iWorld, IVector3D position, ChunkLoadMode chunkLoadMode)
+    public ChunkLoadResult checkChunk(IWorld iWorld, IVector3D position, ChunkLoadMode chunkLoadMode)
     {
         final IChunkLoadFunction modeFun = chunkLoadFunctions[chunkLoadMode.ordinal()];
         final World world = Util.requireNonNull(SpigotAdapter.getBukkitWorld(iWorld), "Bukkit World");

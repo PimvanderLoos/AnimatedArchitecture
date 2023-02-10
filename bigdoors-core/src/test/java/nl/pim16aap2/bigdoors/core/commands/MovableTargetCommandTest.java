@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.core.commands;
 
 import nl.pim16aap2.bigdoors.core.UnitTestUtil;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
@@ -30,7 +30,7 @@ class StructureTargetCommandTest
     private AbstractStructure structure;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
-    private IPPlayer commandSender;
+    private IPlayer commandSender;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private StructureTargetCommand structureTargetCommand;
@@ -42,7 +42,7 @@ class StructureTargetCommandTest
 
         CommandTestingUtil.initCommandSenderPermissions(commandSender, true, true);
         Mockito.when(structure.isOwner(Mockito.any(UUID.class))).thenReturn(true);
-        Mockito.when(structure.isOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
+        Mockito.when(structure.isOwner(Mockito.any(IPlayer.class))).thenReturn(true);
 
         final StructureType structureType = Mockito.mock(StructureType.class);
         Mockito.when(structureType.getLocalizationKey()).thenReturn("StructureType");
@@ -77,7 +77,7 @@ class StructureTargetCommandTest
     void testExecutionFailureNoStructure()
     {
         Mockito.when(structure.isOwner(Mockito.any(UUID.class))).thenReturn(false);
-        Mockito.when(structure.isOwner(Mockito.any(IPPlayer.class))).thenReturn(false);
+        Mockito.when(structure.isOwner(Mockito.any(IPlayer.class))).thenReturn(false);
 
         Assertions.assertDoesNotThrow(() -> structureTargetCommand.executeCommand(new PermissionsStatus(true, true))
                                                                   .get(1, TimeUnit.SECONDS));

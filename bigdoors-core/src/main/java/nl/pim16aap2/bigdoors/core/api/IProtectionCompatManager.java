@@ -15,18 +15,18 @@ public interface IProtectionCompatManager
      * Check if a player can break a block at a given location.
      *
      * @param player
-     *     The {@link IPPlayer}.
+     *     The {@link IPlayer}.
      * @param loc
-     *     The {@link IPLocation} to check.
+     *     The {@link ILocation} to check.
      * @return The name of the IProtectionCompat that objects, if any, or an empty Optional if allowed by all compats.
      */
-    Optional<String> canBreakBlock(IPPlayer player, IPLocation loc);
+    Optional<String> canBreakBlock(IPlayer player, ILocation loc);
 
     /**
      * Check if a player can break all blocks between two locations.
      *
      * @param player
-     *     The {@link IPPlayer}.
+     *     The {@link IPlayer}.
      * @param pos1
      *     The start position to check.
      * @param pos2
@@ -35,7 +35,7 @@ public interface IProtectionCompatManager
      *     The world.
      * @return The name of the IProtectionCompat that objects, if any, or an empty Optional if allowed by all compats.
      */
-    Optional<String> canBreakBlocksBetweenLocs(IPPlayer player, Vector3Di pos1, Vector3Di pos2, IPWorld world);
+    Optional<String> canBreakBlocksBetweenLocs(IPlayer player, Vector3Di pos1, Vector3Di pos2, IWorld world);
 
     /**
      * @return True if all checks for block-breaking access can be skipped. This may happen when no hooks are enabled.

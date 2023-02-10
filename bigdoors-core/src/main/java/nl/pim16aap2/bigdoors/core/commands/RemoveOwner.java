@@ -5,7 +5,7 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.managers.DatabaseManager;
@@ -30,13 +30,13 @@ public class RemoveOwner extends StructureTargetCommand
 {
     public static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.REMOVE_OWNER;
 
-    private final IPPlayer targetPlayer;
+    private final IPlayer targetPlayer;
     private final DatabaseManager databaseManager;
 
     @AssistedInject //
     RemoveOwner(
         @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
-        @Assisted StructureRetriever structureRetriever, @Assisted IPPlayer targetPlayer,
+        @Assisted StructureRetriever structureRetriever, @Assisted IPlayer targetPlayer,
         DatabaseManager databaseManager)
     {
         super(commandSender, localizer, textFactory, structureRetriever, StructureAttribute.REMOVE_OWNER);
@@ -131,6 +131,6 @@ public class RemoveOwner extends StructureTargetCommand
          * @return See {@link BaseCommand#run()}.
          */
         RemoveOwner newRemoveOwner(
-            ICommandSender commandSender, StructureRetriever structureRetriever, IPPlayer targetPlayer);
+            ICommandSender commandSender, StructureRetriever structureRetriever, IPlayer targetPlayer);
     }
 }

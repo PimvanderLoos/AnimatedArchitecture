@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.core.commands;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
@@ -87,9 +87,9 @@ public abstract class BaseCommand
     }
 
     /**
-     * Checks if this {@link BaseCommand} is available for {@link IPPlayer}s.
+     * Checks if this {@link BaseCommand} is available for {@link IPlayer}s.
      *
-     * @return True if an {@link IPPlayer} can execute this command.
+     * @return True if an {@link IPlayer} can execute this command.
      */
     protected boolean availableForPlayers()
     {
@@ -97,9 +97,9 @@ public abstract class BaseCommand
     }
 
     /**
-     * Checks if this {@link BaseCommand} is available for non-{@link IPPlayer}s (e.g. the server).
+     * Checks if this {@link BaseCommand} is available for non-{@link IPlayer}s (e.g. the server).
      *
-     * @return True if a non-{@link IPPlayer} can execute this command.
+     * @return True if a non-{@link IPlayer} can execute this command.
      */
     protected boolean availableForNonPlayers()
     {
@@ -120,7 +120,7 @@ public abstract class BaseCommand
             return CompletableFuture.completedFuture(null);
         }
 
-        final boolean isPlayer = commandSender instanceof IPPlayer;
+        final boolean isPlayer = commandSender instanceof IPlayer;
         if (isPlayer && !availableForPlayers())
         {
             log.atFine().log("Command not allowed for players: %s", this);

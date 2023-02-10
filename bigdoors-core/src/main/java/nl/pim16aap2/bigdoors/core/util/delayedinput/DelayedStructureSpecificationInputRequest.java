@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.core.util.delayedinput;
 
-import nl.pim16aap2.bigdoors.core.api.IPLocation;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.ILocation;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.managers.StructureSpecificationManager;
@@ -24,14 +24,14 @@ import java.util.concurrent.CompletableFuture;
 public final class DelayedStructureSpecificationInputRequest extends DelayedInputRequest<String>
 {
     private final List<AbstractStructure> options;
-    private final IPPlayer player;
+    private final IPlayer player;
     @SuppressWarnings({"FieldCanBeLocal", "unused", "PMD.SingularField"})
     private final ILocalizer localizer;
     private final ITextFactory textFactory;
     private final StructureSpecificationManager structureSpecificationManager;
 
     private DelayedStructureSpecificationInputRequest(
-        Duration timeout, List<AbstractStructure> options, IPPlayer player, ILocalizer localizer,
+        Duration timeout, List<AbstractStructure> options, IPlayer player, ILocalizer localizer,
         ITextFactory textFactory, StructureSpecificationManager structureSpecificationManager)
     {
         super(timeout);
@@ -74,7 +74,7 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
      * @return The specified structure if the user specified a valid one. Otherwise, an empty Optional.
      */
     public static CompletableFuture<Optional<AbstractStructure>> get(
-        Duration timeout, List<AbstractStructure> options, IPPlayer player, ILocalizer localizer,
+        Duration timeout, List<AbstractStructure> options, IPlayer player, ILocalizer localizer,
         ITextFactory textFactory, StructureSpecificationManager structureSpecificationManager)
     {
         if (options.size() == 1)
@@ -103,7 +103,7 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
 
     private void getStructureInfoList(Text text)
     {
-        final Optional<IPLocation> location = player.getLocation();
+        final Optional<ILocation> location = player.getLocation();
 
         options.forEach(
             structure ->
@@ -113,7 +113,7 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
                     .append(": ", TextType.INFO)
                     .append(structure.getType().getSimpleName(), TextType.HIGHLIGHT)
                     .append(", Creator: ", TextType.INFO)
-                    .append(structure.getPrimeOwner().pPlayerData().getName(), TextType.HIGHLIGHT)
+                    .append(structure.getPrimeOwner().playerData().getName(), TextType.HIGHLIGHT)
                     .append(", World: ", TextType.INFO)
                     .append(structure.getWorld().worldName(), TextType.HIGHLIGHT);
 

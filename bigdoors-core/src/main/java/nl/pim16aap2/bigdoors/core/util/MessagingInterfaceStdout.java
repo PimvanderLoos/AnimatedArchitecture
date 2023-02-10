@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.core.util;
 
 import nl.pim16aap2.bigdoors.core.api.IMessagingInterface;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 
 import java.util.logging.Level;
 
@@ -28,7 +28,7 @@ public class MessagingInterfaceStdout implements IMessagingInterface
     }
 
     @Override
-    public void messagePlayer(IPPlayer player, String message)
+    public void messagePlayer(IPlayer player, String message)
     {
         System.out.println(formattedName + " to player: \"" + player.getName() + "\": " + message);
     }

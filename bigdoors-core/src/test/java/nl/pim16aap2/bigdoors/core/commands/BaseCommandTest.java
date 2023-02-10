@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.core.commands;
 
 import nl.pim16aap2.bigdoors.core.UnitTestUtil;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
@@ -54,7 +54,7 @@ class BaseCommandTest
         Assertions.assertTrue(baseCommand.hasAccessToAttribute(door, StructureAttribute.DELETE, true));
         Assertions.assertTrue(baseCommand.hasAccessToAttribute(door, StructureAttribute.DELETE, false));
 
-        final IPPlayer player = Mockito.mock(IPPlayer.class, Answers.CALLS_REAL_METHODS);
+        final IPlayer player = Mockito.mock(IPlayer.class, Answers.CALLS_REAL_METHODS);
         UnitTestUtil.setField(BaseCommand.class, baseCommand, "commandSender", player);
 
         Mockito.when(door.getOwner(player)).thenReturn(Optional.of(structureOwnerNoPerm));

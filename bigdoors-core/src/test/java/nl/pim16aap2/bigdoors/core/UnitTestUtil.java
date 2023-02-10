@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.core;
 
-import nl.pim16aap2.bigdoors.core.api.IPLocation;
-import nl.pim16aap2.bigdoors.core.api.IPWorld;
+import nl.pim16aap2.bigdoors.core.api.ILocation;
+import nl.pim16aap2.bigdoors.core.api.IWorld;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.structures.StructureBaseBuilder;
@@ -46,44 +46,44 @@ public class UnitTestUtil
         return localizer;
     }
 
-    public static IPWorld getWorld()
+    public static IWorld getWorld()
     {
-        final IPWorld world = Mockito.mock(IPWorld.class);
+        final IWorld world = Mockito.mock(IWorld.class);
         Mockito.when(world.worldName()).thenReturn(UUID.randomUUID().toString());
         return world;
     }
 
     @SuppressWarnings("unused")
-    public static IPLocation getLocation(Vector3Dd vec)
+    public static ILocation getLocation(Vector3Dd vec)
     {
         return getLocation(vec.x(), vec.y(), vec.z());
     }
 
     @SuppressWarnings("unused")
-    public static IPLocation getLocation(Vector3Di vec)
+    public static ILocation getLocation(Vector3Di vec)
     {
         return getLocation(vec.x(), vec.y(), vec.z());
     }
 
     @SuppressWarnings("unused")
-    public static IPLocation getLocation(Vector3Dd vec, IPWorld world)
+    public static ILocation getLocation(Vector3Dd vec, IWorld world)
     {
         return getLocation(vec.x(), vec.y(), vec.z(), world);
     }
 
-    public static IPLocation getLocation(Vector3Di vec, IPWorld world)
+    public static ILocation getLocation(Vector3Di vec, IWorld world)
     {
         return getLocation(vec.x(), vec.y(), vec.z(), world);
     }
 
-    public static IPLocation getLocation(double x, double y, double z)
+    public static ILocation getLocation(double x, double y, double z)
     {
         return getLocation(x, y, z, getWorld());
     }
 
-    public static IPLocation getLocation(double x, double y, double z, IPWorld world)
+    public static ILocation getLocation(double x, double y, double z, IWorld world)
     {
-        final IPLocation loc = Mockito.mock(IPLocation.class);
+        final ILocation loc = Mockito.mock(ILocation.class);
 
         Mockito.when(loc.getWorld()).thenReturn(world);
 

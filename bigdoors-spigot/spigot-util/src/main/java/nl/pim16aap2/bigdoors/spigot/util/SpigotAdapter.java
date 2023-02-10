@@ -1,16 +1,16 @@
 package nl.pim16aap2.bigdoors.spigot.util;
 
-import nl.pim16aap2.bigdoors.core.api.IPLocation;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
-import nl.pim16aap2.bigdoors.core.api.IPWorld;
-import nl.pim16aap2.bigdoors.core.api.factories.IPPlayerFactory;
+import nl.pim16aap2.bigdoors.core.api.ILocation;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
+import nl.pim16aap2.bigdoors.core.api.IWorld;
+import nl.pim16aap2.bigdoors.core.api.factories.IPlayerFactory;
 import nl.pim16aap2.bigdoors.core.commands.ICommandSender;
-import nl.pim16aap2.bigdoors.spigot.util.implementations.PLocationSpigot;
-import nl.pim16aap2.bigdoors.spigot.util.implementations.PPlayerSpigot;
-import nl.pim16aap2.bigdoors.spigot.util.implementations.PWorldSpigot;
-import nl.pim16aap2.bigdoors.spigot.util.implementations.pserver.PServer;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Di;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.LocationSpigot;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.PlayerSpigot;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.WorldSpigot;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.server.SpigotServer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -31,37 +31,37 @@ public final class SpigotAdapter
     }
 
     /**
-     * Converts an {@link IPWorld} object to a {@link World} object.
+     * Converts an {@link IWorld} object to a {@link World} object.
      * <p>
-     * If the {@link IPLocation} is an {@link PWorldSpigot}, only a simple cast is performed. Otherwise, a new
+     * If the {@link ILocation} is an {@link WorldSpigot}, only a simple cast is performed. Otherwise, a new
      * {@link World} is constructed.
      *
-     * @param pWorld
+     * @param world
      *     The BigDoors world.
      * @return The Spigot world.
      */
-    public static @Nullable World getBukkitWorld(IPWorld pWorld)
+    public static @Nullable World getBukkitWorld(IWorld world)
     {
-        if (pWorld instanceof PWorldSpigot)
-            return ((PWorldSpigot) pWorld).getBukkitWorld();
-        return Bukkit.getWorld(pWorld.worldName());
+        if (world instanceof WorldSpigot worldSpigot)
+            return worldSpigot.getBukkitWorld();
+        return Bukkit.getWorld(world.worldName());
     }
 
     /**
-     * Converts an {@link IPLocation} object to a {@link Location} object.
+     * Converts an {@link ILocation} object to a {@link Location} object.
      * <p>
-     * If the {@link IPLocation} is an {@link PLocationSpigot}, only a simple cast is performed. Otherwise, a new
+     * If the {@link ILocation} is an {@link LocationSpigot}, only a simple cast is performed. Otherwise, a new
      * {@link Location} is constructed.
      *
-     * @param pLocation
+     * @param location
      *     The BigDoors location.
      * @return The Spigot location.
      */
-    public static Location getBukkitLocation(IPLocation pLocation)
+    public static Location getBukkitLocation(ILocation location)
     {
-        if (pLocation instanceof PLocationSpigot)
-            return ((PLocationSpigot) pLocation).getBukkitLocation();
-        return new Location(getBukkitWorld(pLocation.getWorld()), pLocation.getX(), pLocation.getY(), pLocation.getZ());
+        if (location instanceof LocationSpigot)
+            return ((LocationSpigot) location).getBukkitLocation();
+        return new Location(getBukkitWorld(location.getWorld()), location.getX(), location.getY(), location.getZ());
     }
 
     /**
@@ -77,44 +77,44 @@ public final class SpigotAdapter
     }
 
     /**
-     * Tries to get an online Bukkit player represented by an {@link IPPlayer}.
+     * Tries to get an online Bukkit player represented by an {@link IPlayer}.
      *
-     * @param pPlayer
-     *     The {@link IPPlayer}.
+     * @param player
+     *     The {@link IPlayer}.
      * @return The online bukkit player, if possible.
      */
-    public static @Nullable Player getBukkitPlayer(IPPlayer pPlayer)
+    public static @Nullable Player getBukkitPlayer(IPlayer player)
     {
-        return Bukkit.getPlayer(pPlayer.getUUID());
+        return Bukkit.getPlayer(player.getUUID());
     }
 
     /**
-     * Tries to convert an {@link IPPlayer} to a {@link PPlayerSpigot}.
+     * Tries to convert an {@link IPlayer} to a {@link PlayerSpigot}.
      *
      * @param player
      *     The player object to convert.
      * @return The converted player object, or null if that was not possible.
      */
-    public static @Nullable PPlayerSpigot getPPlayerSpigot(IPPlayer player)
+    public static @Nullable PlayerSpigot getPlayerSpigot(IPlayer player)
     {
-        if (player instanceof PPlayerSpigot playerSpigot)
+        if (player instanceof PlayerSpigot playerSpigot)
             return playerSpigot;
         final @Nullable Player bukkitPlayer = getBukkitPlayer(player);
         if (bukkitPlayer == null)
             return null;
-        return new PPlayerSpigot(bukkitPlayer);
+        return new PlayerSpigot(bukkitPlayer);
     }
 
     /**
-     * Tries to get an offline Bukkit player represented by an {@link IPPlayer}.
+     * Tries to get an offline Bukkit player represented by an {@link IPlayer}.
      *
-     * @param pPlayer
-     *     The {@link IPPlayer}.
+     * @param player
+     *     The {@link IPlayer}.
      * @return The offline bukkit player.
      */
-    public static OfflinePlayer getOfflineBukkitPlayer(IPPlayer pPlayer)
+    public static OfflinePlayer getOfflineBukkitPlayer(IPlayer player)
     {
-        return Bukkit.getOfflinePlayer(pPlayer.getUUID());
+        return Bukkit.getOfflinePlayer(player.getUUID());
     }
 
     /**
@@ -138,7 +138,7 @@ public final class SpigotAdapter
      */
     public static ICommandSender wrapCommandSender(CommandSender commandSender)
     {
-        return commandSender instanceof Player player ? new PPlayerSpigot(player) : new PServer();
+        return commandSender instanceof Player player ? new PlayerSpigot(player) : new SpigotServer();
     }
 
     /**
@@ -150,59 +150,59 @@ public final class SpigotAdapter
      */
     public static CommandSender unwrapCommandSender(ICommandSender commandSender)
     {
-        if (commandSender instanceof PPlayerSpigot playerSpigot)
+        if (commandSender instanceof PlayerSpigot playerSpigot)
             return playerSpigot.getBukkitPlayer();
-        if (commandSender instanceof PServer)
+        if (commandSender instanceof SpigotServer)
             return Bukkit.getServer().getConsoleSender();
         throw new IllegalArgumentException("Trying to unwrap command sender of illegal type: " +
                                                commandSender.getClass().getName());
     }
 
     /**
-     * Wraps a Bukkit player in an IPPlayer.
+     * Wraps a Bukkit player in an IPlayer.
      *
      * @param player
      *     The Bukkit player.
-     * @return The IPPlayer.
+     * @return The IPlayer.
      */
-    public static IPPlayer wrapPlayer(Player player)
+    public static IPlayer wrapPlayer(Player player)
     {
-        return new PPlayerSpigot(player);
+        return new PlayerSpigot(player);
     }
 
     /**
-     * Wraps an offline Bukkit player in an IPPlayer.
+     * Wraps an offline Bukkit player in an IPlayer.
      *
      * @param player
      *     The Bukkit player.
-     * @return The IPPlayer.
+     * @return The IPlayer.
      */
-    public static CompletableFuture<Optional<IPPlayer>> wrapPlayer(IPPlayerFactory factory, OfflinePlayer player)
+    public static CompletableFuture<Optional<IPlayer>> wrapPlayer(IPlayerFactory factory, OfflinePlayer player)
     {
         return factory.create(player.getUniqueId());
     }
 
     /**
-     * Wraps a Bukkit location in an IPLocation.
+     * Wraps a Bukkit location in an ILocation.
      *
      * @param location
      *     The Bukkit location.
-     * @return The IPLocation.
+     * @return The ILocation.
      */
-    public static IPLocation wrapLocation(Location location)
+    public static ILocation wrapLocation(Location location)
     {
-        return new PLocationSpigot(location);
+        return new LocationSpigot(location);
     }
 
     /**
-     * Wraps a Bukkit world in an IPWorld.
+     * Wraps a Bukkit world in an IWorld.
      *
      * @param world
      *     The Bukkit world.
-     * @return The IPWorld.
+     * @return The IWorld.
      */
-    public static IPWorld wrapWorld(World world)
+    public static IWorld wrapWorld(World world)
     {
-        return new PWorldSpigot(world);
+        return new WorldSpigot(world);
     }
 }

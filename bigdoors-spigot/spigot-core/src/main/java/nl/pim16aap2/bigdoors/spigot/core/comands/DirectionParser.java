@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.spigot.core.comands;
 import cloud.commandframework.arguments.parser.ArgumentParseResult;
 import cloud.commandframework.arguments.parser.ArgumentParser;
 import cloud.commandframework.context.CommandContext;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.core.commands.ICommandSender;
@@ -86,7 +86,7 @@ public class DirectionParser implements ArgumentParser<ICommandSender, MovementD
     private @Nullable Stream<String> tryRetrieveGuidedSuggestions(
         CommandContext<ICommandSender> commandContext)
     {
-        final @Nullable UUID uuid = commandContext.getSender().getPlayer().map(IPPlayer::getUUID).orElse(null);
+        final @Nullable UUID uuid = commandContext.getSender().getPlayer().map(IPlayer::getUUID).orElse(null);
         if (uuid == null)
             return null;
 

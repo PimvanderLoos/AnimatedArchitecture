@@ -22,7 +22,7 @@ public interface IChunkLoader
      *     The type of chunk loading to use if the chunk is not loaded.
      * @return The result of the action.
      */
-    ChunkLoadResult checkChunks(IPWorld world, Cuboid cuboid, ChunkLoadMode chunkLoadMode);
+    ChunkLoadResult checkChunks(IWorld world, Cuboid cuboid, ChunkLoadMode chunkLoadMode);
 
     /**
      * Checks if the chunk a position exists in is loaded.
@@ -35,7 +35,7 @@ public interface IChunkLoader
      *     The type of chunk loading to use if the chunk is not loaded.
      * @return The result of the action.
      */
-    ChunkLoadResult checkChunk(IPWorld world, IVector3D position, ChunkLoadMode chunkLoadMode);
+    ChunkLoadResult checkChunk(IWorld world, IVector3D position, ChunkLoadMode chunkLoadMode);
 
     /**
      * Represents the different modes of checking chunks.

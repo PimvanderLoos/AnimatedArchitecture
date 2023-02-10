@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.spigot.core.events;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.events.IStructurePrepareAddOwnerEvent;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.structures.StructureOwner;
@@ -29,7 +29,7 @@ public class StructurePrepareAddOwnerEvent extends StructureEvent implements ISt
     private final StructureOwner newStructureOwner;
 
     public StructurePrepareAddOwnerEvent(
-        AbstractStructure structure, @Nullable IPPlayer responsible, StructureOwner newStructureOwner)
+        AbstractStructure structure, @Nullable IPlayer responsible, StructureOwner newStructureOwner)
     {
         super(structure, responsible);
         this.newStructureOwner = newStructureOwner;

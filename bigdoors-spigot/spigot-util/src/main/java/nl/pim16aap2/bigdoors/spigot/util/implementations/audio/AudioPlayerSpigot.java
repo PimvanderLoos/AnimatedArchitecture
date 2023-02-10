@@ -1,12 +1,12 @@
 package nl.pim16aap2.bigdoors.spigot.util.implementations.audio;
 
-import nl.pim16aap2.bigdoors.core.api.IPExecutor;
-import nl.pim16aap2.bigdoors.core.api.IPLocation;
-import nl.pim16aap2.bigdoors.core.api.IPWorld;
+import nl.pim16aap2.bigdoors.core.api.IExecutor;
+import nl.pim16aap2.bigdoors.core.api.ILocation;
+import nl.pim16aap2.bigdoors.core.api.IWorld;
 import nl.pim16aap2.bigdoors.core.audio.IAudioPlayer;
-import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Di;
+import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -25,34 +25,34 @@ import javax.inject.Singleton;
 @Singleton
 public class AudioPlayerSpigot implements IAudioPlayer
 {
-    private final IPExecutor executor;
+    private final IExecutor executor;
 
     @Inject
-    public AudioPlayerSpigot(IPExecutor executor)
+    public AudioPlayerSpigot(IExecutor executor)
     {
         this.executor = executor;
     }
 
     @Override
-    public void playSound(IPLocation loc, String sound, float volume, float pitch)
+    public void playSound(ILocation loc, String sound, float volume, float pitch)
     {
         playSound(SpigotAdapter.getBukkitLocation(loc), sound, volume, pitch);
     }
 
     @Override
-    public void playSound(Vector3Di pos, IPWorld world, String sound, float volume, float pitch)
+    public void playSound(Vector3Di pos, IWorld world, String sound, float volume, float pitch)
     {
         playSound(new Location(Bukkit.getWorld(world.worldName()), pos.x(), pos.y(), pos.z()), sound, volume, pitch);
     }
 
     @Override
-    public void playSound(Vector3Dd pos, IPWorld world, String sound, float volume, float pitch)
+    public void playSound(Vector3Dd pos, IWorld world, String sound, float volume, float pitch)
     {
         playSound(new Location(Bukkit.getWorld(world.worldName()), pos.x(), pos.y(), pos.z()), sound, volume, pitch);
     }
 
     @Override
-    public void playSound(double x, double y, double z, IPWorld world, String sound, float volume, float pitch)
+    public void playSound(double x, double y, double z, IWorld world, String sound, float volume, float pitch)
     {
         playSound(new Location(Bukkit.getWorld(world.worldName()), x, y, z), sound, volume, pitch);
     }

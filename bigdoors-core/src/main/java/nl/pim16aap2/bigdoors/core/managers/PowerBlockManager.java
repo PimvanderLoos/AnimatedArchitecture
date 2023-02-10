@@ -7,8 +7,8 @@ import it.unimi.dsi.fastutil.longs.LongLists;
 import lombok.Getter;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.api.IConfig;
-import nl.pim16aap2.bigdoors.core.api.IPLocation;
-import nl.pim16aap2.bigdoors.core.api.IPWorld;
+import nl.pim16aap2.bigdoors.core.api.ILocation;
+import nl.pim16aap2.bigdoors.core.api.IWorld;
 import nl.pim16aap2.bigdoors.core.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.core.data.cache.timed.TimedCache;
@@ -93,7 +93,7 @@ public final class PowerBlockManager extends Restartable implements StructureDel
      *     The location.
      * @return All {@link AbstractStructure}s that have a powerblock at a location in a world.
      */
-    public CompletableFuture<List<AbstractStructure>> structuresFromPowerBlockLoc(IPLocation location)
+    public CompletableFuture<List<AbstractStructure>> structuresFromPowerBlockLoc(ILocation location)
     {
         return this.structuresFromPowerBlockLoc(location.getPosition(), location.getWorld().worldName());
     }
@@ -107,7 +107,7 @@ public final class PowerBlockManager extends Restartable implements StructureDel
      *     The world.
      * @return All {@link AbstractStructure}s that have a powerblock at a location in a world.
      */
-    public CompletableFuture<List<AbstractStructure>> structuresFromPowerBlockLoc(Vector3Di loc, IPWorld world)
+    public CompletableFuture<List<AbstractStructure>> structuresFromPowerBlockLoc(Vector3Di loc, IWorld world)
     {
         return this.structuresFromPowerBlockLoc(loc, world.worldName());
     }

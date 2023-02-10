@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.spigot.core.events;
 
 import com.google.common.flogger.StackSize;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.core.api.IPExecutor;
+import nl.pim16aap2.bigdoors.core.api.IExecutor;
 import nl.pim16aap2.bigdoors.core.events.IBigDoorsEvent;
 import nl.pim16aap2.bigdoors.core.events.IBigDoorsEventCaller;
 import org.bukkit.Bukkit;
@@ -20,11 +20,11 @@ import javax.inject.Singleton;
 @Flogger
 public class BigDoorsEventCallerSpigot implements IBigDoorsEventCaller
 {
-    private final IPExecutor executor;
+    private final IExecutor executor;
     private final JavaPlugin plugin;
 
     @Inject
-    public BigDoorsEventCallerSpigot(IPExecutor executor, JavaPlugin plugin)
+    public BigDoorsEventCallerSpigot(IExecutor executor, JavaPlugin plugin)
     {
         this.executor = executor;
         this.plugin = plugin;

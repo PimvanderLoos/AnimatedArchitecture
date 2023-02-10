@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.core.util.vector;
 
 import com.google.errorprone.annotations.CheckReturnValue;
-import nl.pim16aap2.bigdoors.core.api.IPLocation;
-import nl.pim16aap2.bigdoors.core.api.IPWorld;
-import nl.pim16aap2.bigdoors.core.api.factories.IPLocationFactory;
+import nl.pim16aap2.bigdoors.core.api.ILocation;
+import nl.pim16aap2.bigdoors.core.api.IWorld;
+import nl.pim16aap2.bigdoors.core.api.factories.ILocationFactory;
 import org.jetbrains.annotations.Contract;
 
 public sealed interface IVector3D permits Vector3Dd, Vector3Di
@@ -50,14 +50,14 @@ public sealed interface IVector3D permits Vector3Dd, Vector3Di
     }
 
     /**
-     * Creates a new {@link IPLocation} using the current x/y/z coordinates.
+     * Creates a new {@link ILocation} using the current x/y/z coordinates.
      *
      * @param world
-     *     The world in which the {@link IPLocation} will exist.
-     * @return A new {@link IPLocation}.
+     *     The world in which the {@link ILocation} will exist.
+     * @return A new {@link ILocation}.
      */
     @CheckReturnValue @Contract(pure = true)
-    default IPLocation toLocation(IPLocationFactory locationFactory, IPWorld world)
+    default ILocation toLocation(ILocationFactory locationFactory, IWorld world)
     {
         return locationFactory.create(world, xD(), yD(), zD());
     }

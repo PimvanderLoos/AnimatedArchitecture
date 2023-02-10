@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.core.structures;
 
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
-import nl.pim16aap2.bigdoors.core.api.IPWorld;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
+import nl.pim16aap2.bigdoors.core.api.IWorld;
 import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
@@ -84,11 +84,11 @@ public interface IStructureConst
     }
 
     /**
-     * Gets the IPWorld this {@link IStructure} exists in.
+     * Gets the IWorld this {@link IStructure} exists in.
      *
-     * @return The IPWorld this {@link IStructure} exists in
+     * @return The IWorld this {@link IStructure} exists in
      */
-    IPWorld getWorld();
+    IWorld getWorld();
 
     /**
      * Gets the UID of the {@link IStructure} as used in the database. Guaranteed to be unique and available.
@@ -137,14 +137,14 @@ public interface IStructureConst
     Optional<StructureOwner> getOwner(UUID player);
 
     /**
-     * Attempts to get the {@link StructureOwner} of this structure represented by an {@link IPPlayer}.
+     * Attempts to get the {@link StructureOwner} of this structure represented by an {@link IPlayer}.
      *
      * @param player
      *     The player that may or may not be an owner of this structure.
      * @return The {@link StructureOwner} of this structure for the given player, if this player is a
      * {@link StructureOwner} of this structure.
      */
-    default Optional<StructureOwner> getOwner(IPPlayer player)
+    default Optional<StructureOwner> getOwner(IPlayer player)
     {
         return getOwner(player.getUUID());
     }
@@ -163,7 +163,7 @@ public interface IStructureConst
     /**
      * See {@link #isOwner(UUID)}.
      */
-    default boolean isOwner(IPPlayer player)
+    default boolean isOwner(IPlayer player)
     {
         return isOwner(player.getUUID());
     }

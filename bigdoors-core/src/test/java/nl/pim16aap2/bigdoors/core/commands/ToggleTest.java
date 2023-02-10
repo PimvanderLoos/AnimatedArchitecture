@@ -3,8 +3,8 @@ package nl.pim16aap2.bigdoors.core.commands;
 import nl.pim16aap2.bigdoors.core.UnitTestUtil;
 import nl.pim16aap2.bigdoors.core.api.IConfig;
 import nl.pim16aap2.bigdoors.core.api.IMessageable;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
-import nl.pim16aap2.bigdoors.core.api.factories.IPPlayerFactory;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
+import nl.pim16aap2.bigdoors.core.api.factories.IPlayerFactory;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.events.structureaction.StructureActionCause;
 import nl.pim16aap2.bigdoors.core.events.structureaction.StructureActionType;
@@ -37,7 +37,7 @@ class ToggleTest
     private StructureRetriever structureRetriever;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
-    private IPPlayer commandSender;
+    private IPlayer commandSender;
 
     @Mock
     private AbstractStructure structure;
@@ -69,7 +69,7 @@ class ToggleTest
         Mockito.when(structureType.getLocalizationKey()).thenReturn("StructureType");
 
         Mockito.when(structure.isOwner(Mockito.any(UUID.class))).thenReturn(true);
-        Mockito.when(structure.isOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
+        Mockito.when(structure.isOwner(Mockito.any(IPlayer.class))).thenReturn(true);
         Mockito.when(structure.getType()).thenReturn(structureType);
 
         structureRetriever = StructureRetrieverFactory.ofStructure(structure);
@@ -82,7 +82,7 @@ class ToggleTest
                .thenReturn(structureToggleRequest);
 
         structureToggleRequestBuilder = new StructureToggleRequestBuilder(
-            structureToggleRequestFactory, messageableServer, Mockito.mock(IPPlayerFactory.class),
+            structureToggleRequestFactory, messageableServer, Mockito.mock(IPlayerFactory.class),
             Mockito.mock(IConfig.class));
 
         Mockito.when(factory.newToggle(Mockito.any(ICommandSender.class), Mockito.any(StructureActionType.class),
@@ -139,7 +139,7 @@ class ToggleTest
 
             final AbstractStructure newStructure = Mockito.mock(AbstractStructure.class);
             Mockito.when(newStructure.isOwner(Mockito.any(UUID.class))).thenReturn(true);
-            Mockito.when(newStructure.isOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
+            Mockito.when(newStructure.isOwner(Mockito.any(IPlayer.class))).thenReturn(true);
             Mockito.when(newStructure.getType()).thenReturn(type);
 
             retrievers[idx] = StructureRetrieverFactory.ofStructure(newStructure);
@@ -204,7 +204,7 @@ class ToggleTest
     @Test
     void testServerCommandSender()
     {
-        final IPServer serverCommandSender = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
+        final IServer serverCommandSender = Mockito.mock(IServer.class, Answers.CALLS_REAL_METHODS);
         Assertions.assertDoesNotThrow(
             () -> factory.newToggle(
                              serverCommandSender, StructureActionType.TOGGLE,
@@ -235,7 +235,7 @@ class ToggleTest
 
         Mockito.when(structure.isCloseable()).thenReturn(true);
         CommandTestingUtil.initCommandSenderPermissions(commandSender, false, false);
-        Mockito.when(structure.getOwner(Mockito.any(IPPlayer.class))).thenReturn(Optional.empty());
+        Mockito.when(structure.getOwner(Mockito.any(IPlayer.class))).thenReturn(Optional.empty());
 
         Assertions.assertDoesNotThrow(
             () -> factory.newToggle(commandSender, StructureActionType.CLOSE, AnimationType.MOVE_BLOCKS,

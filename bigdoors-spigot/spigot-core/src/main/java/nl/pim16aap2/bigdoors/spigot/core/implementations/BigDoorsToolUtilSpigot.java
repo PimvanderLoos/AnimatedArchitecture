@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.spigot.core.implementations;
 import com.google.common.flogger.StackSize;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.api.IBigDoorsToolUtil;
-import nl.pim16aap2.bigdoors.core.api.IPPlayer;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -36,7 +36,7 @@ public class BigDoorsToolUtilSpigot implements IBigDoorsToolUtil
     }
 
     @Override
-    public void giveToPlayer(IPPlayer player, String name, String lore)
+    public void giveToPlayer(IPlayer player, String name, String lore)
     {
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
@@ -68,7 +68,7 @@ public class BigDoorsToolUtilSpigot implements IBigDoorsToolUtil
     }
 
     @Override
-    public void removeTool(IPPlayer player)
+    public void removeTool(IPlayer player)
     {
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
@@ -97,7 +97,7 @@ public class BigDoorsToolUtilSpigot implements IBigDoorsToolUtil
     }
 
     @Override
-    public boolean isPlayerHoldingTool(IPPlayer player)
+    public boolean isPlayerHoldingTool(IPlayer player)
     {
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
