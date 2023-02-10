@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.structures.flag;
 
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.core.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.core.api.IConfig;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.core.moveblocks.Animator;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimationComponent;
@@ -25,7 +25,7 @@ import java.util.function.BiFunction;
 @Flogger
 public final class FlagAnimationComponent implements IAnimationComponent
 {
-    private final IConfigLoader config;
+    private final IConfig config;
     private final BiFunction<IAnimatedBlock, Integer, Vector3Dd> getGoalPos;
     private final StructureSnapshot snapshot;
     private final boolean isNorthSouthAligned;

@@ -4,20 +4,20 @@ import com.google.common.flogger.StackSize;
 import dagger.Lazy;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.core.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.core.api.IConfig;
 import nl.pim16aap2.bigdoors.core.api.IConfigReader;
 import nl.pim16aap2.bigdoors.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.core.api.debugging.IDebuggable;
 import nl.pim16aap2.bigdoors.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.core.localization.LocalizationUtil;
 import nl.pim16aap2.bigdoors.core.managers.StructureTypeManager;
-import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
-import nl.pim16aap2.bigdoors.spigot.util.implementations.ConfigReaderSpigot;
 import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
 import nl.pim16aap2.bigdoors.core.util.ConfigEntry;
 import nl.pim16aap2.bigdoors.core.util.Constants;
 import nl.pim16aap2.bigdoors.core.util.Limit;
 import nl.pim16aap2.bigdoors.core.util.Util;
+import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.ConfigReaderSpigot;
 import org.bukkit.Material;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
@@ -49,7 +49,7 @@ import java.util.logging.Level;
 @ToString
 @Singleton
 @Flogger
-public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
+public final class ConfigSpigot implements IConfig, IDebuggable
 {
     @ToString.Exclude
     private final JavaPlugin plugin;
@@ -91,13 +91,13 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
     private String flagMovementFormula = "";
 
     /**
-     * Constructs a new {@link ConfigLoaderSpigot}.
+     * Constructs a new {@link ConfigSpigot}.
      *
      * @param plugin
      *     The Spigot core.
      */
     @Inject
-    public ConfigLoaderSpigot(
+    public ConfigSpigot(
         RestartableHolder restartableHolder, JavaPlugin plugin, Lazy<StructureTypeManager> structureTypeManager,
         @Named("pluginBaseDirectory") Path baseDir, DebuggableRegistry debuggableRegistry)
     {

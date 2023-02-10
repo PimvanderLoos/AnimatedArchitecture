@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.core.structures;
 
 import lombok.RequiredArgsConstructor;
 import nl.pim16aap2.bigdoors.core.annotations.Initializer;
-import nl.pim16aap2.bigdoors.core.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.core.api.IConfig;
 import nl.pim16aap2.bigdoors.core.api.IMessageable;
 import nl.pim16aap2.bigdoors.core.api.IPPlayer;
 import nl.pim16aap2.bigdoors.core.api.PPlayerData;
@@ -31,13 +31,13 @@ public class StructureToggleRequestBuilder
     private final StructureToggleRequest.IFactory structureToggleRequestFactory;
     private final IMessageable messageableServer;
     private final IPPlayerFactory playerFactory;
-    private final IConfigLoader config;
+    private final IConfig config;
 
     @Inject
     public StructureToggleRequestBuilder(
         StructureToggleRequest.IFactory structureToggleRequestFactory,
         @Named("MessageableServer") IMessageable messageableServer,
-        IPPlayerFactory playerFactory, IConfigLoader config)
+        IPPlayerFactory playerFactory, IConfig config)
     {
         this.structureToggleRequestFactory = structureToggleRequestFactory;
         this.messageableServer = messageableServer;
@@ -62,7 +62,7 @@ public class StructureToggleRequestBuilder
         private final StructureToggleRequest.IFactory structureToggleRequestFactory;
         private final IMessageable messageableServer;
         private final IPPlayerFactory playerFactory;
-        private final IConfigLoader config;
+        private final IConfig config;
 
         private StructureRetriever structureRetriever;
         private StructureActionCause structureActionCause;

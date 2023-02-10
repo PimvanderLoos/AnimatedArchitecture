@@ -3,16 +3,16 @@ package nl.pim16aap2.bigdoors.spigot.core.gui;
 import de.themoep.inventorygui.GuiElement;
 import de.themoep.inventorygui.GuiStateElement;
 import de.themoep.inventorygui.StaticGuiElement;
-import nl.pim16aap2.bigdoors.core.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.core.api.IConfig;
 import nl.pim16aap2.bigdoors.core.api.IPExecutor;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.core.commands.Toggle;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.spigot.util.implementations.PPlayerSpigot;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.structures.StructureAttribute;
 import nl.pim16aap2.bigdoors.core.util.structureretriever.StructureRetrieverFactory;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.PPlayerSpigot;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -26,12 +26,12 @@ class AttributeButtonFactory
     private final IPExecutor executor;
     private final StructureRetrieverFactory structureRetrieverFactory;
     private final DeleteGui.IFactory deleteGuiFactory;
-    private final IConfigLoader config;
+    private final IConfig config;
 
     @Inject //
     AttributeButtonFactory(
         ILocalizer localizer, ITextFactory textFactory, CommandFactory commandFactory, IPExecutor executor,
-        StructureRetrieverFactory structureRetrieverFactory, DeleteGui.IFactory deleteGuiFactory, IConfigLoader config)
+        StructureRetrieverFactory structureRetrieverFactory, DeleteGui.IFactory deleteGuiFactory, IConfig config)
     {
         this.localizer = localizer;
         this.textFactory = textFactory;

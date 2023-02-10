@@ -7,7 +7,7 @@ import nl.pim16aap2.bigdoors.core.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.core.api.IBigDoorsToolUtil;
 import nl.pim16aap2.bigdoors.core.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.core.api.IChunkLoader;
-import nl.pim16aap2.bigdoors.core.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.core.api.IConfig;
 import nl.pim16aap2.bigdoors.core.api.IEconomyManager;
 import nl.pim16aap2.bigdoors.core.api.IMessageable;
 import nl.pim16aap2.bigdoors.core.api.IMessagingInterface;
@@ -38,6 +38,8 @@ import nl.pim16aap2.bigdoors.core.managers.StructureSpecificationManager;
 import nl.pim16aap2.bigdoors.core.managers.StructureTypeManager;
 import nl.pim16aap2.bigdoors.core.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.core.moveblocks.StructureActivityManager;
+import nl.pim16aap2.bigdoors.core.storage.IStorage;
+import nl.pim16aap2.bigdoors.core.structures.StructureRegistry;
 import nl.pim16aap2.bigdoors.spigot.core.comands.CommandManager;
 import nl.pim16aap2.bigdoors.spigot.core.exceptions.InitializationException;
 import nl.pim16aap2.bigdoors.spigot.core.listeners.ChunkListener;
@@ -49,8 +51,6 @@ import nl.pim16aap2.bigdoors.spigot.core.listeners.WorldListener;
 import nl.pim16aap2.bigdoors.spigot.core.managers.HeadManager;
 import nl.pim16aap2.bigdoors.spigot.core.managers.SubPlatformManager;
 import nl.pim16aap2.bigdoors.spigot.util.api.IBigDoorsSpigotSubPlatform;
-import nl.pim16aap2.bigdoors.core.storage.IStorage;
-import nl.pim16aap2.bigdoors.core.structures.StructureRegistry;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Singleton;
@@ -85,7 +85,7 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     private final IPPlayerFactory pPlayerFactory;
 
     @Getter
-    private final IConfigLoader bigDoorsConfig;
+    private final IConfig bigDoorsConfig;
 
     @Getter
     private final IAudioPlayer audioPlayer;

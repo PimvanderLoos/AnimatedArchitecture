@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.spigot.core.listeners;
 
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.api.restartable.RestartableHolder;
-import nl.pim16aap2.bigdoors.spigot.core.config.ConfigLoaderSpigot;
+import nl.pim16aap2.bigdoors.spigot.core.config.ConfigSpigot;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -20,11 +20,11 @@ import javax.inject.Singleton;
 @Flogger
 public class LoginResourcePackListener extends AbstractListener
 {
-    private final ConfigLoaderSpigot config;
+    private final ConfigSpigot config;
     private String resourcePackURL;
 
     @Inject
-    public LoginResourcePackListener(RestartableHolder holder, ConfigLoaderSpigot config, JavaPlugin plugin)
+    public LoginResourcePackListener(RestartableHolder holder, ConfigSpigot config, JavaPlugin plugin)
     {
         super(holder, plugin, () -> shouldBeEnabled(config));
         this.config = config;
@@ -38,7 +38,7 @@ public class LoginResourcePackListener extends AbstractListener
      *     The config to use to determine the status of this listener.
      * @return True if this listener should be enabled.
      */
-    private static boolean shouldBeEnabled(ConfigLoaderSpigot config)
+    private static boolean shouldBeEnabled(ConfigSpigot config)
     {
         return !config.resourcePack().isBlank();
     }

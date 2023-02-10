@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.core.localization;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import nl.pim16aap2.bigdoors.core.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.core.api.IConfig;
 import nl.pim16aap2.bigdoors.core.api.restartable.RestartableHolder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -46,8 +46,8 @@ class LocalizationManagerIntegrationTest
         throws IOException
     {
         final String baseName = "Translation";
-        final IConfigLoader configLoader = Mockito.mock(IConfigLoader.class);
-        Mockito.when(configLoader.locale()).thenReturn(Locale.ROOT);
+        final IConfig config = Mockito.mock(IConfig.class);
+        Mockito.when(config.locale()).thenReturn(Locale.ROOT);
 
         final Path outputBundle = directoryOutput.resolve(baseName + ".bundle");
         final ZipOutputStream outputStream = new ZipOutputStream(Files.newOutputStream(outputBundle));
@@ -56,7 +56,7 @@ class LocalizationManagerIntegrationTest
 
         final LocalizationManager localizationManager =
             new LocalizationManager(Mockito.mock(RestartableHolder.class), directoryOutput,
-                                    baseName, configLoader, false);
+                                    baseName, config, false);
 
         localizationManager.shutDown();
         localizationManager.initialize();
@@ -71,8 +71,8 @@ class LocalizationManagerIntegrationTest
         throws IOException
     {
         final String baseName = "Translation";
-        final IConfigLoader configLoader = Mockito.mock(IConfigLoader.class);
-        Mockito.when(configLoader.locale()).thenReturn(Locale.ROOT);
+        final IConfig config = Mockito.mock(IConfig.class);
+        Mockito.when(config.locale()).thenReturn(Locale.ROOT);
 
         final List<String> baseItems = List.of("key0=value0", "key1=value1", "key2=value2",
                                                "key3=value3", "key4=value4", "key5=value5");
@@ -86,7 +86,7 @@ class LocalizationManagerIntegrationTest
 
         final LocalizationManager localizationManager =
             new LocalizationManager(Mockito.mock(RestartableHolder.class), directoryOutput,
-                                    baseName, configLoader, false);
+                                    baseName, config, false);
 
         Assertions.assertEquals("value0", localizationManager.getLocalizer().getMessage("key0"));
         Assertions.assertEquals("value3", localizationManager.getLocalizer().getMessage("key3"));

@@ -4,7 +4,7 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.Getter;
-import nl.pim16aap2.bigdoors.core.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.core.api.IConfig;
 import nl.pim16aap2.bigdoors.core.api.IPExecutor;
 import nl.pim16aap2.bigdoors.core.api.IPPlayer;
 import nl.pim16aap2.bigdoors.core.audio.IAudioPlayer;
@@ -26,7 +26,7 @@ public final class StructureRequestData
     private final IAudioPlayer audioPlayer;
     private final IPExecutor executor;
     private final AnimationHookManager animationHookManager;
-    private final IConfigLoader config;
+    private final IConfig config;
     private final int serverTickTime;
     private final StructureSnapshot structureSnapshot;
     private final StructureActionCause cause;
@@ -42,7 +42,7 @@ public final class StructureRequestData
         IAudioPlayer audioPlayer,
         IPExecutor executor,
         AnimationHookManager animationHookManager,
-        IConfigLoader config,
+        IConfig config,
         @Named("serverTickTime") int serverTickTime,
         @Assisted StructureSnapshot structureSnapshot,
         @Assisted StructureActionCause cause,

@@ -7,14 +7,12 @@ import java.util.Locale;
 import java.util.OptionalInt;
 import java.util.logging.Level;
 
-// TODO: Change this description and while I'm at it, also the name of the class.
-
 /**
- * Represents a config with general options.
+ * Represents the configured settings.
  *
  * @author Pim
  */
-public interface IConfigLoader extends IRestartable
+public interface IConfig extends IRestartable
 {
     /**
      * @return True if debug mode is enabled.

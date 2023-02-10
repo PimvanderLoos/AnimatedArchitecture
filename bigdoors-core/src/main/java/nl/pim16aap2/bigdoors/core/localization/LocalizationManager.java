@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.core.localization;
 
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.core.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.core.api.IConfig;
 import nl.pim16aap2.bigdoors.core.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.core.api.restartable.RestartableHolder;
 import org.jetbrains.annotations.Nullable;
@@ -30,30 +30,30 @@ public final class LocalizationManager extends Restartable implements ILocalizat
 {
     private final Path baseDir;
     private final String baseName;
-    private final IConfigLoader configLoader;
+    private final IConfig config;
     private final Localizer localizer;
     private final LocalizationGenerator baseGenerator;
     private @Nullable LocalizationGenerator patchGenerator;
 
     LocalizationManager(
         RestartableHolder restartableHolder, Path baseDir,
-        String baseName, IConfigLoader configLoader, boolean deleteBundleOnStart)
+        String baseName, IConfig config, boolean deleteBundleOnStart)
     {
         super(restartableHolder);
         this.baseDir = baseDir;
         this.baseName = baseName;
-        this.configLoader = configLoader;
+        this.config = config;
         localizer = new Localizer(baseDir, baseName, deleteBundleOnStart);
-        localizer.setDefaultLocale(configLoader.locale());
+        localizer.setDefaultLocale(config.locale());
         baseGenerator = new LocalizationGenerator(baseDir, baseName);
     }
 
     @Inject
     public LocalizationManager(
         RestartableHolder restartableHolder, @Named("localizationBaseDir") Path baseDir,
-        @Named("localizationBaseName") String baseName, IConfigLoader configLoader)
+        @Named("localizationBaseName") String baseName, IConfig config)
     {
-        this(restartableHolder, baseDir, baseName, configLoader, true);
+        this(restartableHolder, baseDir, baseName, config, true);
     }
 
     /**
@@ -165,7 +165,7 @@ public final class LocalizationManager extends Restartable implements ILocalizat
     @Override
     public synchronized void initialize()
     {
-        localizer.setDefaultLocale(configLoader.locale());
+        localizer.setDefaultLocale(config.locale());
         applyPatches();
         runForGenerators(generator -> generator.addResourcesFromClass(List.of(LocalizationManager.class)),
                          () -> "Adding resources from LocalizationManager.class.");

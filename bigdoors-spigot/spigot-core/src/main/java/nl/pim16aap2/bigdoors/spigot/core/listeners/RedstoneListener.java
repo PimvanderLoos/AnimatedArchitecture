@@ -3,9 +3,9 @@ package nl.pim16aap2.bigdoors.spigot.core.listeners;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.core.managers.PowerBlockManager;
-import nl.pim16aap2.bigdoors.spigot.core.config.ConfigLoaderSpigot;
-import nl.pim16aap2.bigdoors.spigot.util.implementations.PLocationSpigot;
 import nl.pim16aap2.bigdoors.core.util.Util;
+import nl.pim16aap2.bigdoors.spigot.core.config.ConfigSpigot;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.PLocationSpigot;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -30,13 +30,13 @@ import java.util.concurrent.CompletableFuture;
 @Flogger
 public class RedstoneListener extends AbstractListener
 {
-    private final ConfigLoaderSpigot config;
+    private final ConfigSpigot config;
     private final Set<Material> powerBlockTypes = new HashSet<>();
     private final PowerBlockManager powerBlockManager;
 
     @Inject
     public RedstoneListener(
-        RestartableHolder holder, JavaPlugin plugin, ConfigLoaderSpigot config, PowerBlockManager powerBlockManager)
+        RestartableHolder holder, JavaPlugin plugin, ConfigSpigot config, PowerBlockManager powerBlockManager)
     {
         super(holder, plugin, config::isRedstoneEnabled);
         this.config = config;

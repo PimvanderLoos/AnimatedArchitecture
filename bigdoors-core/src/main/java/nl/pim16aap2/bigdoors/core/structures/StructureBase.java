@@ -12,7 +12,7 @@ import lombok.ToString;
 import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.api.IChunkLoader;
-import nl.pim16aap2.bigdoors.core.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.core.api.IConfig;
 import nl.pim16aap2.bigdoors.core.api.IPExecutor;
 import nl.pim16aap2.bigdoors.core.api.IPWorld;
 import nl.pim16aap2.bigdoors.core.api.IRedstoneManager;
@@ -116,7 +116,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
     @EqualsAndHashCode.Exclude
     @Getter(AccessLevel.PACKAGE)
-    private final IConfigLoader config;
+    private final IConfig config;
 
     @EqualsAndHashCode.Exclude
     @Getter(AccessLevel.PACKAGE)
@@ -163,7 +163,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
         IRedstoneManager redstoneManager,
         StructureActivityManager structureActivityManager,
         IChunkLoader chunkLoader,
-        IConfigLoader config)
+        IConfig config)
     {
         this.uid = uid;
         this.name = name;

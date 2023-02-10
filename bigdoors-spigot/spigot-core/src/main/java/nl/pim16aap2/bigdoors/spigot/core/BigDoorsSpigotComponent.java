@@ -37,17 +37,13 @@ import nl.pim16aap2.bigdoors.core.managers.StructureSpecificationManager;
 import nl.pim16aap2.bigdoors.core.managers.StructureTypeManager;
 import nl.pim16aap2.bigdoors.core.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.core.moveblocks.StructureActivityManager;
-import nl.pim16aap2.bigdoors.spigot.util.api.IBigDoorsSpigotSubPlatform;
-import nl.pim16aap2.bigdoors.spigot.util.implementations.audio.AudioPlayerSpigotModule;
-import nl.pim16aap2.bigdoors.spigot.util.implementations.glowingblocks.GlowingBlockSpawnerModule;
-import nl.pim16aap2.bigdoors.spigot.util.implementations.messageable.MessagingInterfaceSpigotModule;
-import nl.pim16aap2.bigdoors.spigot.util.implementations.pexecutor.PExecutorModule;
-import nl.pim16aap2.bigdoors.spigot.util.implementations.pserver.PServerModule;
+import nl.pim16aap2.bigdoors.core.storage.sqlite.SQLiteStorageModule;
+import nl.pim16aap2.bigdoors.core.structures.StructureRegistry;
 import nl.pim16aap2.bigdoors.spigot.core.comands.CommandManager;
 import nl.pim16aap2.bigdoors.spigot.core.compatiblity.ProtectionCompatManagerModule;
 import nl.pim16aap2.bigdoors.spigot.core.compatiblity.ProtectionCompatManagerSpigot;
-import nl.pim16aap2.bigdoors.spigot.core.config.ConfigLoaderSpigot;
-import nl.pim16aap2.bigdoors.spigot.core.config.ConfigLoaderSpigotModule;
+import nl.pim16aap2.bigdoors.spigot.core.config.ConfigSpigot;
+import nl.pim16aap2.bigdoors.spigot.core.config.ConfigSpigotModule;
 import nl.pim16aap2.bigdoors.spigot.core.factories.bigdoorseventfactory.BigDoorsEventsSpigotModule;
 import nl.pim16aap2.bigdoors.spigot.core.factories.plocationfactory.PLocationFactorySpigotModule;
 import nl.pim16aap2.bigdoors.spigot.core.factories.pplayerfactory.PPlayerFactorySpigotModule;
@@ -71,8 +67,12 @@ import nl.pim16aap2.bigdoors.spigot.core.managers.PowerBlockRedstoneManagerSpigo
 import nl.pim16aap2.bigdoors.spigot.core.managers.SubPlatformManager;
 import nl.pim16aap2.bigdoors.spigot.core.managers.VaultManager;
 import nl.pim16aap2.bigdoors.spigot.core.managers.VaultManagerModule;
-import nl.pim16aap2.bigdoors.core.storage.sqlite.SQLiteStorageModule;
-import nl.pim16aap2.bigdoors.core.structures.StructureRegistry;
+import nl.pim16aap2.bigdoors.spigot.util.api.IBigDoorsSpigotSubPlatform;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.audio.AudioPlayerSpigotModule;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.glowingblocks.GlowingBlockSpawnerModule;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.messageable.MessagingInterfaceSpigotModule;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.pexecutor.PExecutorModule;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.pserver.PServerModule;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.inject.Named;
@@ -84,7 +84,7 @@ import javax.inject.Singleton;
     BigDoorsPluginModule.class,
     PlatformManagerSpigotModule.class,
     ProtectionCompatManagerModule.class,
-    ConfigLoaderSpigotModule.class,
+    ConfigSpigotModule.class,
     LocalizationModule.class,
     PExecutorModule.class,
     GlowingBlockSpawnerModule.class,
@@ -142,7 +142,7 @@ interface BigDoorsSpigotComponent
 
     IGuiFactory getGUIFactory();
 
-    ConfigLoaderSpigot getConfig();
+    ConfigSpigot getConfig();
 
     RedstoneListener getRedstoneListener();
 

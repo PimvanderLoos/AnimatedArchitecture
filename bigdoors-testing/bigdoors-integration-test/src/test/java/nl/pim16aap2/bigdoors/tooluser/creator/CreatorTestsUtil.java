@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.tooluser.creator;
 
 import nl.pim16aap2.bigdoors.core.UnitTestUtil;
 import nl.pim16aap2.bigdoors.core.api.IBigDoorsToolUtil;
-import nl.pim16aap2.bigdoors.core.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.core.api.IConfig;
 import nl.pim16aap2.bigdoors.core.api.IEconomyManager;
 import nl.pim16aap2.bigdoors.core.api.IPPlayer;
 import nl.pim16aap2.bigdoors.core.api.IPWorld;
@@ -88,7 +88,7 @@ public class CreatorTestsUtil
     protected IEconomyManager economyManager;
 
     @Mock
-    protected IConfigLoader configLoader;
+    protected IConfig config;
 
     @Mock
     protected IPermissionsManager permissionsManager;
@@ -148,7 +148,7 @@ public class CreatorTestsUtil
         mocks = MockitoAnnotations.openMocks(this);
 
         localizer = UnitTestUtil.initLocalizer();
-        limitsManager = new LimitsManager(permissionsManager, configLoader);
+        limitsManager = new LimitsManager(permissionsManager, config);
 
         final var builderResult = newStructureBaseBuilder();
         builderResult.assistedFactoryMocker()
@@ -189,10 +189,10 @@ public class CreatorTestsUtil
 
         Mockito.when(permissionsManager.hasPermission(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(true);
 
-        Mockito.when(configLoader.maxStructureSize()).thenReturn(OptionalInt.empty());
-        Mockito.when(configLoader.maxStructureCount()).thenReturn(OptionalInt.empty());
-        Mockito.when(configLoader.maxPowerBlockDistance()).thenReturn(OptionalInt.empty());
-        Mockito.when(configLoader.maxBlocksToMove()).thenReturn(OptionalInt.empty());
+        Mockito.when(config.maxStructureSize()).thenReturn(OptionalInt.empty());
+        Mockito.when(config.maxStructureCount()).thenReturn(OptionalInt.empty());
+        Mockito.when(config.maxPowerBlockDistance()).thenReturn(OptionalInt.empty());
+        Mockito.when(config.maxBlocksToMove()).thenReturn(OptionalInt.empty());
     }
 
     @BeforeEach

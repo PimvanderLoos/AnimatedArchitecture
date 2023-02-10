@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.core.extensions;
 
 import com.google.common.flogger.StackSize;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.core.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.core.api.IConfig;
 import nl.pim16aap2.bigdoors.core.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.core.managers.StructureTypeManager;
@@ -37,18 +37,18 @@ public final class StructureTypeLoader extends Restartable
     private @Nullable StructureTypeClassLoader structureTypeClassLoader;
 
     private final StructureTypeManager structureTypeManager;
-    private final IConfigLoader configLoader;
+    private final IConfig config;
     private final Path extensionsDirectory;
     private boolean successfulInit;
 
     @Inject
     public StructureTypeLoader(
-        RestartableHolder holder, StructureTypeManager structureTypeManager, IConfigLoader configLoader,
+        RestartableHolder holder, StructureTypeManager structureTypeManager, IConfig config,
         @Named("pluginBaseDirectory") Path dataDirectory)
     {
         super(holder);
         this.structureTypeManager = structureTypeManager;
-        this.configLoader = configLoader;
+        this.config = config;
         extensionsDirectory = dataDirectory.resolve(Constants.BIGDOORS_EXTENSIONS_FOLDER_NAME);
     }
 
@@ -187,7 +187,7 @@ public final class StructureTypeLoader extends Restartable
 
         final List<StructureType> types =
             new StructureTypeInitializer(typeInfoList, structureTypeClassLoader,
-                                         configLoader.debug()).loadStructureTypes();
+                                         config.debug()).loadStructureTypes();
         structureTypeManager.registerStructureTypes(types);
         return types;
     }
