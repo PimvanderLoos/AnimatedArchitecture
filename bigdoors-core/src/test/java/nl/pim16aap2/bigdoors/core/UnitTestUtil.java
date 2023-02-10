@@ -6,6 +6,7 @@ import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.structures.StructureBaseBuilder;
 import nl.pim16aap2.bigdoors.core.text.Text;
+import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Di;
@@ -90,13 +91,14 @@ public class UnitTestUtil
         Mockito.when(loc.getY()).thenReturn(y);
         Mockito.when(loc.getZ()).thenReturn(z);
 
-        Mockito.when(loc.getBlockX()).thenReturn((int) x);
-        Mockito.when(loc.getBlockY()).thenReturn((int) y);
-        Mockito.when(loc.getBlockZ()).thenReturn((int) z);
+        Mockito.when(loc.getBlockX()).thenReturn(MathUtil.floor(x));
+        Mockito.when(loc.getBlockY()).thenReturn(MathUtil.floor(y));
+        Mockito.when(loc.getBlockZ()).thenReturn(MathUtil.floor(z));
 
-        Mockito.when(loc.getPosition()).thenReturn(new Vector3Di((int) x, (int) y, (int) z));
+        Mockito.when(loc.getPosition())
+               .thenReturn(new Vector3Di(MathUtil.floor(x), MathUtil.floor(y), MathUtil.floor(z)));
 
-        Mockito.when(loc.getChunk()).thenReturn(new Vector2Di(((int) x) << 4, ((int) z) << 4));
+        Mockito.when(loc.getChunk()).thenReturn(new Vector2Di(MathUtil.floor(x) << 4, MathUtil.floor(z) << 4));
 
         return loc;
     }

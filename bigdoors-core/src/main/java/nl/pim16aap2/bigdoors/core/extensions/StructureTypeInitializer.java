@@ -6,6 +6,7 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.data.graph.DirectedAcyclicGraph;
 import nl.pim16aap2.bigdoors.core.data.graph.Node;
 import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
+import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import nl.pim16aap2.bigdoors.core.util.Util;
 import org.jetbrains.annotations.Nullable;
 
@@ -83,7 +84,7 @@ final class StructureTypeInitializer
 
     DirectedAcyclicGraph<Loadable> createGraph(List<StructureTypeInfo> structureTypeInfos, boolean debug)
     {
-        final Map<String, Loadable> loadables = new HashMap<>(structureTypeInfos.size());
+        final Map<String, Loadable> loadables = new HashMap<>(MathUtil.ceil(1.25 * structureTypeInfos.size()));
         structureTypeInfos.forEach(info -> loadables.put(info.getTypeName(), new Loadable(info)));
 
         final DirectedAcyclicGraph<Loadable> graph = new DirectedAcyclicGraph<>(debug);

@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.core.util.vector;
 
 import com.google.errorprone.annotations.CheckReturnValue;
+import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import org.jetbrains.annotations.Contract;
 
 /**
@@ -358,7 +359,7 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
     @CheckReturnValue @Contract(pure = true)
     private static int round(double val)
     {
-        return (int) Math.round(val);
+        return MathUtil.round(val);
     }
 
     /**

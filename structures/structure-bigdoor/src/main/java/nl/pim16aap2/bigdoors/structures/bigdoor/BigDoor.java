@@ -102,7 +102,7 @@ public class BigDoor extends AbstractStructure
      */
     public static Rectangle calculateAnimationRange(double maxRadius, Cuboid cuboid)
     {
-        final int radius = (int) Math.ceil(maxRadius);
+        final int radius = MathUtil.ceil(maxRadius);
         return new Cuboid(cuboid.getMin().add(-radius, 0, -radius),
                           cuboid.getMax().add(radius, 0, radius))
             .asFlatRectangle();

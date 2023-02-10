@@ -2,11 +2,12 @@ package nl.pim16aap2.bigdoors.spigot.core.implementations;
 
 import nl.pim16aap2.bigdoors.core.api.IChunkLoader;
 import nl.pim16aap2.bigdoors.core.api.IPWorld;
-import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
+import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import nl.pim16aap2.bigdoors.core.util.Util;
 import nl.pim16aap2.bigdoors.core.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Di;
+import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import org.bukkit.World;
 
 import javax.inject.Inject;
@@ -61,8 +62,8 @@ public class ChunkLoaderSpigot implements IChunkLoader
         final IChunkLoadFunction modeFun = chunkLoadFunctions[chunkLoadMode.ordinal()];
         final World world = Util.requireNonNull(SpigotAdapter.getBukkitWorld(iWorld), "Bukkit World");
 
-        final int chunkX = ((int) Math.round(position.xD())) >> 4;
-        final int chunkZ = ((int) Math.round(position.zD())) >> 4;
+        final int chunkX = (MathUtil.round(position.xD())) >> 4;
+        final int chunkZ = (MathUtil.round(position.zD())) >> 4;
 
         return modeFun.apply(world, chunkX, chunkZ);
     }

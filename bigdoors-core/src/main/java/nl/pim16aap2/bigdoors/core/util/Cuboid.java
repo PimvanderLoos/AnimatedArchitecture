@@ -86,18 +86,18 @@ public final class Cuboid
         {
             case NEAREST ->
             {
-                min = new Vector3Di((int) Math.round(xMin), (int) Math.round(yMin), (int) Math.round(zMin));
-                max = new Vector3Di((int) Math.round(xMax), (int) Math.round(yMax), (int) Math.round(zMax));
+                min = new Vector3Di(MathUtil.round(xMin), MathUtil.round(yMin), MathUtil.round(zMin));
+                max = new Vector3Di(MathUtil.round(xMax), MathUtil.round(yMax), MathUtil.round(zMax));
             }
             case INWARD ->
             {
-                min = new Vector3Di((int) Math.ceil(xMin), (int) Math.ceil(yMin), (int) Math.ceil(zMin));
-                max = new Vector3Di((int) Math.floor(xMax), (int) Math.floor(yMax), (int) Math.floor(zMax));
+                min = new Vector3Di(MathUtil.ceil(xMin), MathUtil.ceil(yMin), MathUtil.ceil(zMin));
+                max = new Vector3Di(MathUtil.floor(xMax), MathUtil.floor(yMax), MathUtil.floor(zMax));
             }
             case OUTWARD ->
             {
-                min = new Vector3Di((int) Math.floor(xMin), (int) Math.floor(yMin), (int) Math.floor(zMin));
-                max = new Vector3Di((int) Math.ceil(xMax), (int) Math.ceil(yMax), (int) Math.ceil(zMax));
+                min = new Vector3Di(MathUtil.floor(xMin), MathUtil.floor(yMin), MathUtil.floor(zMin));
+                max = new Vector3Di(MathUtil.ceil(xMax), MathUtil.ceil(yMax), MathUtil.ceil(zMax));
             }
         }
         return new Cuboid(Util.requireNonNull(min, "Minimum"), Util.requireNonNull(max, "Maximum"));
@@ -214,9 +214,9 @@ public final class Cuboid
     @CheckReturnValue @Contract(pure = true)
     public Vector3Di getCenterBlock()
     {
-        final int cX = (int) ((max.x() + min.x()) / 2.0f);
-        final int cY = (int) ((max.y() + min.y()) / 2.0f);
-        final int cZ = (int) ((max.z() + min.z()) / 2.0f);
+        final int cX = Math.floorDiv(max.x() + min.x(), 2);
+        final int cY = Math.floorDiv(max.y() + min.y(), 2);
+        final int cZ = Math.floorDiv(max.z() + min.z(), 2);
         return new Vector3Di(cX, cY, cZ);
     }
 

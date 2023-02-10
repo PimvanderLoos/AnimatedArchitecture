@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.core.commands.ICommandSender;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.managers.StructureTypeManager;
 import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
+import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -77,7 +78,7 @@ public class StructureTypeParser implements ArgumentParser<ICommandSender, Struc
     public synchronized void initialize()
     {
         final Collection<StructureType> types = structureTypeManager.getEnabledStructureTypes();
-        this.suggestions = new LinkedHashMap<>(types.size());
+        this.suggestions = new LinkedHashMap<>(MathUtil.ceil(1.25 * types.size()));
         types.forEach(type -> suggestions.put(format(type), type));
     }
 

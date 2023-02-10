@@ -316,7 +316,7 @@ class StructureFinderTest
                 if (uid < 0 || uid >= structures.size())
                     throw new IllegalArgumentException("No structure with UID " + uid + " available!");
                 return new nl.pim16aap2.bigdoors.core.util.structureretriever.StructureRetriever.StructureObjectRetriever(
-                    structures.get((int) uid));
+                    structures.get(Math.toIntExact(uid)));
             });
 
         final nl.pim16aap2.bigdoors.core.util.structureretriever.StructureFinder structureFinder =

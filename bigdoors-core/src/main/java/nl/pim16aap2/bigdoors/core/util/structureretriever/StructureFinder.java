@@ -12,6 +12,7 @@ import nl.pim16aap2.bigdoors.core.data.cache.RollingCache;
 import nl.pim16aap2.bigdoors.core.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.structures.PermissionLevel;
+import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import nl.pim16aap2.bigdoors.core.util.Util;
 
 import javax.annotation.Nullable;
@@ -469,7 +470,7 @@ public final class StructureFinder
         if (lastInput != null)
             return new LinkedHashSet<>(getFullMatches(descriptions, lastInput))
                 .stream().map(MinimalStructureDescription::id).collect(Collectors.toSet());
-        final LinkedHashSet<String> ids = new LinkedHashSet<>(descriptions.size());
+        final LinkedHashSet<String> ids = new LinkedHashSet<>(MathUtil.ceil(1.25 * descriptions.size()));
         descriptions.forEach(desc -> ids.add(desc.id));
         return ids;
     }
@@ -487,7 +488,7 @@ public final class StructureFinder
     private static LongSet getUIDs(Collection<MinimalStructureDescription> descriptions, @Nullable String lastInput)
     {
         if (lastInput != null)
-            return LongLinkedOpenHashSet.toSet(new LinkedHashSet<>(getFullMatches(descriptions, lastInput))
+            return LongLinkedOpenHashSet.toSet(getFullMatches(descriptions, lastInput)
                                                    .stream().mapToLong(MinimalStructureDescription::uid));
         final LongSet ids = new LongLinkedOpenHashSet();
         descriptions.forEach(desc -> ids.add(desc.uid));

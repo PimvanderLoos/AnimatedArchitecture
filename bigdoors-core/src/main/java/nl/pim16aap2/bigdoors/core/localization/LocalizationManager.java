@@ -4,6 +4,7 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.core.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.core.api.restartable.RestartableHolder;
+import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -105,7 +106,8 @@ public final class LocalizationManager extends Restartable implements ILocalizat
             localizationPatcher.updatePatchKeys(rootKeys);
 
             final List<LocaleFile> patchFiles = localizationPatcher.getPatchFiles();
-            final Map<LocaleFile, Map<String, String>> patches = new HashMap<>(patchFiles.size());
+            final Map<LocaleFile, Map<String, String>> patches =
+                new HashMap<>(MathUtil.ceil(1.25 * patchFiles.size()));
             patchFiles.forEach(localeFile -> patches.put(localeFile, localizationPatcher.getPatches(localeFile)));
 
             final String patchedName = baseName + "_patched";

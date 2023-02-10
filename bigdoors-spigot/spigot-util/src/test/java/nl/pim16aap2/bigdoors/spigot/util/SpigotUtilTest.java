@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.util;
 
+import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.permissions.PermissionAttachmentInfo;
@@ -51,7 +52,7 @@ class SpigotUtilTest
         final Player player = Mockito.mock(Player.class);
         final PermissionAttachment permissionAttachment = Mockito.mock(PermissionAttachment.class);
 
-        final Set<PermissionAttachmentInfo> effectivePermissions = new HashSet<>(nodes.length);
+        final Set<PermissionAttachmentInfo> effectivePermissions = new HashSet<>(MathUtil.ceil(1.25 * nodes.length));
         for (final String node : nodes)
             effectivePermissions.add(new PermissionAttachmentInfo(player, node, permissionAttachment, true));
 

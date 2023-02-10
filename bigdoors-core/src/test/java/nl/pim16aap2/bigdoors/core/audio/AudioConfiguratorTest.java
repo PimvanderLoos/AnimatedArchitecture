@@ -81,7 +81,7 @@ class AudioConfiguratorTest
         Mockito.when(TYPE_4.getAudioSet()).thenReturn(null); // Null for both
         Mockito.when(TYPE_5.getAudioSet()).thenReturn(SET_EMPTY); // Empty one
 
-        final Map<String, @Nullable AudioSet> parsed = new LinkedHashMap<>(4);
+        final Map<String, @Nullable AudioSet> parsed = new LinkedHashMap<>();
         parsed.put(KEY_0, SET_EMPTY); // Overrides default
         parsed.put(KEY_1, SET_0); // Adds key that didn't exist in default
         parsed.put(KEY_2, null); // Replaces with null
