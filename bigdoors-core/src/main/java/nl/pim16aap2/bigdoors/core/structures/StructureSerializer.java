@@ -9,6 +9,7 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.structures.serialization.Deserialization;
 import nl.pim16aap2.bigdoors.core.structures.serialization.PersistentVariable;
 import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
+import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import nl.pim16aap2.util.SafeStringBuilder;
 import nl.pim16aap2.util.reflection.ReflectionBuilder;
 import org.jetbrains.annotations.Nullable;
@@ -217,7 +218,7 @@ public final class StructureSerializer<T extends AbstractStructure>
     public String serialize(AbstractStructure structure)
         throws Exception
     {
-        final HashMap<String, Object> values = new HashMap<>((int) Math.ceil(1.25 * fields.size()));
+        final HashMap<String, Object> values = new HashMap<>(MathUtil.ceil(1.25 * fields.size()));
         for (final AnnotatedField field : fields)
             try
             {
@@ -317,7 +318,7 @@ public final class StructureSerializer<T extends AbstractStructure>
         DeserializationConstructor deserializationCtor, AbstractStructure.BaseHolder base,
         Map<String, Object> values)
     {
-        final Map<Class<?>, Object> classes = new HashMap<>((int) Math.ceil(1.25 * values.size()));
+        final Map<Class<?>, Object> classes = new HashMap<>(MathUtil.ceil(1.25 * values.size()));
         for (final var entry : values.entrySet())
             classes.put(entry.getValue().getClass(), entry.getValue());
 

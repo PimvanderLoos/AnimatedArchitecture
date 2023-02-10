@@ -11,6 +11,7 @@ import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.core.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.core.tooluser.creator.Creator;
+import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,7 +36,7 @@ public class DirectionParser implements ArgumentParser<ICommandSender, MovementD
     private final ToolUserManager toolUserManager;
     private final ILocalizer localizer;
     private final Map<String, MovementDirection> suggestions =
-        new LinkedHashMap<>((int) Math.ceil(1.25 * MovementDirection.values().length));
+        new LinkedHashMap<>(MathUtil.ceil(1.25 * MovementDirection.values().length));
     private final Map<MovementDirection, String> invertedSuggestions = new EnumMap<>(MovementDirection.class);
 
     @Inject DirectionParser(RestartableHolder restartableHolder, ToolUserManager toolUserManager, ILocalizer localizer)

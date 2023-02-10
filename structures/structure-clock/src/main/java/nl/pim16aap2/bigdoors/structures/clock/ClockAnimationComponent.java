@@ -4,13 +4,13 @@ import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.core.moveblocks.Animator;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimator;
 import nl.pim16aap2.bigdoors.core.moveblocks.StructureRequestData;
-import nl.pim16aap2.bigdoors.structures.windmill.WindmillAnimationComponent;
 import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
 import nl.pim16aap2.bigdoors.core.util.Util;
 import nl.pim16aap2.bigdoors.core.util.WorldTime;
 import nl.pim16aap2.bigdoors.core.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
+import nl.pim16aap2.bigdoors.structures.windmill.WindmillAnimationComponent;
 
 import java.util.function.Function;
 
@@ -71,7 +71,7 @@ public final class ClockAnimationComponent extends WindmillAnimationComponent
      */
     private boolean isHourArmNS(IAnimatedBlock animatedBlock)
     {
-        return ((int) animatedBlock.getPosition().z()) == snapshot.getRotationPoint().z();
+        return MathUtil.floor(animatedBlock.getPosition().z()) == snapshot.getRotationPoint().z();
     }
 
     /**
@@ -81,7 +81,7 @@ public final class ClockAnimationComponent extends WindmillAnimationComponent
      */
     private boolean isHourArmEW(IAnimatedBlock animatedBlock)
     {
-        return ((int) animatedBlock.getPosition().x()) == snapshot.getRotationPoint().x();
+        return MathUtil.floor(animatedBlock.getPosition().x()) == snapshot.getRotationPoint().x();
     }
 
     @Override

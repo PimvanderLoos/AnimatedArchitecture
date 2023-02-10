@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.core.localization;
 
 import lombok.Getter;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import nl.pim16aap2.bigdoors.core.util.Util;
 import org.jetbrains.annotations.Nullable;
 
@@ -190,7 +191,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
      */
     static void mergeWithPatches(List<String> lines, Map<String, String> patches)
     {
-        final Set<String> usedPatches = new HashSet<>((int) Math.ceil(1.25 * patches.size()));
+        final Set<String> usedPatches = new HashSet<>(MathUtil.ceil(1.25 * patches.size()));
         for (int idx = 0; idx < lines.size(); ++idx)
         {
             final @Nullable LocalizationEntry entry = LocalizationUtil.getEntryFromLine(lines.get(idx));

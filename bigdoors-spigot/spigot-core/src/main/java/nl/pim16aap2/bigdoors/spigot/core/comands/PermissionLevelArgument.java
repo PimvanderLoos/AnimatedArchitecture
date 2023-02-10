@@ -8,6 +8,7 @@ import cloud.commandframework.context.CommandContext;
 import nl.pim16aap2.bigdoors.core.commands.ICommandSender;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.structures.PermissionLevel;
+import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
@@ -44,7 +45,7 @@ public class PermissionLevelArgument extends CommandArgument<ICommandSender, Per
     public static final class PermissionLevelArgumentParser implements ArgumentParser<ICommandSender, PermissionLevel>
     {
         private final Map<String, PermissionLevel> suggestions =
-            new LinkedHashMap<>((int) Math.ceil(1.25 * PermissionLevel.getValues().size()));
+            new LinkedHashMap<>(MathUtil.ceil(1.25 * PermissionLevel.getValues().size()));
         private final Map<PermissionLevel, String> invertedSuggestions = new EnumMap<>(PermissionLevel.class);
         private final ILocalizer localizer;
 

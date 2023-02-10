@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.core.data.graph;
 
 import lombok.AccessLevel;
 import lombok.Getter;
+import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import nl.pim16aap2.bigdoors.core.util.Util;
 
 import javax.annotation.Nullable;
@@ -353,7 +354,7 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
             throw new IllegalStateException("Graph has no leaves and must therefore be cyclic!");
 
         final LinkedList<Node<T>> leafQueue = new LinkedList<>(leaves);
-        final Set<Node<T>> removed = new LinkedHashSet<>((int) Math.ceil(1.25 * nodes.size()));
+        final Set<Node<T>> removed = new LinkedHashSet<>(MathUtil.ceil(1.25 * nodes.size()));
 
         // The general idea of finding whether the graph has any cyclic dependencies
         // is to remove all leaf nodes (those that do not have any parents).

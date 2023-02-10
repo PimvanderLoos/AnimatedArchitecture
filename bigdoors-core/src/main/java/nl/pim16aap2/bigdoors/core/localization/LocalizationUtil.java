@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.core.localization;
 
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
@@ -175,7 +176,7 @@ public final class LocalizationUtil
      */
     static Set<String> getKeySet(List<String> lines)
     {
-        final Set<String> ret = new LinkedHashSet<>((int) Math.ceil(1.25 * lines.size()));
+        final Set<String> ret = new LinkedHashSet<>(MathUtil.ceil(1.25 * lines.size()));
         for (final String line : lines)
         {
             final @Nullable LocalizationEntry entry = getEntryFromLine(line);

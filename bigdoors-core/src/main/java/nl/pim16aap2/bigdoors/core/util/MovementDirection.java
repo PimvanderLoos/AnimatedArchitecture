@@ -34,8 +34,8 @@ public enum MovementDirection
     static
     {
         final MovementDirection[] values = MovementDirection.values();
-        final Map<Integer, MovementDirection> idMapTmp = new HashMap<>((int) Math.ceil(1.25 * values.length));
-        final Map<String, MovementDirection> nameMapTmp = new HashMap<>((int) Math.ceil(1.25 * values.length));
+        final Map<Integer, MovementDirection> idMapTmp = new HashMap<>(MathUtil.ceil(1.25 * values.length));
+        final Map<String, MovementDirection> nameMapTmp = new HashMap<>(MathUtil.ceil(1.25 * values.length));
         for (final MovementDirection dir : MovementDirection.values())
         {
             idMapTmp.put(dir.val, dir);

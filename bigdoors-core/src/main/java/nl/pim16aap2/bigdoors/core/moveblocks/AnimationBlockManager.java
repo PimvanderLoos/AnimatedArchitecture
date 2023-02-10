@@ -11,6 +11,7 @@ import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.core.api.factories.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.core.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.core.structures.StructureSnapshot;
+import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Di;
 
@@ -144,9 +145,9 @@ public class AnimationBlockManager implements IAnimationBlockManager
             try
             {
                 final Vector3Dd startPos = animatedBlock.getStartPosition();
-                final Vector3Di goalPos = new Vector3Di((int) startPos.x(),
-                                                        (int) Math.round(startPos.y()),
-                                                        (int) startPos.z());
+                final Vector3Di goalPos = new Vector3Di(MathUtil.floor(startPos.x()),
+                                                        MathUtil.round(startPos.y()),
+                                                        MathUtil.floor(startPos.z()));
                 animatedBlock.getAnimatedBlockData().putBlock(goalPos);
             }
             catch (Exception e)

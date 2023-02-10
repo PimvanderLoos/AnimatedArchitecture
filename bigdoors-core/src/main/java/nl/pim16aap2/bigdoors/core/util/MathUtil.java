@@ -10,4 +10,19 @@ public final class MathUtil
     private MathUtil()
     {
     }
+
+    public static int floor(double value)
+    {
+        return (int) Math.floor(value);
+    }
+
+    public static int round(double value)
+    {
+        return (int) Math.round(value);
+    }
+
+    public static int ceil(double value)
+    {
+        return (int) Math.ceil(value);
+    }
 }

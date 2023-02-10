@@ -11,6 +11,7 @@ import nl.pim16aap2.bigdoors.core.structures.serialization.Deserialization;
 import nl.pim16aap2.bigdoors.core.structures.serialization.PersistentVariable;
 import nl.pim16aap2.bigdoors.core.structures.structurearchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
+import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
 import nl.pim16aap2.bigdoors.core.util.PBlockFace;
 import nl.pim16aap2.bigdoors.core.util.Rectangle;
@@ -91,9 +92,9 @@ public class Clock extends AbstractStructure implements IHorizontalAxisAligned
         final Cuboid cuboid = getCuboid();
 
         // The clock needs to be an odd-sized square, so the radius is always half the height (rounded up).
-        final int circleRadius = (int) Math.ceil(cuboid.getDimensions().y() / 2.0D);
+        final int circleRadius = MathUtil.ceil(cuboid.getDimensions().y() / 2.0D);
         // The distance to the corner of the box around the circle is just pythagoras with a == b.
-        final int boxRadius = (int) Math.ceil(Math.sqrt(2 * Math.pow(circleRadius, 2)));
+        final int boxRadius = MathUtil.ceil(Math.sqrt(2 * Math.pow(circleRadius, 2)));
         final int delta = boxRadius - circleRadius;
 
         return (isNorthSouthAligned() ? cuboid.grow(0, delta, delta) : cuboid.grow(delta, delta, 0)).asFlatRectangle();

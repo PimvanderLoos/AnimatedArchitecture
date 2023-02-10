@@ -78,10 +78,9 @@ public class RevolvingDoorAnimationComponent implements IAnimationComponent
     @Override
     public Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
     {
-        // TODO: Redo all this, it's too hacky.
-        final double startAngle = getStartAngle((int) startLocation.xD(),
-                                                (int) startLocation.yD(),
-                                                (int) startLocation.zD());
+        final double startAngle = getStartAngle(MathUtil.floor(startLocation.xD()),
+                                                MathUtil.floor(startLocation.yD()),
+                                                MathUtil.floor(startLocation.zD()));
 
         if (openDirection == MovementDirection.CLOCKWISE)
             return getGoalPosClockwise(radius, startAngle, startLocation.yD(), endStepSum);

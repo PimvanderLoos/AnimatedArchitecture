@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.testimplementations;
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.core.api.IPLocation;
 import nl.pim16aap2.bigdoors.core.api.IPWorld;
+import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Di;
@@ -39,19 +40,19 @@ public final class TestPLocation implements IPLocation
     @Override
     public int getBlockX()
     {
-        return (int) x;
+        return MathUtil.floor(x);
     }
 
     @Override
     public int getBlockY()
     {
-        return (int) y;
+        return MathUtil.floor(y);
     }
 
     @Override
     public int getBlockZ()
     {
-        return (int) z;
+        return MathUtil.floor(z);
     }
 
     @Override

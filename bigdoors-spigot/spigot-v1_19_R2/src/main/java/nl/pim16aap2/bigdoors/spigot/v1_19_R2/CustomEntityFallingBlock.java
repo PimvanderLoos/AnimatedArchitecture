@@ -34,12 +34,13 @@ import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlockHook;
 import nl.pim16aap2.bigdoors.core.managers.AnimatedBlockHookManager;
 import nl.pim16aap2.bigdoors.core.moveblocks.Animator;
-import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
-import nl.pim16aap2.bigdoors.spigot.util.api.IAnimatedBlockSpigot;
-import nl.pim16aap2.bigdoors.spigot.util.implementations.PLocationSpigot;
+import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import nl.pim16aap2.bigdoors.core.util.Util;
 import nl.pim16aap2.bigdoors.core.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
+import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
+import nl.pim16aap2.bigdoors.spigot.util.api.IAnimatedBlockSpigot;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.PLocationSpigot;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -151,8 +152,8 @@ public class CustomEntityFallingBlock extends EntityFallingBlock implements IAni
         // Do not round x and z because they are at half blocks; Given x;z 10;5, the block will be spawned at
         // 10.5;5.5. Rounding it would retrieve the blocks at 11;6.
         this.animatedBlockData =
-            new NMSBlock(this, executor, worldServer, (int) Math.floor(posX), (int) Math.round(posY),
-                         (int) Math.floor(posZ));
+            new NMSBlock(this, executor, worldServer,
+                         MathUtil.floor(posX), MathUtil.round(posY), MathUtil.floor(posZ));
         this.startLocation = new PLocationSpigot(new Location(bukkitWorld, posX, posY, posZ));
         this.startPosition = new Vector3Dd(startLocation.getX(), startLocation.getY(), startLocation.getZ());
 

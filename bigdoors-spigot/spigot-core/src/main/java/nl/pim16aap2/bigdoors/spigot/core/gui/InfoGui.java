@@ -16,6 +16,7 @@ import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.structures.PermissionLevel;
 import nl.pim16aap2.bigdoors.core.structures.StructureAttribute;
 import nl.pim16aap2.bigdoors.core.structures.StructureOwner;
+import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import nl.pim16aap2.bigdoors.spigot.core.BigDoorsPlugin;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PPlayerSpigot;
 import org.bukkit.Material;
@@ -73,7 +74,7 @@ class InfoGui implements IGuiPage
         final StructureOwner structureOwner = structure.getOwner(inventoryHolder).orElseGet(this::getDummyOwner);
         this.allowedAttributes = analyzeAttributes(structureOwner, inventoryHolder, permissionsManager);
 
-        this.attributeElements = new HashMap<>((int) Math.ceil(1.25 * this.allowedAttributes.size()));
+        this.attributeElements = new HashMap<>(MathUtil.ceil(1.25 * this.allowedAttributes.size()));
 
         this.inventoryGui = createGUI();
 

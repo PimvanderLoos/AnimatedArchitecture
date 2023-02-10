@@ -81,18 +81,18 @@ public final class Rectangle
         {
             case NEAREST ->
             {
-                min = new Vector2Di((int) Math.round(xMin), (int) Math.round(yMin));
-                max = new Vector2Di((int) Math.round(xMax), (int) Math.round(yMax));
+                min = new Vector2Di(MathUtil.round(xMin), MathUtil.round(yMin));
+                max = new Vector2Di(MathUtil.round(xMax), MathUtil.round(yMax));
             }
             case INWARD ->
             {
-                min = new Vector2Di((int) Math.ceil(xMin), (int) Math.ceil(yMin));
-                max = new Vector2Di((int) Math.floor(xMax), (int) Math.floor(yMax));
+                min = new Vector2Di(MathUtil.ceil(xMin), MathUtil.ceil(yMin));
+                max = new Vector2Di(MathUtil.floor(xMax), MathUtil.floor(yMax));
             }
             case OUTWARD ->
             {
-                min = new Vector2Di((int) Math.floor(xMin), (int) Math.floor(yMin));
-                max = new Vector2Di((int) Math.ceil(xMax), (int) Math.ceil(yMax));
+                min = new Vector2Di(MathUtil.floor(xMin), MathUtil.floor(yMin));
+                max = new Vector2Di(MathUtil.ceil(xMax), MathUtil.ceil(yMax));
             }
         }
         return new Rectangle(Util.requireNonNull(min, "Minimum"), Util.requireNonNull(max, "Maximum"));
@@ -131,8 +131,8 @@ public final class Rectangle
     @CheckReturnValue @Contract(pure = true)
     public Vector2Di getCenterBlock()
     {
-        final int cX = (int) ((max.x() + min.x()) / 2.0f);
-        final int cY = (int) ((max.y() + min.y()) / 2.0f);
+        final int cX = Math.floorDiv(max.x() + min.x(), 2);
+        final int cY = Math.floorDiv(max.y() + min.y(), 2);
         return new Vector2Di(cX, cY);
     }
 

@@ -12,6 +12,7 @@ import nl.pim16aap2.bigdoors.core.structures.serialization.PersistentVariable;
 import nl.pim16aap2.bigdoors.core.structures.structurearchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.core.structures.structurearchetypes.IPerpetualMover;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
+import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
 import nl.pim16aap2.bigdoors.core.util.Rectangle;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Di;
@@ -66,7 +67,7 @@ public class Flag extends AbstractStructure implements IHorizontalAxisAligned, I
     {
         final Cuboid cuboid = getCuboid();
         final Vector3Di rotationPoint = getRotationPoint();
-        final int halfHeight = (int) Math.ceil(cuboid.getDimensions().y() / 2.0F);
+        final int halfHeight = MathUtil.ceil(cuboid.getDimensions().y() / 2.0F);
 
         final int maxDim = Math.max(cuboid.getDimensions().x(), cuboid.getDimensions().z());
         // Very, VERY rough estimate. But it's good enough for the time being.
