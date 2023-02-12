@@ -1,5 +1,4 @@
-@DefaultQualifier(NotNull.class)
+@NonNullByDefault
 package nl.pim16aap2.bigdoors.core;
 
-import org.checkerframework.framework.qual.DefaultQualifier;
-import org.jetbrains.annotations.NotNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
