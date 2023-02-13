@@ -8,7 +8,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 /**
- * Contains several static methods to easily create new finders for several reflection lookups.
+ * Contains several static methods to easily perform several types of complicated reflection lookups.
  *
  * @author Pim
  */
@@ -21,8 +21,6 @@ public final class ReflectionBuilder
     }
 
     /**
-     * Creates a new {@link ClassFinder}.
-     *
      * @return A new {@link ClassFinder}.
      */
     @CheckReturnValue @Contract(pure = true)
@@ -94,8 +92,6 @@ public final class ReflectionBuilder
     }
 
     /**
-     * Creates a new {@link MethodFinder}.
-     *
      * @return A new {@link MethodFinder}.
      */
     @CheckReturnValue @Contract(pure = true)
@@ -119,8 +115,6 @@ public final class ReflectionBuilder
     }
 
     /**
-     * Creates a new {@link EnumValuesFinder}.
-     *
      * @return A new {@link EnumValuesFinder}.
      */
     @CheckReturnValue @Contract(pure = true)
@@ -143,8 +137,6 @@ public final class ReflectionBuilder
     }
 
     /**
-     * Creates a new {@link ParameterGroup.Builder}.
-     *
      * @return A new {@link ParameterGroup.Builder}.
      */
     @CheckReturnValue @Contract(pure = true)
