@@ -16,7 +16,6 @@
         <module>structure-bigdoor</module>
         <module>structure-clock</module>
         <module>structure-drawbridge</module>
-        <module>structure-elevator</module>
         <module>structure-flag</module>
         <module>structure-garagedoor</module>
         <module>structure-portcullis</module>
