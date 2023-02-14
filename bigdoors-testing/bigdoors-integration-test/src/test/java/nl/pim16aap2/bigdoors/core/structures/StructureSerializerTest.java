@@ -2,12 +2,11 @@ package nl.pim16aap2.bigdoors.core.structures;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import nl.pim16aap2.bigdoors.core.annotations.Deserialization;
+import nl.pim16aap2.bigdoors.core.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.core.api.PlayerData;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.core.moveblocks.StructureRequestData;
-import nl.pim16aap2.bigdoors.core.structures.serialization.Deserialization;
-import nl.pim16aap2.bigdoors.core.structures.serialization.PersistentVariable;
-import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
 import nl.pim16aap2.bigdoors.core.util.Rectangle;

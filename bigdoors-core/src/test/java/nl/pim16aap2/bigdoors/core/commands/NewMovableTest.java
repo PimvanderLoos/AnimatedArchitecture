@@ -5,7 +5,7 @@ import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.managers.ToolUserManager;
-import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
+import nl.pim16aap2.bigdoors.core.structures.StructureType;
 import nl.pim16aap2.bigdoors.core.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.core.util.Constants;
 import org.junit.jupiter.api.Assertions;

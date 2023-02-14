@@ -4,35 +4,76 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlock;
-import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimation;
 import nl.pim16aap2.bigdoors.core.structures.StructureSnapshot;
-import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
+import nl.pim16aap2.bigdoors.core.structures.StructureType;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
 
 import java.util.Collections;
 import java.util.List;
 
-public class Animation<T extends IAnimatedBlock> implements IAnimation<T>
+public class Animation<T extends IAnimatedBlock>
 {
+    /**
+     * The number of animation steps that this animation will execute. This excludes any steps taken during the cleanup
+     * phase.
+     */
+    @Getter
     private final int duration;
 
+    /**
+     * The region that this animation currently occupies.
+     * <p>
+     * It should be noted that this is only a rather inaccurate approximation, as it is a snapshot of the region of a
+     * moving object. Additionally, there are further inaccuracies introduced by rounding and region buffering.
+     */
     @Setter(AccessLevel.PACKAGE)
+    @Getter
     private volatile Cuboid region;
+
+    /**
+     * The list of animated blocks that are used in this animation.
+     */
     @Getter
     private final List<T> animatedBlocks;
+
+    /**
+     * A snapshot of the structure being animated, created before the movement started.
+     */
     @Getter
     private final StructureSnapshot structureSnapshot;
+
+    /**
+     * The type of the structure being toggled.
+     */
     @Getter
     private final StructureType structureType;
+
+    /**
+     * The current state of the animation.
+     */
     @Setter(AccessLevel.PACKAGE)
+    @Getter
     private volatile AnimationState state = AnimationState.PENDING;
+
+    /**
+     * The number of animation steps that have been executed so far during this animation. This excludes any steps taken
+     * during the cleanup phase.
+     */
     @Setter(AccessLevel.PACKAGE)
+    @Getter
     private volatile int stepsExecuted = 0;
+
+    /**
+     * The type of the animation.
+     */
     @Getter
     private final AnimationType animationType;
 
     Animation(
-        int duration, Cuboid region, List<T> animatedBlocks, StructureSnapshot structureSnapshot,
+        int duration,
+        Cuboid region,
+        List<T> animatedBlocks,
+        StructureSnapshot structureSnapshot,
         StructureType structureType,
         AnimationType animationType)
     {
@@ -44,27 +85,54 @@ public class Animation<T extends IAnimatedBlock> implements IAnimation<T>
         this.animationType = animationType;
     }
 
-    @Override
-    public Cuboid getRegion()
+
+    /**
+     * @return The number of animation steps remaining in this animation. This only includes the steps to be executed by
+     * the animation and not any steps required for the cleanup phase.
+     */
+    public int getRemainingSteps()
     {
-        return region;
+        return getDuration() - stepsExecuted;
     }
 
-    @Override
-    public int getDuration()
+    /**
+     * Represents the various stages an animation can be in.
+     */
+    public enum AnimationState
     {
-        return duration;
-    }
+        /**
+         * The animation hasn't started yet.
+         */
+        PENDING,
 
-    @Override
-    public int getStepsExecuted()
-    {
-        return stepsExecuted;
-    }
+        /**
+         * The animation is currently ongoing.
+         */
+        ACTIVE,
 
-    @Override
-    public AnimationState getState()
-    {
-        return state;
+        /**
+         * The animation is in the process of finishing up. This means that the animated blocks are being moved to their
+         * final positions.
+         */
+        FINISHING,
+
+        /**
+         * The animation has finished and the animated blocks are about to be placed down as normal blocks.
+         */
+        STOPPING,
+
+        /**
+         * The animation has completed; there are no animated blocks left.
+         */
+        COMPLETED,
+
+        /**
+         * The animation was skipped. This can happen either because it was requested to skip the animation or because
+         * there are no blocks to animate.
+         * <p>
+         * Note that this only applies to the animation itself; the structure itself is still toggled and all blocks (if
+         * applicable) are moved to the next location.
+         */
+        SKIPPED
     }
 }

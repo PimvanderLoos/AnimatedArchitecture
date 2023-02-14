@@ -13,12 +13,11 @@ import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.structures.PermissionLevel;
 import nl.pim16aap2.bigdoors.core.structures.StructureBaseBuilder;
 import nl.pim16aap2.bigdoors.core.structures.StructureOwner;
-import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
+import nl.pim16aap2.bigdoors.core.structures.StructureType;
 import nl.pim16aap2.bigdoors.core.text.TextType;
 import nl.pim16aap2.bigdoors.core.tooluser.Procedure;
+import nl.pim16aap2.bigdoors.core.tooluser.Step;
 import nl.pim16aap2.bigdoors.core.tooluser.ToolUser;
-import nl.pim16aap2.bigdoors.core.tooluser.step.IStep;
-import nl.pim16aap2.bigdoors.core.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.core.tooluser.stepexecutor.StepExecutorBoolean;
 import nl.pim16aap2.bigdoors.core.tooluser.stepexecutor.StepExecutorLocation;
 import nl.pim16aap2.bigdoors.core.tooluser.stepexecutor.StepExecutorOpenDirection;
@@ -107,13 +106,13 @@ public abstract class Creator extends ToolUser
     protected boolean isLocked = false;
 
     /**
-     * IFactory for the {@link IStep} that sets the name.
+     * IFactory for the {@link Step} that sets the name.
      */
     @ToString.Exclude
     protected Step.Factory factorySetName;
 
     /**
-     * IFactory for the {@link IStep} that sets the first position of the area of the structure.
+     * IFactory for the {@link Step} that sets the first position of the area of the structure.
      * <p>
      * Don't forget to set the message before using it!
      */
@@ -121,7 +120,7 @@ public abstract class Creator extends ToolUser
     protected Step.Factory factorySetFirstPos;
 
     /**
-     * IFactory for the {@link IStep} that sets the second position of the area of the structure, thus completing the
+     * IFactory for the {@link Step} that sets the second position of the area of the structure, thus completing the
      * {@link Cuboid}.
      * <p>
      * Don't forget to set the message before using it!
@@ -130,7 +129,7 @@ public abstract class Creator extends ToolUser
     protected Step.Factory factorySetSecondPos;
 
     /**
-     * IFactory for the {@link IStep} that sets the position of the structure's rotation point.
+     * IFactory for the {@link Step} that sets the position of the structure's rotation point.
      * <p>
      * Don't forget to set the message before using it!
      */
@@ -138,31 +137,31 @@ public abstract class Creator extends ToolUser
     protected Step.Factory factorySetRotationPointPos;
 
     /**
-     * IFactory for the {@link IStep} that sets the position of the structure's power block.
+     * IFactory for the {@link Step} that sets the position of the structure's power block.
      */
     @ToString.Exclude
     protected Step.Factory factorySetPowerBlockPos;
 
     /**
-     * IFactory for the {@link IStep} that sets the open status of the structure.
+     * IFactory for the {@link Step} that sets the open status of the structure.
      */
     @ToString.Exclude
     protected Step.Factory factorySetOpenStatus;
 
     /**
-     * IFactory for the {@link IStep} that sets the open direction of the structure.
+     * IFactory for the {@link Step} that sets the open direction of the structure.
      */
     @ToString.Exclude
     protected Step.Factory factorySetOpenDir;
 
     /**
-     * IFactory for the {@link IStep} that allows the player to confirm or reject the price of the structure.
+     * IFactory for the {@link Step} that allows the player to confirm or reject the price of the structure.
      */
     @ToString.Exclude
     protected Step.Factory factoryConfirmPrice;
 
     /**
-     * IFactory for the {@link IStep} that completes this process.
+     * IFactory for the {@link Step} that completes this process.
      * <p>
      * Don't forget to set the message before using it!
      */

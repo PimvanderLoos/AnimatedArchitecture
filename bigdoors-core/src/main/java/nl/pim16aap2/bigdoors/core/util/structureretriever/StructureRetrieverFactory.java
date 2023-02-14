@@ -31,8 +31,7 @@ public final class StructureRetrieverFactory
     private final ILocalizer localizer;
     private final ITextFactory textFactory;
 
-    @Inject
-    public StructureRetrieverFactory(
+    @Inject StructureRetrieverFactory(
         DatabaseManager databaseManager, IConfig config,
         StructureSpecificationManager structureSpecificationManager,
         StructureFinderCache structureFinderCache, ILocalizer localizer,

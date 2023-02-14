@@ -22,7 +22,7 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * Represents a Directed Acyclic Graph.
+ * Represents a Directed Acyclic Graph (dag).
  *
  * @param <T>
  *     The type of data to store in the nodes.

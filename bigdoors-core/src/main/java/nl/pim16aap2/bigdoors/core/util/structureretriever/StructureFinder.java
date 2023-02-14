@@ -194,8 +194,7 @@ public final class StructureFinder
      */
     public StructureRetriever asRetriever(boolean fullMatch)
     {
-        return StructureRetrieverFactory.ofStructures(
-            getStructures(fullMatch));
+        return StructureRetrieverFactory.ofStructures(getStructures(fullMatch));
     }
 
     /**
@@ -205,8 +204,7 @@ public final class StructureFinder
      */
     public StructureRetriever asRetriever()
     {
-        return StructureRetrieverFactory.ofStructures(
-            getStructures());
+        return StructureRetrieverFactory.ofStructures(getStructures());
     }
 
     /**
@@ -417,17 +415,15 @@ public final class StructureFinder
         this.history.clear();
         this.lastInput = input;
         this.searcher = getNewStructureIdentifiers(input);
-        this.searcher.thenAccept(lst -> this.setCache(lst, input))
-                     .exceptionally(
-                         t ->
-                         {
-                             // It can happen that the searcher was cancelled because it received incompatible
-                             // input before finishing. This isn't important.
-                             final Level lvl = t.getCause() instanceof CancellationException ?
-                                               Level.FINEST : Level.SEVERE;
-                             log.at(lvl).withCause(t).log();
-                             return null;
-                         });
+        this.searcher.thenAccept(lst -> this.setCache(lst, input)).exceptionally(
+            t ->
+            {
+                // It can happen that the searcher was cancelled because it received incompatible
+                // input before finishing. This isn't important.
+                final Level lvl = t.getCause() instanceof CancellationException ? Level.FINEST : Level.SEVERE;
+                log.at(lvl).withCause(t).log();
+                return null;
+            });
     }
 
     /**

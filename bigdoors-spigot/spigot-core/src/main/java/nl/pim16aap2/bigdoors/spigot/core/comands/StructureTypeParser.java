@@ -8,7 +8,7 @@ import nl.pim16aap2.bigdoors.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.core.commands.ICommandSender;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.managers.StructureTypeManager;
-import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
+import nl.pim16aap2.bigdoors.core.structures.StructureType;
 import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import org.jetbrains.annotations.Nullable;
 

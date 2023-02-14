@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.core.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.core.tooluser.stepexecutor.StepExecutor;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,7 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Represents a procedure as defined by a series of {@link IStep}s.
+ * Represents a procedure as defined by a series of {@link Step}s.
  *
  * @author Pim
  */
@@ -22,12 +21,12 @@ import java.util.List;
 public final class Procedure
 {
     @Getter
-    private @Nullable IStep currentStep;
+    private @Nullable Step currentStep;
 
-    private final Iterator<IStep> steps;
+    private final Iterator<Step> steps;
     private final ILocalizer localizer;
 
-    public Procedure(List<IStep> steps, ILocalizer localizer)
+    public Procedure(List<Step> steps, ILocalizer localizer)
     {
         this.steps = steps.iterator();
         this.localizer = localizer;
@@ -63,19 +62,19 @@ public final class Procedure
     }
 
     /**
-     * Skips to a specific {@link IStep} in this {@link Procedure}.
+     * Skips to a specific {@link Step} in this {@link Procedure}.
      * <p>
      * If the step could not be found, the procedure will skip to the last step.
      *
      * @param goalStep
-     *     The {@link IStep} to jump to.
+     *     The {@link Step} to jump to.
      * @return True if the jump was successful, otherwise false.
      */
-    public boolean skipToStep(IStep goalStep)
+    public boolean skipToStep(Step goalStep)
     {
         while (steps.hasNext())
         {
-            final IStep step = steps.next();
+            final Step step = steps.next();
             if (step.equals(goalStep))
             {
                 currentStep = step;
@@ -176,7 +175,7 @@ public final class Procedure
     }
 
     /**
-     * Runs the step preparation for the current step if applicable. See {@link IStep#getStepPreparation()}.
+     * Runs the step preparation for the current step if applicable. See {@link Step#getStepPreparation()}.
      */
     public void runCurrentStepPreparation()
     {

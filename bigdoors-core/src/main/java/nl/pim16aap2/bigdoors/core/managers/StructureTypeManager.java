@@ -9,7 +9,7 @@ import nl.pim16aap2.bigdoors.core.api.debugging.IDebuggable;
 import nl.pim16aap2.bigdoors.core.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.core.localization.LocalizationManager;
-import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
+import nl.pim16aap2.bigdoors.core.structures.StructureType;
 import nl.pim16aap2.util.SafeStringBuilder;
 import org.jetbrains.annotations.Nullable;
 

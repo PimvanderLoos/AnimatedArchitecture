@@ -4,8 +4,6 @@ import nl.pim16aap2.bigdoors.core.structures.IStructure;
 
 /**
  * Represents structures that can move perpetually. For example, windmills and flags.
- *
- * @author Pim
  */
 public interface IPerpetualMover extends IStructure
 {

@@ -8,7 +8,7 @@ import nl.pim16aap2.bigdoors.core.api.IExecutor;
 import nl.pim16aap2.bigdoors.core.api.ILocation;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.AnimationContext;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlock;
-import nl.pim16aap2.bigdoors.core.api.factories.IAnimatedBlockFactory;
+import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.core.api.factories.ILocationFactory;
 import nl.pim16aap2.bigdoors.core.structures.StructureSnapshot;
 import nl.pim16aap2.bigdoors.core.util.MathUtil;

@@ -9,7 +9,7 @@ import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.structures.IStructureConst;
 import nl.pim16aap2.bigdoors.core.structures.PermissionLevel;
 import nl.pim16aap2.bigdoors.core.structures.StructureOwner;
-import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
+import nl.pim16aap2.bigdoors.core.structures.StructureType;
 import nl.pim16aap2.bigdoors.core.util.IBitFlag;
 import org.jetbrains.annotations.Nullable;
 

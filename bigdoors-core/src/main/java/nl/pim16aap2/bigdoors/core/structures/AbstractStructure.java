@@ -12,7 +12,6 @@ import nl.pim16aap2.bigdoors.core.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.core.moveblocks.Animator;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.core.moveblocks.StructureRequestData;
-import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
 import nl.pim16aap2.bigdoors.core.util.LazyValue;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;

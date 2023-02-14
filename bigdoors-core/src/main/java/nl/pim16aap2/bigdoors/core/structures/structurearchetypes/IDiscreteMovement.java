@@ -3,9 +3,13 @@ package nl.pim16aap2.bigdoors.core.structures.structurearchetypes;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 
 /**
- * Describes a type of structure that moves a certain number of blocks to open.
- *
- * @author Pim
+ * Describes a type of structure that moves in a straight line, where the final position of each block in a structure
+ * after an animation can be calculated by adding or subtracting the same 'distance' value (measured in blocks as
+ * integer value) to its starting position. The dimension(s) along which this is applied is up to the structure type
+ * itself to define.
+ * <p>
+ * An example of a structure type with discrete movement is a portcullis, as that only goes straight up and straight
+ * down.
  */
 public interface IDiscreteMovement
 {

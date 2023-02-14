@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.core.extensions;
 
 import nl.pim16aap2.bigdoors.core.data.graph.DirectedAcyclicGraph;
 import nl.pim16aap2.bigdoors.core.structures.StructureSerializer;
-import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
+import nl.pim16aap2.bigdoors.core.structures.StructureType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

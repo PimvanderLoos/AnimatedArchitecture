@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.structures.clock;
 
 import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
-import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
+import nl.pim16aap2.bigdoors.core.structures.StructureType;
 import nl.pim16aap2.bigdoors.core.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.core.util.Constants;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;

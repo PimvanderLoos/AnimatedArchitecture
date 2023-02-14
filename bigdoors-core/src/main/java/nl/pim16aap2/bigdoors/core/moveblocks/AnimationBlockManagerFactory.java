@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.core.moveblocks;
 import nl.pim16aap2.bigdoors.core.api.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.core.api.IExecutor;
 import nl.pim16aap2.bigdoors.core.api.IPlayer;
-import nl.pim16aap2.bigdoors.core.api.factories.IAnimatedBlockFactory;
+import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.core.api.factories.ILocationFactory;
 import nl.pim16aap2.bigdoors.core.util.Util;
 import org.jetbrains.annotations.Nullable;

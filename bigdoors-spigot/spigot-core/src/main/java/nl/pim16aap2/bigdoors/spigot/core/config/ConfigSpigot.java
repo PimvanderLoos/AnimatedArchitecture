@@ -11,7 +11,7 @@ import nl.pim16aap2.bigdoors.core.api.debugging.IDebuggable;
 import nl.pim16aap2.bigdoors.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.core.localization.LocalizationUtil;
 import nl.pim16aap2.bigdoors.core.managers.StructureTypeManager;
-import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
+import nl.pim16aap2.bigdoors.core.structures.StructureType;
 import nl.pim16aap2.bigdoors.core.util.ConfigEntry;
 import nl.pim16aap2.bigdoors.core.util.Constants;
 import nl.pim16aap2.bigdoors.core.util.Limit;

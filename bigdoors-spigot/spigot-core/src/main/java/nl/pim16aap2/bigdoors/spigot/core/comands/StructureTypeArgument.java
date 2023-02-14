@@ -4,7 +4,7 @@ import cloud.commandframework.ArgumentDescription;
 import cloud.commandframework.arguments.CommandArgument;
 import cloud.commandframework.context.CommandContext;
 import nl.pim16aap2.bigdoors.core.commands.ICommandSender;
-import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
+import nl.pim16aap2.bigdoors.core.structures.StructureType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
