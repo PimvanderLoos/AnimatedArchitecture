@@ -68,13 +68,6 @@
 
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
-            <artifactId>structure-elevator</artifactId>
-            <version>1</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>nl.pim16aap2.bigdoors</groupId>
             <artifactId>structure-flag</artifactId>
             <version>1</version>
             <scope>test</scope>
