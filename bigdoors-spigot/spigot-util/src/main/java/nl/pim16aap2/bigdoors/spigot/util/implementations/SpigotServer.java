@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.spigot.util.implementations.server;
+package nl.pim16aap2.bigdoors.spigot.util.implementations;
 
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.commands.IServer;

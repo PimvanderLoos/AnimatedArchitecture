@@ -13,7 +13,6 @@ import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.core.api.debugging.DebugReporter;
 import nl.pim16aap2.bigdoors.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.core.api.factories.IBigDoorsEventFactory;
-import nl.pim16aap2.bigdoors.core.api.factories.IGuiFactory;
 import nl.pim16aap2.bigdoors.core.api.factories.ILocationFactory;
 import nl.pim16aap2.bigdoors.core.api.factories.IPlayerFactory;
 import nl.pim16aap2.bigdoors.core.api.factories.IWorldFactory;
@@ -45,17 +44,18 @@ import nl.pim16aap2.bigdoors.spigot.core.compatiblity.ProtectionCompatManagerMod
 import nl.pim16aap2.bigdoors.spigot.core.compatiblity.ProtectionCompatManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.core.config.ConfigSpigot;
 import nl.pim16aap2.bigdoors.spigot.core.config.ConfigSpigotModule;
-import nl.pim16aap2.bigdoors.spigot.core.factories.bigdoorseventfactory.BigDoorsEventsSpigotModule;
-import nl.pim16aap2.bigdoors.spigot.core.factories.locationfactory.LocationFactorySpigotModule;
-import nl.pim16aap2.bigdoors.spigot.core.factories.playerfactory.PlayerFactorySpigotModule;
-import nl.pim16aap2.bigdoors.spigot.core.factories.worldfactory.WorldFactorySpigotModule;
+import nl.pim16aap2.bigdoors.spigot.core.gui.GuiFactory;
 import nl.pim16aap2.bigdoors.spigot.core.gui.GuiFactorySpigotModule;
+import nl.pim16aap2.bigdoors.spigot.core.implementations.BigDoorsEventsSpigotModule;
 import nl.pim16aap2.bigdoors.spigot.core.implementations.BigDoorsToolUtilSpigot;
 import nl.pim16aap2.bigdoors.spigot.core.implementations.BigDoorsToolUtilSpigotModule;
 import nl.pim16aap2.bigdoors.spigot.core.implementations.ChunkLoaderSpigotModule;
 import nl.pim16aap2.bigdoors.spigot.core.implementations.DebugReporterSpigotModule;
+import nl.pim16aap2.bigdoors.spigot.core.implementations.LocationFactorySpigotModule;
+import nl.pim16aap2.bigdoors.spigot.core.implementations.PlayerFactorySpigotModule;
 import nl.pim16aap2.bigdoors.spigot.core.implementations.TextFactorySpigot;
 import nl.pim16aap2.bigdoors.spigot.core.implementations.TextFactorySpigotModule;
+import nl.pim16aap2.bigdoors.spigot.core.implementations.WorldFactorySpigotModule;
 import nl.pim16aap2.bigdoors.spigot.core.listeners.ChunkListener;
 import nl.pim16aap2.bigdoors.spigot.core.listeners.EventListeners;
 import nl.pim16aap2.bigdoors.spigot.core.listeners.LoginMessageListener;
@@ -69,11 +69,11 @@ import nl.pim16aap2.bigdoors.spigot.core.managers.SubPlatformManager;
 import nl.pim16aap2.bigdoors.spigot.core.managers.VaultManager;
 import nl.pim16aap2.bigdoors.spigot.core.managers.VaultManagerModule;
 import nl.pim16aap2.bigdoors.spigot.util.api.IBigDoorsSpigotSubPlatform;
-import nl.pim16aap2.bigdoors.spigot.util.implementations.audio.AudioPlayerSpigotModule;
-import nl.pim16aap2.bigdoors.spigot.util.implementations.executor.ExecutorModule;
-import nl.pim16aap2.bigdoors.spigot.util.implementations.glowingblocks.GlowingBlockSpawnerModule;
-import nl.pim16aap2.bigdoors.spigot.util.implementations.messageable.MessagingInterfaceSpigotModule;
-import nl.pim16aap2.bigdoors.spigot.util.implementations.server.SpigotServerModule;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.AudioPlayerSpigotModule;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.ExecutorModule;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.GlowingBlockSpawnerModule;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.MessagingInterfaceSpigotModule;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.SpigotServerModule;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.inject.Named;
@@ -141,7 +141,7 @@ interface BigDoorsSpigotComponent
 
     ProtectionCompatManagerSpigot getProtectionCompatManager();
 
-    IGuiFactory getGUIFactory();
+    GuiFactory getGUIFactory();
 
     ConfigSpigot getConfig();
 

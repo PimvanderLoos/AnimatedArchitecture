@@ -17,7 +17,6 @@ import nl.pim16aap2.bigdoors.core.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.core.api.IRedstoneManager;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.core.api.factories.IBigDoorsEventFactory;
-import nl.pim16aap2.bigdoors.core.api.factories.IGuiFactory;
 import nl.pim16aap2.bigdoors.core.api.factories.ILocationFactory;
 import nl.pim16aap2.bigdoors.core.api.factories.IPlayerFactory;
 import nl.pim16aap2.bigdoors.core.api.factories.IWorldFactory;
@@ -43,6 +42,7 @@ import nl.pim16aap2.bigdoors.core.structures.StructureRegistry;
 import nl.pim16aap2.bigdoors.core.util.structureretriever.StructureRetrieverFactory;
 import nl.pim16aap2.bigdoors.spigot.core.comands.CommandManager;
 import nl.pim16aap2.bigdoors.spigot.core.exceptions.InitializationException;
+import nl.pim16aap2.bigdoors.spigot.core.gui.GuiFactory;
 import nl.pim16aap2.bigdoors.spigot.core.listeners.ChunkListener;
 import nl.pim16aap2.bigdoors.spigot.core.listeners.EventListeners;
 import nl.pim16aap2.bigdoors.spigot.core.listeners.LoginMessageListener;
@@ -58,8 +58,8 @@ import javax.inject.Singleton;
 import java.util.function.Function;
 
 @Flogger
-@Singleton //
-final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
+@Singleton
+public final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
 {
     private final BigDoorsSpigotComponent bigDoorsSpigotComponent;
 
@@ -80,7 +80,7 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     private final IAnimatedBlockFactory animatedBlockFactory;
 
     @Getter
-    private final IGuiFactory guiFactory;
+    private final GuiFactory guiFactory;
 
     @Getter
     private final IPlayerFactory playerFactory;

@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.spigot.core.factories.bigdoorseventfactory;
+package nl.pim16aap2.bigdoors.spigot.core.implementations;
 
 import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.factories.IBigDoorsEventFactory;

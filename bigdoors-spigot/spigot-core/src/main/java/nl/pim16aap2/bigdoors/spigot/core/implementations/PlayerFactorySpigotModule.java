@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.spigot.core.factories.playerfactory;
+package nl.pim16aap2.bigdoors.spigot.core.implementations;
 
 import dagger.Binds;
 import dagger.Module;

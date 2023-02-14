@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.spigot.util.implementations.glowingblocks;
+package nl.pim16aap2.bigdoors.spigot.util.implementations;
 
 import com.google.common.flogger.StackSize;
 import lombok.Getter;

@@ -22,8 +22,8 @@ public class ConsoleAppender extends AppenderBase<LoggingEvent>
      *
      * @param lvl
      *     The {@link ch.qos.logback.classic.Level} to map to a {@link java.util.logging.Level}.
-     * @return The mapped {@link java.util.logging.Level} if it could be mapped, otherwise {@link
-     * java.util.logging.Level#CONFIG}.
+     * @return The mapped {@link java.util.logging.Level} if it could be mapped, otherwise
+     * {@link java.util.logging.Level#CONFIG}.
      */
     private static java.util.logging.Level getJULLevel(ch.qos.logback.classic.Level lvl)
     {
@@ -46,7 +46,6 @@ public class ConsoleAppender extends AppenderBase<LoggingEvent>
         return java.util.logging.Level.CONFIG;
     }
 
-
     @Override
     protected void append(LoggingEvent eventObject)
     {
@@ -59,13 +58,11 @@ public class ConsoleAppender extends AppenderBase<LoggingEvent>
 
         logRecord.setInstant(Instant.ofEpochMilli(eventObject.getTimeStamp()));
         logRecord.setLoggerName(eventObject.getLoggerName());
-        logRecord.setLongThreadID(Thread.currentThread().getId());
+        logRecord.setLongThreadID(Thread.currentThread().threadId());
         if (eventObject.getThrowableProxy() != null &&
             eventObject.getThrowableProxy() instanceof ThrowableProxy throwableProxy)
             logRecord.setThrown(throwableProxy.getThrowable());
 
         Bukkit.getLogger().log(logRecord);
     }
-
-
 }

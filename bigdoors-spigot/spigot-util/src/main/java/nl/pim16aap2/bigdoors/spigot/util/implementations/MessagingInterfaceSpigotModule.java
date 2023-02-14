@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.spigot.util.implementations.messageable;
+package nl.pim16aap2.bigdoors.spigot.util.implementations;
 
 import dagger.Binds;
 import dagger.Module;

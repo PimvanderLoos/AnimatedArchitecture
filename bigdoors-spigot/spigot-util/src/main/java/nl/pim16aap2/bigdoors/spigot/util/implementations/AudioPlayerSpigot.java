@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.spigot.util.implementations.audio;
+package nl.pim16aap2.bigdoors.spigot.util.implementations;
 
 import nl.pim16aap2.bigdoors.core.api.IExecutor;
 import nl.pim16aap2.bigdoors.core.api.ILocation;
