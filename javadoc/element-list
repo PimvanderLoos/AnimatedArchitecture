@@ -10,7 +10,6 @@ nl.pim16aap2.bigdoors.core.data.cache
 nl.pim16aap2.bigdoors.core.data.cache.timed
 nl.pim16aap2.bigdoors.core.data.graph
 nl.pim16aap2.bigdoors.core.events
-nl.pim16aap2.bigdoors.core.events.structureaction
 nl.pim16aap2.bigdoors.core.extensions
 nl.pim16aap2.bigdoors.core.localization
 nl.pim16aap2.bigdoors.core.managers
@@ -18,13 +17,10 @@ nl.pim16aap2.bigdoors.core.moveblocks
 nl.pim16aap2.bigdoors.core.storage
 nl.pim16aap2.bigdoors.core.storage.sqlite
 nl.pim16aap2.bigdoors.core.structures
-nl.pim16aap2.bigdoors.core.structures.serialization
 nl.pim16aap2.bigdoors.core.structures.structurearchetypes
-nl.pim16aap2.bigdoors.core.structuretypes
 nl.pim16aap2.bigdoors.core.text
 nl.pim16aap2.bigdoors.core.tooluser
 nl.pim16aap2.bigdoors.core.tooluser.creator
-nl.pim16aap2.bigdoors.core.tooluser.step
 nl.pim16aap2.bigdoors.core.tooluser.stepexecutor
 nl.pim16aap2.bigdoors.core.util
 nl.pim16aap2.bigdoors.core.util.delayedinput
@@ -36,12 +32,7 @@ nl.pim16aap2.bigdoors.spigot.core.comands
 nl.pim16aap2.bigdoors.spigot.core.compatiblity
 nl.pim16aap2.bigdoors.spigot.core.config
 nl.pim16aap2.bigdoors.spigot.core.events
-nl.pim16aap2.bigdoors.spigot.core.events.structureaction
 nl.pim16aap2.bigdoors.spigot.core.exceptions
-nl.pim16aap2.bigdoors.spigot.core.factories.bigdoorseventfactory
-nl.pim16aap2.bigdoors.spigot.core.factories.locationfactory
-nl.pim16aap2.bigdoors.spigot.core.factories.playerfactory
-nl.pim16aap2.bigdoors.spigot.core.factories.worldfactory
 nl.pim16aap2.bigdoors.spigot.core.gui
 nl.pim16aap2.bigdoors.spigot.core.implementations
 nl.pim16aap2.bigdoors.spigot.core.listeners
@@ -50,11 +41,6 @@ nl.pim16aap2.bigdoors.spigot.core.managers
 nl.pim16aap2.bigdoors.spigot.util
 nl.pim16aap2.bigdoors.spigot.util.api
 nl.pim16aap2.bigdoors.spigot.util.implementations
-nl.pim16aap2.bigdoors.spigot.util.implementations.audio
-nl.pim16aap2.bigdoors.spigot.util.implementations.executor
-nl.pim16aap2.bigdoors.spigot.util.implementations.glowingblocks
-nl.pim16aap2.bigdoors.spigot.util.implementations.messageable
-nl.pim16aap2.bigdoors.spigot.util.implementations.server
 nl.pim16aap2.bigdoors.spigot.v1_19_R2
 nl.pim16aap2.bigdoors.structures.bigdoor
 nl.pim16aap2.bigdoors.structures.clock
