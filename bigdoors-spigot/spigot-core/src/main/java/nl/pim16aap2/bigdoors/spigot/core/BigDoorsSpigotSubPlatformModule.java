@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.spigot.core;
 import dagger.Module;
 import dagger.Provides;
 import nl.pim16aap2.bigdoors.core.api.IBlockAnalyzer;
-import nl.pim16aap2.bigdoors.core.api.factories.IAnimatedBlockFactory;
+import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.spigot.util.api.IBigDoorsSpigotSubPlatform;
 import nl.pim16aap2.bigdoors.spigot.util.api.IGlowingBlockFactory;
 

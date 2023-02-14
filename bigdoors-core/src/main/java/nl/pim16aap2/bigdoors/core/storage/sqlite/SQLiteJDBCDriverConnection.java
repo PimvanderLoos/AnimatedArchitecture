@@ -26,7 +26,7 @@ import nl.pim16aap2.bigdoors.core.structures.StructureBaseBuilder;
 import nl.pim16aap2.bigdoors.core.structures.StructureOwner;
 import nl.pim16aap2.bigdoors.core.structures.StructureRegistry;
 import nl.pim16aap2.bigdoors.core.structures.StructureSerializer;
-import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
+import nl.pim16aap2.bigdoors.core.structures.StructureType;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
 import nl.pim16aap2.bigdoors.core.util.IBitFlag;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;

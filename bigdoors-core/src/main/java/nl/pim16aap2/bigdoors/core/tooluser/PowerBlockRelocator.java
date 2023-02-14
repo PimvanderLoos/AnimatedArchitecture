@@ -9,8 +9,6 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.api.ILocation;
 import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
-import nl.pim16aap2.bigdoors.core.tooluser.step.IStep;
-import nl.pim16aap2.bigdoors.core.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.core.tooluser.stepexecutor.StepExecutorLocation;
 import nl.pim16aap2.bigdoors.core.tooluser.stepexecutor.StepExecutorVoid;
 import org.jetbrains.annotations.Nullable;
@@ -89,7 +87,7 @@ public class PowerBlockRelocator extends ToolUser
     }
 
     @Override
-    protected List<IStep> generateSteps()
+    protected List<Step> generateSteps()
         throws InstantiationException
     {
         final Step stepPowerblockRelocatorInit = stepFactory

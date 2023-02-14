@@ -1,7 +1,5 @@
-package nl.pim16aap2.bigdoors.core.api.factories;
+package nl.pim16aap2.bigdoors.core.api.animatedblock;
 
-import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlock;
-import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlockHook;
 import nl.pim16aap2.bigdoors.core.managers.AnimatedBlockHookManager;
 import org.jetbrains.annotations.Nullable;
 

@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.core.localization;
 
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
-import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
+import nl.pim16aap2.bigdoors.core.structures.StructureType;
 
 import java.util.List;
 import java.util.Locale;

@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.core.moveblocks;
+package nl.pim16aap2.bigdoors.core.api.animatedblock;
 
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.core.api.Color;
@@ -6,8 +6,6 @@ import nl.pim16aap2.bigdoors.core.api.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.core.api.ILocation;
 import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.IWorld;
-import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlock;
-import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlockData;
 import nl.pim16aap2.bigdoors.core.api.factories.ILocationFactory;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
 import nl.pim16aap2.bigdoors.core.util.vector.IVector3D;

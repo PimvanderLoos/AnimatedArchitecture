@@ -2,11 +2,11 @@ package nl.pim16aap2.bigdoors.core.managers;
 
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlock;
-import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimation;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimationHook;
+import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimationHookFactory;
 import nl.pim16aap2.bigdoors.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.core.api.debugging.IDebuggable;
-import nl.pim16aap2.bigdoors.core.api.factories.IAnimationHookFactory;
+import nl.pim16aap2.bigdoors.core.moveblocks.Animation;
 import nl.pim16aap2.util.SafeStringBuilder;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,9 +40,9 @@ public final class AnimationHookManager implements IDebuggable
         this.factories.add(factory);
     }
 
-    public <T extends IAnimatedBlock> List<IAnimationHook<T>> instantiateHooks(IAnimation<T> animation)
+    public <T extends IAnimatedBlock> List<IAnimationHook> instantiateHooks(Animation<T> animation)
     {
-        final ArrayList<IAnimationHook<T>> instantiated = new ArrayList<>(factories.size());
+        final ArrayList<IAnimationHook> instantiated = new ArrayList<>(factories.size());
 
         for (final IAnimationHookFactory<? extends IAnimatedBlock> factory : factories)
         {
@@ -52,7 +52,7 @@ public final class AnimationHookManager implements IDebuggable
                 // of animated block being used (e.g. spigot block on Spigot)
                 // and the factories should only be loaded for the specific platform.
                 //noinspection unchecked
-                final @Nullable IAnimationHook<T> hook = ((IAnimationHookFactory<T>) factory).newInstance(animation);
+                final @Nullable IAnimationHook hook = ((IAnimationHookFactory<T>) factory).newInstance(animation);
                 if (hook != null)
                     instantiated.add(hook);
             }

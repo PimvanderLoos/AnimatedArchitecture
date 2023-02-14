@@ -1,34 +1,39 @@
-package nl.pim16aap2.bigdoors.spigot.core.events.structureaction;
+package nl.pim16aap2.bigdoors.spigot.core.events;
 
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.core.api.IPlayer;
-import nl.pim16aap2.bigdoors.core.events.structureaction.IStructureEventToggleEnd;
-import nl.pim16aap2.bigdoors.core.events.structureaction.StructureActionCause;
-import nl.pim16aap2.bigdoors.core.events.structureaction.StructureActionType;
-import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
+import nl.pim16aap2.bigdoors.core.events.IStructureEventTogglePrepare;
+import nl.pim16aap2.bigdoors.core.events.StructureActionCause;
+import nl.pim16aap2.bigdoors.core.events.StructureActionType;
 import nl.pim16aap2.bigdoors.core.structures.StructureSnapshot;
+import nl.pim16aap2.bigdoors.core.util.Cuboid;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Implementation of {@link IStructureEventToggleEnd} for the Spigot platform.
+ * Implementation of {@link IStructureEventTogglePrepare} for the Spigot platform.
  *
  * @author Pim
  */
 @ToString
-public class StructureEventToggleEnd extends StructureToggleEvent implements IStructureEventToggleEnd
+public class StructureEventTogglePrepare extends StructureToggleEvent implements IStructureEventTogglePrepare
 {
     private static final HandlerList HANDLERS_LIST = new HandlerList();
 
     @Getter
-    private final AbstractStructure structure;
+    @Setter
+    private boolean isCancelled = false;
+
+    @Getter
+    private final Cuboid newCuboid;
 
     /**
      * Constructs a structure action event.
      *
-     * @param structure
-     *     The structure.
+     * @param snapshot
+     *     A snapshot of the structure.
      * @param cause
      *     What caused the action.
      * @param actionType
@@ -38,16 +43,17 @@ public class StructureEventToggleEnd extends StructureToggleEvent implements ISt
      * @param time
      *     The number of seconds the structure will take to open. Note that there are other factors that affect the
      *     total time as well.
-     * @param skipAnimation
+     * @param animationSkipped
      *     If true, the structure will skip the animation and open instantly.
+     * @param newCuboid
+     *     The {@link Cuboid} representing the area the structure will take up after the toggle.
      */
-    public StructureEventToggleEnd(
-        AbstractStructure structure, StructureSnapshot snapshot, StructureActionCause cause,
-        StructureActionType actionType,
-        IPlayer responsible, double time, boolean skipAnimation)
+    public StructureEventTogglePrepare(
+        StructureSnapshot snapshot, StructureActionCause cause, StructureActionType actionType, IPlayer responsible,
+        double time, boolean animationSkipped, Cuboid newCuboid)
     {
-        super(snapshot, cause, actionType, responsible, time, skipAnimation);
-        this.structure = structure;
+        super(snapshot, cause, actionType, responsible, time, animationSkipped);
+        this.newCuboid = newCuboid;
     }
 
     @Override

@@ -1,5 +1,5 @@
 /**
- * Contains the datastructures created for this project.
+ * This package contains data structures such as caches and graphs used by this project.
  */
 @NonNullByDefault
 package nl.pim16aap2.bigdoors.core.data;

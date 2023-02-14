@@ -1,7 +1,6 @@
-package nl.pim16aap2.bigdoors.core.events.structureaction;
+package nl.pim16aap2.bigdoors.core.events;
 
 import nl.pim16aap2.bigdoors.core.api.IPlayer;
-import nl.pim16aap2.bigdoors.core.events.IBigDoorsEvent;
 import nl.pim16aap2.bigdoors.core.structures.StructureSnapshot;
 
 public interface IStructureToggleEvent extends IBigDoorsEvent

@@ -3,9 +3,9 @@ package nl.pim16aap2.bigdoors.core.managers;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlockHook;
+import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlockHookFactory;
 import nl.pim16aap2.bigdoors.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.core.api.debugging.IDebuggable;
-import nl.pim16aap2.bigdoors.core.api.factories.IAnimatedBlockHookFactory;
 import nl.pim16aap2.util.SafeStringBuilder;
 import org.jetbrains.annotations.Nullable;
 

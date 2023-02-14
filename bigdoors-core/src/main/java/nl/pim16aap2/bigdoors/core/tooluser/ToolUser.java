@@ -18,8 +18,6 @@ import nl.pim16aap2.bigdoors.core.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.core.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.core.structures.StructureBaseBuilder;
 import nl.pim16aap2.bigdoors.core.text.TextType;
-import nl.pim16aap2.bigdoors.core.tooluser.step.IStep;
-import nl.pim16aap2.bigdoors.core.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
 import org.jetbrains.annotations.Nullable;
 
@@ -104,14 +102,14 @@ public abstract class ToolUser
     protected abstract void init();
 
     /**
-     * Generates the list of {@link IStep}s that together will make up the {@link #procedure}.
+     * Generates the list of {@link Step}s that together will make up the {@link #procedure}.
      *
-     * @return The list of {@link IStep}s that together will make up the {@link #procedure}.
+     * @return The list of {@link Step}s that together will make up the {@link #procedure}.
      *
      * @throws InstantiationException
      *     When a step's factory is incomplete or otherwise invalid.
      */
-    protected abstract List<IStep> generateSteps()
+    protected abstract List<Step> generateSteps()
         throws InstantiationException;
 
     /**
@@ -185,13 +183,13 @@ public abstract class ToolUser
     }
 
     /**
-     * See {@link Procedure#skipToStep(IStep)}.
+     * See {@link Procedure#skipToStep(Step)}.
      * <p>
      * After successfully skipping to the target step, the newly-selected step will be prepared. See
      * {@link #prepareCurrentStep()}.
      */
     @SuppressWarnings("unused")
-    protected boolean skipToStep(IStep goalStep)
+    protected boolean skipToStep(Step goalStep)
     {
         if (!getProcedure().skipToStep(goalStep))
             return false;
@@ -282,11 +280,11 @@ public abstract class ToolUser
     }
 
     /**
-     * Gets the {@link IStep} in the {@link #procedure} this {@link ToolUser} is currently at.
+     * Gets the {@link Step} in the {@link #procedure} this {@link ToolUser} is currently at.
      *
-     * @return The current {@link IStep} in the {@link #procedure}.
+     * @return The current {@link Step} in the {@link #procedure}.
      */
-    public Optional<IStep> getCurrentStep()
+    public Optional<Step> getCurrentStep()
     {
         return Optional.ofNullable(getProcedure().getCurrentStep());
     }

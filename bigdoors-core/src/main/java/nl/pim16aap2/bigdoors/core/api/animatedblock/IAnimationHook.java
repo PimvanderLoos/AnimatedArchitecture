@@ -1,19 +1,57 @@
 package nl.pim16aap2.bigdoors.core.api.animatedblock;
 
-import nl.pim16aap2.bigdoors.core.api.factories.IAnimationHookFactory;
+import nl.pim16aap2.bigdoors.core.api.IBigDoorsPlatform;
+import nl.pim16aap2.bigdoors.core.audio.AudioAnimationHook;
 import nl.pim16aap2.bigdoors.core.managers.AnimationHookManager;
+import nl.pim16aap2.bigdoors.core.moveblocks.Animation;
+import nl.pim16aap2.bigdoors.core.moveblocks.IAnimator;
 
 /**
- * Represents a hook into an {@link IAnimation}.
+ * Represents a hook into an {@link Animation}.
  * <p>
- * To hook into an animation, this hook needs to be registered with {@link AnimationHookManager} via the use of an
- * {@link IAnimationHookFactory}.
+ * The animation hook works very similarly to the {@link IAnimatedBlockHook}. The main difference is that instead of
+ * hooking into the animated blocks themselves, they hook into the animation.
+ * <p>
+ * The animation hook allows its hooks to override methods to perform actions on specific events, such as
+ * {@link #onAnimationCompleted()} or {@link #onPostAnimationStep()}.
+ * <p>
+ * To use animation hooks, you need to register a subclass of {@link IAnimationHookFactory} with the
+ * {@link AnimationHookManager}. An instance of this class can be obtained using
+ * {@link IBigDoorsPlatform#getAnimationHookManager()}.
+ * <p>
+ * Example usage:
+ * <p>
+ * <pre>{@code
+ * private void registerMyAnimationHookFactory(IBigDoorsPlatform bigDoorsPlatform) {
+ *     bigDoorsPlatform.getAnimationHookManager().registerFactory(
+ *         animation -> new MyAnimationHook(animation));
+ * }
  *
- * @param <T>
- *     The type of {@link IAnimatedBlock} used for the animation.
+ * private static final class MyAnimationHook implements IAnimationHook<IAnimatedBlock> {
+ *     private final Animation<IAnimatedBlock> animation;
+ *     MyAnimationHook(Animation<IAnimatedBlock> animation) {
+ *         this.animation = animation;
+ *     }
+ *     @Override
+ *     public String getName() {
+ *         return "MyAnimationHook";
+ *     }
+ *     @Override
+ *     public void onPostAnimationStep() {
+ *         // Some code that is executed after each step of the animation.
+ *     }
+ * }}</pre>
+ * <p>
+ * The factory receives an {@link Animation} object and is called when a new animation is started by the
+ * {@link IAnimator}. Whether the factory returns a new hook or reuses an existing one is up to the implementation. If
+ * the factory returns null, the hook will not be registered for the given animation.
+ * <p>
+ * You can refer to the animation hook used by the audio system to see a full implementation:
+ * {@link AudioAnimationHook}.
+ *
  * @author Pim
  */
-public interface IAnimationHook<T extends IAnimatedBlock>
+public interface IAnimationHook
 {
     /**
      * @return The name of this hook. Used for logging purposes.

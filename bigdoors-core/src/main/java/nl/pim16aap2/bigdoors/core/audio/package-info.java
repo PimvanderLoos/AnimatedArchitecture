@@ -1,5 +1,6 @@
 /**
- * Contains classes and interfaces used for defining and using audio in animations.
+ * This package contains the audio system used in this project, including audio animation hooks, audio set
+ * configurations, audio descriptions, and audio players.
  */
 @NonNullByDefault
 package nl.pim16aap2.bigdoors.core.audio;

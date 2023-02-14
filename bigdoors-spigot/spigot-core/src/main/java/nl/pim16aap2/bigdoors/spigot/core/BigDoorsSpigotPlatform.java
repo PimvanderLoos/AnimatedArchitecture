@@ -15,7 +15,7 @@ import nl.pim16aap2.bigdoors.core.api.IMessagingInterface;
 import nl.pim16aap2.bigdoors.core.api.IPermissionsManager;
 import nl.pim16aap2.bigdoors.core.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.core.api.IRedstoneManager;
-import nl.pim16aap2.bigdoors.core.api.factories.IAnimatedBlockFactory;
+import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.core.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.core.api.factories.IGuiFactory;
 import nl.pim16aap2.bigdoors.core.api.factories.ILocationFactory;
@@ -40,6 +40,7 @@ import nl.pim16aap2.bigdoors.core.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.core.moveblocks.StructureActivityManager;
 import nl.pim16aap2.bigdoors.core.storage.IStorage;
 import nl.pim16aap2.bigdoors.core.structures.StructureRegistry;
+import nl.pim16aap2.bigdoors.core.util.structureretriever.StructureRetrieverFactory;
 import nl.pim16aap2.bigdoors.spigot.core.comands.CommandManager;
 import nl.pim16aap2.bigdoors.spigot.core.exceptions.InitializationException;
 import nl.pim16aap2.bigdoors.spigot.core.listeners.ChunkListener;
@@ -83,6 +84,9 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
 
     @Getter
     private final IPlayerFactory playerFactory;
+
+    @Getter
+    private final StructureRetrieverFactory structureRetrieverFactory;
 
     @Getter
     private final IConfig bigDoorsConfig;
@@ -239,6 +243,7 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
         locationFactory = safeGetter(BigDoorsSpigotComponent::getLocationFactory);
         worldFactory = safeGetter(BigDoorsSpigotComponent::getWorldFactory);
         playerFactory = safeGetter(BigDoorsSpigotComponent::getPlayerFactory);
+        structureRetrieverFactory = safeGetter(BigDoorsSpigotComponent::getStructureRetrieverFactory);
         commandFactory = safeGetter(BigDoorsSpigotComponent::getCommandFactory);
         animatedBlockFactory = safeGetter(BigDoorsSpigotComponent::getAnimatedBlockFactory);
         bigDoorsEventFactory = safeGetter(BigDoorsSpigotComponent::getIBigDoorsEventFactory);

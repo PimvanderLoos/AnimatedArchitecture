@@ -1,11 +1,9 @@
-package nl.pim16aap2.bigdoors.core.structuretypes;
+package nl.pim16aap2.bigdoors.core.structures;
 
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.audio.AudioSet;
 import nl.pim16aap2.bigdoors.core.managers.StructureTypeManager;
-import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
-import nl.pim16aap2.bigdoors.core.structures.StructureSerializer;
 import nl.pim16aap2.bigdoors.core.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.core.util.LazyValue;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;

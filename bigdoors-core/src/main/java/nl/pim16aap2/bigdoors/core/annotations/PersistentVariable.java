@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.core.structures.serialization;
+package nl.pim16aap2.bigdoors.core.annotations;
 
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 

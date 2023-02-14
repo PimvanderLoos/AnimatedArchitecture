@@ -2,13 +2,12 @@ package nl.pim16aap2.bigdoors.structures.elevator;
 
 import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
-import nl.pim16aap2.bigdoors.structures.portcullis.CreatorPortcullis;
-import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
+import nl.pim16aap2.bigdoors.core.structures.StructureType;
+import nl.pim16aap2.bigdoors.core.tooluser.Step;
 import nl.pim16aap2.bigdoors.core.tooluser.creator.Creator;
-import nl.pim16aap2.bigdoors.core.tooluser.step.IStep;
-import nl.pim16aap2.bigdoors.core.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.core.tooluser.stepexecutor.StepExecutorInteger;
 import nl.pim16aap2.bigdoors.core.util.Util;
+import nl.pim16aap2.bigdoors.structures.portcullis.CreatorPortcullis;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -29,7 +28,7 @@ public class CreatorElevator extends CreatorPortcullis
     }
 
     @Override
-    protected List<IStep> generateSteps()
+    protected List<Step> generateSteps()
         throws InstantiationException
     {
         final Step stepBlocksToMove = stepFactory

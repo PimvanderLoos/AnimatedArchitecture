@@ -1,12 +1,11 @@
-package nl.pim16aap2.bigdoors.spigot.core.events.structureaction;
+package nl.pim16aap2.bigdoors.spigot.core.events;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.core.api.IPlayer;
-import nl.pim16aap2.bigdoors.core.events.structureaction.IStructureToggleEvent;
-import nl.pim16aap2.bigdoors.core.events.structureaction.StructureActionCause;
-import nl.pim16aap2.bigdoors.core.events.structureaction.StructureActionType;
-import nl.pim16aap2.bigdoors.spigot.core.events.BigDoorsSpigotEvent;
+import nl.pim16aap2.bigdoors.core.events.IStructureToggleEvent;
+import nl.pim16aap2.bigdoors.core.events.StructureActionCause;
+import nl.pim16aap2.bigdoors.core.events.StructureActionType;
 import nl.pim16aap2.bigdoors.core.structures.StructureSnapshot;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;

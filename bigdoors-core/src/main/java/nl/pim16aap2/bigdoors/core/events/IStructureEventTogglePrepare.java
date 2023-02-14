@@ -1,6 +1,5 @@
-package nl.pim16aap2.bigdoors.core.events.structureaction;
+package nl.pim16aap2.bigdoors.core.events;
 
-import nl.pim16aap2.bigdoors.core.events.ICancellableBigDoorsEvent;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
 
 /**

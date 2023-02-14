@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.core.structures.serialization;
+package nl.pim16aap2.bigdoors.core.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

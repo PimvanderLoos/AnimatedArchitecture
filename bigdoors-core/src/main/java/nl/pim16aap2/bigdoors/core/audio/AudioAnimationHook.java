@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.core.audio;
 
 import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlock;
-import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimation;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimationHook;
-import nl.pim16aap2.bigdoors.core.api.factories.IAnimationHookFactory;
+import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimationHookFactory;
+import nl.pim16aap2.bigdoors.core.moveblocks.Animation;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,9 +16,9 @@ import javax.inject.Singleton;
  *
  * @author Pim
  */
-public final class AudioAnimationHook implements IAnimationHook<IAnimatedBlock>
+public final class AudioAnimationHook implements IAnimationHook
 {
-    private final IAnimation<IAnimatedBlock> animation;
+    private final Animation<IAnimatedBlock> animation;
     private final IAudioPlayer audioPlayer;
     private final AudioSet audioSet;
 
@@ -33,7 +33,7 @@ public final class AudioAnimationHook implements IAnimationHook<IAnimatedBlock>
     private volatile int skipped = -1;
 
     private AudioAnimationHook(
-        IAnimation<IAnimatedBlock> animation, AudioSet audioSet, IAudioPlayer audioPlayer, int serverTickTime)
+        Animation<IAnimatedBlock> animation, AudioSet audioSet, IAudioPlayer audioPlayer, int serverTickTime)
     {
         this.animation = animation;
         this.audioPlayer = audioPlayer;
@@ -45,7 +45,7 @@ public final class AudioAnimationHook implements IAnimationHook<IAnimatedBlock>
     @Override
     public void onPostAnimationStep()
     {
-        if (animation.getState() != IAnimation.AnimationState.ACTIVE || activeAudioDuration == -1)
+        if (animation.getState() != Animation.AnimationState.ACTIVE || activeAudioDuration == -1)
             return;
 
         final int skippedCount = skipped;
@@ -98,7 +98,7 @@ public final class AudioAnimationHook implements IAnimationHook<IAnimatedBlock>
         }
 
         @Override
-        public @Nullable IAnimationHook<IAnimatedBlock> newInstance(IAnimation<IAnimatedBlock> animation)
+        public @Nullable IAnimationHook newInstance(Animation<IAnimatedBlock> animation)
         {
             final AudioSet audioSet = audioConfigurator.getAudioSet(animation.getStructureType());
             if (audioSet.isEmpty())

@@ -11,8 +11,6 @@ import nl.pim16aap2.bigdoors.core.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.text.Text;
 import nl.pim16aap2.bigdoors.core.text.TextType;
-import nl.pim16aap2.bigdoors.core.tooluser.step.IStep;
-import nl.pim16aap2.bigdoors.core.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.core.tooluser.stepexecutor.StepExecutorLocation;
 
 import java.util.Collections;
@@ -87,7 +85,7 @@ public class PowerBlockInspector extends ToolUser
     }
 
     @Override
-    protected List<IStep> generateSteps()
+    protected List<Step> generateSteps()
         throws InstantiationException
     {
         final Step stepBlocksToMove = stepFactory

@@ -1,13 +1,18 @@
 package nl.pim16aap2.bigdoors.core.api;
 
-import nl.pim16aap2.bigdoors.core.api.factories.IAnimatedBlockFactory;
+import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlockFactory;
+import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlockHook;
+import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimationHook;
 import nl.pim16aap2.bigdoors.core.api.factories.ILocationFactory;
 import nl.pim16aap2.bigdoors.core.api.factories.IPlayerFactory;
 import nl.pim16aap2.bigdoors.core.api.factories.IWorldFactory;
 import nl.pim16aap2.bigdoors.core.audio.IAudioPlayer;
+import nl.pim16aap2.bigdoors.core.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.core.commands.DelayedCommandInputRequest;
 import nl.pim16aap2.bigdoors.core.commands.IServer;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.core.managers.AnimatedBlockHookManager;
+import nl.pim16aap2.bigdoors.core.managers.AnimationHookManager;
 import nl.pim16aap2.bigdoors.core.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.core.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.core.managers.LimitsManager;
@@ -17,6 +22,9 @@ import nl.pim16aap2.bigdoors.core.managers.StructureTypeManager;
 import nl.pim16aap2.bigdoors.core.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.core.moveblocks.StructureActivityManager;
 import nl.pim16aap2.bigdoors.core.structures.StructureRegistry;
+import nl.pim16aap2.bigdoors.core.util.structureretriever.StructureFinder;
+import nl.pim16aap2.bigdoors.core.util.structureretriever.StructureRetriever;
+import nl.pim16aap2.bigdoors.core.util.structureretriever.StructureRetrieverFactory;
 
 /**
  * Represents a set of getter methods to get access to the internals of BigDoors.
@@ -77,6 +85,16 @@ public interface IBigDoorsPlatform
      * @return The instance of the {@link IPlayerFactory} for this platform.
      */
     IPlayerFactory getPlayerFactory();
+
+    /**
+     * @return The manager for {@link IAnimatedBlockHook}s.
+     */
+    AnimatedBlockHookManager getAnimatedBlockHookManager();
+
+    /**
+     * @return The manager for {@link IAnimationHook}s.
+     */
+    AnimationHookManager getAnimationHookManager();
 
     /**
      * Gets the instance of the {@link IConfig} for this platform.
@@ -215,6 +233,16 @@ public interface IBigDoorsPlatform
      * @return The instance of the {@link IPermissionsManager} for this platform.
      */
     IPermissionsManager getPermissionsManager();
+
+    /**
+     * @return The command factory.
+     */
+    CommandFactory getCommandFactory();
+
+    /**
+     * @return The factory used to create new {@link StructureRetriever} and {@link StructureFinder} instances.
+     */
+    StructureRetrieverFactory getStructureRetrieverFactory();
 
     /**
      * Gets the instance of the {@link IProtectionCompatManager} for this platform.

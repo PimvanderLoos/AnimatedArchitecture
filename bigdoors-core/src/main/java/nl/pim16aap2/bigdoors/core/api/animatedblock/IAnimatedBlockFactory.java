@@ -1,9 +1,6 @@
-package nl.pim16aap2.bigdoors.core.api.factories;
+package nl.pim16aap2.bigdoors.core.api.animatedblock;
 
 import nl.pim16aap2.bigdoors.core.api.ILocation;
-import nl.pim16aap2.bigdoors.core.api.animatedblock.AnimationContext;
-import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlock;
-import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlockData;
 import nl.pim16aap2.bigdoors.core.moveblocks.Animator;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
 

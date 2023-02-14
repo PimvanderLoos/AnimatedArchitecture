@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.core.tooluser.step;
+package nl.pim16aap2.bigdoors.core.tooluser;
 
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
@@ -17,16 +17,22 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-// TODO: Consider adding another method for PrepareStep or something. For example, the setFirstPos would prepare by
-//       giving the player the creator stick, and CONFIRM_PRICE would prepare by skipping itself if
-//       the structure is free.
+/**
+ * Represents a step in a {@link Procedure}.
+ * <p>
+ * The step can be configured with messages to send to the user as preparation as well as {@link StepExecutor}s to
+ * process the user input.
+ */
 @ToString
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class Step implements IStep
+public class Step
 {
     @ToString.Exclude
     private final ILocalizer localizer;
 
+    /**
+     * The name of this step.
+     */
     @Getter
     private final String name;
 
@@ -35,6 +41,9 @@ public class Step implements IStep
     @ToString.Exclude
     private final String messageKey;
 
+    /**
+     * The action to be taken to prepare this step, if any.
+     */
     @ToString.Exclude
     @Getter
     private final @Nullable Runnable stepPreparation;
@@ -47,28 +56,53 @@ public class Step implements IStep
     @ToString.Exclude
     private final @Nullable Supplier<Boolean> skipCondition;
 
+    /**
+     * Checks if this step should 'automatically' proceed to the next step if the result of running the
+     * {@link #getStepExecutor()} is true.
+     * <p>
+     * See {@link StepExecutor#apply(Object)}.
+     *
+     * @return True if the successful execution of this step's executor should cause it to go to the next step
+     * automatically.
+     */
     @Getter
     private final boolean implicitNextStep;
 
-    @Override
+    /**
+     * Checks if this type of Step waits for user input or not.
+     * <p>
+     * Most steps will usually wait for user input (e.g. providing a name, or location, etc.). However, some steps can
+     * be executed immediately. One such example is a finishing step, that runs after all other steps have been
+     * completed and processes the final result of all the steps that have been executed.
+     *
+     * @return True if this type of step waits for user input.
+     */
     public boolean waitForUserInput()
     {
         return waitForUserInput;
     }
 
-    @Override
+    /**
+     * @return The {@link StepExecutor} for the current step.
+     */
     public Optional<StepExecutor> getStepExecutor()
     {
         return Optional.of(stepExecutor);
     }
 
-    @Override
+    /**
+     * Checks if this step should be skipped based on certain criteria defined by the implementation.
+     *
+     * @return True if this step should be skipped.
+     */
     public boolean skip()
     {
         return skipCondition != null && skipCondition.get();
     }
 
-    @Override
+    /**
+     * @return The localized {@link String} that belongs to the current step.
+     */
     public String getLocalizedMessage()
     {
         return localizer.getMessage(messageKey, messageVariablesRetrievers.stream().map(Supplier::get).toArray());
@@ -102,7 +136,7 @@ public class Step implements IStep
         }
 
         /**
-         * See {@link IStep#isImplicitNextStep()}.
+         * See {@link Step#isImplicitNextStep()}.
          */
         public Factory implicitNextStep(boolean implicitNextStep)
         {
@@ -111,7 +145,7 @@ public class Step implements IStep
         }
 
         /**
-         * See {@link IStep#getStepPreparation()}.
+         * See {@link Step#getStepPreparation()}.
          */
         public Factory stepPreparation(Runnable prepareStep)
         {
@@ -120,7 +154,7 @@ public class Step implements IStep
         }
 
         /**
-         * See {@link IStep#getStepExecutor()}.
+         * See {@link Step#getStepExecutor()}.
          */
         public Factory stepExecutor(StepExecutor stepExecutor)
         {
@@ -148,7 +182,7 @@ public class Step implements IStep
         }
 
         /**
-         * Sets the implementation of {@link IStep#skip()}.
+         * Sets the implementation of {@link Step#skip()}.
          * <p>
          * This can be used to disable certain steps based on arbitrary conditions (e.g. configuration settings).
          */
@@ -159,7 +193,7 @@ public class Step implements IStep
         }
 
         /**
-         * See {@link IStep#waitForUserInput()}.
+         * See {@link Step#waitForUserInput()}.
          */
         public Factory waitForUserInput(boolean waitForUserInput)
         {

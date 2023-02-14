@@ -1,9 +1,56 @@
 package nl.pim16aap2.bigdoors.core.api.animatedblock;
 
+import nl.pim16aap2.bigdoors.core.api.IBigDoorsPlatform;
+import nl.pim16aap2.bigdoors.core.managers.AnimatedBlockHookManager;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
 
 /**
  * Represents a hook for {@link IAnimatedBlock}s.
+ * <p>
+ * The animated block hook works similarly to the {@link IAnimationHook}, but for every block in an animation instead of
+ * one per animation.
+ * <p>
+ * Creating a subclass of this interface allows hooking into the animated blocks themselves. Subclasses of this
+ * interface can override methods for specific events. For example, overriding the {@link #postTick()} method allows the
+ * hook to perform some action after every tick of the animated block. There are also methods for when an animated block
+ * (re)spawns, is instantiated, moved, teleported, and more.
+ * <p>
+ * When creating such a hook, you can register a factory for it with the {@link AnimatedBlockHookManager}. An instance
+ * of that manager can be obtained using {@link IBigDoorsPlatform#getAnimatedBlockHookManager()}. Specifically, this
+ * class is used to register subclasses of {@link IAnimatedBlockHookFactory}. It is legal for the factory to create a
+ * new hook for each animated block, to reuse existing hooks between any number of animated blocks, or to return null,
+ * in which case the hook will not be registered for the given animated block.
+ * <p>
+ * Example usage:
+ * <p>
+ * <pre>{@code
+ * private void registerMyAnimatedBlockHookFactory(IBigDoorsPlatform bigDoorsPlatform) {
+ *     bigDoorsPlatform.getAnimatedBlockHookManager().registerFactory(MyAnimatedBlockHook::new);
+ * }
+ *
+ * private static final class MyAnimatedBlockHook implements IAnimatedBlockHook {
+ *
+ *     private final IAnimatedBlock animatedBlock;
+ *
+ *     public MyAnimatedBlockHook(IAnimatedBlock animatedBlock) {
+ *         this.animatedBlock = animatedBlock;
+ *     }
+ *
+ *     @Override
+ *     public String getName() {
+ *         return "MyAnimatedBlockHook";
+ *     }
+ *
+ *     @Override
+ *     public void postTick() {
+ *         // Some code that runs after each tick of the animated block.
+ *     }
+ * }}</pre>
+ * <p>
+ * Note that the {@link IAnimatedBlockHookFactory} has a type parameter. The type has to be a subclass of
+ * {@link IAnimatedBlock}. This can be used to specialize the type of animated block for the specific platform. For
+ * example, animated blocks on the Spigot platform will be subclasses of the IAnimatedBlockSpigot interface, which adds
+ * some methods specific to the Spigot platform.
  *
  * @author Pim
  */

@@ -9,9 +9,9 @@ import nl.pim16aap2.bigdoors.core.api.IExecutor;
 import nl.pim16aap2.bigdoors.core.api.IMessageable;
 import nl.pim16aap2.bigdoors.core.api.IMessagingInterface;
 import nl.pim16aap2.bigdoors.core.api.IRedstoneManager;
+import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.core.api.debugging.DebugReporter;
 import nl.pim16aap2.bigdoors.core.api.debugging.DebuggableRegistry;
-import nl.pim16aap2.bigdoors.core.api.factories.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.core.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.core.api.factories.IGuiFactory;
 import nl.pim16aap2.bigdoors.core.api.factories.ILocationFactory;
@@ -39,6 +39,7 @@ import nl.pim16aap2.bigdoors.core.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.core.moveblocks.StructureActivityManager;
 import nl.pim16aap2.bigdoors.core.storage.sqlite.SQLiteStorageModule;
 import nl.pim16aap2.bigdoors.core.structures.StructureRegistry;
+import nl.pim16aap2.bigdoors.core.util.structureretriever.StructureRetrieverFactory;
 import nl.pim16aap2.bigdoors.spigot.core.comands.CommandManager;
 import nl.pim16aap2.bigdoors.spigot.core.compatiblity.ProtectionCompatManagerModule;
 import nl.pim16aap2.bigdoors.spigot.core.compatiblity.ProtectionCompatManagerSpigot;
@@ -175,6 +176,8 @@ interface BigDoorsSpigotComponent
     IWorldFactory getWorldFactory();
 
     IPlayerFactory getPlayerFactory();
+
+    StructureRetrieverFactory getStructureRetrieverFactory();
 
     IAudioPlayer getIAudioPlayer();
 

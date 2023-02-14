@@ -1,4 +1,4 @@
 @NonNullByDefault
-package nl.pim16aap2.bigdoors.core.events.structureaction;
+package nl.pim16aap2.bigdoors.spigot.core;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;

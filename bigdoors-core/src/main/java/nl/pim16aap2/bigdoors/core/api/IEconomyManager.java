@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.core.api;
 
-import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
+import nl.pim16aap2.bigdoors.core.structures.StructureType;
 
 import java.util.OptionalDouble;
 

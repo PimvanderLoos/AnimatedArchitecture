@@ -31,10 +31,9 @@ import nl.pim16aap2.bigdoors.core.structures.PermissionLevel;
 import nl.pim16aap2.bigdoors.core.structures.StructureBaseBuilder;
 import nl.pim16aap2.bigdoors.core.structures.StructureOwner;
 import nl.pim16aap2.bigdoors.core.structures.StructureRegistry;
+import nl.pim16aap2.bigdoors.core.tooluser.Step;
 import nl.pim16aap2.bigdoors.core.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.core.tooluser.creator.Creator;
-import nl.pim16aap2.bigdoors.core.tooluser.step.IStep;
-import nl.pim16aap2.bigdoors.core.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Di;
@@ -276,7 +275,7 @@ public class CreatorTestsUtil
         for (int idx = 0; idx < input.length; ++idx)
         {
             final Object obj = input[idx];
-            final @Nullable String stepName = creator.getCurrentStep().map(IStep::getName).orElse(null);
+            final @Nullable String stepName = creator.getCurrentStep().map(Step::getName).orElse(null);
             Assertions.assertNotNull(stepName);
 
             Assertions.assertTrue(creator.handleInput(obj),

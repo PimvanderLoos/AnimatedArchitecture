@@ -6,14 +6,14 @@ import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.commands.AddOwnerDelayed;
 import nl.pim16aap2.bigdoors.core.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.core.commands.ICommandSender;
-import nl.pim16aap2.bigdoors.core.events.structureaction.StructureActionType;
+import nl.pim16aap2.bigdoors.core.events.StructureActionType;
 import nl.pim16aap2.bigdoors.core.moveblocks.AnimationType;
-import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.core.structures.PermissionLevel;
-import nl.pim16aap2.bigdoors.core.structuretypes.StructureType;
+import nl.pim16aap2.bigdoors.core.structures.StructureType;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
 import nl.pim16aap2.bigdoors.core.util.structureretriever.StructureRetriever;
 import nl.pim16aap2.bigdoors.core.util.structureretriever.StructureRetrieverFactory;
+import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 

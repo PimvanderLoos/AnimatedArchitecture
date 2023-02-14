@@ -9,8 +9,8 @@ import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.AnimationContext;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimationHook;
-import nl.pim16aap2.bigdoors.core.events.structureaction.StructureActionCause;
-import nl.pim16aap2.bigdoors.core.events.structureaction.StructureActionType;
+import nl.pim16aap2.bigdoors.core.events.StructureActionCause;
+import nl.pim16aap2.bigdoors.core.events.StructureActionType;
 import nl.pim16aap2.bigdoors.core.managers.AnimationHookManager;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.structures.StructureSnapshot;
@@ -27,7 +27,7 @@ import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
-import static nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimation.AnimationState;
+import static nl.pim16aap2.bigdoors.core.moveblocks.Animation.AnimationState;
 
 /**
  * Represents a class that animates blocks.
@@ -136,7 +136,7 @@ public final class Animator implements IAnimator
     @Getter
     private final AnimationType animationType;
 
-    private volatile @Nullable List<IAnimationHook<IAnimatedBlock>> hooks;
+    private volatile @Nullable List<IAnimationHook> hooks;
 
     /**
      * The task that moves the animated blocks.
@@ -569,13 +569,13 @@ public final class Animator implements IAnimator
         return Cuboid.of(new Vector3Dd(xMin, yMin, zMin), new Vector3Dd(xMax, yMax, zMax), Cuboid.RoundingMode.OUTWARD);
     }
 
-    private void forEachHook(String actionName, Consumer<IAnimationHook<IAnimatedBlock>> call)
+    private void forEachHook(String actionName, Consumer<IAnimationHook> call)
     {
         final @Nullable var hooks0 = hooks;
         if (hooks0 == null)
             return;
 
-        for (final IAnimationHook<IAnimatedBlock> hook : hooks0)
+        for (final IAnimationHook hook : hooks0)
         {
             log.atFinest().log("Executing '%s' for hook '%s'!", actionName, hook.getName());
             try
