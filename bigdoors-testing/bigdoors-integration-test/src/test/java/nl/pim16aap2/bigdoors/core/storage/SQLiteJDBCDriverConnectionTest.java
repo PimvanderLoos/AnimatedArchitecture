@@ -474,7 +474,7 @@ public class SQLiteJDBCDriverConnectionTest
     public void modifyStructures()
     {
         StructureSerializer<?> serializer =
-            Assertions.assertDoesNotThrow(() -> new StructureSerializer<>(structure3.getType().getStructureClass()));
+            Assertions.assertDoesNotThrow(() -> new StructureSerializer<>(structure3.getType()));
         Assertions.assertNotNull(serializer);
 
         // Test (un)locking (i.e. syncing base data).

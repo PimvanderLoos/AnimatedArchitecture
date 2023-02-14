@@ -59,7 +59,7 @@ class StructureSerializerTest
     void instantiate()
     {
         final var instantiator =
-            Assertions.assertDoesNotThrow(() -> new StructureSerializer<>(TestStructureType.class));
+            Assertions.assertDoesNotThrow(() -> new StructureSerializer<>(TestStructureType.class, 1));
         final TestStructureType base = new TestStructureType(structureBase, "test", true, 42);
 
         TestStructureType test = Assertions.assertDoesNotThrow(
@@ -81,7 +81,7 @@ class StructureSerializerTest
     void serialize()
     {
         final StructureSerializer<TestStructureType> instantiator =
-            Assertions.assertDoesNotThrow(() -> new StructureSerializer<>(TestStructureType.class));
+            Assertions.assertDoesNotThrow(() -> new StructureSerializer<>(TestStructureType.class, 1));
         final TestStructureType testStructureType = new TestStructureType(structureBase, "test", true, 42);
 
         final String serialized = Assertions.assertDoesNotThrow(() -> instantiator.serialize(testStructureType));
@@ -94,10 +94,9 @@ class StructureSerializerTest
     void subclass()
     {
         final var instantiator = Assertions.assertDoesNotThrow(
-            () -> new StructureSerializer<>(TestStructureSubType.class));
-        final TestStructureSubType testStructureSubType1 = new TestStructureSubType(structureBase, "testSubClass", 6,
-                                                                                    true,
-                                                                                    42);
+            () -> new StructureSerializer<>(TestStructureSubType.class, 1));
+        final TestStructureSubType testStructureSubType1 =
+            new TestStructureSubType(structureBase, "testSubClass", 6, true, 42);
 
         final String serialized = Assertions.assertDoesNotThrow(() -> instantiator.serialize(testStructureSubType1));
         final var testStructureSubType2 = Assertions.assertDoesNotThrow(
@@ -110,9 +109,9 @@ class StructureSerializerTest
     void testAmbiguityParams()
     {
         Assertions.assertThrows(IllegalArgumentException.class,
-                                () -> new StructureSerializer<>(TestStructureSubTypeAmbiguousParameterTypes.class));
+                                () -> new StructureSerializer<>(TestStructureSubTypeAmbiguousParameterTypes.class, 1));
         Assertions.assertThrows(IllegalArgumentException.class,
-                                () -> new StructureSerializer<>(TestStructureSubTypeAmbiguousParameterNames.class));
+                                () -> new StructureSerializer<>(TestStructureSubTypeAmbiguousParameterNames.class, 1));
     }
 
     @Test
@@ -120,7 +119,7 @@ class StructureSerializerTest
         throws Exception
     {
         final var instantiator = Assertions.assertDoesNotThrow(
-            () -> new StructureSerializer<>(TestStructureType.class));
+            () -> new StructureSerializer<>(TestStructureType.class, 1));
         final TestStructureType testStructureType0 = new TestStructureType(structureBase, null, true, 42);
 
         final TestStructureType testStructureType1 =
@@ -135,7 +134,7 @@ class StructureSerializerTest
     void testInvalidMissingData()
     {
         final var instantiator = Assertions.assertDoesNotThrow(
-            () -> new StructureSerializer<>(TestStructureType.class));
+            () -> new StructureSerializer<>(TestStructureType.class, 1));
 
         // The mapping for 'int blockTestCount' is missing, in which case we throw an exception.
         // Only objects can be missing.
@@ -150,27 +149,27 @@ class StructureSerializerTest
     void testAmbiguousClass()
     {
         Assertions.assertThrows(Exception.class,
-                                () -> new StructureSerializer<>(TestStructureSubTypeAmbiguousFieldTypes.class));
+                                () -> new StructureSerializer<>(TestStructureSubTypeAmbiguousFieldTypes.class, 1));
         Assertions.assertThrows(Exception.class,
-                                () -> new StructureSerializer<>(TestStructureSubTypeAmbiguousFieldNames.class));
+                                () -> new StructureSerializer<>(TestStructureSubTypeAmbiguousFieldNames.class, 1));
     }
 
     @Test
     void testVersioning()
     {
         final var instantiator = Assertions.assertDoesNotThrow(
-            () -> new StructureSerializer<>(TestStructureSubTypeConstructorVersions.class));
+            () -> new StructureSerializer<>(TestStructureSubTypeConstructorVersions.class, 2));
 
-        Assertions.assertEquals(-1, instantiator.deserialize(structureBase, 999, "{}").version);
         Assertions.assertEquals(1, instantiator.deserialize(structureBase, 1, "{}").version);
         Assertions.assertEquals(2, instantiator.deserialize(structureBase, 2, "{}").version);
+        Assertions.assertThrows(RuntimeException.class, () -> instantiator.deserialize(structureBase, 4, "{}"));
     }
 
     @Test
     void testVersioningWithoutFallback()
     {
         final var instantiator = Assertions.assertDoesNotThrow(
-            () -> new StructureSerializer<>(TestStructureSubTypeConstructorVersionsNoFallback.class));
+            () -> new StructureSerializer<>(TestStructureSubTypeConstructorVersionsNoFallback.class, 2));
 
         Assertions.assertThrows(RuntimeException.class, () -> instantiator.deserialize(structureBase, 999, "{}"));
         Assertions.assertEquals(1, instantiator.deserialize(structureBase, 1, "{}").version);
@@ -182,7 +181,7 @@ class StructureSerializerTest
     {
         Assertions.assertThrows(IllegalArgumentException.class,
                                 () -> new StructureSerializer<>(
-                                    TestStructureSubTypeAmbiguousConstructorVersions.class));
+                                    TestStructureSubTypeAmbiguousConstructorVersions.class, 1));
     }
 
     // This class is a nullability nightmare, but that doesn't matter, because none of the methods are used;

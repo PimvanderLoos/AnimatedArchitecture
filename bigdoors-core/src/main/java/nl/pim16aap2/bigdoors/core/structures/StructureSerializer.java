@@ -59,7 +59,7 @@ import java.util.Set;
  *     @PersistentVariable
  *     private String nonAmbiguous
  *
- *     @DeserializationConstructor
+ *     @Deserialization
  *     public MyStructure(
  *         AbstractStructure.Holder base,
  *         @PersistentVariable("ambiguousInteger0") int0,
@@ -73,6 +73,11 @@ import java.util.Set;
  *     }
  *     ...
  * }}</pre>
+ * <p>
+ * The {@link Deserialization} annotation accepts an integer version variable. This allows specifying a different
+ * deserialization constructors for different versions of the structure type. When no constructor exists that explicitly
+ * supports the version of a structure that has to be deserialized, the deserializer will use the constructor whose
+ * annotation does not specify a specific version if it exists.
  *
  * @param <T>
  *     The type of structure.
@@ -87,6 +92,11 @@ public final class StructureSerializer<T extends AbstractStructure>
     private final Class<T> structureClass;
 
     /**
+     * The current version of the {@link StructureType} this serializer exists for.
+     */
+    private final int currentTypeVersion;
+
+    /**
      * The list of serializable fields in the target class {@link #structureClass} that are annotated with
      * {@link PersistentVariable}.
      */
@@ -96,9 +106,11 @@ public final class StructureSerializer<T extends AbstractStructure>
 
     private final @Nullable DeserializationConstructor defaultConstructor;
 
-    public StructureSerializer(Class<T> structureClass)
+    @VisibleForTesting
+    public StructureSerializer(Class<T> structureClass, int currentTypeVersion)
     {
         this.structureClass = structureClass;
+        this.currentTypeVersion = currentTypeVersion;
 
         if (Modifier.isAbstract(structureClass.getModifiers()))
             throw new IllegalArgumentException("The StructureSerializer only works for concrete classes!");
@@ -111,7 +123,7 @@ public final class StructureSerializer<T extends AbstractStructure>
     public StructureSerializer(StructureType type)
     {
         //noinspection unchecked
-        this((Class<T>) type.getStructureClass());
+        this((Class<T>) type.getStructureClass(), type.getVersion());
     }
 
     private static Int2ObjectMap<DeserializationConstructor> getConstructors(Class<?> structureClass)
@@ -295,6 +307,11 @@ public final class StructureSerializer<T extends AbstractStructure>
         if (values.size() != fields.size())
             log.atWarning().log("Expected %d arguments but received %d for type %s",
                                 fields.size(), values.size(), getStructureTypeName());
+
+        if (version > currentTypeVersion)
+            throw new IllegalArgumentException(
+                String.format("Failed to deserialize structure %d! Data version %d is higher than type version %d!",
+                              structureBase.get().getUid(), version, this.currentTypeVersion));
 
         final DeserializationConstructor deserializationCtor = getDeserializationConstructor(version);
 
