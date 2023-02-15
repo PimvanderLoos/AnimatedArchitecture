@@ -5,15 +5,15 @@ import nl.pim16aap2.bigdoors.core.api.ILocation;
 import nl.pim16aap2.bigdoors.core.util.Util;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.function.Function;
+import java.util.function.Predicate;
 
 @ToString
 public class StepExecutorLocation extends StepExecutor
 {
     @ToString.Exclude
-    private final Function<ILocation, Boolean> fun;
+    private final Predicate<ILocation> fun;
 
-    public StepExecutorLocation(Function<ILocation, Boolean> fun)
+    public StepExecutorLocation(Predicate<ILocation> fun)
     {
         this.fun = fun;
     }
@@ -22,7 +22,7 @@ public class StepExecutorLocation extends StepExecutor
     protected boolean protectedAccept(@Nullable Object input)
     {
         Util.requireNonNull(input, "Location input");
-        return fun.apply((ILocation) input);
+        return fun.test((ILocation) input);
     }
 
     @Override

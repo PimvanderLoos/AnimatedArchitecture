@@ -5,15 +5,15 @@ import nl.pim16aap2.bigdoors.core.util.MovementDirection;
 import nl.pim16aap2.bigdoors.core.util.Util;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.function.Function;
+import java.util.function.Predicate;
 
 @ToString
 public class StepExecutorOpenDirection extends StepExecutor
 {
     @ToString.Exclude
-    private final Function<MovementDirection, Boolean> fun;
+    private final Predicate<MovementDirection> fun;
 
-    public StepExecutorOpenDirection(Function<MovementDirection, Boolean> fun)
+    public StepExecutorOpenDirection(Predicate<MovementDirection> fun)
     {
         this.fun = fun;
     }
@@ -22,7 +22,7 @@ public class StepExecutorOpenDirection extends StepExecutor
     protected boolean protectedAccept(@Nullable Object input)
     {
         Util.requireNonNull(input, "MovementDirection input");
-        return fun.apply((MovementDirection) input);
+        return fun.test((MovementDirection) input);
     }
 
     @Override
