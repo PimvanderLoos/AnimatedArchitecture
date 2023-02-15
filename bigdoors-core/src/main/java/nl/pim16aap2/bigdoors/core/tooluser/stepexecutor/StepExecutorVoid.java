@@ -5,16 +5,16 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.function.Supplier;
+import java.util.function.BooleanSupplier;
 
 @ToString
 @Flogger
 public class StepExecutorVoid extends StepExecutor
 {
     @ToString.Exclude
-    private final Supplier<Boolean> fun;
+    private final BooleanSupplier fun;
 
-    public StepExecutorVoid(Supplier<Boolean> fun)
+    public StepExecutorVoid(BooleanSupplier fun)
     {
         this.fun = fun;
     }
@@ -25,7 +25,7 @@ public class StepExecutorVoid extends StepExecutor
         if (input != null)
             log.atFine().withStackTrace(StackSize.FULL)
                .log("Void input should not have a value. Received %s", input);
-        return fun.get();
+        return fun.getAsBoolean();
     }
 
     @Override

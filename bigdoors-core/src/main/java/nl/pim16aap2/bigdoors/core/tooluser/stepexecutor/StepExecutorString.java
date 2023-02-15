@@ -4,15 +4,15 @@ import lombok.ToString;
 import nl.pim16aap2.bigdoors.core.util.Util;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.function.Function;
+import java.util.function.Predicate;
 
 @ToString
 public class StepExecutorString extends StepExecutor
 {
     @ToString.Exclude
-    private final Function<String, Boolean> fun;
+    private final Predicate<String> fun;
 
-    public StepExecutorString(Function<String, Boolean> fun)
+    public StepExecutorString(Predicate<String> fun)
     {
         this.fun = fun;
     }
@@ -21,7 +21,7 @@ public class StepExecutorString extends StepExecutor
     protected boolean protectedAccept(@Nullable Object input)
     {
         Util.requireNonNull(input, "String input");
-        return fun.apply((String) input);
+        return fun.test((String) input);
     }
 
     @Override

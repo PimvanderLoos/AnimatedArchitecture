@@ -53,7 +53,7 @@ public final class StructureRegistry extends Restartable
      * Constructs a new {@link #StructureRegistry}.
      *
      * @param concurrencyLevel
-     *     The concurrency level (see Guava docs) of the cache.
+     *     The concurrency level of the cache.
      * @param initialCapacity
      *     The initial size of the cache to reserve.
      * @param cacheExpiry

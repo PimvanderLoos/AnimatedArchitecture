@@ -27,6 +27,7 @@ import nl.pim16aap2.bigdoors.core.structures.PermissionLevel;
 import nl.pim16aap2.bigdoors.core.structures.StructureModifier;
 import nl.pim16aap2.bigdoors.core.structures.StructureOwner;
 import nl.pim16aap2.bigdoors.core.structures.StructureSnapshot;
+import nl.pim16aap2.bigdoors.core.structures.StructureType;
 import nl.pim16aap2.bigdoors.core.util.Util;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
@@ -257,6 +258,34 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     {
         final long chunkId = Util.getChunkId(chunkX, chunkZ);
         return CompletableFuture.supplyAsync(() -> db.getStructuresInChunk(chunkId), threadPool)
+                                .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
+    }
+
+    /**
+     * Obtains all structures of a given type.
+     *
+     * @param typeName
+     *     The name of the type. See {@link StructureType#getFullName()}.
+     * @return All structures of the given type.
+     */
+    public CompletableFuture<List<AbstractStructure>> getStructuresOfType(String typeName)
+    {
+        return CompletableFuture.supplyAsync(() -> db.getStructuresOfType(typeName), threadPool)
+                                .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
+    }
+
+    /**
+     * Obtains all structures of a specific version of a given type.
+     *
+     * @param typeName
+     *     The name of the type. See {@link StructureType#getFullName()}.
+     * @param version
+     *     The version of the type.
+     * @return All structures of the given type and version.
+     */
+    public CompletableFuture<List<AbstractStructure>> getStructuresOfType(String typeName, int version)
+    {
+        return CompletableFuture.supplyAsync(() -> db.getStructuresOfType(typeName, version), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 

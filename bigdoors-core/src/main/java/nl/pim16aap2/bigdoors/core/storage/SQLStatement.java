@@ -257,6 +257,26 @@ public enum SQLStatement
         """
     ),
 
+    GET_STRUCTURES_OF_TYPE(
+        """
+        SELECT Structure.*, Player.*, StructureOwnerPlayer.permission
+        FROM Structure
+        INNER JOIN StructureOwnerPlayer ON Structure.id = StructureOwnerPlayer.structureUID
+        INNER JOIN Player ON StructureOwnerPlayer.playerID = Player.id
+        WHERE Structure.type = ? AND StructureOwnerPlayer.permission = 0;
+        """
+    ),
+
+    GET_STRUCTURES_OF_VERSIONED_TYPE(
+        """
+        SELECT Structure.*, Player.*, StructureOwnerPlayer.permission
+        FROM Structure
+        INNER JOIN StructureOwnerPlayer ON Structure.id = StructureOwnerPlayer.structureUID
+        INNER JOIN Player ON StructureOwnerPlayer.playerID = Player.id
+        WHERE Structure.typeVersion = ? AND Structure.type = ? AND StructureOwnerPlayer.permission = 0;
+        """
+    ),
+
     INSERT_STRUCTURE_BASE(
         """
         INSERT INTO Structure

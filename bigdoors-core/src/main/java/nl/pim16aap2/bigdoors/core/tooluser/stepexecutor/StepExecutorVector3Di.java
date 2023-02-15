@@ -5,15 +5,15 @@ import nl.pim16aap2.bigdoors.core.util.Util;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.function.Function;
+import java.util.function.Predicate;
 
 @ToString
 public class StepExecutorVector3Di extends StepExecutor
 {
     @ToString.Exclude
-    private final Function<Vector3Di, Boolean> fun;
+    private final Predicate<Vector3Di> fun;
 
-    public StepExecutorVector3Di(Function<Vector3Di, Boolean> fun)
+    public StepExecutorVector3Di(Predicate<Vector3Di> fun)
     {
         this.fun = fun;
     }
@@ -22,7 +22,7 @@ public class StepExecutorVector3Di extends StepExecutor
     protected boolean protectedAccept(@Nullable Object input)
     {
         Util.requireNonNull(input, "Vector input");
-        return fun.apply((Vector3Di) input);
+        return fun.test((Vector3Di) input);
     }
 
     @Override
