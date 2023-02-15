@@ -1,0 +1,2 @@
+${git.branch}: ${git.commit.id} dirty:${git.dirty} (${git.commit.time})
+${actions.run.id} ${actions.run.number}

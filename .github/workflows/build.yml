@@ -32,7 +32,7 @@ jobs:
           versions: 1.19.3
 
       - name: Build the project and run static analysis tools.
-        run: mvn --batch-mode clean -P=errorprone test install checkstyle:checkstyle pmd:check
+        run: mvn --batch-mode clean -P=errorprone test install checkstyle:checkstyle pmd:check -Dactions.run.id=$GITHUB_RUN_ID -Dactions.run.number=$GITHUB_RUN_NUMBER
 
       - name: Build the javadocs
         run: mvn --batch-mode antrun:run lombok:delombok javadoc:javadoc javadoc:aggregate
