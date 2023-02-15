@@ -39,6 +39,7 @@ import nl.pim16aap2.bigdoors.core.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.core.moveblocks.StructureActivityManager;
 import nl.pim16aap2.bigdoors.core.storage.IStorage;
 import nl.pim16aap2.bigdoors.core.structures.StructureRegistry;
+import nl.pim16aap2.bigdoors.core.util.VersionReader;
 import nl.pim16aap2.bigdoors.core.util.structureretriever.StructureRetrieverFactory;
 import nl.pim16aap2.bigdoors.spigot.core.comands.CommandManager;
 import nl.pim16aap2.bigdoors.spigot.core.exceptions.InitializationException;
@@ -202,6 +203,9 @@ public final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     @Getter
     private final CommandManager commandListener;
 
+    @Getter
+    private final VersionReader versionReader;
+
     BigDoorsSpigotPlatform(BigDoorsSpigotComponent bigDoorsSpigotComponent, BigDoorsPlugin plugin)
         throws InitializationException
     {
@@ -269,6 +273,7 @@ public final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
         doorTypeLoader = safeGetter(BigDoorsSpigotComponent::getDoorTypeLoader);
         restartableHolder = safeGetter(BigDoorsSpigotComponent::getRestartableHolder);
         commandListener = safeGetter(BigDoorsSpigotComponent::getCommandListener);
+        versionReader = safeGetter(BigDoorsSpigotComponent::getVersionReader);
 
         initPlatform();
     }

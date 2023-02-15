@@ -14,6 +14,8 @@
 
     <properties>
         <project.root-dir>${project.basedir}/..</project.root-dir>
+        <actions.run.id>-1</actions.run.id>
+        <actions.run.number>-1</actions.run.number>
     </properties>
 
     <dependencies>
@@ -77,6 +79,30 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>io.github.git-commit-id</groupId>
+                <artifactId>git-commit-id-maven-plugin</artifactId>
+                <version>${dependency.version.git-commit-id}</version>
+                <executions>
+                    <execution>
+                        <id>get-the-git-infos</id>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                        <phase>validate</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <dotGitDirectory>${project.root-dir}/.git</dotGitDirectory>
+                </configuration>
+            </plugin>
         </plugins>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
     </build>
 </project>
