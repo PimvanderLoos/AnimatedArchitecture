@@ -211,6 +211,26 @@ public interface IStorage
     List<AbstractStructure> getStructures(UUID playerUUID, PermissionLevel maxPermission);
 
     /**
+     * Obtains all structures of a given type.
+     *
+     * @param typeName
+     *     The name of the type. See {@link StructureType#getFullName()}.
+     * @return All structures of the given type.
+     */
+    List<AbstractStructure> getStructuresOfType(String typeName);
+
+    /**
+     * Obtains all structures of a specific version of a given type.
+     *
+     * @param typeName
+     *     The name of the type. See {@link StructureType#getFullName()}.
+     * @param version
+     *     The version of the type.
+     * @return All structures of the given type.
+     */
+    List<AbstractStructure> getStructuresOfType(String typeName, int version);
+
+    /**
      * Gets a map of location hashes and their connected powerblocks for all structures in a chunk.
      * <p>
      * The key is the hashed location in chunk space, the value is the list of UIDs of the structures whose powerblocks

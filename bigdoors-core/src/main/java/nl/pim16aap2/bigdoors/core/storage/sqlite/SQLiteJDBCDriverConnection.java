@@ -742,6 +742,27 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
+    public List<AbstractStructure> getStructuresOfType(String typeName)
+    {
+        return executeQuery(SQLStatement.GET_STRUCTURES_OF_TYPE
+                                .constructPPreparedStatement()
+                                .setNextString(typeName),
+                            this::getStructures,
+                            Collections.emptyList());
+    }
+
+    @Override
+    public List<AbstractStructure> getStructuresOfType(String typeName, int version)
+    {
+        return executeQuery(SQLStatement.GET_STRUCTURES_OF_VERSIONED_TYPE
+                                .constructPPreparedStatement()
+                                .setNextInt(version)
+                                .setNextString(typeName),
+                            this::getStructures,
+                            Collections.emptyList());
+    }
+
+    @Override
     public boolean updatePlayerData(PlayerData playerData)
     {
         return executeUpdate(SQLStatement.UPDATE_PLAYER_DATA.constructPPreparedStatement()
