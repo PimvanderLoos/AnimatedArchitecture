@@ -41,6 +41,7 @@ import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.api.IAnimatedBlockSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.LocationSpigot;
+import nl.pim16aap2.util.reflection.ReflectionBuilder;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -67,6 +68,11 @@ import java.util.function.Consumer;
 @ToString(callSuper = true)
 public class CustomEntityFallingBlock extends EntityFallingBlock implements IAnimatedBlockSpigot
 {
+    private static final @Nullable Class<?> CLASS_PAPER_ENTITY_LOOKUP =
+        ReflectionBuilder.findClass("io.papermc.paper.chunk.system.entity.EntityLookup").getNullable();
+    private static final @Nullable Field FIELD_REMOVAL_REASON =
+        ReflectionBuilder.findField().inClass(Entity.class).ofType(RemovalReason.class).setAccessible().getNullable();
+
     @ToString.Exclude @EqualsAndHashCode.Exclude
     private final IExecutor executor;
 
@@ -219,7 +225,12 @@ public class CustomEntityFallingBlock extends EntityFallingBlock implements IAni
     public void a(EntityInLevelCallback entityInLevelCallback)
     {
         this.entityInLevelCallback = entityInLevelCallback;
-        if (entityInLevelCallback.getClass().getEnclosingClass() == PersistentEntitySectionManager.class)
+
+        final Class<?> enclosingClass = entityInLevelCallback.getClass().getEnclosingClass();
+        if (enclosingClass == null)
+            return;
+
+        if (enclosingClass == PersistentEntitySectionManager.class || enclosingClass == CLASS_PAPER_ENTITY_LOOKUP)
             this.entityInLevelCallbackSectionManager = entityInLevelCallback;
     }
 
@@ -281,11 +292,30 @@ public class CustomEntityFallingBlock extends EntityFallingBlock implements IAni
             return;
         }
 
-        entityInLevelCallbackSectionManager.a(RemovalReason.b);
+        if (CLASS_PAPER_ENTITY_LOOKUP == null)
+            entityInLevelCallbackSectionManager.a(RemovalReason.b);
+        else if (!removeEntityPaper(entityInLevelCallbackSectionManager))
+            return;
 
         spawn0();
 
         forEachHook("onRespawn", IAnimatedBlockHook::onRespawn);
+    }
+
+    private boolean removeEntityPaper(EntityInLevelCallback entityInLevelCallbackSectionManager)
+    {
+        try
+        {
+            Util.requireNonNull(FIELD_REMOVAL_REASON, "FIELD_REMOVAL_REASON").set(this, RemovalReason.b);
+            entityInLevelCallbackSectionManager.a(RemovalReason.b);
+            FIELD_REMOVAL_REASON.set(this, null);
+            return true;
+        }
+        catch (Exception e)
+        {
+            log.atSevere().withCause(e).log("Failed to remove entity!");
+            return false;
+        }
     }
 
     private synchronized void setPosRaw(IVector3D newPosition)
