@@ -99,7 +99,7 @@ public class Drawbridge extends AbstractStructure implements IHorizontalAxisAlig
     public boolean isNorthSouthAligned()
     {
         final MovementDirection openDir = getOpenDir();
-        return openDir == MovementDirection.NORTH || openDir == MovementDirection.SOUTH;
+        return openDir == MovementDirection.EAST || openDir == MovementDirection.WEST;
     }
 
     @Override
@@ -142,9 +142,8 @@ public class Drawbridge extends AbstractStructure implements IHorizontalAxisAlig
     {
         return Stream
             .of(cuboid.getCorners())
-            .mapToDouble(
-                val -> DrawbridgeAnimationComponent.getRadius(northSouthAligned, rotationPoint, val.x(), val.y(),
-                                                              val.z()))
+            .mapToDouble(val -> DrawbridgeAnimationComponent
+                .getRadius(northSouthAligned, rotationPoint, val.x(), val.y(), val.z()))
             .max().orElseThrow();
     }
 }

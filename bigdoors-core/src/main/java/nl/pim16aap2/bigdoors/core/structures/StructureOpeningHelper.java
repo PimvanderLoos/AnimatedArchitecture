@@ -316,8 +316,6 @@ public final class StructureOpeningHelper
 
     StructureToggleResult toggle(AbstractStructure structure, StructureToggleRequest request, IPlayer responsible)
     {
-        final Optional<Cuboid> newCuboid;
-        final double animationTime;
         final StructureSnapshot snapshot;
         final StructureRequestData data;
         final IAnimationComponent component;
@@ -336,14 +334,14 @@ public final class StructureOpeningHelper
                     structure, StructureToggleResult.TOO_BIG, request.getCause(), responsible,
                     request.getMessageReceiver(), null);
 
-            newCuboid = structure.getPotentialNewCoordinates();
+            final Optional<Cuboid> newCuboid = structure.getPotentialNewCoordinates();
             if (newCuboid.isEmpty())
                 return abort(
                     structure, StructureToggleResult.ERROR, request.getCause(), responsible,
                     request.getMessageReceiver(),
                     null);
 
-            animationTime = structure.getAnimationTime(request.getTime());
+            final double animationTime = structure.getAnimationTime(request.getTime());
             snapshot = structure.getSnapshot();
 
             data = movementRequestDataFactory.newToggleRequestData(
