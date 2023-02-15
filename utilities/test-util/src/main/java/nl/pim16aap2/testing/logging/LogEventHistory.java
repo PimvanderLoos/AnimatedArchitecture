@@ -6,7 +6,6 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.ThrowableProxy;
 import lombok.Getter;
 import lombok.ToString;
-import org.checkerframework.dataflow.qual.Pure;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -23,9 +22,9 @@ final class LogEventHistory
     private final LogEvents history = new LogEvents(Logger.ROOT_LOGGER_NAME);
     private final HashMap<String, LogEvents> historyPerClass = new HashMap<>();
 
-    @Pure
-    public List<ILoggingEvent> getSelection(@Nullable Class<?> source, boolean onlyThrowing,
-                                            Level level, boolean includeHigherLevels)
+    public List<ILoggingEvent> getSelection(
+        @Nullable Class<?> source, boolean onlyThrowing,
+        Level level, boolean includeHigherLevels)
     {
         final LogEvents selected =
             source == null ? history : historyPerClass.getOrDefault(getNameForSourceClass(source), LogEvents.EMPTY);
@@ -33,13 +32,11 @@ final class LogEventHistory
         return selected.getSelection(onlyThrowing, level, includeHigherLevels);
     }
 
-    @Pure
     public int getSize(@Nullable Class<?> source, boolean onlyThrowing, Level level, boolean includeHigherLevels)
     {
         return findLogEvents(source).size(onlyThrowing, level, includeHigherLevels);
     }
 
-    @Pure
     public Optional<Throwable> getLastThrowable(@Nullable Class<?> source, Level level, boolean includeHigherLevels)
     {
         return findLogEvents(source).getLastThrowable(level, includeHigherLevels);
@@ -54,7 +51,6 @@ final class LogEventHistory
      *     The source class to find. If this is null, it'll look at {@link #history}.
      * @return The LogEvents instances for the provided class.
      */
-    @Pure
     private LogEvents findLogEvents(@Nullable Class<?> source)
     {
         return source == null ? history : historyPerClass.getOrDefault(getNameForSourceClass(source), LogEvents.EMPTY);
@@ -73,7 +69,6 @@ final class LogEventHistory
         historyPerClass.clear();
     }
 
-    @Pure
     private static String getNameForSourceClass(@Nullable Class<?> source)
     {
         return source == null ? Logger.ROOT_LOGGER_NAME : source.getName();
