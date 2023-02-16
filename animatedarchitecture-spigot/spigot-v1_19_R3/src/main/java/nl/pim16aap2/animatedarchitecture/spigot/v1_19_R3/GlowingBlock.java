@@ -13,8 +13,11 @@ import nl.pim16aap2.animatedarchitecture.core.api.Color;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.util.IGlowingBlock;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.IGlowingBlockFactory;
+import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.craftbukkit.v1_19_R3.CraftServer;
 import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_19_R3.entity.CraftMagmaCube;
 import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Team;
@@ -99,20 +102,23 @@ public class GlowingBlock implements IGlowingBlock
         if (playerConnectionOpt.isEmpty())
             return;
 
+        final CraftMagmaCube wrapper = new CraftMagmaCube((CraftServer) Bukkit.getServer(), glowingBlockEntity);
+
         final PlayerConnection playerConnection = playerConnectionOpt.get();
 
         glowingBlockEntity.a(
-            rotatedPosition.position().x(), rotatedPosition.position().y(), rotatedPosition.position().z(),
-            (float) rotatedPosition.rotation().z(), (float) rotatedPosition.rotation().y());
+            rotatedPosition.position().x(), rotatedPosition.position().y(), rotatedPosition.position().z(), 0, 0);
+        wrapper.setGlowing(true);
+        wrapper.setSilent(true);
+        wrapper.setInvulnerable(true);
+        wrapper.setSize(2);
+        wrapper.setInvisible(true);
+        wrapper.setAI(false);
+
         glowingBlockEntity.aV = 0f; // yHeadRot (net.minecraft.world.entity.LivingEntity)
-        glowingBlockEntity.j(true); // setInvisible()
-        glowingBlockEntity.m(true); // setInvulnerable()
-        glowingBlockEntity.s(true); // setNoAi() (net.minecraft.world.entity.Mob)
-        glowingBlockEntity.d(true); // setSilent()
-        glowingBlockEntity.b(6, true); // setSharedFlag(), tag: Glowing
-        glowingBlockEntity.b(5, true); // setSharedFlag(), tag: Invisible
-        glowingBlockEntity.a(2, true); // setSize()
         team.addEntry(glowingBlockEntity.ct()); // getStringUUID()
+
+        wrapper.setRotation((float) rotatedPosition.rotation().z(), (float) rotatedPosition.rotation().y());
 
         final PacketPlayOutSpawnEntity spawnGlowingBlock = new PacketPlayOutSpawnEntity(glowingBlockEntity);
         playerConnection.a(spawnGlowingBlock);
@@ -127,8 +133,7 @@ public class GlowingBlock implements IGlowingBlock
     {
         @Override
         public Optional<IGlowingBlock> createGlowingBlock(
-            Player player, World world, Color pColor,
-            RotatedPosition rotatedPosition, Map<Color, Team> teams)
+            Player player, World world, Color pColor, RotatedPosition rotatedPosition, Map<Color, Team> teams)
         {
             try
             {
