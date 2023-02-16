@@ -60,15 +60,6 @@ public interface IAnimatedBlock
     void moveToTarget(RotatedPosition target, int ticksRemaining);
 
     /**
-     * @deprecated Use {@link #moveToTarget(RotatedPosition, int)} instead.
-     */
-    @Deprecated
-    default void moveToTarget(Vector3Dd target, int ticksRemaining)
-    {
-        moveToTarget(new RotatedPosition(target), ticksRemaining);
-    }
-
-    /**
      * Teleports the entity to the provided position.
      *
      * @param newPosition

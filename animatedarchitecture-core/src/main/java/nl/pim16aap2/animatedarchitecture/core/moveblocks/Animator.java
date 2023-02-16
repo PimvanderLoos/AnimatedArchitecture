@@ -18,7 +18,6 @@ import nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes.IPe
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
-import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import org.jetbrains.annotations.Nullable;
 
@@ -373,15 +372,15 @@ public final class Animator implements IAnimator
     }
 
     @Override
-    public void applyMovement(IAnimatedBlock animatedBlock, IVector3D targetPosition, int ticksRemaining)
+    public void applyMovement(IAnimatedBlock animatedBlock, RotatedPosition targetPosition, int ticksRemaining)
     {
-        animatedBlock.moveToTarget(new Vector3Dd(targetPosition), ticksRemaining);
+        animatedBlock.moveToTarget(targetPosition, ticksRemaining);
     }
 
     private void executeFinishingStep(Animation<IAnimatedBlock> animation)
     {
         for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
-            applyMovement(animatedBlock, animatedBlock.getFinalPosition(), -1);
+            applyMovement(animatedBlock, new RotatedPosition(animatedBlock.getFinalPosition()), -1);
 
         animation.setRegion(getAnimationRegion());
         animation.setState(AnimationState.FINISHING);
