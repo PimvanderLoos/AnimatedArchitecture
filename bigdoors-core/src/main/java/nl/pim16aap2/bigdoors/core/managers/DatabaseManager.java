@@ -158,11 +158,15 @@ public final class DatabaseManager extends Restartable implements IDebuggable
 
                 final Optional<AbstractStructure> result = db.insert(structure);
                 result.ifPresentOrElse(
-                    newStructure -> powerBlockManager.get().onStructureAddOrRemove(
-                        newStructure.getWorld().worldName(),
-                        new Vector3Di(newStructure.getPowerBlock().x(),
-                                      newStructure.getPowerBlock().y(),
-                                      newStructure.getPowerBlock().z())),
+                    newStructure ->
+                    {
+                        powerBlockManager.get().onStructureAddOrRemove(
+                            newStructure.getWorld().worldName(),
+                            new Vector3Di(newStructure.getPowerBlock().x(),
+                                          newStructure.getPowerBlock().y(),
+                                          newStructure.getPowerBlock().z()));
+                        newStructure.verifyRedstoneState();
+                    },
                     () -> log.atSevere().withStackTrace(StackSize.FULL).log("Failed to process event: %s", event));
 
                 return new StructureInsertResult(result, false);
