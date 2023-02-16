@@ -1,12 +1,14 @@
 package nl.pim16aap2.animatedarchitecture.core.api;
 
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.IGlowingBlock;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
+import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
@@ -20,7 +22,19 @@ import java.util.Optional;
 public abstract class GlowingBlockSpawner
 {
     protected abstract Optional<IGlowingBlock> spawnGlowingBlock(
-        IPlayer player, IWorld world, @Nullable Duration duration, double x, double y, double z, Color color);
+        IPlayer player, IWorld world, @Nullable Duration duration, RotatedPosition rotatedPosition, Color color);
+
+    private Optional<IGlowingBlock> spawnGlowingBlock(
+        IPlayer player, IWorld world, @Nullable Duration duration, Vector3Dd position, Color color)
+    {
+        return spawnGlowingBlock(player, world, duration, new RotatedPosition(position, new Vector3Dd(0, 0, 0)), color);
+    }
+
+    private Optional<IGlowingBlock> spawnGlowingBlock(
+        IPlayer player, IWorld world, @Nullable Duration duration, double x, double y, double z, Color color)
+    {
+        return spawnGlowingBlock(player, world, duration, new Vector3Dd(x, y, z), color);
+    }
 
     /**
      * Spawns the glowing blocks required to highlight a structure.
@@ -110,6 +124,9 @@ public abstract class GlowingBlockSpawner
         private double x;
         private double y;
         private double z;
+        private double rotX;
+        private double rotY;
+        private double rotZ;
         private @Nullable Duration duration;
         private Color color = Color.RED;
 
@@ -167,10 +184,7 @@ public abstract class GlowingBlockSpawner
          */
         public Builder atPosition(IVector3D position)
         {
-            this.x = position.xD();
-            this.y = position.yD();
-            this.z = position.zD();
-            return this;
+            return atPosition(position.xD(), position.yD(), position.zD());
         }
 
         /**
@@ -181,6 +195,35 @@ public abstract class GlowingBlockSpawner
             this.x = x;
             this.y = y;
             this.z = z;
+            return this;
+        }
+
+        /**
+         * Sets the rotation components of the glowing block.
+         */
+        public Builder withRotation(double x, double y, double z)
+        {
+            this.rotX = x;
+            this.rotY = y;
+            this.rotZ = z;
+            return this;
+        }
+
+        /**
+         * Sets the rotation components of the glowing block.
+         */
+        public Builder withRotation(IVector3D rotation)
+        {
+            return withRotation(rotation.xD(), rotation.yD(), rotation.zD());
+        }
+
+        /**
+         * Sets the rotation components of the glowing block.
+         */
+        public Builder atPosition(RotatedPosition rotatedPosition)
+        {
+            atPosition(rotatedPosition.position());
+            withRotation(rotatedPosition.rotation());
             return this;
         }
 
@@ -208,7 +251,8 @@ public abstract class GlowingBlockSpawner
                     Util.requireNonNull(player, "Player"),
                     Util.requireNonNull(world, "World"),
                     duration,
-                    x, y, z,
+                    new RotatedPosition(
+                        new Vector3Dd(x, y, z), new Vector3Dd(rotX, rotY, rotZ)),
                     Util.requireNonNull(color, "Color")
                 );
             }

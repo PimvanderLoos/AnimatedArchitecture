@@ -2,6 +2,7 @@ package nl.pim16aap2.animatedarchitecture.core.api.animatedblock;
 
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
+import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 
 /**
@@ -56,7 +57,16 @@ public interface IAnimatedBlock
      *     The number of ticks remaining in the animation. May be negative when running in 'overtime' to move the blocks
      *     to their final position.
      */
-    void moveToTarget(Vector3Dd target, int ticksRemaining);
+    void moveToTarget(RotatedPosition target, int ticksRemaining);
+
+    /**
+     * @deprecated Use {@link #moveToTarget(RotatedPosition, int)} instead.
+     */
+    @Deprecated
+    default void moveToTarget(Vector3Dd target, int ticksRemaining)
+    {
+        moveToTarget(new RotatedPosition(target), ticksRemaining);
+    }
 
     /**
      * Teleports the entity to the provided position.

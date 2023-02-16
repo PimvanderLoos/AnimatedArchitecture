@@ -10,9 +10,8 @@ import net.minecraft.server.network.PlayerConnection;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.monster.EntityMagmaCube;
 import nl.pim16aap2.animatedarchitecture.core.api.Color;
+import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.util.IGlowingBlock;
-import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
-import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.IGlowingBlockFactory;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
@@ -44,14 +43,14 @@ public class GlowingBlock implements IGlowingBlock
     private final Player player;
 
     public GlowingBlock(
-        Player player, World world, Color pColor, double x, double y, double z, Map<Color, Team> teams)
+        Player player, World world, Color pColor, RotatedPosition rotatedPosition, Map<Color, Team> teams)
     {
         this.player = player;
         this.teams = teams;
 
         glowingBlockEntity = new EntityMagmaCube(EntityTypes.al, ((CraftWorld) world).getHandle());
         entityId = glowingBlockEntity.af();
-        spawn(pColor, x, y, z);
+        spawn(pColor, rotatedPosition);
     }
 
     private Optional<PlayerConnection> getConnection()
@@ -77,16 +76,16 @@ public class GlowingBlock implements IGlowingBlock
     }
 
     @Override
-    public void teleport(Vector3Dd position)
+    public void teleport(RotatedPosition rotatedPosition)
     {
         if (!alive.get())
             return;
         getConnection().ifPresent(
-            connection -> connection.a(
-                NmsUtil.newPacketPlayOutEntityTeleport(entityId, position, new Vector3Di(0, 0, 0))));
+            connection -> connection.a(NmsUtil.newPacketPlayOutEntityTeleport(
+                entityId, rotatedPosition.position(), rotatedPosition.rotation())));
     }
 
-    private void spawn(Color pColor, double x, double y, double z)
+    private void spawn(Color pColor, RotatedPosition rotatedPosition)
     {
         final @Nullable Team team = teams.get(pColor);
         if (team == null)
@@ -102,7 +101,9 @@ public class GlowingBlock implements IGlowingBlock
 
         final PlayerConnection playerConnection = playerConnectionOpt.get();
 
-        glowingBlockEntity.a(x, y, z, 0, 0); // setLocation
+        glowingBlockEntity.a(
+            rotatedPosition.position().x(), rotatedPosition.position().y(), rotatedPosition.position().z(),
+            (float) rotatedPosition.rotation().z(), (float) rotatedPosition.rotation().y());
         glowingBlockEntity.aV = 0f; // yHeadRot (net.minecraft.world.entity.LivingEntity)
         glowingBlockEntity.j(true); // setInvisible()
         glowingBlockEntity.m(true); // setInvulnerable()
@@ -127,11 +128,11 @@ public class GlowingBlock implements IGlowingBlock
         @Override
         public Optional<IGlowingBlock> createGlowingBlock(
             Player player, World world, Color pColor,
-            double x, double y, double z, Map<Color, Team> teams)
+            RotatedPosition rotatedPosition, Map<Color, Team> teams)
         {
             try
             {
-                final GlowingBlock block = new GlowingBlock(player, world, pColor, x, y, z, teams);
+                final GlowingBlock block = new GlowingBlock(player, world, pColor, rotatedPosition, teams);
                 return block.alive.get() ? Optional.of(block) : Optional.empty();
             }
             catch (Exception | ExceptionInInitializerError e)

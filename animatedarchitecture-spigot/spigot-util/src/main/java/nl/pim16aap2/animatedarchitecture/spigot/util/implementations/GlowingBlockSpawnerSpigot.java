@@ -10,6 +10,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.IRestartable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
+import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.util.IGlowingBlock;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
@@ -59,7 +60,7 @@ public class GlowingBlockSpawnerSpigot extends GlowingBlockSpawner implements IR
 
     @Override
     public Optional<IGlowingBlock> spawnGlowingBlock(
-        IPlayer player, IWorld world, @Nullable Duration duration, double x, double y, double z, Color color)
+        IPlayer player, IWorld world, @Nullable Duration duration, RotatedPosition rotatedPosition, Color color)
     {
         if (scoreboard == null)
         {
@@ -93,7 +94,7 @@ public class GlowingBlockSpawnerSpigot extends GlowingBlockSpawner implements IR
         }
 
         final Optional<IGlowingBlock> blockOpt =
-            glowingBlockFactory.createGlowingBlock(spigotPlayer, spigotWorld, color, x, y, z, teams);
+            glowingBlockFactory.createGlowingBlock(spigotPlayer, spigotWorld, color, rotatedPosition, teams);
         blockOpt.ifPresent(block -> onBlockSpawn(block, time));
         return blockOpt;
     }

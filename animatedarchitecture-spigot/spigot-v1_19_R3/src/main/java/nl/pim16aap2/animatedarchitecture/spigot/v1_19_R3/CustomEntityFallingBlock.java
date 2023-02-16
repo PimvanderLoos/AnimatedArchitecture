@@ -31,6 +31,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockHook;
 import nl.pim16aap2.animatedarchitecture.core.managers.AnimatedBlockHookManager;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.Animator;
+import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
@@ -441,10 +442,10 @@ public class CustomEntityFallingBlock extends EntityFallingBlock implements IAni
     }
 
     @Override
-    public void moveToTarget(Vector3Dd target, int ticksRemaining)
+    public void moveToTarget(RotatedPosition target, int ticksRemaining)
     {
-        cycleTargets(target);
-        movementMethod.apply(this, target, ticksRemaining);
+        cycleTargets(target.position());
+        movementMethod.apply(this, target.position(), ticksRemaining);
     }
 
     @Override

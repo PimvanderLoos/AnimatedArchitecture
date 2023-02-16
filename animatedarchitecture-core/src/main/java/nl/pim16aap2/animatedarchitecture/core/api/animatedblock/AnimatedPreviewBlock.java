@@ -7,6 +7,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ILocationFactory;
+import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.util.IGlowingBlock;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
@@ -40,8 +41,8 @@ public class AnimatedPreviewBlock implements IAnimatedBlock
     private final Vector3Dd startPosition;
     private final Vector3Dd finalPosition;
 
-    private volatile Vector3Dd previousTarget;
-    private volatile Vector3Dd currentTarget;
+    private volatile RotatedPosition previousTarget;
+    private volatile RotatedPosition currentTarget;
 
     public AnimatedPreviewBlock(
         ILocationFactory locationFactory, GlowingBlockSpawner glowingBlockSpawner, IWorld world, IPlayer player,
@@ -53,13 +54,13 @@ public class AnimatedPreviewBlock implements IAnimatedBlock
         this.player = player;
         this.startPosition = position;
         this.finalPosition = finalPosition;
-        this.currentTarget = previousTarget = position;
+        this.currentTarget = previousTarget = new RotatedPosition(position);
         this.startAngle = startAngle;
         this.startRadius = startRadius;
         this.color = color;
     }
 
-    private synchronized void cycleTargets(Vector3Dd newTarget)
+    private synchronized void cycleTargets(RotatedPosition newTarget)
     {
         previousTarget = currentTarget;
         currentTarget = newTarget;
@@ -80,19 +81,19 @@ public class AnimatedPreviewBlock implements IAnimatedBlock
     @Override
     public synchronized Vector3Dd getCurrentPosition()
     {
-        return currentTarget;
+        return currentTarget.position();
     }
 
     @Override
     public synchronized Vector3Dd getPreviousPosition()
     {
-        return previousTarget;
+        return previousTarget.position();
     }
 
     @Override
     public synchronized Vector3Dd getPreviousTarget()
     {
-        return previousTarget;
+        return previousTarget.position();
     }
 
     @Override
@@ -104,11 +105,11 @@ public class AnimatedPreviewBlock implements IAnimatedBlock
     @Override
     public synchronized Vector3Dd getPosition()
     {
-        return currentTarget;
+        return currentTarget.position();
     }
 
     @Override
-    public void moveToTarget(Vector3Dd target, int ticksRemaining)
+    public void moveToTarget(RotatedPosition target, int ticksRemaining)
     {
         final int currentTicks = processedTicks;
         processedTicks = currentTicks + 1;
