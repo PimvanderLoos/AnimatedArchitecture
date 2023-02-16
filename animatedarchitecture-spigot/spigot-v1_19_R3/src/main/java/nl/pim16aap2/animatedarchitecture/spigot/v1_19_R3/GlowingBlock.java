@@ -118,7 +118,7 @@ public class GlowingBlock implements IGlowingBlock
         glowingBlockEntity.aV = 0f; // yHeadRot (net.minecraft.world.entity.LivingEntity)
         team.addEntry(glowingBlockEntity.ct()); // getStringUUID()
 
-        wrapper.setRotation((float) rotatedPosition.rotation().z(), (float) rotatedPosition.rotation().y());
+        wrapper.setRotation((float) rotatedPosition.yaw(), (float) rotatedPosition.pitch());
 
         final PacketPlayOutSpawnEntity spawnGlowingBlock = new PacketPlayOutSpawnEntity(glowingBlockEntity);
         playerConnection.a(spawnGlowingBlock);

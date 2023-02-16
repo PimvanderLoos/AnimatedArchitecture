@@ -6,6 +6,7 @@ import nl.pim16aap2.animatedarchitecture.core.moveblocks.AnimationUtil;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.Animator;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.IAnimator;
+import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
@@ -74,12 +75,27 @@ public class DrawbridgeAnimationComponent implements IAnimationComponent
         this.rotateCountOffset = this.rotateCount / 2;
     }
 
-    protected Vector3Dd getGoalPos(double angle, double x, double y, double z)
+    protected Vector3Dd getGoalRotation(Vector3Dd goalPos)
     {
-        return rotator.apply(new Vector3Dd(x, y, z), rotationCenter, angle);
+        final Vector3Dd vec = rotationCenter.subtract(goalPos);
+        double pitch = 0;
+        double roll = 0;
+        if (northSouth)
+            pitch = Math.toDegrees(-Math.atan2(vec.y(), vec.z()) + MathUtil.HALF_PI);
+        else
+            roll = Math.toDegrees(-Math.atan2(vec.y(), vec.x()) + MathUtil.HALF_PI);
+
+        return new Vector3Dd(roll, pitch, 0);
     }
 
-    protected Vector3Dd getGoalPos(double angle, IAnimatedBlock animatedBlock)
+    protected RotatedPosition getGoalPos(double angle, double x, double y, double z)
+    {
+        final Vector3Dd goalPos = rotator.apply(new Vector3Dd(x, y, z), rotationCenter, angle);
+        final Vector3Dd goalRot = getGoalRotation(goalPos);
+        return new RotatedPosition(goalPos, goalRot);
+    }
+
+    protected RotatedPosition getGoalPos(double angle, IAnimatedBlock animatedBlock)
     {
         return getGoalPos(angle, animatedBlock.getStartX(), animatedBlock.getStartY(), animatedBlock.getStartZ());
     }
@@ -87,7 +103,9 @@ public class DrawbridgeAnimationComponent implements IAnimationComponent
     @Override
     public Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
     {
-        return getGoalPos(Util.clampAngleRad(angle), startLocation.xD(), startLocation.yD(), startLocation.zD());
+        return
+            getGoalPos(Util.clampAngleRad(angle), startLocation.xD(), startLocation.yD(), startLocation.zD())
+                .position();
     }
 
     @Override

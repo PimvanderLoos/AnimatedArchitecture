@@ -18,4 +18,19 @@ public record RotatedPosition(Vector3Dd position, Vector3Dd rotation)
     {
         this(position, NULL_VEC);
     }
+
+    public double roll()
+    {
+        return rotation.x();
+    }
+
+    public double pitch()
+    {
+        return rotation.y();
+    }
+
+    public double yaw()
+    {
+        return rotation.z();
+    }
 }
