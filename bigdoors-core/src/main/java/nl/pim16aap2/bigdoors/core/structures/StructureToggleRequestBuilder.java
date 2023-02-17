@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.core.structures;
 
 import lombok.RequiredArgsConstructor;
 import nl.pim16aap2.bigdoors.core.annotations.Initializer;
+import nl.pim16aap2.bigdoors.core.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.core.api.IConfig;
 import nl.pim16aap2.bigdoors.core.api.IMessageable;
 import nl.pim16aap2.bigdoors.core.api.IPlayer;
@@ -73,6 +74,7 @@ public class StructureToggleRequestBuilder
         private @Nullable Double time = null;
         private @Nullable AnimationType animationType = null;
         private boolean skipAnimation = false;
+        private boolean preventPerpetualMovement = false;
 
         @Override
         public IBuilder time(@Nullable Double time)
@@ -85,6 +87,13 @@ public class StructureToggleRequestBuilder
         public IBuilder skipAnimation(boolean skip)
         {
             skipAnimation = skip;
+            return this;
+        }
+
+        @Override
+        public IBuilder preventPerpetualMovement(boolean preventPerpetualMovement)
+        {
+            this.preventPerpetualMovement = preventPerpetualMovement;
             return this;
         }
 
@@ -176,7 +185,7 @@ public class StructureToggleRequestBuilder
             return structureToggleRequestFactory.create(
                 structureRetriever, structureActionCause,
                 Util.requireNonNull(messageReceiver, "MessageReceiver"),
-                responsible, time, skipAnimation, structureActionType,
+                responsible, time, skipAnimation, preventPerpetualMovement, structureActionType,
                 Objects.requireNonNullElse(animationType, AnimationType.MOVE_BLOCKS));
         }
 
@@ -239,6 +248,27 @@ public class StructureToggleRequestBuilder
         }
 
         /**
+         * Sets if perpetual movement should be blocked. When perpetual movement is requested but denied via this
+         * setting, the animation will still be time-limited.
+         *
+         * @param preventPerpetualMovement
+         *     True to prevent any perpetual movement.
+         * @return The next step of the guided builder process.
+         */
+        IBuilder preventPerpetualMovement(boolean preventPerpetualMovement);
+
+        /**
+         * Prevents perpetual movement. When perpetual movement is requested but denied via this setting, the animation
+         * will still be time-limited.
+         *
+         * @return The next step of the guided builder process.
+         */
+        default IBuilder preventPerpetualMovement()
+        {
+            return preventPerpetualMovement(true);
+        }
+
+        /**
          * Sets the player responsible for the toggle. When the toggle was not caused by a player this value is
          * optional.
          * <p>
@@ -269,7 +299,7 @@ public class StructureToggleRequestBuilder
          * related to the toggle request.
          * <p>
          * When the toggle request is caused by a player, this defaults to that player. In all other situations, it
-         * defaults to the server.
+         * defaults to the server (See {@link IBigDoorsPlatform#getServer()}).
          *
          * @param messageReceiver
          *     The message receiver for all messages related to the toggle request.
