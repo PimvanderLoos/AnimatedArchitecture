@@ -11,6 +11,7 @@ import nl.pim16aap2.bigdoors.core.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.core.moveblocks.StructureRequestData;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
+import nl.pim16aap2.bigdoors.core.structures.structurearchetypes.IPerpetualMover;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
 import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
@@ -29,7 +30,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @Flogger
-public class RevolvingDoor extends AbstractStructure
+public class RevolvingDoor extends AbstractStructure implements IPerpetualMover
 {
     @EqualsAndHashCode.Exclude
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
