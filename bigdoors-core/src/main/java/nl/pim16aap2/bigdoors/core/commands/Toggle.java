@@ -41,18 +41,26 @@ public class Toggle extends BaseCommand
     private final StructureActionType structureActionType;
     private final AnimationType animationType;
     private final @Nullable Double time;
+    private final boolean preventPerpetualMovement;
 
     @AssistedInject //
     Toggle(
-        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
-        @Assisted StructureActionType structureActionType, @Assisted AnimationType animationType,
-        @Assisted @Nullable Double time, StructureToggleRequestBuilder structureToggleRequestBuilder,
-        @Named("MessageableServer") IMessageable messageableServer, @Assisted StructureRetriever... structureRetrievers)
+        ILocalizer localizer,
+        ITextFactory textFactory,
+        @Named("MessageableServer") IMessageable messageableServer,
+        StructureToggleRequestBuilder structureToggleRequestBuilder,
+        @Assisted ICommandSender commandSender,
+        @Assisted StructureActionType structureActionType,
+        @Assisted AnimationType animationType,
+        @Assisted @Nullable Double time,
+        @Assisted boolean preventPerpetualMovement,
+        @Assisted StructureRetriever... structureRetrievers)
     {
         super(commandSender, localizer, textFactory);
         this.structureActionType = structureActionType;
         this.animationType = animationType;
         this.time = time;
+        this.preventPerpetualMovement = preventPerpetualMovement;
         this.structureToggleRequestBuilder = structureToggleRequestBuilder;
         this.structureRetrievers = structureRetrievers;
         this.messageableServer = messageableServer;
@@ -124,15 +132,17 @@ public class Toggle extends BaseCommand
         }
 
         final Optional<IPlayer> playerOpt = getCommandSender().getPlayer();
-        structureToggleRequestBuilder.builder()
-                                     .structure(structure)
-                                     .structureActionCause(cause)
-                                     .structureActionType(structureActionType)
-                                     .animationType(animationType)
-                                     .responsible(playerOpt.orElse(null))
-                                     .messageReceiver(playerOpt.isPresent() ? playerOpt.get() : messageableServer)
-                                     .time(time)
-                                     .build().execute();
+        structureToggleRequestBuilder
+            .builder()
+            .structure(structure)
+            .structureActionCause(cause)
+            .structureActionType(structureActionType)
+            .animationType(animationType)
+            .responsible(playerOpt.orElse(null))
+            .messageReceiver(playerOpt.isPresent() ? playerOpt.get() : messageableServer)
+            .time(time)
+            .preventPerpetualMovement(preventPerpetualMovement)
+            .build().execute();
     }
 
     private CompletableFuture<Void> handleStructureRequest(
@@ -177,38 +187,47 @@ public class Toggle extends BaseCommand
          *     The type of animation to use.
          * @param speedMultiplier
          *     The speed multiplier to apply to the animation.
+         * @param preventPerpetualMovement
+         *     True to prevent perpetual movement. When perpetual movement is requested but denied via this setting, the
+         *     animation will still be time-limited.
          * @param structureRetrievers
          *     The structure(s) to toggle.
          * @return See {@link BaseCommand#run()}.
          */
         Toggle newToggle(
             ICommandSender commandSender, StructureActionType actionType, AnimationType animationType,
-            @Nullable Double speedMultiplier, StructureRetriever... structureRetrievers);
+            @Nullable Double speedMultiplier, boolean preventPerpetualMovement,
+            StructureRetriever... structureRetrievers);
 
         /**
-         * See {@link #newToggle(ICommandSender, StructureActionType, AnimationType, Double, StructureRetriever...)}.
+         * See
+         * {@link #newToggle(ICommandSender, StructureActionType, AnimationType, Double, boolean,
+         * StructureRetriever...)}.
          * <p>
-         * Defaults to null for the speed multiplier.
+         * Defaults to null for the speed multiplier and true for preventPerpetualMovement.
          */
         default Toggle newToggle(
             ICommandSender commandSender, StructureActionType actionType, AnimationType animationType,
             StructureRetriever... structureRetrievers)
         {
             return newToggle(
-                commandSender, actionType, animationType, (Double) null, structureRetrievers);
+                commandSender, actionType, animationType, null, true, structureRetrievers);
         }
 
         /**
-         * See {@link #newToggle(ICommandSender, StructureActionType, AnimationType, Double, StructureRetriever...)}.
+         * See
+         * {@link #newToggle(ICommandSender, StructureActionType, AnimationType, Double, boolean,
+         * StructureRetriever...)}.
          * <p>
          * Defaults to null for the speed multiplier, to {@link Toggle#DEFAULT_STRUCTURE_ACTION_TYPE} for the structure
-         * action type, and to {@link Toggle#DEFAULT_ANIMATION_TYPE} for the animation type.
+         * action type, to {@link Toggle#DEFAULT_ANIMATION_TYPE} for the animation type, and to true for
+         * preventPerpetualMovement.
          */
         default Toggle newToggle(ICommandSender commandSender, StructureRetriever... structureRetrievers)
         {
             return newToggle(
                 commandSender, Toggle.DEFAULT_STRUCTURE_ACTION_TYPE, Toggle.DEFAULT_ANIMATION_TYPE,
-                null, structureRetrievers);
+                null, true, structureRetrievers);
         }
     }
 }

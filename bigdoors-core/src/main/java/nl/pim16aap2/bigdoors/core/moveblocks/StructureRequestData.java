@@ -43,13 +43,13 @@ public final class StructureRequestData
         IAudioPlayer audioPlayer,
         IExecutor executor,
         AnimationHookManager animationHookManager,
-        IConfig config,
         @Named("serverTickTime") int serverTickTime,
+        IConfig config,
         @Assisted StructureSnapshot structureSnapshot,
         @Assisted StructureActionCause cause,
         @Assisted double animationTime,
-        @Assisted boolean animationSkipped,
-        @Assisted boolean preventPerpetualMovement,
+        @Assisted("animationSkipped") boolean animationSkipped,
+        @Assisted("preventPerpetualMovement") boolean preventPerpetualMovement,
         @Assisted Cuboid newCuboid,
         @Assisted IPlayer responsible,
         @Assisted AnimationType animationType,
@@ -103,7 +103,8 @@ public final class StructureRequestData
          */
         StructureRequestData newToggleRequestData(
             StructureSnapshot structureSnapshot, StructureActionCause cause, double time,
-            boolean skipAnimation, boolean preventPerpetualMovement, Cuboid newCuboid, IPlayer responsible,
-            AnimationType animationType, StructureActionType actionType);
+            @Assisted("animationSkipped") boolean skipAnimation,
+            @Assisted("preventPerpetualMovement") boolean preventPerpetualMovement, Cuboid newCuboid,
+            IPlayer responsible, AnimationType animationType, StructureActionType actionType);
     }
 }

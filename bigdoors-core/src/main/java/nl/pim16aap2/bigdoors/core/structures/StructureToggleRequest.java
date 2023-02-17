@@ -60,8 +60,8 @@ public class StructureToggleRequest
         @Assisted IMessageable messageReceiver,
         @Assisted @Nullable IPlayer responsible,
         @Assisted @Nullable Double time,
-        @Assisted boolean skipAnimation,
-        @Assisted boolean preventPerpetualMovement,
+        @Assisted("skipAnimation") boolean skipAnimation,
+        @Assisted("preventPerpetualMovement") boolean preventPerpetualMovement,
         @Assisted StructureActionType actionType,
         @Assisted AnimationType animationType,
         ILocalizer localizer,
@@ -165,7 +165,9 @@ public class StructureToggleRequest
          */
         StructureToggleRequest create(
             StructureRetriever structureRetriever, StructureActionCause cause,
-            IMessageable messageReceiver, @Nullable IPlayer responsible, @Nullable Double time, boolean skipAnimation,
-            boolean preventPerpetualMovement, StructureActionType actionType, AnimationType animationType);
+            IMessageable messageReceiver, @Nullable IPlayer responsible, @Nullable Double time,
+            @Assisted("skipAnimation") boolean skipAnimation,
+            @Assisted("preventPerpetualMovement") boolean preventPerpetualMovement, StructureActionType actionType,
+            AnimationType animationType);
     }
 }

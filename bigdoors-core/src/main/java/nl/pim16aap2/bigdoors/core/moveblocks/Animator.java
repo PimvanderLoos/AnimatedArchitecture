@@ -212,7 +212,7 @@ public final class Animator implements IAnimator
         final double animationTime = Math.min(animationType.getAnimationDurationLimit(), data.getAnimationTime());
         this.animationDuration = AnimationUtil.getAnimationTicks(animationTime, data.getServerTickTime());
 
-        this.perpetualMovement = !data.isPerpetualMovementPrevented() && isPerpetualMovement();
+        this.perpetualMovement = !data.isPreventPerpetualMovement() && isPerpetualMovement();
     }
 
     private boolean isPerpetualMovement()
