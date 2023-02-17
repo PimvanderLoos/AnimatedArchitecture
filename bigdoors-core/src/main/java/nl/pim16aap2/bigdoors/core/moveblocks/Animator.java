@@ -217,9 +217,7 @@ public final class Animator implements IAnimator
 
     private boolean isPerpetualMovement()
     {
-        return this.animationType.allowsPerpetualAnimation() &&
-            structure instanceof IPerpetualMover perpetualMover &&
-            perpetualMover.isPerpetual();
+        return this.animationType.allowsPerpetualAnimation() && structure instanceof IPerpetualMover;
     }
 
     /**

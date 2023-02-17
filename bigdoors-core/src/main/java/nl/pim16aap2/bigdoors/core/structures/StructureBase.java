@@ -252,9 +252,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
         if (result == IRedstoneManager.RedstoneStatus.DISABLED)
             return;
 
-        if (result == IRedstoneManager.RedstoneStatus.UNPOWERED &&
-            structure instanceof IPerpetualMover perpetualMover &&
-            perpetualMover.isPerpetual())
+        if (result == IRedstoneManager.RedstoneStatus.UNPOWERED && structure instanceof IPerpetualMover)
         {
             structureActivityManager.stopAnimatorsWithWriteAccess(structure.getUid());
             return;
