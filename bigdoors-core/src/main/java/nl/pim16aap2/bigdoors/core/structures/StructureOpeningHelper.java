@@ -345,7 +345,8 @@ public final class StructureOpeningHelper
             snapshot = structure.getSnapshot();
 
             data = movementRequestDataFactory.newToggleRequestData(
-                snapshot, request.getCause(), animationTime, request.isSkipAnimation(), newCuboid.get(), responsible,
+                snapshot, request.getCause(), animationTime, request.isSkipAnimation(),
+                request.isPreventPerpetualMovement(), newCuboid.get(), responsible,
                 request.getAnimationType(), request.getActionType());
             component = structure.constructAnimationComponent(data);
         }

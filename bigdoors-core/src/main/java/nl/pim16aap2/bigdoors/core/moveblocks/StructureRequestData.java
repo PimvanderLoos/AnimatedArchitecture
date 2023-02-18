@@ -32,6 +32,7 @@ public final class StructureRequestData
     private final StructureActionCause cause;
     private final double animationTime;
     private final boolean animationSkipped;
+    private final boolean preventPerpetualMovement;
     private final Cuboid newCuboid;
     private final IPlayer responsible;
     private final AnimationType animationType;
@@ -42,12 +43,13 @@ public final class StructureRequestData
         IAudioPlayer audioPlayer,
         IExecutor executor,
         AnimationHookManager animationHookManager,
-        IConfig config,
         @Named("serverTickTime") int serverTickTime,
+        IConfig config,
         @Assisted StructureSnapshot structureSnapshot,
         @Assisted StructureActionCause cause,
         @Assisted double animationTime,
-        @Assisted boolean animationSkipped,
+        @Assisted("animationSkipped") boolean animationSkipped,
+        @Assisted("preventPerpetualMovement") boolean preventPerpetualMovement,
         @Assisted Cuboid newCuboid,
         @Assisted IPlayer responsible,
         @Assisted AnimationType animationType,
@@ -63,6 +65,7 @@ public final class StructureRequestData
         this.cause = cause;
         this.animationTime = animationTime;
         this.animationSkipped = animationSkipped;
+        this.preventPerpetualMovement = preventPerpetualMovement;
         this.newCuboid = newCuboid;
         this.responsible = responsible;
         this.animationType = animationType;
@@ -85,6 +88,9 @@ public final class StructureRequestData
          *     The duration of the animation in seconds.
          * @param skipAnimation
          *     True to skip the animation and move the blocks to their new locations immediately.
+         * @param preventPerpetualMovement
+         *     True to prevent perpetual movement. When perpetual movement is requested but denied via this setting, the
+         *     animation will still be time-limited.
          * @param newCuboid
          *     The cuboid that described the coordinates of the structure after the animation has concluded.
          * @param responsible
@@ -97,7 +103,8 @@ public final class StructureRequestData
          */
         StructureRequestData newToggleRequestData(
             StructureSnapshot structureSnapshot, StructureActionCause cause, double time,
-            boolean skipAnimation, Cuboid newCuboid, IPlayer responsible, AnimationType animationType,
-            StructureActionType actionType);
+            @Assisted("animationSkipped") boolean skipAnimation,
+            @Assisted("preventPerpetualMovement") boolean preventPerpetualMovement, Cuboid newCuboid,
+            IPlayer responsible, AnimationType animationType, StructureActionType actionType);
     }
 }

@@ -212,14 +212,12 @@ public final class Animator implements IAnimator
         final double animationTime = Math.min(animationType.getAnimationDurationLimit(), data.getAnimationTime());
         this.animationDuration = AnimationUtil.getAnimationTicks(animationTime, data.getServerTickTime());
 
-        this.perpetualMovement = isPerpetualMovement();
+        this.perpetualMovement = !data.isPreventPerpetualMovement() && isPerpetualMovement();
     }
 
     private boolean isPerpetualMovement()
     {
-        return this.animationType.allowsPerpetualAnimation() &&
-            structure instanceof IPerpetualMover perpetualMover &&
-            perpetualMover.isPerpetual();
+        return this.animationType.allowsPerpetualAnimation() && structure instanceof IPerpetualMover;
     }
 
     /**
@@ -433,6 +431,23 @@ public final class Animator implements IAnimator
     }
 
     /**
+     * Calculates the number of ticks required in addition to the base duration of the animation to gracefully end an
+     * animation.
+     *
+     * @return The number of ticks required to gracefully stop the animation.
+     */
+    private int getStopCount()
+    {
+        // Perpetual movers will usually not require to stop gracefully; Their blocks are not meant to
+        // travel to a given position, so they can stop at any position and adding a stopCount can look glitchy.
+        if (structure instanceof IPerpetualMover)
+            return 0;
+
+        final int finishDurationTicks = Math.round((float) movementMethod.finishDuration() / serverTickTime);
+        return animationDuration + Math.max(0, finishDurationTicks);
+    }
+
+    /**
      * Runs the animation of the animated blocks.
      */
     private void animateEntities(Animation<IAnimatedBlock> animation)
@@ -452,9 +467,7 @@ public final class Animator implements IAnimator
 
         forEachHook("onPrepare", IAnimationHook::onPrepare);
 
-        final int finishDurationTicks = Math.round((float) movementMethod.finishDuration() / serverTickTime);
-        final int stopCount = animationDuration + Math.max(0, finishDurationTicks);
-
+        final int stopCount = getStopCount();
         final int initialDelay = Math.round((float) START_DELAY / serverTickTime);
 
         final TimerTask moverTask0 = new TimerTask()

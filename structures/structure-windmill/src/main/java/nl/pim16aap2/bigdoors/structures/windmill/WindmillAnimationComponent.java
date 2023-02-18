@@ -4,12 +4,11 @@ import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.core.moveblocks.Animator;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimator;
 import nl.pim16aap2.bigdoors.core.moveblocks.StructureRequestData;
-import nl.pim16aap2.bigdoors.structures.drawbridge.DrawbridgeAnimationComponent;
-import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
 import nl.pim16aap2.bigdoors.core.util.Util;
 import nl.pim16aap2.bigdoors.core.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
+import nl.pim16aap2.bigdoors.structures.drawbridge.DrawbridgeAnimationComponent;
 
 /**
  * Represents a {@link Animator} for {@link Windmill}s.
@@ -18,14 +17,10 @@ import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
  */
 public class WindmillAnimationComponent extends DrawbridgeAnimationComponent
 {
-    private final double step;
-
     public WindmillAnimationComponent(
         StructureRequestData data, MovementDirection movementDirection, boolean isNorthSouthAligned)
     {
         super(data, movementDirection, isNorthSouthAligned);
-
-        step = MathUtil.HALF_PI / animationDuration;
     }
 
     @Override

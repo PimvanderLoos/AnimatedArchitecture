@@ -21,15 +21,15 @@ import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
  */
 public class DrawbridgeAnimationComponent implements IAnimationComponent
 {
-    private final Vector3Dd rotationCenter;
+    protected final Vector3Dd rotationCenter;
     protected final boolean northSouth;
     protected final TriFunction<Vector3Dd, Vector3Dd, Double, Vector3Dd> rotator;
     protected final StructureSnapshot snapshot;
     protected final int animationDuration;
 
     protected final double angle;
-    private final int halfEndCount;
-    private final double step;
+    protected final double step;
+    protected final int halfEndCount;
 
     public DrawbridgeAnimationComponent(
         StructureRequestData data, MovementDirection movementDirection, boolean isNorthSouthAligned)

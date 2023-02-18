@@ -252,9 +252,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
         if (result == IRedstoneManager.RedstoneStatus.DISABLED)
             return;
 
-        if (result == IRedstoneManager.RedstoneStatus.UNPOWERED &&
-            structure instanceof IPerpetualMover perpetualMover &&
-            perpetualMover.isPerpetual())
+        if (result == IRedstoneManager.RedstoneStatus.UNPOWERED && structure instanceof IPerpetualMover)
         {
             structureActivityManager.stopAnimatorsWithWriteAccess(structure.getUid());
             return;
@@ -273,15 +271,36 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
         if (!config.isRedstoneEnabled())
             return;
 
-        if (isPowered && !structure.isOpenable() || !isPowered && !structure.isCloseable())
+        final StructureActionType actionType;
+        if (structure instanceof IPerpetualMover)
+        {
+            if (!isPowered)
+            {
+                structureActivityManager.stopAnimatorsWithWriteAccess(structure.getUid());
+                return;
+            }
+            actionType = StructureActionType.TOGGLE;
+        }
+        else if (isPowered && structure.isOpenable())
+        {
+            actionType = StructureActionType.OPEN;
+        }
+        else if (!isPowered && structure.isCloseable())
+        {
+            actionType = StructureActionType.CLOSE;
+        }
+        else
+        {
+            log.atFinest().log("Aborted toggle attempt with %s redstone for structure: %s",
+                               (isPowered ? "powered" : "unpowered"), structure);
             return;
+        }
 
-        final StructureActionType type = isPowered ? StructureActionType.OPEN : StructureActionType.CLOSE;
         structureToggleRequestBuilder
             .builder()
             .structure(structure)
             .structureActionCause(StructureActionCause.REDSTONE)
-            .structureActionType(type)
+            .structureActionType(actionType)
             .messageReceiverServer()
             .responsible(playerFactory.create(getPrimeOwner().playerData()))
             .build()

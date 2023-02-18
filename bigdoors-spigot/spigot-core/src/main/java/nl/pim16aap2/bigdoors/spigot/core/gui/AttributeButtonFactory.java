@@ -88,6 +88,7 @@ class AttributeButtonFactory
                     Toggle.DEFAULT_STRUCTURE_ACTION_TYPE,
                     Toggle.DEFAULT_ANIMATION_TYPE,
                     config.getAnimationTimeMultiplier(structure.getType()),
+                    true,
                     structureRetrieverFactory.of(structure)).run();
                 return true;
             },

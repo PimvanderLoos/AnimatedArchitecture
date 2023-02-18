@@ -37,7 +37,6 @@ public class CreatorRevolvingDoor extends CreatorBigDoor
                              factorySetSecondPos.messageKey("creator.revolving_door.step_2").construct(),
                              factorySetRotationPointPos.messageKey("creator.revolving_door.step_3").construct(),
                              factorySetPowerBlockPos.construct(),
-                             factorySetOpenStatus.construct(),
                              factorySetOpenDir.construct(),
                              factoryConfirmPrice.construct(),
                              factoryCompleteProcess.messageKey("creator.revolving_door.success").construct());
