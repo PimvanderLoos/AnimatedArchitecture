@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.structures.StructureType;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
+import nl.pim16aap2.bigdoors.core.util.MovementDirection;
 import nl.pim16aap2.bigdoors.core.util.structureretriever.StructureRetriever;
 import nl.pim16aap2.bigdoors.core.util.structureretriever.StructureRetrieverFactory;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Di;
@@ -48,6 +49,7 @@ class InfoTest
         Mockito.when(structure.isOwner(Mockito.any(IPlayer.class))).thenReturn(true);
         Mockito.when(structure.getCuboid()).thenReturn(new Cuboid(new Vector3Di(1, 2, 3), new Vector3Di(4, 5, 6)));
         Mockito.when(structure.getNameAndUid()).thenReturn("Structure (0)");
+        Mockito.when(structure.getOpenDir()).thenReturn(MovementDirection.NORTH);
 
         final StructureType structureType = Mockito.mock(StructureType.class);
         Mockito.when(structureType.getLocalizationKey()).thenReturn("StructureType");

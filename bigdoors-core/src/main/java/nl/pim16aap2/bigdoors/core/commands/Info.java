@@ -78,7 +78,9 @@ public class Info extends StructureTargetCommand
                                            "constants.open_status.open" : "constants.open_status.closed"))
               .append('\n')
 
-              .append("Its open direction is: ", TextType.INFO).append("counter-clockwise\n", TextType.HIGHLIGHT)
+              .append("Its open direction is: ", TextType.INFO)
+              .append(localizer.getMessage(structure.getOpenDir().getLocalizationKey()), TextType.HIGHLIGHT)
+              .append('\n')
 
               .append("It is ", TextType.INFO)
               .append(localizer.getMessage(structure.isLocked() ?
