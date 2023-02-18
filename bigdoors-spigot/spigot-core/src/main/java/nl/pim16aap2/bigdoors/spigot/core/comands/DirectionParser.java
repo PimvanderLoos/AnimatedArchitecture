@@ -79,8 +79,9 @@ public class DirectionParser implements ArgumentParser<ICommandSender, MovementD
         final Stream<String> suggestionsStream =
             Objects.requireNonNullElseGet(tryRetrieveGuidedSuggestions(commandContext),
                                           () -> invertedSuggestions.values().stream());
-        final String lowerCaseInput = input.toLowerCase(Locale.ROOT);
-        return suggestionsStream.filter(val -> val.startsWith(lowerCaseInput)).toList();
+        return suggestionsStream
+            .filter(val -> val.toLowerCase(Locale.ROOT).startsWith(input.toLowerCase(Locale.ROOT)))
+            .toList();
     }
 
     private @Nullable Stream<String> tryRetrieveGuidedSuggestions(
