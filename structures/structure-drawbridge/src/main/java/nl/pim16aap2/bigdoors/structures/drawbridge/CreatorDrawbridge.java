@@ -48,7 +48,7 @@ public class CreatorDrawbridge extends Creator
     @Override
     protected AbstractStructure constructStructure()
     {
-        return new Drawbridge(constructStructureData(), true);
+        return new Drawbridge(constructStructureData());
     }
 
     @Override

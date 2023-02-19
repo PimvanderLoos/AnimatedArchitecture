@@ -1,12 +1,9 @@
 package nl.pim16aap2.bigdoors.structures.drawbridge;
 
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.annotations.Deserialization;
-import nl.pim16aap2.bigdoors.core.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.core.moveblocks.StructureRequestData;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
@@ -17,7 +14,6 @@ import nl.pim16aap2.bigdoors.core.util.MovementDirection;
 import nl.pim16aap2.bigdoors.core.util.Rectangle;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Di;
 
-import javax.annotation.concurrent.GuardedBy;
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Stream;
@@ -35,24 +31,11 @@ public class Drawbridge extends AbstractStructure implements IHorizontalAxisAlig
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
 
-    /**
-     * Describes if this drawbridge's vertical position points (when taking the rotation point Y value as center) up
-     * <b>(= TRUE)</b> or down <b>(= FALSE)</b>
-     *
-     * @return True if this {@link Drawbridge}'s vertical stance points up.
-     */
-    @PersistentVariable("modeUp")
-    @GuardedBy("lock")
-    @Getter(onMethod_ = @Locked.Read)
-    @Setter(onMethod_ = @Locked.Write)
-    protected boolean modeUp;
-
     @Deserialization
-    public Drawbridge(BaseHolder base, @PersistentVariable("modeUp") boolean modeUp)
+    public Drawbridge(BaseHolder base)
     {
         super(base, StructureTypeDrawbridge.get());
         this.lock = getLock();
-        this.modeUp = modeUp;
     }
 
     @Override
