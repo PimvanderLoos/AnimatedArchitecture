@@ -37,6 +37,7 @@ import nl.pim16aap2.bigdoors.core.managers.StructureTypeManager;
 import nl.pim16aap2.bigdoors.core.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.core.moveblocks.StructureActivityManager;
 import nl.pim16aap2.bigdoors.core.storage.sqlite.SQLiteStorageModule;
+import nl.pim16aap2.bigdoors.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.bigdoors.core.structures.StructureRegistry;
 import nl.pim16aap2.bigdoors.core.util.VersionReader;
 import nl.pim16aap2.bigdoors.core.util.structureretriever.StructureRetrieverFactory;
@@ -143,6 +144,8 @@ interface BigDoorsSpigotComponent
     ProtectionCompatManagerSpigot getProtectionCompatManager();
 
     GuiFactory getGUIFactory();
+
+    StructureAnimationRequestBuilder structureAnimationRequestBuilder();
 
     ConfigSpigot getConfig();
 

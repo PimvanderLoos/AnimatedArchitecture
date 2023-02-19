@@ -2,10 +2,10 @@ package nl.pim16aap2.bigdoors.structures.bigdoor;
 
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlock;
+import nl.pim16aap2.bigdoors.core.moveblocks.AnimationRequestData;
 import nl.pim16aap2.bigdoors.core.moveblocks.AnimationUtil;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimator;
-import nl.pim16aap2.bigdoors.core.moveblocks.StructureRequestData;
 import nl.pim16aap2.bigdoors.core.structures.StructureSnapshot;
 import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
@@ -22,7 +22,7 @@ public class BigDoorAnimationComponent implements IAnimationComponent
     private final double angle;
     private final double step;
 
-    public BigDoorAnimationComponent(StructureRequestData data, MovementDirection movementDirection, int quarterCircles)
+    public BigDoorAnimationComponent(AnimationRequestData data, MovementDirection movementDirection, int quarterCircles)
     {
         this.snapshot = data.getStructureSnapshot();
         this.movementDirection = movementDirection;

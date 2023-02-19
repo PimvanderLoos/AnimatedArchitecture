@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.structures.clock;
 
 import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlock;
+import nl.pim16aap2.bigdoors.core.moveblocks.AnimationRequestData;
 import nl.pim16aap2.bigdoors.core.moveblocks.Animator;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimator;
-import nl.pim16aap2.bigdoors.core.moveblocks.StructureRequestData;
 import nl.pim16aap2.bigdoors.core.structures.StructureSnapshot;
 import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
@@ -51,7 +51,7 @@ public final class ClockAnimationComponent extends WindmillAnimationComponent
     private final StructureSnapshot snapshot;
 
     public ClockAnimationComponent(
-        StructureRequestData data, MovementDirection movementDirection, boolean isNorthSouthAligned)
+        AnimationRequestData data, MovementDirection movementDirection, boolean isNorthSouthAligned)
     {
         super(data, movementDirection, isNorthSouthAligned);
         this.snapshot = data.getStructureSnapshot();

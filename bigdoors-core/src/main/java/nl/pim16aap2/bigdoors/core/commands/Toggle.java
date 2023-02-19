@@ -13,8 +13,8 @@ import nl.pim16aap2.bigdoors.core.events.StructureActionType;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.moveblocks.AnimationType;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
+import nl.pim16aap2.bigdoors.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.bigdoors.core.structures.StructureAttribute;
-import nl.pim16aap2.bigdoors.core.structures.StructureToggleRequestBuilder;
 import nl.pim16aap2.bigdoors.core.text.TextType;
 import nl.pim16aap2.bigdoors.core.util.structureretriever.StructureRetriever;
 import org.jetbrains.annotations.Nullable;
@@ -35,7 +35,7 @@ public class Toggle extends BaseCommand
     public static final StructureActionType DEFAULT_STRUCTURE_ACTION_TYPE = StructureActionType.TOGGLE;
     public static final AnimationType DEFAULT_ANIMATION_TYPE = AnimationType.MOVE_BLOCKS;
 
-    private final StructureToggleRequestBuilder structureToggleRequestBuilder;
+    private final StructureAnimationRequestBuilder structureToggleRequestBuilder;
     private final StructureRetriever[] structureRetrievers;
     private final IMessageable messageableServer;
     private final StructureActionType structureActionType;
@@ -48,7 +48,7 @@ public class Toggle extends BaseCommand
         ILocalizer localizer,
         ITextFactory textFactory,
         @Named("MessageableServer") IMessageable messageableServer,
-        StructureToggleRequestBuilder structureToggleRequestBuilder,
+        StructureAnimationRequestBuilder structureToggleRequestBuilder,
         @Assisted ICommandSender commandSender,
         @Assisted StructureActionType structureActionType,
         @Assisted AnimationType animationType,

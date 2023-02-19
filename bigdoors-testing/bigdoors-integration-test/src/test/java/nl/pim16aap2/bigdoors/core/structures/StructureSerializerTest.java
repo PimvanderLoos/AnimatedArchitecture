@@ -5,8 +5,8 @@ import lombok.Getter;
 import nl.pim16aap2.bigdoors.core.annotations.Deserialization;
 import nl.pim16aap2.bigdoors.core.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.core.api.PlayerData;
+import nl.pim16aap2.bigdoors.core.moveblocks.AnimationRequestData;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimationComponent;
-import nl.pim16aap2.bigdoors.core.moveblocks.StructureRequestData;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
 import nl.pim16aap2.bigdoors.core.util.Rectangle;
@@ -266,7 +266,7 @@ class StructureSerializerTest
         }
 
         @Override
-        protected IAnimationComponent constructAnimationComponent(StructureRequestData data)
+        protected IAnimationComponent constructAnimationComponent(AnimationRequestData data)
         {
             return null;
         }

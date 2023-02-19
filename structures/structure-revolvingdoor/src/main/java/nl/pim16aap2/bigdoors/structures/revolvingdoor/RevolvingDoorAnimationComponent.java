@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.structures.revolvingdoor;
 
+import nl.pim16aap2.bigdoors.core.moveblocks.AnimationRequestData;
 import nl.pim16aap2.bigdoors.core.moveblocks.Animator;
-import nl.pim16aap2.bigdoors.core.moveblocks.StructureRequestData;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
 import nl.pim16aap2.bigdoors.core.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
@@ -14,7 +14,7 @@ import nl.pim16aap2.bigdoors.structures.bigdoor.BigDoorAnimationComponent;
  */
 public class RevolvingDoorAnimationComponent extends BigDoorAnimationComponent
 {
-    public RevolvingDoorAnimationComponent(StructureRequestData data, MovementDirection movementDirection)
+    public RevolvingDoorAnimationComponent(AnimationRequestData data, MovementDirection movementDirection)
     {
         super(data, movementDirection, 4);
     }

@@ -3,10 +3,10 @@ package nl.pim16aap2.bigdoors.structures.flag;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.api.IConfig;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlock;
+import nl.pim16aap2.bigdoors.core.moveblocks.AnimationRequestData;
 import nl.pim16aap2.bigdoors.core.moveblocks.Animator;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimator;
-import nl.pim16aap2.bigdoors.core.moveblocks.StructureRequestData;
 import nl.pim16aap2.bigdoors.core.structures.StructureSnapshot;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
 import nl.pim16aap2.bigdoors.core.util.vector.IVector3D;
@@ -33,7 +33,7 @@ public final class FlagAnimationComponent implements IAnimationComponent
     private final int minY;
     private final Cuboid oldCuboid;
 
-    public FlagAnimationComponent(StructureRequestData data, boolean isNorthSouthAligned)
+    public FlagAnimationComponent(AnimationRequestData data, boolean isNorthSouthAligned)
     {
         this.snapshot = data.getStructureSnapshot();
         this.oldCuboid = snapshot.getCuboid();

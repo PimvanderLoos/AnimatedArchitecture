@@ -60,7 +60,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
     private final IWorld world;
 
     @EqualsAndHashCode.Exclude @ToString.Exclude
-    private final StructureToggleRequestBuilder structureToggleRequestBuilder;
+    private final StructureAnimationRequestBuilder structureToggleRequestBuilder;
 
     @GuardedBy("lock")
     @Getter(onMethod_ = @Locked.Read)
@@ -157,7 +157,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
         DatabaseManager databaseManager,
         StructureRegistry structureRegistry,
         StructureOpeningHelper structureOpeningHelper,
-        StructureToggleRequestBuilder structureToggleRequestBuilder,
+        StructureAnimationRequestBuilder structureToggleRequestBuilder,
         IPlayerFactory playerFactory,
         IExecutor executor,
         IRedstoneManager redstoneManager,

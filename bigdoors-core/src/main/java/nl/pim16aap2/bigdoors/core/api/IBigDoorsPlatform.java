@@ -21,6 +21,8 @@ import nl.pim16aap2.bigdoors.core.managers.StructureSpecificationManager;
 import nl.pim16aap2.bigdoors.core.managers.StructureTypeManager;
 import nl.pim16aap2.bigdoors.core.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.core.moveblocks.StructureActivityManager;
+import nl.pim16aap2.bigdoors.core.structures.StructureAnimationRequest;
+import nl.pim16aap2.bigdoors.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.bigdoors.core.structures.StructureRegistry;
 import nl.pim16aap2.bigdoors.core.util.structureretriever.StructureFinder;
 import nl.pim16aap2.bigdoors.core.util.structureretriever.StructureRetriever;
@@ -243,6 +245,11 @@ public interface IBigDoorsPlatform
      * @return The factory used to create new {@link StructureRetriever} and {@link StructureFinder} instances.
      */
     StructureRetrieverFactory getStructureRetrieverFactory();
+
+    /**
+     * @return A new builder used to create new {@link StructureAnimationRequest} instances.
+     */
+    StructureAnimationRequestBuilder.IBuilderStructure getStructureAnimationRequestBuilder();
 
     /**
      * Gets the instance of the {@link IProtectionCompatManager} for this platform.

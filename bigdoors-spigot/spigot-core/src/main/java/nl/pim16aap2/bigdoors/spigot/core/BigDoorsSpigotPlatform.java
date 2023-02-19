@@ -38,6 +38,7 @@ import nl.pim16aap2.bigdoors.core.managers.StructureTypeManager;
 import nl.pim16aap2.bigdoors.core.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.core.moveblocks.StructureActivityManager;
 import nl.pim16aap2.bigdoors.core.storage.IStorage;
+import nl.pim16aap2.bigdoors.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.bigdoors.core.structures.StructureRegistry;
 import nl.pim16aap2.bigdoors.core.util.VersionReader;
 import nl.pim16aap2.bigdoors.core.util.structureretriever.StructureRetrieverFactory;
@@ -82,6 +83,8 @@ public final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
 
     @Getter
     private final GuiFactory guiFactory;
+
+    private final StructureAnimationRequestBuilder structureAnimationRequestBuilder;
 
     @Getter
     private final IPlayerFactory playerFactory;
@@ -252,6 +255,7 @@ public final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
         animatedBlockFactory = safeGetter(BigDoorsSpigotComponent::getAnimatedBlockFactory);
         bigDoorsEventFactory = safeGetter(BigDoorsSpigotComponent::getIBigDoorsEventFactory);
         guiFactory = safeGetter(BigDoorsSpigotComponent::getGUIFactory);
+        structureAnimationRequestBuilder = safeGetter(BigDoorsSpigotComponent::structureAnimationRequestBuilder);
 
         redstoneListener = safeGetter(BigDoorsSpigotComponent::getRedstoneListener);
         loginResourcePackListener = safeGetter(BigDoorsSpigotComponent::getLoginResourcePackListener);
@@ -308,6 +312,12 @@ public final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
             throw new InitializationException(
                 "Failed to instantiate the BigDoors platform for Spigot: Missing dependency!");
         return ret;
+    }
+
+    @Override
+    public StructureAnimationRequestBuilder.IBuilderStructure getStructureAnimationRequestBuilder()
+    {
+        return structureAnimationRequestBuilder.builder();
     }
 
     @Override

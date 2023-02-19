@@ -14,9 +14,9 @@ import nl.pim16aap2.bigdoors.core.api.factories.IPlayerFactory;
 import nl.pim16aap2.bigdoors.core.events.StructureActionCause;
 import nl.pim16aap2.bigdoors.core.events.StructureActionType;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.core.moveblocks.AnimationRequestData;
 import nl.pim16aap2.bigdoors.core.moveblocks.AnimationType;
 import nl.pim16aap2.bigdoors.core.moveblocks.StructureActivityManager;
-import nl.pim16aap2.bigdoors.core.moveblocks.StructureRequestData;
 import nl.pim16aap2.bigdoors.core.util.Util;
 import nl.pim16aap2.bigdoors.core.util.structureretriever.StructureRetriever;
 import org.jetbrains.annotations.Nullable;
@@ -24,10 +24,18 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Represents the principal way to submit a request to animate a structure.
+ * <p>
+ * To submit a new request, first create a new instance using
+ * {@link IBigDoorsPlatform#getStructureAnimationRequestBuilder()}.
+ * <p>
+ * Once the new request has been constructed, it can be submitted using {@link #execute()}.
+ */
 @Getter
 @ToString
 @Flogger
-public class StructureToggleRequest
+public class StructureAnimationRequest
 {
     @Getter
     private final StructureRetriever structureRetriever;
@@ -54,7 +62,7 @@ public class StructureToggleRequest
     private final IExecutor executor;
 
     @AssistedInject
-    public StructureToggleRequest(
+    public StructureAnimationRequest(
         @Assisted StructureRetriever structureRetriever,
         @Assisted StructureActionCause cause,
         @Assisted IMessageable messageReceiver,
@@ -134,10 +142,17 @@ public class StructureToggleRequest
         return playerFactory.create(structure.getPrimeOwner().playerData());
     }
 
+    /**
+     * The factory class for {@link StructureAnimationRequest} instances.
+     */
     @AssistedFactory
     public interface IFactory
     {
         /**
+         * Creates a new {@link StructureAnimationRequest}.
+         * <p>
+         * Once created, use {@link StructureAnimationRequest#execute()} to submit the request.
+         *
          * @param structureRetriever
          *     A retriever for the structure for which this toggle request will be created.
          *     <p>
@@ -161,13 +176,17 @@ public class StructureToggleRequest
          *     The type of animation to apply.
          * @param actionType
          *     The type of movement to apply.
-         * @return The new {@link StructureRequestData}.
+         * @return The new {@link AnimationRequestData}.
          */
-        StructureToggleRequest create(
-            StructureRetriever structureRetriever, StructureActionCause cause,
-            IMessageable messageReceiver, @Nullable IPlayer responsible, @Nullable Double time,
+        StructureAnimationRequest create(
+            StructureRetriever structureRetriever,
+            StructureActionCause cause,
+            IMessageable messageReceiver,
+            @Nullable IPlayer responsible,
+            @Nullable Double time,
             @Assisted("skipAnimation") boolean skipAnimation,
-            @Assisted("preventPerpetualMovement") boolean preventPerpetualMovement, StructureActionType actionType,
+            @Assisted("preventPerpetualMovement") boolean preventPerpetualMovement,
+            StructureActionType actionType,
             AnimationType animationType);
     }
 }

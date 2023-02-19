@@ -1,11 +1,11 @@
 package nl.pim16aap2.bigdoors.structures.portcullis;
 
 import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlock;
+import nl.pim16aap2.bigdoors.core.moveblocks.AnimationRequestData;
 import nl.pim16aap2.bigdoors.core.moveblocks.AnimationUtil;
 import nl.pim16aap2.bigdoors.core.moveblocks.Animator;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimator;
-import nl.pim16aap2.bigdoors.core.moveblocks.StructureRequestData;
 import nl.pim16aap2.bigdoors.core.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
 
@@ -19,7 +19,7 @@ public final class VerticalAnimationComponent implements IAnimationComponent
     private final int blocksToMove;
     private final double step;
 
-    public VerticalAnimationComponent(StructureRequestData data, int blocksToMove)
+    public VerticalAnimationComponent(AnimationRequestData data, int blocksToMove)
     {
         this.blocksToMove = blocksToMove;
 

@@ -1,11 +1,11 @@
 package nl.pim16aap2.bigdoors.structures.drawbridge;
 
 import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlock;
+import nl.pim16aap2.bigdoors.core.moveblocks.AnimationRequestData;
 import nl.pim16aap2.bigdoors.core.moveblocks.AnimationUtil;
 import nl.pim16aap2.bigdoors.core.moveblocks.Animator;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimator;
-import nl.pim16aap2.bigdoors.core.moveblocks.StructureRequestData;
 import nl.pim16aap2.bigdoors.core.structures.StructureSnapshot;
 import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
@@ -31,7 +31,7 @@ public class DrawbridgeAnimationComponent implements IAnimationComponent
     private final int rotateCount;
 
     public DrawbridgeAnimationComponent(
-        StructureRequestData data, MovementDirection movementDirection, boolean isNorthSouthAligned, int quarterCircles)
+        AnimationRequestData data, MovementDirection movementDirection, boolean isNorthSouthAligned, int quarterCircles)
     {
         this.snapshot = data.getStructureSnapshot();
         this.northSouth = isNorthSouthAligned;

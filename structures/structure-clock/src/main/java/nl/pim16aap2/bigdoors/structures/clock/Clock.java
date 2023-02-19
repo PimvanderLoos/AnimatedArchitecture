@@ -6,8 +6,8 @@ import lombok.ToString;
 import lombok.experimental.Locked;
 import nl.pim16aap2.bigdoors.core.annotations.Deserialization;
 import nl.pim16aap2.bigdoors.core.annotations.PersistentVariable;
+import nl.pim16aap2.bigdoors.core.moveblocks.AnimationRequestData;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimationComponent;
-import nl.pim16aap2.bigdoors.core.moveblocks.StructureRequestData;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.structures.structurearchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.core.structures.structurearchetypes.IPerpetualMover;
@@ -98,7 +98,7 @@ public class Clock extends AbstractStructure implements IHorizontalAxisAligned, 
 
     @Override
     @Locked.Read
-    protected IAnimationComponent constructAnimationComponent(StructureRequestData data)
+    protected IAnimationComponent constructAnimationComponent(AnimationRequestData data)
     {
         return new ClockAnimationComponent(data, getCurrentToggleDir(), isNorthSouthAnimated());
     }

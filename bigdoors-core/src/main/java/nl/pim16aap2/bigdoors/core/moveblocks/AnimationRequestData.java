@@ -20,7 +20,7 @@ import javax.inject.Named;
  * Simple class that holds the data of a toggle request that is passed to the BlockMover.
  */
 @Getter
-public final class StructureRequestData
+public final class AnimationRequestData
 {
     private final StructureActivityManager structureActivityManager;
     private final IAudioPlayer audioPlayer;
@@ -38,7 +38,7 @@ public final class StructureRequestData
     private final AnimationType animationType;
     private final StructureActionType actionType;
 
-    @AssistedInject StructureRequestData(
+    @AssistedInject AnimationRequestData(
         StructureActivityManager structureActivityManager,
         IAudioPlayer audioPlayer,
         IExecutor executor,
@@ -73,7 +73,7 @@ public final class StructureRequestData
     }
 
     /**
-     * Factory for new {@link StructureRequestData} instances.
+     * Factory for new {@link AnimationRequestData} instances.
      */
     @AssistedFactory
     public interface IFactory
@@ -99,9 +99,9 @@ public final class StructureRequestData
          *     The type of animation to apply.
          * @param actionType
          *     The type of movement to apply.
-         * @return The new {@link StructureRequestData}.
+         * @return The new {@link AnimationRequestData}.
          */
-        StructureRequestData newToggleRequestData(
+        AnimationRequestData newToggleRequestData(
             StructureSnapshot structureSnapshot, StructureActionCause cause, double time,
             @Assisted("animationSkipped") boolean skipAnimation,
             @Assisted("preventPerpetualMovement") boolean preventPerpetualMovement, Cuboid newCuboid,
