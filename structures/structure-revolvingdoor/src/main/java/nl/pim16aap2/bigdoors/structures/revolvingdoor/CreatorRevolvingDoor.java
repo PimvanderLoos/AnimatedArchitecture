@@ -17,10 +17,7 @@ public class CreatorRevolvingDoor extends CreatorBigDoor
 
     public CreatorRevolvingDoor(Creator.Context context, IPlayer player, @Nullable String name)
     {
-        super(context, player);
-        if (name != null)
-            completeNamingStep(name);
-        prepareCurrentStep();
+        super(context, player, name);
     }
 
     public CreatorRevolvingDoor(Creator.Context context, IPlayer player)
