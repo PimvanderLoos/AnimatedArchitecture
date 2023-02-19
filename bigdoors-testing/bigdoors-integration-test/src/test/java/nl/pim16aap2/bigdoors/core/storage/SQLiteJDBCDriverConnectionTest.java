@@ -125,8 +125,8 @@ public class SQLiteJDBCDriverConnectionTest
         MockitoAnnotations.openMocks(this);
 
         worldFactory = new TestWorldFactory();
-        structureRegistry = StructureRegistry.unCached(
-            restartableHolder, debuggableRegistry, Mockito.mock(StructureDeletionManager.class));
+        structureRegistry =
+            StructureRegistry.unCached(debuggableRegistry, Mockito.mock(StructureDeletionManager.class));
 
         structureTypeManager = new StructureTypeManager(restartableHolder, debuggableRegistry, localizationManager);
 

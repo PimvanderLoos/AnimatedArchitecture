@@ -2,11 +2,8 @@ package nl.pim16aap2.bigdoors.core.structures;
 
 import com.google.common.flogger.StackSize;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.core.annotations.Initializer;
 import nl.pim16aap2.bigdoors.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.core.api.debugging.IDebuggable;
-import nl.pim16aap2.bigdoors.core.api.restartable.Restartable;
-import nl.pim16aap2.bigdoors.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.core.data.cache.timed.TimedCache;
 import nl.pim16aap2.bigdoors.core.managers.StructureDeletionManager;
 import nl.pim16aap2.bigdoors.core.util.Util;
@@ -25,68 +22,45 @@ import java.util.function.Supplier;
  */
 @Singleton
 @Flogger
-public final class StructureRegistry extends Restartable
-    implements IDebuggable, StructureDeletionManager.IDeletionListener
+public final class StructureRegistry implements IDebuggable, StructureDeletionManager.IDeletionListener
 {
-    public static final int CONCURRENCY_LEVEL = 4;
-    public static final int INITIAL_CAPACITY = 100;
     public static final Duration CACHE_EXPIRY = Duration.ofMinutes(15);
 
-    // It's not final, so we make it volatile to ensure it's always visible.
-    // SonarLint likes to complain about making it volatile, as this doesn't
-    // mean access to the object is thread-safe. However, we know that the
-    // type is thread-safe; we just want to ensure visibility across threads.
-    @SuppressWarnings("squid:S3077")
-    private volatile TimedCache<Long, AbstractStructure> structureCache;
+    private final TimedCache<Long, AbstractStructure> structureCache;
 
     /**
      * Keeps track of whether to allow new entries to be added to the cache.
      */
     private volatile boolean acceptNewEntries = true;
 
-    // TODO: Implement the use of these parameters. Once implemented, this should be public.
-    private final int concurrencyLevel;
-    private final int initialCapacity;
     private final Duration cacheExpiry;
 
-    /**
-     * Constructs a new {@link #StructureRegistry}.
-     *
-     * @param concurrencyLevel
-     *     The concurrency level of the cache.
-     * @param initialCapacity
-     *     The initial size of the cache to reserve.
-     * @param cacheExpiry
-     *     How long to keep stuff in the cache.
-     */
-//    @IBuilder // These parameters aren't implemented atm, so there's no point in having this ctor/builder.
     private StructureRegistry(
-        RestartableHolder restartableHolder, DebuggableRegistry debuggableRegistry,
-        int concurrencyLevel, int initialCapacity, Duration cacheExpiry,
-        StructureDeletionManager structureDeletionManager)
+        DebuggableRegistry debuggableRegistry, Duration cacheExpiry, StructureDeletionManager structureDeletionManager)
     {
-        super(restartableHolder);
-        this.concurrencyLevel = concurrencyLevel;
-        this.initialCapacity = initialCapacity;
         this.cacheExpiry = cacheExpiry;
 
-        init();
+        if (cacheExpiry.isNegative())
+            structureCache = TimedCache.emptyCache();
+        else
+            structureCache = TimedCache.<Long, AbstractStructure>builder()
+                                       .cleanup(Duration.ofMinutes(15))
+                                       .softReference(true)
+                                       .keepAfterTimeOut(true)
+                                       .duration(cacheExpiry)
+                                       .build();
 
         debuggableRegistry.registerDebuggable(this);
         structureDeletionManager.registerDeletionListener(this);
     }
 
     /**
-     * Constructs a new {@link #StructureRegistry} using the default values.
-     * <p>
-     * See {@link #CONCURRENCY_LEVEL}, {@link #INITIAL_CAPACITY}.
+     * Constructs a new {@link #StructureRegistry} using the default cache expiry value: {@link #CACHE_EXPIRY}.
      */
     @Inject StructureRegistry(
-        RestartableHolder restartableHolder, DebuggableRegistry debuggableRegistry,
-        StructureDeletionManager structureDeletionManager)
+        DebuggableRegistry debuggableRegistry, StructureDeletionManager structureDeletionManager)
     {
-        this(restartableHolder, debuggableRegistry, CONCURRENCY_LEVEL, INITIAL_CAPACITY, CACHE_EXPIRY,
-             structureDeletionManager);
+        this(debuggableRegistry, CACHE_EXPIRY, structureDeletionManager);
     }
 
     /**
@@ -95,11 +69,10 @@ public final class StructureRegistry extends Restartable
      * @return The new {@link StructureRegistry}.
      */
     public static StructureRegistry unCached(
-        RestartableHolder restartableHolder, DebuggableRegistry debuggableRegistry,
-        StructureDeletionManager structureDeletionManager)
+        DebuggableRegistry debuggableRegistry, StructureDeletionManager structureDeletionManager)
     {
         final StructureRegistry structureRegistry = new StructureRegistry(
-            restartableHolder, debuggableRegistry, -1, -1, Duration.ofMillis(-1), structureDeletionManager);
+            debuggableRegistry, Duration.ofMillis(-1), structureDeletionManager);
 
         structureRegistry.acceptNewEntries = false;
         return structureRegistry;
@@ -175,36 +148,9 @@ public final class StructureRegistry extends Restartable
     }
 
     @Override
-    public void shutDown()
-    {
-        structureCache.clear();
-    }
-
-    /**
-     * (Re)initializes the {@link #structureCache}.
-     *
-     * @return This {@link StructureRegistry}.
-     */
-    @Initializer
-    private void init()
-    {
-        if (cacheExpiry.isNegative())
-            structureCache = TimedCache.emptyCache();
-        else
-            structureCache = TimedCache.<Long, AbstractStructure>builder()
-                                       .cleanup(Duration.ofMinutes(15))
-                                       .softReference(true)
-                                       .keepAfterTimeOut(true)
-                                       .duration(cacheExpiry)
-                                       .build();
-    }
-
-    @Override
     public String getDebugInformation()
     {
         return "Accepting new entries: " + acceptNewEntries +
-            "\nconcurrencyLevel: " + concurrencyLevel +
-            "\ninitialCapacity: " + initialCapacity +
             "\ncacheExpiry: " + cacheExpiry +
             "\ncacheSize: " + structureCache.getSize();
     }
