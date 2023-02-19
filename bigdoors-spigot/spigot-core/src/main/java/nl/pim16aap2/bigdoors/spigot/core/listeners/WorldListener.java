@@ -22,12 +22,17 @@ public final class WorldListener extends AbstractListener
 {
     private final PowerBlockManager powerBlockManager;
 
-    @Inject
-    public WorldListener(
+    @Inject WorldListener(
         JavaPlugin javaPlugin, PowerBlockManager powerBlockManager, RestartableHolder restartableHolder)
     {
         super(restartableHolder, javaPlugin);
         this.powerBlockManager = powerBlockManager;
+    }
+
+    @Override
+    public void initialize()
+    {
+        super.initialize();
         for (final World world : Bukkit.getWorlds())
             powerBlockManager.loadWorld(world.getName());
     }

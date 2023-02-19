@@ -5,9 +5,9 @@ import nl.pim16aap2.bigdoors.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.core.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.core.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.core.managers.ToolUserManager;
+import nl.pim16aap2.bigdoors.core.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.spigot.core.implementations.BigDoorsToolUtilSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
-import nl.pim16aap2.bigdoors.core.tooluser.ToolUser;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
@@ -34,7 +34,6 @@ import javax.inject.Singleton;
  *
  * @author Pim
  */
-// TODO: Split this class up. It's got too much stuff.
 @Singleton
 @Flogger
 public class EventListeners extends AbstractListener
@@ -44,10 +43,12 @@ public class EventListeners extends AbstractListener
     private final ToolUserManager toolUserManager;
     private final DelayedCommandInputManager delayedCommandInputManager;
 
-    @Inject
-    public EventListeners(
-        JavaPlugin javaPlugin, BigDoorsToolUtilSpigot bigDoorsToolUtil, DatabaseManager databaseManager,
-        ToolUserManager toolUserManager, DelayedCommandInputManager delayedCommandInputManager,
+    @Inject EventListeners(
+        JavaPlugin javaPlugin,
+        BigDoorsToolUtilSpigot bigDoorsToolUtil,
+        DatabaseManager databaseManager,
+        ToolUserManager toolUserManager,
+        DelayedCommandInputManager delayedCommandInputManager,
         RestartableHolder restartableHolder)
     {
         super(restartableHolder, javaPlugin);
@@ -55,7 +56,6 @@ public class EventListeners extends AbstractListener
         this.databaseManager = databaseManager;
         this.toolUserManager = toolUserManager;
         this.delayedCommandInputManager = delayedCommandInputManager;
-        register();
     }
 
     /**

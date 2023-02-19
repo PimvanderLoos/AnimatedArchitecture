@@ -8,16 +8,17 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.function.Supplier;
+import java.util.function.BooleanSupplier;
 
 /**
  * Represents a base Listener class.
  *
  * @author Pim
  */
-public abstract class AbstractListener implements Listener, IRestartable
+abstract class AbstractListener implements Listener, IRestartable
 {
-    private final @Nullable Supplier<Boolean> enabler;
+    private final @Nullable BooleanSupplier enabler;
+
     protected final JavaPlugin plugin;
 
     protected boolean isRegistered = false;
@@ -29,7 +30,7 @@ public abstract class AbstractListener implements Listener, IRestartable
      *     A supplier that is used to query whether this listener should be enabled. When this is not provided, it is
      *     assumed that this listener should always be enabled.
      */
-    public AbstractListener(@Nullable RestartableHolder holder, JavaPlugin plugin, @Nullable Supplier<Boolean> enabler)
+    protected AbstractListener(@Nullable RestartableHolder holder, JavaPlugin plugin, @Nullable BooleanSupplier enabler)
     {
         if (holder != null)
             holder.registerRestartable(this);
@@ -38,7 +39,7 @@ public abstract class AbstractListener implements Listener, IRestartable
     }
 
     /**
-     * See {@link #AbstractListener(RestartableHolder, JavaPlugin, Supplier)}
+     * See {@link #AbstractListener(RestartableHolder, JavaPlugin, BooleanSupplier)}
      */
     protected AbstractListener(@Nullable RestartableHolder holder, JavaPlugin plugin)
     {
@@ -76,7 +77,7 @@ public abstract class AbstractListener implements Listener, IRestartable
     @Override
     public void initialize()
     {
-        if (enabler == null || enabler.get())
+        if (enabler == null || enabler.getAsBoolean())
             register();
     }
 

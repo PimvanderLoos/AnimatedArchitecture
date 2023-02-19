@@ -46,17 +46,19 @@ public class ChunkListener extends AbstractListener
     private final StructureActivityManager structureActivityManager;
     private final IExecutor executor;
 
-    @Inject
-    public ChunkListener(
-        JavaPlugin javaPlugin, DatabaseManager databaseManager, PowerBlockManager powerBlockManager,
-        RestartableHolder restartableHolder, StructureActivityManager structureActivityManager, IExecutor executor)
+    @Inject ChunkListener(
+        JavaPlugin javaPlugin,
+        DatabaseManager databaseManager,
+        PowerBlockManager powerBlockManager,
+        RestartableHolder restartableHolder,
+        StructureActivityManager structureActivityManager,
+        IExecutor executor)
     {
         super(restartableHolder, javaPlugin);
         this.databaseManager = databaseManager;
         this.powerBlockManager = powerBlockManager;
         this.structureActivityManager = structureActivityManager;
         this.executor = executor;
-        register();
     }
 
     private void onChunkLoad(World world, Chunk chunk)

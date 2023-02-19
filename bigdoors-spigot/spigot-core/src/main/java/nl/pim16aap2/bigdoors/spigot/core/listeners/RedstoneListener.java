@@ -34,8 +34,7 @@ public class RedstoneListener extends AbstractListener
     private final Set<Material> powerBlockTypes = new HashSet<>();
     private final PowerBlockManager powerBlockManager;
 
-    @Inject
-    public RedstoneListener(
+    @Inject RedstoneListener(
         RestartableHolder holder, JavaPlugin plugin, ConfigSpigot config, PowerBlockManager powerBlockManager)
     {
         super(holder, plugin, config::isRedstoneEnabled);
