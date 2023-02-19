@@ -20,11 +20,6 @@ public class CreatorRevolvingDoor extends CreatorBigDoor
         super(context, player, name);
     }
 
-    public CreatorRevolvingDoor(Creator.Context context, IPlayer player)
-    {
-        this(context, player, null);
-    }
-
     @Override
     protected List<Step> generateSteps()
         throws InstantiationException

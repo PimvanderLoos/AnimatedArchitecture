@@ -32,7 +32,7 @@ class CreatorPortcullisTest extends CreatorTestsUtil
         setBuyStructure(true);
 
         final Portcullis actualStructure = new Portcullis(constructStructureBase(), blocksToMove);
-        final CreatorPortcullis creator = new CreatorPortcullis(context, player);
+        final CreatorPortcullis creator = new CreatorPortcullis(context, player, null);
         testCreation(creator, actualStructure,
                      structureName,
                      min.toLocation(locationFactory, world),
@@ -47,7 +47,7 @@ class CreatorPortcullisTest extends CreatorTestsUtil
     @Test
     void testBlocksToMove()
     {
-        final CreatorPortcullis creator = new CreatorPortcullis(context, player);
+        final CreatorPortcullis creator = new CreatorPortcullis(context, player, null);
         final int blocksToMoveLimit = blocksToMove - 1;
         Mockito.when(config.maxBlocksToMove()).thenReturn(OptionalInt.of(blocksToMoveLimit));
 
