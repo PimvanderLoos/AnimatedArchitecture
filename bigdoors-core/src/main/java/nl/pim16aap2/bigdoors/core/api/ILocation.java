@@ -8,8 +8,6 @@ import org.jetbrains.annotations.Contract;
 
 /**
  * Represents a position in a world.
- * <p>
- * Note that, unlike the Spigot Location, this location is not mutable!
  *
  * @author Pim
  */
