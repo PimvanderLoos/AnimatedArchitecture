@@ -4,6 +4,7 @@ import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.core.moveblocks.Animator;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimator;
 import nl.pim16aap2.bigdoors.core.moveblocks.StructureRequestData;
+import nl.pim16aap2.bigdoors.core.structures.StructureSnapshot;
 import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
 import nl.pim16aap2.bigdoors.core.util.Util;
@@ -12,7 +13,7 @@ import nl.pim16aap2.bigdoors.core.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.structures.windmill.WindmillAnimationComponent;
 
-import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * Represents a {@link Animator} for {@link Clock}s.
@@ -21,12 +22,6 @@ import java.util.function.Function;
  */
 public final class ClockAnimationComponent extends WindmillAnimationComponent
 {
-    /**
-     * Method to determine if a given {@link IAnimatedBlock} is part of the little hand or the big hand of a clock.
-     * Represented as a {@link Function} because TODO: Finish this sentence  ?? wut ??
-     */
-    private final Function<IAnimatedBlock, Boolean> isHourArm;
-
     /**
      * The step of 1 minute on a clock, or 1/60th of a circle in radians.
      */
@@ -43,17 +38,25 @@ public final class ClockAnimationComponent extends WindmillAnimationComponent
     private static final float HOUR_SUB_STEP = (float) Math.PI / 360;
 
     /**
+     * Method to determine if a given {@link IAnimatedBlock} is part of the little hand or the big hand of a clock.
+     */
+    private final Predicate<IAnimatedBlock> isHourArm;
+
+    /**
      * This value should be either 1 or -1. It is used to change the sign of the angle based on which way the clock
      * should rotate.
      */
     private final int angleDirectionMultiplier;
 
+    private final StructureSnapshot snapshot;
+
     public ClockAnimationComponent(
         StructureRequestData data, MovementDirection movementDirection, boolean isNorthSouthAligned)
     {
         super(data, movementDirection, isNorthSouthAligned);
+        this.snapshot = data.getStructureSnapshot();
 
-        isHourArm = northSouth ? this::isHourArmNS : this::isHourArmEW;
+        isHourArm = isNorthSouthAligned ? this::isHourArmNS : this::isHourArmEW;
         angleDirectionMultiplier =
             (movementDirection == MovementDirection.EAST || movementDirection == MovementDirection.SOUTH) ? -1 : 1;
     }
@@ -108,8 +111,7 @@ public final class ClockAnimationComponent extends WindmillAnimationComponent
             if (Math.abs(animatedBlock.getRadius()) > MathUtil.EPS)
             {
                 // Move the little hand at a lower interval than the big hand.
-                // TODO: Just store the hour and minute arms separately.
-                final boolean hourArm = isHourArm.apply(animatedBlock);
+                final boolean hourArm = isHourArm.test(animatedBlock);
                 if (!moveHourArm && hourArm)
                     continue;
 

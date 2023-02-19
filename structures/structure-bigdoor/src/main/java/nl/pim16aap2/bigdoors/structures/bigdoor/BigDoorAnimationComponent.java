@@ -13,35 +13,38 @@ import nl.pim16aap2.bigdoors.core.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
 
 @Flogger
-public final class BigDoorAnimationComponent implements IAnimationComponent
+public class BigDoorAnimationComponent implements IAnimationComponent
 {
     private final MovementDirection movementDirection;
     private final StructureSnapshot snapshot;
     private final Vector3Dd rotationCenter;
-    private final int halfEndCount;
+    private final int rotateCount;
     private final double angle;
     private final double step;
 
-    public BigDoorAnimationComponent(StructureRequestData data, MovementDirection movementDirection)
+    public BigDoorAnimationComponent(StructureRequestData data, MovementDirection movementDirection, int quarterCircles)
     {
         this.snapshot = data.getStructureSnapshot();
         this.movementDirection = movementDirection;
 
-        angle = movementDirection == MovementDirection.CLOCKWISE ? MathUtil.HALF_PI :
-                movementDirection == MovementDirection.COUNTERCLOCKWISE ? -MathUtil.HALF_PI : 0.0D;
+        angle = movementDirection == MovementDirection.CLOCKWISE ? quarterCircles * MathUtil.HALF_PI :
+                movementDirection == MovementDirection.COUNTERCLOCKWISE ? quarterCircles * -MathUtil.HALF_PI :
+                0.0D;
 
         if (angle == 0.0D)
             log.atSevere()
                .log("Invalid open direction '%s' for structure: %d", movementDirection.name(), snapshot.getUid());
 
         rotationCenter = new Vector3Dd(
-            snapshot.getRotationPoint().x() + 0.5, snapshot.getCuboid().getMin().y(),
+            snapshot.getRotationPoint().x() + 0.5,
+            snapshot.getCuboid().getMin().y(),
             snapshot.getRotationPoint().z() + 0.5);
 
         final int animationDuration =
             AnimationUtil.getAnimationTicks(data.getAnimationTime(), data.getServerTickTime());
+
         step = angle / animationDuration;
-        halfEndCount = animationDuration / 2;
+        rotateCount = animationDuration / quarterCircles / 2;
     }
 
     @Override
@@ -53,7 +56,7 @@ public final class BigDoorAnimationComponent implements IAnimationComponent
     @Override
     public void executeAnimationStep(IAnimator animator, int ticks, int ticksRemaining)
     {
-        if (ticks == halfEndCount)
+        if (ticks % rotateCount == 0)
             animator.applyRotation(movementDirection);
 
         final double stepSum = step * ticks;
@@ -101,7 +104,6 @@ public final class BigDoorAnimationComponent implements IAnimationComponent
     @Override
     public float getStartAngle(int xAxis, int yAxis, int zAxis)
     {
-        return (float) Math.atan2(snapshot.getRotationPoint().xD() - xAxis,
-                                  snapshot.getRotationPoint().zD() - zAxis);
+        return (float) Math.atan2(snapshot.getRotationPoint().xD() - xAxis, snapshot.getRotationPoint().zD() - zAxis);
     }
 }

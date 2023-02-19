@@ -1,24 +1,19 @@
 package nl.pim16aap2.bigdoors.structures.revolvingdoor;
 
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.annotations.Deserialization;
-import nl.pim16aap2.bigdoors.core.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.core.moveblocks.StructureRequestData;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.structures.structurearchetypes.IPerpetualMover;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
-import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
 import nl.pim16aap2.bigdoors.core.util.Rectangle;
 import nl.pim16aap2.bigdoors.structures.bigdoor.BigDoor;
 
-import javax.annotation.concurrent.GuardedBy;
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -36,37 +31,18 @@ public class RevolvingDoor extends AbstractStructure implements IPerpetualMover
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
 
-    /**
-     * The number of quarter circles (so 90 degree rotations) this structure will make before stopping.
-     *
-     * @return The number of quarter circles this structure will rotate.
-     */
-    @PersistentVariable("quarterCircles")
-    @GuardedBy("lock")
-    @Getter(onMethod_ = @Locked.Read)
-    @Setter(onMethod_ = @Locked.Write)
-    private int quarterCircles;
-
     @Deserialization
-    public RevolvingDoor(
-        BaseHolder base,
-        @PersistentVariable("quarterCircles") int quarterCircles)
+    public RevolvingDoor(BaseHolder base)
     {
         super(base, StructureTypeRevolvingDoor.get());
         this.lock = getLock();
-        this.quarterCircles = quarterCircles;
-    }
-
-    public RevolvingDoor(BaseHolder base)
-    {
-        this(base, 1);
     }
 
     @Override
     @Locked.Read
     protected double calculateAnimationCycleDistance()
     {
-        return BigDoor.getMaxRadius(getCuboid(), getRotationPoint()) * MathUtil.HALF_PI;
+        return BigDoor.getMaxRadius(getCuboid(), getRotationPoint()) * Math.TAU;
     }
 
     @Override
@@ -78,20 +54,9 @@ public class RevolvingDoor extends AbstractStructure implements IPerpetualMover
     }
 
     @Override
-    @Locked.Read
     public Optional<Cuboid> getPotentialNewCoordinates()
     {
-        final MovementDirection movementDirection = getCurrentToggleDir();
-        final double angle = movementDirection == MovementDirection.CLOCKWISE ? MathUtil.HALF_PI :
-                             movementDirection == MovementDirection.COUNTERCLOCKWISE ? -MathUtil.HALF_PI : 0.0D;
-        if (angle == 0.0D)
-        {
-            log.atSevere()
-               .log("Invalid movement direction '%s' for revolving door: %d", movementDirection.name(), getUid());
-            return Optional.empty();
-        }
-
-        return Optional.of(getCuboid().updatePositions(vec -> vec.rotateAroundYAxis(getRotationPoint(), angle)));
+        return Optional.of(getCuboid());
     }
 
     @Override
@@ -104,7 +69,7 @@ public class RevolvingDoor extends AbstractStructure implements IPerpetualMover
     @Locked.Read
     protected IAnimationComponent constructAnimationComponent(StructureRequestData data)
     {
-        return new RevolvingDoorAnimationComponent(data, getCurrentToggleDir(), quarterCircles);
+        return new RevolvingDoorAnimationComponent(data, getCurrentToggleDir());
     }
 
     @Override

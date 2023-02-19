@@ -1,9 +1,12 @@
 package nl.pim16aap2.bigdoors.structures.drawbridge;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.annotations.Deserialization;
+import nl.pim16aap2.bigdoors.core.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.core.moveblocks.StructureRequestData;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
@@ -14,6 +17,7 @@ import nl.pim16aap2.bigdoors.core.util.MovementDirection;
 import nl.pim16aap2.bigdoors.core.util.Rectangle;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Di;
 
+import javax.annotation.concurrent.GuardedBy;
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Stream;
@@ -31,11 +35,28 @@ public class Drawbridge extends AbstractStructure implements IHorizontalAxisAlig
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
 
+    /**
+     * The number of quarter circles (so 90 degree rotations) this structure will make before stopping.
+     *
+     * @return The number of quarter circles this structure will rotate.
+     */
+    @PersistentVariable("quarterCircles")
+    @GuardedBy("lock")
+    @Getter(onMethod_ = @Locked.Read)
+    @Setter(onMethod_ = @Locked.Write)
+    private int quarterCircles;
+
     @Deserialization
-    public Drawbridge(BaseHolder base)
+    public Drawbridge(BaseHolder base, @PersistentVariable("quarterCircles") int quarterCircles)
     {
         super(base, StructureTypeDrawbridge.get());
         this.lock = getLock();
+        this.quarterCircles = quarterCircles;
+    }
+
+    public Drawbridge(BaseHolder base)
+    {
+        this(base, 1);
     }
 
     @Override
@@ -55,9 +76,9 @@ public class Drawbridge extends AbstractStructure implements IHorizontalAxisAlig
 
         final double angle;
         if (movementDirection == MovementDirection.NORTH || movementDirection == MovementDirection.WEST)
-            angle = -MathUtil.HALF_PI;
+            angle = quarterCircles * -MathUtil.HALF_PI;
         else if (movementDirection == MovementDirection.SOUTH || movementDirection == MovementDirection.EAST)
-            angle = MathUtil.HALF_PI;
+            angle = quarterCircles * MathUtil.HALF_PI;
         else
         {
             log.atSevere()
@@ -75,7 +96,7 @@ public class Drawbridge extends AbstractStructure implements IHorizontalAxisAlig
     @Locked.Read
     protected IAnimationComponent constructAnimationComponent(StructureRequestData data)
     {
-        return new DrawbridgeAnimationComponent(data, getCurrentToggleDir(), isNorthSouthAligned());
+        return new DrawbridgeAnimationComponent(data, getCurrentToggleDir(), isNorthSouthAligned(), quarterCircles);
     }
 
     @Override
@@ -90,7 +111,7 @@ public class Drawbridge extends AbstractStructure implements IHorizontalAxisAlig
     protected double calculateAnimationCycleDistance()
     {
         final double maxRadius = getMaxRadius(isNorthSouthAligned(), getCuboid(), getRotationPoint());
-        return maxRadius * MathUtil.HALF_PI;
+        return quarterCircles * maxRadius * MathUtil.HALF_PI;
     }
 
     @Override

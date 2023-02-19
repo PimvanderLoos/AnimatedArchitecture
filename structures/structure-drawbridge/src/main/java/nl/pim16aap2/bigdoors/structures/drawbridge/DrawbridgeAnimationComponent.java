@@ -21,53 +21,53 @@ import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
  */
 public class DrawbridgeAnimationComponent implements IAnimationComponent
 {
-    protected final Vector3Dd rotationCenter;
-    protected final boolean northSouth;
-    protected final TriFunction<Vector3Dd, Vector3Dd, Double, Vector3Dd> rotator;
-    protected final StructureSnapshot snapshot;
-    protected final int animationDuration;
+    private final Vector3Dd rotationCenter;
+    private final boolean northSouth;
+    private final TriFunction<Vector3Dd, Vector3Dd, Double, Vector3Dd> rotator;
+    private final StructureSnapshot snapshot;
 
-    protected final double angle;
-    protected final double step;
-    protected final int halfEndCount;
+    private final double angle;
+    private final double step;
+    private final int rotateCount;
 
     public DrawbridgeAnimationComponent(
-        StructureRequestData data, MovementDirection movementDirection, boolean isNorthSouthAligned)
+        StructureRequestData data, MovementDirection movementDirection, boolean isNorthSouthAligned, int quarterCircles)
     {
         this.snapshot = data.getStructureSnapshot();
-
-        northSouth = isNorthSouthAligned;
-        rotationCenter = snapshot.getRotationPoint().toDouble().add(0.5, 0, 0.5);
+        this.northSouth = isNorthSouthAligned;
+        this.rotationCenter = snapshot.getRotationPoint().toDouble().add(0.5, 0, 0.5);
 
         switch (movementDirection)
         {
             case NORTH ->
             {
-                angle = -MathUtil.HALF_PI;
+                angle = quarterCircles * -MathUtil.HALF_PI;
                 rotator = Vector3Dd::rotateAroundXAxis;
             }
             case SOUTH ->
             {
-                angle = MathUtil.HALF_PI;
+                angle = quarterCircles * MathUtil.HALF_PI;
                 rotator = Vector3Dd::rotateAroundXAxis;
             }
             case EAST ->
             {
-                angle = MathUtil.HALF_PI;
+                angle = quarterCircles * MathUtil.HALF_PI;
                 rotator = Vector3Dd::rotateAroundZAxis;
             }
             case WEST ->
             {
-                angle = -MathUtil.HALF_PI;
+                angle = quarterCircles * -MathUtil.HALF_PI;
                 rotator = Vector3Dd::rotateAroundZAxis;
             }
             default -> throw new IllegalArgumentException("Movement direction \"" + movementDirection.name() +
                                                               "\" is not valid for this type!");
         }
 
-        animationDuration = AnimationUtil.getAnimationTicks(data.getAnimationTime(), data.getServerTickTime());
-        step = angle / animationDuration;
-        halfEndCount = animationDuration / 2;
+        final int animationDuration =
+            AnimationUtil.getAnimationTicks(data.getAnimationTime(), data.getServerTickTime());
+
+        this.step = angle / animationDuration;
+        this.rotateCount = animationDuration / quarterCircles / 2;
     }
 
     protected Vector3Dd getGoalPos(double angle, double x, double y, double z)
@@ -90,9 +90,8 @@ public class DrawbridgeAnimationComponent implements IAnimationComponent
     public void executeAnimationStep(IAnimator animator, int ticks, int ticksRemaining)
     {
         final double stepSum = step * ticks;
-        final boolean replace = ticks == halfEndCount;
 
-        if (replace)
+        if (ticks % rotateCount == 0)
             animator.respawnBlocks();
 
         for (final IAnimatedBlock animatedBlock : animator.getAnimatedBlocks())
