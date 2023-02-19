@@ -34,7 +34,7 @@ public class Clock extends AbstractStructure implements IHorizontalAxisAligned, 
     private final ReentrantReadWriteLock lock;
 
     @Getter
-    @PersistentVariable("northSouthAnimated")
+    @PersistentVariable(value = "northSouthAnimated")
     protected final boolean northSouthAnimated;
 
     /**
@@ -47,15 +47,15 @@ public class Clock extends AbstractStructure implements IHorizontalAxisAligned, 
      *
      * @return The side of the hour arm relative to the minute arm.
      */
-    @PersistentVariable("hourArmSide")
+    @PersistentVariable(value = "hourArmSide")
     @Getter
     protected final PBlockFace hourArmSide;
 
     @Deserialization
     public Clock(
         BaseHolder base,
-        @PersistentVariable("northSouthAnimated") boolean northSouthAnimated,
-        @PersistentVariable("hourArmSide") PBlockFace hourArmSide)
+        @PersistentVariable(value = "northSouthAnimated") boolean northSouthAnimated,
+        @PersistentVariable(value = "hourArmSide") PBlockFace hourArmSide)
     {
         super(base, StructureTypeClock.get());
         this.lock = getLock();

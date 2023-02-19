@@ -43,11 +43,11 @@ public class Flag extends AbstractStructure implements IHorizontalAxisAligned, I
      * @return True if this structure is animated along the North/South axis.
      */
     @Getter
-    @PersistentVariable("northSouthAnimated")
+    @PersistentVariable(value = "northSouthAnimated")
     protected final boolean northSouthAnimated;
 
     @Deserialization
-    public Flag(BaseHolder base, @PersistentVariable("northSouthAnimated") boolean northSouthAnimated)
+    public Flag(BaseHolder base, @PersistentVariable(value = "northSouthAnimated") boolean northSouthAnimated)
     {
         super(base, StructureTypeFlag.get());
         this.lock = getLock();

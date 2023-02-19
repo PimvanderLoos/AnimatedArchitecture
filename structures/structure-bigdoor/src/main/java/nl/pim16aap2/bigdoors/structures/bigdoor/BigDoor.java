@@ -42,14 +42,14 @@ public class BigDoor extends AbstractStructure
      *
      * @return The number of quarter circles this structure will rotate.
      */
-    @PersistentVariable("quarterCircles")
+    @PersistentVariable(value = "quarterCircles")
     @GuardedBy("lock")
     @Getter(onMethod_ = @Locked.Read)
     @Setter(onMethod_ = @Locked.Write)
     private int quarterCircles;
 
     @Deserialization
-    public BigDoor(BaseHolder base, @PersistentVariable("quarterCircles") int quarterCircles)
+    public BigDoor(BaseHolder base, @PersistentVariable(value = "quarterCircles") int quarterCircles)
     {
         super(base, StructureTypeBigDoor.get());
         this.lock = getLock();

@@ -40,14 +40,14 @@ public class Drawbridge extends AbstractStructure implements IHorizontalAxisAlig
      *
      * @return The number of quarter circles this structure will rotate.
      */
-    @PersistentVariable("quarterCircles")
+    @PersistentVariable(value = "quarterCircles")
     @GuardedBy("lock")
     @Getter(onMethod_ = @Locked.Read)
     @Setter(onMethod_ = @Locked.Write)
     private int quarterCircles;
 
     @Deserialization
-    public Drawbridge(BaseHolder base, @PersistentVariable("quarterCircles") int quarterCircles)
+    public Drawbridge(BaseHolder base, @PersistentVariable(value = "quarterCircles") int quarterCircles)
     {
         super(base, StructureTypeDrawbridge.get());
         this.lock = getLock();

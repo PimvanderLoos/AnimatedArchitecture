@@ -31,14 +31,15 @@ import java.util.Set;
 /**
  * Manages the serialization aspects of the structures.
  * <p>
- * The {@link PersistentVariable} annotation is used on fields to determine which fields are serialized. If a name is
- * provided to the annotation, the object will be serialized using that name. If more than one unnamed field of the same
- * type is defined, the serializer will throw an exception on startup. Similarly, there can be no two fields with the
- * same name.
- * <p>
- * In the constructor, the {@link PersistentVariable} annotation can be used to specify the name of the object to
- * deserialize. If no name is provided, the object is matched using its type instead. Like with the variables, no
- * ambiguity in parameter types or names is allowed.
+ * The {@link PersistentVariable} annotation is used on fields to determine which fields are serialized. The
+ * {@link PersistentVariable#value()} provided to the animation is used for two things:
+ * <ul>
+ *     <li>The name is used to provide the name under which to store the value. This means that changing this value will
+ *     cause the serializer to both serialize and deserialize the associated object under a different name. Each name
+ *     must be unique.</li>
+ *     <li>When a constructor contains more than one parameter of a given type, the provided name is used to figure
+ *     out which deserialized object to map to which parameter.</li>
+ * </ul>
  * <p>
  * The {@link AbstractStructure.BaseHolder} object is always provided and does not need to be handled in any specific
  * way.
@@ -46,30 +47,54 @@ import java.util.Set;
  * When a value is missing during deserialization, null will be substituted in its place if it is not a primitive. If
  * the type is a primitive, an exception will be thrown.
  * <p>
+ * The {@link Deserialization} annotation is used for deserialization to specify which constructor to use. The
+ * annotation accepts an optional integer to specify a version. This refers to {@link StructureType#getVersion()}. When
+ * a structure is deserialized, this class will first attempt to use the constructor that specified the exact version
+ * that matches the data that has to be deserialized. If no such constructor exists, this class will fall back to the
+ * constructor that does not specify a version at all or explicitly sets the value to -1. If this constructor also does
+ * not exist, an exception will be thrown.
+ * <p>
  * For example:
  * <pre> {@code
  * public class MyStructure extends AbstractStructure
  * {
+ *     private static final int DEFAULT_MY_INT_0 = 12;
+ *     private static final int DEFAULT_MY_INT_1 = 42;
+ *
  *     @PersistentVariable("ambiguousInteger0")
  *     private int myInt0;
  *
  *     @PersistentVariable("ambiguousInteger1")
  *     private int myInt1;
  *
- *     @PersistentVariable
- *     private String nonAmbiguous
+ *     @PersistentVariable("nonAmbiguous")
+ *     private String nonAmbiguous;
  *
- *     @Deserialization
+ *     @Deserialization(version = 2)
  *     public MyStructure(
  *         AbstractStructure.Holder base,
  *         @PersistentVariable("ambiguousInteger0") int0,
  *         @PersistentVariable("ambiguousInteger1") int1,
- *         String str)
+ *         String str) // String is not ambiguous, so no name required.
  *     {
  *         super(base);
  *         this.myInt0 = int0;
  *         this.myInt1 = int1;
  *         this.nonAmbiguous = str;
+ *     }
+ *
+ *     @Deserialization(version = 1)
+ *     public MyStructure(
+ *         AbstractStructure.Holder base,
+ *         String str) // String is not ambiguous, so no name required.
+ *     {
+ *         this(base, DEFAULT_MY_INT_0, DEFAULT_MY_INT_1, str);
+ *     }
+ *
+ *     @Deserialization // Fallback
+ *     public MyStructure(AbstractStructure.Holder base)
+ *     {
+ *         this(base, DEFAULT_MY_INT_0, DEFAULT_MY_INT_1, "DEFAULT_NAME");
  *     }
  *     ...
  * }}</pre>
@@ -204,17 +229,11 @@ public final class StructureSerializer<T extends AbstractStructure>
             .map(AnnotatedField::of)
             .toList();
 
-        final Set<Class<?>> unnamedFields = new HashSet<>();
-        final Set<String> namedFields = new HashSet<>();
+        final Set<String> namedFields = new HashSet<>(MathUtil.ceil(1.25 * fields.size()));
         for (final AnnotatedField field : fields)
-        {
-            if (field.annotatedName == null && !unnamedFields.add(field.field.getType()))
-                throw new IllegalArgumentException(
-                    "Found ambiguous field type " + field + " in class: " + structureClass.getName());
-            if (field.annotatedName != null && !namedFields.add(field.annotatedName))
+            if (!namedFields.add(field.name))
                 throw new IllegalArgumentException(
                     "Found ambiguous field name " + field + " in class: " + structureClass.getName());
-        }
 
         return fields;
     }
@@ -233,12 +252,12 @@ public final class StructureSerializer<T extends AbstractStructure>
         for (final AnnotatedField field : fields)
             try
             {
-                values.put(field.finalName, field.field.get(structure));
+                values.put(field.name, field.field.get(structure));
             }
             catch (IllegalAccessException e)
             {
                 throw new Exception(String.format("Failed to get value of field %s (type %s) for structure type %s!",
-                                                  field.fieldName(), field.typeName(), getStructureTypeName()), e);
+                                                  field.name(), field.typeName(), getStructureTypeName()), e);
             }
         try
         {
@@ -399,22 +418,20 @@ public final class StructureSerializer<T extends AbstractStructure>
 
         for (final AnnotatedField field : fields)
             sb.append("* Type: ").append(field.typeName())
-              .append(", name: \"").append(field.finalName)
-              .append("\" (\"").append(field.annotatedName == null ? "unspecified" : field.annotatedName)
-              .append("\")\n");
+              .append(", name: \"").append(field.name)
+              .append("\"\n");
         return sb.toString();
     }
 
-    private record AnnotatedField(Field field, @Nullable String annotatedName, String fieldName, String finalName)
+    private record AnnotatedField(Field field, String name)
     {
         public static AnnotatedField of(Field field)
         {
             verifyFieldType(field);
-            final String annotatedName = field.getAnnotation(PersistentVariable.class).value();
-            final String fieldName = field.getName();
-            final String finalName = annotatedName.isBlank() ? fieldName : annotatedName;
-            final @Nullable String finalAnnotatedName = annotatedName.isBlank() ? null : annotatedName;
-            return new AnnotatedField(field, finalAnnotatedName, fieldName, finalName);
+            final String name = field.getAnnotation(PersistentVariable.class).value();
+            if (name.isBlank())
+                throw new IllegalArgumentException("Received black name for PersistentVariable field: " + field);
+            return new AnnotatedField(field, name);
         }
 
         private static void verifyFieldType(Field field)

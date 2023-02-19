@@ -146,10 +146,8 @@ class StructureSerializerTest
     }
 
     @Test
-    void testAmbiguousClass()
+    void testAmbiguousNames()
     {
-        Assertions.assertThrows(Exception.class,
-                                () -> new StructureSerializer<>(TestStructureSubTypeAmbiguousFieldTypes.class, 1));
         Assertions.assertThrows(Exception.class,
                                 () -> new StructureSerializer<>(TestStructureSubTypeAmbiguousFieldNames.class, 1));
     }
@@ -199,11 +197,11 @@ class StructureSerializerTest
         private final ReentrantReadWriteLock lock;
 
         @Getter
-        @PersistentVariable
+        @PersistentVariable("testName")
         protected @Nullable String testName;
 
         @Getter
-        @PersistentVariable
+        @PersistentVariable("isCoolType")
         protected boolean isCoolType;
 
         @Getter
@@ -280,16 +278,16 @@ class StructureSerializerTest
         private final ReentrantReadWriteLock lock;
 
         @Getter
-        @PersistentVariable("subclassTestValue")
+        @PersistentVariable(value = "subclassTestValue")
         private final int subclassTestValue;
 
         @Deserialization
         public TestStructureSubType(
             BaseHolder base,
             String testName,
-            @PersistentVariable("subclassTestValue") int subclassTestValue,
+            @PersistentVariable(value = "subclassTestValue") int subclassTestValue,
             boolean isCoolType,
-            @PersistentVariable("blockTestCount") int blockTestCount)
+            @PersistentVariable(value = "blockTestCount") int blockTestCount)
         {
             super(base, testName, isCoolType, blockTestCount);
             this.lock = super.getLock();
@@ -309,7 +307,7 @@ class StructureSerializerTest
     @EqualsAndHashCode(callSuper = true)
     private static class TestStructureSubTypeAmbiguousParameterTypes extends TestStructureType
     {
-        @PersistentVariable("ambiguousInteger1")
+        @PersistentVariable(value = "ambiguousInteger1")
         private final int ambiguousInteger1;
 
         @Deserialization
@@ -334,25 +332,8 @@ class StructureSerializerTest
         @Deserialization
         public TestStructureSubTypeAmbiguousParameterNames(
             BaseHolder base,
-            @PersistentVariable("ambiguous") UUID o0,
-            @PersistentVariable("ambiguous") String o1)
-        {
-            super(base);
-        }
-    }
-
-    @SuppressWarnings("unused")
-    @EqualsAndHashCode(callSuper = true)
-    private static class TestStructureSubTypeAmbiguousFieldTypes extends TestStructureType
-    {
-        @PersistentVariable
-        private int ambiguousInteger0;
-
-        @PersistentVariable
-        private int ambiguousInteger1;
-
-        @Deserialization
-        public TestStructureSubTypeAmbiguousFieldTypes(BaseHolder base)
+            @PersistentVariable(value = "ambiguous") UUID o0,
+            @PersistentVariable(value = "ambiguous") String o1)
         {
             super(base);
         }

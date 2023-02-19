@@ -37,11 +37,11 @@ public class GarageDoor extends AbstractStructure implements IHorizontalAxisAlig
     private final ReentrantReadWriteLock lock;
 
     @Getter
-    @PersistentVariable("northSouthAnimated")
+    @PersistentVariable(value = "northSouthAnimated")
     protected final boolean northSouthAnimated;
 
     @Deserialization
-    public GarageDoor(BaseHolder base, @PersistentVariable("northSouthAnimated") boolean northSouthAnimated)
+    public GarageDoor(BaseHolder base, @PersistentVariable(value = "northSouthAnimated") boolean northSouthAnimated)
     {
         super(base, StructureTypeGarageDoor.get());
         this.lock = getLock();
