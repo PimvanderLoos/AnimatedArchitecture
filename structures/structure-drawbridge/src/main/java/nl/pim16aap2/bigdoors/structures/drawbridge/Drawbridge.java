@@ -96,21 +96,21 @@ public class Drawbridge extends AbstractStructure implements IHorizontalAxisAlig
     @Locked.Read
     protected IAnimationComponent constructAnimationComponent(StructureRequestData data)
     {
-        return new DrawbridgeAnimationComponent(data, getCurrentToggleDir(), isNorthSouthAligned(), quarterCircles);
+        return new DrawbridgeAnimationComponent(data, getCurrentToggleDir(), isNorthSouthAnimated(), quarterCircles);
     }
 
     @Override
-    public boolean isNorthSouthAligned()
+    public boolean isNorthSouthAnimated()
     {
         final MovementDirection openDir = getOpenDir();
-        return openDir == MovementDirection.EAST || openDir == MovementDirection.WEST;
+        return openDir == MovementDirection.NORTH || openDir == MovementDirection.SOUTH;
     }
 
     @Override
     @Locked.Read
     protected double calculateAnimationCycleDistance()
     {
-        final double maxRadius = getMaxRadius(isNorthSouthAligned(), getCuboid(), getRotationPoint());
+        final double maxRadius = getMaxRadius(isNorthSouthAnimated(), getCuboid(), getRotationPoint());
         return quarterCircles * maxRadius * MathUtil.HALF_PI;
     }
 
@@ -118,7 +118,7 @@ public class Drawbridge extends AbstractStructure implements IHorizontalAxisAlig
     @Locked.Read
     protected Rectangle calculateAnimationRange()
     {
-        final double maxRadius = getMaxRadius(isNorthSouthAligned(), getCuboid(), getRotationPoint());
+        final double maxRadius = getMaxRadius(isNorthSouthAnimated(), getCuboid(), getRotationPoint());
         return calculateAnimationRange(maxRadius, getCuboid());
     }
 

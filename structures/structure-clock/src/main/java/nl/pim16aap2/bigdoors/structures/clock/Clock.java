@@ -33,24 +33,13 @@ public class Clock extends AbstractStructure implements IHorizontalAxisAligned, 
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
 
-    /**
-     * Describes if the {@link Clock} is situated along the North/South axis <b>(= TRUE)</b> or along the East/West
-     * axis
-     * <b>(= FALSE)</b>.
-     * <p>
-     * To be situated along a specific axis means that the blocks move along that axis. For example, if the structure
-     * moves along the North/South <i>(= Z)</i> axis, all animated blocks will have a different Z-coordinate depending
-     * on the time of day and an X-coordinate depending on the X-coordinate they originally started at.
-     *
-     * @return True if this clock is situated along the north/south axis.
-     */
     @Getter
-    @PersistentVariable("northSouthAligned")
-    protected final boolean northSouthAligned;
+    @PersistentVariable("northSouthAnimated")
+    protected final boolean northSouthAnimated;
 
     /**
      * Describes on which side the hour arm is. If the clock is situated along the North/South axis see
-     * {@link #northSouthAligned}, then the hour arm can either be on the {@link PBlockFace#WEST} or the
+     * {@link #northSouthAnimated}, then the hour arm can either be on the {@link PBlockFace#WEST} or the
      * {@link PBlockFace#EAST} side.
      * <p>
      * This is stored as a direction rather than an integer value (for example the X/Z axis value) so that it could also
@@ -65,12 +54,12 @@ public class Clock extends AbstractStructure implements IHorizontalAxisAligned, 
     @Deserialization
     public Clock(
         BaseHolder base,
-        @PersistentVariable("northSouthAligned") boolean northSouthAligned,
+        @PersistentVariable("northSouthAnimated") boolean northSouthAnimated,
         @PersistentVariable("hourArmSide") PBlockFace hourArmSide)
     {
         super(base, StructureTypeClock.get());
         this.lock = getLock();
-        this.northSouthAligned = northSouthAligned;
+        this.northSouthAnimated = northSouthAnimated;
         this.hourArmSide = hourArmSide;
     }
 
@@ -98,7 +87,7 @@ public class Clock extends AbstractStructure implements IHorizontalAxisAligned, 
         final int boxRadius = MathUtil.ceil(Math.sqrt(2 * Math.pow(circleRadius, 2)));
         final int delta = boxRadius - circleRadius;
 
-        return (isNorthSouthAligned() ? cuboid.grow(0, delta, delta) : cuboid.grow(delta, delta, 0)).asFlatRectangle();
+        return (isNorthSouthAnimated() ? cuboid.grow(0, delta, delta) : cuboid.grow(delta, delta, 0)).asFlatRectangle();
     }
 
     @Override
@@ -111,7 +100,7 @@ public class Clock extends AbstractStructure implements IHorizontalAxisAligned, 
     @Locked.Read
     protected IAnimationComponent constructAnimationComponent(StructureRequestData data)
     {
-        return new ClockAnimationComponent(data, getCurrentToggleDir(), isNorthSouthAligned());
+        return new ClockAnimationComponent(data, getCurrentToggleDir(), isNorthSouthAnimated());
     }
 
     @Override

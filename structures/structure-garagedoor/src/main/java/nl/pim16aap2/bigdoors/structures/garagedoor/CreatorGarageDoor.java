@@ -22,18 +22,18 @@ public class CreatorGarageDoor extends Creator
     private static final StructureType STRUCTURE_TYPE = StructureTypeGarageDoor.get();
 
     /**
-     * The valid open directions when the structure is positioned along the north/south axis.
+     * The valid open directions when the structure is animated along the north/south axis.
      */
     private static final Set<MovementDirection> NORTH_SOUTH_AXIS_OPEN_DIRS =
-        EnumSet.of(MovementDirection.EAST, MovementDirection.WEST);
-
-    /**
-     * The valid open directions when the structure is positioned along the east/west axis.
-     */
-    private static final Set<MovementDirection> EAST_WEST_AXIS_OPEN_DIRS =
         EnumSet.of(MovementDirection.NORTH, MovementDirection.SOUTH);
 
-    private boolean northSouthAligned;
+    /**
+     * The valid open directions when the structure is animated along the east/west axis.
+     */
+    private static final Set<MovementDirection> EAST_WEST_AXIS_OPEN_DIRS =
+        EnumSet.of(MovementDirection.EAST, MovementDirection.WEST);
+
+    private boolean northSouthAnimated;
 
     public CreatorGarageDoor(Creator.Context context, IPlayer player, @Nullable String name)
     {
@@ -67,7 +67,7 @@ public class CreatorGarageDoor extends Creator
         // Check if there's exactly 1 dimension that is 1 block deep.
         if ((cuboidDims.x() == 1) ^ (cuboidDims.y() == 1) ^ (cuboidDims.z() == 1))
         {
-            northSouthAligned = cuboidDims.x() == 1;
+            northSouthAnimated = cuboidDims.z() == 1;
             isOpen = cuboidDims.y() == 1;
             return super.setSecondPos(loc);
         }
@@ -82,7 +82,7 @@ public class CreatorGarageDoor extends Creator
         if (isOpen)
             return getStructureType().getValidOpenDirections();
         // When the garage structure is not open (i.e. vertical), it can only be opened along one axis.
-        return northSouthAligned ? NORTH_SOUTH_AXIS_OPEN_DIRS : EAST_WEST_AXIS_OPEN_DIRS;
+        return northSouthAnimated ? NORTH_SOUTH_AXIS_OPEN_DIRS : EAST_WEST_AXIS_OPEN_DIRS;
     }
 
     @Override
@@ -96,11 +96,8 @@ public class CreatorGarageDoor extends Creator
     {
         if (super.completeSetOpenDirStep(direction))
         {
-            // This may seem counter-intuitive, but if it's positioned along the north/south axis,
-            // then it can only open in east/west direction, because there isn't any space in the other
-            // directions.
             if (openDir == MovementDirection.NORTH || openDir == MovementDirection.SOUTH)
-                northSouthAligned = false;
+                northSouthAnimated = true;
             return true;
         }
         return false;
@@ -124,7 +121,7 @@ public class CreatorGarageDoor extends Creator
         // The rotation point should be located at the bottom of the garage structure.
         // An additional 1 is subtracted because garage structures in the 'up' position
         // are 1 block above the highest point.
-        final int moveDistance = northSouthAligned ? cuboid.getDimensions().x() : cuboid.getDimensions().z();
+        final int moveDistance = northSouthAnimated ? cuboid.getDimensions().z() : cuboid.getDimensions().x();
         final int rotationPointY = cuboid.getMin().y() - moveDistance - 1;
         final Vector3Di rotationPointTmp = cuboid.getCenterBlock();
 
@@ -147,7 +144,7 @@ public class CreatorGarageDoor extends Creator
     protected AbstractStructure constructStructure()
     {
         setRotationPoint();
-        return new GarageDoor(constructStructureData(), northSouthAligned);
+        return new GarageDoor(constructStructureData(), northSouthAnimated);
     }
 
     @Override

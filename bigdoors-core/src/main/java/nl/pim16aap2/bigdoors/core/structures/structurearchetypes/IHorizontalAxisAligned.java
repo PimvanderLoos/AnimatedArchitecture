@@ -9,7 +9,10 @@ import nl.pim16aap2.bigdoors.core.structures.StructureType;
 public interface IHorizontalAxisAligned
 {
     /**
-     * Checks if the {@link AbstractStructure} is aligned with the z-axis (North/South).
+     * Describes if the {@link AbstractStructure} is animated along the North/South (-/+ Z) axis <b>(= TRUE)</b> or
+     * along the East/West (+/- X) axis <b>(= FALSE)</b>.
+     *
+     * @return True if this structure is animated along the North/South axis.
      */
-    boolean isNorthSouthAligned();
+    boolean isNorthSouthAnimated();
 }

@@ -36,28 +36,16 @@ public class GarageDoor extends AbstractStructure implements IHorizontalAxisAlig
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
 
-    /**
-     * Describes if the {@link GarageDoor} is situated along the North/South axis <b>(= TRUE)</b> or along the East/West
-     * axis
-     * <b>(= FALSE)</b>.
-     * <p>
-     * To be situated along a specific axis means that the blocks move along that axis. For example, if the structure
-     * moves along the North/South <i>(= Z)</i> axis, all animated blocks will have a different Z-coordinate depending
-     * on the time of day and an X-coordinate depending on the X-coordinate they originally started at.
-     *
-     * @return True if this structure is animated along the North/South axis.
-     */
     @Getter
-    @PersistentVariable("northSouthAligned")
-    protected final boolean northSouthAligned;
+    @PersistentVariable("northSouthAnimated")
+    protected final boolean northSouthAnimated;
 
     @Deserialization
-    public GarageDoor(
-        BaseHolder base, @PersistentVariable("northSouthAligned") boolean northSouthAligned)
+    public GarageDoor(BaseHolder base, @PersistentVariable("northSouthAnimated") boolean northSouthAnimated)
     {
         super(base, StructureTypeGarageDoor.get());
         this.lock = getLock();
-        this.northSouthAligned = northSouthAligned;
+        this.northSouthAnimated = northSouthAnimated;
     }
 
     @Override
@@ -69,7 +57,7 @@ public class GarageDoor extends AbstractStructure implements IHorizontalAxisAlig
 
         final double movement;
         if (isOpen())
-            movement = isNorthSouthAligned() ? dims.z() : dims.x();
+            movement = isNorthSouthAnimated() ? dims.z() : dims.x();
         else
             movement = dims.y();
         // Not exactly correct, but much faster and pretty close.
@@ -112,7 +100,7 @@ public class GarageDoor extends AbstractStructure implements IHorizontalAxisAlig
     @Override
     public MovementDirection cycleOpenDirection()
     {
-        if (isNorthSouthAligned())
+        if (isNorthSouthAnimated())
             return getOpenDir().equals(MovementDirection.EAST) ? MovementDirection.WEST : MovementDirection.EAST;
         return getOpenDir().equals(MovementDirection.NORTH) ? MovementDirection.SOUTH : MovementDirection.NORTH;
     }

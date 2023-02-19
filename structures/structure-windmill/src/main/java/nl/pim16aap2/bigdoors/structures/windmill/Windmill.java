@@ -56,24 +56,24 @@ public class Windmill extends AbstractStructure implements IHorizontalAxisAligne
     }
 
     @Override
-    public boolean isNorthSouthAligned()
+    public boolean isNorthSouthAnimated()
     {
         final MovementDirection openDir = getOpenDir();
-        return openDir == MovementDirection.EAST || openDir == MovementDirection.WEST;
+        return openDir == MovementDirection.NORTH || openDir == MovementDirection.SOUTH;
     }
 
     @Override
     @Locked.Read
     protected double calculateAnimationCycleDistance()
     {
-        return Drawbridge.getMaxRadius(isNorthSouthAligned(), getCuboid(), getRotationPoint()) * Math.TAU;
+        return Drawbridge.getMaxRadius(isNorthSouthAnimated(), getCuboid(), getRotationPoint()) * Math.TAU;
     }
 
     @Override
     @Locked.Read
     protected Rectangle calculateAnimationRange()
     {
-        final double maxRadius = Drawbridge.getMaxRadius(isNorthSouthAligned(), getCuboid(), getRotationPoint());
+        final double maxRadius = Drawbridge.getMaxRadius(isNorthSouthAnimated(), getCuboid(), getRotationPoint());
         return Drawbridge.calculateAnimationRange(maxRadius, getCuboid());
     }
 
@@ -90,6 +90,6 @@ public class Windmill extends AbstractStructure implements IHorizontalAxisAligne
     @Locked.Read
     protected IAnimationComponent constructAnimationComponent(StructureRequestData data)
     {
-        return new WindmillAnimationComponent(data, getCurrentToggleDir(), isNorthSouthAligned());
+        return new WindmillAnimationComponent(data, getCurrentToggleDir(), isNorthSouthAnimated());
     }
 }
