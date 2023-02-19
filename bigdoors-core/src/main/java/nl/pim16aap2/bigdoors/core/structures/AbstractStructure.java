@@ -580,6 +580,7 @@ public abstract class AbstractStructure implements IStructure
         assertWriteLockable();
         invalidateBasicData();
         base.setPowerBlock(pos);
+        verifyRedstoneState();
     }
 
     @Override
@@ -596,6 +597,7 @@ public abstract class AbstractStructure implements IStructure
         assertWriteLockable();
         invalidateAnimationData();
         base.setOpen(open);
+        verifyRedstoneState();
     }
 
     @Override
@@ -612,6 +614,7 @@ public abstract class AbstractStructure implements IStructure
         assertWriteLockable();
         invalidateBasicData();
         base.setLocked(locked);
+        verifyRedstoneState();
     }
 
     @Override
