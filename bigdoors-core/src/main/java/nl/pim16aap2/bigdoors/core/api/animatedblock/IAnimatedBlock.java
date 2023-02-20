@@ -80,7 +80,7 @@ public interface IAnimatedBlock
      */
     default boolean teleport(Vector3Dd newPosition, Vector3Dd rotation)
     {
-        return teleport(newPosition, new Vector3Dd(0, 0, 0), TeleportMode.RELATIVE);
+        return teleport(newPosition, new Vector3Dd(0, 0, 0), TeleportMode.ABSOLUTE);
     }
 
     /**
