@@ -8,9 +8,9 @@ import nl.pim16aap2.bigdoors.core.structures.StructureType;
 import nl.pim16aap2.bigdoors.core.tooluser.Step;
 import nl.pim16aap2.bigdoors.core.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.core.tooluser.stepexecutor.StepExecutorLocation;
+import nl.pim16aap2.bigdoors.core.util.BlockFace;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
-import nl.pim16aap2.bigdoors.core.util.PBlockFace;
 import nl.pim16aap2.bigdoors.core.util.Util;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
@@ -25,7 +25,7 @@ public class CreatorClock extends Creator
 {
     private static final StructureType STRUCTURE_TYPE = StructureTypeClock.get();
 
-    protected @Nullable PBlockFace hourArmSide;
+    protected @Nullable BlockFace hourArmSide;
 
     /**
      * The valid open directions when the structure is positioned along the north/south axis.
@@ -79,11 +79,11 @@ public class CreatorClock extends Creator
 
         Util.requireNonNull(cuboid, "cuboid");
         if (northSouthAligned)
-            hourArmSide = loc.getBlockX() == cuboid.getMin().x() ? PBlockFace.WEST :
-                          loc.getBlockX() == cuboid.getMax().x() ? PBlockFace.EAST : null;
+            hourArmSide = loc.getBlockX() == cuboid.getMin().x() ? BlockFace.WEST :
+                          loc.getBlockX() == cuboid.getMax().x() ? BlockFace.EAST : null;
         else
-            hourArmSide = loc.getBlockZ() == cuboid.getMin().z() ? PBlockFace.NORTH :
-                          loc.getBlockZ() == cuboid.getMax().z() ? PBlockFace.SOUTH : null;
+            hourArmSide = loc.getBlockZ() == cuboid.getMin().z() ? BlockFace.NORTH :
+                          loc.getBlockZ() == cuboid.getMax().z() ? BlockFace.SOUTH : null;
 
         if (hourArmSide == null)
             getPlayer().sendError(textFactory, localizer.getMessage("creator.clock.error.invalid_hour_arm_side"));
@@ -168,9 +168,9 @@ public class CreatorClock extends Creator
     protected void setOpenDirection()
     {
         if (northSouthAligned)
-            openDir = hourArmSide == PBlockFace.NORTH ? MovementDirection.WEST : MovementDirection.EAST;
+            openDir = hourArmSide == BlockFace.NORTH ? MovementDirection.WEST : MovementDirection.EAST;
         else
-            openDir = hourArmSide == PBlockFace.EAST ? MovementDirection.NORTH : MovementDirection.SOUTH;
+            openDir = hourArmSide == BlockFace.EAST ? MovementDirection.NORTH : MovementDirection.SOUTH;
     }
 
     @Override

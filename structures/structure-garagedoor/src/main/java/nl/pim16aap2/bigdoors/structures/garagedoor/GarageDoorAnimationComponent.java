@@ -7,9 +7,9 @@ import nl.pim16aap2.bigdoors.core.moveblocks.Animator;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimator;
 import nl.pim16aap2.bigdoors.core.structures.StructureSnapshot;
+import nl.pim16aap2.bigdoors.core.util.BlockFace;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
-import nl.pim16aap2.bigdoors.core.util.PBlockFace;
 import nl.pim16aap2.bigdoors.core.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Di;
@@ -45,25 +45,25 @@ public final class GarageDoorAnimationComponent implements IAnimationComponent
         {
             case NORTH ->
             {
-                directionVec = PBlockFace.getDirection(PBlockFace.NORTH);
+                directionVec = BlockFace.getDirection(BlockFace.NORTH);
                 getVectorTmp = this::getVectorDownNorth;
                 northSouth = true;
             }
             case EAST ->
             {
-                directionVec = PBlockFace.getDirection(PBlockFace.EAST);
+                directionVec = BlockFace.getDirection(BlockFace.EAST);
                 getVectorTmp = this::getVectorDownEast;
                 northSouth = false;
             }
             case SOUTH ->
             {
-                directionVec = PBlockFace.getDirection(PBlockFace.SOUTH);
+                directionVec = BlockFace.getDirection(BlockFace.SOUTH);
                 getVectorTmp = this::getVectorDownSouth;
                 northSouth = true;
             }
             case WEST ->
             {
-                directionVec = PBlockFace.getDirection(PBlockFace.WEST);
+                directionVec = BlockFace.getDirection(BlockFace.WEST);
                 getVectorTmp = this::getVectorDownWest;
                 northSouth = false;
             }
