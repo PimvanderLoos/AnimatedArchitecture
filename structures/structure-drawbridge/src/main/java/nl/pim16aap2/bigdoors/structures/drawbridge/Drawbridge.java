@@ -7,8 +7,8 @@ import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.annotations.Deserialization;
 import nl.pim16aap2.bigdoors.core.annotations.PersistentVariable;
+import nl.pim16aap2.bigdoors.core.moveblocks.AnimationRequestData;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimationComponent;
-import nl.pim16aap2.bigdoors.core.moveblocks.StructureRequestData;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.structures.structurearchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
@@ -36,23 +36,27 @@ public class Drawbridge extends AbstractStructure implements IHorizontalAxisAlig
     private final ReentrantReadWriteLock lock;
 
     /**
-     * Describes if this drawbridge's vertical position points (when taking the rotation point Y value as center) up
-     * <b>(= TRUE)</b> or down <b>(= FALSE)</b>
+     * The number of quarter circles (so 90 degree rotations) this structure will make before stopping.
      *
-     * @return True if this {@link Drawbridge}'s vertical stance points up.
+     * @return The number of quarter circles this structure will rotate.
      */
-    @PersistentVariable("modeUp")
+    @PersistentVariable(value = "quarterCircles")
     @GuardedBy("lock")
     @Getter(onMethod_ = @Locked.Read)
     @Setter(onMethod_ = @Locked.Write)
-    protected boolean modeUp;
+    private int quarterCircles;
 
     @Deserialization
-    public Drawbridge(BaseHolder base, @PersistentVariable("modeUp") boolean modeUp)
+    public Drawbridge(BaseHolder base, @PersistentVariable(value = "quarterCircles") int quarterCircles)
     {
         super(base, StructureTypeDrawbridge.get());
         this.lock = getLock();
-        this.modeUp = modeUp;
+        this.quarterCircles = quarterCircles;
+    }
+
+    public Drawbridge(BaseHolder base)
+    {
+        this(base, 1);
     }
 
     @Override
@@ -72,9 +76,9 @@ public class Drawbridge extends AbstractStructure implements IHorizontalAxisAlig
 
         final double angle;
         if (movementDirection == MovementDirection.NORTH || movementDirection == MovementDirection.WEST)
-            angle = -MathUtil.HALF_PI;
+            angle = quarterCircles * -MathUtil.HALF_PI;
         else if (movementDirection == MovementDirection.SOUTH || movementDirection == MovementDirection.EAST)
-            angle = MathUtil.HALF_PI;
+            angle = quarterCircles * MathUtil.HALF_PI;
         else
         {
             log.atSevere()
@@ -90,31 +94,31 @@ public class Drawbridge extends AbstractStructure implements IHorizontalAxisAlig
 
     @Override
     @Locked.Read
-    protected IAnimationComponent constructAnimationComponent(StructureRequestData data)
+    protected IAnimationComponent constructAnimationComponent(AnimationRequestData data)
     {
-        return new DrawbridgeAnimationComponent(data, getCurrentToggleDir(), isNorthSouthAligned());
+        return new DrawbridgeAnimationComponent(data, getCurrentToggleDir(), isNorthSouthAnimated(), quarterCircles);
     }
 
     @Override
-    public boolean isNorthSouthAligned()
+    public boolean isNorthSouthAnimated()
     {
         final MovementDirection openDir = getOpenDir();
-        return openDir == MovementDirection.EAST || openDir == MovementDirection.WEST;
+        return openDir == MovementDirection.NORTH || openDir == MovementDirection.SOUTH;
     }
 
     @Override
     @Locked.Read
     protected double calculateAnimationCycleDistance()
     {
-        final double maxRadius = getMaxRadius(isNorthSouthAligned(), getCuboid(), getRotationPoint());
-        return maxRadius * MathUtil.HALF_PI;
+        final double maxRadius = getMaxRadius(isNorthSouthAnimated(), getCuboid(), getRotationPoint());
+        return quarterCircles * maxRadius * MathUtil.HALF_PI;
     }
 
     @Override
     @Locked.Read
     protected Rectangle calculateAnimationRange()
     {
-        final double maxRadius = getMaxRadius(isNorthSouthAligned(), getCuboid(), getRotationPoint());
+        final double maxRadius = getMaxRadius(isNorthSouthAnimated(), getCuboid(), getRotationPoint());
         return calculateAnimationRange(maxRadius, getCuboid());
     }
 

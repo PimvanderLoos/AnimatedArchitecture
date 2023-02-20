@@ -6,8 +6,8 @@ import lombok.ToString;
 import lombok.experimental.Locked;
 import nl.pim16aap2.bigdoors.core.annotations.Deserialization;
 import nl.pim16aap2.bigdoors.core.annotations.PersistentVariable;
+import nl.pim16aap2.bigdoors.core.moveblocks.AnimationRequestData;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimationComponent;
-import nl.pim16aap2.bigdoors.core.moveblocks.StructureRequestData;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.structures.structurearchetypes.IDiscreteMovement;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
@@ -34,13 +34,13 @@ public class SlidingDoor extends AbstractStructure implements IDiscreteMovement
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
 
-    @PersistentVariable("blocksToMove")
+    @PersistentVariable(value = "blocksToMove")
     @GuardedBy("lock")
     @Getter(onMethod_ = @Locked.Read)
     protected int blocksToMove;
 
     @Deserialization
-    public SlidingDoor(BaseHolder base, @PersistentVariable("blocksToMove") int blocksToMove)
+    public SlidingDoor(BaseHolder base, @PersistentVariable(value = "blocksToMove") int blocksToMove)
     {
         super(base, StructureTypeSlidingDoor.get());
         this.lock = getLock();
@@ -105,7 +105,7 @@ public class SlidingDoor extends AbstractStructure implements IDiscreteMovement
 
     @Override
     @Locked.Read
-    protected IAnimationComponent constructAnimationComponent(StructureRequestData data)
+    protected IAnimationComponent constructAnimationComponent(AnimationRequestData data)
     {
         return new SlidingDoorAnimationComponent(data, getCurrentToggleDir(), getBlocksToMove());
     }

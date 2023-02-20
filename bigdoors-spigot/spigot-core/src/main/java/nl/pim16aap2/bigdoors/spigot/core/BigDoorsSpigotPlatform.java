@@ -38,6 +38,7 @@ import nl.pim16aap2.bigdoors.core.managers.StructureTypeManager;
 import nl.pim16aap2.bigdoors.core.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.core.moveblocks.StructureActivityManager;
 import nl.pim16aap2.bigdoors.core.storage.IStorage;
+import nl.pim16aap2.bigdoors.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.bigdoors.core.structures.StructureRegistry;
 import nl.pim16aap2.bigdoors.core.util.VersionReader;
 import nl.pim16aap2.bigdoors.core.util.structureretriever.StructureRetrieverFactory;
@@ -82,6 +83,8 @@ public final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
 
     @Getter
     private final GuiFactory guiFactory;
+
+    private final StructureAnimationRequestBuilder structureAnimationRequestBuilder;
 
     @Getter
     private final IPlayerFactory playerFactory;
@@ -204,7 +207,7 @@ public final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     private final CommandManager commandListener;
 
     @Getter
-    private final VersionReader versionReader;
+    private final VersionReader.VersionInfo versionInfo;
 
     BigDoorsSpigotPlatform(BigDoorsSpigotComponent bigDoorsSpigotComponent, BigDoorsPlugin plugin)
         throws InitializationException
@@ -252,6 +255,7 @@ public final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
         animatedBlockFactory = safeGetter(BigDoorsSpigotComponent::getAnimatedBlockFactory);
         bigDoorsEventFactory = safeGetter(BigDoorsSpigotComponent::getIBigDoorsEventFactory);
         guiFactory = safeGetter(BigDoorsSpigotComponent::getGUIFactory);
+        structureAnimationRequestBuilder = safeGetter(BigDoorsSpigotComponent::structureAnimationRequestBuilder);
 
         redstoneListener = safeGetter(BigDoorsSpigotComponent::getRedstoneListener);
         loginResourcePackListener = safeGetter(BigDoorsSpigotComponent::getLoginResourcePackListener);
@@ -273,7 +277,7 @@ public final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
         doorTypeLoader = safeGetter(BigDoorsSpigotComponent::getDoorTypeLoader);
         restartableHolder = safeGetter(BigDoorsSpigotComponent::getRestartableHolder);
         commandListener = safeGetter(BigDoorsSpigotComponent::getCommandListener);
-        versionReader = safeGetter(BigDoorsSpigotComponent::getVersionReader);
+        versionInfo = safeGetter(BigDoorsSpigotComponent::getVersionReader).getVersionInfo();
 
         initPlatform();
     }
@@ -311,6 +315,12 @@ public final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     }
 
     @Override
+    public StructureAnimationRequestBuilder.IBuilderStructure getStructureAnimationRequestBuilder()
+    {
+        return structureAnimationRequestBuilder.builder();
+    }
+
+    @Override
     public void restartPlugin()
     {
         executor.runOnMainThread(restartableHolder::restart);
@@ -323,7 +333,7 @@ public final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     }
 
     @Override
-    public String getVersion()
+    public String getVersionName()
     {
         return plugin.getDescription().getVersion();
     }

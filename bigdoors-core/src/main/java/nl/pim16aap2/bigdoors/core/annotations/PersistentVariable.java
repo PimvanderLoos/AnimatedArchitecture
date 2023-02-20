@@ -19,5 +19,5 @@ public @interface PersistentVariable
     /**
      * @return The name of the variable. The name does not need to match the name of the variable in the source file.
      */
-    String value() default "";
+    String value();
 }

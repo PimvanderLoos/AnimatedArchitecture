@@ -125,10 +125,10 @@ public class SQLiteJDBCDriverConnectionTest
         MockitoAnnotations.openMocks(this);
 
         worldFactory = new TestWorldFactory();
-        structureRegistry = StructureRegistry.unCached(
-            restartableHolder, debuggableRegistry, Mockito.mock(StructureDeletionManager.class));
+        structureRegistry =
+            StructureRegistry.unCached(debuggableRegistry, Mockito.mock(StructureDeletionManager.class));
 
-        structureTypeManager = new StructureTypeManager(restartableHolder, debuggableRegistry, localizationManager);
+        structureTypeManager = new StructureTypeManager(debuggableRegistry, localizationManager);
 
         final var builderResult = newStructureBaseBuilder();
         builderResult.assistedFactoryMocker().setMock(StructureRegistry.class, structureRegistry);
@@ -617,7 +617,6 @@ public class SQLiteJDBCDriverConnectionTest
         max = new Vector3Di(144, 131, 182);
         rotationPoint = new Vector3Di(144, 75, 153);
         powerBlock = new Vector3Di(144, 75, 153);
-        boolean modeUp = true;
 
         structure2 = new Drawbridge(
             structureBaseBuilder
@@ -628,8 +627,7 @@ public class SQLiteJDBCDriverConnectionTest
                 .isLocked(false).openDir(MovementDirection.NONE)
                 .primeOwner(
                     new StructureOwner(12L, PermissionLevel.CREATOR, PLAYER_DATA_1))
-                .build(),
-            modeUp);
+                .build());
 
         min = new Vector3Di(144, 70, 168);
         max = new Vector3Di(144, 151, 112);

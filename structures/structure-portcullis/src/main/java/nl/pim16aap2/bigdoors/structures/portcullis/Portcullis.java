@@ -6,8 +6,8 @@ import lombok.ToString;
 import lombok.experimental.Locked;
 import nl.pim16aap2.bigdoors.core.annotations.Deserialization;
 import nl.pim16aap2.bigdoors.core.annotations.PersistentVariable;
+import nl.pim16aap2.bigdoors.core.moveblocks.AnimationRequestData;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimationComponent;
-import nl.pim16aap2.bigdoors.core.moveblocks.StructureRequestData;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.structures.StructureType;
 import nl.pim16aap2.bigdoors.core.structures.structurearchetypes.IDiscreteMovement;
@@ -33,7 +33,7 @@ public class Portcullis extends AbstractStructure implements IDiscreteMovement
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
 
-    @PersistentVariable("blocksToMove")
+    @PersistentVariable(value = "blocksToMove")
     @GuardedBy("lock")
     @Getter(onMethod_ = @Locked.Read)
     protected int blocksToMove;
@@ -41,7 +41,7 @@ public class Portcullis extends AbstractStructure implements IDiscreteMovement
     protected Portcullis(
         BaseHolder base,
         StructureType type,
-        @PersistentVariable("blocksToMove") int blocksToMove)
+        @PersistentVariable(value = "blocksToMove") int blocksToMove)
     {
         super(base, type);
         this.lock = getLock();
@@ -49,7 +49,7 @@ public class Portcullis extends AbstractStructure implements IDiscreteMovement
     }
 
     @Deserialization
-    public Portcullis(BaseHolder base, @PersistentVariable("blocksToMove") int blocksToMove)
+    public Portcullis(BaseHolder base, @PersistentVariable(value = "blocksToMove") int blocksToMove)
     {
         this(base, StructureTypePortcullis.get(), blocksToMove);
     }
@@ -109,7 +109,7 @@ public class Portcullis extends AbstractStructure implements IDiscreteMovement
 
     @Override
     @Locked.Read
-    protected IAnimationComponent constructAnimationComponent(StructureRequestData data)
+    protected IAnimationComponent constructAnimationComponent(AnimationRequestData data)
     {
         return new VerticalAnimationComponent(data, getDirectedBlocksToMove());
     }

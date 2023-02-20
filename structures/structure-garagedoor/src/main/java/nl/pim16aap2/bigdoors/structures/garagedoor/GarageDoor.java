@@ -8,8 +8,8 @@ import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.annotations.Deserialization;
 import nl.pim16aap2.bigdoors.core.annotations.PersistentVariable;
+import nl.pim16aap2.bigdoors.core.moveblocks.AnimationRequestData;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimationComponent;
-import nl.pim16aap2.bigdoors.core.moveblocks.StructureRequestData;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.structures.structurearchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
@@ -36,28 +36,16 @@ public class GarageDoor extends AbstractStructure implements IHorizontalAxisAlig
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
 
-    /**
-     * Describes if the {@link GarageDoor} is situated along the North/South axis <b>(= TRUE)</b> or along the East/West
-     * axis
-     * <b>(= FALSE)</b>.
-     * <p>
-     * To be situated along a specific axis means that the blocks move along that axis. For example, if the structure
-     * moves along the North/South <i>(= Z)</i> axis, all animated blocks will have a different Z-coordinate depending
-     * on the time of day and an X-coordinate depending on the X-coordinate they originally started at.
-     *
-     * @return True if this structure is animated along the North/South axis.
-     */
     @Getter
-    @PersistentVariable("northSouthAligned")
-    protected final boolean northSouthAligned;
+    @PersistentVariable(value = "northSouthAnimated")
+    protected final boolean northSouthAnimated;
 
     @Deserialization
-    public GarageDoor(
-        BaseHolder base, @PersistentVariable("northSouthAligned") boolean northSouthAligned)
+    public GarageDoor(BaseHolder base, @PersistentVariable(value = "northSouthAnimated") boolean northSouthAnimated)
     {
         super(base, StructureTypeGarageDoor.get());
         this.lock = getLock();
-        this.northSouthAligned = northSouthAligned;
+        this.northSouthAnimated = northSouthAnimated;
     }
 
     @Override
@@ -69,7 +57,7 @@ public class GarageDoor extends AbstractStructure implements IHorizontalAxisAlig
 
         final double movement;
         if (isOpen())
-            movement = isNorthSouthAligned() ? dims.z() : dims.x();
+            movement = isNorthSouthAnimated() ? dims.z() : dims.x();
         else
             movement = dims.y();
         // Not exactly correct, but much faster and pretty close.
@@ -112,7 +100,7 @@ public class GarageDoor extends AbstractStructure implements IHorizontalAxisAlig
     @Override
     public MovementDirection cycleOpenDirection()
     {
-        if (isNorthSouthAligned())
+        if (isNorthSouthAnimated())
             return getOpenDir().equals(MovementDirection.EAST) ? MovementDirection.WEST : MovementDirection.EAST;
         return getOpenDir().equals(MovementDirection.NORTH) ? MovementDirection.SOUTH : MovementDirection.NORTH;
     }
@@ -194,7 +182,7 @@ public class GarageDoor extends AbstractStructure implements IHorizontalAxisAlig
 
     @Override
     @Locked.Read
-    protected IAnimationComponent constructAnimationComponent(StructureRequestData data)
+    protected IAnimationComponent constructAnimationComponent(AnimationRequestData data)
     {
         return new GarageDoorAnimationComponent(data, getCurrentToggleDir());
     }

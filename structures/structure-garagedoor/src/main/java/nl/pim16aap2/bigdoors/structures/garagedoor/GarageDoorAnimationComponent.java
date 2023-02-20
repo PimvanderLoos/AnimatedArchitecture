@@ -1,11 +1,11 @@
 package nl.pim16aap2.bigdoors.structures.garagedoor;
 
 import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlock;
+import nl.pim16aap2.bigdoors.core.moveblocks.AnimationRequestData;
 import nl.pim16aap2.bigdoors.core.moveblocks.AnimationUtil;
 import nl.pim16aap2.bigdoors.core.moveblocks.Animator;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimator;
-import nl.pim16aap2.bigdoors.core.moveblocks.StructureRequestData;
 import nl.pim16aap2.bigdoors.core.structures.StructureSnapshot;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
@@ -32,7 +32,7 @@ public final class GarageDoorAnimationComponent implements IAnimationComponent
     private final boolean isOpen;
     private final Cuboid oldCuboid;
 
-    public GarageDoorAnimationComponent(StructureRequestData data, MovementDirection movementDirection)
+    public GarageDoorAnimationComponent(AnimationRequestData data, MovementDirection movementDirection)
     {
         this.snapshot = data.getStructureSnapshot();
         this.oldCuboid = snapshot.getCuboid();

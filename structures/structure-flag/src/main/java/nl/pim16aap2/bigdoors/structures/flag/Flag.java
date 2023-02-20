@@ -6,8 +6,8 @@ import lombok.ToString;
 import lombok.experimental.Locked;
 import nl.pim16aap2.bigdoors.core.annotations.Deserialization;
 import nl.pim16aap2.bigdoors.core.annotations.PersistentVariable;
+import nl.pim16aap2.bigdoors.core.moveblocks.AnimationRequestData;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimationComponent;
-import nl.pim16aap2.bigdoors.core.moveblocks.StructureRequestData;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.structures.structurearchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.core.structures.structurearchetypes.IPerpetualMover;
@@ -43,16 +43,15 @@ public class Flag extends AbstractStructure implements IHorizontalAxisAligned, I
      * @return True if this structure is animated along the North/South axis.
      */
     @Getter
-    @PersistentVariable("northSouthAligned")
-    protected final boolean northSouthAligned;
+    @PersistentVariable(value = "northSouthAnimated")
+    protected final boolean northSouthAnimated;
 
     @Deserialization
-    public Flag(
-        BaseHolder base, @PersistentVariable("northSouthAligned") boolean northSouthAligned)
+    public Flag(BaseHolder base, @PersistentVariable(value = "northSouthAnimated") boolean northSouthAnimated)
     {
         super(base, StructureTypeFlag.get());
         this.lock = getLock();
-        this.northSouthAligned = northSouthAligned;
+        this.northSouthAnimated = northSouthAnimated;
     }
 
     @Override
@@ -90,9 +89,9 @@ public class Flag extends AbstractStructure implements IHorizontalAxisAligned, I
 
     @Override
     @Locked.Read
-    protected IAnimationComponent constructAnimationComponent(StructureRequestData data)
+    protected IAnimationComponent constructAnimationComponent(AnimationRequestData data)
     {
-        return new FlagAnimationComponent(data, isNorthSouthAligned());
+        return new FlagAnimationComponent(data, isNorthSouthAnimated());
     }
 
     @Override

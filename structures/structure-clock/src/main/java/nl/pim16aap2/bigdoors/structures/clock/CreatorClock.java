@@ -46,12 +46,6 @@ public class CreatorClock extends Creator
         super(context, player, name);
     }
 
-    @SuppressWarnings("unused")
-    public CreatorClock(Creator.Context context, IPlayer player)
-    {
-        this(context, player, null);
-    }
-
     @Override
     protected List<Step> generateSteps()
         throws InstantiationException

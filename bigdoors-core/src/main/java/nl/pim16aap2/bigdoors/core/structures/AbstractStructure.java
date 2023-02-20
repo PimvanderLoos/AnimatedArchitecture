@@ -9,9 +9,9 @@ import nl.pim16aap2.bigdoors.core.api.IConfig;
 import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.IWorld;
 import nl.pim16aap2.bigdoors.core.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.core.moveblocks.AnimationRequestData;
 import nl.pim16aap2.bigdoors.core.moveblocks.Animator;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimationComponent;
-import nl.pim16aap2.bigdoors.core.moveblocks.StructureRequestData;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
 import nl.pim16aap2.bigdoors.core.util.LazyValue;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
@@ -312,11 +312,11 @@ public abstract class AbstractStructure implements IStructure
      *     The data for the toggle request.
      * @return A new {@link Animator} for this type of structure.
      */
-    protected abstract IAnimationComponent constructAnimationComponent(StructureRequestData data);
+    protected abstract IAnimationComponent constructAnimationComponent(AnimationRequestData data);
 
     /**
      * Attempts to toggle a structure. Think twice before using this method. Instead, please look at
-     * {@link StructureToggleRequestBuilder}.
+     * {@link StructureAnimationRequestBuilder}.
      *
      * @param request
      *     The toggle request to process.
@@ -325,7 +325,7 @@ public abstract class AbstractStructure implements IStructure
      *     or the prime owner when this data is not available.
      * @return The result of the attempt.
      */
-    final StructureToggleResult toggle(StructureToggleRequest request, IPlayer responsible)
+    final StructureToggleResult toggle(StructureAnimationRequest request, IPlayer responsible)
     {
         return base.getStructureOpeningHelper().toggle(this, request, responsible);
     }
@@ -580,6 +580,7 @@ public abstract class AbstractStructure implements IStructure
         assertWriteLockable();
         invalidateBasicData();
         base.setPowerBlock(pos);
+        verifyRedstoneState();
     }
 
     @Override
@@ -596,6 +597,7 @@ public abstract class AbstractStructure implements IStructure
         assertWriteLockable();
         invalidateAnimationData();
         base.setOpen(open);
+        verifyRedstoneState();
     }
 
     @Override
@@ -612,6 +614,7 @@ public abstract class AbstractStructure implements IStructure
         assertWriteLockable();
         invalidateBasicData();
         base.setLocked(locked);
+        verifyRedstoneState();
     }
 
     @Override

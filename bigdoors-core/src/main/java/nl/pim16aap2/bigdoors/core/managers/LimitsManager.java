@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.core.managers;
 
 import nl.pim16aap2.bigdoors.core.api.IConfig;
-import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.api.IPermissionsManager;
+import nl.pim16aap2.bigdoors.core.api.IPlayer;
 import nl.pim16aap2.bigdoors.core.util.Limit;
 
 import javax.inject.Inject;
@@ -45,7 +45,9 @@ public class LimitsManager
         if (hasBypass)
             return globalLimit;
 
-        final OptionalInt playerLimit = permissionsManager.getMaxPermissionSuffix(player, limit.getUserPermission());
+        final OptionalInt playerLimit =
+            player.isOnline() ? permissionsManager.getMaxPermissionSuffix(player, limit.getUserPermission()) :
+            OptionalInt.of(player.getStructureSizeLimit());
 
         if (globalLimit.isPresent() && playerLimit.isPresent())
             return OptionalInt.of(Math.min(globalLimit.getAsInt(), playerLimit.getAsInt()));
@@ -56,8 +58,7 @@ public class LimitsManager
     }
 
     /**
-     * Checks if a given value exceeds the limit for this player. For more info, see
-     * {@link #getLimit(IPlayer, Limit)}.
+     * Checks if a given value exceeds the limit for this player. For more info, see {@link #getLimit(IPlayer, Limit)}.
      *
      * @param player
      *     The player for whom to check the limit.

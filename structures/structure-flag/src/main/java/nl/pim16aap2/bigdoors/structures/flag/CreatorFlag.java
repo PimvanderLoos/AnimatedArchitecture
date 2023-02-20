@@ -18,16 +18,11 @@ import java.util.List;
 public class CreatorFlag extends Creator
 {
     private static final StructureType STRUCTURE_TYPE = StructureTypeFlag.get();
-    protected boolean northSouthAligned;
+    protected boolean northSouthAnimated;
 
     public CreatorFlag(Creator.Context context, IPlayer player, @Nullable String name)
     {
         super(context, player, name);
-    }
-
-    public CreatorFlag(Creator.Context context, IPlayer player)
-    {
-        this(context, player, null);
     }
 
     @Override
@@ -62,7 +57,7 @@ public class CreatorFlag extends Creator
         // Flags must have a dimension of 1 along either the x or z axis, as it's a `2d` shape.
         if ((cuboidDims.x() == 1) ^ (cuboidDims.z() == 1))
         {
-            northSouthAligned = cuboidDims.x() == 1;
+            northSouthAnimated = cuboidDims.x() == 1;
             return super.setSecondPos(loc);
         }
 
@@ -89,12 +84,12 @@ public class CreatorFlag extends Creator
     {
         Util.requireNonNull(cuboid, "cuboid");
         Util.requireNonNull(rotationPoint, "rotationPoint");
-        if (northSouthAligned)
+        if (northSouthAnimated)
             openDir = rotationPoint.z() == cuboid.getMin().z() ? MovementDirection.SOUTH : MovementDirection.NORTH;
         else
             openDir = rotationPoint.x() == cuboid.getMin().x() ? MovementDirection.EAST : MovementDirection.WEST;
 
-        return new Flag(constructStructureData(), northSouthAligned);
+        return new Flag(constructStructureData(), northSouthAnimated);
     }
 
     @Override

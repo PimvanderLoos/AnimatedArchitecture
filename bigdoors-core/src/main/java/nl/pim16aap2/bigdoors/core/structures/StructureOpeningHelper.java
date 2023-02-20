@@ -25,12 +25,12 @@ import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.core.managers.StructureTypeManager;
 import nl.pim16aap2.bigdoors.core.moveblocks.AnimationBlockManagerFactory;
+import nl.pim16aap2.bigdoors.core.moveblocks.AnimationRequestData;
 import nl.pim16aap2.bigdoors.core.moveblocks.AnimationType;
 import nl.pim16aap2.bigdoors.core.moveblocks.Animator;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimationBlockManager;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.core.moveblocks.StructureActivityManager;
-import nl.pim16aap2.bigdoors.core.moveblocks.StructureRequestData;
 import nl.pim16aap2.bigdoors.core.structures.structurearchetypes.IDiscreteMovement;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
 import nl.pim16aap2.bigdoors.core.util.Limit;
@@ -70,7 +70,7 @@ public final class StructureOpeningHelper
     private final LimitsManager limitsManager;
     private final IBigDoorsEventCaller bigDoorsEventCaller;
     private final AnimationBlockManagerFactory animationBlockManagerFactory;
-    private final StructureRequestData.IFactory movementRequestDataFactory;
+    private final AnimationRequestData.IFactory movementRequestDataFactory;
 
     @Inject //
     StructureOpeningHelper(
@@ -90,7 +90,7 @@ public final class StructureOpeningHelper
         LimitsManager limitsManager,
         IBigDoorsEventCaller bigDoorsEventCaller,
         AnimationBlockManagerFactory animationBlockManagerFactory,
-        StructureRequestData.IFactory movementRequestDataFactory)
+        AnimationRequestData.IFactory movementRequestDataFactory)
     {
         this.localizer = localizer;
         this.textFactory = textFactory;
@@ -183,7 +183,7 @@ public final class StructureOpeningHelper
      * {@link IBigDoorsEventFactory#createTogglePrepareEvent(StructureSnapshot, StructureActionCause,
      * StructureActionType, IPlayer, double, boolean, Cuboid)}.
      */
-    private IStructureEventTogglePrepare callTogglePrepareEvent(StructureRequestData data)
+    private IStructureEventTogglePrepare callTogglePrepareEvent(AnimationRequestData data)
     {
         return callTogglePrepareEvent(
             data.getStructureSnapshot(),
@@ -217,7 +217,7 @@ public final class StructureOpeningHelper
      * {@link IBigDoorsEventFactory#createToggleStartEvent(AbstractStructure, StructureSnapshot, StructureActionCause,
      * StructureActionType, IPlayer, double, boolean, Cuboid)}.
      */
-    private IStructureEventToggleStart callToggleStartEvent(AbstractStructure structure, StructureRequestData data)
+    private IStructureEventToggleStart callToggleStartEvent(AbstractStructure structure, AnimationRequestData data)
     {
         return callToggleStartEvent(
             structure,
@@ -239,7 +239,7 @@ public final class StructureOpeningHelper
      * Registers a new block mover. Must be called from the main thread.
      */
     private boolean registerBlockMover(
-        AbstractStructure structure, StructureRequestData data, IAnimationComponent component,
+        AbstractStructure structure, AnimationRequestData data, IAnimationComponent component,
         @Nullable IPlayer player,
         AnimationType animationType, long stamp)
     {
@@ -263,7 +263,7 @@ public final class StructureOpeningHelper
     }
 
     private StructureToggleResult toggle(
-        StructureSnapshot snapshot, AbstractStructure targetStructure, StructureRequestData data,
+        StructureSnapshot snapshot, AbstractStructure targetStructure, AnimationRequestData data,
         IAnimationComponent component, IMessageable messageReceiver, @Nullable IPlayer player,
         AnimationType animationType)
     {
@@ -278,7 +278,7 @@ public final class StructureOpeningHelper
                          data.getResponsible(), messageReceiver, null);
 
         final OptionalLong registrationResult =
-            structureActivityManager.registerAnimation(snapshot.getUid(), animationType.requiresWriteAccess());
+            structureActivityManager.registerAnimation(targetStructure, animationType.requiresWriteAccess());
         if (registrationResult.isEmpty())
             return StructureToggleResult.BUSY;
 
@@ -314,10 +314,10 @@ public final class StructureOpeningHelper
         return StructureToggleResult.SUCCESS;
     }
 
-    StructureToggleResult toggle(AbstractStructure structure, StructureToggleRequest request, IPlayer responsible)
+    StructureToggleResult toggle(AbstractStructure structure, StructureAnimationRequest request, IPlayer responsible)
     {
         final StructureSnapshot snapshot;
-        final StructureRequestData data;
+        final AnimationRequestData data;
         final IAnimationComponent component;
 
         structure.getLock().readLock().lock();

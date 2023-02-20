@@ -1,12 +1,15 @@
 package nl.pim16aap2.bigdoors.structures.bigdoor;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.annotations.Deserialization;
+import nl.pim16aap2.bigdoors.core.annotations.PersistentVariable;
+import nl.pim16aap2.bigdoors.core.moveblocks.AnimationRequestData;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimationComponent;
-import nl.pim16aap2.bigdoors.core.moveblocks.StructureRequestData;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
 import nl.pim16aap2.bigdoors.core.util.MathUtil;
@@ -14,6 +17,7 @@ import nl.pim16aap2.bigdoors.core.util.MovementDirection;
 import nl.pim16aap2.bigdoors.core.util.Rectangle;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Di;
 
+import javax.annotation.concurrent.GuardedBy;
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Stream;
@@ -33,11 +37,28 @@ public class BigDoor extends AbstractStructure
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
 
+    /**
+     * The number of quarter circles (so 90 degree rotations) this structure will make before stopping.
+     *
+     * @return The number of quarter circles this structure will rotate.
+     */
+    @PersistentVariable(value = "quarterCircles")
+    @GuardedBy("lock")
+    @Getter(onMethod_ = @Locked.Read)
+    @Setter(onMethod_ = @Locked.Write)
+    private int quarterCircles;
+
     @Deserialization
-    public BigDoor(BaseHolder base)
+    public BigDoor(BaseHolder base, @PersistentVariable(value = "quarterCircles") int quarterCircles)
     {
         super(base, StructureTypeBigDoor.get());
         this.lock = getLock();
+        this.quarterCircles = quarterCircles;
+    }
+
+    public BigDoor(BaseHolder base)
+    {
+        this(base, 1);
     }
 
     @Override
@@ -82,7 +103,7 @@ public class BigDoor extends AbstractStructure
     protected double calculateAnimationCycleDistance()
     {
         final double maxRadius = getMaxRadius(getCuboid(), getRotationPoint());
-        return maxRadius * MathUtil.HALF_PI;
+        return quarterCircles * maxRadius * MathUtil.HALF_PI;
     }
 
     @Override
@@ -129,8 +150,8 @@ public class BigDoor extends AbstractStructure
 
     @Override
     @Locked.Read
-    protected IAnimationComponent constructAnimationComponent(StructureRequestData data)
+    protected IAnimationComponent constructAnimationComponent(AnimationRequestData data)
     {
-        return new BigDoorAnimationComponent(data, getCurrentToggleDir());
+        return new BigDoorAnimationComponent(data, getCurrentToggleDir(), quarterCircles);
     }
 }

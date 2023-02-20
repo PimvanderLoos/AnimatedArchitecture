@@ -26,7 +26,7 @@ public abstract class DebugReporter
 
         sb.append("\n")
           .append("BigDoors version: ")
-          .append(() -> platformProvider.getPlatform().map(IBigDoorsPlatform::getVersion).orElse("NULL"))
+          .append(() -> platformProvider.getPlatform().map(IBigDoorsPlatform::getVersionName).orElse("NULL"))
           .append('\n')
           .append("Registered Platform: ")
           .append(() -> platformProvider.getPlatform().map(platform -> platform.getClass().getName()).orElse("NULL"))

@@ -21,7 +21,10 @@ import nl.pim16aap2.bigdoors.core.managers.StructureSpecificationManager;
 import nl.pim16aap2.bigdoors.core.managers.StructureTypeManager;
 import nl.pim16aap2.bigdoors.core.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.core.moveblocks.StructureActivityManager;
+import nl.pim16aap2.bigdoors.core.structures.StructureAnimationRequest;
+import nl.pim16aap2.bigdoors.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.bigdoors.core.structures.StructureRegistry;
+import nl.pim16aap2.bigdoors.core.util.VersionReader;
 import nl.pim16aap2.bigdoors.core.util.structureretriever.StructureFinder;
 import nl.pim16aap2.bigdoors.core.util.structureretriever.StructureRetriever;
 import nl.pim16aap2.bigdoors.core.util.structureretriever.StructureRetrieverFactory;
@@ -45,11 +48,18 @@ public interface IBigDoorsPlatform
     void shutDownPlugin();
 
     /**
-     * Gets the build id of BigDoors that is currently running.
+     * Getter for the name of current version.
+     * <p>
+     * It is not guaranteed that this will return the version in any specific format; only that it is a String.
      *
-     * @return The build id of BigDoors that is currently running.
+     * @return The name of the current version.
      */
-    String getVersion();
+    String getVersionName();
+
+    /**
+     * @return The version info. This provides access to items such as the commit hash, the build id, etc.
+     */
+    VersionReader.VersionInfo getVersionInfo();
 
     /**
      * Gets the instance of the {@link IBigDoorsToolUtil} for this platform.
@@ -243,6 +253,11 @@ public interface IBigDoorsPlatform
      * @return The factory used to create new {@link StructureRetriever} and {@link StructureFinder} instances.
      */
     StructureRetrieverFactory getStructureRetrieverFactory();
+
+    /**
+     * @return A new builder used to create new {@link StructureAnimationRequest} instances.
+     */
+    StructureAnimationRequestBuilder.IBuilderStructure getStructureAnimationRequestBuilder();
 
     /**
      * Gets the instance of the {@link IProtectionCompatManager} for this platform.

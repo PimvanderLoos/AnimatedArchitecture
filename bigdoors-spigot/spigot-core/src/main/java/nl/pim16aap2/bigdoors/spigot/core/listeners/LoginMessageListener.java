@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.spigot.core.listeners;
 
 import nl.pim16aap2.bigdoors.core.api.restartable.RestartableHolder;
-import nl.pim16aap2.bigdoors.spigot.core.BigDoorsPlugin;
 import nl.pim16aap2.bigdoors.core.util.Constants;
+import nl.pim16aap2.bigdoors.spigot.core.BigDoorsPlugin;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -29,7 +29,8 @@ public final class LoginMessageListener extends AbstractListener
     {
         super(restartableHolder, javaPlugin);
         this.plugin = javaPlugin;
-        register();
+        if (restartableHolder == null)
+            register();
     }
 
     /**

@@ -26,11 +26,6 @@ public class CreatorSlidingDoor extends Creator
         super(context, player, name);
     }
 
-    public CreatorSlidingDoor(Creator.Context context, IPlayer player)
-    {
-        this(context, player, null);
-    }
-
     @Override
     protected List<Step> generateSteps()
         throws InstantiationException

@@ -183,7 +183,7 @@ public final class Animator implements IAnimator
      *     The manager of the animated blocks. This is responsible for handling the lifecycle of the animated blocks.
      */
     public Animator(
-        AbstractStructure structure, StructureRequestData data, IAnimationComponent animationComponent,
+        AbstractStructure structure, AnimationRequestData data, IAnimationComponent animationComponent,
         IAnimationBlockManager animationBlockManager)
     {
         executor = data.getExecutor();

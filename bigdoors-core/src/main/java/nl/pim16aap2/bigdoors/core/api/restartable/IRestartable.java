@@ -17,5 +17,7 @@ public interface IRestartable
     /**
      * Handles a shutdown.
      */
-    void shutDown();
+    default void shutDown()
+    {
+    }
 }

@@ -23,20 +23,22 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Builder for {@link StructureToggleRequest} instances implemented as a guided builder.
+ * Builder for {@link StructureAnimationRequest} instances implemented as a guided builder.
+ * <p>
+ * You can obtain an instance of this class using {@link IBigDoorsPlatform#getStructureAnimationRequestBuilder()}.
  *
  * @author Pim
  */
-public class StructureToggleRequestBuilder
+public class StructureAnimationRequestBuilder
 {
-    private final StructureToggleRequest.IFactory structureToggleRequestFactory;
+    private final StructureAnimationRequest.IFactory structureToggleRequestFactory;
     private final IMessageable messageableServer;
     private final IPlayerFactory playerFactory;
     private final IConfig config;
 
     @Inject
-    public StructureToggleRequestBuilder(
-        StructureToggleRequest.IFactory structureToggleRequestFactory,
+    public StructureAnimationRequestBuilder(
+        StructureAnimationRequest.IFactory structureToggleRequestFactory,
         @Named("MessageableServer") IMessageable messageableServer,
         IPlayerFactory playerFactory, IConfig config)
     {
@@ -47,7 +49,7 @@ public class StructureToggleRequestBuilder
     }
 
     /**
-     * Creates a new guided builder for a {@link StructureToggleRequest}.
+     * Creates a new guided builder for a {@link StructureAnimationRequest}.
      *
      * @return The first step of the guided builder.
      */
@@ -60,7 +62,7 @@ public class StructureToggleRequestBuilder
     public static final class Builder
         implements IBuilderStructure, IBuilderStructureActionCause, IBuilderStructureActionType, IBuilder
     {
-        private final StructureToggleRequest.IFactory structureToggleRequestFactory;
+        private final StructureAnimationRequest.IFactory structureToggleRequestFactory;
         private final IMessageable messageableServer;
         private final IPlayerFactory playerFactory;
         private final IConfig config;
@@ -177,7 +179,7 @@ public class StructureToggleRequestBuilder
         }
 
         @Override
-        public StructureToggleRequest build()
+        public StructureAnimationRequest build()
         {
             updateMessageReceiver();
             verify();
@@ -326,9 +328,9 @@ public class StructureToggleRequestBuilder
         /**
          * Constructs the new structure toggle request.
          *
-         * @return The new {@link StructureToggleRequest}.
+         * @return The new {@link StructureAnimationRequest}.
          */
-        StructureToggleRequest build();
+        StructureAnimationRequest build();
     }
 
     public interface IBuilderStructureActionType

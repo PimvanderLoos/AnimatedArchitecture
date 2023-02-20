@@ -11,8 +11,8 @@ import nl.pim16aap2.bigdoors.core.events.StructureActionType;
 import nl.pim16aap2.bigdoors.core.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.core.moveblocks.AnimationType;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
-import nl.pim16aap2.bigdoors.core.structures.StructureToggleRequest;
-import nl.pim16aap2.bigdoors.core.structures.StructureToggleRequestBuilder;
+import nl.pim16aap2.bigdoors.core.structures.StructureAnimationRequest;
+import nl.pim16aap2.bigdoors.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.bigdoors.core.structures.StructureType;
 import nl.pim16aap2.bigdoors.core.util.structureretriever.StructureRetriever;
 import nl.pim16aap2.bigdoors.core.util.structureretriever.StructureRetrieverFactory;
@@ -46,18 +46,18 @@ class ToggleTest
     private StructureType structureType;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
-    private StructureToggleRequest.IFactory structureToggleRequestFactory;
+    private StructureAnimationRequest.IFactory structureToggleRequestFactory;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private Toggle.IFactory factory;
 
-    private StructureToggleRequestBuilder structureToggleRequestBuilder;
+    private StructureAnimationRequestBuilder structureToggleRequestBuilder;
 
     @Mock
     private IMessageable messageableServer;
 
     @Mock
-    private StructureToggleRequest structureToggleRequest;
+    private StructureAnimationRequest structureToggleRequest;
 
     @BeforeEach
     void init()
@@ -81,7 +81,7 @@ class ToggleTest
                                                           Mockito.anyBoolean(), Mockito.any(), Mockito.any()))
                .thenReturn(structureToggleRequest);
 
-        structureToggleRequestBuilder = new StructureToggleRequestBuilder(
+        structureToggleRequestBuilder = new StructureAnimationRequestBuilder(
             structureToggleRequestFactory, messageableServer, Mockito.mock(IPlayerFactory.class),
             Mockito.mock(IConfig.class));
 

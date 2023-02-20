@@ -26,11 +26,6 @@ public class CreatorPortcullis extends Creator
         super(context, player, name);
     }
 
-    public CreatorPortcullis(Creator.Context context, IPlayer player)
-    {
-        this(context, player, null);
-    }
-
     @Override
     protected List<Step> generateSteps()
         throws InstantiationException

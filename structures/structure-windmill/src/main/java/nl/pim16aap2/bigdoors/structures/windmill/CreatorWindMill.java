@@ -19,11 +19,6 @@ public class CreatorWindMill extends Creator
         super(context, player, name);
     }
 
-    public CreatorWindMill(Creator.Context context, IPlayer player)
-    {
-        this(context, player, null);
-    }
-
     @Override
     protected List<Step> generateSteps()
         throws InstantiationException

@@ -6,8 +6,6 @@ import lombok.experimental.NonFinal;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.core.api.debugging.IDebuggable;
-import nl.pim16aap2.bigdoors.core.api.restartable.Restartable;
-import nl.pim16aap2.bigdoors.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.core.localization.LocalizationManager;
 import nl.pim16aap2.bigdoors.core.structures.StructureType;
 import nl.pim16aap2.util.SafeStringBuilder;
@@ -34,7 +32,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @SuppressWarnings("unused")
 @Singleton
 @Flogger
-public final class StructureTypeManager extends Restartable implements IDebuggable
+public final class StructureTypeManager implements IDebuggable
 {
     private static final boolean DEFAULT_IS_ENABLED = true;
 
@@ -44,10 +42,8 @@ public final class StructureTypeManager extends Restartable implements IDebuggab
     private final LocalizationManager localizationManager;
 
     @Inject
-    public StructureTypeManager(
-        RestartableHolder holder, DebuggableRegistry debuggableRegistry, LocalizationManager localizationManager)
+    public StructureTypeManager(DebuggableRegistry debuggableRegistry, LocalizationManager localizationManager)
     {
-        super(holder);
         this.localizationManager = localizationManager;
         debuggableRegistry.registerDebuggable(this);
     }
@@ -271,23 +267,6 @@ public final class StructureTypeManager extends Restartable implements IDebuggab
     {
         registerTypeWithLocalizer(structureTypes);
         structureTypes.forEach(structureType -> registerStructureType0(structureType, DEFAULT_IS_ENABLED));
-    }
-
-    @Override
-    public void shutDown()
-    {
-        structureTypeStatus.clear();
-        sortedStructureTypes.clear();
-        structureTypeFromName.clear();
-        structureTypeFromFullName.clear();
-    }
-
-    @Override
-    public void initialize()
-    {
-        if (this.structureTypeStatus.keySet().isEmpty())
-            return;
-
     }
 
     @Override

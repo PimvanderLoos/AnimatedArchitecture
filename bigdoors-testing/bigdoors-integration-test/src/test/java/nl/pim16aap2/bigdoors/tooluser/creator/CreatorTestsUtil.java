@@ -13,7 +13,6 @@ import nl.pim16aap2.bigdoors.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.core.api.factories.ILocationFactory;
 import nl.pim16aap2.bigdoors.core.api.factories.IPlayerFactory;
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
-import nl.pim16aap2.bigdoors.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.core.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.core.commands.DelayedCommand;
 import nl.pim16aap2.bigdoors.core.commands.DelayedCommandInputRequest;
@@ -153,7 +152,7 @@ public class CreatorTestsUtil
         builderResult.assistedFactoryMocker()
                      .setMock(ILocalizer.class, localizer)
                      .setMock(StructureRegistry.class,
-                              StructureRegistry.unCached(Mockito.mock(RestartableHolder.class), debuggableRegistry,
+                              StructureRegistry.unCached(debuggableRegistry,
                                                          Mockito.mock(StructureDeletionManager.class)));
         structureBaseBuilder = builderResult.structureBaseBuilder();
 
