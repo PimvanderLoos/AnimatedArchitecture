@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.core.moveblocks.IAnimator;
 import nl.pim16aap2.bigdoors.core.structures.StructureSnapshot;
 import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
+import nl.pim16aap2.bigdoors.core.util.Util;
 import nl.pim16aap2.bigdoors.core.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
 
@@ -50,7 +51,7 @@ public class BigDoorAnimationComponent implements IAnimationComponent
     @Override
     public Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
     {
-        return getGoalPos(angle, startLocation.xD(), startLocation.yD(), startLocation.zD());
+        return getGoalPos(Util.clampAngleRad(angle), startLocation.xD(), startLocation.yD(), startLocation.zD());
     }
 
     @Override
@@ -59,7 +60,7 @@ public class BigDoorAnimationComponent implements IAnimationComponent
         if (ticks % rotateCount == 0)
             animator.applyRotation(movementDirection);
 
-        final double stepSum = step * ticks;
+        final double stepSum = Util.clampAngleRad(step * ticks);
         final double cos = Math.cos(stepSum);
         final double sin = Math.sin(stepSum);
 

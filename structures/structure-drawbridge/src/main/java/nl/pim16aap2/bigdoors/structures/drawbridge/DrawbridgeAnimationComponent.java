@@ -83,13 +83,13 @@ public class DrawbridgeAnimationComponent implements IAnimationComponent
     @Override
     public Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
     {
-        return getGoalPos(angle, startLocation.xD(), startLocation.yD(), startLocation.zD());
+        return getGoalPos(Util.clampAngleRad(angle), startLocation.xD(), startLocation.yD(), startLocation.zD());
     }
 
     @Override
     public void executeAnimationStep(IAnimator animator, int ticks, int ticksRemaining)
     {
-        final double stepSum = step * ticks;
+        final double stepSum = Util.clampAngleRad(step * ticks);
 
         if (ticks % rotateCount == 0)
             animator.respawnBlocks();
