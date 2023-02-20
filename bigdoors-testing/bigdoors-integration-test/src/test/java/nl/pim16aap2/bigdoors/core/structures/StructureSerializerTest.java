@@ -95,14 +95,31 @@ class StructureSerializerTest
     {
         final var instantiator = Assertions.assertDoesNotThrow(
             () -> new StructureSerializer<>(TestStructureSubType.class, 1));
-        final TestStructureSubType testStructureSubType1 =
+        final TestStructureSubType realObj =
             new TestStructureSubType(structureBase, "testSubClass", 6, true, 42);
 
-        final String serialized = Assertions.assertDoesNotThrow(() -> instantiator.serialize(testStructureSubType1));
-        final var testStructureSubType2 = Assertions.assertDoesNotThrow(
+        final String serialized = Assertions.assertDoesNotThrow(() -> instantiator.serialize(realObj));
+        final var deserialized = Assertions.assertDoesNotThrow(
             () -> instantiator.deserialize(structureBase, 1, serialized));
 
-        Assertions.assertEquals(testStructureSubType1, testStructureSubType2);
+        Assertions.assertEquals(realObj, deserialized);
+    }
+
+    @Test
+    void testEnumSerialization()
+    {
+        final var instantiator = Assertions.assertDoesNotThrow(
+            () -> new StructureSerializer<>(TestStructureSubTypeEnum.class, 2));
+
+        final TestStructureSubTypeEnum realObj =
+            new TestStructureSubTypeEnum(structureBase, TestStructureSubTypeEnum.ArbitraryEnum.ENTRY_0,
+                                         TestStructureSubTypeEnum.ArbitraryEnum.ENTRY_2);
+
+        final String serialized = Assertions.assertDoesNotThrow(() -> instantiator.serialize(realObj));
+        final var deserialized = Assertions.assertDoesNotThrow(
+            () -> instantiator.deserialize(structureBase, 1, serialized));
+
+        Assertions.assertEquals(realObj, deserialized);
     }
 
     @Test
@@ -120,14 +137,14 @@ class StructureSerializerTest
     {
         final var instantiator = Assertions.assertDoesNotThrow(
             () -> new StructureSerializer<>(TestStructureType.class, 1));
-        final TestStructureType testStructureType0 = new TestStructureType(structureBase, null, true, 42);
+        final TestStructureType realObj = new TestStructureType(structureBase, null, true, 42);
 
-        final TestStructureType testStructureType1 =
+        final TestStructureType deserialized =
             instantiator.instantiate(structureBase, 1,
                                      Map.of("isCoolType", true,
                                             "blockTestCount", 42));
 
-        Assertions.assertEquals(testStructureType0, testStructureType1);
+        Assertions.assertEquals(realObj, deserialized);
     }
 
     @Test
@@ -429,6 +446,34 @@ class StructureSerializerTest
         public TestStructureSubTypeAmbiguousConstructorVersions(BaseHolder base, Object o)
         {
             super(base);
+        }
+    }
+
+
+    @EqualsAndHashCode(callSuper = true)
+    private static class TestStructureSubTypeEnum extends TestStructureType
+    {
+        @PersistentVariable("val0")
+        private final ArbitraryEnum val0;
+        @PersistentVariable("val1")
+        private final ArbitraryEnum val1;
+
+        @Deserialization(version = 1)
+        public TestStructureSubTypeEnum(
+            BaseHolder base,
+            @PersistentVariable("val0") ArbitraryEnum val0,
+            @PersistentVariable("val1") ArbitraryEnum val1)
+        {
+            super(base);
+            this.val0 = val0;
+            this.val1 = val1;
+        }
+
+        public enum ArbitraryEnum
+        {
+            ENTRY_0,
+            ENTRY_1,
+            ENTRY_2
         }
     }
 }
