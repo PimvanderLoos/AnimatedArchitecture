@@ -31,13 +31,13 @@ public class CreatorClock extends Creator
      * The valid open directions when the structure is positioned along the north/south axis.
      */
     private static final Set<MovementDirection> NORTH_SOUTH_AXIS_OPEN_DIRS =
-        EnumSet.of(MovementDirection.EAST, MovementDirection.WEST);
+        EnumSet.of(MovementDirection.NORTH, MovementDirection.SOUTH);
 
     /**
      * The valid open directions when the structure is positioned along the east/west axis.
      */
     private static final Set<MovementDirection> EAST_WEST_AXIS_OPEN_DIRS =
-        EnumSet.of(MovementDirection.NORTH, MovementDirection.SOUTH);
+        EnumSet.of(MovementDirection.EAST, MovementDirection.WEST);
 
     private boolean northSouthAligned;
 
@@ -79,11 +79,14 @@ public class CreatorClock extends Creator
 
         Util.requireNonNull(cuboid, "cuboid");
         if (northSouthAligned)
-            hourArmSide = loc.getBlockZ() == cuboid.getMin().z() ? PBlockFace.NORTH :
-                          loc.getBlockZ() == cuboid.getMax().z() ? PBlockFace.SOUTH : null;
-        else
             hourArmSide = loc.getBlockX() == cuboid.getMin().x() ? PBlockFace.WEST :
                           loc.getBlockX() == cuboid.getMax().x() ? PBlockFace.EAST : null;
+        else
+            hourArmSide = loc.getBlockZ() == cuboid.getMin().z() ? PBlockFace.NORTH :
+                          loc.getBlockZ() == cuboid.getMax().z() ? PBlockFace.SOUTH : null;
+
+        if (hourArmSide == null)
+            getPlayer().sendError(textFactory, localizer.getMessage("creator.clock.error.invalid_hour_arm_side"));
 
         return hourArmSide != null;
     }
@@ -129,7 +132,7 @@ public class CreatorClock extends Creator
             return false;
         }
 
-        northSouthAligned = cuboidDims.z() == 2;
+        northSouthAligned = cuboidDims.x() == 2;
         return super.setSecondPos(loc);
     }
 
