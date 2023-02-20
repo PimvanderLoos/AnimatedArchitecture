@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.OptionalInt;
 
 /**
  * This class allows reading the commit hash and actions ID.
@@ -24,13 +25,22 @@ public final class VersionReader implements IDebuggable
 {
     private final VersionInfo versionInfo;
 
-    @Inject public VersionReader(DebuggableRegistry debuggableRegistry)
+    @Inject VersionReader(DebuggableRegistry debuggableRegistry)
     {
-        this.versionInfo = getVersionInfo();
+        this.versionInfo = readVersionInfo();
         debuggableRegistry.registerDebuggable(this);
     }
 
-    private VersionInfo getVersionInfo0()
+    /**
+     * @return The parsed {@link VersionInfo}.
+     */
+    @SuppressWarnings("unused")
+    public VersionInfo getVersionInfo()
+    {
+        return versionInfo;
+    }
+
+    private VersionInfo readVersionInfo0()
         throws Exception
     {
         try (InputStream inputStream = Objects.requireNonNull(
@@ -39,22 +49,32 @@ public final class VersionReader implements IDebuggable
              BufferedReader bufferedReader = new BufferedReader(inputStreamReader))
         {
             final Object[] lines = bufferedReader.lines().toArray();
-            if (lines.length != 2)
+            if (lines.length != 3)
                 throw new IllegalArgumentException("Failed to parse version from data: " + Arrays.toString(lines));
-            return new VersionInfo((String) lines[0], (String) lines[1]);
+            return new VersionInfo((String) lines[0],
+                                   parseInt("build number", (String) lines[1]),
+                                   parseInt("build id", (String) lines[2]));
         }
     }
 
-    private VersionInfo getVersionInfo()
+    private int parseInt(String name, String str)
+    {
+        final OptionalInt ret = Util.parseInt(str);
+        if (ret.isEmpty())
+            log.atSevere().log("Failed to parse %s from input: '%s'", name, str);
+        return ret.orElse(-1);
+    }
+
+    private VersionInfo readVersionInfo()
     {
         try
         {
-            return getVersionInfo0();
+            return readVersionInfo0();
         }
         catch (Exception e)
         {
             log.atSevere().withCause(e).log("Failed to read version of plugin!");
-            return new VersionInfo("ERROR", "ERROR");
+            return new VersionInfo("ERROR", -1, -1);
         }
     }
 
@@ -67,9 +87,22 @@ public final class VersionReader implements IDebuggable
     @Override
     public String toString()
     {
-        return String.format("Commit: %s\nbuild ID: %s", versionInfo.git, versionInfo.build);
+        return String.format("Commit: %s\nBuild number: %d\nBuild id: %d",
+                             versionInfo.git, versionInfo.buildNumber, versionInfo.buildId);
     }
 
-    private record VersionInfo(String git, String build)
+    /**
+     * A description of the current version of this project.
+     *
+     * @param git
+     *     The git data with the branch, commit hash, dirty status (i.e. modified version of the commit), and commit
+     *     time.
+     * @param buildNumber
+     *     The number of the build. Using GitHub Actions (which we do), this refers to GITHUB_RUN_NUMBER. This number is
+     *     incremented for each new run of a particular workflow.
+     * @param buildId
+     *     The unique id of the build. Using GitHub Actions, this refers to GITHUB_RUN_ID.
+     */
+    public record VersionInfo(String git, int buildNumber, int buildId)
     {}
 }

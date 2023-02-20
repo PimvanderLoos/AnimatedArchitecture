@@ -207,7 +207,7 @@ public final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     private final CommandManager commandListener;
 
     @Getter
-    private final VersionReader versionReader;
+    private final VersionReader.VersionInfo versionInfo;
 
     BigDoorsSpigotPlatform(BigDoorsSpigotComponent bigDoorsSpigotComponent, BigDoorsPlugin plugin)
         throws InitializationException
@@ -277,7 +277,7 @@ public final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
         doorTypeLoader = safeGetter(BigDoorsSpigotComponent::getDoorTypeLoader);
         restartableHolder = safeGetter(BigDoorsSpigotComponent::getRestartableHolder);
         commandListener = safeGetter(BigDoorsSpigotComponent::getCommandListener);
-        versionReader = safeGetter(BigDoorsSpigotComponent::getVersionReader);
+        versionInfo = safeGetter(BigDoorsSpigotComponent::getVersionReader).getVersionInfo();
 
         initPlatform();
     }
@@ -333,7 +333,7 @@ public final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     }
 
     @Override
-    public String getVersion()
+    public String getVersionName()
     {
         return plugin.getDescription().getVersion();
     }
