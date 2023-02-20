@@ -58,7 +58,6 @@ public class PowerBlockInspector extends ToolUser
         powerBlockManager.structuresFromPowerBlockLoc(loc.getPosition(), loc.getWorld()).thenAccept(
             lst ->
             {
-                System.out.println("Found powerblocks: " + lst);
                 final List<AbstractStructure> filtered;
                 if (bypassPermission)
                     filtered = lst;
