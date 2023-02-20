@@ -369,9 +369,9 @@ public final class StructureSerializer<T extends AbstractStructure>
                 if (param.type == AbstractStructure.BaseHolder.class)
                     data = base;
                 else if (param.name != null)
-                    data = getDeserializedObject(base, values, param.name);
+                    data = getDeserializedObject(base, param.type, values, param.name);
                 else
-                    data = getDeserializedObject(base, classes, param.type);
+                    data = getDeserializedObject(base, param.type, classes, param.type);
 
                 if (param.isRemappedFromPrimitive && data == null)
                     throw new IllegalArgumentException(
@@ -392,16 +392,26 @@ public final class StructureSerializer<T extends AbstractStructure>
     }
 
     private static @Nullable <T> Object getDeserializedObject(
-        AbstractStructure.BaseHolder base, Map<T, Object> map, T key)
+        AbstractStructure.BaseHolder base, Class<?> target, Map<T, Object> map, T key)
     {
         final @Nullable Object ret = map.get(key);
         if (ret != null)
-            return ret;
+            return postProcessDeserializedObject(target, ret);
 
         if (!map.containsKey(key))
             log.atSevere().log("No value found for key '%s' for structure: %s", key, base);
 
         return null;
+    }
+
+    private static Object postProcessDeserializedObject(Class<?> target, Object obj)
+    {
+        if (target.isAssignableFrom(obj.getClass()))
+            return obj;
+        if (target.isEnum() && obj instanceof String enumFieldName)
+            return ReflectionBuilder.findEnumValues(target).withName(enumFieldName).get();
+
+        throw new IllegalStateException("Object '" + obj + "' is not an instance of '" + target.getName() + "'");
     }
 
     public String getStructureTypeName()
