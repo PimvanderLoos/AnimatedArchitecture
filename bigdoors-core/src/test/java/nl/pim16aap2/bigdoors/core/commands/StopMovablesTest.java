@@ -46,6 +46,6 @@ class StopStructuresTest
     void test()
     {
         Assertions.assertDoesNotThrow(() -> factory.newStopStructures(commandSender).run().get(1, TimeUnit.SECONDS));
-        Mockito.verify(structureActivityManager).abortAnimators();
+        Mockito.verify(structureActivityManager).shutDown();
     }
 }

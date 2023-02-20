@@ -278,7 +278,7 @@ public final class StructureOpeningHelper
                          data.getResponsible(), messageReceiver, null);
 
         final OptionalLong registrationResult =
-            structureActivityManager.registerAnimation(snapshot.getUid(), animationType.requiresWriteAccess());
+            structureActivityManager.registerAnimation(targetStructure, animationType.requiresWriteAccess());
         if (registrationResult.isEmpty())
             return StructureToggleResult.BUSY;
 

@@ -22,7 +22,9 @@ public class StopStructures extends BaseCommand
 
     @AssistedInject //
     StopStructures(
-        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
+        @Assisted ICommandSender commandSender,
+        ILocalizer localizer,
+        ITextFactory textFactory,
         StructureActivityManager structureActivityManager)
     {
         super(commandSender, localizer, textFactory);
@@ -38,7 +40,9 @@ public class StopStructures extends BaseCommand
     @Override
     protected CompletableFuture<?> executeCommand(PermissionsStatus permissions)
     {
-        structureActivityManager.abortAnimators();
+        structureActivityManager.shutDown();
+        structureActivityManager.initialize();
+
         getCommandSender().sendSuccess(textFactory, localizer.getMessage("commands.stop_structures.success"));
         return CompletableFuture.completedFuture(null);
     }
