@@ -17,88 +17,74 @@ import java.util.Objects;
  */
 @SuppressWarnings("unused")
 public class EnumValuesFinder
+    extends ReflectionFinder<Object[], EnumValuesFinder>
 {
-    /**
-     * Sets the (enum)class this enum values finder will search in for enum values.
-     *
-     * @param source
-     *     The class to analyze.
-     * @return The next step in the enum values finding process.
-     */
-    @CheckReturnValue @Contract(pure = true)
-    public EnumValuesFinderInSource inClass(Class<?> source)
+    private final Class<?> source;
+
+    public EnumValuesFinder(Class<?> source)
     {
-        return new EnumValuesFinderInSource(source);
+        if (!source.isEnum())
+            throw new IllegalArgumentException("Class '" + source.getName() + "' is not an enum!");
+        this.source = source;
     }
 
     /**
-     * Represents the second step of the enum values finder, after the source class has been specified.
+     * Creates a new {@link NamedEnumValueFinder} to retrieve the enum value by its name.
+     *
+     * @param name
+     *     The name of the enum value to look for.
+     * @return The new {@link NamedEnumValueFinder}.
      */
-    public static class EnumValuesFinderInSource extends ReflectionFinder<Object[], EnumValuesFinderInSource>
+    @CheckReturnValue @Contract(pure = true)
+    public NamedEnumValueFinder withName(String name)
     {
-        private final Class<?> source;
+        return new NamedEnumValueFinder(source, Objects
+            .requireNonNull(name, "Name of named enum constant cannot be null!"));
+    }
 
-        private EnumValuesFinderInSource(Class<?> source)
-        {
-            this.source = Objects.requireNonNull(source, "Source class cannot be null!");
-        }
+    /**
+     * Creates a new {@link IndexedEnumValueFinder} to retrieve the enum value by its index.
+     *
+     * @param index
+     *     The index of the enum value to look for.
+     * @return The new {@link IndexedEnumValueFinder}.
+     */
+    @CheckReturnValue @Contract(pure = true)
+    public IndexedEnumValueFinder atIndex(int index)
+    {
+        return new IndexedEnumValueFinder(source, index);
+    }
 
-        /**
-         * {@inheritDoc}
-         *
-         * @throws IllegalStateException
-         *     When the source class is not an enum.
-         */
-        @Override
-        public Object[] get()
-        {
-            return Objects.requireNonNull(getNullable());
-        }
 
-        /**
-         * {@inheritDoc}
-         *
-         * @throws IllegalStateException
-         *     When the source class is not an enum.
-         */
-        @Override
-        public Object[] getNullable()
-        {
-            return ReflectionBackend.getEnumValues(source);
-        }
+    /**
+     * {@inheritDoc}
+     *
+     * @throws IllegalStateException
+     *     When the source class is not an enum.
+     */
+    @Override
+    public Object[] get()
+    {
+        return Objects.requireNonNull(getNullable());
+    }
 
-        /**
-         * Creates a new {@link NamedEnumValueFinder} to retrieve the enum value by its name.
-         *
-         * @param name
-         *     The name of the enum value to look for.
-         * @return The new {@link NamedEnumValueFinder}.
-         */
-        @CheckReturnValue @Contract(pure = true)
-        public NamedEnumValueFinder withName(String name)
-        {
-            return new NamedEnumValueFinder(source, Objects
-                .requireNonNull(name, "Name of named enum constant cannot be null!"));
-        }
-
-        /**
-         * Creates a new {@link IndexedEnumValueFinder} to retrieve the enum value by its index.
-         *
-         * @param index
-         *     The index of the enum value to look for.
-         * @return The new {@link IndexedEnumValueFinder}.
-         */
-        @CheckReturnValue @Contract(pure = true)
-        public IndexedEnumValueFinder atIndex(int index)
-        {
-            return new IndexedEnumValueFinder(source, index);
-        }
+    /**
+     * {@inheritDoc}
+     *
+     * @throws IllegalStateException
+     *     When the source class is not an enum.
+     */
+    @Override
+    public Object[] getNullable()
+    {
+        return ReflectionBackend.getEnumValues(source);
     }
 
     /**
      * Represents an implementation of {@link ReflectionFinder} to retrieve an enum value by its name.
      */
-    public static final class NamedEnumValueFinder extends ReflectionFinder<Object, NamedEnumValueFinder>
+    public static final class NamedEnumValueFinder
+        extends ReflectionFinder<Object, NamedEnumValueFinder>
     {
         private final Class<?> source;
         private final String name;
@@ -112,7 +98,7 @@ public class EnumValuesFinder
         /**
          * {@inheritDoc}
          *
-         * @throws IllegalStateException
+         * @throws IllegalArgumentException
          *     When the source class is not an enum.
          */
         @Override
@@ -127,7 +113,7 @@ public class EnumValuesFinder
         /**
          * {@inheritDoc}
          *
-         * @throws IllegalStateException
+         * @throws IllegalArgumentException
          *     When the source class is not an enum.
          */
         @Override
@@ -140,7 +126,8 @@ public class EnumValuesFinder
     /**
      * Represents an implementation of {@link ReflectionFinder} to retrieve an enum value by its index.
      */
-    public static final class IndexedEnumValueFinder extends ReflectionFinder<Object, NamedEnumValueFinder>
+    public static final class IndexedEnumValueFinder
+        extends ReflectionFinder<Object, IndexedEnumValueFinder>
     {
         private final Class<?> source;
         private final int index;
@@ -154,7 +141,7 @@ public class EnumValuesFinder
         /**
          * {@inheritDoc}
          *
-         * @throws IllegalStateException
+         * @throws IllegalArgumentException
          *     When the source class is not an enum.
          */
         // Suppress AvoidThrowingNullPointerException because we want to throw an NPE manually
@@ -176,7 +163,7 @@ public class EnumValuesFinder
         /**
          * {@inheritDoc}
          *
-         * @throws IllegalStateException
+         * @throws IllegalArgumentException
          *     When the source class is not an enum.
          */
         @Override
@@ -184,6 +171,33 @@ public class EnumValuesFinder
         {
             final Object[] values = ReflectionBackend.getEnumValues(source);
             return index < values.length ? values[index] : null;
+        }
+    }
+
+    /**
+     * Factory for {@link EnumValuesFinder} objects.
+     * <p>
+     * Mostly exists to keep the general format of the reflection system consistent with the other finders.
+     */
+    public static final class EnumFieldFinderFactory
+    {
+        static final EnumFieldFinderFactory INSTANCE = new EnumFieldFinderFactory();
+
+        private EnumFieldFinderFactory()
+        {
+        }
+
+        /**
+         * Sets the (enum)class this enum values finder will search in for enum values.
+         *
+         * @param source
+         *     The class to analyze.
+         * @return The next step in the enum values finding process.
+         */
+        @CheckReturnValue @Contract(pure = true)
+        public EnumValuesFinder inClass(Class<?> source)
+        {
+            return new EnumValuesFinder(source);
         }
     }
 }
