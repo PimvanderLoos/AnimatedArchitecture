@@ -93,7 +93,7 @@ public class Clock extends AbstractStructure implements IHorizontalAxisAligned, 
     @Override
     protected double calculateAnimationTime(double target)
     {
-        return 60;
+        return 8;
     }
 
     @Override
