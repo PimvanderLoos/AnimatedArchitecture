@@ -98,45 +98,38 @@ public class CreatorClock extends Creator
         final Vector3Di cuboidDims = new Cuboid(firstPos, new Vector3Di(loc.getBlockX(), loc.getBlockY(),
                                                                         loc.getBlockZ())).getDimensions();
 
+        final int height = cuboidDims.y();
+        final int maxHorizontalDim = Math.max(cuboidDims.x(), cuboidDims.z());
+        if (height < 3 || maxHorizontalDim < 3)
+        {
+            getPlayer().sendError(textFactory, localizer
+                .getMessage("creator.clock.error.too_small", maxHorizontalDim, height));
+            return false;
+        }
+
+        if (height != maxHorizontalDim)
+        {
+            getPlayer().sendError(textFactory, localizer
+                .getMessage("creator.clock.error.not_square", maxHorizontalDim, height));
+            return false;
+        }
+
         // The clock has to be an odd number of blocks tall.
-        if (cuboidDims.y() % 2 == 0)
+        if (height % 2 == 0)
         {
-            log.atFine().log("ClockCreator: %s: The height of the selected clock area (%d) is not an odd value!",
-                             getPlayer(), cuboidDims.y());
+            getPlayer().sendError(textFactory, localizer
+                .getMessage("creator.clock.error.not_odd", maxHorizontalDim, height));
             return false;
         }
 
-        if (cuboidDims.x() % 2 == 0)
+        final int depth = Math.min(cuboidDims.x(), cuboidDims.z());
+        if (depth != 2)
         {
-            // It has to be a square.
-            if (cuboidDims.y() != cuboidDims.z())
-            {
-                log.atFine()
-                   .log("ClockCreator: %s: The selected Clock area (%s) is not square! The x-axis is valid.",
-                        getPlayer(), cuboidDims);
-                return false;
-            }
-            northSouthAligned = false;
-        }
-        else if (cuboidDims.z() % 2 == 0)
-        {
-            // It has to be a square.
-            if (cuboidDims.y() != cuboidDims.x())
-            {
-                log.atFine()
-                   .log("ClockCreator: %s: The selected Clock area (%s) is not square! The z-axis is valid.",
-                        getPlayer(), cuboidDims);
-                return false;
-            }
-            northSouthAligned = true;
-        }
-        else
-        {
-            log.atFine()
-               .log("ClockCreator: %s: The selected Clock area (%s) is not valid!", getPlayer(), cuboidDims);
+            getPlayer().sendError(textFactory, localizer.getMessage("creator.clock.error.not_2_deep", depth));
             return false;
         }
 
+        northSouthAligned = cuboidDims.z() == 2;
         return super.setSecondPos(loc);
     }
 
