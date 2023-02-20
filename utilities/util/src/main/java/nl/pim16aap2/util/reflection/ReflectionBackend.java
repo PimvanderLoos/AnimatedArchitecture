@@ -7,11 +7,11 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 
 /**
@@ -22,22 +22,6 @@ import java.util.function.Function;
 @Flogger //
 final class ReflectionBackend
 {
-    private static final @Nullable Method ENUM_VALUE_NAME;
-
-    static
-    {
-        @Nullable Method m = null;
-        try
-        {
-            m = Enum.class.getMethod("name");
-        }
-        catch (NoSuchMethodException e)
-        {
-            log.atSevere().withCause(e).log("Failed to get Enum#name()!");
-        }
-        ENUM_VALUE_NAME = m;
-    }
-
     private ReflectionBackend()
     {
         // utility class
@@ -55,13 +39,9 @@ final class ReflectionBackend
      */
     public static Object[] getEnumValues(Class<?> source)
     {
-        if (ENUM_VALUE_NAME == null)
-            throw new IllegalStateException("Failed to find name method for enums!");
-
-        final Object[] values = source.getEnumConstants();
-        if (values == null)
-            throw new IllegalStateException("Class " + source.getName() + " is not an enum!");
-        return values;
+        if (!source.isEnum())
+            throw new IllegalArgumentException("Class " + source.getName() + " is not an enum!");
+        return Objects.requireNonNull(source.getEnumConstants());
     }
 
     /**
@@ -72,29 +52,21 @@ final class ReflectionBackend
      * @param name
      *     The name of the enum constant to look for.
      * @return The enum constant with the given name or null when it could not be found and null is allowed.
-     *
-     * @throws IllegalStateException
-     *     When the provided class is not an enum or when enum processing is currently disabled.
      */
     public static @Nullable Object getNamedEnumConstant(Class<?> source, String name)
     {
-        if (ENUM_VALUE_NAME == null)
-            throw new IllegalStateException("Failed to find name method for enums!");
+        if (!source.isEnum())
+            throw new IllegalArgumentException("Class " + source.getName() + " is not an enum!");
 
-        final Object[] values = getEnumValues(source);
-        for (final Object value : values)
+        try
         {
-            try
-            {
-                if (name.equals(ENUM_VALUE_NAME.invoke(value)))
-                    return value;
-            }
-            catch (IllegalAccessException | InvocationTargetException e)
-            {
-                break;
-            }
+            //noinspection unchecked,rawtypes
+            return Enum.valueOf((Class) source, name);
         }
-        return null;
+        catch (Exception e)
+        {
+            return null;
+        }
     }
 
     /**

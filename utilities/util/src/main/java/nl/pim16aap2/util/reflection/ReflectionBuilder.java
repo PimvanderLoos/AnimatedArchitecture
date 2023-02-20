@@ -118,22 +118,22 @@ public final class ReflectionBuilder
      * @return A new {@link EnumValuesFinder}.
      */
     @CheckReturnValue @Contract(pure = true)
-    public static EnumValuesFinder findEnumValues()
+    public static EnumValuesFinder.EnumFieldFinderFactory findEnumValues()
     {
-        return new EnumValuesFinder();
+        return EnumValuesFinder.EnumFieldFinderFactory.INSTANCE;
     }
 
     /**
-     * Creates a new {@link EnumValuesFinder.EnumValuesFinderInSource} and configures the enum they should exist in.
+     * Creates a new {@link EnumValuesFinder} and configures the enum class they should exist in.
      *
      * @param source
      *     The class in which the finder will look for the enum values.
-     * @return A new {@link EnumValuesFinder.EnumValuesFinderInSource}.
+     * @return A new {@link EnumValuesFinder}.
      */
     @CheckReturnValue @Contract(pure = true)
-    public static EnumValuesFinder.EnumValuesFinderInSource findEnumValues(Class<?> source)
+    public static EnumValuesFinder findEnumValues(Class<?> source)
     {
-        return new EnumValuesFinder().inClass(source);
+        return findEnumValues().inClass(source);
     }
 
     /**
