@@ -11,7 +11,7 @@ import nl.pim16aap2.bigdoors.core.util.Util;
 import nl.pim16aap2.bigdoors.core.util.WorldTime;
 import nl.pim16aap2.bigdoors.core.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
-import nl.pim16aap2.bigdoors.structures.windmill.WindmillAnimationComponent;
+import nl.pim16aap2.bigdoors.structures.drawbridge.DrawbridgeAnimationComponent;
 
 import java.util.function.Predicate;
 
@@ -20,22 +20,23 @@ import java.util.function.Predicate;
  *
  * @author Pim
  */
-public final class ClockAnimationComponent extends WindmillAnimationComponent
+public final class ClockAnimationComponent extends DrawbridgeAnimationComponent
 {
     /**
      * The step of 1 minute on a clock, or 1/60th of a circle in radians.
      */
-    private static final float MINUTE_STEP = (float) Math.PI / 30;
+    private static final double MINUTE_STEP = Math.TAU / 60;
 
     /**
      * The step of 1 hour on a clock, or 1/12th of a circle in radians.
      */
-    private static final float HOUR_STEP = (float) Math.PI / 6;
+    private static final double HOUR_STEP = Math.TAU / 12;
 
     /**
-     * The step of 1 minute between two full ours on a clock, or 1/720th of a circle in radians.
+     * The step of 1 on the hour arm between hours x and x+1 on a clock, or 1 / (60 * 12) = 1/720th of a circle in
+     * radians.
      */
-    private static final float HOUR_SUB_STEP = (float) Math.PI / 360;
+    private static final double HOUR_SUB_STEP = Math.TAU / 720;
 
     /**
      * Method to determine if a given {@link IAnimatedBlock} is part of the little hand or the big hand of a clock.
@@ -53,12 +54,12 @@ public final class ClockAnimationComponent extends WindmillAnimationComponent
     public ClockAnimationComponent(
         AnimationRequestData data, MovementDirection movementDirection, boolean isNorthSouthAligned)
     {
-        super(data, movementDirection, isNorthSouthAligned);
+        super(data, movementDirection, isNorthSouthAligned, 4);
         this.snapshot = data.getStructureSnapshot();
 
-        isHourArm = isNorthSouthAligned ? this::isHourArmNS : this::isHourArmEW;
+        isHourArm = isNorthSouthAligned ? this::isHourArmNorthSouth : this::isHourArmEastWest;
         angleDirectionMultiplier =
-            (movementDirection == MovementDirection.EAST || movementDirection == MovementDirection.SOUTH) ? -1 : 1;
+            (movementDirection == MovementDirection.EAST || movementDirection == MovementDirection.SOUTH) ? 1 : -1;
     }
 
     @Override
@@ -72,9 +73,9 @@ public final class ClockAnimationComponent extends WindmillAnimationComponent
      *
      * @return True if the block is part of the hour arm.
      */
-    private boolean isHourArmNS(IAnimatedBlock animatedBlock)
+    private boolean isHourArmNorthSouth(IAnimatedBlock animatedBlock)
     {
-        return MathUtil.floor(animatedBlock.getPosition().z()) == snapshot.getRotationPoint().z();
+        return MathUtil.floor(animatedBlock.getPosition().x()) == snapshot.getRotationPoint().x();
     }
 
     /**
@@ -82,9 +83,9 @@ public final class ClockAnimationComponent extends WindmillAnimationComponent
      *
      * @return True if the block is part of the hour arm.
      */
-    private boolean isHourArmEW(IAnimatedBlock animatedBlock)
+    private boolean isHourArmEastWest(IAnimatedBlock animatedBlock)
     {
-        return MathUtil.floor(animatedBlock.getPosition().x()) == snapshot.getRotationPoint().x();
+        return MathUtil.floor(animatedBlock.getPosition().z()) == snapshot.getRotationPoint().z();
     }
 
     @Override
@@ -97,27 +98,14 @@ public final class ClockAnimationComponent extends WindmillAnimationComponent
     public void executeAnimationStep(IAnimator animator, int ticks, int ticksRemaining)
     {
         final WorldTime worldTime = snapshot.getWorld().getTime();
-
-        final double hourAngle = angleDirectionMultiplier *
-            ClockAnimationComponent.hoursToAngle(worldTime.getHours(), worldTime.getMinutes());
-
-        final double minuteAngle =
-            angleDirectionMultiplier * ClockAnimationComponent.minutesToAngle(worldTime.getMinutes());
-
-        // Move the hour arm at a lower tickRate than the minute arm.
-        final boolean moveHourArm = ticks % 10 == 0;
+        final double hourAngle = angleDirectionMultiplier * hoursToAngle(worldTime.getHours(), worldTime.getMinutes());
+        final double minuteAngle = angleDirectionMultiplier * minutesToAngle(worldTime.getMinutes());
 
         for (final IAnimatedBlock animatedBlock : animator.getAnimatedBlocks())
-            if (Math.abs(animatedBlock.getRadius()) > MathUtil.EPS)
-            {
-                // Move the little hand at a lower interval than the big hand.
-                final boolean hourArm = isHourArm.test(animatedBlock);
-                if (!moveHourArm && hourArm)
-                    continue;
-
-                final double timeAngle = hourArm ? hourAngle : minuteAngle;
-                animator.applyMovement(animatedBlock, getGoalPos(timeAngle, animatedBlock), ticksRemaining);
-            }
+        {
+            final double timeAngle = isHourArm.test(animatedBlock) ? hourAngle : minuteAngle;
+            animator.applyMovement(animatedBlock, getGoalPos(timeAngle, animatedBlock), ticksRemaining);
+        }
     }
 
     /**
@@ -128,9 +116,9 @@ public final class ClockAnimationComponent extends WindmillAnimationComponent
      *     The time in minutes since the last full hour.
      * @return The angle.
      */
-    private static float minutesToAngle(int minutes)
+    private static double minutesToAngle(int minutes)
     {
-        return (float) Util.clampAngleRad(-minutes * MINUTE_STEP);
+        return Util.clampAngleRad(minutes * MINUTE_STEP);
     }
 
     /**
@@ -143,8 +131,8 @@ public final class ClockAnimationComponent extends WindmillAnimationComponent
      *     The time in minutes since the last full hour.
      * @return The angle.
      */
-    private static float hoursToAngle(int hours, int minutes)
+    private static double hoursToAngle(int hours, int minutes)
     {
-        return (float) Util.clampAngleRad(-hours * HOUR_STEP - minutes * HOUR_SUB_STEP);
+        return Util.clampAngleRad(hours * HOUR_STEP + minutes * HOUR_SUB_STEP);
     }
 }

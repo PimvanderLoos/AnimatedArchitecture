@@ -635,7 +635,7 @@ public final class Animator implements IAnimator
             @Override
             public void apply(IAnimatedBlock animatedBlock, Vector3Dd goalPos, int ticksRemaining)
             {
-                animatedBlock.teleport(goalPos);
+                animatedBlock.teleport(goalPos, IAnimatedBlock.TeleportMode.ABSOLUTE);
             }
         };
 

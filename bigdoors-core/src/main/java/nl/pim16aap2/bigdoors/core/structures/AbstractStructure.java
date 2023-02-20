@@ -79,7 +79,7 @@ public abstract class AbstractStructure implements IStructure
     }
 
     /**
-     * Gets the animation time of this structure.
+     * Gets the animation time (in seconds) of this structure.
      * <p>
      * This basically returns max(target, {@link #getMinimumAnimationTime()}), logging a message in case the target time
      * is too low.
