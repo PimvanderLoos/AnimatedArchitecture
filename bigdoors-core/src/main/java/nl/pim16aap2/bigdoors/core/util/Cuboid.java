@@ -104,6 +104,22 @@ public final class Cuboid
     }
 
     /**
+     * Creates a new cuboid that describes the combined area of two other cuboids.
+     *
+     * @param a
+     *     One of the two cuboids.
+     * @param b
+     *     The other cuboid.
+     * @return The new cuboid that is the result of joining
+     */
+    public static Cuboid of(Cuboid a, Cuboid b)
+    {
+        final Vector3Di[] min = getSortedCoordinates(a.getMin(), b.getMin());
+        final Vector3Di[] max = getSortedCoordinates(a.getMax(), b.getMax());
+        return new Cuboid(min[0], max[1]);
+    }
+
+    /**
      * Checks if a position is inside this cuboid. This includes the edges.
      *
      * @param pos

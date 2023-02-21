@@ -213,4 +213,13 @@ class CuboidTest
         Assertions.assertEquals(new Rectangle(new Vector2Di(10, 25), new Vector2Di(44, 30)),
                                 cuboid.asFlatRectangle());
     }
+
+    @Test
+    void testCombine()
+    {
+        final Cuboid a = new Cuboid(new Vector3Di(11, 18, 13), new Vector3Di(14, 21, 16));
+        final Cuboid b = new Cuboid(new Vector3Di(17, 12, 19), new Vector3Di(20, 15, 22));
+        final Cuboid c = new Cuboid(new Vector3Di(11, 12, 13), new Vector3Di(20, 21, 22));
+        Assertions.assertEquals(c, Cuboid.of(a, b));
+    }
 }
