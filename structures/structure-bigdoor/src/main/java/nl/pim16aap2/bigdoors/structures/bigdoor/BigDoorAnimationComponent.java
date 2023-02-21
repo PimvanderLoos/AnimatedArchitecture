@@ -20,6 +20,7 @@ public class BigDoorAnimationComponent implements IAnimationComponent
     private final StructureSnapshot snapshot;
     private final Vector3Dd rotationCenter;
     private final int rotateCount;
+    private final int rotateCountOffset;
     private final double angle;
     private final double step;
 
@@ -44,8 +45,9 @@ public class BigDoorAnimationComponent implements IAnimationComponent
         final int animationDuration =
             AnimationUtil.getAnimationTicks(data.getAnimationTime(), data.getServerTickTime());
 
-        step = angle / animationDuration;
-        rotateCount = animationDuration / quarterCircles / 2;
+        this.step = this.angle / animationDuration;
+        this.rotateCount = animationDuration / quarterCircles;
+        this.rotateCountOffset = this.rotateCount / 2;
     }
 
     @Override
@@ -57,7 +59,7 @@ public class BigDoorAnimationComponent implements IAnimationComponent
     @Override
     public void executeAnimationStep(IAnimator animator, int ticks, int ticksRemaining)
     {
-        if (ticks % rotateCount == 0)
+        if ((ticks - rotateCountOffset) % rotateCount == 0)
             animator.applyRotation(movementDirection);
 
         final double stepSum = Util.clampAngleRad(step * ticks);
