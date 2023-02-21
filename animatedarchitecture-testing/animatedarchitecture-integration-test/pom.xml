@@ -1,0 +1,163 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>animatedarchitecture-integration-test</artifactId>
+    <packaging>jar</packaging>
+    <description>Integration tests for AnimatedArchitecture</description>
+    <version>1</version>
+
+    <parent>
+        <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+        <artifactId>animatedarchitecture-testing</artifactId>
+        <version>1</version>
+    </parent>
+
+    <properties>
+        <project.root-dir>${project.basedir}/../..</project.root-dir>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+            <artifactId>animatedarchitecture-integration-test-lib</artifactId>
+            <version>1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2</groupId>
+            <artifactId>test-util</artifactId>
+            <version>1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+            <artifactId>animatedarchitecture-core</artifactId>
+            <version>1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+            <artifactId>animatedarchitecture-core</artifactId>
+            <version>1</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+            <artifactId>structure-bigdoor</artifactId>
+            <version>1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+            <artifactId>structure-clock</artifactId>
+            <version>1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+            <artifactId>structure-drawbridge</artifactId>
+            <version>1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+            <artifactId>structure-flag</artifactId>
+            <version>1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+            <artifactId>structure-garagedoor</artifactId>
+            <version>1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+            <artifactId>structure-portcullis</artifactId>
+            <version>1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+            <artifactId>structure-revolvingdoor</artifactId>
+            <version>1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+            <artifactId>structure-slidingdoor</artifactId>
+            <version>1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+            <artifactId>structure-windmill</artifactId>
+            <version>1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>${dependency.version.jdbc-sqlite}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <classesDirectory>src</classesDirectory>
+                    <classifier>integration-test</classifier>
+                    <excludes>
+                        <exclude>**</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Do not install this module, as there's no output jar -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-install</id>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

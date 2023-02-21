@@ -1,12 +1,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>nl.pim16aap2.bigdoors</groupId>
-    <artifactId>bigdoors-parent</artifactId>
+    <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+    <artifactId>animatedarchitecture-parent</artifactId>
 
     <packaging>pom</packaging>
     <version>1</version>
-    <name>BigDoors</name>
+    <name>animatedarchitecture</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -64,12 +64,12 @@
     </properties>
 
     <modules>
-        <module>bigdoors-core</module>
-        <module>bigdoors-spigot</module>
+        <module>animatedarchitecture-core</module>
+        <module>animatedarchitecture-spigot</module>
         <module>structures</module>
         <module>utilities</module>
         <module>report-aggregate</module>
-        <module>bigdoors-testing</module>
+        <module>animatedarchitecture-testing</module>
     </modules>
 
     <repositories>
@@ -432,79 +432,79 @@
                         <relocations>
                             <relocation>
                                 <pattern>org.bstats</pattern>
-                                <shadedPattern>nl.pim16aap2.bigdoors.lib.bstats</shadedPattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.bstats</shadedPattern>
                             </relocation>
                             <relocation>
                                 <pattern>cloud.commandframework</pattern>
-                                <shadedPattern>nl.pim16aap2.bigdoors.lib.cloud</shadedPattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.cloud</shadedPattern>
                             </relocation>
                             <relocation>
                                 <pattern>me.lucko.commodore</pattern>
-                                <shadedPattern>nl.pim16aap2.bigdoors.lib.commodore</shadedPattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.commodore</shadedPattern>
                             </relocation>
                             <relocation>
                                 <pattern>net.kyori</pattern>
-                                <shadedPattern>nl.pim16aap2.bigdoors.lib.kyori</shadedPattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.kyori</shadedPattern>
                             </relocation>
                             <relocation>
                                 <pattern>io.leangen</pattern>
-                                <shadedPattern>nl.pim16aap2.bigdoors.lib.leangen</shadedPattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.leangen</shadedPattern>
                             </relocation>
                             <relocation>
                                 <pattern>nl.pim16aap2.jcalculator</pattern>
-                                <shadedPattern>nl.pim16aap2.bigdoors.lib.jcalculator</shadedPattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.jcalculator</shadedPattern>
                             </relocation>
                             <relocation>
                                 <pattern>com.google.errorprone</pattern>
-                                <shadedPattern>nl.pim16aap2.bigdoors.lib.errorprone</shadedPattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.errorprone</shadedPattern>
                             </relocation>
                             <relocation>
                                 <pattern>javax.inject</pattern>
-                                <shadedPattern>nl.pim16aap2.bigdoors.lib.javax.inject</shadedPattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.javax.inject</shadedPattern>
                             </relocation>
                             <relocation>
                                 <pattern>dagger</pattern>
-                                <shadedPattern>nl.pim16aap2.bigdoors.lib.dagger</shadedPattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.dagger</shadedPattern>
                             </relocation>
                             <relocation>
                                 <pattern>org.checkerframework</pattern>
-                                <shadedPattern>nl.pim16aap2.bigdoors.lib.checkerframework</shadedPattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.checkerframework</shadedPattern>
                             </relocation>
                             <relocation>
                                 <pattern>org.slf4j</pattern>
-                                <shadedPattern>nl.pim16aap2.bigdoors.lib.slf4j</shadedPattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.slf4j</shadedPattern>
                             </relocation>
                             <relocation>
                                 <pattern>com.google.common.flogger</pattern>
-                                <shadedPattern>nl.pim16aap2.bigdoors.lib.flogger</shadedPattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.flogger</shadedPattern>
                             </relocation>
                             <relocation>
                                 <pattern>ch.qos.logback</pattern>
-                                <shadedPattern>nl.pim16aap2.bigdoors.lib.logback</shadedPattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.logback</shadedPattern>
                             </relocation>
                             <relocation>
                                 <pattern>nl.pim16aap2.logging</pattern>
-                                <shadedPattern>nl.pim16aap2.bigdoors.lib.logging</shadedPattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.logging</shadedPattern>
                             </relocation>
                             <relocation>
                                 <pattern>nl.pim16aap2.reflection</pattern>
-                                <shadedPattern>nl.pim16aap2.bigdoors.lib.reflection</shadedPattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.reflection</shadedPattern>
                             </relocation>
                             <relocation>
                                 <pattern>nl.pim16aap2.util</pattern>
-                                <shadedPattern>nl.pim16aap2.bigdoors.lib.util</shadedPattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.util</shadedPattern>
                             </relocation>
                             <relocation>
                                 <pattern>org.apiguardian</pattern>
-                                <shadedPattern>nl.pim16aap2.bigdoors.lib.apiguardian</shadedPattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.apiguardian</shadedPattern>
                             </relocation>
                             <relocation>
                                 <pattern>com.mojang.brigadier</pattern>
-                                <shadedPattern>nl.pim16aap2.bigdoors.lib.brigadier</shadedPattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.brigadier</shadedPattern>
                             </relocation>
                             <relocation>
                                 <pattern>de.themoep.inventorygui</pattern>
-                                <shadedPattern>nl.pim16aap2.bigdoors.lib.inventorygui</shadedPattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.inventorygui</shadedPattern>
                             </relocation>
                         </relocations>
                     </configuration>

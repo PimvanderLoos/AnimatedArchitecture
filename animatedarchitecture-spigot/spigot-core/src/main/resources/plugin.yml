@@ -1,0 +1,8 @@
+name: AnimatedArchitecture
+main: nl.pim16aap2.animatedarchitecture.spigot.core.AnimatedArchitecturePlugin
+version: ${project.version}
+author: pim16aap2
+api-version: 1.19
+libraries:
+  - it.unimi.dsi:fastutil:${dependency.version.fastutil}
+  - com.alibaba:fastjson:${dependency.version.fastjson}

@@ -6,7 +6,7 @@
     <version>1</version>
 
     <properties>
-        <mainClass>nl.pim16aap2.bigdoors.structures.windmill.StructureTypeWindmill</mainClass>
+        <mainClass>nl.pim16aap2.animatedarchitecture.structures.windmill.StructureTypeWindmill</mainClass>
         <typeName>Windmill</typeName>
         <version>1</version>
         <TypeDependencies>drawbridge(1;1)</TypeDependencies>
@@ -14,14 +14,14 @@
     </properties>
 
     <parent>
-        <groupId>nl.pim16aap2.bigdoors</groupId>
+        <groupId>nl.pim16aap2.animatedarchitecture</groupId>
         <artifactId>structures</artifactId>
         <version>1</version>
     </parent>
 
     <dependencies>
         <dependency>
-            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>structure-drawbridge</artifactId>
             <version>1</version>
             <scope>provided</scope>
