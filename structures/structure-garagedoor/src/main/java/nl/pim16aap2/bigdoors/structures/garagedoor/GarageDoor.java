@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.structures.garagedoor;
 
-import com.google.common.flogger.StackSize;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -12,11 +11,10 @@ import nl.pim16aap2.bigdoors.core.moveblocks.AnimationRequestData;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.structures.structurearchetypes.IHorizontalAxisAligned;
-import nl.pim16aap2.bigdoors.core.util.BlockFace;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
+import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
 import nl.pim16aap2.bigdoors.core.util.Rectangle;
-import nl.pim16aap2.bigdoors.core.util.Util;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Di;
 
 import java.util.Optional;
@@ -48,6 +46,14 @@ public class GarageDoor extends AbstractStructure implements IHorizontalAxisAlig
         this.northSouthAnimated = northSouthAnimated;
     }
 
+    /**
+     * @return True if the garage door is currently vertical.
+     */
+    private boolean isVertical()
+    {
+        return getCuboid().getDimensions().y() > 1;
+    }
+
     @Override
     @Locked.Read
     protected double calculateAnimationCycleDistance()
@@ -56,10 +62,10 @@ public class GarageDoor extends AbstractStructure implements IHorizontalAxisAlig
         final Vector3Di dims = cuboid.getDimensions();
 
         final double movement;
-        if (isOpen())
-            movement = isNorthSouthAnimated() ? dims.z() : dims.x();
-        else
+        if (isVertical())
             movement = dims.y();
+        else
+            movement = isNorthSouthAnimated() ? dims.z() : dims.x();
         // Not exactly correct, but much faster and pretty close.
         return 2 * movement;
     }
@@ -69,7 +75,7 @@ public class GarageDoor extends AbstractStructure implements IHorizontalAxisAlig
     protected Rectangle calculateAnimationRange()
     {
         final Cuboid cuboid = getCuboid();
-        if (isOpen())
+        if (!isVertical())
             return cuboid.grow(1, 1, 1).asFlatRectangle();
 
         final int vertical = cuboid.getDimensions().y();
@@ -110,74 +116,18 @@ public class GarageDoor extends AbstractStructure implements IHorizontalAxisAlig
     public Optional<Cuboid> getPotentialNewCoordinates()
     {
         final MovementDirection movementDirection = getCurrentToggleDir();
-        final Cuboid cuboid = getCuboid();
+        final double angle = switch (movementDirection)
+            {
+                case NORTH, WEST -> MathUtil.HALF_PI;
+                case SOUTH, EAST -> -MathUtil.HALF_PI;
+                default -> throw new IllegalArgumentException(
+                    "Invalid movement direction '" + movementDirection + "'" + " for structure: " + this);
+            };
 
-        final Vector3Di dimensions = cuboid.getDimensions();
-        final Vector3Di minimum = cuboid.getMin();
-        final Vector3Di maximum = cuboid.getMax();
-
-        int minX = minimum.x();
-        int minY = minimum.y();
-        int minZ = minimum.z();
-        int maxX = maximum.x();
-        int maxY = maximum.y();
-        int maxZ = maximum.z();
-        final int xLen = dimensions.x();
-        final int yLen = dimensions.y();
-        final int zLen = dimensions.z();
-
-        final Vector3Di rotateVec;
-        try
-        {
-            rotateVec = BlockFace.getDirection(Util.getBlockFace(movementDirection));
-        }
-        catch (Exception e)
-        {
-            log.atSevere().withStackTrace(StackSize.FULL)
-               .log("MovementDirection '%s' is not a valid direction for a structure of type '%s'",
-                    movementDirection.name(), getType());
-            return Optional.empty();
-        }
-
-        if (!isOpen())
-        {
-            minY = maxY = maximum.y() + 1;
-            minX += rotateVec.x();
-            maxX += (1 + yLen) * rotateVec.x();
-            minZ += rotateVec.z();
-            maxZ += (1 + yLen) * rotateVec.z();
-        }
+        if (movementDirection == MovementDirection.NORTH || movementDirection == MovementDirection.SOUTH)
+            return Optional.of(getCuboid().updatePositions(vec -> vec.rotateAroundXAxis(getRotationPoint(), angle)));
         else
-        {
-            maxY = maxY - 1;
-            minY -= Math.abs(rotateVec.x() * xLen);
-            minY -= Math.abs(rotateVec.z() * zLen);
-            minY -= 1;
-
-            if (movementDirection.equals(MovementDirection.SOUTH))
-            {
-                maxZ = maxZ + 1;
-                minZ = maxZ;
-            }
-            else if (movementDirection.equals(MovementDirection.NORTH))
-            {
-                maxZ = minZ - 1;
-                minZ = maxZ;
-            }
-            if (movementDirection.equals(MovementDirection.EAST))
-            {
-                maxX = maxX + 1;
-                minX = maxX;
-            }
-            else if (movementDirection.equals(MovementDirection.WEST))
-            {
-                maxX = minX - 1;
-                minX = maxX;
-            }
-        }
-
-        return Optional.of(new Cuboid(new Vector3Di(minX, minY, minZ),
-                                      new Vector3Di(maxX, maxY, maxZ)));
+            return Optional.of(getCuboid().updatePositions(vec -> vec.rotateAroundZAxis(getRotationPoint(), angle)));
     }
 
     @Override

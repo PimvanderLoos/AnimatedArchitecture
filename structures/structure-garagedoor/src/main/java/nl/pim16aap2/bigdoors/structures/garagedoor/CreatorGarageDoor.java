@@ -112,23 +112,16 @@ public class CreatorGarageDoor extends Creator
         if (cuboid == null)
             return;
 
-        if (!isOpen)
-        {
-            rotationPoint = cuboid.getMin();
-            return;
-        }
+        final Vector3Di center = cuboid.getCenterBlock();
+        final boolean isVertical = cuboid.getDimensions().y() > 1;
 
-        // The rotation point should be located at the bottom of the garage structure.
-        // An additional 1 is subtracted because garage structures in the 'up' position
-        // are 1 block above the highest point.
-        final int moveDistance = northSouthAnimated ? cuboid.getDimensions().z() : cuboid.getDimensions().x();
-        final int rotationPointY = cuboid.getMin().y() - moveDistance - 1;
-        final Vector3Di rotationPointTmp = cuboid.getCenterBlock();
+        int newX = center.x();
+        int newY = center.y();
+        int newZ = center.z();
 
-        int newX = rotationPointTmp.x();
-        int newZ = rotationPointTmp.z();
-
-        if (openDir == MovementDirection.NORTH)
+        if (isVertical)
+            newY = cuboid.getMax().y() + 1;
+        else if (openDir == MovementDirection.NORTH)
             newZ = cuboid.getMax().z() + 1;
         else if (openDir == MovementDirection.EAST)
             newX = cuboid.getMin().x() - 1;
@@ -137,7 +130,7 @@ public class CreatorGarageDoor extends Creator
         else if (openDir == MovementDirection.WEST)
             newX = cuboid.getMax().x() + 1;
 
-        rotationPoint = new Vector3Di(newX, rotationPointY, newZ);
+        rotationPoint = new Vector3Di(newX, newY, newZ);
     }
 
     @Override
