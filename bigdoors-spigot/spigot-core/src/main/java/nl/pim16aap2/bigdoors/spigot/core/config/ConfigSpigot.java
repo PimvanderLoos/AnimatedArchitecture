@@ -15,6 +15,7 @@ import nl.pim16aap2.bigdoors.core.structures.StructureType;
 import nl.pim16aap2.bigdoors.core.util.ConfigEntry;
 import nl.pim16aap2.bigdoors.core.util.Constants;
 import nl.pim16aap2.bigdoors.core.util.Limit;
+import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import nl.pim16aap2.bigdoors.core.util.Util;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.ConfigReaderSpigot;
@@ -29,6 +30,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -57,6 +59,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable
     private final Lazy<StructureTypeManager> structureTypeManager;
     private final Path baseDir;
 
+    private static final Material DEFAULT_MATERIAL = Material.WARPED_DOOR;
     private static final List<String> DEFAULT_POWERBLOCK_TYPE = List.of("GOLD_BLOCK");
     private static final List<String> DEFAULT_BLACKLIST = Collections.emptyList();
 
@@ -66,6 +69,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable
     private final List<ConfigEntry<?>> configEntries = new ArrayList<>();
     private final Map<StructureType, String> structurePrices;
     private final Map<StructureType, Double> structureAnimationTimeMultipliers;
+    private final Map<StructureType, Material> structureTypeGuiMaterials;
     @ToString.Exclude
     private final String header;
 
@@ -108,6 +112,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable
         this.baseDir = baseDir;
         structurePrices = new HashMap<>();
         structureAnimationTimeMultipliers = new HashMap<>();
+        structureTypeGuiMaterials = new HashMap<>();
 
         header = "Config file for BigDoors. Don't forget to make a backup before making changes!";
 
@@ -128,6 +133,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable
         configEntries.clear();
         powerBlockTypes.clear();
         structurePrices.clear();
+        structureTypeGuiMaterials.clear();
         structureAnimationTimeMultipliers.clear();
     }
 
@@ -399,11 +405,13 @@ public final class ConfigSpigot implements IConfig, IDebuggable
         maxBlockSpeed = addNewConfigEntry(config, "maxBlockSpeed", 5.0D, maxBlockSpeedComment);
 
         final List<StructureType> enabledStructureTypes = structureTypeManager.get().getEnabledStructureTypes();
-        parseForEachStructureType(structureAnimationTimeMultipliers, config, enabledStructureTypes,
-                                  animationTimeMultiplierComment,
-                                  1.0D,
-                                  "animation-time-multiplier_");
-        parseForEachStructureType(structurePrices, config, enabledStructureTypes, pricesComment, "0", "price_");
+        parseForEachStructureType(
+            structureAnimationTimeMultipliers, config, enabledStructureTypes, animationTimeMultiplierComment,
+            Collections.emptyMap(), 1.0D, "animation-time-multiplier_");
+
+        parseForEachStructureType(
+            structurePrices, config, enabledStructureTypes, pricesComment, Collections.emptyMap(), "0", "price_");
+        parseStructureTypeGuiMaterials(config, enabledStructureTypes);
 
         consoleLogging = addNewConfigEntry(config, "consoleLogging", true, consoleLoggingComment);
         final String logLevelName = addNewConfigEntry(config, "logLevel", "INFO", logLevelComment);
@@ -420,9 +428,53 @@ public final class ConfigSpigot implements IConfig, IDebuggable
             printInfo();
     }
 
+    private void parseStructureTypeGuiMaterials(IConfigReader config, List<StructureType> enabledStructureTypes)
+    {
+        final String prefix = "gui-material_";
+        final Map<String, String> defaults = Map.of(
+            prefix + "bigdoor", Material.OAK_DOOR.name(),
+            prefix + "clock", Material.CLOCK.name(),
+            prefix + "drawbridge", Material.OAK_TRAPDOOR.name(),
+            prefix + "flag", Material.BLUE_BANNER.name(),
+            prefix + "garagedoor", Material.MINECART.name(),
+            prefix + "portcullis", Material.IRON_BARS.name(),
+            prefix + "revolvingdoor", Material.MUSIC_DISC_PIGSTEP.name(),
+            prefix + "slidingdoor", Material.PISTON.name(),
+            prefix + "windmill", Material.SUNFLOWER.name()
+        );
+
+        final String comment =
+            """
+            # The materials to use in the GUI when looking at the overview of all structures.
+            """;
+
+        final Map<StructureType, String> materialNames = new HashMap<>();
+        parseForEachStructureType(materialNames, config, enabledStructureTypes, comment, defaults,
+                                  DEFAULT_MATERIAL.name(), prefix);
+
+        final Map<StructureType, Material> result = new HashMap<>(MathUtil.ceil(1.25 * materialNames.size()));
+        for (final var entry : materialNames.entrySet())
+        {
+            @Nullable Material mat = Material.getMaterial(entry.getValue());
+            if (mat == null)
+            {
+                log.atWarning().log("Could not find material with name '%s'! Defaulting to '%s'!",
+                                    entry.getValue(), DEFAULT_MATERIAL.name());
+                mat = DEFAULT_MATERIAL;
+            }
+            result.put(entry.getKey(), mat);
+        }
+        this.structureTypeGuiMaterials.putAll(result);
+    }
+
     private <T> void parseForEachStructureType(
-        Map<StructureType, T> target, IConfigReader config, List<StructureType> enabledStructureTypes,
-        String header, T defaultValue, String startsWith)
+        Map<StructureType, T> target,
+        IConfigReader config,
+        List<StructureType> enabledStructureTypes,
+        String header,
+        Map<String, T> defaultValues,
+        T defaultValue,
+        String startsWith)
     {
         final Map<String, Object> existingMappings = getKeysStartingWith(config, startsWith, defaultValue);
 
@@ -430,7 +482,9 @@ public final class ConfigSpigot implements IConfig, IDebuggable
         for (final StructureType type : enabledStructureTypes)
         {
             final String key = startsWith + type.getSimpleName();
-            target.put(type, addNewConfigEntry(config, key, defaultValue, comment));
+            final T value = defaultValues.getOrDefault(key, defaultValue);
+
+            target.put(type, addNewConfigEntry(config, key, value, comment));
             existingMappings.remove(key);
             comment = null;
         }
@@ -707,6 +761,11 @@ public final class ConfigSpigot implements IConfig, IDebuggable
         return Math.max(0.0001D, structureAnimationTimeMultipliers.getOrDefault(type, 1.0D));
     }
 
+    public Material getGuiMaterial(StructureType type)
+    {
+        return structureTypeGuiMaterials.getOrDefault(type, DEFAULT_MATERIAL);
+    }
+
     @Override
     public double maxBlockSpeed()
     {
@@ -734,11 +793,11 @@ public final class ConfigSpigot implements IConfig, IDebuggable
     /**
      * Represents a class that attempts to parse a list of materials represented as Strings into a list of Materials.
      * <p>
-     * See {@link #verifyMaterials(List, Set)}.
+     * See {@link #verifyMaterials(Collection, Set)}.
      *
      * @author Pim
      */
-    private static class MaterialVerifier implements ConfigEntry.ITestValue<List<String>>
+    private static class MaterialVerifier implements ConfigEntry.ITestValue<Collection<String>>
     {
         private final Set<Material> output;
 
@@ -757,7 +816,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable
         }
 
         @Override
-        public List<String> test(List<String> input)
+        public Collection<String> test(Collection<String> input)
         {
             return MaterialVerifier.verifyMaterials(input, output);
         }
@@ -774,7 +833,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable
          *     The set to put all valid materials in.
          * @return The list of names of all valid materials in the list without duplication.
          */
-        private static List<String> verifyMaterials(List<String> input, Set<Material> output)
+        private static Collection<String> verifyMaterials(Collection<String> input, Set<Material> output)
         {
             output.clear();
             final Iterator<String> it = input.iterator();
