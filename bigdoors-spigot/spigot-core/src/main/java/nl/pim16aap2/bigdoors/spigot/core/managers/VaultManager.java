@@ -366,7 +366,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final @Nullable Player bukkitPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (bukkitPlayer == null)
         {
-            log.atSevere().withStackTrace(StackSize.FULL)
+            log.atFinest().withStackTrace(StackSize.FULL)
                .log("Failed to obtain BukkitPlayer for player: '%s'", player.asString());
             return false;
         }
