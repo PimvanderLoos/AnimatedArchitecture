@@ -29,18 +29,18 @@ public final class GarageDoorAnimationComponent implements IAnimationComponent
     private final BiFunction<IAnimatedBlock, Double, Vector3Dd> getVector;
     private final boolean northSouth;
     private final double step;
-    private final boolean isOpen;
+    private final boolean wasVertical;
     private final Cuboid oldCuboid;
 
     public GarageDoorAnimationComponent(AnimationRequestData data, MovementDirection movementDirection)
     {
         this.snapshot = data.getStructureSnapshot();
         this.oldCuboid = snapshot.getCuboid();
-        isOpen = snapshot.isOpen();
+        this.wasVertical = this.oldCuboid.getDimensions().y() > 1;
 
         resultHeight = oldCuboid.getMax().y() + 1.0D;
 
-        BiFunction<IAnimatedBlock, Double, Vector3Dd> getVectorTmp;
+        final BiFunction<IAnimatedBlock, Double, Vector3Dd> getVectorTmp;
         switch (movementDirection)
         {
             case NORTH ->
@@ -73,7 +73,7 @@ public final class GarageDoorAnimationComponent implements IAnimationComponent
         }
 
         final Vector3Di dims = oldCuboid.getDimensions();
-        int blocksToMove;
+        final int blocksToMove;
         if (!snapshot.isOpen())
         {
             blocksToMove = dims.y();
@@ -197,7 +197,7 @@ public final class GarageDoorAnimationComponent implements IAnimationComponent
 
         final Vector3Di dims = oldCuboid.getDimensions();
 
-        if (!isOpen)
+        if (wasVertical)
         {
             newX = startLocation.xD() + (dims.y() - radius) * directionVec.x();
             newY = resultHeight;
@@ -217,7 +217,7 @@ public final class GarageDoorAnimationComponent implements IAnimationComponent
                 newY = oldCuboid.getMax().y() - (dims.x() - radius);
                 newZ = startLocation.zD();
             }
-            newY -= 2;
+            newY -= 1;
 
             newX += northSouth ? 0 : 0.5f;
             newZ += northSouth ? 0.5f : 0;
@@ -229,6 +229,7 @@ public final class GarageDoorAnimationComponent implements IAnimationComponent
     public void executeAnimationStep(IAnimator animator, int ticks, int ticksRemaining)
     {
         final double stepSum = step * ticks;
+
         for (final IAnimatedBlock animatedBlock : animator.getAnimatedBlocks())
             animator.applyMovement(animatedBlock, getVector.apply(animatedBlock, stepSum), ticksRemaining);
     }
@@ -236,7 +237,7 @@ public final class GarageDoorAnimationComponent implements IAnimationComponent
     @Override
     public float getRadius(int xAxis, int yAxis, int zAxis)
     {
-        if (!isOpen)
+        if (wasVertical)
         {
             final float height = oldCuboid.getMax().y();
             return height - yAxis;

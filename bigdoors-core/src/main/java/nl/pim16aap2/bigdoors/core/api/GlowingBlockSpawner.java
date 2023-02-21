@@ -1,15 +1,15 @@
 package nl.pim16aap2.bigdoors.core.api;
 
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.structures.IStructureConst;
+import nl.pim16aap2.bigdoors.core.util.Cuboid;
 import nl.pim16aap2.bigdoors.core.util.IGlowingBlock;
 import nl.pim16aap2.bigdoors.core.util.Util;
 import nl.pim16aap2.bigdoors.core.util.vector.IVector3D;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -33,21 +33,61 @@ public abstract class GlowingBlockSpawner
      *     The amount of time the glowing blocks should be visible for.
      * @return The list of {@link IGlowingBlock}s that were spawned.
      */
-    public List<IGlowingBlock> spawnGlowingBlocks(IStructureConst structure, IPlayer player, Duration duration)
+    public void spawnGlowingBlocks(IStructureConst structure, IPlayer player, Duration duration)
     {
-        final List<IGlowingBlock> ret = new ArrayList<>(4);
         final IWorld world = structure.getWorld();
 
-        spawnGlowingBlock(player, world, duration, structure.getPowerBlock().x() + 0.5,
-                          structure.getPowerBlock().y(), structure.getPowerBlock().z() + 0.5, Color.GOLD);
-        spawnGlowingBlock(player, world, duration, structure.getRotationPoint().x() + 0.5,
-                          structure.getRotationPoint().y(), structure.getRotationPoint().z() + 0.5,
-                          Color.DARK_PURPLE);
-        spawnGlowingBlock(player, world, duration, structure.getMinimum().x() + 0.5, structure.getMinimum().y(),
+        spawnGlowingBlock(player, world, duration,
+                          structure.getPowerBlock().x() + 0.5,
+                          structure.getPowerBlock().y(),
+                          structure.getPowerBlock().z() + 0.5, Color.GOLD);
+
+        spawnGlowingBlock(player, world, duration,
+                          structure.getRotationPoint().x() + 0.5,
+                          structure.getRotationPoint().y(),
+                          structure.getRotationPoint().z() + 0.5, Color.DARK_PURPLE);
+
+        spawnGlowingBlock(player, world, duration,
+                          structure.getMinimum().x() + 0.5,
+                          structure.getMinimum().y(),
                           structure.getMinimum().z() + 0.5, Color.BLUE);
-        spawnGlowingBlock(player, world, duration, structure.getMaximum().x() + 0.5, structure.getMaximum().y(),
+
+        spawnGlowingBlock(player, world, duration,
+                          structure.getMaximum().x() + 0.5,
+                          structure.getMaximum().y(),
                           structure.getMaximum().z() + 0.5, Color.RED);
-        return ret;
+    }
+
+    /**
+     * Spawns the glowing blocks required to highlight a structure.
+     *
+     * @param structure
+     *     The structure to highlight.
+     * @param player
+     *     The {@link IPlayer} for whom to highlight the structure.
+     * @param duration
+     *     The amount of time the glowing blocks should be visible for.
+     * @return The list of {@link IGlowingBlock}s that were spawned.
+     */
+    public void spawnGlowingBlocks(AbstractStructure structure, IPlayer player, Duration duration)
+    {
+        spawnGlowingBlocks((IStructureConst) structure, player, duration);
+
+        final IWorld world = structure.getWorld();
+        final Optional<Cuboid> cuboidOptional = structure.getPotentialNewCoordinates();
+        if (cuboidOptional.isEmpty())
+            return;
+        final Cuboid cuboid = cuboidOptional.get();
+
+        spawnGlowingBlock(player, world, duration,
+                          cuboid.getMin().x() + 0.5,
+                          cuboid.getMin().y(),
+                          cuboid.getMin().z() + 0.5, Color.DARK_AQUA);
+
+        spawnGlowingBlock(player, world, duration,
+                          cuboid.getMax().x() + 0.5,
+                          cuboid.getMax().y(),
+                          cuboid.getMax().z() + 0.5, Color.DARK_RED);
     }
 
     /**
