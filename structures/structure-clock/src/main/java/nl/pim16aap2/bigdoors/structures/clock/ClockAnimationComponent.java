@@ -75,7 +75,7 @@ public final class ClockAnimationComponent extends DrawbridgeAnimationComponent
      */
     private boolean isHourArmNorthSouth(IAnimatedBlock animatedBlock)
     {
-        return MathUtil.floor(animatedBlock.getPosition().x()) == snapshot.getRotationPoint().x();
+        return MathUtil.floor(animatedBlock.getStartX()) == snapshot.getRotationPoint().x();
     }
 
     /**
@@ -85,7 +85,7 @@ public final class ClockAnimationComponent extends DrawbridgeAnimationComponent
      */
     private boolean isHourArmEastWest(IAnimatedBlock animatedBlock)
     {
-        return MathUtil.floor(animatedBlock.getPosition().z()) == snapshot.getRotationPoint().z();
+        return MathUtil.floor(animatedBlock.getStartZ()) == snapshot.getRotationPoint().z();
     }
 
     @Override
