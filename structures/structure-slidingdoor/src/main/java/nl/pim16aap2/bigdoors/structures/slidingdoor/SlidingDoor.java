@@ -10,9 +10,9 @@ import nl.pim16aap2.bigdoors.core.moveblocks.AnimationRequestData;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.structures.structurearchetypes.IDiscreteMovement;
+import nl.pim16aap2.bigdoors.core.util.BlockFace;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
-import nl.pim16aap2.bigdoors.core.util.PBlockFace;
 import nl.pim16aap2.bigdoors.core.util.Rectangle;
 import nl.pim16aap2.bigdoors.core.util.Util;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Di;
@@ -99,7 +99,7 @@ public class SlidingDoor extends AbstractStructure implements IDiscreteMovement
     @Locked.Read
     public Optional<Cuboid> getPotentialNewCoordinates()
     {
-        final Vector3Di vec = PBlockFace.getDirection(Util.getPBlockFace(getCurrentToggleDir()));
+        final Vector3Di vec = BlockFace.getDirection(Util.getBlockFace(getCurrentToggleDir()));
         return Optional.of(getCuboid().move(getBlocksToMove() * vec.x(), 0, getBlocksToMove() * vec.z()));
     }
 

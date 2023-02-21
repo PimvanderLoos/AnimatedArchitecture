@@ -21,6 +21,14 @@ public class Animation<T extends IAnimatedBlock>
     private final int duration;
 
     /**
+     * True if the animation is 'perpetual'.
+     * <p>
+     * Perpetual animations will continue until aborted externally. This may happen when the area they are animating in
+     * is unloaded by the server, when the server/plugin restarts, or when a user stops/deletes the structure.
+     */
+    @Getter
+    private final boolean perpetual;
+    /**
      * The region that this animation currently occupies.
      * <p>
      * It should be noted that this is only a rather inaccurate approximation, as it is a snapshot of the region of a
@@ -71,6 +79,7 @@ public class Animation<T extends IAnimatedBlock>
 
     Animation(
         int duration,
+        boolean perpetual,
         Cuboid region,
         List<T> animatedBlocks,
         StructureSnapshot structureSnapshot,
@@ -78,6 +87,7 @@ public class Animation<T extends IAnimatedBlock>
         AnimationType animationType)
     {
         this.duration = duration;
+        this.perpetual = perpetual;
         this.region = region;
         this.animatedBlocks = Collections.unmodifiableList(animatedBlocks);
         this.structureSnapshot = structureSnapshot;
@@ -89,10 +99,12 @@ public class Animation<T extends IAnimatedBlock>
     /**
      * @return The number of animation steps remaining in this animation. This only includes the steps to be executed by
      * the animation and not any steps required for the cleanup phase.
+     * <p>
+     * When {@link #isPerpetual()} is true, this method always returns {@link #getDuration()}.
      */
     public int getRemainingSteps()
     {
-        return getDuration() - stepsExecuted;
+        return isPerpetual() ? getDuration() : (getDuration() - stepsExecuted);
     }
 
     /**

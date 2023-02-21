@@ -3,10 +3,9 @@ package nl.pim16aap2.bigdoors.spigot.util;
 import lombok.Getter;
 import lombok.Setter;
 import nl.pim16aap2.bigdoors.core.api.Color;
-import nl.pim16aap2.bigdoors.core.util.PBlockFace;
+import nl.pim16aap2.bigdoors.core.util.BlockFace;
 import nl.pim16aap2.bigdoors.core.util.Util;
 import org.bukkit.ChatColor;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
@@ -21,23 +20,27 @@ import java.util.Map;
  */
 public final class SpigotUtil
 {
-    private static final Map<PBlockFace, BlockFace> TO_BLOCK_FACE = new EnumMap<>(PBlockFace.class);
-    private static final Map<BlockFace, PBlockFace> TO_PBLOCK_FACE = new EnumMap<>(BlockFace.class);
+    private static final Map<BlockFace, org.bukkit.block.BlockFace> TO_BUKKIT_BLOCK_FACE =
+        new EnumMap<>(BlockFace.class);
+
+    private static final Map<org.bukkit.block.BlockFace, BlockFace> TO_BLOCK_FACE =
+        new EnumMap<>(org.bukkit.block.BlockFace.class);
+
     @Getter
     @Setter
     private static boolean printDebugMessages = false;
 
     static
     {
-        for (final PBlockFace pbf : PBlockFace.values())
+        for (final BlockFace blockFace : BlockFace.values())
         {
-            final BlockFace mappedBlockFace;
-            if (pbf.equals(PBlockFace.NONE))
-                mappedBlockFace = BlockFace.SELF;
+            final org.bukkit.block.BlockFace mappedBlockFace;
+            if (blockFace.equals(BlockFace.NONE))
+                mappedBlockFace = org.bukkit.block.BlockFace.SELF;
             else
-                mappedBlockFace = BlockFace.valueOf(pbf.toString());
-            TO_BLOCK_FACE.put(pbf, mappedBlockFace);
-            TO_PBLOCK_FACE.put(mappedBlockFace, pbf);
+                mappedBlockFace = org.bukkit.block.BlockFace.valueOf(blockFace.toString());
+            TO_BUKKIT_BLOCK_FACE.put(blockFace, mappedBlockFace);
+            TO_BLOCK_FACE.put(mappedBlockFace, blockFace);
         }
     }
 
@@ -105,35 +108,35 @@ public final class SpigotUtil
     }
 
     /**
-     * Get the {@link PBlockFace} parallel to the given {@link org.bukkit.block.BlockFace}.
+     * Get the {@link BlockFace} parallel to the given {@link org.bukkit.block.BlockFace}.
      *
-     * @param mbf
-     *     {@link PBlockFace} that will be converted.
+     * @param blockFace
+     *     {@link BlockFace} that will be converted.
      * @return The parallel {@link org.bukkit.block.BlockFace}.
      */
-    public static BlockFace getBukkitFace(PBlockFace mbf)
+    public static org.bukkit.block.BlockFace getBukkitFace(BlockFace blockFace)
     {
-        final BlockFace ret = TO_BLOCK_FACE.get(mbf);
+        final org.bukkit.block.BlockFace ret = TO_BUKKIT_BLOCK_FACE.get(blockFace);
         if (ret != null)
             return ret;
 
-        throw new IllegalStateException("Failing to find spigot mapping for PBlockFace: " + mbf);
+        throw new IllegalStateException("Failing to find spigot mapping for BlockFace: " + blockFace);
     }
 
     /**
-     * Get the {@link org.bukkit.block.BlockFace} parallel to the given {@link PBlockFace}.
+     * Get the {@link org.bukkit.block.BlockFace} parallel to the given {@link BlockFace}.
      *
-     * @param bf
+     * @param blockFace
      *     {@link org.bukkit.block.BlockFace} that will be converted.
-     * @return The parallel {@link PBlockFace}.
+     * @return The parallel {@link BlockFace}.
      */
-    public static PBlockFace getPBlockFace(BlockFace bf)
+    public static BlockFace getBlockFace(org.bukkit.block.BlockFace blockFace)
     {
-        final PBlockFace ret = TO_PBLOCK_FACE.get(bf);
+        final BlockFace ret = TO_BLOCK_FACE.get(blockFace);
         if (ret != null)
             return ret;
 
-        throw new IllegalStateException("Failing to find mapping for lockFace: " + bf);
+        throw new IllegalStateException("Failing to find mapping for Bukkit BlockFace: " + blockFace);
     }
 
     /**

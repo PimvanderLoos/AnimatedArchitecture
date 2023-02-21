@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.core.moveblocks.IAnimator;
 import nl.pim16aap2.bigdoors.core.structures.StructureSnapshot;
 import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
+import nl.pim16aap2.bigdoors.core.util.Util;
 import nl.pim16aap2.bigdoors.core.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
 
@@ -19,6 +20,7 @@ public class BigDoorAnimationComponent implements IAnimationComponent
     private final StructureSnapshot snapshot;
     private final Vector3Dd rotationCenter;
     private final int rotateCount;
+    private final int rotateCountOffset;
     private final double angle;
     private final double step;
 
@@ -43,23 +45,24 @@ public class BigDoorAnimationComponent implements IAnimationComponent
         final int animationDuration =
             AnimationUtil.getAnimationTicks(data.getAnimationTime(), data.getServerTickTime());
 
-        step = angle / animationDuration;
-        rotateCount = animationDuration / quarterCircles / 2;
+        this.step = this.angle / animationDuration;
+        this.rotateCount = animationDuration / quarterCircles;
+        this.rotateCountOffset = this.rotateCount / 2;
     }
 
     @Override
     public Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
     {
-        return getGoalPos(angle, startLocation.xD(), startLocation.yD(), startLocation.zD());
+        return getGoalPos(Util.clampAngleRad(angle), startLocation.xD(), startLocation.yD(), startLocation.zD());
     }
 
     @Override
     public void executeAnimationStep(IAnimator animator, int ticks, int ticksRemaining)
     {
-        if (ticks % rotateCount == 0)
+        if ((ticks - rotateCountOffset) % rotateCount == 0)
             animator.applyRotation(movementDirection);
 
-        final double stepSum = step * ticks;
+        final double stepSum = Util.clampAngleRad(step * ticks);
         final double cos = Math.cos(stepSum);
         final double sin = Math.sin(stepSum);
 

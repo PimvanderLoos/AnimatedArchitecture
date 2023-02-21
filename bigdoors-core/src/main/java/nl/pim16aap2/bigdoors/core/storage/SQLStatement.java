@@ -405,7 +405,7 @@ public enum SQLStatement
     SQLStatement(String statement)
     {
         this.statement = statement;
-        variableCount = Util.countPatternOccurrences(PPreparedStatement.QUESTION_MARK, statement);
+        variableCount = Util.countPatternOccurrences(DelayedPreparedStatement.QUESTION_MARK, statement);
     }
 
     /**
@@ -433,24 +433,24 @@ public enum SQLStatement
     }
 
     /**
-     * Constructs a new {@link PPreparedStatement} from the {@link SQLStatement}.
+     * Constructs a new {@link DelayedPreparedStatement} from the {@link SQLStatement}.
      *
      * @param sqlStatement
      *     The {@link SQLStatement}.
-     * @return A new {@link PPreparedStatement}.
+     * @return A new {@link DelayedPreparedStatement}.
      */
-    public static PPreparedStatement constructPPreparedStatement(SQLStatement sqlStatement)
+    public static DelayedPreparedStatement constructDelayedPreparedStatement(SQLStatement sqlStatement)
     {
-        return sqlStatement.constructPPreparedStatement();
+        return sqlStatement.constructDelayedPreparedStatement();
     }
 
     /**
-     * Constructs a new {@link PPreparedStatement} from this {@link SQLStatement}.
+     * Constructs a new {@link DelayedPreparedStatement} from this {@link SQLStatement}.
      *
-     * @return A new {@link PPreparedStatement}.
+     * @return A new {@link DelayedPreparedStatement}.
      */
-    public PPreparedStatement constructPPreparedStatement()
+    public DelayedPreparedStatement constructDelayedPreparedStatement()
     {
-        return new PPreparedStatement(variableCount, statement);
+        return new DelayedPreparedStatement(variableCount, statement);
     }
 }

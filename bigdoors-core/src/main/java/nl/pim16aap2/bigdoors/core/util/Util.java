@@ -69,9 +69,9 @@ public final class Util
      */
     private static final Random RANDOM = new Random();
 
-    private static final Map<PBlockFace, MovementDirection> TO_MOVEMENT_DIRECTION =
-        new EnumMap<>(PBlockFace.class);
-    private static final Map<MovementDirection, PBlockFace> TO_PBLOCK_FACE =
+    private static final Map<BlockFace, MovementDirection> TO_MOVEMENT_DIRECTION =
+        new EnumMap<>(BlockFace.class);
+    private static final Map<MovementDirection, BlockFace> TO_BLOCK_FACE =
         new EnumMap<>(MovementDirection.class);
 
     /**
@@ -89,19 +89,19 @@ public final class Util
 
     static
     {
-        for (final var pbf : PBlockFace.values())
+        for (final var blockFace : BlockFace.values())
         {
             MovementDirection mappedMoveDir;
             try
             {
-                mappedMoveDir = MovementDirection.valueOf(pbf.toString());
+                mappedMoveDir = MovementDirection.valueOf(blockFace.toString());
             }
             catch (IllegalArgumentException e)
             {
                 mappedMoveDir = MovementDirection.NONE;
             }
-            TO_MOVEMENT_DIRECTION.put(pbf, mappedMoveDir);
-            TO_PBLOCK_FACE.put(mappedMoveDir, pbf);
+            TO_MOVEMENT_DIRECTION.put(blockFace, mappedMoveDir);
+            TO_BLOCK_FACE.put(mappedMoveDir, blockFace);
         }
     }
 
@@ -325,29 +325,29 @@ public final class Util
     }
 
     /**
-     * Gets the {@link MovementDirection} equivalent of a {@link PBlockFace} if it exists.
+     * Gets the {@link MovementDirection} equivalent of a {@link BlockFace} if it exists.
      *
-     * @param pBlockFace
-     *     The {@link PBlockFace}.
-     * @return The {@link MovementDirection} equivalent of a {@link PBlockFace} if it exists and otherwise
+     * @param blockFace
+     *     The {@link BlockFace}.
+     * @return The {@link MovementDirection} equivalent of a {@link BlockFace} if it exists and otherwise
      * {@link MovementDirection#NONE}.
      */
-    public static MovementDirection getMovementDirection(PBlockFace pBlockFace)
+    public static MovementDirection getMovementDirection(BlockFace blockFace)
     {
-        return TO_MOVEMENT_DIRECTION.getOrDefault(pBlockFace, MovementDirection.NONE);
+        return TO_MOVEMENT_DIRECTION.getOrDefault(blockFace, MovementDirection.NONE);
     }
 
     /**
-     * Gets the {@link PBlockFace} equivalent of a {@link MovementDirection} if it exists.
+     * Gets the {@link BlockFace} equivalent of a {@link MovementDirection} if it exists.
      *
      * @param movementDirection
      *     The {@link MovementDirection}.
-     * @return The {@link PBlockFace} equivalent of a {@link MovementDirection} if it exists and otherwise
-     * {@link PBlockFace#NONE}.
+     * @return The {@link BlockFace} equivalent of a {@link MovementDirection} if it exists and otherwise
+     * {@link BlockFace#NONE}.
      */
-    public static PBlockFace getPBlockFace(MovementDirection movementDirection)
+    public static BlockFace getBlockFace(MovementDirection movementDirection)
     {
-        return TO_PBLOCK_FACE.getOrDefault(movementDirection, PBlockFace.NONE);
+        return TO_BLOCK_FACE.getOrDefault(movementDirection, BlockFace.NONE);
     }
 
     /**

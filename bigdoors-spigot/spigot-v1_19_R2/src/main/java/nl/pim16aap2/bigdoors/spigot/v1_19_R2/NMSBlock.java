@@ -13,15 +13,14 @@ import net.minecraft.world.level.block.state.IBlockData;
 import nl.pim16aap2.bigdoors.core.api.IExecutor;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlockData;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlockHook;
+import nl.pim16aap2.bigdoors.core.util.BlockFace;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
-import nl.pim16aap2.bigdoors.core.util.PBlockFace;
 import nl.pim16aap2.bigdoors.core.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import org.bukkit.Axis;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.MultipleFacing;
 import org.bukkit.block.data.Orientable;
@@ -267,7 +266,7 @@ public class NMSBlock extends BlockBase implements IAnimatedBlockData
     @GuardedBy("blockDataLock")
     private void rotateDirectional(Directional bd, MovementDirection dir, int steps)
     {
-        final @Nullable var mappedDir = PBlockFace.getDirFun(dir);
+        final @Nullable var mappedDir = BlockFace.getDirFun(dir);
         if (mappedDir == null)
         {
             log.atSevere().withStackTrace(StackSize.FULL)
@@ -275,8 +274,8 @@ public class NMSBlock extends BlockBase implements IAnimatedBlockData
             return;
         }
 
-        final BlockFace newFace = SpigotUtil.getBukkitFace(
-            PBlockFace.rotate(SpigotUtil.getPBlockFace(bd.getFacing()), steps, mappedDir));
+        final org.bukkit.block.BlockFace newFace = SpigotUtil.getBukkitFace(
+            BlockFace.rotate(SpigotUtil.getBlockFace(bd.getFacing()), steps, mappedDir));
         if (bd.getFaces().contains(newFace))
             bd.setFacing(newFace);
     }
@@ -309,7 +308,7 @@ public class NMSBlock extends BlockBase implements IAnimatedBlockData
     private void rotateMultipleFacing(
         MultipleFacing bd, MovementDirection dir, @SuppressWarnings("SameParameterValue") int steps)
     {
-        final @Nullable var mappedDir = PBlockFace.getDirFun(dir);
+        final @Nullable var mappedDir = BlockFace.getDirFun(dir);
         if (mappedDir == null)
         {
             log.atSevere().withStackTrace(StackSize.FULL)
@@ -317,22 +316,22 @@ public class NMSBlock extends BlockBase implements IAnimatedBlockData
             return;
         }
 
-        final Set<BlockFace> currentFaces = bd.getFaces();
-        final Set<BlockFace> allowedFaces = bd.getAllowedFaces();
+        final Set<org.bukkit.block.BlockFace> currentFaces = bd.getFaces();
+        final Set<org.bukkit.block.BlockFace> allowedFaces = bd.getAllowedFaces();
         currentFaces.forEach((blockFace) -> bd.setFace(blockFace, false));
         currentFaces.forEach(
             (blockFace) ->
             {
-                final BlockFace newFace = SpigotUtil.getBukkitFace(
-                    PBlockFace.rotate(SpigotUtil.getPBlockFace(blockFace), steps, mappedDir));
+                final org.bukkit.block.BlockFace newFace = SpigotUtil.getBukkitFace(
+                    BlockFace.rotate(SpigotUtil.getBlockFace(blockFace), steps, mappedDir));
                 if (allowedFaces.contains(newFace))
                     bd.setFace(newFace, true);
             });
 
         // This should never be disabled. The center column of a cobble wall, for
         // example, would be invisible otherwise.
-        if (allowedFaces.contains(BlockFace.UP))
-            bd.setFace(BlockFace.UP, true);
+        if (allowedFaces.contains(org.bukkit.block.BlockFace.UP))
+            bd.setFace(org.bukkit.block.BlockFace.UP, true);
     }
 
     @Override

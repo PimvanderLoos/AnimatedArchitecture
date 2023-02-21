@@ -29,6 +29,8 @@ public class DrawbridgeAnimationComponent implements IAnimationComponent
     private final double angle;
     private final double step;
     private final int rotateCount;
+    private final int rotateCountOffset;
+    private final MovementDirection movementDirection;
 
     public DrawbridgeAnimationComponent(
         AnimationRequestData data, MovementDirection movementDirection, boolean isNorthSouthAligned, int quarterCircles)
@@ -36,6 +38,7 @@ public class DrawbridgeAnimationComponent implements IAnimationComponent
         this.snapshot = data.getStructureSnapshot();
         this.northSouth = isNorthSouthAligned;
         this.rotationCenter = snapshot.getRotationPoint().toDouble().add(0.5, 0, 0.5);
+        this.movementDirection = movementDirection;
 
         switch (movementDirection)
         {
@@ -67,7 +70,8 @@ public class DrawbridgeAnimationComponent implements IAnimationComponent
             AnimationUtil.getAnimationTicks(data.getAnimationTime(), data.getServerTickTime());
 
         this.step = angle / animationDuration;
-        this.rotateCount = animationDuration / quarterCircles / 2;
+        this.rotateCount = animationDuration / quarterCircles;
+        this.rotateCountOffset = this.rotateCount / 2;
     }
 
     protected Vector3Dd getGoalPos(double angle, double x, double y, double z)
@@ -83,16 +87,16 @@ public class DrawbridgeAnimationComponent implements IAnimationComponent
     @Override
     public Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
     {
-        return getGoalPos(angle, startLocation.xD(), startLocation.yD(), startLocation.zD());
+        return getGoalPos(Util.clampAngleRad(angle), startLocation.xD(), startLocation.yD(), startLocation.zD());
     }
 
     @Override
     public void executeAnimationStep(IAnimator animator, int ticks, int ticksRemaining)
     {
-        final double stepSum = step * ticks;
+        final double stepSum = Util.clampAngleRad(step * ticks);
 
-        if (ticks % rotateCount == 0)
-            animator.respawnBlocks();
+        if ((ticks - rotateCountOffset) % rotateCount == 0)
+            animator.applyRotation(this.movementDirection);
 
         for (final IAnimatedBlock animatedBlock : animator.getAnimatedBlocks())
             animator.applyMovement(animatedBlock, getGoalPos(stepSum, animatedBlock), ticksRemaining);

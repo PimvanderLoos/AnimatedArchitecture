@@ -12,9 +12,9 @@ import nl.pim16aap2.bigdoors.core.moveblocks.AnimationRequestData;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.structures.structurearchetypes.IHorizontalAxisAligned;
+import nl.pim16aap2.bigdoors.core.util.BlockFace;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
-import nl.pim16aap2.bigdoors.core.util.PBlockFace;
 import nl.pim16aap2.bigdoors.core.util.Rectangle;
 import nl.pim16aap2.bigdoors.core.util.Util;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Di;
@@ -129,7 +129,7 @@ public class GarageDoor extends AbstractStructure implements IHorizontalAxisAlig
         final Vector3Di rotateVec;
         try
         {
-            rotateVec = PBlockFace.getDirection(Util.getPBlockFace(movementDirection));
+            rotateVec = BlockFace.getDirection(Util.getBlockFace(movementDirection));
         }
         catch (Exception e)
         {

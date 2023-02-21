@@ -19,6 +19,7 @@ import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.structures.IStructureConst;
 import nl.pim16aap2.bigdoors.core.util.Util;
 import nl.pim16aap2.bigdoors.spigot.core.BigDoorsPlugin;
+import nl.pim16aap2.bigdoors.spigot.core.config.ConfigSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PlayerSpigot;
 import org.bukkit.Material;
@@ -45,14 +46,22 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
     @ToString.Include
     private final Long2ObjectMap<AbstractStructure> structures;
 
+    private final ConfigSpigot config;
+
     @Getter
     @ToString.Include
     private final PlayerSpigot inventoryHolder;
 
     @AssistedInject//
     MainGui(
-        BigDoorsPlugin bigDoorsPlugin, ILocalizer localizer, ITextFactory textFactory, InfoGui.IFactory infoGuiFactory,
-        GuiStructureDeletionManager deletionManager, IExecutor executor, @Assisted IPlayer inventoryHolder,
+        BigDoorsPlugin bigDoorsPlugin,
+        ILocalizer localizer,
+        ITextFactory textFactory,
+        InfoGui.IFactory infoGuiFactory,
+        GuiStructureDeletionManager deletionManager,
+        IExecutor executor,
+        ConfigSpigot config,
+        @Assisted IPlayer inventoryHolder,
         @Assisted List<AbstractStructure> structures)
     {
         this.textFactory = textFactory;
@@ -61,6 +70,7 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
         this.bigDoorsPlugin = bigDoorsPlugin;
         this.localizer = localizer;
         this.infoGuiFactory = infoGuiFactory;
+        this.config = config;
         this.inventoryHolder = Util.requireNonNull(SpigotAdapter.getPlayerSpigot(inventoryHolder), "InventoryHolder");
         this.structures = getStructuresMap(structures);
 
@@ -114,7 +124,7 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
         {
             final StaticGuiElement guiElement = new StaticGuiElement(
                 'e',
-                new ItemStack(Material.OAK_DOOR),
+                new ItemStack(config.getGuiMaterial(structure.getType())),
                 click ->
                 {
                     selectedStructure = structure;

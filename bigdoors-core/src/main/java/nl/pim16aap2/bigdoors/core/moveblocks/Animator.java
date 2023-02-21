@@ -307,7 +307,9 @@ public final class Animator implements IAnimator
             throw new IllegalStateException("Trying to start an animation again!");
 
         final Animation<IAnimatedBlock> animation = new Animation<>(
-            animationDuration, oldCuboid, getAnimatedBlocks(), snapshot, structure.getType(), animationType);
+            animationDuration, perpetualMovement, oldCuboid, getAnimatedBlocks(),
+            snapshot, structure.getType(), animationType);
+
         this.animationData = animation;
 
         final AnimationContext animationContext = new AnimationContext(structure.getType(), snapshot, animation);

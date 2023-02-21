@@ -16,11 +16,14 @@ import java.util.regex.Pattern;
 /**
  * Represents a wrapper around {@link PreparedStatement}. It can be used to set variables before obtaining a
  * connection.
+ * <p>
+ * It also allows you to easily create a String containing the full statement with all the variable substituted, which
+ * can be useful for debugging purposes.
  *
  * @author Pim
  */
 @SuppressWarnings("unused")
-public class PPreparedStatement
+public class DelayedPreparedStatement
 {
     private final Action<?>[] actions;
     private String statement;
@@ -36,28 +39,28 @@ public class PPreparedStatement
     private int skipCount = 0;
 
     /**
-     * Constructs a new {@link PPreparedStatement}.
+     * Constructs a new {@link DelayedPreparedStatement}.
      * <p>
      * It counts the number of variables ('?' characters) in the statement.
      *
      * @param statement
      *     The SQL statement.
      */
-    public PPreparedStatement(String statement)
+    public DelayedPreparedStatement(String statement)
     {
-        actions = new Action[Util.countPatternOccurrences(PPreparedStatement.QUESTION_MARK, statement)];
+        actions = new Action[Util.countPatternOccurrences(DelayedPreparedStatement.QUESTION_MARK, statement)];
         this.statement = statement;
     }
 
     /**
-     * Constructs a new {@link PPreparedStatement}.
+     * Constructs a new {@link DelayedPreparedStatement}.
      *
      * @param variableCount
      *     The number of variables ('?' characters) in the statement.
      * @param statement
      *     The SQL statement.
      */
-    public PPreparedStatement(int variableCount, String statement)
+    public DelayedPreparedStatement(int variableCount, String statement)
     {
         actions = new Action[variableCount];
         this.statement = statement;
@@ -81,8 +84,8 @@ public class PPreparedStatement
     }
 
     /**
-     * Constructs a {@link PreparedStatement} from this {@link PPreparedStatement}, applying all variables as defined up
-     * to this point.
+     * Constructs a {@link PreparedStatement} from this {@link DelayedPreparedStatement}, applying all variables as
+     * defined up to this point.
      *
      * @param conn
      *     A connection to a database.
@@ -100,8 +103,8 @@ public class PPreparedStatement
     }
 
     /**
-     * Constructs a {@link PreparedStatement} from this {@link PPreparedStatement}, applying all variables as defined up
-     * to this point.
+     * Constructs a {@link PreparedStatement} from this {@link DelayedPreparedStatement}, applying all variables as
+     * defined up to this point.
      *
      * @param conn
      *     A connection to a database.
@@ -148,9 +151,9 @@ public class PPreparedStatement
      *     The index of the variable character (= "?") in the statement that should be replaced by the table name.
      * @param obj
      *     The name of the table.
-     * @return This {@link PPreparedStatement}.
+     * @return This {@link DelayedPreparedStatement}.
      */
-    public PPreparedStatement setRawString(int idx, String obj)
+    public DelayedPreparedStatement setRawString(int idx, String obj)
     {
         if (!IStorage.isValidTableName(obj))
             throw new IllegalArgumentException("Trying to set table name using an invalid string: " + obj);
@@ -181,9 +184,9 @@ public class PPreparedStatement
      * <p>
      * The index used is simply the one following from the previous set action.
      *
-     * @return This {@link PPreparedStatement}.
+     * @return This {@link DelayedPreparedStatement}.
      */
-    public PPreparedStatement setNextBoolean(Boolean obj)
+    public DelayedPreparedStatement setNextBoolean(Boolean obj)
     {
         return setBoolean(currentIDX, obj);
     }
@@ -191,9 +194,9 @@ public class PPreparedStatement
     /**
      * See {@link PreparedStatement#setBoolean(int, boolean)}.
      *
-     * @return This {@link PPreparedStatement}.
+     * @return This {@link DelayedPreparedStatement}.
      */
-    public PPreparedStatement setBoolean(int idx, Boolean obj)
+    public DelayedPreparedStatement setBoolean(int idx, Boolean obj)
     {
         currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action<>(PreparedStatement::setBoolean, idx - skipCount, obj);
@@ -205,9 +208,9 @@ public class PPreparedStatement
      * <p>
      * The index used is simply the one following from the previous set action.
      *
-     * @return This {@link PPreparedStatement}.
+     * @return This {@link DelayedPreparedStatement}.
      */
-    public PPreparedStatement setNextByte(Byte obj)
+    public DelayedPreparedStatement setNextByte(Byte obj)
     {
         return setByte(currentIDX, obj);
     }
@@ -215,9 +218,9 @@ public class PPreparedStatement
     /**
      * See {@link PreparedStatement#setByte(int, byte)}.
      *
-     * @return This {@link PPreparedStatement}.
+     * @return This {@link DelayedPreparedStatement}.
      */
-    public PPreparedStatement setByte(int idx, Byte obj)
+    public DelayedPreparedStatement setByte(int idx, Byte obj)
     {
         currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action<>(PreparedStatement::setByte, idx - skipCount, obj);
@@ -229,9 +232,9 @@ public class PPreparedStatement
      * <p>
      * The index used is simply the one following from the previous set action.
      *
-     * @return This {@link PPreparedStatement}.
+     * @return This {@link DelayedPreparedStatement}.
      */
-    public PPreparedStatement setNextShort(Short obj)
+    public DelayedPreparedStatement setNextShort(Short obj)
     {
         return setShort(currentIDX, obj);
     }
@@ -239,9 +242,9 @@ public class PPreparedStatement
     /**
      * See {@link PreparedStatement#setShort(int, short)}.
      *
-     * @return This {@link PPreparedStatement}.
+     * @return This {@link DelayedPreparedStatement}.
      */
-    public PPreparedStatement setShort(int idx, Short obj)
+    public DelayedPreparedStatement setShort(int idx, Short obj)
     {
         currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action<>(PreparedStatement::setShort, idx - skipCount, obj);
@@ -253,9 +256,9 @@ public class PPreparedStatement
      * <p>
      * The index used is simply the one following from the previous set action.
      *
-     * @return This {@link PPreparedStatement}.
+     * @return This {@link DelayedPreparedStatement}.
      */
-    public PPreparedStatement setNextInt(Integer obj)
+    public DelayedPreparedStatement setNextInt(Integer obj)
     {
         return setInt(currentIDX, obj);
     }
@@ -263,9 +266,9 @@ public class PPreparedStatement
     /**
      * See {@link PreparedStatement#setInt(int, int)}.
      *
-     * @return This {@link PPreparedStatement}.
+     * @return This {@link DelayedPreparedStatement}.
      */
-    public PPreparedStatement setInt(int idx, Integer obj)
+    public DelayedPreparedStatement setInt(int idx, Integer obj)
     {
         currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action<>(PreparedStatement::setInt, idx - skipCount, obj);
@@ -277,9 +280,9 @@ public class PPreparedStatement
      * <p>
      * The index used is simply the one following from the previous set action.
      *
-     * @return This {@link PPreparedStatement}.
+     * @return This {@link DelayedPreparedStatement}.
      */
-    public PPreparedStatement setNextLong(Long obj)
+    public DelayedPreparedStatement setNextLong(Long obj)
     {
         return setLong(currentIDX, obj);
     }
@@ -287,9 +290,9 @@ public class PPreparedStatement
     /**
      * See {@link PreparedStatement#setLong(int, long)}.
      *
-     * @return This {@link PPreparedStatement}.
+     * @return This {@link DelayedPreparedStatement}.
      */
-    public PPreparedStatement setLong(int idx, Long obj)
+    public DelayedPreparedStatement setLong(int idx, Long obj)
     {
         currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action<>(PreparedStatement::setLong, idx - skipCount, obj);
@@ -301,9 +304,9 @@ public class PPreparedStatement
      * <p>
      * The index used is simply the one following from the previous set action.
      *
-     * @return This {@link PPreparedStatement}.
+     * @return This {@link DelayedPreparedStatement}.
      */
-    public PPreparedStatement setNextFloat(Float obj)
+    public DelayedPreparedStatement setNextFloat(Float obj)
     {
         return setFloat(currentIDX, obj);
     }
@@ -311,9 +314,9 @@ public class PPreparedStatement
     /**
      * See {@link PreparedStatement#setFloat(int, float)}.
      *
-     * @return This {@link PPreparedStatement}.
+     * @return This {@link DelayedPreparedStatement}.
      */
-    public PPreparedStatement setFloat(int idx, Float obj)
+    public DelayedPreparedStatement setFloat(int idx, Float obj)
     {
         currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action<>(PreparedStatement::setFloat, idx - skipCount, obj);
@@ -325,9 +328,9 @@ public class PPreparedStatement
      * <p>
      * The index used is simply the one following from the previous set action.
      *
-     * @return This {@link PPreparedStatement}.
+     * @return This {@link DelayedPreparedStatement}.
      */
-    public PPreparedStatement setNextDouble(Double obj)
+    public DelayedPreparedStatement setNextDouble(Double obj)
     {
         return setDouble(currentIDX, obj);
     }
@@ -335,9 +338,9 @@ public class PPreparedStatement
     /**
      * See {@link PreparedStatement#setDouble(int, double)}.
      *
-     * @return This {@link PPreparedStatement}.
+     * @return This {@link DelayedPreparedStatement}.
      */
-    public PPreparedStatement setDouble(int idx, Double obj)
+    public DelayedPreparedStatement setDouble(int idx, Double obj)
     {
         currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action<>(PreparedStatement::setDouble, idx - skipCount, obj);
@@ -349,9 +352,9 @@ public class PPreparedStatement
      * <p>
      * The index used is simply the one following from the previous set action.
      *
-     * @return This {@link PPreparedStatement}.
+     * @return This {@link DelayedPreparedStatement}.
      */
-    public PPreparedStatement setNextBigDecimal(BigDecimal obj)
+    public DelayedPreparedStatement setNextBigDecimal(BigDecimal obj)
     {
         return setBigDecimal(currentIDX, obj);
     }
@@ -359,9 +362,9 @@ public class PPreparedStatement
     /**
      * See {@link PreparedStatement#setBigDecimal(int, BigDecimal)}.
      *
-     * @return This {@link PPreparedStatement}.
+     * @return This {@link DelayedPreparedStatement}.
      */
-    public PPreparedStatement setBigDecimal(int idx, BigDecimal obj)
+    public DelayedPreparedStatement setBigDecimal(int idx, BigDecimal obj)
     {
         currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action<>(PreparedStatement::setBigDecimal, idx - skipCount, obj);
@@ -373,9 +376,9 @@ public class PPreparedStatement
      * <p>
      * The index used is simply the one following from the previous set action.
      *
-     * @return This {@link PPreparedStatement}.
+     * @return This {@link DelayedPreparedStatement}.
      */
-    public PPreparedStatement setNextString(@Nullable String obj)
+    public DelayedPreparedStatement setNextString(@Nullable String obj)
     {
         return setString(currentIDX, obj);
     }
@@ -383,9 +386,9 @@ public class PPreparedStatement
     /**
      * See {@link PreparedStatement#setString(int, String)}.
      *
-     * @return This {@link PPreparedStatement}.
+     * @return This {@link DelayedPreparedStatement}.
      */
-    public PPreparedStatement setString(int idx, @Nullable String obj)
+    public DelayedPreparedStatement setString(int idx, @Nullable String obj)
     {
         currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action<>(PreparedStatement::setString, idx - skipCount, obj);
@@ -397,9 +400,9 @@ public class PPreparedStatement
      * <p>
      * The index used is simply the one following from the previous set action.
      *
-     * @return This {@link PPreparedStatement}.
+     * @return This {@link DelayedPreparedStatement}.
      */
-    public PPreparedStatement setNextBytes(byte[] obj)
+    public DelayedPreparedStatement setNextBytes(byte[] obj)
     {
         return setBytes(currentIDX, obj);
     }
@@ -407,9 +410,9 @@ public class PPreparedStatement
     /**
      * See {@link PreparedStatement#setBytes(int, byte[])}.
      *
-     * @return This {@link PPreparedStatement}.
+     * @return This {@link DelayedPreparedStatement}.
      */
-    public PPreparedStatement setBytes(int idx, byte[] obj)
+    public DelayedPreparedStatement setBytes(int idx, byte[] obj)
     {
         currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action<>(PreparedStatement::setBytes, idx - skipCount, obj);
@@ -421,9 +424,9 @@ public class PPreparedStatement
      * <p>
      * The index used is simply the one following from the previous set action.
      *
-     * @return This {@link PPreparedStatement}.
+     * @return This {@link DelayedPreparedStatement}.
      */
-    public PPreparedStatement setNextDate(@Nullable Date obj)
+    public DelayedPreparedStatement setNextDate(@Nullable Date obj)
     {
         return setDate(currentIDX, obj);
     }
@@ -431,9 +434,9 @@ public class PPreparedStatement
     /**
      * See {@link PreparedStatement#setDate(int, Date)}.
      *
-     * @return This {@link PPreparedStatement}.
+     * @return This {@link DelayedPreparedStatement}.
      */
-    public PPreparedStatement setDate(int idx, @Nullable Date obj)
+    public DelayedPreparedStatement setDate(int idx, @Nullable Date obj)
     {
         currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action<>(PreparedStatement::setDate, idx - skipCount, obj);
@@ -445,9 +448,9 @@ public class PPreparedStatement
      * <p>
      * The index used is simply the one following from the previous set action.
      *
-     * @return This {@link PPreparedStatement}.
+     * @return This {@link DelayedPreparedStatement}.
      */
-    public PPreparedStatement setNextTime(@Nullable Time obj)
+    public DelayedPreparedStatement setNextTime(@Nullable Time obj)
     {
         return setTime(currentIDX, obj);
     }
@@ -455,9 +458,9 @@ public class PPreparedStatement
     /**
      * See {@link PreparedStatement#setTime(int, Time)}.
      *
-     * @return This {@link PPreparedStatement}.
+     * @return This {@link DelayedPreparedStatement}.
      */
-    public PPreparedStatement setTime(int idx, @Nullable Time obj)
+    public DelayedPreparedStatement setTime(int idx, @Nullable Time obj)
     {
         currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action<>(PreparedStatement::setTime, idx - skipCount, obj);
@@ -469,9 +472,9 @@ public class PPreparedStatement
      * <p>
      * The index used is simply the one following from the previous set action.
      *
-     * @return This {@link PPreparedStatement}.
+     * @return This {@link DelayedPreparedStatement}.
      */
-    public PPreparedStatement setNextTimestamp(@Nullable Timestamp obj)
+    public DelayedPreparedStatement setNextTimestamp(@Nullable Timestamp obj)
     {
         return setTimestamp(currentIDX, obj);
     }
@@ -479,9 +482,9 @@ public class PPreparedStatement
     /**
      * See {@link PreparedStatement#setTimestamp(int, Timestamp)}.
      *
-     * @return This {@link PPreparedStatement}.
+     * @return This {@link DelayedPreparedStatement}.
      */
-    public PPreparedStatement setTimestamp(int idx, @Nullable Timestamp obj)
+    public DelayedPreparedStatement setTimestamp(int idx, @Nullable Timestamp obj)
     {
         currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action<>(PreparedStatement::setTimestamp, idx - skipCount, obj);
@@ -493,9 +496,9 @@ public class PPreparedStatement
      * <p>
      * The index used is simply the one following from the previous set action.
      *
-     * @return This {@link PPreparedStatement}.
+     * @return This {@link DelayedPreparedStatement}.
      */
-    public PPreparedStatement setNextObject(@Nullable Object obj)
+    public DelayedPreparedStatement setNextObject(@Nullable Object obj)
     {
         return setObject(currentIDX, obj);
     }
@@ -503,9 +506,9 @@ public class PPreparedStatement
     /**
      * See {@link PreparedStatement#setObject(int, Object)}.
      *
-     * @return This {@link PPreparedStatement}.
+     * @return This {@link DelayedPreparedStatement}.
      */
-    public PPreparedStatement setObject(int idx, @Nullable Object obj)
+    public DelayedPreparedStatement setObject(int idx, @Nullable Object obj)
     {
         currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action<>(PreparedStatement::setObject, idx - skipCount, obj);
@@ -517,9 +520,9 @@ public class PPreparedStatement
      * <p>
      * The index used is simply the one following from the previous set action.
      *
-     * @return This {@link PPreparedStatement}.
+     * @return This {@link DelayedPreparedStatement}.
      */
-    public PPreparedStatement setNextNull(int sqlType)
+    public DelayedPreparedStatement setNextNull(int sqlType)
     {
         return setNull(currentIDX, sqlType);
     }
@@ -527,9 +530,9 @@ public class PPreparedStatement
     /**
      * See {@link PreparedStatement#setNull(int, int)}
      *
-     * @return This {@link PPreparedStatement}.
+     * @return This {@link DelayedPreparedStatement}.
      */
-    public PPreparedStatement setNull(int idx, int sqlType)
+    public DelayedPreparedStatement setNull(int idx, int sqlType)
     {
         currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action<>(PreparedStatement::setNull, idx - skipCount, sqlType);
@@ -537,8 +540,8 @@ public class PPreparedStatement
     }
 
     /**
-     * Represents an action that will set a typed value in a {@link PreparedStatement}. E.g. {@link
-     * PreparedStatement#setBoolean(int, boolean)}. This class allows delaying the actual action until a
+     * Represents an action that will set a typed value in a {@link PreparedStatement}. E.g.
+     * {@link PreparedStatement#setBoolean(int, boolean)}. This class allows delaying the actual action until a
      * PreparedStatement is created.
      *
      * @param <T>

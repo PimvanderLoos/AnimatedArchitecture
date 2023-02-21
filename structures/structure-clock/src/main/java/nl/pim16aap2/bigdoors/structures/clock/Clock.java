@@ -11,10 +11,10 @@ import nl.pim16aap2.bigdoors.core.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.core.structures.AbstractStructure;
 import nl.pim16aap2.bigdoors.core.structures.structurearchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.core.structures.structurearchetypes.IPerpetualMover;
+import nl.pim16aap2.bigdoors.core.util.BlockFace;
 import nl.pim16aap2.bigdoors.core.util.Cuboid;
 import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
-import nl.pim16aap2.bigdoors.core.util.PBlockFace;
 import nl.pim16aap2.bigdoors.core.util.Rectangle;
 
 import java.util.Optional;
@@ -39,8 +39,8 @@ public class Clock extends AbstractStructure implements IHorizontalAxisAligned, 
 
     /**
      * Describes on which side the hour arm is. If the clock is situated along the North/South axis see
-     * {@link #northSouthAnimated}, then the hour arm can either be on the {@link PBlockFace#WEST} or the
-     * {@link PBlockFace#EAST} side.
+     * {@link #northSouthAnimated}, then the hour arm can either be on the {@link BlockFace#WEST} or the
+     * {@link BlockFace#EAST} side.
      * <p>
      * This is stored as a direction rather than an integer value (for example the X/Z axis value) so that it could also
      * work for {@link Clock}s that have arms that are more than 1 block deep.
@@ -49,13 +49,13 @@ public class Clock extends AbstractStructure implements IHorizontalAxisAligned, 
      */
     @PersistentVariable(value = "hourArmSide")
     @Getter
-    protected final PBlockFace hourArmSide;
+    protected final BlockFace hourArmSide;
 
     @Deserialization
     public Clock(
         BaseHolder base,
         @PersistentVariable(value = "northSouthAnimated") boolean northSouthAnimated,
-        @PersistentVariable(value = "hourArmSide") PBlockFace hourArmSide)
+        @PersistentVariable(value = "hourArmSide") BlockFace hourArmSide)
     {
         super(base, StructureTypeClock.get());
         this.lock = getLock();
@@ -65,7 +65,7 @@ public class Clock extends AbstractStructure implements IHorizontalAxisAligned, 
 
     public Clock(BaseHolder base)
     {
-        this(base, false, PBlockFace.NONE);
+        this(base, false, BlockFace.NONE);
     }
 
     @Override
@@ -93,7 +93,7 @@ public class Clock extends AbstractStructure implements IHorizontalAxisAligned, 
     @Override
     protected double calculateAnimationTime(double target)
     {
-        return 60;
+        return 8;
     }
 
     @Override
