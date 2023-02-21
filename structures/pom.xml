@@ -7,8 +7,8 @@
     <version>1</version>
 
     <parent>
-        <groupId>nl.pim16aap2.bigdoors</groupId>
-        <artifactId>bigdoors-parent</artifactId>
+        <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+        <artifactId>animatedarchitecture-parent</artifactId>
         <version>1</version>
     </parent>
 
@@ -26,8 +26,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>nl.pim16aap2.bigdoors</groupId>
-            <artifactId>bigdoors-core</artifactId>
+            <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+            <artifactId>animatedarchitecture-core</artifactId>
             <version>1</version>
         </dependency>
     </dependencies>
@@ -86,7 +86,7 @@
                         This is explicitly required here because we're exporting to separate jars -->
                         <artifactSet>
                             <includes>
-                                <include>nl.pim16aap2.bigdoors.doors:*</include>
+                                <include>nl.pim16aap2.animatedarchitecture.structures:*</include>
                             </includes>
                         </artifactSet>
                     </configuration>

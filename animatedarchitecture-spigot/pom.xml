@@ -1,0 +1,40 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>animatedarchitecture-spigot</artifactId>
+    <packaging>pom</packaging>
+    <description>Implementation for the Spigot platform</description>
+    <version>1</version>
+
+    <parent>
+        <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+        <artifactId>animatedarchitecture-parent</artifactId>
+        <version>1</version>
+    </parent>
+
+    <properties>
+        <project.root-dir>${project.basedir}/..</project.root-dir>
+        <dependency.version.spigot-base>1.19.3-R0.1-SNAPSHOT</dependency.version.spigot-base>
+    </properties>
+
+    <modules>
+        <module>spigot-v1_19_R2</module>
+        <module>spigot-core</module>
+        <module>spigot-util</module>
+    </modules>
+
+    <repositories>
+        <repository>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+            <artifactId>animatedarchitecture-core</artifactId>
+            <version>1</version>
+        </dependency>
+    </dependencies>
+</project>

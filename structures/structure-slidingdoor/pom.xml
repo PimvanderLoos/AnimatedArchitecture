@@ -6,14 +6,14 @@
     <version>1</version>
 
     <properties>
-        <mainClass>nl.pim16aap2.bigdoors.structures.slidingdoor.StructureTypeSlidingDoor</mainClass>
+        <mainClass>nl.pim16aap2.animatedarchitecture.structures.slidingdoor.StructureTypeSlidingDoor</mainClass>
         <typeName>SlidingDoor</typeName>
         <version>1</version>
         <project.root-dir>${project.basedir}/../..</project.root-dir>
     </properties>
 
     <parent>
-        <groupId>nl.pim16aap2.bigdoors</groupId>
+        <groupId>nl.pim16aap2.animatedarchitecture</groupId>
         <artifactId>structures</artifactId>
         <version>1</version>
     </parent>

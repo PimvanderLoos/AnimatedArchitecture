@@ -6,7 +6,7 @@
     <version>1</version>
 
     <properties>
-        <mainClass>nl.pim16aap2.bigdoors.structures.revolvingdoor.StructureTypeRevolvingDoor</mainClass>
+        <mainClass>nl.pim16aap2.animatedarchitecture.structures.revolvingdoor.StructureTypeRevolvingDoor</mainClass>
         <typeName>RevolvingDoor</typeName>
         <version>1</version>
         <TypeDependencies>bigdoor(1;1)</TypeDependencies>
@@ -14,14 +14,14 @@
     </properties>
 
     <parent>
-        <groupId>nl.pim16aap2.bigdoors</groupId>
+        <groupId>nl.pim16aap2.animatedarchitecture</groupId>
         <artifactId>structures</artifactId>
         <version>1</version>
     </parent>
 
     <dependencies>
         <dependency>
-            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>structure-bigdoor</artifactId>
             <version>1</version>
             <scope>provided</scope>

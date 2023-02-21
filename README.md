@@ -1,18 +1,22 @@
-# BigDoors v2
+# AnimatedArchitecture
 
-BigDoors is a plugin for the Minecraft server mod [Spigot](https://spigotmc.org). Its aim is to enhance your server with
+AnimatedArchitecture is a plugin for the Minecraft server mod [Spigot](https://spigotmc.org). Its aim is to enhance your
+server
+with
 animated blocks that can be used to create many kinds of animated structures. For example, big doors.
 
-BigDoors v2 is the new upcoming release of BigDoors. It is currently still very much a work in progress without a
+AnimatedArchitecture is the new upcoming rewrite of the old BigDoors plugin. It is currently still very much a work in
+progress
+without a
 planned release date.<br>
 If you are looking for the current release of BigDoors, please check out
 [v1](https://github.com/PimvanderLoos/BigDoors/tree/v1) instead.
 
-## Using v2
+## Using AnimatedArchitecture
 
 ### Warnings
 
-Before you try to use v2, please be aware that this project is still very much in development, so:
+Before you try to use AnimatedArchitecture, please be aware that this project is still very much in development, so:
 
 * There are many unfinished features.
 * You will encounter many bugs when using it. I am aware of many of them, so you don't need to report every minor issue
@@ -29,10 +33,12 @@ Before you try to use v2, please be aware that this project is still very much i
 ### Installation:
 
 * Grab the latest release from the [actions page](https://github.com/PimvanderLoos/BigDoors/actions). I would recommend
-  picking a build from the master branch. You will need both `BigDoors-Spigot.zip` and `Structures.zip` files.
+  picking a build from the master branch. You will need both `AnimatedArchitecture-Spigot.zip` and `Structures.zip`
+  files.
 * Extract both zip files.
-* Place the `BigDoors-Spigot.jar` in the plugins directory of your server.
-* Create the following folder (or start the server to generate it automatically): `plugins/BigDoors2/extensions`.
+* Place the `AnimatedArchitecture-Spigot.jar` in the plugins directory of your server.
+* Create the following folder (or start the server to generate it
+  automatically): `plugins/AnimatedArchitecture/extensions`.
 * Move all the jars from the `Structures.zip` file to the new `extensions` directory.
 * (Re)start your server.
 
@@ -73,9 +79,9 @@ follow these steps:
 2) Apply the changes you wish to make.
     * You can check the files in `localization/translations.bundle` to see the current translations.
 3) Restart either the server or the plugin.
-    * You can restart the plugin with `/BigDoors restart`
+    * You can restart the plugin with `/AnimatedArchitecture restart`
 
-## Compiling BigDoors v2
+## Compiling AnimatedArchitecture
 
 Compilation requirements:
 
@@ -92,7 +98,8 @@ To also run all the tests, static analysis tools etc., you can run the following
 
 ```mvn -P=errorprone test package checkstyle:checkstyle pmd:check```
 
-The `BigDoors-Spigot.jar` file can then be found in `bigdoors-spigot/spigot-core/target/BigDoors-Spigot.jar`.
+The `AnimatedArchitecture-Spigot.jar` file can then be found
+in `animatedarchitecture-spigot/spigot-core/target/AnimatedArchitecture-Spigot.jar`.
 The jars for each structure type can be found in `structures/StructuresOutput/<StructureType>.jar`.
 
 ## Documentation

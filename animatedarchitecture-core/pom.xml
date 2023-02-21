@@ -1,0 +1,108 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>animatedarchitecture-core</artifactId>
+    <packaging>jar</packaging>
+    <description>Core of AnimatedArchitecture</description>
+    <version>1</version>
+
+    <parent>
+        <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+        <artifactId>animatedarchitecture-parent</artifactId>
+        <version>1</version>
+    </parent>
+
+    <properties>
+        <project.root-dir>${project.basedir}/..</project.root-dir>
+        <actions.run.id>-1</actions.run.id>
+        <actions.run.number>-1</actions.run.number>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.github.PimvanderLoos</groupId>
+            <artifactId>JCalculator</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>${dependency.version.jdbc-sqlite}</version>
+            <optional>true</optional>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2</groupId>
+            <artifactId>util</artifactId>
+            <version>1</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2</groupId>
+            <artifactId>test-util</artifactId>
+            <version>1</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${dependency.version.surefire}</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${dependency.version.jacoco}</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${dependency.version.maven-compiler}</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${dependency.version.maven-jar}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>io.github.git-commit-id</groupId>
+                <artifactId>git-commit-id-maven-plugin</artifactId>
+                <version>${dependency.version.git-commit-id}</version>
+                <executions>
+                    <execution>
+                        <id>get-the-git-infos</id>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                        <phase>validate</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <dotGitDirectory>${project.root-dir}/.git</dotGitDirectory>
+                </configuration>
+            </plugin>
+        </plugins>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+    </build>
+</project>
