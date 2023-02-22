@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
+import java.nio.file.FileSystemException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.ProviderNotFoundException;
@@ -113,8 +114,15 @@ final class LocalizationGenerator implements ILocalizationGenerator
         {
             final Path existingLocaleFile =
                 outputFileSystem.getPath(LocalizationUtil.getOutputLocaleFileName(outputBaseName, ""));
-            LocalizationUtil.ensureFileExists(existingLocaleFile);
             return LocalizationUtil.getKeySet(Files.newInputStream(existingLocaleFile));
+        }
+        // Windows bitches about the bundle being used by another process resulting in a FileSystemException.
+        // I don't really care about the patching system being broken on Windows.
+        // PRs are welcome ;)
+        catch (FileSystemException e)
+        {
+            log.atWarning().withCause(e).log("Failed to get keys from base locale file. Are you using Windows?");
+            return Collections.emptySet();
         }
         catch (IOException | URISyntaxException | ProviderNotFoundException e)
         {
