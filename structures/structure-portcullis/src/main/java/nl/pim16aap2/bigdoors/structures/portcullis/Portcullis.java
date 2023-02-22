@@ -82,7 +82,7 @@ public class Portcullis extends AbstractStructure implements IDiscreteMovement
     @Locked.Read
     public MovementDirection getCurrentToggleDir()
     {
-        return isOpen() ? getOpenDir() : MovementDirection.getOpposite(getOpenDir());
+        return isOpen() ? MovementDirection.getOpposite(getOpenDir()) : getOpenDir();
     }
 
     @Override
