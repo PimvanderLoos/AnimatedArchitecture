@@ -10,11 +10,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystemException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.ProviderNotFoundException;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +35,8 @@ final class LocalizationGenerator implements ILocalizationGenerator
     @Getter
     private final Path outputFile;
     private final String outputBaseName;
+    @Getter
+    private final Set<String> rootKeys;
 
     /**
      * @param outputDirectory
@@ -47,6 +47,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
     LocalizationGenerator(Path outputDirectory, String outputBaseName)
     {
         this.outputBaseName = outputBaseName;
+        this.rootKeys = new HashSet<>();
         outputFile = outputDirectory.resolve(this.outputBaseName + ".bundle");
         LocalizationUtil.ensureZipFileExists(outputFile);
     }
@@ -104,35 +105,6 @@ final class LocalizationGenerator implements ILocalizationGenerator
     }
 
     /**
-     * Finds the localization keys used in the root locale file in the output file.
-     *
-     * @return The set of localization keys used in the root locale file.
-     */
-    Set<String> getOutputRootKeys()
-    {
-        try (FileSystem outputFileSystem = getOutputFileFileSystem())
-        {
-            final Path existingLocaleFile =
-                outputFileSystem.getPath(LocalizationUtil.getOutputLocaleFileName(outputBaseName, ""));
-            LocalizationUtil.ensureFileExists(existingLocaleFile);
-            return LocalizationUtil.getKeySet(Files.newInputStream(existingLocaleFile));
-        }
-        // Windows bitches about the bundle being used by another process resulting in a FileSystemException.
-        // I don't really care about the patching system being broken on Windows.
-        // PRs are welcome ;)
-        catch (FileSystemException e)
-        {
-            log.atWarning().withCause(e).log("Failed to get keys from base locale file. Are you using Windows? Blegh!");
-            return Collections.emptySet();
-        }
-        catch (IOException | URISyntaxException | ProviderNotFoundException e)
-        {
-            log.atSevere().withCause(e).log("Failed to get keys from base locale file.");
-            return Collections.emptySet();
-        }
-    }
-
-    /**
      * Loads the locale files from the jar file a specific {@link Class} was loaded from.
      * <p>
      * See {@link #addResourcesFromZip(Path, String)}.
@@ -173,11 +145,14 @@ final class LocalizationGenerator implements ILocalizationGenerator
                 outputFileSystem.getPath(LocalizationUtil.getOutputLocaleFileName(outputBaseName, localeSuffix));
             LocalizationUtil.ensureFileExists(existingLocaleFile);
 
-            final List<String> lines = LocalizationUtil.readFile(Files.newInputStream(existingLocaleFile));
-            mergeWithPatches(lines, patches);
-
             final StringBuilder sb = new StringBuilder();
-            lines.forEach(line -> sb.append(line).append('\n'));
+            try (InputStream inputStream = Files.newInputStream(existingLocaleFile))
+            {
+                final List<String> lines = LocalizationUtil.readFile(inputStream);
+                mergeWithPatches(lines, patches);
+                lines.forEach(line -> sb.append(line).append('\n'));
+            }
+
             Files.writeString(existingLocaleFile, sb.toString());
         }
         catch (IOException | URISyntaxException | ProviderNotFoundException e)
@@ -263,7 +238,14 @@ final class LocalizationGenerator implements ILocalizationGenerator
         final List<String> existing = LocalizationUtil.readFile(Files.newInputStream(existingLocaleFile));
         final List<String> newlines = LocalizationUtil.readFile(inputStream);
         final List<String> appendable = LocalizationUtil.getAppendable(existing, newlines);
+        registerRootKeys(existing);
+        registerRootKeys(appendable);
         LocalizationUtil.appendToFile(existingLocaleFile, appendable);
+    }
+
+    private void registerRootKeys(List<String> lines)
+    {
+        this.rootKeys.addAll(LocalizationUtil.getKeySet(lines));
     }
 
     /**

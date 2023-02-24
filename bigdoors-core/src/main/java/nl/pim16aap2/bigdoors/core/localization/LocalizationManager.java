@@ -16,7 +16,6 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -102,8 +101,7 @@ public final class LocalizationManager extends Restartable implements ILocalizat
         try
         {
             final LocalizationPatcher localizationPatcher = new LocalizationPatcher(baseDir, baseName);
-            final Set<String> rootKeys = (patchGenerator == null ? baseGenerator : patchGenerator).getOutputRootKeys();
-            localizationPatcher.updatePatchKeys(rootKeys);
+            localizationPatcher.updatePatchKeys(baseGenerator.getRootKeys());
 
             final List<LocaleFile> patchFiles = localizationPatcher.getPatchFiles();
             final Map<LocaleFile, Map<String, String>> patches =

@@ -8,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -255,8 +256,8 @@ public final class LocalizationUtil
      */
     static void readFile(InputStream inputStream, Consumer<String> fun)
     {
-        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream,
-                                                                                      StandardCharsets.UTF_8)))
+        try (BufferedReader bufferedReader =
+                 new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8)))
         {
             for (String line; (line = bufferedReader.readLine()) != null; )
             {
@@ -288,13 +289,12 @@ public final class LocalizationUtil
     }
 
     /**
-     * Reads all the lines from a file and stores each line in a list.
+     * Reads all the lines from a file and applies a function to each line.
      *
      * @param path
      *     The path to the file to read the data from.
      * @param fun
      *     The function to apply for each line retrieved from the input stream.
-     * @return A list of Strings where every string represents a single line in the provided file.
      */
     static void readFile(Path path, Consumer<String> fun)
     {
@@ -457,7 +457,15 @@ public final class LocalizationUtil
     static FileSystem createNewFileSystem(Path zipFile)
         throws IOException, URISyntaxException, ProviderNotFoundException
     {
-        return FileSystems.newFileSystem(new URI("jar:" + zipFile.toUri()), Map.of());
+        final URI uri = new URI("jar:" + zipFile.toUri());
+        try
+        {
+            return FileSystems.newFileSystem(uri, Map.of());
+        }
+        catch (FileSystemAlreadyExistsException e)
+        {
+            throw new RuntimeException("Failed to create new filesystem: '" + uri + "'", e);
+        }
     }
 
     /**
@@ -528,7 +536,8 @@ public final class LocalizationUtil
         // Just opening the ZipOutputStream and then letting it close
         // on its own is enough to create a new zip file.
         //noinspection EmptyTryBlock
-        try (ZipOutputStream ignored = new ZipOutputStream(Files.newOutputStream(zipFile)))
+        try (OutputStream outputStream = Files.newOutputStream(zipFile);
+             ZipOutputStream ignored = new ZipOutputStream(outputStream))
         {
             // ignored
         }
