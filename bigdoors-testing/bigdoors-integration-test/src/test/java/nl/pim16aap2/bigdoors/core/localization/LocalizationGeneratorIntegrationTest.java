@@ -17,7 +17,6 @@ import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.zip.ZipOutputStream;
 
 import static nl.pim16aap2.bigdoors.core.localization.LocalizationTestingUtilities.*;
@@ -97,12 +96,14 @@ class LocalizationGeneratorIntegrationTest
         localizationGenerator.addResources(directoryA, BASE_NAME_A);
         localizationGenerator.addResources(directoryB, BASE_NAME_B);
 
-        final FileSystem outputFileSystem = createFileSystem(directoryOutput.resolve(BASE_NAME + ".bundle"));
-        final Path outputFile0 = outputFileSystem.getPath(BASE_NAME + ".properties");
-        final Path outputFile1 = outputFileSystem.getPath(BASE_NAME + "_en_US.properties");
+        try (FileSystem outputFileSystem = createFileSystem(directoryOutput.resolve(BASE_NAME + ".bundle")))
+        {
+            final Path outputFile0 = outputFileSystem.getPath(BASE_NAME + ".properties");
+            final Path outputFile1 = outputFileSystem.getPath(BASE_NAME + "_en_US.properties");
 
-        Assertions.assertEquals(OUTPUT_0, LocalizationUtil.readFile(Files.newInputStream(outputFile0)));
-        Assertions.assertEquals(OUTPUT_1, LocalizationUtil.readFile(Files.newInputStream(outputFile1)));
+            Assertions.assertEquals(OUTPUT_0, LocalizationUtil.readFile(Files.newInputStream(outputFile0)));
+            Assertions.assertEquals(OUTPUT_1, LocalizationUtil.readFile(Files.newInputStream(outputFile1)));
+        }
     }
 
     @Test
@@ -122,24 +123,26 @@ class LocalizationGeneratorIntegrationTest
     void testGetRootKeys()
         throws IOException
     {
-        final Path jarFile = Files.createFile(directoryOutput.resolve(BASE_NAME + ".bundle"));
+        final Path outputFile = Files.createFile(directoryOutput.resolve(BASE_NAME + ".bundle"));
+        {
+            final ZipOutputStream outputStream = new ZipOutputStream(Files.newOutputStream(outputFile));
+            writeEntry(outputStream, BASE_NAME + ".properties", INPUT_A_0);
+            outputStream.close();
+        }
 
-        final ZipOutputStream outputStream = new ZipOutputStream(Files.newOutputStream(jarFile));
-        writeEntry(outputStream, BASE_NAME + ".properties", INPUT_A_0);
-        writeEntry(outputStream, BASE_NAME + "nl.properties", INPUT_A_1);
-        writeEntry(outputStream, BASE_NAME + "_en_US.properties", INPUT_B_0);
-        outputStream.close();
+        final Path inputFile = Files.createFile(directoryOutput.resolve("input.jar"));
+        {
+            final ZipOutputStream outputStream = new ZipOutputStream(Files.newOutputStream(inputFile));
+            writeEntry(outputStream, BASE_NAME + ".properties", INPUT_A_1);
+            outputStream.close();
+        }
 
         final LocalizationGenerator localizationGenerator = new LocalizationGenerator(directoryOutput, BASE_NAME);
-
-        final Set<String> rootKeys = localizationGenerator.getOutputRootKeys();
-        Assertions.assertEquals(5, rootKeys.size());
-
-        // The rootKeys should only contain the keys from INPUT_A_0, because that's the root file (without locale).
-        final String[] realKeys = new String[]{"a_key0", "a_key1", "a_key2", "a_key3", "a_key4"};
-        final String[] foundKeys = new String[5];
-        rootKeys.toArray(foundKeys);
-        Assertions.assertArrayEquals(realKeys, foundKeys);
+        localizationGenerator.addResources(inputFile, BASE_NAME);
+        Assertions.assertTrue(localizationGenerator.getRootKeys().containsAll(List.of(
+            "a_key0", "a_key1", "a_key2", "a_key3", "a_key4",
+            "b_key0", "b_key1", "b_key2", "b_key3", "b_key4"
+        )));
     }
 
     @Test
@@ -200,19 +203,21 @@ class LocalizationGeneratorIntegrationTest
     private void verifyJarOutput()
         throws IOException, URISyntaxException
     {
-        final FileSystem outputFileSystem = createFileSystem(directoryOutput.resolve(BASE_NAME + ".bundle"));
-        final Path outputFile0 = outputFileSystem.getPath(BASE_NAME + ".properties");
-        final Path outputFile1 = outputFileSystem.getPath(BASE_NAME + "_en_US.properties");
+        try (FileSystem outputFileSystem = createFileSystem(directoryOutput.resolve(BASE_NAME + ".bundle")))
+        {
+            final Path outputFile0 = outputFileSystem.getPath(BASE_NAME + ".properties");
+            final Path outputFile1 = outputFileSystem.getPath(BASE_NAME + "_en_US.properties");
 
-        Assertions.assertTrue(Files.exists(outputFile0));
-        Assertions.assertTrue(Files.exists(outputFile1));
+            Assertions.assertTrue(Files.exists(outputFile0));
+            Assertions.assertTrue(Files.exists(outputFile1));
 
-        Assertions.assertEquals(INPUT_B_0, LocalizationUtil.readFile(Files.newInputStream(outputFile1)));
+            Assertions.assertEquals(INPUT_B_0, LocalizationUtil.readFile(Files.newInputStream(outputFile1)));
 
-        final List<String> outputBase = new ArrayList<>(10);
-        outputBase.addAll(INPUT_A_0);
-        outputBase.addAll(INPUT_A_1);
-        Assertions.assertEquals(outputBase, LocalizationUtil.readFile(Files.newInputStream(outputFile0)));
+            final List<String> outputBase = new ArrayList<>(10);
+            outputBase.addAll(INPUT_A_0);
+            outputBase.addAll(INPUT_A_1);
+            Assertions.assertEquals(outputBase, LocalizationUtil.readFile(Files.newInputStream(outputFile0)));
+        }
     }
 
     /**
