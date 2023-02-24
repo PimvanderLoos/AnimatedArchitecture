@@ -114,6 +114,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
         {
             final Path existingLocaleFile =
                 outputFileSystem.getPath(LocalizationUtil.getOutputLocaleFileName(outputBaseName, ""));
+            LocalizationUtil.ensureFileExists(existingLocaleFile);
             return LocalizationUtil.getKeySet(Files.newInputStream(existingLocaleFile));
         }
         // Windows bitches about the bundle being used by another process resulting in a FileSystemException.
@@ -121,7 +122,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
         // PRs are welcome ;)
         catch (FileSystemException e)
         {
-            log.atWarning().withCause(e).log("Failed to get keys from base locale file. Are you using Windows?");
+            log.atWarning().withCause(e).log("Failed to get keys from base locale file. Are you using Windows? Blegh!");
             return Collections.emptySet();
         }
         catch (IOException | URISyntaxException | ProviderNotFoundException e)
