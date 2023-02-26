@@ -34,8 +34,9 @@ public class CounterWeightGarageDoorAnimationComponent implements IAnimationComp
     protected final IPlayer player;
     protected final TriFunction<Vector3Dd, IVector3D, Double, Vector3Dd> rotator;
     protected final double step;
+    protected final BlockFace animationDirectionFace;
     protected final Vector3Di directionVec;
-    protected final IVector3D rotationCenter;
+    protected final Vector3Dd rotationCenter;
     protected final boolean wasVertical;
     protected final double angle;
 
@@ -54,30 +55,32 @@ public class CounterWeightGarageDoorAnimationComponent implements IAnimationComp
             {
                 angle = quarterCircles * -MathUtil.HALF_PI;
                 rotator = Vector3Dd::rotateAroundXAxis;
-                directionVec = BlockFace.getDirection(BlockFace.NORTH);
+                animationDirectionFace = BlockFace.NORTH;
+
             }
             case EAST ->
             {
                 angle = quarterCircles * MathUtil.HALF_PI;
                 rotator = Vector3Dd::rotateAroundZAxis;
-                directionVec = BlockFace.getDirection(BlockFace.EAST);
+                animationDirectionFace = BlockFace.EAST;
             }
             case SOUTH ->
             {
                 angle = quarterCircles * MathUtil.HALF_PI;
                 rotator = Vector3Dd::rotateAroundXAxis;
-                directionVec = BlockFace.getDirection(BlockFace.SOUTH);
+                animationDirectionFace = BlockFace.SOUTH;
             }
             case WEST ->
             {
                 angle = quarterCircles * -MathUtil.HALF_PI;
                 rotator = Vector3Dd::rotateAroundZAxis;
-                directionVec = BlockFace.getDirection(BlockFace.WEST);
+                animationDirectionFace = BlockFace.WEST;
             }
             default -> throw new IllegalStateException("Failed to open garage door \"" + snapshot.getUid()
                                                            + "\". Reason: Invalid movement direction \"" +
                                                            movementDirection + "\"");
         }
+        directionVec = BlockFace.getDirection(this.animationDirectionFace);
 
         this.mergedCuboid = getMergedCuboid(oldCuboid, directionVec, wasVertical);
         this.mergedCuboidRadius = mergedCuboid.getDimensions().multiply(directionVec.absolute()).getMax() / 2.0D;
@@ -105,7 +108,7 @@ public class CounterWeightGarageDoorAnimationComponent implements IAnimationComp
         }
     }
 
-    private Vector3Dd getGoalPos(double angle, IAnimatedBlock animatedBlock)
+    protected Vector3Dd getGoalPos(double angle, IAnimatedBlock animatedBlock)
     {
         return rotator.apply(animatedBlock.getStartPosition(), rotationCenter, angle);
     }

@@ -30,6 +30,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 @Flogger
 public class GarageDoor extends AbstractStructure implements IHorizontalAxisAligned
 {
+    private static final boolean USE_COUNTER_WEIGHT = true;
+
     @EqualsAndHashCode.Exclude
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
@@ -134,6 +136,8 @@ public class GarageDoor extends AbstractStructure implements IHorizontalAxisAlig
     @Locked.Read
     protected IAnimationComponent constructAnimationComponent(AnimationRequestData data)
     {
-        return new CounterWeightGarageDoorAnimationComponent(data, getCurrentToggleDir());
+        return USE_COUNTER_WEIGHT ?
+               new CounterWeightGarageDoorAnimationComponent(data, cycleOpenDirection()) :
+               new SectionalGarageDoorAnimationComponent(data, getCurrentToggleDir());
     }
 }
