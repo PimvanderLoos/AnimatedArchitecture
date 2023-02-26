@@ -66,6 +66,20 @@ class CuboidTest
     }
 
     @Test
+    void addTest()
+    {
+        final Vector3Di min0 = new Vector3Di(12, 45, 68);
+        final Vector3Di max0 = new Vector3Di(22, 65, 70);
+
+        final Vector3Di min1 = new Vector3Di(11, 41, 68);
+        final Vector3Di max1 = new Vector3Di(22, 65, 78);
+
+        final Cuboid cuboid = new Cuboid(min0, max0).add(-1, -4, 8);
+        Assertions.assertEquals(min1, cuboid.getMin());
+        Assertions.assertEquals(max1, cuboid.getMax());
+    }
+
+    @Test
     void isPosInsideCuboid()
     {
         final Vector3Di min = new Vector3Di(0, 0, 0);

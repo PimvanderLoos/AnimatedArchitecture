@@ -32,7 +32,7 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
     }
 
     /**
-     * Adds values to the current values.
+     * Adds integer values to the current values.
      *
      * @param x
      *     The x value to add to the current x value.
@@ -49,6 +49,23 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
     }
 
     /**
+     * Adds floating point values to the current x/y/z.
+     *
+     * @param x
+     *     The x value to add to the current x value.
+     * @param y
+     *     The y value to add to the current y value.
+     * @param z
+     *     The z value to add to the current z value.
+     * @return A new {@link Vector3Dd} with the added values.
+     */
+    @CheckReturnValue @Contract(pure = true)
+    public Vector3Dd add(double x, double y, double z)
+    {
+        return new Vector3Dd(this.x + x, this.y + y, this.z + z);
+    }
+
+    /**
      * Adds another {@link Vector3Di} to the current values.
      *
      * @param other
@@ -58,18 +75,44 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
     @CheckReturnValue @Contract(pure = true)
     public Vector3Di add(Vector3Di other)
     {
-        return new Vector3Di(other.x, other.y, other.z);
+        return add(other.x, other.y, other.z);
     }
 
     /**
-     * Adds a value to the x, y, and z values of the current {@link Vector3Di}.
+     * Adds another {@link Vector3Dd} to the current values.
+     *
+     * @param other
+     *     The other {@link Vector3Dd} to add to the current one.
+     * @return A new {@link Vector3Dd} with the added values.
+     */
+    @CheckReturnValue @Contract(pure = true)
+    public Vector3Dd add(Vector3Dd other)
+    {
+        return add(other.x(), other.y(), other.z());
+    }
+
+    /**
+     * Adds an integer value to the x, y, and z values of the current {@link Vector3Di}.
      *
      * @param val
-     *     The value to add to the x, y, and z values.
+     *     The integer value to add to the x, y, and z values.
      * @return A new {@link Vector3Di} with the value added to the values.
      */
     @CheckReturnValue @Contract(pure = true)
     public Vector3Di add(int val)
+    {
+        return add(val, val, val);
+    }
+
+    /**
+     * Adds a floating point value to the x, y, and z values of the current {@link Vector3Di}.
+     *
+     * @param val
+     *     The floating point value to add to the x, y, and z values.
+     * @return A new {@link Vector3Dd} with the value added to the values.
+     */
+    @CheckReturnValue @Contract(pure = true)
+    public Vector3Dd add(double val)
     {
         return add(val, val, val);
     }
@@ -90,6 +133,36 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
     public Vector3Di subtract(int x, int y, int z)
     {
         return add(-x, -y, -z);
+    }
+
+    /**
+     * Subtracts floating point values from the current values.
+     *
+     * @param x
+     *     The x value to subtract from the current x value.
+     * @param y
+     *     The y value to subtract from the current y value.
+     * @param z
+     *     The z value to subtract from the current z value.
+     * @return A new {@link Vector3Dd} with the subtracted values.
+     */
+    @CheckReturnValue @Contract(pure = true)
+    public Vector3Dd subtract(double x, double y, double z)
+    {
+        return add(-x, -y, -z);
+    }
+
+    /**
+     * Subtracts another {@link Vector3Dd} from the x, y, and z values of the current {@link Vector3Di}.
+     *
+     * @param other
+     *     The other {@link Vector3Dd} to subtract from the x, y, and z values.
+     * @return The new {@link Vector3Dd} with the value subtracted from the values.
+     */
+    @CheckReturnValue @Contract(pure = true)
+    public Vector3Dd subtract(Vector3Dd other)
+    {
+        return subtract(other.x(), other.y(), other.z());
     }
 
     /**
@@ -114,6 +187,19 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
      */
     @CheckReturnValue @Contract(pure = true)
     public Vector3Di subtract(int val)
+    {
+        return subtract(val, val, val);
+    }
+
+    /**
+     * Subtracts a floating point value from the x, y, and z values of the current {@link Vector3Di}.
+     *
+     * @param val
+     *     The floating point  value to subtract from the x, y, and z values.
+     * @return A new {@link Vector3Dd} with the value subtracted from the values.
+     */
+    @CheckReturnValue @Contract(pure = true)
+    public Vector3Dd subtract(double val)
     {
         return subtract(val, val, val);
     }
@@ -172,12 +258,12 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
      *     The y value to multiply with the current y value.
      * @param z
      *     The z value to multiply with the current z value.
-     * @return A new {@link Vector3Di} with the multiplied values.
+     * @return A new {@link Vector3Dd} with the multiplied values.
      */
     @CheckReturnValue @Contract(pure = true)
-    public Vector3Di multiply(double x, double y, double z)
+    public Vector3Dd multiply(double x, double y, double z)
     {
-        return new Vector3Di(round(this.x * x), round(this.y * y), round(this.z * z));
+        return new Vector3Dd(this.x * x, this.y * y, this.z * z);
     }
 
     /**
@@ -185,10 +271,10 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
      *
      * @param other
      *     The other {@link Vector3Dd} to multiply with the x, y, and z values.
-     * @return The new {@link Vector3Di} with the value multiplied with the values.
+     * @return The new {@link Vector3Dd} with the value multiplied with the values.
      */
     @CheckReturnValue @Contract(pure = true)
-    public Vector3Di multiply(Vector3Dd other)
+    public Vector3Dd multiply(Vector3Dd other)
     {
         return multiply(other.x(), other.y(), other.z());
     }
@@ -198,10 +284,10 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
      *
      * @param val
      *     The value to multiply from the x, y, and z values.
-     * @return A new {@link Vector3Di} with the value multiplied with the values.
+     * @return A new {@link Vector3Dd} with the value multiplied with the values.
      */
     @CheckReturnValue @Contract(pure = true)
-    public Vector3Di multiply(double val)
+    public Vector3Dd multiply(double val)
     {
         return multiply(val, val, val);
     }
@@ -386,6 +472,43 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
     public Vector3Di rightShift(int bits)
     {
         return new Vector3Di(x >> bits, y >> bits, z >> bits);
+    }
+
+    /**
+     * Gets the absolute values of this vector.
+     *
+     * @return A new {@link Vector3Di}.
+     */
+    @CheckReturnValue @Contract(pure = true)
+    public Vector3Di absolute()
+    {
+        return new Vector3Di(Math.abs(x), Math.abs(y), Math.abs(z));
+    }
+
+    /**
+     * @return The highest value in this vector.
+     */
+    @CheckReturnValue @Contract(pure = true)
+    public int getMax()
+    {
+        return Math.max(x, Math.max(y, z));
+    }
+
+    /**
+     * @return The lowest value in this vector.
+     */
+    @CheckReturnValue @Contract(pure = true)
+    public int getMin()
+    {
+        return Math.min(x, Math.min(y, z));
+    }
+
+    /**
+     * @return The sum of the x, y, and z values.
+     */
+    public int sum()
+    {
+        return x + y + z;
     }
 
     @Override

@@ -241,7 +241,7 @@ public final class Cuboid
      *
      * @param updateFunction
      *     The update function used to update both {@link Vector3Di}s.
-     * @return A new {@link Cuboid}.
+     * @return A new Cuboid.
      */
     @CheckReturnValue @Contract(pure = true)
     public Cuboid updatePositions(UnaryOperator<Vector3Di> updateFunction)
@@ -271,6 +271,8 @@ public final class Cuboid
     /**
      * Changes the dimensions of this {@link Cuboid}. The changes are applied symmetrically. So a change of 1 in the
      * x-axis, means that the length of the x-axis is increased by 2 (1 subtracted from min and 1 added to max).
+     * <p>
+     * To only add values to either the minimum or the maximum, use {@link #add(Vector3Di)} instead.
      *
      * @param x
      *     The number of blocks to change in the x-axis.
@@ -284,6 +286,28 @@ public final class Cuboid
     public Cuboid grow(int x, int y, int z)
     {
         return new Cuboid(min.subtract(x, y, z), max.add(x, y, z));
+    }
+
+    /**
+     * Adds (or subtracts) x/y/z values to the current minimum and maximum values.
+     * <p>
+     * Each non-zero value is added to either the minimum or the maximum, never to both. If that is desired, use
+     * {@link #grow(int, int, int)} instead.
+     *
+     * @param x
+     *     The number of blocks to add in the x-axis.
+     * @param y
+     *     The number of blocks to add in the y-axis.
+     * @param z
+     *     The number of blocks to add in the z-axis.
+     * @return The new Cuboid.
+     */
+    @CheckReturnValue @Contract(pure = true)
+    public Cuboid add(int x, int y, int z)
+    {
+        return new Cuboid(
+            min.add(Math.min(0, x), Math.min(0, y), Math.min(0, z)),
+            max.add(Math.max(0, x), Math.max(0, y), Math.max(0, z)));
     }
 
     @CheckReturnValue @Contract(pure = true)

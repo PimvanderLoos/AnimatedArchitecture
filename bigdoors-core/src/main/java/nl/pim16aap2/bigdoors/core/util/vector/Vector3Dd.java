@@ -1,6 +1,8 @@
 package nl.pim16aap2.bigdoors.core.util.vector;
 
 import com.google.errorprone.annotations.CheckReturnValue;
+import nl.pim16aap2.bigdoors.core.util.Cuboid;
+import nl.pim16aap2.bigdoors.core.util.MathUtil;
 import org.jetbrains.annotations.Contract;
 
 /**
@@ -66,36 +68,23 @@ public record Vector3Dd(double x, double y, double z) implements IVector3D
     }
 
     /**
-     * Adds another {@link Vector3Dd} to the current values.
+     * Adds another 3D vector to the current values.
      *
      * @param other
-     *     The other {@link Vector3Dd} to add to the current one.
+     *     The other 3D vector to add to the current one.
      * @return A new {@link Vector3Dd} with the added values.
      */
     @CheckReturnValue @Contract(pure = true)
-    public Vector3Dd add(Vector3Dd other)
+    public Vector3Dd add(IVector3D other)
     {
-        return new Vector3Dd(other.x, other.y, other.z);
+        return add(other.xD(), other.yD(), other.zD());
     }
 
     /**
-     * Adds another {@link Vector3Di} to the current values.
-     *
-     * @param other
-     *     The other {@link Vector3Di} to add to the current one.
-     * @return A new {@link Vector3Dd} with the added values.
-     */
-    @CheckReturnValue @Contract(pure = true)
-    public Vector3Dd add(Vector3Di other)
-    {
-        return new Vector3Dd(other.x(), other.y(), other.z());
-    }
-
-    /**
-     * Adds a value to both the x, y, and z values of the current {@link Vector3Dd}.
+     * Adds a value to the x, y, and z values of the current {@link Vector3Dd}.
      *
      * @param val
-     *     The value to add to both the x, y, and z values.
+     *     The value to add to the x, y, and z values.
      * @return A new {@link Vector3Dd} with the value added to the values.
      */
     @CheckReturnValue @Contract(pure = true)
@@ -123,29 +112,16 @@ public record Vector3Dd(double x, double y, double z) implements IVector3D
     }
 
     /**
-     * Subtracts another {@link Vector3Dd} from both the x, y, and z values of the current {@link Vector3Dd}.
+     * Subtracts another 3D vector from both the x, y, and z values of the current {@link Vector3Dd}.
      *
      * @param other
-     *     The other {@link Vector3Dd} to subtract from the x, y, and z values.
+     *     The other 3D vector to subtract from the x, y, and z values.
      * @return The new {@link Vector3Dd} with the value subtracted from the values.
      */
     @CheckReturnValue @Contract(pure = true)
-    public Vector3Dd subtract(Vector3Dd other)
+    public Vector3Dd subtract(IVector3D other)
     {
-        return subtract(other.x, other.y, other.z);
-    }
-
-    /**
-     * Subtracts another {@link Vector3Di} from both the x, y, and z values of the current {@link Vector3Dd}.
-     *
-     * @param other
-     *     The other {@link Vector3Di} to subtract from the x, y, and z values.
-     * @return The new {@link Vector3Dd} with the value subtracted from the values.
-     */
-    @CheckReturnValue @Contract(pure = true)
-    public Vector3Dd subtract(Vector3Di other)
-    {
-        return subtract(other.x(), other.y(), other.z());
+        return subtract(other.xD(), other.yD(), other.zD());
     }
 
     /**
@@ -180,29 +156,16 @@ public record Vector3Dd(double x, double y, double z) implements IVector3D
     }
 
     /**
-     * Multiplies another {@link Vector3Dd} from with the x, y, and z values of the current {@link Vector3Dd}.
+     * Multiplies another 3D vector with the x, y, and z values of the current {@link Vector3Dd}.
      *
      * @param other
-     *     The other {@link Vector3Dd} to multiply with the x, y, and z values.
+     *     The other 3D vector.
      * @return The new {@link Vector3Dd} with the value multiplied with the values.
      */
     @CheckReturnValue @Contract(pure = true)
-    public Vector3Dd multiply(Vector3Dd other)
+    public Vector3Dd multiply(IVector3D other)
     {
-        return multiply(other.x, other.y, other.z);
-    }
-
-    /**
-     * Multiplies another {@link Vector3Di} from with the x, y, and z values of the current {@link Vector3Dd}.
-     *
-     * @param other
-     *     The other {@link Vector3Di} to multiply with the x, y, and z values.
-     * @return The new {@link Vector3Dd} with the value multiplied with the values.
-     */
-    @CheckReturnValue @Contract(pure = true)
-    public Vector3Dd multiply(Vector3Di other)
-    {
-        return multiply(other.x(), other.y(), other.z());
+        return multiply(other.xD(), other.yD(), other.zD());
     }
 
     /**
@@ -237,31 +200,17 @@ public record Vector3Dd(double x, double y, double z) implements IVector3D
     }
 
     /**
-     * Divides the x, y, and z values of the current {@link Vector3Dd} with the x, y, and z values of the provided
-     * {@link Vector3Dd}.
+     * Divides the x, y, and z values of the current {@link Vector3Dd} with the x, y, and z values of the provided 3D
+     * vector.
      *
      * @param other
-     *     The other {@link Vector3Dd} to use as divisor for the current x, y, and z values.
+     *     The other 3D vector to use as divisor for the current x, y, and z values.
      * @return A new {@link Vector3Dd} with the divided values.
      */
     @CheckReturnValue @Contract(pure = true)
-    public Vector3Dd divide(Vector3Dd other)
+    public Vector3Dd divide(IVector3D other)
     {
-        return divide(other.x, other.y, other.z);
-    }
-
-    /**
-     * Divides the x, y, and z values of the current {@link Vector3Dd} with the x, y, and z values of the provided
-     * {@link Vector3Di}.
-     *
-     * @param other
-     *     The other {@link Vector3Di} to use as divisor for the current x, y, and z values.
-     * @return A new {@link Vector3Dd} with the divided values.
-     */
-    @CheckReturnValue @Contract(pure = true)
-    public Vector3Dd divide(Vector3Di other)
-    {
-        return divide(other.x(), other.y(), other.z());
+        return divide(other.xD(), other.yD(), other.zD());
     }
 
     /**
@@ -355,6 +304,24 @@ public record Vector3Dd(double x, double y, double z) implements IVector3D
         return Vector3DUtil.rotateAroundZAxis(this, pivotPoint, radians);
     }
 
+    /**
+     * @return The highest value in this vector.
+     */
+    @CheckReturnValue @Contract(pure = true)
+    public double getMax()
+    {
+        return Math.max(x, Math.max(y, z));
+    }
+
+    /**
+     * @return The lowest value in this vector.
+     */
+    @CheckReturnValue @Contract(pure = true)
+    public double getMin()
+    {
+        return Math.min(x, Math.min(y, z));
+    }
+
     @Override
     public double xD()
     {
@@ -377,5 +344,34 @@ public record Vector3Dd(double x, double y, double z) implements IVector3D
     public Vector3Dd floor()
     {
         return new Vector3Dd(Math.floor(x), Math.floor(y), Math.floor(z));
+    }
+
+    /**
+     * Clamps the vector using a cuboid to provide the upper and lower limits.
+     *
+     * @param cuboid
+     *     A cuboid describing the upper and lower limits of the vector.
+     * @return A new vector.
+     */
+    public Vector3Dd clamp(Cuboid cuboid)
+    {
+        return clamp(cuboid.getMin(), cuboid.getMax());
+    }
+
+    /**
+     * Clamps the vector to the provided upper and lower limits.
+     *
+     * @param min
+     *     A 3d vector describing the lower limits of the vector.
+     * @param max
+     *     A 3d vector describing the upper limits of the vector.
+     * @return A new vector.
+     */
+    public Vector3Dd clamp(IVector3D min, IVector3D max)
+    {
+        return new Vector3Dd(
+            MathUtil.clamp(x, min.xD(), max.xD()),
+            MathUtil.clamp(y, min.yD(), max.yD()),
+            MathUtil.clamp(z, min.zD(), max.zD()));
     }
 }
