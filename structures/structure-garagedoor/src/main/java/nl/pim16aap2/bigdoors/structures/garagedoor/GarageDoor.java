@@ -134,6 +134,6 @@ public class GarageDoor extends AbstractStructure implements IHorizontalAxisAlig
     @Locked.Read
     protected IAnimationComponent constructAnimationComponent(AnimationRequestData data)
     {
-        return new GarageDoorAnimationComponent(data, getCurrentToggleDir());
+        return new CounterWeightGarageDoorAnimationComponent(data, getCurrentToggleDir());
     }
 }
