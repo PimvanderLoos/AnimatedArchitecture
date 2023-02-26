@@ -1,16 +1,12 @@
 package nl.pim16aap2.bigdoors.structures.garagedoor;
 
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.core.moveblocks.AnimationRequestData;
 import nl.pim16aap2.bigdoors.core.moveblocks.AnimationUtil;
 import nl.pim16aap2.bigdoors.core.moveblocks.Animator;
-import nl.pim16aap2.bigdoors.core.moveblocks.IAnimationComponent;
 import nl.pim16aap2.bigdoors.core.moveblocks.IAnimator;
-import nl.pim16aap2.bigdoors.core.structures.StructureSnapshot;
-import nl.pim16aap2.bigdoors.core.util.BlockFace;
-import nl.pim16aap2.bigdoors.core.util.Cuboid;
 import nl.pim16aap2.bigdoors.core.util.MovementDirection;
-import nl.pim16aap2.bigdoors.core.util.vector.IVector3D;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.core.util.vector.Vector3Di;
 
@@ -21,69 +17,42 @@ import java.util.function.BiFunction;
  *
  * @author Pim
  */
-public final class GarageDoorAnimationComponent implements IAnimationComponent
+@Flogger
+public final class SectionalGarageDoorAnimationComponent extends CounterWeightGarageDoorAnimationComponent
 {
-    private final StructureSnapshot snapshot;
     private final double resultHeight;
-    private final Vector3Di directionVec;
     private final BiFunction<IAnimatedBlock, Double, Vector3Dd> getVector;
-    private final boolean northSouth;
     private final double step;
-    private final boolean wasVertical;
-    private final Cuboid oldCuboid;
 
-    public GarageDoorAnimationComponent(AnimationRequestData data, MovementDirection movementDirection)
+    public SectionalGarageDoorAnimationComponent(AnimationRequestData data, MovementDirection movementDirection)
     {
-        this.snapshot = data.getStructureSnapshot();
-        this.oldCuboid = snapshot.getCuboid();
-        this.wasVertical = this.oldCuboid.getDimensions().y() > 1;
+        super(data, movementDirection);
 
-        resultHeight = oldCuboid.getMax().y() + 1.0D;
+        resultHeight = oldCuboid.getMax().y() + 1.0;
 
         final BiFunction<IAnimatedBlock, Double, Vector3Dd> getVectorTmp;
         switch (movementDirection)
         {
-            case NORTH ->
-            {
-                directionVec = BlockFace.getDirection(BlockFace.NORTH);
-                getVectorTmp = this::getVectorDownNorth;
-                northSouth = true;
-            }
-            case EAST ->
-            {
-                directionVec = BlockFace.getDirection(BlockFace.EAST);
-                getVectorTmp = this::getVectorDownEast;
-                northSouth = false;
-            }
-            case SOUTH ->
-            {
-                directionVec = BlockFace.getDirection(BlockFace.SOUTH);
-                getVectorTmp = this::getVectorDownSouth;
-                northSouth = true;
-            }
-            case WEST ->
-            {
-                directionVec = BlockFace.getDirection(BlockFace.WEST);
-                getVectorTmp = this::getVectorDownWest;
-                northSouth = false;
-            }
-            default -> throw new IllegalStateException("Failed to open garage door \"" + snapshot.getUid()
-                                                           + "\". Reason: Invalid movement direction \"" +
-                                                           movementDirection + "\"");
+            case NORTH -> getVectorTmp = this::getVectorDownNorth;
+            case EAST -> getVectorTmp = this::getVectorDownEast;
+            case SOUTH -> getVectorTmp = this::getVectorDownSouth;
+            case WEST -> getVectorTmp = this::getVectorDownWest;
+            default -> throw new IllegalStateException(
+                "Failed to open garage door \"" + snapshot.getUid()
+                    + "\". Reason: Invalid movement direction \"" +
+                    movementDirection + "\"");
         }
 
         final Vector3Di dims = oldCuboid.getDimensions();
         final int blocksToMove;
-        if (!snapshot.isOpen())
+        if (oldCuboid.getDimensions().y() > 1)
         {
             blocksToMove = dims.y();
             getVector = this::getVectorUp;
         }
         else
         {
-            blocksToMove = Math.abs(dims.x() * directionVec.x()
-                                        + dims.y() * directionVec.y()
-                                        + dims.z() * directionVec.z());
+            blocksToMove = dims.multiply(directionVec).absolute().sum();
             getVector = getVectorTmp;
         }
 
@@ -101,12 +70,13 @@ public final class GarageDoorAnimationComponent implements IAnimationComponent
 
         if (currentHeight >= oldCuboid.getMax().y())
         {
-            final double horizontal = Math.max(0, stepSum - animatedBlock.getRadius() - 0.5);
+            final double horizontal = Math.max(0, stepSum - animatedBlock.getRadius() + 0.5);
             xMod = directionVec.x() * horizontal;
             yMod = Math.min(resultHeight - animatedBlock.getStartY(), stepSum);
             zMod = directionVec.z() * horizontal;
         }
-        return new Vector3Dd(animatedBlock.getStartX() + xMod, animatedBlock.getStartY() + yMod,
+        return new Vector3Dd(animatedBlock.getStartX() + xMod,
+                             animatedBlock.getStartY() + yMod,
                              animatedBlock.getStartZ() + zMod);
     }
 
@@ -126,7 +96,8 @@ public final class GarageDoorAnimationComponent implements IAnimationComponent
             zMod = Math.max(goalZ - animatedBlock.getStartPosition().z() + 0.5, zMod);
         }
 
-        return new Vector3Dd(animatedBlock.getStartX() + xMod, animatedBlock.getStartY() + yMod,
+        return new Vector3Dd(animatedBlock.getStartX() + xMod,
+                             animatedBlock.getStartY() + yMod,
                              animatedBlock.getStartZ() + zMod);
     }
 
@@ -145,7 +116,8 @@ public final class GarageDoorAnimationComponent implements IAnimationComponent
             yMod = -Math.max(0, stepSum - animatedBlock.getRadius() + 0.5);
             zMod = Math.min(goalZ - animatedBlock.getStartPosition().z() + 0.5, zMod);
         }
-        return new Vector3Dd(animatedBlock.getStartX() + xMod, animatedBlock.getStartY() + yMod,
+        return new Vector3Dd(animatedBlock.getStartX() + xMod,
+                             animatedBlock.getStartY() + yMod,
                              animatedBlock.getStartZ() + zMod);
     }
 
@@ -164,7 +136,8 @@ public final class GarageDoorAnimationComponent implements IAnimationComponent
             xMod = Math.min(goalX - animatedBlock.getStartPosition().x() + 0.5, xMod);
             yMod = -Math.max(0, stepSum - animatedBlock.getRadius() + 0.5);
         }
-        return new Vector3Dd(animatedBlock.getStartX() + xMod, animatedBlock.getStartY() + yMod,
+        return new Vector3Dd(animatedBlock.getStartX() + xMod,
+                             animatedBlock.getStartY() + yMod,
                              animatedBlock.getStartZ() + zMod);
     }
 
@@ -184,45 +157,9 @@ public final class GarageDoorAnimationComponent implements IAnimationComponent
             yMod = -Math.max(0, stepSum - animatedBlock.getRadius() + 0.5);
         }
 
-        return new Vector3Dd(animatedBlock.getStartX() + xMod, animatedBlock.getStartY() + yMod,
+        return new Vector3Dd(animatedBlock.getStartX() + xMod,
+                             animatedBlock.getStartY() + yMod,
                              animatedBlock.getStartZ() + zMod);
-    }
-
-    @Override
-    public Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
-    {
-        double newX;
-        double newY;
-        double newZ;
-
-        final Vector3Di dims = oldCuboid.getDimensions();
-
-        if (wasVertical)
-        {
-            newX = startLocation.xD() + (dims.y() - radius) * directionVec.x();
-            newY = resultHeight;
-            newZ = startLocation.zD() + (dims.y() - radius) * directionVec.z();
-        }
-        else
-        {
-            if (directionVec.x() == 0)
-            {
-                newX = startLocation.xD();
-                newY = oldCuboid.getMax().y() - (dims.z() - radius);
-                newZ = snapshot.getRotationPoint().z();
-            }
-            else
-            {
-                newX = snapshot.getRotationPoint().x();
-                newY = oldCuboid.getMax().y() - (dims.x() - radius);
-                newZ = startLocation.zD();
-            }
-            newY -= 1;
-
-            newX += northSouth ? 0 : 0.5f;
-            newZ += northSouth ? 0.5f : 0;
-        }
-        return new Vector3Dd(newX, newY, newZ);
     }
 
     @Override
@@ -232,19 +169,5 @@ public final class GarageDoorAnimationComponent implements IAnimationComponent
 
         for (final IAnimatedBlock animatedBlock : animator.getAnimatedBlocks())
             animator.applyMovement(animatedBlock, getVector.apply(animatedBlock, stepSum), ticksRemaining);
-    }
-
-    @Override
-    public float getRadius(int xAxis, int yAxis, int zAxis)
-    {
-        if (wasVertical)
-        {
-            final float height = oldCuboid.getMax().y();
-            return height - yAxis;
-        }
-
-        final int dX = Math.abs(xAxis - snapshot.getRotationPoint().x());
-        final int dZ = Math.abs(zAxis - snapshot.getRotationPoint().z());
-        return Math.abs(dX * directionVec.x() + dZ * directionVec.z());
     }
 }
