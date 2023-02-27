@@ -217,6 +217,34 @@ public class Text
     }
 
     /**
+     * Attempts to add clickable text.
+     * <p>
+     * The clickable text will execute a command when clicked.
+     * <p>
+     * The result depends on the capabilities of both the registered {@link ITextComponentFactory} and the
+     * {@link ITextRenderer}.
+     *
+     * @param text
+     *     The text to add.
+     * @param type
+     *     The {@link TextType} of the text to add. The {@link #colorScheme} will be used to look up the style
+     *     associated with the type. See {@link ColorScheme#getStyle(TextType)}.
+     * @param command
+     *     The command to execute when this text is clicked.
+     * @param info
+     *     The optional information String explaining what clicking the text will do.
+     * @return The current {@link Text} instance.
+     */
+    @Contract("_, _, _, _ -> this")
+    public Text appendClickableText(String text, @Nullable TextType type, String command, @Nullable String info)
+    {
+        final @Nullable TextComponent component =
+            textComponentFactory.updateComponentWithCommand(colorScheme.getStyle(type), command, info);
+        addStyledSection(component, text.length());
+        return append(text);
+    }
+
+    /**
      * Prepends another {@link Text} object to this object, so the other text is placed before the current one.
      * <p>
      * The other {@link Text} instance is not modified.

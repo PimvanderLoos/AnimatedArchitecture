@@ -35,9 +35,9 @@ public final class ColorScheme
      *     The {@link TextType} for which to find its style.
      * @return The style associated with the given {@link TextType}.
      */
-    public TextComponent getStyle(TextType type)
+    public TextComponent getStyle(@Nullable TextType type)
     {
-        return styleMap.getOrDefault(type, defaultStyle);
+        return type == null ? defaultStyle : styleMap.getOrDefault(type, defaultStyle);
     }
 
     /**
