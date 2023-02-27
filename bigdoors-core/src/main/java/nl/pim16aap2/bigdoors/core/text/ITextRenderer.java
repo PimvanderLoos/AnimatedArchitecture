@@ -5,7 +5,8 @@ package nl.pim16aap2.bigdoors.core.text;
  * <p>
  * For example, to Strings. See {@link StringRenderer}.
  * <p>
- * The renderer receives pieces of either styled or unstyled text in the correct order.
+ * The renderer receives pieces of either styled or unstyled text in the correct order. For styled text, a renderer may
+ * choose to process the embedded {@link ITextDecorator}s if any exist. However, this is not required.
  *
  * @param <T>
  *     The output type of the renderer.
