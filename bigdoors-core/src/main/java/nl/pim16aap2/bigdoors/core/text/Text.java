@@ -201,6 +201,22 @@ public class Text
     }
 
     /**
+     * Appends some styled text to the current text.
+     *
+     * @param text
+     *     The text to add.
+     * @param component
+     *     The {@link TextComponent} to use for the text that is being added.
+     * @return The current {@link Text} instance.
+     */
+    @Contract("_, _ -> this")
+    public Text append(String text, @Nullable TextComponent component)
+    {
+        addStyledSection(component, text.length());
+        return append(text);
+    }
+
+    /**
      * Prepends another {@link Text} object to this object, so the other text is placed before the current one.
      * <p>
      * The other {@link Text} instance is not modified.
