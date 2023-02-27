@@ -41,18 +41,27 @@ public class Text
      */
     private int styledSize = 0;
 
-    public Text(ColorScheme colorScheme)
+    private final ITextComponentFactory textComponentFactory;
+
+    public Text(ColorScheme colorScheme, ITextComponentFactory textComponentFactory)
     {
         this.colorScheme = colorScheme;
+        this.textComponentFactory = textComponentFactory;
+    }
+
+    public Text(ColorScheme colorScheme)
+    {
+        this(colorScheme, new ITextComponentFactory.SimpleTextComponentFactory());
     }
 
     // CopyConstructor
     public Text(Text other)
     {
-        colorScheme = other.colorScheme;
-        stringBuilder.append(other.stringBuilder);
-        other.styledSections.forEach(section -> styledSections.add(new StyledSection(section)));
-        styledSize = other.styledSize;
+        this.colorScheme = other.colorScheme;
+        this.stringBuilder.append(other.stringBuilder);
+        other.styledSections.forEach(section -> this.styledSections.add(new StyledSection(section)));
+        this.styledSize = other.styledSize;
+        this.textComponentFactory = other.textComponentFactory;
     }
 
     /**
@@ -165,6 +174,14 @@ public class Text
         return this;
     }
 
+    private void addStyledSection(@Nullable TextComponent component, int textLength)
+    {
+        if (component == null || component.isEmpty())
+            return;
+        styledSections.add(new StyledSection(stringBuilder.length(), textLength, component));
+        styledSize += component.on().length() + component.off().length();
+    }
+
     /**
      * Appends some styled text to the current text.
      *
@@ -179,14 +196,7 @@ public class Text
     public Text append(String text, @Nullable TextType type)
     {
         if (type != null)
-        {
-            final TextComponent style = colorScheme.getStyle(type);
-            if (!style.isEmpty())
-            {
-                styledSections.add(new StyledSection(stringBuilder.length(), text.length(), style));
-                styledSize += style.on().length() + style.off().length();
-            }
-        }
+            addStyledSection(textComponentFactory.updateComponent(colorScheme.getStyle(type)), text.length());
         return append(text);
     }
 
