@@ -129,7 +129,7 @@ public class Text
             if (length <= 0)
                 continue;
 
-            newText.styledSections.add(new StyledSection(startIdx, length, section.style()));
+            newText.styledSections.add(new StyledSection(startIdx, length, section.component()));
         }
 
         return newText;
@@ -204,7 +204,7 @@ public class Text
     {
         styledSections = appendSections(other.getLength(), other.styledSections, styledSections,
                                         (section, offset) -> new StyledSection(section.startIndex + offset,
-                                                                               section.length, section.style));
+                                                                               section.length, section.component));
         this.styledSize += other.styledSize;
         stringBuilder.insert(0, other.stringBuilder);
         return this;
@@ -255,10 +255,41 @@ public class Text
 
         styledSections = appendSections(getLength(), styledSections, other.styledSections,
                                         (section, offset) -> new StyledSection(section.startIndex + offset,
-                                                                               section.length, section.style));
+                                                                               section.length, section.component));
         stringBuilder.append(other.stringBuilder);
         styledSize += other.styledSize;
         return this;
+    }
+
+    /**
+     * Renders this text using the provided text renderer.
+     * <p>
+     * All sections of this Text object are processed by the renderer.
+     *
+     * @param renderer
+     *     The renderer to use.
+     * @param <T>
+     *     The output type of the renderer.
+     * @return The output of the renderer after processing this Text object.
+     */
+    public <T> T render(ITextRenderer<T> renderer)
+    {
+        int lastIdx = 0;
+        for (final StyledSection section : styledSections)
+        {
+            // Process any unstyled text between styled sections.
+            if (section.startIndex > lastIdx)
+                renderer.process(stringBuilder.substring(lastIdx, section.startIndex));
+
+            renderer.process(stringBuilder.substring(section.startIndex(), section.end()), section.component);
+            lastIdx = section.end();
+        }
+
+        // Add any trailing text that doesn't have any styles.
+        if (lastIdx < stringBuilder.length())
+            renderer.process(stringBuilder.substring(lastIdx, stringBuilder.length()));
+
+        return renderer.getRendered();
     }
 
     @Override
@@ -267,25 +298,7 @@ public class Text
         if (stringBuilder.length() == 0)
             return "";
 
-        final StringBuilder sb = new StringBuilder(styledSize);
-        int lastIdx = 0;
-        for (final StyledSection section : styledSections)
-        {
-            // If there are any parts without any styles.
-            if (section.startIndex > lastIdx)
-                sb.append(stringBuilder.substring(lastIdx, section.startIndex));
-            final int end = section.end();
-            sb.append(section.style().on())
-              .append(stringBuilder.substring(section.startIndex(), end))
-              .append(section.style().off());
-            lastIdx = end;
-        }
-
-        // Add any trailing text that doesn't have any styles.
-        if (lastIdx < stringBuilder.length())
-            sb.append(stringBuilder.substring(lastIdx, stringBuilder.length()));
-
-        return sb.toString();
+        return render(new ITextRenderer.StringRenderer(styledSize));
     }
 
     /**
@@ -329,12 +342,12 @@ public class Text
      *
      * @author Pim
      */
-    private record StyledSection(int startIndex, int length, TextComponent style)
+    private record StyledSection(int startIndex, int length, TextComponent component)
     {
         // Copy constructor
         public StyledSection(final StyledSection other)
         {
-            this(other.startIndex, other.length, other.style);
+            this(other.startIndex, other.length, other.component);
         }
 
         int end()
