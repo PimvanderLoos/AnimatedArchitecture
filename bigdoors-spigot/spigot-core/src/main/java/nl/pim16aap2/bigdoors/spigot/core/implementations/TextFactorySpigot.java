@@ -2,8 +2,10 @@ package nl.pim16aap2.bigdoors.spigot.core.implementations;
 
 import nl.pim16aap2.bigdoors.core.api.factories.ITextFactory;
 import nl.pim16aap2.bigdoors.core.text.ColorScheme;
+import nl.pim16aap2.bigdoors.core.text.ITextComponentFactory;
 import nl.pim16aap2.bigdoors.core.text.Text;
 import nl.pim16aap2.bigdoors.core.text.TextType;
+import nl.pim16aap2.bigdoors.spigot.util.text.TextComponentFactorySpigot;
 import org.bukkit.ChatColor;
 
 import javax.inject.Inject;
@@ -12,10 +14,11 @@ import javax.inject.Singleton;
 @Singleton
 public class TextFactorySpigot implements ITextFactory
 {
+    private final ITextComponentFactory textComponentFactory;
     private ColorScheme colorScheme;
 
     @Inject
-    public TextFactorySpigot()
+    public TextFactorySpigot(TextComponentFactorySpigot textComponentFactory)
     {
         this.colorScheme =
             ColorScheme.builder()
@@ -25,12 +28,13 @@ public class TextFactorySpigot implements ITextFactory
                        .addStyle(TextType.HIGHLIGHT, ChatColor.GOLD.toString() + ChatColor.UNDERLINE)
                        .addStyle(TextType.SUCCESS, ChatColor.GREEN.toString())
                        .build();
+        this.textComponentFactory = textComponentFactory;
     }
 
     @Override
     public Text newText()
     {
-        return new Text(colorScheme);
+        return new Text(colorScheme, textComponentFactory);
     }
 
     @SuppressWarnings("unused")

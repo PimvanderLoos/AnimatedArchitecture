@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.core.commands.PermissionsStatus;
 import nl.pim16aap2.bigdoors.core.text.Text;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
+import nl.pim16aap2.bigdoors.spigot.util.text.TextRendererSpigot;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -99,7 +100,7 @@ public final class PlayerSpigot implements IPlayer
     @Override
     public void sendMessage(Text text)
     {
-        spigotPlayer.sendMessage(text.toString());
+        spigotPlayer.spigot().sendMessage(text.render(new TextRendererSpigot()));
     }
 
     /**

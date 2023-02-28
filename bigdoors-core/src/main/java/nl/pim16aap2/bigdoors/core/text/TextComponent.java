@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.core.text;
 
+import nl.pim16aap2.bigdoors.core.util.Util;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -35,12 +37,41 @@ public record TextComponent(String on, String off, List<ITextDecorator> decorato
     }
 
     /**
+     * Creates a new text component with additional decorators.
+     *
+     * @param append
+     *     The decorators to append.
+     * @return The new text component.
+     */
+    public TextComponent withDecorators(List<ITextDecorator> append)
+    {
+        return withDecorators(append.toArray(ITextDecorator[]::new));
+    }
+
+    /**
+     * Creates a new text component with additional decorators.
+     *
+     * @param append
+     *     The decorators to append.
+     * @return The new text component.
+     */
+    public TextComponent withDecorators(ITextDecorator... append)
+    {
+        // Use arrays to avoid having to create multiple lists.
+        // Now we only have 1 List.of call, meaning it won't create
+        // another copy in the ctor.
+        final ITextDecorator[] base = this.decorators.toArray(ITextDecorator[]::new);
+        final ITextDecorator[] merged = Util.concatArrays(base, append);
+        return new TextComponent(this.on, this.off, List.of(merged));
+    }
+
+    /**
      * Checks if this text component is empty.
      *
      * @return True if both the on and off strings are empty (i.e. size = 0).
      */
     boolean isEmpty()
     {
-        return on.isEmpty() && off.isEmpty() && decorators().isEmpty();
+        return this.on.isEmpty() && this.off.isEmpty() && this.decorators().isEmpty();
     }
 }
