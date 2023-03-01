@@ -6,34 +6,35 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Represents a component in a piece of text. This can be a style such as "bold", or "green" or it can contain more
- * data.
- * <p>
- * Every component is stored by its enable and disable values. E.g. {@code on: <it>, off: </it>}.
+ * Represents a component in a piece of text that has zero or more {@link ITextDecorator} to add features such as colors
+ * or clickable links, etc.
  *
- * @param on
- *     The String that is used to enable this component. E.g. "{@code <it>}".
- * @param off
- *     The String that is used to disable this component. E.g. "{@code </it>}".
  * @param decorators
  *     A list of decorators that may be used to add additional decorations to text components. Note that such
- *     decorations are entirely optional.
+ *     decorations are entirely optional. The renderer used for rendering the text is free to determine which decorates
+ *     are supported.
  * @author Pim
  */
-public record TextComponent(String on, String off, List<ITextDecorator> decorators)
+public record TextComponent(List<ITextDecorator> decorators)
 {
-    public static final TextComponent EMPTY = new TextComponent("", "");
+    /**
+     * Text component that does not contain any decorators.
+     */
+    public static final TextComponent EMPTY = new TextComponent();
 
-    public TextComponent(String on, String off, List<ITextDecorator> decorators)
+    public TextComponent(List<ITextDecorator> decorators)
     {
-        this.on = on;
-        this.off = off;
         this.decorators = List.copyOf(decorators);
     }
 
-    public TextComponent(String on, String off)
+    public TextComponent(ITextDecorator... decorators)
     {
-        this(on, off, Collections.emptyList());
+        this(List.of(decorators));
+    }
+
+    public TextComponent()
+    {
+        this(Collections.emptyList());
     }
 
     /**
@@ -62,7 +63,7 @@ public record TextComponent(String on, String off, List<ITextDecorator> decorato
         // another copy in the ctor.
         final ITextDecorator[] base = this.decorators.toArray(ITextDecorator[]::new);
         final ITextDecorator[] merged = Util.concatArrays(base, append);
-        return new TextComponent(this.on, this.off, List.of(merged));
+        return new TextComponent(List.of(merged));
     }
 
     /**
@@ -72,6 +73,6 @@ public record TextComponent(String on, String off, List<ITextDecorator> decorato
      */
     boolean isEmpty()
     {
-        return this.on.isEmpty() && this.off.isEmpty() && this.decorators().isEmpty();
+        return this.decorators().isEmpty();
     }
 }

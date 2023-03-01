@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.core.api.factories;
 
-import nl.pim16aap2.bigdoors.core.text.ColorScheme;
+import nl.pim16aap2.bigdoors.core.text.ITextComponentFactory;
 import nl.pim16aap2.bigdoors.core.text.Text;
 
 /**
@@ -30,7 +30,8 @@ public interface ITextFactory
     {
         private static final ITextFactory INSTANCE = new SimpleTextFactory();
 
-        private final ColorScheme colorScheme = ColorScheme.builder().build();
+        private final ITextComponentFactory textComponentFactory =
+            ITextComponentFactory.SimpleTextComponentFactory.INSTANCE;
 
         private SimpleTextFactory()
         {
@@ -39,7 +40,7 @@ public interface ITextFactory
         @Override
         public Text newText()
         {
-            return new Text(colorScheme);
+            return new Text(textComponentFactory);
         }
 
         private static ITextFactory getInstance()

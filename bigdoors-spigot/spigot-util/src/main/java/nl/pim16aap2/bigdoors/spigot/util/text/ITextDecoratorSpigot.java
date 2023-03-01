@@ -9,11 +9,10 @@ import nl.pim16aap2.bigdoors.core.text.ITextDecorator;
 public interface ITextDecoratorSpigot extends ITextDecorator
 {
     /**
-     * Decorates an array of base components.
+     * Applies the decoration of this decorator to the provided component.
      *
-     * @param components
-     *     The components to decorate.
+     * @param component
+     *     The component to decorate.
      */
-    @SuppressWarnings("PMD.UseVarargs")
-    void decorateComponents(BaseComponent[] components);
+    void decorateComponent(BaseComponent component);
 }

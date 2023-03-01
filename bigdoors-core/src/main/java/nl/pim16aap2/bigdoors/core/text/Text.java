@@ -17,11 +17,6 @@ import java.util.function.BiFunction;
 public class Text
 {
     /**
-     * The {@link ColorScheme} used to add styles to sections of this text.
-     */
-    private final ColorScheme colorScheme;
-
-    /**
      * The {@link StringBuilder} backing this {@link Text} object. All strings appended to this {@link Text} will be
      * stored here.
      */
@@ -32,35 +27,18 @@ public class Text
      */
     private List<StyledSection> styledSections = new ArrayList<>();
 
-    /**
-     * The total size of the string held by this object. This is used by {@link #toString()} to instantiate a
-     * {@link StringBuilder} of the right size.
-     * <p>
-     * This value includes both the size of {@link #stringBuilder} as well as the total size of all the
-     * {@link #styledSections}.
-     */
-    private int styledSize = 0;
-
     private final ITextComponentFactory textComponentFactory;
 
-    public Text(ColorScheme colorScheme, ITextComponentFactory textComponentFactory)
+    public Text(ITextComponentFactory textComponentFactory)
     {
-        this.colorScheme = colorScheme;
         this.textComponentFactory = textComponentFactory;
-    }
-
-    public Text(ColorScheme colorScheme)
-    {
-        this(colorScheme, new ITextComponentFactory.SimpleTextComponentFactory());
     }
 
     // CopyConstructor
     public Text(Text other)
     {
-        this.colorScheme = other.colorScheme;
         this.stringBuilder.append(other.stringBuilder);
         other.styledSections.forEach(section -> this.styledSections.add(new StyledSection(section)));
-        this.styledSize = other.styledSize;
         this.textComponentFactory = other.textComponentFactory;
     }
 
@@ -72,16 +50,6 @@ public class Text
     public int getLength()
     {
         return stringBuilder.length();
-    }
-
-    /**
-     * The length of the text including all the styles.
-     *
-     * @return The length of the text including all the styles.
-     */
-    public int getStyledLength()
-    {
-        return styledSize;
     }
 
     /**
@@ -112,7 +80,7 @@ public class Text
                                                      start, end, stringBuilder.length()));
 
         final String string = stringBuilder.substring(start, end);
-        final Text newText = new Text(colorScheme);
+        final Text newText = new Text(textComponentFactory);
         newText.append(string);
 
         for (final StyledSection section : styledSections)
@@ -155,7 +123,6 @@ public class Text
     public Text append(String text)
     {
         stringBuilder.append(text);
-        styledSize += text.length();
         return this;
     }
 
@@ -170,7 +137,6 @@ public class Text
     public Text append(char ch)
     {
         stringBuilder.append(ch);
-        ++styledSize;
         return this;
     }
 
@@ -179,7 +145,6 @@ public class Text
         if (component == null || component.isEmpty())
             return;
         styledSections.add(new StyledSection(stringBuilder.length(), textLength, component));
-        styledSize += component.on().length() + component.off().length();
     }
 
     /**
@@ -188,15 +153,15 @@ public class Text
      * @param text
      *     The text to add.
      * @param type
-     *     The {@link TextType} of the text to add. The {@link #colorScheme} will be used to look up the style
-     *     associated with the type. See {@link ColorScheme#getStyle(TextType)}.
+     *     The {@link TextType} of the text to add. This is used by any potential decorators to add styling and such to
+     *     the text.
      * @return The current {@link Text} instance.
      */
     @Contract("_, _ -> this")
     public Text append(String text, @Nullable TextType type)
     {
         if (type != null)
-            addStyledSection(textComponentFactory.updateComponent(colorScheme.getStyle(type)), text.length());
+            addStyledSection(textComponentFactory.newComponent(type), text.length());
         return append(text);
     }
 
@@ -227,8 +192,8 @@ public class Text
      * @param text
      *     The text to add.
      * @param type
-     *     The {@link TextType} of the text to add. The {@link #colorScheme} will be used to look up the style
-     *     associated with the type. See {@link ColorScheme#getStyle(TextType)}.
+     *     The {@link TextType} of the text to add. This is used by any potential decorators to add styling and such to
+     *     the text.
      * @param command
      *     The command to execute when this text is clicked.
      * @param info
@@ -239,7 +204,7 @@ public class Text
     public Text appendClickableText(String text, @Nullable TextType type, String command, @Nullable String info)
     {
         final @Nullable TextComponent component =
-            textComponentFactory.updateComponentWithCommand(colorScheme.getStyle(type), command, info);
+            textComponentFactory.newTextCommandComponent(type, command, info);
         addStyledSection(component, text.length());
         return append(text);
     }
@@ -259,7 +224,6 @@ public class Text
         styledSections = appendSections(other.getLength(), other.styledSections, styledSections,
                                         (section, offset) -> new StyledSection(section.startIndex + offset,
                                                                                section.length, section.component));
-        this.styledSize += other.styledSize;
         stringBuilder.insert(0, other.stringBuilder);
         return this;
     }
@@ -311,7 +275,6 @@ public class Text
                                         (section, offset) -> new StyledSection(section.startIndex + offset,
                                                                                section.length, section.component));
         stringBuilder.append(other.stringBuilder);
-        styledSize += other.styledSize;
         return this;
     }
 
@@ -352,17 +315,7 @@ public class Text
         if (stringBuilder.length() == 0)
             return "";
 
-        return render(new ITextRenderer.StringRenderer(styledSize));
-    }
-
-    /**
-     * Gets the plain String without any styles.
-     *
-     * @return The plain String without any styles.
-     */
-    public String toPlainString()
-    {
-        return stringBuilder.toString();
+        return render(new ITextRenderer.StringRenderer(this.getLength()));
     }
 
     @Override
@@ -372,11 +325,11 @@ public class Text
             return true;
         if (!(obj instanceof Text other))
             return false;
+
         return this.getLength() == other.getLength() &&
-            this.getStyledLength() == other.getStyledLength() &&
-            Objects.equals(this.colorScheme, other.colorScheme) &&
             Objects.equals(this.styledSections, other.styledSections) &&
-            Objects.equals(this.toPlainString(), other.toPlainString());
+            Objects.equals(this.textComponentFactory, other.textComponentFactory) &&
+            Objects.equals(this.toString(), other.toString());
     }
 
     @Override
@@ -384,9 +337,9 @@ public class Text
     {
         final int prime = 31;
         int hashCode = 1;
-        hashCode = hashCode * prime + this.colorScheme.hashCode();
         hashCode = hashCode * prime + this.styledSections.hashCode();
-        hashCode = hashCode * prime + this.toPlainString().hashCode();
+        hashCode = hashCode * prime + this.textComponentFactory.hashCode();
+        hashCode = hashCode * prime + this.toString().hashCode();
 
         return hashCode;
     }

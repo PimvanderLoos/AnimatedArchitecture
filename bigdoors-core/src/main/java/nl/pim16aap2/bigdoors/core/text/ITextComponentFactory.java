@@ -8,46 +8,48 @@ import org.jetbrains.annotations.Nullable;
  * <p>
  * The default implementations of the various methods create simple text components without adding anything special.
  */
+@SuppressWarnings("unused")
 public interface ITextComponentFactory
 {
     /**
-     * Updates an existing text component.
-     * <p>
-     * If no updates are required, this method may return the original component.
+     * Creates a new {@link TextComponent} for a given type.
      *
-     * @param textComponent
-     *     The original text component.
-     * @return A new component, or the original component if no modifications are necessary.
+     * @param type
+     *     The type of the text.
+     * @return A new component or null to apply no specific decoration to this component.
      */
-    default @Nullable TextComponent updateComponent(TextComponent textComponent)
+    default @Nullable TextComponent newComponent(@Nullable TextType type)
     {
-        return textComponent;
+        return TextComponent.EMPTY;
     }
 
     /**
-     * Updates an existing text component to attempt to add any required {@link ITextDecorator}s to execute a command
+     * Creates a new {@link TextComponent} and attempts to add any required {@link ITextDecorator}s to execute a command
      * when the text is clicked.
-     * <p>
-     * If no updates are required, this method may return the original component.
      *
-     * @param textComponent
-     *     The original text component.
+     * @param type
+     *     The type of the text.
      * @param command
      *     The command to execute when this text is clicked.
      * @param info
      *     The optional information String explaining what clicking the text will do.
-     * @return A new component, or the original component if it could not be updated..
+     * @return A new component or null to apply no specific decoration to this component.
      */
-    @SuppressWarnings("unused")
-    default @Nullable TextComponent updateComponentWithCommand(
-        TextComponent textComponent, String command, @Nullable String info)
+    default @Nullable TextComponent newTextCommandComponent(
+        @Nullable TextType type, String command, @Nullable String info)
     {
-        return textComponent;
+        return TextComponent.EMPTY;
     }
 
     /**
      * Simple implementation of the factory interface that only creates basic components.
      */
     final class SimpleTextComponentFactory implements ITextComponentFactory
-    {}
+    {
+        public static final ITextComponentFactory INSTANCE = new SimpleTextComponentFactory();
+
+        private SimpleTextComponentFactory()
+        {
+        }
+    }
 }

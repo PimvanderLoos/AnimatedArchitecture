@@ -92,7 +92,7 @@ public interface IMessageable
         @Override
         public void sendMessage(Text text)
         {
-            log.atFinest().log("Sent to black hole: %s", text.toPlainString());
+            log.atFinest().log("Sent to black hole: %s", text);
         }
     }
 }

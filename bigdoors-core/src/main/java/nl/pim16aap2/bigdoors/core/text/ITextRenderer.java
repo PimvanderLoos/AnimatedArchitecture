@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.core.text;
 
+import java.util.stream.Stream;
+
 /**
  * Represents an interface that is used to render {@link Text} to other formats.
  * <p>
@@ -37,15 +39,35 @@ public interface ITextRenderer<T>
     T getRendered();
 
     /**
+     * Retrieves a stream of all decorators that are an instance of a given type.
+     * <p>
+     * This stream is a filtered (and cast) subset of the decorators in the component.
+     *
+     * @param clz
+     *     The decorator class whose instances to retrieve.
+     * @param component
+     *     The component whose decorators to retrieve.
+     * @param <U>
+     *     The type of decorator to retrieve.
+     * @return The stream of text decorators of the provided type.
+     */
+    default <U extends ITextDecorator> Stream<U> getDecoratorsOfType(Class<U> clz, TextComponent component)
+    {
+        return component.decorators().stream()
+                        .filter(clz::isInstance)
+                        .map(clz::cast);
+    }
+
+    /**
      * Implementation of a text renderer that can be used to render {@link Text} objects to Strings.
      */
-    final class StringRenderer implements ITextRenderer<String>
+    class StringRenderer implements ITextRenderer<String>
     {
         private final StringBuilder sb;
 
-        public StringRenderer(int styledSize)
+        public StringRenderer(int size)
         {
-            sb = new StringBuilder(styledSize);
+            sb = new StringBuilder(size);
         }
 
         @Override
@@ -57,7 +79,7 @@ public interface ITextRenderer<T>
         @Override
         public void process(String text, TextComponent component)
         {
-            sb.append(component.on()).append(text).append(component.off());
+            process(text);
         }
 
         @Override

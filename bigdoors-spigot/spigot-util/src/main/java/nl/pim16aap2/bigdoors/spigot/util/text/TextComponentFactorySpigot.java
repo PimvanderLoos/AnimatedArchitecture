@@ -1,25 +1,45 @@
 package nl.pim16aap2.bigdoors.spigot.util.text;
 
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import net.md_5.bungee.api.chat.BaseComponent;
+import nl.pim16aap2.bigdoors.core.text.ColorScheme;
 import nl.pim16aap2.bigdoors.core.text.ITextComponentFactory;
 import nl.pim16aap2.bigdoors.core.text.TextComponent;
+import nl.pim16aap2.bigdoors.core.text.TextType;
 import org.jetbrains.annotations.Nullable;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 /**
  * Implementation of the text component factory for the Spigot platform.
  */
-@Singleton
+@ToString
+@EqualsAndHashCode
 public final class TextComponentFactorySpigot implements ITextComponentFactory
 {
-    @Inject TextComponentFactorySpigot()
+    private final ColorScheme<BaseComponent> colorScheme;
+
+    public TextComponentFactorySpigot(ColorScheme<BaseComponent> colorScheme)
     {
+        this.colorScheme = colorScheme;
+    }
+
+    private StyledTextDecorator newColoredTextDecorator(@Nullable TextType type)
+    {
+        return new StyledTextDecorator(colorScheme.getStyle(type));
     }
 
     @Override
-    public TextComponent updateComponentWithCommand(TextComponent textComponent, String command, @Nullable String info)
+    public TextComponent newComponent(@Nullable TextType type)
     {
-        return textComponent.withDecorators(new ClickableTextDecorator(command, info));
+        return new TextComponent(newColoredTextDecorator(type));
+    }
+
+    @Override
+    public TextComponent newTextCommandComponent(
+        @Nullable TextType type, String command, @Nullable String info)
+    {
+        return new TextComponent(
+            new ClickableTextDecorator(command, info),
+            newColoredTextDecorator(type));
     }
 }

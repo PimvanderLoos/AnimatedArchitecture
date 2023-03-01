@@ -24,6 +24,6 @@ public class SpigotServer implements IServer
     @Override
     public void sendMessage(Text text)
     {
-        log.atInfo().log("%s", text.toPlainString());
+        log.atInfo().log("%s", text);
     }
 }

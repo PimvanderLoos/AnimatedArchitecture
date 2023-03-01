@@ -6,8 +6,6 @@ import nl.pim16aap2.bigdoors.core.text.ITextRenderer;
 import nl.pim16aap2.bigdoors.core.text.Text;
 import nl.pim16aap2.bigdoors.core.text.TextComponent;
 
-import java.util.stream.Stream;
-
 /**
  * Implementation of a text renderer that can be used by a {@link Text} object to render the text to
  * {@link BaseComponent[]}.
@@ -26,24 +24,15 @@ public class TextRendererSpigot implements ITextRenderer<BaseComponent[]>
         builder.append(text);
     }
 
-    private Stream<ITextDecoratorSpigot> getDecorators(TextComponent component)
-    {
-        return component.decorators().stream()
-                        .filter(ITextDecoratorSpigot.class::isInstance)
-                        .map(ITextDecoratorSpigot.class::cast);
-    }
-
-    private BaseComponent[] toBaseComponents(String text, TextComponent component)
-    {
-        return net.md_5.bungee.api.chat.TextComponent.fromLegacyText(component.on() + text + component.off());
-    }
-
     @Override
     public void process(String text, TextComponent component)
     {
-        final BaseComponent[] components = toBaseComponents(text, component);
-        getDecorators(component).forEach(decorator -> decorator.decorateComponents(components));
-        builder.append(components, ComponentBuilder.FormatRetention.NONE);
+        final BaseComponent textComponent = new net.md_5.bungee.api.chat.TextComponent(text);
+
+        getDecoratorsOfType(ITextDecoratorSpigot.class, component)
+            .forEach(decorator -> decorator.decorateComponent(textComponent));
+
+        builder.append(textComponent, ComponentBuilder.FormatRetention.NONE);
     }
 
     @Override
