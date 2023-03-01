@@ -2,30 +2,27 @@ package nl.pim16aap2.bigdoors.core.text;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import nl.pim16aap2.bigdoors.core.util.Util;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Represents a colorscheme that can be used to add styles to text.
- *
- * @author Pim
  */
-@SuppressWarnings("unused")
 @ToString
 @EqualsAndHashCode
-public final class ColorScheme
+public final class ColorScheme<T>
 {
-    private final Map<TextType, TextComponent> styleMap;
-    private final TextComponent defaultStyle;
+    private final Map<TextType, T> styleMap;
+    private final T defaultStyle;
 
-    ColorScheme(Map<TextType, TextComponent> styleMap, @Nullable TextComponent defaultStyle)
+    ColorScheme(Map<TextType, T> styleMap, T defaultStyle)
     {
         this.styleMap = styleMap;
-        this.defaultStyle = defaultStyle == null ? TextComponent.EMPTY : defaultStyle;
+        this.defaultStyle = defaultStyle;
     }
 
     /**
@@ -35,9 +32,9 @@ public final class ColorScheme
      *     The {@link TextType} for which to find its style.
      * @return The style associated with the given {@link TextType}.
      */
-    public TextComponent getStyle(TextType type)
+    public T getStyle(@Nullable TextType type)
     {
-        return styleMap.getOrDefault(type, defaultStyle);
+        return type == null ? defaultStyle : styleMap.getOrDefault(type, defaultStyle);
     }
 
     /**
@@ -45,52 +42,32 @@ public final class ColorScheme
      *
      * @return A new {@link ColorSchemeBuilder}.
      */
-    public static ColorSchemeBuilder builder()
+    public static <T> ColorSchemeBuilder<T> builder()
     {
-        return new ColorSchemeBuilder();
+        return new ColorSchemeBuilder<>();
     }
 
     @SuppressWarnings("unused")
     @ToString
-    public static class ColorSchemeBuilder
+    public static class ColorSchemeBuilder<T>
     {
-        private final Map<TextType, TextComponent> styleMap = new EnumMap<>(TextType.class);
+        private final Map<TextType, T> styleMap = new HashMap<>();
 
-        private @Nullable TextComponent defaultStyle = null;
-
-        private @Nullable String defaultDisable = null;
+        private @Nullable T defaultStyle = null;
 
         private ColorSchemeBuilder()
         {
         }
 
         /**
-         * Sets the String that disables all active styles in one go.
-         * <p>
-         * When set to anything other than null, this will be used as the default value for all {@link TextComponent}s
-         * when the on value is not empty and the off value is an empty string.
-         *
-         * @param str
-         *     The string that disables all active styles.
-         * @return This {@link ColorSchemeBuilder} instance.
-         */
-        @Contract("_ -> this")
-        public ColorSchemeBuilder setDefaultDisable(@Nullable String str)
-        {
-            defaultDisable = str;
-            return this;
-        }
-
-        /**
          * Sets the default style that is to be used when requesting the style for an unmapped text type.
          *
          * @param defaultStyle
-         *     The default style to fall back to when none is mapped for a given text type. Defaults to
-         *     {@link TextComponent#EMPTY} when null.
+         *     The default style to fall back to when none is mapped for a given text type.
          * @return This {@link ColorSchemeBuilder} instance.
          */
         @Contract("_ -> this")
-        public ColorSchemeBuilder setDefaultStyle(@Nullable TextComponent defaultStyle)
+        public ColorSchemeBuilder<T> setDefaultStyle(T defaultStyle)
         {
             this.defaultStyle = defaultStyle;
             return this;
@@ -106,46 +83,9 @@ public final class ColorScheme
          * @return This {@link ColorSchemeBuilder} instance.
          */
         @Contract("_, _-> this")
-        public ColorSchemeBuilder addStyle(TextType type, TextComponent style)
+        public ColorSchemeBuilder<T> addStyle(TextType type, T style)
         {
             styleMap.put(type, style);
-            return this;
-        }
-
-        /**
-         * Adds a style to a given {@link TextType}.
-         *
-         * @param type
-         *     The {@link TextType} to add a style for.
-         * @param on
-         *     The String that is used to enable this component. E.g. {@code <it>}.
-         * @param off
-         *     The String that is used to disable this component. E.g. {@code </it>}.
-         * @return This {@link ColorSchemeBuilder} instance.
-         */
-        @Contract("_, _, _-> this")
-        public ColorSchemeBuilder addStyle(TextType type, String on, String off)
-        {
-            styleMap.put(type, new TextComponent(on, off));
-            return this;
-        }
-
-        /**
-         * Adds a style to a given {@link TextType}.
-         * <p>
-         * This uses the default disable set via {@link #setDefaultDisable(String)}.
-         *
-         * @param type
-         *     The {@link TextType} to add a style for.
-         * @param on
-         *     The String that is used to enable this component. E.g. {@code <it>}.
-         * @return This {@link ColorSchemeBuilder} instance.
-         */
-        @Contract("_, _-> this")
-        public ColorSchemeBuilder addStyle(TextType type, String on)
-        {
-            styleMap.put(type, new TextComponent(
-                on, Objects.requireNonNull(defaultDisable, "defaultDisable is null! Has it been set?")));
             return this;
         }
 
@@ -154,32 +94,9 @@ public final class ColorScheme
          *
          * @return The new {@link ColorScheme}.
          */
-        public ColorScheme build()
+        public ColorScheme<T> build()
         {
-            prepareBuild(styleMap, defaultDisable);
-            return new ColorScheme(styleMap, defaultStyle);
-        }
-
-        /**
-         * Prepares this object for building.
-         *
-         * @param styleMap
-         *     The {@link #styleMap} to prepare for building.
-         * @param defaultDisable
-         *     See {@link #defaultDisable}.
-         */
-        private static void prepareBuild(Map<TextType, TextComponent> styleMap, @Nullable String defaultDisable)
-        {
-            // If defaultDisable was set, apply this default value to any components
-            // that do not have an 'off' value yet.
-            if (defaultDisable != null)
-                for (final Map.Entry<TextType, TextComponent> entry : styleMap.entrySet())
-                {
-                    final TextComponent component = entry.getValue();
-                    // If 'on' is set, but off isn't,
-                    if ((!"".equals(component.on())) && "".equals(component.off()))
-                        styleMap.put(entry.getKey(), new TextComponent(component.on(), defaultDisable));
-                }
+            return new ColorScheme<>(styleMap, Util.requireNonNull(defaultStyle, "defaultStyle"));
         }
     }
 }

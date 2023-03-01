@@ -6,10 +6,10 @@ package nl.pim16aap2.bigdoors.core.text;
  *
  * @author Pim
  */
-public enum TextType
+public final class TextType
 {
-    ERROR,
-    INFO,
-    HIGHLIGHT,
-    SUCCESS,
+    public static final TextType ERROR = new TextType();
+    public static final TextType INFO = new TextType();
+    public static final TextType HIGHLIGHT = new TextType();
+    public static final TextType SUCCESS = new TextType();
 }

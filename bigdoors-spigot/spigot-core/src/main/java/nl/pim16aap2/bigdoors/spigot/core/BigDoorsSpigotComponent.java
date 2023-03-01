@@ -76,6 +76,7 @@ import nl.pim16aap2.bigdoors.spigot.util.implementations.ExecutorModule;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.GlowingBlockSpawnerModule;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.MessagingInterfaceSpigotModule;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.SpigotServerModule;
+import nl.pim16aap2.bigdoors.spigot.util.text.TextComponentFactorySpigotModule;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.inject.Named;
@@ -107,6 +108,7 @@ import javax.inject.Singleton;
     TextFactorySpigotModule.class,
     ChunkLoaderSpigotModule.class,
     GuiFactorySpigotModule.class,
+    TextComponentFactorySpigotModule.class,
 })
 interface BigDoorsSpigotComponent
 {
