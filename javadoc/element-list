@@ -41,6 +41,7 @@ nl.pim16aap2.bigdoors.spigot.core.managers
 nl.pim16aap2.bigdoors.spigot.util
 nl.pim16aap2.bigdoors.spigot.util.api
 nl.pim16aap2.bigdoors.spigot.util.implementations
+nl.pim16aap2.bigdoors.spigot.util.text
 nl.pim16aap2.bigdoors.spigot.v1_19_R2
 nl.pim16aap2.bigdoors.structures.bigdoor
 nl.pim16aap2.bigdoors.structures.clock
