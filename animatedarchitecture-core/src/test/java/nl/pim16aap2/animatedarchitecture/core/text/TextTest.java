@@ -1,7 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.text;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -145,6 +144,30 @@ class TextTest
     }
 
     @Test
+    void testArguments()
+    {
+        final Text text = new Text(textComponentFactory);
+        text.append("Click {1}, {2}, or {0} to do {3}!", TextType.INFO,
+                    new TextArgument("HERE0", text.getClickableTextComponent(TextType.INFO, "url0", null)),
+                    new TextArgument("HERE1", text.getClickableTextComponent(TextType.ERROR, "url1", null)),
+                    new TextArgument("HERE2", text.getClickableTextComponent(TextType.ERROR, "url2", "hi")),
+                    new TextArgument("something", text.getTextComponent(null)));
+
+        final String result =
+            "<info>Click </info>" +
+                "<a href=\"url1\"><err>HERE1</err></a>" +
+                "<info>, </info>" +
+                "<a href=\"url2\" title=\"hi\"><err>HERE2</err></a>" +
+                "<info>, or </info>" +
+                "<a href=\"url0\"><info>HERE0</info></a>" +
+                "<info> to do </info>" +
+                "something" +
+                "<info>!</info>";
+
+        Assertions.assertEquals(result, text.render(new Renderer()));
+    }
+
+    @Test
     void testHashCode()
     {
         final Text textA = new Text(textComponentFactory);
@@ -166,6 +189,7 @@ class TextTest
         Assertions.assertNotEquals(textE.hashCode(), textF.hashCode());
     }
 
+    @ToString
     private static final class TextComponentFactory implements ITextComponentFactory
     {
         private final ColorScheme<Style> colorScheme;
@@ -221,12 +245,8 @@ class TextTest
         }
     }
 
-    @AllArgsConstructor
-    @EqualsAndHashCode
-    private static final class StyleDecorator implements ITextTestDecorator
+    private record StyleDecorator(Style style) implements ITextTestDecorator
     {
-        private final Style style;
-
         @Override
         public String apply(String input)
         {
@@ -234,13 +254,8 @@ class TextTest
         }
     }
 
-    @AllArgsConstructor
-    @EqualsAndHashCode
-    private static final class CommandDecorator implements ITextTestDecorator
+    private record CommandDecorator(String command, @Nullable String info) implements ITextTestDecorator
     {
-        private final String command;
-        private final @Nullable String info;
-
         @Override
         public String apply(String input)
         {

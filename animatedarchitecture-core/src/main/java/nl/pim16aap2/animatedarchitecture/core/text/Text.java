@@ -1,8 +1,10 @@
 package nl.pim16aap2.animatedarchitecture.core.text;
 
+import lombok.Getter;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -27,6 +29,10 @@ public class Text
      */
     private List<StyledSection> styledSections = new ArrayList<>();
 
+    /**
+     * The factory for the {@link TextComponent} instance used by this Text.
+     */
+    @Getter
     private final ITextComponentFactory textComponentFactory;
 
     public Text(ITextComponentFactory textComponentFactory)
@@ -112,6 +118,21 @@ public class Text
         return newText;
     }
 
+    @Contract("_ -> this")
+    private Text append0(String text)
+    {
+        stringBuilder.append(text);
+        return this;
+    }
+
+    @Contract("_, _ -> this")
+    private Text append0(String text, @Nullable TextComponent component)
+    {
+        if (component != null && (!component.isEmpty()))
+            styledSections.add(new StyledSection(stringBuilder.length(), text.length(), component));
+        return append0(text);
+    }
+
     /**
      * Appends some unstyled text to the current text.
      *
@@ -122,8 +143,20 @@ public class Text
     @Contract("_ -> this")
     public Text append(String text)
     {
-        stringBuilder.append(text);
-        return this;
+        return append0(text);
+    }
+
+    /**
+     * Appends some unstyled text to the current text.
+     *
+     * @param text
+     *     The unstyled text to add.
+     * @return The current {@link Text} instance.
+     */
+    @Contract("_, _ -> this")
+    public Text append(String text, TextArgument... arguments)
+    {
+        return append(text, (TextComponent) null, arguments);
     }
 
     /**
@@ -140,13 +173,6 @@ public class Text
         return this;
     }
 
-    private void addStyledSection(@Nullable TextComponent component, int textLength)
-    {
-        if (component == null || component.isEmpty())
-            return;
-        styledSections.add(new StyledSection(stringBuilder.length(), textLength, component));
-    }
-
     /**
      * Appends some styled text to the current text.
      *
@@ -157,28 +183,74 @@ public class Text
      *     the text.
      * @return The current {@link Text} instance.
      */
-    @Contract("_, _ -> this")
-    public Text append(String text, @Nullable TextType type)
+    @Contract("_, _, _ -> this")
+    public Text append(String text, @Nullable TextType type, TextArgument... arguments)
     {
-        if (type != null)
-            addStyledSection(textComponentFactory.newComponent(type), text.length());
-        return append(text);
+        return append(text, textComponentFactory.newComponent(type), arguments);
     }
 
     /**
-     * Appends some styled text to the current text.
+     * Appends some styled text to the current text with some optional argument.
+     * <p>
+     * For example "Hello, {0}".
+     * <p>
+     * See {@link MessageFormat}.
      *
      * @param text
      *     The text to add.
      * @param component
      *     The {@link TextComponent} to use for the text that is being added.
+     * @param arguments
+     *     The arguments to use to format the text.
      * @return The current {@link Text} instance.
      */
-    @Contract("_, _ -> this")
-    public Text append(String text, @Nullable TextComponent component)
+    @Contract("_, _, _ -> this")
+    public Text append(String text, @Nullable TextComponent component, TextArgument... arguments)
     {
-        addStyledSection(component, text.length());
-        return append(text);
+        if (arguments.length == 0)
+            return append0(text, component);
+
+        final var processor = new MessageFormatProcessor(text, arguments);
+        addStyledSections(component, processor.getSections(), arguments);
+        return append0(processor.getFormattedString());
+    }
+
+    private void addStyledSections(
+        @Nullable TextComponent base,
+        List<MessageFormatProcessor.MessageFormatSection> messageFormatSections,
+        TextArgument... arguments)
+    {
+        final int currentLength = stringBuilder.length();
+        for (final var section : messageFormatSections)
+        {
+            final @Nullable TextComponent component;
+            if (section.argumentIdx() == -1)
+                component = base;
+            else
+                component = arguments[section.argumentIdx()].component();
+
+            if (component == null)
+                continue;
+
+            this.styledSections.add(
+                new StyledSection(currentLength + section.start(), section.end() - section.start(), component));
+        }
+    }
+
+    /**
+     * Creates a new TextComponent for texts of a specific type.
+     * <p>
+     * This method is a shortcut for {@link ITextComponentFactory#newComponent(TextType)}.
+     *
+     * @param type
+     *     The {@link TextType} of the text to add. This is used by any potential decorators to add styling and such to
+     *     the text.
+     * @return The new text component if one was created or null if no specific decoration should be applied to the
+     * text.
+     */
+    public @Nullable TextComponent getTextComponent(@Nullable TextType type)
+    {
+        return textComponentFactory.newComponent(type);
     }
 
     /**
@@ -203,10 +275,28 @@ public class Text
     @Contract("_, _, _, _ -> this")
     public Text appendClickableText(String text, @Nullable TextType type, String command, @Nullable String info)
     {
-        final @Nullable TextComponent component =
-            textComponentFactory.newTextCommandComponent(type, command, info);
-        addStyledSection(component, text.length());
-        return append(text);
+        return append0(text, getClickableTextComponent(type, command, info));
+    }
+
+    /**
+     * Creates a new TextComponent for clickable texts.
+     * <p>
+     * This method is a shortcut for {@link ITextComponentFactory#newTextCommandComponent(TextType, String, String)}.
+     *
+     * @param type
+     *     The {@link TextType} of the text to add. This is used by any potential decorators to add styling and such to
+     *     the text.
+     * @param command
+     *     The command to execute when this text is clicked.
+     * @param info
+     *     The optional information String explaining what clicking the text will do.
+     * @return The new text component if one was created or null if no specific decoration should be applied to the
+     * text.
+     */
+    public @Nullable TextComponent getClickableTextComponent(
+        @Nullable TextType type, String command, @Nullable String info)
+    {
+        return textComponentFactory.newTextCommandComponent(type, command, info);
     }
 
     /**
