@@ -16,7 +16,7 @@ import java.util.function.BiFunction;
  * @author Pim
  */
 @SuppressWarnings("unused")
-public class Text
+public class Text implements CharSequence
 {
     /**
      * The {@link StringBuilder} backing this {@link Text} object. All strings appended to this {@link Text} will be
@@ -397,6 +397,24 @@ public class Text
             renderer.process(stringBuilder.substring(lastIdx, stringBuilder.length()));
 
         return renderer.getRendered();
+    }
+
+    @Override
+    public int length()
+    {
+        return getLength();
+    }
+
+    @Override
+    public char charAt(int index)
+    {
+        return stringBuilder.charAt(index);
+    }
+
+    @Override
+    public CharSequence subSequence(int start, int end)
+    {
+        return this.subsection(start, end);
     }
 
     @Override
