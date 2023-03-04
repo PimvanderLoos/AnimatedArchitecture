@@ -1,4 +1,4 @@
-package nl.pim16aap2.animatedarchitecture.creator;
+package nl.pim16aap2.animatedarchitecture.animatearchitecture.creator;
 
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;

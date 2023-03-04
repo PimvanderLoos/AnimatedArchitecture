@@ -35,10 +35,25 @@ public interface ITextComponentFactory
      *     The optional information String explaining what clicking the text will do.
      * @return A new component or null to apply no specific decoration to this component.
      */
-    default @Nullable TextComponent newTextCommandComponent(
+    default @Nullable TextComponent newClickableTextComponent(
         @Nullable TextType type, String command, @Nullable String info)
     {
         return TextComponent.EMPTY;
+    }
+
+    /**
+     * Creates a new {@link TextComponent} and attempts to add any required {@link ITextDecorator}s to execute a command
+     * when the text is clicked.
+     *
+     * @param type
+     *     The type of the text.
+     * @param command
+     *     The command to execute when this text is clicked.
+     * @return A new component or null to apply no specific decoration to this component.
+     */
+    default @Nullable TextComponent newClickableTextComponent(@Nullable TextType type, String command)
+    {
+        return newClickableTextComponent(type, command, null);
     }
 
     /**

@@ -35,7 +35,7 @@ public final class TextComponentFactorySpigot implements ITextComponentFactory
     }
 
     @Override
-    public TextComponent newTextCommandComponent(
+    public TextComponent newClickableTextComponent(
         @Nullable TextType type, String command, @Nullable String info)
     {
         return new TextComponent(

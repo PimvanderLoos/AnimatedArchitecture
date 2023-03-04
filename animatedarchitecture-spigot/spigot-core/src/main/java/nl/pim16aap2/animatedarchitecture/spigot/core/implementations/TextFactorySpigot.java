@@ -33,7 +33,10 @@ public class TextFactorySpigot implements ITextFactory
             .<BaseComponent>builder()
             .addStyle(TextType.ERROR, new StyleBuilder().color(ChatColor.DARK_RED).build())
             .addStyle(TextType.INFO, new StyleBuilder().color(ChatColor.AQUA).build())
-            .addStyle(TextType.HIGHLIGHT, new StyleBuilder().color(ChatColor.GOLD).underlined(true).build())
+            .addStyle(TextType.HIGHLIGHT, new StyleBuilder().color(ChatColor.GOLD).build())
+            .addStyle(TextType.CLICKABLE, new StyleBuilder().color(ChatColor.GOLD).underlined(true).build())
+            .addStyle(TextType.CLICKABLE_CONFIRM, new StyleBuilder().color(ChatColor.GREEN).underlined(true).build())
+            .addStyle(TextType.CLICKABLE_REFUSE, new StyleBuilder().color(ChatColor.RED).underlined(true).build())
             .addStyle(TextType.SUCCESS, new StyleBuilder().color(ChatColor.GREEN).build())
             .setDefaultStyle(new StyleBuilder().color(ChatColor.WHITE).build())
             .build();

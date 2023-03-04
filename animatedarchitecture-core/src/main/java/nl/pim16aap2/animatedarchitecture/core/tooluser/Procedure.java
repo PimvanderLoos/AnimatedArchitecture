@@ -4,7 +4,10 @@ import com.google.common.flogger.StackSize;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.text.Text;
+import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutor;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,11 +28,13 @@ public final class Procedure
 
     private final Iterator<Step> steps;
     private final ILocalizer localizer;
+    private final ITextFactory textFactory;
 
-    public Procedure(List<Step> steps, ILocalizer localizer)
+    public Procedure(List<Step> steps, ILocalizer localizer, ITextFactory textFactory)
     {
         this.steps = steps.iterator();
         this.localizer = localizer;
+        this.textFactory = textFactory;
         goToNextStep();
     }
 
@@ -107,15 +112,15 @@ public final class Procedure
      *
      * @return The message for the current step.
      */
-    public String getMessage()
+    public Text getMessage()
     {
         if (currentStep == null)
         {
             log.atSevere().withStackTrace(StackSize.FULL)
                .log("Cannot get the current step message because there is no active step!");
-            return localizer.getMessage("constants.error.generic");
+            return textFactory.newText().append(localizer.getMessage("constants.error.generic"), TextType.ERROR);
         }
-        return currentStep.getLocalizedMessage();
+        return currentStep.getLocalizedMessage(textFactory);
     }
 
     /**

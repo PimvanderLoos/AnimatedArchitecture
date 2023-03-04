@@ -17,6 +17,7 @@ import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.LimitsManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
+import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import org.jetbrains.annotations.Nullable;
@@ -81,7 +82,7 @@ public abstract class ToolUser
 
         try
         {
-            procedure = new Procedure(generateSteps(), localizer);
+            procedure = new Procedure(generateSteps(), localizer, textFactory);
         }
         catch (InstantiationException | IndexOutOfBoundsException e)
         {
@@ -165,7 +166,7 @@ public abstract class ToolUser
      * @return The message of the current step if possible. Otherwise, an empty String is returned.
      */
     @SuppressWarnings("unused")
-    public String getCurrentStepMessage()
+    public Text getCurrentStepMessage()
     {
         return getProcedure().getMessage();
     }
@@ -277,7 +278,7 @@ public abstract class ToolUser
         if (message.isEmpty())
             log.atWarning().log("Missing translation for step: %s", getProcedure().getCurrentStepName());
         else
-            getPlayer().sendMessage(textFactory, TextType.INFO, message);
+            getPlayer().sendMessage(message);
     }
 
     /**

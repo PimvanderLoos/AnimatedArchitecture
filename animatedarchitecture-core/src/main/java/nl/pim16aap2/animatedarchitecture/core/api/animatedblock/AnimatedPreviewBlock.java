@@ -6,20 +6,15 @@ import nl.pim16aap2.animatedarchitecture.core.api.GlowingBlockSpawner;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
-import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
-import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ILocationFactory;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
+import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
+import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 
 import java.time.Duration;
 
 public class AnimatedPreviewBlock implements IAnimatedBlock
 {
-    /**
-     * We do not want to move this type every tick, so we only update it once in every MOVEMENT_RATE ticks.
-     */
-    private static final int MOVEMENT_RATE = 5;
-
     private static final IAnimatedBlockData ANIMATED_BLOCK_DATA = new PreviewAnimatedBlockData();
 
     private int movementTicks = -1;
@@ -104,8 +99,7 @@ public class AnimatedPreviewBlock implements IAnimatedBlock
     @Override
     public void moveToTarget(Vector3Dd target, int ticksRemaining)
     {
-        if (++movementTicks % MOVEMENT_RATE != 0)
-            return;
+        ++movementTicks;
 
         cycleTargets(target);
 
