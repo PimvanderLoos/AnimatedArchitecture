@@ -14,6 +14,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Procedure;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
@@ -32,6 +33,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.Set;
@@ -193,8 +195,10 @@ public abstract class Creator extends ToolUser
         factorySetName = stepFactory
             .stepName("SET_NAME")
             .stepExecutor(new StepExecutorString(this::completeNamingStep))
-            .messageKey("creator.base.give_name")
-            .messageVariableRetrievers(() -> localizer.getStructureType(getStructureType()));
+            .textSupplier(
+                text -> text.append(
+                    localizer.getMessage("creator.base.give_name"), TextType.INFO,
+                    text.newTextArgument(localizer.getStructureType(getStructureType()), TextType.HIGHLIGHT)));
 
         factorySetFirstPos = stepFactory
             .stepName("SET_FIRST_POS")
@@ -217,28 +221,20 @@ public abstract class Creator extends ToolUser
             .stepName("SET_OPEN_STATUS")
             .stepExecutor(new StepExecutorBoolean(this::completeSetOpenStatusStep))
             .stepPreparation(this::prepareSetOpenStatus)
-            .messageKey("creator.base.set_open_status")
-            .messageVariableRetrievers(() -> localizer.getStructureType(getStructureType()),
-                                       () -> localizer.getMessage("constants.open_status.open"),
-                                       () -> localizer.getMessage("constants.open_status.closed"));
+            .textSupplier(this::setOpenStatusTextSupplier);
 
         factorySetOpenDir = stepFactory
             .stepName("SET_OPEN_DIRECTION")
             .stepExecutor(new StepExecutorOpenDirection(this::completeSetOpenDirStep))
             .stepPreparation(this::prepareSetOpenDirection)
             .messageKey("creator.base.set_open_direction")
-            .messageVariableRetrievers(
-                () -> localizer.getStructureType(getStructureType()),
-                () -> getValidOpenDirections().stream().map(dir -> localizer.getMessage(dir.getLocalizationKey()))
-                                              .toList().toString());
+            .textSupplier(this::setOpenDirectionTextSupplier);
 
         factoryConfirmPrice = stepFactory
             .stepName("CONFIRM_STRUCTURE_PRICE")
             .stepExecutor(new StepExecutorBoolean(this::confirmPrice))
             .skipCondition(this::skipConfirmPrice)
-            .messageKey("creator.base.confirm_structure_price")
-            .messageVariableRetrievers(() -> localizer.getStructureType(getStructureType()),
-                                       () -> String.format("%.2f", getPrice().orElse(0)))
+            .textSupplier(this::confirmPriceTextSupplier)
             .implicitNextStep(false);
 
         factoryCompleteProcess = stepFactory
@@ -417,7 +413,6 @@ public abstract class Creator extends ToolUser
         }
         if (!buyStructure())
         {
-
             getPlayer().sendMessage(textFactory, TextType.ERROR,
                                     localizer.getMessage("creator.base.error.insufficient_funds",
                                                          localizer.getStructureType(getStructureType()),
@@ -591,9 +586,9 @@ public abstract class Creator extends ToolUser
         final Vector3Di pos = loc.getPosition();
         if (Util.requireNonNull(cuboid, "cuboid").isPosInsideCuboid(pos))
         {
-            getPlayer().sendMessage(textFactory, TextType.ERROR,
-                                    localizer.getMessage("creator.base.error.powerblock_inside_structure",
-                                                         localizer.getStructureType(getStructureType())));
+            getPlayer().sendError(textFactory,
+                                  localizer.getMessage("creator.base.error.powerblock_inside_structure",
+                                                       localizer.getStructureType(getStructureType())));
             return false;
         }
         final OptionalInt distanceLimit = limitsManager.getLimit(getPlayer(), Limit.POWERBLOCK_DISTANCE);
@@ -601,11 +596,11 @@ public abstract class Creator extends ToolUser
         if (distanceLimit.isPresent() &&
             (distance = cuboid.getCenter().getDistance(pos)) > distanceLimit.getAsInt())
         {
-            getPlayer().sendMessage(textFactory, TextType.ERROR,
-                                    localizer.getMessage("creator.base.error.powerblock_too_far",
-                                                         localizer.getStructureType(getStructureType()),
-                                                         DECIMAL_FORMAT.format(distance),
-                                                         Integer.toString(distanceLimit.getAsInt())));
+            getPlayer().sendError(textFactory,
+                                  localizer.getMessage("creator.base.error.powerblock_too_far",
+                                                       localizer.getStructureType(getStructureType()),
+                                                       DECIMAL_FORMAT.format(distance),
+                                                       Integer.toString(distanceLimit.getAsInt())));
             return false;
         }
 
@@ -642,6 +637,58 @@ public abstract class Creator extends ToolUser
         return true;
     }
 
+    protected Text setOpenStatusTextSupplier(Text text)
+    {
+        return text.append(
+            localizer.getMessage("creator.base.set_open_status"), TextType.INFO,
+
+            text.newTextArgument(localizer.getStructureType(getStructureType()), TextType.HIGHLIGHT),
+
+            text.newClickableTextArgument(
+                localizer.getMessage("constants.open_status.open"), TextType.CLICKABLE,
+                "/animatedarchitecture SetOpenStatus " + localizer.getMessage("constants.open_status.open"),
+                localizer.getMessage("interaction.clickable_command.default_highlight")),
+
+            text.newClickableTextArgument(
+                localizer.getMessage("constants.open_status.closed"), TextType.CLICKABLE,
+                "/animatedarchitecture SetOpenStatus " + localizer.getMessage("constants.open_status.closed"),
+                localizer.getMessage("interaction.clickable_command.default_highlight")));
+    }
+
+    protected Text setOpenDirectionTextSupplier(Text text)
+    {
+        text.append(localizer.getMessage("creator.base.set_open_direction") + "\n", TextType.INFO,
+                    text.newTextArgument(localizer.getStructureType(getStructureType()), TextType.HIGHLIGHT));
+
+        getValidOpenDirections().stream().map(dir -> localizer.getMessage(dir.getLocalizationKey())).sorted().forEach(
+            dir -> text.appendClickableText(
+                dir + "\n", TextType.CLICKABLE,
+                "/animatedarchitecture SetOpenDirection " + dir,
+                localizer.getMessage("interaction.clickable_command.default_highlight")));
+
+        return text;
+    }
+
+    private Text confirmPriceTextSupplier(Text text)
+    {
+        return text.append(
+            localizer.getMessage("creator.base.confirm_structure_price"), TextType.INFO,
+
+            text.newTextArgument(localizer.getStructureType(getStructureType()), TextType.INFO),
+            text.newTextArgument(DECIMAL_FORMAT.format(getPrice().orElse(0)), TextType.HIGHLIGHT),
+
+            text.newClickableTextArgument(
+                localizer.getMessage("creator.base.confirm_structure_price.confirm"), TextType.CLICKABLE_CONFIRM,
+                "/animatedarchitecture confirm",
+                localizer.getMessage("interaction.clickable_command.default_highlight")),
+
+            text.newClickableTextArgument(
+                localizer.getMessage("creator.base.confirm_structure_price.refuse"), TextType.CLICKABLE_REFUSE,
+                "/animatedarchitecture cancel",
+                localizer.getMessage("interaction.clickable_command.default_highlight"))
+        );
+    }
+
     /**
      * Represents a synchronized wrapper for {@link DecimalFormat}.
      *
@@ -653,7 +700,7 @@ public abstract class Creator extends ToolUser
 
         MyDecimalFormat()
         {
-            decimalFormat = new DecimalFormat("0", DecimalFormatSymbols.getInstance());
+            decimalFormat = new DecimalFormat("0", DecimalFormatSymbols.getInstance(Locale.ROOT));
             decimalFormat.setMaximumFractionDigits(2);
         }
 

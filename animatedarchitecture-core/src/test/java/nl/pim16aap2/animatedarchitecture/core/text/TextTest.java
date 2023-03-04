@@ -148,10 +148,10 @@ class TextTest
     {
         final Text text = new Text(textComponentFactory);
         text.append("Click {1}, {2}, or {0} to do {3}!", TextType.INFO,
-                    new TextArgument("HERE0", text.getClickableTextComponent(TextType.INFO, "url0", null)),
-                    new TextArgument("HERE1", text.getClickableTextComponent(TextType.ERROR, "url1", null)),
-                    new TextArgument("HERE2", text.getClickableTextComponent(TextType.ERROR, "url2", "hi")),
-                    new TextArgument("something", text.getTextComponent(null)));
+                    new TextArgument("HERE0", text.newClickableTextComponent(TextType.INFO, "url0", null)),
+                    new TextArgument("HERE1", text.newClickableTextComponent(TextType.ERROR, "url1", null)),
+                    new TextArgument("HERE2", text.newClickableTextComponent(TextType.ERROR, "url2", "hi")),
+                    new TextArgument("something", text.newTextComponent(null)));
 
         final String result =
             "<info>Click </info>" +
@@ -206,7 +206,7 @@ class TextTest
         }
 
         @Override
-        public TextComponent newTextCommandComponent(@Nullable TextType type, String command, @Nullable String info)
+        public TextComponent newClickableTextComponent(@Nullable TextType type, String command, @Nullable String info)
         {
             return new TextComponent(
                 new StyleDecorator(colorScheme.getStyle(type)),

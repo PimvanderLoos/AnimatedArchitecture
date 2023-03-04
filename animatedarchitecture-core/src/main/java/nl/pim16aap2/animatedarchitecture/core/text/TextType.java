@@ -11,5 +11,8 @@ public final class TextType
     public static final TextType ERROR = new TextType();
     public static final TextType INFO = new TextType();
     public static final TextType HIGHLIGHT = new TextType();
+    public static final TextType CLICKABLE = new TextType();
+    public static final TextType CLICKABLE_CONFIRM = new TextType();
+    public static final TextType CLICKABLE_REFUSE = new TextType();
     public static final TextType SUCCESS = new TextType();
 }

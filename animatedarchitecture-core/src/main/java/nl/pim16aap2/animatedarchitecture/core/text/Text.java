@@ -248,9 +248,69 @@ public class Text implements CharSequence
      * @return The new text component if one was created or null if no specific decoration should be applied to the
      * text.
      */
-    public @Nullable TextComponent getTextComponent(@Nullable TextType type)
+    @Nullable TextComponent newTextComponent(@Nullable TextType type)
     {
         return textComponentFactory.newComponent(type);
+    }
+
+    /**
+     * Creates a new {@link TextArgument} with a given input String and text type.
+     * <p>
+     * This method is a shortcut for creating a new text argument using the input String and
+     * {@link ITextComponentFactory#newComponent(TextType)}.
+     *
+     * @param text
+     *     The String to use for the argument.
+     * @param type
+     *     The text type to use for the {@link TextComponent}.
+     * @return The new text argument.
+     */
+    public TextArgument newTextArgument(String text, TextType type)
+    {
+        return new TextArgument(text, newTextComponent(type));
+    }
+
+    /**
+     * Creates a new TextComponent for clickable texts.
+     * <p>
+     * This method is a shortcut for {@link ITextComponentFactory#newClickableTextComponent(TextType, String, String)}.
+     *
+     * @param type
+     *     The {@link TextType} of the text to add. This is used by any potential decorators to add styling and such to
+     *     the text.
+     * @param command
+     *     The command to execute when this text is clicked.
+     * @param info
+     *     The optional information String explaining what clicking the text will do.
+     * @return The new text component if one was created or null if no specific decoration should be applied to the
+     * text.
+     */
+    @Nullable TextComponent newClickableTextComponent(
+        @Nullable TextType type, String command, @Nullable String info)
+    {
+        return textComponentFactory.newClickableTextComponent(type, command, info);
+    }
+
+    /**
+     * Creates a new text argument for clickable texts.
+     * <p>
+     * This method is a shortcut for creating a new argument using the input text and
+     * {@link ITextComponentFactory#newClickableTextComponent(TextType, String, String)}.
+     *
+     * @param type
+     *     The {@link TextType} of the text to add. This is used by any potential decorators to add styling and such to
+     *     the text.
+     * @param command
+     *     The command to execute when this text is clicked.
+     * @param info
+     *     The optional information String explaining what clicking the text will do.
+     * @return The new text component if one was created or null if no specific decoration should be applied to the
+     * text.
+     */
+    public TextArgument newClickableTextArgument(
+        String text, @Nullable TextType type, String command, @Nullable String info)
+    {
+        return new TextArgument(text, newClickableTextComponent(type, command, info));
     }
 
     /**
@@ -275,28 +335,7 @@ public class Text implements CharSequence
     @Contract("_, _, _, _ -> this")
     public Text appendClickableText(String text, @Nullable TextType type, String command, @Nullable String info)
     {
-        return append0(text, getClickableTextComponent(type, command, info));
-    }
-
-    /**
-     * Creates a new TextComponent for clickable texts.
-     * <p>
-     * This method is a shortcut for {@link ITextComponentFactory#newTextCommandComponent(TextType, String, String)}.
-     *
-     * @param type
-     *     The {@link TextType} of the text to add. This is used by any potential decorators to add styling and such to
-     *     the text.
-     * @param command
-     *     The command to execute when this text is clicked.
-     * @param info
-     *     The optional information String explaining what clicking the text will do.
-     * @return The new text component if one was created or null if no specific decoration should be applied to the
-     * text.
-     */
-    public @Nullable TextComponent getClickableTextComponent(
-        @Nullable TextType type, String command, @Nullable String info)
-    {
-        return textComponentFactory.newTextCommandComponent(type, command, info);
+        return append0(text, newClickableTextComponent(type, command, info));
     }
 
     /**

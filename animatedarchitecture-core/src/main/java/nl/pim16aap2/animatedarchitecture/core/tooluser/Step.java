@@ -7,14 +7,16 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
+import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.text.Text;
+import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutor;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -27,9 +29,6 @@ import java.util.function.Supplier;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Step
 {
-    @ToString.Exclude
-    private final ILocalizer localizer;
-
     /**
      * The name of this step.
      */
@@ -37,9 +36,6 @@ public class Step
     private final String name;
 
     private final StepExecutor stepExecutor;
-
-    @ToString.Exclude
-    private final String messageKey;
 
     /**
      * The action to be taken to prepare this step, if any.
@@ -49,7 +45,7 @@ public class Step
     private final @Nullable Runnable stepPreparation;
 
     @ToString.Exclude
-    private final List<Supplier<String>> messageVariablesRetrievers;
+    private final Function<Text, Text> textSupplier;
 
     private final boolean waitForUserInput;
 
@@ -103,9 +99,9 @@ public class Step
     /**
      * @return The localized {@link String} that belongs to the current step.
      */
-    public String getLocalizedMessage()
+    public Text getLocalizedMessage(ITextFactory textFactory)
     {
-        return localizer.getMessage(messageKey, messageVariablesRetrievers.stream().map(Supplier::get).toArray());
+        return textSupplier.apply(textFactory.newText());
     }
 
     /**
@@ -116,12 +112,11 @@ public class Step
         private final ILocalizer localizer;
         private final String name;
         private @Nullable StepExecutor stepExecutor = null;
-        private @Nullable List<Supplier<String>> messageVariablesRetrievers = null;
         private @Nullable Runnable stepPreparation;
         private boolean waitForUserInput = true;
-        private @Nullable String messageKey = null;
         private @Nullable Supplier<Boolean> skipCondition = null;
         private boolean implicitNextStep = true;
+        private @Nullable Function<Text, Text> textSupplier;
 
         /**
          * @deprecated Prefer instantiation using {@link Step.Factory.IFactory} instead.
@@ -137,6 +132,8 @@ public class Step
 
         /**
          * See {@link Step#isImplicitNextStep()}.
+         *
+         * @return The current Factory.
          */
         public Factory implicitNextStep(boolean implicitNextStep)
         {
@@ -146,6 +143,8 @@ public class Step
 
         /**
          * See {@link Step#getStepPreparation()}.
+         *
+         * @return The current Factory.
          */
         public Factory stepPreparation(Runnable prepareStep)
         {
@@ -155,6 +154,8 @@ public class Step
 
         /**
          * See {@link Step#getStepExecutor()}.
+         *
+         * @return The current Factory.
          */
         public Factory stepExecutor(StepExecutor stepExecutor)
         {
@@ -164,20 +165,29 @@ public class Step
 
         /**
          * Sets the key of the localized message for this step.
+         * <p>
+         * This is a shortcut for setting a text supplier with a string localized via the localizer.
+         *
+         * @return The current Factory.
          */
         public Factory messageKey(String messageKey)
         {
-            this.messageKey = messageKey;
+            this.textSupplier = text -> text.append(localizer.getMessage(messageKey), TextType.INFO);
             return this;
         }
 
         /**
-         * Provides the variables for the placeholder(s) in the localized messages for this step.
+         * Sets the supplier for the Text object that is used to provide instructions for this step.
+         * <p>
+         * The input of the function is always a new and empty {@link Text} object.
+         *
+         * @param textSupplier
+         *     The function that supplies an instruction Text.
+         * @return The current Factory.
          */
-        @SafeVarargs
-        public final Factory messageVariableRetrievers(Supplier<String>... messageVariablesRetriever)
+        public Factory textSupplier(Function<Text, Text> textSupplier)
         {
-            messageVariablesRetrievers = List.of(messageVariablesRetriever);
+            this.textSupplier = textSupplier;
             return this;
         }
 
@@ -185,6 +195,8 @@ public class Step
          * Sets the implementation of {@link Step#skip()}.
          * <p>
          * This can be used to disable certain steps based on arbitrary conditions (e.g. configuration settings).
+         *
+         * @return The current Factory.
          */
         public Factory skipCondition(Supplier<Boolean> skipCondition)
         {
@@ -194,6 +206,8 @@ public class Step
 
         /**
          * See {@link Step#waitForUserInput()}.
+         *
+         * @return The current Factory.
          */
         public Factory waitForUserInput(boolean waitForUserInput)
         {
@@ -214,14 +228,17 @@ public class Step
         {
             if (stepExecutor == null)
                 throw new InstantiationException("Trying to instantiate a Step without stepExecutor");
-            if (messageKey == null)
-                throw new InstantiationException("Trying to instantiate a Step without message");
+            if (textSupplier == null)
+                throw new InstantiationException("Trying to instantiate a Step without text supplier");
 
-            if (messageVariablesRetrievers == null)
-                messageVariablesRetrievers = Collections.emptyList();
-
-            return new Step(localizer, name, stepExecutor, messageKey, stepPreparation, messageVariablesRetrievers,
-                            waitForUserInput, skipCondition, implicitNextStep);
+            return new Step(
+                name,
+                stepExecutor,
+                stepPreparation,
+                textSupplier,
+                waitForUserInput,
+                skipCondition,
+                implicitNextStep);
         }
 
         /**

@@ -33,6 +33,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.lang.reflect.Field;
 import java.util.EnumSet;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
@@ -177,8 +178,9 @@ public class CreatorTest
         // Not allowed, because the selected area is too big.
         Assertions.assertFalse(creator.setSecondPos(loc));
         Mockito.verify(player)
-               .sendMessage(UnitTestUtil.toText(String.format("creator.base.error.area_too_big StructureType %d %d",
-                                                              cuboid.getVolume(), cuboid.getVolume() - 1)));
+               .sendMessage(
+                   UnitTestUtil.toText(String.format(Locale.ROOT, "creator.base.error.area_too_big StructureType %d %d",
+                                                     cuboid.getVolume(), cuboid.getVolume() - 1)));
 
         Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any()))
                .thenReturn(OptionalInt.of(cuboid.getVolume() + 1));
@@ -214,7 +216,8 @@ public class CreatorTest
         Mockito.doReturn(false).when(creator).buyStructure();
         Assertions.assertTrue(creator.confirmPrice(true));
         Mockito.verify(player).sendMessage(
-            UnitTestUtil.toText(String.format("creator.base.error.insufficient_funds StructureType %.2f", price)));
+            UnitTestUtil.toText(
+                String.format(Locale.ROOT, "creator.base.error.insufficient_funds StructureType %.2f", price)));
 
         Mockito.doReturn(true).when(creator).buyStructure();
         Assertions.assertTrue(creator.confirmPrice(true));
@@ -325,8 +328,9 @@ public class CreatorTest
 
         Assertions.assertFalse(creator.completeSetPowerBlockStep(outsideCuboid));
         Mockito.verify(player).sendMessage(
-            UnitTestUtil.toText(String.format("creator.base.error.powerblock_too_far StructureType %.2f %d",
-                                              distance, lowLimit)));
+            UnitTestUtil.toText(
+                String.format(Locale.ROOT, "creator.base.error.powerblock_too_far StructureType %.2f %d",
+                              distance, lowLimit)));
 
         Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any())).thenReturn(OptionalInt.of(lowLimit + 10));
         Assertions.assertTrue(creator.completeSetPowerBlockStep(outsideCuboid));
