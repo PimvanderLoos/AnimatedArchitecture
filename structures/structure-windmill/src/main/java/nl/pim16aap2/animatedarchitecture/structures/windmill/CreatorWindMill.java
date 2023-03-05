@@ -29,6 +29,7 @@ public class CreatorWindMill extends Creator
                              factorySetRotationPointPos.messageKey("creator.windmill.step_3").construct(),
                              factorySetPowerBlockPos.construct(),
                              factorySetOpenDir.construct(),
+                             factoryReviewResult.construct(),
                              factoryConfirmPrice.construct(),
                              factoryCompleteProcess.messageKey("creator.windmill.success").construct());
     }

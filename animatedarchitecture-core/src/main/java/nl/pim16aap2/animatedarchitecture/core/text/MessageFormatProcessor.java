@@ -44,14 +44,14 @@ final class MessageFormatProcessor
     private final StringBuilder sb;
     private final List<MessageFormatSection> sections = new ArrayList<>();
 
-    public MessageFormatProcessor(String input, Locale locale, Object... arguments)
+    public MessageFormatProcessor(String input, Locale locale, @Nullable Object... arguments)
     {
         final var iter = new MessageFormat(input, locale).formatToCharacterIterator(arguments);
         sb = new StringBuilder(iter.getEndIndex());
         processMessageFormatIterator(iter);
     }
 
-    public MessageFormatProcessor(String input, Object... arguments)
+    public MessageFormatProcessor(String input, @Nullable Object... arguments)
     {
         this(input, DEFAULT_LOCALE, arguments);
     }

@@ -7,10 +7,14 @@ import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandFactory;
+import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
+import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.LimitsManager;
+import nl.pim16aap2.animatedarchitecture.core.moveblocks.AnimationType;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
@@ -38,16 +42,20 @@ import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Represents a specialization of the {@link ToolUser} that is used for creating new {@link AbstractStructure}s.
  *
  * @author Pim
  */
-@ToString(callSuper = true)
+@ToString(callSuper = true, onlyExplicitlyIncluded = true)
 @Flogger
 public abstract class Creator extends ToolUser
 {
+    private static final AtomicLong STRUCTURE_UID_PLACEHOLDER_COUNTER = new AtomicLong(-1000L);
+
     protected final LimitsManager limitsManager;
 
     protected final StructureBaseBuilder structureBaseBuilder;
@@ -58,9 +66,12 @@ public abstract class Creator extends ToolUser
 
     protected final CommandFactory commandFactory;
 
+    protected final long structureUidPlaceholder = STRUCTURE_UID_PLACEHOLDER_COUNTER.getAndDecrement();
+
     /**
      * The name of the structure that is to be created.
      */
+    @ToString.Include
     protected @Nullable String name;
 
     /**
@@ -68,6 +79,7 @@ public abstract class Creator extends ToolUser
      * <p>
      * This region is defined by {@link #firstPos} and the second position selected by the user.
      */
+    @ToString.Include
     protected @Nullable Cuboid cuboid;
 
     /**
@@ -75,113 +87,124 @@ public abstract class Creator extends ToolUser
      * <p>
      * Once a second point has been selected, these two are used to construct the {@link #cuboid}.
      */
+    @ToString.Include
     protected @Nullable Vector3Di firstPos;
 
     /**
      * The position of the rotation point selected by the user.
      */
+    @ToString.Include
     protected @Nullable Vector3Di rotationPoint;
 
     /**
      * The powerblock selected by the user.
      */
+    @ToString.Include
     protected @Nullable Vector3Di powerblock;
 
     /**
      * The opening direction selected by the user.
      */
+    @ToString.Include
     protected @Nullable MovementDirection openDir;
 
     /**
      * The {@link IWorld} this structure is created in.
      */
+    @ToString.Include
     protected @Nullable IWorld world;
 
     /**
      * Whether the structure is created in the open (true) or closed (false) position.
      */
+    @ToString.Include
     protected boolean isOpen = false;
 
     /**
      * Whether the structure is created in the locked (true) or unlocked (false) state.
      */
+    @ToString.Include
     protected boolean isLocked = false;
 
+    protected final AtomicBoolean processIsUpdatable = new AtomicBoolean(false);
+
     /**
-     * IFactory for the {@link Step} that sets the name.
+     * Factory for the {@link Step} that sets the name.
      */
-    @ToString.Exclude
     protected Step.Factory factorySetName;
 
     /**
-     * IFactory for the {@link Step} that sets the first position of the area of the structure.
+     * Factory for the {@link Step} that sets the first position of the area of the structure.
      * <p>
      * Don't forget to set the message before using it!
      */
-    @ToString.Exclude
     protected Step.Factory factorySetFirstPos;
 
     /**
-     * IFactory for the {@link Step} that sets the second position of the area of the structure, thus completing the
+     * Factory for the {@link Step} that sets the second position of the area of the structure, thus completing the
      * {@link Cuboid}.
      * <p>
      * Don't forget to set the message before using it!
      */
-    @ToString.Exclude
     protected Step.Factory factorySetSecondPos;
 
     /**
-     * IFactory for the {@link Step} that sets the position of the structure's rotation point.
+     * Factory for the {@link Step} that sets the position of the structure's rotation point.
      * <p>
      * Don't forget to set the message before using it!
      */
-    @ToString.Exclude
     protected Step.Factory factorySetRotationPointPos;
 
     /**
-     * IFactory for the {@link Step} that sets the position of the structure's power block.
+     * Factory for the {@link Step} that sets the position of the structure's power block.
      */
-    @ToString.Exclude
     protected Step.Factory factorySetPowerBlockPos;
 
     /**
-     * IFactory for the {@link Step} that sets the open status of the structure.
+     * Factory for the {@link Step} that sets the open status of the structure.
      */
-    @ToString.Exclude
     protected Step.Factory factorySetOpenStatus;
 
     /**
-     * IFactory for the {@link Step} that sets the open direction of the structure.
+     * Factory for the {@link Step} that sets the open direction of the structure.
      */
-    @ToString.Exclude
     protected Step.Factory factorySetOpenDir;
 
     /**
-     * IFactory for the {@link Step} that allows the player to confirm or reject the price of the structure.
+     * Factory for the {@link Step} that allows the player to confirm or reject the price of the structure.
      */
-    @ToString.Exclude
     protected Step.Factory factoryConfirmPrice;
 
     /**
-     * IFactory for the {@link Step} that completes this process.
+     * Factory for the {@link Step} that allows players to review the created structure
+     */
+    protected Step.Factory factoryReviewResult;
+
+    /**
+     * Factory for the {@link Step} that completes this process.
      * <p>
      * Don't forget to set the message before using it!
      */
-    @ToString.Exclude
     protected Step.Factory factoryCompleteProcess;
+
+    private final StructureAnimationRequestBuilder structureAnimationRequestBuilder;
 
     private static final MyDecimalFormat DECIMAL_FORMAT = new MyDecimalFormat();
 
     protected Creator(Context context, IPlayer player, @Nullable String name)
     {
         super(context, player);
-        limitsManager = context.getLimitsManager();
-        structureBaseBuilder = context.getStructureBaseBuilder();
-        databaseManager = context.getDatabaseManager();
-        economyManager = context.getEconomyManager();
-        commandFactory = context.getCommandFactory();
+        this.structureAnimationRequestBuilder = context.getStructureAnimationRequestBuilder();
+        this.limitsManager = context.getLimitsManager();
+        this.structureBaseBuilder = context.getStructureBaseBuilder();
+        this.databaseManager = context.getDatabaseManager();
+        this.economyManager = context.getEconomyManager();
+        this.commandFactory = context.getCommandFactory();
 
-        player.sendMessage(textFactory, TextType.INFO, localizer.getMessage("creator.base.init"));
+        player.sendMessage(textFactory.newText().append(
+            localizer.getMessage("creator.base.init"), TextType.INFO,
+            arg -> arg.clickable(
+                "/AnimatedArchitecture cancel", TextType.CLICKABLE_REFUSE, "/AnimatedArchitecture cancel")));
 
         if (name != null)
             handleInput(name);
@@ -195,6 +218,9 @@ public abstract class Creator extends ToolUser
         factorySetName = stepFactory
             .stepName("SET_NAME")
             .stepExecutor(new StepExecutorString(this::completeNamingStep))
+            .propertyName(localizer.getMessage("creator.base.property.type"))
+            .propertyValueSupplier(() -> this.name)
+            .updatable(true)
             .textSupplier(
                 text -> text.append(
                     localizer.getMessage("creator.base.give_name"), TextType.INFO,
@@ -206,29 +232,54 @@ public abstract class Creator extends ToolUser
 
         factorySetSecondPos = stepFactory
             .stepName("SET_SECOND_POS")
+            .propertyName(localizer.getMessage("creator.base.property.cuboid"))
+            .propertyValueSupplier(
+                () -> cuboid == null ? "[]" :
+                      String.format("[%s; %s]", formatVector(cuboid.getMin()), formatVector(cuboid.getMax())))
             .stepExecutor(new StepExecutorLocation(this::setSecondPos));
 
         factorySetRotationPointPos = stepFactory
             .stepName("SET_ROTATION_POINT")
+            .propertyName(localizer.getMessage("creator.base.property.rotation_point"))
+            .propertyValueSupplier(() -> formatVector(rotationPoint))
+            .updatable(true)
             .stepExecutor(new StepExecutorLocation(this::completeSetRotationPointStep));
 
         factorySetPowerBlockPos = stepFactory
             .stepName("SET_POWER_BLOCK_POS")
             .messageKey("creator.base.set_power_block")
+            .propertyName(localizer.getMessage("creator.base.property.power_block_position"))
+            .propertyValueSupplier(() -> formatVector(powerblock))
+            .updatable(true)
             .stepExecutor(new StepExecutorLocation(this::completeSetPowerBlockStep));
 
         factorySetOpenStatus = stepFactory
             .stepName("SET_OPEN_STATUS")
             .stepExecutor(new StepExecutorBoolean(this::completeSetOpenStatusStep))
             .stepPreparation(this::prepareSetOpenStatus)
+            .propertyName(localizer.getMessage("creator.base.property.open_status"))
+            .propertyValueSupplier(
+                () -> isOpen ?
+                      localizer.getMessage("constants.open_status.open") :
+                      localizer.getMessage("constants.open_status.closed"))
+            .updatable(true)
             .textSupplier(this::setOpenStatusTextSupplier);
 
         factorySetOpenDir = stepFactory
             .stepName("SET_OPEN_DIRECTION")
             .stepExecutor(new StepExecutorOpenDirection(this::completeSetOpenDirStep))
             .stepPreparation(this::prepareSetOpenDirection)
-            .messageKey("creator.base.set_open_direction")
+            .propertyName(localizer.getMessage("creator.base.property.open_direction"))
+            .propertyValueSupplier(
+                () -> openDir == null ? "NULL" : localizer.getMessage(openDir.getLocalizationKey()))
+            .updatable(true)
             .textSupplier(this::setOpenDirectionTextSupplier);
+
+        factoryReviewResult = stepFactory
+            .stepName("REVIEW_RESULT")
+            .stepExecutor(new StepExecutorBoolean(ignored -> true))
+            .stepPreparation(this::prepareReviewResult)
+            .textSupplier(this::reviewResultTextSupplier);
 
         factoryConfirmPrice = stepFactory
             .stepName("CONFIRM_STRUCTURE_PRICE")
@@ -241,6 +292,16 @@ public abstract class Creator extends ToolUser
             .stepName("COMPLETE_CREATION_PROCESS")
             .stepExecutor(new StepExecutorVoid(this::completeCreationProcess))
             .waitForUserInput(false);
+    }
+
+    public final void update(String stepName, @Nullable Object stepValue)
+    {
+        if (!processIsUpdatable.getAndSet(false))
+            throw new IllegalStateException(
+                "Trying to update step " + stepName + " with value " + stepValue +
+                    " while the process is not in an updatable state!");
+        getProcedure().insertStep(stepName);
+        prepareCurrentStep();
     }
 
     /**
@@ -269,12 +330,12 @@ public abstract class Creator extends ToolUser
      */
     protected final AbstractStructure.BaseHolder constructStructureData()
     {
-        final long structureUID = -1;
-        final var owner = new StructureOwner(structureUID, PermissionLevel.CREATOR, getPlayer().getPlayerData());
+        final var owner =
+            new StructureOwner(structureUidPlaceholder, PermissionLevel.CREATOR, getPlayer().getPlayerData());
 
         return structureBaseBuilder
             .builder()
-            .uid(structureUID)
+            .uid(structureUidPlaceholder)
             .name(Util.requireNonNull(name, "Name"))
             .cuboid(Util.requireNonNull(cuboid, "cuboid"))
             .rotationPoint(Util.requireNonNull(rotationPoint, "rotationPoint"))
@@ -285,6 +346,35 @@ public abstract class Creator extends ToolUser
             .openDir(Util.requireNonNull(openDir, "openDir"))
             .primeOwner(owner)
             .build();
+    }
+
+    protected void showPreview()
+    {
+        structureAnimationRequestBuilder
+            .builder()
+            .structure(constructStructure())
+            .structureActionCause(StructureActionCause.PLUGIN)
+            .structureActionType(StructureActionType.TOGGLE)
+            .animationType(AnimationType.PREVIEW)
+            .messageReceiver(getPlayer())
+            .responsible(getPlayer())
+            .build()
+            .execute();
+    }
+
+    protected void prepareReviewResult()
+    {
+        try
+        {
+            showPreview();
+        }
+        catch (Exception e)
+        {
+            log.atSevere().withCause(e).log("Failed to create structure preview!");
+            getPlayer().sendMessage(
+                textFactory.newText().append(localizer.getMessage("constants.error.generic"), TextType.ERROR));
+        }
+        this.processIsUpdatable.set(true);
     }
 
     /**
@@ -298,9 +388,16 @@ public abstract class Creator extends ToolUser
      */
     protected boolean completeCreationProcess()
     {
-        if (active)
+        removeTool();
+        if (active.get())
             insertStructure(constructStructure());
         return true;
+    }
+
+    private void giveTool0()
+    {
+        if (!playerHasTool.getAndSet(true))
+            giveTool();
     }
 
     /**
@@ -333,7 +430,7 @@ public abstract class Creator extends ToolUser
         }
 
         name = str;
-        giveTool();
+        giveTool0();
         return true;
     }
 
@@ -606,8 +703,6 @@ public abstract class Creator extends ToolUser
         }
 
         powerblock = pos;
-
-        removeTool();
         return true;
     }
 
@@ -670,6 +765,31 @@ public abstract class Creator extends ToolUser
         return text;
     }
 
+    private Text reviewResultTextSupplier(Text text)
+    {
+        text.append(localizer.getMessage("creator.base.review_result.header") + "\n", TextType.SUCCESS);
+        text.append(
+            localizer.getMessage("creator.base.property.type") + "\n", TextType.INFO,
+            arg -> arg.highlight(localizer.getStructureType(getStructureType())));
+
+        for (final Step step : getProcedure().getAllSteps())
+            step.getPropertyText(textFactory).ifPresent(property -> text.append(property).append('\n'));
+
+        text.append(
+            localizer.getMessage("creator.base.review_result.footer"), TextType.INFO,
+            arg -> arg.clickable(
+                localizer.getMessage("creator.base.review_result.footer.confirm.name"),
+                TextType.CLICKABLE_CONFIRM,
+                "/animatedarchitecture confirm",
+                localizer.getMessage("creator.base.review_result.footer.confirm.hint")),
+            arg -> arg.clickable(
+                localizer.getMessage("creator.base.review_result.footer.refuse.name"),
+                TextType.CLICKABLE_REFUSE,
+                "/animatedarchitecture cancel",
+                localizer.getMessage("creator.base.review_result.footer.refuse.hint")));
+        return text;
+    }
+
     private Text confirmPriceTextSupplier(Text text)
     {
         return text.append(
@@ -688,6 +808,11 @@ public abstract class Creator extends ToolUser
                 "/animatedarchitecture cancel",
                 localizer.getMessage("interaction.clickable_command.default_highlight"))
         );
+    }
+
+    private String formatVector(@Nullable Vector3Di vector)
+    {
+        return vector == null ? "NULL" : String.format("%d, %d, %d", vector.x(), vector.y(), vector.z());
     }
 
     /**

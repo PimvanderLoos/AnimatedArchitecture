@@ -30,6 +30,7 @@ public class CreatorBigDoor extends Creator
                              factorySetPowerBlockPos.construct(),
                              factorySetOpenStatus.construct(),
                              factorySetOpenDir.construct(),
+                             factoryReviewResult.construct(),
                              factoryConfirmPrice.construct(),
                              factoryCompleteProcess.messageKey("creator.big_door.success").construct());
     }

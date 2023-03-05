@@ -11,10 +11,11 @@ import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutor;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Deque;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -32,27 +33,30 @@ public final class Procedure
     private @Nullable Step currentStep;
 
     private final Map<String, Step> stepMap;
-    private final ListIterator<Step> steps;
+
+    private final Deque<Step> steps;
+
+    @ToString.Exclude
     private final ILocalizer localizer;
+
+    @ToString.Exclude
     private final ITextFactory textFactory;
 
     public Procedure(List<Step> steps, ILocalizer localizer, ITextFactory textFactory)
     {
-        stepMap = createStepMap(steps);
-        this.steps = new ArrayList<>(steps).listIterator();
+        this.stepMap = createStepMap(steps);
+        this.steps = new ArrayDeque<>(steps);
         this.localizer = localizer;
         this.textFactory = textFactory;
         goToNextStep();
     }
 
-    private Map<String, Step> createStepMap(List<Step> steps)
+    /**
+     * @return A list containing all steps in this procedure including any that may have been completed already.
+     */
+    public List<Step> getAllSteps()
     {
-        final Map<String, Step> ret = new HashMap<>(steps.size());
-        for (final var step : steps)
-            if (stepMap.put(step.getName(), step) != null)
-                throw new IllegalArgumentException(
-                    "Trying to register duplicate entries for step name: " + step.getName());
-        return ret;
+        return new ArrayList<>(stepMap.values());
     }
 
     /**
@@ -78,8 +82,9 @@ public final class Procedure
      */
     public void insertStep(Step step)
     {
-        this.steps.add(step);
-        this.currentStep = this.steps.previous();
+        if (this.currentStep != null)
+            this.steps.push(this.currentStep);
+        this.currentStep = step;
     }
 
     /**
@@ -106,7 +111,7 @@ public final class Procedure
      */
     public boolean hasNextStep()
     {
-        return steps.hasNext();
+        return !steps.isEmpty();
     }
 
     /**
@@ -114,14 +119,14 @@ public final class Procedure
      */
     public void goToNextStep()
     {
-        if (!steps.hasNext())
+        if (!hasNextStep())
         {
             log.atSevere().withStackTrace(StackSize.FULL)
                .log("Trying to advance to the next step while there is none! Step: %s",
                     (currentStep == null ? "NULL" : getCurrentStepName()));
             return;
         }
-        currentStep = steps.next();
+        currentStep = steps.pop();
 
         if (currentStep.skip())
             goToNextStep();
@@ -138,9 +143,9 @@ public final class Procedure
      */
     public boolean skipToStep(Step goalStep)
     {
-        while (steps.hasNext())
+        while (hasNextStep())
         {
-            final Step step = steps.next();
+            final Step step = steps.pop();
             if (step.equals(goalStep))
             {
                 currentStep = step;
@@ -251,5 +256,15 @@ public final class Procedure
         if (preparation == null)
             return;
         preparation.run();
+    }
+
+    private static Map<String, Step> createStepMap(List<Step> steps)
+    {
+        final Map<String, Step> ret = new LinkedHashMap<>(steps.size());
+        for (final var step : steps)
+            if (ret.put(step.getName(), step) != null)
+                throw new IllegalArgumentException(
+                    "Trying to register duplicate entries for step name: " + step.getName());
+        return ret;
     }
 }

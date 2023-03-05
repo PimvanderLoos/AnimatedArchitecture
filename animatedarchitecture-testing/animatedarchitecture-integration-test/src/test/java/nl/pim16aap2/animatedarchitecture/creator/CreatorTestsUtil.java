@@ -27,6 +27,7 @@ import nl.pim16aap2.animatedarchitecture.core.managers.StructureDeletionManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureRegistry;
@@ -38,6 +39,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.testimplementations.TestLocationFactory;
 import nl.pim16aap2.testing.AssistedFactoryMocker;
+import nl.pim16aap2.util.reflection.ReflectionBuilder;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -163,8 +165,8 @@ public class CreatorTestsUtil
 
         context = new ToolUser.Context(
             structureBaseBuilder, localizer, ITextFactory.getSimpleTextFactory(), toolUserManager, databaseManager,
-            limitsManager, economyManager, protectionCompatManager, animatedArchitectureToolUtil, commandFactory,
-            assistedStepFactory);
+            limitsManager, economyManager, protectionCompatManager, animatedArchitectureToolUtil,
+            Mockito.mock(StructureAnimationRequestBuilder.class), commandFactory, assistedStepFactory);
 
         initCommands();
 
@@ -258,11 +260,24 @@ public class CreatorTestsUtil
                .thenReturn(status);
     }
 
+    protected long getTemporaryUid(Creator creator)
+    {
+        try
+        {
+            return (Long) ReflectionBuilder.findField(Creator.class)
+                                           .withName("structureUidPlaceholder")
+                                           .setAccessible().get().get(creator);
+        }
+        catch (IllegalAccessException e)
+        {
+            throw new RuntimeException("Failed to access field 'structureUidPlaceholder' in class 'Creator'!", e);
+        }
+    }
 
-    protected AbstractStructure.BaseHolder constructStructureBase()
+    protected AbstractStructure.BaseHolder constructStructureBase(long uid)
     {
         return structureBaseBuilder.builder()
-                                   .uid(-1).name(structureName).cuboid(new Cuboid(min, max))
+                                   .uid(uid).name(structureName).cuboid(new Cuboid(min, max))
                                    .rotationPoint(rotationPoint)
                                    .powerBlock(powerblock).world(world).isOpen(false).isLocked(false)
                                    .openDir(openDirection).primeOwner(structureOwner)

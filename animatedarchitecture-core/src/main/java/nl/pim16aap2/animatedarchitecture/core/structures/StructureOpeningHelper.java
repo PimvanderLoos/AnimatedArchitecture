@@ -263,8 +263,12 @@ public final class StructureOpeningHelper
     }
 
     private StructureToggleResult toggle(
-        StructureSnapshot snapshot, AbstractStructure targetStructure, AnimationRequestData data,
-        IAnimationComponent component, IMessageable messageReceiver, @Nullable IPlayer player,
+        StructureSnapshot snapshot,
+        AbstractStructure targetStructure,
+        AnimationRequestData data,
+        IAnimationComponent component,
+        IMessageable messageReceiver,
+        @Nullable IPlayer player,
         AnimationType animationType)
     {
         if (snapshot.getOpenDir() == MovementDirection.NONE)
@@ -273,7 +277,8 @@ public final class StructureOpeningHelper
             return StructureToggleResult.ERROR;
         }
 
-        if (!structureRegistry.isRegistered(targetStructure))
+        // Read-only animations are fine for unregistered structures, as they do (should) not have any side effects.
+        if (animationType.requiresWriteAccess() && !structureRegistry.isRegistered(targetStructure))
             return abort(targetStructure, StructureToggleResult.INSTANCE_UNREGISTERED, data.getCause(),
                          data.getResponsible(), messageReceiver, null);
 
@@ -284,11 +289,11 @@ public final class StructureOpeningHelper
 
         final long stamp = registrationResult.getAsLong();
 
-        final StructureToggleResult isOpenable =
+        final StructureToggleResult isToggleable =
             canBeToggled(snapshot, targetStructure.getType(), data.getNewCuboid(), data.getActionType());
 
-        if (isOpenable != StructureToggleResult.SUCCESS)
-            return abort(targetStructure, isOpenable, data.getCause(), data.getResponsible(), messageReceiver, stamp);
+        if (isToggleable != StructureToggleResult.SUCCESS)
+            return abort(targetStructure, isToggleable, data.getCause(), data.getResponsible(), messageReceiver, stamp);
 
         final IStructureEventTogglePrepare prepareEvent = callTogglePrepareEvent(data);
         if (prepareEvent.isCancelled())
@@ -297,11 +302,14 @@ public final class StructureOpeningHelper
 
         final @Nullable IPlayer responsiblePlayer =
             data.getCause().equals(StructureActionCause.PLAYER) ? data.getResponsible() : null;
-        if (!isLocationEmpty(data.getNewCuboid(), snapshot.getCuboid(), responsiblePlayer, snapshot.getWorld()))
+
+        if (animationType.requiresWriteAccess() &&
+            !isLocationEmpty(data.getNewCuboid(), snapshot.getCuboid(), responsiblePlayer, snapshot.getWorld()))
             return abort(targetStructure, StructureToggleResult.OBSTRUCTED, data.getCause(), data.getResponsible(),
                          messageReceiver, stamp);
 
-        if (!canBreakBlocksBetweenLocs(snapshot, data.getNewCuboid(), data.getResponsible()))
+        if (animationType.requiresWriteAccess() &&
+            !canBreakBlocksBetweenLocs(snapshot, data.getNewCuboid(), data.getResponsible()))
             return abort(targetStructure, StructureToggleResult.NO_PERMISSION, data.getCause(), data.getResponsible(),
                          messageReceiver, stamp);
 

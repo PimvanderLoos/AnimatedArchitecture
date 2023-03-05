@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.structures.portcullis;
 
+
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
@@ -45,6 +46,7 @@ public class CreatorPortcullis extends Creator
                              factorySetOpenStatus.construct(),
                              factorySetOpenDir.construct(),
                              stepBlocksToMove,
+                             factoryReviewResult.construct(),
                              factoryConfirmPrice.construct(),
                              factoryCompleteProcess.messageKey("creator.portcullis.success").construct());
     }

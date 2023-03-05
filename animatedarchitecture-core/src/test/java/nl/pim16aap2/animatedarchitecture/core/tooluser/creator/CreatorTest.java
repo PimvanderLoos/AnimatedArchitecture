@@ -13,6 +13,7 @@ import nl.pim16aap2.animatedarchitecture.core.commands.SetOpenDirectionDelayed;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.LimitsManager;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Procedure;
@@ -37,6 +38,7 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CreatorTest
 {
@@ -80,12 +82,21 @@ public class CreatorTest
         Mockito.when(assistedStepFactory.stepName(Mockito.anyString()))
                .thenAnswer(invocation -> new Step.Factory(localizer, invocation.getArgument(0, String.class)));
 
+        final var structureAnimationRequestBuilder = Mockito.mock(StructureAnimationRequestBuilder.class);
+        Mockito.when(structureAnimationRequestBuilder.builder())
+               .thenReturn(Mockito.mock(StructureAnimationRequestBuilder.IBuilderStructure.class));
+
         UnitTestUtil.setField(Creator.class, creator, "limitsManager", limitsManager);
         UnitTestUtil.setField(Creator.class, creator, "structureBaseBuilder", Mockito.mock(StructureBaseBuilder.class));
         UnitTestUtil.setField(Creator.class, creator, "databaseManager", Mockito.mock(DatabaseManager.class));
         UnitTestUtil.setField(Creator.class, creator, "economyManager", economyManager);
         UnitTestUtil.setField(Creator.class, creator, "commandFactory", commandFactory);
+        UnitTestUtil.setField(Creator.class, creator, "processIsUpdatable", new AtomicBoolean(false));
+        UnitTestUtil.setField(
+            Creator.class, creator, "structureAnimationRequestBuilder", structureAnimationRequestBuilder);
 
+        UnitTestUtil.setField(ToolUser.class, creator, "playerHasTool", new AtomicBoolean(false));
+        UnitTestUtil.setField(ToolUser.class, creator, "active", new AtomicBoolean(true));
         UnitTestUtil.setField(ToolUser.class, creator, "player", player);
         UnitTestUtil.setField(ToolUser.class, creator, "localizer", localizer);
         UnitTestUtil.setField(ToolUser.class, creator, "textFactory", ITextFactory.getSimpleTextFactory());

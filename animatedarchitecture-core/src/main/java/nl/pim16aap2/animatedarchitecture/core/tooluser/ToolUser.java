@@ -16,6 +16,7 @@ import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.LimitsManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
@@ -27,11 +28,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-@ToString
+@ToString(onlyExplicitlyIncluded = true)
 @Flogger
 public abstract class ToolUser
 {
     @Getter
+    @ToString.Include
     private final IPlayer player;
 
     protected final ILocalizer localizer;
@@ -50,23 +52,26 @@ public abstract class ToolUser
      * The {@link Procedure} that this {@link ToolUser} will go through.
      */
     @Getter
+    @ToString.Include
     private final Procedure procedure;
 
     /**
      * Checks if this {@link ToolUser} has been shut down or not.
      */
+    @ToString.Include
     private final AtomicBoolean isShutDown = new AtomicBoolean(false);
 
     /**
      * Keeps track of whether this {@link ToolUser} is active or not.
      */
-    @Getter
-    protected boolean active = true;
+    @ToString.Include
+    protected final AtomicBoolean active = new AtomicBoolean(true);
 
     /**
      * Keeps track of whether the player has the tool or not.
      */
-    protected boolean playerHasStick = false;
+    @ToString.Include
+    protected final AtomicBoolean playerHasTool = new AtomicBoolean(false);
 
     protected ToolUser(Context context, IPlayer player)
     {
@@ -90,7 +95,7 @@ public abstract class ToolUser
                                            getPlayer().asString(), e);
         }
 
-        if (!active)
+        if (!active.get())
             return;
 
         toolUserManager.registerToolUser(this);
@@ -122,7 +127,7 @@ public abstract class ToolUser
         if (isShutDown.getAndSet(true))
             return;
         removeTool();
-        active = false;
+        active.set(false);
         toolUserManager.abortToolUser(this);
     }
 
@@ -145,7 +150,7 @@ public abstract class ToolUser
     {
         animatedArchitectureToolUtil.giveToPlayer(getPlayer(), localizer.getMessage(nameKey),
                                                   localizer.getMessage(loreKey));
-        playerHasStick = true;
+        playerHasTool.set(true);
 
         if (messageKey != null)
             getPlayer().sendMessage(textFactory, TextType.SUCCESS, localizer.getMessage(messageKey));
@@ -157,7 +162,7 @@ public abstract class ToolUser
     protected final void removeTool()
     {
         animatedArchitectureToolUtil.removeTool(getPlayer());
-        playerHasStick = false;
+        playerHasTool.set(false);
     }
 
     /**
@@ -228,7 +233,7 @@ public abstract class ToolUser
                          obj, (obj == null ? "null" : obj.getClass().getSimpleName()),
                          getProcedure().getCurrentStepName(), this);
 
-        if (!active)
+        if (!active.get())
             return false;
 
         final boolean isLastStep = !getProcedure().hasNextStep();
@@ -264,6 +269,7 @@ public abstract class ToolUser
         }
         catch (Exception e)
         {
+            e.printStackTrace();
             log.atSevere().withCause(e).log("Failed to handle input '%s' for ToolUser '%s'!", obj, this);
             return false;
         }
@@ -342,6 +348,16 @@ public abstract class ToolUser
         return result.isEmpty();
     }
 
+    /**
+     * Keeps track of whether this {@link ToolUser} is active or not.
+     *
+     * @return true if this tool user is active.
+     */
+    public boolean isActive()
+    {
+        return active.get();
+    }
+
     @Getter
     public static final class Context
     {
@@ -355,14 +371,22 @@ public abstract class ToolUser
         private final IProtectionCompatManager protectionCompatManager;
         private final IAnimatedArchitectureToolUtil animatedArchitectureToolUtil;
         private final CommandFactory commandFactory;
+        private final StructureAnimationRequestBuilder structureAnimationRequestBuilder;
         private final Step.Factory.IFactory stepFactory;
 
         @Inject
         public Context(
-            StructureBaseBuilder structureBaseBuilder, ILocalizer localizer, ITextFactory textFactory,
-            ToolUserManager toolUserManager, DatabaseManager databaseManager, LimitsManager limitsManager,
-            IEconomyManager economyManager, IProtectionCompatManager protectionCompatManager,
-            IAnimatedArchitectureToolUtil animatedArchitectureToolUtil, CommandFactory commandFactory,
+            StructureBaseBuilder structureBaseBuilder,
+            ILocalizer localizer,
+            ITextFactory textFactory,
+            ToolUserManager toolUserManager,
+            DatabaseManager databaseManager,
+            LimitsManager limitsManager,
+            IEconomyManager economyManager,
+            IProtectionCompatManager protectionCompatManager,
+            IAnimatedArchitectureToolUtil animatedArchitectureToolUtil,
+            StructureAnimationRequestBuilder structureAnimationRequestBuilder,
+            CommandFactory commandFactory,
             Step.Factory.IFactory stepFactory)
         {
             this.structureBaseBuilder = structureBaseBuilder;
@@ -373,6 +397,7 @@ public abstract class ToolUser
             this.economyManager = economyManager;
             this.protectionCompatManager = protectionCompatManager;
             this.animatedArchitectureToolUtil = animatedArchitectureToolUtil;
+            this.structureAnimationRequestBuilder = structureAnimationRequestBuilder;
             this.commandFactory = commandFactory;
             this.textFactory = textFactory;
             this.stepFactory = stepFactory;

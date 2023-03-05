@@ -45,6 +45,7 @@ public class CreatorSlidingDoor extends Creator
                              factorySetOpenStatus.construct(),
                              factorySetOpenDir.construct(),
                              stepBlocksToMove,
+                             factoryReviewResult.construct(),
                              factoryConfirmPrice.construct(),
                              factoryCompleteProcess.messageKey("creator.sliding_door.success").construct());
     }

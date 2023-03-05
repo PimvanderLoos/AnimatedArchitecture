@@ -33,7 +33,7 @@ import java.util.stream.Stream;
 @Flogger
 public class BigDoor extends AbstractStructure
 {
-    @EqualsAndHashCode.Exclude
+    @EqualsAndHashCode.Exclude @ToString.Exclude
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
 

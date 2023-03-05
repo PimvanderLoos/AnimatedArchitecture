@@ -31,8 +31,10 @@ class CreatorPortcullisTest extends CreatorTestsUtil
         setEconomyPrice(12.34);
         setBuyStructure(true);
 
-        final Portcullis actualStructure = new Portcullis(constructStructureBase(), blocksToMove);
         final CreatorPortcullis creator = new CreatorPortcullis(context, player, null);
+        final Portcullis actualStructure =
+            new Portcullis(constructStructureBase(getTemporaryUid(creator)), blocksToMove);
+
         testCreation(creator, actualStructure,
                      structureName,
                      min.toLocation(locationFactory, world),
@@ -41,6 +43,7 @@ class CreatorPortcullisTest extends CreatorTestsUtil
                      false,
                      openDirection,
                      blocksToMove,
+                     true,
                      true);
     }
 

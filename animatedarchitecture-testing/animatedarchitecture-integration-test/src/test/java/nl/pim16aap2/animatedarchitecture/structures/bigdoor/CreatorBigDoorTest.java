@@ -19,9 +19,10 @@ class CreatorBigDoorTest extends CreatorTestsUtil
     {
         openDirection = MovementDirection.CLOCKWISE;
 
-        final BigDoor actualStructure = new BigDoor(constructStructureBase());
         Assertions.assertNotNull(StructureTypeBigDoor.get());
+
         final CreatorBigDoor creator = new CreatorBigDoor(context, player, null);
+        final BigDoor actualStructure = new BigDoor(constructStructureBase(getTemporaryUid(creator)));
         testCreation(creator, actualStructure,
                      structureName,
                      min.toLocation(locationFactory, world),
@@ -29,6 +30,7 @@ class CreatorBigDoorTest extends CreatorTestsUtil
                      rotationPoint.toLocation(locationFactory, world),
                      powerblock.toLocation(locationFactory, world),
                      false,
-                     openDirection);
+                     openDirection,
+                     true);
     }
 }

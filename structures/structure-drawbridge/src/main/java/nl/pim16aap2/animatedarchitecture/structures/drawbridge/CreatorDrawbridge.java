@@ -30,6 +30,7 @@ public class CreatorDrawbridge extends Creator
                              factorySetPowerBlockPos.construct(),
                              factorySetOpenStatus.construct(),
                              factorySetOpenDir.construct(),
+                             factoryReviewResult.construct(),
                              factoryConfirmPrice.construct(),
                              factoryCompleteProcess.messageKey("creator.draw_bridge.success").construct());
     }

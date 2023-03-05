@@ -32,12 +32,12 @@ public class TextFactorySpigot implements ITextFactory
         return ColorScheme
             .<BaseComponent>builder()
             .addStyle(TextType.ERROR, new StyleBuilder().color(ChatColor.DARK_RED).build())
-            .addStyle(TextType.INFO, new StyleBuilder().color(ChatColor.AQUA).build())
+            .addStyle(TextType.INFO, new StyleBuilder().color(ChatColor.GRAY).build())
             .addStyle(TextType.HIGHLIGHT, new StyleBuilder().color(ChatColor.GOLD).build())
-            .addStyle(TextType.CLICKABLE, new StyleBuilder().color(ChatColor.GOLD).underlined(true).build())
+            .addStyle(TextType.CLICKABLE, new StyleBuilder().color(ChatColor.AQUA).underlined(true).build())
             .addStyle(TextType.CLICKABLE_CONFIRM, new StyleBuilder().color(ChatColor.GREEN).underlined(true).build())
             .addStyle(TextType.CLICKABLE_REFUSE, new StyleBuilder().color(ChatColor.RED).underlined(true).build())
-            .addStyle(TextType.SUCCESS, new StyleBuilder().color(ChatColor.GREEN).build())
+            .addStyle(TextType.SUCCESS, new StyleBuilder().color(ChatColor.DARK_GREEN).build())
             .setDefaultStyle(new StyleBuilder().color(ChatColor.WHITE).build())
             .build();
     }

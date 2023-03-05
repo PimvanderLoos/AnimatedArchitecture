@@ -8,7 +8,6 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IChunkLoader;
@@ -16,18 +15,18 @@ import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IRedstoneManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
+import nl.pim16aap2.animatedarchitecture.core.api.factories.IPlayerFactory;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
-import nl.pim16aap2.animatedarchitecture.core.moveblocks.StructureActivityManager;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
+import nl.pim16aap2.animatedarchitecture.core.moveblocks.StructureActivityManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes.IPerpetualMover;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.IPlayerFactory;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -50,7 +49,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 @Flogger final class StructureBase
 {
     @Getter(AccessLevel.PACKAGE)
-    @EqualsAndHashCode.Exclude @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
     @Getter
@@ -59,7 +58,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
     @Getter
     private final IWorld world;
 
-    @EqualsAndHashCode.Exclude @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private final StructureAnimationRequestBuilder structureToggleRequestBuilder;
 
     @GuardedBy("lock")
@@ -100,9 +99,16 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
     private boolean isLocked;
 
     @Getter
+    @EqualsAndHashCode.Exclude
     private final StructureOwner primeOwner;
+
+    @EqualsAndHashCode.Exclude
     private final IRedstoneManager redstoneManager;
+
+    @EqualsAndHashCode.Exclude
     private final StructureActivityManager structureActivityManager;
+
+    @EqualsAndHashCode.Exclude
     private final IChunkLoader chunkLoader;
 
     @EqualsAndHashCode.Exclude
