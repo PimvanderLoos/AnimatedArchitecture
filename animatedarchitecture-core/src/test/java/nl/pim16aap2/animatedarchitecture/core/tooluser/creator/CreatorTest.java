@@ -33,7 +33,6 @@ import org.mockito.MockitoAnnotations;
 
 import java.lang.reflect.Field;
 import java.util.EnumSet;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
@@ -109,8 +108,7 @@ public class CreatorTest
         final String input = "1";
         // Numerical names are not allowed.
         Assertions.assertFalse(creator.completeNamingStep(input));
-        Mockito.verify(player)
-               .sendMessage(UnitTestUtil.toText("creator.base.error.invalid_name " + input + " StructureType"));
+        Mockito.verify(player).sendMessage(UnitTestUtil.textArgumentMatcher("creator.base.error.invalid_name"));
 
         Assertions.assertTrue(creator.completeNamingStep("newDoor"));
         Mockito.verify(creator).giveTool();
@@ -177,10 +175,8 @@ public class CreatorTest
                .thenReturn(OptionalInt.of(cuboid.getVolume() - 1));
         // Not allowed, because the selected area is too big.
         Assertions.assertFalse(creator.setSecondPos(loc));
-        Mockito.verify(player)
-               .sendMessage(
-                   UnitTestUtil.toText(String.format(Locale.ROOT, "creator.base.error.area_too_big StructureType %d %d",
-                                                     cuboid.getVolume(), cuboid.getVolume() - 1)));
+        Mockito.verify(player).sendMessage(
+            UnitTestUtil.textArgumentMatcher("creator.base.error.area_too_big"));
 
         Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any()))
                .thenReturn(OptionalInt.of(cuboid.getVolume() + 1));
@@ -202,22 +198,21 @@ public class CreatorTest
         Mockito.doReturn(procedure).when(creator).getProcedure();
 
         Assertions.assertTrue(creator.confirmPrice(false));
-        Mockito.verify(player).sendMessage(UnitTestUtil.toText("creator.base.error.creation_cancelled"));
+        Mockito.verify(player).sendMessage(UnitTestUtil.textArgumentMatcher("creator.base.error.creation_cancelled"));
 
         Mockito.doReturn(OptionalDouble.empty()).when(creator).getPrice();
         Mockito.doReturn(false).when(creator).buyStructure();
 
         Assertions.assertTrue(creator.confirmPrice(true));
-        Mockito.verify(player)
-               .sendMessage(UnitTestUtil.toText("creator.base.error.insufficient_funds StructureType 0"));
+        Mockito.verify(player).sendMessage(
+            UnitTestUtil.textArgumentMatcher("creator.base.error.insufficient_funds"));
 
-        double price = 123.41;
+        final double price = 123.41;
         Mockito.doReturn(OptionalDouble.of(price)).when(creator).getPrice();
         Mockito.doReturn(false).when(creator).buyStructure();
         Assertions.assertTrue(creator.confirmPrice(true));
-        Mockito.verify(player).sendMessage(
-            UnitTestUtil.toText(
-                String.format(Locale.ROOT, "creator.base.error.insufficient_funds StructureType %.2f", price)));
+        Mockito.verify(player, Mockito.times(2)).sendMessage(
+            UnitTestUtil.textArgumentMatcher("creator.base.error.insufficient_funds"));
 
         Mockito.doReturn(true).when(creator).buyStructure();
         Assertions.assertTrue(creator.confirmPrice(true));
@@ -319,8 +314,8 @@ public class CreatorTest
         Mockito.doReturn(true).when(creator).playerHasAccessToLocation(Mockito.any());
         Assertions.assertFalse(creator.completeSetPowerBlockStep(insideCuboid));
 
-        Mockito.verify(player)
-               .sendMessage(UnitTestUtil.toText("creator.base.error.powerblock_inside_structure StructureType"));
+        Mockito.verify(player).sendMessage(
+            UnitTestUtil.textArgumentMatcher("creator.base.error.powerblock_inside_structure"));
 
         final double distance = cuboid.getCenter().getDistance(outsideCuboid.getPosition());
         final int lowLimit = (int) (distance - 1);
@@ -328,9 +323,7 @@ public class CreatorTest
 
         Assertions.assertFalse(creator.completeSetPowerBlockStep(outsideCuboid));
         Mockito.verify(player).sendMessage(
-            UnitTestUtil.toText(
-                String.format(Locale.ROOT, "creator.base.error.powerblock_too_far StructureType %.2f %d",
-                              distance, lowLimit)));
+            UnitTestUtil.textArgumentMatcher("creator.base.error.powerblock_too_far"));
 
         Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any())).thenReturn(OptionalInt.of(lowLimit + 10));
         Assertions.assertTrue(creator.completeSetPowerBlockStep(outsideCuboid));
@@ -358,7 +351,8 @@ public class CreatorTest
         Mockito.doReturn(true).when(creator).playerHasAccessToLocation(Mockito.any());
         // Point too far away
         Assertions.assertFalse(creator.completeSetRotationPointStep(UnitTestUtil.getLocation(1, 1, 1, world)));
-        Mockito.verify(player).sendMessage(UnitTestUtil.toText("creator.base.error.invalid_rotation_point"));
+        Mockito.verify(player).sendMessage(
+            UnitTestUtil.textArgumentMatcher("creator.base.error.invalid_rotation_point"));
 
         Assertions.assertTrue(creator.completeSetRotationPointStep(UnitTestUtil.getLocation(11, 21, 31, world)));
     }

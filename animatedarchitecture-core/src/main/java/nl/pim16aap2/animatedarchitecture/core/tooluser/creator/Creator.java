@@ -198,7 +198,7 @@ public abstract class Creator extends ToolUser
             .textSupplier(
                 text -> text.append(
                     localizer.getMessage("creator.base.give_name"), TextType.INFO,
-                    text.newTextArgument(localizer.getStructureType(getStructureType()), TextType.HIGHLIGHT)));
+                    arg -> arg.highlight(localizer.getStructureType(getStructureType()))));
 
         factorySetFirstPos = stepFactory
             .stepName("SET_FIRST_POS")
@@ -325,9 +325,10 @@ public abstract class Creator extends ToolUser
         if (!Util.isValidStructureName(str))
         {
             log.atFine().log("Invalid name '%s' for selected Creator: %s", str, this);
-            getPlayer().sendMessage(textFactory, TextType.ERROR,
-                                    localizer.getMessage("creator.base.error.invalid_name",
-                                                         str, localizer.getStructureType(getStructureType())));
+            getPlayer().sendMessage(textFactory.newText().append(
+                localizer.getMessage("creator.base.error.invalid_name"), TextType.ERROR,
+                arg -> arg.highlight(str),
+                arg -> arg.highlight(localizer.getStructureType(getStructureType()))));
             return false;
         }
 
@@ -374,12 +375,11 @@ public abstract class Creator extends ToolUser
         final OptionalInt sizeLimit = limitsManager.getLimit(getPlayer(), Limit.STRUCTURE_SIZE);
         if (sizeLimit.isPresent() && newCuboid.getVolume() > sizeLimit.getAsInt())
         {
-            getPlayer().sendMessage(
-                textFactory, TextType.ERROR,
-                localizer.getMessage("creator.base.error.area_too_big",
-                                     localizer.getStructureType(getStructureType()),
-                                     Integer.toString(newCuboid.getVolume()),
-                                     Integer.toString(sizeLimit.getAsInt())));
+            getPlayer().sendMessage(textFactory.newText().append(
+                localizer.getMessage("creator.base.error.area_too_big"), TextType.ERROR,
+                arg -> arg.highlight(localizer.getStructureType(getStructureType())),
+                arg -> arg.highlight(newCuboid.getVolume()),
+                arg -> arg.highlight(sizeLimit.getAsInt())));
             return false;
         }
 
@@ -413,10 +413,10 @@ public abstract class Creator extends ToolUser
         }
         if (!buyStructure())
         {
-            getPlayer().sendMessage(textFactory, TextType.ERROR,
-                                    localizer.getMessage("creator.base.error.insufficient_funds",
-                                                         localizer.getStructureType(getStructureType()),
-                                                         DECIMAL_FORMAT.format(getPrice().orElse(0))));
+            getPlayer().sendMessage(textFactory.newText().append(
+                localizer.getMessage("creator.base.error.insufficient_funds"), TextType.ERROR,
+                arg -> arg.highlight(localizer.getStructureType(getStructureType())),
+                arg -> arg.highlight(DECIMAL_FORMAT.format(getPrice().orElse(0)))));
             abort();
             return true;
         }
@@ -451,8 +451,9 @@ public abstract class Creator extends ToolUser
     {
         if (!getValidOpenDirections().contains(direction))
         {
-            getPlayer().sendMessage(textFactory, TextType.ERROR,
-                                    localizer.getMessage("creator.base.error.invalid_option", direction.name()));
+            getPlayer().sendMessage(textFactory.newText().append(
+                localizer.getMessage("creator.base.error.invalid_option"), TextType.ERROR,
+                arg -> arg.highlight(localizer.getMessage(direction.getLocalizationKey()))));
             prepareSetOpenDirection();
             return false;
         }
@@ -495,15 +496,15 @@ public abstract class Creator extends ToolUser
             {
                 if (result.cancelled())
                 {
-                    getPlayer().sendMessage(textFactory, TextType.ERROR,
-                                            localizer.getMessage("creator.base.error.creation_cancelled"));
+                    getPlayer().sendError(
+                        textFactory, localizer.getMessage("creator.base.error.creation_cancelled"));
                     return;
                 }
 
                 if (result.structure().isEmpty())
                 {
-                    getPlayer().sendMessage(textFactory, TextType.ERROR,
-                                            localizer.getMessage("constants.error.generic"));
+                    getPlayer().sendError(
+                        textFactory, localizer.getMessage("constants.error.generic"));
                     log.atSevere().log("Failed to insert structure after creation!");
                 }
             }).exceptionally(Util::exceptionally);
@@ -586,9 +587,9 @@ public abstract class Creator extends ToolUser
         final Vector3Di pos = loc.getPosition();
         if (Util.requireNonNull(cuboid, "cuboid").isPosInsideCuboid(pos))
         {
-            getPlayer().sendError(textFactory,
-                                  localizer.getMessage("creator.base.error.powerblock_inside_structure",
-                                                       localizer.getStructureType(getStructureType())));
+            getPlayer().sendMessage(textFactory.newText().append(
+                "creator.base.error.powerblock_inside_structure", TextType.ERROR,
+                arg -> arg.highlight(localizer.getStructureType(getStructureType()))));
             return false;
         }
         final OptionalInt distanceLimit = limitsManager.getLimit(getPlayer(), Limit.POWERBLOCK_DISTANCE);
@@ -596,11 +597,11 @@ public abstract class Creator extends ToolUser
         if (distanceLimit.isPresent() &&
             (distance = cuboid.getCenter().getDistance(pos)) > distanceLimit.getAsInt())
         {
-            getPlayer().sendError(textFactory,
-                                  localizer.getMessage("creator.base.error.powerblock_too_far",
-                                                       localizer.getStructureType(getStructureType()),
-                                                       DECIMAL_FORMAT.format(distance),
-                                                       Integer.toString(distanceLimit.getAsInt())));
+            getPlayer().sendMessage(textFactory.newText().append(
+                "creator.base.error.powerblock_too_far", TextType.ERROR,
+                arg -> arg.highlight(localizer.getStructureType(getStructureType())),
+                arg -> arg.highlight(DECIMAL_FORMAT.format(distance)),
+                arg -> arg.highlight(distanceLimit.getAsInt())));
             return false;
         }
 
@@ -628,8 +629,8 @@ public abstract class Creator extends ToolUser
 
         if (!Util.requireNonNull(cuboid, "cuboid").isInRange(loc, 1))
         {
-            getPlayer().sendMessage(textFactory, TextType.ERROR,
-                                    localizer.getMessage("creator.base.error.invalid_rotation_point"));
+            getPlayer().sendError(
+                textFactory, localizer.getMessage("creator.base.error.invalid_rotation_point"));
             return false;
         }
 
@@ -642,15 +643,15 @@ public abstract class Creator extends ToolUser
         return text.append(
             localizer.getMessage("creator.base.set_open_status"), TextType.INFO,
 
-            text.newTextArgument(localizer.getStructureType(getStructureType()), TextType.HIGHLIGHT),
+            arg -> arg.highlight(localizer.getStructureType(getStructureType())),
 
-            text.newClickableTextArgument(
-                localizer.getMessage("constants.open_status.open"), TextType.CLICKABLE,
+            arg -> arg.clickable(
+                localizer.getMessage("constants.open_status.open"),
                 "/animatedarchitecture SetOpenStatus " + localizer.getMessage("constants.open_status.open"),
                 localizer.getMessage("interaction.clickable_command.default_highlight")),
 
-            text.newClickableTextArgument(
-                localizer.getMessage("constants.open_status.closed"), TextType.CLICKABLE,
+            arg -> arg.clickable(
+                localizer.getMessage("constants.open_status.closed"),
                 "/animatedarchitecture SetOpenStatus " + localizer.getMessage("constants.open_status.closed"),
                 localizer.getMessage("interaction.clickable_command.default_highlight")));
     }
@@ -658,7 +659,7 @@ public abstract class Creator extends ToolUser
     protected Text setOpenDirectionTextSupplier(Text text)
     {
         text.append(localizer.getMessage("creator.base.set_open_direction") + "\n", TextType.INFO,
-                    text.newTextArgument(localizer.getStructureType(getStructureType()), TextType.HIGHLIGHT));
+                    arg -> arg.highlight(localizer.getStructureType(getStructureType())));
 
         getValidOpenDirections().stream().map(dir -> localizer.getMessage(dir.getLocalizationKey())).sorted().forEach(
             dir -> text.appendClickableText(
@@ -674,15 +675,15 @@ public abstract class Creator extends ToolUser
         return text.append(
             localizer.getMessage("creator.base.confirm_structure_price"), TextType.INFO,
 
-            text.newTextArgument(localizer.getStructureType(getStructureType()), TextType.INFO),
-            text.newTextArgument(DECIMAL_FORMAT.format(getPrice().orElse(0)), TextType.HIGHLIGHT),
+            arg -> arg.info(localizer.getStructureType(getStructureType())),
+            arg -> arg.highlight(DECIMAL_FORMAT.format(getPrice().orElse(0))),
 
-            text.newClickableTextArgument(
+            arg -> arg.clickable(
                 localizer.getMessage("creator.base.confirm_structure_price.confirm"), TextType.CLICKABLE_CONFIRM,
                 "/animatedarchitecture confirm",
                 localizer.getMessage("interaction.clickable_command.default_highlight")),
 
-            text.newClickableTextArgument(
+            arg -> arg.clickable(
                 localizer.getMessage("creator.base.confirm_structure_price.refuse"), TextType.CLICKABLE_REFUSE,
                 "/animatedarchitecture cancel",
                 localizer.getMessage("interaction.clickable_command.default_highlight"))

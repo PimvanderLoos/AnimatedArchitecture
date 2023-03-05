@@ -9,6 +9,7 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorLocation;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorVoid;
 import org.jetbrains.annotations.Nullable;
@@ -47,9 +48,9 @@ public class PowerBlockRelocator extends ToolUser
     {
         if (!loc.getWorld().equals(structure.getWorld()))
         {
-            getPlayer().sendError(textFactory,
-                                  localizer.getMessage("tool_user.powerblock_relocator.error.world_mismatch",
-                                                       localizer.getStructureType(structure.getType())));
+            getPlayer().sendMessage(textFactory.newText().append(
+                localizer.getMessage("tool_user.powerblock_relocator.error.world_mismatch"), TextType.ERROR,
+                arg -> arg.highlight(localizer.getStructureType(structure.getType()))));
             return false;
         }
 

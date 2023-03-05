@@ -16,6 +16,7 @@ import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
@@ -92,13 +93,15 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final double price = priceOpt.getAsDouble();
         if (withdrawPlayer(spigotPlayer, world.worldName(), price))
         {
-            player.sendInfo(textFactory, localizer.getMessage("creator.base.money_withdrawn", Double.toString(price)));
+            player.sendMessage(textFactory.newText().append(
+                localizer.getMessage("creator.base.money_withdrawn"), TextType.SUCCESS,
+                arg -> arg.highlight(price)));
             return true;
         }
-
-        player.sendError(textFactory,
-                         localizer.getMessage("creator.base.error.insufficient_funds",
-                                              localizer.getMessage(type.getLocalizationKey()), Double.toString(price)));
+        player.sendMessage(textFactory.newText().append(
+            localizer.getMessage("creator.base.error.insufficient_funds"), TextType.ERROR,
+            arg -> arg.highlight(localizer.getMessage(type.getLocalizationKey())),
+            arg -> arg.highlight(price)));
         return false;
     }
 

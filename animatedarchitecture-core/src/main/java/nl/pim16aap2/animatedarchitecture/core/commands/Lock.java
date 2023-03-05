@@ -11,6 +11,7 @@ import nl.pim16aap2.animatedarchitecture.core.events.IAnimatedArchitectureEventC
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
+import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
 
@@ -47,7 +48,10 @@ public class Lock extends StructureTargetCommand
     {
         final String msg = lockedStatus ? "commands.lock.success.locked" : "commands.lock.success.unlocked";
         final var desc = getRetrievedStructureDescription();
-        getCommandSender().sendSuccess(textFactory, localizer.getMessage(msg, desc.typeName(), desc.id()));
+        getCommandSender().sendMessage(textFactory.newText().append(
+            localizer.getMessage(msg), TextType.SUCCESS,
+            arg -> arg.highlight(desc.localizedTypeName()),
+            arg -> arg.highlight(desc.id())));
     }
 
     @Override

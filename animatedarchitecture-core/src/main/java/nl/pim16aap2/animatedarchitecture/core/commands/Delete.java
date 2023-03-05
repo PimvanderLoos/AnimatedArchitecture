@@ -4,13 +4,14 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
-import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetriever;
-import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
-import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
+import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
+import nl.pim16aap2.animatedarchitecture.core.text.TextType;
+import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetriever;
+import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -49,8 +50,10 @@ public class Delete extends StructureTargetCommand
     protected void handleDatabaseActionSuccess()
     {
         final var desc = getRetrievedStructureDescription();
-        getCommandSender().sendSuccess(textFactory,
-                                       localizer.getMessage("commands.delete.success", desc.typeName(), desc.id()));
+        getCommandSender().sendMessage(textFactory.newText().append(
+            localizer.getMessage("commands.delete.success"), TextType.SUCCESS,
+            arg -> arg.highlight(desc.localizedTypeName()),
+            arg -> arg.highlight(desc.id())));
     }
 
     @Override

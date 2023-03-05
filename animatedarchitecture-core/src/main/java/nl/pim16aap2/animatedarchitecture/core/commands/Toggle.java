@@ -7,16 +7,16 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IMessageable;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
+import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
+import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
+import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.AnimationType;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
-import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetriever;
-import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
+import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetriever;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Named;
@@ -112,22 +112,26 @@ public class Toggle extends BaseCommand
     {
         if (!hasAccessToAttribute(structure, StructureAttribute.TOGGLE, hasBypassPermission))
         {
-            getCommandSender()
-                .sendMessage(textFactory, TextType.ERROR,
-                             localizer.getMessage("commands.toggle.error.no_access",
-                                                  localizer.getStructureType(structure), structure.getBasicInfo()));
+            getCommandSender().sendMessage(textFactory.newText().append(
+                localizer.getMessage("commands.toggle.error.no_access"), TextType.ERROR,
+                arg -> arg.highlight(localizer.getStructureType(structure)),
+                arg -> arg.highlight(structure.getBasicInfo())));
+
             log.atFine()
                .log("%s has no access for command %s for structure %s!", getCommandSender(), this, structure);
+
             return;
         }
         if (!canToggle(structure))
         {
-            getCommandSender()
-                .sendMessage(textFactory, TextType.ERROR,
-                             localizer.getMessage("commands.toggle.error.cannot_toggle",
-                                                  localizer.getStructureType(structure), structure.getBasicInfo()));
+            getCommandSender().sendMessage(textFactory.newText().append(
+                localizer.getMessage("commands.toggle.error.cannot_toggle"), TextType.ERROR,
+                arg -> arg.highlight(localizer.getStructureType(structure)),
+                arg -> arg.highlight(structure.getBasicInfo())));
+
             log.atFiner()
                .log("Blocked action for command %s for structure %s by %s", this, structure, getCommandSender());
+
             return;
         }
 

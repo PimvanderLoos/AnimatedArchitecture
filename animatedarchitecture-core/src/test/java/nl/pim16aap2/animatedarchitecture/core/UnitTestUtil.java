@@ -1,8 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.core;
 
+import lombok.AllArgsConstructor;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
@@ -14,6 +14,7 @@ import nl.pim16aap2.testing.AssistedFactoryMocker;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.function.Executable;
+import org.mockito.ArgumentMatcher;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
@@ -288,17 +289,18 @@ public class UnitTestUtil
     }
 
     /**
-     * Creates a new un-styled {@link Text} object from an input String.
+     * Creates a new argument matcher that matches a Text argument using its {@link Text#toString()} method against an
+     * input string.
      * <p>
-     * The created Text is not mocked and can be used as a normal Text object.
+     * See {@link TextArgumentMatcher} and {@link Mockito#argThat(ArgumentMatcher)}.
      *
      * @param string
-     *     The string to use to create a new Text object.
-     * @return The new Text object.
+     *     The input string.
+     * @return null.
      */
-    public static Text toText(String string)
+    public static Text textArgumentMatcher(String string)
     {
-        return ITextFactory.getSimpleTextFactory().newText().append(string);
+        return Mockito.argThat(new TextArgumentMatcher(string));
     }
 
     /**
@@ -312,4 +314,16 @@ public class UnitTestUtil
     public record StructureBaseBuilderResult(
         StructureBaseBuilder structureBaseBuilder, AssistedFactoryMocker<?, ?> assistedFactoryMocker)
     {}
+
+    @AllArgsConstructor
+    public static final class TextArgumentMatcher implements ArgumentMatcher<Text>
+    {
+        private final String base;
+
+        @Override
+        public boolean matches(Text argument)
+        {
+            return base.equals(argument.toString());
+        }
+    }
 }

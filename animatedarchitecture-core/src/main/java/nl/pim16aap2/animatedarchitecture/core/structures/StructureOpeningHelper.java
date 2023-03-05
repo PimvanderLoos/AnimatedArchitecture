@@ -32,6 +32,7 @@ import nl.pim16aap2.animatedarchitecture.core.moveblocks.IAnimationBlockManager;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.StructureActivityManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes.IDiscreteMovement;
+import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.Limit;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
@@ -143,11 +144,10 @@ public final class StructureOpeningHelper
         if (!result.equals(StructureToggleResult.NO_PERMISSION))
         {
             if (messageReceiver instanceof IPlayer)
-                messageReceiver.sendError(
-                    textFactory,
-                    localizer.getMessage(result.getLocalizationKey(),
-                                         localizer.getStructureType(structure.getType()),
-                                         structure.getName()));
+                messageReceiver.sendMessage(textFactory.newText().append(
+                    localizer.getMessage(result.getLocalizationKey()), TextType.ERROR,
+                    arg -> arg.highlight(localizer.getStructureType(structure.getType())),
+                    arg -> arg.highlight(structure.getName())));
             else
             {
                 final Level level = result == StructureToggleResult.BUSY ? Level.FINE : Level.INFO;

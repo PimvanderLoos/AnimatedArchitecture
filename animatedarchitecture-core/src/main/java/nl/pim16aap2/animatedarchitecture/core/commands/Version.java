@@ -8,6 +8,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatform;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatformProvider;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -39,9 +40,13 @@ public class Version extends BaseCommand
     @Override
     protected CompletableFuture<?> executeCommand(PermissionsStatus permissions)
     {
-        final String version = platformProvider.getPlatform().map(IAnimatedArchitecturePlatform::getVersionName)
-                                               .orElse("ERROR");
-        getCommandSender().sendInfo(textFactory, localizer.getMessage("commands.version.success", version));
+        final String version =
+            platformProvider.getPlatform().map(IAnimatedArchitecturePlatform::getVersionName).orElse("ERROR");
+
+        getCommandSender().sendMessage(textFactory.newText().append(
+            localizer.getMessage("commands.version.success"), TextType.SUCCESS,
+            arg -> arg.highlight(version)));
+
         return CompletableFuture.completedFuture(null);
     }
 

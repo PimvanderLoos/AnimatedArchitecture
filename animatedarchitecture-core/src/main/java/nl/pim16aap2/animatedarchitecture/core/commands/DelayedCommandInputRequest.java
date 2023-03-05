@@ -8,13 +8,13 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
+import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
-import nl.pim16aap2.animatedarchitecture.core.util.delayedinput.DelayedInputRequest;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
+import nl.pim16aap2.animatedarchitecture.core.util.delayedinput.DelayedInputRequest;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
@@ -173,14 +173,14 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     {
         delayedCommandInputManager.deregister(commandSender, this);
         if (getStatus() == Status.TIMED_OUT)
-            commandSender.sendMessage(textFactory, TextType.ERROR,
-                                      localizer.getMessage("commands.base.error.timed_out",
-                                                           commandDefinition.getName().toLowerCase(Locale.ENGLISH)));
+            commandSender.sendMessage(textFactory.newText().append(
+                localizer.getMessage("commands.base.error.timed_out"), TextType.ERROR,
+                arg -> arg.highlight(commandDefinition.getName().toLowerCase(Locale.ROOT))));
 
         if (getStatus() == Status.CANCELLED)
-            commandSender.sendMessage(textFactory, TextType.ERROR,
-                                      localizer.getMessage("commands.base.error.cancelled",
-                                                           commandDefinition.getName().toLowerCase(Locale.ENGLISH)));
+            commandSender.sendMessage(textFactory.newText().append(
+                localizer.getMessage("commands.base.error.cancelled"), TextType.ERROR,
+                arg -> arg.highlight(commandDefinition.getName().toLowerCase(Locale.ROOT))));
     }
 
     /**

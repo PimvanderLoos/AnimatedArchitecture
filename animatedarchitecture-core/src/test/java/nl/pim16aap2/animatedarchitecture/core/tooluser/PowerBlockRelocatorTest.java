@@ -1,19 +1,22 @@
 package nl.pim16aap2.animatedarchitecture.core.tooluser;
 
+import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IProtectionCompatManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
-import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -24,6 +27,9 @@ class PowerBlockRelocatorTest
 {
     @Mock
     private AbstractStructure structure;
+
+    @Captor
+    private ArgumentCaptor<Text> textCaptor;
 
     @Mock
     private IWorld world;
@@ -85,8 +91,9 @@ class PowerBlockRelocatorTest
         Mockito.when(location.getWorld()).thenReturn(Mockito.mock(IWorld.class));
 
         Assertions.assertFalse(relocator.moveToLoc(location));
-        Mockito.verify(player)
-               .sendMessage(UnitTestUtil.toText("tool_user.powerblock_relocator.error.world_mismatch StructureType"));
+
+        Mockito.verify(player).sendMessage(
+            UnitTestUtil.textArgumentMatcher("tool_user.powerblock_relocator.error.world_mismatch"));
 
         Mockito.when(location.getWorld()).thenReturn(Mockito.mock(IWorld.class));
     }

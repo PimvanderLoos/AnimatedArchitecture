@@ -5,14 +5,14 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
-import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetriever;
+import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
+import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
+import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetriever;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -81,9 +81,8 @@ public abstract class StructureTargetCommand extends BaseCommand
         {
             log.atFine().log("Failed to find structure %s for command: %s", getStructureRetriever(), this);
 
-            getCommandSender()
-                .sendMessage(textFactory, TextType.ERROR,
-                             localizer.getMessage("commands.structure_target_command.base.error.structure_not_found"));
+            getCommandSender().sendError(
+                textFactory, localizer.getMessage("commands.structure_target_command.base.error.structure_not_found"));
             return;
         }
 
@@ -92,11 +91,10 @@ public abstract class StructureTargetCommand extends BaseCommand
             log.atFine()
                .log("%s does not have access to structure %s for command %s", getCommandSender(), structure, this);
 
-            getCommandSender()
-                .sendMessage(textFactory, TextType.ERROR,
-                             localizer.getMessage(
-                                 "commands.structure_target_command.base.error.no_permission_for_action",
-                                 localizer.getStructureType(structure.get())));
+            getCommandSender().sendMessage(textFactory.newText().append(
+                localizer.getMessage("commands.structure_target_command.base.error.no_permission_for_action"),
+                TextType.ERROR,
+                arg -> arg.highlight(localizer.getStructureType(structure.get()))));
             return;
         }
 
@@ -191,12 +189,12 @@ public abstract class StructureTargetCommand extends BaseCommand
     /**
      * A simple description of a structure.
      *
-     * @param typeName
+     * @param localizedTypeName
      *     The localized name of the structure's type.
      * @param id
      *     The user-friendly identifier of the structure.
      */
-    protected record StructureDescription(String typeName, String id)
+    protected record StructureDescription(String localizedTypeName, String id)
     {
         private static final StructureDescription EMPTY_DESCRIPTION = new StructureDescription("Structure", "null");
 
