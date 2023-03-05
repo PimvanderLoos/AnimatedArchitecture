@@ -11,8 +11,13 @@ import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutor;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 /**
  * Represents a procedure as defined by a series of {@link Step}s.
@@ -26,16 +31,72 @@ public final class Procedure
     @Getter
     private @Nullable Step currentStep;
 
-    private final Iterator<Step> steps;
+    private final Map<String, Step> stepMap;
+    private final ListIterator<Step> steps;
     private final ILocalizer localizer;
     private final ITextFactory textFactory;
 
     public Procedure(List<Step> steps, ILocalizer localizer, ITextFactory textFactory)
     {
-        this.steps = steps.iterator();
+        stepMap = createStepMap(steps);
+        this.steps = new ArrayList<>(steps).listIterator();
         this.localizer = localizer;
         this.textFactory = textFactory;
         goToNextStep();
+    }
+
+    private Map<String, Step> createStepMap(List<Step> steps)
+    {
+        final Map<String, Step> ret = new HashMap<>(steps.size());
+        for (final var step : steps)
+            if (stepMap.put(step.getName(), step) != null)
+                throw new IllegalArgumentException(
+                    "Trying to register duplicate entries for step name: " + step.getName());
+        return ret;
+    }
+
+    /**
+     * Retrieves a step by its {@link Step#getName()}.
+     *
+     * @param name
+     *     The name of the step to retrieve.
+     * @return The step, if it exists in this procedure.
+     */
+    public Optional<Step> getStepByName(String name)
+    {
+        return Optional.ofNullable(stepMap.get(name));
+    }
+
+    /**
+     * Inserts a step before the current step and goes to the previous step.
+     * <p>
+     * After this call, {@link #getCurrentStep()} will return the inserted step and {@link #goToNextStep()} will proceed
+     * to the previous 'current' step.
+     *
+     * @param step
+     *     The step to insert.
+     */
+    public void insertStep(Step step)
+    {
+        this.steps.add(step);
+        this.currentStep = this.steps.previous();
+    }
+
+    /**
+     * Inserts a named step.
+     * <p>
+     * See {@link #getStepByName(String)} and {@link #insertStep(Step)}.
+     *
+     * @param name
+     *     The name of the step to insert.
+     * @throws NoSuchElementException
+     *     If no step can be found by that name.
+     */
+    public void insertStep(String name)
+    {
+        final Step step = getStepByName(name)
+            .orElseThrow(() -> new NoSuchElementException("Could not find step '" + name + "' in procedure: " + this));
+        insertStep(step);
     }
 
     /**

@@ -27,7 +27,7 @@ import java.util.function.Supplier;
  */
 @ToString
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class Step
+public final class Step
 {
     /**
      * The name of this step.
@@ -107,7 +107,7 @@ public class Step
     /**
      * Factory class for new {@link Step} objects.
      */
-    public static class Factory
+    public static final class Factory
     {
         private final ILocalizer localizer;
         private final String name;
