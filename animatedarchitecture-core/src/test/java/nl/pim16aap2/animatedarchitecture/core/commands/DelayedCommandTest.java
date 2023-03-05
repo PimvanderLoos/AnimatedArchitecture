@@ -3,12 +3,12 @@ package nl.pim16aap2.animatedarchitecture.core.commands;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
+import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.util.functional.TriFunction;
 import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
-import nl.pim16aap2.animatedarchitecture.core.util.functional.TriFunction;
 import nl.pim16aap2.testing.logging.LogInspector;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -92,7 +92,7 @@ class DelayedCommandTest
 
         delayedCommand.runDelayed(commandSender, structureRetriever);
         Mockito.verify(commandSender, Mockito.times(1))
-               .sendMessage(UnitTestUtil.toText(DelayedCommandImpl.INPUT_REQUEST_MSG));
+               .sendMessage(UnitTestUtil.textArgumentMatcher(DelayedCommandImpl.INPUT_REQUEST_MSG));
         Mockito.verify(inputRequestFactory, Mockito.times(1)).create(
             Mockito.anyLong(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.verify(delayedFunction, Mockito.never()).apply(Mockito.any(), Mockito.any(), Mockito.any());
@@ -103,7 +103,7 @@ class DelayedCommandTest
 
         delayedCommand.provideDelayedInput(commandSender, new Object());
         Mockito.verify(commandSender, Mockito.times(1))
-               .sendMessage(UnitTestUtil.toText("commands.base.error.not_waiting"));
+               .sendMessage(UnitTestUtil.textArgumentMatcher("commands.base.error.not_waiting"));
     }
 
     @Test
@@ -113,7 +113,7 @@ class DelayedCommandTest
 
         delayedCommand.provideDelayedInput(commandSender, new Object());
         Mockito.verify(commandSender, Mockito.times(1))
-               .sendMessage(UnitTestUtil.toText("commands.base.error.not_waiting"));
+               .sendMessage(UnitTestUtil.textArgumentMatcher("commands.base.error.not_waiting"));
     }
 
     @Test

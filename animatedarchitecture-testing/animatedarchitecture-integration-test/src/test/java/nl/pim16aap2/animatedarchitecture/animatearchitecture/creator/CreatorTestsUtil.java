@@ -286,7 +286,7 @@ public class CreatorTestsUtil
     {
         applySteps(creator, input);
         Mockito.verify(creator.getPlayer(), Mockito.never())
-               .sendMessage(UnitTestUtil.toText("creator.base.error.creation_cancelled"));
+               .sendMessage(UnitTestUtil.textArgumentMatcher("creator.base.error.creation_cancelled"));
         Mockito.verify(databaseManager).addStructure(actualStructure, player);
     }
 }

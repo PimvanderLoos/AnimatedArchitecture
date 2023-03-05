@@ -63,7 +63,7 @@ class ListStructuresTest
         Assertions.assertDoesNotThrow(
             () -> factory.newListStructures(playerCommandSender, retriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(playerCommandSender)
-               .sendMessage(UnitTestUtil.toText("commands.list_structures.error.no_structures_found"));
+               .sendMessage(UnitTestUtil.textArgumentMatcher("commands.list_structures.error.no_structures_found"));
 
         // Run it again, but now do so with admin permissions enabled.
         // As a result, we should NOT get the "No structures found!" message again.
@@ -71,12 +71,12 @@ class ListStructuresTest
         Assertions.assertDoesNotThrow(
             () -> factory.newListStructures(playerCommandSender, retriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(playerCommandSender)
-               .sendMessage(UnitTestUtil.toText("commands.list_structures.error.no_structures_found"));
+               .sendMessage(UnitTestUtil.textArgumentMatcher("commands.list_structures.error.no_structures_found"));
 
 
         Assertions.assertDoesNotThrow(
             () -> factory.newListStructures(serverCommandSender, retriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(serverCommandSender, Mockito.never())
-               .sendMessage(UnitTestUtil.toText("commands.list_structures.error.no_structures_found"));
+               .sendMessage(UnitTestUtil.textArgumentMatcher("commands.list_structures.error.no_structures_found"));
     }
 }

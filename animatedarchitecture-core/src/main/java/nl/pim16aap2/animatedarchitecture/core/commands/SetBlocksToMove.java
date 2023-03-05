@@ -4,14 +4,14 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
-import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetriever;
-import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes.IDiscreteMovement;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
+import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetriever;
+import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -46,8 +46,11 @@ public class SetBlocksToMove extends StructureTargetCommand
     protected void handleDatabaseActionSuccess()
     {
         final var desc = getRetrievedStructureDescription();
-        getCommandSender().sendSuccess(textFactory, localizer.getMessage("commands.set_blocks_to_move.success",
-                                                                         desc.typeName(), desc.id()));
+
+        getCommandSender().sendMessage(textFactory.newText().append(
+            localizer.getMessage("commands.set_blocks_to_move.success"), TextType.SUCCESS,
+            arg -> arg.highlight(desc.localizedTypeName()),
+            arg -> arg.highlight(desc.id())));
     }
 
     @Override
@@ -55,10 +58,10 @@ public class SetBlocksToMove extends StructureTargetCommand
     {
         if (!(structure instanceof IDiscreteMovement))
         {
-            getCommandSender()
-                .sendMessage(textFactory, TextType.ERROR,
-                             localizer.getMessage("commands.set_blocks_to_move.error.invalid_structure_type",
-                                                  localizer.getStructureType(structure), structure.getBasicInfo()));
+            getCommandSender().sendMessage(textFactory.newText().append(
+                localizer.getMessage("commands.set_blocks_to_move.error.invalid_structure_type"), TextType.ERROR,
+                arg -> arg.highlight(localizer.getStructureType(structure)),
+                arg -> arg.highlight(structure.getBasicInfo())));
             return CompletableFuture.completedFuture(null);
         }
 

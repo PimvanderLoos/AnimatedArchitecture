@@ -3,6 +3,7 @@ package nl.pim16aap2.animatedarchitecture.structures.slidingdoor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorInteger;
@@ -65,10 +66,11 @@ public class CreatorSlidingDoor extends Creator
         final OptionalInt blocksToMoveLimit = limitsManager.getLimit(getPlayer(), Limit.BLOCKS_TO_MOVE);
         if (blocksToMoveLimit.isPresent() && blocksToMove > blocksToMoveLimit.getAsInt())
         {
-            getPlayer().sendError(textFactory, localizer.getMessage("creator.base.error.blocks_to_move_too_far",
-                                                                    localizer.getStructureType(getStructureType()),
-                                                                    Integer.toString(blocksToMove),
-                                                                    Integer.toString(blocksToMoveLimit.getAsInt())));
+            getPlayer().sendMessage(textFactory.newText().append(
+                localizer.getMessage("creator.base.error.blocks_to_move_too_far"), TextType.ERROR,
+                arg -> arg.highlight(localizer.getStructureType(getStructureType())),
+                arg -> arg.highlight(blocksToMove),
+                arg -> arg.highlight(blocksToMoveLimit.getAsInt())));
             return false;
         }
 

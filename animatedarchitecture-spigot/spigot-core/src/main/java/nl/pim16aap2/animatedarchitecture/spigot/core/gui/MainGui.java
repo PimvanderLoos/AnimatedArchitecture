@@ -17,6 +17,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
+import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.spigot.core.AnimatedArchitecturePlugin;
 import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigot;
@@ -214,8 +215,9 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
             if (selectedStructure == null || selectedStructure.getUid() == structure.getUid())
                 this.redraw();
             if (notify)
-                inventoryHolder.sendInfo(textFactory, localizer.getMessage("gui.notification.structure_inaccessible",
-                                                                           structure.getNameAndUid()));
+                inventoryHolder.sendMessage(textFactory.newText().append(
+                    localizer.getMessage("gui.notification.structure_inaccessible"), TextType.ERROR,
+                    arg -> arg.highlight(structure.getName())));
         }
     }
 

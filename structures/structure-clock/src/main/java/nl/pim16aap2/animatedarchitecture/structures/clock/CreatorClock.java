@@ -5,6 +5,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorLocation;
@@ -105,30 +106,38 @@ public class CreatorClock extends Creator
         final int maxHorizontalDim = Math.max(cuboidDims.x(), cuboidDims.z());
         if (height < 3 || maxHorizontalDim < 3)
         {
-            getPlayer().sendError(textFactory, localizer
-                .getMessage("creator.clock.error.too_small", maxHorizontalDim, height));
+            getPlayer().sendMessage(textFactory.newText().append(
+                localizer.getMessage("creator.clock.error.too_small"), TextType.ERROR,
+                arg -> arg.highlight(maxHorizontalDim),
+                arg -> arg.highlight(height)));
             return false;
         }
 
         if (height != maxHorizontalDim)
         {
-            getPlayer().sendError(textFactory, localizer
-                .getMessage("creator.clock.error.not_square", maxHorizontalDim, height));
+            getPlayer().sendMessage(textFactory.newText().append(
+                localizer.getMessage("creator.clock.error.not_square"), TextType.ERROR,
+                arg -> arg.highlight(maxHorizontalDim),
+                arg -> arg.highlight(height)));
             return false;
         }
 
         // The clock has to be an odd number of blocks tall.
         if (height % 2 == 0)
         {
-            getPlayer().sendError(textFactory, localizer
-                .getMessage("creator.clock.error.not_odd", maxHorizontalDim, height));
+            getPlayer().sendMessage(textFactory.newText().append(
+                localizer.getMessage("creator.clock.error.not_odd"), TextType.ERROR,
+                arg -> arg.highlight(maxHorizontalDim),
+                arg -> arg.highlight(height)));
             return false;
         }
 
         final int depth = Math.min(cuboidDims.x(), cuboidDims.z());
         if (depth != 2)
         {
-            getPlayer().sendError(textFactory, localizer.getMessage("creator.clock.error.not_2_deep", depth));
+            getPlayer().sendMessage(textFactory.newText().append(
+                localizer.getMessage("creator.clock.error.not_2_deep"), TextType.ERROR,
+                arg -> arg.highlight(depth)));
             return false;
         }
 

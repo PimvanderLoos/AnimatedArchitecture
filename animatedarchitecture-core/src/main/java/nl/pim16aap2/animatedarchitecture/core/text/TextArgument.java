@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
  *     The optional text component to use for the text. This can be used to override the decorations of the surrounding
  *     text for the argument.
  */
-public record TextArgument(Object argument, @Nullable TextComponent component)
+public record TextArgument(@Nullable Object argument, @Nullable TextComponent component)
 {
     @SuppressWarnings("unused")
     public TextArgument(String text)

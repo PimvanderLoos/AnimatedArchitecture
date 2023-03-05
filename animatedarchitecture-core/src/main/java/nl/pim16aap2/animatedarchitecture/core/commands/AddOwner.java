@@ -6,15 +6,16 @@ import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
+import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
+import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
+import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
@@ -66,13 +67,19 @@ public class AddOwner extends StructureTargetCommand
     protected void handleDatabaseActionSuccess()
     {
         final var description = getRetrievedStructureDescription();
-        final String rank = localizer.getMessage(targetPermissionLevel.getTranslationKey());
-        getCommandSender().sendSuccess(textFactory,
-                                       localizer.getMessage("commands.add_owner.success",
-                                                            targetPlayer.getName(), rank, description.typeName()));
-        targetPlayer.sendInfo(textFactory,
-                              localizer.getMessage("commands.add_owner.added_player_notification",
-                                                   rank, description.typeName(), description.id()));
+        final String localizedRank = localizer.getMessage(targetPermissionLevel.getTranslationKey());
+
+        getCommandSender().sendMessage(textFactory.newText().append(
+            localizer.getMessage("commands.add_owner.success"), TextType.SUCCESS,
+            arg -> arg.highlight(targetPlayer.getName()),
+            arg -> arg.highlight(localizedRank),
+            arg -> arg.highlight(description.localizedTypeName())));
+
+        targetPlayer.sendMessage(textFactory.newText().append(
+            localizer.getMessage("commands.add_owner.added_player_notification"), TextType.INFO,
+            arg -> arg.highlight(localizedRank),
+            arg -> arg.highlight(description.localizedTypeName()),
+            arg -> arg.highlight(description.id())));
     }
 
     @Override
@@ -87,9 +94,10 @@ public class AddOwner extends StructureTargetCommand
         if (targetPermissionLevel != PermissionLevel.CREATOR && targetPermissionLevel != PermissionLevel.NO_PERMISSION)
             return true;
 
-        getCommandSender()
-            .sendError(textFactory, localizer.getMessage("commands.add_owner.error.invalid_target_permission",
-                                                         targetPermissionLevel));
+        getCommandSender().sendMessage(textFactory.newText().append(
+            localizer.getMessage("commands.add_owner.error.invalid_target_permission"), TextType.ERROR,
+            arg -> arg.highlight(targetPermissionLevel)));
+
         return false;
     }
 
@@ -120,35 +128,36 @@ public class AddOwner extends StructureTargetCommand
         final var doorOwner = getCommandSender().getPlayer().flatMap(structure::getOwner);
         if (doorOwner.isEmpty())
         {
-            getCommandSender().sendError(textFactory, localizer.getMessage("commands.add_owner.error.not_an_owner",
-                                                                           localizer.getStructureType(structure)));
+            getCommandSender().sendMessage(textFactory.newText().append(
+                localizer.getMessage("commands.add_owner.error.not_an_owner"), TextType.ERROR,
+                arg -> arg.highlight(localizer.getStructureType(structure))));
             return false;
         }
 
         final PermissionLevel executorPermission = doorOwner.get().permission();
         if (!StructureAttribute.ADD_OWNER.canAccessWith(doorOwner.get().permission()))
         {
-            getCommandSender().sendError(textFactory, localizer.getMessage("commands.add_owner.error.not_allowed",
-                                                                           localizer.getStructureType(structure)));
+            getCommandSender().sendMessage(textFactory.newText().append(
+                localizer.getMessage("commands.add_owner.error.not_allowed"), TextType.ERROR,
+                arg -> arg.highlight(localizer.getStructureType(structure))));
             return false;
         }
 
         if (targetPermissionLevel.isLowerThanOrEquals(executorPermission))
         {
-            getCommandSender().sendError(textFactory,
-                                         localizer.getMessage("commands.add_owner.error.cannot_assign_below_self"));
+            getCommandSender().sendError(
+                textFactory, localizer.getMessage("commands.add_owner.error.cannot_assign_below_self"));
             return false;
         }
 
         if (existingPermission.isLowerThanOrEquals(executorPermission) || existingPermission == targetPermissionLevel)
         {
-            getCommandSender()
-                .sendError(textFactory, localizer.getMessage("commands.add_owner.error.target_already_owner",
-                                                             targetPlayer.asString(),
-                                                             localizer.getStructureType(structure)));
+            getCommandSender().sendMessage(textFactory.newText().append(
+                localizer.getMessage("commands.add_owner.error.target_already_owner"), TextType.ERROR,
+                arg -> arg.highlight(targetPlayer.asString()),
+                arg -> arg.highlight(localizer.getStructureType(structure))));
             return false;
         }
-
         return true;
     }
 

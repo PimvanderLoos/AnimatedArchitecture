@@ -4,12 +4,13 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
+import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
+import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
+import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -44,8 +45,10 @@ public class SetOpenStatus extends StructureTargetCommand
     protected void handleDatabaseActionSuccess()
     {
         final var desc = getRetrievedStructureDescription();
-        getCommandSender().sendSuccess(textFactory, localizer.getMessage("commands.set_open_status.success",
-                                                                         desc.typeName(), desc.id()));
+        getCommandSender().sendMessage(textFactory.newText().append(
+            localizer.getMessage("commands.set_open_status.success"), TextType.SUCCESS,
+            arg -> arg.highlight(desc.localizedTypeName()),
+            arg -> arg.highlight(desc.id())));
     }
 
     @Override
@@ -53,14 +56,17 @@ public class SetOpenStatus extends StructureTargetCommand
     {
         if (structure.isOpen() == isOpen)
         {
-            getCommandSender().sendError(
-                textFactory,
-                localizer.getMessage("commands.set_open_status.error.status_not_changed",
-                                     localizer.getStructureType(structure), structure.getNameAndUid(),
-                                     localizer.getMessage(isOpen ?
-                                                          localizer.getMessage("constants.open_status.open") :
-                                                          localizer.getMessage("constants.open_status.closed")
-                                     )));
+            final String localizedIsOpen =
+                isOpen ?
+                localizer.getMessage("constants.open_status.open") :
+                localizer.getMessage("constants.open_status.closed");
+
+            getCommandSender().sendMessage(textFactory.newText().append(
+                localizer.getMessage("commands.set_open_status.error.status_not_changed"), TextType.ERROR,
+                arg -> arg.highlight(localizer.getStructureType(structure)),
+                arg -> arg.highlight(structure.getNameAndUid()),
+                arg -> arg.highlight(localizedIsOpen)));
+
             return CompletableFuture.completedFuture(null);
         }
 
