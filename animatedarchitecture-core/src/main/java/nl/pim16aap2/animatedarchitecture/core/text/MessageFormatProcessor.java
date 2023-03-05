@@ -58,7 +58,7 @@ final class MessageFormatProcessor
 
     public MessageFormatProcessor(String input, TextArgument... arguments)
     {
-        this(input, Arrays.stream(arguments).map(TextArgument::text).toArray());
+        this(input, Arrays.stream(arguments).map(TextArgument::argument).toArray());
     }
 
     /**

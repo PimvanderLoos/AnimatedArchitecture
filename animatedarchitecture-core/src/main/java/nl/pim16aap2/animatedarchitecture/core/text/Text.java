@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /**
  * Represents a piece of text with styled sections.
@@ -35,9 +36,16 @@ public class Text implements CharSequence
     @Getter
     private final ITextComponentFactory textComponentFactory;
 
+    /**
+     * The factory for {@link TextArgument}s.
+     */
+    @Getter
+    private final TextArgumentFactory textArgumentFactory;
+
     public Text(ITextComponentFactory textComponentFactory)
     {
         this.textComponentFactory = textComponentFactory;
+        this.textArgumentFactory = new TextArgumentFactory(textComponentFactory);
     }
 
     // CopyConstructor
@@ -46,6 +54,7 @@ public class Text implements CharSequence
         this.stringBuilder.append(other.stringBuilder);
         other.styledSections.forEach(section -> this.styledSections.add(new StyledSection(section)));
         this.textComponentFactory = other.textComponentFactory;
+        this.textArgumentFactory = other.textArgumentFactory;
     }
 
     /**
@@ -173,6 +182,15 @@ public class Text implements CharSequence
         return this;
     }
 
+    @SafeVarargs
+    private TextArgument[] retrieveArguments(Function<TextArgumentFactory, TextArgument>... argumentRetrievers)
+    {
+        final TextArgument[] ret = new TextArgument[argumentRetrievers.length];
+        for (int idx = 0; idx < ret.length; ++idx)
+            ret[idx] = argumentRetrievers[idx].apply(this.textArgumentFactory);
+        return ret;
+    }
+
     /**
      * Appends some styled text to the current text.
      *
@@ -183,10 +201,48 @@ public class Text implements CharSequence
      *     the text.
      * @return The current {@link Text} instance.
      */
+    @Contract("_, _ -> this")
+    public Text append(String text, @Nullable TextType type)
+    {
+        return append(text, textComponentFactory.newComponent(type), new TextArgument[0]);
+    }
+
+    /**
+     * Appends some styled text to the current text.
+     *
+     * @param text
+     *     The text to add.
+     * @param type
+     *     The {@link TextType} of the text to add. This is used by any potential decorators to add styling and such to
+     *     the text.
+     * @param arguments
+     *     The text arguments to use for variable substitution into the input text.
+     * @return The current {@link Text} instance.
+     */
     @Contract("_, _, _ -> this")
     public Text append(String text, @Nullable TextType type, TextArgument... arguments)
     {
         return append(text, textComponentFactory.newComponent(type), arguments);
+    }
+
+    /**
+     * Appends some styled text to the current text.
+     *
+     * @param text
+     *     The text to add.
+     * @param type
+     *     The {@link TextType} of the text to add. This is used by any potential decorators to add styling and such to
+     *     the text.
+     * @param argumentRetrievers
+     *     Retrievers for text arguments to use for variable substitution into the input text.
+     * @return The current {@link Text} instance.
+     */
+    @Contract("_, _, _ -> this")
+    @SafeVarargs
+    public final Text append(
+        String text, @Nullable TextType type, Function<TextArgumentFactory, TextArgument>... argumentRetrievers)
+    {
+        return append(text, type, retrieveArguments(argumentRetrievers));
     }
 
     /**
@@ -213,6 +269,31 @@ public class Text implements CharSequence
         final var processor = new MessageFormatProcessor(text, arguments);
         addStyledSections(component, processor.getSections(), arguments);
         return append0(processor.getFormattedString());
+    }
+
+    /**
+     * Appends some styled text to the current text with some optional argument.
+     * <p>
+     * For example "Hello, {0}".
+     * <p>
+     * See {@link MessageFormat}.
+     *
+     * @param text
+     *     The text to add.
+     * @param component
+     *     The {@link TextComponent} to use for the text that is being added.
+     * @param argumentRetrievers
+     *     Retrievers for text arguments to use for variable substitution into the input text.
+     * @return The current {@link Text} instance.
+     */
+    @Contract("_, _, _ -> this")
+    @SafeVarargs
+    public final Text append(
+        String text,
+        @Nullable TextComponent component,
+        Function<TextArgumentFactory, TextArgument>... argumentRetrievers)
+    {
+        return append(text, component, retrieveArguments(argumentRetrievers));
     }
 
     private void addStyledSections(
@@ -259,15 +340,15 @@ public class Text implements CharSequence
      * This method is a shortcut for creating a new text argument using the input String and
      * {@link ITextComponentFactory#newComponent(TextType)}.
      *
-     * @param text
-     *     The String to use for the argument.
+     * @param argument
+     *     The argument to use for the TextArgument.
      * @param type
      *     The text type to use for the {@link TextComponent}.
      * @return The new text argument.
      */
-    public TextArgument newTextArgument(String text, TextType type)
+    public TextArgument newTextArgument(Object argument, TextType type)
     {
-        return new TextArgument(text, newTextComponent(type));
+        return new TextArgument(argument, newTextComponent(type));
     }
 
     /**
@@ -297,6 +378,8 @@ public class Text implements CharSequence
      * This method is a shortcut for creating a new argument using the input text and
      * {@link ITextComponentFactory#newClickableTextComponent(TextType, String, String)}.
      *
+     * @param argument
+     *     The argument to use for the TextArgument.
      * @param type
      *     The {@link TextType} of the text to add. This is used by any potential decorators to add styling and such to
      *     the text.
@@ -308,9 +391,9 @@ public class Text implements CharSequence
      * text.
      */
     public TextArgument newClickableTextArgument(
-        String text, @Nullable TextType type, String command, @Nullable String info)
+        Object argument, @Nullable TextType type, String command, @Nullable String info)
     {
-        return new TextArgument(text, newClickableTextComponent(type, command, info));
+        return new TextArgument(argument, newClickableTextComponent(type, command, info));
     }
 
     /**
