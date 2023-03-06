@@ -35,6 +35,9 @@ public class CreatorPortcullis extends Creator
         final Step stepBlocksToMove = stepFactory
             .stepName("SET_BLOCKS_TO_MOVE")
             .messageKey("creator.portcullis.set_blocks_to_move")
+            .propertyName(localizer.getMessage("creator.base.property.blocks_to_move"))
+            .propertyValueSupplier(() -> blocksToMove)
+            .updatable(true)
             .stepExecutor(new StepExecutorInteger(this::setBlocksToMove))
             .stepPreparation(this::prepareSetBlocksToMove)
             .waitForUserInput(true).construct();
