@@ -82,10 +82,9 @@ public final class CommandManager
 
         if (manager.hasCapability(CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION))
         {
-            ((PaperCommandManager<ICommandSender>) manager).registerAsynchronousCompletions();
+            manager.registerAsynchronousCompletions();
             asyncCompletions = true;
         }
-
 
         final CommandConfirmationManager<ICommandSender> confirmationManager = new CommandConfirmationManager<>(
             30L, TimeUnit.SECONDS,
@@ -116,7 +115,8 @@ public final class CommandManager
 
     private void initCommands(BukkitCommandManager<ICommandSender> manager)
     {
-        final Command.Builder<ICommandSender> builder = manager.commandBuilder("animatedarchitecture");
+        final Command.Builder<ICommandSender> builder =
+            manager.commandBuilder("animatedarchitecture", "AnimatedArchitecture");
 
         initCmdHelp(manager, builder);
 
@@ -143,6 +143,7 @@ public final class CommandManager
         initCmdToggle(manager, builder);
         initCmdPreview(manager, builder);
         initCmdVersion(manager, builder);
+        initCmdUpdateCreator(manager, builder);
 
         builder.build();
     }
@@ -413,6 +414,19 @@ public final class CommandManager
         manager.command(
             baseInit(builder, CommandDefinition.VERSION, "commands.version.description")
                 .handler(executor::version)
+        );
+    }
+
+    private void initCmdUpdateCreator(
+        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+    {
+        manager.command(
+            builder.literal(CommandDefinition.UPDATE_CREATOR.getName().replace("_", "").toLowerCase(Locale.ROOT))
+                   .permission(CommandDefinition.UPDATE_CREATOR.getLowestPermission())
+                   .argument(StringArgument.of("stepName"))
+                   .argument(StringArgument.optional("stepValue"))
+                   .hidden()
+                   .handler(executor::updateCreator)
         );
     }
 

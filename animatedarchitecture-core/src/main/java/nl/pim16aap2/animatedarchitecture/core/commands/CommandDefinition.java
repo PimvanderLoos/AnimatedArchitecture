@@ -126,6 +126,11 @@ public final class CommandDefinition
                               PREFIX_USER + "base",
                               null);
 
+    public static final CommandDefinition UPDATE_CREATOR =
+        new CommandDefinition("UPDATE_CREATOR",
+                              PREFIX_USER + "base",
+                              null);
+
     public static final CommandDefinition STOP_STRUCTURES =
         new CommandDefinition("STOP_STRUCTURES",
                               null,

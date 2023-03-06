@@ -37,6 +37,8 @@ public final class CommandFactory
     @Delegate
     private final Menu.IFactory menuFactory;
     @Delegate
+    private final UpdateCreator.IFactory updateCreatorFactory;
+    @Delegate
     private final RemoveOwner.IFactory removeOwnerFactory;
     @Delegate
     private final Toggle.IFactory toggleFactory;
@@ -73,7 +75,9 @@ public final class CommandFactory
         AddOwner.IFactory addOwnerFactory, AddOwnerDelayed addOwnerDelayed,
         Cancel.IFactory cancelFactory,
         Confirm.IFactory confirmFactory,
-        Debug.IFactory debugFactory, Menu.IFactory menuFactory,
+        Debug.IFactory debugFactory,
+        Menu.IFactory menuFactory,
+        UpdateCreator.IFactory updateCreatorFactory,
         Delete.IFactory deleteFactory,
         Info.IFactory infoFactory,
         InspectPowerBlock.IFactory inspectPowerBlockFactory,
@@ -107,6 +111,7 @@ public final class CommandFactory
         this.specifyFactory = specifyFactory;
         this.debugFactory = debugFactory;
         this.menuFactory = menuFactory;
+        this.updateCreatorFactory = updateCreatorFactory;
         this.removeOwnerFactory = removeOwnerFactory;
         this.toggleFactory = toggleFactory;
         this.setOpenDirectionFactory = setOpenDirectionFactory;
