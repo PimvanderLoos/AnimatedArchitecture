@@ -32,7 +32,7 @@ public class GarageDoor extends AbstractStructure implements IHorizontalAxisAlig
 {
     private static final boolean USE_COUNTER_WEIGHT = true;
 
-    @EqualsAndHashCode.Exclude
+    @EqualsAndHashCode.Exclude @ToString.Exclude
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
 

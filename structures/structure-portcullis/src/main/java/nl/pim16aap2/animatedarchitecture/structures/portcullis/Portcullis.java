@@ -29,7 +29,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 @EqualsAndHashCode(callSuper = true)
 public class Portcullis extends AbstractStructure implements IDiscreteMovement
 {
-    @EqualsAndHashCode.Exclude
+    @EqualsAndHashCode.Exclude @ToString.Exclude
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
 

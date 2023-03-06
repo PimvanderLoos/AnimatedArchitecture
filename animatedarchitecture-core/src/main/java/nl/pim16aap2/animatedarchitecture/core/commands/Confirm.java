@@ -8,7 +8,6 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
-import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -53,8 +52,8 @@ public class Confirm extends BaseCommand
         if (toolUser.isPresent())
             toolUser.get().handleInput(true);
         else
-            getCommandSender().sendMessage(textFactory, TextType.ERROR,
-                                           localizer.getMessage("commands.confirm.error.no_confirmation_request"));
+            getCommandSender().sendError(
+                textFactory, localizer.getMessage("commands.confirm.error.no_confirmation_request"));
 
         return CompletableFuture.completedFuture(null);
     }

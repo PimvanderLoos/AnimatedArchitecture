@@ -210,8 +210,17 @@ class CommandExecutor
         commandFactory.newVersion(context.getSender()).run();
     }
 
+    void updateCreator(CommandContext<ICommandSender> context)
+    {
+        commandFactory.newUpdateCreator(
+                          context.getSender(),
+                          context.get("stepName"),
+                          context.getOrDefault("stepValue", null))
+                      .run();
+    }
+
     private <T> @Nullable T nullable(CommandContext<ICommandSender> context, String key)
     {
-        return context.getOrDefault(key, null);
+        return context.<@Nullable T>getOrDefault(key, null);
     }
 }

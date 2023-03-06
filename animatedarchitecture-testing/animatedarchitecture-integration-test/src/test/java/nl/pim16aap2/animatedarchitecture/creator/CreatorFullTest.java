@@ -1,4 +1,4 @@
-package nl.pim16aap2.animatedarchitecture.animatearchitecture.creator;
+package nl.pim16aap2.animatedarchitecture.creator;
 
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
@@ -25,7 +25,7 @@ import java.util.List;
  * The specific methods are test in {@link CreatorTest}.
  */
 @Timeout(1)
-class CreatorFullTest extends nl.pim16aap2.animatedarchitecture.creator.CreatorTestsUtil
+class CreatorFullTest extends CreatorTestsUtil
 {
     private static StructureType structureType;
 

@@ -34,6 +34,7 @@ public class CreatorFlag extends Creator
                              factorySetSecondPos.messageKey("creator.flag.step_2").construct(),
                              factorySetRotationPointPos.messageKey("creator.flag.step_3").construct(),
                              factorySetPowerBlockPos.construct(),
+                             factoryReviewResult.construct(),
                              factoryConfirmPrice.construct(),
                              factoryCompleteProcess.messageKey("creator.flag.success").construct());
     }

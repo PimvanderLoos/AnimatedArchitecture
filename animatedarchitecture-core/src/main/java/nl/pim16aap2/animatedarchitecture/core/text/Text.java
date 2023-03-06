@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
@@ -293,6 +294,7 @@ public class Text implements CharSequence
         @Nullable TextComponent component,
         Function<TextArgumentFactory, TextArgument>... argumentRetrievers)
     {
+        addStyledSections(null, Collections.emptyList());
         return append(text, component, retrieveArguments(argumentRetrievers));
     }
 

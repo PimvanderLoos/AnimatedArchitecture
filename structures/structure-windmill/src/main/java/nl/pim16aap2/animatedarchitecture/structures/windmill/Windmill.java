@@ -26,7 +26,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 @EqualsAndHashCode(callSuper = true)
 public class Windmill extends AbstractStructure implements IHorizontalAxisAligned, IPerpetualMover
 {
-    @EqualsAndHashCode.Exclude
+    @EqualsAndHashCode.Exclude @ToString.Exclude
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
 

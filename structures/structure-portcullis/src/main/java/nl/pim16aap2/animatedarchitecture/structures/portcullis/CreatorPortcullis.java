@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.structures.portcullis;
 
+
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
@@ -34,6 +35,9 @@ public class CreatorPortcullis extends Creator
         final Step stepBlocksToMove = stepFactory
             .stepName("SET_BLOCKS_TO_MOVE")
             .messageKey("creator.portcullis.set_blocks_to_move")
+            .propertyName(localizer.getMessage("creator.base.property.blocks_to_move"))
+            .propertyValueSupplier(() -> blocksToMove)
+            .updatable(true)
             .stepExecutor(new StepExecutorInteger(this::setBlocksToMove))
             .stepPreparation(this::prepareSetBlocksToMove)
             .waitForUserInput(true).construct();
@@ -45,6 +49,7 @@ public class CreatorPortcullis extends Creator
                              factorySetOpenStatus.construct(),
                              factorySetOpenDir.construct(),
                              stepBlocksToMove,
+                             factoryReviewResult.construct(),
                              factoryConfirmPrice.construct(),
                              factoryCompleteProcess.messageKey("creator.portcullis.success").construct());
     }

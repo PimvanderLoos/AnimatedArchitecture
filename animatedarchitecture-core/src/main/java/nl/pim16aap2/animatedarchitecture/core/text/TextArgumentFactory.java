@@ -16,7 +16,18 @@ public final class TextArgumentFactory
         this.textComponentFactory = textComponentFactory;
     }
 
-    private TextArgument newTextArgument(Object argument, @Nullable TextType type)
+    /**
+     * Shortcut for creating a new {@link TextArgument} with a {@link TextComponent} for the provided text type.
+     * <p>
+     * See {@link ITextComponentFactory#newComponent(TextType)}.
+     *
+     * @param argument
+     *     The argument.
+     * @param type
+     *     The text type to use for the argument.
+     * @return The new TextArgument.
+     */
+    public TextArgument newTextArgument(@Nullable Object argument, @Nullable TextType type)
     {
         return new TextArgument(argument, textComponentFactory.newComponent(type));
     }
@@ -31,7 +42,7 @@ public final class TextArgumentFactory
      *     The argument.
      * @return The new TextArgument.
      */
-    public TextArgument highlight(Object argument)
+    public TextArgument highlight(@Nullable Object argument)
     {
         return newTextArgument(argument, TextType.HIGHLIGHT);
     }
@@ -46,7 +57,7 @@ public final class TextArgumentFactory
      *     The argument.
      * @return The new TextArgument.
      */
-    public TextArgument info(Object argument)
+    public TextArgument info(@Nullable Object argument)
     {
         return newTextArgument(argument, TextType.INFO);
     }
@@ -61,7 +72,7 @@ public final class TextArgumentFactory
      *     The argument.
      * @return The new TextArgument.
      */
-    public TextArgument error(Object argument)
+    public TextArgument error(@Nullable Object argument)
     {
         return newTextArgument(argument, TextType.ERROR);
     }
@@ -76,7 +87,7 @@ public final class TextArgumentFactory
      *     The argument.
      * @return The new TextArgument.
      */
-    public TextArgument success(Object argument)
+    public TextArgument success(@Nullable Object argument)
     {
         return newTextArgument(argument, TextType.SUCCESS);
     }

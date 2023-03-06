@@ -27,7 +27,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 @Flogger
 public class RevolvingDoor extends AbstractStructure implements IPerpetualMover
 {
-    @EqualsAndHashCode.Exclude
+    @EqualsAndHashCode.Exclude @ToString.Exclude
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
 

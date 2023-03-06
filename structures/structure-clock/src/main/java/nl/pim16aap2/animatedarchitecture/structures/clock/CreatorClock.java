@@ -62,6 +62,7 @@ public class CreatorClock extends Creator
                              factorySetSecondPos.messageKey("creator.clock.step_2").construct(),
                              stepSelectHourArm,
                              factorySetPowerBlockPos.construct(),
+                             factoryReviewResult.construct(),
                              factoryConfirmPrice.construct(),
                              factoryCompleteProcess.messageKey("creator.clock.success").construct());
     }

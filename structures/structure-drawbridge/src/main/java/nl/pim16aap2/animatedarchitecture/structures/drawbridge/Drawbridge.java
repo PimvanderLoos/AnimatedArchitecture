@@ -3,6 +3,7 @@ package nl.pim16aap2.animatedarchitecture.structures.drawbridge;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.annotations.Deserialization;
@@ -27,11 +28,12 @@ import java.util.stream.Stream;
  *
  * @author Pim
  */
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @Flogger
 public class Drawbridge extends AbstractStructure implements IHorizontalAxisAligned
 {
-    @EqualsAndHashCode.Exclude
+    @EqualsAndHashCode.Exclude @ToString.Exclude
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
 

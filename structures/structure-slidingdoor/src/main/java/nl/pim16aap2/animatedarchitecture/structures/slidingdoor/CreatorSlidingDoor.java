@@ -34,6 +34,9 @@ public class CreatorSlidingDoor extends Creator
         final Step stepBlocksToMove = stepFactory
             .stepName("SET_BLOCKS_TO_MOVE")
             .messageKey("creator.sliding_door.set_blocks_to_move")
+            .propertyName(localizer.getMessage("creator.base.property.blocks_to_move"))
+            .propertyValueSupplier(() -> blocksToMove)
+            .updatable(true)
             .stepExecutor(new StepExecutorInteger(this::setBlocksToMove))
             .stepPreparation(this::prepareSetBlocksToMove)
             .waitForUserInput(true).construct();
@@ -45,6 +48,7 @@ public class CreatorSlidingDoor extends Creator
                              factorySetOpenStatus.construct(),
                              factorySetOpenDir.construct(),
                              stepBlocksToMove,
+                             factoryReviewResult.construct(),
                              factoryConfirmPrice.construct(),
                              factoryCompleteProcess.messageKey("creator.sliding_door.success").construct());
     }
