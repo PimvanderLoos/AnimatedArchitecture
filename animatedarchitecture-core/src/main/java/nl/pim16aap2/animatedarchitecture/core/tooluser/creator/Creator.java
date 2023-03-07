@@ -12,6 +12,7 @@ import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.LimitsManager;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.AnimationType;
+import nl.pim16aap2.animatedarchitecture.core.moveblocks.StructureActivityManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
@@ -65,6 +66,10 @@ public abstract class Creator extends ToolUser
     protected final IEconomyManager economyManager;
 
     protected final CommandFactory commandFactory;
+
+    private final StructureAnimationRequestBuilder structureAnimationRequestBuilder;
+
+    private final StructureActivityManager structureActivityManager;
 
     protected final long structureUidPlaceholder = STRUCTURE_UID_PLACEHOLDER_COUNTER.getAndDecrement();
 
@@ -187,12 +192,11 @@ public abstract class Creator extends ToolUser
      */
     protected Step.Factory factoryCompleteProcess;
 
-    private final StructureAnimationRequestBuilder structureAnimationRequestBuilder;
-
-    protected Creator(Context context, IPlayer player, @Nullable String name)
+    protected Creator(ToolUser.Context context, IPlayer player, @Nullable String name)
     {
         super(context, player);
         this.structureAnimationRequestBuilder = context.getStructureAnimationRequestBuilder();
+        this.structureActivityManager = context.getStructureActivityManager();
         this.limitsManager = context.getLimitsManager();
         this.structureBaseBuilder = context.getStructureBaseBuilder();
         this.databaseManager = context.getDatabaseManager();
@@ -401,6 +405,7 @@ public abstract class Creator extends ToolUser
         removeTool();
         if (active.get())
             insertStructure(constructStructure());
+        structureActivityManager.stopAnimators(this.structureUidPlaceholder);
         return true;
     }
 

@@ -16,6 +16,7 @@ import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.LimitsManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
+import nl.pim16aap2.animatedarchitecture.core.moveblocks.StructureActivityManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
@@ -372,6 +373,7 @@ public abstract class ToolUser
         private final IAnimatedArchitectureToolUtil animatedArchitectureToolUtil;
         private final CommandFactory commandFactory;
         private final StructureAnimationRequestBuilder structureAnimationRequestBuilder;
+        private final StructureActivityManager structureActivityManager;
         private final Step.Factory.IFactory stepFactory;
 
         @Inject
@@ -386,6 +388,7 @@ public abstract class ToolUser
             IProtectionCompatManager protectionCompatManager,
             IAnimatedArchitectureToolUtil animatedArchitectureToolUtil,
             StructureAnimationRequestBuilder structureAnimationRequestBuilder,
+            StructureActivityManager structureActivityManager,
             CommandFactory commandFactory,
             Step.Factory.IFactory stepFactory)
         {
@@ -398,6 +401,7 @@ public abstract class ToolUser
             this.protectionCompatManager = protectionCompatManager;
             this.animatedArchitectureToolUtil = animatedArchitectureToolUtil;
             this.structureAnimationRequestBuilder = structureAnimationRequestBuilder;
+            this.structureActivityManager = structureActivityManager;
             this.commandFactory = commandFactory;
             this.textFactory = textFactory;
             this.stepFactory = stepFactory;
