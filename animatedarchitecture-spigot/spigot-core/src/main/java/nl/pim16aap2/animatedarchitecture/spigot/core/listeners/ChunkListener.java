@@ -105,6 +105,7 @@ public class ChunkListener extends AbstractListener
                 .getBlockMovers()
                 .filter(mover -> mover.getSnapshot().getWorld().equals(world))
                 .filter(mover -> chunkInsideAnimationRange(chunkCoords, mover.getSnapshot().getAnimationRange()))
+                .toList() // Create new list to avoid ConcurrentModificationException.
                 .forEach(Animator::abort);
         }
         catch (Exception e)
