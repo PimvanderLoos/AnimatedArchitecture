@@ -20,7 +20,7 @@ import java.util.Optional;
 public abstract class GlowingBlockSpawner
 {
     protected abstract Optional<IGlowingBlock> spawnGlowingBlock(
-        IPlayer player, IWorld world, Duration duration, double x, double y, double z, Color color);
+        IPlayer player, IWorld world, @Nullable Duration duration, double x, double y, double z, Color color);
 
     /**
      * Spawns the glowing blocks required to highlight a structure.
@@ -33,7 +33,7 @@ public abstract class GlowingBlockSpawner
      *     The amount of time the glowing blocks should be visible for.
      * @return The list of {@link IGlowingBlock}s that were spawned.
      */
-    public void spawnGlowingBlocks(IStructureConst structure, IPlayer player, Duration duration)
+    public void spawnGlowingBlocks(IStructureConst structure, IPlayer player, @Nullable Duration duration)
     {
         final IWorld world = structure.getWorld();
 
@@ -69,7 +69,7 @@ public abstract class GlowingBlockSpawner
      *     The amount of time the glowing blocks should be visible for.
      * @return The list of {@link IGlowingBlock}s that were spawned.
      */
-    public void spawnGlowingBlocks(AbstractStructure structure, IPlayer player, Duration duration)
+    public void spawnGlowingBlocks(AbstractStructure structure, IPlayer player, @Nullable Duration duration)
     {
         spawnGlowingBlocks((IStructureConst) structure, player, duration);
 
@@ -112,7 +112,7 @@ public abstract class GlowingBlockSpawner
         private double x;
         private double y;
         private double z;
-        private Duration duration = Duration.ofSeconds(1);
+        private @Nullable Duration duration;
         private Color color = Color.RED;
 
         private Builder(GlowingBlockSpawner glowingBlockSpawner)
@@ -157,7 +157,7 @@ public abstract class GlowingBlockSpawner
          * @param duration
          *     The amount of time the glowing block should exist for after it has been spawned.
          */
-        public Builder forDuration(Duration duration)
+        public Builder forDuration(@Nullable Duration duration)
         {
             this.duration = duration;
             return this;
@@ -209,7 +209,7 @@ public abstract class GlowingBlockSpawner
                 return glowingBlockSpawner.spawnGlowingBlock(
                     Util.requireNonNull(player, "Player"),
                     Util.requireNonNull(world, "World"),
-                    Util.requireNonNull(duration, "Duration"),
+                    duration,
                     x, y, z,
                     Util.requireNonNull(color, "Color")
                 );

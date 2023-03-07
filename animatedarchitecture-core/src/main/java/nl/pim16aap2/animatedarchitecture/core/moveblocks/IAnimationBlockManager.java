@@ -30,7 +30,9 @@ public interface IAnimationBlockManager
      * @return The result of the attempted creation of the animated blocks.
      */
     boolean createAnimatedBlocks(
-        StructureSnapshot snapshot, IAnimationComponent animationComponent, AnimationContext animationContext,
+        StructureSnapshot snapshot,
+        IAnimationComponent animationComponent,
+        AnimationContext animationContext,
         Animator.MovementMethod movementMethod);
 
     /**

@@ -2,10 +2,8 @@ package nl.pim16aap2.animatedarchitecture.spigot.v1_19_R2;
 
 import lombok.Getter;
 import lombok.extern.flogger.Flogger;
-import net.minecraft.network.PacketDataSerializer;
 import net.minecraft.network.protocol.game.PacketPlayOutEntityDestroy;
 import net.minecraft.network.protocol.game.PacketPlayOutEntityMetadata;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityTeleport;
 import net.minecraft.network.protocol.game.PacketPlayOutSpawnEntity;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.server.network.PlayerConnection;
@@ -14,6 +12,7 @@ import net.minecraft.world.entity.monster.EntityMagmaCube;
 import nl.pim16aap2.animatedarchitecture.core.api.Color;
 import nl.pim16aap2.animatedarchitecture.core.util.IGlowingBlock;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
+import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.IGlowingBlockFactory;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_19_R2.CraftWorld;
@@ -82,7 +81,9 @@ public class GlowingBlock implements IGlowingBlock
     {
         if (!alive.get())
             return;
-        getConnection().ifPresent(connection -> connection.a(new PacketPlayOutGlowingBlockTeleport(position)));
+        getConnection().ifPresent(
+            connection -> connection.a(
+                NmsUtil.newPacketPlayOutEntityTeleport(entityId, position, new Vector3Di(0, 0, 0))));
     }
 
     private void spawn(Color pColor, double x, double y, double z)
@@ -119,33 +120,6 @@ public class GlowingBlock implements IGlowingBlock
             new PacketPlayOutEntityMetadata(glowingBlockEntity.ah(), glowingBlockEntity.al().c());
         playerConnection.a(entityMetadata);
         alive.set(true);
-    }
-
-    private class PacketPlayOutGlowingBlockTeleport extends PacketPlayOutEntityTeleport
-    {
-        private final double x;
-        private final double y;
-        private final double z;
-
-        public PacketPlayOutGlowingBlockTeleport(Vector3Dd position)
-        {
-            super(glowingBlockEntity);
-            this.x = position.x();
-            this.y = position.y();
-            this.z = position.z();
-        }
-
-        @Override
-        public void a(PacketDataSerializer var0)
-        {
-            var0.d(entityId);
-            var0.writeDouble(x);
-            var0.writeDouble(y);
-            var0.writeDouble(z);
-            var0.writeByte(0);
-            var0.writeByte(0);
-            var0.writeBoolean(false);
-        }
     }
 
     public static class Factory implements IGlowingBlockFactory

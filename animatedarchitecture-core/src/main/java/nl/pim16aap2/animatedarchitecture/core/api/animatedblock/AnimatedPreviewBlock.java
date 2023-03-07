@@ -7,9 +7,11 @@ import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ILocationFactory;
+import nl.pim16aap2.animatedarchitecture.core.util.IGlowingBlock;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 
@@ -17,7 +19,16 @@ public class AnimatedPreviewBlock implements IAnimatedBlock
 {
     private static final IAnimatedBlockData ANIMATED_BLOCK_DATA = new PreviewAnimatedBlockData();
 
-    private int movementTicks = -1;
+    /**
+     * The lifetime of a glowing block (in ticks).
+     * <p>
+     * Glowing blocks will be respawned after e
+     */
+    private static final int LIFETIME = 1200; // 1 minute
+
+    private volatile int processedTicks = 0;
+    private volatile @Nullable IGlowingBlock glowingBlock;
+
     private final ILocationFactory locationFactory;
     private final GlowingBlockSpawner glowingBlockSpawner;
     @Getter
@@ -99,18 +110,17 @@ public class AnimatedPreviewBlock implements IAnimatedBlock
     @Override
     public void moveToTarget(Vector3Dd target, int ticksRemaining)
     {
-        ++movementTicks;
+        final int currentTicks = processedTicks;
+        processedTicks = currentTicks + 1;
 
         cycleTargets(target);
 
-        glowingBlockSpawner
-            .builder()
-            .forPlayer(player)
-            .forDuration(Duration.ofMillis(500))
-            .inWorld(world)
-            .atPosition(target)
-            .withColor(color)
-            .spawn();
+        if (currentTicks % AnimatedPreviewBlock.LIFETIME == 0)
+            respawn();
+
+        final IGlowingBlock currentBlock = this.glowingBlock;
+        if (currentBlock != null)
+            currentBlock.teleport(target);
     }
 
     @Override
@@ -127,22 +137,36 @@ public class AnimatedPreviewBlock implements IAnimatedBlock
     @Override
     public void spawn()
     {
-    }
-
-    @Override
-    public void respawn()
-    {
+        this.glowingBlock = glowingBlockSpawner
+            .builder()
+            .forPlayer(player)
+            .forDuration(Duration.ofMillis(20 * LIFETIME + 100))
+            .inWorld(world)
+            .atPosition(currentTarget)
+            .withColor(color)
+            .spawn()
+            .orElse(null);
     }
 
     @Override
     public void kill()
     {
+        final @Nullable IGlowingBlock currentBlock = this.glowingBlock;
+        if (currentBlock != null)
+            currentBlock.kill();
+    }
+
+    @Override
+    public void respawn()
+    {
+        kill();
+        spawn();
     }
 
     @Override
     public int getTicksLived()
     {
-        return movementTicks;
+        return processedTicks;
     }
 
     @Override

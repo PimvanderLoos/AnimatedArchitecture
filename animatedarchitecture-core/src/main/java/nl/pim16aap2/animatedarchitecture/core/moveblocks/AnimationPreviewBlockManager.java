@@ -10,11 +10,11 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.AnimatedPreviewBlock;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.AnimationContext;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
+import nl.pim16aap2.animatedarchitecture.core.api.factories.ILocationFactory;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ILocationFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,7 +36,7 @@ public class AnimationPreviewBlockManager implements IAnimationBlockManager
     /**
      * The modifiable list of animated blocks.
      */
-    private final List<IAnimatedBlock> privateAnimatedBlocks;
+    private final List<AnimatedPreviewBlock> privateAnimatedBlocks;
 
     /**
      * The (unmodifiable) list of animated blocks.
@@ -58,10 +58,12 @@ public class AnimationPreviewBlockManager implements IAnimationBlockManager
 
     @Override
     public boolean createAnimatedBlocks(
-        StructureSnapshot snapshot, IAnimationComponent animationComponent, AnimationContext animationContext,
+        StructureSnapshot snapshot,
+        IAnimationComponent animationComponent,
+        AnimationContext animationContext,
         Animator.MovementMethod movementMethod)
     {
-        final List<IAnimatedBlock> animatedBlocksTmp = new ArrayList<>(snapshot.getBlockCount());
+        final List<AnimatedPreviewBlock> animatedBlocksTmp = new ArrayList<>(snapshot.getBlockCount());
 
         try
         {
@@ -118,12 +120,14 @@ public class AnimationPreviewBlockManager implements IAnimationBlockManager
     @Override
     public void restoreBlocksOnFailure()
     {
-        // No need to do anything; just wait a sec.
+        privateAnimatedBlocks.forEach(AnimatedPreviewBlock::kill);
+        privateAnimatedBlocks.clear();
     }
 
     @Override
     public void handleAnimationCompletion()
     {
-        // No need to do anything; just wait a sec.
+        privateAnimatedBlocks.forEach(AnimatedPreviewBlock::kill);
+        privateAnimatedBlocks.clear();
     }
 }
