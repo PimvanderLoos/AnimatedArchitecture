@@ -114,8 +114,8 @@ public class GlowingBlockSpawnerSpigot extends GlowingBlockSpawner implements IR
                 spawnedBlocks.remove(block);
             }
         };
-        spawnedBlocks.put(block, killTask);
         executor.runAsyncLater(killTask, ticks);
+        spawnedBlocks.put(block, killTask);
     }
 
     /**
@@ -170,7 +170,14 @@ public class GlowingBlockSpawnerSpigot extends GlowingBlockSpawner implements IR
     {
         for (final var entry : spawnedBlocks.entrySet())
         {
-            entry.getValue().cancel();
+            try
+            {
+                entry.getValue().cancel();
+            }
+            catch (IllegalStateException e)
+            {
+                log.atFine().withCause(e).log("Failed to cancel task for glowing block!");
+            }
             entry.getKey().kill();
         }
         spawnedBlocks.clear();
