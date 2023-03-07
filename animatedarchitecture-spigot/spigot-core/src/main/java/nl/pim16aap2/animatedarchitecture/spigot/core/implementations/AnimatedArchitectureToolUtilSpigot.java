@@ -32,7 +32,7 @@ public class AnimatedArchitectureToolUtilSpigot implements IAnimatedArchitecture
     @Inject
     public AnimatedArchitectureToolUtilSpigot(JavaPlugin javaPlugin)
     {
-        animatedArchitectureToolKey = new NamespacedKey(javaPlugin, "BIG_DOORS_TOOL");
+        animatedArchitectureToolKey = new NamespacedKey(javaPlugin, "ANIMATED_ARCHITECTURE_TOOL");
     }
 
     @Override

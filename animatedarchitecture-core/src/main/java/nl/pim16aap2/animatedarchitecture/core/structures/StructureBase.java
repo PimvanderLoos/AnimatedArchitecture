@@ -237,10 +237,18 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
             IChunkLoader.ChunkLoadResult.PASS;
     }
 
+    /**
+     * @return True if this structure base should ignore all redstone interaction.
+     */
+    private boolean shouldIgnoreRedstone()
+    {
+        return uid < 1 || !config.isRedstoneEnabled();
+    }
+
     @Locked.Read
     public void onChunkLoad(AbstractStructure structure)
     {
-        if (!config.isRedstoneEnabled())
+        if (shouldIgnoreRedstone())
             return;
 
         final Vector3Di powerBlock = getPowerBlock();
@@ -251,7 +259,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
     private void verifyRedstoneState(AbstractStructure structure, Vector3Di powerBlock)
     {
-        if (!config.isRedstoneEnabled())
+        if (shouldIgnoreRedstone())
             return;
 
         final var result = redstoneManager.isBlockPowered(world, powerBlock);
@@ -274,7 +282,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
     @Locked.Read void onRedstoneChange(AbstractStructure structure, boolean isPowered)
     {
-        if (!config.isRedstoneEnabled())
+        if (shouldIgnoreRedstone())
             return;
 
         final StructureActionType actionType;

@@ -204,6 +204,23 @@ public final class StructureActivityManager extends Restartable implements Struc
     }
 
     /**
+     * Stops all active animators regardless of read/write access.
+     *
+     * @param uid
+     *     The UID of the structure whose animation(s) to stop.
+     */
+    public void stopAnimators(long uid)
+    {
+        animators.compute(uid, (key, entry) ->
+        {
+            if (entry == null)
+                return null;
+            entry.stop();
+            return entry;
+        });
+    }
+
+    /**
      * Processed a finished {@link Animator}.
      * <p>
      * The {@link AbstractStructure} that was being used by the {@link Animator} will be registered as inactive and any

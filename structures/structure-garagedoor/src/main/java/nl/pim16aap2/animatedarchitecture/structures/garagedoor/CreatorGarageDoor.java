@@ -4,6 +4,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
@@ -44,15 +45,22 @@ public class CreatorGarageDoor extends Creator
     protected List<Step> generateSteps()
         throws InstantiationException
     {
-        return Arrays.asList(factorySetName.construct(),
-                             factorySetFirstPos.messageKey("creator.garage_door.step_1").construct(),
-                             factorySetSecondPos.messageKey("creator.garage_door.step_2").construct(),
-                             factorySetPowerBlockPos.construct(),
-                             factorySetOpenStatus.construct(),
-                             factorySetOpenDir.construct(),
-                             factoryReviewResult.construct(),
-                             factoryConfirmPrice.construct(),
-                             factoryCompleteProcess.messageKey("creator.garage_door.success").construct());
+        return Arrays.asList(
+            factorySetName.construct(),
+            factorySetFirstPos
+                .textSupplier(text -> text.append(
+                    localizer.getMessage("creator.garage_door.step_1"), TextType.INFO, getStructureArg()))
+                .construct(),
+            factorySetSecondPos
+                .textSupplier(text -> text.append(
+                    localizer.getMessage("creator.garage_door.step_2"), TextType.INFO, getStructureArg()))
+                .construct(),
+            factorySetPowerBlockPos.construct(),
+            factorySetOpenStatus.construct(),
+            factorySetOpenDir.construct(),
+            factoryReviewResult.construct(),
+            factoryConfirmPrice.construct(),
+            factoryCompleteProcess.construct());
     }
 
     @Override
@@ -89,7 +97,7 @@ public class CreatorGarageDoor extends Creator
     @Override
     protected void giveTool()
     {
-        giveTool("tool_user.base.stick_name", "creator.garage_door.stick_lore", "creator.garage_door.init");
+        giveTool("tool_user.base.stick_name", "creator.garage_door.stick_lore");
     }
 
     @Override

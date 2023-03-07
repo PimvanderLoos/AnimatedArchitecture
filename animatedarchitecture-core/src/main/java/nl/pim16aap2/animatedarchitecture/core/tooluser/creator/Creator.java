@@ -12,6 +12,7 @@ import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.LimitsManager;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.AnimationType;
+import nl.pim16aap2.animatedarchitecture.core.moveblocks.StructureActivityManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
@@ -19,6 +20,8 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
+import nl.pim16aap2.animatedarchitecture.core.text.TextArgument;
+import nl.pim16aap2.animatedarchitecture.core.text.TextArgumentFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Procedure;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
@@ -35,15 +38,13 @@ import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.util.Locale;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
 
 /**
  * Represents a specialization of the {@link ToolUser} that is used for creating new {@link AbstractStructure}s.
@@ -65,6 +66,10 @@ public abstract class Creator extends ToolUser
     protected final IEconomyManager economyManager;
 
     protected final CommandFactory commandFactory;
+
+    private final StructureAnimationRequestBuilder structureAnimationRequestBuilder;
+
+    private final StructureActivityManager structureActivityManager;
 
     protected final long structureUidPlaceholder = STRUCTURE_UID_PLACEHOLDER_COUNTER.getAndDecrement();
 
@@ -187,14 +192,11 @@ public abstract class Creator extends ToolUser
      */
     protected Step.Factory factoryCompleteProcess;
 
-    private final StructureAnimationRequestBuilder structureAnimationRequestBuilder;
-
-    private static final MyDecimalFormat DECIMAL_FORMAT = new MyDecimalFormat();
-
-    protected Creator(Context context, IPlayer player, @Nullable String name)
+    protected Creator(ToolUser.Context context, IPlayer player, @Nullable String name)
     {
         super(context, player);
         this.structureAnimationRequestBuilder = context.getStructureAnimationRequestBuilder();
+        this.structureActivityManager = context.getStructureActivityManager();
         this.limitsManager = context.getLimitsManager();
         this.structureBaseBuilder = context.getStructureBaseBuilder();
         this.databaseManager = context.getDatabaseManager();
@@ -221,10 +223,8 @@ public abstract class Creator extends ToolUser
             .propertyName(localizer.getMessage("creator.base.property.type"))
             .propertyValueSupplier(() -> this.name)
             .updatable(true)
-            .textSupplier(
-                text -> text.append(
-                    localizer.getMessage("creator.base.give_name"), TextType.INFO,
-                    arg -> arg.highlight(localizer.getStructureType(getStructureType()))));
+            .textSupplier(text -> text.append(
+                localizer.getMessage("creator.base.give_name"), TextType.SUCCESS, getStructureArg()));
 
         factorySetFirstPos = stepFactory
             .stepName("SET_FIRST_POS")
@@ -291,7 +291,21 @@ public abstract class Creator extends ToolUser
         factoryCompleteProcess = stepFactory
             .stepName("COMPLETE_CREATION_PROCESS")
             .stepExecutor(new StepExecutorVoid(this::completeCreationProcess))
+            .textSupplier(text -> text.append(
+                localizer.getMessage("creator.base.success"), TextType.SUCCESS, getStructureArg()))
             .waitForUserInput(false);
+    }
+
+    /**
+     * Shortcut method for creating a new highlighted argument of the structure type.
+     * <p>
+     * Can be used for Text object.
+     *
+     * @return The function that creates a new structure arg.
+     */
+    protected final Function<TextArgumentFactory, TextArgument> getStructureArg()
+    {
+        return arg -> arg.highlight(localizer.getStructureType(getStructureType()));
     }
 
     public final void update(String stepName, @Nullable Object stepValue)
@@ -391,6 +405,7 @@ public abstract class Creator extends ToolUser
         removeTool();
         if (active.get())
             insertStructure(constructStructure());
+        structureActivityManager.stopAnimators(this.structureUidPlaceholder);
         return true;
     }
 
@@ -401,9 +416,23 @@ public abstract class Creator extends ToolUser
     }
 
     /**
+     * Adds the AnimatedArchitecture tool from the player's inventory.
+     *
+     * @param nameKey
+     *     The localization key of the name of the tool.
+     * @param loreKey
+     *     The localization key of the lore of the tool.
+     */
+    protected final void giveTool(String nameKey, String loreKey)
+    {
+        super.giveTool(nameKey, loreKey, textFactory.newText().append(
+            localizer.getMessage("creator.base.received_tool"), TextType.INFO, getStructureArg()));
+    }
+
+    /**
      * Method used to give the AnimatedArchitecture tool to the user.
      * <p>
-     * Overriding methods may call {@link #giveTool(String, String, String)}.
+     * Overriding methods may call {@link #giveTool(String, String, Text)}.
      */
     protected abstract void giveTool();
 
@@ -513,7 +542,7 @@ public abstract class Creator extends ToolUser
             getPlayer().sendMessage(textFactory.newText().append(
                 localizer.getMessage("creator.base.error.insufficient_funds"), TextType.ERROR,
                 arg -> arg.highlight(localizer.getStructureType(getStructureType())),
-                arg -> arg.highlight(DECIMAL_FORMAT.format(getPrice().orElse(0)))));
+                arg -> arg.highlight(getPrice().orElse(0))));
             abort();
             return true;
         }
@@ -697,7 +726,7 @@ public abstract class Creator extends ToolUser
             getPlayer().sendMessage(textFactory.newText().append(
                 "creator.base.error.powerblock_too_far", TextType.ERROR,
                 arg -> arg.highlight(localizer.getStructureType(getStructureType())),
-                arg -> arg.highlight(DECIMAL_FORMAT.format(distance)),
+                arg -> arg.highlight(distance),
                 arg -> arg.highlight(distanceLimit.getAsInt())));
             return false;
         }
@@ -743,12 +772,12 @@ public abstract class Creator extends ToolUser
             arg -> arg.clickable(
                 localizer.getMessage("constants.open_status.open"),
                 "/animatedarchitecture SetOpenStatus " + localizer.getMessage("constants.open_status.open"),
-                localizer.getMessage("interaction.clickable_command.default_highlight")),
+                localizer.getMessage("creator.base.set_open_status.arg2.open.hint")),
 
             arg -> arg.clickable(
                 localizer.getMessage("constants.open_status.closed"),
                 "/animatedarchitecture SetOpenStatus " + localizer.getMessage("constants.open_status.closed"),
-                localizer.getMessage("interaction.clickable_command.default_highlight")));
+                localizer.getMessage("creator.base.set_open_status.arg2.closed.hint")));
     }
 
     protected Text setOpenDirectionTextSupplier(Text text)
@@ -760,7 +789,7 @@ public abstract class Creator extends ToolUser
             dir -> text.appendClickableText(
                 dir + "\n", TextType.CLICKABLE,
                 "/animatedarchitecture SetOpenDirection " + dir,
-                localizer.getMessage("interaction.clickable_command.default_highlight")));
+                localizer.getMessage("creator.base.set_open_direction.arg0.hint")));
 
         return text;
     }
@@ -778,15 +807,15 @@ public abstract class Creator extends ToolUser
         text.append(
             localizer.getMessage("creator.base.review_result.footer"), TextType.INFO,
             arg -> arg.clickable(
-                localizer.getMessage("creator.base.review_result.footer.confirm.name"),
+                localizer.getMessage("creator.base.review_result.footer.arg0.message"),
                 TextType.CLICKABLE_CONFIRM,
                 "/animatedarchitecture confirm",
-                localizer.getMessage("creator.base.review_result.footer.confirm.hint")),
+                localizer.getMessage("creator.base.review_result.footer.arg0.hint")),
             arg -> arg.clickable(
-                localizer.getMessage("creator.base.review_result.footer.refuse.name"),
+                localizer.getMessage("creator.base.review_result.footer.arg1.message"),
                 TextType.CLICKABLE_REFUSE,
                 "/animatedarchitecture cancel",
-                localizer.getMessage("creator.base.review_result.footer.refuse.hint")));
+                localizer.getMessage("creator.base.review_result.footer.arg1.hint")));
         return text;
     }
 
@@ -796,53 +825,22 @@ public abstract class Creator extends ToolUser
             localizer.getMessage("creator.base.confirm_structure_price"), TextType.INFO,
 
             arg -> arg.info(localizer.getStructureType(getStructureType())),
-            arg -> arg.highlight(DECIMAL_FORMAT.format(getPrice().orElse(0))),
+            arg -> arg.highlight(getPrice().orElse(0)),
 
             arg -> arg.clickable(
-                localizer.getMessage("creator.base.confirm_structure_price.confirm"), TextType.CLICKABLE_CONFIRM,
+                localizer.getMessage("creator.base.confirm_structure_price.arg2.message"), TextType.CLICKABLE_CONFIRM,
                 "/animatedarchitecture confirm",
-                localizer.getMessage("interaction.clickable_command.default_highlight")),
+                localizer.getMessage("creator.base.confirm_structure_price.arg2.hint")),
 
             arg -> arg.clickable(
-                localizer.getMessage("creator.base.confirm_structure_price.refuse"), TextType.CLICKABLE_REFUSE,
+                localizer.getMessage("creator.base.confirm_structure_price.arg3.message"), TextType.CLICKABLE_REFUSE,
                 "/animatedarchitecture cancel",
-                localizer.getMessage("interaction.clickable_command.default_highlight"))
+                localizer.getMessage("creator.base.confirm_structure_price.arg3.hint"))
         );
     }
 
     private String formatVector(@Nullable Vector3Di vector)
     {
         return vector == null ? "NULL" : String.format("%d, %d, %d", vector.x(), vector.y(), vector.z());
-    }
-
-    /**
-     * Represents a synchronized wrapper for {@link DecimalFormat}.
-     *
-     * @author Pim
-     */
-    private static final class MyDecimalFormat
-    {
-        private final DecimalFormat decimalFormat;
-
-        MyDecimalFormat()
-        {
-            decimalFormat = new DecimalFormat("0", DecimalFormatSymbols.getInstance(Locale.ROOT));
-            decimalFormat.setMaximumFractionDigits(2);
-        }
-
-        /**
-         * Formats a double number as a String.
-         *
-         * @param number
-         *     The double number to format
-         * @return The String representation of the provided double value.
-         *
-         * @throws ArithmeticException
-         *     If rounding is needed with rounding mode being set to RoundingMode.UNNECESSARY.
-         */
-        public synchronized String format(double number)
-        {
-            return decimalFormat.format(number);
-        }
     }
 }

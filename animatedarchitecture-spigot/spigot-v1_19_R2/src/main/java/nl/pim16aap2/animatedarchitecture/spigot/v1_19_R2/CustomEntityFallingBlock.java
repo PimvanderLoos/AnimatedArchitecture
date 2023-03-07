@@ -1,7 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.spigot.v1_19_R2;
 
 import com.google.common.flogger.StackSize;
-import io.netty.buffer.Unpooled;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -11,9 +10,7 @@ import net.minecraft.core.BlockPosition;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.GameProfileSerializer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.PacketDataSerializer;
 import net.minecraft.network.protocol.game.PacketPlayOutEntity;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityTeleport;
 import net.minecraft.server.level.EntityTrackerEntry;
 import net.minecraft.server.level.PlayerChunkMap;
 import net.minecraft.server.level.WorldServer;
@@ -385,18 +382,7 @@ public class CustomEntityFallingBlock extends EntityFallingBlock implements IAni
         if (tracker == null)
             return;
 
-        // int + 3 * double + 2 * byte + 1 * boolean = 4 + 3 * 8 + 2 + 1 = 31 bytes
-        final PacketDataSerializer dataSerializer = new PacketDataSerializer(Unpooled.directBuffer(31));
-
-        dataSerializer.d(getEntityId());
-        dataSerializer.writeDouble(to.xD());
-        dataSerializer.writeDouble(to.yD());
-        dataSerializer.writeDouble(to.zD());
-        dataSerializer.writeByte((byte) ((int) (rotation.yD() * 256.0F / 360.0F)));
-        dataSerializer.writeByte((byte) ((int) (rotation.xD() * 256.0F / 360.0F)));
-        dataSerializer.writeBoolean(false);
-
-        tracker.a(new PacketPlayOutEntityTeleport(dataSerializer));
+        tracker.a(NmsUtil.newPacketPlayOutEntityTeleport(getEntityId(), to, rotation));
     }
 
     /**

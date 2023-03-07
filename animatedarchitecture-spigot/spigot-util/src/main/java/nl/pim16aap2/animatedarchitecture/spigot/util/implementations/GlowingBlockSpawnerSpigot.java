@@ -40,7 +40,7 @@ public class GlowingBlockSpawnerSpigot extends GlowingBlockSpawner implements IR
     @Getter
     private final Map<Color, Team> teams = new EnumMap<>(Color.class);
 
-    private final Map<IGlowingBlock, BukkitRunnable> spawnedBlocks = new ConcurrentHashMap<>(128);
+    private final Map<IGlowingBlock, @Nullable BukkitRunnable> spawnedBlocks = new ConcurrentHashMap<>(128);
 
     private final IGlowingBlockFactory glowingBlockFactory;
 
@@ -59,7 +59,7 @@ public class GlowingBlockSpawnerSpigot extends GlowingBlockSpawner implements IR
 
     @Override
     public Optional<IGlowingBlock> spawnGlowingBlock(
-        IPlayer player, IWorld world, Duration duration, double x, double y, double z, Color color)
+        IPlayer player, IWorld world, @Nullable Duration duration, double x, double y, double z, Color color)
     {
         if (scoreboard == null)
         {
@@ -74,12 +74,7 @@ public class GlowingBlockSpawnerSpigot extends GlowingBlockSpawner implements IR
             return Optional.empty();
         }
 
-        final long ticks = SpigotUtil.durationToTicks(duration);
-        if (ticks < 5)
-        {
-            log.atSevere().withStackTrace(StackSize.FULL).log("Invalid duration of %d ticks!", ticks);
-            return Optional.empty();
-        }
+        final @Nullable Long ticks = duration == null ? null : SpigotUtil.durationToTicks(duration);
 
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
@@ -103,19 +98,24 @@ public class GlowingBlockSpawnerSpigot extends GlowingBlockSpawner implements IR
         return blockOpt;
     }
 
-    private void onBlockSpawn(IGlowingBlock block, long ticks)
+    private void onBlockSpawn(IGlowingBlock block, @Nullable Long ticks)
     {
-        final BukkitRunnable killTask = new BukkitRunnable()
+        if (ticks == null)
+            spawnedBlocks.put(block, null);
+        else
         {
-            @Override
-            public void run()
+            final BukkitRunnable killTask = new BukkitRunnable()
             {
-                block.kill();
-                spawnedBlocks.remove(block);
-            }
-        };
-        spawnedBlocks.put(block, killTask);
-        executor.runAsyncLater(killTask, ticks);
+                @Override
+                public void run()
+                {
+                    block.kill();
+                    spawnedBlocks.remove(block);
+                }
+            };
+            executor.runAsyncLater(killTask, ticks);
+            spawnedBlocks.put(block, killTask);
+        }
     }
 
     /**
@@ -170,7 +170,16 @@ public class GlowingBlockSpawnerSpigot extends GlowingBlockSpawner implements IR
     {
         for (final var entry : spawnedBlocks.entrySet())
         {
-            entry.getValue().cancel();
+            try
+            {
+                final @Nullable BukkitRunnable task = entry.getValue();
+                if (task != null)
+                    task.cancel();
+            }
+            catch (IllegalStateException e)
+            {
+                log.atFine().withCause(e).log("Failed to cancel task for glowing block!");
+            }
             entry.getKey().kill();
         }
         spawnedBlocks.clear();

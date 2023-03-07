@@ -25,6 +25,7 @@ import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManage
 import nl.pim16aap2.animatedarchitecture.core.managers.LimitsManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureDeletionManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
+import nl.pim16aap2.animatedarchitecture.core.moveblocks.StructureActivityManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
@@ -166,7 +167,8 @@ public class CreatorTestsUtil
         context = new ToolUser.Context(
             structureBaseBuilder, localizer, ITextFactory.getSimpleTextFactory(), toolUserManager, databaseManager,
             limitsManager, economyManager, protectionCompatManager, animatedArchitectureToolUtil,
-            Mockito.mock(StructureAnimationRequestBuilder.class), commandFactory, assistedStepFactory);
+            Mockito.mock(StructureAnimationRequestBuilder.class), Mockito.mock(StructureActivityManager.class),
+            commandFactory, assistedStepFactory);
 
         initCommands();
 

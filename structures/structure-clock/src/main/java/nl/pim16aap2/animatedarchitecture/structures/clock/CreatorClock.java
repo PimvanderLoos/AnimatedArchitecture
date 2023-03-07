@@ -53,18 +53,26 @@ public class CreatorClock extends Creator
     {
         final Step stepSelectHourArm = stepFactory
             .stepName("SELECT_HOUR_ARM")
-            .messageKey("creator.clock.step_3")
+            .textSupplier(text -> text.append(
+                localizer.getMessage("creator.clock.step_3"), TextType.INFO, getStructureArg()))
             .stepExecutor(new StepExecutorLocation(this::completeSelectHourArmStep))
             .waitForUserInput(true).construct();
 
-        return Arrays.asList(factorySetName.construct(),
-                             factorySetFirstPos.messageKey("creator.clock.step_1").construct(),
-                             factorySetSecondPos.messageKey("creator.clock.step_2").construct(),
-                             stepSelectHourArm,
-                             factorySetPowerBlockPos.construct(),
-                             factoryReviewResult.construct(),
-                             factoryConfirmPrice.construct(),
-                             factoryCompleteProcess.messageKey("creator.clock.success").construct());
+        return Arrays.asList(
+            factorySetName.construct(),
+            factorySetFirstPos
+                .textSupplier(text -> text.append(
+                    localizer.getMessage("creator.clock.step_1"), TextType.INFO, getStructureArg()))
+                .construct(),
+            factorySetSecondPos
+                .textSupplier(text -> text.append(
+                    localizer.getMessage("creator.clock.step_2"), TextType.INFO, getStructureArg()))
+                .construct(),
+            stepSelectHourArm,
+            factorySetPowerBlockPos.construct(),
+            factoryReviewResult.construct(),
+            factoryConfirmPrice.construct(),
+            factoryCompleteProcess.construct());
     }
 
     /**
@@ -109,6 +117,7 @@ public class CreatorClock extends Creator
         {
             getPlayer().sendMessage(textFactory.newText().append(
                 localizer.getMessage("creator.clock.error.too_small"), TextType.ERROR,
+                getStructureArg(),
                 arg -> arg.highlight(maxHorizontalDim),
                 arg -> arg.highlight(height)));
             return false;
@@ -138,6 +147,7 @@ public class CreatorClock extends Creator
         {
             getPlayer().sendMessage(textFactory.newText().append(
                 localizer.getMessage("creator.clock.error.not_2_deep"), TextType.ERROR,
+                getStructureArg(),
                 arg -> arg.highlight(depth)));
             return false;
         }
@@ -158,7 +168,7 @@ public class CreatorClock extends Creator
     @Override
     protected void giveTool()
     {
-        giveTool("tool_user.base.stick_name", "creator.clock.stick_lore", "creator.clock.init");
+        giveTool("tool_user.base.stick_name", "creator.clock.stick_lore");
     }
 
     /**

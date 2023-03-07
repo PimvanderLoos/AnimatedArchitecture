@@ -22,6 +22,7 @@ import nl.pim16aap2.animatedarchitecture.core.commands.CommandDefinition;
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
+import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
@@ -88,10 +89,13 @@ public final class CommandManager
 
         final CommandConfirmationManager<ICommandSender> confirmationManager = new CommandConfirmationManager<>(
             30L, TimeUnit.SECONDS,
-            context -> context.getCommandContext().getSender()
-                              .sendInfo(textFactory,
-                                        "Confirmation required. Confirm using /animatedarchitecture confirm."),
-            sender -> sender.sendError(textFactory, "You don't have any pending commands.")
+            context -> context.getCommandContext().getSender().sendMessage(textFactory.newText().append(
+                localizer.getMessage("commands.spigot.confirmation.message"), TextType.INFO,
+                arg -> arg.clickable(localizer.getMessage("commands.spigot.confirmation.message.arg0.message"),
+                                     "/AnimatedArchitecture confirm",
+                                     localizer.getMessage("commands.spigot.confirmation.message.arg0.hint")))),
+            sender -> sender.sendError(
+                textFactory, localizer.getMessage("commands.spigot.confirmation.error.no_pending"))
         );
 
         confirmationManager.registerConfirmationProcessor(this.manager);
