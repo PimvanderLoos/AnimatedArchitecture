@@ -743,12 +743,12 @@ public abstract class Creator extends ToolUser
             arg -> arg.clickable(
                 localizer.getMessage("constants.open_status.open"),
                 "/animatedarchitecture SetOpenStatus " + localizer.getMessage("constants.open_status.open"),
-                localizer.getMessage("interaction.clickable_command.default_highlight")),
+                localizer.getMessage("creator.base.set_open_status.hint.set_open")),
 
             arg -> arg.clickable(
                 localizer.getMessage("constants.open_status.closed"),
                 "/animatedarchitecture SetOpenStatus " + localizer.getMessage("constants.open_status.closed"),
-                localizer.getMessage("interaction.clickable_command.default_highlight")));
+                localizer.getMessage("creator.base.set_open_status.hint.set_closed")));
     }
 
     protected Text setOpenDirectionTextSupplier(Text text)
@@ -760,7 +760,7 @@ public abstract class Creator extends ToolUser
             dir -> text.appendClickableText(
                 dir + "\n", TextType.CLICKABLE,
                 "/animatedarchitecture SetOpenDirection " + dir,
-                localizer.getMessage("interaction.clickable_command.default_highlight")));
+                localizer.getMessage("creator.base.set_open_direction.hint")));
 
         return text;
     }
@@ -801,12 +801,12 @@ public abstract class Creator extends ToolUser
             arg -> arg.clickable(
                 localizer.getMessage("creator.base.confirm_structure_price.confirm"), TextType.CLICKABLE_CONFIRM,
                 "/animatedarchitecture confirm",
-                localizer.getMessage("interaction.clickable_command.default_highlight")),
+                localizer.getMessage("creator.base.confirm_structure_price.hint.confirm")),
 
             arg -> arg.clickable(
                 localizer.getMessage("creator.base.confirm_structure_price.refuse"), TextType.CLICKABLE_REFUSE,
                 "/animatedarchitecture cancel",
-                localizer.getMessage("interaction.clickable_command.default_highlight"))
+                localizer.getMessage("creator.base.confirm_structure_price.hint.refuse"))
         );
     }
 
