@@ -81,7 +81,8 @@ public final class StructureRegistry implements IDebuggable, StructureDeletionMa
     @Override
     public void onStructureDeletion(IStructureConst structure)
     {
-        structureCache.remove(structure.getUid());
+        if (structure.getUid() > 0)
+            structureCache.remove(structure.getUid());
     }
 
     /**
@@ -94,7 +95,7 @@ public final class StructureRegistry implements IDebuggable, StructureDeletionMa
      */
     public Optional<AbstractStructure> getRegisteredStructure(long structureUID)
     {
-        return structureCache.get(structureUID);
+        return structureUID > 0 ? structureCache.get(structureUID) : Optional.empty();
     }
 
     /**
@@ -107,7 +108,7 @@ public final class StructureRegistry implements IDebuggable, StructureDeletionMa
     @SuppressWarnings("unused")
     public boolean isRegistered(long structureUID)
     {
-        return structureCache.containsKey(structureUID);
+        return structureUID > 0 && structureCache.containsKey(structureUID);
     }
 
     /**
@@ -120,7 +121,8 @@ public final class StructureRegistry implements IDebuggable, StructureDeletionMa
      */
     public boolean isRegistered(AbstractStructure structure)
     {
-        return structureCache.get(structure.getUid()).map(found -> found == structure).orElse(false);
+        return structure.getUid() > 0 &&
+            structureCache.get(structure.getUid()).map(found -> found == structure).orElse(false);
     }
 
     /**
@@ -135,7 +137,7 @@ public final class StructureRegistry implements IDebuggable, StructureDeletionMa
      */
     AbstractStructure computeIfAbsent(long uid, Supplier<AbstractStructure> supplier)
     {
-        if (uid <= 0)
+        if (uid < 1)
             throw new IllegalArgumentException("Trying to register structure with UID " + uid);
 
         return structureCache.compute(uid, (key, value) ->
