@@ -35,9 +35,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.util.Locale;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.Set;
@@ -188,8 +185,6 @@ public abstract class Creator extends ToolUser
     protected Step.Factory factoryCompleteProcess;
 
     private final StructureAnimationRequestBuilder structureAnimationRequestBuilder;
-
-    private static final MyDecimalFormat DECIMAL_FORMAT = new MyDecimalFormat();
 
     protected Creator(Context context, IPlayer player, @Nullable String name)
     {
@@ -513,7 +508,7 @@ public abstract class Creator extends ToolUser
             getPlayer().sendMessage(textFactory.newText().append(
                 localizer.getMessage("creator.base.error.insufficient_funds"), TextType.ERROR,
                 arg -> arg.highlight(localizer.getStructureType(getStructureType())),
-                arg -> arg.highlight(DECIMAL_FORMAT.format(getPrice().orElse(0)))));
+                arg -> arg.highlight(getPrice().orElse(0))));
             abort();
             return true;
         }
@@ -697,7 +692,7 @@ public abstract class Creator extends ToolUser
             getPlayer().sendMessage(textFactory.newText().append(
                 "creator.base.error.powerblock_too_far", TextType.ERROR,
                 arg -> arg.highlight(localizer.getStructureType(getStructureType())),
-                arg -> arg.highlight(DECIMAL_FORMAT.format(distance)),
+                arg -> arg.highlight(distance),
                 arg -> arg.highlight(distanceLimit.getAsInt())));
             return false;
         }
@@ -796,7 +791,7 @@ public abstract class Creator extends ToolUser
             localizer.getMessage("creator.base.confirm_structure_price"), TextType.INFO,
 
             arg -> arg.info(localizer.getStructureType(getStructureType())),
-            arg -> arg.highlight(DECIMAL_FORMAT.format(getPrice().orElse(0))),
+            arg -> arg.highlight(getPrice().orElse(0)),
 
             arg -> arg.clickable(
                 localizer.getMessage("creator.base.confirm_structure_price.confirm"), TextType.CLICKABLE_CONFIRM,
@@ -813,36 +808,5 @@ public abstract class Creator extends ToolUser
     private String formatVector(@Nullable Vector3Di vector)
     {
         return vector == null ? "NULL" : String.format("%d, %d, %d", vector.x(), vector.y(), vector.z());
-    }
-
-    /**
-     * Represents a synchronized wrapper for {@link DecimalFormat}.
-     *
-     * @author Pim
-     */
-    private static final class MyDecimalFormat
-    {
-        private final DecimalFormat decimalFormat;
-
-        MyDecimalFormat()
-        {
-            decimalFormat = new DecimalFormat("0", DecimalFormatSymbols.getInstance(Locale.ROOT));
-            decimalFormat.setMaximumFractionDigits(2);
-        }
-
-        /**
-         * Formats a double number as a String.
-         *
-         * @param number
-         *     The double number to format
-         * @return The String representation of the provided double value.
-         *
-         * @throws ArithmeticException
-         *     If rounding is needed with rounding mode being set to RoundingMode.UNNECESSARY.
-         */
-        public synchronized String format(double number)
-        {
-            return decimalFormat.format(number);
-        }
     }
 }
