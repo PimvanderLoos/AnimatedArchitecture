@@ -19,6 +19,8 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
+import nl.pim16aap2.animatedarchitecture.core.text.TextArgument;
+import nl.pim16aap2.animatedarchitecture.core.text.TextArgumentFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Procedure;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
@@ -41,6 +43,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
 
 /**
  * Represents a specialization of the {@link ToolUser} that is used for creating new {@link AbstractStructure}s.
@@ -216,10 +219,8 @@ public abstract class Creator extends ToolUser
             .propertyName(localizer.getMessage("creator.base.property.type"))
             .propertyValueSupplier(() -> this.name)
             .updatable(true)
-            .textSupplier(
-                text -> text.append(
-                    localizer.getMessage("creator.base.give_name"), TextType.INFO,
-                    arg -> arg.highlight(localizer.getStructureType(getStructureType()))));
+            .textSupplier(text -> text.append(
+                localizer.getMessage("creator.base.give_name"), TextType.SUCCESS, getStructureArg()));
 
         factorySetFirstPos = stepFactory
             .stepName("SET_FIRST_POS")
@@ -286,7 +287,21 @@ public abstract class Creator extends ToolUser
         factoryCompleteProcess = stepFactory
             .stepName("COMPLETE_CREATION_PROCESS")
             .stepExecutor(new StepExecutorVoid(this::completeCreationProcess))
+            .textSupplier(text -> text.append(
+                localizer.getMessage("creator.base.success"), TextType.SUCCESS, getStructureArg()))
             .waitForUserInput(false);
+    }
+
+    /**
+     * Shortcut method for creating a new highlighted argument of the structure type.
+     * <p>
+     * Can be used for Text object.
+     *
+     * @return The function that creates a new structure arg.
+     */
+    protected final Function<TextArgumentFactory, TextArgument> getStructureArg()
+    {
+        return arg -> arg.highlight(localizer.getStructureType(getStructureType()));
     }
 
     public final void update(String stepName, @Nullable Object stepValue)
@@ -396,9 +411,23 @@ public abstract class Creator extends ToolUser
     }
 
     /**
+     * Adds the AnimatedArchitecture tool from the player's inventory.
+     *
+     * @param nameKey
+     *     The localization key of the name of the tool.
+     * @param loreKey
+     *     The localization key of the lore of the tool.
+     */
+    protected final void giveTool(String nameKey, String loreKey)
+    {
+        super.giveTool(nameKey, loreKey, textFactory.newText().append(
+            localizer.getMessage("creator.base.received_tool"), TextType.INFO, getStructureArg()));
+    }
+
+    /**
      * Method used to give the AnimatedArchitecture tool to the user.
      * <p>
-     * Overriding methods may call {@link #giveTool(String, String, String)}.
+     * Overriding methods may call {@link #giveTool(String, String, Text)}.
      */
     protected abstract void giveTool();
 

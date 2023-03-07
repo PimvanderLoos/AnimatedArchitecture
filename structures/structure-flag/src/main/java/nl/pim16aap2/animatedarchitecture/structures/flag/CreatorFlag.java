@@ -4,6 +4,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
@@ -29,20 +30,30 @@ public class CreatorFlag extends Creator
     protected List<Step> generateSteps()
         throws InstantiationException
     {
-        return Arrays.asList(factorySetName.construct(),
-                             factorySetFirstPos.messageKey("creator.flag.step_1").construct(),
-                             factorySetSecondPos.messageKey("creator.flag.step_2").construct(),
-                             factorySetRotationPointPos.messageKey("creator.flag.step_3").construct(),
-                             factorySetPowerBlockPos.construct(),
-                             factoryReviewResult.construct(),
-                             factoryConfirmPrice.construct(),
-                             factoryCompleteProcess.messageKey("creator.flag.success").construct());
+        return Arrays.asList(
+            factorySetName.construct(),
+            factorySetFirstPos
+                .textSupplier(text -> text.append(
+                    localizer.getMessage("creator.flag.step_1"), TextType.INFO, getStructureArg()))
+                .construct(),
+            factorySetSecondPos
+                .textSupplier(text -> text.append(
+                    localizer.getMessage("creator.flag.step_2"), TextType.INFO, getStructureArg()))
+                .construct(),
+            factorySetRotationPointPos
+                .textSupplier(text -> text.append(
+                    localizer.getMessage("creator.flag.step_3"), TextType.INFO, getStructureArg()))
+                .construct(),
+            factorySetPowerBlockPos.construct(),
+            factoryReviewResult.construct(),
+            factoryConfirmPrice.construct(),
+            factoryCompleteProcess.construct());
     }
 
     @Override
     protected void giveTool()
     {
-        giveTool("tool_user.base.stick_name", "creator.flag.stick_lore", "creator.flag.init");
+        giveTool("tool_user.base.stick_name", "creator.flag.stick_lore");
     }
 
     @Override

@@ -49,8 +49,9 @@ public class PowerBlockInspector extends ToolUser
     @Override
     protected void init()
     {
-        giveTool("tool_user.base.stick_name", "tool_user.powerblock_inspector.stick_lore",
-                 "tool_user.powerblock_inspector.init");
+        giveTool(
+            "tool_user.base.stick_name", "tool_user.powerblock_inspector.stick_lore",
+            textFactory.newText().append(localizer.getMessage("tool_user.powerblock_inspector.init"), TextType.INFO));
     }
 
     protected boolean inspectLoc(ILocation loc)

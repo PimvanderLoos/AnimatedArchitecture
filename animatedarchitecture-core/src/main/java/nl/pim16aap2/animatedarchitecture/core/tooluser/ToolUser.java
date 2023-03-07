@@ -143,17 +143,17 @@ public abstract class ToolUser
      *     The localization key of the name of the tool.
      * @param loreKey
      *     The localization key of the lore of the tool.
-     * @param messageKey
-     *     The localization key of the message to send to the player after giving them the tool.
+     * @param text
+     *     The message to send to the player after giving them the tool.
      */
-    protected final void giveTool(String nameKey, String loreKey, @Nullable String messageKey)
+    protected final void giveTool(String nameKey, String loreKey, @Nullable Text text)
     {
-        animatedArchitectureToolUtil.giveToPlayer(getPlayer(), localizer.getMessage(nameKey),
-                                                  localizer.getMessage(loreKey));
+        animatedArchitectureToolUtil.giveToPlayer(
+            getPlayer(), localizer.getMessage(nameKey), localizer.getMessage(loreKey));
         playerHasTool.set(true);
 
-        if (messageKey != null)
-            getPlayer().sendMessage(textFactory, TextType.SUCCESS, localizer.getMessage(messageKey));
+        if (text != null)
+            getPlayer().sendMessage(text);
     }
 
     /**

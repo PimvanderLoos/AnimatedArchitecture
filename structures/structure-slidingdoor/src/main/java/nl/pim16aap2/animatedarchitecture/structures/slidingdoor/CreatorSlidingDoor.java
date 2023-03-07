@@ -33,7 +33,8 @@ public class CreatorSlidingDoor extends Creator
     {
         final Step stepBlocksToMove = stepFactory
             .stepName("SET_BLOCKS_TO_MOVE")
-            .messageKey("creator.sliding_door.set_blocks_to_move")
+            .textSupplier(text -> text.append(
+                localizer.getMessage("creator.sliding_door.set_blocks_to_move"), TextType.INFO, getStructureArg()))
             .propertyName(localizer.getMessage("creator.base.property.blocks_to_move"))
             .propertyValueSupplier(() -> blocksToMove)
             .updatable(true)
@@ -41,16 +42,23 @@ public class CreatorSlidingDoor extends Creator
             .stepPreparation(this::prepareSetBlocksToMove)
             .waitForUserInput(true).construct();
 
-        return Arrays.asList(factorySetName.construct(),
-                             factorySetFirstPos.messageKey("creator.sliding_door.step_1").construct(),
-                             factorySetSecondPos.messageKey("creator.sliding_door.step_2").construct(),
-                             factorySetPowerBlockPos.construct(),
-                             factorySetOpenStatus.construct(),
-                             factorySetOpenDir.construct(),
-                             stepBlocksToMove,
-                             factoryReviewResult.construct(),
-                             factoryConfirmPrice.construct(),
-                             factoryCompleteProcess.messageKey("creator.sliding_door.success").construct());
+        return Arrays.asList(
+            factorySetName.construct(),
+            factorySetFirstPos
+                .textSupplier(text -> text.append(
+                    localizer.getMessage("creator.sliding_door.step_1"), TextType.INFO, getStructureArg()))
+                .construct(),
+            factorySetSecondPos
+                .textSupplier(text -> text.append(
+                    localizer.getMessage("creator.sliding_door.step_2"), TextType.INFO, getStructureArg()))
+                .construct(),
+            factorySetPowerBlockPos.construct(),
+            factorySetOpenStatus.construct(),
+            factorySetOpenDir.construct(),
+            stepBlocksToMove,
+            factoryReviewResult.construct(),
+            factoryConfirmPrice.construct(),
+            factoryCompleteProcess.construct());
     }
 
     /**
@@ -72,7 +80,7 @@ public class CreatorSlidingDoor extends Creator
         {
             getPlayer().sendMessage(textFactory.newText().append(
                 localizer.getMessage("creator.base.error.blocks_to_move_too_far"), TextType.ERROR,
-                arg -> arg.highlight(localizer.getStructureType(getStructureType())),
+                getStructureArg(),
                 arg -> arg.highlight(blocksToMove),
                 arg -> arg.highlight(blocksToMoveLimit.getAsInt())));
             return false;
@@ -85,7 +93,7 @@ public class CreatorSlidingDoor extends Creator
     @Override
     protected void giveTool()
     {
-        giveTool("tool_user.base.stick_name", "creator.sliding_door.stick_lore", "creator.sliding_door.init");
+        giveTool("tool_user.base.stick_name", "creator.sliding_door.stick_lore");
     }
 
     @Override

@@ -40,8 +40,9 @@ public class PowerBlockRelocator extends ToolUser
     @Override
     protected void init()
     {
-        giveTool("tool_user.base.stick_name", "tool_user.powerblock_relocator.stick_lore",
-                 "tool_user.powerblock_relocator.init");
+        giveTool(
+            "tool_user.base.stick_name", "tool_user.powerblock_relocator.stick_lore",
+            textFactory.newText().append(localizer.getMessage("tool_user.powerblock_relocator.init"), TextType.INFO));
     }
 
     protected boolean moveToLoc(ILocation loc)
