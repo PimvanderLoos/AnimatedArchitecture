@@ -738,12 +738,12 @@ public abstract class Creator extends ToolUser
             arg -> arg.clickable(
                 localizer.getMessage("constants.open_status.open"),
                 "/animatedarchitecture SetOpenStatus " + localizer.getMessage("constants.open_status.open"),
-                localizer.getMessage("creator.base.set_open_status.hint.set_open")),
+                localizer.getMessage("creator.base.set_open_status.arg2.open.hint")),
 
             arg -> arg.clickable(
                 localizer.getMessage("constants.open_status.closed"),
                 "/animatedarchitecture SetOpenStatus " + localizer.getMessage("constants.open_status.closed"),
-                localizer.getMessage("creator.base.set_open_status.hint.set_closed")));
+                localizer.getMessage("creator.base.set_open_status.arg2.closed.hint")));
     }
 
     protected Text setOpenDirectionTextSupplier(Text text)
@@ -755,7 +755,7 @@ public abstract class Creator extends ToolUser
             dir -> text.appendClickableText(
                 dir + "\n", TextType.CLICKABLE,
                 "/animatedarchitecture SetOpenDirection " + dir,
-                localizer.getMessage("creator.base.set_open_direction.hint")));
+                localizer.getMessage("creator.base.set_open_direction.arg0.hint")));
 
         return text;
     }
@@ -773,15 +773,15 @@ public abstract class Creator extends ToolUser
         text.append(
             localizer.getMessage("creator.base.review_result.footer"), TextType.INFO,
             arg -> arg.clickable(
-                localizer.getMessage("creator.base.review_result.footer.confirm.name"),
+                localizer.getMessage("creator.base.review_result.footer.arg0.message"),
                 TextType.CLICKABLE_CONFIRM,
                 "/animatedarchitecture confirm",
-                localizer.getMessage("creator.base.review_result.footer.confirm.hint")),
+                localizer.getMessage("creator.base.review_result.footer.arg0.hint")),
             arg -> arg.clickable(
-                localizer.getMessage("creator.base.review_result.footer.refuse.name"),
+                localizer.getMessage("creator.base.review_result.footer.arg1.message"),
                 TextType.CLICKABLE_REFUSE,
                 "/animatedarchitecture cancel",
-                localizer.getMessage("creator.base.review_result.footer.refuse.hint")));
+                localizer.getMessage("creator.base.review_result.footer.arg1.hint")));
         return text;
     }
 
@@ -794,14 +794,14 @@ public abstract class Creator extends ToolUser
             arg -> arg.highlight(getPrice().orElse(0)),
 
             arg -> arg.clickable(
-                localizer.getMessage("creator.base.confirm_structure_price.confirm"), TextType.CLICKABLE_CONFIRM,
+                localizer.getMessage("creator.base.confirm_structure_price.arg2.message"), TextType.CLICKABLE_CONFIRM,
                 "/animatedarchitecture confirm",
-                localizer.getMessage("creator.base.confirm_structure_price.hint.confirm")),
+                localizer.getMessage("creator.base.confirm_structure_price.arg2.hint")),
 
             arg -> arg.clickable(
-                localizer.getMessage("creator.base.confirm_structure_price.refuse"), TextType.CLICKABLE_REFUSE,
+                localizer.getMessage("creator.base.confirm_structure_price.arg3.message"), TextType.CLICKABLE_REFUSE,
                 "/animatedarchitecture cancel",
-                localizer.getMessage("creator.base.confirm_structure_price.hint.refuse"))
+                localizer.getMessage("creator.base.confirm_structure_price.arg3.hint"))
         );
     }
 
