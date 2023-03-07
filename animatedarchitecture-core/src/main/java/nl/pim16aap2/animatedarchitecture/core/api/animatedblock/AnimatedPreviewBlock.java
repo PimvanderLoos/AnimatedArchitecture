@@ -110,7 +110,7 @@ public class AnimatedPreviewBlock implements IAnimatedBlock
             .inWorld(world)
             .atPosition(target)
             .withColor(color)
-            .build();
+            .spawn();
     }
 
     @Override

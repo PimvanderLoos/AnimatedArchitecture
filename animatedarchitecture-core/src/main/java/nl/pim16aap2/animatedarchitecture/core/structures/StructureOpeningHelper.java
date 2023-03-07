@@ -468,7 +468,7 @@ public final class StructureOpeningHelper
 
                         glowingBlockSpawner
                             .builder().forPlayer(player).withColor(Color.RED).forDuration(Duration.ofSeconds(4))
-                            .atPosition(xAxis + 0.5, yAxis, zAxis + 0.5).inWorld(world).build();
+                            .atPosition(xAxis + 0.5, yAxis, zAxis + 0.5).inWorld(world).spawn();
                         isEmpty = false;
                     }
                 }

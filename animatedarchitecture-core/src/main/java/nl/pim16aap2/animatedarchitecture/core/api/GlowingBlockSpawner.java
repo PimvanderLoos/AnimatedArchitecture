@@ -2,11 +2,11 @@ package nl.pim16aap2.animatedarchitecture.core.api;
 
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.IGlowingBlock;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
-import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
@@ -202,7 +202,7 @@ public abstract class GlowingBlockSpawner
          * @return The {@link IGlowingBlock} that was spawned. The optional will be empty if it could not be spawned for
          * some reason.
          */
-        public Optional<IGlowingBlock> build()
+        public Optional<IGlowingBlock> spawn()
         {
             try
             {
