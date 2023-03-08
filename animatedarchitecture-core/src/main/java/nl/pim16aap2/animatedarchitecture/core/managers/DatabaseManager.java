@@ -42,6 +42,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 /**
@@ -115,7 +116,21 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     @Override
     public void shutDown()
     {
-        threadPool.shutdownNow();
+        threadPool.shutdown();
+        try
+        {
+            if (!threadPool.awaitTermination(30, TimeUnit.SECONDS))
+                log.atSevere().log(
+                    "Timed out waiting to terminate DatabaseManager ExecutorService!" +
+                        " The database may be out of sync with the world!");
+        }
+        catch (InterruptedException e)
+        {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(
+                "Thread got interrupted waiting for DatabaseManager ExecutorService to terminate!" +
+                    " The database may be out of sync with the world!", e);
+        }
     }
 
     private void initThreadPool()
