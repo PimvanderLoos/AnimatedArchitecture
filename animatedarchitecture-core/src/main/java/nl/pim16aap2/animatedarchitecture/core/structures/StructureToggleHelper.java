@@ -52,8 +52,7 @@ import java.util.logging.Level;
  *
  * @author Pim
  */
-@Flogger
-public final class StructureOpeningHelper
+@Flogger final class StructureToggleHelper
 {
     private final ILocalizer localizer;
     private final ITextFactory textFactory;
@@ -74,7 +73,7 @@ public final class StructureOpeningHelper
     private final AnimationRequestData.IFactory movementRequestDataFactory;
 
     @Inject //
-    StructureOpeningHelper(
+    StructureToggleHelper(
         ILocalizer localizer,
         ITextFactory textFactory,
         StructureActivityManager structureActivityManager,

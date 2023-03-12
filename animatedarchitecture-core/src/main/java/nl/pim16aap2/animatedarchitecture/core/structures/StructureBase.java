@@ -134,7 +134,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
     @EqualsAndHashCode.Exclude
     @Getter(AccessLevel.PACKAGE)
-    private final StructureOpeningHelper structureOpeningHelper;
+    private final StructureToggleHelper structureOpeningHelper;
 
     @EqualsAndHashCode.Exclude
     @Getter(AccessLevel.PACKAGE)
@@ -162,7 +162,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
         ILocalizer localizer,
         DatabaseManager databaseManager,
         StructureRegistry structureRegistry,
-        StructureOpeningHelper structureOpeningHelper,
+        StructureToggleHelper structureOpeningHelper,
         StructureAnimationRequestBuilder structureToggleRequestBuilder,
         IPlayerFactory playerFactory,
         IExecutor executor,
