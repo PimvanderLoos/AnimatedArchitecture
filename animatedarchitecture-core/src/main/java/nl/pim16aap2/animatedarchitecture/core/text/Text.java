@@ -138,7 +138,7 @@ public class Text implements CharSequence
     @Contract("_, _ -> this")
     private Text append0(String text, @Nullable TextComponent component)
     {
-        if (component != null && (!component.isEmpty()))
+        if (component != null && !component.isEmpty())
             styledSections.add(new StyledSection(stringBuilder.length(), text.length(), component));
         return append0(text);
     }

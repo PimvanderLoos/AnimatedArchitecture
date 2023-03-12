@@ -7,9 +7,9 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.data.cache.RollingCache;
+import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
@@ -121,6 +121,8 @@ public final class StructureFinder
     }
 
     /**
+     * Tries to get all identifiers of structures that have been found, if any.
+     *
      * @param fullMatch
      *     When true, only the entries that have a complete match are returned. E.g. for an input of "door", "door"
      *     would be returned, but "door1" would not. Gets the UIDs of all the structures that have been found so far.
@@ -304,6 +306,8 @@ public final class StructureFinder
     }
 
     /**
+     * Checks if a base String starts with a specific test String, ignoring case.
+     *
      * @param base
      *     The base String to use.
      * @param test
@@ -549,7 +553,7 @@ public final class StructureFinder
                 {
                     result.completeExceptionally(t);
                 }
-            });
+            }).exceptionally(Util::exceptionally);
         return result.exceptionally(t -> Util.exceptionally(t, Collections.emptyList()));
     }
 

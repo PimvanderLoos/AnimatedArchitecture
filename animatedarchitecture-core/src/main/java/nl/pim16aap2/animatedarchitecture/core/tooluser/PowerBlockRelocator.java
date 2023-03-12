@@ -12,6 +12,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorLocation;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorVoid;
+import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -82,7 +83,7 @@ public class PowerBlockRelocator extends ToolUser
         else
         {
             structure.setPowerBlock(newLoc.getPosition());
-            structure.syncData();
+            structure.syncData().exceptionally(Util::exceptionally);
             getPlayer().sendSuccess(textFactory, localizer.getMessage("tool_user.powerblock_relocator.success"));
         }
         return true;

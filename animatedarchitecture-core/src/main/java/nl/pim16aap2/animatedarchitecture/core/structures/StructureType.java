@@ -1,10 +1,11 @@
 package nl.pim16aap2.animatedarchitecture.core.structures;
 
 import lombok.Getter;
-import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.audio.AudioSet;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
+import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
+import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.util.LazyValue;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import org.jetbrains.annotations.Nullable;
@@ -144,7 +145,7 @@ public abstract class StructureType
      *     The player who will own the {@link Creator}.
      * @return The newly created {@link Creator}.
      */
-    public Creator getCreator(Creator.Context context, IPlayer player)
+    public Creator getCreator(ToolUser.Context context, IPlayer player)
     {
         return getCreator(context, player, null);
     }
@@ -160,7 +161,7 @@ public abstract class StructureType
      *     The name that will be given to the structure.
      * @return The newly created {@link Creator}.
      */
-    public abstract Creator getCreator(Creator.Context context, IPlayer player, @Nullable String name);
+    public abstract Creator getCreator(ToolUser.Context context, IPlayer player, @Nullable String name);
 
     public @Nullable AudioSet getAudioSet()
     {

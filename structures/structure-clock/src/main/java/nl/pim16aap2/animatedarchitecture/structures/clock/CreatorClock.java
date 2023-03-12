@@ -7,6 +7,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
+import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorLocation;
 import nl.pim16aap2.animatedarchitecture.core.util.BlockFace;
@@ -42,7 +43,7 @@ public class CreatorClock extends Creator
 
     private boolean northSouthAligned;
 
-    public CreatorClock(Creator.Context context, IPlayer player, @Nullable String name)
+    public CreatorClock(ToolUser.Context context, IPlayer player, @Nullable String name)
     {
         super(context, player, name);
     }

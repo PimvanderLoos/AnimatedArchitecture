@@ -6,12 +6,12 @@ import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.managers.PowerBlockManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorLocation;
+import nl.pim16aap2.animatedarchitecture.core.util.Util;
 
 import java.util.Collections;
 import java.util.List;
@@ -26,8 +26,6 @@ public class PowerBlockInspector extends ToolUser
 {
     private final PowerBlockManager powerBlockManager;
 
-    private final ITextFactory textFactory;
-
     /**
      * Whether this user has the bypass permission.
      * <p>
@@ -37,12 +35,11 @@ public class PowerBlockInspector extends ToolUser
 
     @AssistedInject
     public PowerBlockInspector(
-        ToolUser.Context context, PowerBlockManager powerBlockManager, ITextFactory textFactory,
+        ToolUser.Context context, PowerBlockManager powerBlockManager,
         @Assisted IPlayer player, @Assisted boolean bypassPermission)
     {
         super(context, player);
         this.powerBlockManager = powerBlockManager;
-        this.textFactory = textFactory;
         this.bypassPermission = bypassPermission;
     }
 
@@ -69,7 +66,7 @@ public class PowerBlockInspector extends ToolUser
                         textFactory, localizer.getMessage("tool_user.power_block_inspected.error.no_structures_found"));
                 else
                     sendPowerBlockInfo(getPlayer(), filtered);
-            });
+            }).exceptionally(Util::exceptionally);
         return true;
     }
 

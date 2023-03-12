@@ -243,9 +243,10 @@ public final class StructureBaseBuilder
     public interface IBuilderIsOpen
     {
         /**
-         * a
+         * Sets the open-status of the structure.
          *
          * @param isOpen
+         *     True to set the new status as open.
          * @return The next step of the guided builder process.
          */
         IBuilderIsLocked isOpen(boolean isOpen);
@@ -254,10 +255,10 @@ public final class StructureBaseBuilder
     public interface IBuilderIsLocked
     {
         /**
-         * Sets the open-status of the structure.
+         * Sets the locked-status of the structure.
          *
          * @param isLocked
-         *     Whether the structure is currently locked (true) or unlocked (false).
+         *     True if the structure is currently locked (true) or false if it is unlocked (false).
          * @return The next step of the guided builder process.
          */
         IBuilderOpenDir isLocked(boolean isLocked);

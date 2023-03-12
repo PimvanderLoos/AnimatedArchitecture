@@ -5,7 +5,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
-import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
+import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.structures.bigdoor.CreatorBigDoor;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,7 +16,7 @@ public class CreatorRevolvingDoor extends CreatorBigDoor
 {
     private static final StructureType STRUCTURE_TYPE = StructureTypeRevolvingDoor.get();
 
-    public CreatorRevolvingDoor(Creator.Context context, IPlayer player, @Nullable String name)
+    public CreatorRevolvingDoor(ToolUser.Context context, IPlayer player, @Nullable String name)
     {
         super(context, player, name);
     }

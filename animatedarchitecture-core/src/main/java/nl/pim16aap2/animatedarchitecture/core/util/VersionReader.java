@@ -32,6 +32,8 @@ public final class VersionReader implements IDebuggable
     }
 
     /**
+     * Getter for the parsed version info.
+     *
      * @return The parsed {@link VersionInfo}.
      */
     @SuppressWarnings("unused")

@@ -318,7 +318,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
             .messageReceiverServer()
             .responsible(playerFactory.create(getPrimeOwner().playerData()))
             .build()
-            .execute();
+            .execute()
+            .exceptionally(Util::exceptionally);
     }
 
     @Locked.Read

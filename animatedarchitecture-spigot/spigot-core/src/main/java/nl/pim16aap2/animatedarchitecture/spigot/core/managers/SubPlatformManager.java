@@ -30,13 +30,11 @@ public final class SubPlatformManager
      *
      * @param animatedArchitecturePlugin
      *     The {@link IAnimatedArchitecturePlatform} for Spigot.
-     * @throws InstantiationException
-     *     When there is no version-specific platform available. This may happen when trying to instantiate this class
-     *     on an unsupported version.
      */
     @Inject
     public SubPlatformManager(
-        AnimatedArchitecturePlugin animatedArchitecturePlugin, AnimatedBlockHookManager animatedBlockHookManager,
+        AnimatedArchitecturePlugin animatedArchitecturePlugin,
+        AnimatedBlockHookManager animatedBlockHookManager,
         IExecutor executor)
     {
         serverVersion = Bukkit.getServer().getClass().getPackage().getName();

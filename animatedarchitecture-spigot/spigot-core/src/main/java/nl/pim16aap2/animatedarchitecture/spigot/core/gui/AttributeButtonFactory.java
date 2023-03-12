@@ -11,6 +11,7 @@ import nl.pim16aap2.animatedarchitecture.core.commands.Toggle;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
+import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.PlayerSpigot;
 import org.bukkit.Material;
@@ -49,7 +50,8 @@ class AttributeButtonFactory
             .newLock(player, structureRetrieverFactory.of(structure), newState).run()
             // Force a draw with dynamic fields update to ensure the correct
             // state is displayed in case the command did not change the status.
-            .thenRun(() -> executor.runOnMainThread(() -> change.getGui().draw(player.getBukkitPlayer(), true, false)));
+            .thenRun(() -> executor.runOnMainThread(() -> change.getGui().draw(player.getBukkitPlayer(), true, false)))
+            .exceptionally(Util::exceptionally);
     }
 
     private GuiElement lockButton(AbstractStructure structure, PlayerSpigot player, char slotChar)
@@ -89,7 +91,7 @@ class AttributeButtonFactory
                     Toggle.DEFAULT_ANIMATION_TYPE,
                     config.getAnimationTimeMultiplier(structure.getType()),
                     true,
-                    structureRetrieverFactory.of(structure)).run();
+                    structureRetrieverFactory.of(structure)).run().exceptionally(Util::exceptionally);
                 return true;
             },
             localizer.getMessage("gui.info_page.attribute.toggle",
@@ -150,7 +152,8 @@ class AttributeButtonFactory
             new ItemStack(Material.LEATHER_BOOTS),
             click ->
             {
-                commandFactory.newMovePowerBlock(player, structureRetrieverFactory.of(structure)).run();
+                commandFactory.newMovePowerBlock(player, structureRetrieverFactory.of(structure)).run()
+                              .exceptionally(Util::exceptionally);
                 GuiUtil.closeAllGuis(player);
                 return true;
             },
@@ -166,7 +169,8 @@ class AttributeButtonFactory
             .newSetOpenStatus(player, structureRetrieverFactory.of(structure), isOpen).run()
             // Force a draw with dynamic fields update to ensure the correct
             // state is displayed in case the command did not change the status.
-            .thenRun(() -> executor.runOnMainThread(() -> change.getGui().draw(player.getBukkitPlayer(), true, false)));
+            .thenRun(() -> executor.runOnMainThread(() -> change.getGui().draw(player.getBukkitPlayer(), true, false)))
+            .exceptionally(Util::exceptionally);
     }
 
     private GuiElement openStatusButton(AbstractStructure structure, PlayerSpigot player, char slotChar)
@@ -200,7 +204,8 @@ class AttributeButtonFactory
             new ItemStack(Material.COMPASS),
             click ->
             {
-                commandFactory.getSetOpenDirectionDelayed().runDelayed(player, structureRetrieverFactory.of(structure));
+                commandFactory.getSetOpenDirectionDelayed().runDelayed(player, structureRetrieverFactory.of(structure))
+                              .exceptionally(Util::exceptionally);
                 GuiUtil.closeAllGuis(player);
                 return true;
             },
@@ -216,7 +221,8 @@ class AttributeButtonFactory
             new ItemStack(Material.STICKY_PISTON),
             click ->
             {
-                commandFactory.getSetBlocksToMoveDelayed().runDelayed(player, structureRetrieverFactory.of(structure));
+                commandFactory.getSetBlocksToMoveDelayed().runDelayed(player, structureRetrieverFactory.of(structure))
+                              .exceptionally(Util::exceptionally);
                 GuiUtil.closeAllGuis(player);
                 return true;
             },
@@ -232,7 +238,8 @@ class AttributeButtonFactory
             new ItemStack(Material.PLAYER_HEAD),
             click ->
             {
-                commandFactory.getAddOwnerDelayed().runDelayed(player, structureRetrieverFactory.of(structure));
+                commandFactory.getAddOwnerDelayed().runDelayed(player, structureRetrieverFactory.of(structure))
+                              .exceptionally(Util::exceptionally);
                 GuiUtil.closeAllGuis(player);
                 return true;
             },
@@ -248,7 +255,8 @@ class AttributeButtonFactory
             new ItemStack(Material.SKELETON_SKULL),
             click ->
             {
-                commandFactory.getRemoveOwnerDelayed().runDelayed(player, structureRetrieverFactory.of(structure));
+                commandFactory.getRemoveOwnerDelayed().runDelayed(player, structureRetrieverFactory.of(structure))
+                              .exceptionally(Util::exceptionally);
                 GuiUtil.closeAllGuis(player);
                 return true;
             },

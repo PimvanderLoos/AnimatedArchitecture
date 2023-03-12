@@ -156,13 +156,14 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
             return;
         }
 
-        LOG_BACK_CONFIGURATOR.setLevel(animatedArchitectureSpigotPlatform.getAnimatedArchitectureConfig().logLevel())
-                             .apply();
+        LOG_BACK_CONFIGURATOR
+            .setLevel(animatedArchitectureSpigotPlatform.getAnimatedArchitectureConfig().logLevel())
+            .apply();
         restartableHolder.initialize();
 
         // Rewrite the config after everything has been loaded to ensure all
         // extensions/addons have their hooks in.
-        ((ConfigSpigot) (animatedArchitectureSpigotPlatform.getAnimatedArchitectureConfig())).rewriteConfig(false);
+        ((ConfigSpigot) animatedArchitectureSpigotPlatform.getAnimatedArchitectureConfig()).rewriteConfig(false);
 
         if (firstInit)
             initCommands(animatedArchitectureSpigotPlatform);

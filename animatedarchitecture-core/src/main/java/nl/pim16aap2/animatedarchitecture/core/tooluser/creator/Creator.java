@@ -324,7 +324,8 @@ public abstract class Creator extends ToolUser
     protected void prepareSetOpenStatus()
     {
         commandFactory.getSetOpenStatusDelayed().runDelayed(getPlayer(), this, status ->
-            CompletableFuture.completedFuture(handleInput(status)), null);
+                          CompletableFuture.completedFuture(handleInput(status)), null)
+                      .exceptionally(Util::exceptionally);
     }
 
     /**
@@ -333,7 +334,8 @@ public abstract class Creator extends ToolUser
     protected void prepareSetOpenDirection()
     {
         commandFactory.getSetOpenDirectionDelayed().runDelayed(getPlayer(), this, direction ->
-            CompletableFuture.completedFuture(handleInput(direction)), null);
+                          CompletableFuture.completedFuture(handleInput(direction)), null)
+                      .exceptionally(Util::exceptionally);
     }
 
     /**
@@ -373,7 +375,8 @@ public abstract class Creator extends ToolUser
             .messageReceiver(getPlayer())
             .responsible(getPlayer())
             .build()
-            .execute();
+            .execute()
+            .exceptionally(Util::exceptionally);
     }
 
     protected void prepareReviewResult()

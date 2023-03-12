@@ -34,6 +34,8 @@ public interface ITextRenderer<T>
     void process(String text, TextComponent component);
 
     /**
+     * Getter for the rendered text.
+     *
      * @return The rendered result.
      */
     T getRendered();

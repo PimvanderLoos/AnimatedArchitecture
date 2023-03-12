@@ -188,7 +188,8 @@ public final class DatabaseManager extends Restartable implements IDebuggable
             }, threadPool).exceptionally(
             ex -> Util.exceptionally(ex, new StructureInsertResult(Optional.empty(), false)));
 
-        ret.thenAccept(result -> result.structure.ifPresent(unused -> callStructureCreatedEvent(result, responsible)));
+        ret.thenAccept(result -> result.structure.ifPresent(unused -> callStructureCreatedEvent(result, responsible)))
+           .exceptionally(Util::exceptionally);
 
         return ret;
     }
@@ -214,7 +215,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
                     animatedArchitectureEventFactory.createStructureCreatedEvent(result.structure().get(), responsible);
 
                 animatedArchitectureEventCaller.callAnimatedArchitectureEvent(structureCreatedEvent);
-            });
+            }).exceptionally(Util::exceptionally);
     }
 
     /**

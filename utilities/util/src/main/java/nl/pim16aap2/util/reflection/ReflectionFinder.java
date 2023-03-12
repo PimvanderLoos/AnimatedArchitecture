@@ -29,7 +29,7 @@ public abstract class ReflectionFinder<T, U extends ReflectionFinder<T, U>>
     // Copy constructor
     protected ReflectionFinder(ReflectionFinder<?, ?> other)
     {
-        modifiers = (Objects.requireNonNull(other, "Copy constructor cannot copy from null object!")).modifiers;
+        modifiers = Objects.requireNonNull(other, "Copy constructor cannot copy from null object!").modifiers;
     }
 
     /**

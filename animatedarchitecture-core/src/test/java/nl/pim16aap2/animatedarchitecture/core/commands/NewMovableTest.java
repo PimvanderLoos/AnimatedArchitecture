@@ -6,6 +6,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import org.junit.jupiter.api.Assertions;
@@ -35,7 +36,7 @@ class NewStructureTest
     private NewStructure.IFactory factory;
 
     @Mock
-    javax.inject.Provider<Creator.Context> creatorContextProvider;
+    javax.inject.Provider<ToolUser.Context> creatorContextProvider;
 
     @BeforeEach
     void init()

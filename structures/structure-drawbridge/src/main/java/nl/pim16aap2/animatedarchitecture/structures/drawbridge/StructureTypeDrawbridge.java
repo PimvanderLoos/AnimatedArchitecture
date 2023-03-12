@@ -5,6 +5,7 @@ import nl.pim16aap2.animatedarchitecture.core.audio.AudioDescription;
 import nl.pim16aap2.animatedarchitecture.core.audio.AudioSet;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
@@ -30,12 +31,14 @@ public final class StructureTypeDrawbridge extends StructureType
     }
 
     @Override
-    public Creator getCreator(Creator.Context context, IPlayer player, @Nullable String name)
+    public Creator getCreator(ToolUser.Context context, IPlayer player, @Nullable String name)
     {
         return new CreatorDrawbridge(context, player, name);
     }
 
     /**
+     * Getter for the type for this structure.
+     *
      * @return The instance of this type.
      */
     public static StructureTypeDrawbridge get()

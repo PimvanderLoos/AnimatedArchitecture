@@ -31,7 +31,6 @@ public abstract class GlowingBlockSpawner
      *     The {@link IPlayer} for whom to highlight the structure.
      * @param duration
      *     The amount of time the glowing blocks should be visible for.
-     * @return The list of {@link IGlowingBlock}s that were spawned.
      */
     public void spawnGlowingBlocks(IStructureConst structure, IPlayer player, @Nullable Duration duration)
     {
@@ -67,7 +66,6 @@ public abstract class GlowingBlockSpawner
      *     The {@link IPlayer} for whom to highlight the structure.
      * @param duration
      *     The amount of time the glowing blocks should be visible for.
-     * @return The list of {@link IGlowingBlock}s that were spawned.
      */
     public void spawnGlowingBlocks(AbstractStructure structure, IPlayer player, @Nullable Duration duration)
     {
