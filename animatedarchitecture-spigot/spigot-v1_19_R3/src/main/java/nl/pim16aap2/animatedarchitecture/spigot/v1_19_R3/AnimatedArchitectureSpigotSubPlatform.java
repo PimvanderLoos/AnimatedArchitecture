@@ -1,4 +1,4 @@
-package nl.pim16aap2.animatedarchitecture.spigot.v1_19_R2;
+package nl.pim16aap2.animatedarchitecture.spigot.v1_19_R3;
 
 import lombok.Getter;
 import nl.pim16aap2.animatedarchitecture.core.annotations.Initializer;
@@ -16,7 +16,7 @@ import javax.inject.Singleton;
 @Singleton
 public final class AnimatedArchitectureSpigotSubPlatform implements IAnimatedArchitectureSpigotSubPlatform
 {
-    private static final String VERSION = "v1_19_R2";
+    private static final String VERSION = "v1_19_R3";
 
     @Getter
     private IAnimatedBlockFactory animatedBlockFactory;

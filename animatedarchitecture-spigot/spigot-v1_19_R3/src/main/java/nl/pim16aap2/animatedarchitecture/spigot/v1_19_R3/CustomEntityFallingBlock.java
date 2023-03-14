@@ -1,4 +1,4 @@
-package nl.pim16aap2.animatedarchitecture.spigot.v1_19_R2;
+package nl.pim16aap2.animatedarchitecture.spigot.v1_19_R3;
 
 import com.google.common.flogger.StackSize;
 import lombok.EqualsAndHashCode;
@@ -42,8 +42,8 @@ import nl.pim16aap2.util.reflection.ReflectionBuilder;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_19_R2.CraftWorld;
-import org.bukkit.craftbukkit.v1_19_R2.util.CraftMagicNumbers;
+import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_19_R3.util.CraftMagicNumbers;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,7 +55,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 /**
- * v1_19_R2 implementation of {@link IAnimatedBlock}.
+ * v1_19_R3 implementation of {@link IAnimatedBlock}.
  *
  * @author Pim
  * @see IAnimatedBlock
@@ -141,7 +141,7 @@ public class CustomEntityFallingBlock extends EntityFallingBlock implements IAni
         boolean onEdge, AnimationContext context, AnimatedBlockHookManager animatedBlockHookManager,
         Vector3Dd finalPosition)
     {
-        super(EntityTypes.F, ((CraftWorld) bukkitWorld).getHandle());
+        super(EntityTypes.L, ((CraftWorld) bukkitWorld).getHandle());
         this.executor = executor;
         this.world = world;
         this.bukkitWorld = bukkitWorld;
@@ -165,13 +165,13 @@ public class CustomEntityFallingBlock extends EntityFallingBlock implements IAni
         previousTarget = previousPosition;
         currentTarget = previousPosition;
 
-        this.f(posX, posY, posZ);
+        this.e(posX, posY, posZ);
         super.b = 0;
-        super.aq = false;
-        super.Q = true;
+        super.i = false;
+        super.ae = true;
         this.e(true);
         this.f(new Vec3D(0.0D, 0.0D, 0.0D));
-        this.a(new BlockPosition(this.dk(), this.dm(), this.dq()));
+        this.a(BlockPosition.a(this.dl(), this.dn(), this.dr()));
 
         this.hooks = animatedBlockHookManager.instantiateHooks(this);
     }
@@ -239,7 +239,7 @@ public class CustomEntityFallingBlock extends EntityFallingBlock implements IAni
             return;
         }
 
-        this.cN().forEach(Entity::q); // Remove passengers
+        this.cM().forEach(Entity::bz); // Remove passengers
         forEachHook("onDie", IAnimatedBlockHook::onDie);
     }
 
@@ -414,7 +414,7 @@ public class CustomEntityFallingBlock extends EntityFallingBlock implements IAni
 
         ++b;
         handleTeleport();
-        a(EnumMoveType.a, di());
+        a(EnumMoveType.a, dj());
         cycleAndUpdatePositions(getRawCurrentLocation());
 
         forEachHook("postTick", IAnimatedBlockHook::postTick);
@@ -467,7 +467,7 @@ public class CustomEntityFallingBlock extends EntityFallingBlock implements IAni
     public synchronized void setVelocity(Vector3Dd vector)
     {
         f(new Vec3D(vector.x(), vector.y(), vector.z()));
-        D = true;
+        S = true;
     }
 
     @Override
@@ -509,7 +509,7 @@ public class CustomEntityFallingBlock extends EntityFallingBlock implements IAni
     @Override
     protected void a(NBTTagCompound nbttagcompound)
     {
-        animatedBlockData.setBlockData(GameProfileSerializer.a(this.s.a(Registries.e), nbttagcompound.p("BlockState")));
+        animatedBlockData.setBlockData(GameProfileSerializer.a(this.H.a(Registries.e), nbttagcompound.p("BlockState")));
         b = nbttagcompound.h("Time");
 
         if (nbttagcompound.b("TileEntityData", 10))
@@ -549,13 +549,13 @@ public class CustomEntityFallingBlock extends EntityFallingBlock implements IAni
 
     private Vector3Dd getRawCurrentLocation()
     {
-        return new Vector3Dd(dk(), dm(), dq());
+        return new Vector3Dd(dl(), dn(), dr());
     }
 
     @Override
     public ILocation getLocation()
     {
-        return SpigotAdapter.wrapLocation(new Location(bukkitWorld, dk(), dm(), dq(), dv(), dx()));
+        return SpigotAdapter.wrapLocation(new Location(bukkitWorld, dl(), dn(), dr(), dw(), dy()));
     }
 
     @Override
@@ -565,7 +565,7 @@ public class CustomEntityFallingBlock extends EntityFallingBlock implements IAni
     }
 
     @Override
-    public IBlockData i()
+    public IBlockData k()
     {
         return this.animatedBlockData.getMyBlockData();
     }
@@ -590,7 +590,7 @@ public class CustomEntityFallingBlock extends EntityFallingBlock implements IAni
 
     private int getEntityId()
     {
-        return super.ah();
+        return super.af();
     }
 
     @Override

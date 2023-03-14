@@ -6,7 +6,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.managers.AnimatedBlockHookManager;
 import nl.pim16aap2.animatedarchitecture.spigot.core.AnimatedArchitecturePlugin;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.IAnimatedArchitectureSpigotSubPlatform;
-import nl.pim16aap2.animatedarchitecture.spigot.v1_19_R2.AnimatedArchitectureSpigotSubPlatform;
+import nl.pim16aap2.animatedarchitecture.spigot.v1_19_R3.AnimatedArchitectureSpigotSubPlatform;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Nullable;
 
@@ -117,7 +117,7 @@ public final class SubPlatformManager
                     return null;
                 }
             },
-        V1_19_R2
+        V1_19_R3
             {
                 @Override
                 public IAnimatedArchitectureSpigotSubPlatform getPlatform(

@@ -1,4 +1,4 @@
-package nl.pim16aap2.animatedarchitecture.spigot.v1_19_R2;
+package nl.pim16aap2.animatedarchitecture.spigot.v1_19_R3;
 
 import com.google.common.flogger.StackSize;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
@@ -26,14 +26,14 @@ import org.bukkit.block.data.MultipleFacing;
 import org.bukkit.block.data.Orientable;
 import org.bukkit.block.data.Waterlogged;
 import org.bukkit.block.data.type.Stairs;
-import org.bukkit.craftbukkit.v1_19_R2.CraftWorld;
-import org.bukkit.craftbukkit.v1_19_R2.block.data.CraftBlockData;
+import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_19_R3.block.data.CraftBlockData;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 
 /**
- * v1_19_R2 implementation of {@link IAnimatedBlockData}.
+ * v1_19_R3 implementation of {@link IAnimatedBlockData}.
  *
  * @author Pim
  * @see IAnimatedBlockData
@@ -161,7 +161,7 @@ public class NMSBlock extends BlockBase implements IAnimatedBlockData
             log.atSevere().withStackTrace(StackSize.FULL).log("Caught async block placement! THIS IS A BUG!");
             return;
         }
-        final BlockPosition blockPosition = new BlockPosition(position.xD(), position.yD(), position.zD());
+        final BlockPosition blockPosition = BlockPosition.a(position.xD(), position.yD(), position.zD());
 
         // net.minecraft.world.level.block.state.BlockState getBlockState(net.minecraft.core.BlockPos)
         final IBlockData old = worldServer.a_(blockPosition);
@@ -364,13 +364,13 @@ public class NMSBlock extends BlockBase implements IAnimatedBlockData
     }
 
     @Override
-    public Item l()
+    public Item k()
     {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    protected Block p()
+    protected Block q()
     {
         throw new UnsupportedOperationException();
     }

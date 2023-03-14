@@ -1,4 +1,4 @@
-package nl.pim16aap2.animatedarchitecture.spigot.v1_19_R2;
+package nl.pim16aap2.animatedarchitecture.spigot.v1_19_R3;
 
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
@@ -14,13 +14,13 @@ import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_19_R2.util.CraftChatMessage;
+import org.bukkit.craftbukkit.v1_19_R3.util.CraftChatMessage;
 
 import javax.inject.Singleton;
 import java.util.Optional;
 
 /**
- * v1_19_R2 implementation of {@link IAnimatedBlockFactory}.
+ * v1_19_R3 implementation of {@link IAnimatedBlockFactory}.
  *
  * @author Pim
  * @see IAnimatedBlockFactory
