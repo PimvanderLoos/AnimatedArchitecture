@@ -74,7 +74,7 @@ public class GlowingBlockSpawnerSpigot extends GlowingBlockSpawner implements IR
             return Optional.empty();
         }
 
-        final @Nullable Long ticks = duration == null ? null : SpigotUtil.durationToTicks(duration);
+        final @Nullable Long time = duration == null ? null : Math.max(50, duration.toMillis());
 
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
@@ -94,13 +94,13 @@ public class GlowingBlockSpawnerSpigot extends GlowingBlockSpawner implements IR
 
         final Optional<IGlowingBlock> blockOpt =
             glowingBlockFactory.createGlowingBlock(spigotPlayer, spigotWorld, color, x, y, z, teams);
-        blockOpt.ifPresent(block -> onBlockSpawn(block, ticks));
+        blockOpt.ifPresent(block -> onBlockSpawn(block, time));
         return blockOpt;
     }
 
-    private void onBlockSpawn(IGlowingBlock block, @Nullable Long ticks)
+    private void onBlockSpawn(IGlowingBlock block, @Nullable Long time)
     {
-        if (ticks == null)
+        if (time == null)
             spawnedBlocks.put(block, null);
         else
         {
@@ -113,7 +113,7 @@ public class GlowingBlockSpawnerSpigot extends GlowingBlockSpawner implements IR
                     spawnedBlocks.remove(block);
                 }
             };
-            executor.runAsyncLater(killTask, ticks);
+            executor.runAsyncLater(killTask, time);
             spawnedBlocks.put(block, killTask);
         }
     }

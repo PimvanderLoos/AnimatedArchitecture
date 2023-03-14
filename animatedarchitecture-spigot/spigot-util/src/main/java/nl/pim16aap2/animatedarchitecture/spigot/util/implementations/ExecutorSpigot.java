@@ -66,13 +66,18 @@ public final class ExecutorSpigot implements IExecutor
         return Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, runnable, 0);
     }
 
+    private static long toTicks(long milliseconds)
+    {
+        return Math.round(milliseconds / 50D);
+    }
+
     @Override
     public int runAsyncRepeated(TimerTask timerTask, long delay, long period)
     {
         // This is deprecated only because the name is supposedly confusing
         // (one might read it as scheduling "a sync" task).
         //noinspection deprecation
-        return Bukkit.getScheduler().scheduleAsyncRepeatingTask(plugin, timerTask, delay, period);
+        return Bukkit.getScheduler().scheduleAsyncRepeatingTask(plugin, timerTask, toTicks(delay), toTicks(period));
     }
 
     @Override
@@ -81,43 +86,43 @@ public final class ExecutorSpigot implements IExecutor
         // This is deprecated only because the name is supposedly confusing
         // (one might read it as scheduling "a sync" task).
         //noinspection deprecation
-        return Bukkit.getScheduler().scheduleAsyncRepeatingTask(plugin, runnable, delay, period);
+        return Bukkit.getScheduler().scheduleAsyncRepeatingTask(plugin, runnable, toTicks(delay), toTicks(period));
     }
 
     @Override
     public int runSyncRepeated(TimerTask timerTask, long delay, long period)
     {
-        return Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, timerTask, delay, period);
+        return Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, timerTask, toTicks(delay), toTicks(period));
     }
 
     @Override
     public int runSyncRepeated(Runnable runnable, long delay, long period)
     {
-        return Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, runnable, delay, period);
+        return Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, runnable, toTicks(delay), toTicks(period));
     }
 
     @Override
     public void runAsyncLater(TimerTask runnable, long delay)
     {
-        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, runnable, delay);
+        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, runnable, toTicks(delay));
     }
 
     @Override
     public void runAsyncLater(Runnable runnable, long delay)
     {
-        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, runnable, delay);
+        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, runnable, toTicks(delay));
     }
 
     @Override
     public void runSyncLater(TimerTask timerTask, long delay)
     {
-        Bukkit.getScheduler().runTaskLater(plugin, timerTask, delay);
+        Bukkit.getScheduler().runTaskLater(plugin, timerTask, toTicks(delay));
     }
 
     @Override
     public void runSyncLater(Runnable runnable, long delay)
     {
-        Bukkit.getScheduler().runTaskLater(plugin, runnable, delay);
+        Bukkit.getScheduler().runTaskLater(plugin, runnable, toTicks(delay));
     }
 
     @Override

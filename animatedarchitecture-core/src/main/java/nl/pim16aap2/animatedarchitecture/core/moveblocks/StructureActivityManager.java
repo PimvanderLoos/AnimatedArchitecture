@@ -40,6 +40,13 @@ import java.util.stream.Stream;
 @Flogger
 public final class StructureActivityManager extends Restartable implements StructureDeletionManager.IDeletionListener
 {
+    /**
+     * The amount of time (in milliseconds) to wait when performing a delayed redstone check.
+     * <p>
+     * This is used to verify the redstone state after active animations were aborted for e.g. a shutdown.
+     */
+    private static final long DELAYED_REDSTONE_VERIFICATION_TIME = 1_000L;
+
     private final Map<Long, RegisteredAnimatorEntry> animators = new ConcurrentHashMap<>();
 
     private final IAnimatedArchitectureEventFactory eventFactory;
@@ -332,7 +339,8 @@ public final class StructureActivityManager extends Restartable implements Struc
 
     private void delayedRedstoneVerification(List<AbstractStructure> lst)
     {
-        executor.runAsyncLater(() -> lst.forEach(AbstractStructure::verifyRedstoneState), 40L);
+        executor.runAsyncLater(
+            () -> lst.forEach(AbstractStructure::verifyRedstoneState), DELAYED_REDSTONE_VERIFICATION_TIME);
     }
 
     @GuardedBy("this")

@@ -148,7 +148,7 @@ public final class ToolUserManager extends Restartable
      * @param toolUser
      *     The {@link ToolUser} for which to start the timer.
      * @param time
-     *     The amount of time (in seconds).
+     *     The amount of time (in milliseconds).
      */
     public void startToolUser(ToolUser toolUser, int time)
     {

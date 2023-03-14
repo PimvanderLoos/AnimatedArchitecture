@@ -17,6 +17,6 @@ public final class AnimationUtil
      */
     public static int getAnimationTicks(double animationDuration, int serverTickTime)
     {
-        return (int) Math.min(Integer.MAX_VALUE, Math.round(1000 * animationDuration / serverTickTime));
+        return (int) Math.min(Integer.MAX_VALUE, Math.round(1_000 * animationDuration / serverTickTime));
     }
 }
