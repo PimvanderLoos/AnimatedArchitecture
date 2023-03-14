@@ -1,4 +1,4 @@
-package nl.pim16aap2.animatedarchitecture.spigot.v1_19_R2;
+package nl.pim16aap2.animatedarchitecture.spigot.v1_19_R3;
 
 import nl.pim16aap2.animatedarchitecture.core.api.IBlockAnalyzer;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;

@@ -25,11 +25,11 @@ jobs:
           java-version: '19'
           cache: 'maven'
 
-      - name: Compile 1.19.3 Minecraft Spigot
+      - name: Compile 1.19.4 Minecraft Spigot
         uses: SpraxDev/Action-SpigotMC@v4.1.0
         with:
           # Comma-separated list of MC versions to compile.
-          versions: 1.19.3
+          versions: 1.19.4
 
       - name: Build the project and run static analysis tools.
         run: mvn --batch-mode clean -P=errorprone test install checkstyle:checkstyle pmd:check -Dactions.run.id=$GITHUB_RUN_ID -Dactions.run.number=$GITHUB_RUN_NUMBER

@@ -1,4 +1,4 @@
-package nl.pim16aap2.animatedarchitecture.spigot.v1_19_R2;
+package nl.pim16aap2.animatedarchitecture.spigot.v1_19_R3;
 
 import lombok.Getter;
 import lombok.extern.flogger.Flogger;
@@ -15,8 +15,8 @@ import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.IGlowingBlockFactory;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_19_R2.CraftWorld;
-import org.bukkit.craftbukkit.v1_19_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Team;
 import org.jetbrains.annotations.Nullable;
@@ -26,7 +26,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * v1_19_R2 implementation of {@link IGlowingBlock}.
+ * v1_19_R3 implementation of {@link IGlowingBlock}.
  *
  * @author Pim
  * @see IGlowingBlock
@@ -49,8 +49,8 @@ public class GlowingBlock implements IGlowingBlock
         this.player = player;
         this.teams = teams;
 
-        glowingBlockEntity = new EntityMagmaCube(EntityTypes.ab, ((CraftWorld) world).getHandle());
-        entityId = glowingBlockEntity.ah();
+        glowingBlockEntity = new EntityMagmaCube(EntityTypes.al, ((CraftWorld) world).getHandle());
+        entityId = glowingBlockEntity.af();
         spawn(pColor, x, y, z);
     }
 
@@ -103,7 +103,7 @@ public class GlowingBlock implements IGlowingBlock
         final PlayerConnection playerConnection = playerConnectionOpt.get();
 
         glowingBlockEntity.a(x, y, z, 0, 0); // setLocation
-        glowingBlockEntity.aZ = 0f; // yHeadRot (net.minecraft.world.entity.LivingEntity)
+        glowingBlockEntity.aV = 0f; // yHeadRot (net.minecraft.world.entity.LivingEntity)
         glowingBlockEntity.j(true); // setInvisible()
         glowingBlockEntity.m(true); // setInvulnerable()
         glowingBlockEntity.s(true); // setNoAi() (net.minecraft.world.entity.Mob)
@@ -117,7 +117,7 @@ public class GlowingBlock implements IGlowingBlock
         playerConnection.a(spawnGlowingBlock);
 
         final PacketPlayOutEntityMetadata entityMetadata =
-            new PacketPlayOutEntityMetadata(glowingBlockEntity.ah(), glowingBlockEntity.al().c());
+            new PacketPlayOutEntityMetadata(glowingBlockEntity.af(), glowingBlockEntity.aj().c());
         playerConnection.a(entityMetadata);
         alive.set(true);
     }
