@@ -37,9 +37,9 @@ import java.util.concurrent.CompletableFuture;
 public class ChunkListener extends AbstractListener
 {
     /**
-     * Add a delay to give the chunks surrounding the structure a chance to load as well.
+     * Add a delay (in milliseconds) to give the chunks surrounding the structure a chance to load as well.
      */
-    private static final int PROCESS_LOAD_DELAY = 40;
+    private static final int PROCESS_LOAD_DELAY = 2_000;
 
     private final DatabaseManager databaseManager;
     private final PowerBlockManager powerBlockManager;

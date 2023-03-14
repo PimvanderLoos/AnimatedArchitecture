@@ -45,9 +45,9 @@ public final class Animator implements IAnimator
     private static final int START_DELAY = 700;
 
     /**
-     * The delay (in ticks) before verifying the redstone state after the animation has ended.
+     * The delay (in milliseconds) before verifying the redstone state after the animation has ended.
      */
-    private static final long VERIFY_REDSTONE_DELAY = 20;
+    private static final long VERIFY_REDSTONE_DELAY = 1_000L;
 
     /**
      * The structure whose blocks are going to be moved.
@@ -473,25 +473,16 @@ public final class Animator implements IAnimator
         forEachHook("onPrepare", IAnimationHook::onPrepare);
 
         final int stopCount = getStopCount();
-        final int initialDelay = Math.round((float) START_DELAY / serverTickTime);
 
         final TimerTask moverTask0 = new TimerTask()
         {
             private int counter = 0;
-            private @Nullable Long startTime = null; // Initialize on the first run.
-            private long currentTime = System.nanoTime();
 
             @Override
             public void run()
             {
-                if (startTime == null)
-                    startTime = System.nanoTime();
                 forEachHook("onPreAnimationStep", IAnimationHook::onPreAnimationStep);
                 ++counter;
-
-                final long lastTime = currentTime;
-                currentTime = System.nanoTime();
-                startTime += currentTime - lastTime;
 
                 if (perpetualMovement || counter <= animationDuration)
                     executeAnimationStep(counter, animation);
@@ -505,7 +496,7 @@ public final class Animator implements IAnimator
             }
         };
         moverTask = moverTask0;
-        moverTaskID = executor.runAsyncRepeated(moverTask0, initialDelay, 1);
+        moverTaskID = executor.runAsyncRepeated(moverTask0, START_DELAY, this.serverTickTime);
     }
 
     private void putBlocks0()

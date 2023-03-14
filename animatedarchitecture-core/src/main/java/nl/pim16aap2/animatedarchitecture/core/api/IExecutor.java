@@ -88,9 +88,9 @@ public interface IExecutor
      * @param timerTask
      *     The task to run.
      * @param delay
-     *     The delay in ticks before the task is to be executed.
+     *     The delay in milliseconds before the task is to be executed.
      * @param period
-     *     The time in ticks between successive task executions.
+     *     The time in milliseconds between successive task executions.
      * @return The ID of the task.
      */
     int runAsyncRepeated(TimerTask timerTask, long delay, long period);
@@ -101,9 +101,9 @@ public interface IExecutor
      * @param runnable
      *     The task to run.
      * @param delay
-     *     The delay in ticks before the task is to be executed.
+     *     The delay in milliseconds before the task is to be executed.
      * @param period
-     *     The time in ticks between successive task executions.
+     *     The time in milliseconds between successive task executions.
      * @return The ID of the task.
      */
     int runAsyncRepeated(Runnable runnable, long delay, long period);
@@ -114,9 +114,9 @@ public interface IExecutor
      * @param timerTask
      *     The task to run.
      * @param delay
-     *     The delay in ticks before the task is to be executed.
+     *     The delay in milliseconds before the task is to be executed.
      * @param period
-     *     The time in ticks between successive task executions.
+     *     The time in milliseconds between successive task executions.
      * @return The ID of the task.
      */
     int runSyncRepeated(TimerTask timerTask, long delay, long period);
@@ -127,9 +127,9 @@ public interface IExecutor
      * @param runnable
      *     The task to run.
      * @param delay
-     *     The delay in ticks before the task is to be executed.
+     *     The delay in milliseconds before the task is to be executed.
      * @param period
-     *     The time in ticks between successive task executions.
+     *     The time in milliseconds between successive task executions.
      * @return The ID of the task.
      */
     int runSyncRepeated(Runnable runnable, long delay, long period);
@@ -140,7 +140,7 @@ public interface IExecutor
      * @param timerTask
      *     The task to run.
      * @param delay
-     *     The delay in ticks before the task is to be executed.
+     *     The delay in milliseconds before the task is to be executed.
      */
     void runAsyncLater(TimerTask timerTask, long delay);
 
@@ -150,7 +150,7 @@ public interface IExecutor
      * @param runnable
      *     The task to run.
      * @param delay
-     *     The delay in ticks before the task is to be executed.
+     *     The delay in milliseconds before the task is to be executed.
      */
     void runAsyncLater(Runnable runnable, long delay);
 
@@ -160,7 +160,7 @@ public interface IExecutor
      * @param timerTask
      *     The task to run.
      * @param delay
-     *     The delay in ticks before the task is to be executed.
+     *     The delay in milliseconds before the task is to be executed.
      */
     void runSyncLater(TimerTask timerTask, long delay);
 
@@ -170,7 +170,7 @@ public interface IExecutor
      * @param runnable
      *     The task to run.
      * @param delay
-     *     The delay in ticks before the task is to be executed.
+     *     The delay in milliseconds before the task is to be executed.
      */
     void runSyncLater(Runnable runnable, long delay);
 

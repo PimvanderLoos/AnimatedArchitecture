@@ -20,11 +20,11 @@ public class AnimatedPreviewBlock implements IAnimatedBlock
     private static final IAnimatedBlockData ANIMATED_BLOCK_DATA = new PreviewAnimatedBlockData();
 
     /**
-     * The lifetime of a glowing block (in ticks).
+     * The lifetime of a glowing block (in milliseconds).
      * <p>
      * Glowing blocks will be respawned after e
      */
-    private static final int LIFETIME = 1200; // 1 minute
+    private static final int LIFETIME = 60_000;
 
     private volatile int processedTicks = 0;
     private volatile @Nullable IGlowingBlock glowingBlock;
@@ -140,7 +140,8 @@ public class AnimatedPreviewBlock implements IAnimatedBlock
         this.glowingBlock = glowingBlockSpawner
             .builder()
             .forPlayer(player)
-            .forDuration(Duration.ofMillis(20 * LIFETIME + 100))
+            // add 100ms to have a small overlap when resetting the glowing block.
+            .forDuration(Duration.ofMillis(LIFETIME + 100))
             .inWorld(world)
             .atPosition(currentTarget)
             .withColor(color)
