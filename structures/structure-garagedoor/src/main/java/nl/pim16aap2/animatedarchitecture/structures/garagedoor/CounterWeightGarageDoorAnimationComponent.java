@@ -33,12 +33,13 @@ public class CounterWeightGarageDoorAnimationComponent implements IAnimationComp
     protected final Cuboid newCuboid;
     protected final IPlayer player;
     protected final TriFunction<Vector3Dd, IVector3D, Double, Vector3Dd> rotator;
-    protected final double step;
     protected final BlockFace animationDirectionFace;
     protected final Vector3Di directionVec;
     protected final Vector3Dd rotationCenter;
     protected final boolean wasVertical;
     protected final double angle;
+
+    private final double step;
 
     public CounterWeightGarageDoorAnimationComponent(AnimationRequestData data, MovementDirection movementDirection)
     {

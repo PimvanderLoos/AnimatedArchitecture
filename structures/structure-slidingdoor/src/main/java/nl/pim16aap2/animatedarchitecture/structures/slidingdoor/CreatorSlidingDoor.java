@@ -5,6 +5,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
+import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorInteger;
 import nl.pim16aap2.animatedarchitecture.core.util.Limit;
@@ -22,7 +23,7 @@ public class CreatorSlidingDoor extends Creator
 
     protected int blocksToMove;
 
-    public CreatorSlidingDoor(Creator.Context context, IPlayer player, @Nullable String name)
+    public CreatorSlidingDoor(ToolUser.Context context, IPlayer player, @Nullable String name)
     {
         super(context, player, name);
     }
@@ -67,7 +68,8 @@ public class CreatorSlidingDoor extends Creator
     protected void prepareSetBlocksToMove()
     {
         commandFactory.getSetBlocksToMoveDelayed().runDelayed(getPlayer(), this, blocks ->
-            CompletableFuture.completedFuture(handleInput(blocks)), null);
+                          CompletableFuture.completedFuture(handleInput(blocks)), null)
+                      .exceptionally(Util::exceptionally);
     }
 
     protected boolean setBlocksToMove(int blocksToMove)

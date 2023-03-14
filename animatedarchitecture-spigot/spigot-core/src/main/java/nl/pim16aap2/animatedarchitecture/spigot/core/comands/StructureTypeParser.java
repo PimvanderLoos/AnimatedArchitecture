@@ -63,6 +63,8 @@ public class StructureTypeParser implements ArgumentParser<ICommandSender, Struc
     }
 
     /**
+     * Checks if a String starts with another String. Both Strings are cast to lower case.
+     *
      * @param base
      *     The base String to use.
      * @param test

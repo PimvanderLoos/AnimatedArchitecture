@@ -6,6 +6,7 @@ import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
+import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.AnimatedArchitectureToolUtilSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import org.bukkit.entity.Player;
@@ -95,7 +96,8 @@ public class EventListeners extends AbstractListener
     {
         try
         {
-            databaseManager.updatePlayer(SpigotAdapter.wrapPlayer(event.getPlayer()));
+            databaseManager.updatePlayer(SpigotAdapter.wrapPlayer(event.getPlayer()))
+                           .exceptionally(Util::exceptionally);
         }
         catch (Exception e)
         {
@@ -117,7 +119,7 @@ public class EventListeners extends AbstractListener
             final Player player = event.getPlayer();
             delayedCommandInputManager.cancelAll(SpigotAdapter.wrapPlayer(player));
             toolUserManager.abortToolUser(player.getUniqueId());
-            databaseManager.updatePlayer(SpigotAdapter.wrapPlayer(player));
+            databaseManager.updatePlayer(SpigotAdapter.wrapPlayer(player)).exceptionally(Util::exceptionally);
         }
         catch (Exception e)
         {

@@ -53,6 +53,8 @@ public interface IAnimatedBlock
      * @param target
      *     The target position the block should move to(wards).
      * @param ticksRemaining
+     *     The number of ticks remaining in the animation. May be negative when running in 'overtime' to move the blocks
+     *     to their final position.
      */
     void moveToTarget(Vector3Dd target, int ticksRemaining);
 

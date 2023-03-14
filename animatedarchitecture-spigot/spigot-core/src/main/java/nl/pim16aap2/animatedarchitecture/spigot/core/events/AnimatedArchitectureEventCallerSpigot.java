@@ -53,7 +53,7 @@ public class AnimatedArchitectureEventCallerSpigot implements IAnimatedArchitect
         if (isMainThread && animatedArchitectureEvent.isAsynchronous())
             executor.runAsync(
                 () -> Bukkit.getPluginManager().callEvent((AnimatedArchitectureSpigotEvent) animatedArchitectureEvent));
-        else if ((!isMainThread) && (!animatedArchitectureEvent.isAsynchronous()))
+        else if (!isMainThread && !animatedArchitectureEvent.isAsynchronous())
             executor.runSync(
                 () -> Bukkit.getPluginManager().callEvent((AnimatedArchitectureSpigotEvent) animatedArchitectureEvent));
         else

@@ -8,12 +8,12 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.Restartable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
+import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -124,8 +124,7 @@ public final class ToolUserManager extends Restartable
         if (!toolUsers.isEmpty())
         {
             log.atSevere().withStackTrace(StackSize.FULL).log("Failed to properly remove ToolUsers!");
-            toolUsers.forEach((uuid, pair) ->
-                                  log.atSevere().log("Failed to abort ToolUer for user: %s", uuid.toString()));
+            toolUsers.forEach((uuid, pair) -> log.atSevere().log("Failed to abort ToolUer for user: %s", uuid));
             toolUsers.clear();
         }
     }

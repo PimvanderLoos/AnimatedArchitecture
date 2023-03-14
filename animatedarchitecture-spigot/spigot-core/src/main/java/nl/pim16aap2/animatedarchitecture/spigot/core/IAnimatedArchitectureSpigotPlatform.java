@@ -290,6 +290,7 @@ public final class IAnimatedArchitectureSpigotPlatform implements IAnimatedArchi
      * Initializes stuff that doesn't need to happen in the constructor. E.g. registering hooks.
      *
      * @throws InitializationException
+     *     When an error occurred while initializing the platform.
      */
     private void initPlatform()
         throws InitializationException

@@ -62,8 +62,8 @@ public class ChunkLoaderSpigot implements IChunkLoader
         final IChunkLoadFunction modeFun = chunkLoadFunctions[chunkLoadMode.ordinal()];
         final World world = Util.requireNonNull(SpigotAdapter.getBukkitWorld(iWorld), "Bukkit World");
 
-        final int chunkX = (MathUtil.round(position.xD())) >> 4;
-        final int chunkZ = (MathUtil.round(position.zD())) >> 4;
+        final int chunkX = MathUtil.round(position.xD()) >> 4;
+        final int chunkZ = MathUtil.round(position.zD()) >> 4;
 
         return modeFun.apply(world, chunkX, chunkZ);
     }

@@ -125,6 +125,8 @@ public class Drawbridge extends AbstractStructure implements IHorizontalAxisAlig
     }
 
     /**
+     * Calculates the animation range of a drawbridge.
+     *
      * @param maxRadius
      *     See {@link #getMaxRadius(boolean, Cuboid, Vector3Di)}.
      * @param cuboid
@@ -138,11 +140,14 @@ public class Drawbridge extends AbstractStructure implements IHorizontalAxisAlig
     }
 
     /**
+     * Calculates the longest possible radius from the rotation point of a drawbridge to another point that is still
+     * part of the drawbridge.
+     *
      * @param cuboid
-     *     The cuboid that describes this door.
+     *     The cuboid that describes this drawbridge.
      * @param rotationPoint
-     *     The rotation point of the door.
-     * @return The radius between the rotation point of the door and the animated block furthest from it.
+     *     The rotation point of the drawbridge.
+     * @return The radius between the rotation point of the drawbridge and the animated block furthest from it.
      */
     public static double getMaxRadius(boolean northSouthAligned, Cuboid cuboid, Vector3Di rotationPoint)
     {

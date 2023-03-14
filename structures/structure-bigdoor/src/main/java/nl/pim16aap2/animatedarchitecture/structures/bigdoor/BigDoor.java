@@ -115,6 +115,8 @@ public class BigDoor extends AbstractStructure
     }
 
     /**
+     * Calculates the animation range of a big door.
+     *
      * @param maxRadius
      *     See {@link #getMaxRadius(Cuboid, Vector3Di)}.
      * @param cuboid
@@ -130,6 +132,9 @@ public class BigDoor extends AbstractStructure
     }
 
     /**
+     * Calculates the longest possible radius from the rotation point of a big door to another point that is still part
+     * of the big door.
+     *
      * @param cuboid
      *     The cuboid that describes this door.
      * @param rotationPoint

@@ -16,6 +16,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
+import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetriever;
 import org.jetbrains.annotations.Nullable;
 
@@ -146,7 +147,9 @@ public class Toggle extends BaseCommand
             .messageReceiver(playerOpt.isPresent() ? playerOpt.get() : messageableServer)
             .time(time)
             .preventPerpetualMovement(preventPerpetualMovement)
-            .build().execute();
+            .build()
+            .execute()
+            .exceptionally(Util::exceptionally);
     }
 
     private CompletableFuture<Void> handleStructureRequest(

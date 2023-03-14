@@ -38,6 +38,7 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CreatorTest
@@ -243,8 +244,10 @@ public class CreatorTest
     @Test
     void testOpenDirectionStep()
     {
-        Mockito.when(commandFactory.getSetOpenDirectionDelayed())
-               .thenReturn(Mockito.mock(SetOpenDirectionDelayed.class));
+        final var setOpenDirectionDelayed = Mockito.mock(SetOpenDirectionDelayed.class);
+        Mockito.when(setOpenDirectionDelayed.runDelayed(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+               .thenReturn(CompletableFuture.completedFuture(null));
+        Mockito.when(commandFactory.getSetOpenDirectionDelayed()).thenReturn(setOpenDirectionDelayed);
 
         final StructureType structureType = Mockito.mock(StructureType.class);
         final Set<MovementDirection> validOpenDirections = EnumSet.of(MovementDirection.EAST, MovementDirection.WEST);

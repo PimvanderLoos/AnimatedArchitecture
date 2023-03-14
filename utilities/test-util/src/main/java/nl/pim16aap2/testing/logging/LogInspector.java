@@ -234,7 +234,7 @@ public final class LogInspector extends AppenderBase<ILoggingEvent>
         }
     }
 
-    private <T> void withHistoryLock(Consumer<LogEventHistory> consumer)
+    private void withHistoryLock(Consumer<LogEventHistory> consumer)
     {
         historyLock.lock();
         try

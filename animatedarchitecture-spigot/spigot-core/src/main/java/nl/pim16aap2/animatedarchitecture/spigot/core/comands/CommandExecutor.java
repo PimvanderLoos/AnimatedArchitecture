@@ -11,6 +11,7 @@ import nl.pim16aap2.animatedarchitecture.core.moveblocks.AnimationType;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
+import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
@@ -46,45 +47,47 @@ class CommandExecutor
         final ICommandSender commandSender = context.getSender();
         if (structureRetriever != null)
         {
-            commandFactory.newAddOwner(commandSender, structureRetriever, newOwner, permissionLevel).run();
+            commandFactory.newAddOwner(commandSender, structureRetriever, newOwner, permissionLevel).run()
+                          .exceptionally(Util::exceptionally);
         }
         else
         {
             final var data = new AddOwnerDelayed.DelayedInput(newOwner, permissionLevel);
-            commandFactory.getAddOwnerDelayed().provideDelayedInput(commandSender, data);
+            commandFactory.getAddOwnerDelayed().provideDelayedInput(commandSender, data)
+                          .exceptionally(Util::exceptionally);
         }
     }
 
     void cancel(CommandContext<ICommandSender> context)
     {
-        commandFactory.newCancel(context.getSender()).run();
+        commandFactory.newCancel(context.getSender()).run().exceptionally(Util::exceptionally);
     }
 
     void confirm(CommandContext<ICommandSender> context)
     {
-        commandFactory.newConfirm(context.getSender()).run();
+        commandFactory.newConfirm(context.getSender()).run().exceptionally(Util::exceptionally);
     }
 
     void debug(CommandContext<ICommandSender> context)
     {
-        commandFactory.newDebug(context.getSender()).run();
+        commandFactory.newDebug(context.getSender()).run().exceptionally(Util::exceptionally);
     }
 
     void delete(CommandContext<ICommandSender> context)
     {
         final StructureRetriever structureRetriever = context.get("structureRetriever");
-        commandFactory.newDelete(context.getSender(), structureRetriever).run();
+        commandFactory.newDelete(context.getSender(), structureRetriever).run().exceptionally(Util::exceptionally);
     }
 
     void info(CommandContext<ICommandSender> context)
     {
         final StructureRetriever structureRetriever = context.get("structureRetriever");
-        commandFactory.newInfo(context.getSender(), structureRetriever).run();
+        commandFactory.newInfo(context.getSender(), structureRetriever).run().exceptionally(Util::exceptionally);
     }
 
     void inspectPowerBlock(CommandContext<ICommandSender> context)
     {
-        commandFactory.newInspectPowerBlock(context.getSender()).run();
+        commandFactory.newInspectPowerBlock(context.getSender()).run().exceptionally(Util::exceptionally);
     }
 
     void listStructures(CommandContext<ICommandSender> context)
@@ -92,14 +95,15 @@ class CommandExecutor
         final @Nullable String query = context.<String>getOptional("structureName").orElse("");
         final StructureRetriever retriever = structureRetrieverFactory.search(
             context.getSender(), query, StructureRetrieverFactory.StructureFinderMode.NEW_INSTANCE).asRetriever(false);
-        commandFactory.newListStructures(context.getSender(), retriever).run();
+        commandFactory.newListStructures(context.getSender(), retriever).run().exceptionally(Util::exceptionally);
     }
 
     void lock(CommandContext<ICommandSender> context)
     {
         final StructureRetriever structureRetriever = context.get("structureRetriever");
         final boolean lockStatus = context.get("lockStatus");
-        commandFactory.newLock(context.getSender(), structureRetriever, lockStatus).run();
+        commandFactory.newLock(context.getSender(), structureRetriever, lockStatus).run()
+                      .exceptionally(Util::exceptionally);
     }
 
     void menu(CommandContext<ICommandSender> context)
@@ -112,13 +116,14 @@ class CommandExecutor
         else
             targetPlayer = commandSender.getPlayer().orElseThrow(IllegalArgumentException::new);
 
-        commandFactory.newMenu(commandSender, targetPlayer).run();
+        commandFactory.newMenu(commandSender, targetPlayer).run().exceptionally(Util::exceptionally);
     }
 
     void movePowerBlock(CommandContext<ICommandSender> context)
     {
         final StructureRetriever structureRetriever = context.get("structureRetriever");
-        commandFactory.newMovePowerBlock(context.getSender(), structureRetriever).run();
+        commandFactory.newMovePowerBlock(context.getSender(), structureRetriever).run()
+                      .exceptionally(Util::exceptionally);
     }
 
     // NullAway doesn't see the @Nullable on structureName. Not sure if this is because of Lombok or NullAway.
@@ -127,19 +132,21 @@ class CommandExecutor
     {
         final StructureType structureType = context.get("structureType");
         final @Nullable String structureName = nullable(context, "structureName");
-        commandFactory.newNewStructure(context.getSender(), structureType, structureName).run();
+        commandFactory.newNewStructure(context.getSender(), structureType, structureName).run()
+                      .exceptionally(Util::exceptionally);
     }
 
     void removeOwner(CommandContext<ICommandSender> context)
     {
         final StructureRetriever structureRetriever = context.get("structureRetriever");
         final IPlayer targetPlayer = SpigotAdapter.wrapPlayer(context.get("targetPlayer"));
-        commandFactory.newRemoveOwner(context.getSender(), structureRetriever, targetPlayer).run();
+        commandFactory.newRemoveOwner(context.getSender(), structureRetriever, targetPlayer).run()
+                      .exceptionally(Util::exceptionally);
     }
 
     void restart(CommandContext<ICommandSender> context)
     {
-        commandFactory.newRestart(context.getSender()).run();
+        commandFactory.newRestart(context.getSender()).run().exceptionally(Util::exceptionally);
     }
 
     void setBlocksToMove(CommandContext<ICommandSender> context)
@@ -149,14 +156,16 @@ class CommandExecutor
 
         final ICommandSender commandSender = context.getSender();
         if (structureRetriever != null)
-            commandFactory.newSetBlocksToMove(commandSender, structureRetriever, blocksToMove).run();
+            commandFactory.newSetBlocksToMove(commandSender, structureRetriever, blocksToMove).run()
+                          .exceptionally(Util::exceptionally);
         else
-            commandFactory.getSetBlocksToMoveDelayed().provideDelayedInput(commandSender, blocksToMove);
+            commandFactory.getSetBlocksToMoveDelayed().provideDelayedInput(commandSender, blocksToMove)
+                          .exceptionally(Util::exceptionally);
     }
 
     void setName(CommandContext<ICommandSender> context)
     {
-        commandFactory.newSetName(context.getSender(), context.get("name")).run();
+        commandFactory.newSetName(context.getSender(), context.get("name")).run().exceptionally(Util::exceptionally);
     }
 
     void setOpenStatus(CommandContext<ICommandSender> context)
@@ -166,9 +175,11 @@ class CommandExecutor
         final @Nullable StructureRetriever structureRetriever = nullable(context, "structureRetriever");
 
         if (structureRetriever != null)
-            commandFactory.newSetOpenStatus(commandSender, structureRetriever, isOpen).run();
+            commandFactory.newSetOpenStatus(commandSender, structureRetriever, isOpen).run()
+                          .exceptionally(Util::exceptionally);
         else
-            commandFactory.getSetOpenStatusDelayed().provideDelayedInput(commandSender, isOpen);
+            commandFactory.getSetOpenStatusDelayed().provideDelayedInput(commandSender, isOpen)
+                          .exceptionally(Util::exceptionally);
     }
 
     void setOpenDirection(CommandContext<ICommandSender> context)
@@ -178,9 +189,11 @@ class CommandExecutor
         final @Nullable StructureRetriever structureRetriever = nullable(context, "structureRetriever");
 
         if (structureRetriever != null)
-            commandFactory.newSetOpenDirection(commandSender, structureRetriever, direction).run();
+            commandFactory.newSetOpenDirection(commandSender, structureRetriever, direction).run()
+                          .exceptionally(Util::exceptionally);
         else
-            commandFactory.getSetOpenDirectionDelayed().provideDelayedInput(commandSender, direction);
+            commandFactory.getSetOpenDirectionDelayed().provideDelayedInput(commandSender, direction)
+                          .exceptionally(Util::exceptionally);
     }
 
     void specify(CommandContext<ICommandSender> context)
@@ -190,24 +203,25 @@ class CommandExecutor
 
     void stopStructures(CommandContext<ICommandSender> context)
     {
-        commandFactory.newStopStructures(context.getSender()).run();
+        commandFactory.newStopStructures(context.getSender()).run().exceptionally(Util::exceptionally);
     }
 
     void toggle(CommandContext<ICommandSender> context)
     {
-        commandFactory.newToggle(context.getSender(), context.<StructureRetriever>get("structureRetriever")).run();
+        commandFactory.newToggle(context.getSender(), context.<StructureRetriever>get("structureRetriever")).run()
+                      .exceptionally(Util::exceptionally);
     }
 
     void preview(CommandContext<ICommandSender> context)
     {
         commandFactory.newToggle(
             context.getSender(), StructureActionType.TOGGLE, AnimationType.PREVIEW,
-            context.<StructureRetriever>get("structureRetriever")).run();
+            context.<StructureRetriever>get("structureRetriever")).run().exceptionally(Util::exceptionally);
     }
 
     void version(CommandContext<ICommandSender> context)
     {
-        commandFactory.newVersion(context.getSender()).run();
+        commandFactory.newVersion(context.getSender()).run().exceptionally(Util::exceptionally);
     }
 
     void updateCreator(CommandContext<ICommandSender> context)
@@ -216,7 +230,7 @@ class CommandExecutor
                           context.getSender(),
                           context.get("stepName"),
                           context.getOrDefault("stepValue", null))
-                      .run();
+                      .run().exceptionally(Util::exceptionally);
     }
 
     private <T> @Nullable T nullable(CommandContext<ICommandSender> context, String key)

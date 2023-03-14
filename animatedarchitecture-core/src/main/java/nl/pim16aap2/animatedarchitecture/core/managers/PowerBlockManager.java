@@ -194,7 +194,7 @@ public final class PowerBlockManager extends Restartable implements StructureDel
     public void updatePowerBlockLoc(AbstractStructure structure, Vector3Di oldPos, Vector3Di newPos)
     {
         structure.setPowerBlock(newPos);
-        structure.syncData();
+        structure.syncData().exceptionally(Util::exceptionally);
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(structure.getWorld().worldName());
         if (powerBlockWorld == null)
         {

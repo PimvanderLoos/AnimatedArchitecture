@@ -3,6 +3,7 @@ package nl.pim16aap2.animatedarchitecture.structures.clock;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
@@ -24,6 +25,8 @@ public final class StructureTypeClock extends StructureType
     }
 
     /**
+     * Getter for the type for this structure.
+     *
      * @return The instance of this type.
      */
     public static StructureTypeClock get()
@@ -38,7 +41,7 @@ public final class StructureTypeClock extends StructureType
     }
 
     @Override
-    public Creator getCreator(Creator.Context context, IPlayer player, @Nullable String name)
+    public Creator getCreator(ToolUser.Context context, IPlayer player, @Nullable String name)
     {
         return new CreatorClock(context, player, name);
     }

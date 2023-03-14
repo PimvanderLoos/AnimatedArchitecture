@@ -53,10 +53,10 @@ public class NMSBlock extends BlockBase implements IAnimatedBlockData
     private final org.bukkit.block.data.BlockData bukkitBlockData;
     private final Location loc;
 
-    private static Block.Info newBlockInfo(CraftWorld craftWorld, BlockPosition blockPosition)
+    private static BlockBase.Info newBlockInfo(CraftWorld craftWorld, BlockPosition blockPosition)
     {
         final Block block = craftWorld.getHandle().a_(blockPosition).b();
-        return Block.Info.a((BlockBase) block);
+        return BlockBase.Info.a((BlockBase) block);
     }
 
     /**
@@ -72,11 +72,11 @@ public class NMSBlock extends BlockBase implements IAnimatedBlockData
      *     The z coordinate of the NMS block.
      */
     NMSBlock(
-        CustomEntityFallingBlock AnimatedBlock, IExecutor executor,
+        CustomEntityFallingBlock animatedBlock, IExecutor executor,
         WorldServer worldServer, int x, int y, int z)
     {
         super(newBlockInfo(worldServer.getWorld(), new BlockPosition(x, y, z)));
-        animatedBlock = AnimatedBlock;
+        this.animatedBlock = animatedBlock;
         this.executor = executor;
         this.worldServer = worldServer;
         this.bukkitWorld = worldServer.getWorld();

@@ -161,6 +161,8 @@ public final class CommandDefinition
     }
 
     /**
+     * Retrieves the lowest permissions level of the current command.
+     *
      * @return The lowest permission level available. If the command has both a user and an admin permission, the user
      * permission will be returned. If it only has an admin permission, that will be returned instead.
      *

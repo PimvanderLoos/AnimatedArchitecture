@@ -71,7 +71,8 @@ public class ChunkListener extends AbstractListener
                                                 world.getName());
 
         Util.getAllCompletableFutureResultsFlatMap(rotationPoints, powerBlocks)
-            .thenAccept(lst -> lst.forEach(AbstractStructure::onChunkLoad));
+            .thenAccept(lst -> lst.forEach(AbstractStructure::onChunkLoad))
+            .exceptionally(Util::exceptionally);
     }
 
     /**

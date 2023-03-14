@@ -76,7 +76,7 @@ public class DebugReporterSpigot extends DebugReporter
         final SafeStringBuilder sb = new SafeStringBuilder();
         for (final Class<?> clz : classes)
         {
-            if (!(AnimatedArchitectureSpigotEvent.class.isAssignableFrom(clz)))
+            if (!AnimatedArchitectureSpigotEvent.class.isAssignableFrom(clz))
             {
                 sb.append("ERROR: ").append(clz::getName).append('\n');
                 continue;

@@ -5,6 +5,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
+import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,7 +16,7 @@ public class CreatorWindMill extends Creator
 {
     private static final StructureType STRUCTURE_TYPE = StructureTypeWindmill.get();
 
-    public CreatorWindMill(Creator.Context context, IPlayer player, @Nullable String name)
+    public CreatorWindMill(ToolUser.Context context, IPlayer player, @Nullable String name)
     {
         super(context, player, name);
     }

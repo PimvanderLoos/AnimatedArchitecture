@@ -34,7 +34,7 @@ public class GuiFactory implements IGuiFactory
         structureRetrieverFactory
             .search(finalSource, "", StructureRetrieverFactory.StructureFinderMode.NEW_INSTANCE)
             .getStructures()
-            .thenApply(doors -> executor.runOnMainThread(() -> factory.newGUI(inventoryHolder, doors)))
+            .thenCompose(doors -> executor.runOnMainThread(() -> factory.newGUI(inventoryHolder, doors)))
             .exceptionally(Util::exceptionally);
     }
 }

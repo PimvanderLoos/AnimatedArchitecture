@@ -1,15 +1,16 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
-import nl.pim16aap2.animatedarchitecture.core.util.Constants;
-import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetriever;
-import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
-import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
-import nl.pim16aap2.animatedarchitecture.core.util.delayedinput.DelayedInputRequest;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
+import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
+import nl.pim16aap2.animatedarchitecture.core.util.Constants;
+import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.delayedinput.DelayedInputRequest;
+import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetriever;
+import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -111,7 +112,7 @@ public abstract class DelayedCommand<T>
         return inputRequestFactory.create(commandTimeout, commandSender, getCommandDefinition(),
                                           getExecutor(commandSender, structureRetriever),
                                           () -> inputRequestMessage(commandSender, structureRetriever), delayedInputClz)
-                                  .getCommandOutput();
+                                  .getCommandOutput().exceptionally(Util::exceptionally);
     }
 
     private Function<T, CompletableFuture<?>> getExecutor(
@@ -141,7 +142,7 @@ public abstract class DelayedCommand<T>
         {
             try
             {
-                return executor.apply(delayedInput);
+                return executor.apply(delayedInput).exceptionally(Util::exceptionally);
             }
             catch (Exception e)
             {
@@ -177,7 +178,7 @@ public abstract class DelayedCommand<T>
         return delayedCommandInputManager
             .getInputRequest(commandSender)
             .<CompletableFuture<?>>map(request -> request.provide(data))
-            .orElseGet((() -> handleMissingInputRequest(commandSender, data)));
+            .orElseGet(() -> handleMissingInputRequest(commandSender, data));
     }
 
     private CompletableFuture<?> handleMissingInputRequest(ICommandSender commandSender, T data)

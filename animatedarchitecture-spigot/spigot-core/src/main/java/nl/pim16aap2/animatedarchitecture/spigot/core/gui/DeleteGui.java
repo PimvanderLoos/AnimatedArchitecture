@@ -10,6 +10,7 @@ import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.spigot.core.AnimatedArchitecturePlugin;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.PlayerSpigot;
@@ -99,7 +100,8 @@ class DeleteGui implements IGuiPage
             new ItemStack(Material.BARRIER),
             click ->
             {
-                commandFactory.newDelete(inventoryHolder, structureRetrieverFactory.of(structure)).run();
+                commandFactory.newDelete(inventoryHolder, structureRetrieverFactory.of(structure)).run()
+                              .exceptionally(Util::exceptionally);
                 GuiUtil.closeGuiPage(gui, inventoryHolder);
                 return true;
             },

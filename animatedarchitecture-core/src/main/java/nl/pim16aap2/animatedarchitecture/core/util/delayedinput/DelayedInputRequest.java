@@ -83,8 +83,17 @@ public class DelayedInputRequest<T>
                     lock.lock();
                     try
                     {
-                        if (!this.isDone && !inputCondition.await(timeout, TimeUnit.MILLISECONDS))
-                            this.timedOut = true;
+                        long now = System.nanoTime();
+                        final long deadline = now + TimeUnit.MILLISECONDS.toNanos(timeout);
+
+                        while (!this.isDone && now < deadline)
+                        {
+                            //noinspection ResultOfMethodCallIgnored
+                            inputCondition.await(deadline - now, TimeUnit.NANOSECONDS);
+                            now = System.nanoTime();
+                        }
+
+                        this.timedOut = !this.isDone;
                         this.isDone = true;
                         return Optional.ofNullable(value);
                     }
