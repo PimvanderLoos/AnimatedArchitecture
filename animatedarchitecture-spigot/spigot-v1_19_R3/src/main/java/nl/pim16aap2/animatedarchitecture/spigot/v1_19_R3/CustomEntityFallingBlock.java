@@ -87,9 +87,6 @@ public class CustomEntityFallingBlock extends EntityFallingBlock implements IAni
     @Getter
     private final float radius;
 
-    @Getter
-    private final float startAngle;
-
     private final Animator.MovementMethod movementMethod;
 
     @Getter
@@ -138,16 +135,14 @@ public class CustomEntityFallingBlock extends EntityFallingBlock implements IAni
 
     public CustomEntityFallingBlock(
         IExecutor executor, IWorld world, World bukkitWorld, double posX, double posY, double posZ, float radius,
-        float startAngle, Animator.MovementMethod movementMethod,
-        boolean onEdge, AnimationContext context, AnimatedBlockHookManager animatedBlockHookManager,
-        Vector3Dd finalPosition)
+        Animator.MovementMethod movementMethod, boolean onEdge, AnimationContext context,
+        AnimatedBlockHookManager animatedBlockHookManager, Vector3Dd finalPosition)
     {
         super(EntityTypes.L, ((CraftWorld) bukkitWorld).getHandle());
         this.executor = executor;
         this.world = world;
         this.bukkitWorld = bukkitWorld;
         this.radius = radius;
-        this.startAngle = startAngle;
         this.movementMethod = movementMethod;
         this.onEdge = onEdge;
         this.context = context;

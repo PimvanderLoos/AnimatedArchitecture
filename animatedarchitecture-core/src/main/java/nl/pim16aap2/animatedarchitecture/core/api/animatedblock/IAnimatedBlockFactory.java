@@ -3,7 +3,6 @@ package nl.pim16aap2.animatedarchitecture.core.api.animatedblock;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.Animator;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
-import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 
 import java.util.Optional;
 
@@ -22,8 +21,6 @@ public interface IAnimatedBlockFactory
      * @param startPosition
      * @param radius
      *     The radius of the block to the rotation point.
-     * @param startAngle
-     *     The starting angle of the block to the rotation point.
      * @param bottom
      *     True if this is the lowest block of the object to move.
      * @param onEdge
@@ -41,10 +38,8 @@ public interface IAnimatedBlockFactory
         ILocation loc,
         RotatedPosition startPosition,
         float radius,
-        float startAngle,
         boolean bottom,
         boolean onEdge,
-        Vector3Dd rotationPoint,
         AnimationContext context,
         RotatedPosition finalPosition,
         Animator.MovementMethod movementMethod)

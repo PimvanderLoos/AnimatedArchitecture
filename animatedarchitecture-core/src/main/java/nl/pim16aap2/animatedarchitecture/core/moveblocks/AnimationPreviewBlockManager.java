@@ -86,7 +86,6 @@ public class AnimationPreviewBlockManager implements IAnimationBlockManager
                         final Vector3Di position = new Vector3Di(xAxis, yAxis, zAxis);
 
                         final float radius = animationComponent.getRadius(xAxis, yAxis, zAxis);
-                        final float startAngle = animationComponent.getStartAngle(xAxis, yAxis, zAxis);
                         final Color color = getColor(cuboid, position);
                         final Vector3Dd startPosition = new Vector3Dd(xAxis + 0.5, yAxis, zAxis + 0.5);
                         final Vector3Dd finalPosition = animationComponent.getFinalPosition(startPosition, radius);
@@ -94,7 +93,7 @@ public class AnimationPreviewBlockManager implements IAnimationBlockManager
                         animatedBlocksTmp.add(
                             new AnimatedPreviewBlock(
                                 locationFactory, glowingBlockSpawner, snapshot.getWorld(), player, startPosition,
-                                finalPosition, startAngle, radius, color));
+                                finalPosition, radius, color));
                     }
         }
         catch (Exception e)

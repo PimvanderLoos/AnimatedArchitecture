@@ -45,8 +45,6 @@ public interface IAnimationComponent
     {
     }
 
-    Vector3Dd getRotationPoint();
-
     /**
      * Runs a single step of the animation.
      *
@@ -83,22 +81,6 @@ public interface IAnimationComponent
      * @return The radius of a block at the given coordinates.
      */
     default float getRadius(int xAxis, int yAxis, int zAxis)
-    {
-        return -1;
-    }
-
-    /**
-     * Gets the starting angle of a block (in rads) at the given coordinates.
-     *
-     * @param xAxis
-     *     The x coordinate.
-     * @param yAxis
-     *     The y coordinate.
-     * @param zAxis
-     *     The z coordinate.
-     * @return The starting angle of a block at the given coordinates.
-     */
-    default float getStartAngle(int xAxis, int yAxis, int zAxis)
     {
         return -1;
     }

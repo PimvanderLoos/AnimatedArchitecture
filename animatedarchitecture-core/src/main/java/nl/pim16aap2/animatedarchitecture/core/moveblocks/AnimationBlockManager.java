@@ -82,7 +82,6 @@ public class AnimationBlockManager implements IAnimationBlockManager
                             locationFactory.create(snapshot.getWorld(), xAxis + 0.5, yAxis, zAxis + 0.5);
                         final boolean bottom = (yAxis == yMin);
                         final float radius = animationComponent.getRadius(xAxis, yAxis, zAxis);
-                        final float startAngle = animationComponent.getStartAngle(xAxis, yAxis, zAxis);
                         final RotatedPosition startPosition = animationComponent.getStartPosition(xAxis, yAxis, zAxis);
                         final RotatedPosition finalPosition =
                             animationComponent.getFinalPosition0(startPosition.position(), radius);
@@ -91,10 +90,8 @@ public class AnimationBlockManager implements IAnimationBlockManager
                             .create(location,
                                     startPosition,
                                     radius,
-                                    startAngle,
                                     bottom,
                                     onEdge,
-                                    animationComponent.getRotationPoint(),
                                     animationContext,
                                     finalPosition,
                                     movementMethod)

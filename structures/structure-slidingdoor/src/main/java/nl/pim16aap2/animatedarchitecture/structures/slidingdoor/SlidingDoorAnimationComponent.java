@@ -49,12 +49,6 @@ public class SlidingDoorAnimationComponent implements IAnimationComponent
     }
 
     @Override
-    public Vector3Dd getRotationPoint()
-    {
-        return snapshot.getRotationPoint().toDouble();
-    }
-
-    @Override
     public Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
     {
         return Vector3Dd.of(startLocation).add(moveX, 0, moveZ);

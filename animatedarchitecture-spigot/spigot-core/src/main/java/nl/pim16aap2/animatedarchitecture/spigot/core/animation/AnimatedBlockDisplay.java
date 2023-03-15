@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.animation;
 
+import lombok.Getter;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
@@ -36,14 +37,18 @@ public class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     private final IExecutor executor;
     private final RotatedPosition startRotatedPosition;
     private final IWorld world;
+    @Getter
     private final World bukkitWorld;
     private final SimpleBlockData blockData;
 
-    private final Vector3Dd rotationPoint;
+    @Getter
     private final RotatedPosition startPosition;
+    @Getter
     private final RotatedPosition finalPosition;
-    private final float startAngle;
+    @Getter
     private final float radius;
+    @Getter
+    private final boolean onEdge;
 
     @GuardedBy("this")
     private RotatedPosition previousTarget;
@@ -54,18 +59,17 @@ public class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     private volatile @Nullable BlockDisplay blockDisplay;
 
     public AnimatedBlockDisplay(
-        IExecutor executor, RotatedPosition startRotatedPosition, IWorld world, Vector3Dd rotationPoint,
-        RotatedPosition startPosition, RotatedPosition finalPosition, float startAngle, float radius)
+        IExecutor executor, RotatedPosition startRotatedPosition, IWorld world,
+        RotatedPosition startPosition, RotatedPosition finalPosition, boolean onEdge, float radius)
     {
         this.executor = executor;
         this.startRotatedPosition = startRotatedPosition;
         this.world = world;
         this.bukkitWorld = Util.requireNonNull(SpigotAdapter.getBukkitWorld(world), "Bukkit World");
-        this.rotationPoint = rotationPoint;
+        this.onEdge = onEdge;
 
         this.startPosition = startPosition;
         this.finalPosition = finalPosition;
-        this.startAngle = startAngle;
         this.radius = radius;
 
         this.currentTarget = startPosition;
@@ -220,42 +224,6 @@ public class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     public Vector3Dd getPosition()
     {
         return getCurrentPosition();
-    }
-
-    @Override
-    public RotatedPosition getStartPosition()
-    {
-        return startPosition;
-    }
-
-    @Override
-    public RotatedPosition getFinalPosition()
-    {
-        return finalPosition;
-    }
-
-    @Override
-    public float getStartAngle()
-    {
-        return startAngle;
-    }
-
-    @Override
-    public float getRadius()
-    {
-        return radius;
-    }
-
-    @Override
-    public boolean isOnEdge()
-    {
-        return false;
-    }
-
-    @Override
-    public World getBukkitWorld()
-    {
-        return bukkitWorld;
     }
 
     @Override

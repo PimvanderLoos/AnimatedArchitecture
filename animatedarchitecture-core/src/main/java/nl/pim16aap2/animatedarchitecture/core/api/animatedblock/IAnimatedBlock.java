@@ -189,11 +189,6 @@ public interface IAnimatedBlock
     }
 
     /**
-     * @return The angle this animated block had in relation to the engine when the animation first started.
-     */
-    float getStartAngle();
-
-    /**
      * @return The radius this animated block had in relation to the engine when the animation first started.
      */
     float getRadius();

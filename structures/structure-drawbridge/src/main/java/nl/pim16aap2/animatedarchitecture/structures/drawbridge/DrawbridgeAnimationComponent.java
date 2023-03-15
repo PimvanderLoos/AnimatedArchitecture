@@ -76,12 +76,6 @@ public class DrawbridgeAnimationComponent implements IAnimationComponent
     }
 
     @Override
-    public Vector3Dd getRotationPoint()
-    {
-        return rotationCenter;
-    }
-
-    @Override
     public RotatedPosition getStartPosition(int xAxis, int yAxis, int zAxis)
     {
         return getGoalPos(0, xAxis + 0.5, yAxis, zAxis + 0.5);
@@ -150,17 +144,5 @@ public class DrawbridgeAnimationComponent implements IAnimationComponent
     public float getRadius(int xAxis, int yAxis, int zAxis)
     {
         return getRadius(northSouth, snapshot.getRotationPoint(), xAxis, yAxis, zAxis);
-    }
-
-    @Override
-    public float getStartAngle(int xAxis, int yAxis, int zAxis)
-    {
-        // Get the angle between the used axes (either x and y, or z and y).
-        // When the rotation point is positioned along the NS axis, the Z values does not change.
-        final double deltaA = northSouth ?
-                              snapshot.getRotationPoint().z() - zAxis :
-                              snapshot.getRotationPoint().x() - xAxis;
-        final double deltaB = snapshot.getRotationPoint().y() - yAxis;
-        return (float) Util.clampAngleRad(Math.atan2(deltaA, deltaB));
     }
 }

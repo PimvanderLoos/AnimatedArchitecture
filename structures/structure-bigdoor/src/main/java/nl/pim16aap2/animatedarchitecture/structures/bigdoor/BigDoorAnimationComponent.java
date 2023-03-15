@@ -52,12 +52,6 @@ public class BigDoorAnimationComponent implements IAnimationComponent
     }
 
     @Override
-    public Vector3Dd getRotationPoint()
-    {
-        return rotationCenter;
-    }
-
-    @Override
     public Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
     {
         return
@@ -121,11 +115,5 @@ public class BigDoorAnimationComponent implements IAnimationComponent
     public float getRadius(int xAxis, int yAxis, int zAxis)
     {
         return getRadius(snapshot.getRotationPoint(), xAxis, zAxis);
-    }
-
-    @Override
-    public float getStartAngle(int xAxis, int yAxis, int zAxis)
-    {
-        return (float) Math.atan2(snapshot.getRotationPoint().xD() - xAxis, snapshot.getRotationPoint().zD() - zAxis);
     }
 }

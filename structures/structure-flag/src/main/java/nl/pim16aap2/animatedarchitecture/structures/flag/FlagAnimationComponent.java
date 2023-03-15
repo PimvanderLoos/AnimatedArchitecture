@@ -49,12 +49,6 @@ public final class FlagAnimationComponent implements IAnimationComponent
     }
 
     @Override
-    public Vector3Dd getRotationPoint()
-    {
-        return snapshot.getRotationPoint().toDouble();
-    }
-
-    @Override
     public Animator.MovementMethod getMovementMethod()
     {
         return Animator.MovementMethod.TELEPORT;

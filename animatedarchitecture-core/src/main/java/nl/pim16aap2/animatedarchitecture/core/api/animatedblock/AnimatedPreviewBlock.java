@@ -34,7 +34,6 @@ public class AnimatedPreviewBlock implements IAnimatedBlock
     private final GlowingBlockSpawner glowingBlockSpawner;
     @Getter
     private final IWorld world;
-    private final float startAngle;
     private final float startRadius;
     private final Color color;
     private final IPlayer player;
@@ -46,7 +45,7 @@ public class AnimatedPreviewBlock implements IAnimatedBlock
 
     public AnimatedPreviewBlock(
         ILocationFactory locationFactory, GlowingBlockSpawner glowingBlockSpawner, IWorld world, IPlayer player,
-        Vector3Dd position, Vector3Dd finalPosition, float startAngle, float startRadius, Color color)
+        Vector3Dd position, Vector3Dd finalPosition, float startRadius, Color color)
     {
         this.locationFactory = locationFactory;
         this.glowingBlockSpawner = glowingBlockSpawner;
@@ -55,7 +54,6 @@ public class AnimatedPreviewBlock implements IAnimatedBlock
         this.startPosition = position;
         this.finalPosition = finalPosition;
         this.currentTarget = previousTarget = new RotatedPosition(position);
-        this.startAngle = startAngle;
         this.startRadius = startRadius;
         this.color = color;
     }
@@ -199,12 +197,6 @@ public class AnimatedPreviewBlock implements IAnimatedBlock
     public double getStartZ()
     {
         return startPosition.z();
-    }
-
-    @Override
-    public float getStartAngle()
-    {
-        return startAngle;
     }
 
     @Override
