@@ -52,6 +52,12 @@ public class BigDoorAnimationComponent implements IAnimationComponent
     }
 
     @Override
+    public Vector3Dd getRotationPoint()
+    {
+        return rotationCenter;
+    }
+
+    @Override
     public Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
     {
         return
@@ -91,7 +97,7 @@ public class BigDoorAnimationComponent implements IAnimationComponent
     {
         final double yaw =
             -Math.atan2(rotationCenter.x() - goalPos.x(), rotationCenter.z() - goalPos.z()) + MathUtil.HALF_PI;
-        return new Vector3Dd(0, 0, Math.toDegrees(yaw));
+        return new Vector3Dd(0, 0, -Math.toDegrees(yaw));
     }
 
     private RotatedPosition getGoalPos(double angle, double startX, double startY, double startZ)

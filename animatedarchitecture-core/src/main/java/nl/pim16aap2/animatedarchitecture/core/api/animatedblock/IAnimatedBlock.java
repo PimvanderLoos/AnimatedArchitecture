@@ -167,17 +167,26 @@ public interface IAnimatedBlock
     /**
      * @return The x-coordinate of the location the block was first spawned at.
      */
-    double getStartX();
+    default double getStartX()
+    {
+        return getStartPosition().x();
+    }
 
     /**
      * @return The y-coordinate of the location the block was first spawned at.
      */
-    double getStartY();
+    default double getStartY()
+    {
+        return getStartPosition().y();
+    }
 
     /**
      * @return The z-coordinate of the location the block was first spawned at.
      */
-    double getStartZ();
+    default double getStartZ()
+    {
+        return getStartPosition().z();
+    }
 
     /**
      * @return The angle this animated block had in relation to the engine when the animation first started.

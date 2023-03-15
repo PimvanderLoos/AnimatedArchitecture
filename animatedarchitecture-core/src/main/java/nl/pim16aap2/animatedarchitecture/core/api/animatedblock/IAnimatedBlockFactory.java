@@ -36,7 +36,14 @@ public interface IAnimatedBlockFactory
      * @return The {@link IAnimatedBlock} that was constructed if it could be constructed.
      */
     Optional<IAnimatedBlock> create(
-        ILocation loc, float radius, float startAngle, boolean bottom, boolean onEdge, AnimationContext context,
-        Vector3Dd finalPosition, Animator.MovementMethod movementMethod)
+        ILocation loc,
+        float radius,
+        float startAngle,
+        boolean bottom,
+        boolean onEdge,
+        Vector3Dd rotationPoint,
+        AnimationContext context,
+        Vector3Dd finalPosition,
+        Animator.MovementMethod movementMethod)
         throws Exception;
 }

@@ -6,6 +6,7 @@ import nl.pim16aap2.animatedarchitecture.core.moveblocks.AnimationUtil;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.Animator;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.IAnimator;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
@@ -28,9 +29,12 @@ public class SlidingDoorAnimationComponent implements IAnimationComponent
 
     protected final int blocksToMove;
 
+    protected final StructureSnapshot snapshot;
+
     public SlidingDoorAnimationComponent(
         AnimationRequestData data, MovementDirection movementDirection, int blocksToMove)
     {
+        this.snapshot = data.getStructureSnapshot();
         this.blocksToMove = blocksToMove;
 
         northSouth =
@@ -42,6 +46,12 @@ public class SlidingDoorAnimationComponent implements IAnimationComponent
         final double animationDuration =
             AnimationUtil.getAnimationTicks(data.getAnimationTime(), data.getServerTickTime());
         step = blocksToMove / animationDuration;
+    }
+
+    @Override
+    public Vector3Dd getRotationPoint()
+    {
+        return snapshot.getRotationPoint().toDouble();
     }
 
     @Override

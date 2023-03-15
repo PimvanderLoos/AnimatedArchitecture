@@ -4,16 +4,16 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.AnimationContext;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockFactory;
+import nl.pim16aap2.animatedarchitecture.core.api.factories.ILocationFactory;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
+import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ILocationFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -87,7 +87,14 @@ public class AnimationBlockManager implements IAnimationBlockManager
                         final Vector3Dd finalPosition = animationComponent.getFinalPosition(startPosition, radius);
 
                         animatedBlockFactory
-                            .create(location, radius, startAngle, bottom, onEdge, animationContext, finalPosition,
+                            .create(location,
+                                    radius,
+                                    startAngle,
+                                    bottom,
+                                    onEdge,
+                                    animationComponent.getRotationPoint(),
+                                    animationContext,
+                                    finalPosition,
                                     movementMethod)
                             .ifPresent(animatedBlocksTmp::add);
                     }

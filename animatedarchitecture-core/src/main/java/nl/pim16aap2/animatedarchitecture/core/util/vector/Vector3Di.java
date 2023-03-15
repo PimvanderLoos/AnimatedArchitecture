@@ -14,6 +14,22 @@ import org.jetbrains.annotations.Contract;
 @SuppressWarnings("unused")
 public record Vector3Di(int x, int y, int z) implements IVector3D
 {
+    public Vector3Di(IVector3D other)
+    {
+        this(round(other.xD()), round(other.yD()), round(other.zD()));
+    }
+
+    /**
+     * @param other
+     *     A {@link Vector3Di} to retrieve as {@link Vector3Di}
+     * @return A {@link Vector3Di} representing the provided {@link Vector3Di}. If the provided {@link Vector3Di} was
+     * already of this type, the same instance is returned.
+     */
+    public static Vector3Di of(IVector3D other)
+    {
+        return other instanceof Vector3Di vec3d ? vec3d : new Vector3Di(other);
+    }
+
     /**
      * Creates a new double-based 3d vector from this integer-based 3d vector.
      *

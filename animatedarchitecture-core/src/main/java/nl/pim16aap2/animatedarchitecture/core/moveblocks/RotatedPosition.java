@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.moveblocks;
 
+import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 
 /**
@@ -14,9 +15,9 @@ public record RotatedPosition(Vector3Dd position, Vector3Dd rotation)
 {
     private static final Vector3Dd NULL_VEC = new Vector3Dd(0, 0, 0);
 
-    public RotatedPosition(Vector3Dd position)
+    public RotatedPosition(IVector3D position)
     {
-        this(position, NULL_VEC);
+        this(Vector3Dd.of(position), NULL_VEC);
     }
 
     public double roll()

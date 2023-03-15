@@ -92,6 +92,12 @@ public class CounterWeightGarageDoorAnimationComponent implements IAnimationComp
             angle / quarterCircles / AnimationUtil.getAnimationTicks(data.getAnimationTime(), data.getServerTickTime());
     }
 
+    @Override
+    public Vector3Dd getRotationPoint()
+    {
+        return rotationCenter;
+    }
+
     private Cuboid getMergedCuboid(Cuboid oldCuboid, Vector3Di directionVec, boolean wasVertical)
     {
         if (wasVertical)

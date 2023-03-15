@@ -28,6 +28,8 @@ public interface IAnimationComponent
     {
     }
 
+    Vector3Dd getRotationPoint();
+
     /**
      * Runs a single step of the animation.
      *

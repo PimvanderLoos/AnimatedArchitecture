@@ -17,7 +17,6 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes.IPerpetualMover;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import org.jetbrains.annotations.Nullable;
 
@@ -530,10 +529,10 @@ public final class Animator implements IAnimator
      */
     private void updateCoords()
     {
-        structure.setOpen(!snapshot.isOpen());
-        if (!newCuboid.equals(snapshot.getCuboid()))
-            structure.setCoordinates(newCuboid);
-        structure.syncData().exceptionally(Util::exceptionally);
+//        structure.setOpen(!snapshot.isOpen());
+//        if (!newCuboid.equals(snapshot.getCuboid()))
+//            structure.setCoordinates(newCuboid);
+//        structure.syncData().exceptionally(Util::exceptionally);
     }
 
     /**

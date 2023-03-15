@@ -75,6 +75,12 @@ public class DrawbridgeAnimationComponent implements IAnimationComponent
         this.rotateCountOffset = this.rotateCount / 2;
     }
 
+    @Override
+    public Vector3Dd getRotationPoint()
+    {
+        return rotationCenter;
+    }
+
     protected Vector3Dd getGoalRotation(Vector3Dd goalPos)
     {
         final Vector3Dd vec = rotationCenter.subtract(goalPos);
@@ -83,7 +89,7 @@ public class DrawbridgeAnimationComponent implements IAnimationComponent
         if (northSouth)
             pitch = Math.toDegrees(-Math.atan2(vec.y(), vec.z()) + MathUtil.HALF_PI);
         else
-            roll = Math.toDegrees(-Math.atan2(vec.y(), vec.x()) + MathUtil.HALF_PI);
+            roll = -Math.toDegrees(-Math.atan2(vec.y(), vec.x()) + MathUtil.HALF_PI);
 
         return new Vector3Dd(roll, pitch, 0);
     }
