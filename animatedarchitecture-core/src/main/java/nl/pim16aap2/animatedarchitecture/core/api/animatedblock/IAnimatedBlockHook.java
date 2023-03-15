@@ -2,7 +2,7 @@ package nl.pim16aap2.animatedarchitecture.core.api.animatedblock;
 
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatform;
 import nl.pim16aap2.animatedarchitecture.core.managers.AnimatedBlockHookManager;
-import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
+import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
 
 /**
  * Represents a hook for {@link IAnimatedBlock}s.
@@ -11,9 +11,9 @@ import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
  * one per animation.
  * <p>
  * Creating a subclass of this interface allows hooking into the animated blocks themselves. Subclasses of this
- * interface can override methods for specific events. For example, overriding the {@link #postTick()} method allows the
- * hook to perform some action after every tick of the animated block. There are also methods for when an animated block
- * (re)spawns, is instantiated, moved, teleported, and more.
+ * interface can override methods for specific events. For example, overriding the {@link #preMove(RotatedPosition)}
+ * method allows the hook to perform some action every time the animated block is about to be moved. There are also
+ * methods for when an animated block (re)spawns, killing, block manipulations, etc.
  * <p>
  * When creating such a hook, you can register a factory for it with the {@link AnimatedBlockHookManager}. An instance
  * of that manager can be obtained using {@link IAnimatedArchitecturePlatform#getAnimatedBlockHookManager()}.
@@ -42,8 +42,8 @@ import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
  *     }
  *
  *     @Override
- *     public void postTick() {
- *         // Some code that runs after each tick of the animated block.
+ *     public void preSpawn() {
+ *         // Some code that runs before the animated block is spawned.
  *     }
  * }}</pre>
  * <p>
@@ -63,81 +63,122 @@ public interface IAnimatedBlockHook
     String getName();
 
     /**
-     * Fires after an animated block has been spawned. Respawning is not counted. See {@link #onRespawn()} for that.
+     * Fires right before an animated block will be spawned. Respawning is not counted. Use {@link #preRespawn()} for
+     * that.
      * <p>
-     * This may be called asynchronously.
+     * This is always called on the main thread.
      */
-    default void onSpawn()
+    default void preSpawn()
+    {
+    }
+
+    /**
+     * Fires after an animated block has been spawned. Respawning is not counted. Use {@link #postRespawn()} for that.
+     * <p>
+     * This is always called on the main thread.
+     */
+    default void postSpawn()
+    {
+    }
+
+    /**
+     * Fires right before an animated block will be respawned.
+     * <p>
+     * This is always called on the main thread.
+     */
+    default void preRespawn()
     {
     }
 
     /**
      * Fires after an animated block has been respawned.
+     * <p>
+     * This is always called on the main thread.
      */
-    default void onRespawn()
+    default void postRespawn()
     {
     }
 
     /**
-     * Fires after an animated block has died.
+     * Fires right before an animated block will be killed.
+     * <p>
+     * Respawning does not count.
+     * <p>
+     * This is always called on the main thread.
      */
-    default void onDie()
+    default void preKill()
+    {
+    }
+
+    /**
+     * Fires after an animated block was killed.
+     * <p>
+     * Respawning does not count.
+     * <p>
+     * This is always called on the main thread.
+     */
+    default void postKill()
+    {
+    }
+
+    /**
+     * Fires right before the original block that serves as template for the animated block will be removed from the
+     * world.
+     * <p>
+     * This is always called on the main thread.
+     */
+    default void preDeleteOriginalBlock()
     {
     }
 
     /**
      * Fires after the original block that serves as template for the animated block has been removed from the world.
+     * <p>
+     * This is always called on the main thread.
      */
-    default void onDeleteOriginalBlock()
+    default void postDeleteOriginalBlock()
+    {
+    }
+
+    /**
+     * Fires right before the block will be placed back into the world when the animation ends.
+     * <p>
+     * This is always called on the main thread.
+     */
+    default void preBlockPlace()
     {
     }
 
     /**
      * Fires after the block has been placed back into the world when the animation ends.
-     */
-    default void onBlockPlace()
-    {
-    }
-
-    /**
-     * Fires after an animated block has been teleported.
      * <p>
-     * This may be called asynchronously.
-     *
-     * @param from
-     *     The position of the animated block before the teleport.
-     * @param to
-     *     The position the animated block was teleported to.
+     * This is always called on the main thread.
      */
-    default void onTeleport(Vector3Dd from, Vector3Dd to)
+    default void postBlockPlace()
     {
     }
 
     /**
      * Fires after this animated block has been moved.
      * <p>
-     * This may happen either because of a teleport or because of tick-based movement.
-     * <p>
      * This may be called asynchronously.
      *
      * @param newPosition
      *     The position the animated block was moved to.
      */
-    default void onMoved(Vector3Dd newPosition)
+    default void postMove(RotatedPosition newPosition)
     {
     }
 
     /**
-     * Fires right before a tick is processed.
+     * Fires before this animated block will be moved.
+     * <p>
+     * This may be called asynchronously.
+     *
+     * @param newPosition
+     *     The position the animated block will move to.
      */
-    default void preTick()
-    {
-    }
-
-    /**
-     * Fires right after a tick is processed.
-     */
-    default void postTick()
+    default void preMove(RotatedPosition newPosition)
     {
     }
 }

@@ -173,7 +173,7 @@ public class NMSBlock extends BlockBase implements IAnimatedBlockData
             //                  net.minecraft.world.level.block.state.BlockState,int)
             worldServer.getMinecraftWorld().a(blockPosition, old, blockData, 3);
 
-        animatedBlock.forEachHook("putBlock", IAnimatedBlockHook::onBlockPlace);
+        animatedBlock.forEachHook("putBlock", IAnimatedBlockHook::postBlockPlace);
     }
 
     /**
@@ -360,7 +360,7 @@ public class NMSBlock extends BlockBase implements IAnimatedBlockData
             bukkitWorld.getBlockAt(loc).setType(Material.AIR, true);
         }
 
-        animatedBlock.forEachHook("deleteOriginalBlock", IAnimatedBlockHook::onDeleteOriginalBlock);
+        animatedBlock.forEachHook("deleteOriginalBlock", IAnimatedBlockHook::postDeleteOriginalBlock);
     }
 
     @Override

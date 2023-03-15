@@ -236,17 +236,14 @@ public class CustomEntityFallingBlock extends EntityFallingBlock implements IAni
             return;
         }
 
+        forEachHook("preDie", IAnimatedBlockHook::preKill);
         this.cM().forEach(Entity::bz); // Remove passengers
-        forEachHook("onDie", IAnimatedBlockHook::onDie);
+        forEachHook("onDie", IAnimatedBlockHook::postKill);
     }
 
     private synchronized void spawn0()
     {
-        if (!executor.isMainThread())
-        {
-            log.atSevere().withStackTrace(StackSize.FULL).log("Caught async spawn! THIS IS A BUG!");
-            return;
-        }
+        executor.assertMainThread("Animated blocks must be spawned on the main thread!");
 
         worldServer.addFreshEntity(this, SpawnReason.CUSTOM);
         dA(); // Entity#unsetRemoved()
@@ -259,18 +256,17 @@ public class CustomEntityFallingBlock extends EntityFallingBlock implements IAni
     @Override
     public synchronized void spawn()
     {
+        executor.assertMainThread("Animated blocks must be spawned on the main thread!");
+
+        forEachHook("preSpawn", IAnimatedBlockHook::preSpawn);
         spawn0();
-        forEachHook("onSpawn", IAnimatedBlockHook::onSpawn);
+        forEachHook("postSpawn", IAnimatedBlockHook::postSpawn);
     }
 
     @Override
     public synchronized void respawn()
     {
-        if (!executor.isMainThread())
-        {
-            log.atSevere().withStackTrace(StackSize.FULL).log("Caught async respawn! THIS IS A BUG!");
-            return;
-        }
+        executor.assertMainThread("Animated blocks must be respawned on the main thread!");
 
         if (tracker == null)
         {
@@ -291,9 +287,11 @@ public class CustomEntityFallingBlock extends EntityFallingBlock implements IAni
         else if (!removeEntityPaper(entityInLevelCallbackSectionManager))
             return;
 
+        forEachHook("preRespawn", IAnimatedBlockHook::preRespawn);
+
         spawn0();
 
-        forEachHook("onRespawn", IAnimatedBlockHook::onRespawn);
+        forEachHook("postRespawn", IAnimatedBlockHook::postRespawn);
     }
 
     private boolean removeEntityPaper(EntityInLevelCallback entityInLevelCallbackSectionManager)
@@ -343,7 +341,7 @@ public class CustomEntityFallingBlock extends EntityFallingBlock implements IAni
     {
         cyclePositions(newPosition);
         setPosRaw(newPosition);
-        forEachHook("onMoved", hook -> hook.onMoved(newPosition));
+        forEachHook("onMoved", hook -> hook.postMove(new RotatedPosition(newPosition)));
     }
 
     @Override
@@ -407,14 +405,10 @@ public class CustomEntityFallingBlock extends EntityFallingBlock implements IAni
         if (!isAlive())
             return;
 
-        forEachHook("preTick", IAnimatedBlockHook::preTick);
-
         ++b;
         handleTeleport();
         a(EnumMoveType.a, dj());
         cycleAndUpdatePositions(getRawCurrentLocation());
-
-        forEachHook("postTick", IAnimatedBlockHook::postTick);
     }
 
     private void modifyEntityTracker(PlayerChunkMap.EntityTracker tracker)
@@ -456,7 +450,6 @@ public class CustomEntityFallingBlock extends EntityFallingBlock implements IAni
             relativeTeleport(from, newPosition);
         else
             absoluteTeleport(newPosition, rotation);
-        forEachHook("onTeleport", hook -> hook.onTeleport(from, newPosition));
         return true;
     }
 

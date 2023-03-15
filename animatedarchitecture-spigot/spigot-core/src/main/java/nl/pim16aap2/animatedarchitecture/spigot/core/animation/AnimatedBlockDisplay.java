@@ -1,10 +1,13 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.animation;
 
 import lombok.Getter;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockData;
+import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockHook;
+import nl.pim16aap2.animatedarchitecture.core.managers.AnimatedBlockHookManager;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
@@ -25,8 +28,11 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import javax.annotation.concurrent.GuardedBy;
+import java.util.List;
+import java.util.function.Consumer;
 
-public class AnimatedBlockDisplay implements IAnimatedBlockSpigot
+@Flogger
+public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
 {
     private static final Vector3f ONE_VECTOR = new Vector3f(1F, 1F, 1F);
     private static final Vector3f HALF_VECTOR_POSITIVE = new Vector3f(0.5F, 0.5F, 0.5F);
@@ -46,6 +52,8 @@ public class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     private final float radius;
     @Getter
     private final boolean onEdge;
+    private final List<IAnimatedBlockHook> hooks;
+    private final IExecutor executor;
 
     @GuardedBy("this")
     private RotatedPosition previousTarget;
@@ -56,28 +64,31 @@ public class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     private volatile @Nullable BlockDisplay blockDisplay;
 
     public AnimatedBlockDisplay(
-        IExecutor executor, RotatedPosition startPosition, IWorld world,
-        RotatedPosition finalPosition, boolean onEdge, float radius)
+        IExecutor executor, AnimatedBlockHookManager animatedBlockHookManager, RotatedPosition startPosition,
+        IWorld world, RotatedPosition finalPosition, boolean onEdge, float radius)
     {
+        this.executor = executor;
         this.world = world;
         this.bukkitWorld = Util.requireNonNull(SpigotAdapter.getBukkitWorld(world), "Bukkit World");
         this.onEdge = onEdge;
-
         this.startPosition = startPosition;
         this.finalPosition = finalPosition;
         this.radius = radius;
-
         this.currentTarget = this.startPosition;
 
-        final Vector3Dd pos = this.startPosition.position();
-        this.blockData = new SimpleBlockData(executor, bukkitWorld, pos.floor().toInteger());
+        this.blockData =
+            new SimpleBlockData(this, executor, bukkitWorld, this.startPosition.position().floor().toInteger());
+
+        this.hooks = animatedBlockHookManager.instantiateHooks(this);
     }
 
-    @Override
-    public void spawn()
+    private void spawn0()
     {
+        executor.assertMainThread("Animated blocks must be spawned on the main thread!");
+
         final Vector3Dd pos = currentTarget.position().floor();
         final Location loc = new Location(bukkitWorld, pos.x(), pos.y(), pos.z());
+
         final BlockDisplay newEntity = bukkitWorld.spawn(loc, BlockDisplay.class);
         blockDisplay = newEntity;
 
@@ -89,25 +100,55 @@ public class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     }
 
     @Override
-    public void respawn()
+    public void spawn()
     {
-        kill();
-        spawn();
+        executor.assertMainThread("Animated blocks must be spawned on the main thread!");
+
+        forEachHook("preSpawn", IAnimatedBlockHook::preSpawn);
+        spawn0();
+        forEachHook("postSpawn", IAnimatedBlockHook::postSpawn);
+    }
+
+    private void kill0(@Nullable BlockDisplay entity)
+    {
+        executor.assertMainThread("Animated blocks must be killed on the main thread!");
+
+        if (entity == null)
+            return;
+        entity.remove();
     }
 
     @Override
     public void kill()
     {
-        final BlockDisplay entity = blockDisplay;
-        if (entity != null)
-            entity.remove();
+        executor.assertMainThread("Animated blocks must be killed on the main thread!");
+
+        final @Nullable BlockDisplay entity = this.blockDisplay;
+        if (entity == null)
+            return;
+        forEachHook("preKill", IAnimatedBlockHook::preKill);
+        kill0(entity);
+        forEachHook("postKill", IAnimatedBlockHook::postKill);
+    }
+
+    @Override
+    public void respawn()
+    {
+        executor.assertMainThread("Animated blocks must be respawned on the main thread!");
+
+        forEachHook("preRespawn", IAnimatedBlockHook::preRespawn);
+        kill0(this.blockDisplay);
+        spawn0();
+        forEachHook("postRespawn", IAnimatedBlockHook::postRespawn);
     }
 
     @Override
     public void moveToTarget(RotatedPosition target, int ticksRemaining)
     {
+        forEachHook("preMove", hook -> hook.preMove(target));
         updateTransformation(target);
         cycleTargets(target);
+        forEachHook("onMoved", hook -> hook.postMove(target));
     }
 
     private void updateTransformation(RotatedPosition target)
@@ -219,5 +260,22 @@ public class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     public Material getMaterial()
     {
         return this.blockData.getBlockData().getMaterial();
+    }
+
+    void forEachHook(String actionName, Consumer<IAnimatedBlockHook> call)
+    {
+        for (final IAnimatedBlockHook hook : hooks)
+        {
+            log.atFinest().log("Executing '%s' for hook '%s'!", actionName, hook.getName());
+            try
+            {
+                call.accept(hook);
+            }
+            catch (Exception e)
+            {
+                log.atSevere().withCause(e)
+                   .log("Failed to execute '%s' for hook '%s'!", actionName, hook.getName());
+            }
+        }
     }
 }
