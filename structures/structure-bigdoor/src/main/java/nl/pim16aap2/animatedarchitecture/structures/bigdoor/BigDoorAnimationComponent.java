@@ -2,6 +2,7 @@ package nl.pim16aap2.animatedarchitecture.structures.bigdoor;
 
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
+import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockData;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.AnimationUtil;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.IAnimationComponent;
@@ -13,6 +14,9 @@ import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Consumer;
 
 @Flogger
 public class BigDoorAnimationComponent implements IAnimationComponent
@@ -20,15 +24,15 @@ public class BigDoorAnimationComponent implements IAnimationComponent
     private final MovementDirection movementDirection;
     private final StructureSnapshot snapshot;
     private final Vector3Dd rotationCenter;
-    private final int rotateCount;
-    private final int rotateCountOffset;
     private final double angle;
     private final double step;
+    private final int quarterCircles;
 
     public BigDoorAnimationComponent(AnimationRequestData data, MovementDirection movementDirection, int quarterCircles)
     {
         this.snapshot = data.getStructureSnapshot();
         this.movementDirection = movementDirection;
+        this.quarterCircles = quarterCircles;
 
         angle = movementDirection == MovementDirection.CLOCKWISE ? quarterCircles * MathUtil.HALF_PI :
                 movementDirection == MovementDirection.COUNTERCLOCKWISE ? quarterCircles * -MathUtil.HALF_PI :
@@ -47,8 +51,6 @@ public class BigDoorAnimationComponent implements IAnimationComponent
             AnimationUtil.getAnimationTicks(data.getAnimationTime(), data.getServerTickTime());
 
         this.step = this.angle / animationDuration;
-        this.rotateCount = animationDuration / quarterCircles;
-        this.rotateCountOffset = this.rotateCount / 2;
     }
 
     @Override
@@ -66,9 +68,6 @@ public class BigDoorAnimationComponent implements IAnimationComponent
     @Override
     public void executeAnimationStep(IAnimator animator, int ticks, int ticksRemaining)
     {
-        if ((ticks - rotateCountOffset) % rotateCount == 0)
-            animator.applyRotation(movementDirection);
-
         final double stepSum = Util.clampAngleRad(step * ticks);
         final double cos = Math.cos(stepSum);
         final double sin = Math.sin(stepSum);
@@ -119,5 +118,11 @@ public class BigDoorAnimationComponent implements IAnimationComponent
     public float getRadius(int xAxis, int yAxis, int zAxis)
     {
         return getRadius(snapshot.getRotationPoint(), xAxis, zAxis);
+    }
+
+    @Override
+    public @Nullable Consumer<IAnimatedBlockData> getBlockDataRotator()
+    {
+        return blockData -> blockData.rotateBlock(movementDirection, quarterCircles);
     }
 }

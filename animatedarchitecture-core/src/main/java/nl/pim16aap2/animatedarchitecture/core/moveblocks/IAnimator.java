@@ -1,7 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.moveblocks;
 
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
-import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 
 import java.util.List;
 
@@ -26,17 +25,4 @@ public interface IAnimator
      *     The number of ticks remaining in the animation.
      */
     void applyMovement(IAnimatedBlock animatedBlock, RotatedPosition goalPos, int ticksRemaining);
-
-    /**
-     * Rotates in the openDirection and then respawns an {@link IAnimatedBlock}. This is executed on the main thread.
-     *
-     * @param direction
-     *     The direction of the rotation.
-     */
-    void applyRotation(MovementDirection direction);
-
-    /**
-     * Respawns all blocks. This is executed on the main thread.
-     */
-    void respawnBlocks();
 }

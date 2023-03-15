@@ -3,8 +3,10 @@ package nl.pim16aap2.animatedarchitecture.core.api.animatedblock;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.Animator;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * Represents a IFactory for {@link IAnimatedBlock} and {@link IAnimatedBlockData}.
@@ -31,6 +33,7 @@ public interface IAnimatedBlockFactory
      *     finishes.
      * @param movementMethod
      *     The movement method of the animated block.
+     * @param blockDataRotator
      * @return The {@link IAnimatedBlock} that was constructed if it could be constructed.
      */
     Optional<IAnimatedBlock> create(
@@ -41,6 +44,7 @@ public interface IAnimatedBlockFactory
         boolean onEdge,
         AnimationContext context,
         RotatedPosition finalPosition,
-        Animator.MovementMethod movementMethod)
+        Animator.MovementMethod movementMethod,
+        @Nullable Consumer<IAnimatedBlockData> blockDataRotator)
         throws Exception;
 }

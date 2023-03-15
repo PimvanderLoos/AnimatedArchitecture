@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.structures.clock;
 
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
+import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockData;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.Animator;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.IAnimator;
@@ -11,7 +12,9 @@ import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.WorldTime;
 import nl.pim16aap2.animatedarchitecture.structures.drawbridge.DrawbridgeAnimationComponent;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
@@ -133,5 +136,11 @@ public final class ClockAnimationComponent extends DrawbridgeAnimationComponent
     private static double hoursToAngle(int hours, int minutes)
     {
         return Util.clampAngleRad(hours * HOUR_STEP + minutes * HOUR_SUB_STEP);
+    }
+
+    @Override
+    public @Nullable Consumer<IAnimatedBlockData> getBlockDataRotator()
+    {
+        return null;
     }
 }

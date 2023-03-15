@@ -58,7 +58,6 @@ public class CounterWeightGarageDoorAnimationComponent implements IAnimationComp
                 angle = quarterCircles * -MathUtil.HALF_PI;
                 rotator = Vector3Dd::rotateAroundXAxis;
                 animationDirectionFace = BlockFace.NORTH;
-
             }
             case EAST ->
             {
@@ -89,8 +88,8 @@ public class CounterWeightGarageDoorAnimationComponent implements IAnimationComp
         this.newCuboid = data.getNewCuboid();
 
         this.rotationCenter = mergedCuboid.getCenter().floor();
-        this.step =
-            angle / quarterCircles / AnimationUtil.getAnimationTicks(data.getAnimationTime(), data.getServerTickTime());
+        final int animationSteps = AnimationUtil.getAnimationTicks(data.getAnimationTime(), data.getServerTickTime());
+        this.step = angle / quarterCircles / animationSteps;
     }
 
     private Cuboid getMergedCuboid(Cuboid oldCuboid, Vector3Di directionVec, boolean wasVertical)

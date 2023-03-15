@@ -64,7 +64,8 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     private volatile @Nullable BlockDisplay blockDisplay;
 
     public AnimatedBlockDisplay(
-        IExecutor executor, AnimatedBlockHookManager animatedBlockHookManager, RotatedPosition startPosition,
+        IExecutor executor, AnimatedBlockHookManager animatedBlockHookManager,
+        @Nullable Consumer<IAnimatedBlockData> blockDataRotator, RotatedPosition startPosition,
         IWorld world, RotatedPosition finalPosition, boolean onEdge, float radius)
     {
         this.executor = executor;
@@ -76,8 +77,8 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
         this.radius = radius;
         this.currentTarget = this.startPosition;
 
-        this.blockData =
-            new SimpleBlockData(this, executor, bukkitWorld, this.startPosition.position().floor().toInteger());
+        this.blockData = new SimpleBlockData(
+            this, executor, blockDataRotator, bukkitWorld, this.startPosition.position().floor().toInteger());
 
         this.hooks = animatedBlockHookManager.instantiateHooks(this);
     }

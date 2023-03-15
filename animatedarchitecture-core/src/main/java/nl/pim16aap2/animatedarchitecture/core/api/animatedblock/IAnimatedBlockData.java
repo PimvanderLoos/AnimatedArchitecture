@@ -24,7 +24,21 @@ public interface IAnimatedBlockData
      *     The {@link MovementDirection} to rotate this block in.
      * @return True if the block was rotated.
      */
-    boolean rotateBlock(MovementDirection movementDirection);
+    default boolean rotateBlock(MovementDirection movementDirection)
+    {
+        return rotateBlock(movementDirection, 1);
+    }
+
+    /**
+     * Rotates this block in a provided {@link MovementDirection}.
+     *
+     * @param movementDirection
+     *     The {@link MovementDirection} to rotate this block in.
+     * @param times
+     *     The number times to apply the rotation.
+     * @return True if the block was rotated.
+     */
+    boolean rotateBlock(MovementDirection movementDirection, int times);
 
     /**
      * @param loc

@@ -4,6 +4,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.AnimationContext;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
+import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockData;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockFactory;
 import nl.pim16aap2.animatedarchitecture.core.managers.AnimatedBlockHookManager;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.Animator;
@@ -15,9 +16,11 @@ import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_19_R3.util.CraftChatMessage;
+import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Singleton;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * v1_19_R3 implementation of {@link IAnimatedBlockFactory}.
@@ -40,7 +43,8 @@ public final class AnimatedBlockFactory implements IAnimatedBlockFactory
     @Override
     public Optional<IAnimatedBlock> create(
         IWorld world, RotatedPosition startPosition, float radius, boolean bottom, boolean onEdge,
-        AnimationContext context, RotatedPosition finalPosition, Animator.MovementMethod movementMethod)
+        AnimationContext context, RotatedPosition finalPosition, Animator.MovementMethod movementMethod,
+        @Nullable Consumer<IAnimatedBlockData> blockDataRotator)
         throws Exception
     {
         final World bukkitWorld =

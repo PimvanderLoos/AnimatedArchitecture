@@ -220,7 +220,7 @@ public class AnimatedPreviewBlock implements IAnimatedBlock
         }
 
         @Override
-        public boolean rotateBlock(MovementDirection movementDirection)
+        public boolean rotateBlock(MovementDirection movementDirection, int times)
         {
             return false;
         }

@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.structures.drawbridge;
 
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
+import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockData;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.AnimationUtil;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.Animator;
@@ -14,6 +15,9 @@ import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.functional.TriFunction;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Consumer;
 
 /**
  * Represents a {@link Animator} for {@link Drawbridge}s.
@@ -28,13 +32,13 @@ public class DrawbridgeAnimationComponent implements IAnimationComponent
     private final StructureSnapshot snapshot;
     private final double angle;
     private final double step;
-    private final int rotateCount;
-    private final int rotateCountOffset;
     private final MovementDirection movementDirection;
+    private final int quarterCircles;
 
     public DrawbridgeAnimationComponent(
         AnimationRequestData data, MovementDirection movementDirection, boolean isNorthSouthAligned, int quarterCircles)
     {
+        this.quarterCircles = quarterCircles;
         this.snapshot = data.getStructureSnapshot();
         this.northSouth = isNorthSouthAligned;
         this.rotationCenter = snapshot.getRotationPoint().toDouble();
@@ -70,8 +74,6 @@ public class DrawbridgeAnimationComponent implements IAnimationComponent
             AnimationUtil.getAnimationTicks(data.getAnimationTime(), data.getServerTickTime());
 
         this.step = angle / animationDuration;
-        this.rotateCount = animationDuration / quarterCircles;
-        this.rotateCountOffset = this.rotateCount / 2;
     }
 
     @Override
@@ -115,10 +117,6 @@ public class DrawbridgeAnimationComponent implements IAnimationComponent
     public void executeAnimationStep(IAnimator animator, int ticks, int ticksRemaining)
     {
         final double stepSum = Util.clampAngleRad(step * ticks);
-
-        if ((ticks - rotateCountOffset) % rotateCount == 0)
-            animator.applyRotation(this.movementDirection);
-
         for (final IAnimatedBlock animatedBlock : animator.getAnimatedBlocks())
             animator.applyMovement(animatedBlock, getGoalPos(stepSum, animatedBlock), ticksRemaining);
     }
@@ -136,5 +134,11 @@ public class DrawbridgeAnimationComponent implements IAnimationComponent
     public float getRadius(int xAxis, int yAxis, int zAxis)
     {
         return getRadius(northSouth, snapshot.getRotationPoint(), xAxis, yAxis, zAxis);
+    }
+
+    @Override
+    public @Nullable Consumer<IAnimatedBlockData> getBlockDataRotator()
+    {
+        return blockData -> blockData.rotateBlock(movementDirection, quarterCircles);
     }
 }

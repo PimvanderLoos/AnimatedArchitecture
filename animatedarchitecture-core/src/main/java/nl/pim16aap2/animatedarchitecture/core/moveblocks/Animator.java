@@ -16,7 +16,6 @@ import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes.IPerpetualMover;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
-import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import org.jetbrains.annotations.Nullable;
@@ -240,42 +239,10 @@ public final class Animator implements IAnimator
         forEachHook("onAnimationAborted", IAnimationHook::onAnimationAborted);
     }
 
-    /**
-     * Rotates an {@link IAnimatedBlock} in the provided direction and then respawns it. Note that this is executed on
-     * the thread it was called from, which MUST BE the main thread!
-     */
-    private void applyRotation0(MovementDirection direction)
-    {
-        for (final IAnimatedBlock animatedBlock : animationBlockManager.getAnimatedBlocks())
-            if (animatedBlock.getAnimatedBlockData().canRotate() &&
-                animatedBlock.getAnimatedBlockData().rotateBlock(direction))
-                animatedBlock.respawn();
-    }
-
     @Override
     public List<IAnimatedBlock> getAnimatedBlocks()
     {
         return animationBlockManager.getAnimatedBlocks();
-    }
-
-    @Override
-    public void applyRotation(MovementDirection direction)
-    {
-        executor.runSync(() -> this.applyRotation0(direction));
-    }
-
-    /**
-     * Respawns all blocks. Note that this is executed on the thread it was called from, which MUST BE the main thread!
-     */
-    private void respawnBlocksOnCurrentThread()
-    {
-        getAnimatedBlocks().forEach(IAnimatedBlock::respawn);
-    }
-
-    @Override
-    public void respawnBlocks()
-    {
-        executor.runSync(this::respawnBlocksOnCurrentThread);
     }
 
     /**
@@ -287,8 +254,9 @@ public final class Animator implements IAnimator
     public void startAnimation()
     {
         if (animationDuration < 0)
-            throw new IllegalStateException("Trying to start an animation with invalid endCount value: " +
-                                                animationDuration);
+            throw new IllegalStateException(
+                "Trying to start an animation with invalid endCount value: " + animationDuration);
+
         executor.runOnMainThread(
             () ->
             {

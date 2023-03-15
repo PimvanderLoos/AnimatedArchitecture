@@ -75,6 +75,7 @@ public class AnimationBlockManager implements IAnimationBlockManager
                         final boolean bottom = (yAxis == yMin);
                         final float radius = animationComponent.getRadius(xAxis, yAxis, zAxis);
 
+                        final var blockDataRotator = animationComponent.getBlockDataRotator();
                         final RotatedPosition startPosition = animationComponent.getStartPosition(xAxis, yAxis, zAxis);
                         final RotatedPosition finalPosition = animationComponent.getFinalPosition(xAxis, yAxis, zAxis);
 
@@ -86,7 +87,8 @@ public class AnimationBlockManager implements IAnimationBlockManager
                                     onEdge,
                                     animationContext,
                                     finalPosition,
-                                    movementMethod)
+                                    movementMethod,
+                                    blockDataRotator)
                             .ifPresent(animatedBlocksTmp::add);
                     }
 
