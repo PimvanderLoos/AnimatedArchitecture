@@ -84,7 +84,7 @@ public class AnimationBlockManager implements IAnimationBlockManager
                         final float radius = animationComponent.getRadius(xAxis, yAxis, zAxis);
                         final RotatedPosition startPosition = animationComponent.getStartPosition(xAxis, yAxis, zAxis);
                         final RotatedPosition finalPosition =
-                            animationComponent.getFinalPosition0(startPosition.position(), radius);
+                            animationComponent.getFinalPosition(startPosition.position(), radius);
 
                         animatedBlockFactory
                             .create(location,

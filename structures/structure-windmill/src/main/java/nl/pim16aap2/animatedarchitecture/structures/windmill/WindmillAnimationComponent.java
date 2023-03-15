@@ -2,9 +2,9 @@ package nl.pim16aap2.animatedarchitecture.structures.windmill;
 
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.Animator;
+import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
-import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import nl.pim16aap2.animatedarchitecture.structures.drawbridge.DrawbridgeAnimationComponent;
 
 /**
@@ -21,8 +21,8 @@ public class WindmillAnimationComponent extends DrawbridgeAnimationComponent
     }
 
     @Override
-    public Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
+    public RotatedPosition getFinalPosition(IVector3D startLocation, float radius)
     {
-        return Vector3Dd.of(startLocation);
+        return getStartPosition(startLocation.xD(), startLocation.yD(), startLocation.zD());
     }
 }

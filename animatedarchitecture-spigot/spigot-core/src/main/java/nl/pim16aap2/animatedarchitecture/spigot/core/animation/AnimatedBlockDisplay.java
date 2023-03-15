@@ -90,7 +90,6 @@ public class AnimatedBlockDisplay implements IAnimatedBlockSpigot
         newEntity.setBlock(blockData.getBlockData());
         newEntity.setCustomName(Constants.ANIMATED_ARCHITECTURE_ENTITY_NAME);
         newEntity.setCustomNameVisible(false);
-//        newEntity.setBrightness(blockData.getBrightness());
     }
 
     @Override

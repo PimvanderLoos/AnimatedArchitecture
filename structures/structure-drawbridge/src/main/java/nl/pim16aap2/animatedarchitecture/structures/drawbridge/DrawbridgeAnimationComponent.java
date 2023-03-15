@@ -76,7 +76,7 @@ public class DrawbridgeAnimationComponent implements IAnimationComponent
     }
 
     @Override
-    public RotatedPosition getStartPosition(int xAxis, int yAxis, int zAxis)
+    public RotatedPosition getStartPosition(double xAxis, double yAxis, double zAxis)
     {
         return getGoalPos(0, xAxis + 0.5, yAxis, zAxis + 0.5);
     }
@@ -107,13 +107,7 @@ public class DrawbridgeAnimationComponent implements IAnimationComponent
     }
 
     @Override
-    public Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
-    {
-        return getFinalPosition0(startLocation, radius).position();
-    }
-
-    @Override
-    public RotatedPosition getFinalPosition0(IVector3D startLocation, float radius)
+    public RotatedPosition getFinalPosition(IVector3D startLocation, float radius)
     {
         return getGoalPos(
             Util.clampAngleRad(angle), startLocation.xD() + 0.5, startLocation.yD(), startLocation.zD() + 0.5);

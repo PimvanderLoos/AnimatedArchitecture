@@ -7,6 +7,7 @@ import nl.pim16aap2.animatedarchitecture.core.moveblocks.AnimationUtil;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.Animator;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.IAnimator;
+import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.util.BlockFace;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
@@ -109,9 +110,9 @@ public class CounterWeightGarageDoorAnimationComponent implements IAnimationComp
         }
     }
 
-    protected Vector3Dd getGoalPos(double angle, IAnimatedBlock animatedBlock)
+    protected RotatedPosition getGoalPos(double angle, IAnimatedBlock animatedBlock)
     {
-        return rotator.apply(animatedBlock.getStartPosition().position(), rotationCenter, angle);
+        return new RotatedPosition(rotator.apply(animatedBlock.getStartPosition().position(), rotationCenter, angle));
     }
 
     @Override
@@ -124,9 +125,9 @@ public class CounterWeightGarageDoorAnimationComponent implements IAnimationComp
     }
 
     @Override
-    public Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
+    public RotatedPosition getFinalPosition(IVector3D startLocation, float radius)
     {
-        return rotator.apply(Vector3Dd.of(startLocation), rotationCenter, angle);
+        return new RotatedPosition(rotator.apply(Vector3Dd.of(startLocation), rotationCenter, angle));
     }
 
     @Override

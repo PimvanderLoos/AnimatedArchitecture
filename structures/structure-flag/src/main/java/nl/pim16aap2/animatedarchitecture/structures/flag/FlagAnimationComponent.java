@@ -7,6 +7,7 @@ import nl.pim16aap2.animatedarchitecture.core.moveblocks.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.Animator;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.IAnimator;
+import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
@@ -26,7 +27,7 @@ import java.util.function.BiFunction;
 public final class FlagAnimationComponent implements IAnimationComponent
 {
     private final IConfig config;
-    private final BiFunction<IAnimatedBlock, Integer, Vector3Dd> getGoalPos;
+    private final BiFunction<IAnimatedBlock, Integer, RotatedPosition> getGoalPos;
     private final StructureSnapshot snapshot;
     private final boolean isNorthSouthAligned;
     private final int length;
@@ -72,26 +73,28 @@ public final class FlagAnimationComponent implements IAnimationComponent
         }
     }
 
-    private Vector3Dd getGoalPosNS(IAnimatedBlock animatedBlock, int counter)
+    private RotatedPosition getGoalPosNS(IAnimatedBlock animatedBlock, int counter)
     {
         double xOff = 0;
         if (animatedBlock.getRadius() > 0)
             xOff = getOffset(counter, animatedBlock);
-        return new Vector3Dd(animatedBlock.getStartX() + xOff, animatedBlock.getStartY(), animatedBlock.getStartZ());
+        return new RotatedPosition(
+            new Vector3Dd(animatedBlock.getStartX() + xOff, animatedBlock.getStartY(), animatedBlock.getStartZ()));
     }
 
-    private Vector3Dd getGoalPosEW(IAnimatedBlock animatedBlock, int counter)
+    private RotatedPosition getGoalPosEW(IAnimatedBlock animatedBlock, int counter)
     {
         double zOff = 0;
         if (animatedBlock.getRadius() > 0)
             zOff = getOffset(counter, animatedBlock);
-        return new Vector3Dd(animatedBlock.getStartX(), animatedBlock.getStartY(), animatedBlock.getStartZ() + zOff);
+        return new RotatedPosition(
+            new Vector3Dd(animatedBlock.getStartX(), animatedBlock.getStartY(), animatedBlock.getStartZ() + zOff));
     }
 
     @Override
-    public Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
+    public RotatedPosition getFinalPosition(IVector3D startLocation, float radius)
     {
-        return Vector3Dd.of(startLocation);
+        return new RotatedPosition(startLocation);
     }
 
     @Override

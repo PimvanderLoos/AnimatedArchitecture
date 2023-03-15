@@ -2,8 +2,6 @@ package nl.pim16aap2.animatedarchitecture.core.moveblocks;
 
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
-import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
-import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 
 import java.util.List;
 
@@ -28,16 +26,6 @@ public interface IAnimator
      *     The number of ticks remaining in the animation.
      */
     void applyMovement(IAnimatedBlock animatedBlock, RotatedPosition goalPos, int ticksRemaining);
-
-    /**
-     * Use {@link #applyMovement(IAnimatedBlock, RotatedPosition, int)} instead.
-     */
-    @Deprecated
-    default void applyMovement(IAnimatedBlock animatedBlock, IVector3D goalPos, int ticksRemaining)
-    {
-        applyMovement(animatedBlock, new RotatedPosition(new Vector3Dd(goalPos.xD(), goalPos.yD(), goalPos.zD())),
-                      ticksRemaining);
-    }
 
     /**
      * Rotates in the openDirection and then respawns an {@link IAnimatedBlock}. This is executed on the main thread.

@@ -6,6 +6,7 @@ import nl.pim16aap2.animatedarchitecture.core.moveblocks.AnimationUtil;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.Animator;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.IAnimator;
+import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
@@ -49,9 +50,9 @@ public class SlidingDoorAnimationComponent implements IAnimationComponent
     }
 
     @Override
-    public Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
+    public RotatedPosition getFinalPosition(IVector3D startLocation, float radius)
     {
-        return Vector3Dd.of(startLocation).add(moveX, 0, moveZ);
+        return new RotatedPosition(Vector3Dd.of(startLocation).add(moveX, 0, moveZ));
     }
 
     @Override
@@ -61,11 +62,13 @@ public class SlidingDoorAnimationComponent implements IAnimationComponent
         firstBlockData = animator.getAnimatedBlocks().isEmpty() ? null : animator.getAnimatedBlocks().get(0);
     }
 
-    protected Vector3Dd getGoalPos(IAnimatedBlock animatedBlock, double stepSum)
+    protected RotatedPosition getGoalPos(IAnimatedBlock animatedBlock, double stepSum)
     {
-        return animatedBlock.getStartPosition().position().add(northSouth ? 0 : stepSum,
-                                                               0,
-                                                               northSouth ? stepSum : 0);
+        return new RotatedPosition(
+            animatedBlock.getStartPosition().position()
+                         .add(northSouth ? 0 : stepSum,
+                              0,
+                              northSouth ? stepSum : 0));
     }
 
     @Override

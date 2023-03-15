@@ -10,9 +10,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.Display;
 
 @Flogger
 public class SimpleBlockData implements IAnimatedBlockData
@@ -20,8 +18,6 @@ public class SimpleBlockData implements IAnimatedBlockData
     private final IExecutor executor;
     @Getter
     private final BlockData blockData;
-    @Getter
-    private final Display.Brightness brightness;
     private final Vector3Di originalPosition;
     private final World bukkitWorld;
 
@@ -30,11 +26,7 @@ public class SimpleBlockData implements IAnimatedBlockData
         this.executor = executor;
         this.originalPosition = position;
         this.bukkitWorld = bukkitWorld;
-
-        final Block block = bukkitWorld.getBlockAt(position.x(), position.y(), position.z());
-        this.blockData = block.getBlockData();
-//        this.brightness = new Display.Brightness(block.getLightFromBlocks(), block.getLightFromSky());
-        this.brightness = new Display.Brightness(block.getLightLevel(), block.getLightFromSky());
+        this.blockData = bukkitWorld.getBlockAt(position.x(), position.y(), position.z()).getBlockData();
     }
 
     @Override
@@ -73,6 +65,6 @@ public class SimpleBlockData implements IAnimatedBlockData
             return;
         }
         this.bukkitWorld.getBlockAt(originalPosition.x(), originalPosition.y(), originalPosition.z())
-                        .setType(Material.AIR);
+                        .setType(Material.AIR, false);
     }
 }

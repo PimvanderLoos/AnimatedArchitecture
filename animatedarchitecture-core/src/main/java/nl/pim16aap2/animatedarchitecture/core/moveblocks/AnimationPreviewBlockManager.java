@@ -13,7 +13,6 @@ import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ILocationFactory;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
-import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 
 import java.util.ArrayList;
@@ -87,13 +86,14 @@ public class AnimationPreviewBlockManager implements IAnimationBlockManager
 
                         final float radius = animationComponent.getRadius(xAxis, yAxis, zAxis);
                         final Color color = getColor(cuboid, position);
-                        final Vector3Dd startPosition = new Vector3Dd(xAxis + 0.5, yAxis, zAxis + 0.5);
-                        final Vector3Dd finalPosition = animationComponent.getFinalPosition(startPosition, radius);
+                        final RotatedPosition startPosition = animationComponent.getStartPosition(xAxis, yAxis, zAxis);
+                        final RotatedPosition finalPosition =
+                            animationComponent.getFinalPosition(startPosition.position(), radius);
 
                         animatedBlocksTmp.add(
                             new AnimatedPreviewBlock(
-                                locationFactory, glowingBlockSpawner, snapshot.getWorld(), player, startPosition,
-                                finalPosition, radius, color));
+                                locationFactory, glowingBlockSpawner, snapshot.getWorld(), player,
+                                startPosition.position(), finalPosition.position(), radius, color));
                     }
         }
         catch (Exception e)
