@@ -40,10 +40,10 @@ public final class VerticalAnimationComponent implements IAnimationComponent
     }
 
     @Override
-    public void executeAnimationStep(IAnimator animator, int ticks, int ticksRemaining)
+    public void executeAnimationStep(IAnimator animator, int ticks)
     {
         final double stepSum = step * ticks;
         for (final IAnimatedBlock animatedBlock : animator.getAnimatedBlocks())
-            animator.applyMovement(animatedBlock, getGoalPos(animatedBlock, stepSum), ticksRemaining);
+            animator.applyMovement(animatedBlock, getGoalPos(animatedBlock, stepSum));
     }
 }

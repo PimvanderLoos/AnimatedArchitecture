@@ -48,12 +48,6 @@ public final class FlagAnimationComponent implements IAnimationComponent
         length = this.isNorthSouthAligned ? dims.z() : dims.x();
     }
 
-    @Override
-    public Animator.MovementMethod getMovementMethod()
-    {
-        return Animator.MovementMethod.TELEPORT;
-    }
-
     private double getOffset(int counter, IAnimatedBlock animatedBlock)
     {
         final String formula = config.flagMovementFormula();
@@ -97,10 +91,10 @@ public final class FlagAnimationComponent implements IAnimationComponent
     }
 
     @Override
-    public void executeAnimationStep(IAnimator animator, int ticks, int ticksRemaining)
+    public void executeAnimationStep(IAnimator animator, int ticks)
     {
         for (final IAnimatedBlock animatedBlock : animator.getAnimatedBlocks())
-            animator.applyMovement(animatedBlock, getGoalPos.apply(animatedBlock, ticks), ticksRemaining);
+            animator.applyMovement(animatedBlock, getGoalPos.apply(animatedBlock, ticks));
     }
 
     @Override

@@ -144,7 +144,7 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     }
 
     @Override
-    public void moveToTarget(RotatedPosition target, int ticksRemaining)
+    public void moveToTarget(RotatedPosition target)
     {
         forEachHook("preMove", hook -> hook.preMove(target));
         updateTransformation(target);
@@ -194,17 +194,6 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     {
         this.previousTarget = currentTarget;
         this.currentTarget = newTarget;
-    }
-
-    @Override
-    public boolean teleport(Vector3Dd newPosition, Vector3Dd rotation, TeleportMode teleportMode)
-    {
-        return false;
-    }
-
-    @Override
-    public void setVelocity(Vector3Dd vector)
-    {
     }
 
     @Override

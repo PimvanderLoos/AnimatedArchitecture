@@ -70,22 +70,8 @@ public interface IAnimationComponent
      *     The animator responsible for the animation.
      * @param ticks
      *     The number of ticks that have passed since the start of the animation.
-     * @param ticksRemaining
-     *     The number of ticks remaining in the animation.
      */
-    void executeAnimationStep(IAnimator animator, int ticks, int ticksRemaining);
-
-    /**
-     * @return The type of movement to apply to animated blocks.
-     * <p>
-     * Subclasses are free to override this if a different type of movement is desired for that type.
-     * <p>
-     * Each animated block is moved using {@link Animator.MovementMethod#apply(IAnimatedBlock, Vector3Dd, int)}.
-     */
-    default Animator.MovementMethod getMovementMethod()
-    {
-        return Animator.MovementMethod.TELEPORT_VELOCITY;
-    }
+    void executeAnimationStep(IAnimator animator, int ticks);
 
     /**
      * Gets the radius of a block at the given coordinates.

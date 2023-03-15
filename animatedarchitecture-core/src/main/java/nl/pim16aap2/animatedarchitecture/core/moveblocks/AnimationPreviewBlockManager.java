@@ -8,7 +8,6 @@ import nl.pim16aap2.animatedarchitecture.core.api.Color;
 import nl.pim16aap2.animatedarchitecture.core.api.GlowingBlockSpawner;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.AnimatedPreviewBlock;
-import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.AnimationContext;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ILocationFactory;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
@@ -56,11 +55,7 @@ public class AnimationPreviewBlockManager implements IAnimationBlockManager
     }
 
     @Override
-    public boolean createAnimatedBlocks(
-        StructureSnapshot snapshot,
-        IAnimationComponent animationComponent,
-        AnimationContext animationContext,
-        Animator.MovementMethod movementMethod)
+    public boolean createAnimatedBlocks(StructureSnapshot snapshot, IAnimationComponent animationComponent)
     {
         final List<AnimatedPreviewBlock> animatedBlocksTmp = new ArrayList<>(snapshot.getBlockCount());
 

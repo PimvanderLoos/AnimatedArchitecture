@@ -21,8 +21,6 @@ public interface IAnimator
      *     The animated block that should be moved.
      * @param goalPos
      *     The target position of the animated block.
-     * @param ticksRemaining
-     *     The number of ticks remaining in the animation.
      */
-    void applyMovement(IAnimatedBlock animatedBlock, RotatedPosition goalPos, int ticksRemaining);
+    void applyMovement(IAnimatedBlock animatedBlock, RotatedPosition goalPos);
 }

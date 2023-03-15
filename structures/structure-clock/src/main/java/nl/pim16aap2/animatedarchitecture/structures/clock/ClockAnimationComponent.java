@@ -64,12 +64,6 @@ public final class ClockAnimationComponent extends DrawbridgeAnimationComponent
             (movementDirection == MovementDirection.EAST || movementDirection == MovementDirection.SOUTH) ? 1 : -1;
     }
 
-    @Override
-    public Animator.MovementMethod getMovementMethod()
-    {
-        return Animator.MovementMethod.TELEPORT;
-    }
-
     /**
      * Checks is a given {@link IAnimatedBlock} is the hour arm or the minute arm.
      *
@@ -97,7 +91,7 @@ public final class ClockAnimationComponent extends DrawbridgeAnimationComponent
     }
 
     @Override
-    public void executeAnimationStep(IAnimator animator, int ticks, int ticksRemaining)
+    public void executeAnimationStep(IAnimator animator, int ticks)
     {
         final WorldTime worldTime = snapshot.getWorld().getTime();
         final double hourAngle = angleDirectionMultiplier * hoursToAngle(worldTime.getHours(), worldTime.getMinutes());
@@ -106,7 +100,7 @@ public final class ClockAnimationComponent extends DrawbridgeAnimationComponent
         for (final IAnimatedBlock animatedBlock : animator.getAnimatedBlocks())
         {
             final double timeAngle = isHourArm.test(animatedBlock) ? hourAngle : minuteAngle;
-            animator.applyMovement(animatedBlock, getGoalPos(timeAngle, animatedBlock), ticksRemaining);
+            animator.applyMovement(animatedBlock, getGoalPos(timeAngle, animatedBlock));
         }
     }
 

@@ -114,11 +114,11 @@ public class DrawbridgeAnimationComponent implements IAnimationComponent
     }
 
     @Override
-    public void executeAnimationStep(IAnimator animator, int ticks, int ticksRemaining)
+    public void executeAnimationStep(IAnimator animator, int ticks)
     {
         final double stepSum = Util.clampAngleRad(step * ticks);
         for (final IAnimatedBlock animatedBlock : animator.getAnimatedBlocks())
-            animator.applyMovement(animatedBlock, getGoalPos(stepSum, animatedBlock), ticksRemaining);
+            animator.applyMovement(animatedBlock, getGoalPos(stepSum, animatedBlock));
     }
 
     public static float getRadius(boolean northSouthAligned, IVector3D rotationPoint, int xAxis, int yAxis, int zAxis)

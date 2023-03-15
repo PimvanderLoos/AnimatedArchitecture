@@ -53,70 +53,8 @@ public interface IAnimatedBlock
      *
      * @param target
      *     The target position the block should move to(wards).
-     * @param ticksRemaining
-     *     The number of ticks remaining in the animation. May be negative when running in 'overtime' to move the blocks
-     *     to their final position.
      */
-    void moveToTarget(RotatedPosition target, int ticksRemaining);
-
-    /**
-     * Teleports the entity to the provided position.
-     *
-     * @param newPosition
-     *     The location that the entity will be reported to.
-     * @param rotation
-     *     The local rotations of the entity.
-     * @param teleportMode
-     *     The type of teleportation to apply.
-     * @return True if the teleport was successful.
-     */
-    boolean teleport(Vector3Dd newPosition, Vector3Dd rotation, TeleportMode teleportMode);
-
-    /**
-     * Teleports the entity to the provided position.
-     *
-     * @param newPosition
-     *     The location that the entity will be reported to.
-     * @param rotation
-     *     The local rotations of the entity.
-     * @return True if the teleport was successful.
-     */
-    default boolean teleport(Vector3Dd newPosition, Vector3Dd rotation)
-    {
-        return teleport(newPosition, new Vector3Dd(0, 0, 0), TeleportMode.ABSOLUTE);
-    }
-
-    /**
-     * Teleports the entity to the provided position.
-     *
-     * @param newPosition
-     *     The location that the entity will be reported to.
-     * @param teleportMode
-     *     The type of teleportation to apply.
-     * @return True if the teleport was successful.
-     */
-    default boolean teleport(Vector3Dd newPosition, TeleportMode teleportMode)
-    {
-        return teleport(newPosition, new Vector3Dd(0, 0, 0), teleportMode);
-    }
-
-    /**
-     * Teleports the entity to the provided position.
-     *
-     * @param newPosition
-     *     The location that the entity will be reported to.
-     * @return True if the teleport was successful.
-     */
-    default boolean teleport(Vector3Dd newPosition)
-    {
-        return teleport(newPosition, new Vector3Dd(0, 0, 0));
-    }
-
-    /**
-     * @param vector
-     *     The new velocity of the entity.
-     */
-    void setVelocity(Vector3Dd vector);
+    void moveToTarget(RotatedPosition target);
 
     /**
      * Spawns this animated block.

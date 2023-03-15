@@ -107,7 +107,7 @@ public class AnimatedPreviewBlock implements IAnimatedBlock
     }
 
     @Override
-    public void moveToTarget(RotatedPosition target, int ticksRemaining)
+    public void moveToTarget(RotatedPosition target)
     {
         final int currentTicks = processedTicks;
         processedTicks = currentTicks + 1;
@@ -120,17 +120,6 @@ public class AnimatedPreviewBlock implements IAnimatedBlock
         final IGlowingBlock currentBlock = this.glowingBlock;
         if (currentBlock != null)
             currentBlock.teleport(target);
-    }
-
-    @Override
-    public boolean teleport(Vector3Dd newPosition, Vector3Dd rotation, IAnimatedBlock.TeleportMode teleportMode)
-    {
-        return false;
-    }
-
-    @Override
-    public void setVelocity(Vector3Dd vector)
-    {
     }
 
     @Override

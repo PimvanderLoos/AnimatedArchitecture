@@ -1,6 +1,5 @@
 package nl.pim16aap2.animatedarchitecture.core.moveblocks;
 
-import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.AnimationContext;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 
@@ -23,17 +22,9 @@ public interface IAnimationBlockManager
      *     The snapshot of the structure to create the animated blocks for.
      * @param animationComponent
      *     The animation component to use for retrieving additional information for the animated blocks.
-     * @param animationContext
-     *     The animation context for the animated blocks.
-     * @param movementMethod
-     *     The movement method to use for the animation.
      * @return The result of the attempted creation of the animated blocks.
      */
-    boolean createAnimatedBlocks(
-        StructureSnapshot snapshot,
-        IAnimationComponent animationComponent,
-        AnimationContext animationContext,
-        Animator.MovementMethod movementMethod);
+    boolean createAnimatedBlocks(StructureSnapshot snapshot, IAnimationComponent animationComponent);
 
     /**
      * @return All the animated blocks that are part of the animation. In case an error occurred during the creation,

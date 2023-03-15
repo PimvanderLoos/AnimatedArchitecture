@@ -2,12 +2,10 @@ package nl.pim16aap2.animatedarchitecture.spigot.core.animation;
 
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
-import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.AnimationContext;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockData;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockFactory;
 import nl.pim16aap2.animatedarchitecture.core.managers.AnimatedBlockHookManager;
-import nl.pim16aap2.animatedarchitecture.core.moveblocks.Animator;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
@@ -34,8 +32,7 @@ public class AnimatedBlockDisplayFactory implements IAnimatedBlockFactory
 
     @Override
     public Optional<IAnimatedBlock> create(
-        IWorld world, RotatedPosition startPosition, float radius, boolean bottom, boolean onEdge,
-        AnimationContext context, RotatedPosition finalPosition, Animator.MovementMethod movementMethod,
+        IWorld world, RotatedPosition startPosition, float radius, boolean onEdge, RotatedPosition finalPosition,
         @Nullable Consumer<IAnimatedBlockData> blockDataRotator)
         throws Exception
     {

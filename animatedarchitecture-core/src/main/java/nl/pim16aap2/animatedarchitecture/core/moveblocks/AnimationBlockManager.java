@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
-import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.AnimationContext;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockFactory;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
@@ -47,9 +46,7 @@ public class AnimationBlockManager implements IAnimationBlockManager
     }
 
     @Override
-    public boolean createAnimatedBlocks(
-        StructureSnapshot snapshot, IAnimationComponent animationComponent, AnimationContext animationContext,
-        Animator.MovementMethod movementMethod)
+    public boolean createAnimatedBlocks(StructureSnapshot snapshot, IAnimationComponent animationComponent)
     {
         final List<IAnimatedBlock> animatedBlocksTmp = new ArrayList<>(snapshot.getBlockCount());
 
@@ -72,7 +69,6 @@ public class AnimationBlockManager implements IAnimationBlockManager
                                 yAxis == yMin || yAxis == yMax ||
                                 zAxis == zMin || zAxis == zMax;
 
-                        final boolean bottom = (yAxis == yMin);
                         final float radius = animationComponent.getRadius(xAxis, yAxis, zAxis);
 
                         final var blockDataRotator = animationComponent.getBlockDataRotator();
@@ -83,11 +79,8 @@ public class AnimationBlockManager implements IAnimationBlockManager
                             .create(snapshot.getWorld(),
                                     startPosition,
                                     radius,
-                                    bottom,
                                     onEdge,
-                                    animationContext,
                                     finalPosition,
-                                    movementMethod,
                                     blockDataRotator)
                             .ifPresent(animatedBlocksTmp::add);
                     }
