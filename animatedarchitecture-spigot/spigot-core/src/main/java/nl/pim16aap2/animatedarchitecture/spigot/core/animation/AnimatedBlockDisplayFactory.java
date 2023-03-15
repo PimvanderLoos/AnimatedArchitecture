@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.animation;
 
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
-import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
+import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.AnimationContext;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockFactory;
@@ -24,15 +24,15 @@ public class AnimatedBlockDisplayFactory implements IAnimatedBlockFactory
 
     @Override
     public Optional<IAnimatedBlock> create(
-        ILocation loc, RotatedPosition startPosition, float radius, boolean bottom, boolean onEdge,
+        IWorld world, RotatedPosition startPosition, float radius, boolean bottom, boolean onEdge,
         AnimationContext context, RotatedPosition finalPosition, Animator.MovementMethod movementMethod)
         throws Exception
     {
+        // TODO: Implement check for material white/blacklisting.
         return Optional.of(new AnimatedBlockDisplay(
             executor,
             startPosition,
-            loc.getWorld(),
-            new RotatedPosition(loc.getPositionDouble()),
+            world,
             finalPosition,
             onEdge,
             radius));

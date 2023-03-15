@@ -1,8 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.core.util.vector;
 
 import com.google.errorprone.annotations.CheckReturnValue;
-import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
+import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import org.jetbrains.annotations.Contract;
 
 /**
@@ -31,17 +31,18 @@ public record Vector3Dd(double x, double y, double z) implements IVector3D
         return other instanceof Vector3Dd vec3d ? vec3d : new Vector3Dd(other);
     }
 
-    /**
-     * Creates a new integer-based 3d vector from this double-based 3d vector.
-     * <p>
-     * The values of the double-based vector will be rounded to obtain the integer values.
-     *
-     * @return A new integer-based vector.
-     */
+    @Override
     @CheckReturnValue @Contract(pure = true)
     public Vector3Di toInteger()
     {
         return Vector3Di.fromDouble(this);
+    }
+
+    @Override
+    @CheckReturnValue @Contract(pure = true)
+    public Vector3Dd toDouble()
+    {
+        return this;
     }
 
     @CheckReturnValue @Contract(pure = true)

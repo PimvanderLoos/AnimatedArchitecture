@@ -1,7 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.moveblocks;
 
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
-import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 
 /**
@@ -10,17 +9,13 @@ import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 public interface IAnimationComponent
 {
     /**
-     * @param startLocation
-     *     The start location of a block.
-     * @param radius
-     *     The radius of the block to the rotation point.
      * @return The final position of an {@link IAnimatedBlock}.
      */
-    RotatedPosition getFinalPosition(IVector3D startLocation, float radius);
+    RotatedPosition getFinalPosition(int xAxis, int yAxis, int zAxis);
 
-    default RotatedPosition getStartPosition(double xAxis, double yAxis, double zAxis)
+    default RotatedPosition getStartPosition(int xAxis, int yAxis, int zAxis)
     {
-        return new RotatedPosition(new Vector3Dd(xAxis + 0.5, yAxis, zAxis + 0.5));
+        return new RotatedPosition(new Vector3Dd(xAxis, yAxis, zAxis));
     }
 
     /**

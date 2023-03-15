@@ -39,9 +39,9 @@ public class BigDoorAnimationComponent implements IAnimationComponent
                .log("Invalid open direction '%s' for structure: %d", movementDirection.name(), snapshot.getUid());
 
         rotationCenter = new Vector3Dd(
-            snapshot.getRotationPoint().x() + 0.5,
+            snapshot.getRotationPoint().x(),
             snapshot.getCuboid().getMin().y(),
-            snapshot.getRotationPoint().z() + 0.5);
+            snapshot.getRotationPoint().z());
 
         final int animationDuration =
             AnimationUtil.getAnimationTicks(data.getAnimationTime(), data.getServerTickTime());
@@ -52,9 +52,15 @@ public class BigDoorAnimationComponent implements IAnimationComponent
     }
 
     @Override
-    public RotatedPosition getFinalPosition(IVector3D startLocation, float radius)
+    public RotatedPosition getFinalPosition(int xAxis, int yAxis, int zAxis)
     {
-        return getGoalPos(Util.clampAngleRad(angle), startLocation.xD(), startLocation.yD(), startLocation.zD());
+        return getGoalPos(Util.clampAngleRad(angle), xAxis, yAxis, zAxis);
+    }
+
+    @Override
+    public RotatedPosition getStartPosition(int xAxis, int yAxis, int zAxis)
+    {
+        return getGoalPos(0, xAxis, yAxis, zAxis);
     }
 
     @Override

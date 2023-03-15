@@ -88,7 +88,7 @@ public class CounterWeightGarageDoorAnimationComponent implements IAnimationComp
         this.mergedCuboidRadius = mergedCuboid.getDimensions().multiply(directionVec.absolute()).getMax() / 2.0D;
         this.newCuboid = data.getNewCuboid();
 
-        this.rotationCenter = mergedCuboid.getCenter().floor().add(0.5, 0, 0.5);
+        this.rotationCenter = mergedCuboid.getCenter().floor();
         this.step =
             angle / quarterCircles / AnimationUtil.getAnimationTicks(data.getAnimationTime(), data.getServerTickTime());
     }
@@ -125,9 +125,9 @@ public class CounterWeightGarageDoorAnimationComponent implements IAnimationComp
     }
 
     @Override
-    public RotatedPosition getFinalPosition(IVector3D startLocation, float radius)
+    public RotatedPosition getFinalPosition(int xAxis, int yAxis, int zAxis)
     {
-        return new RotatedPosition(rotator.apply(Vector3Dd.of(startLocation), rotationCenter, angle));
+        return new RotatedPosition(rotator.apply(new Vector3Dd(xAxis, yAxis, zAxis), rotationCenter, angle));
     }
 
     @Override

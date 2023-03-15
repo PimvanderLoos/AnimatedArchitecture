@@ -10,7 +10,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
-import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.IAnimatedBlockSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.LocationSpigot;
@@ -29,13 +28,11 @@ import javax.annotation.concurrent.GuardedBy;
 
 public class AnimatedBlockDisplay implements IAnimatedBlockSpigot
 {
-    private static final Vector3f ZERO_VECTOR = new Vector3f(0, 0, 0);
     private static final Vector3f ONE_VECTOR = new Vector3f(1F, 1F, 1F);
     private static final Vector3f HALF_VECTOR_POSITIVE = new Vector3f(0.5F, 0.5F, 0.5F);
     private static final Vector3f HALF_VECTOR_NEGATIVE = new Vector3f(-0.5F, -0.5F, -0.5F);
 
-    private final IExecutor executor;
-    private final RotatedPosition startRotatedPosition;
+    @Getter
     private final IWorld world;
     @Getter
     private final World bukkitWorld;
@@ -59,11 +56,9 @@ public class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     private volatile @Nullable BlockDisplay blockDisplay;
 
     public AnimatedBlockDisplay(
-        IExecutor executor, RotatedPosition startRotatedPosition, IWorld world,
-        RotatedPosition startPosition, RotatedPosition finalPosition, boolean onEdge, float radius)
+        IExecutor executor, RotatedPosition startPosition, IWorld world,
+        RotatedPosition finalPosition, boolean onEdge, float radius)
     {
-        this.executor = executor;
-        this.startRotatedPosition = startRotatedPosition;
         this.world = world;
         this.bukkitWorld = Util.requireNonNull(SpigotAdapter.getBukkitWorld(world), "Bukkit World");
         this.onEdge = onEdge;
@@ -72,24 +67,25 @@ public class AnimatedBlockDisplay implements IAnimatedBlockSpigot
         this.finalPosition = finalPosition;
         this.radius = radius;
 
-        this.currentTarget = startPosition;
+        this.currentTarget = this.startPosition;
 
-        final Vector3Dd pos = startPosition.position();
-        this.blockData = new SimpleBlockData(
-            executor, bukkitWorld, new Vector3Di((int) pos.x(), (int) pos.y(), (int) pos.z()));
+        final Vector3Dd pos = this.startPosition.position();
+        this.blockData = new SimpleBlockData(executor, bukkitWorld, pos.floor().toInteger());
     }
 
     @Override
     public void spawn()
     {
-        final Vector3Dd pos = currentTarget.position();
-        final Location loc = new Location(bukkitWorld, pos.x() - 0.5, pos.y(), pos.z() - 0.5);
+        final Vector3Dd pos = currentTarget.position().floor();
+        final Location loc = new Location(bukkitWorld, pos.x(), pos.y(), pos.z());
         final BlockDisplay newEntity = bukkitWorld.spawn(loc, BlockDisplay.class);
         blockDisplay = newEntity;
 
         newEntity.setBlock(blockData.getBlockData());
         newEntity.setCustomName(Constants.ANIMATED_ARCHITECTURE_ENTITY_NAME);
         newEntity.setCustomNameVisible(false);
+        newEntity.setInterpolationDuration(1);
+        newEntity.setViewRange(2.5F);
     }
 
     @Override
@@ -105,6 +101,68 @@ public class AnimatedBlockDisplay implements IAnimatedBlockSpigot
         final BlockDisplay entity = blockDisplay;
         if (entity != null)
             entity.remove();
+    }
+
+    @Override
+    public void moveToTarget(RotatedPosition target, int ticksRemaining)
+    {
+        updateTransformation(target);
+        cycleTargets(target);
+    }
+
+    private void updateTransformation(RotatedPosition target)
+    {
+        final @Nullable BlockDisplay entity = this.blockDisplay;
+        if (entity == null)
+            return;
+
+        final Vector3Dd delta = target.position().subtract(startPosition.position());
+        entity.setTransformation(getTransformation(target.rotation(), delta));
+    }
+
+    private Transformation getTransformation(Vector3Dd rotation, Vector3Dd delta)
+    {
+        final Vector3Dd rads = rotation.subtract(startPosition.rotation()).toRadians();
+        final float roll = (float) rads.x();
+        final float pitch = (float) rads.y();
+        final float yaw = (float) rads.z();
+
+        Matrix4f transformation = new Matrix4f()
+            .translate(HALF_VECTOR_NEGATIVE)
+            .rotate(fromRollPitchYaw(roll, pitch, yaw))
+            .translate(HALF_VECTOR_POSITIVE);
+
+        final Quaternionf leftRotation = transformation.getUnnormalizedRotation(new Quaternionf());
+        final Vector3f translation = to3f(delta).sub(transformation.getTranslation(new Vector3f()));
+
+        return new Transformation(translation, leftRotation, ONE_VECTOR, new Quaternionf());
+    }
+
+    private static Vector3f to3f(IVector3D vec)
+    {
+        return new Vector3f((float) vec.xD(), (float) vec.yD(), (float) vec.zD());
+    }
+
+    public static Quaternionf fromRollPitchYaw(float roll, float pitch, float yaw)
+    {
+        return new Quaternionf().rotateY(yaw).rotateX(pitch).rotateZ(roll);
+    }
+
+    private void cycleTargets(RotatedPosition newTarget)
+    {
+        this.previousTarget = currentTarget;
+        this.currentTarget = newTarget;
+    }
+
+    @Override
+    public boolean teleport(Vector3Dd newPosition, Vector3Dd rotation, TeleportMode teleportMode)
+    {
+        return false;
+    }
+
+    @Override
+    public void setVelocity(Vector3Dd vector)
+    {
     }
 
     @Override
@@ -135,74 +193,6 @@ public class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     public Vector3Dd getPreviousTarget()
     {
         return previousTarget.position();
-    }
-
-    @Override
-    public IWorld getWorld()
-    {
-        return world;
-    }
-
-    private void cycleTargets(RotatedPosition newTarget)
-    {
-        this.previousTarget = currentTarget;
-        this.currentTarget = newTarget;
-    }
-
-    @Override
-    public void moveToTarget(RotatedPosition target, int ticksRemaining)
-    {
-        updateTransformation(target);
-        cycleTargets(target);
-    }
-
-    private void updateTransformation(RotatedPosition target)
-    {
-        final @Nullable BlockDisplay entity = this.blockDisplay;
-        if (entity == null)
-            return;
-
-        final Vector3Dd delta = target.position().subtract(startPosition.position());
-        entity.setTransformation(getTransformation(target.rotation(), delta));
-    }
-
-    private Transformation getTransformation(Vector3Dd rotation, Vector3Dd delta)
-    {
-        final Vector3Dd rads = rotation.subtract(startRotatedPosition.rotation()).toRadians();
-        final float roll = (float) rads.x();
-        final float pitch = (float) rads.y();
-        final float yaw = (float) rads.z();
-
-        Matrix4f transformation = new Matrix4f()
-            .translate(HALF_VECTOR_NEGATIVE)
-            .rotate(fromRollPitchYaw(roll, pitch, yaw))
-            .translate(HALF_VECTOR_POSITIVE);
-
-        final Quaternionf leftRotation = transformation.getUnnormalizedRotation(new Quaternionf());
-        final Vector3f translation = to3f(delta).sub(transformation.getTranslation(new Vector3f()));
-
-        return new Transformation(translation, leftRotation, ONE_VECTOR, new Quaternionf());
-    }
-
-    private static Vector3f to3f(IVector3D vec)
-    {
-        return new Vector3f((float) vec.xD(), (float) vec.yD(), (float) vec.zD());
-    }
-
-    public static Quaternionf fromRollPitchYaw(float roll, float pitch, float yaw)
-    {
-        return new Quaternionf().rotateY(yaw).rotateX(pitch).rotateZ(roll);
-    }
-
-    @Override
-    public boolean teleport(Vector3Dd newPosition, Vector3Dd rotation, TeleportMode teleportMode)
-    {
-        return false;
-    }
-
-    @Override
-    public void setVelocity(Vector3Dd vector)
-    {
     }
 
     @Override

@@ -9,7 +9,6 @@ import nl.pim16aap2.animatedarchitecture.core.moveblocks.IAnimator;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
-import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import org.jetbrains.annotations.Nullable;
 
@@ -50,9 +49,9 @@ public class SlidingDoorAnimationComponent implements IAnimationComponent
     }
 
     @Override
-    public RotatedPosition getFinalPosition(IVector3D startLocation, float radius)
+    public RotatedPosition getFinalPosition(int xAxis, int yAxis, int zAxis)
     {
-        return new RotatedPosition(Vector3Dd.of(startLocation).add(moveX, 0, moveZ));
+        return new RotatedPosition(new Vector3Dd(xAxis + moveX, yAxis, zAxis + moveZ));
     }
 
     @Override

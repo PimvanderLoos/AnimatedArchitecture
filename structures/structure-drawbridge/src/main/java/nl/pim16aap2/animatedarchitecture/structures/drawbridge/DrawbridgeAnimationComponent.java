@@ -26,7 +26,6 @@ public class DrawbridgeAnimationComponent implements IAnimationComponent
     private final boolean northSouth;
     private final TriFunction<Vector3Dd, Vector3Dd, Double, Vector3Dd> rotator;
     private final StructureSnapshot snapshot;
-
     private final double angle;
     private final double step;
     private final int rotateCount;
@@ -38,7 +37,7 @@ public class DrawbridgeAnimationComponent implements IAnimationComponent
     {
         this.snapshot = data.getStructureSnapshot();
         this.northSouth = isNorthSouthAligned;
-        this.rotationCenter = snapshot.getRotationPoint().toDouble().add(0.5, 0, 0.5);
+        this.rotationCenter = snapshot.getRotationPoint().toDouble();
         this.movementDirection = movementDirection;
 
         switch (movementDirection)
@@ -76,9 +75,9 @@ public class DrawbridgeAnimationComponent implements IAnimationComponent
     }
 
     @Override
-    public RotatedPosition getStartPosition(double xAxis, double yAxis, double zAxis)
+    public RotatedPosition getStartPosition(int xAxis, int yAxis, int zAxis)
     {
-        return getGoalPos(0, xAxis + 0.5, yAxis, zAxis + 0.5);
+        return getGoalPos(0, xAxis, yAxis, zAxis);
     }
 
     protected Vector3Dd getGoalRotation(Vector3Dd goalPos)
@@ -107,10 +106,9 @@ public class DrawbridgeAnimationComponent implements IAnimationComponent
     }
 
     @Override
-    public RotatedPosition getFinalPosition(IVector3D startLocation, float radius)
+    public RotatedPosition getFinalPosition(int xAxis, int yAxis, int zAxis)
     {
-        return getGoalPos(
-            Util.clampAngleRad(angle), startLocation.xD() + 0.5, startLocation.yD(), startLocation.zD() + 0.5);
+        return getGoalPos(Util.clampAngleRad(angle), xAxis, yAxis, zAxis);
     }
 
     @Override

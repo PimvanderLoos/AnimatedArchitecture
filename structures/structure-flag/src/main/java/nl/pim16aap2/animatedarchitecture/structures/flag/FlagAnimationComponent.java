@@ -10,7 +10,6 @@ import nl.pim16aap2.animatedarchitecture.core.moveblocks.IAnimator;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
-import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.jcalculator.JCalculator;
@@ -92,9 +91,9 @@ public final class FlagAnimationComponent implements IAnimationComponent
     }
 
     @Override
-    public RotatedPosition getFinalPosition(IVector3D startLocation, float radius)
+    public RotatedPosition getFinalPosition(int xAxis, int yAxis, int zAxis)
     {
-        return new RotatedPosition(startLocation);
+        return new RotatedPosition(new Vector3Dd(xAxis, yAxis, zAxis));
     }
 
     @Override

@@ -30,11 +30,14 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
         return other instanceof Vector3Di vec3d ? vec3d : new Vector3Di(other);
     }
 
-    /**
-     * Creates a new double-based 3d vector from this integer-based 3d vector.
-     *
-     * @return A new double-based vector.
-     */
+    @Override
+    @CheckReturnValue @Contract(pure = true)
+    public Vector3Di toInteger()
+    {
+        return this;
+    }
+
+    @Override
     @CheckReturnValue @Contract(pure = true)
     public Vector3Dd toDouble()
     {

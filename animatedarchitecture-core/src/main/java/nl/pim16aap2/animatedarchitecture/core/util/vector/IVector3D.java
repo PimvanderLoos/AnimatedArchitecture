@@ -99,4 +99,22 @@ public sealed interface IVector3D permits Vector3Dd, Vector3Di
     {
         return new Vector3Dd(Math.toDegrees(xD()), Math.toDegrees(yD()), Math.toDegrees(zD()));
     }
+
+    /**
+     * Creates a new integer-based 3d vector from this 3d vector.
+     * <p>
+     * The values of a double-based vector will be rounded to obtain the integer values.
+     *
+     * @return A new integer-based vector.
+     */
+    @CheckReturnValue @Contract(pure = true)
+    Vector3Di toInteger();
+
+    /**
+     * Creates a new double-based 3d vector from this integer-based 3d vector.
+     *
+     * @return A new double-based vector.
+     */
+    @CheckReturnValue @Contract(pure = true)
+    Vector3Dd toDouble();
 }

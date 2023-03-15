@@ -10,7 +10,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.WorldTime;
-import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.structures.drawbridge.DrawbridgeAnimationComponent;
 
 import java.util.function.Predicate;
@@ -89,9 +88,9 @@ public final class ClockAnimationComponent extends DrawbridgeAnimationComponent
     }
 
     @Override
-    public RotatedPosition getFinalPosition(IVector3D startLocation, float radius)
+    public RotatedPosition getFinalPosition(int xAxis, int yAxis, int zAxis)
     {
-        return getStartPosition(startLocation.xD(), startLocation.yD(), startLocation.zD());
+        return getStartPosition(xAxis, yAxis, zAxis);
     }
 
     @Override

@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.api.animatedblock;
 
-import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
+import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.Animator;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
 
@@ -16,8 +16,7 @@ public interface IAnimatedBlockFactory
     /**
      * Creates a new {@link IAnimatedBlock} at the given location made of the provided block.
      *
-     * @param loc
-     *     The location at which the {@link IAnimatedBlock} will be spawned.
+     * @param world
      * @param startPosition
      * @param radius
      *     The radius of the block to the rotation point.
@@ -35,7 +34,7 @@ public interface IAnimatedBlockFactory
      * @return The {@link IAnimatedBlock} that was constructed if it could be constructed.
      */
     Optional<IAnimatedBlock> create(
-        ILocation loc,
+        IWorld world,
         RotatedPosition startPosition,
         float radius,
         boolean bottom,

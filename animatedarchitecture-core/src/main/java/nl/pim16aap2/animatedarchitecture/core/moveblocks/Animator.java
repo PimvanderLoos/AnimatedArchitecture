@@ -17,6 +17,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes.IPerpetualMover;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
+import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import org.jetbrains.annotations.Nullable;
 
@@ -288,7 +289,19 @@ public final class Animator implements IAnimator
         if (animationDuration < 0)
             throw new IllegalStateException("Trying to start an animation with invalid endCount value: " +
                                                 animationDuration);
-        executor.runOnMainThread(this::startAnimation0);
+        executor.runOnMainThread(
+            () ->
+            {
+                try
+                {
+                    startAnimation0();
+                }
+                catch (Exception e)
+                {
+                    log.atSevere().withCause(e).log("Failed to start animation!");
+                    handleInitFailure();
+                }
+            });
     }
 
     /**
@@ -479,18 +492,26 @@ public final class Animator implements IAnimator
             @Override
             public void run()
             {
-                forEachHook("onPreAnimationStep", IAnimationHook::onPreAnimationStep);
-                ++counter;
+                try
+                {
+                    forEachHook("onPreAnimationStep", IAnimationHook::onPreAnimationStep);
+                    ++counter;
 
-                if (perpetualMovement || counter <= animationDuration)
-                    executeAnimationStep(counter, animation);
-                else if (counter > stopCount)
-                    stopAnimation(animation);
-                else
-                    executeFinishingStep(animation);
+                    if (perpetualMovement || counter <= animationDuration)
+                        executeAnimationStep(counter, animation);
+                    else if (counter > stopCount)
+                        stopAnimation(animation);
+                    else
+                        executeFinishingStep(animation);
 
-                animation.setStepsExecuted(counter);
-                forEachHook("onPostAnimationStep", IAnimationHook::onPostAnimationStep);
+                    animation.setStepsExecuted(counter);
+                    forEachHook("onPostAnimationStep", IAnimationHook::onPostAnimationStep);
+                }
+                catch (Exception e)
+                {
+                    // TODO: Stop animation etc.
+                    log.atSevere().withCause(e).log("Failed to execute animation step!");
+                }
             }
         };
         moverTask = moverTask0;
@@ -529,10 +550,10 @@ public final class Animator implements IAnimator
      */
     private void updateCoords()
     {
-//        structure.setOpen(!snapshot.isOpen());
-//        if (!newCuboid.equals(snapshot.getCuboid()))
-//            structure.setCoordinates(newCuboid);
-//        structure.syncData().exceptionally(Util::exceptionally);
+        structure.setOpen(!snapshot.isOpen());
+        if (!newCuboid.equals(snapshot.getCuboid()))
+            structure.setCoordinates(newCuboid);
+        structure.syncData().exceptionally(Util::exceptionally);
     }
 
     /**

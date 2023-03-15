@@ -50,10 +50,8 @@ public class SimpleBlockData implements IAnimatedBlockData
             return;
         }
 
-//        final Vector3Di loci = new Vector3Di(loc);
-//        this.bukkitWorld.getBlockAt(loci.x(), loci.y(), loci.z()).setBlockData(this.getBlockData());
-        this.bukkitWorld.getBlockAt(originalPosition.x(), originalPosition.y(), originalPosition.z())
-                        .setBlockData(this.getBlockData());
+        final Vector3Di loci = loc.floor().toInteger();
+        this.bukkitWorld.getBlockAt(loci.x(), loci.y(), loci.z()).setBlockData(this.getBlockData());
     }
 
     @Override
@@ -65,6 +63,6 @@ public class SimpleBlockData implements IAnimatedBlockData
             return;
         }
         this.bukkitWorld.getBlockAt(originalPosition.x(), originalPosition.y(), originalPosition.z())
-                        .setType(Material.AIR, false);
+                        .setType(Material.AIR, applyPhysics);
     }
 }
