@@ -9,7 +9,7 @@ package nl.pim16aap2.animatedarchitecture.core.api;
 public interface IBlockAnalyzer
 {
     /**
-     * Check if a block if air or liquid (water, lava).
+     * Check if a block is air or liquid (water, lava).
      *
      * @param location
      *     The location of the block.

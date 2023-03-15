@@ -2,8 +2,6 @@ package nl.pim16aap2.animatedarchitecture.spigot.core.managers;
 
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatform;
-import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
-import nl.pim16aap2.animatedarchitecture.core.managers.AnimatedBlockHookManager;
 import nl.pim16aap2.animatedarchitecture.spigot.core.AnimatedArchitecturePlugin;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.IAnimatedArchitectureSpigotSubPlatform;
 import nl.pim16aap2.animatedarchitecture.spigot.v1_19_R3.AnimatedArchitectureSpigotSubPlatform;
@@ -31,11 +29,7 @@ public final class SubPlatformManager
      * @param animatedArchitecturePlugin
      *     The {@link IAnimatedArchitecturePlatform} for Spigot.
      */
-    @Inject
-    public SubPlatformManager(
-        AnimatedArchitecturePlugin animatedArchitecturePlugin,
-        AnimatedBlockHookManager animatedBlockHookManager,
-        IExecutor executor)
+    @Inject SubPlatformManager(AnimatedArchitecturePlugin animatedArchitecturePlugin)
     {
         serverVersion = Bukkit.getServer().getClass().getPackage().getName();
 
@@ -46,7 +40,7 @@ public final class SubPlatformManager
             final String versionStringTmp = serverVersion.split("\\.")[3];
             versionTmp = Version.parseVersion(versionStringTmp);
             if (versionTmp != Version.UNSUPPORTED_VERSION)
-                spigotPlatformTmp = versionTmp.getPlatform(animatedBlockHookManager, executor);
+                spigotPlatformTmp = versionTmp.getPlatform();
         }
         catch (ArrayIndexOutOfBoundsException | IllegalArgumentException e)
         {
@@ -111,8 +105,7 @@ public final class SubPlatformManager
         UNSUPPORTED_VERSION
             {
                 @Override
-                public @Nullable IAnimatedArchitectureSpigotSubPlatform getPlatform(
-                    AnimatedBlockHookManager animatedBlockHookManager, IExecutor executor)
+                public @Nullable IAnimatedArchitectureSpigotSubPlatform getPlatform()
                 {
                     return null;
                 }
@@ -120,10 +113,9 @@ public final class SubPlatformManager
         V1_19_R3
             {
                 @Override
-                public IAnimatedArchitectureSpigotSubPlatform getPlatform(
-                    AnimatedBlockHookManager animatedBlockHookManager, IExecutor executor)
+                public IAnimatedArchitectureSpigotSubPlatform getPlatform()
                 {
-                    return new AnimatedArchitectureSpigotSubPlatform(animatedBlockHookManager, executor);
+                    return new AnimatedArchitectureSpigotSubPlatform();
                 }
             },
         ;
@@ -131,8 +123,7 @@ public final class SubPlatformManager
         /**
          * @return The instance of the {@link IAnimatedArchitectureSpigotSubPlatform} for this {@link Version}.
          */
-        public abstract @Nullable IAnimatedArchitectureSpigotSubPlatform getPlatform(
-            AnimatedBlockHookManager animatedBlockHookManager, IExecutor executor)
+        public abstract @Nullable IAnimatedArchitectureSpigotSubPlatform getPlatform()
             throws UnsupportedOperationException;
 
         public static Version parseVersion(String version)

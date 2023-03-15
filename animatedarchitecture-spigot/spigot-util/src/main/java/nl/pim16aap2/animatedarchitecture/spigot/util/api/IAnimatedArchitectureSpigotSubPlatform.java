@@ -1,7 +1,5 @@
 package nl.pim16aap2.animatedarchitecture.spigot.util.api;
 
-import nl.pim16aap2.animatedarchitecture.core.api.IBlockAnalyzer;
-import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockFactory;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -21,10 +19,6 @@ public interface IAnimatedArchitectureSpigotSubPlatform
     String getVersion();
 
     void init(JavaPlugin plugin);
-
-    IAnimatedBlockFactory getAnimatedBlockFactory();
-
-    IBlockAnalyzer getBlockAnalyzer();
 
     IGlowingBlockFactory getGlowingBlockFactory();
 }

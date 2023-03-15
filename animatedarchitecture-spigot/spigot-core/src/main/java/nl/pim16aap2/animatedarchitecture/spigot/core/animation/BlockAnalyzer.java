@@ -7,6 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.EnumSet;
 import java.util.Set;
@@ -32,6 +33,10 @@ public final class BlockAnalyzer implements IBlockAnalyzer
             else if (result == MaterialStatus.UNMAPPED)
                 Bukkit.getLogger().warning("Material \"" + mat.name() + "\" is not mapped! Please contact pim16aap2!");
         }
+    }
+
+    @Inject BlockAnalyzer()
+    {
     }
 
     /**
