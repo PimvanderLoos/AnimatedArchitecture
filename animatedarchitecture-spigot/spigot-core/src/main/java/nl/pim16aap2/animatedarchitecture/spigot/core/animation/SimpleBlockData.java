@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.animation;
 
+import com.google.common.flogger.StackSize;
 import lombok.Getter;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
@@ -7,6 +8,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockDa
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
@@ -50,19 +52,27 @@ public class SimpleBlockData implements IAnimatedBlockData
     @Override
     public void putBlock(IVector3D loc)
     {
-//        if (!executor.isMainThread())
-//        {
-//            log.atSevere().withStackTrace(StackSize.FULL).log("Caught async block placement! THIS IS A BUG!");
-//            return;
-//        }
-//
+        if (!executor.isMainThread())
+        {
+            log.atSevere().withStackTrace(StackSize.FULL).log("Caught async block placement! THIS IS A BUG!");
+            return;
+        }
+
 //        final Vector3Di loci = new Vector3Di(loc);
 //        this.bukkitWorld.getBlockAt(loci.x(), loci.y(), loci.z()).setBlockData(this.getBlockData());
+        this.bukkitWorld.getBlockAt(originalPosition.x(), originalPosition.y(), originalPosition.z())
+                        .setBlockData(this.getBlockData());
     }
 
     @Override
     public void deleteOriginalBlock(boolean applyPhysics)
     {
-//        this.bukkitWorld.getBlockAt(originalPosition.x(), originalPosition.y(), originalPosition.z());
+        if (!executor.isMainThread())
+        {
+            log.atSevere().withStackTrace(StackSize.FULL).log("Caught async block placement! THIS IS A BUG!");
+            return;
+        }
+        this.bukkitWorld.getBlockAt(originalPosition.x(), originalPosition.y(), originalPosition.z())
+                        .setType(Material.AIR);
     }
 }

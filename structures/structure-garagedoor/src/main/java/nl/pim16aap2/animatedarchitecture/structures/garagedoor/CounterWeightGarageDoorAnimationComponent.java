@@ -117,7 +117,7 @@ public class CounterWeightGarageDoorAnimationComponent implements IAnimationComp
 
     protected Vector3Dd getGoalPos(double angle, IAnimatedBlock animatedBlock)
     {
-        return rotator.apply(animatedBlock.getStartPosition(), rotationCenter, angle);
+        return rotator.apply(animatedBlock.getStartPosition().position(), rotationCenter, angle);
     }
 
     @Override

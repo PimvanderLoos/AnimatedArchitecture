@@ -7,6 +7,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockFactory;
 import nl.pim16aap2.animatedarchitecture.core.managers.AnimatedBlockHookManager;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.Animator;
+import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
@@ -39,8 +40,9 @@ public final class AnimatedBlockFactory implements IAnimatedBlockFactory
 
     @Override
     public Optional<IAnimatedBlock> create(
-        ILocation loc, float radius, float startAngle, boolean bottom, boolean onEdge, Vector3Dd rotationPoint,
-        AnimationContext context, Vector3Dd finalPosition, Animator.MovementMethod movementMethod)
+        ILocation loc, RotatedPosition startPosition, float radius, float startAngle, boolean bottom, boolean onEdge,
+        Vector3Dd rotationPoint, AnimationContext context, RotatedPosition finalPosition,
+        Animator.MovementMethod movementMethod)
         throws Exception
     {
         final Location spigotLocation = SpigotAdapter.getBukkitLocation(loc);
@@ -55,7 +57,7 @@ public final class AnimatedBlockFactory implements IAnimatedBlockFactory
 
         final var animatedBlock = new CustomEntityFallingBlock(
             executor, loc.getWorld(), bukkitWorld, spawnLoc.getX(), spawnLoc.getY(), spawnLoc.getZ(), radius,
-            startAngle, movementMethod, onEdge, context, animatedBlockHookManager, finalPosition);
+            startAngle, movementMethod, onEdge, context, animatedBlockHookManager, finalPosition.position());
 
         animatedBlock.b(CraftChatMessage.fromStringOrNull(Constants.ANIMATED_ARCHITECTURE_ENTITY_NAME));
         animatedBlock.n(false);

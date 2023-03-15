@@ -93,7 +93,7 @@ public final class SectionalGarageDoorAnimationComponent extends CounterWeightGa
         if (currentZ <= pivotZ)
         {
             yMod = -Math.max(0, stepSum - animatedBlock.getRadius() + 0.5);
-            zMod = Math.max(goalZ - animatedBlock.getStartPosition().z() + 0.5, zMod);
+            zMod = Math.max(goalZ - animatedBlock.getStartPosition().position().z() + 0.5, zMod);
         }
 
         return new Vector3Dd(animatedBlock.getStartX() + xMod,
@@ -114,7 +114,7 @@ public final class SectionalGarageDoorAnimationComponent extends CounterWeightGa
         if (currentZ >= pivotZ)
         {
             yMod = -Math.max(0, stepSum - animatedBlock.getRadius() + 0.5);
-            zMod = Math.min(goalZ - animatedBlock.getStartPosition().z() + 0.5, zMod);
+            zMod = Math.min(goalZ - animatedBlock.getStartPosition().position().z() + 0.5, zMod);
         }
         return new Vector3Dd(animatedBlock.getStartX() + xMod,
                              animatedBlock.getStartY() + yMod,
@@ -133,7 +133,7 @@ public final class SectionalGarageDoorAnimationComponent extends CounterWeightGa
 
         if (currentX >= pivotX)
         {
-            xMod = Math.min(goalX - animatedBlock.getStartPosition().x() + 0.5, xMod);
+            xMod = Math.min(goalX - animatedBlock.getStartPosition().position().x() + 0.5, xMod);
             yMod = -Math.max(0, stepSum - animatedBlock.getRadius() + 0.5);
         }
         return new Vector3Dd(animatedBlock.getStartX() + xMod,
@@ -153,7 +153,7 @@ public final class SectionalGarageDoorAnimationComponent extends CounterWeightGa
 
         if (currentX <= pivotX)
         {
-            xMod = Math.max(goalX - animatedBlock.getStartPosition().x() + 0.5, xMod);
+            xMod = Math.max(goalX - animatedBlock.getStartPosition().position().x() + 0.5, xMod);
             yMod = -Math.max(0, stepSum - animatedBlock.getRadius() + 0.5);
         }
 

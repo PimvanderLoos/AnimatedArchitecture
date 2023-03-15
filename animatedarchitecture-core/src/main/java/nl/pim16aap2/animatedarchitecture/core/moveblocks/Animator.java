@@ -379,7 +379,7 @@ public final class Animator implements IAnimator
     private void executeFinishingStep(Animation<IAnimatedBlock> animation)
     {
         for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
-            applyMovement(animatedBlock, new RotatedPosition(animatedBlock.getFinalPosition()), -1);
+            applyMovement(animatedBlock, animatedBlock.getFinalPosition(), -1);
 
         animation.setRegion(getAnimationRegion());
         animation.setState(AnimationState.FINISHING);

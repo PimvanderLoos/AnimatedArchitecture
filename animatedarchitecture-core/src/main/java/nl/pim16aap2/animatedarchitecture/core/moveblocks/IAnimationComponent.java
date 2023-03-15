@@ -19,6 +19,23 @@ public interface IAnimationComponent
     Vector3Dd getFinalPosition(IVector3D startLocation, float radius);
 
     /**
+     * @param startLocation
+     *     The start location of a block.
+     * @param radius
+     *     The radius of the block to the rotation point.
+     * @return The final position of an {@link IAnimatedBlock}.
+     */
+    default RotatedPosition getFinalPosition0(IVector3D startLocation, float radius)
+    {
+        return new RotatedPosition(getFinalPosition(startLocation, radius));
+    }
+
+    default RotatedPosition getStartPosition(int xAxis, int yAxis, int zAxis)
+    {
+        return new RotatedPosition(new Vector3Dd(xAxis + 0.5, yAxis, zAxis + 0.5));
+    }
+
+    /**
      * Runs some optional steps before the animation is started.
      *
      * @param animator

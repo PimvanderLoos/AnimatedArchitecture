@@ -83,11 +83,13 @@ public class AnimationBlockManager implements IAnimationBlockManager
                         final boolean bottom = (yAxis == yMin);
                         final float radius = animationComponent.getRadius(xAxis, yAxis, zAxis);
                         final float startAngle = animationComponent.getStartAngle(xAxis, yAxis, zAxis);
-                        final Vector3Dd startPosition = new Vector3Dd(xAxis + 0.5, yAxis, zAxis + 0.5);
-                        final Vector3Dd finalPosition = animationComponent.getFinalPosition(startPosition, radius);
+                        final RotatedPosition startPosition = animationComponent.getStartPosition(xAxis, yAxis, zAxis);
+                        final RotatedPosition finalPosition =
+                            animationComponent.getFinalPosition0(startPosition.position(), radius);
 
                         animatedBlockFactory
                             .create(location,
+                                    startPosition,
                                     radius,
                                     startAngle,
                                     bottom,
@@ -151,7 +153,7 @@ public class AnimationBlockManager implements IAnimationBlockManager
             }
             try
             {
-                final Vector3Dd startPos = animatedBlock.getStartPosition();
+                final Vector3Dd startPos = animatedBlock.getStartPosition().position();
                 final Vector3Di goalPos = new Vector3Di(MathUtil.floor(startPos.x()),
                                                         MathUtil.round(startPos.y()),
                                                         MathUtil.floor(startPos.z()));
@@ -172,7 +174,7 @@ public class AnimationBlockManager implements IAnimationBlockManager
         for (final IAnimatedBlock animatedBlock : privateAnimatedBlocks)
         {
             animatedBlock.kill();
-            animatedBlock.getAnimatedBlockData().putBlock(animatedBlock.getFinalPosition());
+            animatedBlock.getAnimatedBlockData().putBlock(animatedBlock.getFinalPosition().position());
         }
         privateAnimatedBlocks.clear();
     }

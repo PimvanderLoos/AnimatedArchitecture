@@ -45,7 +45,7 @@ public final class VerticalAnimationComponent implements IAnimationComponent
 
     private Vector3Dd getGoalPos(IAnimatedBlock animatedBlock, double stepSum)
     {
-        return animatedBlock.getStartPosition().add(0, stepSum, 0);
+        return animatedBlock.getStartPosition().position().add(0, stepSum, 0);
     }
 
     @Override

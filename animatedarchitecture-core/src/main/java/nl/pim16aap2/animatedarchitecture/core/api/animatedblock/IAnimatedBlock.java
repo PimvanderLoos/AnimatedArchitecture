@@ -157,19 +157,19 @@ public interface IAnimatedBlock
     /**
      * @return The starting position of this animated block.
      */
-    Vector3Dd getStartPosition();
+    RotatedPosition getStartPosition();
 
     /**
      * @return The position where the block will be placed after the animation finishes.
      */
-    Vector3Dd getFinalPosition();
+    RotatedPosition getFinalPosition();
 
     /**
      * @return The x-coordinate of the location the block was first spawned at.
      */
     default double getStartX()
     {
-        return getStartPosition().x();
+        return getStartPosition().position().x();
     }
 
     /**
@@ -177,7 +177,7 @@ public interface IAnimatedBlock
      */
     default double getStartY()
     {
-        return getStartPosition().y();
+        return getStartPosition().position().y();
     }
 
     /**
@@ -185,7 +185,7 @@ public interface IAnimatedBlock
      */
     default double getStartZ()
     {
-        return getStartPosition().z();
+        return getStartPosition().position().z();
     }
 
     /**

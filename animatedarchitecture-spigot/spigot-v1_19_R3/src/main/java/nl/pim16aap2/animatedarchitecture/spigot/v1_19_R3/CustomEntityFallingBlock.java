@@ -131,10 +131,10 @@ public class CustomEntityFallingBlock extends EntityFallingBlock implements IAni
     private final ILocation startLocation;
 
     @Getter
-    private final Vector3Dd startPosition;
+    private final RotatedPosition startPosition;
 
     @Getter
-    private final Vector3Dd finalPosition;
+    private final RotatedPosition finalPosition;
 
     public CustomEntityFallingBlock(
         IExecutor executor, IWorld world, World bukkitWorld, double posX, double posY, double posZ, float radius,
@@ -151,7 +151,7 @@ public class CustomEntityFallingBlock extends EntityFallingBlock implements IAni
         this.movementMethod = movementMethod;
         this.onEdge = onEdge;
         this.context = context;
-        this.finalPosition = finalPosition;
+        this.finalPosition = new RotatedPosition(finalPosition);
         worldServer = ((CraftWorld) this.bukkitWorld).getHandle();
         // Do not round x and z because they are at half blocks; Given x;z 10;5, the block will be spawned at
         // 10.5;5.5. Rounding it would retrieve the blocks at 11;6.
@@ -159,7 +159,8 @@ public class CustomEntityFallingBlock extends EntityFallingBlock implements IAni
             new NMSBlock(this, executor, worldServer,
                          MathUtil.floor(posX), MathUtil.round(posY), MathUtil.floor(posZ));
         this.startLocation = new LocationSpigot(new Location(this.bukkitWorld, posX, posY, posZ));
-        this.startPosition = new Vector3Dd(startLocation.getX(), startLocation.getY(), startLocation.getZ());
+        this.startPosition =
+            new RotatedPosition(new Vector3Dd(startLocation.getX(), startLocation.getY(), startLocation.getZ()));
 
         previousPosition = new Vector3Dd(posX, posY, posZ);
         currentPosition = previousPosition;

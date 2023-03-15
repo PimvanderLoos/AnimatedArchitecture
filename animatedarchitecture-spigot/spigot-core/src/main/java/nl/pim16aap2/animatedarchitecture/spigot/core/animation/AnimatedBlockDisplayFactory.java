@@ -25,23 +25,18 @@ public class AnimatedBlockDisplayFactory implements IAnimatedBlockFactory
 
     @Override
     public Optional<IAnimatedBlock> create(
-        ILocation loc, float radius, float startAngle, boolean bottom, boolean onEdge, Vector3Dd rotationPoint,
-        AnimationContext context, Vector3Dd finalPosition, Animator.MovementMethod movementMethod)
+        ILocation loc, RotatedPosition startPosition, float radius, float startAngle, boolean bottom, boolean onEdge,
+        Vector3Dd rotationPoint, AnimationContext context, RotatedPosition finalPosition,
+        Animator.MovementMethod movementMethod)
         throws Exception
     {
-//        return Optional.of(new AnimatedBlockDisplay(
-//            executor,
-//            loc.getWorld(),
-//            new RotatedPosition(loc.getPositionDouble()),
-//            new RotatedPosition(finalPosition.add(-0.5, 0, -0.5)),
-//            startAngle,
-//            radius));
         return Optional.of(new AnimatedBlockDisplay(
             executor,
+            startPosition,
             loc.getWorld(),
             rotationPoint,
             new RotatedPosition(loc.getPositionDouble()),
-            new RotatedPosition(finalPosition),
+            finalPosition,
             startAngle,
             radius));
     }

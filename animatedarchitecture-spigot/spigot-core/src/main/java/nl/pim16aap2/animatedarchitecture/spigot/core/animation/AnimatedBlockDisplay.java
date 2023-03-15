@@ -34,6 +34,7 @@ public class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     private static final Vector3f HALF_VECTOR_NEGATIVE = new Vector3f(-0.5F, -0.5F, -0.5F);
 
     private final IExecutor executor;
+    private final RotatedPosition startRotatedPosition;
     private final IWorld world;
     private final World bukkitWorld;
     private final SimpleBlockData blockData;
@@ -53,10 +54,11 @@ public class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     private volatile @Nullable BlockDisplay blockDisplay;
 
     public AnimatedBlockDisplay(
-        IExecutor executor, IWorld world, Vector3Dd rotationPoint, RotatedPosition startPosition,
-        RotatedPosition finalPosition, float startAngle, float radius)
+        IExecutor executor, RotatedPosition startRotatedPosition, IWorld world, Vector3Dd rotationPoint,
+        RotatedPosition startPosition, RotatedPosition finalPosition, float startAngle, float radius)
     {
         this.executor = executor;
+        this.startRotatedPosition = startRotatedPosition;
         this.world = world;
         this.bukkitWorld = Util.requireNonNull(SpigotAdapter.getBukkitWorld(world), "Bukkit World");
         this.rotationPoint = rotationPoint;
@@ -84,7 +86,7 @@ public class AnimatedBlockDisplay implements IAnimatedBlockSpigot
         newEntity.setBlock(blockData.getBlockData());
         newEntity.setCustomName(Constants.ANIMATED_ARCHITECTURE_ENTITY_NAME);
         newEntity.setCustomNameVisible(false);
-        newEntity.setBrightness(blockData.getBrightness());
+//        newEntity.setBrightness(blockData.getBrightness());
     }
 
     @Override
@@ -147,15 +149,8 @@ public class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     @Override
     public void moveToTarget(RotatedPosition target, int ticksRemaining)
     {
-        teleport(target.position(), target.rotation(), TeleportMode.ABSOLUTE);
         updateTransformation(target);
         cycleTargets(target);
-    }
-
-    @Override
-    public boolean teleport(Vector3Dd newPosition, Vector3Dd rotation, TeleportMode teleportMode)
-    {
-        return false;
     }
 
     private void updateTransformation(RotatedPosition target)
@@ -170,7 +165,7 @@ public class AnimatedBlockDisplay implements IAnimatedBlockSpigot
 
     private Transformation getTransformation(Vector3Dd rotation, Vector3Dd delta)
     {
-        final Vector3Dd rads = rotation.toRadians();
+        final Vector3Dd rads = rotation.subtract(startRotatedPosition.rotation()).toRadians();
         final float roll = (float) rads.x();
         final float pitch = (float) rads.y();
         final float yaw = (float) rads.z();
@@ -194,6 +189,12 @@ public class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     public static Quaternionf fromRollPitchYaw(float roll, float pitch, float yaw)
     {
         return new Quaternionf().rotateY(yaw).rotateX(pitch).rotateZ(roll);
+    }
+
+    @Override
+    public boolean teleport(Vector3Dd newPosition, Vector3Dd rotation, TeleportMode teleportMode)
+    {
+        return false;
     }
 
     @Override
@@ -222,15 +223,15 @@ public class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     }
 
     @Override
-    public Vector3Dd getStartPosition()
+    public RotatedPosition getStartPosition()
     {
-        return startPosition.position();
+        return startPosition;
     }
 
     @Override
-    public Vector3Dd getFinalPosition()
+    public RotatedPosition getFinalPosition()
     {
-        return finalPosition.position();
+        return finalPosition;
     }
 
     @Override

@@ -69,9 +69,9 @@ public class SlidingDoorAnimationComponent implements IAnimationComponent
 
     protected Vector3Dd getGoalPos(IAnimatedBlock animatedBlock, double stepSum)
     {
-        return animatedBlock.getStartPosition().add(northSouth ? 0 : stepSum,
-                                                    0,
-                                                    northSouth ? stepSum : 0);
+        return animatedBlock.getStartPosition().position().add(northSouth ? 0 : stepSum,
+                                                               0,
+                                                               northSouth ? stepSum : 0);
     }
 
     @Override

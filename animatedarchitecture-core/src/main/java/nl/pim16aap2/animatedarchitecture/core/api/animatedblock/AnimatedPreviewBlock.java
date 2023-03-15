@@ -172,15 +172,15 @@ public class AnimatedPreviewBlock implements IAnimatedBlock
     }
 
     @Override
-    public Vector3Dd getStartPosition()
+    public RotatedPosition getStartPosition()
     {
-        return startPosition;
+        return new RotatedPosition(startPosition);
     }
 
     @Override
-    public Vector3Dd getFinalPosition()
+    public RotatedPosition getFinalPosition()
     {
-        return finalPosition;
+        return new RotatedPosition(finalPosition);
     }
 
     @Override
