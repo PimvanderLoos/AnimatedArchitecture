@@ -52,7 +52,7 @@ public interface IAnimatedBlock
      * Moves this animated block to the target.
      *
      * @param target
-     *     The target position the block should move to(wards).
+     *     The target position the block should move to.
      */
     void moveToTarget(RotatedPosition target);
 

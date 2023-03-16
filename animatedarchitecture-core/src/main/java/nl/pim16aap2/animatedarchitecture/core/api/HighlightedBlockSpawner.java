@@ -5,7 +5,6 @@ import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
-import nl.pim16aap2.animatedarchitecture.core.util.IGlowingBlock;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
@@ -15,75 +14,92 @@ import java.time.Duration;
 import java.util.Optional;
 
 /**
- * Represents a glowing block used for highlights
+ * Represents a highlighted animated block. These can be useful for highlighting locations and structures.
  *
  * @author Pim
  */
-public abstract class GlowingBlockSpawner
+public abstract class HighlightedBlockSpawner
 {
-    protected abstract Optional<IGlowingBlock> spawnGlowingBlock(
+    protected abstract Optional<IHighlightedBlock> spawnHighlightedBlock(
         IPlayer player, IWorld world, @Nullable Duration duration, RotatedPosition rotatedPosition, Color color);
 
-    private Optional<IGlowingBlock> spawnGlowingBlock(
+    private Optional<IHighlightedBlock> spawnHighlightedBlock(
         IPlayer player, IWorld world, @Nullable Duration duration, Vector3Dd position, Color color)
     {
-        return spawnGlowingBlock(player, world, duration, new RotatedPosition(position, new Vector3Dd(0, 0, 0)), color);
+        return spawnHighlightedBlock(
+            player, world, duration, new RotatedPosition(position, new Vector3Dd(0, 0, 0)), color);
     }
 
-    private Optional<IGlowingBlock> spawnGlowingBlock(
+    private Optional<IHighlightedBlock> spawnHighlightedBlock(
         IPlayer player, IWorld world, @Nullable Duration duration, double x, double y, double z, Color color)
     {
-        return spawnGlowingBlock(player, world, duration, new Vector3Dd(x, y, z), color);
+        return spawnHighlightedBlock(player, world, duration, new Vector3Dd(x, y, z), color);
     }
 
     /**
-     * Spawns the glowing blocks required to highlight a structure.
+     * Spawns the highlighted blocks required to highlight a structure.
      *
      * @param structure
      *     The structure to highlight.
      * @param player
      *     The {@link IPlayer} for whom to highlight the structure.
      * @param duration
-     *     The amount of time the glowing blocks should be visible for.
+     *     The amount of time the highlighted blocks should be visible for.
      */
-    public void spawnGlowingBlocks(IStructureConst structure, IPlayer player, @Nullable Duration duration)
+    public void spawnHighlightedBlocks(IStructureConst structure, IPlayer player, @Nullable Duration duration)
+    {
+        getExecutor().runOnMainThread(() -> spawnHighlightedBlocks0(structure, player, duration));
+    }
+
+    private void spawnHighlightedBlocks0(IStructureConst structure, IPlayer player, @Nullable Duration duration)
     {
         final IWorld world = structure.getWorld();
 
-        spawnGlowingBlock(player, world, duration,
-                          structure.getPowerBlock().x() + 0.5,
-                          structure.getPowerBlock().y(),
-                          structure.getPowerBlock().z() + 0.5, Color.GOLD);
+        spawnHighlightedBlock(
+            player, world, duration,
+            structure.getPowerBlock().x() + 0.5,
+            structure.getPowerBlock().y(),
+            structure.getPowerBlock().z() + 0.5, Color.GOLD);
 
-        spawnGlowingBlock(player, world, duration,
-                          structure.getRotationPoint().x() + 0.5,
-                          structure.getRotationPoint().y(),
-                          structure.getRotationPoint().z() + 0.5, Color.DARK_PURPLE);
+        spawnHighlightedBlock(
+            player, world, duration,
+            structure.getRotationPoint().x() + 0.5,
+            structure.getRotationPoint().y(),
+            structure.getRotationPoint().z() + 0.5, Color.DARK_PURPLE);
 
-        spawnGlowingBlock(player, world, duration,
-                          structure.getMinimum().x() + 0.5,
-                          structure.getMinimum().y(),
-                          structure.getMinimum().z() + 0.5, Color.BLUE);
+        spawnHighlightedBlock(
+            player, world, duration,
+            structure.getMinimum().x() + 0.5,
+            structure.getMinimum().y(),
+            structure.getMinimum().z() + 0.5, Color.BLUE);
 
-        spawnGlowingBlock(player, world, duration,
-                          structure.getMaximum().x() + 0.5,
-                          structure.getMaximum().y(),
-                          structure.getMaximum().z() + 0.5, Color.RED);
+        spawnHighlightedBlock(
+            player, world, duration,
+            structure.getMaximum().x() + 0.5,
+            structure.getMaximum().y(),
+            structure.getMaximum().z() + 0.5, Color.RED);
     }
 
     /**
-     * Spawns the glowing blocks required to highlight a structure.
+     * Spawns the highlighted blocks required to highlight a structure.
      *
      * @param structure
      *     The structure to highlight.
      * @param player
      *     The {@link IPlayer} for whom to highlight the structure.
      * @param duration
-     *     The amount of time the glowing blocks should be visible for.
+     *     The amount of time the highlighted blocks should be visible for.
      */
-    public void spawnGlowingBlocks(AbstractStructure structure, IPlayer player, @Nullable Duration duration)
+    public void spawnHighlightedBlocks(AbstractStructure structure, IPlayer player, @Nullable Duration duration)
     {
-        spawnGlowingBlocks((IStructureConst) structure, player, duration);
+        getExecutor().runOnMainThread(() -> spawnHighlightedBlocks0(structure, player, duration));
+    }
+
+    protected abstract IExecutor getExecutor();
+
+    private void spawnHighlightedBlocks0(AbstractStructure structure, IPlayer player, @Nullable Duration duration)
+    {
+        spawnHighlightedBlocks((IStructureConst) structure, player, duration);
 
         final IWorld world = structure.getWorld();
         final Optional<Cuboid> cuboidOptional = structure.getPotentialNewCoordinates();
@@ -91,19 +107,21 @@ public abstract class GlowingBlockSpawner
             return;
         final Cuboid cuboid = cuboidOptional.get();
 
-        spawnGlowingBlock(player, world, duration,
-                          cuboid.getMin().x() + 0.5,
-                          cuboid.getMin().y(),
-                          cuboid.getMin().z() + 0.5, Color.DARK_AQUA);
+        spawnHighlightedBlock(
+            player, world, duration,
+            cuboid.getMin().x() + 0.5,
+            cuboid.getMin().y(),
+            cuboid.getMin().z() + 0.5, Color.DARK_AQUA);
 
-        spawnGlowingBlock(player, world, duration,
-                          cuboid.getMax().x() + 0.5,
-                          cuboid.getMax().y(),
-                          cuboid.getMax().z() + 0.5, Color.DARK_RED);
+        spawnHighlightedBlock(
+            player, world, duration,
+            cuboid.getMax().x() + 0.5,
+            cuboid.getMax().y(),
+            cuboid.getMax().z() + 0.5, Color.DARK_RED);
     }
 
     /**
-     * @return A new builder for a glowing block.
+     * @return A new builder for a highlighted block.
      */
     public Builder builder()
     {
@@ -111,13 +129,13 @@ public abstract class GlowingBlockSpawner
     }
 
     /**
-     * The default builder implementation for glowing blocks.
+     * The default builder implementation for highlighted blocks.
      */
     @SuppressWarnings("unused")
     @Flogger
     public static class Builder
     {
-        private final GlowingBlockSpawner glowingBlockSpawner;
+        private final HighlightedBlockSpawner highlightedBlockSpawner;
 
         private @Nullable IPlayer player;
         private @Nullable IWorld world;
@@ -130,14 +148,14 @@ public abstract class GlowingBlockSpawner
         private @Nullable Duration duration;
         private Color color = Color.RED;
 
-        private Builder(GlowingBlockSpawner glowingBlockSpawner)
+        private Builder(HighlightedBlockSpawner highlightedBlockSpawner)
         {
-            this.glowingBlockSpawner = glowingBlockSpawner;
+            this.highlightedBlockSpawner = highlightedBlockSpawner;
         }
 
         /**
          * @param player
-         *     The player who will see the glowing block.
+         *     The player who will see the highlighted block.
          */
         public Builder forPlayer(IPlayer player)
         {
@@ -147,7 +165,7 @@ public abstract class GlowingBlockSpawner
 
         /**
          * @param location
-         *     The location where the glowing block will be spawned. This sets the coordinates and the world.
+         *     The location where the highlighted block will be spawned. This sets the coordinates and the world.
          */
         public Builder atLocation(ILocation location)
         {
@@ -160,7 +178,7 @@ public abstract class GlowingBlockSpawner
 
         /**
          * @param world
-         *     The world the glowing block will be spawned in.
+         *     The world the highlighted block will be spawned in.
          */
         public Builder inWorld(IWorld world)
         {
@@ -170,7 +188,7 @@ public abstract class GlowingBlockSpawner
 
         /**
          * @param duration
-         *     The amount of time the glowing block should exist for after it has been spawned.
+         *     The amount of time the highlighted block should exist for after it has been spawned.
          */
         public Builder forDuration(@Nullable Duration duration)
         {
@@ -180,7 +198,7 @@ public abstract class GlowingBlockSpawner
 
         /**
          * @param position
-         *     The position to spawn the glowing block at. This only sets the coordinates; not the world.
+         *     The position to spawn the highlighted block at. This only sets the coordinates; not the world.
          */
         public Builder atPosition(IVector3D position)
         {
@@ -188,7 +206,7 @@ public abstract class GlowingBlockSpawner
         }
 
         /**
-         * Sets the x, y, and z coordinates to spawn the glowing block at.
+         * Sets the x, y, and z coordinates to spawn the highlighted block at.
          */
         public Builder atPosition(double x, double y, double z)
         {
@@ -199,7 +217,7 @@ public abstract class GlowingBlockSpawner
         }
 
         /**
-         * Sets the rotation components of the glowing block.
+         * Sets the rotation components of the highlighted block.
          */
         public Builder withRotation(double x, double y, double z)
         {
@@ -210,7 +228,7 @@ public abstract class GlowingBlockSpawner
         }
 
         /**
-         * Sets the rotation components of the glowing block.
+         * Sets the rotation components of the highlighted block.
          */
         public Builder withRotation(IVector3D rotation)
         {
@@ -218,7 +236,7 @@ public abstract class GlowingBlockSpawner
         }
 
         /**
-         * Sets the rotation components of the glowing block.
+         * Sets the rotation components of the highlighted block.
          */
         public Builder atPosition(RotatedPosition rotatedPosition)
         {
@@ -229,7 +247,7 @@ public abstract class GlowingBlockSpawner
 
         /**
          * @param color
-         *     The color of the glowing block.
+         *     The color of the highlighted block.
          */
         public Builder withColor(Color color)
         {
@@ -238,16 +256,16 @@ public abstract class GlowingBlockSpawner
         }
 
         /**
-         * Creates and spawns the new glowing block using the provided configuration.
+         * Creates and spawns the new highlighted block using the provided configuration.
          *
-         * @return The {@link IGlowingBlock} that was spawned. The optional will be empty if it could not be spawned for
-         * some reason.
+         * @return The {@link IHighlightedBlock} that was spawned. The optional will be empty if it could not be spawned
+         * for some reason.
          */
-        public Optional<IGlowingBlock> spawn()
+        public Optional<IHighlightedBlock> spawn()
         {
             try
             {
-                return glowingBlockSpawner.spawnGlowingBlock(
+                return highlightedBlockSpawner.spawnHighlightedBlock(
                     Util.requireNonNull(player, "Player"),
                     Util.requireNonNull(world, "World"),
                     duration,
@@ -258,7 +276,7 @@ public abstract class GlowingBlockSpawner
             }
             catch (Exception e)
             {
-                log.atSevere().withCause(e).log("Failed to spawn glowing block!");
+                log.atSevere().withCause(e).log("Failed to spawn highlighted block!");
                 return Optional.empty();
             }
         }

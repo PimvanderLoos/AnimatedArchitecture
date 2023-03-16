@@ -9,23 +9,16 @@ import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockDa
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockHook;
 import nl.pim16aap2.animatedarchitecture.core.managers.AnimatedBlockHookManager;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
-import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
-import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.IAnimatedBlockSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.LocationSpigot;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Entity;
-import org.bukkit.util.Transformation;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4f;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
 
 import javax.annotation.concurrent.GuardedBy;
 import java.util.List;
@@ -34,18 +27,8 @@ import java.util.function.Consumer;
 @Flogger
 public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
 {
-    private static final Vector3f ONE_VECTOR = new Vector3f(1F, 1F, 1F);
-    private static final Vector3f HALF_VECTOR_POSITIVE = new Vector3f(0.5F, 0.5F, 0.5F);
-    private static final Vector3f HALF_VECTOR_NEGATIVE = new Vector3f(-0.5F, -0.5F, -0.5F);
-
-    @Getter
-    private final IWorld world;
-    @Getter
-    private final World bukkitWorld;
     private final SimpleBlockData blockData;
 
-    @Getter
-    private final RotatedPosition startPosition;
     @Getter
     private final RotatedPosition finalPosition;
     @Getter
@@ -54,14 +37,19 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     private final boolean onEdge;
     private final List<IAnimatedBlockHook> hooks;
     private final IExecutor executor;
+    @Getter
+    private final RotatedPosition startPosition;
+    @Getter
+    private final IWorld world;
+    @Getter
+    private final World bukkitWorld;
 
+    @GuardedBy("this")
+    private @Nullable BlockDisplay entity;
     @GuardedBy("this")
     private RotatedPosition previousTarget;
-
     @GuardedBy("this")
     private RotatedPosition currentTarget;
-
-    private volatile @Nullable BlockDisplay blockDisplay;
 
     public AnimatedBlockDisplay(
         IExecutor executor, AnimatedBlockHookManager animatedBlockHookManager,
@@ -69,10 +57,10 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
         IWorld world, RotatedPosition finalPosition, boolean onEdge, float radius)
     {
         this.executor = executor;
+        this.startPosition = startPosition;
         this.world = world;
         this.bukkitWorld = Util.requireNonNull(SpigotAdapter.getBukkitWorld(world), "Bukkit World");
         this.onEdge = onEdge;
-        this.startPosition = startPosition;
         this.finalPosition = finalPosition;
         this.radius = radius;
         this.currentTarget = this.startPosition;
@@ -83,123 +71,77 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
         this.hooks = animatedBlockHookManager.instantiateHooks(this);
     }
 
+    @GuardedBy("this")
     private void spawn0()
     {
-        executor.assertMainThread("Animated blocks must be spawned on the main thread!");
-
-        final Vector3Dd pos = currentTarget.position().floor();
-        final Location loc = new Location(bukkitWorld, pos.x(), pos.y(), pos.z());
-
-        final BlockDisplay newEntity = bukkitWorld.spawn(loc, BlockDisplay.class);
-        blockDisplay = newEntity;
-
-        newEntity.setBlock(blockData.getBlockData());
-        newEntity.setCustomName(Constants.ANIMATED_ARCHITECTURE_ENTITY_NAME);
-        newEntity.setCustomNameVisible(false);
-        newEntity.setInterpolationDuration(1);
-        newEntity.setViewRange(2.5F);
+        this.entity = BlockDisplayHelper.spawn(executor, bukkitWorld, currentTarget, blockData.getBlockData());
+        this.entity.setViewRange(2.5F);
     }
 
     @Override
-    public void spawn()
+    public synchronized void spawn()
     {
         executor.assertMainThread("Animated blocks must be spawned on the main thread!");
-
         forEachHook("preSpawn", IAnimatedBlockHook::preSpawn);
         spawn0();
         forEachHook("postSpawn", IAnimatedBlockHook::postSpawn);
     }
 
-    private void kill0(@Nullable BlockDisplay entity)
+    @GuardedBy("this")
+    private void kill0()
     {
-        executor.assertMainThread("Animated blocks must be killed on the main thread!");
-
-        if (entity == null)
-            return;
-        entity.remove();
+        if (entity != null)
+        {
+            entity.remove();
+            entity = null;
+        }
     }
 
     @Override
-    public void kill()
+    public synchronized void kill()
     {
         executor.assertMainThread("Animated blocks must be killed on the main thread!");
-
-        final @Nullable BlockDisplay entity = this.blockDisplay;
-        if (entity == null)
-            return;
         forEachHook("preKill", IAnimatedBlockHook::preKill);
-        kill0(entity);
+        kill0();
         forEachHook("postKill", IAnimatedBlockHook::postKill);
     }
 
     @Override
-    public void respawn()
+    public synchronized int getTicksLived()
+    {
+        return entity == null ? -1 : entity.getTicksLived();
+    }
+
+    @Override
+    public synchronized void respawn()
     {
         executor.assertMainThread("Animated blocks must be respawned on the main thread!");
 
         forEachHook("preRespawn", IAnimatedBlockHook::preRespawn);
-        kill0(this.blockDisplay);
+        kill0();
         spawn0();
         forEachHook("postRespawn", IAnimatedBlockHook::postRespawn);
     }
 
     @Override
-    public void moveToTarget(RotatedPosition target)
+    public synchronized void moveToTarget(RotatedPosition target)
     {
         forEachHook("preMove", hook -> hook.preMove(target));
-        updateTransformation(target);
+        BlockDisplayHelper.moveToTarget(entity, startPosition, target);
         cycleTargets(target);
         forEachHook("onMoved", hook -> hook.postMove(target));
     }
 
-    private void updateTransformation(RotatedPosition target)
-    {
-        final @Nullable BlockDisplay entity = this.blockDisplay;
-        if (entity == null)
-            return;
-
-        final Vector3Dd delta = target.position().subtract(startPosition.position());
-        entity.setTransformation(getTransformation(target.rotation(), delta));
-    }
-
-    private Transformation getTransformation(Vector3Dd rotation, Vector3Dd delta)
-    {
-        final Vector3Dd rads = rotation.subtract(startPosition.rotation()).toRadians();
-        final float roll = (float) rads.x();
-        final float pitch = (float) rads.y();
-        final float yaw = (float) rads.z();
-
-        Matrix4f transformation = new Matrix4f()
-            .translate(HALF_VECTOR_NEGATIVE)
-            .rotate(fromRollPitchYaw(roll, pitch, yaw))
-            .translate(HALF_VECTOR_POSITIVE);
-
-        final Quaternionf leftRotation = transformation.getUnnormalizedRotation(new Quaternionf());
-        final Vector3f translation = to3f(delta).sub(transformation.getTranslation(new Vector3f()));
-
-        return new Transformation(translation, leftRotation, ONE_VECTOR, new Quaternionf());
-    }
-
-    private static Vector3f to3f(IVector3D vec)
-    {
-        return new Vector3f((float) vec.xD(), (float) vec.yD(), (float) vec.zD());
-    }
-
-    public static Quaternionf fromRollPitchYaw(float roll, float pitch, float yaw)
-    {
-        return new Quaternionf().rotateY(yaw).rotateX(pitch).rotateZ(roll);
-    }
-
-    private void cycleTargets(RotatedPosition newTarget)
+    private synchronized void cycleTargets(RotatedPosition newTarget)
     {
         this.previousTarget = currentTarget;
         this.currentTarget = newTarget;
     }
 
     @Override
-    public boolean isAlive()
+    public synchronized boolean isAlive()
     {
-        return blockDisplay != null;
+        return entity != null;
     }
 
     @Override
@@ -209,28 +151,15 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     }
 
     @Override
-    public Vector3Dd getCurrentPosition()
+    public Material getMaterial()
     {
-        return currentTarget.position();
+        return this.blockData.getBlockData().getMaterial();
     }
 
     @Override
-    public Vector3Dd getPreviousPosition()
+    public synchronized @Nullable Entity getEntity()
     {
-        return previousTarget.position();
-    }
-
-    @Override
-    public Vector3Dd getPreviousTarget()
-    {
-        return previousTarget.position();
-    }
-
-    @Override
-    public int getTicksLived()
-    {
-        final @Nullable Entity entity = this.blockDisplay;
-        return entity == null ? -1 : entity.getTicksLived();
+        return entity;
     }
 
     @Override
@@ -247,12 +176,24 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     }
 
     @Override
-    public Material getMaterial()
+    public synchronized Vector3Dd getCurrentPosition()
     {
-        return this.blockData.getBlockData().getMaterial();
+        return currentTarget.position();
     }
 
-    void forEachHook(String actionName, Consumer<IAnimatedBlockHook> call)
+    @Override
+    public synchronized Vector3Dd getPreviousPosition()
+    {
+        return previousTarget.position();
+    }
+
+    @Override
+    public synchronized Vector3Dd getPreviousTarget()
+    {
+        return previousTarget.position();
+    }
+
+    synchronized void forEachHook(String actionName, Consumer<IAnimatedBlockHook> call)
     {
         for (final IAnimatedBlockHook hook : hooks)
         {

@@ -6,18 +6,18 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.animatedarchitecture.core.api.GlowingBlockSpawner;
+import nl.pim16aap2.animatedarchitecture.core.api.HighlightedBlockSpawner;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
+import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
+import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
-import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetriever;
-import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
+import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetriever;
+import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
@@ -31,12 +31,12 @@ import java.util.concurrent.CompletableFuture;
 @Flogger
 public class Info extends StructureTargetCommand
 {
-    private final GlowingBlockSpawner glowingBlockSpawner;
+    private final HighlightedBlockSpawner glowingBlockSpawner;
 
     @AssistedInject //
     Info(
         @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
-        @Assisted StructureRetriever structureRetriever, GlowingBlockSpawner glowingBlockSpawner)
+        @Assisted StructureRetriever structureRetriever, HighlightedBlockSpawner glowingBlockSpawner)
     {
         super(commandSender, localizer, textFactory, structureRetriever, StructureAttribute.INFO);
         this.glowingBlockSpawner = glowingBlockSpawner;
@@ -97,7 +97,7 @@ public class Info extends StructureTargetCommand
             log.atSevere().withStackTrace(StackSize.FULL).log("Non-player command sender tried to highlight blocks!");
             return;
         }
-        glowingBlockSpawner.spawnGlowingBlocks(structure, player, Duration.ofSeconds(3));
+        glowingBlockSpawner.spawnHighlightedBlocks(structure, player, Duration.ofSeconds(3));
     }
 
     @AssistedFactory

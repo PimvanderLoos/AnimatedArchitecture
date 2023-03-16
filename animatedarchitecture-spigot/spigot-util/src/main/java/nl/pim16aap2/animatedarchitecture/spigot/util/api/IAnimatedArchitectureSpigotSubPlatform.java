@@ -19,6 +19,4 @@ public interface IAnimatedArchitectureSpigotSubPlatform
     String getVersion();
 
     void init(JavaPlugin plugin);
-
-    IGlowingBlockFactory getGlowingBlockFactory();
 }

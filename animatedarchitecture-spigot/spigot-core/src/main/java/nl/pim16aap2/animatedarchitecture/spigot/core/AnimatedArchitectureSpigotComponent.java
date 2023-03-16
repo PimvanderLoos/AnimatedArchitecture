@@ -2,7 +2,7 @@ package nl.pim16aap2.animatedarchitecture.spigot.core;
 
 import dagger.BindsInstance;
 import dagger.Component;
-import nl.pim16aap2.animatedarchitecture.core.api.GlowingBlockSpawner;
+import nl.pim16aap2.animatedarchitecture.core.api.HighlightedBlockSpawner;
 import nl.pim16aap2.animatedarchitecture.core.api.IBlockAnalyzer;
 import nl.pim16aap2.animatedarchitecture.core.api.IChunkLoader;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
@@ -54,6 +54,7 @@ import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.AnimatedArc
 import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.AnimatedArchitectureToolUtilSpigotModule;
 import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.ChunkLoaderSpigotModule;
 import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.DebugReporterSpigotModule;
+import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.HighlightedBlockSpawnerModule;
 import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.LocationFactorySpigotModule;
 import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.PlayerFactorySpigotModule;
 import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.TextFactorySpigot;
@@ -74,7 +75,6 @@ import nl.pim16aap2.animatedarchitecture.spigot.core.managers.VaultManagerModule
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.IAnimatedArchitectureSpigotSubPlatform;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.AudioPlayerSpigotModule;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.ExecutorModule;
-import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.GlowingBlockSpawnerModule;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.MessagingInterfaceSpigotModule;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.SpigotServerModule;
 import nl.pim16aap2.animatedarchitecture.spigot.util.text.TextComponentFactorySpigotModule;
@@ -92,7 +92,7 @@ import javax.inject.Singleton;
     ConfigSpigotModule.class,
     LocalizationModule.class,
     ExecutorModule.class,
-    GlowingBlockSpawnerModule.class,
+    HighlightedBlockSpawnerModule.class,
     SpigotServerModule.class,
     WorldFactorySpigotModule.class,
     LocationFactorySpigotModule.class,
@@ -101,10 +101,9 @@ import javax.inject.Singleton;
     MessagingInterfaceSpigotModule.class,
     AudioPlayerSpigotModule.class,
     PowerBlockRedstoneManagerSpigotModule.class,
-
     AnimatedArchitectureSpigotSubPlatformModule.class,
     AnimationBlockDisplayModule.class,
-
+    HighlightedBlockSpawnerModule.class,
     SQLiteStorageModule.class,
     DebugReporterSpigotModule.class,
     VaultManagerModule.class,
@@ -173,7 +172,7 @@ interface AnimatedArchitectureSpigotComponent
 
     VaultManager getVaultManager();
 
-    GlowingBlockSpawner getIGlowingBlockSpawner();
+    HighlightedBlockSpawner getHighlightedBlockSpawner();
 
     LimitsManager getLimitsManager();
 

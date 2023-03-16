@@ -12,7 +12,6 @@ import net.minecraft.world.entity.monster.EntityMagmaCube;
 import nl.pim16aap2.animatedarchitecture.core.api.Color;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.util.IGlowingBlock;
-import nl.pim16aap2.animatedarchitecture.spigot.util.api.IGlowingBlockFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_19_R3.CraftServer;
@@ -127,26 +126,6 @@ public class GlowingBlock implements IGlowingBlock
             new PacketPlayOutEntityMetadata(glowingBlockEntity.af(), glowingBlockEntity.aj().c());
         playerConnection.a(entityMetadata);
         alive.set(true);
-    }
-
-    public static class Factory implements IGlowingBlockFactory
-    {
-        @Override
-        public Optional<IGlowingBlock> createGlowingBlock(
-            Player player, World world, Color pColor, RotatedPosition rotatedPosition, Map<Color, Team> teams)
-        {
-            try
-            {
-                final GlowingBlock block = new GlowingBlock(player, world, pColor, rotatedPosition, teams);
-                return block.alive.get() ? Optional.of(block) : Optional.empty();
-            }
-            catch (Exception | ExceptionInInitializerError e)
-            {
-                log.atSevere().withCause(e)
-                   .log("Failed to spawn glowing block for player %s in world %s.", player, world);
-                return Optional.empty();
-            }
-        }
     }
 
     @Override

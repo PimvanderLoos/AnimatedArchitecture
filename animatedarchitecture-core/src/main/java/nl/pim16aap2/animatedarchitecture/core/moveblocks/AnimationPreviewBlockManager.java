@@ -5,9 +5,9 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.Color;
-import nl.pim16aap2.animatedarchitecture.core.api.GlowingBlockSpawner;
+import nl.pim16aap2.animatedarchitecture.core.api.HighlightedBlockSpawner;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.AnimatedPreviewBlock;
+import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.AnimatedHighlightedBlock;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ILocationFactory;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * A manager for {@link AnimatedPreviewBlock}s.
+ * A manager for {@link AnimatedHighlightedBlock}s.
  */
 @Flogger
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -28,13 +28,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class AnimationPreviewBlockManager implements IAnimationBlockManager
 {
     private final ILocationFactory locationFactory;
-    private final GlowingBlockSpawner glowingBlockSpawner;
+    private final HighlightedBlockSpawner glowingBlockSpawner;
     private final IPlayer player;
 
     /**
      * The modifiable list of animated blocks.
      */
-    private final List<AnimatedPreviewBlock> privateAnimatedBlocks;
+    private final List<IAnimatedBlock> privateAnimatedBlocks;
 
     /**
      * The (unmodifiable) list of animated blocks.
@@ -44,7 +44,7 @@ public class AnimationPreviewBlockManager implements IAnimationBlockManager
     private final List<IAnimatedBlock> animatedBlocks;
 
     AnimationPreviewBlockManager(
-        ILocationFactory locationFactory, GlowingBlockSpawner glowingBlockSpawner, IPlayer player)
+        ILocationFactory locationFactory, HighlightedBlockSpawner glowingBlockSpawner, IPlayer player)
     {
         this.locationFactory = locationFactory;
         this.glowingBlockSpawner = glowingBlockSpawner;
@@ -57,7 +57,7 @@ public class AnimationPreviewBlockManager implements IAnimationBlockManager
     @Override
     public boolean createAnimatedBlocks(StructureSnapshot snapshot, IAnimationComponent animationComponent)
     {
-        final List<AnimatedPreviewBlock> animatedBlocksTmp = new ArrayList<>(snapshot.getBlockCount());
+        final List<IAnimatedBlock> animatedBlocksTmp = new ArrayList<>(snapshot.getBlockCount());
 
         try
         {
@@ -74,21 +74,16 @@ public class AnimationPreviewBlockManager implements IAnimationBlockManager
                 for (int yAxis = yMax; yAxis >= yMin; --yAxis)
                     for (int zAxis = zMin; zAxis <= zMax; ++zAxis)
                     {
-                        if ((xAxis + yAxis + zAxis) % 2 == 0)
-                            continue;
-
                         final Vector3Di position = new Vector3Di(xAxis, yAxis, zAxis);
-
                         final float radius = animationComponent.getRadius(xAxis, yAxis, zAxis);
                         final Color color = getColor(cuboid, position);
 
                         final RotatedPosition startPosition = animationComponent.getStartPosition(xAxis, yAxis, zAxis);
-                        final RotatedPosition finalPosition = animationComponent.getFinalPosition(xAxis, yAxis, zAxis);
 
                         animatedBlocksTmp.add(
-                            new AnimatedPreviewBlock(
-                                locationFactory, glowingBlockSpawner, snapshot.getWorld(), player,
-                                startPosition.position(), finalPosition.position(), radius, color));
+                            new AnimatedHighlightedBlock(
+                                locationFactory, glowingBlockSpawner, snapshot.getWorld(),
+                                player, startPosition, radius, color));
                     }
         }
         catch (Exception e)
@@ -114,14 +109,14 @@ public class AnimationPreviewBlockManager implements IAnimationBlockManager
     @Override
     public void restoreBlocksOnFailure()
     {
-        privateAnimatedBlocks.forEach(AnimatedPreviewBlock::kill);
+        privateAnimatedBlocks.forEach(IAnimatedBlock::kill);
         privateAnimatedBlocks.clear();
     }
 
     @Override
     public void handleAnimationCompletion()
     {
-        privateAnimatedBlocks.forEach(AnimatedPreviewBlock::kill);
+        privateAnimatedBlocks.forEach(IAnimatedBlock::kill);
         privateAnimatedBlocks.clear();
     }
 }

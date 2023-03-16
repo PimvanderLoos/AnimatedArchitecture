@@ -135,11 +135,11 @@ public interface IAnimatedArchitecturePlatform
     IExecutor getExecutor();
 
     /**
-     * Gets the {@link GlowingBlockSpawner} for the current platform.
+     * Gets the {@link HighlightedBlockSpawner} for the current platform.
      *
-     * @return The {@link GlowingBlockSpawner} for the current platform.
+     * @return The {@link HighlightedBlockSpawner} for the current platform.
      */
-    GlowingBlockSpawner getGlowingBlockSpawner();
+    HighlightedBlockSpawner getHighlightedBlockSpawner();
 
     /**
      * Gets the {@link ILocalizer} used to localize strings.

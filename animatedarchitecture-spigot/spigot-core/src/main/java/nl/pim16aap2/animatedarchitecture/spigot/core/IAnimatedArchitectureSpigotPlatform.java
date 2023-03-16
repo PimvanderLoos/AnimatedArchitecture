@@ -2,7 +2,7 @@ package nl.pim16aap2.animatedarchitecture.spigot.core;
 
 import lombok.Getter;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.animatedarchitecture.core.api.GlowingBlockSpawner;
+import nl.pim16aap2.animatedarchitecture.core.api.HighlightedBlockSpawner;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatform;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitectureToolUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IBlockAnalyzer;
@@ -105,7 +105,7 @@ public final class IAnimatedArchitectureSpigotPlatform implements IAnimatedArchi
     private final IExecutor executor;
 
     @Getter
-    private final GlowingBlockSpawner glowingBlockSpawner;
+    private final HighlightedBlockSpawner highlightedBlockSpawner;
 
     @Getter
     private final ILocalizer localizer;
@@ -269,7 +269,7 @@ public final class IAnimatedArchitectureSpigotPlatform implements IAnimatedArchi
         animatedArchitectureConfig = safeGetter(AnimatedArchitectureSpigotComponent::getConfig);
         executor = safeGetter(AnimatedArchitectureSpigotComponent::getExecutor);
         worldListener = safeGetter(AnimatedArchitectureSpigotComponent::getWorldListener);
-        glowingBlockSpawner = safeGetter(AnimatedArchitectureSpigotComponent::getIGlowingBlockSpawner);
+        highlightedBlockSpawner = safeGetter(AnimatedArchitectureSpigotComponent::getHighlightedBlockSpawner);
         server = safeGetter(AnimatedArchitectureSpigotComponent::getServer);
         audioPlayer = safeGetter(AnimatedArchitectureSpigotComponent::getIAudioPlayer);
         messagingInterface = safeGetter(AnimatedArchitectureSpigotComponent::getIMessagingInterface);

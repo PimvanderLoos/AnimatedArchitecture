@@ -70,7 +70,6 @@ public class AnimationBlockManager implements IAnimationBlockManager
                                 zAxis == zMin || zAxis == zMax;
 
                         final float radius = animationComponent.getRadius(xAxis, yAxis, zAxis);
-
                         final var blockDataRotator = animationComponent.getBlockDataRotator();
                         final RotatedPosition startPosition = animationComponent.getStartPosition(xAxis, yAxis, zAxis);
                         final RotatedPosition finalPosition = animationComponent.getFinalPosition(xAxis, yAxis, zAxis);

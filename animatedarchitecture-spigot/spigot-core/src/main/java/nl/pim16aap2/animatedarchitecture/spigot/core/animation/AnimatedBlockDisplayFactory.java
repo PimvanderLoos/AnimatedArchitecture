@@ -24,7 +24,7 @@ public class AnimatedBlockDisplayFactory implements IAnimatedBlockFactory
     private final IExecutor executor;
     private final AnimatedBlockHookManager animatedBlockHookManager;
 
-    @Inject public AnimatedBlockDisplayFactory(IExecutor executor, AnimatedBlockHookManager animatedBlockHookManager)
+    @Inject AnimatedBlockDisplayFactory(IExecutor executor, AnimatedBlockHookManager animatedBlockHookManager)
     {
         this.executor = executor;
         this.animatedBlockHookManager = animatedBlockHookManager;
@@ -34,7 +34,6 @@ public class AnimatedBlockDisplayFactory implements IAnimatedBlockFactory
     public Optional<IAnimatedBlock> create(
         IWorld world, RotatedPosition startPosition, float radius, boolean onEdge, RotatedPosition finalPosition,
         @Nullable Consumer<IAnimatedBlockData> blockDataRotator)
-        throws Exception
     {
         final Vector3Di pos = startPosition.position().floor().toInteger();
         final Material mat =

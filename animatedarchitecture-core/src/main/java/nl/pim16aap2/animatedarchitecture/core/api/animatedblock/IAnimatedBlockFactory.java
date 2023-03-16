@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
- * Represents a IFactory for {@link IAnimatedBlock} and {@link IAnimatedBlockData}.
+ * Represents a IFactory for {@link IAnimatedBlock} instances.
  *
  * @author Pim
  */
@@ -38,6 +38,5 @@ public interface IAnimatedBlockFactory
         float radius,
         boolean onEdge,
         RotatedPosition finalPosition,
-        @Nullable Consumer<IAnimatedBlockData> blockDataRotator)
-        throws Exception;
+        @Nullable Consumer<IAnimatedBlockData> blockDataRotator);
 }
