@@ -212,7 +212,7 @@ public class SimpleBlockData implements IAnimatedBlockData
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to obtain rotated block data for block: " + blockData);
+            log.atSevere().withCause(e).log("Failed to obtain rotated block data for block: '%s'", blockData);
         }
         return blockData;
     }

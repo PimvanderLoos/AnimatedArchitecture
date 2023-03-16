@@ -70,6 +70,7 @@ public final class HighlightedBlockDisplay implements IHighlightedBlock
         this.entity.setVisibleByDefault(false);
     }
 
+    @Override
     public synchronized void kill()
     {
         executor.assertMainThread("Highlighted blocks must be killed on the main thread!");

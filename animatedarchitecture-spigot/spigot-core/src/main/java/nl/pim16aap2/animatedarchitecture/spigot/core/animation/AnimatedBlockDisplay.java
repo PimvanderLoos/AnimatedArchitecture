@@ -64,6 +64,7 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
         this.finalPosition = finalPosition;
         this.radius = radius;
         this.currentTarget = this.startPosition;
+        this.previousTarget = currentTarget;
 
         this.blockData = new SimpleBlockData(
             this, executor, blockDataRotator, bukkitWorld, this.startPosition.position().floor().toInteger());

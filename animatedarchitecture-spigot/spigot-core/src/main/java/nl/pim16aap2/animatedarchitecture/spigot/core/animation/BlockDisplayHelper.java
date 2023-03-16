@@ -60,7 +60,7 @@ final class BlockDisplayHelper
         final float pitch = (float) rads.y();
         final float yaw = (float) rads.z();
 
-        Matrix4f transformation = new Matrix4f()
+        final Matrix4f transformation = new Matrix4f()
             .translate(HALF_VECTOR_NEGATIVE)
             .rotate(fromRollPitchYaw(roll, pitch, yaw))
             .translate(HALF_VECTOR_POSITIVE);
