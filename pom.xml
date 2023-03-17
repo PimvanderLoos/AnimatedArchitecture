@@ -21,7 +21,7 @@
         <dependency.version.gson>2.10.1</dependency.version.gson>
         <dependency.version.fastutil>8.5.12</dependency.version.fastutil>
         <dependency.version.fastjson>2.0.25</dependency.version.fastjson>
-        <dependency.version.cloud>1.8.2</dependency.version.cloud>
+        <dependency.version.cloud>1.8.3</dependency.version.cloud>
         <dependency.version.adventure-api>4.13.0</dependency.version.adventure-api>
         <dependency.version.adventure-bukkit>4.3.0</dependency.version.adventure-bukkit>
         <dependency.version.commodore>2.2</dependency.version.commodore>
