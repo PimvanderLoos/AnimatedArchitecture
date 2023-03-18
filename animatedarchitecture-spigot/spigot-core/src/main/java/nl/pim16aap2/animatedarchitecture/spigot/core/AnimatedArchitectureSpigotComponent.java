@@ -67,12 +67,9 @@ import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.LoginResourcePack
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.RedstoneListener;
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.WorldListener;
 import nl.pim16aap2.animatedarchitecture.spigot.core.managers.HeadManager;
-import nl.pim16aap2.animatedarchitecture.spigot.core.managers.PlatformManagerSpigotModule;
 import nl.pim16aap2.animatedarchitecture.spigot.core.managers.PowerBlockRedstoneManagerSpigotModule;
-import nl.pim16aap2.animatedarchitecture.spigot.core.managers.SubPlatformManager;
 import nl.pim16aap2.animatedarchitecture.spigot.core.managers.VaultManager;
 import nl.pim16aap2.animatedarchitecture.spigot.core.managers.VaultManagerModule;
-import nl.pim16aap2.animatedarchitecture.spigot.util.api.IAnimatedArchitectureSpigotSubPlatform;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.AudioPlayerSpigotModule;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.ExecutorModule;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.MessagingInterfaceSpigotModule;
@@ -87,7 +84,6 @@ import javax.inject.Singleton;
 @Singleton
 @Component(modules = {
     AnimatedArchitecturePluginModule.class,
-    PlatformManagerSpigotModule.class,
     ProtectionCompatManagerModule.class,
     ConfigSpigotModule.class,
     LocalizationModule.class,
@@ -101,7 +97,6 @@ import javax.inject.Singleton;
     MessagingInterfaceSpigotModule.class,
     AudioPlayerSpigotModule.class,
     PowerBlockRedstoneManagerSpigotModule.class,
-    AnimatedArchitectureSpigotSubPlatformModule.class,
     AnimationBlockDisplayModule.class,
     HighlightedBlockSpawnerModule.class,
     SQLiteStorageModule.class,
@@ -133,8 +128,6 @@ interface AnimatedArchitectureSpigotComponent
 
     RestartableHolder getRestartableHolder();
 
-    SubPlatformManager getSubPlatformManager();
-
     IAnimatedArchitectureEventCaller getDoorEventCaller();
 
     @Named("mainThreadId")
@@ -143,8 +136,6 @@ interface AnimatedArchitectureSpigotComponent
     DebugReporter getDebugReporter();
 
     DebuggableRegistry getDebuggableRegistry();
-
-    IAnimatedArchitectureSpigotSubPlatform getSpigotSubPlatform();
 
     ProtectionCompatManagerSpigot getProtectionCompatManager();
 

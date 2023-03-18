@@ -3,7 +3,7 @@
  * <p>
  * The {@link nl.pim16aap2.animatedarchitecture.spigot.core.AnimatedArchitecturePlugin} class is the main
  * {@link org.bukkit.plugin.java.JavaPlugin} class that is instantiated on server startup. This class creates and
- * manages the {@link nl.pim16aap2.animatedarchitecture.spigot.core.IAnimatedArchitectureSpigotPlatform}.
+ * manages the {@link nl.pim16aap2.animatedarchitecture.spigot.core.AnimatedArchitectureSpigotPlatform}.
  * <p>
  * Interaction with this plugin mostly happens through the
  * {@link nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatform}. This can be obtained as follows:
