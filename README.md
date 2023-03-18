@@ -3,23 +3,17 @@
 AnimatedArchitecture is a plugin for the Minecraft server mod [Spigot](https://spigotmc.org). Its aim is to enhance your
 server with animated blocks that can be used to create many kinds of animated architectural structures.
 
-AnimatedArchitecture is the new upcoming rewrite of the old BigDoors plugin. It is currently still very much a work in
-progress without a planned release date.<br>
-If you are looking for the current release of BigDoors, please check out
-[v1](https://github.com/PimvanderLoos/BigDoors/) instead.
+AnimatedArchitecture is the new upcoming rewrite of the old BigDoors plugin. It does not currently have a release
+date<br>
+If you are looking for BigDoors please check out [v1](https://github.com/PimvanderLoos/BigDoors/) instead.
 
 ## Using AnimatedArchitecture
 
 ### Warnings
 
-Before you try to use AnimatedArchitecture, please be aware that this project is still very much in development, so:
-
-* There are many unfinished features.
-* You will encounter many bugs when using it. I am aware of many of them, so you don't need to report every minor issue
-  you encounter.
-* Many of the current systems are just placeholders that will be replaced when I get around to them.
-* There is currently no upgrade path from v1; this will be added (much) later on in the development process.
-* <ins><b>Any structures you create now may be reset at any time</ins></b>.
+Before you try to use AnimatedArchitecture, please be aware that this project is still very much in development. So
+please ensure you regularly update the plugin, make frequent updates (and verify them), and don't be too surprised if
+you run into the occasional bug or two.
 
 ### Requirements:
 
@@ -37,6 +31,21 @@ Before you try to use AnimatedArchitecture, please be aware that this project is
   automatically): `plugins/AnimatedArchitecture/extensions`.
 * Move all the jars from the `Structures.zip` file to the new `extensions` directory.
 * (Re)start your server.
+
+### Importing BigDoors' Database
+
+As of [dev-build 1130](https://pim16aap2.nl/BigDoors/), BigDoors has a command that allows you to export the old
+database to the new format. While running that version, you can run the `BigDoors PrepareDatabaseForV2` command <b>in
+the console</b> to export the database. Read the output in the console to see if everything was exported correctly.
+Running this command does not affect the existing database for BigDoors.
+
+After the export process has completed, you can copy the new `structures.db` file out of the `BigDoors` folder into
+the `AnimatedArchitecture` folder. You will now be able to use the structures you created in BigDoors!
+
+Please note that the export process may not always produce a perfect conversion, potentially leading to minor
+inconsistencies, such as incorrect opening directions under certain circumstances. Despite these occasional
+discrepancies, the majority of exported structures should function properly. Any errors can be easily rectified in-game
+using available commands or the menu.
 
 ## Translations
 
