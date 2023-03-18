@@ -4,16 +4,12 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
-import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
-import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.AnimationContext;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockFactory;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ILocationFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,7 +21,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @ToString(onlyExplicitlyIncluded = true)
 public class AnimationBlockManager implements IAnimationBlockManager
 {
-    private final ILocationFactory locationFactory;
     private final IAnimatedBlockFactory animatedBlockFactory;
     private final IExecutor executor;
 
@@ -41,10 +36,8 @@ public class AnimationBlockManager implements IAnimationBlockManager
     @ToString.Include @EqualsAndHashCode.Include
     private final List<IAnimatedBlock> animatedBlocks;
 
-    AnimationBlockManager(
-        ILocationFactory locationFactory, IAnimatedBlockFactory animatedBlockFactory, IExecutor executor)
+    AnimationBlockManager(IAnimatedBlockFactory animatedBlockFactory, IExecutor executor)
     {
-        this.locationFactory = locationFactory;
         this.animatedBlockFactory = animatedBlockFactory;
         this.executor = executor;
 
@@ -53,9 +46,7 @@ public class AnimationBlockManager implements IAnimationBlockManager
     }
 
     @Override
-    public boolean createAnimatedBlocks(
-        StructureSnapshot snapshot, IAnimationComponent animationComponent, AnimationContext animationContext,
-        Animator.MovementMethod movementMethod)
+    public boolean createAnimatedBlocks(StructureSnapshot snapshot, IAnimationComponent animationComponent)
     {
         final List<IAnimatedBlock> animatedBlocksTmp = new ArrayList<>(snapshot.getBlockCount());
 
@@ -78,17 +69,18 @@ public class AnimationBlockManager implements IAnimationBlockManager
                                 yAxis == yMin || yAxis == yMax ||
                                 zAxis == zMin || zAxis == zMax;
 
-                        final ILocation location =
-                            locationFactory.create(snapshot.getWorld(), xAxis + 0.5, yAxis, zAxis + 0.5);
-                        final boolean bottom = (yAxis == yMin);
                         final float radius = animationComponent.getRadius(xAxis, yAxis, zAxis);
-                        final float startAngle = animationComponent.getStartAngle(xAxis, yAxis, zAxis);
-                        final Vector3Dd startPosition = new Vector3Dd(xAxis + 0.5, yAxis, zAxis + 0.5);
-                        final Vector3Dd finalPosition = animationComponent.getFinalPosition(startPosition, radius);
+                        final var blockDataRotator = animationComponent.getBlockDataRotator();
+                        final RotatedPosition startPosition = animationComponent.getStartPosition(xAxis, yAxis, zAxis);
+                        final RotatedPosition finalPosition = animationComponent.getFinalPosition(xAxis, yAxis, zAxis);
 
                         animatedBlockFactory
-                            .create(location, radius, startAngle, bottom, onEdge, animationContext, finalPosition,
-                                    movementMethod)
+                            .create(snapshot.getWorld(),
+                                    startPosition,
+                                    radius,
+                                    onEdge,
+                                    finalPosition,
+                                    blockDataRotator)
                             .ifPresent(animatedBlocksTmp::add);
                     }
 
@@ -144,10 +136,8 @@ public class AnimationBlockManager implements IAnimationBlockManager
             }
             try
             {
-                final Vector3Dd startPos = animatedBlock.getStartPosition();
-                final Vector3Di goalPos = new Vector3Di(MathUtil.floor(startPos.x()),
-                                                        MathUtil.round(startPos.y()),
-                                                        MathUtil.floor(startPos.z()));
+                final Vector3Dd startPos = animatedBlock.getStartPosition().position();
+                final Vector3Di goalPos = startPos.floor().toInteger();
                 animatedBlock.getAnimatedBlockData().putBlock(goalPos);
             }
             catch (Exception e)
@@ -165,7 +155,7 @@ public class AnimationBlockManager implements IAnimationBlockManager
         for (final IAnimatedBlock animatedBlock : privateAnimatedBlocks)
         {
             animatedBlock.kill();
-            animatedBlock.getAnimatedBlockData().putBlock(animatedBlock.getFinalPosition());
+            animatedBlock.getAnimatedBlockData().putBlock(animatedBlock.getFinalPosition().position());
         }
         privateAnimatedBlocks.clear();
     }

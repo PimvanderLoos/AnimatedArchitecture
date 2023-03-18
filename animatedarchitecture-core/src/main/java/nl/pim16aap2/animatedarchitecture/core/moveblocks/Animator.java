@@ -6,7 +6,6 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.AnimationContext;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimationHook;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
@@ -16,9 +15,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes.IPerpetualMover;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
-import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
-import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,6 +36,13 @@ import static nl.pim16aap2.animatedarchitecture.core.moveblocks.Animation.Animat
 @Flogger
 public final class Animator implements IAnimator
 {
+    /**
+     * The amount of time (in milliseconds) to wait between the end of the animation and the placement of the blocks.
+     * <p>
+     * Allows for a more smooth transition between states.
+     */
+    private static final int FINISH_DURATION = 0;
+
     /**
      * The delay (measured in milliseconds) between initialization of the animation and starting to move the blocks.
      */
@@ -100,12 +104,8 @@ public final class Animator implements IAnimator
     @ToString.Exclude
     private final int serverTickTime;
 
-    private final MovementMethod movementMethod;
-
     /**
      * The amount of time (in seconds) that the animation will take.
-     * <p>
-     * This excludes any additional time specified by {@link MovementMethod#finishDuration()}.
      */
     @Getter
     private final double time;
@@ -192,7 +192,6 @@ public final class Animator implements IAnimator
         animationHookManager = data.getAnimationHookManager();
         serverTickTime = data.getServerTickTime();
 
-        this.movementMethod = animationComponent.getMovementMethod();
         this.structure = structure;
         this.snapshot = data.getStructureSnapshot();
         this.time = data.getAnimationTime();
@@ -241,42 +240,10 @@ public final class Animator implements IAnimator
         forEachHook("onAnimationAborted", IAnimationHook::onAnimationAborted);
     }
 
-    /**
-     * Rotates an {@link IAnimatedBlock} in the provided direction and then respawns it. Note that this is executed on
-     * the thread it was called from, which MUST BE the main thread!
-     */
-    private void applyRotation0(MovementDirection direction)
-    {
-        for (final IAnimatedBlock animatedBlock : animationBlockManager.getAnimatedBlocks())
-            if (animatedBlock.getAnimatedBlockData().canRotate() &&
-                animatedBlock.getAnimatedBlockData().rotateBlock(direction))
-                animatedBlock.respawn();
-    }
-
     @Override
     public List<IAnimatedBlock> getAnimatedBlocks()
     {
         return animationBlockManager.getAnimatedBlocks();
-    }
-
-    @Override
-    public void applyRotation(MovementDirection direction)
-    {
-        executor.runSync(() -> this.applyRotation0(direction));
-    }
-
-    /**
-     * Respawns all blocks. Note that this is executed on the thread it was called from, which MUST BE the main thread!
-     */
-    private void respawnBlocksOnCurrentThread()
-    {
-        getAnimatedBlocks().forEach(IAnimatedBlock::respawn);
-    }
-
-    @Override
-    public void respawnBlocks()
-    {
-        executor.runSync(this::respawnBlocksOnCurrentThread);
     }
 
     /**
@@ -288,9 +255,22 @@ public final class Animator implements IAnimator
     public void startAnimation()
     {
         if (animationDuration < 0)
-            throw new IllegalStateException("Trying to start an animation with invalid endCount value: " +
-                                                animationDuration);
-        executor.runOnMainThread(this::startAnimation0);
+            throw new IllegalStateException(
+                "Trying to start an animation with invalid endCount value: " + animationDuration);
+
+        executor.runOnMainThread(
+            () ->
+            {
+                try
+                {
+                    startAnimation0();
+                }
+                catch (Exception e)
+                {
+                    log.atSevere().withCause(e).log("Failed to start animation!");
+                    handleInitFailure();
+                }
+            });
     }
 
     /**
@@ -313,9 +293,7 @@ public final class Animator implements IAnimator
 
         this.animationData = animation;
 
-        final AnimationContext animationContext = new AnimationContext(structure.getType(), snapshot, animation);
-
-        if (!animationBlockManager.createAnimatedBlocks(snapshot, animationComponent, animationContext, movementMethod))
+        if (!animationBlockManager.createAnimatedBlocks(snapshot, animationComponent))
         {
             handleInitFailure();
             return;
@@ -350,38 +328,23 @@ public final class Animator implements IAnimator
         structureActivityManager.processFinishedAnimation(this);
     }
 
-    /**
-     * Runs a single step of the animation.
-     *
-     * @param ticks
-     *     The number of ticks that have passed since the start of the animation.
-     * @param ticksRemaining
-     *     The number of ticks remaining in the animation. May be negative when running in 'overtime' to move the blocks
-     *     to their final position.
-     */
-    private void executeAnimationStep(int ticks, int ticksRemaining)
-    {
-        animationComponent.executeAnimationStep(this, ticks, ticksRemaining);
-    }
-
     private void executeAnimationStep(int counter, Animation<IAnimatedBlock> animation)
     {
-        executeAnimationStep(counter, animation.getRemainingSteps());
-
+        animationComponent.executeAnimationStep(this, counter);
         animation.setRegion(getAnimationRegion());
         animation.setState(AnimationState.ACTIVE);
     }
 
     @Override
-    public void applyMovement(IAnimatedBlock animatedBlock, IVector3D targetPosition, int ticksRemaining)
+    public void applyMovement(IAnimatedBlock animatedBlock, RotatedPosition targetPosition)
     {
-        animatedBlock.moveToTarget(new Vector3Dd(targetPosition), ticksRemaining);
+        animatedBlock.moveToTarget(targetPosition);
     }
 
     private void executeFinishingStep(Animation<IAnimatedBlock> animation)
     {
         for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
-            applyMovement(animatedBlock, animatedBlock.getFinalPosition(), -1);
+            applyMovement(animatedBlock, animatedBlock.getFinalPosition());
 
         animation.setRegion(getAnimationRegion());
         animation.setState(AnimationState.FINISHING);
@@ -398,9 +361,6 @@ public final class Animator implements IAnimator
             animation.setRegion(getAnimationRegion());
             animation.setState(AnimationState.STOPPING);
         }
-
-        for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
-            animatedBlock.setVelocity(new Vector3Dd(0D, 0D, 0D));
 
         forEachHook("onAnimationEnding", IAnimationHook::onAnimationEnding);
 
@@ -448,7 +408,7 @@ public final class Animator implements IAnimator
         if (structure instanceof IPerpetualMover)
             return 0;
 
-        final int finishDurationTicks = Math.round((float) movementMethod.finishDuration() / serverTickTime);
+        final int finishDurationTicks = Math.round((float) FINISH_DURATION / serverTickTime);
         return animationDuration + Math.max(0, finishDurationTicks);
     }
 
@@ -481,18 +441,26 @@ public final class Animator implements IAnimator
             @Override
             public void run()
             {
-                forEachHook("onPreAnimationStep", IAnimationHook::onPreAnimationStep);
-                ++counter;
+                try
+                {
+                    forEachHook("onPreAnimationStep", IAnimationHook::onPreAnimationStep);
+                    ++counter;
 
-                if (perpetualMovement || counter <= animationDuration)
-                    executeAnimationStep(counter, animation);
-                else if (counter > stopCount)
-                    stopAnimation(animation);
-                else
-                    executeFinishingStep(animation);
+                    if (perpetualMovement || counter <= animationDuration)
+                        executeAnimationStep(counter, animation);
+                    else if (counter > stopCount)
+                        stopAnimation(animation);
+                    else
+                        executeFinishingStep(animation);
 
-                animation.setStepsExecuted(counter);
-                forEachHook("onPostAnimationStep", IAnimationHook::onPostAnimationStep);
+                    animation.setStepsExecuted(counter);
+                    forEachHook("onPostAnimationStep", IAnimationHook::onPostAnimationStep);
+                }
+                catch (Exception e)
+                {
+                    // TODO: Stop animation etc.
+                    log.atSevere().withCause(e).log("Failed to execute animation step!");
+                }
             }
         };
         moverTask = moverTask0;
@@ -597,98 +565,5 @@ public final class Animator implements IAnimator
                    .log("Failed to execute '%s' for hook '%s'!", actionName, hook.getName());
             }
         }
-    }
-
-    /**
-     * Represents the different ways in which an animated block can be moved.
-     */
-    @SuppressWarnings("unused")
-    @ToString
-    public abstract static class MovementMethod
-    {
-        /**
-         * The animated blocks are moved in the direction of the goal position by applying a velocity along the vector
-         * between the current and the target positions.
-         * <p>
-         * When this method is used, animated blocks will always lag slightly behind the target position, and they
-         * generally tend to move slightly towards the center of any rotation (so corners will be rounded, circles
-         * slightly smaller).
-         */
-        public static final MovementMethod VELOCITY = new MovementMethod("VELOCITY", 1500)
-        {
-            @Override
-            public void apply(IAnimatedBlock animatedBlock, Vector3Dd goalPos, int ticksRemaining)
-            {
-                animatedBlock.setVelocity(goalPos.subtract(animatedBlock.getCurrentPosition()));
-            }
-        };
-
-        /**
-         * Teleports the animated blocks directly to their target positions.
-         */
-        public static final MovementMethod TELEPORT = new MovementMethod("TELEPORT", 100)
-        {
-            @Override
-            public void apply(IAnimatedBlock animatedBlock, Vector3Dd goalPos, int ticksRemaining)
-            {
-                animatedBlock.teleport(goalPos, IAnimatedBlock.TeleportMode.ABSOLUTE);
-            }
-        };
-
-        /**
-         * Combination of {@link #TELEPORT} and {@link #VELOCITY}.
-         */
-        public static final MovementMethod TELEPORT_VELOCITY = new MovementMethod("TELEPORT", 600)
-        {
-            /**
-             * Only teleport the animated blocks once every several ticks.
-             */
-            private static final int TELEPORT_FREQUENCY = 3;
-
-            @Override
-            public void apply(IAnimatedBlock animatedBlock, Vector3Dd goalPos, int ticksRemaining)
-            {
-                if (ticksRemaining == 0 ||
-                    (ticksRemaining > 0 && animatedBlock.getTicksLived() % TELEPORT_FREQUENCY == 0))
-                    animatedBlock.teleport(goalPos, IAnimatedBlock.TeleportMode.ABSOLUTE);
-
-                final Vector3Dd velocitySourcePosition =
-                    ticksRemaining < 2 ? animatedBlock.getCurrentPosition() : animatedBlock.getPreviousTarget();
-                animatedBlock.setVelocity(goalPos.subtract(velocitySourcePosition));
-            }
-        };
-
-        private final String name;
-
-        /**
-         * The duration (measured in milliseconds) of the final animation state that moves blocks to their final
-         * position.
-         */
-        private final int finishDuration;
-
-        protected MovementMethod(String name, int finishDuration)
-        {
-            this.name = name;
-            this.finishDuration = finishDuration;
-        }
-
-        public String name()
-        {
-            return name;
-        }
-
-        /**
-         * The duration (measured in milliseconds) of the final step executed after the animation has ended. This step
-         * is used to move the animated blocks to their final positions gracefully.
-         */
-        public int finishDuration()
-        {
-            return finishDuration;
-        }
-
-        /**
-         * Moves an animated block to a given goal position using the specified method.
-         */
-        public abstract void apply(IAnimatedBlock animatedBlock, Vector3Dd goalPos, int ticksRemaining);
     }
 }

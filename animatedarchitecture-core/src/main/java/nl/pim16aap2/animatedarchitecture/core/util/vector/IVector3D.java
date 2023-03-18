@@ -75,4 +75,46 @@ public sealed interface IVector3D permits Vector3Dd, Vector3Di
      * @return A new vector with {@link Math#floor(double)} applied to the current values.
      */
     IVector3D floor();
+
+    /**
+     * Converts all the values in this 3d vector to tadians.
+     * <p>
+     * See {@link Math#toRadians(double)}.
+     *
+     * @return The new 3d vector.
+     */
+    default Vector3Dd toRadians()
+    {
+        return new Vector3Dd(Math.toRadians(xD()), Math.toRadians(yD()), Math.toRadians(zD()));
+    }
+
+    /**
+     * Converts all the values in this 3d vector to degrees.
+     * <p>
+     * See {@link Math#toDegrees(double)}.
+     *
+     * @return The new 3d vector.
+     */
+    default Vector3Dd toDegrees()
+    {
+        return new Vector3Dd(Math.toDegrees(xD()), Math.toDegrees(yD()), Math.toDegrees(zD()));
+    }
+
+    /**
+     * Creates a new integer-based 3d vector from this 3d vector.
+     * <p>
+     * The values of a double-based vector will be rounded to obtain the integer values.
+     *
+     * @return A new integer-based vector.
+     */
+    @CheckReturnValue @Contract(pure = true)
+    Vector3Di toInteger();
+
+    /**
+     * Creates a new double-based 3d vector from this integer-based 3d vector.
+     *
+     * @return A new double-based vector.
+     */
+    @CheckReturnValue @Contract(pure = true)
+    Vector3Dd toDouble();
 }

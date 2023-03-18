@@ -95,7 +95,6 @@ public class Animation<T extends IAnimatedBlock>
         this.animationType = animationType;
     }
 
-
     /**
      * @return The number of animation steps remaining in this animation. This only includes the steps to be executed by
      * the animation and not any steps required for the cleanup phase.

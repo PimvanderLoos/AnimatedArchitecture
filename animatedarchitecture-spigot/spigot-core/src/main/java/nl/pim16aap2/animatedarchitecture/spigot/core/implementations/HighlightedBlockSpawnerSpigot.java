@@ -1,23 +1,27 @@
-package nl.pim16aap2.animatedarchitecture.spigot.util.implementations;
+package nl.pim16aap2.animatedarchitecture.spigot.core.implementations;
 
 import com.google.common.flogger.StackSize;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.Color;
-import nl.pim16aap2.animatedarchitecture.core.api.GlowingBlockSpawner;
+import nl.pim16aap2.animatedarchitecture.core.api.HighlightedBlockSpawner;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
+import nl.pim16aap2.animatedarchitecture.core.api.IHighlightedBlock;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.IRestartable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
-import nl.pim16aap2.animatedarchitecture.core.util.IGlowingBlock;
+import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.spigot.core.AnimatedArchitecturePlugin;
+import nl.pim16aap2.animatedarchitecture.spigot.core.animation.HighlightedBlockDisplay;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotUtil;
-import nl.pim16aap2.animatedarchitecture.spigot.util.api.IGlowingBlockFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Scoreboard;
@@ -30,37 +34,49 @@ import javax.inject.Singleton;
 import java.time.Duration;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Singleton
 @Flogger
-public class GlowingBlockSpawnerSpigot extends GlowingBlockSpawner implements IRestartable
+public class HighlightedBlockSpawnerSpigot extends HighlightedBlockSpawner implements IRestartable
 {
+    private static final BukkitRunnable NULL_RUNNABLE = new BukkitRunnable()
+    {
+        @Override
+        public void run()
+        {
+            throw new UnsupportedOperationException();
+        }
+    };
+
     @Getter
     private final Map<Color, Team> teams = new EnumMap<>(Color.class);
 
-    private final Map<IGlowingBlock, @Nullable BukkitRunnable> spawnedBlocks = new ConcurrentHashMap<>(128);
+    private final Map<IHighlightedBlock, BukkitRunnable> spawnedBlocks = new ConcurrentHashMap<>(128);
 
-    private final IGlowingBlockFactory glowingBlockFactory;
+    private final AnimatedArchitecturePlugin plugin;
 
     private @Nullable Scoreboard scoreboard;
 
+    @Getter(AccessLevel.PROTECTED)
     private final IExecutor executor;
 
-    @Inject
-    public GlowingBlockSpawnerSpigot(
-        RestartableHolder holder, IGlowingBlockFactory glowingBlockFactory, IExecutor executor)
+    @Inject HighlightedBlockSpawnerSpigot(
+        RestartableHolder holder, AnimatedArchitecturePlugin plugin, IExecutor executor)
     {
-        this.glowingBlockFactory = glowingBlockFactory;
+        this.plugin = plugin;
         this.executor = executor;
         holder.registerRestartable(this);
     }
 
     @Override
-    public Optional<IGlowingBlock> spawnGlowingBlock(
-        IPlayer player, IWorld world, @Nullable Duration duration, double x, double y, double z, Color color)
+    public Optional<IHighlightedBlock> spawnHighlightedBlock(
+        IPlayer player, IWorld world, @Nullable Duration duration, RotatedPosition rotatedPosition, Color color)
     {
+        executor.assertMainThread("Glowing blocks must be spawned on the main thread!");
+
         if (scoreboard == null)
         {
             log.atWarning().log("Failed to spawn glowing block: Scoreboard is null!");
@@ -92,16 +108,46 @@ public class GlowingBlockSpawnerSpigot extends GlowingBlockSpawner implements IR
             return Optional.empty();
         }
 
-        final Optional<IGlowingBlock> blockOpt =
-            glowingBlockFactory.createGlowingBlock(spigotPlayer, spigotWorld, color, x, y, z, teams);
-        blockOpt.ifPresent(block -> onBlockSpawn(block, time));
-        return blockOpt;
+        final HighlightedBlockDisplay block = Objects.requireNonNull(newPreviewBlock(world, rotatedPosition, color));
+        final @Nullable Entity entity = block.getEntity();
+        if (entity == null || !setEntityTeam(entity, color))
+        {
+            block.kill();
+            log.atSevere().log("Failed to create glowing entity!");
+            return Optional.empty();
+        }
+        //noinspection deprecation
+        spigotPlayer.showEntity(plugin, entity);
+
+        onBlockSpawn(block, time);
+        return Optional.of(block);
     }
 
-    private void onBlockSpawn(IGlowingBlock block, @Nullable Long time)
+    private HighlightedBlockDisplay newPreviewBlock(IWorld world, RotatedPosition rotatedPosition, Color color)
+    {
+        final HighlightedBlockDisplay ret =
+            new HighlightedBlockDisplay(executor, rotatedPosition, world, color);
+        ret.spawn();
+        return ret;
+    }
+
+    private boolean setEntityTeam(Entity entity, Color color)
+    {
+        final @Nullable Team team = teams.get(color);
+        if (team == null)
+        {
+            log.atWarning().log("Failed to spawn glowing block: Could not find team for color: %s", color);
+            return false;
+        }
+        team.addEntry(entity.getUniqueId().toString());
+        entity.setGlowing(true);
+        return true;
+    }
+
+    private void onBlockSpawn(IHighlightedBlock block, @Nullable Long time)
     {
         if (time == null)
-            spawnedBlocks.put(block, null);
+            spawnedBlocks.put(block, NULL_RUNNABLE);
         else
         {
             final BukkitRunnable killTask = new BukkitRunnable()
@@ -113,7 +159,7 @@ public class GlowingBlockSpawnerSpigot extends GlowingBlockSpawner implements IR
                     spawnedBlocks.remove(block);
                 }
             };
-            executor.runAsyncLater(killTask, time);
+            executor.runSyncLater(killTask, time);
             spawnedBlocks.put(block, killTask);
         }
     }
@@ -172,8 +218,8 @@ public class GlowingBlockSpawnerSpigot extends GlowingBlockSpawner implements IR
         {
             try
             {
-                final @Nullable BukkitRunnable task = entry.getValue();
-                if (task != null)
+                final BukkitRunnable task = entry.getValue();
+                if (task != NULL_RUNNABLE)
                     task.cancel();
             }
             catch (IllegalStateException e)

@@ -1,11 +1,14 @@
 package nl.pim16aap2.animatedarchitecture.structures.windmill;
 
+import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockData;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.Animator;
+import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
-import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
-import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import nl.pim16aap2.animatedarchitecture.structures.drawbridge.DrawbridgeAnimationComponent;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Consumer;
 
 /**
  * Represents a {@link Animator} for {@link Windmill}s.
@@ -21,8 +24,14 @@ public class WindmillAnimationComponent extends DrawbridgeAnimationComponent
     }
 
     @Override
-    public Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
+    public RotatedPosition getFinalPosition(int xAxis, int yAxis, int zAxis)
     {
-        return Vector3Dd.of(startLocation);
+        return getStartPosition(xAxis, yAxis, zAxis);
+    }
+
+    @Override
+    public @Nullable Consumer<IAnimatedBlockData> getBlockDataRotator()
+    {
+        return null;
     }
 }

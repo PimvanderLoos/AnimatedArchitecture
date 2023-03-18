@@ -4,12 +4,12 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.Getter;
-import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
-import nl.pim16aap2.animatedarchitecture.core.api.GlowingBlockSpawner;
+import nl.pim16aap2.animatedarchitecture.core.api.HighlightedBlockSpawner;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.audio.IAudioPlayer;
+import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.managers.AnimationHookManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
@@ -27,7 +27,7 @@ public final class AnimationRequestData
     private final IAudioPlayer audioPlayer;
     private final IExecutor executor;
     private final AnimationHookManager animationHookManager;
-    private final GlowingBlockSpawner glowingBlockSpawner;
+    private final HighlightedBlockSpawner glowingBlockSpawner;
     private final IConfig config;
     private final int serverTickTime;
     private final StructureSnapshot structureSnapshot;
@@ -46,7 +46,7 @@ public final class AnimationRequestData
         IExecutor executor,
         AnimationHookManager animationHookManager,
         @Named("serverTickTime") int serverTickTime,
-        GlowingBlockSpawner glowingBlockSpawner,
+        HighlightedBlockSpawner glowingBlockSpawner,
         IConfig config,
         @Assisted StructureSnapshot structureSnapshot,
         @Assisted StructureActionCause cause,

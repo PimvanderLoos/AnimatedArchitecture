@@ -4,7 +4,7 @@
  * <p>
  * The main entry-point for new GUIs is the {@link nl.pim16aap2.animatedarchitecture.spigot.core.gui.GuiFactory} class.
  * An instance of that class can be obtained using
- * {@link nl.pim16aap2.animatedarchitecture.spigot.core.IAnimatedArchitectureSpigotPlatform#getGuiFactory()}.
+ * {@link nl.pim16aap2.animatedarchitecture.spigot.core.AnimatedArchitectureSpigotPlatform#getGuiFactory()}.
  */
 @NonNullByDefault
 package nl.pim16aap2.animatedarchitecture.spigot.core.gui;

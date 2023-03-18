@@ -1,12 +1,12 @@
 /**
  * This package contains various interfaces and classes used to define animated blocks.
  * <p>
- * An {@link nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock} represents a part of a structure while it is
- * being animated. Before and after the animation, these will be regular blocks.
+ * An {@link nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock} represents a part of a structure
+ * while it is being animated. Before and after the animation, these will be regular blocks.
  * <p>
- * The {@link nl.pim16aap2.animatedarchitecture.core.api.animatedblock.AnimatedPreviewBlock} class represents a specific type of
- * animated block. These preview blocks are used to create an animation showing what the animation would look like,
- * without modifying the structure itself.
+ * The {@link nl.pim16aap2.animatedarchitecture.core.api.animatedblock.AnimatedHighlightedBlock} class represents a
+ * specific type of animated block. These preview blocks are used to create an animation showing what the animation
+ * would look like, without modifying the structure itself.
  * <p>
  * External plugins have two ways of interacting with the animations:
  * <ul>

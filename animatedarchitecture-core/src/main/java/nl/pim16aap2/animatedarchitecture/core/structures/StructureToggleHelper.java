@@ -3,7 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.structures;
 import com.google.common.flogger.StackSize;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.Color;
-import nl.pim16aap2.animatedarchitecture.core.api.GlowingBlockSpawner;
+import nl.pim16aap2.animatedarchitecture.core.api.HighlightedBlockSpawner;
 import nl.pim16aap2.animatedarchitecture.core.api.IBlockAnalyzer;
 import nl.pim16aap2.animatedarchitecture.core.api.IChunkLoader;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
@@ -31,7 +31,6 @@ import nl.pim16aap2.animatedarchitecture.core.moveblocks.Animator;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.IAnimationBlockManager;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.StructureActivityManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes.IDiscreteMovement;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.Limit;
@@ -60,10 +59,10 @@ import java.util.logging.Level;
     private final StructureTypeManager structureTypeManager;
     private final IConfig config;
     private final IExecutor executor;
-    private final IBlockAnalyzer blockAnalyzer;
+    private final IBlockAnalyzer<?> blockAnalyzer;
     private final ILocationFactory locationFactory;
     private final IProtectionCompatManager protectionCompatManager;
-    private final GlowingBlockSpawner glowingBlockSpawner;
+    private final HighlightedBlockSpawner highlightedBlockSpawner;
     private final IAnimatedArchitectureEventFactory animatedArchitectureEventFactory;
     private final StructureRegistry structureRegistry;
     private final IChunkLoader chunkLoader;
@@ -80,10 +79,10 @@ import java.util.logging.Level;
         StructureTypeManager structureTypeManager,
         IConfig config,
         IExecutor executor,
-        IBlockAnalyzer blockAnalyzer,
+        IBlockAnalyzer<?> blockAnalyzer,
         ILocationFactory locationFactory,
         IProtectionCompatManager protectionCompatManager,
-        GlowingBlockSpawner glowingBlockSpawner,
+        HighlightedBlockSpawner highlightedBlockSpawner,
         IAnimatedArchitectureEventFactory animatedArchitectureEventFactory,
         StructureRegistry structureRegistry,
         IChunkLoader chunkLoader,
@@ -101,7 +100,7 @@ import java.util.logging.Level;
         this.blockAnalyzer = blockAnalyzer;
         this.locationFactory = locationFactory;
         this.protectionCompatManager = protectionCompatManager;
-        this.glowingBlockSpawner = glowingBlockSpawner;
+        this.highlightedBlockSpawner = highlightedBlockSpawner;
         this.animatedArchitectureEventFactory = animatedArchitectureEventFactory;
         this.structureRegistry = structureRegistry;
         this.chunkLoader = chunkLoader;
@@ -465,97 +464,25 @@ import java.util.logging.Level;
                         if (player == null)
                             return false;
 
-                        glowingBlockSpawner
-                            .builder().forPlayer(player).withColor(Color.RED).forDuration(Duration.ofSeconds(4))
-                            .atPosition(xAxis + 0.5, yAxis, zAxis + 0.5).inWorld(world).spawn();
+                        final int xAxis0 = xAxis;
+                        final int yAxis0 = yAxis;
+                        final int zAxis0 = zAxis;
+
+                        executor.runOnMainThread(
+                            () -> highlightedBlockSpawner
+                                .builder()
+                                .forPlayer(player)
+                                .withColor(Color.RED)
+                                .forDuration(Duration.ofSeconds(4))
+                                .atPosition(xAxis0 + 0.5, yAxis0, zAxis0 + 0.5)
+                                .inWorld(world)
+                                .spawn());
                         isEmpty = false;
                     }
                 }
             }
         }
         return isEmpty;
-    }
-
-    /**
-     * Gets the number of blocks this structure can move in the given direction. If set, it won't go further than
-     * {@link IDiscreteMovement#getBlocksToMove()}.
-     * <p>
-     * TODO: This isn't used anywhere? Perhaps either centralize its usage or remove it.
-     *
-     * @param vec
-     *     Which direction to count the number of available blocks in.
-     * @param player
-     *     The player for whom to check. May be null.
-     * @param world
-     *     The world to check the blocks in.
-     * @param cuboid
-     *     The {@link Cuboid} representing the area the structure currently takes up.
-     * @param blocksToMove
-     *     The number of blocks to try move.
-     * @return Gets the number of blocks this structure can move in the given direction.
-     */
-    public int getBlocksInDir(Vector3Di vec, @Nullable IPlayer player, IWorld world, Cuboid cuboid, int blocksToMove)
-    {
-        final Vector3Di curMin = cuboid.getMin();
-        final Vector3Di curMax = cuboid.getMax();
-
-        final int startY = vec.y() == 0 ? curMin.y() : vec.y() == 1 ? curMax.y() + 1 : curMin.y() - 1;
-
-        // Structures cannot start outside the world limit.
-        if (startY < 0 || startY > 255)
-            return 0;
-
-        int startX;
-        int startZ;
-        int endX;
-        int endY;
-        int endZ;
-        startX = vec.x() == 0 ? curMin.x() : vec.x() == 1 ? curMax.x() + 1 : curMin.x() - 1;
-        startZ = vec.z() == 0 ? curMin.z() : vec.z() == 1 ? curMax.z() + 1 : curMin.z() - 1;
-
-        endX = vec.x() == 0 ? curMax.x() : startX;
-        endY = vec.y() == 0 ? curMax.y() : startY;
-        endZ = vec.z() == 0 ? curMax.z() : startZ;
-
-
-        Vector3Di locA = new Vector3Di(startX, startY, startZ);
-        Vector3Di locB = new Vector3Di(endX, endY, endZ);
-
-        // xLen and zLen describe the length of the structure in the x and the z direction respectively.
-        // If the rotation direction and the blocksToMove variable are defined, use the blocksToMove variable instead.
-        final int xLen = blocksToMove < 1 ? (curMax.x() - curMin.x()) + 1 : blocksToMove;
-        int yLen = blocksToMove < 1 ? (curMax.y() - curMin.y()) + 1 : blocksToMove;
-        final int zLen = blocksToMove < 1 ? (curMax.z() - curMin.z()) + 1 : blocksToMove;
-
-        yLen = vec.y() == 1 ? Math.min(255, curMax.y() + yLen) :
-               vec.y() == -1 ? Math.max(0, curMin.y() - yLen) : yLen;
-
-        // The maxDist is the number of blocks to check in a direction. This is either getBlocksToMove if it that has
-        // been specified. If it hasn't, it's the length of the structure in the provided direction.
-        final int maxDist = blocksToMove > 0 ? blocksToMove :
-                            Math.abs(vec.x() * xLen + vec.y() * yLen + vec.z() * zLen);
-
-        int ret = 0;
-        int steps = 0;
-        boolean obstructed = false;
-        while (steps < maxDist)
-        {
-            final boolean isEmpty = isLocationEmpty(new Cuboid(locA, locB), cuboid, player, world);
-            if (!isEmpty)
-            {
-                obstructed = true;
-                if (player == null)
-                    break;
-            }
-            if (!obstructed) // There is no point in checking how many blocks are available behind an obstruction.
-                ++ret;
-            locA = locA.add(vec.x(), vec.y(), vec.z());
-            locB = locB.add(vec.x(), vec.y(), vec.z());
-            ++steps;
-        }
-
-        // If the direction was in a negative direction, make sure the output is negative as well.
-        return (vec.x() == -1 || vec.y() == -1 || vec.z() == -1) ? -1 * ret : ret;
     }
 
     /**

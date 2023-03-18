@@ -1,18 +1,20 @@
 package nl.pim16aap2.animatedarchitecture.structures.clock;
 
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
+import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockData;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.Animator;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.IAnimator;
+import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.WorldTime;
-import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
-import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import nl.pim16aap2.animatedarchitecture.structures.drawbridge.DrawbridgeAnimationComponent;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
@@ -62,12 +64,6 @@ public final class ClockAnimationComponent extends DrawbridgeAnimationComponent
             (movementDirection == MovementDirection.EAST || movementDirection == MovementDirection.SOUTH) ? 1 : -1;
     }
 
-    @Override
-    public Animator.MovementMethod getMovementMethod()
-    {
-        return Animator.MovementMethod.TELEPORT;
-    }
-
     /**
      * Checks is a given {@link IAnimatedBlock} is the hour arm or the minute arm.
      *
@@ -89,13 +85,13 @@ public final class ClockAnimationComponent extends DrawbridgeAnimationComponent
     }
 
     @Override
-    public Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
+    public RotatedPosition getFinalPosition(int xAxis, int yAxis, int zAxis)
     {
-        return Vector3Dd.of(startLocation);
+        return getStartPosition(xAxis, yAxis, zAxis);
     }
 
     @Override
-    public void executeAnimationStep(IAnimator animator, int ticks, int ticksRemaining)
+    public void executeAnimationStep(IAnimator animator, int ticks)
     {
         final WorldTime worldTime = snapshot.getWorld().getTime();
         final double hourAngle = angleDirectionMultiplier * hoursToAngle(worldTime.getHours(), worldTime.getMinutes());
@@ -104,7 +100,7 @@ public final class ClockAnimationComponent extends DrawbridgeAnimationComponent
         for (final IAnimatedBlock animatedBlock : animator.getAnimatedBlocks())
         {
             final double timeAngle = isHourArm.test(animatedBlock) ? hourAngle : minuteAngle;
-            animator.applyMovement(animatedBlock, getGoalPos(timeAngle, animatedBlock), ticksRemaining);
+            animator.applyMovement(animatedBlock, getGoalPos(timeAngle, animatedBlock));
         }
     }
 
@@ -134,5 +130,11 @@ public final class ClockAnimationComponent extends DrawbridgeAnimationComponent
     private static double hoursToAngle(int hours, int minutes)
     {
         return Util.clampAngleRad(hours * HOUR_STEP + minutes * HOUR_SUB_STEP);
+    }
+
+    @Override
+    public @Nullable Consumer<IAnimatedBlockData> getBlockDataRotator()
+    {
+        return null;
     }
 }

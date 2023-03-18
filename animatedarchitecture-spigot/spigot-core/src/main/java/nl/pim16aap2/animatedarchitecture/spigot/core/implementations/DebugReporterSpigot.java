@@ -16,12 +16,10 @@ import nl.pim16aap2.animatedarchitecture.spigot.core.events.StructurePrepareCrea
 import nl.pim16aap2.animatedarchitecture.spigot.core.events.StructurePrepareDeleteEvent;
 import nl.pim16aap2.animatedarchitecture.spigot.core.events.StructurePrepareLockChangeEvent;
 import nl.pim16aap2.animatedarchitecture.spigot.core.events.StructurePrepareRemoveOwnerEvent;
-import nl.pim16aap2.animatedarchitecture.spigot.util.api.IAnimatedArchitectureSpigotSubPlatform;
 import nl.pim16aap2.util.SafeStringBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.RegisteredListener;
-import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -31,16 +29,15 @@ import javax.inject.Singleton;
 public class DebugReporterSpigot extends DebugReporter
 {
     private final AnimatedArchitecturePlugin animatedArchitecturePlugin;
-    private final @Nullable IAnimatedArchitectureSpigotSubPlatform subPlatform;
 
     @Inject
     public DebugReporterSpigot(
-        AnimatedArchitecturePlugin animatedArchitecturePlugin, IAnimatedArchitecturePlatformProvider platformProvider,
-        @Nullable IAnimatedArchitectureSpigotSubPlatform subPlatform, DebuggableRegistry debuggableRegistry)
+        AnimatedArchitecturePlugin animatedArchitecturePlugin,
+        IAnimatedArchitecturePlatformProvider platformProvider,
+        DebuggableRegistry debuggableRegistry)
     {
         super(debuggableRegistry, platformProvider);
         this.animatedArchitecturePlugin = animatedArchitecturePlugin;
-        this.subPlatform = subPlatform;
     }
 
     @Override
@@ -48,8 +45,6 @@ public class DebugReporterSpigot extends DebugReporter
     {
         return new SafeStringBuilder()
             .append("Server version: ").append(() -> Bukkit.getServer().getVersion())
-            .append('\n')
-            .append("SpigotSubPlatform: ").append(() -> subPlatform == null ? "null" : subPlatform.getClass().getName())
             .append('\n')
             .append("Registered addons: ").append(animatedArchitecturePlugin::getRegisteredPlugins)
             .append('\n')

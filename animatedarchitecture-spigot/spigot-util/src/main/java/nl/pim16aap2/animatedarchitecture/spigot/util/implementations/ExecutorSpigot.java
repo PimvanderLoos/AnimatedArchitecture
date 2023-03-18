@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.spigot.util.implementations;
 
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import org.bukkit.Bukkit;
@@ -18,6 +19,7 @@ import java.util.function.Supplier;
  * @author Pim
  */
 @Singleton
+@Flogger
 public final class ExecutorSpigot implements IExecutor
 {
     private final JavaPlugin plugin;
@@ -41,7 +43,7 @@ public final class ExecutorSpigot implements IExecutor
     @Override
     public void scheduleOnMainThread(Runnable runnable)
     {
-        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, runnable);
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, safeRunnable(runnable));
     }
 
     @Override
@@ -49,7 +51,7 @@ public final class ExecutorSpigot implements IExecutor
     {
         final CompletableFuture<T> result = new CompletableFuture<>();
         //noinspection deprecation
-        Bukkit.getScheduler().scheduleAsyncDelayedTask(plugin, () -> result.complete(supplier.get()));
+        Bukkit.getScheduler().scheduleAsyncDelayedTask(plugin, () -> result.complete(loggedSupplier(supplier).get()));
         return result;
     }
 
@@ -57,13 +59,13 @@ public final class ExecutorSpigot implements IExecutor
     public int runAsync(Runnable runnable)
     {
         //noinspection deprecation
-        return Bukkit.getScheduler().scheduleAsyncDelayedTask(plugin, runnable, 0);
+        return Bukkit.getScheduler().scheduleAsyncDelayedTask(plugin, safeRunnable(runnable), 0);
     }
 
     @Override
     public int runSync(Runnable runnable)
     {
-        return Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, runnable, 0);
+        return Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, safeRunnable(runnable), 0);
     }
 
     private static long toTicks(long milliseconds)
@@ -77,7 +79,8 @@ public final class ExecutorSpigot implements IExecutor
         // This is deprecated only because the name is supposedly confusing
         // (one might read it as scheduling "a sync" task).
         //noinspection deprecation
-        return Bukkit.getScheduler().scheduleAsyncRepeatingTask(plugin, timerTask, toTicks(delay), toTicks(period));
+        return Bukkit.getScheduler()
+                     .scheduleAsyncRepeatingTask(plugin, safeTimerTask(timerTask), toTicks(delay), toTicks(period));
     }
 
     @Override
@@ -86,43 +89,46 @@ public final class ExecutorSpigot implements IExecutor
         // This is deprecated only because the name is supposedly confusing
         // (one might read it as scheduling "a sync" task).
         //noinspection deprecation
-        return Bukkit.getScheduler().scheduleAsyncRepeatingTask(plugin, runnable, toTicks(delay), toTicks(period));
+        return Bukkit.getScheduler()
+                     .scheduleAsyncRepeatingTask(plugin, safeRunnable(runnable), toTicks(delay), toTicks(period));
     }
 
     @Override
     public int runSyncRepeated(TimerTask timerTask, long delay, long period)
     {
-        return Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, timerTask, toTicks(delay), toTicks(period));
+        return Bukkit.getScheduler()
+                     .scheduleSyncRepeatingTask(plugin, safeTimerTask(timerTask), toTicks(delay), toTicks(period));
     }
 
     @Override
     public int runSyncRepeated(Runnable runnable, long delay, long period)
     {
-        return Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, runnable, toTicks(delay), toTicks(period));
+        return Bukkit.getScheduler()
+                     .scheduleSyncRepeatingTask(plugin, safeRunnable(runnable), toTicks(delay), toTicks(period));
     }
 
     @Override
-    public void runAsyncLater(TimerTask runnable, long delay)
+    public void runAsyncLater(TimerTask timerTask, long delay)
     {
-        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, runnable, toTicks(delay));
+        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, safeTimerTask(timerTask), toTicks(delay));
     }
 
     @Override
     public void runAsyncLater(Runnable runnable, long delay)
     {
-        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, runnable, toTicks(delay));
+        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, safeRunnable(runnable), toTicks(delay));
     }
 
     @Override
     public void runSyncLater(TimerTask timerTask, long delay)
     {
-        Bukkit.getScheduler().runTaskLater(plugin, timerTask, toTicks(delay));
+        Bukkit.getScheduler().runTaskLater(plugin, safeTimerTask(timerTask), toTicks(delay));
     }
 
     @Override
     public void runSyncLater(Runnable runnable, long delay)
     {
-        Bukkit.getScheduler().runTaskLater(plugin, runnable, toTicks(delay));
+        Bukkit.getScheduler().runTaskLater(plugin, safeRunnable(runnable), toTicks(delay));
     }
 
     @Override
@@ -136,5 +142,54 @@ public final class ExecutorSpigot implements IExecutor
     public boolean isMainThread(long threadId)
     {
         return threadId == mainThreadId;
+    }
+
+    private Runnable safeRunnable(Runnable runnable)
+    {
+        return () ->
+        {
+            try
+            {
+                runnable.run();
+            }
+            catch (Exception e)
+            {
+                log.atSevere().withCause(e).log();
+            }
+        };
+    }
+
+    private TimerTask safeTimerTask(TimerTask timerTask)
+    {
+        return new TimerTask()
+        {
+            @Override public void run()
+            {
+                try
+                {
+                    timerTask.run();
+                }
+                catch (Exception e)
+                {
+                    log.atSevere().withCause(e).log();
+                }
+            }
+        };
+    }
+
+    private <T> Supplier<T> loggedSupplier(Supplier<T> supplier)
+    {
+        return () ->
+        {
+            try
+            {
+                return supplier.get();
+            }
+            catch (Exception e)
+            {
+                log.atSevere().withCause(e).log();
+                throw new RuntimeException(e);
+            }
+        };
     }
 }

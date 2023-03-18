@@ -1,6 +1,6 @@
 /**
  * This package contains various APIs used throughout the project, including definitions for animated blocks, colors,
- * debugging, factories, glowing block spawners, the platform interface, and more.
+ * debugging, factories, highlighted block spawners, the platform interface, and more.
  * <p>
  * Most of the implementations for the interfaces are provided by the modules for specific platforms (e.g. Spigot).
  */

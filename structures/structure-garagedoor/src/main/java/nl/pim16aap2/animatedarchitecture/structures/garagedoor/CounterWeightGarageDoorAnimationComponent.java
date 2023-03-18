@@ -7,6 +7,7 @@ import nl.pim16aap2.animatedarchitecture.core.moveblocks.AnimationUtil;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.Animator;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.IAnimator;
+import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.util.BlockFace;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
@@ -57,7 +58,6 @@ public class CounterWeightGarageDoorAnimationComponent implements IAnimationComp
                 angle = quarterCircles * -MathUtil.HALF_PI;
                 rotator = Vector3Dd::rotateAroundXAxis;
                 animationDirectionFace = BlockFace.NORTH;
-
             }
             case EAST ->
             {
@@ -87,9 +87,9 @@ public class CounterWeightGarageDoorAnimationComponent implements IAnimationComp
         this.mergedCuboidRadius = mergedCuboid.getDimensions().multiply(directionVec.absolute()).getMax() / 2.0D;
         this.newCuboid = data.getNewCuboid();
 
-        this.rotationCenter = mergedCuboid.getCenter().floor().add(0.5, 0, 0.5);
-        this.step =
-            angle / quarterCircles / AnimationUtil.getAnimationTicks(data.getAnimationTime(), data.getServerTickTime());
+        this.rotationCenter = mergedCuboid.getCenter().floor();
+        final int animationSteps = AnimationUtil.getAnimationTicks(data.getAnimationTime(), data.getServerTickTime());
+        this.step = angle / quarterCircles / animationSteps;
     }
 
     private Cuboid getMergedCuboid(Cuboid oldCuboid, Vector3Di directionVec, boolean wasVertical)
@@ -109,24 +109,24 @@ public class CounterWeightGarageDoorAnimationComponent implements IAnimationComp
         }
     }
 
-    protected Vector3Dd getGoalPos(double angle, IAnimatedBlock animatedBlock)
+    protected RotatedPosition getGoalPos(double angle, IAnimatedBlock animatedBlock)
     {
-        return rotator.apply(animatedBlock.getStartPosition(), rotationCenter, angle);
+        return new RotatedPosition(rotator.apply(animatedBlock.getStartPosition().position(), rotationCenter, angle));
     }
 
     @Override
-    public void executeAnimationStep(IAnimator animator, int ticks, int ticksRemaining)
+    public void executeAnimationStep(IAnimator animator, int ticks)
     {
         final double stepSum = Util.clampAngleRad(step * ticks);
 
         for (final IAnimatedBlock animatedBlock : animator.getAnimatedBlocks())
-            animator.applyMovement(animatedBlock, getGoalPos(stepSum, animatedBlock), ticksRemaining);
+            animator.applyMovement(animatedBlock, getGoalPos(stepSum, animatedBlock));
     }
 
     @Override
-    public Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
+    public RotatedPosition getFinalPosition(int xAxis, int yAxis, int zAxis)
     {
-        return rotator.apply(Vector3Dd.of(startLocation), rotationCenter, angle);
+        return new RotatedPosition(rotator.apply(new Vector3Dd(xAxis, yAxis, zAxis), rotationCenter, angle));
     }
 
     @Override

@@ -6,7 +6,7 @@ import nl.pim16aap2.animatedarchitecture.core.moveblocks.AnimationUtil;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.Animator;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.IAnimator;
-import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
+import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 
 /**
@@ -29,21 +29,21 @@ public final class VerticalAnimationComponent implements IAnimationComponent
     }
 
     @Override
-    public Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
+    public RotatedPosition getFinalPosition(int xAxis, int yAxis, int zAxis)
     {
-        return Vector3Dd.of(startLocation).add(0, blocksToMove, 0);
+        return new RotatedPosition(new Vector3Dd(xAxis, yAxis + blocksToMove, zAxis));
     }
 
-    private Vector3Dd getGoalPos(IAnimatedBlock animatedBlock, double stepSum)
+    private RotatedPosition getGoalPos(IAnimatedBlock animatedBlock, double stepSum)
     {
-        return animatedBlock.getStartPosition().add(0, stepSum, 0);
+        return new RotatedPosition(animatedBlock.getStartPosition().position().add(0, stepSum, 0));
     }
 
     @Override
-    public void executeAnimationStep(IAnimator animator, int ticks, int ticksRemaining)
+    public void executeAnimationStep(IAnimator animator, int ticks)
     {
         final double stepSum = step * ticks;
         for (final IAnimatedBlock animatedBlock : animator.getAnimatedBlocks())
-            animator.applyMovement(animatedBlock, getGoalPos(animatedBlock, stepSum), ticksRemaining);
+            animator.applyMovement(animatedBlock, getGoalPos(animatedBlock, stepSum));
     }
 }

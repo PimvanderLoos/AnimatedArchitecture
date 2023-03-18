@@ -6,8 +6,9 @@ import nl.pim16aap2.animatedarchitecture.core.moveblocks.AnimationUtil;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.Animator;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.moveblocks.IAnimator;
+import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
-import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,9 +29,12 @@ public class SlidingDoorAnimationComponent implements IAnimationComponent
 
     protected final int blocksToMove;
 
+    protected final StructureSnapshot snapshot;
+
     public SlidingDoorAnimationComponent(
         AnimationRequestData data, MovementDirection movementDirection, int blocksToMove)
     {
+        this.snapshot = data.getStructureSnapshot();
         this.blocksToMove = blocksToMove;
 
         northSouth =
@@ -45,9 +49,9 @@ public class SlidingDoorAnimationComponent implements IAnimationComponent
     }
 
     @Override
-    public Vector3Dd getFinalPosition(IVector3D startLocation, float radius)
+    public RotatedPosition getFinalPosition(int xAxis, int yAxis, int zAxis)
     {
-        return Vector3Dd.of(startLocation).add(moveX, 0, moveZ);
+        return new RotatedPosition(new Vector3Dd(xAxis + moveX, yAxis, zAxis + moveZ));
     }
 
     @Override
@@ -57,21 +61,23 @@ public class SlidingDoorAnimationComponent implements IAnimationComponent
         firstBlockData = animator.getAnimatedBlocks().isEmpty() ? null : animator.getAnimatedBlocks().get(0);
     }
 
-    protected Vector3Dd getGoalPos(IAnimatedBlock animatedBlock, double stepSum)
+    protected RotatedPosition getGoalPos(IAnimatedBlock animatedBlock, double stepSum)
     {
-        return animatedBlock.getStartPosition().add(northSouth ? 0 : stepSum,
-                                                    0,
-                                                    northSouth ? stepSum : 0);
+        return new RotatedPosition(
+            animatedBlock.getStartPosition().position()
+                         .add(northSouth ? 0 : stepSum,
+                              0,
+                              northSouth ? stepSum : 0));
     }
 
     @Override
-    public void executeAnimationStep(IAnimator animator, int ticks, int ticksRemaining)
+    public void executeAnimationStep(IAnimator animator, int ticks)
     {
         if (firstBlockData == null)
             return;
 
         final double stepSum = step * ticks;
         for (final IAnimatedBlock animatedBlock : animator.getAnimatedBlocks())
-            animator.applyMovement(animatedBlock, getGoalPos(animatedBlock, stepSum), ticksRemaining);
+            animator.applyMovement(animatedBlock, getGoalPos(animatedBlock, stepSum));
     }
 }

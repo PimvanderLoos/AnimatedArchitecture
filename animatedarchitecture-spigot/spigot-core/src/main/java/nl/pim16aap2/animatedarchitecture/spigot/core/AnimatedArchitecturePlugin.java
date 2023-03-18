@@ -58,7 +58,7 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
     @Getter(AccessLevel.PACKAGE)
     private final long mainThreadId;
 
-    private @Nullable IAnimatedArchitectureSpigotPlatform animatedArchitectureSpigotPlatform;
+    private @Nullable AnimatedArchitectureSpigotPlatform animatedArchitectureSpigotPlatform;
     // Avoid creating new Optional objects for every invocation; the result is going to be the same anyway.
     private volatile Optional<IAnimatedArchitecturePlatform> optionalPlatform = Optional.empty();
 
@@ -116,10 +116,10 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
      *
      * @param javaPlugin
      *     The plugin requesting access.
-     * @return The {@link IAnimatedArchitectureSpigotPlatform} if it was initialized properly.
+     * @return The {@link AnimatedArchitectureSpigotPlatform} if it was initialized properly.
      */
     @SuppressWarnings("unused")
-    public Optional<IAnimatedArchitectureSpigotPlatform> getAnimatedArchitectureSpigotPlatform(JavaPlugin javaPlugin)
+    public Optional<AnimatedArchitectureSpigotPlatform> getAnimatedArchitectureSpigotPlatform(JavaPlugin javaPlugin)
     {
         registeredPlugins.add(javaPlugin);
         return Optional.ofNullable(animatedArchitectureSpigotPlatform);
@@ -169,7 +169,7 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
             initCommands(animatedArchitectureSpigotPlatform);
     }
 
-    private void initCommands(IAnimatedArchitectureSpigotPlatform animatedArchitectureSpigotPlatform)
+    private void initCommands(AnimatedArchitectureSpigotPlatform animatedArchitectureSpigotPlatform)
     {
         try
         {
@@ -189,12 +189,12 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
     }
 
     // Synchronized to ensure visibility of the platform.
-    private @Nullable IAnimatedArchitectureSpigotPlatform initPlatform()
+    private @Nullable AnimatedArchitectureSpigotPlatform initPlatform()
     {
         try
         {
-            final IAnimatedArchitectureSpigotPlatform platform =
-                new IAnimatedArchitectureSpigotPlatform(animatedArchitectureSpigotComponent, this);
+            final AnimatedArchitectureSpigotPlatform platform =
+                new AnimatedArchitectureSpigotPlatform(animatedArchitectureSpigotComponent, this);
             successfulInit = true;
             log.atInfo().log("Successfully enabled AnimatedArchitecture %s", getDescription().getVersion());
             optionalPlatform = Optional.of(platform);
@@ -214,7 +214,7 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
         restartableHolder.shutDown();
         new BackupCommandListener(this, initErrorMessage);
         registerFailureLoginListener();
-        log.atWarning().log("%s", new DebugReporterSpigot(this, this, null, new DebuggableRegistry()));
+        log.atWarning().log("%s", new DebugReporterSpigot(this, this, new DebuggableRegistry()));
         successfulInit = false;
         restartableHolder.shutDown();
     }

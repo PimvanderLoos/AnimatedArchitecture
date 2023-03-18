@@ -2,10 +2,9 @@ package nl.pim16aap2.animatedarchitecture.spigot.core;
 
 import lombok.Getter;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.animatedarchitecture.core.api.GlowingBlockSpawner;
+import nl.pim16aap2.animatedarchitecture.core.api.HighlightedBlockSpawner;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatform;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitectureToolUtil;
-import nl.pim16aap2.animatedarchitecture.core.api.IBlockAnalyzer;
 import nl.pim16aap2.animatedarchitecture.core.api.IChunkLoader;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IEconomyManager;
@@ -52,8 +51,7 @@ import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.LoginResourcePack
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.RedstoneListener;
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.WorldListener;
 import nl.pim16aap2.animatedarchitecture.spigot.core.managers.HeadManager;
-import nl.pim16aap2.animatedarchitecture.spigot.core.managers.SubPlatformManager;
-import nl.pim16aap2.animatedarchitecture.spigot.util.api.IAnimatedArchitectureSpigotSubPlatform;
+import nl.pim16aap2.animatedarchitecture.spigot.util.api.IBlockAnalyzerSpigot;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Singleton;
@@ -61,7 +59,7 @@ import java.util.function.Function;
 
 @Flogger
 @Singleton
-public final class IAnimatedArchitectureSpigotPlatform implements IAnimatedArchitecturePlatform
+public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchitecturePlatform
 {
     private final AnimatedArchitectureSpigotComponent animatedArchitectureSpigotComponent;
 
@@ -99,13 +97,13 @@ public final class IAnimatedArchitectureSpigotPlatform implements IAnimatedArchi
     private final IAudioPlayer audioPlayer;
 
     @Getter
-    private final IBlockAnalyzer blockAnalyzer;
+    private final IBlockAnalyzerSpigot blockAnalyzer;
 
     @Getter
     private final IExecutor executor;
 
     @Getter
-    private final GlowingBlockSpawner glowingBlockSpawner;
+    private final HighlightedBlockSpawner highlightedBlockSpawner;
 
     @Getter
     private final ILocalizer localizer;
@@ -182,9 +180,6 @@ public final class IAnimatedArchitectureSpigotPlatform implements IAnimatedArchi
     @Getter
     private final LocalizationManager localizationManager;
 
-    @Getter
-    private final IAnimatedArchitectureSpigotSubPlatform spigotSubPlatform;
-
     @SuppressWarnings({"FieldCanBeLocal", "unused", "PMD.SingularField"})
     private final ChunkListener chunkListener;
 
@@ -209,27 +204,18 @@ public final class IAnimatedArchitectureSpigotPlatform implements IAnimatedArchi
     @Getter
     private final VersionReader.VersionInfo versionInfo;
 
-    IAnimatedArchitectureSpigotPlatform(
+    AnimatedArchitectureSpigotPlatform(
         AnimatedArchitectureSpigotComponent animatedArchitectureSpigotComponent, AnimatedArchitecturePlugin plugin)
         throws InitializationException
     {
         this.animatedArchitectureSpigotComponent = animatedArchitectureSpigotComponent;
         this.plugin = plugin;
 
-        final SubPlatformManager subPlatformManagerSpigot = animatedArchitectureSpigotComponent.getSubPlatformManager();
-
-        if (!subPlatformManagerSpigot.isValidPlatform())
-            throw new InitializationException("Failed to initialize AnimatedArchitecture SubPlatform version " +
-                                                  subPlatformManagerSpigot.getSubPlatformVersion() +
-                                                  " for server version: " +
-                                                  subPlatformManagerSpigot.getServerVersion());
-
         databaseManager = animatedArchitectureSpigotComponent.getDatabaseManager();
         if (databaseManager.getDatabaseState() != IStorage.DatabaseState.OK)
             throw new InitializationException("Failed to initialize AnimatedArchitecture database! Database state: " +
                                                   databaseManager.getDatabaseState().name());
 
-        spigotSubPlatform = safeGetter(AnimatedArchitectureSpigotComponent::getSpigotSubPlatform);
         protectionCompatManager = safeGetter(AnimatedArchitectureSpigotComponent::getProtectionCompatManager);
         economyManager = safeGetter(AnimatedArchitectureSpigotComponent::getVaultManager);
         permissionsManager = safeGetter(AnimatedArchitectureSpigotComponent::getVaultManager);
@@ -269,7 +255,7 @@ public final class IAnimatedArchitectureSpigotPlatform implements IAnimatedArchi
         animatedArchitectureConfig = safeGetter(AnimatedArchitectureSpigotComponent::getConfig);
         executor = safeGetter(AnimatedArchitectureSpigotComponent::getExecutor);
         worldListener = safeGetter(AnimatedArchitectureSpigotComponent::getWorldListener);
-        glowingBlockSpawner = safeGetter(AnimatedArchitectureSpigotComponent::getIGlowingBlockSpawner);
+        highlightedBlockSpawner = safeGetter(AnimatedArchitectureSpigotComponent::getHighlightedBlockSpawner);
         server = safeGetter(AnimatedArchitectureSpigotComponent::getServer);
         audioPlayer = safeGetter(AnimatedArchitectureSpigotComponent::getIAudioPlayer);
         messagingInterface = safeGetter(AnimatedArchitectureSpigotComponent::getIMessagingInterface);
@@ -277,7 +263,7 @@ public final class IAnimatedArchitectureSpigotPlatform implements IAnimatedArchi
         animatedArchitectureToolUtil = safeGetter(
             AnimatedArchitectureSpigotComponent::getAnimatedArchitectureToolUtilSpigot);
         localizer = safeGetter(AnimatedArchitectureSpigotComponent::getILocalizer);
-        blockAnalyzer = safeGetter(AnimatedArchitectureSpigotComponent::getBlockAnalyzer);
+        blockAnalyzer = safeGetter(AnimatedArchitectureSpigotComponent::getBlockAnalyzerProvider).getBlockAnalyzer();
         doorTypeLoader = safeGetter(AnimatedArchitectureSpigotComponent::getDoorTypeLoader);
         restartableHolder = safeGetter(AnimatedArchitectureSpigotComponent::getRestartableHolder);
         commandListener = safeGetter(AnimatedArchitectureSpigotComponent::getCommandListener);

@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
-import nl.pim16aap2.animatedarchitecture.core.api.GlowingBlockSpawner;
+import nl.pim16aap2.animatedarchitecture.core.api.HighlightedBlockSpawner;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
@@ -34,7 +34,7 @@ class InfoTest
     private StructureRetriever structureRetriever;
 
     @Mock
-    private GlowingBlockSpawner glowingBlockSpawner;
+    private HighlightedBlockSpawner glowingBlockSpawner;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private Info.IFactory factory;
@@ -72,7 +72,7 @@ class InfoTest
 
         Assertions.assertDoesNotThrow(() -> factory.newInfo(server, structureRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(glowingBlockSpawner, Mockito.never())
-               .spawnGlowingBlocks(Mockito.any(), Mockito.any(), Mockito.any());
+               .spawnHighlightedBlocks(Mockito.any(), Mockito.any(), Mockito.any());
     }
 
     @Test
@@ -83,17 +83,17 @@ class InfoTest
         CommandTestingUtil.initCommandSenderPermissions(player, true, false);
         Assertions.assertDoesNotThrow(() -> factory.newInfo(player, structureRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(glowingBlockSpawner, Mockito.never())
-               .spawnGlowingBlocks(Mockito.any(), Mockito.any(), Mockito.any());
+               .spawnHighlightedBlocks(Mockito.any(), Mockito.any(), Mockito.any());
 
         CommandTestingUtil.initCommandSenderPermissions(player, true, true);
         Assertions.assertDoesNotThrow(() -> factory.newInfo(player, structureRetriever).run().get(1, TimeUnit.SECONDS));
-        Mockito.verify(glowingBlockSpawner).spawnGlowingBlocks(Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.verify(glowingBlockSpawner).spawnHighlightedBlocks(Mockito.any(), Mockito.any(), Mockito.any());
 
         CommandTestingUtil.initCommandSenderPermissions(player, true, false);
         Mockito.when(structure.getOwner(player)).thenReturn(Optional.of(CommandTestingUtil.structureOwnerCreator));
         Assertions.assertDoesNotThrow(() -> factory.newInfo(player, structureRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(glowingBlockSpawner, Mockito.times(2))
-               .spawnGlowingBlocks(Mockito.any(), Mockito.any(), Mockito.any());
+               .spawnHighlightedBlocks(Mockito.any(), Mockito.any(), Mockito.any());
     }
 
 }

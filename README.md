@@ -23,8 +23,8 @@ Before you try to use AnimatedArchitecture, please be aware that this project is
 
 ### Requirements:
 
-* Java 19
-* A Spigot server (or a fork) for Minecraft 1.19.3.
+* Java 19+
+* A Spigot server (or a fork) for Minecraft 1.19.4+
 
 ### Installation:
 
@@ -83,8 +83,6 @@ Compilation requirements:
 
 * Java 19+
 * Maven
-* Have NMS for 1.19.3 in your local repository. You can get this
-  by [running BuildTools](https://www.spigotmc.org/wiki/buildtools/#running-buildtools) for 1.19.3.
 
 You can then compile the project by running the following command in this directory:
 
