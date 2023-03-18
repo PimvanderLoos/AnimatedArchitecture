@@ -1,4 +1,4 @@
-package nl.pim16aap2.animatedarchitecture.spigot.util.api;
+package nl.pim16aap2.animatedarchitecture.spigot.core.animation;
 
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
 import org.bukkit.Material;

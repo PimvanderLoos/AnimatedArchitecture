@@ -12,7 +12,6 @@ import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
-import nl.pim16aap2.animatedarchitecture.spigot.util.api.IAnimatedBlockSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.LocationSpigot;
 import org.bukkit.Material;
 import org.bukkit.World;

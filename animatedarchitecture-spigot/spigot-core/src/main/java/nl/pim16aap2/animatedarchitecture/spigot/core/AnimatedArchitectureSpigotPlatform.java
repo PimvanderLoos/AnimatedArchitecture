@@ -5,7 +5,6 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.HighlightedBlockSpawner;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatform;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitectureToolUtil;
-import nl.pim16aap2.animatedarchitecture.core.api.IBlockAnalyzer;
 import nl.pim16aap2.animatedarchitecture.core.api.IChunkLoader;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IEconomyManager;
@@ -52,6 +51,7 @@ import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.LoginResourcePack
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.RedstoneListener;
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.WorldListener;
 import nl.pim16aap2.animatedarchitecture.spigot.core.managers.HeadManager;
+import nl.pim16aap2.animatedarchitecture.spigot.util.api.IBlockAnalyzerSpigot;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Singleton;
@@ -97,7 +97,7 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
     private final IAudioPlayer audioPlayer;
 
     @Getter
-    private final IBlockAnalyzer blockAnalyzer;
+    private final IBlockAnalyzerSpigot blockAnalyzer;
 
     @Getter
     private final IExecutor executor;
@@ -263,7 +263,7 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
         animatedArchitectureToolUtil = safeGetter(
             AnimatedArchitectureSpigotComponent::getAnimatedArchitectureToolUtilSpigot);
         localizer = safeGetter(AnimatedArchitectureSpigotComponent::getILocalizer);
-        blockAnalyzer = safeGetter(AnimatedArchitectureSpigotComponent::getBlockAnalyzer);
+        blockAnalyzer = safeGetter(AnimatedArchitectureSpigotComponent::getBlockAnalyzerProvider).getBlockAnalyzer();
         doorTypeLoader = safeGetter(AnimatedArchitectureSpigotComponent::getDoorTypeLoader);
         restartableHolder = safeGetter(AnimatedArchitectureSpigotComponent::getRestartableHolder);
         commandListener = safeGetter(AnimatedArchitectureSpigotComponent::getCommandListener);

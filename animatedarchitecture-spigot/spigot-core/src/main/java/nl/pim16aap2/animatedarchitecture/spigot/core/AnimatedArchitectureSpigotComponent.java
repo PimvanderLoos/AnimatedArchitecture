@@ -3,7 +3,6 @@ package nl.pim16aap2.animatedarchitecture.spigot.core;
 import dagger.BindsInstance;
 import dagger.Component;
 import nl.pim16aap2.animatedarchitecture.core.api.HighlightedBlockSpawner;
-import nl.pim16aap2.animatedarchitecture.core.api.IBlockAnalyzer;
 import nl.pim16aap2.animatedarchitecture.core.api.IChunkLoader;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IMessageable;
@@ -70,6 +69,8 @@ import nl.pim16aap2.animatedarchitecture.spigot.core.managers.HeadManager;
 import nl.pim16aap2.animatedarchitecture.spigot.core.managers.PowerBlockRedstoneManagerSpigotModule;
 import nl.pim16aap2.animatedarchitecture.spigot.core.managers.VaultManager;
 import nl.pim16aap2.animatedarchitecture.spigot.core.managers.VaultManagerModule;
+import nl.pim16aap2.animatedarchitecture.spigot.core.util.BlockAnalyzerModule;
+import nl.pim16aap2.animatedarchitecture.spigot.core.util.BlockAnalyzerProvider;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.AudioPlayerSpigotModule;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.ExecutorModule;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.MessagingInterfaceSpigotModule;
@@ -107,6 +108,7 @@ import javax.inject.Singleton;
     ChunkLoaderSpigotModule.class,
     GuiFactorySpigotModule.class,
     TextComponentFactorySpigotModule.class,
+    BlockAnalyzerModule.class,
 })
 interface AnimatedArchitectureSpigotComponent
 {
@@ -220,9 +222,9 @@ interface AnimatedArchitectureSpigotComponent
 
     IAnimatedBlockFactory getAnimatedBlockFactory();
 
-    IBlockAnalyzer getBlockAnalyzer();
-
     StructureTypeLoader getDoorTypeLoader();
+
+    BlockAnalyzerProvider getBlockAnalyzerProvider();
 
     CommandFactory getCommandFactory();
 

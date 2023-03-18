@@ -125,7 +125,7 @@ public interface IAnimatedArchitecturePlatform
      *
      * @return The instance of the {@link IBlockAnalyzer} for this platform.
      */
-    IBlockAnalyzer getBlockAnalyzer();
+    IBlockAnalyzer<?> getBlockAnalyzer();
 
     /**
      * Constructs a new {@link IExecutor}.

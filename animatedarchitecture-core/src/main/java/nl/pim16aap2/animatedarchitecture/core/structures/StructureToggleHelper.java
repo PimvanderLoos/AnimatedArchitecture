@@ -59,7 +59,7 @@ import java.util.logging.Level;
     private final StructureTypeManager structureTypeManager;
     private final IConfig config;
     private final IExecutor executor;
-    private final IBlockAnalyzer blockAnalyzer;
+    private final IBlockAnalyzer<?> blockAnalyzer;
     private final ILocationFactory locationFactory;
     private final IProtectionCompatManager protectionCompatManager;
     private final HighlightedBlockSpawner highlightedBlockSpawner;
@@ -79,7 +79,7 @@ import java.util.logging.Level;
         StructureTypeManager structureTypeManager,
         IConfig config,
         IExecutor executor,
-        IBlockAnalyzer blockAnalyzer,
+        IBlockAnalyzer<?> blockAnalyzer,
         ILocationFactory locationFactory,
         IProtectionCompatManager protectionCompatManager,
         HighlightedBlockSpawner highlightedBlockSpawner,

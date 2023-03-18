@@ -10,6 +10,7 @@ import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
+import nl.pim16aap2.animatedarchitecture.spigot.util.api.IBlockAnalyzerSpigot;
 import org.bukkit.Material;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,11 +24,16 @@ public class AnimatedBlockDisplayFactory implements IAnimatedBlockFactory
 {
     private final IExecutor executor;
     private final AnimatedBlockHookManager animatedBlockHookManager;
+    private final IBlockAnalyzerSpigot blockAnalyzer;
 
-    @Inject AnimatedBlockDisplayFactory(IExecutor executor, AnimatedBlockHookManager animatedBlockHookManager)
+    @Inject AnimatedBlockDisplayFactory(
+        IExecutor executor,
+        AnimatedBlockHookManager animatedBlockHookManager,
+        IBlockAnalyzerSpigot blockAnalyzer)
     {
         this.executor = executor;
         this.animatedBlockHookManager = animatedBlockHookManager;
+        this.blockAnalyzer = blockAnalyzer;
     }
 
     @Override
@@ -39,7 +45,7 @@ public class AnimatedBlockDisplayFactory implements IAnimatedBlockFactory
         final Material mat =
             Util.requireNonNull(SpigotAdapter.getBukkitWorld(world), "BukkitWorld").getType(pos.x(), pos.y(), pos.z());
 
-        if (!BlockAnalyzer.isAllowedBlockStatic(mat))
+        if (!blockAnalyzer.isAllowed(mat))
             return Optional.empty();
 
         return Optional.of(new AnimatedBlockDisplay(

@@ -1,14 +1,11 @@
-package nl.pim16aap2.animatedarchitecture.spigot.core.animation;
+package nl.pim16aap2.animatedarchitecture.spigot.v1_19_R3;
 
-import nl.pim16aap2.animatedarchitecture.core.api.IBlockAnalyzer;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
+import nl.pim16aap2.animatedarchitecture.spigot.util.api.IBlockAnalyzerSpigot;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -18,8 +15,7 @@ import java.util.Set;
  *
  * @author Pim
  */
-@Singleton
-public final class BlockAnalyzer implements IBlockAnalyzer
+public final class BlockAnalyzer implements IBlockAnalyzerSpigot
 {
     private static final Set<Material> WHITELIST = EnumSet.noneOf(Material.class);
 
@@ -35,8 +31,27 @@ public final class BlockAnalyzer implements IBlockAnalyzer
         }
     }
 
-    @Inject BlockAnalyzer()
+    @Override
+    public boolean isAirOrLiquid(Material material)
     {
+        return material.isAir() || material.equals(Material.WATER) || material.equals(Material.LAVA);
+    }
+
+    @Override
+    public boolean isAirOrLiquid(ILocation location)
+    {
+        return isAirOrLiquid(materialAtLocation(location));
+    }
+
+    @Override
+    public boolean isAllowed(Material material)
+    {
+        return WHITELIST.contains(material);
+    }
+
+    private static Material materialAtLocation(ILocation location)
+    {
+        return SpigotAdapter.getBukkitLocation(location).getBlock().getType();
     }
 
     /**
@@ -234,64 +249,5 @@ public final class BlockAnalyzer implements IBlockAnalyzer
                     ZOMBIE_WALL_HEAD -> MaterialStatus.BLACKLISTED;
                 default -> MaterialStatus.WHITELISTED;
             };
-    }
-
-    /**
-     * Gets the material of a block at an {@link ILocation}.
-     *
-     * @param location
-     *     The location.
-     * @return The material of the block at the location.
-     */
-    private static Material getMaterial(ILocation location)
-    {
-        return SpigotAdapter.getBukkitLocation(location).getBlock().getType();
-    }
-
-    /**
-     * See {@link #isAirOrLiquid(ILocation)}.
-     */
-    public static boolean isAirOrLiquidStatic(Block block)
-    {
-        // Empty means it's air.
-        return block.isLiquid() || block.isEmpty();
-    }
-
-    /**
-     * See {@link #isAllowedBlock(ILocation)}.
-     */
-    public static boolean isAllowedBlockStatic(Material mat)
-    {
-        return WHITELIST.contains(mat);
-    }
-
-    /**
-     * See {@link #isAirOrLiquid(ILocation)}.
-     */
-    public static boolean isAirOrLiquidStatic(ILocation location)
-    {
-        final Block block = SpigotAdapter.getBukkitLocation(location).getBlock();
-        // Empty means it's air.
-        return isAirOrLiquidStatic(block);
-    }
-
-    /**
-     * See {@link #isAllowedBlock(ILocation)}.
-     */
-    public static boolean isAllowedBlockStatic(ILocation location)
-    {
-        return isAllowedBlockStatic(getMaterial(location));
-    }
-
-    @Override
-    public boolean isAirOrLiquid(ILocation location)
-    {
-        return isAirOrLiquidStatic(location);
-    }
-
-    @Override
-    public boolean isAllowedBlock(ILocation location)
-    {
-        return isAllowedBlockStatic(location);
     }
 }
