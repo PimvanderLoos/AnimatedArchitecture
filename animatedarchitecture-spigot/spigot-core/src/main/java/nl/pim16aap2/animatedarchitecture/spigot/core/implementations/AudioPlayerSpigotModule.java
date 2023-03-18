@@ -1,4 +1,4 @@
-package nl.pim16aap2.animatedarchitecture.spigot.util.implementations;
+package nl.pim16aap2.animatedarchitecture.spigot.core.implementations;
 
 import dagger.Binds;
 import dagger.Module;
