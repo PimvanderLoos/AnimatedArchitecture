@@ -28,6 +28,7 @@ nl.pim16aap2.animatedarchitecture.core.util.functional
 nl.pim16aap2.animatedarchitecture.core.util.structureretriever
 nl.pim16aap2.animatedarchitecture.core.util.vector
 nl.pim16aap2.animatedarchitecture.spigot.core
+nl.pim16aap2.animatedarchitecture.spigot.core.animation
 nl.pim16aap2.animatedarchitecture.spigot.core.comands
 nl.pim16aap2.animatedarchitecture.spigot.core.compatiblity
 nl.pim16aap2.animatedarchitecture.spigot.core.config
@@ -38,6 +39,7 @@ nl.pim16aap2.animatedarchitecture.spigot.core.implementations
 nl.pim16aap2.animatedarchitecture.spigot.core.listeners
 nl.pim16aap2.animatedarchitecture.spigot.core.logging
 nl.pim16aap2.animatedarchitecture.spigot.core.managers
+nl.pim16aap2.animatedarchitecture.spigot.core.util
 nl.pim16aap2.animatedarchitecture.spigot.util
 nl.pim16aap2.animatedarchitecture.spigot.util.api
 nl.pim16aap2.animatedarchitecture.spigot.util.implementations
