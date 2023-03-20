@@ -1,5 +1,7 @@
 # AnimatedArchitecture
 
+[![](https://jitpack.io/v/PimvanderLoos/AnimatedArchitecture.svg)](https://jitpack.io/#PimvanderLoos/AnimatedArchitecture)
+
 AnimatedArchitecture is a plugin for the Minecraft server mod [Spigot](https://spigotmc.org). Its aim is to enhance your
 server with animated blocks that can be used to create many kinds of animated architectural structures.
 
