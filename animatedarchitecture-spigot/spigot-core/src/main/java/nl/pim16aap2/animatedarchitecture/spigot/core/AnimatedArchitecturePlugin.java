@@ -14,6 +14,7 @@ import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.BackupCommandList
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.LoginMessageListener;
 import nl.pim16aap2.animatedarchitecture.spigot.core.logging.ConsoleAppender;
 import nl.pim16aap2.util.logging.LogBackConfigurator;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
@@ -146,6 +147,7 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
         if (!initialized)
         {
             firstInit = true;
+            initStats();
             animatedArchitectureSpigotPlatform = initPlatform();
         }
         initialized = true;
@@ -217,6 +219,18 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
         log.atWarning().log("%s", new DebugReporterSpigot(this, this, new DebuggableRegistry()));
         successfulInit = false;
         restartableHolder.shutDown();
+    }
+
+    private void initStats()
+    {
+        try
+        {
+            new Metrics(this, 18_011);
+        }
+        catch (Exception e)
+        {
+            log.atSevere().withCause(e).log("Failed to enable stats! :(");
+        }
     }
 
     /**
