@@ -3,12 +3,12 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>spigot-core</artifactId>
     <packaging>jar</packaging>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.2-SNAPSHOT</version>
 
     <parent>
         <groupId>nl.pim16aap2.animatedarchitecture</groupId>
         <artifactId>animatedarchitecture-spigot</artifactId>
-        <version>0.1-SNAPSHOT</version>
+        <version>0.2-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -26,13 +26,13 @@
         <dependency>
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>spigot-v1_19_R3</artifactId>
-            <version>0.1-SNAPSHOT</version>
+            <version>0.2-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>spigot-util</artifactId>
-            <version>0.1-SNAPSHOT</version>
+            <version>0.2-SNAPSHOT</version>
         </dependency>
 
         <dependency>
