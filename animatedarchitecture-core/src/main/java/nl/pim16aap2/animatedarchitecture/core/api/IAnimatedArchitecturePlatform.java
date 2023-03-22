@@ -24,7 +24,7 @@ import nl.pim16aap2.animatedarchitecture.core.moveblocks.StructureActivityManage
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequest;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureRegistry;
-import nl.pim16aap2.animatedarchitecture.core.util.VersionReader;
+import nl.pim16aap2.animatedarchitecture.core.util.BuildDataReader;
 import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureFinder;
 import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
@@ -57,9 +57,9 @@ public interface IAnimatedArchitecturePlatform
     String getVersionName();
 
     /**
-     * @return The version info. This provides access to items such as the commit hash, the build id, etc.
+     * @return The build data. This provides access to items such as the commit hash, the build id, etc.
      */
-    VersionReader.VersionInfo getVersionInfo();
+    BuildDataReader.BuildData getBuildData();
 
     /**
      * Gets the instance of the {@link IAnimatedArchitectureToolUtil} for this platform.

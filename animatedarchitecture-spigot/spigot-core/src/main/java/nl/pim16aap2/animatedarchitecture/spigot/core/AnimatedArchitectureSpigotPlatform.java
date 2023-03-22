@@ -39,7 +39,7 @@ import nl.pim16aap2.animatedarchitecture.core.moveblocks.StructureActivityManage
 import nl.pim16aap2.animatedarchitecture.core.storage.IStorage;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureRegistry;
-import nl.pim16aap2.animatedarchitecture.core.util.VersionReader;
+import nl.pim16aap2.animatedarchitecture.core.util.BuildDataReader;
 import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.spigot.core.comands.CommandManager;
 import nl.pim16aap2.animatedarchitecture.spigot.core.exceptions.InitializationException;
@@ -202,7 +202,7 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
     private final CommandManager commandListener;
 
     @Getter
-    private final VersionReader.VersionInfo versionInfo;
+    private final BuildDataReader.BuildData buildData;
 
     AnimatedArchitectureSpigotPlatform(
         AnimatedArchitectureSpigotComponent animatedArchitectureSpigotComponent, AnimatedArchitecturePlugin plugin)
@@ -267,7 +267,7 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
         doorTypeLoader = safeGetter(AnimatedArchitectureSpigotComponent::getDoorTypeLoader);
         restartableHolder = safeGetter(AnimatedArchitectureSpigotComponent::getRestartableHolder);
         commandListener = safeGetter(AnimatedArchitectureSpigotComponent::getCommandListener);
-        versionInfo = safeGetter(AnimatedArchitectureSpigotComponent::getVersionReader).getVersionInfo();
+        buildData = safeGetter(AnimatedArchitectureSpigotComponent::getBuildDataReader).getBuildData();
 
         initPlatform();
     }
