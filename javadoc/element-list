@@ -26,7 +26,9 @@ nl.pim16aap2.animatedarchitecture.core.util
 nl.pim16aap2.animatedarchitecture.core.util.delayedinput
 nl.pim16aap2.animatedarchitecture.core.util.functional
 nl.pim16aap2.animatedarchitecture.core.util.structureretriever
+nl.pim16aap2.animatedarchitecture.core.util.updater
 nl.pim16aap2.animatedarchitecture.core.util.vector
+nl.pim16aap2.animatedarchitecture.core.util.versioning
 nl.pim16aap2.animatedarchitecture.spigot.core
 nl.pim16aap2.animatedarchitecture.spigot.core.animation
 nl.pim16aap2.animatedarchitecture.spigot.core.comands
