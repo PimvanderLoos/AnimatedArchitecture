@@ -12,6 +12,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.updater.UpdateChecker;
 import nl.pim16aap2.animatedarchitecture.core.util.versioning.ProjectVersion;
 import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.DebugReporterSpigot;
+import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.TextFactorySpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.BackupCommandListener;
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.LoginMessageListener;
 import nl.pim16aap2.animatedarchitecture.spigot.core.logging.ConsoleAppender;
@@ -268,7 +269,7 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
      */
     private void registerFailureLoginListener()
     {
-        new LoginMessageListener(this, null);
+        new LoginMessageListener(this, new TextFactorySpigot(), null, null);
     }
 
     @Override
