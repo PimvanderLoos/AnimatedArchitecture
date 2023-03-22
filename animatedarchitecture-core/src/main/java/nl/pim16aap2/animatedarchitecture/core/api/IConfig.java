@@ -49,13 +49,6 @@ public interface IConfig extends IRestartable
      */
     int coolDown();
 
-    /**
-     * Checks if stats gathering is allowed.
-     *
-     * @return True if stats gathering is allowed.
-     */
-    boolean allowStats();
-
     Locale locale();
 
     /**
@@ -96,32 +89,9 @@ public interface IConfig extends IRestartable
     OptionalInt maxBlocksToMove();
 
     /**
-     * Checks if updates should be downloaded automatically.
-     *
-     * @return True is updates should be downloaded automatically.
-     */
-    boolean autoDLUpdate();
-
-    /**
-     * Gets the amount time (in seconds) to wait before downloading an update. If set to 24 hours (86400 seconds), and
-     * an update was released on Monday June 1 at 12PM, it will not download this update before Tuesday June 2 at 12PM.
-     * When running a dev-build, however, this value is overridden to 0.
-     *
-     * @return The amount time (in seconds) to wait before downloading an update.
-     */
-    long downloadDelay();
-
-    /**
      * @return True if we should try to load any unloaded chunks for a toggle.
      */
     boolean loadChunksForToggle();
-
-    /**
-     * Whether to check for updates.
-     *
-     * @return True if the plugin should check for new updates.
-     */
-    boolean checkForUpdates();
 
     /**
      * Gets the structure price formula for a specific type of structure.

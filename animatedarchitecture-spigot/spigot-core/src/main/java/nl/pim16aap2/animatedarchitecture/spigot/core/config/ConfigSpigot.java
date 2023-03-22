@@ -13,7 +13,6 @@ import nl.pim16aap2.animatedarchitecture.core.localization.LocalizationUtil;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.ConfigEntry;
-import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.Limit;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
@@ -74,7 +73,6 @@ public final class ConfigSpigot implements IConfig, IDebuggable
     private final String header;
 
     private int coolDown;
-    private boolean allowStats;
     private OptionalInt maxStructureSize = OptionalInt.empty();
     private OptionalInt maxPowerBlockDistance = OptionalInt.empty();
     private boolean resourcePackEnabled = false;
@@ -84,11 +82,8 @@ public final class ConfigSpigot implements IConfig, IDebuggable
     private OptionalInt maxBlocksToMove = OptionalInt.empty();
     private double maxBlockSpeed;
     private int cacheTimeout;
-    private boolean autoDLUpdate;
     private boolean enableRedstone;
-    private long downloadDelay;
     private boolean loadChunksForToggle;
-    private boolean checkForUpdates;
     private Locale locale = Locale.ROOT;
     private int headCacheTimeout;
     private boolean consoleLogging;
@@ -195,30 +190,6 @@ public final class ConfigSpigot implements IConfig, IDebuggable
             # You can use permissions if you need more finely grained control using this node:
             # '%s.x', where 'x' can be any positive value.
             """, Limit.BLOCKS_TO_MOVE.getUserPermission());
-
-        final String checkForUpdatesComment =
-            """
-            # Allow this plugin to check for updates on startup. It will not download new versions!
-            """;
-
-        final String downloadDelayComment =
-            """
-            # Time (in minutes) to delay downloading updates after their release.
-            # Setting it to 1440 means that updates will be downloaded 24h after their release.
-            # This is useful to avoid automatically updating to an update that may be retracted after release.
-            # Note that updates cannot be deferred for more than 1 week (10080 minutes)."
-            """;
-
-        final String autoDLUpdateComment =
-            """
-            # Allow this plugin to automatically download new updates. They will be applied on restart.
-            """;
-
-        final String allowStatsComment =
-            """
-            # Allow this plugin to send (anonymized) stats using bStats. Please consider keeping it enabled.
-            # It has a negligible impact on performance and it helps me choose what to work on.
-            """;
 
         final String maxStructureSizeComment = String.format(
             """
@@ -378,13 +349,6 @@ public final class ConfigSpigot implements IConfig, IDebuggable
                                                             maxPowerBlockDistanceComment);
         this.maxPowerBlockDistance = maxPowerBlockDistance > 0 ?
                                      OptionalInt.of(maxPowerBlockDistance) : OptionalInt.empty();
-
-        checkForUpdates = addNewConfigEntry(config, "checkForUpdates", true, checkForUpdatesComment);
-        autoDLUpdate = addNewConfigEntry(config, "auto-update", true, autoDLUpdateComment);
-        // Multiply by 60 to get the time in seconds. Also, it's capped to 10080 minutes, better known as 1 week.
-        downloadDelay = addNewConfigEntry(config, "downloadDelay", 1_440, downloadDelayComment,
-                                          (Integer x) -> Math.min(10_080, x)) * 60L;
-        allowStats = addNewConfigEntry(config, "allowStats", true, allowStatsComment);
 
         String localeStr = addNewConfigEntry(config, "locale", "root", localeComment);
         // "root" isn't actually a valid country that can be used by a Locale.
@@ -641,12 +605,6 @@ public final class ConfigSpigot implements IConfig, IDebuggable
     }
 
     @Override
-    public boolean allowStats()
-    {
-        return allowStats;
-    }
-
-    @Override
     public Locale locale()
     {
         return locale;
@@ -693,27 +651,6 @@ public final class ConfigSpigot implements IConfig, IDebuggable
     }
 
     @Override
-    public boolean autoDLUpdate()
-    {
-        return autoDLUpdate;
-    }
-
-    /**
-     * Gets the amount time (in seconds) to wait before downloading an update. If set to 24 hours (86400 seconds), and
-     * an update was released on Wednesday, June 1, 2022, at 12PM, it will not download this update before Thursday,
-     * June 2, 2022, at 12PM. When running a dev-build, however, this value is overridden to 0.
-     *
-     * @return The amount time (in seconds) to wait before downloading an update.
-     */
-    @Override
-    public long downloadDelay()
-    {
-        if (Constants.DEV_BUILD)
-            return 0L;
-        return downloadDelay;
-    }
-
-    @Override
     public boolean isRedstoneEnabled()
     {
         return enableRedstone;
@@ -738,12 +675,6 @@ public final class ConfigSpigot implements IConfig, IDebuggable
     public int headCacheTimeout()
     {
         return headCacheTimeout;
-    }
-
-    @Override
-    public boolean checkForUpdates()
-    {
-        return checkForUpdates;
     }
 
     @Override
