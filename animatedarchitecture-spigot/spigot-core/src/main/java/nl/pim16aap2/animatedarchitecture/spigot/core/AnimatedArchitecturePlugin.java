@@ -8,6 +8,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatformP
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
+import nl.pim16aap2.animatedarchitecture.core.util.updater.UpdateChecker;
 import nl.pim16aap2.animatedarchitecture.core.util.versioning.ProjectVersion;
 import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.DebugReporterSpigot;
@@ -16,6 +17,7 @@ import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.LoginMessageListe
 import nl.pim16aap2.animatedarchitecture.spigot.core.logging.ConsoleAppender;
 import nl.pim16aap2.util.logging.LogBackConfigurator;
 import org.bstats.bukkit.Metrics;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
@@ -70,6 +72,8 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
     @Getter
     private @Nullable String initErrorMessage = null;
 
+    private final UpdateChecker updateChecker;
+
     public AnimatedArchitecturePlugin()
     {
         LOG_BACK_CONFIGURATOR.setLogFile(getDataFolder().toPath().resolve("log.txt")).apply();
@@ -78,10 +82,13 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
         restartableHolder = new RestartableHolder();
 
         final ProjectVersion projectVersion = ProjectVersion.parse(getDescription().getVersion());
+        this.updateChecker = new UpdateChecker(projectVersion);
+
         animatedArchitectureSpigotComponent = DaggerAnimatedArchitectureSpigotComponent
             .builder()
             .setPlugin(this)
             .setProjectVersion(projectVersion)
+            .setUpdateChecker(this.updateChecker)
             .setRestartableHolder(restartableHolder)
             .build();
 
@@ -172,6 +179,24 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
 
         if (firstInit)
             initCommands(animatedArchitectureSpigotPlatform);
+
+        scheduleUpdateChecker(firstInit);
+    }
+
+    private void scheduleUpdateChecker(boolean firstInit)
+    {
+        try
+        {
+            final long period = 864_000L; // 12 hours
+            // The update checker already runs before the first init, so we do not
+            // need to check again so soon.
+            final long delay = firstInit ? 0 : period;
+            Bukkit.getScheduler().runTaskTimerAsynchronously(this, this.updateChecker::checkForUpdates, delay, period);
+        }
+        catch (Exception e)
+        {
+            log.atSevere().withCause(e).log("Failed to schedule update checker!");
+        }
     }
 
     private void initCommands(AnimatedArchitectureSpigotPlatform animatedArchitectureSpigotPlatform)
