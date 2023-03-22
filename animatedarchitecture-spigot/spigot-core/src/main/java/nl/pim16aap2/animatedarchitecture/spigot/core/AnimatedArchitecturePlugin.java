@@ -8,6 +8,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatformP
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
+import nl.pim16aap2.animatedarchitecture.core.util.versioning.ProjectVersion;
 import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.DebugReporterSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.BackupCommandListener;
@@ -76,9 +77,11 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
         mainThreadId = Thread.currentThread().threadId();
         restartableHolder = new RestartableHolder();
 
+        final ProjectVersion projectVersion = ProjectVersion.parse(getDescription().getVersion());
         animatedArchitectureSpigotComponent = DaggerAnimatedArchitectureSpigotComponent
             .builder()
             .setPlugin(this)
+            .setProjectVersion(projectVersion)
             .setRestartableHolder(restartableHolder)
             .build();
 
@@ -196,7 +199,7 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
         try
         {
             final AnimatedArchitectureSpigotPlatform platform =
-                new AnimatedArchitectureSpigotPlatform(animatedArchitectureSpigotComponent, this);
+                new AnimatedArchitectureSpigotPlatform(animatedArchitectureSpigotComponent);
             successfulInit = true;
             log.atInfo().log("Successfully enabled AnimatedArchitecture %s", getDescription().getVersion());
             optionalPlatform = Optional.of(platform);

@@ -24,10 +24,11 @@ import nl.pim16aap2.animatedarchitecture.core.moveblocks.StructureActivityManage
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequest;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureRegistry;
-import nl.pim16aap2.animatedarchitecture.core.util.BuildDataReader;
 import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureFinder;
 import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
+import nl.pim16aap2.animatedarchitecture.core.util.versioning.BuildDataReader;
+import nl.pim16aap2.animatedarchitecture.core.util.versioning.ProjectVersion;
 
 /**
  * Represents a set of getter methods to get access to the internals of AnimatedArchitecture.
@@ -48,13 +49,11 @@ public interface IAnimatedArchitecturePlatform
     void shutDownPlugin();
 
     /**
-     * Getter for the name of current version.
-     * <p>
-     * It is not guaranteed that this will return the version in any specific format; only that it is a String.
+     * Getter for the version of this project that is currently being used.
      *
-     * @return The name of the current version.
+     * @return The current version of this project.
      */
-    String getVersionName();
+    ProjectVersion getProjectVersion();
 
     /**
      * @return The build data. This provides access to items such as the commit hash, the build id, etc.

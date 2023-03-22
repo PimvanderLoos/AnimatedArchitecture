@@ -39,8 +39,9 @@ import nl.pim16aap2.animatedarchitecture.core.moveblocks.StructureActivityManage
 import nl.pim16aap2.animatedarchitecture.core.storage.IStorage;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureRegistry;
-import nl.pim16aap2.animatedarchitecture.core.util.BuildDataReader;
 import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
+import nl.pim16aap2.animatedarchitecture.core.util.versioning.BuildDataReader;
+import nl.pim16aap2.animatedarchitecture.core.util.versioning.ProjectVersion;
 import nl.pim16aap2.animatedarchitecture.spigot.core.comands.CommandManager;
 import nl.pim16aap2.animatedarchitecture.spigot.core.exceptions.InitializationException;
 import nl.pim16aap2.animatedarchitecture.spigot.core.gui.GuiFactory;
@@ -62,8 +63,6 @@ import java.util.function.Function;
 public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchitecturePlatform
 {
     private final AnimatedArchitectureSpigotComponent animatedArchitectureSpigotComponent;
-
-    private final AnimatedArchitecturePlugin plugin;
 
     private final RestartableHolder restartableHolder;
 
@@ -204,12 +203,13 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
     @Getter
     private final BuildDataReader.BuildData buildData;
 
-    AnimatedArchitectureSpigotPlatform(
-        AnimatedArchitectureSpigotComponent animatedArchitectureSpigotComponent, AnimatedArchitecturePlugin plugin)
+    @Getter
+    private final ProjectVersion projectVersion;
+
+    AnimatedArchitectureSpigotPlatform(AnimatedArchitectureSpigotComponent animatedArchitectureSpigotComponent)
         throws InitializationException
     {
         this.animatedArchitectureSpigotComponent = animatedArchitectureSpigotComponent;
-        this.plugin = plugin;
 
         databaseManager = animatedArchitectureSpigotComponent.getDatabaseManager();
         if (databaseManager.getDatabaseState() != IStorage.DatabaseState.OK)
@@ -266,6 +266,7 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
         blockAnalyzer = safeGetter(AnimatedArchitectureSpigotComponent::getBlockAnalyzerProvider).getBlockAnalyzer();
         doorTypeLoader = safeGetter(AnimatedArchitectureSpigotComponent::getDoorTypeLoader);
         restartableHolder = safeGetter(AnimatedArchitectureSpigotComponent::getRestartableHolder);
+        projectVersion = safeGetter(AnimatedArchitectureSpigotComponent::getProjectVersion);
         commandListener = safeGetter(AnimatedArchitectureSpigotComponent::getCommandListener);
         buildData = safeGetter(AnimatedArchitectureSpigotComponent::getBuildDataReader).getBuildData();
 
@@ -322,11 +323,5 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
     public void shutDownPlugin()
     {
         restartableHolder.shutDown();
-    }
-
-    @Override
-    public String getVersionName()
-    {
-        return plugin.getDescription().getVersion();
     }
 }
