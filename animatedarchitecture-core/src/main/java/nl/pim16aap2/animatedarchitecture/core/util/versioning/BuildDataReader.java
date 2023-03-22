@@ -1,9 +1,10 @@
-package nl.pim16aap2.animatedarchitecture.core.util;
+package nl.pim16aap2.animatedarchitecture.core.util.versioning;
 
 import lombok.EqualsAndHashCode;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
+import nl.pim16aap2.animatedarchitecture.core.util.Util;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;

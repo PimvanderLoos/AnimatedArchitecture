@@ -38,8 +38,9 @@ import nl.pim16aap2.animatedarchitecture.core.moveblocks.StructureActivityManage
 import nl.pim16aap2.animatedarchitecture.core.storage.sqlite.SQLiteStorageModule;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureRegistry;
-import nl.pim16aap2.animatedarchitecture.core.util.BuildDataReader;
 import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
+import nl.pim16aap2.animatedarchitecture.core.util.versioning.BuildDataReader;
+import nl.pim16aap2.animatedarchitecture.core.util.versioning.ProjectVersion;
 import nl.pim16aap2.animatedarchitecture.spigot.core.animation.AnimationBlockDisplayModule;
 import nl.pim16aap2.animatedarchitecture.spigot.core.comands.CommandManager;
 import nl.pim16aap2.animatedarchitecture.spigot.core.compatiblity.ProtectionCompatManagerModule;
@@ -119,6 +120,9 @@ interface AnimatedArchitectureSpigotComponent
         Builder setPlugin(AnimatedArchitecturePlugin javaPlugin);
 
         @BindsInstance
+        Builder setProjectVersion(ProjectVersion projectVersion);
+
+        @BindsInstance
         Builder setRestartableHolder(RestartableHolder restartableHolder);
 
         AnimatedArchitectureSpigotComponent build();
@@ -129,6 +133,8 @@ interface AnimatedArchitectureSpigotComponent
     CommandManager getCommandListener();
 
     RestartableHolder getRestartableHolder();
+
+    ProjectVersion getProjectVersion();
 
     IAnimatedArchitectureEventCaller getDoorEventCaller();
 

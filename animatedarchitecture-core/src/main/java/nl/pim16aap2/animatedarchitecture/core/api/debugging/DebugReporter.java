@@ -2,7 +2,6 @@ package nl.pim16aap2.animatedarchitecture.core.api.debugging;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatform;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatformProvider;
 import nl.pim16aap2.util.SafeStringBuilder;
 import org.jetbrains.annotations.Nullable;
@@ -26,8 +25,9 @@ public abstract class DebugReporter
 
         sb.append("\n")
           .append("AnimatedArchitecture version: ")
-          .append(
-              () -> platformProvider.getPlatform().map(IAnimatedArchitecturePlatform::getVersionName).orElse("NULL"))
+          .append(() -> platformProvider
+              .getPlatform()
+              .map(platform -> platform.getProjectVersion().toVersionString()).orElse("NULL"))
           .append('\n')
           .append("Registered Platform: ")
           .append(() -> platformProvider.getPlatform().map(platform -> platform.getClass().getName()).orElse("NULL"))

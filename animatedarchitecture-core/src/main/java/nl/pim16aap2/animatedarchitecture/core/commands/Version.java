@@ -4,7 +4,6 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
-import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatform;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatformProvider;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
@@ -40,8 +39,10 @@ public class Version extends BaseCommand
     @Override
     protected CompletableFuture<?> executeCommand(PermissionsStatus permissions)
     {
-        final String version =
-            platformProvider.getPlatform().map(IAnimatedArchitecturePlatform::getVersionName).orElse("ERROR");
+        final String version = platformProvider
+            .getPlatform()
+            .map(platform -> platform.getProjectVersion().toVersionString())
+            .orElse("ERROR");
 
         getCommandSender().sendMessage(textFactory.newText().append(
             localizer.getMessage("commands.version.success"), TextType.SUCCESS,
