@@ -37,13 +37,6 @@
             <version>1</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>nl.pim16aap2.animatedarchitecture</groupId>
-            <artifactId>animatedarchitecture-core</artifactId>
-            <version>1</version>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
@@ -160,4 +153,30 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <!-- This profile is only enabled when _not_ skipping tests. -->
+            <!-- This is needed because Maven derps out when disabling tests, -->
+            <!-- As it will still try to resolve test-scoped dependencies regardless. -->
+            <!-- This fails, because the test-jar isn't created when skipping tests. -->
+            <!-- More info: https://issues.apache.org/jira/browse/MJAR-138 -->
+            <id>test-enabled</id>
+            <activation>
+                <property>
+                    <name>maven.test.skip</name>
+                    <value>!true</value>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+                    <artifactId>animatedarchitecture-core</artifactId>
+                    <version>1</version>
+                    <type>test-jar</type>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 </project>
