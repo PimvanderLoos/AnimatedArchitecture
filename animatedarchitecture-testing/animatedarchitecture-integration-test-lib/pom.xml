@@ -6,12 +6,12 @@
     <artifactId>animatedarchitecture-integration-test-lib</artifactId>
     <packaging>jar</packaging>
     <description>Library package containing all -shaded- dependencies to be used for integration testing</description>
-    <version>1</version>
+    <version>0.1-SNAPSHOT</version>
 
     <parent>
         <groupId>nl.pim16aap2.animatedarchitecture</groupId>
         <artifactId>animatedarchitecture-testing</artifactId>
-        <version>1</version>
+        <version>0.1-SNAPSHOT</version>
     </parent>
 
     <properties>
