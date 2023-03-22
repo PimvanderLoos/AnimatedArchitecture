@@ -39,6 +39,7 @@ import nl.pim16aap2.animatedarchitecture.core.storage.sqlite.SQLiteStorageModule
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureRegistry;
 import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
+import nl.pim16aap2.animatedarchitecture.core.util.updater.UpdateChecker;
 import nl.pim16aap2.animatedarchitecture.core.util.versioning.BuildDataReader;
 import nl.pim16aap2.animatedarchitecture.core.util.versioning.ProjectVersion;
 import nl.pim16aap2.animatedarchitecture.spigot.core.animation.AnimationBlockDisplayModule;
@@ -121,6 +122,9 @@ interface AnimatedArchitectureSpigotComponent
 
         @BindsInstance
         Builder setProjectVersion(ProjectVersion projectVersion);
+
+        @BindsInstance
+        Builder setUpdateChecker(UpdateChecker updateChecker);
 
         @BindsInstance
         Builder setRestartableHolder(RestartableHolder restartableHolder);
