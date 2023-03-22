@@ -6,12 +6,12 @@
     <artifactId>report-aggregate</artifactId>
     <description>Simple module used for aggregating test reports across all other modules.</description>
     <packaging>jar</packaging>
-    <version>1</version>
+    <version>0.1-SNAPSHOT</version>
 
     <parent>
         <artifactId>animatedarchitecture-parent</artifactId>
         <groupId>nl.pim16aap2.animatedarchitecture</groupId>
-        <version>1</version>
+        <version>0.1-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -24,7 +24,7 @@
         <dependency>
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>animatedarchitecture-core</artifactId>
-            <version>1</version>
+            <version>0.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -76,25 +76,25 @@
         <dependency>
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>spigot-core</artifactId>
-            <version>1</version>
+            <version>0.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>spigot-util</artifactId>
-            <version>1</version>
+            <version>0.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>util</artifactId>
-            <version>1</version>
+            <version>0.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>test-util</artifactId>
-            <version>1</version>
+            <version>0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
