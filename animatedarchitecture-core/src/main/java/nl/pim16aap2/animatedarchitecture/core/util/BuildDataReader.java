@@ -16,46 +16,46 @@ import java.util.Objects;
 import java.util.OptionalInt;
 
 /**
- * This class allows reading the commit hash and actions ID.
+ * This class allows reading the build data (e.g. commit hash and actions ID) from the 'build_data' file in the jar.
  */
 @Singleton
 @Flogger
 @EqualsAndHashCode
-public final class VersionReader implements IDebuggable
+public final class BuildDataReader implements IDebuggable
 {
-    private final VersionInfo versionInfo;
+    private final BuildData buildData;
 
-    @Inject VersionReader(DebuggableRegistry debuggableRegistry)
+    @Inject BuildDataReader(DebuggableRegistry debuggableRegistry)
     {
-        this.versionInfo = readVersionInfo();
+        this.buildData = readBuildData();
         debuggableRegistry.registerDebuggable(this);
     }
 
     /**
-     * Getter for the parsed version info.
+     * Getter for the parsed build data.
      *
-     * @return The parsed {@link VersionInfo}.
+     * @return The parsed {@link BuildData}.
      */
     @SuppressWarnings("unused")
-    public VersionInfo getVersionInfo()
+    public BuildData getBuildData()
     {
-        return versionInfo;
+        return buildData;
     }
 
-    private VersionInfo readVersionInfo0()
+    private BuildData readBuildData0()
         throws Exception
     {
         try (InputStream inputStream = Objects.requireNonNull(
-            this.getClass().getClassLoader().getResourceAsStream("version"));
+            this.getClass().getClassLoader().getResourceAsStream("build_data"));
              InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
              BufferedReader bufferedReader = new BufferedReader(inputStreamReader))
         {
             final Object[] lines = bufferedReader.lines().toArray();
             if (lines.length != 3)
-                throw new IllegalArgumentException("Failed to parse version from data: " + Arrays.toString(lines));
-            return new VersionInfo((String) lines[0],
-                                   parseInt("build number", (String) lines[1]),
-                                   parseInt("build id", (String) lines[2]));
+                throw new IllegalArgumentException("Failed to parse build data from input: " + Arrays.toString(lines));
+            return new BuildData((String) lines[0],
+                                 parseInt("build number", (String) lines[1]),
+                                 parseInt("build id", (String) lines[2]));
         }
     }
 
@@ -67,16 +67,16 @@ public final class VersionReader implements IDebuggable
         return ret.orElse(-1);
     }
 
-    private VersionInfo readVersionInfo()
+    private BuildData readBuildData()
     {
         try
         {
-            return readVersionInfo0();
+            return readBuildData0();
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to read version of plugin!");
-            return new VersionInfo("ERROR", -1, -1);
+            log.atSevere().withCause(e).log("Failed to read build data!");
+            return new BuildData("ERROR", -1, -1);
         }
     }
 
@@ -90,11 +90,11 @@ public final class VersionReader implements IDebuggable
     public String toString()
     {
         return String.format("Commit: %s\nBuild number: %d\nBuild id: %d",
-                             versionInfo.git, versionInfo.buildNumber, versionInfo.buildId);
+                             buildData.git, buildData.buildNumber, buildData.buildId);
     }
 
     /**
-     * A description of the current version of this project.
+     * A description of the build data of the current build.
      *
      * @param git
      *     The git data with the branch, commit hash, dirty status (i.e. modified version of the commit), and commit
@@ -105,6 +105,6 @@ public final class VersionReader implements IDebuggable
      * @param buildId
      *     The unique id of the build. Using GitHub Actions, this refers to GITHUB_RUN_ID.
      */
-    public record VersionInfo(String git, int buildNumber, int buildId)
+    public record BuildData(String git, int buildNumber, int buildId)
     {}
 }

@@ -38,7 +38,7 @@ import nl.pim16aap2.animatedarchitecture.core.moveblocks.StructureActivityManage
 import nl.pim16aap2.animatedarchitecture.core.storage.sqlite.SQLiteStorageModule;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureRegistry;
-import nl.pim16aap2.animatedarchitecture.core.util.VersionReader;
+import nl.pim16aap2.animatedarchitecture.core.util.BuildDataReader;
 import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.spigot.core.animation.AnimationBlockDisplayModule;
 import nl.pim16aap2.animatedarchitecture.spigot.core.comands.CommandManager;
@@ -204,7 +204,7 @@ interface AnimatedArchitectureSpigotComponent
 
     StructureRegistry getDoorRegistry();
 
-    VersionReader getVersionReader();
+    BuildDataReader getBuildDataReader();
 
     StructureActivityManager getDoorActivityManager();
 
