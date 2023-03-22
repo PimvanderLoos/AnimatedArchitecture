@@ -22,7 +22,8 @@ public class TextFactorySpigot implements ITextFactory
 {
     private final ITextComponentFactory textComponentFactory;
 
-    @Inject TextFactorySpigot()
+    @Inject
+    public TextFactorySpigot()
     {
         this.textComponentFactory = new TextComponentFactorySpigot(buildColorScheme());
     }

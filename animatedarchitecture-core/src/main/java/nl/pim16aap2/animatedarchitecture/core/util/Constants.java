@@ -21,12 +21,6 @@ public final class Constants
     public static final int COMMAND_WAITER_TIMEOUT = 60_000;
 
     /**
-     * Whether the current build is a dev build. Certain options are enabled, disabled, or overridden depending on this
-     * variable.
-     */
-    public static final boolean DEV_BUILD = true;
-
-    /**
      * The name of this plugin.
      */
     public static final String PLUGIN_NAME = "AnimatedArchitecture";

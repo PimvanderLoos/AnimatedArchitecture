@@ -1,17 +1,23 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.listeners;
 
+import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
-import nl.pim16aap2.animatedarchitecture.core.util.Constants;
+import nl.pim16aap2.animatedarchitecture.core.text.Text;
+import nl.pim16aap2.animatedarchitecture.core.text.TextType;
+import nl.pim16aap2.animatedarchitecture.core.util.updater.UpdateCheckResult;
+import nl.pim16aap2.animatedarchitecture.core.util.updater.UpdateChecker;
+import nl.pim16aap2.animatedarchitecture.core.util.updater.UpdateInformation;
 import nl.pim16aap2.animatedarchitecture.spigot.core.AnimatedArchitecturePlugin;
-import org.bukkit.ChatColor;
+import nl.pim16aap2.animatedarchitecture.spigot.util.text.TextRendererSpigot;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.Objects;
 
 /**
  * Represents a listener that keeps track of {@link Player}s logging in to send them any messages if needed.
@@ -22,13 +28,22 @@ import javax.inject.Singleton;
 public final class LoginMessageListener extends AbstractListener
 {
     private final AnimatedArchitecturePlugin plugin;
+    private final ITextFactory textFactory;
+    private final @Nullable UpdateChecker updateChecker;
 
     @Inject
     public LoginMessageListener(
-        AnimatedArchitecturePlugin javaPlugin, @Nullable RestartableHolder restartableHolder)
+        AnimatedArchitecturePlugin javaPlugin,
+        ITextFactory textFactory,
+        @Nullable UpdateChecker updateChecker,
+        @Nullable RestartableHolder restartableHolder)
     {
         super(restartableHolder, javaPlugin);
+
         this.plugin = javaPlugin;
+        this.textFactory = textFactory;
+        this.updateChecker = updateChecker;
+
         if (restartableHolder == null)
             register();
     }
@@ -45,41 +60,47 @@ public final class LoginMessageListener extends AbstractListener
         final Player player = event.getPlayer();
         if (player.hasPermission("animatedarchitecture.admin.info"))
             // Slight delay so the player actually receives the message;
-            new BukkitRunnable()
-            {
-                @Override
-                public void run()
-                {
-                    final @Nullable String loginString = getLoginMessage();
-                    if (loginString != null)
-                        player.sendMessage(ChatColor.AQUA + loginString);
-                }
-            }.runTaskLater(plugin, 120);
+            Bukkit.getScheduler().runTaskLater(plugin, () -> sendLoginMessage(player), 60L);
     }
 
-    private @Nullable String getLoginMessage()
+    private void sendLoginMessage(Player player)
     {
-        String ret = "";
-        ret += formatMessage("Error", plugin.getInitErrorMessage());
-        ret += formatMessage("Warning", getDevBuildWarning());
-        return ret.isBlank() ? null : ret;
+        final Text text = textFactory.newText();
+
+        addErrorMessage(text);
+        addUpdateMessage(text);
+
+        if (text.isEmpty())
+            return;
+
+        final Text header = textFactory.newText().append("[AnimatedArchitecture]", TextType.SUCCESS);
+        player.spigot().sendMessage(header.append(text).render(new TextRendererSpigot()));
     }
 
-    private @Nullable String getDevBuildWarning()
+    private void addErrorMessage(Text text)
     {
-        if (Constants.DEV_BUILD)
-            return "You are running a dev-build!";
-        return null;
+        final @Nullable String msg = plugin.getInitErrorMessage();
+        if (msg == null)
+            return;
+        text.append("\nERROR: ", TextType.ERROR)
+            .append(msg, TextType.INFO);
     }
 
-    private String formatMessage(@Nullable String prefix, @Nullable String msg)
+    private void addUpdateMessage(Text text)
     {
-        if (msg == null || msg.isBlank())
-            return "";
+        if (updateChecker == null)
+            return;
 
-        String ret = "[AnimatedArchitecture] ";
-        if (prefix != null && !prefix.isBlank())
-            ret += prefix + ": ";
-        return ret + msg + '\n';
+        final @Nullable UpdateInformation info = updateChecker.getUpdateInformation();
+        if (info == null)
+            return;
+
+        if (info.updateCheckResult().isError())
+            text.append("\nERROR: ", TextType.ERROR)
+                .append("Failed to check for updates!", TextType.INFO);
+        if (info.updateCheckResult() == UpdateCheckResult.UPDATE_AVAILABLE)
+            text.append("\nUpdate available: '", TextType.SUCCESS)
+                .append(Objects.toString(info.updateName()), TextType.HIGHLIGHT)
+                .append("'!", TextType.SUCCESS);
     }
 }
