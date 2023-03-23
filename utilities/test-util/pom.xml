@@ -6,7 +6,7 @@
     <parent>
         <artifactId>utilities</artifactId>
         <groupId>nl.pim16aap2</groupId>
-        <version>0.2</version>
+        <version>0.3-SNAPSHOT</version>
     </parent>
 
     <artifactId>test-util</artifactId>
@@ -19,7 +19,7 @@
         <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>util</artifactId>
-            <version>0.2</version>
+            <version>0.3-SNAPSHOT</version>
         </dependency>
 
         <dependency>
