@@ -34,7 +34,7 @@ you run into the occasional bug or two.
 
 ### Importing BigDoors' Database
 
-As of [dev-build 1130](https://pim16aap2.nl/BigDoors/), BigDoors has a command that allows you to export the old
+As of [release](https://github.com/PimvanderLoos/BigDoors/releases) Alpha 0.1.8.44, BigDoors has a command that allows you to export the old
 database to the new format. While running that version, you can run the `BigDoors PrepareDatabaseForV2` command <b>in
 the console</b> to export the database. Read the output in the console to see if everything was exported correctly.
 Running this command does not affect the existing database for BigDoors.
