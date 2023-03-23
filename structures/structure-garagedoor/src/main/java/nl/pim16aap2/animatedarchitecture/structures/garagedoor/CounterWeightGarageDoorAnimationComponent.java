@@ -50,30 +50,29 @@ public class CounterWeightGarageDoorAnimationComponent implements IAnimationComp
         this.wasVertical = this.oldCuboid.getDimensions().y() > 1;
         this.northSouth = movementDirection == MovementDirection.NORTH || movementDirection == MovementDirection.SOUTH;
 
-        final int quarterCircles = 1; // Placeholder
         switch (movementDirection)
         {
             case NORTH ->
             {
-                angle = quarterCircles * -MathUtil.HALF_PI;
+                angle = -MathUtil.HALF_PI;
                 rotator = Vector3Dd::rotateAroundXAxis;
                 animationDirectionFace = BlockFace.NORTH;
             }
             case EAST ->
             {
-                angle = quarterCircles * MathUtil.HALF_PI;
+                angle = MathUtil.HALF_PI;
                 rotator = Vector3Dd::rotateAroundZAxis;
                 animationDirectionFace = BlockFace.EAST;
             }
             case SOUTH ->
             {
-                angle = quarterCircles * MathUtil.HALF_PI;
+                angle = MathUtil.HALF_PI;
                 rotator = Vector3Dd::rotateAroundXAxis;
                 animationDirectionFace = BlockFace.SOUTH;
             }
             case WEST ->
             {
-                angle = quarterCircles * -MathUtil.HALF_PI;
+                angle = -MathUtil.HALF_PI;
                 rotator = Vector3Dd::rotateAroundZAxis;
                 animationDirectionFace = BlockFace.WEST;
             }
@@ -89,7 +88,7 @@ public class CounterWeightGarageDoorAnimationComponent implements IAnimationComp
 
         this.rotationCenter = mergedCuboid.getCenter().floor();
         final int animationSteps = AnimationUtil.getAnimationTicks(data.getAnimationTime(), data.getServerTickTime());
-        this.step = angle / quarterCircles / animationSteps;
+        this.step = angle / animationSteps;
     }
 
     private Cuboid getMergedCuboid(Cuboid oldCuboid, Vector3Di directionVec, boolean wasVertical)
