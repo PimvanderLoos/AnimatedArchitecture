@@ -4,12 +4,12 @@
     <artifactId>spigot-v1_19_R3</artifactId>
     <packaging>jar</packaging>
     <description>AnimatedArchitecture implementation for Spigot 1.19.4</description>
-    <version>0.2</version>
+    <version>0.3-SNAPSHOT</version>
 
     <parent>
         <artifactId>animatedarchitecture-spigot</artifactId>
         <groupId>nl.pim16aap2.animatedarchitecture</groupId>
-        <version>0.2</version>
+        <version>0.3-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -20,7 +20,7 @@
         <dependency>
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>spigot-util</artifactId>
-            <version>0.2</version>
+            <version>0.3-SNAPSHOT</version>
         </dependency>
 
         <dependency>

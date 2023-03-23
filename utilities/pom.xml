@@ -7,12 +7,12 @@
     <artifactId>utilities</artifactId>
     <packaging>pom</packaging>
     <description>General utilities for runtime and testing</description>
-    <version>0.2</version>
+    <version>0.3-SNAPSHOT</version>
 
     <parent>
         <groupId>nl.pim16aap2.animatedarchitecture</groupId>
         <artifactId>animatedarchitecture-parent</artifactId>
-        <version>0.2</version>
+        <version>0.3-SNAPSHOT</version>
     </parent>
 
     <properties>

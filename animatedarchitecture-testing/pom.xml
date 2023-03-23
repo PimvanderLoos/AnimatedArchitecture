@@ -9,7 +9,7 @@
     <parent>
         <artifactId>animatedarchitecture-parent</artifactId>
         <groupId>nl.pim16aap2.animatedarchitecture</groupId>
-        <version>0.2</version>
+        <version>0.3-SNAPSHOT</version>
     </parent>
 
     <properties>
