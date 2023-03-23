@@ -24,10 +24,8 @@ you run into the occasional bug or two.
 
 ### Installation:
 
-* Grab the latest release from the [actions page](https://github.com/PimvanderLoos/AnimatedArchitecture/actions). I
-  would recommend picking a build from the master branch. You will need both `AnimatedArchitecture-Spigot.zip`
-  and `Structures.zip` files.
-* Extract both zip files.
+* Grab the files of the latest [release](https://github.com/PimvanderLoos/AnimatedArchitecture/releases). You will need both the `AnimatedArchitecture-Spigot.jar` file and the `Structures.zip` file.
+* Extract the `Structures.zip` file.
 * Place the `AnimatedArchitecture-Spigot.jar` in the plugins directory of your server.
 * Create the following folder (or start the server to generate it
   automatically): `plugins/AnimatedArchitecture/extensions`.
