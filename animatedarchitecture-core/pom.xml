@@ -4,12 +4,12 @@
     <artifactId>animatedarchitecture-core</artifactId>
     <packaging>jar</packaging>
     <description>Core of AnimatedArchitecture</description>
-    <version>0.2-SNAPSHOT</version>
+    <version>0.2</version>
 
     <parent>
         <groupId>nl.pim16aap2.animatedarchitecture</groupId>
         <artifactId>animatedarchitecture-parent</artifactId>
-        <version>0.2-SNAPSHOT</version>
+        <version>0.2</version>
     </parent>
 
     <properties>
@@ -35,14 +35,14 @@
         <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>util</artifactId>
-            <version>0.2-SNAPSHOT</version>
+            <version>0.2</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>test-util</artifactId>
-            <version>0.2-SNAPSHOT</version>
+            <version>0.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
