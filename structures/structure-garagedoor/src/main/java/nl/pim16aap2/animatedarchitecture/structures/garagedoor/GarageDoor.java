@@ -137,7 +137,7 @@ public class GarageDoor extends AbstractStructure implements IHorizontalAxisAlig
     protected IAnimationComponent constructAnimationComponent(AnimationRequestData data)
     {
         return USE_COUNTER_WEIGHT ?
-               new CounterWeightGarageDoorAnimationComponent(data, cycleOpenDirection()) :
+               new CounterWeightGarageDoorAnimationComponent(data, getCurrentToggleDir()) :
                new SectionalGarageDoorAnimationComponent(data, getCurrentToggleDir());
     }
 }
