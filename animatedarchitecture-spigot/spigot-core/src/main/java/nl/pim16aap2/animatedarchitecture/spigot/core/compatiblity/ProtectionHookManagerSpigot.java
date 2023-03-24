@@ -1,6 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.compatiblity;
 
+import dagger.Lazy;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.compatibility.bundle.AbstractProtectionHookSpecification;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IProtectionHookManager;
@@ -10,27 +12,36 @@ import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.IRestartable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
+import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
+import nl.pim16aap2.animatedarchitecture.spigot.util.api.IPermissionsManagerSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.compatibility.IProtectionHookSpigot;
+import nl.pim16aap2.animatedarchitecture.spigot.util.compatibility.IProtectionHookSpigotSpecification;
+import nl.pim16aap2.animatedarchitecture.spigot.util.compatibility.ProtectionHookContext;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginEnableEvent;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
- * Class that manages all objects of {@link IProtectionHookSpigot}.
- *
- * @author Pim
+ * Class that manages all {@link IProtectionHookSpigot} instances and provides a unified interface to them.
  */
 @Singleton
 @Flogger
@@ -38,18 +49,56 @@ public final class ProtectionHookManagerSpigot
     implements IRestartable, Listener, IProtectionHookManager, IDebuggable
 {
     private final FakePlayerCreator fakePlayerCreator;
+    private final Lazy<ConfigSpigot> config;
+    private final IPermissionsManagerSpigot permissionsManager;
+    private final Map<String, IProtectionHookSpigotSpecification> registeredDefinitions;
+    private final JavaPlugin animatedArchitecture;
 
     private List<IProtectionHookSpigot> protectionHooks = new ArrayList<>();
 
     @Inject ProtectionHookManagerSpigot(
+        JavaPlugin animatedArchitecture,
         RestartableHolder holder,
         DebuggableRegistry debuggableRegistry,
+        Lazy<ConfigSpigot> config,
+        IPermissionsManagerSpigot permissionsManager,
         FakePlayerCreator fakePlayerCreator)
     {
+        this.animatedArchitecture = animatedArchitecture;
         this.fakePlayerCreator = fakePlayerCreator;
+        this.config = config;
+        this.permissionsManager = permissionsManager;
+
+        this.registeredDefinitions = new LinkedHashMap<>(
+            AbstractProtectionHookSpecification.DEFAULT_COMPAT_DEFINITIONS
+                .stream().collect(Collectors.toMap(IProtectionHookSpigotSpecification::getName, c -> c)));
 
         holder.registerRestartable(this);
         debuggableRegistry.registerDebuggable(this);
+    }
+
+    /**
+     * Getter for all registered protection hook specifications.
+     * <p>
+     * A registered specification can be used to load the hook it specifies when needed.
+     *
+     * @return The registered {@link IProtectionHookSpigotSpecification} instances.
+     */
+    public Map<String, IProtectionHookSpigotSpecification> getRegisteredHookDefinitions()
+    {
+        return new LinkedHashMap<>(registeredDefinitions);
+    }
+
+    /**
+     * Registers a new compat definition.
+     *
+     * @param compatDefinition
+     *     The compat definition to register.
+     */
+    @SuppressWarnings("unused")
+    public void registerCompatDefinition(IProtectionHookSpigotSpecification compatDefinition)
+    {
+        registeredDefinitions.put(compatDefinition.getName(), compatDefinition);
     }
 
     /**
@@ -59,6 +108,59 @@ public final class ProtectionHookManagerSpigot
      */
     private void loadHooks()
     {
+        for (final Plugin plugin : Bukkit.getServer().getPluginManager().getPlugins())
+            loadFromPluginName(plugin.getName());
+    }
+
+    /**
+     * Load a compat for a plugin with a given name if allowed and possible.
+     *
+     * @param pluginName
+     *     The name of the plugin to load a compat for.
+     */
+    private void loadFromPluginName(String pluginName)
+    {
+        final @Nullable IProtectionHookSpigotSpecification spec = registeredDefinitions.get(pluginName);
+        if (spec == null)
+        {
+            log.atFinest().log("Not loading hook for plugin '%s' because it is not registered.", pluginName);
+            return;
+        }
+
+        if (!config.get().isHookEnabled(spec))
+        {
+            log.atFine().log("Not loading hook for plugin '%s' because it is disabled in the config.", pluginName);
+            return;
+        }
+
+        @Nullable String version = null;
+        try
+        {
+            final @Nullable Plugin plugin = Bukkit.getPluginManager().getPlugin(spec.getName());
+            if (plugin == null)
+            {
+                log.atInfo().log("Not loading hook for plugin '%s' because it is not loaded!", pluginName);
+                return;
+            }
+            version = plugin.getDescription().getVersion();
+
+            final Class<? extends IProtectionHookSpigot> hookClass =
+                Objects.requireNonNull(spec.getClass(version), "Hook class cannot be null!");
+
+            // No need to load hooks twice.
+            if (this.protectionHooks.stream().map(IProtectionHookSpigot::getClass).anyMatch(hookClass::equals))
+                return;
+
+            final var context = new ProtectionHookContext(animatedArchitecture, spec, permissionsManager);
+            this.protectionHooks.add(hookClass.getConstructor(ProtectionHookContext.class).newInstance(context));
+            log.atInfo()
+               .log("Successfully loaded protection hook for plugin '%s' (version '%s')!", pluginName, version);
+        }
+        catch (NoClassDefFoundError | ExceptionInInitializerError | Exception e)
+        {
+            log.atSevere().withCause(e).log(
+                "Failed to initialize protection hook for plugin '%s' (version '%s')!", pluginName, version);
+        }
     }
 
     /**
@@ -70,6 +172,7 @@ public final class ProtectionHookManagerSpigot
     @EventHandler
     void onPluginEnable(PluginEnableEvent event)
     {
+        loadFromPluginName(event.getPlugin().getName());
     }
 
     /**

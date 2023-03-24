@@ -16,7 +16,9 @@ import nl.pim16aap2.animatedarchitecture.core.util.ConfigEntry;
 import nl.pim16aap2.animatedarchitecture.core.util.Limit;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.spigot.core.compatiblity.ProtectionHookManagerSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotUtil;
+import nl.pim16aap2.animatedarchitecture.spigot.util.compatibility.IProtectionHookSpigotSpecification;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.ConfigReaderSpigot;
 import org.bukkit.Material;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -33,6 +35,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -56,6 +59,8 @@ public final class ConfigSpigot implements IConfig, IDebuggable
     private final JavaPlugin plugin;
     @ToString.Exclude
     private final Lazy<StructureTypeManager> structureTypeManager;
+    @ToString.Exclude
+    private final Lazy<ProtectionHookManagerSpigot> protectionHookManager;
     private final Path baseDir;
 
     private static final Material DEFAULT_MATERIAL = Material.WARPED_DOOR;
@@ -64,6 +69,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable
 
     private final Set<Material> powerBlockTypes = EnumSet.noneOf(Material.class);
     private final Set<Material> materialBlacklist = EnumSet.noneOf(Material.class);
+    private final Set<IProtectionHookSpigotSpecification> enabledProtectionHooks = new HashSet<>();
     @ToString.Exclude
     private final List<ConfigEntry<?>> configEntries = new ArrayList<>();
     private final Map<StructureType, String> structurePrices;
@@ -99,11 +105,16 @@ public final class ConfigSpigot implements IConfig, IDebuggable
      */
     @Inject
     public ConfigSpigot(
-        RestartableHolder restartableHolder, JavaPlugin plugin, Lazy<StructureTypeManager> structureTypeManager,
-        @Named("pluginBaseDirectory") Path baseDir, DebuggableRegistry debuggableRegistry)
+        RestartableHolder restartableHolder,
+        JavaPlugin plugin,
+        Lazy<StructureTypeManager> structureTypeManager,
+        Lazy<ProtectionHookManagerSpigot> protectionHookManager,
+        @Named("pluginBaseDirectory") Path baseDir,
+        DebuggableRegistry debuggableRegistry)
     {
         this.plugin = plugin;
         this.structureTypeManager = structureTypeManager;
+        this.protectionHookManager = protectionHookManager;
         this.baseDir = baseDir;
         structurePrices = new HashMap<>();
         structureAnimationTimeMultipliers = new HashMap<>();
@@ -299,6 +310,13 @@ public final class ConfigSpigot implements IConfig, IDebuggable
             #    0 = infinite cache (not recommended either!)
             """;
 
+        final String enabledProtectionHooksComment =
+            """
+            # Enable or disable compatibility hooks for certain plugins.
+            # If the plugins aren't installed, these options do nothing.
+            # When enabled, structures cannot be toggled or created in areas not owned by the owner of that structure.
+            """;
+
         final String debugComment =
             """
             # Don't use this. Just leave it on false.
@@ -378,6 +396,9 @@ public final class ConfigSpigot implements IConfig, IDebuggable
             structurePrices, config, enabledStructureTypes, pricesComment, Collections.emptyMap(), "0", "price_");
         parseStructureTypeGuiMaterials(config, enabledStructureTypes);
 
+        enabledProtectionHooks.clear();
+        enabledProtectionHooks.addAll(parseProtectionHooks(config, enabledProtectionHooksComment));
+
         consoleLogging = addNewConfigEntry(config, "consoleLogging", true, consoleLoggingComment);
         final String logLevelName = addNewConfigEntry(config, "logLevel", "INFO", logLevelComment);
         final @Nullable Level logLevelTmp = Util.parseLogLevelStrict(logLevelName);
@@ -391,6 +412,20 @@ public final class ConfigSpigot implements IConfig, IDebuggable
 
         if (printResults)
             printInfo();
+    }
+
+    private Set<IProtectionHookSpigotSpecification> parseProtectionHooks(
+        IConfigReader config, String enabledProtectionHooksComment)
+    {
+        @Nullable String comment = enabledProtectionHooksComment;
+        final Set<IProtectionHookSpigotSpecification> ret = new HashSet<>();
+        for (final var hook : protectionHookManager.get().getRegisteredHookDefinitions().values())
+        {
+            if (addNewConfigEntry(config, "hook_" + hook.getName(), true, comment))
+                ret.add(hook);
+            comment = null;
+        }
+        return ret;
     }
 
     private void parseStructureTypeGuiMaterials(IConfigReader config, List<StructureType> enabledStructureTypes)
@@ -720,6 +755,11 @@ public final class ConfigSpigot implements IConfig, IDebuggable
     public String getDebugInformation()
     {
         return "Config: " + this;
+    }
+
+    public boolean isHookEnabled(IProtectionHookSpigotSpecification spec)
+    {
+        return enabledProtectionHooks.contains(spec);
     }
 
     /**
