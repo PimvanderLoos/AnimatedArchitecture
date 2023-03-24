@@ -262,6 +262,11 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
         }
     }
 
+    public ClassLoader getPluginClassLoader()
+    {
+        return super.getClassLoader();
+    }
+
     /**
      * Registers a {@link LoginMessageListener} outside of the Dagger object graph.
      * <p>
