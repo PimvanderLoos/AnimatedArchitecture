@@ -36,13 +36,6 @@ public interface IProtectionHookSpigot
     boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2);
 
     /**
-     * Check if the hook initialized properly.
-     *
-     * @return True if the hook initialized properly.
-     */
-    boolean success();
-
-    /**
      * Get the name of the {@link JavaPlugin} that is being hooked into.
      *
      * @return The name of the {@link JavaPlugin} that is being hooked into.

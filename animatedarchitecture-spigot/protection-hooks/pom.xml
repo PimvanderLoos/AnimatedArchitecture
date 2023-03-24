@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>protection-hooks</artifactId>
+    <packaging>pom</packaging>
+
+    <parent>
+        <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+        <artifactId>animatedarchitecture-spigot</artifactId>
+        <version>0.3-SNAPSHOT</version>
+    </parent>
+
+    <modules>
+        <module>hook-plotsquared-6</module>
+        <module>hook-plotsquared-7</module>
+
+        <module>hook-griefprevention</module>
+
+        <module>hook-griefdefender-2</module>
+
+        <module>hook-redprotect</module>
+
+        <module>hook-lands</module>
+
+        <module>hook-medieval-factions</module>
+
+        <module>hook-towny</module>
+
+        <module>hook-world-guard-7</module>
+
+        <module>hook-konquest</module>
+
+        <module>hooks-bundle</module>
+    </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>1.19.4-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+            <artifactId>spigot-util</artifactId>
+            <version>0.3-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+</project>

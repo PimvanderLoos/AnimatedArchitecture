@@ -5,7 +5,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitectureToolUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IEconomyManager;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.IProtectionCompatManager;
+import nl.pim16aap2.animatedarchitecture.core.api.IProtectionHookManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandFactory;
@@ -71,7 +71,7 @@ public class CreatorTest
         Mockito.when(creator.getStructureType()).thenReturn(structureType);
         Mockito.when(economyManager.isEconomyEnabled()).thenReturn(true);
 
-        final IProtectionCompatManager protectionCompatManager = Mockito.mock(IProtectionCompatManager.class);
+        final IProtectionHookManager protectionCompatManager = Mockito.mock(IProtectionHookManager.class);
         Mockito.when(protectionCompatManager.canBreakBlock(Mockito.any(), Mockito.any())).thenReturn(Optional.empty());
         Mockito.when(protectionCompatManager.canBreakBlocksBetweenLocs(Mockito.any(), Mockito.any(),
                                                                        Mockito.any(), Mockito.any()))

@@ -3,7 +3,7 @@ package nl.pim16aap2.animatedarchitecture.spigot.core.compatiblity;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.IProtectionCompatManager;
+import nl.pim16aap2.animatedarchitecture.core.api.IProtectionHookManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
@@ -28,20 +28,20 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 /**
- * Class that manages all objects of {@link IProtectionCompat}.
+ * Class that manages all objects of {@link IProtectionHookSpigot}.
  *
  * @author Pim
  */
 @Singleton
 @Flogger
-public final class ProtectionCompatManagerSpigot
-    implements IRestartable, Listener, IProtectionCompatManager, IDebuggable
+public final class ProtectionHookManagerSpigot
+    implements IRestartable, Listener, IProtectionHookManager, IDebuggable
 {
     private final FakePlayerCreator fakePlayerCreator;
 
     private List<IProtectionHookSpigot> protectionHooks = new ArrayList<>();
 
-    @Inject ProtectionCompatManagerSpigot(
+    @Inject ProtectionHookManagerSpigot(
         RestartableHolder holder,
         DebuggableRegistry debuggableRegistry,
         FakePlayerCreator fakePlayerCreator)
@@ -62,7 +62,7 @@ public final class ProtectionCompatManagerSpigot
     }
 
     /**
-     * Load a compat for the plugin enabled in the event if needed.
+     * Load a protection hook for the plugin enabled in the event if needed.
      *
      * @param event
      *     The event of the plugin that is loaded.
@@ -152,7 +152,7 @@ public final class ProtectionCompatManagerSpigot
     /**
      * {@inheritDoc}
      * <p>
-     * Reinitialize all protection compats.
+     * Reinitialize all protection hooks.
      */
     @Override
     public void initialize()
@@ -172,8 +172,8 @@ public final class ProtectionCompatManagerSpigot
     public String getDebugInformation()
     {
         final StringBuilder sb = new StringBuilder();
-        sb.append("Can create fake players: ").append(fakePlayerCreator.canCreatePlayers()).append('\n');
-        sb.append("Protection hooks: \n");
+        sb.append("Can create fake players: ").append(fakePlayerCreator.canCreatePlayers()).append('\n')
+          .append("Protection hooks: \n");
         for (final IProtectionHookSpigot protectionHook : protectionHooks)
             sb.append("  ").append(protectionHook.getName()).append('\n');
 

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>hook-medieval-factions</artifactId>
+    <packaging>jar</packaging>
+
+    <parent>
+        <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+        <artifactId>protection-hooks</artifactId>
+        <version>0.3-SNAPSHOT</version>
+    </parent>
+
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.dansplugins</groupId>
+            <artifactId>medieval-factions</artifactId>
+            <version>5.0.0-rc.7</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>me.clip</groupId>
+                    <artifactId>placeholderapi</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>us.dynmap</groupId>
+                    <artifactId>dynmap-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.rpkit</groupId>
+                    <artifactId>rpk-core-bukkit</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.rpkit</groupId>
+                    <artifactId>rpk-player-lib-bukkit</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.rpkit</groupId>
+                    <artifactId>rpk-notification-lib-bukkit</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.rpkit</groupId>
+                    <artifactId>rpk-lock-lib-bukkit</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.dansplugins</groupId>
+                    <artifactId>ponder-bukkit</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.dansplugins</groupId>
+                    <artifactId>ponder-commands</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+</project>

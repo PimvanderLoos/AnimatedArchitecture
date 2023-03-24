@@ -7,7 +7,6 @@ import net.milkbowl.vault.economy.EconomyResponse;
 import net.milkbowl.vault.permission.Permission;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IEconomyManager;
-import nl.pim16aap2.animatedarchitecture.core.api.IPermissionsManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
@@ -20,6 +19,7 @@ import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
+import nl.pim16aap2.animatedarchitecture.spigot.util.api.IPermissionsManagerSpigot;
 import nl.pim16aap2.jcalculator.JCalculator;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -44,7 +44,7 @@ import java.util.Set;
  */
 @Singleton
 @Flogger
-public final class VaultManager implements IRestartable, IEconomyManager, IPermissionsManager
+public final class VaultManager implements IRestartable, IEconomyManager, IPermissionsManagerSpigot
 {
     private final Map<StructureType, Double> flatPrices;
     private boolean economyEnabled = false;
@@ -132,6 +132,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
      *     The permission node.
      * @return True if the player has the node.
      */
+    @Override
     public boolean hasPermission(Player player, String permission)
     {
         return permissionsEnabled && perms != null && perms.playerHas(player.getWorld().getName(), player, permission);
@@ -340,18 +341,10 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     }
 
     @Override
-    public OptionalInt getMaxPermissionSuffix(IPlayer player, String permissionBase)
+    public OptionalInt getMaxPermissionSuffix(Player player, String permissionBase)
     {
-        final @Nullable Player bukkitPlayer = SpigotAdapter.getBukkitPlayer(player);
-        if (bukkitPlayer == null)
-        {
-            log.atSevere().withStackTrace(StackSize.FULL)
-               .log("Failed to obtain BukkitPlayer for player: '%s'", player.asString());
-            return OptionalInt.empty();
-        }
-
         final int permissionBaseLength = permissionBase.length();
-        final Set<PermissionAttachmentInfo> playerPermissions = bukkitPlayer.getEffectivePermissions();
+        final Set<PermissionAttachmentInfo> playerPermissions = player.getEffectivePermissions();
         int ret = -1;
         for (final PermissionAttachmentInfo permission : playerPermissions)
             if (permission.getPermission().startsWith(permissionBase))
@@ -361,6 +354,19 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
                     ret = Math.max(ret, suffix.getAsInt());
             }
         return ret > 0 ? OptionalInt.of(ret) : OptionalInt.empty();
+    }
+
+    @Override
+    public OptionalInt getMaxPermissionSuffix(IPlayer player, String permissionBase)
+    {
+        final @Nullable Player bukkitPlayer = SpigotAdapter.getBukkitPlayer(player);
+        if (bukkitPlayer == null)
+        {
+            log.atSevere().withStackTrace(StackSize.FULL)
+               .log("Failed to obtain BukkitPlayer for player: '%s'", player.asString());
+            return OptionalInt.empty();
+        }
+        return getMaxPermissionSuffix(bukkitPlayer, permissionBase);
     }
 
     @Override
@@ -378,22 +384,32 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     }
 
     @Override
+    public boolean hasBypassPermissionsForAttribute(Player player, StructureAttribute structureAttribute)
+    {
+        return player.isOp() ||
+            player.hasPermission(
+                Constants.ATTRIBUTE_BYPASS_PERMISSION_PREFIX + structureAttribute.name().toLowerCase(Locale.ROOT));
+    }
+
+    @Override
     public boolean hasBypassPermissionsForAttribute(IPlayer player, StructureAttribute structureAttribute)
     {
         final @Nullable Player bukkitPlayer = getBukkitPlayer(player);
         if (bukkitPlayer == null)
             return false;
+        return hasBypassPermissionsForAttribute(bukkitPlayer, structureAttribute);
+    }
 
-        return bukkitPlayer.isOp() ||
-            bukkitPlayer.hasPermission(
-                Constants.ATTRIBUTE_BYPASS_PERMISSION_PREFIX + structureAttribute.name().toLowerCase(Locale.ROOT));
+    @Override
+    public boolean isOp(@Nullable Player player)
+    {
+        return player != null && player.isOp();
     }
 
     @Override
     public boolean isOp(IPlayer player)
     {
-        final @Nullable Player bukkitPlayer = getBukkitPlayer(player);
-        return bukkitPlayer != null && bukkitPlayer.isOp();
+        return isOp(getBukkitPlayer(player));
     }
 
     private @Nullable Player getBukkitPlayer(IPlayer player)

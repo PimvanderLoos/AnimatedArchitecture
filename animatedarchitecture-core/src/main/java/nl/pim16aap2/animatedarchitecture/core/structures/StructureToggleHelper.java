@@ -10,7 +10,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IMessageable;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.IProtectionCompatManager;
+import nl.pim16aap2.animatedarchitecture.core.api.IProtectionHookManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IAnimatedArchitectureEventFactory;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ILocationFactory;
@@ -61,7 +61,7 @@ import java.util.logging.Level;
     private final IExecutor executor;
     private final IBlockAnalyzer<?> blockAnalyzer;
     private final ILocationFactory locationFactory;
-    private final IProtectionCompatManager protectionCompatManager;
+    private final IProtectionHookManager protectionCompatManager;
     private final HighlightedBlockSpawner highlightedBlockSpawner;
     private final IAnimatedArchitectureEventFactory animatedArchitectureEventFactory;
     private final StructureRegistry structureRegistry;
@@ -81,7 +81,7 @@ import java.util.logging.Level;
         IExecutor executor,
         IBlockAnalyzer<?> blockAnalyzer,
         ILocationFactory locationFactory,
-        IProtectionCompatManager protectionCompatManager,
+        IProtectionHookManager protectionCompatManager,
         HighlightedBlockSpawner highlightedBlockSpawner,
         IAnimatedArchitectureEventFactory animatedArchitectureEventFactory,
         StructureRegistry structureRegistry,

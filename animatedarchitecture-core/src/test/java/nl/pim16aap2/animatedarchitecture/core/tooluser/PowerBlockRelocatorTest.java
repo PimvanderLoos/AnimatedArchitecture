@@ -3,7 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.tooluser;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.IProtectionCompatManager;
+import nl.pim16aap2.animatedarchitecture.core.api.IProtectionHookManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
@@ -39,7 +39,7 @@ class PowerBlockRelocatorTest
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private IPlayer player;
 
-    private IProtectionCompatManager compatManager;
+    private IProtectionHookManager compatManager;
 
     @Mock
     private ILocation location;
@@ -59,7 +59,7 @@ class PowerBlockRelocatorTest
         Mockito.when(structure.getType()).thenReturn(structureTypeType);
         Mockito.when(structureTypeType.getLocalizationKey()).thenReturn("StructureType");
 
-        compatManager = Mockito.mock(IProtectionCompatManager.class);
+        compatManager = Mockito.mock(IProtectionHookManager.class);
         Mockito.when(compatManager.canBreakBlock(Mockito.any(), Mockito.any())).thenReturn(Optional.empty());
         Mockito.when(compatManager.canBreakBlocksBetweenLocs(Mockito.any(), Mockito.any(),
                                                              Mockito.any(), Mockito.any()))

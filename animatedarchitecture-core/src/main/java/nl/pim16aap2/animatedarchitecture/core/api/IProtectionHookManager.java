@@ -9,7 +9,7 @@ import java.util.Optional;
  *
  * @author Pim
  */
-public interface IProtectionCompatManager
+public interface IProtectionHookManager
 {
     /**
      * Check if a player can break a block at a given location.

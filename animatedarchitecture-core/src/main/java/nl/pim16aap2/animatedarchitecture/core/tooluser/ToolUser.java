@@ -8,7 +8,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitectureToolUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IEconomyManager;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.IProtectionCompatManager;
+import nl.pim16aap2.animatedarchitecture.core.api.IProtectionHookManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandFactory;
@@ -41,7 +41,7 @@ public abstract class ToolUser
 
     protected final ToolUserManager toolUserManager;
 
-    protected final IProtectionCompatManager protectionCompatManager;
+    protected final IProtectionHookManager protectionCompatManager;
 
     protected final IAnimatedArchitectureToolUtil animatedArchitectureToolUtil;
 
@@ -369,7 +369,7 @@ public abstract class ToolUser
         private final DatabaseManager databaseManager;
         private final LimitsManager limitsManager;
         private final IEconomyManager economyManager;
-        private final IProtectionCompatManager protectionCompatManager;
+        private final IProtectionHookManager protectionCompatManager;
         private final IAnimatedArchitectureToolUtil animatedArchitectureToolUtil;
         private final CommandFactory commandFactory;
         private final StructureAnimationRequestBuilder structureAnimationRequestBuilder;
@@ -385,7 +385,7 @@ public abstract class ToolUser
             DatabaseManager databaseManager,
             LimitsManager limitsManager,
             IEconomyManager economyManager,
-            IProtectionCompatManager protectionCompatManager,
+            IProtectionHookManager protectionCompatManager,
             IAnimatedArchitectureToolUtil animatedArchitectureToolUtil,
             StructureAnimationRequestBuilder structureAnimationRequestBuilder,
             StructureActivityManager structureActivityManager,

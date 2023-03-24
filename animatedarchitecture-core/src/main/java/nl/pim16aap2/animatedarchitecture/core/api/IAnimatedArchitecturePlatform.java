@@ -259,11 +259,11 @@ public interface IAnimatedArchitecturePlatform
     StructureAnimationRequestBuilder.IBuilderStructure getStructureAnimationRequestBuilder();
 
     /**
-     * Gets the instance of the {@link IProtectionCompatManager} for this platform.
+     * Gets the instance of the {@link IProtectionHookManager} for this platform.
      *
-     * @return The instance of the {@link IProtectionCompatManager} for this platform.
+     * @return The instance of the {@link IProtectionHookManager} for this platform.
      */
-    IProtectionCompatManager getProtectionCompatManager();
+    IProtectionHookManager getProtectionCompatManager();
 
     /**
      * Gets the {@link LimitsManager}.
