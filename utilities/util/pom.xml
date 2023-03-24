@@ -14,4 +14,13 @@
     </properties>
 
     <artifactId>util</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>${dependency.version.bytebuddy}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 </project>

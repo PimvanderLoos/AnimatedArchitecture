@@ -54,6 +54,13 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>${dependency.version.bytebuddy}</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- bStats -->
         <dependency>
             <groupId>org.bstats</groupId>
