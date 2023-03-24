@@ -20,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -60,14 +61,14 @@ public final class FakePlayerClassGenerator extends ClassGenerator
     /**
      * Adds all the fields to the generated class.
      *
-     * @param builder
+     * @param currentBuilder
      *     The builder to add the fields to.
      * @return The builder with the added fields.
      */
-    private DynamicType.Builder<?> addFields(DynamicType.Builder<?> builder)
+    private DynamicType.Builder<?> addFields(DynamicType.Builder<?> currentBuilder)
     {
-        builder =
-            builder.defineField(fieldOfflinePlayer, OfflinePlayer.class, Visibility.PRIVATE, FieldManifestation.FINAL);
+        var builder = currentBuilder
+            .defineField(fieldOfflinePlayer, OfflinePlayer.class, Visibility.PRIVATE, FieldManifestation.FINAL);
         builder = builder.defineField(fieldLocation, Location.class, Visibility.PRIVATE, FieldManifestation.FINAL);
         return builder;
     }
@@ -75,14 +76,14 @@ public final class FakePlayerClassGenerator extends ClassGenerator
     /**
      * Adds the constructor to the generated class.
      *
-     * @param builder
+     * @param currentBuilder
      *     The builder to add the methods to.
      * @return The builder with the added constructor.
      */
-    private DynamicType.Builder<?> addCtor(DynamicType.Builder<?> builder)
+    private DynamicType.Builder<?> addCtor(DynamicType.Builder<?> currentBuilder)
         throws NoSuchMethodException
     {
-        return builder
+        return currentBuilder
             .defineConstructor(Visibility.PUBLIC)
             .withParameters(getConstructorArgumentTypes())
             .intercept(invoke(Object.class.getConstructor()).andThen(
@@ -94,7 +95,7 @@ public final class FakePlayerClassGenerator extends ClassGenerator
     /**
      * Adds all methods to the generated class.
      *
-     * @param builder
+     * @param currentBuilder
      *     The builder to add the methods to.
      * @param methods
      *     The remaining methods that still need to be added.
@@ -102,9 +103,9 @@ public final class FakePlayerClassGenerator extends ClassGenerator
      *     Every method that is added is removed from this map.
      * @return The builder with the added methods.
      */
-    private DynamicType.Builder<?> addMethods(DynamicType.Builder<?> builder, Map<String, Method> methods)
+    private DynamicType.Builder<?> addMethods(DynamicType.Builder<?> currentBuilder, Map<String, Method> methods)
     {
-        builder = addOfflinePlayerMethods(builder, methods);
+        var builder = addOfflinePlayerMethods(currentBuilder, methods);
         builder = addMethodGetDisplayName(builder, methods);
         builder = addMethodGetPlayerListName(builder, methods);
         builder = addMethodsGetLocation(builder, methods);
@@ -119,7 +120,7 @@ public final class FakePlayerClassGenerator extends ClassGenerator
      * <p>
      * Every method is intercepted and calls the corresponding method on the {@link OfflinePlayer} field.
      *
-     * @param builder
+     * @param currentBuilder
      *     The builder to add the methods to.
      * @param remainingMethods
      *     The remaining methods that still need to be added.
@@ -128,8 +129,9 @@ public final class FakePlayerClassGenerator extends ClassGenerator
      * @return The builder with the added methods.
      */
     private DynamicType.Builder<?> addOfflinePlayerMethods(
-        DynamicType.Builder<?> builder, Map<String, Method> remainingMethods)
+        DynamicType.Builder<?> currentBuilder, Map<String, Method> remainingMethods)
     {
+        var builder = currentBuilder;
         final Map<String, Method> offlinePlayerMethods = getMethods(OfflinePlayer.class);
         for (final Map.Entry<String, Method> entry : offlinePlayerMethods.entrySet())
         {
@@ -144,7 +146,7 @@ public final class FakePlayerClassGenerator extends ClassGenerator
     /**
      * Adds the {@link Player#getDisplayName()} method to the generated class.
      *
-     * @param builder
+     * @param currentBuilder
      *     The builder to add the methods to.
      * @param remainingMethods
      *     The remaining methods that still need to be added.
@@ -153,7 +155,7 @@ public final class FakePlayerClassGenerator extends ClassGenerator
      * @return The builder with the added methods.
      */
     private DynamicType.Builder<?> addMethodGetDisplayName(
-        DynamicType.Builder<?> builder, Map<String, Method> remainingMethods)
+        DynamicType.Builder<?> currentBuilder, Map<String, Method> remainingMethods)
     {
         final Method method = findMethod(Player.class).withName("getDisplayName").checkInterfaces().get();
         final Method target = findMethod(OfflinePlayer.class).withName("getName").get();
@@ -161,13 +163,13 @@ public final class FakePlayerClassGenerator extends ClassGenerator
         if (remainingMethods.remove(simpleMethodString(method)) == null)
             throw new IllegalStateException("Failed to find mapped method: " + method);
 
-        return builder.define(method).intercept(invoke(target).onField(fieldOfflinePlayer));
+        return currentBuilder.define(method).intercept(invoke(target).onField(fieldOfflinePlayer));
     }
 
     /**
      * Adds the {@link Player#getPlayerListName()} method to the generated class.
      *
-     * @param builder
+     * @param currentBuilder
      *     The builder to add the methods to.
      * @param remainingMethods
      *     The remaining methods that still need to be added.
@@ -176,7 +178,7 @@ public final class FakePlayerClassGenerator extends ClassGenerator
      * @return The builder with the added methods.
      */
     private DynamicType.Builder<?> addMethodGetPlayerListName(
-        DynamicType.Builder<?> builder, Map<String, Method> remainingMethods)
+        DynamicType.Builder<?> currentBuilder, Map<String, Method> remainingMethods)
     {
         final Method method = findMethod(Player.class).withName("getPlayerListName").checkInterfaces().get();
         final Method target = findMethod(OfflinePlayer.class).withName("getName").get();
@@ -184,14 +186,14 @@ public final class FakePlayerClassGenerator extends ClassGenerator
         if (remainingMethods.remove(simpleMethodString(method)) == null)
             throw new IllegalStateException("Failed to find mapped method: " + method);
 
-        return builder.define(method).intercept(invoke(target).onField(fieldOfflinePlayer));
+        return currentBuilder.define(method).intercept(invoke(target).onField(fieldOfflinePlayer));
     }
 
     /**
      * Adds the {@link Player#getLocation()} and the {@link Player#getLocation(Location)} methods to the generated
      * class.
      *
-     * @param builder
+     * @param currentBuilder
      *     The builder to add the methods to.
      * @param remainingMethods
      *     The remaining methods that still need to be added.
@@ -200,7 +202,7 @@ public final class FakePlayerClassGenerator extends ClassGenerator
      * @return The builder with the added methods.
      */
     private DynamicType.Builder<?> addMethodsGetLocation(
-        DynamicType.Builder<?> builder, Map<String, Method> remainingMethods)
+        DynamicType.Builder<?> currentBuilder, Map<String, Method> remainingMethods)
     {
         final Constructor<?> locCtor = findConstructor(Location.class)
             .withParameters(World.class, double.class, double.class, double.class).get();
@@ -222,7 +224,7 @@ public final class FakePlayerClassGenerator extends ClassGenerator
         final MethodCall getZ = invoke(findLocationMethod.withName("getZ").get()).onField(fieldLocation);
 
         // Add Player#getLocation() method.
-        builder = builder
+        var builder = currentBuilder
             .define(method0)
             .intercept(construct(locCtor)
                            .withMethodCall(getWorld)
@@ -299,7 +301,7 @@ public final class FakePlayerClassGenerator extends ClassGenerator
     /**
      * Adds the {@link Player#getWorld()} method to the generated class.
      *
-     * @param builder
+     * @param currentBuilder
      *     The builder to add the method to.
      * @param methods
      *     The remaining methods that still need to be added.
@@ -307,20 +309,20 @@ public final class FakePlayerClassGenerator extends ClassGenerator
      *     Every method that is added is removed from this map.
      * @return The builder with the added method.
      */
-    private DynamicType.Builder<?> addMethodGetWorld(DynamicType.Builder<?> builder, Map<String, Method> methods)
+    private DynamicType.Builder<?> addMethodGetWorld(DynamicType.Builder<?> currentBuilder, Map<String, Method> methods)
     {
         final Method method = findMethod(Player.class).withName("getWorld").checkInterfaces().get();
         final Method target = findMethod(Location.class).withName("getWorld").get();
         if (methods.remove(simpleMethodString(method)) == null)
             throw new IllegalStateException("Failed to find mapped method: " + method);
 
-        return builder.define(method).intercept(invoke(target).onField(fieldLocation));
+        return currentBuilder.define(method).intercept(invoke(target).onField(fieldLocation));
     }
 
     /**
      * Adds stubs for all methods that have not been added yet.
      *
-     * @param builder
+     * @param currentBuilder
      *     The builder to add the method to.
      * @param methods
      *     The remaining methods that still need to be added.
@@ -328,8 +330,9 @@ public final class FakePlayerClassGenerator extends ClassGenerator
      *     A stub will be generated for each method in this map.
      * @return The builder with the added method.
      */
-    private DynamicType.Builder<?> addStubs(DynamicType.Builder<?> builder, Map<String, Method> methods)
+    private DynamicType.Builder<?> addStubs(DynamicType.Builder<?> currentBuilder, Map<String, Method> methods)
     {
+        var builder = currentBuilder;
         for (final Method method : methods.values())
         {
             if (method.isDefault())
@@ -340,25 +343,31 @@ public final class FakePlayerClassGenerator extends ClassGenerator
     }
 
     /**
-     * Adds the {@link IFakePlayer#getOfflinePlayer$generated()} and {@link IFakePlayer#getLocation$generated()}
-     * methods.
+     * Adds the {@link IFakePlayer#getOfflinePlayer0()} and {@link IFakePlayer#getLocation0()} methods.
      *
-     * @param builder
+     * @param currentBuilder
      *     The builder to add the methods to.
      * @return The builder with the added methods.
      */
-    private DynamicType.Builder<?> addFakePlayerMethods(DynamicType.Builder<?> builder)
+    private DynamicType.Builder<?> addFakePlayerMethods(DynamicType.Builder<?> currentBuilder)
     {
         final MethodFinder.MethodFinderInSource findMethod = findMethod().inClass(IFakePlayer.class);
-        final Method getPlayer = findMethod.withName("getOfflinePlayer$generated").get();
-        final Method getLocation = findMethod.withName("getLocation$generated").get();
+        final Method getPlayer = findMethod.withName("getOfflinePlayer0").get();
+        final Method getLocation = findMethod.withName("getLocation0").get();
 
-        builder = builder.define(getPlayer).intercept(FieldAccessor.ofField(fieldOfflinePlayer));
+        var builder = currentBuilder.define(getPlayer).intercept(FieldAccessor.ofField(fieldOfflinePlayer));
         builder = builder.define(getLocation).intercept(FieldAccessor.ofField(fieldLocation));
         return builder;
     }
 
-    private DynamicType.Builder<?> addObjectMethods(DynamicType.Builder<?> builder)
+    /**
+     * Adds the {@link Object#equals(Object)}, {@link Object#hashCode()} and {@link Object#toString()} methods.
+     *
+     * @param currentBuilder
+     *     The builder to add the methods to.
+     * @return The builder with the added methods.
+     */
+    private DynamicType.Builder<?> addObjectMethods(DynamicType.Builder<?> currentBuilder)
     {
         final MethodFinder.MethodFinderInSource findObjectMethod = findMethod().inClass(Object.class);
         final Method equals = findObjectMethod.withName("equals").withParameters(Object.class).get();
@@ -366,11 +375,11 @@ public final class FakePlayerClassGenerator extends ClassGenerator
         final Method toString = findObjectMethod.withName("toString").get();
 
         final MethodFinder.MethodFinderInSource findFakePlayerMethod = findMethod().inClass(IFakePlayer.class);
-        final Method equals0 = findFakePlayerMethod.withName("equals$generated").get();
-        final Method hashCode0 = findFakePlayerMethod.withName("hashCode$generated").get();
-        final Method toString0 = findFakePlayerMethod.withName("toString$generated").get();
+        final Method equals0 = findFakePlayerMethod.withName("equals0").get();
+        final Method hashCode0 = findFakePlayerMethod.withName("hashCode0").get();
+        final Method toString0 = findFakePlayerMethod.withName("toString0").get();
 
-        builder = builder.define(equals).intercept(invoke(equals0).withAllArguments());
+        var builder = currentBuilder.define(equals).intercept(invoke(equals0).withAllArguments());
         builder = builder.define(hashCode).intercept(invoke(hashCode0).withAllArguments());
         builder = builder.define(toString).intercept(invoke(toString0).withAllArguments());
 
@@ -401,7 +410,7 @@ public final class FakePlayerClassGenerator extends ClassGenerator
     @Override
     protected Class<?>[] getConstructorArgumentTypes()
     {
-        return constructorParameterTypes;
+        return Arrays.copyOf(constructorParameterTypes, constructorParameterTypes.length);
     }
 
     /**
@@ -413,7 +422,7 @@ public final class FakePlayerClassGenerator extends ClassGenerator
     @SuppressWarnings("unused")
     public interface IFakePlayer
     {
-        OfflinePlayer getOfflinePlayer$generated();
+        OfflinePlayer getOfflinePlayer0();
 
         /**
          * Gets the location of the player.
@@ -424,26 +433,26 @@ public final class FakePlayerClassGenerator extends ClassGenerator
          *
          * @return The location of the player.
          */
-        Location getLocation$generated();
+        Location getLocation0();
 
-        default int hashCode$generated()
+        default int hashCode0()
         {
-            return Objects.hash(getOfflinePlayer$generated(), getLocation$generated());
+            return Objects.hash(getOfflinePlayer0(), getLocation0());
         }
 
-        default boolean equals$generated(Object other)
+        default boolean equals0(Object other)
         {
             if (!(other instanceof IFakePlayer player))
                 return false;
-            return Objects.equals(getOfflinePlayer$generated(), player.getOfflinePlayer$generated()) &&
-                Objects.equals(getLocation$generated(), player.getLocation$generated());
+            return Objects.equals(getOfflinePlayer0(), player.getOfflinePlayer0()) &&
+                Objects.equals(getLocation0(), player.getLocation0());
         }
 
-        default String toString$generated()
+        default String toString0()
         {
             return "FakePlayer{" +
-                "offlinePlayer=" + getOfflinePlayer$generated() +
-                ", location=" + getLocation$generated() +
+                "offlinePlayer=" + getOfflinePlayer0() +
+                ", location=" + getLocation0() +
                 '}';
         }
     }

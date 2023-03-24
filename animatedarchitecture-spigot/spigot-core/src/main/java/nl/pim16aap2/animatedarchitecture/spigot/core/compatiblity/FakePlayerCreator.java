@@ -25,7 +25,7 @@ public class FakePlayerCreator
 {
     private final @Nullable Constructor<?> ctor;
 
-    @Inject public FakePlayerCreator(
+    @Inject FakePlayerCreator(
         AnimatedArchitecturePlugin plugin,
         @Named("pluginBaseDirectory") Path pluginBaseDirectory)
     {
@@ -60,7 +60,10 @@ public class FakePlayerCreator
     public Optional<Player> createPlayer(OfflinePlayer player, Location location)
     {
         if (ctor == null)
+        {
+            log.atFine().log("Failed to create fake player: No constructor available!");
             return Optional.empty();
+        }
 
         try
         {
