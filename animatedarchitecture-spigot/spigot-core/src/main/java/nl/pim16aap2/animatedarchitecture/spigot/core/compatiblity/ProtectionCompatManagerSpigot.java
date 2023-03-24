@@ -5,10 +5,13 @@ import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IProtectionCompatManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
-import nl.pim16aap2.animatedarchitecture.core.api.restartable.Restartable;
+import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
+import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
+import nl.pim16aap2.animatedarchitecture.core.api.restartable.IRestartable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
+import nl.pim16aap2.animatedarchitecture.spigot.util.compatibility.IProtectionHookSpigot;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -19,7 +22,10 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * Class that manages all objects of {@link IProtectionCompat}.
@@ -28,29 +34,67 @@ import java.util.Optional;
  */
 @Singleton
 @Flogger
-public final class ProtectionCompatManagerSpigot extends Restartable implements Listener, IProtectionCompatManager
+public final class ProtectionCompatManagerSpigot
+    implements IRestartable, Listener, IProtectionCompatManager, IDebuggable
 {
     private final FakePlayerCreator fakePlayerCreator;
 
-    @Inject ProtectionCompatManagerSpigot(RestartableHolder holder, FakePlayerCreator fakePlayerCreator)
+    private List<IProtectionHookSpigot> protectionHooks = new ArrayList<>();
+
+    @Inject ProtectionCompatManagerSpigot(
+        RestartableHolder holder,
+        DebuggableRegistry debuggableRegistry,
+        FakePlayerCreator fakePlayerCreator)
     {
-        super(holder);
         this.fakePlayerCreator = fakePlayerCreator;
+
+        holder.registerRestartable(this);
+        debuggableRegistry.registerDebuggable(this);
     }
 
     /**
-     * {@inheritDoc}
+     * Attempts to load protection hooks for any plugins that are currently enabled.
      * <p>
-     * Reinitialize all protection compats.
+     * Plugins that will be enabled later will be handled by {@link #onPluginEnable(PluginEnableEvent)}.
      */
-    @Override
-    public void initialize()
+    private void loadHooks()
     {
     }
 
-    @Override
-    public void shutDown()
+    /**
+     * Load a compat for the plugin enabled in the event if needed.
+     *
+     * @param event
+     *     The event of the plugin that is loaded.
+     */
+    @EventHandler
+    void onPluginEnable(PluginEnableEvent event)
     {
+    }
+
+    /**
+     * Used to apply a predicate to all registered protection hooks.
+     *
+     * @param predicate
+     *     The predicate to apply.
+     * @return The name of the protection hook that returned false, or an empty Optional if all returned true.
+     */
+    private Optional<String> checkForEachHook(Predicate<IProtectionHookSpigot> predicate)
+    {
+        for (final IProtectionHookSpigot hook : protectionHooks)
+        {
+            try
+            {
+                if (!predicate.test(hook))
+                    return Optional.of(hook.getName());
+            }
+            catch (Exception e)
+            {
+                log.atSevere().withCause(e).log("Error while checking protection hook %s", hook.getName());
+                return Optional.of(hook.getName());
+            }
+        }
+        return Optional.empty();
     }
 
     /**
@@ -76,37 +120,63 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
     @Override
     public Optional<String> canBreakBlock(IPlayer player, ILocation location)
     {
-        final Optional<Player> playerOptional = getPlayer(player, SpigotAdapter.getBukkitLocation(location));
-        if (playerOptional.isEmpty())
-            return Optional.of("ERROR!");
-        return Optional.empty();
+        if (protectionHooks.isEmpty())
+            return Optional.empty();
+
+        final Location bukkitLocation = SpigotAdapter.getBukkitLocation(location);
+        return getPlayer(player, bukkitLocation)
+            .map(bukkitPlayer -> checkForEachHook(hook -> hook.canBreakBlock(bukkitPlayer, bukkitLocation)))
+            .orElseGet(() -> Optional.of("ERROR!"));
     }
 
     @Override
-    public Optional<String> canBreakBlocksBetweenLocs(IPlayer player, Vector3Di pos1, Vector3Di pos2, IWorld world)
+    public Optional<String> canBreakBlocksBetweenLocs(IPlayer player, Vector3Di pos0, Vector3Di pos1, IWorld world)
     {
-        final Location location = new Location(SpigotAdapter.getBukkitWorld(world), pos1.x(), pos1.y(), pos1.z());
-        final Optional<Player> playerOptional = getPlayer(player, location);
-        if (playerOptional.isEmpty())
-            return Optional.of("ERROR!");
-        return Optional.empty();
+        if (protectionHooks.isEmpty())
+            return Optional.empty();
+
+        final Location loc0 = new Location(SpigotAdapter.getBukkitWorld(world), pos0.x(), pos1.y(), pos1.z());
+        final Location loc1 = new Location(SpigotAdapter.getBukkitWorld(world), pos1.x(), pos1.y(), pos1.z());
+
+        return getPlayer(player, loc0)
+            .map(bukkitPlayer -> checkForEachHook(hook -> hook.canBreakBlocksBetweenLocs(bukkitPlayer, loc0, loc1)))
+            .orElseGet(() -> Optional.of("ERROR!"));
     }
 
     @Override
     public boolean canSkipCheck()
     {
-        return true;
+        return protectionHooks.isEmpty();
     }
 
     /**
-     * Load a compat for the plugin enabled in the event if needed.
-     *
-     * @param event
-     *     The event of the plugin that is loaded.
+     * {@inheritDoc}
+     * <p>
+     * Reinitialize all protection compats.
      */
-    @SuppressWarnings("unused")
-    @EventHandler
-    void onPluginEnable(PluginEnableEvent event)
+    @Override
+    public void initialize()
     {
+        this.protectionHooks = new ArrayList<>();
+        loadHooks();
+    }
+
+    @Override
+    public void shutDown()
+    {
+        protectionHooks.clear();
+        this.protectionHooks = List.of();
+    }
+
+    @Override
+    public String getDebugInformation()
+    {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("Can create fake players: ").append(fakePlayerCreator.canCreatePlayers()).append('\n');
+        sb.append("Protection hooks: \n");
+        for (final IProtectionHookSpigot protectionHook : protectionHooks)
+            sb.append("  ").append(protectionHook.getName()).append('\n');
+
+        return sb.toString();
     }
 }
