@@ -5,7 +5,6 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.compatibility.griefdefender2.GriefDefender2ProtectionHook;
 import nl.pim16aap2.animatedarchitecture.compatibility.griefprevention.GriefPreventionProtectionHook;
-import nl.pim16aap2.animatedarchitecture.compatibility.konquest.KonquestProtectionHook;
 import nl.pim16aap2.animatedarchitecture.compatibility.lands.LandsProtectionHook;
 import nl.pim16aap2.animatedarchitecture.compatibility.plotsquared6.PlotSquared6ProtectionHook;
 import nl.pim16aap2.animatedarchitecture.compatibility.plotsquared7.PlotSquared7ProtectionHook;
@@ -125,23 +124,13 @@ public abstract class AbstractProtectionHookSpecification implements IProtection
         }
     };
 
-    public static final IProtectionHookSpigotSpecification KONQUEST = new AbstractProtectionHookSpecification(
-        "Konquest")
-    {
-        @Override
-        public Class<? extends IProtectionHookSpigot> getClass(String version)
-        {
-            return KonquestProtectionHook.class;
-        }
-    };
-
     /**
      * The set of default protection hook definitions.
      * <p>
      * More can be added by external plugins if needed.
      */
     public static final List<IProtectionHookSpigotSpecification> DEFAULT_COMPAT_DEFINITIONS =
-        List.of(TOWNY, PLOT_SQUARED, WORLD_GUARD, GRIEF_PREVENTION, LANDS, RED_PROTECT, GRIEF_DEFENDER, KONQUEST);
+        List.of(TOWNY, PLOT_SQUARED, WORLD_GUARD, GRIEF_PREVENTION, LANDS, RED_PROTECT, GRIEF_DEFENDER);
 
     private final String name;
 

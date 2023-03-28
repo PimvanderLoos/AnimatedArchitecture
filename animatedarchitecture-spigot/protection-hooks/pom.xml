@@ -28,8 +28,6 @@
 
         <module>hook-world-guard-7</module>
 
-        <module>hook-konquest</module>
-
         <module>hooks-bundle</module>
     </modules>
 

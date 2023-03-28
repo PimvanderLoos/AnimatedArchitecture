@@ -67,12 +67,5 @@
             <version>0.3-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
-
-        <dependency>
-            <groupId>nl.pim16aap2.animatedarchitecture</groupId>
-            <artifactId>hook-konquest</artifactId>
-            <version>0.3-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
 </project>
