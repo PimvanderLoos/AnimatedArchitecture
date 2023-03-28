@@ -7,7 +7,6 @@ import nl.pim16aap2.animatedarchitecture.compatibility.griefdefender2.GriefDefen
 import nl.pim16aap2.animatedarchitecture.compatibility.griefprevention.GriefPreventionProtectionHook;
 import nl.pim16aap2.animatedarchitecture.compatibility.konquest.KonquestProtectionHook;
 import nl.pim16aap2.animatedarchitecture.compatibility.lands.LandsProtectionHook;
-import nl.pim16aap2.animatedarchitecture.compatibility.medievalfactions.MedievalFactionsProtectionHook;
 import nl.pim16aap2.animatedarchitecture.compatibility.plotsquared6.PlotSquared6ProtectionHook;
 import nl.pim16aap2.animatedarchitecture.compatibility.plotsquared7.PlotSquared7ProtectionHook;
 import nl.pim16aap2.animatedarchitecture.compatibility.redprotect.RedProtectProtectionHook;
@@ -100,15 +99,6 @@ public abstract class AbstractProtectionHookSpecification implements IProtection
         }
     };
 
-    public static final IProtectionHookSpigotSpecification MEDIEVAL_FACTIONS = new AbstractProtectionHookSpecification(
-        "MedievalFactions")
-    {
-        @Override public Class<? extends IProtectionHookSpigot> getClass(String version)
-        {
-            return MedievalFactionsProtectionHook.class;
-        }
-    };
-
     public static final IProtectionHookSpigotSpecification RED_PROTECT = new AbstractProtectionHookSpecification(
         "RedProtect")
     {
@@ -151,8 +141,7 @@ public abstract class AbstractProtectionHookSpecification implements IProtection
      * More can be added by external plugins if needed.
      */
     public static final List<IProtectionHookSpigotSpecification> DEFAULT_COMPAT_DEFINITIONS =
-        List.of(TOWNY, PLOT_SQUARED, WORLD_GUARD, GRIEF_PREVENTION, LANDS, MEDIEVAL_FACTIONS, RED_PROTECT,
-                GRIEF_DEFENDER, KONQUEST);
+        List.of(TOWNY, PLOT_SQUARED, WORLD_GUARD, GRIEF_PREVENTION, LANDS, RED_PROTECT, GRIEF_DEFENDER, KONQUEST);
 
     private final String name;
 
