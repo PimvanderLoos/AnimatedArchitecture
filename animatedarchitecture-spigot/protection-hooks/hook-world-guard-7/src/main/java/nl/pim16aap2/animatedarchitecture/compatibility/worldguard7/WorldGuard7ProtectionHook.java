@@ -1,10 +1,9 @@
 package nl.pim16aap2.animatedarchitecture.compatibility.worldguard7;
 
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
-import com.sk89q.worldguard.bukkit.BukkitPlayer;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import com.sk89q.worldguard.protection.association.RegionAssociable;
 import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
@@ -13,7 +12,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.spigot.util.compatibility.IProtectionHookSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.compatibility.ProtectionHookContext;
-import org.bukkit.Bukkit;
+import nl.pim16aap2.util.reflection.ReflectionBuilder;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -27,7 +26,14 @@ import java.util.Objects;
  */
 public class WorldGuard7ProtectionHook implements IProtectionHookSpigot
 {
-    private static final StateFlag[] FLAGS = new StateFlag[]{Flags.BLOCK_BREAK, Flags.BLOCK_PLACE, Flags.BUILD};
+    /**
+     * The package-private class "{@code BukkitOfflinePlayer}" is a partial implementation of {@link LocalPlayer} that
+     * throws {@link UnsupportedOperationException}s when accessing certain methods.
+     * <p>
+     * By getting the class object itself, we can ensure we do not make calls to those unsupported methods.
+     */
+    private static final Class<?> CLASS_BUKKIT_OFFLINE_PLAYER =
+        ReflectionBuilder.findClass("com.sk89q.worldguard.bukkit.BukkitOfflinePlayer").get();
 
     private final WorldGuard worldGuard;
     private final WorldGuardPlugin worldGuardPlugin;
@@ -45,41 +51,31 @@ public class WorldGuard7ProtectionHook implements IProtectionHookSpigot
         return regionManager != null && regionManager.size() > 0;
     }
 
-    private com.sk89q.worldedit.world.World toWorldGuardWorld(@Nullable World world)
-    {
-        return BukkitAdapter.adapt(Objects.requireNonNull(world, "World cannot be null!"));
-    }
-
-    private RegionAssociable regionAssociableFromPlayer(Player player)
-    {
-        if (Bukkit.getPlayer(player.getUniqueId()) == null)
-            return worldGuardPlugin.wrapOfflinePlayer(player);
-        else
-            return new BukkitPlayer(worldGuardPlugin, player);
-    }
-
     @Override
     public boolean canBreakBlock(Player player, Location loc)
     {
-        if (!enabledInWorld(toWorldGuardWorld(loc.getWorld())))
+        final var wgWorld = toWorldGuardWorld(loc.getWorld());
+        if (!enabledInWorld(wgWorld))
             return true;
 
-        final RegionQuery query = worldGuard.getPlatform().getRegionContainer().createQuery();
-        final com.sk89q.worldedit.world.World world = toWorldGuardWorld(loc.getWorld());
-        final com.sk89q.worldedit.util.Location wgLoc =
-            new com.sk89q.worldedit.util.Location(world, loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+        final var wgPlayer = toWorldGuardPlayer(player);
+        if (canBypass(wgPlayer, wgWorld))
+            return true;
 
-        return query.testState(wgLoc, regionAssociableFromPlayer(player), FLAGS);
+        final var set = query().getApplicableRegions(toWorldGuardLocation(loc, wgWorld));
+        return set.queryState(wgPlayer, Flags.BLOCK_BREAK) != StateFlag.State.DENY;
     }
 
     @Override
     public boolean canBreakBlocksBetweenLocs(Player player, World world, Cuboid cuboid)
     {
-        final com.sk89q.worldedit.world.World wgWorld = toWorldGuardWorld(world);
+        final var wgWorld = toWorldGuardWorld(world);
         if (!enabledInWorld(wgWorld))
             return true;
 
-        final RegionAssociable regionAssociable = regionAssociableFromPlayer(player);
+        final var wgPlayer = toWorldGuardPlayer(player);
+        if (canBypass(wgPlayer, wgWorld))
+            return true;
 
         final Vector3Di min = cuboid.getMin();
         final Vector3Di max = cuboid.getMax();
@@ -88,7 +84,7 @@ public class WorldGuard7ProtectionHook implements IProtectionHookSpigot
                 for (int zPos = min.z(); zPos <= max.z(); ++zPos)
                 {
                     final var wgLoc = new com.sk89q.worldedit.util.Location(wgWorld, xPos, yPos, zPos);
-                    if (!query().testState(wgLoc, regionAssociable, FLAGS))
+                    if (query().queryState(wgLoc, wgPlayer, Flags.BUILD) == StateFlag.State.DENY)
                         return false;
                 }
         return true;
@@ -98,5 +94,31 @@ public class WorldGuard7ProtectionHook implements IProtectionHookSpigot
     public String getName()
     {
         return worldGuardPlugin.getName();
+    }
+
+    private RegionQuery query()
+    {
+        return worldGuard.getPlatform().getRegionContainer().createQuery();
+    }
+
+    private boolean canBypass(LocalPlayer player, com.sk89q.worldedit.world.World world)
+    {
+        return player.getClass() != CLASS_BUKKIT_OFFLINE_PLAYER &&
+            worldGuard.getPlatform().getSessionManager().hasBypass(player, world);
+    }
+
+    private LocalPlayer toWorldGuardPlayer(Player player)
+    {
+        return worldGuardPlugin.wrapPlayer(player, true);
+    }
+
+    private com.sk89q.worldedit.world.World toWorldGuardWorld(@Nullable World world)
+    {
+        return BukkitAdapter.adapt(Objects.requireNonNull(world, "World cannot be null!"));
+    }
+
+    private com.sk89q.worldedit.util.Location toWorldGuardLocation(Location loc, com.sk89q.worldedit.world.World world)
+    {
+        return new com.sk89q.worldedit.util.Location(world, loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
     }
 }
