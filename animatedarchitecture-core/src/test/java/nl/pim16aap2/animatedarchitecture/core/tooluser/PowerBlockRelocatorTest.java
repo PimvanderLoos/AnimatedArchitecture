@@ -61,7 +61,7 @@ class PowerBlockRelocatorTest
 
         compatManager = Mockito.mock(IProtectionHookManager.class);
         Mockito.when(compatManager.canBreakBlock(Mockito.any(), Mockito.any())).thenReturn(Optional.empty());
-        Mockito.when(compatManager.canBreakBlocksBetweenLocs(Mockito.any(), Mockito.any(),
+        Mockito.when(compatManager.canBreakBlocksBetweenLocs(Mockito.any(),
                                                              Mockito.any(), Mockito.any()))
                .thenReturn(Optional.empty());
 

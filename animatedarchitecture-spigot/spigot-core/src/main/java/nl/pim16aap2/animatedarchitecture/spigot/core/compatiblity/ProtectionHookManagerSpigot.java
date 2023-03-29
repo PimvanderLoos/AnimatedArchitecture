@@ -11,7 +11,9 @@ import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.IRestartable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
-import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
+import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
+import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.IPermissionsManagerSpigot;
@@ -21,6 +23,7 @@ import nl.pim16aap2.animatedarchitecture.spigot.util.compatibility.ProtectionHoo
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -233,16 +236,18 @@ public final class ProtectionHookManagerSpigot
     }
 
     @Override
-    public Optional<String> canBreakBlocksBetweenLocs(IPlayer player, Vector3Di pos0, Vector3Di pos1, IWorld world)
+    public Optional<String> canBreakBlocksBetweenLocs(IPlayer player, Cuboid cuboid, IWorld world)
     {
         if (protectionHooks.isEmpty())
             return Optional.empty();
 
-        final Location loc0 = new Location(SpigotAdapter.getBukkitWorld(world), pos0.x(), pos1.y(), pos1.z());
-        final Location loc1 = new Location(SpigotAdapter.getBukkitWorld(world), pos1.x(), pos1.y(), pos1.z());
+        final IVector3D vec = cuboid.getMin();
+        final Location loc0 = new Location(SpigotAdapter.getBukkitWorld(world), vec.xD(), vec.yD(), vec.zD());
+
+        final World world0 = Util.requireNonNull(SpigotAdapter.getBukkitWorld(world), "World");
 
         return getPlayer(player, loc0)
-            .map(bukkitPlayer -> checkForEachHook(hook -> hook.canBreakBlocksBetweenLocs(bukkitPlayer, loc0, loc1)))
+            .map(bukkitPlayer -> checkForEachHook(hook -> hook.canBreakBlocksBetweenLocs(bukkitPlayer, world0, cuboid)))
             .orElseGet(() -> Optional.of("ERROR!"));
     }
 

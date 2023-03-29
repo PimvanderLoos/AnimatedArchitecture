@@ -11,9 +11,12 @@ import com.plotsquared.core.plot.flag.implementations.DoneFlag;
 import com.plotsquared.core.plot.flag.types.BlockTypeWrapper;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.world.block.BlockType;
+import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
+import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.spigot.util.compatibility.IProtectionHookSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.compatibility.ProtectionHookContext;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
@@ -97,28 +100,23 @@ public class PlotSquared7ProtectionHook implements IProtectionHookSpigot
     }
 
     @Override
-    public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
+    public boolean canBreakBlocksBetweenLocs(Player player, World world, Cuboid cuboid)
     {
         com.plotsquared.core.location.Location psLocation;
-        final int x1 = Math.min(loc1.getBlockX(), loc2.getBlockX());
-        final int y1 = Math.min(loc1.getBlockY(), loc2.getBlockY());
-        final int z1 = Math.min(loc1.getBlockZ(), loc2.getBlockZ());
-        final int x2 = Math.max(loc1.getBlockX(), loc2.getBlockX());
-        final int y2 = Math.max(loc1.getBlockY(), loc2.getBlockY());
-        final int z2 = Math.max(loc1.getBlockZ(), loc2.getBlockZ());
 
         final boolean canBreakRoads = canBreakRoads(player);
-
-        for (int xPos = x1; xPos <= x2; ++xPos)
-            for (int zPos = z1; zPos <= z2; ++zPos)
+        final Vector3Di min = cuboid.getMin();
+        final Vector3Di max = cuboid.getMax();
+        for (int xPos = min.x(); xPos <= max.x(); ++xPos)
+            for (int zPos = min.z(); zPos <= max.z(); ++zPos)
             {
-                final Location loc = new Location(loc1.getWorld(), xPos, y1, zPos);
+                final Location loc = new Location(world, xPos, min.y(), zPos);
                 psLocation = BukkitUtil.adapt(loc);
                 final PlotArea area = psLocation.getPlotArea();
                 if (area == null)
                     continue;
 
-                if (!isHeightAllowed(player, area, y1) || !isHeightAllowed(player, area, y2))
+                if (!isHeightAllowed(player, area, min.y()) || !isHeightAllowed(player, area, max.y()))
                     return false;
 
                 loc.setY(area.getMaxBuildHeight() - 1);

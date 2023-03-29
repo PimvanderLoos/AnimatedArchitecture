@@ -73,7 +73,7 @@ public class CreatorTest
 
         final IProtectionHookManager protectionCompatManager = Mockito.mock(IProtectionHookManager.class);
         Mockito.when(protectionCompatManager.canBreakBlock(Mockito.any(), Mockito.any())).thenReturn(Optional.empty());
-        Mockito.when(protectionCompatManager.canBreakBlocksBetweenLocs(Mockito.any(), Mockito.any(),
+        Mockito.when(protectionCompatManager.canBreakBlocksBetweenLocs(Mockito.any(),
                                                                        Mockito.any(), Mockito.any()))
                .thenReturn(Optional.empty());
 

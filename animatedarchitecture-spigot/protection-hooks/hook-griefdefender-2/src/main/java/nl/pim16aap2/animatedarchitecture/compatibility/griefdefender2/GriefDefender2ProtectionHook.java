@@ -4,6 +4,8 @@ import com.griefdefender.api.Core;
 import com.griefdefender.api.GriefDefender;
 import com.griefdefender.api.User;
 import com.griefdefender.api.claim.Claim;
+import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
+import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.spigot.util.compatibility.IProtectionHookSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.compatibility.ProtectionHookContext;
 import org.bukkit.Location;
@@ -57,22 +59,17 @@ public class GriefDefender2ProtectionHook implements IProtectionHookSpigot
     }
 
     @Override
-    public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
+    public boolean canBreakBlocksBetweenLocs(Player player, World world, Cuboid cuboid)
     {
-        if (!enabledInWorldChecks(Objects.requireNonNull(loc1.getWorld())))
+        if (!enabledInWorldChecks(Objects.requireNonNull(world)))
             return true;
 
-        final int x1 = Math.min(loc1.getBlockX(), loc2.getBlockX());
-        final int y1 = Math.min(loc1.getBlockY(), loc2.getBlockY());
-        final int z1 = Math.min(loc1.getBlockZ(), loc2.getBlockZ());
-        final int x2 = Math.max(loc1.getBlockX(), loc2.getBlockX());
-        final int y2 = Math.max(loc1.getBlockY(), loc2.getBlockY());
-        final int z2 = Math.max(loc1.getBlockZ(), loc2.getBlockZ());
-
-        for (int xPos = x1; xPos <= x2; ++xPos)
-            for (int yPos = y1; yPos <= y2; ++yPos)
-                for (int zPos = z1; zPos <= z2; ++zPos)
-                    if (!checkLocation(player, new Location(loc1.getWorld(), xPos, yPos, zPos)))
+        final Vector3Di min = cuboid.getMin();
+        final Vector3Di max = cuboid.getMax();
+        for (int xPos = min.x(); xPos <= max.x(); ++xPos)
+            for (int yPos = min.y(); yPos <= max.y(); ++yPos)
+                for (int zPos = min.z(); zPos <= max.z(); ++zPos)
+                    if (!checkLocation(player, new Location(world, xPos, yPos, zPos)))
                         return false;
         return true;
     }

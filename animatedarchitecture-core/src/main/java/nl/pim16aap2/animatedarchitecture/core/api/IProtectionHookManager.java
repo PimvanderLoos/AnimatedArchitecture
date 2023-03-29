@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.api;
 
-import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
+import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 
 import java.util.Optional;
 
@@ -23,19 +23,17 @@ public interface IProtectionHookManager
     Optional<String> canBreakBlock(IPlayer player, ILocation loc);
 
     /**
-     * Check if a player can break all blocks between two locations.
+     * Check if a player can break all blocks in a cuboid.
      *
      * @param player
      *     The {@link IPlayer}.
-     * @param pos1
-     *     The start position to check.
-     * @param pos2
-     *     The end position to check.
+     * @param cuboid
+     *     The {@link Cuboid} to check.
      * @param world
      *     The world.
      * @return The name of the IProtectionCompat that objects, if any, or an empty Optional if allowed by all compats.
      */
-    Optional<String> canBreakBlocksBetweenLocs(IPlayer player, Vector3Di pos1, Vector3Di pos2, IWorld world);
+    Optional<String> canBreakBlocksBetweenLocs(IPlayer player, Cuboid cuboid, IWorld world);
 
     /**
      * @return True if all checks for block-breaking access can be skipped. This may happen when no hooks are enabled.

@@ -414,8 +414,7 @@ import java.util.logging.Level;
     private boolean canBreakBlocksBetweenLocs0(IStructureConst structure, Cuboid cuboid, IPlayer responsible)
     {
         // If the returned value is an empty Optional, the player is allowed to break blocks.
-        return protectionCompatManager.canBreakBlocksBetweenLocs(responsible, cuboid.getMin(), cuboid.getMax(),
-                                                                 structure.getWorld()).map(
+        return protectionCompatManager.canBreakBlocksBetweenLocs(responsible, cuboid, structure.getWorld()).map(
             protectionCompat ->
             {
                 log.atWarning().log("Player '%s' is not allowed to open structure '%s' (%d) here! Reason: %s",

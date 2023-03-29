@@ -1,6 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.spigot.util.compatibility;
 
+import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -23,17 +25,17 @@ public interface IProtectionHookSpigot
     boolean canBreakBlock(Player player, Location loc);
 
     /**
-     * Check if this compatibility hook allows a player to break blocks between two locations.
+     * Check if this compatibility hook allows a player to break blocks in a given cuboid.
      *
      * @param player
      *     The (fake) player to check.
-     * @param loc1
-     *     The start location to check.
-     * @param loc2
-     *     The end location to check.
-     * @return True if the player is allowed to break all the blocks between (and including) the given locations.
+     * @param world
+     *     The world to check in.
+     * @param cuboid
+     *     The cuboid to check.
+     * @return True if the player is allowed to break all the blocks in the given cuboid.
      */
-    boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2);
+    boolean canBreakBlocksBetweenLocs(Player player, World world, Cuboid cuboid);
 
     /**
      * Get the name of the {@link JavaPlugin} that is being hooked into.

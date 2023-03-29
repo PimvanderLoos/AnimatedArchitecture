@@ -336,8 +336,7 @@ public abstract class ToolUser
      */
     public boolean playerHasAccessToCuboid(Cuboid cuboid, IWorld world)
     {
-        final Optional<String> result = protectionCompatManager.canBreakBlocksBetweenLocs(getPlayer(), cuboid.getMin(),
-                                                                                          cuboid.getMax(), world);
+        final Optional<String> result = protectionCompatManager.canBreakBlocksBetweenLocs(getPlayer(), cuboid, world);
         result.ifPresent(
             compat ->
             {
