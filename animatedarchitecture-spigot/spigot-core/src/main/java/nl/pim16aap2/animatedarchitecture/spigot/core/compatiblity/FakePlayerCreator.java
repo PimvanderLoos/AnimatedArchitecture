@@ -49,6 +49,16 @@ public class FakePlayerCreator
     }
 
     /**
+     * Checks whether a fake player can be created.
+     *
+     * @return {@code true} if a fake player can be created, {@code false} otherwise.
+     */
+    public boolean canCreatePlayers()
+    {
+        return ctor != null;
+    }
+
+    /**
      * Creates a fake player.
      *
      * @param player

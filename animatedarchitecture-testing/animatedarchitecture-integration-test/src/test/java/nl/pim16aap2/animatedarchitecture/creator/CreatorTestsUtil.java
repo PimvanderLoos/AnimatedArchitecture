@@ -6,7 +6,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IEconomyManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IPermissionsManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.IProtectionCompatManager;
+import nl.pim16aap2.animatedarchitecture.core.api.IProtectionHookManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
@@ -100,7 +100,7 @@ public class CreatorTestsUtil
     protected LimitsManager limitsManager;
 
     @Mock
-    protected IProtectionCompatManager protectionCompatManager;
+    protected IProtectionHookManager protectionCompatManager;
 
     @Mock
     protected IAnimatedArchitectureToolUtil animatedArchitectureToolUtil;

@@ -14,12 +14,16 @@ import nl.pim16aap2.util.reflection.MethodFinder;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.metadata.Metadatable;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -105,13 +109,26 @@ public final class FakePlayerClassGenerator extends ClassGenerator
      */
     private DynamicType.Builder<?> addMethods(DynamicType.Builder<?> currentBuilder, Map<String, Method> methods)
     {
-        var builder = addOfflinePlayerMethods(currentBuilder, methods);
-        builder = addMethodGetDisplayName(builder, methods);
-        builder = addMethodGetPlayerListName(builder, methods);
-        builder = addMethodsGetLocation(builder, methods);
+        var builder = currentBuilder;
+
+        builder = interceptMethodWithImplementation(
+            builder, methods, FixedValue.value(new ArrayList<>(0)),
+            findMethod(Metadatable.class).withName("getMetadata").get());
+        builder = interceptMethodWithImplementation(
+            builder, methods, FixedValue.self(), findMethod(OfflinePlayer.class).withName("getPlayer").get());
+        builder = interceptMethodWithImplementation(
+            builder, methods, FixedValue.value(true), findMethod(OfflinePlayer.class).withName("isOnline").get());
+        builder = interceptMethodWithImplementation(
+            builder, methods, FixedValue.value(EntityType.PLAYER), findMethod(Entity.class).withName("getType").get());
+
+        builder = interceptMethodRedirectToOfflinePlayer(builder, methods, "getDisplayName", "getName");
+        builder = interceptMethodRedirectToOfflinePlayer(builder, methods, "getPlayerListName", "getName");
+
         builder = addMethodGetWorld(builder, methods);
-        builder = addFakePlayerMethods(builder);
-        builder = addObjectMethods(builder);
+        builder = addMethodsGetLocation(builder, methods);
+        builder = addMethodsOfFakePlayer(builder);
+        builder = addOfflinePlayerMethods(builder, methods);
+        builder = addMethodsOfObject(builder);
         return builder;
     }
 
@@ -135,16 +152,18 @@ public final class FakePlayerClassGenerator extends ClassGenerator
         final Map<String, Method> offlinePlayerMethods = getMethods(OfflinePlayer.class);
         for (final Map.Entry<String, Method> entry : offlinePlayerMethods.entrySet())
         {
+            if (remainingMethods.remove(entry.getKey()) == null)
+                continue;
             final Implementation impl = invoke(entry.getValue()).onField(fieldOfflinePlayer).withAllArguments();
             builder = builder.define(entry.getValue()).intercept(impl);
-            if (remainingMethods.remove(entry.getKey()) == null)
-                throw new IllegalStateException("Failed to find mapped method: " + entry.getValue());
         }
         return builder;
     }
 
     /**
-     * Adds the {@link Player#getDisplayName()} method to the generated class.
+     * Adds a method to the generated class.
+     * <p>
+     * The generated method returns the provided implementation.
      *
      * @param currentBuilder
      *     The builder to add the methods to.
@@ -152,22 +171,28 @@ public final class FakePlayerClassGenerator extends ClassGenerator
      *     The remaining methods that still need to be added.
      *     <p>
      *     Every method that is added is removed from this map.
+     * @param implementation
+     *     The implementation to provide for the generated method.
+     * @param method
+     *     The method to intercept and provide an implementation for.
      * @return The builder with the added methods.
      */
-    private DynamicType.Builder<?> addMethodGetDisplayName(
-        DynamicType.Builder<?> currentBuilder, Map<String, Method> remainingMethods)
+    private DynamicType.Builder<?> interceptMethodWithImplementation(
+        DynamicType.Builder<?> currentBuilder,
+        Map<String, Method> remainingMethods,
+        Implementation implementation,
+        Method method)
     {
-        final Method method = findMethod(Player.class).withName("getDisplayName").checkInterfaces().get();
-        final Method target = findMethod(OfflinePlayer.class).withName("getName").get();
-
         if (remainingMethods.remove(simpleMethodString(method)) == null)
             throw new IllegalStateException("Failed to find mapped method: " + method);
 
-        return currentBuilder.define(method).intercept(invoke(target).onField(fieldOfflinePlayer));
+        return currentBuilder.define(method).intercept(implementation);
     }
 
     /**
-     * Adds the {@link Player#getPlayerListName()} method to the generated class.
+     * Adds a method to the generated class.
+     * <p>
+     * The generated method calls a method on the {@link OfflinePlayer} field.
      *
      * @param currentBuilder
      *     The builder to add the methods to.
@@ -175,13 +200,20 @@ public final class FakePlayerClassGenerator extends ClassGenerator
      *     The remaining methods that still need to be added.
      *     <p>
      *     Every method that is added is removed from this map.
+     * @param methodName
+     *     The name of the method to add.
+     * @param targetMethodName
+     *     The name of the method to call on the {@link OfflinePlayer} field.
      * @return The builder with the added methods.
      */
-    private DynamicType.Builder<?> addMethodGetPlayerListName(
-        DynamicType.Builder<?> currentBuilder, Map<String, Method> remainingMethods)
+    private DynamicType.Builder<?> interceptMethodRedirectToOfflinePlayer(
+        DynamicType.Builder<?> currentBuilder,
+        Map<String, Method> remainingMethods,
+        String methodName,
+        String targetMethodName)
     {
-        final Method method = findMethod(Player.class).withName("getPlayerListName").checkInterfaces().get();
-        final Method target = findMethod(OfflinePlayer.class).withName("getName").get();
+        final Method method = findMethod(Player.class).withName(methodName).checkInterfaces().get();
+        final Method target = findMethod(OfflinePlayer.class).withName(targetMethodName).get();
 
         if (remainingMethods.remove(simpleMethodString(method)) == null)
             throw new IllegalStateException("Failed to find mapped method: " + method);
@@ -278,9 +310,7 @@ public final class FakePlayerClassGenerator extends ClassGenerator
         for (int idx = 0; idx < methodsArr.length; ++idx)
         {
             final Method method = methodsArr[idx];
-            // Creating stubs for some non-bukkit methods causes weird issues.
-            // Because we do not (strictly) need to override default methods anyway, we filter them out.
-            if (!method.getDeclaringClass().getName().startsWith("org.bukkit") && method.isDefault())
+            if (method.isDefault())
             {
                 ++filteredCount;
                 continue;
@@ -349,7 +379,7 @@ public final class FakePlayerClassGenerator extends ClassGenerator
      *     The builder to add the methods to.
      * @return The builder with the added methods.
      */
-    private DynamicType.Builder<?> addFakePlayerMethods(DynamicType.Builder<?> currentBuilder)
+    private DynamicType.Builder<?> addMethodsOfFakePlayer(DynamicType.Builder<?> currentBuilder)
     {
         final MethodFinder.MethodFinderInSource findMethod = findMethod().inClass(IFakePlayer.class);
         final Method getPlayer = findMethod.withName("getOfflinePlayer0").get();
@@ -367,7 +397,7 @@ public final class FakePlayerClassGenerator extends ClassGenerator
      *     The builder to add the methods to.
      * @return The builder with the added methods.
      */
-    private DynamicType.Builder<?> addObjectMethods(DynamicType.Builder<?> currentBuilder)
+    private DynamicType.Builder<?> addMethodsOfObject(DynamicType.Builder<?> currentBuilder)
     {
         final MethodFinder.MethodFinderInSource findObjectMethod = findMethod().inClass(Object.class);
         final Method equals = findObjectMethod.withName("equals").withParameters(Object.class).get();

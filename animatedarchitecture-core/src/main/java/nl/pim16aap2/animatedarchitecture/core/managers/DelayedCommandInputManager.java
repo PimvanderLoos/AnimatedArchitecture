@@ -2,9 +2,9 @@ package nl.pim16aap2.animatedarchitecture.core.managers;
 
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
-import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.commands.BaseCommand;
 import nl.pim16aap2.animatedarchitecture.core.commands.DelayedCommandInputRequest;
+import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;

@@ -12,7 +12,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IMessageable;
 import nl.pim16aap2.animatedarchitecture.core.api.IMessagingInterface;
 import nl.pim16aap2.animatedarchitecture.core.api.IPermissionsManager;
-import nl.pim16aap2.animatedarchitecture.core.api.IProtectionCompatManager;
+import nl.pim16aap2.animatedarchitecture.core.api.IProtectionHookManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IRedstoneManager;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockFactory;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IAnimatedArchitectureEventFactory;
@@ -156,7 +156,7 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
     private final IPermissionsManager permissionsManager;
 
     @Getter
-    private final IProtectionCompatManager protectionCompatManager;
+    private final IProtectionHookManager protectionCompatManager;
 
     @Getter
     private final LimitsManager limitsManager;
@@ -216,7 +216,7 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
             throw new InitializationException("Failed to initialize AnimatedArchitecture database! Database state: " +
                                                   databaseManager.getDatabaseState().name());
 
-        protectionCompatManager = safeGetter(AnimatedArchitectureSpigotComponent::getProtectionCompatManager);
+        protectionCompatManager = safeGetter(AnimatedArchitectureSpigotComponent::getProtectionHookManager);
         economyManager = safeGetter(AnimatedArchitectureSpigotComponent::getVaultManager);
         permissionsManager = safeGetter(AnimatedArchitectureSpigotComponent::getVaultManager);
         limitsManager = safeGetter(AnimatedArchitectureSpigotComponent::getLimitsManager);

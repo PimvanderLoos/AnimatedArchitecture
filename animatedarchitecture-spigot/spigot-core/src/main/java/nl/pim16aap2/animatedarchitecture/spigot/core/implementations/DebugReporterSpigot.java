@@ -48,11 +48,6 @@ public class DebugReporterSpigot extends DebugReporter
             .append('\n')
             .append("Registered addons: ").append(animatedArchitecturePlugin::getRegisteredPlugins)
             .append('\n')
-
-//            // TODO: Implement this:
-//            .append("Enabled protection hooks: ")
-//            .append(getAllProtectionHooksOrSomething())
-
             .append("EventListeners:\n").append(getListeners(StructurePrepareAddOwnerEvent.class,
                                                              StructurePrepareCreateEvent.class,
                                                              StructurePrepareDeleteEvent.class,

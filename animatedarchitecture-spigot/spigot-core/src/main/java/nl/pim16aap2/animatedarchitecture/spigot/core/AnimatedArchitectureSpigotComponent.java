@@ -44,8 +44,8 @@ import nl.pim16aap2.animatedarchitecture.core.util.versioning.BuildDataReader;
 import nl.pim16aap2.animatedarchitecture.core.util.versioning.ProjectVersion;
 import nl.pim16aap2.animatedarchitecture.spigot.core.animation.AnimationBlockDisplayModule;
 import nl.pim16aap2.animatedarchitecture.spigot.core.comands.CommandManager;
-import nl.pim16aap2.animatedarchitecture.spigot.core.compatiblity.ProtectionCompatManagerModule;
-import nl.pim16aap2.animatedarchitecture.spigot.core.compatiblity.ProtectionCompatManagerSpigot;
+import nl.pim16aap2.animatedarchitecture.spigot.core.compatiblity.ProtectionHookManagerModule;
+import nl.pim16aap2.animatedarchitecture.spigot.core.compatiblity.ProtectionHookManagerSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigotModule;
 import nl.pim16aap2.animatedarchitecture.spigot.core.gui.GuiFactory;
@@ -87,7 +87,7 @@ import javax.inject.Singleton;
 @Singleton
 @Component(modules = {
     AnimatedArchitecturePluginModule.class,
-    ProtectionCompatManagerModule.class,
+    ProtectionHookManagerModule.class,
     ConfigSpigotModule.class,
     LocalizationModule.class,
     ExecutorModule.class,
@@ -149,7 +149,7 @@ interface AnimatedArchitectureSpigotComponent
 
     DebuggableRegistry getDebuggableRegistry();
 
-    ProtectionCompatManagerSpigot getProtectionCompatManager();
+    ProtectionHookManagerSpigot getProtectionHookManager();
 
     GuiFactory getGUIFactory();
 
