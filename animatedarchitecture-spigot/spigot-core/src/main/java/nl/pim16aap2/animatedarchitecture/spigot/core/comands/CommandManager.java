@@ -22,6 +22,7 @@ import nl.pim16aap2.animatedarchitecture.core.commands.CommandDefinition;
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
@@ -194,7 +195,7 @@ public final class CommandManager
                               .defaultDescription(ArgumentDescription.of(
                                   localizer.getMessage("commands.add_owner.param.permission_level.description")))
                               .build())
-                .argument(defaultStructureArgument(false, PermissionLevel.ADMIN).build())
+                .argument(defaultStructureArgument(false, StructureAttribute.ADD_OWNER).build())
                 .handler(executor::addOwner)
         );
     }
@@ -231,7 +232,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.DELETE, "commands.delete.description")
-                .argument(defaultStructureArgument(true, PermissionLevel.ADMIN).build())
+                .argument(defaultStructureArgument(true, StructureAttribute.DELETE).build())
                 .handler(executor::delete)
         );
     }
@@ -241,7 +242,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.INFO, "commands.info.description")
-                .argument(defaultStructureArgument(true, PermissionLevel.USER).build())
+                .argument(defaultStructureArgument(true, StructureAttribute.INFO).build())
                 .handler(executor::info)
         );
     }
@@ -290,7 +291,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.MOVE_POWER_BLOCK, "commands.move_power_block.description")
-                .argument(defaultStructureArgument(true, PermissionLevel.ADMIN).build())
+                .argument(defaultStructureArgument(true, StructureAttribute.RELOCATE_POWERBLOCK).build())
                 .handler(executor::movePowerBlock)
         );
     }
@@ -311,7 +312,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.REMOVE_OWNER, "commands.remove_owner.description")
-                .argument(defaultStructureArgument(true, PermissionLevel.ADMIN).build())
+                .argument(defaultStructureArgument(true, StructureAttribute.REMOVE_OWNER).build())
                 .argument(PlayerArgument.of("targetPlayer"))
                 .handler(executor::removeOwner)
         );
@@ -332,7 +333,7 @@ public final class CommandManager
         manager.command(
             baseInit(builder, CommandDefinition.SET_BLOCKS_TO_MOVE, "commands.set_blocks_to_move.description")
                 .argument(IntegerArgument.of("blocksToMove"))
-                .argument(defaultStructureArgument(false, PermissionLevel.ADMIN).build())
+                .argument(defaultStructureArgument(false, StructureAttribute.BLOCKS_TO_MOVE).build())
                 .handler(executor::setBlocksToMove)
         );
     }
@@ -353,7 +354,7 @@ public final class CommandManager
         manager.command(
             baseInit(builder, CommandDefinition.SET_OPEN_STATUS, "commands.set_open_status.description")
                 .argument(defaultOpenStatusArgument(true).build())
-                .argument(defaultStructureArgument(false, PermissionLevel.ADMIN).build())
+                .argument(defaultStructureArgument(false, StructureAttribute.OPEN_STATUS).build())
                 .handler(executor::setOpenStatus)
         );
     }
@@ -364,7 +365,7 @@ public final class CommandManager
         manager.command(
             baseInit(builder, CommandDefinition.SET_OPEN_DIRECTION, "commands.set_open_direction.description")
                 .argument(defaultDirectionArgument(true).build())
-                .argument(defaultStructureArgument(false, PermissionLevel.ADMIN).build())
+                .argument(defaultStructureArgument(false, StructureAttribute.OPEN_DIRECTION).build())
                 .handler(executor::setOpenDirection)
         );
     }
@@ -392,7 +393,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.TOGGLE, "commands.toggle.description")
-                .argument(defaultStructureArgument(true, PermissionLevel.USER).build())
+                .argument(defaultStructureArgument(true, StructureAttribute.TOGGLE).build())
                 .handler(executor::toggle)
         );
     }
@@ -407,7 +408,7 @@ public final class CommandManager
 
         manager.command(
             baseInit(builder, previewDefinition, "commands.preview.description")
-                .argument(defaultStructureArgument(true, PermissionLevel.USER).build())
+                .argument(defaultStructureArgument(true, StructureAttribute.TOGGLE).build())
                 .handler(executor::preview)
         );
     }
@@ -435,11 +436,12 @@ public final class CommandManager
     }
 
     private StructureArgument.StructureArgumentBuilder defaultStructureArgument(
-        boolean required, PermissionLevel maxPermission)
+        boolean required, StructureAttribute structureAttribute)
     {
         return StructureArgument.builder().required(required).name("structureRetriever")
                                 .asyncSuggestions(asyncCompletions)
-                                .structureRetrieverFactory(structureRetrieverFactory).maxPermission(maxPermission);
+                                .structureRetrieverFactory(structureRetrieverFactory)
+                                .maxPermission(structureAttribute.getPermissionLevel());
     }
 
     private IsOpenArgument.IsOpenArgumentBuilder defaultOpenStatusArgument(boolean required)
