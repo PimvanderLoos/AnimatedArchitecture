@@ -1,8 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.core.api.animatedblock;
 
+import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatform;
 import nl.pim16aap2.animatedarchitecture.core.managers.AnimatedBlockHookManager;
-import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
 
 /**
  * Represents a hook for {@link IAnimatedBlock}s.

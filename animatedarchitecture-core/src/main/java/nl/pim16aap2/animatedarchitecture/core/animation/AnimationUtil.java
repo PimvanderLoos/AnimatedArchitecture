@@ -1,4 +1,4 @@
-package nl.pim16aap2.animatedarchitecture.core.moveblocks;
+package nl.pim16aap2.animatedarchitecture.core.animation;
 
 public final class AnimationUtil
 {

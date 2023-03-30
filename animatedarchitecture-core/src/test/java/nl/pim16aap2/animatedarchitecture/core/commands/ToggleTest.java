@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
+import nl.pim16aap2.animatedarchitecture.core.animation.AnimationType;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IMessageable;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
@@ -9,7 +10,6 @@ import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
-import nl.pim16aap2.animatedarchitecture.core.moveblocks.AnimationType;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequest;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;

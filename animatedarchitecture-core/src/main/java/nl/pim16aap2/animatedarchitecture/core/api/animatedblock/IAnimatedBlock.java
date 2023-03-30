@@ -1,8 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.core.api.animatedblock;
 
+import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
-import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 
 /**

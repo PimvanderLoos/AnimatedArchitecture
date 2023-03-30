@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.api;
 
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
+import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;

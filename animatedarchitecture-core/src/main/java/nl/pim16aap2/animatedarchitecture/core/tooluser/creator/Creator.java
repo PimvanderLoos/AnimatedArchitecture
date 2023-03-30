@@ -2,6 +2,8 @@ package nl.pim16aap2.animatedarchitecture.core.tooluser.creator;
 
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.core.animation.AnimationType;
+import nl.pim16aap2.animatedarchitecture.core.animation.StructureActivityManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IEconomyManager;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
@@ -11,8 +13,6 @@ import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.LimitsManager;
-import nl.pim16aap2.animatedarchitecture.core.moveblocks.AnimationType;
-import nl.pim16aap2.animatedarchitecture.core.moveblocks.StructureActivityManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;

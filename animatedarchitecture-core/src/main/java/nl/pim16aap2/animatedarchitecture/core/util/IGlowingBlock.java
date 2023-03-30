@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.util;
 
-import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
+import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
 
 public interface IGlowingBlock
 {

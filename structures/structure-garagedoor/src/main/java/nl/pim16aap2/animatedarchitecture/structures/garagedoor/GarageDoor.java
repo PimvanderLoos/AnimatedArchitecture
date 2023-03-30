@@ -5,10 +5,10 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
+import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.annotations.Deserialization;
 import nl.pim16aap2.animatedarchitecture.core.annotations.PersistentVariable;
-import nl.pim16aap2.animatedarchitecture.core.moveblocks.AnimationRequestData;
-import nl.pim16aap2.animatedarchitecture.core.moveblocks.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
@@ -85,13 +85,13 @@ public class GarageDoor extends AbstractStructure implements IHorizontalAxisAlig
         final Vector3Di max = cuboid.getMax();
 
         final Cuboid cuboidRange = switch (getCurrentToggleDir())
-            {
-                case NORTH -> new Cuboid(min.add(0, 0, -vertical), max.add(0, 1, 0)); // -z
-                case EAST -> new Cuboid(min.add(0, 0, 0), max.add(vertical, 1, 0)); // +x
-                case SOUTH -> new Cuboid(min.add(0, 0, 0), max.add(0, 1, vertical)); // +z
-                case WEST -> new Cuboid(min.add(-vertical, 0, 0), max.add(0, 1, 0)); // -x
-                default -> cuboid.grow(vertical, 0, vertical);
-            };
+        {
+            case NORTH -> new Cuboid(min.add(0, 0, -vertical), max.add(0, 1, 0)); // -z
+            case EAST -> new Cuboid(min.add(0, 0, 0), max.add(vertical, 1, 0)); // +x
+            case SOUTH -> new Cuboid(min.add(0, 0, 0), max.add(0, 1, vertical)); // +z
+            case WEST -> new Cuboid(min.add(-vertical, 0, 0), max.add(0, 1, 0)); // -x
+            default -> cuboid.grow(vertical, 0, vertical);
+        };
         return cuboidRange.asFlatRectangle();
     }
 
@@ -119,12 +119,12 @@ public class GarageDoor extends AbstractStructure implements IHorizontalAxisAlig
     {
         final MovementDirection movementDirection = getCurrentToggleDir();
         final double angle = switch (movementDirection)
-            {
-                case NORTH, WEST -> MathUtil.HALF_PI;
-                case SOUTH, EAST -> -MathUtil.HALF_PI;
-                default -> throw new IllegalArgumentException(
-                    "Invalid movement direction '" + movementDirection + "'" + " for structure: " + this);
-            };
+        {
+            case NORTH, WEST -> MathUtil.HALF_PI;
+            case SOUTH, EAST -> -MathUtil.HALF_PI;
+            default -> throw new IllegalArgumentException(
+                "Invalid movement direction '" + movementDirection + "'" + " for structure: " + this);
+        };
 
         if (movementDirection == MovementDirection.NORTH || movementDirection == MovementDirection.SOUTH)
             return Optional.of(getCuboid().updatePositions(vec -> vec.rotateAroundXAxis(getRotationPoint(), angle)));

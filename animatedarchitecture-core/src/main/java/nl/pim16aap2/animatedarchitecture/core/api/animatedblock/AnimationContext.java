@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.api.animatedblock;
 
 import lombok.Value;
-import nl.pim16aap2.animatedarchitecture.core.moveblocks.Animation;
+import nl.pim16aap2.animatedarchitecture.core.animation.Animation;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 

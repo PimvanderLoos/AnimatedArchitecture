@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.api;
 
-import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
+import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
 
 /**
  * Represents a highlighted block that is used for showing previews to users.

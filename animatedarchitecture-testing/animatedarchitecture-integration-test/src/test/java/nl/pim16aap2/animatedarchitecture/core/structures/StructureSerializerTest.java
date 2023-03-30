@@ -2,11 +2,11 @@ package nl.pim16aap2.animatedarchitecture.core.structures;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
+import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.annotations.Deserialization;
 import nl.pim16aap2.animatedarchitecture.core.annotations.PersistentVariable;
 import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
-import nl.pim16aap2.animatedarchitecture.core.moveblocks.AnimationRequestData;
-import nl.pim16aap2.animatedarchitecture.core.moveblocks.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Rectangle;
