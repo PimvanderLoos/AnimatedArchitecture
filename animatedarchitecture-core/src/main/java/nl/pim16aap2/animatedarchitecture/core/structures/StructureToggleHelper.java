@@ -304,7 +304,7 @@ import java.util.logging.Level;
                          messageReceiver, stamp);
 
         if (animationType.requiresWriteAccess() &&
-            !canBreakBlocksBetweenLocs(snapshot, data.getNewCuboid(), data.getResponsible()))
+            !canBreakBlocks(snapshot, snapshot.getCuboid(), data.getNewCuboid(), data.getResponsible()))
             return abort(targetStructure, StructureToggleResult.NO_PERMISSION, data.getCause(), data.getResponsible(),
                          messageReceiver, stamp);
 
@@ -378,37 +378,46 @@ import java.util.logging.Level;
     }
 
     /**
-     * Checks if the owner of a structure can break blocks between 2 positions.
+     * Checks if the owner of a structure can break blocks inside a cuboid.
      * <p>
      * If the player is not allowed to break the block(s), they'll receive a message about this.
      *
      * @param structure
      *     The {@link IStructure} being opened.
-     * @param cuboid
-     *     The area of blocks to check.
+     * @param cuboid0
+     *     The first area of blocks to check.
+     * @param cuboid1
+     *     The second area of blocks to check.
      * @param responsible
      *     Who is responsible for the action.
      * @return True if the player is allowed to break the block(s).
      */
-    public boolean canBreakBlocksBetweenLocs(IStructureConst structure, Cuboid cuboid, IPlayer responsible)
+    public boolean canBreakBlocks(IStructureConst structure, Cuboid cuboid0, Cuboid cuboid1, IPlayer responsible)
     {
         if (protectionCompatManager.canSkipCheck())
             return true;
         try
         {
-            return executor.runOnMainThread(() -> canBreakBlocksBetweenLocs0(structure, cuboid, responsible))
+            return executor.runOnMainThread(() -> canBreakBlocks0(structure, cuboid0, cuboid1, responsible))
                            .get(500, TimeUnit.MILLISECONDS);
         }
         catch (Exception e)
         {
             log.atSevere().withCause(e)
-               .log("Failed to check if blocks can be broken in cuboid %s for user: '%s' for structure %s",
-                    cuboid, responsible, structure);
+               .log("Failed to check if blocks can be broken in cuboids %s and %s for user: '%s' for structure %s",
+                    cuboid0, cuboid1, responsible, structure);
             return false;
         }
     }
 
-    private boolean canBreakBlocksBetweenLocs0(IStructureConst structure, Cuboid cuboid, IPlayer responsible)
+    private boolean canBreakBlocks0(IStructureConst structure, Cuboid cuboid0, Cuboid cuboid1, IPlayer responsible)
+    {
+        final boolean access0 = canBreakBlocks0(structure, cuboid0, responsible);
+        final boolean access1 = cuboid0.equals(cuboid1) || canBreakBlocks0(structure, cuboid1, responsible);
+        return access0 && access1;
+    }
+
+    private boolean canBreakBlocks0(IStructureConst structure, Cuboid cuboid, IPlayer responsible)
     {
         // If the returned value is an empty Optional, the player is allowed to break blocks.
         return protectionCompatManager.canBreakBlocksBetweenLocs(responsible, cuboid, structure.getWorld()).map(
