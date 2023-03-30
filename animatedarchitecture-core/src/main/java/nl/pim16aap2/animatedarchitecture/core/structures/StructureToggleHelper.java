@@ -139,23 +139,20 @@ import java.util.logging.Level;
         if (stamp != null)
             structureActivityManager.unregisterAnimation(structure.getUid(), stamp);
 
-        if (!result.equals(StructureToggleResult.NO_PERMISSION))
+        if (messageReceiver instanceof IPlayer)
+            messageReceiver.sendMessage(textFactory.newText().append(
+                localizer.getMessage(result.getLocalizationKey()), TextType.ERROR,
+                arg -> arg.highlight(localizer.getStructureType(structure.getType())),
+                arg -> arg.highlight(structure.getName())));
+        else
         {
-            if (messageReceiver instanceof IPlayer)
-                messageReceiver.sendMessage(textFactory.newText().append(
-                    localizer.getMessage(result.getLocalizationKey()), TextType.ERROR,
-                    arg -> arg.highlight(localizer.getStructureType(structure.getType())),
-                    arg -> arg.highlight(structure.getName())));
-            else
-            {
-                final Level level = result == StructureToggleResult.BUSY ? Level.FINE : Level.INFO;
+            final Level level = result == StructureToggleResult.BUSY ? Level.FINE : Level.INFO;
 
-                if (result.equals(StructureToggleResult.INSTANCE_UNREGISTERED))
-                    log.at(level).withStackTrace(StackSize.FULL)
-                       .log("Encountered unregistered structure structure: %d", structure.getUid());
-                else
-                    log.at(level).log("Failed to toggle structure: %d, reason: %s", structure.getUid(), result.name());
-            }
+            if (result.equals(StructureToggleResult.INSTANCE_UNREGISTERED))
+                log.at(level).withStackTrace(StackSize.FULL)
+                   .log("Encountered unregistered structure structure: %d", structure.getUid());
+            else
+                log.at(level).log("Failed to toggle structure: %d, reason: %s", structure.getUid(), result.name());
         }
         return result;
     }
