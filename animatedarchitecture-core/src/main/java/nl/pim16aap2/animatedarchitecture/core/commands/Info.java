@@ -33,10 +33,12 @@ public class Info extends StructureTargetCommand
 {
     private final HighlightedBlockSpawner glowingBlockSpawner;
 
-    @AssistedInject //
-    Info(
-        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
-        @Assisted StructureRetriever structureRetriever, HighlightedBlockSpawner glowingBlockSpawner)
+    @AssistedInject Info(
+        @Assisted ICommandSender commandSender,
+        @Assisted StructureRetriever structureRetriever,
+        ILocalizer localizer,
+        ITextFactory textFactory,
+        HighlightedBlockSpawner glowingBlockSpawner)
     {
         super(commandSender, localizer, textFactory, structureRetriever, StructureAttribute.INFO);
         this.glowingBlockSpawner = glowingBlockSpawner;

@@ -45,8 +45,8 @@ class InfoTest
         MockitoAnnotations.openMocks(this);
 
         structureRetriever = StructureRetrieverFactory.ofStructure(structure);
-        Mockito.when(structure.isOwner(Mockito.any(UUID.class))).thenReturn(true);
-        Mockito.when(structure.isOwner(Mockito.any(IPlayer.class))).thenReturn(true);
+        Mockito.when(structure.isOwner(Mockito.any(UUID.class), Mockito.any())).thenReturn(true);
+        Mockito.when(structure.isOwner(Mockito.any(IPlayer.class), Mockito.any())).thenReturn(true);
         Mockito.when(structure.getCuboid()).thenReturn(new Cuboid(new Vector3Di(1, 2, 3), new Vector3Di(4, 5, 6)));
         Mockito.when(structure.getNameAndUid()).thenReturn("Structure (0)");
         Mockito.when(structure.getOpenDir()).thenReturn(MovementDirection.NORTH);
@@ -59,9 +59,9 @@ class InfoTest
 
         Mockito.when(factory.newInfo(Mockito.any(ICommandSender.class),
                                      Mockito.any(StructureRetriever.class)))
-               .thenAnswer(invoc -> new Info(invoc.getArgument(0, ICommandSender.class), localizer,
-                                             ITextFactory.getSimpleTextFactory(),
+               .thenAnswer(invoc -> new Info(invoc.getArgument(0, ICommandSender.class),
                                              invoc.getArgument(1, StructureRetriever.class),
+                                             localizer, ITextFactory.getSimpleTextFactory(),
                                              glowingBlockSpawner));
     }
 

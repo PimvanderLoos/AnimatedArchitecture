@@ -93,8 +93,13 @@ class CommandExecutor
     void listStructures(CommandContext<ICommandSender> context)
     {
         final @Nullable String query = context.<String>getOptional("structureName").orElse("");
-        final StructureRetriever retriever = structureRetrieverFactory.search(
-            context.getSender(), query, StructureRetrieverFactory.StructureFinderMode.NEW_INSTANCE).asRetriever(false);
+        final StructureRetriever retriever = structureRetrieverFactory
+            .search(
+                context.getSender(),
+                query,
+                StructureRetrieverFactory.StructureFinderMode.NEW_INSTANCE,
+                PermissionLevel.USER)
+            .asRetriever(false);
         commandFactory.newListStructures(context.getSender(), retriever).run().exceptionally(Util::exceptionally);
     }
 

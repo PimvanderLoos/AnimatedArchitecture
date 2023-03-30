@@ -1,11 +1,11 @@
 package nl.pim16aap2.animatedarchitecture.core.util.structureretriever;
 
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
-import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
-import nl.pim16aap2.animatedarchitecture.core.managers.StructureSpecificationManager;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
+import nl.pim16aap2.animatedarchitecture.core.managers.StructureSpecificationManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
@@ -123,8 +123,7 @@ public final class StructureRetrieverFactory
     {
         return mode == StructureFinderMode.USE_CACHE ?
                structureFinderCache.getStructureFinder(commandSender, input, maxPermission) :
-               new StructureFinder(this, databaseManager, commandSender,
-                                   input, maxPermission);
+               new StructureFinder(this, databaseManager, commandSender, input, maxPermission);
     }
 
     /**

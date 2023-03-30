@@ -1,12 +1,13 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
-import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
+import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
 import nl.pim16aap2.testing.AssertionsUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,14 +36,16 @@ class StructureTargetCommandTest
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private StructureTargetCommand structureTargetCommand;
 
+    private final StructureAttribute structureAttribute = StructureAttribute.INFO;
+
     @BeforeEach
     void init()
     {
         MockitoAnnotations.openMocks(this);
 
         CommandTestingUtil.initCommandSenderPermissions(commandSender, true, true);
-        Mockito.when(structure.isOwner(Mockito.any(UUID.class))).thenReturn(true);
-        Mockito.when(structure.isOwner(Mockito.any(IPlayer.class))).thenReturn(true);
+        Mockito.when(structure.isOwner(Mockito.any(UUID.class), Mockito.any())).thenReturn(true);
+        Mockito.when(structure.isOwner(Mockito.any(IPlayer.class), Mockito.any())).thenReturn(true);
 
         final StructureType structureType = Mockito.mock(StructureType.class);
         Mockito.when(structureType.getLocalizationKey()).thenReturn("StructureType");
@@ -54,11 +57,14 @@ class StructureTargetCommandTest
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
-        UnitTestUtil.setField(StructureTargetCommand.class, structureTargetCommand, "structureRetriever",
-                              StructureRetrieverFactory.ofStructure(structure));
+        UnitTestUtil.setField(
+            StructureTargetCommand.class, structureTargetCommand, "structureRetriever",
+            StructureRetrieverFactory.ofStructure(structure));
+        UnitTestUtil.setField(
+            StructureTargetCommand.class, structureTargetCommand, "structureAttribute", structureAttribute);
+        UnitTestUtil.setField(
+            StructureTargetCommand.class, structureTargetCommand, "lock", new ReentrantReadWriteLock());
 
-        UnitTestUtil.setField(StructureTargetCommand.class, structureTargetCommand, "lock",
-                              new ReentrantReadWriteLock());
         UnitTestUtil.setField(BaseCommand.class, structureTargetCommand, "commandSender", commandSender);
         UnitTestUtil.setField(BaseCommand.class, structureTargetCommand, "localizer", localizer);
         UnitTestUtil.setField(BaseCommand.class, structureTargetCommand, "textFactory",
@@ -76,8 +82,8 @@ class StructureTargetCommandTest
     @Test
     void testExecutionFailureNoStructure()
     {
-        Mockito.when(structure.isOwner(Mockito.any(UUID.class))).thenReturn(false);
-        Mockito.when(structure.isOwner(Mockito.any(IPlayer.class))).thenReturn(false);
+        Mockito.when(structure.isOwner(Mockito.any(UUID.class), Mockito.any())).thenReturn(false);
+        Mockito.when(structure.isOwner(Mockito.any(IPlayer.class), Mockito.any())).thenReturn(false);
 
         Assertions.assertDoesNotThrow(() -> structureTargetCommand.executeCommand(new PermissionsStatus(true, true))
                                                                   .get(1, TimeUnit.SECONDS));

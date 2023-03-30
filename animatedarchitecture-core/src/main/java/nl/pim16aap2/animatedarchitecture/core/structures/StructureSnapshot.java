@@ -8,6 +8,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Rectangle;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Map;
@@ -68,6 +69,13 @@ public final class StructureSnapshot implements IStructureConst
     public boolean isOwner(UUID player)
     {
         return owners.containsKey(player);
+    }
+
+    @Override
+    public boolean isOwner(UUID uuid, PermissionLevel permissionLevel)
+    {
+        final @Nullable StructureOwner owner = owners.get(uuid);
+        return owner != null && owner.permission().isLowerThanOrEquals(permissionLevel);
     }
 
     @Override

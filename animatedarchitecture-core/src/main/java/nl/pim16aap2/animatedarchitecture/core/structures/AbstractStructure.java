@@ -559,6 +559,12 @@ public abstract class AbstractStructure implements IStructure
     }
 
     @Override
+    public boolean isOwner(UUID uuid, PermissionLevel permissionLevel)
+    {
+        return base.isOwner(uuid, permissionLevel);
+    }
+
+    @Override
     public void setCoordinates(Cuboid newCuboid)
     {
         assertWriteLockable();

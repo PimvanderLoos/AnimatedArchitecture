@@ -7,6 +7,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetriever;
@@ -203,11 +204,14 @@ public abstract class BaseCommand
      *
      * @param doorRetriever
      *     The {@link StructureRetrieverFactory} to use
+     * @param permissionLevel
+     *     The minimum {@link PermissionLevel} required to retrieve the structure.
      * @return The {@link AbstractStructure} if one could be retrieved.
      */
-    protected CompletableFuture<Optional<AbstractStructure>> getStructure(StructureRetriever doorRetriever)
+    protected CompletableFuture<Optional<AbstractStructure>> getStructure(
+        StructureRetriever doorRetriever, PermissionLevel permissionLevel)
     {
-        return commandSender.getPlayer().map(doorRetriever::getStructureInteractive)
+        return commandSender.getPlayer().map(player -> doorRetriever.getStructure(player, permissionLevel))
                             .orElseGet(doorRetriever::getStructure).thenApplyAsync(
                 structure ->
                 {
