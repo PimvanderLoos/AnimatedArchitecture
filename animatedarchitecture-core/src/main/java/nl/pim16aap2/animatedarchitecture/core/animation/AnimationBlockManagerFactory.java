@@ -1,4 +1,4 @@
-package nl.pim16aap2.animatedarchitecture.core.moveblocks;
+package nl.pim16aap2.animatedarchitecture.core.animation;
 
 import nl.pim16aap2.animatedarchitecture.core.api.HighlightedBlockSpawner;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
@@ -33,10 +33,10 @@ public class AnimationBlockManagerFactory
     public IAnimationBlockManager newManager(AnimationType animationType, @Nullable IPlayer player)
     {
         return switch (animationType)
-            {
-                case MOVE_BLOCKS -> newMoveBlockManager();
-                case PREVIEW -> newPreviewBlockManager(player);
-            };
+        {
+            case MOVE_BLOCKS -> newMoveBlockManager();
+            case PREVIEW -> newPreviewBlockManager(player);
+        };
     }
 
     private IAnimationBlockManager newPreviewBlockManager(@Nullable IPlayer player)

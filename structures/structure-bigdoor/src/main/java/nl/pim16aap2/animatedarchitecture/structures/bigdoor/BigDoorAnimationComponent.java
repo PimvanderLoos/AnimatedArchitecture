@@ -1,13 +1,13 @@
 package nl.pim16aap2.animatedarchitecture.structures.bigdoor;
 
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
+import nl.pim16aap2.animatedarchitecture.core.animation.AnimationUtil;
+import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
+import nl.pim16aap2.animatedarchitecture.core.animation.IAnimator;
+import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockData;
-import nl.pim16aap2.animatedarchitecture.core.moveblocks.AnimationRequestData;
-import nl.pim16aap2.animatedarchitecture.core.moveblocks.AnimationUtil;
-import nl.pim16aap2.animatedarchitecture.core.moveblocks.IAnimationComponent;
-import nl.pim16aap2.animatedarchitecture.core.moveblocks.IAnimator;
-import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;

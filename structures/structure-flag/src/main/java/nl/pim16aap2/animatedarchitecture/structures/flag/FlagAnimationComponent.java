@@ -1,13 +1,13 @@
 package nl.pim16aap2.animatedarchitecture.structures.flag;
 
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
+import nl.pim16aap2.animatedarchitecture.core.animation.Animator;
+import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
+import nl.pim16aap2.animatedarchitecture.core.animation.IAnimator;
+import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
-import nl.pim16aap2.animatedarchitecture.core.moveblocks.AnimationRequestData;
-import nl.pim16aap2.animatedarchitecture.core.moveblocks.Animator;
-import nl.pim16aap2.animatedarchitecture.core.moveblocks.IAnimationComponent;
-import nl.pim16aap2.animatedarchitecture.core.moveblocks.IAnimator;
-import nl.pim16aap2.animatedarchitecture.core.moveblocks.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;

@@ -1,10 +1,10 @@
 package nl.pim16aap2.animatedarchitecture.core.api.animatedblock;
 
+import nl.pim16aap2.animatedarchitecture.core.animation.Animation;
+import nl.pim16aap2.animatedarchitecture.core.animation.IAnimator;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatform;
 import nl.pim16aap2.animatedarchitecture.core.audio.AudioAnimationHook;
 import nl.pim16aap2.animatedarchitecture.core.managers.AnimationHookManager;
-import nl.pim16aap2.animatedarchitecture.core.moveblocks.Animation;
-import nl.pim16aap2.animatedarchitecture.core.moveblocks.IAnimator;
 
 /**
  * Represents a hook into an {@link Animation}.

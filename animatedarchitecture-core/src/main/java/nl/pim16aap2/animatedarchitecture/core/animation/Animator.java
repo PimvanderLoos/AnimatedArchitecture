@@ -1,4 +1,4 @@
-package nl.pim16aap2.animatedarchitecture.core.moveblocks;
+package nl.pim16aap2.animatedarchitecture.core.animation;
 
 import com.google.common.flogger.StackSize;
 import lombok.Getter;
@@ -25,7 +25,7 @@ import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
-import static nl.pim16aap2.animatedarchitecture.core.moveblocks.Animation.AnimationState;
+import static nl.pim16aap2.animatedarchitecture.core.animation.Animation.AnimationState;
 
 /**
  * Represents a class that animates blocks.
