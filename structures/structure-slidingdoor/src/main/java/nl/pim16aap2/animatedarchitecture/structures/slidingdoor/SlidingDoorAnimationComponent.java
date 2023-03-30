@@ -37,15 +37,19 @@ public class SlidingDoorAnimationComponent implements IAnimationComponent
         this.snapshot = data.getStructureSnapshot();
         this.blocksToMove = blocksToMove;
 
+        int blocksToMove0 = Math.abs(blocksToMove);
+        if (movementDirection.equals(MovementDirection.NORTH) || movementDirection.equals(MovementDirection.WEST))
+            blocksToMove0 = -blocksToMove0;
+
         northSouth =
             movementDirection.equals(MovementDirection.NORTH) || movementDirection.equals(MovementDirection.SOUTH);
 
-        moveX = northSouth ? 0 : blocksToMove;
-        moveZ = northSouth ? blocksToMove : 0;
+        moveX = northSouth ? 0 : blocksToMove0;
+        moveZ = northSouth ? blocksToMove0 : 0;
 
         final double animationDuration =
             AnimationUtil.getAnimationTicks(data.getAnimationTime(), data.getServerTickTime());
-        step = blocksToMove / animationDuration;
+        step = blocksToMove0 / animationDuration;
     }
 
     @Override
