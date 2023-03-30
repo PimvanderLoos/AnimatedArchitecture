@@ -51,6 +51,12 @@ public class WorldGuard7ProtectionHook implements IProtectionHookSpigot
         return regionManager != null && regionManager.size() > 0;
     }
 
+    private boolean canBreakBlock(com.sk89q.worldedit.util.Location location, LocalPlayer player)
+    {
+        final var set = query().getApplicableRegions(location);
+        return set.queryState(player, Flags.BLOCK_BREAK, Flags.BLOCK_PLACE) != StateFlag.State.DENY;
+    }
+
     @Override
     public boolean canBreakBlock(Player player, Location loc)
     {
@@ -62,8 +68,7 @@ public class WorldGuard7ProtectionHook implements IProtectionHookSpigot
         if (canBypass(wgPlayer, wgWorld))
             return true;
 
-        final var set = query().getApplicableRegions(toWorldGuardLocation(loc, wgWorld));
-        return set.queryState(wgPlayer, Flags.BLOCK_BREAK) != StateFlag.State.DENY;
+        return canBreakBlock(toWorldGuardLocation(loc, wgWorld), wgPlayer);
     }
 
     @Override
@@ -82,11 +87,8 @@ public class WorldGuard7ProtectionHook implements IProtectionHookSpigot
         for (int xPos = min.x(); xPos <= max.x(); ++xPos)
             for (int yPos = min.y(); yPos <= max.y(); ++yPos)
                 for (int zPos = min.z(); zPos <= max.z(); ++zPos)
-                {
-                    final var wgLoc = new com.sk89q.worldedit.util.Location(wgWorld, xPos, yPos, zPos);
-                    if (query().queryState(wgLoc, wgPlayer, Flags.BUILD) == StateFlag.State.DENY)
+                    if (!canBreakBlock(new com.sk89q.worldedit.util.Location(wgWorld, xPos, yPos, zPos), wgPlayer))
                         return false;
-                }
         return true;
     }
 
