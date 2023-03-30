@@ -1,3 +1,4 @@
+nl.pim16aap2.animatedarchitecture.core.animation
 nl.pim16aap2.animatedarchitecture.core.annotations
 nl.pim16aap2.animatedarchitecture.core.api
 nl.pim16aap2.animatedarchitecture.core.api.animatedblock
@@ -13,7 +14,6 @@ nl.pim16aap2.animatedarchitecture.core.events
 nl.pim16aap2.animatedarchitecture.core.extensions
 nl.pim16aap2.animatedarchitecture.core.localization
 nl.pim16aap2.animatedarchitecture.core.managers
-nl.pim16aap2.animatedarchitecture.core.moveblocks
 nl.pim16aap2.animatedarchitecture.core.storage
 nl.pim16aap2.animatedarchitecture.core.storage.sqlite
 nl.pim16aap2.animatedarchitecture.core.structures
