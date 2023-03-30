@@ -14,10 +14,12 @@ import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotUtil;
 import org.bukkit.Axis;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.MultipleFacing;
 import org.bukkit.block.data.Orientable;
+import org.bukkit.block.data.Waterlogged;
 import org.bukkit.block.data.type.Stairs;
 import org.jetbrains.annotations.Nullable;
 
@@ -187,6 +189,16 @@ public class SimpleBlockData implements IAnimatedBlockData
             bd.setFace(org.bukkit.block.BlockFace.UP, true);
     }
 
+    private void putBlock(Vector3Di loc, BlockData blockData)
+    {
+        final Block block = this.bukkitWorld.getBlockAt(loc.x(), loc.y(), loc.z());
+
+        if (!loc.equals(this.originalPosition) && blockData instanceof Waterlogged waterlogged)
+            waterlogged.setWaterlogged(block.isLiquid());
+
+        block.setBlockData(blockData);
+    }
+
     @Override
     public synchronized void putBlock(IVector3D loc)
     {
@@ -197,9 +209,7 @@ public class SimpleBlockData implements IAnimatedBlockData
         }
 
         animatedBlock.forEachHook("preBlockPlace", IAnimatedBlockHook::preBlockPlace);
-        final BlockData newBlockData = getNewBlockData();
-        final Vector3Di loci = loc.floor().toInteger();
-        this.bukkitWorld.getBlockAt(loci.x(), loci.y(), loci.z()).setBlockData(newBlockData);
+        putBlock(loc.floor().toInteger(), getNewBlockData());
         animatedBlock.forEachHook("postBlockPlace", IAnimatedBlockHook::postBlockPlace);
     }
 
