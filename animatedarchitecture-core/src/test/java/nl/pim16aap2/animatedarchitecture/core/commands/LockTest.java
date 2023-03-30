@@ -49,16 +49,16 @@ class LockTest
         MockitoAnnotations.openMocks(this);
 
         initCommandSenderPermissions(commandSender, true, true);
-        Mockito.when(door.isOwner(Mockito.any(UUID.class))).thenReturn(true);
-        Mockito.when(door.isOwner(Mockito.any(IPlayer.class))).thenReturn(true);
+        Mockito.when(door.isOwner(Mockito.any(UUID.class), Mockito.any())).thenReturn(true);
+        Mockito.when(door.isOwner(Mockito.any(IPlayer.class), Mockito.any())).thenReturn(true);
         doorRetriever = StructureRetrieverFactory.ofStructure(door);
 
         Mockito.when(door.syncData())
                .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
 
         final IAnimatedArchitectureEventFactory eventFactory = Mockito.mock(IAnimatedArchitectureEventFactory.class);
-        Mockito.when(
-                   eventFactory.createStructurePrepareLockChangeEvent(Mockito.any(), Mockito.anyBoolean(), Mockito.any()))
+        Mockito.when(eventFactory.createStructurePrepareLockChangeEvent(
+                   Mockito.any(), Mockito.anyBoolean(), Mockito.any()))
                .thenReturn(event);
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();

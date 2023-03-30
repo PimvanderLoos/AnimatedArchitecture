@@ -6,41 +6,29 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
+import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
+import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureSpecificationManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.delayedinput.DelayedStructureSpecificationInputRequest;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
-import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 /**
  * Represents a way to retrieve a structure. It may be referenced by its name, its UID, or the object itself.
- *
- * @author Pim
  */
+@Flogger
 public sealed abstract class StructureRetriever
 {
-    /**
-     * Checks if the structure that is being retrieved is available.
-     *
-     * @return True if the structure is available.
-     */
-    public boolean isAvailable()
-    {
-        return false;
-    }
-
     /**
      * Gets the structure that is referenced by this {@link StructureRetriever} if exactly 1 structure matches the
      * description.
@@ -61,29 +49,35 @@ public sealed abstract class StructureRetriever
      *
      * @param player
      *     The {@link IPlayer} that owns the structure.
+     * @param permissionLevel
+     *     The maximum {@link PermissionLevel} of the player for the structure to be returned.
      * @return The {@link AbstractStructure} if it can be found.
      */
-    public abstract CompletableFuture<Optional<AbstractStructure>> getStructure(IPlayer player);
+    public abstract CompletableFuture<Optional<AbstractStructure>> getStructure(
+        IPlayer player, PermissionLevel permissionLevel);
 
     /**
      * Gets the structure referenced by this {@link StructureRetriever}.
      * <p>
-     * If the {@link ICommandSender} is a player, see {@link #getStructure(IPlayer)}, otherwise see
+     * If the {@link ICommandSender} is a player, see {@link #getStructure(IPlayer, PermissionLevel)}, otherwise see
      * {@link #getStructure()}.
      *
      * @param commandSender
      *     The {@link ICommandSender} for whom to retrieve the structures.
+     * @param permissionLevel
+     *     The maximum {@link PermissionLevel} of the player for the structure to be returned.
      * @return The structure referenced by this {@link StructureRetriever}.
      */
-    public CompletableFuture<Optional<AbstractStructure>> getStructure(ICommandSender commandSender)
+    public CompletableFuture<Optional<AbstractStructure>> getStructure(
+        ICommandSender commandSender, PermissionLevel permissionLevel)
     {
         if (commandSender instanceof IPlayer player)
-            return getStructure(player);
+            return getStructure(player, permissionLevel);
         return getStructure();
     }
 
     /**
-     * Attempts to retrieve a structure from its specification (see {@link #getStructure(IPlayer)}).
+     * Attempts to retrieve a structure from its specification (see {@link #getStructure(IPlayer, PermissionLevel)}).
      * <p>
      * If more than 1 match was found, the player will be asked to specify which one they asked for specifically.
      * <p>
@@ -93,13 +87,17 @@ public sealed abstract class StructureRetriever
      *
      * @param player
      *     The player for whom to get the structure.
+     * @param permissionLevel
+     *     The maximum {@link PermissionLevel} of the player for the structure to be returned.
      * @return The structure as specified by this {@link StructureRetriever} and with user input in case more than one
      * match was found.
      */
     // TODO: Implement the interactive system.
-    public CompletableFuture<Optional<AbstractStructure>> getStructureInteractive(IPlayer player)
+    @SuppressWarnings("unused")
+    public CompletableFuture<Optional<AbstractStructure>> getStructureInteractive(
+        IPlayer player, PermissionLevel permissionLevel)
     {
-        return getStructure(player);
+        return getStructure(player, permissionLevel);
     }
 
     /**
@@ -118,27 +116,32 @@ public sealed abstract class StructureRetriever
      *
      * @param player
      *     The {@link IPlayer} that owns all matching structures.
+     * @param permissionLevel
+     *     The maximum {@link PermissionLevel} of the player for the structures to be returned.
      * @return All structures referenced by this {@link StructureRetriever}.
      */
-    public CompletableFuture<List<AbstractStructure>> getStructures(IPlayer player)
+    public CompletableFuture<List<AbstractStructure>> getStructures(IPlayer player, PermissionLevel permissionLevel)
     {
-        return optionalToList(getStructure(player));
+        return optionalToList(getStructure(player, permissionLevel));
     }
 
     /**
      * Gets all structures referenced by this {@link StructureRetriever}.
      * <p>
-     * If the {@link ICommandSender} is a player, see {@link #getStructures(IPlayer)}, otherwise see
+     * If the {@link ICommandSender} is a player, see {@link #getStructures(IPlayer, PermissionLevel)}, otherwise see
      * {@link #getStructures()}.
      *
      * @param commandSender
      *     The {@link ICommandSender} for whom to retrieve the structures.
+     * @param permissionLevel
+     *     The maximum {@link PermissionLevel} of the player for the structures to be returned.
      * @return The structures referenced by this {@link StructureRetriever}.
      */
-    public CompletableFuture<List<AbstractStructure>> getStructures(ICommandSender commandSender)
+    public CompletableFuture<List<AbstractStructure>> getStructures(
+        ICommandSender commandSender, PermissionLevel permissionLevel)
     {
         if (commandSender instanceof IPlayer player)
-            return getStructures(player);
+            return getStructures(player, permissionLevel);
         return getStructures();
     }
 
@@ -152,16 +155,80 @@ public sealed abstract class StructureRetriever
     private static CompletableFuture<List<AbstractStructure>> optionalToList(
         CompletableFuture<Optional<AbstractStructure>> optionalStructure)
     {
-        return optionalStructure.thenApply(structure -> structure.map(Collections::singletonList)
-                                                                 .orElseGet(Collections::emptyList));
+        return optionalStructure.thenApply(
+            structure -> structure.map(Collections::singletonList).orElseGet(Collections::emptyList));
+    }
+
+    /**
+     * Gets a single (optional) structure from a list of structures if only 1 structure exists in the list.
+     *
+     * @param list
+     *     The list of structures.
+     * @return An optional {@link AbstractStructure} if exactly 1 existed in the list, otherwise an empty optional.
+     */
+    private static Optional<AbstractStructure> listToOptional(List<AbstractStructure> list)
+    {
+        if (list.size() == 1)
+            return Optional.of(list.get(0));
+        log.atWarning().log("Tried to get 1 structure but received %d!", list.size());
+        return Optional.empty();
+    }
+
+    /**
+     * Gets a single (optional/future) structure from a list of (future) structures if only 1 structure exists in the
+     * list.
+     *
+     * @param list
+     *     The list of (future) structures.
+     * @return An optional (future) {@link AbstractStructure} if exactly 1 existed in the list, otherwise an empty
+     * optional.
+     */
+    private static CompletableFuture<Optional<AbstractStructure>> listToOptional(
+        CompletableFuture<List<AbstractStructure>> list)
+    {
+        return list.thenApply(StructureRetriever::listToOptional).exceptionally(Util::exceptionallyOptional);
+    }
+
+    /**
+     * Filters an optional structure by the provided player and permission level.
+     *
+     * @param structure
+     *     The optional structure. If empty, it will be returned as is.
+     * @param player
+     *     The player that must own the structure.
+     * @param permissionLevel
+     *     The permission level. If the structure is not owned by the player with the provided permission level or
+     *     lower, it will be filtered out.
+     * @return The filtered optional structure.
+     */
+    private static Optional<AbstractStructure> filter(
+        Optional<AbstractStructure> structure, IPlayer player, PermissionLevel permissionLevel)
+    {
+        return structure.filter(val -> val.isOwner(player, permissionLevel));
+    }
+
+    /**
+     * Filters a list of structures by the provided player and permission level.
+     *
+     * @param structures
+     *     The structures. If empty, it will be returned as is.
+     * @param player
+     *     The player that must own the structures.
+     * @param permissionLevel
+     *     The permission level. If a structures is not owned by the player with the provided permission level or lower,
+     *     it will be filtered out.
+     * @return The filtered structures.
+     */
+    private static List<AbstractStructure> filter(
+        List<AbstractStructure> structures, IPlayer player, PermissionLevel permissionLevel)
+    {
+        return structures.stream().filter(structure -> structure.isOwner(player, permissionLevel)).toList();
     }
 
     /**
      * Represents a {@link StructureRetriever} that references a structure by its name.
      * <p>
      * Because names are not unique, a single name may reference more than 1 structure (even for a single player).
-     *
-     * @author Pim
      */
     @ToString
     @AllArgsConstructor
@@ -192,29 +259,33 @@ public sealed abstract class StructureRetriever
         }
 
         @Override
-        public CompletableFuture<Optional<AbstractStructure>> getStructure(IPlayer player)
+        public CompletableFuture<Optional<AbstractStructure>> getStructure(
+            IPlayer player, PermissionLevel permissionLevel)
         {
-            return listToOptional(databaseManager.getStructures(player, name));
+            return listToOptional(databaseManager.getStructures(player, name, permissionLevel));
         }
 
         @Override
         public CompletableFuture<List<AbstractStructure>> getStructures()
         {
-            return databaseManager.getStructures(name)
-                                  .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
+            return databaseManager
+                .getStructures(name)
+                .exceptionally(Util::exceptionallyList);
         }
 
         @Override
-        public CompletableFuture<List<AbstractStructure>> getStructures(IPlayer player)
+        public CompletableFuture<List<AbstractStructure>> getStructures(IPlayer player, PermissionLevel permissionLevel)
         {
-            return databaseManager.getStructures(player, name)
-                                  .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
+            return databaseManager
+                .getStructures(player, name, permissionLevel)
+                .exceptionally(Util::exceptionallyList);
         }
 
         @Override
-        public CompletableFuture<Optional<AbstractStructure>> getStructureInteractive(IPlayer player)
+        public CompletableFuture<Optional<AbstractStructure>> getStructureInteractive(
+            IPlayer player, PermissionLevel permissionLevel)
         {
-            return getStructures(player).thenCompose(
+            return getStructures(player, permissionLevel).thenCompose(
                 structuresList ->
                 {
                     if (structuresList.size() == 1)
@@ -224,31 +295,9 @@ public sealed abstract class StructureRetriever
                         return CompletableFuture.completedFuture(Optional.empty());
 
                     final Duration timeOut = Duration.ofSeconds(config.specificationTimeout());
-                    return DelayedStructureSpecificationInputRequest.get(timeOut, structuresList, player, localizer,
-                                                                         textFactory, structureSpecificationManager);
+                    return DelayedStructureSpecificationInputRequest
+                        .get(timeOut, structuresList, player, localizer, textFactory, structureSpecificationManager);
 
-                }).exceptionally(Util::exceptionallyOptional);
-        }
-
-        /**
-         * Gets a single (optional/future) structure from a list of (future) structures if only 1 structure exists in
-         * the list.
-         *
-         * @param list
-         *     The list of (future) structures.
-         * @return An optional (future) {@link AbstractStructure} if exactly 1 existed in the list, otherwise an empty
-         * optional.
-         */
-        private CompletableFuture<Optional<AbstractStructure>> listToOptional(
-            CompletableFuture<List<AbstractStructure>> list)
-        {
-            return list.<Optional<AbstractStructure>>thenApply(
-                structuresList ->
-                {
-                    if (structuresList.size() == 1)
-                        return Optional.of(structuresList.get(0));
-                    log.atWarning().log("Tried to get 1 structure but received %d!", structuresList.size());
-                    return Optional.empty();
                 }).exceptionally(Util::exceptionallyOptional);
         }
     }
@@ -257,8 +306,6 @@ public sealed abstract class StructureRetriever
      * Represents a {@link StructureRetriever} that references a structure by its UID.
      * <p>
      * Because the UID is always unique (by definition), this can never reference more than 1 structure.
-     *
-     * @author Pim
      */
     @ToString
     @AllArgsConstructor
@@ -276,16 +323,18 @@ public sealed abstract class StructureRetriever
         }
 
         @Override
-        public CompletableFuture<Optional<AbstractStructure>> getStructure(IPlayer player)
+        public CompletableFuture<Optional<AbstractStructure>> getStructure(
+            IPlayer player, PermissionLevel permissionLevel)
         {
-            return databaseManager.getStructure(player, uid).exceptionally(Util::exceptionallyOptional);
+            return databaseManager
+                .getStructure(player, uid)
+                .thenApply(retrieved -> StructureRetriever.filter(retrieved, player, permissionLevel))
+                .exceptionally(Util::exceptionallyOptional);
         }
     }
 
     /**
      * Represents a {@link StructureRetriever} that references a structure by the object itself.
-     *
-     * @author Pim
      */
     @AllArgsConstructor()
     @ToString(doNotUseGetters = true)
@@ -295,29 +344,22 @@ public sealed abstract class StructureRetriever
         private final @Nullable AbstractStructure structure;
 
         @Override
-        public boolean isAvailable()
-        {
-            return structure != null;
-        }
-
-        @Override
         public CompletableFuture<Optional<AbstractStructure>> getStructure()
         {
             return CompletableFuture.completedFuture(Optional.ofNullable(structure));
         }
 
         @Override
-        public CompletableFuture<Optional<AbstractStructure>> getStructure(IPlayer player)
+        public CompletableFuture<Optional<AbstractStructure>> getStructure(
+            IPlayer player, PermissionLevel permissionLevel)
         {
-            return structure != null && structure.isOwner(player) ?
-                   getStructure() : CompletableFuture.completedFuture(Optional.empty());
+            return CompletableFuture.completedFuture(
+                StructureRetriever.filter(Optional.ofNullable(structure), player, permissionLevel));
         }
     }
 
     /**
      * Represents a {@link StructureRetriever} that references a list of structures by the object themselves.
-     *
-     * @author Pim
      */
     @ToString
     @AllArgsConstructor()
@@ -328,19 +370,9 @@ public sealed abstract class StructureRetriever
         private final List<AbstractStructure> structures;
 
         @Override
-        public boolean isAvailable()
-        {
-            return true;
-        }
-
-        @Override
         public CompletableFuture<Optional<AbstractStructure>> getStructure()
         {
-            if (structures.size() == 1)
-                return CompletableFuture.completedFuture(Optional.of(structures.get(0)));
-
-            log.atWarning().log("Tried to get 1 structure but received %d!", structures.size());
-            return CompletableFuture.completedFuture(Optional.empty());
+            return CompletableFuture.completedFuture(StructureRetriever.listToOptional(structures));
         }
 
         @Override
@@ -349,35 +381,28 @@ public sealed abstract class StructureRetriever
             return CompletableFuture.completedFuture(structures);
         }
 
-        private List<AbstractStructure> getStructures0(IPlayer player)
+        private List<AbstractStructure> getStructures0(IPlayer player, PermissionLevel permissionLevel)
         {
-            final UUID playerUUID = player.getUUID();
-            return structures.stream().filter(structure -> structure.isOwner(playerUUID)).collect(Collectors.toList());
+            return StructureRetriever.filter(structures, player, permissionLevel);
         }
 
         @Override
-        public CompletableFuture<List<AbstractStructure>> getStructures(IPlayer player)
+        public CompletableFuture<List<AbstractStructure>> getStructures(IPlayer player, PermissionLevel permissionLevel)
         {
-            return CompletableFuture.completedFuture(getStructures0(player));
+            return CompletableFuture.completedFuture(getStructures0(player, permissionLevel));
         }
 
         @Override
-        public CompletableFuture<Optional<AbstractStructure>> getStructure(IPlayer player)
+        public CompletableFuture<Optional<AbstractStructure>> getStructure(
+            IPlayer player, PermissionLevel permissionLevel)
         {
-            final List<AbstractStructure> ret = getStructures0(player);
-
-            if (ret.size() == 1)
-                return CompletableFuture.completedFuture(Optional.of(ret.get(0)));
-
-            log.atWarning().log("Tried to get 1 structure but received %d!", ret.size());
-            return CompletableFuture.completedFuture(Optional.empty());
+            return CompletableFuture.completedFuture(
+                StructureRetriever.listToOptional(getStructures0(player, permissionLevel)));
         }
     }
 
     /**
      * Represents a {@link StructureRetriever} that references a future list of structures by the object themselves.
-     *
-     * @author Pim
      */
     @ToString
     @EqualsAndHashCode(callSuper = false, doNotUseGetters = true)
@@ -392,22 +417,11 @@ public sealed abstract class StructureRetriever
         }
 
         @Override
-        public boolean isAvailable()
-        {
-            return structures.isDone();
-        }
-
-        @Override
         public CompletableFuture<Optional<AbstractStructure>> getStructure()
         {
-            return structures.thenApply(
-                lst ->
-                {
-                    if (lst.size() == 1)
-                        return Optional.of(lst.get(0));
-                    log.atWarning().log("Tried to get 1 structure but received %d!", lst.size());
-                    return Optional.empty();
-                });
+            return structures
+                .thenApply(StructureRetriever::listToOptional)
+                .exceptionally(Util::exceptionallyOptional);
         }
 
         @Override
@@ -416,37 +430,32 @@ public sealed abstract class StructureRetriever
             return structures;
         }
 
-        private CompletableFuture<List<AbstractStructure>> getStructures0(IPlayer player)
+        private CompletableFuture<List<AbstractStructure>> getStructures0(
+            IPlayer player, PermissionLevel permissionLevel)
         {
-            final UUID playerUUID = player.getUUID();
-            return structures.thenApply(
-                retrieved -> retrieved.stream().filter(structure -> structure.isOwner(playerUUID)).toList());
+            return structures
+                .thenApply(retrieved -> StructureRetriever.filter(retrieved, player, permissionLevel))
+                .exceptionally(Util::exceptionallyList);
         }
 
         @Override
-        public CompletableFuture<List<AbstractStructure>> getStructures(IPlayer player)
+        public CompletableFuture<List<AbstractStructure>> getStructures(IPlayer player, PermissionLevel permissionLevel)
         {
-            return getStructures0(player);
+            return getStructures0(player, permissionLevel);
         }
 
         @Override
-        public CompletableFuture<Optional<AbstractStructure>> getStructure(IPlayer player)
+        public CompletableFuture<Optional<AbstractStructure>> getStructure(
+            IPlayer player, PermissionLevel permissionLevel)
         {
-            return getStructures0(player).thenApply(
-                lst ->
-                {
-                    if (lst.size() == 1)
-                        return Optional.of(lst.get(0));
-                    log.atWarning().log("Tried to get 1 structure but received %d!", lst.size());
-                    return Optional.empty();
-                });
+            return getStructures0(player, permissionLevel)
+                .thenApply(StructureRetriever::listToOptional)
+                .exceptionally(Util::exceptionallyOptional);
         }
     }
 
     /**
      * Represents a {@link StructureRetriever} that references a future optional structure directly.
-     *
-     * @author Pim
      */
     @ToString
     @AllArgsConstructor
@@ -456,28 +465,18 @@ public sealed abstract class StructureRetriever
         private final CompletableFuture<Optional<AbstractStructure>> futureStructure;
 
         @Override
-        public boolean isAvailable()
-        {
-            return futureStructure.isDone() && !futureStructure.isCancelled() &&
-                !futureStructure.isCompletedExceptionally();
-        }
-
-        @Override
         public CompletableFuture<Optional<AbstractStructure>> getStructure()
         {
             return futureStructure;
         }
 
         @Override
-        public CompletableFuture<Optional<AbstractStructure>> getStructure(IPlayer player)
+        public CompletableFuture<Optional<AbstractStructure>> getStructure(
+            IPlayer player, PermissionLevel permissionLevel)
         {
-            return futureStructure.thenApply(
-                structureOpt ->
-                {
-                    final boolean playerIsPresent =
-                        structureOpt.map(structure -> structure.isOwner(player)).orElse(false);
-                    return playerIsPresent ? structureOpt : Optional.empty();
-                });
+            return futureStructure
+                .thenApply(retrieved -> StructureRetriever.filter(retrieved, player, permissionLevel))
+                .exceptionally(Util::exceptionallyOptional);
         }
     }
 }

@@ -71,10 +71,11 @@ public class StructureArgument extends CommandArgument<ICommandSender, Structure
         {
             if (input.isBlank())
                 return Collections.emptyList();
-            return structureRetrieverFactory.search(commandContext.getSender(), input, maxPermission)
-                                            .getStructureIdentifiersIfAvailable()
-                                            .<List<String>>map(ArrayList::new)
-                                            .orElse(Collections.emptyList());
+            return structureRetrieverFactory
+                .search(commandContext.getSender(), input, maxPermission)
+                .getStructureIdentifiersIfAvailable()
+                .<List<String>>map(ArrayList::new)
+                .orElse(Collections.emptyList());
         }
     }
 }

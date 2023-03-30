@@ -879,6 +879,16 @@ public final class Util
     }
 
     /**
+     * See {@link #exceptionally(Throwable, Object)} with a fallback value of {@link Collections#emptyList()}.
+     *
+     * @return Always {@link Collections#emptyList()}.
+     */
+    public <T> List<T> exceptionallyList(Throwable throwable)
+    {
+        return exceptionally(throwable, Collections.emptyList());
+    }
+
+    /**
      * Handles exceptional completion of a {@link CompletableFuture}. This ensures that the target is finished
      * exceptionally as well, to propagate the exception.
      *

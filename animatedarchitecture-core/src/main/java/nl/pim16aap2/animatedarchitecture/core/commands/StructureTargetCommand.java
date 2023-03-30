@@ -30,7 +30,8 @@ public abstract class StructureTargetCommand extends BaseCommand
     @Getter
     protected final StructureRetriever structureRetriever;
 
-    private final StructureAttribute structureAttribute;
+    @Getter
+    protected final StructureAttribute structureAttribute;
 
     /**
      * The result of the {@link #structureRetriever}.
@@ -45,7 +46,9 @@ public abstract class StructureTargetCommand extends BaseCommand
     private @Nullable AbstractStructure retrieverResult;
 
     protected StructureTargetCommand(
-        ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
+        ICommandSender commandSender,
+        ILocalizer localizer,
+        ITextFactory textFactory,
         StructureRetriever structureRetriever,
         StructureAttribute structureAttribute)
     {
@@ -57,7 +60,7 @@ public abstract class StructureTargetCommand extends BaseCommand
     @Override
     protected final CompletableFuture<?> executeCommand(PermissionsStatus permissions)
     {
-        return getStructure(getStructureRetriever())
+        return getStructure(getStructureRetriever(), getStructureAttribute().getPermissionLevel())
             .thenApply(structure ->
                        {
                            setRetrieverResult(structure.orElse(null));

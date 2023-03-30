@@ -54,8 +54,8 @@ class RemoveOwnerTest
         Mockito.when(doorType.getLocalizationKey()).thenReturn("DoorType");
         Mockito.when(door.getType()).thenReturn(doorType);
 
-        Mockito.when(door.isOwner(Mockito.any(UUID.class))).thenReturn(true);
-        Mockito.when(door.isOwner(Mockito.any(IPlayer.class))).thenReturn(true);
+        Mockito.when(door.isOwner(Mockito.any(UUID.class), Mockito.any())).thenReturn(true);
+        Mockito.when(door.isOwner(Mockito.any(IPlayer.class), Mockito.any())).thenReturn(true);
         doorRetriever = StructureRetrieverFactory.ofStructure(door);
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();

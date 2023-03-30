@@ -342,6 +342,13 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
         return owners.containsKey(uuid);
     }
 
+    @Locked.Read
+    public boolean isOwner(UUID uuid, PermissionLevel permissionLevel)
+    {
+        final @Nullable StructureOwner owner = owners.get(uuid);
+        return owner != null && owner.permission().isLowerThanOrEquals(permissionLevel);
+    }
+
     @Locked.Write
     public void setCoordinates(Cuboid newCuboid)
     {

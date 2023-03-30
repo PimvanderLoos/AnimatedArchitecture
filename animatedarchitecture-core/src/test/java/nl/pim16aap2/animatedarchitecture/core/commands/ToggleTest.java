@@ -70,8 +70,8 @@ class ToggleTest
 
         Mockito.when(structureType.getLocalizationKey()).thenReturn("StructureType");
 
-        Mockito.when(structure.isOwner(Mockito.any(UUID.class))).thenReturn(true);
-        Mockito.when(structure.isOwner(Mockito.any(IPlayer.class))).thenReturn(true);
+        Mockito.when(structure.isOwner(Mockito.any(UUID.class), Mockito.any())).thenReturn(true);
+        Mockito.when(structure.isOwner(Mockito.any(IPlayer.class), Mockito.any())).thenReturn(true);
         Mockito.when(structure.getType()).thenReturn(structureType);
 
         structureRetriever = StructureRetrieverFactory.ofStructure(structure);
@@ -147,8 +147,8 @@ class ToggleTest
             Mockito.when(type.getLocalizationKey()).thenReturn("StructureType" + idx);
 
             final AbstractStructure newStructure = Mockito.mock(AbstractStructure.class);
-            Mockito.when(newStructure.isOwner(Mockito.any(UUID.class))).thenReturn(true);
-            Mockito.when(newStructure.isOwner(Mockito.any(IPlayer.class))).thenReturn(true);
+            Mockito.when(newStructure.isOwner(Mockito.any(UUID.class), Mockito.any())).thenReturn(true);
+            Mockito.when(newStructure.isOwner(Mockito.any(IPlayer.class), Mockito.any())).thenReturn(true);
             Mockito.when(newStructure.getType()).thenReturn(type);
 
             retrievers[idx] = StructureRetrieverFactory.ofStructure(newStructure);

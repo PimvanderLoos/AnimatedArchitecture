@@ -4,13 +4,13 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
-import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
-import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetriever;
-import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
+import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetriever;
+import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -48,7 +48,7 @@ public class ListStructures extends BaseCommand
         if (permissions.hasAdminPermission() || !getCommandSender().isPlayer())
             structures = structureRetriever.getStructures();
         else
-            structures = structureRetriever.getStructures((IPlayer) getCommandSender());
+            structures = structureRetriever.getStructures(getCommandSender(), PermissionLevel.USER);
 
         return structures.thenAccept(this::sendStructureList);
     }

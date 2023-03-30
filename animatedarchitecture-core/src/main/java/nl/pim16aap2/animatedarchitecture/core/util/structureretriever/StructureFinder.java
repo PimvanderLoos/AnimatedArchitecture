@@ -222,14 +222,15 @@ public final class StructureFinder
         return waitForDescriptions().thenCompose(
             descriptions ->
             {
-                final List<MinimalStructureDescription> targetList = filterIfNeeded(descriptions, lastInput0,
-                                                                                    fullMatch);
+                final List<MinimalStructureDescription> targetList =
+                    filterIfNeeded(descriptions, lastInput0, fullMatch);
 
                 @SuppressWarnings("unchecked") final CompletableFuture<Optional<AbstractStructure>>[] retrieved =
                     (CompletableFuture<Optional<AbstractStructure>>[]) new CompletableFuture[targetList.size()];
 
                 for (int idx = 0; idx < targetList.size(); ++idx)
-                    retrieved[idx] = structureRetrieverFactory.of(targetList.get(idx).uid).getStructure(commandSender);
+                    retrieved[idx] = structureRetrieverFactory
+                        .of(targetList.get(idx).uid).getStructure(commandSender, maxPermission);
                 return Util.getAllCompletableFutureResults(retrieved)
                            .thenApply(lst -> lst.stream().flatMap(Optional::stream).toList());
             });

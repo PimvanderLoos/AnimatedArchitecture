@@ -366,8 +366,8 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     /**
      * Gets all {@link AbstractStructure} owned by a player with a specific name.
      *
-     * @param playerUUID
-     *     The {@link UUID} of the payer.
+     * @param player
+     *     The player whose structures to retrieve.
      * @param name
      *     The name of the {@link AbstractStructure} to search for.
      * @param maxPermission
@@ -375,9 +375,9 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      * @return All {@link AbstractStructure} owned by a player with a specific name.
      */
     public CompletableFuture<List<AbstractStructure>> getStructures(
-        UUID playerUUID, String name, PermissionLevel maxPermission)
+        IPlayer player, String name, PermissionLevel maxPermission)
     {
-        return CompletableFuture.supplyAsync(() -> db.getStructures(playerUUID, name, maxPermission), threadPool)
+        return CompletableFuture.supplyAsync(() -> db.getStructures(player.getUUID(), name, maxPermission), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 

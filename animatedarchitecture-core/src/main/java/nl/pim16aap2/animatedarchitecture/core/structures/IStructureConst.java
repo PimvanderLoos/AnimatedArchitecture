@@ -160,11 +160,50 @@ public interface IStructureConst
     boolean isOwner(UUID player);
 
     /**
-     * See {@link #isOwner(UUID)}.
+     * Checks if a player with a given UUID is a (co-)owner of this structure with any level of ownership.
+     * <p>
+     * If the level of ownership matters, use {@link #getOwner(UUID)} instead.
+     *
+     * @param player
+     *     The player.
+     * @return True if the player with the given UUID is an owner of this structure with any level of ownership.
      */
     default boolean isOwner(IPlayer player)
     {
         return isOwner(player.getUUID());
+    }
+
+    /**
+     * Checks if a player with a given UUID is a (co-)owner of this structure with a given level of ownership.
+     *
+     * @param player
+     *     The UUID of a player.
+     * @param permissionLevel
+     *     The maximum level of ownership the player may have.
+     *     <p>
+     *     E.g. when permissionLevel is {@link PermissionLevel#ADMIN}, this method will return true if the player has
+     *     admin access or lower ({@link PermissionLevel#ADMIN} or {@link PermissionLevel#CREATOR}).
+     * @return True if the player with the given UUID is an owner of this structure with the given level of ownership
+     * (or lower).
+     */
+    boolean isOwner(UUID player, PermissionLevel permissionLevel);
+
+    /**
+     * Checks if a player with a given UUID is a (co-)owner of this structure with a given level of ownership.
+     *
+     * @param player
+     *     The player.
+     * @param permissionLevel
+     *     The maximum level of ownership the player may have.
+     *     <p>
+     *     E.g. when permissionLevel is {@link PermissionLevel#ADMIN}, this method will return true if the player has
+     *     admin access or lower ({@link PermissionLevel#ADMIN} or {@link PermissionLevel#CREATOR}).
+     * @return True if the player with the given UUID is an owner of this structure with the given level of ownership
+     * (or lower).
+     */
+    default boolean isOwner(IPlayer player, PermissionLevel permissionLevel)
+    {
+        return isOwner(player.getUUID(), permissionLevel);
     }
 
     /**

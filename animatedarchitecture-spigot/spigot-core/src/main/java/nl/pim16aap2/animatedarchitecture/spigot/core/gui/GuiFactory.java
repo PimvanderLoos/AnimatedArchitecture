@@ -3,6 +3,7 @@ package nl.pim16aap2.animatedarchitecture.spigot.core.gui;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IGuiFactory;
+import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
 import org.jetbrains.annotations.Nullable;
@@ -32,7 +33,7 @@ public class GuiFactory implements IGuiFactory
     {
         final IPlayer finalSource = Objects.requireNonNullElse(source, inventoryHolder);
         structureRetrieverFactory
-            .search(finalSource, "", StructureRetrieverFactory.StructureFinderMode.NEW_INSTANCE)
+            .search(finalSource, "", StructureRetrieverFactory.StructureFinderMode.NEW_INSTANCE, PermissionLevel.USER)
             .getStructures()
             .thenCompose(doors -> executor.runOnMainThread(() -> factory.newGUI(inventoryHolder, doors)))
             .exceptionally(Util::exceptionally);
