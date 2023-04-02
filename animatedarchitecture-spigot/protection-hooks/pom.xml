@@ -12,6 +12,10 @@
         <version>0.3-SNAPSHOT</version>
     </parent>
 
+    <properties>
+        <project.root-dir>${project.basedir}/../..</project.root-dir>
+    </properties>
+
     <modules>
         <module>hook-plotsquared-6</module>
         <module>hook-plotsquared-7</module>
