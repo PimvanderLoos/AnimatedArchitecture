@@ -3,4 +3,4 @@ before_install:
   - sdk install java 19.0.2-open
   - sdk default java 19.0.2-open
 install:
-  - JAVA_HOME=~/.sdkman/candidates/java/current/ mvn -Dmaven.test.skip -DskipTests -Djacoco.skip=true install
+  - JAVA_HOME=~/.sdkman/candidates/java/current/ mvn --batch-mode -P=docs -Dmaven.test.skip -DskipTests antrun:run lombok:delombok source:jar-no-fork javadoc:javadoc javadoc:jar install

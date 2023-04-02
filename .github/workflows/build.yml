@@ -26,10 +26,10 @@ jobs:
           cache: 'maven'
 
       - name: Build the project and run static analysis tools.
-        run: mvn --batch-mode clean -P=errorprone test install checkstyle:checkstyle pmd:check -Dactions.run.id=$GITHUB_RUN_ID -Dactions.run.number=$GITHUB_RUN_NUMBER
+        run: mvn --batch-mode -P=errorprone clean test install checkstyle:checkstyle pmd:check -Dactions.run.id=$GITHUB_RUN_ID -Dactions.run.number=$GITHUB_RUN_NUMBER
 
       - name: Build the javadocs
-        run: mvn --batch-mode antrun:run lombok:delombok javadoc:javadoc javadoc:aggregate
+        run: mvn --batch-mode -P=docs -Dmaven.test.skip -DskipTests install antrun:run lombok:delombok javadoc:javadoc javadoc:aggregate
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
 
       - name: Upload structure types
