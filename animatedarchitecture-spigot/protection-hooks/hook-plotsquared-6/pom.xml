@@ -4,12 +4,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>hook-plotsquared-6</artifactId>
+    <packaging>jar</packaging>
 
     <parent>
         <groupId>nl.pim16aap2.animatedarchitecture</groupId>
         <artifactId>protection-hooks</artifactId>
         <version>0.3-SNAPSHOT</version>
     </parent>
+
+    <properties>
+        <project.root-dir>${project.basedir}/../../..</project.root-dir>
+    </properties>
 
     <repositories>
         <repository>
