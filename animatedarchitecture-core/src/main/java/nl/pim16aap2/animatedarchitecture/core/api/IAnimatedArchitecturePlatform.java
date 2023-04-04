@@ -263,7 +263,7 @@ public interface IAnimatedArchitecturePlatform
      *
      * @return The instance of the {@link IProtectionHookManager} for this platform.
      */
-    IProtectionHookManager getProtectionCompatManager();
+    IProtectionHookManager getProtectionHookManager();
 
     /**
      * Gets the {@link LimitsManager}.

@@ -100,7 +100,7 @@ public class CreatorTestsUtil
     protected LimitsManager limitsManager;
 
     @Mock
-    protected IProtectionHookManager protectionCompatManager;
+    protected IProtectionHookManager protectionHookManager;
 
     @Mock
     protected IAnimatedArchitectureToolUtil animatedArchitectureToolUtil;
@@ -166,7 +166,7 @@ public class CreatorTestsUtil
 
         context = new ToolUser.Context(
             structureBaseBuilder, localizer, ITextFactory.getSimpleTextFactory(), toolUserManager, databaseManager,
-            limitsManager, economyManager, protectionCompatManager, animatedArchitectureToolUtil,
+            limitsManager, economyManager, protectionHookManager, animatedArchitectureToolUtil,
             Mockito.mock(StructureAnimationRequestBuilder.class), Mockito.mock(StructureActivityManager.class),
             commandFactory, assistedStepFactory);
 

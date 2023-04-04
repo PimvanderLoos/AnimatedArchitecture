@@ -39,7 +39,7 @@ class PowerBlockRelocatorTest
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private IPlayer player;
 
-    private IProtectionHookManager compatManager;
+    private IProtectionHookManager hookManager;
 
     @Mock
     private ILocation location;
@@ -59,16 +59,16 @@ class PowerBlockRelocatorTest
         Mockito.when(structure.getType()).thenReturn(structureTypeType);
         Mockito.when(structureTypeType.getLocalizationKey()).thenReturn("StructureType");
 
-        compatManager = Mockito.mock(IProtectionHookManager.class);
-        Mockito.when(compatManager.canBreakBlock(Mockito.any(), Mockito.any())).thenReturn(Optional.empty());
-        Mockito.when(compatManager.canBreakBlocksBetweenLocs(Mockito.any(),
-                                                             Mockito.any(), Mockito.any()))
+        hookManager = Mockito.mock(IProtectionHookManager.class);
+        Mockito.when(hookManager.canBreakBlock(Mockito.any(), Mockito.any())).thenReturn(Optional.empty());
+        Mockito.when(hookManager.canBreakBlocksBetweenLocs(Mockito.any(),
+                                                           Mockito.any(), Mockito.any()))
                .thenReturn(Optional.empty());
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
         final ToolUser.Context context = Mockito.mock(ToolUser.Context.class, Answers.RETURNS_MOCKS);
-        Mockito.when(context.getProtectionCompatManager()).thenReturn(compatManager);
+        Mockito.when(context.getProtectionHookManager()).thenReturn(hookManager);
         Mockito.when(context.getLocalizer()).thenReturn(localizer);
         Mockito.when(context.getTextFactory()).thenReturn(ITextFactory.getSimpleTextFactory());
 
@@ -118,7 +118,7 @@ class PowerBlockRelocatorTest
         final PowerBlockRelocator relocator = factory.create(player, structure);
 
         final String compat = "TestCompat";
-        Mockito.when(compatManager.canBreakBlock(Mockito.any(), Mockito.any())).thenReturn(Optional.of(compat));
+        Mockito.when(hookManager.canBreakBlock(Mockito.any(), Mockito.any())).thenReturn(Optional.of(compat));
 
         Mockito.when(location.getWorld()).thenReturn(world);
         Mockito.when(location.getPosition()).thenReturn(new Vector3Di(0, 0, 0));

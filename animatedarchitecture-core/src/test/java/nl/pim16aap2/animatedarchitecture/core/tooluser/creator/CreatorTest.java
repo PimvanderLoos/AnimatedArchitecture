@@ -71,10 +71,10 @@ public class CreatorTest
         Mockito.when(creator.getStructureType()).thenReturn(structureType);
         Mockito.when(economyManager.isEconomyEnabled()).thenReturn(true);
 
-        final IProtectionHookManager protectionCompatManager = Mockito.mock(IProtectionHookManager.class);
-        Mockito.when(protectionCompatManager.canBreakBlock(Mockito.any(), Mockito.any())).thenReturn(Optional.empty());
-        Mockito.when(protectionCompatManager.canBreakBlocksBetweenLocs(Mockito.any(),
-                                                                       Mockito.any(), Mockito.any()))
+        final IProtectionHookManager protectionHookManager = Mockito.mock(IProtectionHookManager.class);
+        Mockito.when(protectionHookManager.canBreakBlock(Mockito.any(), Mockito.any())).thenReturn(Optional.empty());
+        Mockito.when(protectionHookManager.canBreakBlocksBetweenLocs(Mockito.any(),
+                                                                     Mockito.any(), Mockito.any()))
                .thenReturn(Optional.empty());
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
@@ -101,7 +101,7 @@ public class CreatorTest
         UnitTestUtil.setField(ToolUser.class, creator, "player", player);
         UnitTestUtil.setField(ToolUser.class, creator, "localizer", localizer);
         UnitTestUtil.setField(ToolUser.class, creator, "textFactory", ITextFactory.getSimpleTextFactory());
-        UnitTestUtil.setField(ToolUser.class, creator, "protectionCompatManager", protectionCompatManager);
+        UnitTestUtil.setField(ToolUser.class, creator, "protectionHookManager", protectionHookManager);
         UnitTestUtil.setField(ToolUser.class, creator, "animatedArchitectureToolUtil",
                               Mockito.mock(IAnimatedArchitectureToolUtil.class));
         UnitTestUtil.setField(ToolUser.class, creator, "stepFactory", assistedStepFactory);

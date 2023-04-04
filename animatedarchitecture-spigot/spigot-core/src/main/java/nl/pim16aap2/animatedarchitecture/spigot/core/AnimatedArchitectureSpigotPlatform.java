@@ -156,7 +156,7 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
     private final IPermissionsManager permissionsManager;
 
     @Getter
-    private final IProtectionHookManager protectionCompatManager;
+    private final IProtectionHookManager protectionHookManager;
 
     @Getter
     private final LimitsManager limitsManager;
@@ -216,7 +216,7 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
             throw new InitializationException("Failed to initialize AnimatedArchitecture database! Database state: " +
                                                   databaseManager.getDatabaseState().name());
 
-        protectionCompatManager = safeGetter(AnimatedArchitectureSpigotComponent::getProtectionHookManager);
+        protectionHookManager = safeGetter(AnimatedArchitectureSpigotComponent::getProtectionHookManager);
         economyManager = safeGetter(AnimatedArchitectureSpigotComponent::getVaultManager);
         permissionsManager = safeGetter(AnimatedArchitectureSpigotComponent::getVaultManager);
         limitsManager = safeGetter(AnimatedArchitectureSpigotComponent::getLimitsManager);
