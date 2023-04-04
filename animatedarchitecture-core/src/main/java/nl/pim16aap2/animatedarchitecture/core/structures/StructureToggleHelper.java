@@ -61,7 +61,7 @@ import java.util.logging.Level;
     private final IExecutor executor;
     private final IBlockAnalyzer<?> blockAnalyzer;
     private final ILocationFactory locationFactory;
-    private final IProtectionHookManager protectionCompatManager;
+    private final IProtectionHookManager protectionHookManager;
     private final HighlightedBlockSpawner highlightedBlockSpawner;
     private final IAnimatedArchitectureEventFactory animatedArchitectureEventFactory;
     private final StructureRegistry structureRegistry;
@@ -81,7 +81,7 @@ import java.util.logging.Level;
         IExecutor executor,
         IBlockAnalyzer<?> blockAnalyzer,
         ILocationFactory locationFactory,
-        IProtectionHookManager protectionCompatManager,
+        IProtectionHookManager protectionHookManager,
         HighlightedBlockSpawner highlightedBlockSpawner,
         IAnimatedArchitectureEventFactory animatedArchitectureEventFactory,
         StructureRegistry structureRegistry,
@@ -99,7 +99,7 @@ import java.util.logging.Level;
         this.executor = executor;
         this.blockAnalyzer = blockAnalyzer;
         this.locationFactory = locationFactory;
-        this.protectionCompatManager = protectionCompatManager;
+        this.protectionHookManager = protectionHookManager;
         this.highlightedBlockSpawner = highlightedBlockSpawner;
         this.animatedArchitectureEventFactory = animatedArchitectureEventFactory;
         this.structureRegistry = structureRegistry;
@@ -394,7 +394,7 @@ import java.util.logging.Level;
      */
     public boolean canBreakBlocks(IStructureConst structure, Cuboid cuboid0, Cuboid cuboid1, IPlayer responsible)
     {
-        if (protectionCompatManager.canSkipCheck())
+        if (protectionHookManager.canSkipCheck())
             return true;
         try
         {
@@ -420,7 +420,7 @@ import java.util.logging.Level;
     private boolean canBreakBlocks0(IStructureConst structure, Cuboid cuboid, IPlayer responsible)
     {
         // If the returned value is an empty Optional, the player is allowed to break blocks.
-        return protectionCompatManager.canBreakBlocksBetweenLocs(responsible, cuboid, structure.getWorld()).map(
+        return protectionHookManager.canBreakBlocksBetweenLocs(responsible, cuboid, structure.getWorld()).map(
             protectionCompat ->
             {
                 log.atWarning().log("Player '%s' is not allowed to open structure '%s' (%d) here! Reason: %s",

@@ -41,7 +41,7 @@ public abstract class ToolUser
 
     protected final ToolUserManager toolUserManager;
 
-    protected final IProtectionHookManager protectionCompatManager;
+    protected final IProtectionHookManager protectionHookManager;
 
     protected final IAnimatedArchitectureToolUtil animatedArchitectureToolUtil;
 
@@ -80,7 +80,7 @@ public abstract class ToolUser
         this.player = player;
         localizer = context.getLocalizer();
         toolUserManager = context.getToolUserManager();
-        protectionCompatManager = context.getProtectionCompatManager();
+        protectionHookManager = context.getProtectionHookManager();
         animatedArchitectureToolUtil = context.getAnimatedArchitectureToolUtil();
         textFactory = context.getTextFactory();
 
@@ -310,7 +310,7 @@ public abstract class ToolUser
      */
     public boolean playerHasAccessToLocation(ILocation loc)
     {
-        final Optional<String> result = protectionCompatManager.canBreakBlock(getPlayer(), loc);
+        final Optional<String> result = protectionHookManager.canBreakBlock(getPlayer(), loc);
         result.ifPresent(
             compat ->
             {
@@ -336,7 +336,7 @@ public abstract class ToolUser
      */
     public boolean playerHasAccessToCuboid(Cuboid cuboid, IWorld world)
     {
-        final Optional<String> result = protectionCompatManager.canBreakBlocksBetweenLocs(getPlayer(), cuboid, world);
+        final Optional<String> result = protectionHookManager.canBreakBlocksBetweenLocs(getPlayer(), cuboid, world);
         result.ifPresent(
             compat ->
             {
@@ -368,7 +368,7 @@ public abstract class ToolUser
         private final DatabaseManager databaseManager;
         private final LimitsManager limitsManager;
         private final IEconomyManager economyManager;
-        private final IProtectionHookManager protectionCompatManager;
+        private final IProtectionHookManager protectionHookManager;
         private final IAnimatedArchitectureToolUtil animatedArchitectureToolUtil;
         private final CommandFactory commandFactory;
         private final StructureAnimationRequestBuilder structureAnimationRequestBuilder;
@@ -384,7 +384,7 @@ public abstract class ToolUser
             DatabaseManager databaseManager,
             LimitsManager limitsManager,
             IEconomyManager economyManager,
-            IProtectionHookManager protectionCompatManager,
+            IProtectionHookManager protectionHookManager,
             IAnimatedArchitectureToolUtil animatedArchitectureToolUtil,
             StructureAnimationRequestBuilder structureAnimationRequestBuilder,
             StructureActivityManager structureActivityManager,
@@ -397,7 +397,7 @@ public abstract class ToolUser
             this.databaseManager = databaseManager;
             this.limitsManager = limitsManager;
             this.economyManager = economyManager;
-            this.protectionCompatManager = protectionCompatManager;
+            this.protectionHookManager = protectionHookManager;
             this.animatedArchitectureToolUtil = animatedArchitectureToolUtil;
             this.structureAnimationRequestBuilder = structureAnimationRequestBuilder;
             this.structureActivityManager = structureActivityManager;
