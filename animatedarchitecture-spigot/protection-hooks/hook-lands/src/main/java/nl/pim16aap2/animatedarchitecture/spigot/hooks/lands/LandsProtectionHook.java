@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.spigot.hooks.lands;
 
-import me.angeschossen.lands.api.flags.Flags;
-import me.angeschossen.lands.api.integration.LandsIntegration;
+import me.angeschossen.lands.api.LandsIntegration;
+import me.angeschossen.lands.api.flags.type.Flags;
 import me.angeschossen.lands.api.land.Area;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
@@ -16,6 +16,8 @@ import java.util.UUID;
 
 /**
  * Protection hook for <a href="https://www.spigotmc.org/resources/53313/">Lands</a>.
+ * <p>
+ * Uses <a href="https://github.com/Angeschossen/LandsAPI">LandsAPI</a>.
  */
 public class LandsProtectionHook implements IProtectionHookSpigot
 {
@@ -26,16 +28,16 @@ public class LandsProtectionHook implements IProtectionHookSpigot
     public LandsProtectionHook(ProtectionHookContext context)
     {
         this.context = context;
-        landsAddon = new LandsIntegration(context.getPlugin());
+        landsAddon = LandsIntegration.of(context.getPlugin());
     }
 
     @Override
     public boolean canBreakBlock(Player player, Location loc)
     {
-        final @Nullable Area area = landsAddon.getAreaByLoc(loc);
+        final @Nullable Area area = landsAddon.getArea(loc);
         if (area == null)
             return true;
-        return area.hasFlag(player.getUniqueId(), Flags.BLOCK_BREAK);
+        return area.hasRoleFlag(player.getUniqueId(), Flags.BLOCK_BREAK);
     }
 
     @Override
@@ -62,10 +64,10 @@ public class LandsProtectionHook implements IProtectionHookSpigot
                 for (int y = min.y(); y <= max.y(); ++y)
                 {
                     loc.setY(y);
-                    final @Nullable Area area = landsAddon.getAreaByLoc(loc);
+                    final @Nullable Area area = landsAddon.getArea(loc);
                     if (area == null)
                         continue;
-                    if (!area.hasFlag(playerUUID, Flags.BLOCK_BREAK))
+                    if (!area.hasRoleFlag(playerUUID, Flags.BLOCK_BREAK))
                         return false;
                 }
             }
