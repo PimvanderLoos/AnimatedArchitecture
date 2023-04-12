@@ -5,7 +5,7 @@
     <groupId>nl.pim16aap2.animatedarchitecture</groupId>
     <artifactId>animatedarchitecture-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.3-SNAPSHOT</version>
+    <version>0.3</version>
     <name>animatedarchitecture</name>
 
     <properties>
