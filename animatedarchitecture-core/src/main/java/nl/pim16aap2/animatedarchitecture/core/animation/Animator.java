@@ -236,7 +236,7 @@ public final class Animator implements IAnimator
         final @Nullable TimerTask moverTask0 = moverTask;
         if (moverTask0 != null)
             executor.cancel(moverTask0, Objects.requireNonNull(moverTaskID));
-        putBlocks();
+        finishAnimation();
         forEachHook("onAnimationAborted", IAnimationHook::onAnimationAborted);
     }
 
@@ -304,7 +304,7 @@ public final class Animator implements IAnimator
         this.hooks = animationHookManager.instantiateHooks(animation);
 
         if (animationSkipped)
-            putBlocks();
+            finishAnimation();
         else
             animateEntities(animation);
     }
@@ -364,7 +364,7 @@ public final class Animator implements IAnimator
 
         forEachHook("onAnimationEnding", IAnimationHook::onAnimationEnding);
 
-        putBlocks();
+        finishAnimation();
 
         final @Nullable TimerTask moverTask0 = moverTask;
         if (moverTask0 == null)
@@ -467,31 +467,33 @@ public final class Animator implements IAnimator
         moverTaskID = executor.runAsyncRepeated(moverTask0, START_DELAY, this.serverTickTime);
     }
 
-    private void putBlocks0()
-    {
-        executor.assertMainThread("Attempting async block placement!");
-
-        animationBlockManager.handleAnimationCompletion();
-
-        if (animationType.requiresWriteAccess())
-            // Tell the structure object it has been opened and what its new coordinates are.
-            structure.withWriteLock(this::updateCoords);
-
-        forEachHook("onAnimationCompleted", IAnimationHook::onAnimationCompleted);
-
-        structureActivityManager.processFinishedAnimation(this);
-    }
-
     /**
-     * Places all the blocks of the structure in their final position and kills all the animated blocks.
+     * Finishes the animation by placing the blocks in their final position, updating the structure's coordinates, and
+     * by informing the activity manager that the animation has finished.
      */
-    private void putBlocks()
+    private void finishAnimation()
     {
         // Only allow this method to be run once! If it can be run multiple times, it'll cause structure corruption
         // because while the blocks have already been placed, the coordinates can still be toggled!
         if (isFinished.getAndSet(true))
             return;
-        executor.runOnMainThread(this::putBlocks0);
+
+        // Only the handleAnimationCompletion method needs to be called on the main thread, as it interacts with the
+        // world to place the blocks in their final position.
+        // However, updating the coordinates of the structure is best left to another thread, as it may block the
+        // calling thread while it waits to acquire the write lock.
+        executor.runOnMainThreadWithResponse(animationBlockManager::handleAnimationCompletion)
+                .thenRunAsync(
+                    () ->
+                    {
+                        if (animationType.requiresWriteAccess())
+                            // Tell the structure object it has been opened and what its new coordinates are.
+                            structure.withWriteLock(this::updateCoords);
+
+                        forEachHook("onAnimationCompleted", IAnimationHook::onAnimationCompleted);
+
+                        structureActivityManager.processFinishedAnimation(this);
+                    }).exceptionally(Util::exceptionally);
     }
 
     /**

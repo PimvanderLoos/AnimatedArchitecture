@@ -39,6 +39,25 @@ public interface IExecutor
     }
 
     /**
+     * Ensures a runnable is run on the main thread.
+     * <p>
+     * When called from the main thread, it will be executed immediately. When called from another thread, the supplier
+     * is scheduled to run on the next tick of the main thread instead.
+     *
+     * @return The CompletableFuture that is completed when the runnable has finished running.
+     */
+    default CompletableFuture<Void> runOnMainThreadWithResponse(Runnable runnable)
+    {
+        return runOnMainThread(
+            () ->
+            {
+                runnable.run();
+                //noinspection DataFlowIssue
+                return null;
+            });
+    }
+
+    /**
      * Schedules an action to be run on the main thread.
      */
     void scheduleOnMainThread(Runnable runnable);
