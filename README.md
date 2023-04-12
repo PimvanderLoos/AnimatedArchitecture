@@ -24,7 +24,8 @@ you run into the occasional bug or two.
 
 ### Installation:
 
-* Grab the files of the latest [release](https://github.com/PimvanderLoos/AnimatedArchitecture/releases). You will need both the `AnimatedArchitecture-Spigot.jar` file and the `Structures.zip` file.
+* Grab the files of the latest [release](https://github.com/PimvanderLoos/AnimatedArchitecture/releases). You will need
+  both the `AnimatedArchitecture-Spigot.jar` file and the `Structures.zip` file.
 * Extract the `Structures.zip` file.
 * Place the `AnimatedArchitecture-Spigot.jar` in the plugins directory of your server.
 * Create the following folder (or start the server to generate it
@@ -34,7 +35,8 @@ you run into the occasional bug or two.
 
 ### Importing BigDoors' Database
 
-As of [release](https://github.com/PimvanderLoos/BigDoors/releases) Alpha 0.1.8.44, BigDoors has a command that allows you to export the old
+As of [release](https://github.com/PimvanderLoos/BigDoors/releases) Alpha 0.1.8.44, BigDoors has a command that allows
+you to export the old
 database to the new format. While running that version, you can run the `BigDoors PrepareDatabaseForV2` command <b>in
 the console</b> to export the database. Read the output in the console to see if everything was exported correctly.
 Running this command does not affect the existing database for BigDoors.
@@ -102,9 +104,55 @@ To also run all the tests, static analysis tools etc., you can run the following
 ```mvn -P=errorprone test package checkstyle:checkstyle pmd:check```
 
 The `AnimatedArchitecture-Spigot.jar` file can then be found
-in `animatedarchitecture-spigot/spigot-core/target/AnimatedArchitecture-Spigot.jar`.
+in `animatedarchitecture-spigot/spigot-core/target/AnimatedArchitecture-Spigot.jar`.</br>
 The jars for each structure type can be found in `structures/StructuresOutput/<StructureType>.jar`.
 
-## Documentation
+## Developers
 
-The javadocs for the current project can be found [here](https://pimvanderloos.github.io/AnimatedArchitecture/javadoc/).
+This project can be included as a dependency using [JitPack](https://jitpack.io/#PimvanderLoos/AnimatedArchitecture).
+
+For the `artifactId` field, you can use any of the `core` modules. For the following examples below, we will
+use `spigot-core`. This module contains the implementations for the Spigot platform, as well as some utility methods and
+classes that make it easier to work with.
+
+You could also use `animatedarchitecture-core` if you wish to only use the API and not the Spigot platform.
+
+### Maven
+
+```xml
+
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+```
+
+```xml
+
+<dependencies>
+    <dependency>
+        <groupId>com.github.PimvanderLoos.AnimatedArchitecture</groupId>
+        <artifactId>spigot-core</artifactId>
+        <version>0.3</version>
+        <scope>provided</scope>
+    </dependency>
+</dependencies>
+```
+
+### Gradle
+
+```gradle
+repositories {
+    maven { url "https://jitpack.io/" }
+}
+
+dependencies {
+    compileOnly("com.github.PimvanderLoos.AnimatedArchitecture", "spigot-core", "0.3")
+}
+```
+
+### Documentation
+
+The javadocs for this project can be found [here](https://pimvanderloos.github.io/AnimatedArchitecture/javadoc/).
