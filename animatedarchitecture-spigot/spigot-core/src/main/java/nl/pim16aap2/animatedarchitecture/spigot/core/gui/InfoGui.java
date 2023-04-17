@@ -61,10 +61,12 @@ class InfoGui implements IGuiPage
 
     @AssistedInject //
     InfoGui(
-        AnimatedArchitecturePlugin animatedArchitecturePlugin, ILocalizer localizer,
+        AnimatedArchitecturePlugin animatedArchitecturePlugin,
+        ILocalizer localizer,
         IPermissionsManager permissionsManager,
         AttributeButtonFactory attributeButtonFactory,
-        @Assisted AbstractStructure structure, @Assisted PlayerSpigot inventoryHolder)
+        @Assisted AbstractStructure structure,
+        @Assisted PlayerSpigot inventoryHolder)
     {
         this.animatedArchitecturePlugin = animatedArchitecturePlugin;
         this.localizer = localizer;
