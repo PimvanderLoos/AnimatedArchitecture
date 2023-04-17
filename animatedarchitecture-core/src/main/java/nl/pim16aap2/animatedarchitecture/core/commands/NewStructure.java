@@ -4,6 +4,7 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
+import nl.pim16aap2.animatedarchitecture.core.api.IPermissionsManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
@@ -11,6 +12,7 @@ import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
+import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Provider;
@@ -26,19 +28,25 @@ public class NewStructure extends BaseCommand
 {
     private final StructureType structureType;
     private final @Nullable String structureName;
+    private final IPermissionsManager permissionsManager;
     private final ToolUserManager toolUserManager;
     private final Provider<ToolUser.Context> creatorContextProvider;
 
     @AssistedInject //
     NewStructure(
-        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
-        @Assisted StructureType structureType, @Assisted @Nullable String structureName,
+        @Assisted ICommandSender commandSender,
+        @Assisted StructureType structureType,
+        @Assisted @Nullable String structureName,
+        ILocalizer localizer,
+        ITextFactory textFactory,
+        IPermissionsManager permissionsManager,
         ToolUserManager toolUserManager,
         Provider<ToolUser.Context> creatorContextProvider)
     {
         super(commandSender, localizer, textFactory);
         this.structureType = structureType;
         this.structureName = structureName;
+        this.permissionsManager = permissionsManager;
         this.toolUserManager = toolUserManager;
         this.creatorContextProvider = creatorContextProvider;
     }
@@ -62,6 +70,30 @@ public class NewStructure extends BaseCommand
                                                                (IPlayer) getCommandSender(), structureName),
                                       Constants.STRUCTURE_CREATOR_TIME_LIMIT);
         return CompletableFuture.completedFuture(null);
+    }
+
+    private PermissionsStatus hasPermission(PermissionsStatus basePermissions)
+    {
+        if (!basePermissions.hasAnyPermission())
+            return basePermissions;
+
+        if (!basePermissions.hasUserPermission() && basePermissions.hasAdminPermission())
+            return basePermissions;
+
+        final boolean permissionForType =
+            permissionsManager.hasPermissionToCreateStructure(getCommandSender(), structureType);
+
+        return new PermissionsStatus(
+            basePermissions.hasUserPermission() && permissionForType,
+            basePermissions.hasAdminPermission());
+    }
+
+    @Override
+    protected CompletableFuture<PermissionsStatus> hasPermission()
+    {
+        return super.hasPermission()
+                    .thenApply(this::hasPermission)
+                    .exceptionally(e -> Util.exceptionally(e, new PermissionsStatus(false, false)));
     }
 
     @AssistedFactory

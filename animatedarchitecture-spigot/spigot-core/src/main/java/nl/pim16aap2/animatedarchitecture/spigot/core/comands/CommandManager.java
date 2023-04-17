@@ -17,13 +17,17 @@ import cloud.commandframework.paper.PaperCommandManager;
 import lombok.extern.flogger.Flogger;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.format.NamedTextColor;
+import nl.pim16aap2.animatedarchitecture.core.api.IPermissionsManager;
+import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandDefinition;
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
+import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
@@ -45,6 +49,8 @@ public final class CommandManager
     private final JavaPlugin plugin;
     private final ILocalizer localizer;
     private final ITextFactory textFactory;
+    private final IPermissionsManager permissionsManager;
+    private final StructureTypeManager structureTypeManager;
     private final StructureRetrieverFactory structureRetrieverFactory;
     private volatile @Nullable PaperCommandManager<ICommandSender> manager;
     private boolean asyncCompletions = false;
@@ -54,15 +60,23 @@ public final class CommandManager
     private final IsOpenParser isOpenParser;
     private final CommandExecutor executor;
 
-    @Inject//
-    CommandManager(
-        JavaPlugin plugin, ILocalizer localizer, ITextFactory textFactory,
-        StructureRetrieverFactory structureRetrieverFactory, StructureTypeParser structureTypeParser,
-        DirectionParser directionParser, IsOpenParser isOpenParser, CommandExecutor executor)
+    @Inject CommandManager(
+        JavaPlugin plugin,
+        ILocalizer localizer,
+        ITextFactory textFactory,
+        IPermissionsManager permissionsManager,
+        StructureTypeManager structureTypeManager,
+        StructureRetrieverFactory structureRetrieverFactory,
+        StructureTypeParser structureTypeParser,
+        DirectionParser directionParser,
+        IsOpenParser isOpenParser,
+        CommandExecutor executor)
     {
         this.plugin = plugin;
         this.localizer = localizer;
         this.textFactory = textFactory;
+        this.permissionsManager = permissionsManager;
+        this.structureTypeManager = structureTypeManager;
         this.structureRetrieverFactory = structureRetrieverFactory;
         this.structureTypeParser = structureTypeParser;
         this.directionParser = directionParser;
@@ -303,8 +317,22 @@ public final class CommandManager
             baseInit(builder, CommandDefinition.NEW_STRUCTURE, "commands.new_structure.description")
                 .argument(defaultStructureTypeArgument(true).build())
                 .argument(StringArgument.<ICommandSender>builder("structureName").asOptional().build())
+                .permission(this::hasPermissionForNewStructure)
                 .handler(executor::newStructure)
         );
+    }
+
+    private boolean hasPermissionForNewStructure(ICommandSender commandSender)
+    {
+        if (!(commandSender instanceof IPlayer player))
+            return true;
+
+        if (!permissionsManager.hasPermission(player, CommandDefinition.NEW_STRUCTURE.getLowestPermission()))
+            return false;
+
+        return structureTypeManager
+            .getEnabledStructureTypes().stream()
+            .anyMatch(type -> permissionsManager.hasPermissionToCreateStructure(player, type));
     }
 
     private void initCmdRemoveOwner(
@@ -403,8 +431,8 @@ public final class CommandManager
     {
         final CommandDefinition previewDefinition =
             new CommandDefinition("PREVIEW",
-                                  CommandDefinition.PREFIX_USER + "preview",
-                                  CommandDefinition.PREFIX_ADMIN + "bypass.preview");
+                                  Constants.PERMISSION_PREFIX_USER + "preview",
+                                  Constants.PERMISSION_PREFIX_ADMIN + "bypass.preview");
 
         manager.command(
             baseInit(builder, previewDefinition, "commands.preview.description")

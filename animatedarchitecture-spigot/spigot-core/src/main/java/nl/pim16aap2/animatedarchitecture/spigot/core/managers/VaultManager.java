@@ -11,6 +11,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.IRestartable;
+import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
@@ -410,6 +411,15 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     public boolean isOp(IPlayer player)
     {
         return isOp(getBukkitPlayer(player));
+    }
+
+    @Override
+    public boolean hasPermissionToCreateStructure(ICommandSender sender, StructureType type)
+    {
+        return sender
+            .getPlayer()
+            .map(player -> hasPermission(player, type.getCreationPermission()))
+            .orElse(true);
     }
 
     private @Nullable Player getBukkitPlayer(IPlayer player)

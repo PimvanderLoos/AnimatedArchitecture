@@ -59,7 +59,12 @@ public class StructureTypeParser implements ArgumentParser<ICommandSender, Struc
     @Override
     public List<String> suggestions(CommandContext<ICommandSender> commandContext, String input)
     {
-        return suggestions.keySet().stream().filter(val -> startsWith(input, val)).toList();
+        return suggestions
+            .entrySet().stream()
+            .filter(entry -> startsWith(input, entry.getKey()))
+            .filter(entry -> commandContext.hasPermission(entry.getValue().getCreationPermission()))
+            .map(Map.Entry::getKey)
+            .toList();
     }
 
     /**

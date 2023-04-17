@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
+import nl.pim16aap2.animatedarchitecture.core.api.IPermissionsManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
@@ -18,6 +19,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 @Timeout(1)
@@ -36,7 +39,10 @@ class NewStructureTest
     private NewStructure.IFactory factory;
 
     @Mock
-    javax.inject.Provider<ToolUser.Context> creatorContextProvider;
+    private javax.inject.Provider<ToolUser.Context> creatorContextProvider;
+
+    @Mock
+    private IPermissionsManager permissionsManager;
 
     @BeforeEach
     void init()
@@ -46,14 +52,59 @@ class NewStructureTest
         CommandTestingUtil.initCommandSenderPermissions(commandSender, true, true);
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
+        Mockito.when(permissionsManager.hasPermissionToCreateStructure(Mockito.any(), Mockito.any())).thenReturn(true);
+        Mockito.when(permissionsManager.hasPermission(Mockito.any(), Mockito.any())).thenReturn(true);
+        Mockito.when(commandSender.hasPermission(Mockito.any(CommandDefinition.class)))
+               .thenReturn(CompletableFuture.completedFuture(new PermissionsStatus(true, false)));
 
         Mockito.when(factory.newNewStructure(Mockito.any(ICommandSender.class), Mockito.any(StructureType.class),
                                              Mockito.any()))
-               .thenAnswer(invoc -> new NewStructure(invoc.getArgument(0, ICommandSender.class), localizer,
-                                                     ITextFactory.getSimpleTextFactory(),
+               .thenAnswer(invoc -> new NewStructure(invoc.getArgument(0, ICommandSender.class),
                                                      invoc.getArgument(1, StructureType.class),
-                                                     invoc.getArgument(2, String.class),
+                                                     invoc.getArgument(2, String.class), localizer,
+                                                     ITextFactory.getSimpleTextFactory(),
+                                                     permissionsManager,
                                                      toolUserManager, creatorContextProvider));
+    }
+
+    @Test
+    void testPermissionsWithCreateStructurePermission()
+        throws ExecutionException, InterruptedException
+    {
+        Mockito.when(permissionsManager.hasPermissionToCreateStructure(Mockito.any(), Mockito.any())).thenReturn(true);
+        final NewStructure cmd = factory.newNewStructure(commandSender, doorType);
+
+        setCommandSenderCommandPermissions(commandSender, false, false);
+        Assertions.assertEquals(new PermissionsStatus(false, false), cmd.hasPermission().get());
+
+        setCommandSenderCommandPermissions(commandSender, false, true);
+        Assertions.assertEquals(new PermissionsStatus(false, true), cmd.hasPermission().get());
+
+        setCommandSenderCommandPermissions(commandSender, true, false);
+        Assertions.assertEquals(new PermissionsStatus(true, false), cmd.hasPermission().get());
+
+        setCommandSenderCommandPermissions(commandSender, true, true);
+        Assertions.assertEquals(new PermissionsStatus(true, true), cmd.hasPermission().get());
+    }
+
+    @Test
+    void testPermissionsWithoutCreateStructurePermission()
+        throws ExecutionException, InterruptedException
+    {
+        Mockito.when(permissionsManager.hasPermissionToCreateStructure(Mockito.any(), Mockito.any())).thenReturn(false);
+        final NewStructure cmd = factory.newNewStructure(commandSender, doorType);
+
+        setCommandSenderCommandPermissions(commandSender, false, false);
+        Assertions.assertEquals(new PermissionsStatus(false, false), cmd.hasPermission().get());
+
+        setCommandSenderCommandPermissions(commandSender, false, true);
+        Assertions.assertEquals(new PermissionsStatus(false, true), cmd.hasPermission().get());
+
+        setCommandSenderCommandPermissions(commandSender, true, false);
+        Assertions.assertEquals(new PermissionsStatus(false, false), cmd.hasPermission().get());
+
+        setCommandSenderCommandPermissions(commandSender, true, true);
+        Assertions.assertEquals(new PermissionsStatus(false, true), cmd.hasPermission().get());
     }
 
     @Test
@@ -83,5 +134,13 @@ class NewStructureTest
         Assertions.assertDoesNotThrow(
             () -> factory.newNewStructure(commandSender, doorType, name).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(toolUserManager).startToolUser(namedCreator, Constants.STRUCTURE_CREATOR_TIME_LIMIT);
+    }
+
+    private static void setCommandSenderCommandPermissions(
+        ICommandSender commandSender, boolean userPermission, boolean adminPermission)
+    {
+        Mockito.when(commandSender.hasPermission(Mockito.any(CommandDefinition.class)))
+               .thenReturn(CompletableFuture.completedFuture(
+                   new PermissionsStatus(userPermission, adminPermission)));
     }
 }

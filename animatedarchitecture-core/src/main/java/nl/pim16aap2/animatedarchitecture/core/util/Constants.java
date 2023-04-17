@@ -11,6 +11,20 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 public final class Constants
 {
     /**
+     * The prefix of all permissions that a regular user should have access to for normal usage.
+     * <p>
+     * This will include stuff like creating new structures and managing structures that you own.
+     */
+    public static final String PERMISSION_PREFIX_USER = "animatedarchitecture.user.";
+
+    /**
+     * The prefix of all permissions for admin-related actions.
+     * <p>
+     * This should include stuff like affecting server settings and managing structures owned by other players.
+     */
+    public static final String PERMISSION_PREFIX_ADMIN = "animatedarchitecture.admin.";
+
+    /**
      * The name used by all entities created by AnimatedArchitecture.
      */
     public static final String ANIMATED_ARCHITECTURE_ENTITY_NAME = "AnimatedArchitectureEntity";
