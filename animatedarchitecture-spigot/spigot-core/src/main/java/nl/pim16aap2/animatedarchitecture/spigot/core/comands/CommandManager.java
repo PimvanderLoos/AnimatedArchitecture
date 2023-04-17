@@ -286,6 +286,7 @@ public final class CommandManager
         manager.command(
             baseInit(builder, CommandDefinition.LOCK, "commands.lock.description")
                 .argument(BooleanArgument.of("lockStatus"))
+                .argument(defaultStructureArgument(true, StructureAttribute.INFO).build())
                 .handler(executor::lock)
         );
     }
