@@ -305,8 +305,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         throws Exception
     {
         final @Nullable String structureTypeResult = structureBaseRS.getString("type");
-        final Optional<StructureType> structureType = structureTypeManager.getStructureTypeFromFullName(
-            structureTypeResult);
+        final Optional<StructureType> structureType = structureTypeManager.getFromFullName(structureTypeResult);
 
         if (!structureType.map(structureTypeManager::isRegistered).orElse(false))
         {
@@ -395,7 +394,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                                       .setNextString(structureType.getFullName())) > 0, false);
 
         if (removed)
-            structureTypeManager.unregisterStructureType(structureType);
+            structureTypeManager.setEnabledState(structureType, false);
         return removed;
     }
 

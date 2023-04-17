@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Represents a class used to read and access the audio configuration.
@@ -119,12 +120,19 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
     private Map<StructureType, @Nullable AudioSet> mergeMaps(
         Map<String, @Nullable AudioSet> parsed, Map<StructureType, @Nullable AudioSet> defaults)
     {
+        final Map<String, StructureType> types = structureTypeManager
+            .getEnabledStructureTypes().stream()
+            .collect(Collectors.toMap(StructureType::getSimpleName, type -> type));
+
         final LinkedHashMap<StructureType, @Nullable AudioSet> merged = new LinkedHashMap<>(defaults);
         for (final Map.Entry<String, @Nullable AudioSet> entry : parsed.entrySet())
         {
             if (KEY_DEFAULT.equals(entry.getKey()))
                 continue;
-            structureTypeManager.getStructureType(entry.getKey()).ifPresent(type -> merged.put(type, entry.getValue()));
+
+            final @Nullable StructureType type = types.get(entry.getKey());
+            if (type != null)
+                merged.put(type, entry.getValue());
         }
         return merged;
     }

@@ -3,11 +3,11 @@ package nl.pim16aap2.animatedarchitecture.core.extensions;
 import com.google.common.flogger.StackSize;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
-import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.Restartable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import org.jetbrains.annotations.Nullable;
 
@@ -208,7 +208,7 @@ public final class StructureTypeLoader extends Restartable
         final List<StructureType> types =
             new StructureTypeInitializer(typeInfoList, structureTypeClassLoader, config.debug()).loadStructureTypes();
 
-        structureTypeManager.registerStructureTypes(types);
+        structureTypeManager.register(types);
         return types;
     }
 
