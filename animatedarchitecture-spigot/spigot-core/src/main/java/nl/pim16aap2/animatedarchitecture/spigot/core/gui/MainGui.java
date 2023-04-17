@@ -38,6 +38,7 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
     private final AnimatedArchitecturePlugin animatedArchitecturePlugin;
     private final ILocalizer localizer;
     private final InfoGui.IFactory infoGuiFactory;
+    private final CreateStructureGui.IFactory createStructureGuiFactory;
     private final ITextFactory textFactory;
     private final GuiStructureDeletionManager deletionManager;
     private final IExecutor executor;
@@ -59,6 +60,7 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
         ILocalizer localizer,
         ITextFactory textFactory,
         InfoGui.IFactory infoGuiFactory,
+        CreateStructureGui.IFactory createStructureGuiFactory,
         GuiStructureDeletionManager deletionManager,
         IExecutor executor,
         ConfigSpigot config,
@@ -66,6 +68,7 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
         @Assisted List<AbstractStructure> structures)
     {
         this.textFactory = textFactory;
+        this.createStructureGuiFactory = createStructureGuiFactory;
         this.deletionManager = deletionManager;
         this.executor = executor;
         this.animatedArchitecturePlugin = animatedArchitecturePlugin;
@@ -97,7 +100,7 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
 
     private InventoryGui createGUI()
     {
-        final String[] guiSetup = GuiUtil.fillLinesWithChar('g', structures.size(), "fp     nl");
+        final String[] guiSetup = GuiUtil.fillLinesWithChar('g', structures.size(), "fp  h  nl");
 
         final InventoryGui gui =
             new InventoryGui(animatedArchitecturePlugin,
@@ -130,11 +133,12 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
                 {
                     selectedStructure = structure;
                     final InfoGui infoGui = infoGuiFactory.newInfoGUI(structure, inventoryHolder);
-                    infoGui.getInventoryGui().setCloseAction(close ->
-                                                             {
-                                                                 this.selectedStructure = null;
-                                                                 return true;
-                                                             });
+                    infoGui.getInventoryGui().setCloseAction(
+                        close ->
+                        {
+                            this.selectedStructure = null;
+                            return true;
+                        });
                     return true;
                 },
                 structure.getNameAndUid());
@@ -154,6 +158,16 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
         gui.addElement(new GuiPageElement(
             'p', new ItemStack(Material.BIRCH_SIGN), GuiPageElement.PageAction.PREVIOUS,
             localizer.getMessage("gui.main_page.nav.previous_page", "%prevpage%", "%pages%")));
+
+        gui.addElement(new StaticGuiElement(
+            'h',
+            new ItemStack(Material.WRITABLE_BOOK),
+            click ->
+            {
+                createStructureGuiFactory.newCreateStructureGui(inventoryHolder);
+                return true;
+            },
+            localizer.getMessage("gui.new_structure_page.header")));
 
         //noinspection SpellCheckingInspection
         gui.addElement(new GuiPageElement(
