@@ -105,8 +105,8 @@ public class Toggle extends BaseCommand
         return switch (structureActionType)
         {
             case TOGGLE -> true;
-            case OPEN -> structure.isCloseable();
-            case CLOSE -> structure.isOpenable();
+            case CLOSE -> structure.isCloseable();
+            case OPEN -> structure.isOpenable();
         };
     }
 
@@ -126,8 +126,14 @@ public class Toggle extends BaseCommand
         }
         if (!canToggle(structure))
         {
+            final String msg = switch (structureActionType)
+            {
+                case OPEN -> "commands.toggle.error.already_open";
+                case CLOSE -> "commands.toggle.error.already_closed";
+                case TOGGLE -> "commands.toggle.error.cannot_toggle";
+            };
             getCommandSender().sendMessage(textFactory.newText().append(
-                localizer.getMessage("commands.toggle.error.cannot_toggle"), TextType.ERROR,
+                localizer.getMessage(msg), TextType.ERROR,
                 arg -> arg.highlight(localizer.getStructureType(structure)),
                 arg -> arg.highlight(structure.getBasicInfo())));
 
@@ -226,6 +232,20 @@ public class Toggle extends BaseCommand
         {
             return newToggle(
                 commandSender, actionType, animationType, null, true, structureRetrievers);
+        }
+
+        /**
+         * See
+         * {@link #newToggle(ICommandSender, StructureActionType, AnimationType, Double, boolean,
+         * StructureRetriever...)}.
+         * <p>
+         * Defaults to null for the speed multiplier and true for preventPerpetualMovement.
+         */
+        default Toggle newToggle(
+            ICommandSender commandSender, StructureActionType actionType, StructureRetriever... structureRetrievers)
+        {
+            return newToggle(
+                commandSender, actionType, Toggle.DEFAULT_ANIMATION_TYPE, null, true, structureRetrievers);
         }
 
         /**
