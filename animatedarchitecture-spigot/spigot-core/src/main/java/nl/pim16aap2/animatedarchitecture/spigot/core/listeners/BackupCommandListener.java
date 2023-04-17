@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.listeners;
 
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -48,7 +49,7 @@ public final class BackupCommandListener implements CommandExecutor
 
     private boolean isAdmin(Player player)
     {
-        return player.hasPermission("animatedarchitecture.admin.info");
+        return player.hasPermission(Constants.PERMISSION_PREFIX_ADMIN + "restart");
     }
 
     /**

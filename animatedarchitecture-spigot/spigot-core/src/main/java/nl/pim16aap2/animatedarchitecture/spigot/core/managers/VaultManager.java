@@ -17,7 +17,6 @@ import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
-import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.IPermissionsManagerSpigot;
@@ -32,7 +31,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
@@ -387,9 +385,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     @Override
     public boolean hasBypassPermissionsForAttribute(Player player, StructureAttribute structureAttribute)
     {
-        return player.isOp() ||
-            player.hasPermission(
-                Constants.ATTRIBUTE_BYPASS_PERMISSION_PREFIX + structureAttribute.name().toLowerCase(Locale.ROOT));
+        return player.isOp() || player.hasPermission(structureAttribute.getAdminPermissionNode());
     }
 
     @Override
