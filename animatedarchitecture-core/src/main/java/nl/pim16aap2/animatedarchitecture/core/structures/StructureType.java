@@ -6,6 +6,7 @@ import nl.pim16aap2.animatedarchitecture.core.audio.AudioSet;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
+import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.LazyValue;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import org.jetbrains.annotations.Nullable;
@@ -31,7 +32,10 @@ public abstract class StructureType
     protected final String pluginName;
 
     /**
-     * Gets the name of this {@link StructureType}. Note that this is always in lower case!
+     * Gets the simple name of this {@link StructureType}. Note that this is always in lower case!
+     * <p>
+     * The simple name is the name of the {@link StructureType} without the plugin name. For example, "windmill",
+     * "bigdoor", "flag", etc.
      *
      * @return The name of this {@link StructureType}.
      */
@@ -201,5 +205,15 @@ public abstract class StructureType
     {
         // There may only ever exist 1 instance of each StructureType.
         return super.equals(obj);
+    }
+
+    /**
+     * Gets the permission that is required to create a structure of this type.
+     *
+     * @return The permission that is required to create a structure of this type.
+     */
+    public String getCreationPermission()
+    {
+        return Constants.PERMISSION_PREFIX_USER + "create." + getSimpleName();
     }
 }

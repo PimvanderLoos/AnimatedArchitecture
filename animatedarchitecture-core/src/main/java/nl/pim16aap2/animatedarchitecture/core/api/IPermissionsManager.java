@@ -1,6 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.core.api;
 
+import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 
 import java.util.OptionalInt;
 
@@ -53,4 +55,15 @@ public interface IPermissionsManager
      * @return True if the player is a server operator on this server.
      */
     boolean isOp(IPlayer player);
+
+    /**
+     * Checks if the given command sender has permission to create a structure of the given type.
+     *
+     * @param sender
+     *     The command sender to check.
+     * @param type
+     *     The type of structure to check.
+     * @return True if the sender has permission to create a structure of the given type.
+     */
+    boolean hasPermissionToCreateStructure(ICommandSender sender, StructureType type);
 }
