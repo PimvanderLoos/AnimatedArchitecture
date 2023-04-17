@@ -199,9 +199,9 @@ public class SQLiteJDBCDriverConnectionTest
 
     private void registerStructureTypes()
     {
-        structureTypeManager.registerStructureType(StructureTypeBigDoor.get());
-        structureTypeManager.registerStructureType(StructureTypePortcullis.get());
-        structureTypeManager.registerStructureType(StructureTypeDrawbridge.get());
+        structureTypeManager.register(StructureTypeBigDoor.get());
+        structureTypeManager.register(StructureTypePortcullis.get());
+        structureTypeManager.register(StructureTypeDrawbridge.get());
     }
 
     /**

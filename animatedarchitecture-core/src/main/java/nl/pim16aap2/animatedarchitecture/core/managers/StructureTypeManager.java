@@ -1,8 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.core.managers;
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.Getter;
-import lombok.Value;
-import lombok.experimental.NonFinal;
+import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
@@ -11,35 +11,98 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.util.SafeStringBuilder;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * This class manages all {@link StructureType}s. Before a type can be used, it will have to be registered here.
- *
- * @author Pim
+ * <p>
+ * Structure types can be enabled and disabled. When a type is disabled, it will not be available for use, but it is
+ * still registered and can still be used by other types that may depend on it.
  */
-@SuppressWarnings("unused")
 @Singleton
 @Flogger
+@ThreadSafe
 public final class StructureTypeManager implements IDebuggable
 {
     private static final boolean DEFAULT_IS_ENABLED = true;
 
-    private final Map<StructureType, StructureRegistrationStatus> structureTypeStatus = new ConcurrentHashMap<>();
-    private final Map<String, StructureType> structureTypeFromName = new ConcurrentHashMap<>();
-    private final Map<String, StructureType> structureTypeFromFullName = new ConcurrentHashMap<>();
     private final LocalizationManager localizationManager;
+
+    /**
+     * Private, modifiable list of all {@link StructureType}s that are currently enabled.
+     */
+    @GuardedBy("lock")
+    private final List<StructureType> enabledStructureTypes0 = new ArrayList<>()
+    {
+        @Override
+        public boolean add(StructureType structureType)
+        {
+            super.add(structureType);
+            enabledStructureTypes0.sort(Comparator.comparing(StructureType::getSimpleName));
+            return true;
+        }
+    };
+
+    /**
+     * Private, modifiable list of all {@link StructureType}s that are currently disabled.
+     */
+    @GuardedBy("lock")
+    private final List<StructureType> disabledStructureTypes0 = new ArrayList<>()
+    {
+        @Override
+        public boolean add(StructureType structureType)
+        {
+            super.add(structureType);
+            disabledStructureTypes0.sort(Comparator.comparing(StructureType::getSimpleName));
+            return true;
+        }
+    };
+
+    /**
+     * Gets all {@link StructureType}s that are currently enabled.
+     *
+     * @return All {@link StructureType}s that are currently enabled.
+     */
+    @Getter
+    private final List<StructureType> enabledStructureTypes = Collections.unmodifiableList(enabledStructureTypes0);
+
+    /**
+     * Gets all {@link StructureType}s that are currently disabled.
+     *
+     * @return All {@link StructureType}s that are currently disabled.
+     */
+    @Getter
+    private final List<StructureType> disabledStructureTypes = Collections.unmodifiableList(disabledStructureTypes0);
+
+    /**
+     * Private, modifiable map of all {@link StructureType}s that are currently registered and whether they are
+     * enabled.
+     */
+    @GuardedBy("lock")
+    private final Map<StructureType, Boolean> registeredStructureTypes0 = new IdentityHashMap<>();
+
+    /**
+     * Gets all {@link StructureType}s that are currently registered.
+     *
+     * @return All {@link StructureType}s that are currently registered.
+     */
+    @Getter
+    private final Set<StructureType> registeredStructureTypes = Collections.unmodifiableSet(
+        registeredStructureTypes0.keySet());
+
+    @GuardedBy("lock")
+    private final Map<String, StructureType> structureTypeFromFullName = new HashMap<>();
 
     @Inject
     public StructureTypeManager(DebuggableRegistry debuggableRegistry, LocalizationManager localizationManager)
@@ -49,83 +112,16 @@ public final class StructureTypeManager implements IDebuggable
     }
 
     /**
-     * All registered AND enabled {@link StructureType}s.
-     */
-    @Getter
-    private final List<StructureType> sortedStructureTypes = new CopyOnWriteArrayList<>()
-    {
-        @Override
-        public boolean add(StructureType structureType)
-        {
-            super.add(structureType);
-            sortedStructureTypes.sort(Comparator.comparing(StructureType::getSimpleName));
-            return true;
-        }
-    };
-
-    /**
-     * Gets all {@link StructureType}s that are currently registered.
-     *
-     * @return All {@link StructureType}s that are currently registered.
-     */
-    public Set<StructureType> getRegisteredStructureTypes()
-    {
-        return Collections.unmodifiableSet(structureTypeStatus.keySet());
-    }
-
-    private List<StructureType> getStructureTypesWithStatus(boolean status)
-    {
-        final List<StructureType> enabledStructureTypes = new ArrayList<>();
-        for (final Map.Entry<StructureType, StructureRegistrationStatus> structureType : structureTypeStatus.entrySet())
-            if (structureType.getValue().status == status)
-                enabledStructureTypes.add(structureType.getKey());
-        enabledStructureTypes.sort(Comparator.comparing(StructureType::getSimpleName));
-        return enabledStructureTypes;
-    }
-
-    /**
-     * Gets all {@link StructureType}s that are currently enabled.
-     *
-     * @return All {@link StructureType}s that are currently enabled.
-     */
-    public List<StructureType> getEnabledStructureTypes()
-    {
-        return getStructureTypesWithStatus(true);
-    }
-
-    /**
-     * Gets all {@link StructureType}s that are currently disabled.
-     *
-     * @return All {@link StructureType}s that are currently disabled.
-     */
-    public List<StructureType> getDisabledStructureTypes()
-    {
-        return getStructureTypesWithStatus(false);
-    }
-
-    /**
      * Checks if an {@link StructureType} is enabled.
      *
      * @param structureType
      *     The {@link StructureType} to check.
      * @return True if the {@link StructureType} is enabled, otherwise false.
      */
+    @Locked.Read
     public boolean isRegistered(StructureType structureType)
     {
-        return structureTypeStatus.containsKey(structureType);
-    }
-
-    /**
-     * Tries to get a {@link StructureType} from it name as defined by {@link StructureType#getSimpleName()}. This
-     * method is case-insensitive.
-     *
-     * @param typeName
-     *     The name of the type.
-     * @return The {@link StructureType} to retrieve, if possible.
-     */
-    public Optional<StructureType> getStructureType(String typeName)
-    {
-        return Optional.ofNullable(structureTypeFromName.get(typeName.toLowerCase(Locale.ENGLISH)));
+        return registeredStructureTypes0.containsKey(structureType);
     }
 
     /**
@@ -136,7 +132,8 @@ public final class StructureTypeManager implements IDebuggable
      *     The fully qualified name of the type.
      * @return The {@link StructureType} to retrieve, if possible.
      */
-    public Optional<StructureType> getStructureTypeFromFullName(@Nullable String fullName)
+    @Locked.Read
+    public Optional<StructureType> getFromFullName(@Nullable String fullName)
     {
         if (fullName == null)
             return Optional.empty();
@@ -153,22 +150,36 @@ public final class StructureTypeManager implements IDebuggable
      *     The {@link StructureType} to check.
      * @return True if this {@link StructureType} is both registered and enabled.
      */
+    @Locked.Read
     public boolean isStructureTypeEnabled(StructureType structureType)
     {
-        final @Nullable StructureTypeManager.StructureRegistrationStatus info = structureTypeStatus.get(structureType);
-        return info != null && info.status;
+        final @Nullable Boolean result = registeredStructureTypes0.get(structureType);
+        return result != null && result;
     }
 
-    private void registerStructureType0(StructureType structureType, boolean isEnabled)
+    @GuardedBy("lock")
+    private void register0(StructureType structureType, boolean isEnabled)
     {
-        log.atInfo().log("Registering structure type: %s...", structureType.getFullNameWithVersion());
+        log.atInfo()
+           .log("Registering structure type: '%s'. Enabled: %s", structureType.getFullNameWithVersion(), isEnabled);
 
-        structureTypeStatus.put(structureType, new StructureRegistrationStatus(structureType.getFullName(), isEnabled));
-        structureTypeFromName.put(structureType.getSimpleName(), structureType);
+        final @Nullable Boolean result = registeredStructureTypes0.put(structureType, isEnabled);
+        if (result != null && result == isEnabled)
+            return;
+
+        final var from = isEnabled ? disabledStructureTypes0 : enabledStructureTypes0;
+        final var to = isEnabled ? enabledStructureTypes0 : disabledStructureTypes0;
+
+        to.add(structureType);
+
+        // If the structure type was already registered, we only need to remove it from the other list.
+        if (result != null)
+        {
+            from.remove(structureType);
+            return;
+        }
+
         structureTypeFromFullName.put(structureType.getFullName(), structureType);
-
-        if (isEnabled)
-            sortedStructureTypes.add(structureType);
     }
 
     /**
@@ -179,7 +190,8 @@ public final class StructureTypeManager implements IDebuggable
      * @param types
      *     The type(s) to register with the localization manager.
      */
-    private void registerTypeWithLocalizer(List<StructureType> types)
+    @GuardedBy("lock")
+    private void registerWithLocalizer(List<StructureType> types)
     {
         if (types.isEmpty())
             return;
@@ -195,9 +207,24 @@ public final class StructureTypeManager implements IDebuggable
      * @param structureType
      *     The {@link StructureType} to register.
      */
-    public void registerStructureType(StructureType structureType)
+    @Locked.Write
+    public void register(StructureType structureType)
     {
-        registerStructureType(structureType, DEFAULT_IS_ENABLED);
+        register(structureType, DEFAULT_IS_ENABLED);
+    }
+
+    /**
+     * Enables or disables a {@link StructureType}.
+     *
+     * @param structureType
+     *     The {@link StructureType} to enable or disable.
+     * @param isEnabled
+     *     Whether this {@link StructureType} should be enabled or not.
+     */
+    @Locked.Write
+    public void setEnabledState(StructureType structureType, boolean isEnabled)
+    {
+        register0(structureType, isEnabled);
     }
 
     /**
@@ -208,94 +235,40 @@ public final class StructureTypeManager implements IDebuggable
      * @param isEnabled
      *     Whether this {@link StructureType} should be enabled or not. Default = true.
      */
-    public void registerStructureType(StructureType structureType, boolean isEnabled)
+    @Locked.Write
+    public void register(StructureType structureType, boolean isEnabled)
     {
-        registerTypeWithLocalizer(List.of(structureType));
-        registerStructureType0(structureType, isEnabled);
+        registerWithLocalizer(List.of(structureType));
+        register0(structureType, isEnabled);
     }
 
     /**
-     * Unregisters a structure type. Note that it does <b>NOT</b> remove it or its structures from the database and that
-     * after unregistering it, that won't be possible anymore either.
-     * <p>
-     * Once unregistered, this type will be completely disabled and structures of this type cannot be used for
-     * anything.
-     *
-     * @param structureType
-     *     The type to unregister.
-     */
-    public void unregisterStructureType(StructureType structureType)
-    {
-        if (structureTypeStatus.remove(structureType) == null)
-        {
-            log.atWarning().log("Trying to unregister structure of type: %s, but it isn't registered already!",
-                                structureType.getSimpleName());
-            return;
-        }
-        structureTypeFromName.remove(structureType.getSimpleName());
-        structureTypeFromFullName.remove(structureType.getFullName());
-        sortedStructureTypes.remove(structureType);
-    }
-
-    /**
-     * Changes the status of a {@link StructureType}. If disabled, this type cannot be toggled or created.
-     *
-     * @param structureType
-     *     The {@link StructureType} to enabled or disable.
-     * @param isEnabled
-     *     True to enable this {@link StructureType} (default), or false to disable it.
-     */
-    @SuppressWarnings("unused")
-    public void setStructureTypeEnabled(StructureType structureType, boolean isEnabled)
-    {
-        final @Nullable StructureTypeManager.StructureRegistrationStatus info = structureTypeStatus.get(structureType);
-        if (info != null)
-        {
-            info.status = isEnabled;
-            if (!isEnabled)
-                sortedStructureTypes.remove(structureType);
-        }
-    }
-
-    /**
-     * Registers a list of {@link StructureType}s. See {@link #registerStructureType(StructureType)}.
+     * Registers a list of {@link StructureType}s. See {@link #register(StructureType)}.
      *
      * @param structureTypes
      *     The list of {@link StructureType}s to register.
      */
-    public void registerStructureTypes(List<StructureType> structureTypes)
+    @Locked.Write
+    public void register(List<StructureType> structureTypes)
     {
-        registerTypeWithLocalizer(structureTypes);
-        structureTypes.forEach(structureType -> registerStructureType0(structureType, DEFAULT_IS_ENABLED));
+        registerWithLocalizer(structureTypes);
+        structureTypes.forEach(structureType -> register0(structureType, DEFAULT_IS_ENABLED));
     }
 
     @Override
+    @Locked.Read
     public String getDebugInformation()
     {
         final SafeStringBuilder sb = new SafeStringBuilder("Registered structure types:\n");
-        for (final Map.Entry<StructureType, StructureRegistrationStatus> entry : structureTypeStatus.entrySet())
-        {
-            final StructureType structureType = entry.getKey();
-            sb.append("- ").append(structureType::toString).append(": ");
-            if (!entry.getValue().status)
-                sb.append("DISABLED");
-            else
-                sb.append("\n").appendIndented(2, structureType::getStructureSerializer);
-            sb.append('\n');
-        }
-        return sb.toString();
-    }
 
-    /**
-     * Describes the full name and the enabled status of a {@link StructureType}.
-     *
-     * @author Pim
-     */
-    @Value
-    private static class StructureRegistrationStatus
-    {
-        String fullName;
-        @NonFinal
-        boolean status;
+        sb.append("* Enabled:\n");
+        for (final StructureType structureType : enabledStructureTypes)
+            sb.append("  - ").append(structureType).append('\n');
+
+        sb.append("* Disabled:\n");
+        for (final StructureType structureType : disabledStructureTypes)
+            sb.append("  - ").append(structureType).append('\n');
+
+        return sb.toString();
     }
 }

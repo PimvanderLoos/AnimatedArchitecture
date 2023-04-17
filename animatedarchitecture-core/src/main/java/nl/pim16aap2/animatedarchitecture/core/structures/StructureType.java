@@ -81,7 +81,7 @@ public abstract class StructureType
 
     /**
      * Constructs a new {@link StructureType}. Don't forget to also register it using
-     * {@link StructureTypeManager#registerStructureType(StructureType)}.
+     * {@link StructureTypeManager#register(StructureType)}.
      *
      * @param pluginName
      *     The name of the plugin that owns this {@link StructureType}.
@@ -101,7 +101,7 @@ public abstract class StructureType
             validOpenDirections.isEmpty() ? EnumSet.noneOf(MovementDirection.class) :
             EnumSet.copyOf(validOpenDirections);
         this.localizationKey = localizationKey;
-        this.fullName = String.format("%s:%s", getPluginName(), getSimpleName()).toLowerCase(Locale.ENGLISH);
+        this.fullName = formatFullName(getPluginName(), getSimpleName());
         this.fullNameWithVersion = fullName + ":" + version;
 
         lazyStructureSerializer = new LazyValue<>(() -> new StructureSerializer<>(this));
@@ -166,6 +166,20 @@ public abstract class StructureType
     public @Nullable AudioSet getAudioSet()
     {
         return null;
+    }
+
+    /**
+     * Formats the given pluginName and simpleName into a fully-qualified name.
+     *
+     * @param pluginName
+     *     The name of the plugin that owns this {@link StructureType}.
+     * @param simpleName
+     *     The 'simple' name of this {@link StructureType}. E.g. "Flag", or "Windmill".
+     * @return The fully-qualified name of this {@link StructureType} formatted as
+     */
+    public static String formatFullName(String pluginName, String simpleName)
+    {
+        return String.format("%s:%s", pluginName, simpleName).toLowerCase(Locale.ENGLISH);
     }
 
     @Override
