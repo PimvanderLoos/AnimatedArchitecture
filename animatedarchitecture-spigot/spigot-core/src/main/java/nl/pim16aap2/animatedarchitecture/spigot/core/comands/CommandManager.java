@@ -341,8 +341,8 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.REMOVE_OWNER, "commands.remove_owner.description")
-                .argument(defaultStructureArgument(true, StructureAttribute.REMOVE_OWNER).build())
                 .argument(PlayerArgument.of("targetPlayer"))
+                .argument(defaultStructureArgument(false, StructureAttribute.REMOVE_OWNER).build())
                 .handler(executor::removeOwner)
         );
     }
