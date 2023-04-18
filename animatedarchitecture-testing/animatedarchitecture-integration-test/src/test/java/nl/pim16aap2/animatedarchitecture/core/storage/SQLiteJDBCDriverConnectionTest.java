@@ -185,11 +185,11 @@ public class SQLiteJDBCDriverConnectionTest
     private void deleteStructureTypes()
     {
         // Just make sure it still exists, to make debugging easier.
-        Assertions.assertTrue(storage.getStructure(13L).isPresent());
+        Assertions.assertTrue(storage.getStructure(3L).isPresent());
         Assertions.assertTrue(storage.deleteStructureType(StructureTypePortcullis.get()));
-        Assertions.assertTrue(storage.getStructure(11L).isPresent());
-        Assertions.assertTrue(storage.getStructure(12L).isPresent());
-        Assertions.assertFalse(storage.getStructure(13L).isPresent());
+        Assertions.assertTrue(storage.getStructure(1L).isPresent());
+        Assertions.assertTrue(storage.getStructure(2L).isPresent());
+        Assertions.assertFalse(storage.getStructure(3L).isPresent());
     }
 
     private void testStructureTypes()
@@ -279,27 +279,27 @@ public class SQLiteJDBCDriverConnectionTest
 
     public void partialIdentifiersFromName()
     {
-        Assertions.assertEquals(List.of(new DatabaseManager.StructureIdentifier(12L, "popular_door_name"),
-                                        new DatabaseManager.StructureIdentifier(13L, "popular_door_name")),
+        Assertions.assertEquals(List.of(new DatabaseManager.StructureIdentifier(2L, "popular_door_name"),
+                                        new DatabaseManager.StructureIdentifier(3L, "popular_door_name")),
                                 storage.getPartialIdentifiers("popular_", null, PermissionLevel.NO_PERMISSION));
 
         final IPlayer player1 = createPlayer(PLAYER_DATA_1);
-        Assertions.assertEquals(List.of(new DatabaseManager.StructureIdentifier(12L, "popular_door_name")),
+        Assertions.assertEquals(List.of(new DatabaseManager.StructureIdentifier(2L, "popular_door_name")),
                                 storage.getPartialIdentifiers("popular_", player1, PermissionLevel.NO_PERMISSION));
     }
 
     public void partialIdentifiersFromId()
     {
-        Assertions.assertEquals(List.of(new DatabaseManager.StructureIdentifier(25L, "popular_door_name"),
-                                        new DatabaseManager.StructureIdentifier(26L, "popular_door_name"),
-                                        new DatabaseManager.StructureIdentifier(27L, "popular_door_name"),
-                                        new DatabaseManager.StructureIdentifier(28L, "popular_door_name"),
-                                        new DatabaseManager.StructureIdentifier(29L, "popular_door_name")),
-                                storage.getPartialIdentifiers("2", null, PermissionLevel.NO_PERMISSION));
+        Assertions.assertEquals(List.of(new DatabaseManager.StructureIdentifier(1L, "random_door_name"),
+                                        new DatabaseManager.StructureIdentifier(15L, "popular_door_name"),
+                                        new DatabaseManager.StructureIdentifier(16L, "popular_door_name"),
+                                        new DatabaseManager.StructureIdentifier(17L, "popular_door_name"),
+                                        new DatabaseManager.StructureIdentifier(18L, "popular_door_name"),
+                                        new DatabaseManager.StructureIdentifier(19L, "popular_door_name")),
+                                storage.getPartialIdentifiers("1", null, PermissionLevel.NO_PERMISSION));
 
         final IPlayer player1 = createPlayer(PLAYER_DATA_1);
-        Assertions.assertEquals(List.of(new DatabaseManager.StructureIdentifier(11L, "random_door_name"),
-                                        new DatabaseManager.StructureIdentifier(12L, "popular_door_name")),
+        Assertions.assertEquals(List.of(new DatabaseManager.StructureIdentifier(1L, "random_door_name")),
                                 storage.getPartialIdentifiers("1", player1, PermissionLevel.NO_PERMISSION));
     }
 
@@ -316,10 +316,10 @@ public class SQLiteJDBCDriverConnectionTest
         Assertions.assertEquals(2, storage.getStructureCountForPlayer(PLAYER_DATA_1.getUUID()));
         Assertions.assertEquals(1, storage.getStructureCountForPlayer(PLAYER_DATA_2.getUUID()));
         Assertions.assertEquals(1, storage.getStructureCountByName(STRUCTURE_1_NAME));
-        Assertions.assertTrue(storage.getStructure(PLAYER_DATA_1.getUUID(), 11L).isPresent());
-        Assertions.assertEquals(structure1, storage.getStructure(PLAYER_DATA_1.getUUID(), 11L).get());
-        Assertions.assertFalse(storage.getStructure(PLAYER_DATA_1.getUUID(), 13L).isPresent());
-        final Optional<AbstractStructure> testStructure1 = storage.getStructure(11L);
+        Assertions.assertTrue(storage.getStructure(PLAYER_DATA_1.getUUID(), 1L).isPresent());
+        Assertions.assertEquals(structure1, storage.getStructure(PLAYER_DATA_1.getUUID(), 1L).get());
+        Assertions.assertFalse(storage.getStructure(PLAYER_DATA_1.getUUID(), 3L).isPresent());
+        final Optional<AbstractStructure> testStructure1 = storage.getStructure(1L);
         Assertions.assertTrue(testStructure1.isPresent());
         Assertions.assertEquals(structure1.getPrimeOwner(), testStructure1.get().getPrimeOwner());
         Assertions.assertEquals(structure1, testStructure1.get());
@@ -327,35 +327,35 @@ public class SQLiteJDBCDriverConnectionTest
         Assertions.assertTrue(storage.isAnimatedArchitectureWorld(WORLD_NAME));
         Assertions.assertFalse(storage.isAnimatedArchitectureWorld("fakeWorld"));
 
-        Assertions.assertEquals(1, storage.getOwnerCountOfStructure(11L));
+        Assertions.assertEquals(1, storage.getOwnerCountOfStructure(1L));
 
         long chunkId = Util.getChunkId(structure1.getPowerBlock());
         Assertions.assertEquals(3, storage.getStructuresInChunk(chunkId).size());
 
         // Check if adding owners works correctly.
-        UnitTestUtil.optionalEquals(1, storage.getStructure(11L), (structure) -> structure.getOwners().size());
+        UnitTestUtil.optionalEquals(1, storage.getStructure(1L), (structure) -> structure.getOwners().size());
 
         // Try adding playerData2 as owner of structure 2.
-        Assertions.assertTrue(storage.addOwner(12L, PLAYER_DATA_2, PermissionLevel.ADMIN));
+        Assertions.assertTrue(storage.addOwner(2L, PLAYER_DATA_2, PermissionLevel.ADMIN));
 
         // Try adding player 1 as owner of structure 2, while player 1 is already the creator! This is not allowed.
-        Assertions.assertFalse(storage.addOwner(12L, PLAYER_DATA_1, PermissionLevel.CREATOR));
+        Assertions.assertFalse(storage.addOwner(2L, PLAYER_DATA_1, PermissionLevel.CREATOR));
 
         // Try adding player 2 as owner of structure 2, while player 1 is already the creator! This is not allowed.
-        Assertions.assertFalse(storage.addOwner(12L, PLAYER_DATA_2, PermissionLevel.CREATOR));
+        Assertions.assertFalse(storage.addOwner(2L, PLAYER_DATA_2, PermissionLevel.CREATOR));
 
         // Try adding a player that is not in the database yet as owner.
-        UnitTestUtil.optionalEquals(1, storage.getStructure(11L), (structure) -> structure.getOwners().size());
-        Assertions.assertTrue(storage.addOwner(11L, PLAYER_DATA_3, PermissionLevel.ADMIN));
-        UnitTestUtil.optionalEquals(2, storage.getStructure(11L), (structure) -> structure.getOwners().size());
+        UnitTestUtil.optionalEquals(1, storage.getStructure(1L), (structure) -> structure.getOwners().size());
+        Assertions.assertTrue(storage.addOwner(1L, PLAYER_DATA_3, PermissionLevel.ADMIN));
+        UnitTestUtil.optionalEquals(2, storage.getStructure(1L), (structure) -> structure.getOwners().size());
 
         // Verify the permission level of player 2 over structure 2.
-        UnitTestUtil.optionalEquals(PermissionLevel.ADMIN, storage.getStructure(12L),
+        UnitTestUtil.optionalEquals(PermissionLevel.ADMIN, storage.getStructure(2L),
                                     (structure) -> structure.getOwner(PLAYER_DATA_2.getUUID())
                                                             .map(StructureOwner::permission)
                                                             .orElse(PermissionLevel.NO_PERMISSION));
         // Verify there are only 2 owners of structure 2 (player 1 didn't get copied).
-        UnitTestUtil.optionalEquals(2, storage.getStructure(12L), (structure) -> structure.getOwners().size());
+        UnitTestUtil.optionalEquals(2, storage.getStructure(2L), (structure) -> structure.getOwners().size());
 
         // Verify that player 2 is the creator of exactly 1 structure.
         Assertions.assertEquals(1, storage.getStructures(PLAYER_DATA_2.getUUID(), PermissionLevel.CREATOR).size());
@@ -377,19 +377,19 @@ public class SQLiteJDBCDriverConnectionTest
                                           .size());
 
         // Verify that adding an existing owner overrides the permission level.
-        Assertions.assertTrue(storage.addOwner(12L, PLAYER_DATA_2, PermissionLevel.USER));
-        UnitTestUtil.optionalEquals(PermissionLevel.USER, storage.getStructure(12L),
+        Assertions.assertTrue(storage.addOwner(2L, PLAYER_DATA_2, PermissionLevel.USER));
+        UnitTestUtil.optionalEquals(PermissionLevel.USER, storage.getStructure(2L),
                                     (structure) -> structure.getOwner(PLAYER_DATA_2.getUUID())
                                                             .map(StructureOwner::permission)
                                                             .orElse(PermissionLevel.NO_PERMISSION));
 
         // Remove player 2 as owner of structure 2.
-        Assertions.assertTrue(storage.removeOwner(12L, PLAYER_DATA_2.getUUID()));
-        UnitTestUtil.optionalEquals(1, storage.getStructure(12L), (structure) -> structure.getOwners().size());
+        Assertions.assertTrue(storage.removeOwner(2L, PLAYER_DATA_2.getUUID()));
+        UnitTestUtil.optionalEquals(1, storage.getStructure(2L), (structure) -> structure.getOwners().size());
 
         // Try to remove player 1 (creator) of structure 2. This is not allowed.
-        Assertions.assertFalse(storage.removeOwner(12L, PLAYER_DATA_1.getUUID()));
-        UnitTestUtil.optionalEquals(1, storage.getStructure(12L), (structure) -> structure.getOwners().size());
+        Assertions.assertFalse(storage.removeOwner(2L, PLAYER_DATA_1.getUUID()));
+        UnitTestUtil.optionalEquals(1, storage.getStructure(2L), (structure) -> structure.getOwners().size());
 
         // Verify that after deletion of player 2 as owner, player 2 is now owner with permission level <= 1
         // of exactly 1 structure, with the name shared between structures 2 and 3. This will be structure 3.
@@ -406,21 +406,21 @@ public class SQLiteJDBCDriverConnectionTest
         // Verify that there are exactly 2 structures with the name shared between structures 2 and 3 in the database.
         Assertions.assertEquals(2, storage.getStructures(STRUCTURES_2_3_NAME).size());
 
-        // Insert a copy of structure 1 in the database (will have structureUID = 14L).
+        // Insert a copy of structure 1 in the database (will have structureUID = 4L).
         Assertions.assertTrue(storage.insert(structure1).isPresent());
 
         // Verify there are now exactly 2 structures with the name of structure 1 in the database.
         Assertions.assertEquals(2, storage.getStructures(STRUCTURE_1_NAME).size());
 
-        // Remove the just-added copy of structure 1 (structureUID = 14L) from the database.
-        Assertions.assertTrue(storage.removeStructure(14L));
+        // Remove the just-added copy of structure 1 (structureUID = 4L) from the database.
+        Assertions.assertTrue(storage.removeStructure(4L));
 
-        // Verify that after removal of the copy of structure 1 (structureUID = 14L),
+        // Verify that after removal of the copy of structure 1 (structureUID = 4L),
         // there is now exactly 1 structure named STRUCTURE_1_NAME in the database again.
         Assertions.assertEquals(1, storage.getStructures(STRUCTURE_1_NAME).size());
 
-        // Verify that player 2 cannot delete structures they do not own (structure 11L belongs to player 1).
-        Assertions.assertFalse(storage.removeOwner(11L, PLAYER_DATA_2.getUUID()));
+        // Verify that player 2 cannot delete structures they do not own (structure 1L belongs to player 1).
+        Assertions.assertFalse(storage.removeOwner(1L, PLAYER_DATA_2.getUUID()));
         Assertions.assertEquals(1, storage.getStructures(STRUCTURE_1_NAME).size());
 
         // Add 10 copies of structure3 with a different name to the database.
@@ -438,8 +438,8 @@ public class SQLiteJDBCDriverConnectionTest
         // entries of the structure with the new name after batch removal. Also revert the name change of structure 3.
         Assertions.assertTrue(storage.removeStructures(PLAYER_DATA_2.getUUID(), DELETE_STRUCTURE_NAME));
         Assertions.assertEquals(0, storage.getStructures(DELETE_STRUCTURE_NAME).size());
-        Assertions.assertTrue(storage.getStructure(13L).isPresent());
-        structure3.setName(storage.getStructure(13L).get().getName());
+        Assertions.assertTrue(storage.getStructure(3L).isPresent());
+        structure3.setName(storage.getStructure(3L).get().getName());
 
 
         // Make sure the player name corresponds to the correct UUID.
@@ -485,12 +485,12 @@ public class SQLiteJDBCDriverConnectionTest
             structure3.setLocked(true);
             Assertions.assertTrue(storage.syncStructureData(structure3.getSnapshot(), Assertions
                 .assertDoesNotThrow(() -> serializer.serialize(structure3))));
-            UnitTestUtil.optionalEquals(true, storage.getStructure(13L), AbstractStructure::isLocked);
+            UnitTestUtil.optionalEquals(true, storage.getStructure(3L), AbstractStructure::isLocked);
 
             structure3.setLocked(false);
             Assertions.assertTrue(storage.syncStructureData(structure3.getSnapshot(), Assertions
                 .assertDoesNotThrow(() -> serializer.serialize(structure3))));
-            UnitTestUtil.optionalEquals(false, storage.getStructure(13L), AbstractStructure::isLocked);
+            UnitTestUtil.optionalEquals(false, storage.getStructure(3L), AbstractStructure::isLocked);
         }
 
         // Test syncing all data.
@@ -535,7 +535,7 @@ public class SQLiteJDBCDriverConnectionTest
             Assertions.assertTrue(storage.syncStructureData(structure3.getSnapshot(), Assertions
                 .assertDoesNotThrow(() -> serializer.serialize(structure3))));
 
-            Optional<AbstractStructure> retrievedOpt = storage.getStructure(13L);
+            Optional<AbstractStructure> retrievedOpt = storage.getStructure(3L);
             Assertions.assertTrue(retrievedOpt.isPresent());
             Portcullis retrieved = (Portcullis) retrievedOpt.get();
 
@@ -577,12 +577,12 @@ public class SQLiteJDBCDriverConnectionTest
         databaseLock.setAccessible(true);
         databaseLock.set(storage, IStorage.DatabaseState.ERROR);
 
-        AssertionsUtil.assertThrowablesLogged(() -> storage.getStructure(PLAYER_DATA_1.getUUID(), 11L),
+        AssertionsUtil.assertThrowablesLogged(() -> storage.getStructure(PLAYER_DATA_1.getUUID(), 1L),
                                               LogSiteStackTrace.class);
 
         // Set the database state to enabled again and verify that it's now possible to retrieve structures again.
         databaseLock.set(storage, IStorage.DatabaseState.OK);
-        Assertions.assertTrue(storage.getStructure(PLAYER_DATA_1.getUUID(), 11L).isPresent());
+        Assertions.assertTrue(storage.getStructure(PLAYER_DATA_1.getUUID(), 1L).isPresent());
     }
 
     /**
@@ -604,13 +604,13 @@ public class SQLiteJDBCDriverConnectionTest
         structure1 = new BigDoor(
             structureBaseBuilder
                 .builder()
-                .uid(11L).name(STRUCTURE_1_NAME).cuboid(min, max)
+                .uid(1L).name(STRUCTURE_1_NAME).cuboid(min, max)
                 .rotationPoint(rotationPoint)
                 .powerBlock(powerBlock)
                 .world(WORLD).isOpen(false).isLocked(false)
                 .openDir(MovementDirection.EAST)
                 .primeOwner(
-                    new StructureOwner(11L, PermissionLevel.CREATOR, PLAYER_DATA_1))
+                    new StructureOwner(1L, PermissionLevel.CREATOR, PLAYER_DATA_1))
                 .build());
 
         min = new Vector3Di(144, 75, 168);
@@ -621,12 +621,12 @@ public class SQLiteJDBCDriverConnectionTest
         structure2 = new Drawbridge(
             structureBaseBuilder
                 .builder()
-                .uid(12L).name(STRUCTURES_2_3_NAME).cuboid(min, max)
+                .uid(2L).name(STRUCTURES_2_3_NAME).cuboid(min, max)
                 .rotationPoint(rotationPoint)
                 .powerBlock(powerBlock).world(WORLD).isOpen(false)
                 .isLocked(false).openDir(MovementDirection.NONE)
                 .primeOwner(
-                    new StructureOwner(12L, PermissionLevel.CREATOR, PLAYER_DATA_1))
+                    new StructureOwner(2L, PermissionLevel.CREATOR, PLAYER_DATA_1))
                 .build());
 
         min = new Vector3Di(144, 70, 168);
@@ -637,12 +637,12 @@ public class SQLiteJDBCDriverConnectionTest
         structure3 = new Portcullis(
             structureBaseBuilder
                 .builder()
-                .uid(13L).name(STRUCTURES_2_3_NAME).cuboid(min, max)
+                .uid(3L).name(STRUCTURES_2_3_NAME).cuboid(min, max)
                 .rotationPoint(rotationPoint)
                 .powerBlock(powerBlock).world(WORLD).isOpen(false)
                 .isLocked(false).openDir(MovementDirection.UP)
                 .primeOwner(
-                    new StructureOwner(13L, PermissionLevel.CREATOR, PLAYER_DATA_2))
+                    new StructureOwner(3L, PermissionLevel.CREATOR, PLAYER_DATA_2))
                 .build(),
             blocksToMove);
     }

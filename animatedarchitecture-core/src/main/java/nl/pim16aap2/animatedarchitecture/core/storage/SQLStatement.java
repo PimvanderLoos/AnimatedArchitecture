@@ -337,10 +337,6 @@ public enum SQLStatement
         "INSERT OR IGNORE INTO SQLITE_SEQUENCE (name, seq) VALUES ('Player', 10);"
     ),
 
-    RESERVE_IDS_STRUCTURE(
-        "INSERT OR IGNORE INTO SQLITE_SEQUENCE (name, seq) VALUES ('Structure', 10);"
-    ),
-
     RESERVE_IDS_STRUCTURE_OWNER_PLAYER(
         "INSERT OR IGNORE INTO SQLITE_SEQUENCE (name, seq) VALUES ('StructureOwnerPlayer', 10);"
     ),

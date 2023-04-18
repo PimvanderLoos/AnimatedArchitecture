@@ -283,7 +283,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 executeUpdate(conn, SQLStatement.RESERVE_IDS_PLAYER.constructDelayedPreparedStatement());
 
                 executeUpdate(conn, SQLStatement.CREATE_TABLE_STRUCTURE.constructDelayedPreparedStatement());
-                executeUpdate(conn, SQLStatement.RESERVE_IDS_STRUCTURE.constructDelayedPreparedStatement());
 
                 executeUpdate(conn,
                               SQLStatement.CREATE_TABLE_STRUCTURE_OWNER_PLAYER.constructDelayedPreparedStatement());
