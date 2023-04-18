@@ -1,8 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.util;
 
 
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
-
 /**
  * Represents a list of constant variables.
  *
@@ -23,6 +21,21 @@ public final class Constants
      * This should include stuff like affecting server settings and managing structures owned by other players.
      */
     public static final String PERMISSION_PREFIX_ADMIN = "animatedarchitecture.admin.";
+
+    /**
+     * A specialization of {@link #PERMISSION_PREFIX_ADMIN} for bypass permission nodes.
+     */
+    public static final String PERMISSION_PREFIX_ADMIN_BYPASS = PERMISSION_PREFIX_ADMIN + "bypass.";
+
+    /**
+     * A specialization of {@link #PERMISSION_PREFIX_ADMIN} for bypass permission nodes for attributes.
+     */
+    public static final String PERMISSION_PREFIX_ADMIN_BYPASS_ATTRIBUTE = PERMISSION_PREFIX_ADMIN_BYPASS + "attribute.";
+
+    /**
+     * A specialization of {@link #PERMISSION_PREFIX_ADMIN} for bypass permission nodes for limits.
+     */
+    public static final String PERMISSION_PREFIX_ADMIN_BYPASS_LIMIT = PERMISSION_PREFIX_ADMIN_BYPASS + "limit.";
 
     /**
      * The name used by all entities created by AnimatedArchitecture.
@@ -48,9 +61,4 @@ public final class Constants
      * The amount of time (in milliseconds) a user has to complete the structure creation process.
      */
     public static final int STRUCTURE_CREATOR_TIME_LIMIT = 180_000; // 3 minutes
-
-    /**
-     * The prefix for the {@link StructureAttribute}-specific bypass permissions.
-     */
-    public static final String ATTRIBUTE_BYPASS_PERMISSION_PREFIX = "animatedarchitecture.admin.bypass.attribute.";
 }

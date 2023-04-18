@@ -6,6 +6,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandDefinition;
 import nl.pim16aap2.animatedarchitecture.core.commands.PermissionsStatus;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
+import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotUtil;
 import nl.pim16aap2.animatedarchitecture.spigot.util.text.TextRendererSpigot;
@@ -41,7 +42,7 @@ public final class PlayerSpigot implements IPlayer
     public boolean hasProtectionBypassPermission()
     {
         return spigotPlayer.isOp() ||
-            spigotPlayer.hasPermission("animatedarchitecture.admin.bypass_protection_plugins");
+            spigotPlayer.hasPermission(Constants.PERMISSION_PREFIX_ADMIN_BYPASS + "protectionhooks");
     }
 
     @Override

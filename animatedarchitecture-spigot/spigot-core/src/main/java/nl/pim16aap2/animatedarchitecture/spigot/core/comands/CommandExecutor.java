@@ -143,10 +143,20 @@ class CommandExecutor
 
     void removeOwner(CommandContext<ICommandSender> context)
     {
-        final StructureRetriever structureRetriever = context.get("structureRetriever");
         final IPlayer targetPlayer = SpigotAdapter.wrapPlayer(context.get("targetPlayer"));
-        commandFactory.newRemoveOwner(context.getSender(), structureRetriever, targetPlayer).run()
-                      .exceptionally(Util::exceptionally);
+        final @Nullable StructureRetriever structureRetriever = nullable(context, "structureRetriever");
+
+        final ICommandSender commandSender = context.getSender();
+        if (structureRetriever != null)
+        {
+            commandFactory.newRemoveOwner(commandSender, structureRetriever, targetPlayer).run()
+                          .exceptionally(Util::exceptionally);
+        }
+        else
+        {
+            commandFactory.getRemoveOwnerDelayed().provideDelayedInput(commandSender, targetPlayer)
+                          .exceptionally(Util::exceptionally);
+        }
     }
 
     void restart(CommandContext<ICommandSender> context)

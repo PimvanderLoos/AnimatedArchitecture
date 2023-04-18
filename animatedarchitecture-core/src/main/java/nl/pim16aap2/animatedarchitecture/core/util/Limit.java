@@ -8,10 +8,10 @@ import java.util.function.Function;
 
 public enum Limit
 {
-    STRUCTURE_SIZE("door_size", IConfig::maxStructureSize),
-    STRUCTURE_COUNT("door_count", IConfig::maxStructureCount),
-    POWERBLOCK_DISTANCE("powerblock_distance", IConfig::maxPowerBlockDistance),
-    BLOCKS_TO_MOVE("blocks_to_move", IConfig::maxBlocksToMove),
+    STRUCTURE_SIZE("doorsize", IConfig::maxStructureSize),
+    STRUCTURE_COUNT("doorcount", IConfig::maxStructureCount),
+    POWERBLOCK_DISTANCE("powerblockdistance", IConfig::maxPowerBlockDistance),
+    BLOCKS_TO_MOVE("blockstomove", IConfig::maxBlocksToMove),
     ;
 
     @Getter
@@ -22,8 +22,8 @@ public enum Limit
 
     Limit(String permissionName, Function<IConfig, OptionalInt> globalLimitSupplier)
     {
-        userPermission = "animatedarchitecture.limit." + permissionName + ".";
-        adminPermission = "animatedarchitecture.admin.bypass.limit." + permissionName;
+        userPermission = Constants.PERMISSION_PREFIX_USER + "limit." + permissionName;
+        adminPermission = Constants.PERMISSION_PREFIX_ADMIN_BYPASS_LIMIT + permissionName;
         this.globalLimitSupplier = globalLimitSupplier;
     }
 

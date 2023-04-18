@@ -4,6 +4,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
+import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.updater.UpdateCheckResult;
 import nl.pim16aap2.animatedarchitecture.core.util.updater.UpdateChecker;
 import nl.pim16aap2.animatedarchitecture.core.util.updater.UpdateInformation;
@@ -58,7 +59,7 @@ public final class LoginMessageListener extends AbstractListener
     public void onPlayerJoin(PlayerJoinEvent event)
     {
         final Player player = event.getPlayer();
-        if (player.hasPermission("animatedarchitecture.admin.info"))
+        if (player.hasPermission(Constants.PERMISSION_PREFIX_ADMIN + "restart"))
             // Slight delay so the player actually receives the message;
             Bukkit.getScheduler().runTaskLater(plugin, () -> sendLoginMessage(player), 60L);
     }

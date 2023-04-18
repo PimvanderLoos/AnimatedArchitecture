@@ -155,8 +155,8 @@ public final class CommandManager
         initCmdRestart(manager, builder);
         initCmdSetBlocksToMove(manager, builder);
         initCmdSetName(manager, builder);
-        initCmdSetOpenStatus(manager, builder);
         initCmdSetOpenDirection(manager, builder);
+        initCmdSetOpenStatus(manager, builder);
         initCmdSpecify(manager, builder);
         initCmdStopStructures(manager, builder);
         initCmdToggle(manager, builder);
@@ -285,7 +285,8 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.LOCK, "commands.lock.description")
-                .argument(BooleanArgument.of("lockStatus"))
+                .argument(BooleanArgument.<ICommandSender>builder("lockStatus").withLiberal(true).build())
+                .argument(defaultStructureArgument(true, StructureAttribute.INFO).build())
                 .handler(executor::lock)
         );
     }
@@ -340,8 +341,8 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.REMOVE_OWNER, "commands.remove_owner.description")
-                .argument(defaultStructureArgument(true, StructureAttribute.REMOVE_OWNER).build())
                 .argument(PlayerArgument.of("targetPlayer"))
+                .argument(defaultStructureArgument(false, StructureAttribute.REMOVE_OWNER).build())
                 .handler(executor::removeOwner)
         );
     }
