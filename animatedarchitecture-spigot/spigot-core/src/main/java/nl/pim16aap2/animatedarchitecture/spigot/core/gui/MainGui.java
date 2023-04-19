@@ -7,8 +7,8 @@ import de.themoep.inventorygui.GuiElementGroup;
 import de.themoep.inventorygui.GuiPageElement;
 import de.themoep.inventorygui.InventoryGui;
 import de.themoep.inventorygui.StaticGuiElement;
+import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import lombok.Getter;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
@@ -27,6 +27,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Comparator;
 import java.util.List;
 
 @ToString(onlyExplicitlyIncluded = true)
@@ -86,8 +87,9 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
 
     private static Long2ObjectMap<NamedStructure> getStructuresMap(List<NamedStructure> structures)
     {
-        final Long2ObjectMap<NamedStructure> ret = new Long2ObjectOpenHashMap<>(structures.size());
-        structures.forEach(structure -> ret.put(structure.structure.getUid(), structure));
+        final Long2ObjectMap<NamedStructure> ret = new Long2ObjectLinkedOpenHashMap<>(structures.size());
+        structures.stream().sorted(Comparator.comparing(NamedStructure::name))
+                  .forEach(structure -> ret.put(structure.structure.getUid(), structure));
         return ret;
     }
 
