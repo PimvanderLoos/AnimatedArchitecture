@@ -3,10 +3,12 @@ package nl.pim16aap2.animatedarchitecture.spigot.core.gui;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
+import de.themoep.inventorygui.GuiBackElement;
 import de.themoep.inventorygui.GuiElement;
 import de.themoep.inventorygui.GuiElementGroup;
 import de.themoep.inventorygui.InventoryGui;
 import de.themoep.inventorygui.StaticGuiElement;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
@@ -45,6 +47,7 @@ class InfoGui implements IGuiPage
     private final InventoryGui inventoryGui;
 
     @ToString.Include
+    @Getter(AccessLevel.PACKAGE)
     private final AbstractStructure structure;
 
     @ToString.Include
@@ -84,7 +87,6 @@ class InfoGui implements IGuiPage
         showGUI();
     }
 
-
     private void showGUI()
     {
         inventoryGui.show(inventoryHolder.getBukkitPlayer());
@@ -92,7 +94,7 @@ class InfoGui implements IGuiPage
 
     private InventoryGui createGUI()
     {
-        final String[] guiSetup = GuiUtil.fillLinesWithChar('g', allowedAttributes.size(), "    h    ");
+        final String[] guiSetup = GuiUtil.fillLinesWithChar('g', allowedAttributes.size(), "f   h    ");
 
         final InventoryGui gui =
             new InventoryGui(animatedArchitecturePlugin,
@@ -120,6 +122,12 @@ class InfoGui implements IGuiPage
             localizer.getMessage("gui.info_page.header",
                                  localizer.getMessage(structure.getType().getLocalizationKey()),
                                  structure.getNameAndUid())
+        ));
+
+        gui.addElement(new GuiBackElement(
+            'f',
+            new ItemStack(Material.ARROW),
+            localizer.getMessage("gui.info_page.back_button")
         ));
     }
 

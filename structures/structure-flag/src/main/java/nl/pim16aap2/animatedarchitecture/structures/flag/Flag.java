@@ -82,7 +82,7 @@ public class Flag extends AbstractStructure implements IHorizontalAxisAligned, I
      * @return The current open direction.
      */
     @Override
-    public MovementDirection cycleOpenDirection()
+    public MovementDirection getCycledOpenDirection()
     {
         return getOpenDir();
     }

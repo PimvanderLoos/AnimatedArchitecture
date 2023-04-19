@@ -11,6 +11,8 @@ import nl.pim16aap2.animatedarchitecture.core.commands.Toggle;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
+import nl.pim16aap2.animatedarchitecture.core.text.TextComponent;
+import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.PlayerSpigot;
@@ -18,6 +20,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import javax.inject.Inject;
+import java.util.concurrent.atomic.AtomicReference;
 
 class AttributeButtonFactory
 {
@@ -95,21 +98,6 @@ class AttributeButtonFactory
                 return true;
             },
             localizer.getMessage("gui.info_page.attribute.toggle",
-                                 localizer.getMessage(structure.getType().getLocalizationKey()))
-        );
-    }
-
-    private GuiElement switchButton(AbstractStructure structure, PlayerSpigot player, char slotChar)
-    {
-        return new StaticGuiElement(
-            slotChar,
-            new ItemStack(Material.REDSTONE_TORCH),
-            click ->
-            {
-                // TODO: Implement this
-                throw new UnsupportedOperationException("Switch hasn't been implemented yet!");
-            },
-            localizer.getMessage("gui.info_page.attribute.switch",
                                  localizer.getMessage(structure.getType().getLocalizationKey()))
         );
     }
@@ -197,21 +185,45 @@ class AttributeButtonFactory
         return element;
     }
 
+    private void setOpenDirectionLore(
+        StaticGuiElement staticGuiElement, AbstractStructure structure, MovementDirection direction)
+    {
+        staticGuiElement.setText(
+            localizer.getMessage("gui.info_page.attribute.open_direction",
+                                 localizer.getMessage(structure.getType().getLocalizationKey())),
+
+            textFactory.newText().append(
+                localizer.getMessage("gui.info_page.attribute.open_direction.lore"), TextComponent.EMPTY,
+                arg -> arg.info(localizer.getMessage(direction.getLocalizationKey()))).toString()
+        );
+    }
+
     private GuiElement openDirectionButton(AbstractStructure structure, PlayerSpigot player, char slotChar)
     {
-        return new StaticGuiElement(
+        final AtomicReference<StaticGuiElement> staticGuiElementRef = new AtomicReference<>();
+
+        final var staticElement = new StaticGuiElement(
             slotChar,
             new ItemStack(Material.COMPASS),
             click ->
             {
-                commandFactory.getSetOpenDirectionDelayed().runDelayed(player, structureRetrieverFactory.of(structure))
-                              .exceptionally(Util::exceptionally);
-                GuiUtil.closeAllGuis(player);
+                final var newOpenDir = structure.getCycledOpenDirection();
+                commandFactory
+                    .newSetOpenDirection(player, StructureRetrieverFactory.ofStructure(structure), newOpenDir).run()
+                    .exceptionally(Util::exceptionally);
+
+                setOpenDirectionLore(
+                    Util.requireNonNull(staticGuiElementRef.get(), "static GUI element reference"),
+                    structure, newOpenDir);
+                click.getGui().draw(player.getBukkitPlayer(), true, false);
+
                 return true;
-            },
-            localizer.getMessage("gui.info_page.attribute.open_direction",
-                                 localizer.getMessage(structure.getType().getLocalizationKey()))
+            }
         );
+        staticGuiElementRef.set(staticElement);
+
+        setOpenDirectionLore(staticElement, structure, structure.getOpenDir());
+        return staticElement;
     }
 
     private GuiElement blocksToMoveButton(AbstractStructure structure, PlayerSpigot player, char slotChar)
@@ -271,18 +283,18 @@ class AttributeButtonFactory
     public GuiElement of(StructureAttribute attribute, AbstractStructure structure, PlayerSpigot player, char slotChar)
     {
         return switch (attribute)
-            {
-                case LOCK -> this.lockButton(structure, player, slotChar);
-                case TOGGLE -> this.toggleButton(structure, player, slotChar);
-                case SWITCH -> this.switchButton(structure, player, slotChar);
-                case INFO -> this.infoButton(structure, player, slotChar);
-                case DELETE -> this.deleteButton(structure, player, slotChar);
-                case RELOCATE_POWERBLOCK -> this.relocatePowerBlockButton(structure, player, slotChar);
-                case OPEN_STATUS -> this.openStatusButton(structure, player, slotChar);
-                case OPEN_DIRECTION -> this.openDirectionButton(structure, player, slotChar);
-                case BLOCKS_TO_MOVE -> this.blocksToMoveButton(structure, player, slotChar);
-                case ADD_OWNER -> this.addOwnerButton(structure, player, slotChar);
-                case REMOVE_OWNER -> this.removeOwnerButton(structure, player, slotChar);
-            };
+        {
+            case LOCK -> this.lockButton(structure, player, slotChar);
+            case TOGGLE -> this.toggleButton(structure, player, slotChar);
+            case SWITCH -> throw new UnsupportedOperationException("Switch attribute has not been implemented yet.");
+            case INFO -> this.infoButton(structure, player, slotChar);
+            case DELETE -> this.deleteButton(structure, player, slotChar);
+            case RELOCATE_POWERBLOCK -> this.relocatePowerBlockButton(structure, player, slotChar);
+            case OPEN_STATUS -> this.openStatusButton(structure, player, slotChar);
+            case OPEN_DIRECTION -> this.openDirectionButton(structure, player, slotChar);
+            case BLOCKS_TO_MOVE -> this.blocksToMoveButton(structure, player, slotChar);
+            case ADD_OWNER -> this.addOwnerButton(structure, player, slotChar);
+            case REMOVE_OWNER -> this.removeOwnerButton(structure, player, slotChar);
+        };
     }
 }

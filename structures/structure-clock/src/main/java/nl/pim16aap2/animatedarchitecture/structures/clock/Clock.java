@@ -97,7 +97,7 @@ public class Clock extends AbstractStructure implements IHorizontalAxisAligned, 
     }
 
     @Override
-    public MovementDirection cycleOpenDirection()
+    public MovementDirection getCycledOpenDirection()
     {
         return getOpenDir();
     }

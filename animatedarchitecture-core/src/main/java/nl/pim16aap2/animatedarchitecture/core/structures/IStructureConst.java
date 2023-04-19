@@ -75,11 +75,25 @@ public interface IStructureConst
     String getName();
 
     /**
+     * Formats a name and UID into a string.
+     *
+     * @param name
+     *     The name of the structure.
+     * @param uid
+     *     The UID of the structure.
+     * @return The name and UID formatted as "name (uid)".
+     */
+    static String formatNameAndUid(String name, long uid)
+    {
+        return String.format("%s (%d)", name, uid);
+    }
+
+    /**
      * @return The name and UID of this structure formatted as "name (uid)".
      */
     default String getNameAndUid()
     {
-        return String.format("%s (%d)", getName(), getUid());
+        return formatNameAndUid(getName(), getUid());
     }
 
     /**

@@ -80,7 +80,7 @@ public class SlidingDoor extends AbstractStructure implements IDiscreteMovement
     }
 
     @Override
-    public MovementDirection cycleOpenDirection()
+    public MovementDirection getCycledOpenDirection()
     {
         final MovementDirection openDirection = getOpenDir();
         return openDirection.equals(MovementDirection.NORTH) ? MovementDirection.EAST :
