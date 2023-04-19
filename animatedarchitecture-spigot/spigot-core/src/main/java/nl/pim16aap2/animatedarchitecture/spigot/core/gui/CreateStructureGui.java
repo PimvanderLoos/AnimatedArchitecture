@@ -3,6 +3,7 @@ package nl.pim16aap2.animatedarchitecture.spigot.core.gui;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
+import de.themoep.inventorygui.GuiBackElement;
 import de.themoep.inventorygui.GuiElement;
 import de.themoep.inventorygui.GuiElementGroup;
 import de.themoep.inventorygui.InventoryGui;
@@ -93,14 +94,9 @@ class CreateStructureGui implements IGuiPage
 
     private void addHeader(InventoryGui gui)
     {
-        gui.addElement(new StaticGuiElement(
+        gui.addElement(new GuiBackElement(
             'f',
             new ItemStack(Material.ARROW),
-            click ->
-            {
-                GuiUtil.closeGuiPage(gui, inventoryHolder);
-                return true;
-            },
             localizer.getMessage("gui.new_structure_page.back_button")
         ));
     }
