@@ -65,11 +65,11 @@ public class Specify extends BaseCommand
          *
          * @param commandSender
          *     The {@link ICommandSender} responsible specifying a structure.
-         * @param name
-         *     The name/index that specifies a structure based on the {@link DelayedInputRequest} for the command sender
-         *     as registered by the {@link StructureSpecificationManager}.
+         * @param data
+         *     The data that specifies a structure based on the {@link DelayedInputRequest} for the command sender as
+         *     registered by the {@link StructureSpecificationManager}.
          * @return See {@link BaseCommand#run()}.
          */
-        Specify newSpecify(ICommandSender commandSender, String name);
+        Specify newSpecify(ICommandSender commandSender, String data);
     }
 }
