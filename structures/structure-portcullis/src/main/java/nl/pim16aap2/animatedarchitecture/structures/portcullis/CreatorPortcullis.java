@@ -1,6 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.structures.portcullis;
 
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
+import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
@@ -9,20 +11,25 @@ import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorInteger;
+import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.Limit;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.Arrays;
 import java.util.List;
 import java.util.OptionalInt;
 import java.util.concurrent.CompletableFuture;
 
+@ThreadSafe
+@ToString(callSuper = true)
 public class CreatorPortcullis extends Creator
 {
     private static final StructureType STRUCTURE_TYPE = StructureTypePortcullis.get();
 
-    protected int blocksToMove;
+    @GuardedBy("this")
+    private int blocksToMove;
 
     public CreatorPortcullis(ToolUser.Context context, IPlayer player, @Nullable String name)
     {
@@ -30,7 +37,7 @@ public class CreatorPortcullis extends Creator
     }
 
     @Override
-    protected List<Step> generateSteps()
+    protected synchronized List<Step> generateSteps()
         throws InstantiationException
     {
         final Step stepBlocksToMove = stepFactory
@@ -38,7 +45,7 @@ public class CreatorPortcullis extends Creator
             .textSupplier(text -> text.append(
                 localizer.getMessage("creator.portcullis.set_blocks_to_move"), TextType.INFO, getStructureArg()))
             .propertyName(localizer.getMessage("creator.base.property.blocks_to_move"))
-            .propertyValueSupplier(() -> blocksToMove)
+            .propertyValueSupplier(this::getBlocksToMove)
             .updatable(true)
             .stepExecutor(new StepExecutorInteger(this::setBlocksToMove))
             .stepPreparation(this::prepareSetBlocksToMove)
@@ -66,14 +73,14 @@ public class CreatorPortcullis extends Creator
     /**
      * Prepares the step that sets the number of blocks to move.
      */
-    protected void prepareSetBlocksToMove()
+    protected synchronized void prepareSetBlocksToMove()
     {
         commandFactory.getSetBlocksToMoveDelayed().runDelayed(getPlayer(), this, blocks ->
                           CompletableFuture.completedFuture(handleInput(blocks)), null)
                       .exceptionally(Util::exceptionally);
     }
 
-    protected boolean setBlocksToMove(int blocksToMove)
+    protected synchronized boolean setBlocksToMove(int blocksToMove)
     {
         if (blocksToMove < 1)
             return false;
@@ -94,16 +101,16 @@ public class CreatorPortcullis extends Creator
     }
 
     @Override
-    protected void giveTool()
+    protected synchronized void giveTool()
     {
         giveTool("tool_user.base.stick_name", "creator.portcullis.stick_lore");
     }
 
     @Override
-    protected AbstractStructure constructStructure()
+    protected synchronized AbstractStructure constructStructure()
     {
-        Util.requireNonNull(cuboid, "cuboid");
-        rotationPoint = cuboid.getCenterBlock();
+        final Cuboid cuboid = Util.requireNonNull(getCuboid(), "cuboid");
+        setRotationPoint(cuboid.getCenterBlock());
         return new Portcullis(constructStructureData(), blocksToMove);
     }
 
@@ -111,5 +118,10 @@ public class CreatorPortcullis extends Creator
     protected StructureType getStructureType()
     {
         return STRUCTURE_TYPE;
+    }
+
+    protected final synchronized int getBlocksToMove()
+    {
+        return blocksToMove;
     }
 }

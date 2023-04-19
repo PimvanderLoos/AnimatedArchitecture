@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.util.structureretriever;
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import lombok.AllArgsConstructor;
@@ -16,7 +17,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 
 import javax.annotation.Nullable;
-import javax.annotation.concurrent.GuardedBy;
 import java.time.Duration;
 import java.util.ArrayDeque;
 import java.util.ArrayList;

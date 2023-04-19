@@ -39,7 +39,6 @@ import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CreatorTest
 {
@@ -92,12 +91,12 @@ public class CreatorTest
         UnitTestUtil.setField(Creator.class, creator, "databaseManager", Mockito.mock(DatabaseManager.class));
         UnitTestUtil.setField(Creator.class, creator, "economyManager", economyManager);
         UnitTestUtil.setField(Creator.class, creator, "commandFactory", commandFactory);
-        UnitTestUtil.setField(Creator.class, creator, "processIsUpdatable", new AtomicBoolean(false));
+        UnitTestUtil.setField(Creator.class, creator, "processIsUpdatable", false);
         UnitTestUtil.setField(
             Creator.class, creator, "structureAnimationRequestBuilder", structureAnimationRequestBuilder);
 
-        UnitTestUtil.setField(ToolUser.class, creator, "playerHasTool", new AtomicBoolean(false));
-        UnitTestUtil.setField(ToolUser.class, creator, "active", new AtomicBoolean(true));
+        UnitTestUtil.setField(ToolUser.class, creator, "playerHasTool", false);
+        UnitTestUtil.setField(ToolUser.class, creator, "active", false);
         UnitTestUtil.setField(ToolUser.class, creator, "player", player);
         UnitTestUtil.setField(ToolUser.class, creator, "localizer", localizer);
         UnitTestUtil.setField(ToolUser.class, creator, "textFactory", ITextFactory.getSimpleTextFactory());
@@ -137,8 +136,9 @@ public class CreatorTest
 
         Mockito.doReturn(true).when(creator).playerHasAccessToLocation(Mockito.any());
         Assertions.assertTrue(creator.setFirstPos(loc));
-        Assertions.assertEquals(loc.getWorld(), creator.world);
-        Assertions.assertEquals(new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()), creator.firstPos);
+        Assertions.assertEquals(loc.getWorld(), creator.getWorld());
+        Assertions.assertEquals(new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()),
+                                creator.getFirstPos());
     }
 
     @Test
@@ -198,7 +198,7 @@ public class CreatorTest
 
         Mockito.doReturn(true).when(creator).playerHasAccessToCuboid(Mockito.any(), Mockito.any());
         Assertions.assertTrue(creator.setSecondPos(loc));
-        Assertions.assertEquals(cuboid, creator.cuboid);
+        Assertions.assertEquals(cuboid, creator.getCuboid());
     }
 
     @Test

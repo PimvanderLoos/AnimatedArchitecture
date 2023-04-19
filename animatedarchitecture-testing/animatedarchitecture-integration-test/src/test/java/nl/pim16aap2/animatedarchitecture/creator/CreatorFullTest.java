@@ -107,7 +107,7 @@ class CreatorFullTest extends CreatorTestsUtil
         }
 
         @Override
-        protected List<Step> generateSteps()
+        protected synchronized List<Step> generateSteps()
             throws InstantiationException
         {
             return Arrays.asList(factorySetName.messageKey("CREATOR_BASE_GIVE_NAME").construct(),

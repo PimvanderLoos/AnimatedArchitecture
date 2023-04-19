@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.animation;
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.Getter;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
@@ -19,7 +20,6 @@ import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.concurrent.GuardedBy;
 import java.util.List;
 import java.util.function.Consumer;
 

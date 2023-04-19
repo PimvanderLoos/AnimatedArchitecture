@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.tooluser.creator;
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationType;
@@ -38,11 +39,11 @@ import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 
@@ -53,6 +54,7 @@ import java.util.function.Function;
  */
 @ToString(callSuper = true, onlyExplicitlyIncluded = true)
 @Flogger
+@ThreadSafe
 public abstract class Creator extends ToolUser
 {
     private static final AtomicLong STRUCTURE_UID_PLACEHOLDER_COUNTER = new AtomicLong(-1000L);
@@ -77,7 +79,8 @@ public abstract class Creator extends ToolUser
      * The name of the structure that is to be created.
      */
     @ToString.Include
-    protected @Nullable String name;
+    @GuardedBy("this")
+    private @Nullable String name;
 
     /**
      * The cuboid that defines the location and dimensions of the structure.
@@ -85,7 +88,8 @@ public abstract class Creator extends ToolUser
      * This region is defined by {@link #firstPos} and the second position selected by the user.
      */
     @ToString.Include
-    protected @Nullable Cuboid cuboid;
+    @GuardedBy("this")
+    private @Nullable Cuboid cuboid;
 
     /**
      * The first point that was selected in the process.
@@ -93,45 +97,57 @@ public abstract class Creator extends ToolUser
      * Once a second point has been selected, these two are used to construct the {@link #cuboid}.
      */
     @ToString.Include
-    protected @Nullable Vector3Di firstPos;
+    @GuardedBy("this")
+    private @Nullable Vector3Di firstPos;
 
     /**
      * The position of the rotation point selected by the user.
      */
     @ToString.Include
-    protected @Nullable Vector3Di rotationPoint;
+    @GuardedBy("this")
+    private @Nullable Vector3Di rotationPoint;
 
     /**
      * The powerblock selected by the user.
      */
     @ToString.Include
-    protected @Nullable Vector3Di powerblock;
+    @GuardedBy("this")
+    private @Nullable Vector3Di powerblock;
 
     /**
      * The opening direction selected by the user.
      */
     @ToString.Include
-    protected @Nullable MovementDirection openDir;
+    @GuardedBy("this")
+    private @Nullable MovementDirection movementDirection;
 
     /**
      * The {@link IWorld} this structure is created in.
      */
     @ToString.Include
-    protected @Nullable IWorld world;
+    @GuardedBy("this")
+    private @Nullable IWorld world;
 
     /**
      * Whether the structure is created in the open (true) or closed (false) position.
      */
     @ToString.Include
-    protected boolean isOpen = false;
+    @GuardedBy("this")
+    private boolean isOpen = false;
 
     /**
      * Whether the structure is created in the locked (true) or unlocked (false) state.
      */
     @ToString.Include
-    protected boolean isLocked = false;
+    @GuardedBy("this")
+    private boolean isLocked = false;
 
-    protected final AtomicBoolean processIsUpdatable = new AtomicBoolean(false);
+    /**
+     * Whether the process is in a state where is may be updated outside the normal execution order.
+     */
+    @ToString.Include
+    @GuardedBy("this")
+    private boolean processIsUpdatable = false;
 
     /**
      * Factory for the {@link Step} that sets the name.
@@ -215,13 +231,13 @@ public abstract class Creator extends ToolUser
     }
 
     @Override
-    protected void init()
+    protected synchronized void init()
     {
         factorySetName = stepFactory
             .stepName("SET_NAME")
             .stepExecutor(new StepExecutorString(this::completeNamingStep))
             .propertyName(localizer.getMessage("creator.base.property.type"))
-            .propertyValueSupplier(() -> this.name)
+            .propertyValueSupplier(this::getName)
             .updatable(true)
             .textSupplier(text -> text.append(
                 localizer.getMessage("creator.base.give_name"), TextType.SUCCESS, getStructureArg()));
@@ -234,14 +250,18 @@ public abstract class Creator extends ToolUser
             .stepName("SET_SECOND_POS")
             .propertyName(localizer.getMessage("creator.base.property.cuboid"))
             .propertyValueSupplier(
-                () -> cuboid == null ? "[]" :
-                      String.format("[%s; %s]", formatVector(cuboid.getMin()), formatVector(cuboid.getMax())))
+                () ->
+                {
+                    final @Nullable Cuboid cuboid0 = getCuboid();
+                    return cuboid0 == null ? "[]" :
+                           String.format("[%s; %s]", formatVector(cuboid0.getMin()), formatVector(cuboid0.getMax()));
+                })
             .stepExecutor(new StepExecutorLocation(this::setSecondPos));
 
         factorySetRotationPointPos = stepFactory
             .stepName("SET_ROTATION_POINT")
             .propertyName(localizer.getMessage("creator.base.property.rotation_point"))
-            .propertyValueSupplier(() -> formatVector(rotationPoint))
+            .propertyValueSupplier(() -> formatVector(getRotationPoint()))
             .updatable(true)
             .stepExecutor(new StepExecutorLocation(this::completeSetRotationPointStep));
 
@@ -249,7 +269,7 @@ public abstract class Creator extends ToolUser
             .stepName("SET_POWER_BLOCK_POS")
             .messageKey("creator.base.set_power_block")
             .propertyName(localizer.getMessage("creator.base.property.power_block_position"))
-            .propertyValueSupplier(() -> formatVector(powerblock))
+            .propertyValueSupplier(() -> formatVector(getPowerBlock()))
             .updatable(true)
             .stepExecutor(new StepExecutorLocation(this::completeSetPowerBlockStep));
 
@@ -259,7 +279,7 @@ public abstract class Creator extends ToolUser
             .stepPreparation(this::prepareSetOpenStatus)
             .propertyName(localizer.getMessage("creator.base.property.open_status"))
             .propertyValueSupplier(
-                () -> isOpen ?
+                () -> getIsOpen() ?
                       localizer.getMessage("constants.open_status.open") :
                       localizer.getMessage("constants.open_status.closed"))
             .updatable(true)
@@ -271,7 +291,11 @@ public abstract class Creator extends ToolUser
             .stepPreparation(this::prepareSetOpenDirection)
             .propertyName(localizer.getMessage("creator.base.property.open_direction"))
             .propertyValueSupplier(
-                () -> openDir == null ? "NULL" : localizer.getMessage(openDir.getLocalizationKey()))
+                () ->
+                {
+                    final @Nullable MovementDirection openDir0 = getMovementDirection();
+                    return openDir0 == null ? "NULL" : localizer.getMessage(openDir0.getLocalizationKey());
+                })
             .updatable(true)
             .textSupplier(this::setOpenDirectionTextSupplier);
 
@@ -303,17 +327,18 @@ public abstract class Creator extends ToolUser
      *
      * @return The function that creates a new structure arg.
      */
-    protected final Function<TextArgumentFactory, TextArgument> getStructureArg()
+    protected final synchronized Function<TextArgumentFactory, TextArgument> getStructureArg()
     {
         return arg -> arg.highlight(localizer.getStructureType(getStructureType()));
     }
 
-    public final void update(String stepName, @Nullable Object stepValue)
+    public final synchronized void update(String stepName, @Nullable Object stepValue)
     {
-        if (!processIsUpdatable.getAndSet(false))
+        if (!processIsUpdatable)
             throw new IllegalStateException(
                 "Trying to update step " + stepName + " with value " + stepValue +
                     " while the process is not in an updatable state!");
+        processIsUpdatable = false;
         getProcedure().insertStep(stepName);
         prepareCurrentStep();
     }
@@ -321,7 +346,7 @@ public abstract class Creator extends ToolUser
     /**
      * Prepares the step that sets the open status.
      */
-    protected void prepareSetOpenStatus()
+    protected synchronized void prepareSetOpenStatus()
     {
         commandFactory.getSetOpenStatusDelayed().runDelayed(getPlayer(), this, status ->
                           CompletableFuture.completedFuture(handleInput(status)), null)
@@ -331,7 +356,7 @@ public abstract class Creator extends ToolUser
     /**
      * Prepares the step that sets the open direction.
      */
-    protected void prepareSetOpenDirection()
+    protected synchronized void prepareSetOpenDirection()
     {
         commandFactory.getSetOpenDirectionDelayed().runDelayed(getPlayer(), this, direction ->
                           CompletableFuture.completedFuture(handleInput(direction)), null)
@@ -344,7 +369,7 @@ public abstract class Creator extends ToolUser
      *
      * @return The {@link AbstractStructure.BaseHolder} for the current structure.
      */
-    protected final AbstractStructure.BaseHolder constructStructureData()
+    protected final synchronized AbstractStructure.BaseHolder constructStructureData()
     {
         final var owner =
             new StructureOwner(structureUidPlaceholder, PermissionLevel.CREATOR, getPlayer().getPlayerData());
@@ -359,12 +384,12 @@ public abstract class Creator extends ToolUser
             .world(Util.requireNonNull(world, "world"))
             .isOpen(isOpen)
             .isLocked(isLocked)
-            .openDir(Util.requireNonNull(openDir, "openDir"))
+            .openDir(Util.requireNonNull(movementDirection, "openDir"))
             .primeOwner(owner)
             .build();
     }
 
-    protected void showPreview()
+    protected synchronized void showPreview()
     {
         structureAnimationRequestBuilder
             .builder()
@@ -379,7 +404,7 @@ public abstract class Creator extends ToolUser
             .exceptionally(Util::exceptionally);
     }
 
-    protected void prepareReviewResult()
+    protected synchronized void prepareReviewResult()
     {
         try
         {
@@ -391,7 +416,7 @@ public abstract class Creator extends ToolUser
             getPlayer().sendMessage(
                 textFactory.newText().append(localizer.getMessage("constants.error.generic"), TextType.ERROR));
         }
-        this.processIsUpdatable.set(true);
+        this.processIsUpdatable = true;
     }
 
     /**
@@ -403,18 +428,18 @@ public abstract class Creator extends ToolUser
      * If the insertion fails for whatever reason, it'll just be ignored, because at that point, there's no sense in
      * continuing the creation process anyway.
      */
-    protected boolean completeCreationProcess()
+    protected synchronized boolean completeCreationProcess()
     {
         removeTool();
-        if (active.get())
+        if (super.isActive())
             insertStructure(constructStructure());
         structureActivityManager.stopAnimators(this.structureUidPlaceholder);
         return true;
     }
 
-    private void giveTool0()
+    private synchronized void giveTool0()
     {
-        if (!playerHasTool.getAndSet(true))
+        if (!super.setPlayerHasTool(true))
             giveTool();
     }
 
@@ -426,7 +451,7 @@ public abstract class Creator extends ToolUser
      * @param loreKey
      *     The localization key of the lore of the tool.
      */
-    protected final void giveTool(String nameKey, String loreKey)
+    protected final synchronized void giveTool(String nameKey, String loreKey)
     {
         super.giveTool(nameKey, loreKey, textFactory.newText().append(
             localizer.getMessage("creator.base.received_tool"), TextType.INFO, getStructureArg()));
@@ -449,7 +474,7 @@ public abstract class Creator extends ToolUser
      *     The desired name of the structure.
      * @return True if the naming step was finished successfully.
      */
-    protected boolean completeNamingStep(String str)
+    protected synchronized boolean completeNamingStep(String str)
     {
         if (!Util.isValidStructureName(str))
         {
@@ -473,7 +498,7 @@ public abstract class Creator extends ToolUser
      *     The first location of the cuboid.
      * @return True if setting the location was successful.
      */
-    protected boolean setFirstPos(ILocation loc)
+    protected synchronized boolean setFirstPos(ILocation loc)
     {
         if (!playerHasAccessToLocation(loc))
             return false;
@@ -490,7 +515,7 @@ public abstract class Creator extends ToolUser
      *     The second location of the cuboid.
      * @return True if setting the location was successful.
      */
-    protected boolean setSecondPos(ILocation loc)
+    protected synchronized boolean setSecondPos(ILocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;
@@ -531,7 +556,7 @@ public abstract class Creator extends ToolUser
     // This method always returns the same value (S3516). However, in the case of this method, there is no reason to
     // return false as every input is valid and leads to a valid state.
     @SuppressWarnings("squid:S3516")
-    protected boolean confirmPrice(boolean confirm)
+    protected synchronized boolean confirmPrice(boolean confirm)
     {
         if (!confirm)
         {
@@ -561,22 +586,22 @@ public abstract class Creator extends ToolUser
      *     True if the current status of the structure is open.
      * @return True if the {@link #isOpen} was set successfully.
      */
-    protected boolean completeSetOpenStatusStep(boolean isOpen)
+    protected synchronized boolean completeSetOpenStatusStep(boolean isOpen)
     {
         this.isOpen = isOpen;
         return true;
     }
 
     /**
-     * Attempts to complete the step that sets the {@link #openDir}.
+     * Attempts to complete the step that sets the {@link #movementDirection}.
      * <p>
      * If the open direction is not valid for this type, nothing changes.
      *
      * @param direction
      *     The {@link MovementDirection} that was selected by the player.
-     * @return True if the {@link #openDir} was set successfully.
+     * @return True if the {@link #movementDirection} was set successfully.
      */
-    protected boolean completeSetOpenDirStep(MovementDirection direction)
+    protected synchronized boolean completeSetOpenDirStep(MovementDirection direction)
     {
         if (!getValidOpenDirections().contains(direction))
         {
@@ -586,7 +611,7 @@ public abstract class Creator extends ToolUser
             prepareSetOpenDirection();
             return false;
         }
-        openDir = direction;
+        movementDirection = direction;
         return true;
     }
 
@@ -604,7 +629,7 @@ public abstract class Creator extends ToolUser
      *     The world to check.
      * @return True if the world is the same world this structure is being created in.
      */
-    protected boolean verifyWorldMatch(IWorld targetWorld)
+    protected synchronized boolean verifyWorldMatch(IWorld targetWorld)
     {
         if (Util.requireNonNull(world, "world").worldName().equals(targetWorld.worldName()))
             return true;
@@ -618,7 +643,7 @@ public abstract class Creator extends ToolUser
      * @param structure
      *     The structure to send to the {@link DatabaseManager}.
      */
-    protected void insertStructure(AbstractStructure structure)
+    protected synchronized void insertStructure(AbstractStructure structure)
     {
         databaseManager.addStructure(structure, getPlayer()).whenComplete(
             (result, throwable) ->
@@ -651,7 +676,7 @@ public abstract class Creator extends ToolUser
      *
      * @return True if the player has bought the structure or if the economy is not enabled.
      */
-    protected boolean buyStructure()
+    protected synchronized boolean buyStructure()
     {
         if (!economyManager.isEconomyEnabled())
             return true;
@@ -666,7 +691,7 @@ public abstract class Creator extends ToolUser
      *
      * @return The price of the structure if a positive price could be found.
      */
-    protected OptionalDouble getPrice()
+    protected synchronized OptionalDouble getPrice()
     {
         if (!economyManager.isEconomyEnabled())
             return OptionalDouble.empty();
@@ -680,7 +705,7 @@ public abstract class Creator extends ToolUser
      *
      * @return True if the step that asks the user to confirm that they want to buy the structure should be skipped.
      */
-    protected boolean skipConfirmPrice()
+    protected synchronized boolean skipConfirmPrice()
     {
         return getPrice().isEmpty();
     }
@@ -692,7 +717,7 @@ public abstract class Creator extends ToolUser
      *
      * @return The list of valid open directions for this type given its current physical dimensions.
      */
-    public Set<MovementDirection> getValidOpenDirections()
+    public synchronized Set<MovementDirection> getValidOpenDirections()
     {
         return getStructureType().getValidOpenDirections();
     }
@@ -705,7 +730,7 @@ public abstract class Creator extends ToolUser
      *     The selected location of the rotation point.
      * @return True if the location of the area was set successfully.
      */
-    protected boolean completeSetPowerBlockStep(ILocation loc)
+    protected synchronized boolean completeSetPowerBlockStep(ILocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;
@@ -746,7 +771,7 @@ public abstract class Creator extends ToolUser
      *     The selected location of the rotation point.
      * @return True if the location of the rotation point was set successfully.
      */
-    protected boolean completeSetRotationPointStep(ILocation loc)
+    protected synchronized boolean completeSetRotationPointStep(ILocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;
@@ -765,7 +790,7 @@ public abstract class Creator extends ToolUser
         return true;
     }
 
-    protected Text setOpenStatusTextSupplier(Text text)
+    protected synchronized Text setOpenStatusTextSupplier(Text text)
     {
         return text.append(
             localizer.getMessage("creator.base.set_open_status"), TextType.INFO,
@@ -783,7 +808,7 @@ public abstract class Creator extends ToolUser
                 localizer.getMessage("creator.base.set_open_status.arg2.closed.hint")));
     }
 
-    protected Text setOpenDirectionTextSupplier(Text text)
+    protected synchronized Text setOpenDirectionTextSupplier(Text text)
     {
         text.append(localizer.getMessage("creator.base.set_open_direction") + "\n", TextType.INFO,
                     arg -> arg.highlight(localizer.getStructureType(getStructureType())));
@@ -797,7 +822,7 @@ public abstract class Creator extends ToolUser
         return text;
     }
 
-    private Text reviewResultTextSupplier(Text text)
+    private synchronized Text reviewResultTextSupplier(Text text)
     {
         text.append(localizer.getMessage("creator.base.review_result.header") + "\n", TextType.SUCCESS);
         text.append(
@@ -822,7 +847,7 @@ public abstract class Creator extends ToolUser
         return text;
     }
 
-    private Text confirmPriceTextSupplier(Text text)
+    private synchronized Text confirmPriceTextSupplier(Text text)
     {
         return text.append(
             localizer.getMessage("creator.base.confirm_structure_price"), TextType.INFO,
@@ -842,8 +867,189 @@ public abstract class Creator extends ToolUser
         );
     }
 
-    private String formatVector(@Nullable Vector3Di vector)
+    private synchronized String formatVector(@Nullable Vector3Di vector)
     {
         return vector == null ? "NULL" : String.format("%d, %d, %d", vector.x(), vector.y(), vector.z());
+    }
+
+    /**
+     * Gets the name of the structure that is to be created.
+     *
+     * @return The name of the structure that is to be created.
+     */
+    protected final synchronized @Nullable String getName()
+    {
+        return name;
+    }
+
+    /**
+     * Returns the cuboid of the structure that is to be created.
+     *
+     * @return The cuboid of the structure that is to be created or null if it has not been set yet.
+     */
+    protected final synchronized @Nullable Cuboid getCuboid()
+    {
+        return cuboid;
+    }
+
+    /**
+     * Returns the open status of the structure that is to be created.
+     * <p>
+     * This may not have been set yet, in which case it defaults to false.
+     *
+     * @return The open status of the structure that is to be created.
+     */
+    protected final synchronized boolean getIsOpen()
+    {
+        return isOpen;
+    }
+
+    /**
+     * Returns the movement direction of the structure that is to be created.
+     *
+     * @return The movement direction of the structure that is to be created or null if it has not been set yet.
+     */
+    protected final synchronized @Nullable MovementDirection getMovementDirection()
+    {
+        return movementDirection;
+    }
+
+    /**
+     * Returns the rotation point of the structure that is to be created.
+     *
+     * @return The rotation point of the structure that is to be created or null if it has not been set yet.
+     */
+    protected final synchronized @Nullable Vector3Di getRotationPoint()
+    {
+        return rotationPoint;
+    }
+
+    /**
+     * Returns the location of the power block of the structure that is to be created.
+     *
+     * @return The power block of the structure that is to be created or null if it has not been set yet.
+     */
+    protected final synchronized @Nullable Vector3Di getPowerBlock()
+    {
+        return powerblock;
+    }
+
+    /**
+     * Returns the first position of the structure that is to be created.
+     * <p>
+     * This is used together with a second position to construct {@link #cuboid}.
+     *
+     * @return The first position of the structure that is to be created or null if it has not been set yet.
+     */
+    @SuppressWarnings("unused") // It is used by the generated toString method.
+    protected final synchronized @Nullable Vector3Di getFirstPos()
+    {
+        return this.firstPos;
+    }
+
+    /**
+     * Returns the location of the power block of the structure that is to be created.
+     *
+     * @return The location of the power block of the structure that is to be created or null if it has not been set
+     * yet.
+     */
+    @SuppressWarnings("unused") // It is used by the generated toString method.
+    protected final synchronized @Nullable Vector3Di getPowerblock()
+    {
+        return this.powerblock;
+    }
+
+    /**
+     * Returns the world in which the structure that is to be created is located.
+     *
+     * @return The world in which the structure that is to be created is located or null if it has not been set yet.
+     */
+    protected final synchronized @Nullable IWorld getWorld()
+    {
+        return this.world;
+    }
+
+    /**
+     * Whether the structure that is being created is open.
+     *
+     * @return True if the structure that is being created is open, false otherwise.
+     * <p>
+     * This may not have been set yet, in which case it defaults to false.
+     */
+    protected final synchronized boolean isOpen()
+    {
+        return this.isOpen;
+    }
+
+    /**
+     * Whether the structure that is being created is locked.
+     *
+     * @return True if the structure that is being created is locked, false otherwise.
+     * <p>
+     * This may not have been set yet, in which case it defaults to false.
+     */
+    protected final synchronized boolean isLocked()
+    {
+        return this.isLocked;
+    }
+
+    /**
+     * Whether the process is in a state where is may be updated outside the normal execution order.
+     *
+     * @return True if the process is in a state where is may be updated outside the normal execution order, false
+     * otherwise.
+     */
+    @SuppressWarnings("unused") // It is used by the generated toString method.
+    protected final synchronized boolean isProcessIsUpdatable()
+    {
+        return this.processIsUpdatable;
+    }
+
+    @SuppressWarnings("unused")
+    protected final synchronized void setCuboid(Cuboid cuboid)
+    {
+        this.cuboid = cuboid;
+    }
+
+    @SuppressWarnings("unused")
+    protected final synchronized void setFirstPos(Vector3Di firstPos)
+    {
+        this.firstPos = firstPos;
+    }
+
+    @SuppressWarnings("unused")
+    protected final synchronized void setRotationPoint(Vector3Di rotationPoint)
+    {
+        this.rotationPoint = rotationPoint;
+    }
+
+    @SuppressWarnings("unused")
+    protected final synchronized void setPowerblock(Vector3Di powerblock)
+    {
+        this.powerblock = powerblock;
+    }
+
+    @SuppressWarnings("unused")
+    protected final synchronized void setMovementDirection(MovementDirection movementDirection)
+    {
+        this.movementDirection = movementDirection;
+    }
+
+    @SuppressWarnings("unused")
+    protected final synchronized void setWorld(IWorld world)
+    {
+        this.world = world;
+    }
+
+    @SuppressWarnings("unused")
+    protected final synchronized void setOpen(boolean open)
+    {
+        isOpen = open;
+    }
+
+    @SuppressWarnings("unused")
+    protected final synchronized void setLocked(boolean locked)
+    {
+        isLocked = locked;
     }
 }

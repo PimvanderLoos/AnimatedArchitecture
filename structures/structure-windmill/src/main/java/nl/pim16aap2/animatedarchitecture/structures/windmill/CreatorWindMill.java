@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.structures.windmill;
 
+import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
@@ -9,9 +10,12 @@ import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.Arrays;
 import java.util.List;
 
+@ThreadSafe
+@ToString(callSuper = true)
 public class CreatorWindMill extends Creator
 {
     private static final StructureType STRUCTURE_TYPE = StructureTypeWindmill.get();
@@ -22,7 +26,7 @@ public class CreatorWindMill extends Creator
     }
 
     @Override
-    protected List<Step> generateSteps()
+    protected synchronized List<Step> generateSteps()
         throws InstantiationException
     {
         return Arrays.asList(
@@ -47,13 +51,13 @@ public class CreatorWindMill extends Creator
     }
 
     @Override
-    protected void giveTool()
+    protected synchronized void giveTool()
     {
         giveTool("tool_user.base.stick_name", "creator.windmill.stick_lore");
     }
 
     @Override
-    protected AbstractStructure constructStructure()
+    protected synchronized AbstractStructure constructStructure()
     {
         return new Windmill(constructStructureData());
     }

@@ -1,5 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.structures.flag;
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
+import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
@@ -14,13 +16,18 @@ import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.Arrays;
 import java.util.List;
 
+@ThreadSafe
+@ToString(callSuper = true)
 public class CreatorFlag extends Creator
 {
     private static final StructureType STRUCTURE_TYPE = StructureTypeFlag.get();
-    protected boolean northSouthAnimated;
+
+    @GuardedBy("this")
+    private boolean northSouthAnimated;
 
     public CreatorFlag(ToolUser.Context context, IPlayer player, @Nullable String name)
     {
@@ -28,7 +35,7 @@ public class CreatorFlag extends Creator
     }
 
     @Override
-    protected List<Step> generateSteps()
+    protected synchronized List<Step> generateSteps()
         throws InstantiationException
     {
         return Arrays.asList(
@@ -52,18 +59,18 @@ public class CreatorFlag extends Creator
     }
 
     @Override
-    protected void giveTool()
+    protected synchronized void giveTool()
     {
         giveTool("tool_user.base.stick_name", "creator.flag.stick_lore");
     }
 
     @Override
-    protected boolean setSecondPos(ILocation loc)
+    protected synchronized boolean setSecondPos(ILocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;
 
-        Util.requireNonNull(firstPos, "firstPos");
+        final Vector3Di firstPos = Util.requireNonNull(getFirstPos(), "firstPos");
         final Vector3Di cuboidDims = new Cuboid(firstPos, new Vector3Di(loc.getBlockX(), loc.getBlockY(),
                                                                         loc.getBlockZ())).getDimensions();
 
@@ -79,9 +86,9 @@ public class CreatorFlag extends Creator
     }
 
     @Override
-    protected boolean completeSetRotationPointStep(ILocation loc)
+    protected synchronized boolean completeSetRotationPointStep(ILocation loc)
     {
-        Util.requireNonNull(cuboid, "cuboid");
+        final Cuboid cuboid = Util.requireNonNull(getCuboid(), "cuboid");
         // For flags, the rotation point has to be a corner of the total area.
         // It doesn't make sense to have it in the middle or something; that's now how flags work.
         if ((loc.getBlockX() == cuboid.getMin().x() || loc.getBlockX() == cuboid.getMax().x()) &&
@@ -93,14 +100,17 @@ public class CreatorFlag extends Creator
     }
 
     @Override
-    protected AbstractStructure constructStructure()
+    protected synchronized AbstractStructure constructStructure()
     {
-        Util.requireNonNull(cuboid, "cuboid");
-        Util.requireNonNull(rotationPoint, "rotationPoint");
+        final Cuboid cuboid = Util.requireNonNull(getCuboid(), "cuboid");
+        final Vector3Di rotationPoint = Util.requireNonNull(getRotationPoint(), "rotationPoint");
+
         if (northSouthAnimated)
-            openDir = rotationPoint.z() == cuboid.getMin().z() ? MovementDirection.SOUTH : MovementDirection.NORTH;
+            setMovementDirection(
+                rotationPoint.z() == cuboid.getMin().z() ? MovementDirection.SOUTH : MovementDirection.NORTH);
         else
-            openDir = rotationPoint.x() == cuboid.getMin().x() ? MovementDirection.EAST : MovementDirection.WEST;
+            setMovementDirection(
+                rotationPoint.x() == cuboid.getMin().x() ? MovementDirection.EAST : MovementDirection.WEST);
 
         return new Flag(constructStructureData(), northSouthAnimated);
     }
@@ -109,5 +119,16 @@ public class CreatorFlag extends Creator
     protected StructureType getStructureType()
     {
         return STRUCTURE_TYPE;
+    }
+
+    /**
+     * Gets whether the flag is animated along the north-south axis.
+     *
+     * @return True if the flag is animated along the north-south axis, false otherwise.
+     */
+    @SuppressWarnings("unused") // It is used by the generated toString method.
+    protected final synchronized boolean isNorthSouthAnimated()
+    {
+        return northSouthAnimated;
     }
 }

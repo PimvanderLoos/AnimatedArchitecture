@@ -1,8 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.tooluser;
 
 import com.google.common.flogger.StackSize;
-import lombok.Getter;
-import lombok.ToString;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
@@ -11,6 +10,7 @@ import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutor;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -25,22 +25,21 @@ import java.util.Optional;
  *
  * @author Pim
  */
-@ToString
 @Flogger
+@ThreadSafe
 public final class Procedure
 {
-    @Getter
+    private final ILocalizer localizer;
+    private final ITextFactory textFactory;
+
+    @GuardedBy("this")
     private @Nullable Step currentStep;
 
+    @GuardedBy("this")
     private final Map<String, Step> stepMap;
 
+    @GuardedBy("this")
     private final Deque<Step> steps;
-
-    @ToString.Exclude
-    private final ILocalizer localizer;
-
-    @ToString.Exclude
-    private final ITextFactory textFactory;
 
     public Procedure(List<Step> steps, ILocalizer localizer, ITextFactory textFactory)
     {
@@ -54,7 +53,7 @@ public final class Procedure
     /**
      * @return A list containing all steps in this procedure including any that may have been completed already.
      */
-    public List<Step> getAllSteps()
+    public synchronized List<Step> getAllSteps()
     {
         return new ArrayList<>(stepMap.values());
     }
@@ -66,7 +65,7 @@ public final class Procedure
      *     The name of the step to retrieve.
      * @return The step, if it exists in this procedure.
      */
-    public Optional<Step> getStepByName(String name)
+    public synchronized Optional<Step> getStepByName(String name)
     {
         return Optional.ofNullable(stepMap.get(name));
     }
@@ -80,7 +79,7 @@ public final class Procedure
      * @param step
      *     The step to insert.
      */
-    public void insertStep(Step step)
+    public synchronized void insertStep(Step step)
     {
         if (this.currentStep != null)
             this.steps.push(this.currentStep);
@@ -97,7 +96,7 @@ public final class Procedure
      * @throws NoSuchElementException
      *     If no step can be found by that name.
      */
-    public void insertStep(String name)
+    public synchronized void insertStep(String name)
     {
         final Step step = getStepByName(name)
             .orElseThrow(() -> new NoSuchElementException("Could not find step '" + name + "' in procedure: " + this));
@@ -109,7 +108,7 @@ public final class Procedure
      *
      * @return True if the current step is followed by another one. When false, the current step is the final step.
      */
-    public boolean hasNextStep()
+    public synchronized boolean hasNextStep()
     {
         return !steps.isEmpty();
     }
@@ -117,7 +116,7 @@ public final class Procedure
     /**
      * Advances to the next step.
      */
-    public void goToNextStep()
+    public synchronized void goToNextStep()
     {
         if (!hasNextStep())
         {
@@ -141,7 +140,7 @@ public final class Procedure
      *     The {@link Step} to jump to.
      * @return True if the jump was successful, otherwise false.
      */
-    public boolean skipToStep(Step goalStep)
+    public synchronized boolean skipToStep(Step goalStep)
     {
         while (hasNextStep())
         {
@@ -162,7 +161,7 @@ public final class Procedure
      *     The input to apply.
      * @return True if the application was successful.
      */
-    public boolean applyStepExecutor(@Nullable Object obj)
+    public synchronized boolean applyStepExecutor(@Nullable Object obj)
     {
         if (currentStep == null)
         {
@@ -178,7 +177,7 @@ public final class Procedure
      *
      * @return The message for the current step.
      */
-    public Text getMessage()
+    public synchronized Text getMessage()
     {
         if (currentStep == null)
         {
@@ -194,7 +193,7 @@ public final class Procedure
      *
      * @return The name of the current step.
      */
-    public String getCurrentStepName()
+    public synchronized String getCurrentStepName()
     {
         if (currentStep == null)
         {
@@ -210,7 +209,7 @@ public final class Procedure
      *
      * @return True if the current step should wait for user input.
      */
-    public boolean waitForUserInput()
+    public synchronized boolean waitForUserInput()
     {
         if (currentStep == null)
         {
@@ -231,7 +230,7 @@ public final class Procedure
      *
      * @return True if the current step should continue to the next step if execution was successful.
      */
-    public boolean implicitNextStep()
+    public synchronized boolean implicitNextStep()
     {
         if (!hasNextStep())
             return false;
@@ -248,7 +247,7 @@ public final class Procedure
     /**
      * Runs the step preparation for the current step if applicable. See {@link Step#getStepPreparation()}.
      */
-    public void runCurrentStepPreparation()
+    public synchronized void runCurrentStepPreparation()
     {
         if (currentStep == null)
             return;
@@ -266,5 +265,17 @@ public final class Procedure
                 throw new IllegalArgumentException(
                     "Trying to register duplicate entries for step name: " + step.getName());
         return ret;
+    }
+
+    public synchronized @Nullable Step getCurrentStep()
+    {
+        return this.currentStep;
+    }
+
+    @Override
+    public synchronized String toString()
+    {
+        return "Procedure(currentStep=" + this.getCurrentStep() + ", stepMap=" + this.stepMap + ", steps=" +
+            this.steps + ")";
     }
 }
