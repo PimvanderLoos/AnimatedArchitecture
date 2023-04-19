@@ -27,7 +27,6 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Comparator;
 import java.util.List;
 
 @ToString(onlyExplicitlyIncluded = true)
@@ -46,7 +45,7 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
     private @Nullable AbstractStructure selectedStructure;
 
     @ToString.Include
-    private final Long2ObjectMap<AbstractStructure> structures;
+    private final Long2ObjectMap<NamedStructure> structures;
 
     private final ConfigSpigot config;
 
@@ -65,7 +64,7 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
         IExecutor executor,
         ConfigSpigot config,
         @Assisted IPlayer inventoryHolder,
-        @Assisted List<AbstractStructure> structures)
+        @Assisted List<NamedStructure> structures)
     {
         this.textFactory = textFactory;
         this.createStructureGuiFactory = createStructureGuiFactory;
@@ -85,11 +84,10 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
         deletionManager.registerDeletionListener(this);
     }
 
-    private static Long2ObjectMap<AbstractStructure> getStructuresMap(List<AbstractStructure> structures)
+    private static Long2ObjectMap<NamedStructure> getStructuresMap(List<NamedStructure> structures)
     {
-        final Long2ObjectMap<AbstractStructure> ret = new Long2ObjectOpenHashMap<>(structures.size());
-        structures.stream().sorted(Comparator.comparing(AbstractStructure::getName))
-                  .forEach(structure -> ret.put(structure.getUid(), structure));
+        final Long2ObjectMap<NamedStructure> ret = new Long2ObjectOpenHashMap<>(structures.size());
+        structures.forEach(structure -> ret.put(structure.structure.getUid(), structure));
         return ret;
     }
 
@@ -124,15 +122,15 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
     private void addElementGroup(InventoryGui gui)
     {
         final GuiElementGroup group = new GuiElementGroup('g');
-        for (final AbstractStructure structure : structures.values())
+        for (final NamedStructure structure : structures.values())
         {
             final StaticGuiElement guiElement = new StaticGuiElement(
                 'e',
-                new ItemStack(config.getGuiMaterial(structure.getType())),
+                new ItemStack(config.getGuiMaterial(structure.structure().getType())),
                 click ->
                 {
-                    selectedStructure = structure;
-                    final InfoGui infoGui = infoGuiFactory.newInfoGUI(structure, inventoryHolder);
+                    selectedStructure = structure.structure();
+                    final InfoGui infoGui = infoGuiFactory.newInfoGUI(structure.structure(), inventoryHolder);
                     infoGui.getInventoryGui().setCloseAction(
                         close ->
                         {
@@ -241,6 +239,37 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
         return "MainGui";
     }
 
+    /**
+     * Represents a union of a structure and its name.
+     * <p>
+     * This allows us to quickly draw all structures in a GUI without having to deal with locks and synchronization on
+     * the structure.
+     *
+     * @param structure
+     *     The structure.
+     * @param name
+     *     The name of the structure.
+     */
+    public record NamedStructure(AbstractStructure structure, String name)
+    {
+        public NamedStructure(AbstractStructure structure)
+        {
+            this(structure, structure.getName());
+        }
+
+        /**
+         * Returns the name and UID of the structure.
+         * <p>
+         * See {@link IStructureConst#formatNameAndUid(String, long)}.
+         *
+         * @return The name and UID of the structure in the format {@code "name (uid)"}.
+         */
+        public String getNameAndUid()
+        {
+            return IStructureConst.formatNameAndUid(name, structure.getUid());
+        }
+    }
+
     @AssistedFactory
     interface IFactory
     {
@@ -252,6 +281,6 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
          * @param structures
          *     The structures to show in the GUI.
          */
-        MainGui newGUI(IPlayer inventoryHolder, List<AbstractStructure> structures);
+        MainGui newGUI(IPlayer inventoryHolder, List<NamedStructure> structures);
     }
 }
