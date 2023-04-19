@@ -50,6 +50,22 @@ public sealed interface IVector3D permits Vector3Dd, Vector3Di
     }
 
     /**
+     * Gets the distance to a location.
+     *
+     * @param location
+     *     The location.
+     * @return The distance to the other point.
+     */
+    @CheckReturnValue
+    @Contract(pure = true)
+    default double getDistance(ILocation location)
+    {
+        return Vector3DUtil.getDistance(
+            this.xD(), this.yD(), this.zD(),
+            location.getX(), location.getY(), location.getZ());
+    }
+
+    /**
      * Creates a new {@link ILocation} using the current x/y/z coordinates.
      *
      * @param world

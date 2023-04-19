@@ -6,18 +6,14 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
-import nl.pim16aap2.animatedarchitecture.core.managers.StructureSpecificationManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.delayedinput.DelayedStructureSpecificationInputRequest;
 import org.jetbrains.annotations.Nullable;
 
-import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +31,9 @@ public sealed abstract class StructureRetriever
      * <p>
      * In case the structure is referenced by its name, there may be more than one match (names are not unique). When
      * this happens, no structures are returned.
+     * <p>
+     * {@link #getStructureInteractive(IPlayer, PermissionLevel)} can be used to interactively request the user to
+     * select a structure if more than 1 match is found.
      *
      * @return The {@link AbstractStructure} if it can be found.
      */
@@ -46,6 +45,9 @@ public sealed abstract class StructureRetriever
      * <p>
      * In case the structure is referenced by its name, there may be more than one match (names are not unique). When
      * this happens, no structures are returned.
+     * <p>
+     * {@link #getStructureInteractive(IPlayer, PermissionLevel)} can be used to interactively request the user to
+     * select a structure if more than 1 match is found.
      *
      * @param player
      *     The {@link IPlayer} that owns the structure.
@@ -61,6 +63,9 @@ public sealed abstract class StructureRetriever
      * <p>
      * If the {@link ICommandSender} is a player, see {@link #getStructure(IPlayer, PermissionLevel)}, otherwise see
      * {@link #getStructure()}.
+     * <p>
+     * {@link #getStructureInteractive(IPlayer, PermissionLevel)} can be used to interactively request the user to
+     * select a structure if more than 1 match is found.
      *
      * @param commandSender
      *     The {@link ICommandSender} for whom to retrieve the structures.
@@ -77,6 +82,35 @@ public sealed abstract class StructureRetriever
     }
 
     /**
+     * Requests the user to specify which structure they want if more than 1 match was found.
+     * <p>
+     * If the user does not specify a structure within the timeout, no structure is returned.
+     * <p>
+     * If the list of input structures contains a single structure, that structure is returned without asking the user.
+     *
+     * @param structures
+     *     The structures to choose from.
+     * @param player
+     *     The player for whom to get the structure.
+     * @param specificationFactory
+     *     The factory to use to create the request if needed.
+     * @return The structure that the user specified, the structure that was the only match, or {@link Optional#empty()}
+     * if no structure was found or the user did not specify a structure within the timeout.
+     */
+    static CompletableFuture<Optional<AbstractStructure>> getStructureInteractive(
+        List<AbstractStructure> structures, IPlayer player,
+        DelayedStructureSpecificationInputRequest.Factory specificationFactory)
+    {
+        if (structures.size() == 1)
+            return CompletableFuture.completedFuture(Optional.of(structures.get(0)));
+
+        if (structures.isEmpty())
+            return CompletableFuture.completedFuture(Optional.empty());
+
+        return specificationFactory.get(structures, player);
+    }
+
+    /**
      * Attempts to retrieve a structure from its specification (see {@link #getStructure(IPlayer, PermissionLevel)}).
      * <p>
      * If more than 1 match was found, the player will be asked to specify which one they asked for specifically.
@@ -84,6 +118,9 @@ public sealed abstract class StructureRetriever
      * The amount of time to wait (when required) is determined by {@link IConfig#specificationTimeout()}.
      * <p>
      * See {@link DelayedStructureSpecificationInputRequest}.
+     * <p>
+     * Not every implementation of {@link StructureRetriever} supports this method, in which case it will return the
+     * same as {@link #getStructure(IPlayer, PermissionLevel)} (e.g. when retrieving a structure by its UID).
      *
      * @param player
      *     The player for whom to get the structure.
@@ -92,8 +129,6 @@ public sealed abstract class StructureRetriever
      * @return The structure as specified by this {@link StructureRetriever} and with user input in case more than one
      * match was found.
      */
-    // TODO: Implement the interactive system.
-    @SuppressWarnings("unused")
     public CompletableFuture<Optional<AbstractStructure>> getStructureInteractive(
         IPlayer player, PermissionLevel permissionLevel)
     {
@@ -239,16 +274,7 @@ public sealed abstract class StructureRetriever
         private final DatabaseManager databaseManager;
 
         @ToString.Exclude
-        private IConfig config;
-
-        @ToString.Exclude
-        private StructureSpecificationManager structureSpecificationManager;
-
-        @ToString.Exclude
-        private ILocalizer localizer;
-
-        @ToString.Exclude
-        private ITextFactory textFactory;
+        private final DelayedStructureSpecificationInputRequest.Factory specificationFactory;
 
         private final String name;
 
@@ -286,19 +312,7 @@ public sealed abstract class StructureRetriever
             IPlayer player, PermissionLevel permissionLevel)
         {
             return getStructures(player, permissionLevel).thenCompose(
-                structuresList ->
-                {
-                    if (structuresList.size() == 1)
-                        return CompletableFuture.completedFuture(Optional.of(structuresList.get(0)));
-
-                    if (structuresList.isEmpty())
-                        return CompletableFuture.completedFuture(Optional.empty());
-
-                    final Duration timeOut = Duration.ofSeconds(config.specificationTimeout());
-                    return DelayedStructureSpecificationInputRequest
-                        .get(timeOut, structuresList, player, localizer, textFactory, structureSpecificationManager);
-
-                }).exceptionally(Util::exceptionallyOptional);
+                structures -> getStructureInteractive(structures, player, specificationFactory));
         }
     }
 
@@ -367,6 +381,9 @@ public sealed abstract class StructureRetriever
     @Flogger
     static final class StructureListRetriever extends StructureRetriever
     {
+        @ToString.Exclude
+        private final DelayedStructureSpecificationInputRequest.Factory specificationFactory;
+
         private final List<AbstractStructure> structures;
 
         @Override
@@ -399,6 +416,14 @@ public sealed abstract class StructureRetriever
             return CompletableFuture.completedFuture(
                 StructureRetriever.listToOptional(getStructures0(player, permissionLevel)));
         }
+
+        @Override
+        public CompletableFuture<Optional<AbstractStructure>> getStructureInteractive(
+            IPlayer player, PermissionLevel permissionLevel)
+        {
+            return getStructures(player, permissionLevel).thenCompose(
+                structures -> getStructureInteractive(structures, player, specificationFactory));
+        }
     }
 
     /**
@@ -409,10 +434,16 @@ public sealed abstract class StructureRetriever
     @Flogger
     static final class FutureStructureListRetriever extends StructureRetriever
     {
+        @ToString.Exclude
+        private final DelayedStructureSpecificationInputRequest.Factory specificationFactory;
+
         private final CompletableFuture<List<AbstractStructure>> structures;
 
-        FutureStructureListRetriever(CompletableFuture<List<AbstractStructure>> structures)
+        FutureStructureListRetriever(
+            DelayedStructureSpecificationInputRequest.Factory specificationFactory,
+            CompletableFuture<List<AbstractStructure>> structures)
         {
+            this.specificationFactory = specificationFactory;
             this.structures = structures.exceptionally(t -> Util.exceptionally(t, Collections.emptyList()));
         }
 
@@ -451,6 +482,14 @@ public sealed abstract class StructureRetriever
             return getStructures0(player, permissionLevel)
                 .thenApply(StructureRetriever::listToOptional)
                 .exceptionally(Util::exceptionallyOptional);
+        }
+
+        @Override
+        public CompletableFuture<Optional<AbstractStructure>> getStructureInteractive(
+            IPlayer player, PermissionLevel permissionLevel)
+        {
+            return getStructures(player, permissionLevel).thenCompose(
+                structures -> getStructureInteractive(structures, player, specificationFactory));
         }
     }
 

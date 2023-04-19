@@ -211,7 +211,7 @@ public abstract class BaseCommand
     protected CompletableFuture<Optional<AbstractStructure>> getStructure(
         StructureRetriever doorRetriever, PermissionLevel permissionLevel)
     {
-        return commandSender.getPlayer().map(player -> doorRetriever.getStructure(player, permissionLevel))
+        return commandSender.getPlayer().map(player -> doorRetriever.getStructureInteractive(player, permissionLevel))
                             .orElseGet(doorRetriever::getStructure).thenApplyAsync(
                 structure ->
                 {

@@ -39,9 +39,11 @@ class SpecifyTest
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
         Mockito.when(factory.newSpecify(Mockito.any(ICommandSender.class), Mockito.anyString()))
-               .thenAnswer(invoc -> new Specify(invoc.getArgument(0, ICommandSender.class), localizer,
+               .thenAnswer(invoc -> new Specify(invoc.getArgument(0, ICommandSender.class),
+                                                invoc.getArgument(1, String.class),
+                                                localizer,
                                                 ITextFactory.getSimpleTextFactory(),
-                                                invoc.getArgument(1, String.class), structureSpecificationManager));
+                                                structureSpecificationManager));
     }
 
     @Test

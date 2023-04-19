@@ -404,6 +404,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.SPECIFY, "commands.specify.description")
+                .argument(StringArgument.of("data"))
                 .handler(executor::specify)
         );
     }

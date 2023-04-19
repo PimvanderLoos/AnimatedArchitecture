@@ -5,11 +5,11 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.managers.StructureSpecificationManager;
+import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.managers.StructureSpecificationManager;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.delayedinput.DelayedInputRequest;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -24,10 +24,12 @@ public class Specify extends BaseCommand
     private final String input;
     private final StructureSpecificationManager structureSpecificationManager;
 
-    @AssistedInject //
-    Specify(
-        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
-        @Assisted String input, StructureSpecificationManager structureSpecificationManager)
+    @AssistedInject Specify(
+        @Assisted ICommandSender commandSender,
+        @Assisted String input,
+        ILocalizer localizer,
+        ITextFactory textFactory,
+        StructureSpecificationManager structureSpecificationManager)
     {
         super(commandSender, localizer, textFactory);
         this.input = input;
@@ -40,7 +42,6 @@ public class Specify extends BaseCommand
         return CommandDefinition.SPECIFY;
     }
 
-    // TODO: Make it available for non-players as well.
     @Override
     protected boolean availableForNonPlayers()
     {
@@ -64,11 +65,11 @@ public class Specify extends BaseCommand
          *
          * @param commandSender
          *     The {@link ICommandSender} responsible specifying a structure.
-         * @param name
-         *     The name/index that specifies a structure based on the {@link DelayedInputRequest} for the command sender
-         *     as registered by the {@link StructureSpecificationManager}.
+         * @param data
+         *     The data that specifies a structure based on the {@link DelayedInputRequest} for the command sender as
+         *     registered by the {@link StructureSpecificationManager}.
          * @return See {@link BaseCommand#run()}.
          */
-        Specify newSpecify(ICommandSender commandSender, String name);
+        Specify newSpecify(ICommandSender commandSender, String data);
     }
 }

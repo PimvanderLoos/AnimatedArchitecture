@@ -7,6 +7,7 @@ import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
+import nl.pim16aap2.testing.MockInjector;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,7 +57,7 @@ class ListStructuresTest
     @Test
     void testBypass()
     {
-        StructureRetriever retriever = StructureRetrieverFactory.ofStructures(structures);
+        final var retriever = MockInjector.injectInto(StructureRetrieverFactory.class).ofStructures(structures);
 
         // No structures will be found, because the command sender is not an owner of any them.
         CommandTestingUtil.initCommandSenderPermissions(playerCommandSender, true, false);

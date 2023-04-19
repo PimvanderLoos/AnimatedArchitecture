@@ -1,7 +1,9 @@
 package nl.pim16aap2.animatedarchitecture.core.util.delayedinput;
 
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,9 +22,13 @@ import java.util.concurrent.locks.ReentrantLock;
  *     The type of data to request.
  */
 @Flogger
+@ToString
+@EqualsAndHashCode
 public class DelayedInputRequest<T>
 {
+    @ToString.Exclude @EqualsAndHashCode.Exclude
     private final Lock lock = new ReentrantLock();
+    @ToString.Exclude @EqualsAndHashCode.Exclude
     private final Condition inputCondition = lock.newCondition();
 
     /**

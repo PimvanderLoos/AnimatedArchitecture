@@ -1,14 +1,11 @@
 package nl.pim16aap2.animatedarchitecture.core.util.structureretriever;
 
-import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
-import nl.pim16aap2.animatedarchitecture.core.managers.StructureSpecificationManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.delayedinput.DelayedStructureSpecificationInputRequest;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -24,25 +21,18 @@ import java.util.concurrent.CompletableFuture;
  */
 public final class StructureRetrieverFactory
 {
+    private final DelayedStructureSpecificationInputRequest.Factory specificationFactory;
     private final DatabaseManager databaseManager;
-    private final IConfig config;
-    private final StructureSpecificationManager structureSpecificationManager;
     private final StructureFinderCache structureFinderCache;
-    private final ILocalizer localizer;
-    private final ITextFactory textFactory;
 
     @Inject StructureRetrieverFactory(
-        DatabaseManager databaseManager, IConfig config,
-        StructureSpecificationManager structureSpecificationManager,
-        StructureFinderCache structureFinderCache, ILocalizer localizer,
-        ITextFactory textFactory)
+        DelayedStructureSpecificationInputRequest.Factory specificationFactory,
+        DatabaseManager databaseManager,
+        StructureFinderCache structureFinderCache)
     {
+        this.specificationFactory = specificationFactory;
         this.databaseManager = databaseManager;
-        this.config = config;
-        this.structureSpecificationManager = structureSpecificationManager;
         this.structureFinderCache = structureFinderCache;
-        this.localizer = localizer;
-        this.textFactory = textFactory;
     }
 
     /**
@@ -59,8 +49,7 @@ public final class StructureRetrieverFactory
                new StructureRetriever.StructureUIDRetriever(
                    databaseManager, structureUID.getAsLong()) :
                new StructureRetriever.StructureNameRetriever(
-                   databaseManager, config, structureSpecificationManager,
-                   localizer, textFactory, structureID);
+                   databaseManager, specificationFactory, structureID);
     }
 
     /**
@@ -160,8 +149,7 @@ public final class StructureRetrieverFactory
      *     The structure object itself.
      * @return The new {@link StructureRetriever}.
      */
-    public static StructureRetriever ofStructure(
-        @Nullable AbstractStructure structure)
+    public static StructureRetriever ofStructure(@Nullable AbstractStructure structure)
     {
         return new StructureRetriever.StructureObjectRetriever(structure);
     }
@@ -173,8 +161,7 @@ public final class StructureRetrieverFactory
      *     The future structure.
      * @return The new {@link StructureRetriever}.
      */
-    public static StructureRetriever ofStructure(
-        CompletableFuture<Optional<AbstractStructure>> structure)
+    public static StructureRetriever ofStructure(CompletableFuture<Optional<AbstractStructure>> structure)
     {
         return new StructureRetriever.FutureStructureRetriever(structure);
     }
@@ -186,10 +173,10 @@ public final class StructureRetrieverFactory
      *     The structures.
      * @return The new {@link StructureRetriever}.
      */
-    public static StructureRetriever ofStructures(
-        List<AbstractStructure> structures)
+    @SuppressWarnings("unused")
+    public StructureRetriever ofStructures(List<AbstractStructure> structures)
     {
-        return new StructureRetriever.StructureListRetriever(structures);
+        return new StructureRetriever.StructureListRetriever(specificationFactory, structures);
     }
 
     /**
@@ -199,11 +186,10 @@ public final class StructureRetrieverFactory
      *     The structures.
      * @return The new {@link StructureRetriever}.
      */
-    public static StructureRetriever ofStructures(
+    public StructureRetriever ofStructures(
         CompletableFuture<List<AbstractStructure>> structures)
     {
-        return new StructureRetriever.FutureStructureListRetriever(
-            structures);
+        return new StructureRetriever.FutureStructureListRetriever(specificationFactory, structures);
     }
 
     /**

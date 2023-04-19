@@ -213,7 +213,7 @@ class CommandExecutor
 
     void specify(CommandContext<ICommandSender> context)
     {
-        throw new UnsupportedOperationException("Not implemented!");
+        commandFactory.newSpecify(context.getSender(), context.get("data")).run().exceptionally(Util::exceptionally);
     }
 
     void stopStructures(CommandContext<ICommandSender> context)
