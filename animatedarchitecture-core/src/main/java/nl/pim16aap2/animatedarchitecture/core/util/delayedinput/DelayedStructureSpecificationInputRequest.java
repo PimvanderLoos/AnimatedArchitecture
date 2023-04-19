@@ -32,9 +32,7 @@ import java.util.concurrent.CompletableFuture;
 @EqualsAndHashCode(callSuper = true)
 public final class DelayedStructureSpecificationInputRequest extends DelayedInputRequest<String>
 {
-    private final List<AbstractStructure> options;
     private final IPlayer player;
-    @SuppressWarnings({"FieldCanBeLocal", "unused", "PMD.SingularField"})
     @ToString.Exclude @EqualsAndHashCode.Exclude
     private final ILocalizer localizer;
     @ToString.Exclude @EqualsAndHashCode.Exclude
@@ -42,9 +40,14 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
     @ToString.Exclude @EqualsAndHashCode.Exclude
     private final StructureSpecificationManager structureSpecificationManager;
 
+    private final List<AbstractStructure> options;
+
     private DelayedStructureSpecificationInputRequest(
-        Duration timeout, List<AbstractStructure> options, IPlayer player, ILocalizer localizer,
-        ITextFactory textFactory, StructureSpecificationManager structureSpecificationManager)
+        Duration timeout,
+        List<AbstractStructure> options,
+        IPlayer player, ILocalizer localizer,
+        ITextFactory textFactory,
+        StructureSpecificationManager structureSpecificationManager)
     {
         super(timeout);
         this.options = options;
@@ -58,15 +61,12 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
     private void init()
     {
         structureSpecificationManager.placeRequest(player, this);
-        // TODO: Localization
-        // TODO: Abstraction. It may be a list and it may specified using a command, but that's not always true.
-        //       It may also use a GUI or clickable text or whatever.
+
         final Text text = textFactory.newText();
-        text.append("Please specify a structure you using \"", TextType.INFO)
-            .append("/AnimatedArchitecture specify <ID>", TextType.HIGHLIGHT)
-            .append("\"", TextType.INFO);
+        text.append(localizer.getMessage("input_request.specify_structure.header"), TextType.INFO);
 
         getStructureInfoList(text);
+
         player.sendMessage(text);
     }
 
@@ -96,30 +96,27 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
         structureSpecificationManager.cancelRequest(player);
     }
 
+    private void appendStructureInfo(Text text, AbstractStructure structure, Optional<ILocation> location)
+    {
+        final long distance =
+            location.map(loc -> Math.round(structure.getCuboid().getCenter().getDistance(loc))).orElse(-1L);
+
+        final String cmd = "/animatedarchitecture specify " + structure.getUid();
+        final String info = localizer.getMessage("input_request.specify_structure.structure_option.info");
+
+        text.append("\n * ", TextType.INFO).append(
+            localizer.getMessage("input_request.specify_structure.structure_option"),
+            text.getTextComponentFactory().newClickableTextComponent(TextType.CLICKABLE, cmd, info),
+            arg -> arg.clickable(structure.getUid(), TextType.CLICKABLE_CONFIRM, cmd, info),
+            arg -> arg.clickable(structure.getType().getSimpleName(), cmd, info),
+            arg -> arg.clickable(structure.getName(), TextType.CLICKABLE_CONFIRM, cmd, info),
+            arg -> arg.clickable(distance, TextType.HIGHLIGHT, cmd, info));
+    }
+
     private void getStructureInfoList(Text text)
     {
         final Optional<ILocation> location = player.getLocation();
-
-        options.forEach(
-            structure ->
-            {
-                text.append("\n")
-                    .append(Long.toString(structure.getUid()), TextType.HIGHLIGHT)
-                    .append(": ", TextType.INFO)
-                    .append(structure.getType().getSimpleName(), TextType.HIGHLIGHT)
-                    .append(", Creator: ", TextType.INFO)
-                    .append(structure.getPrimeOwner().playerData().getName(), TextType.HIGHLIGHT)
-                    .append(", World: ", TextType.INFO)
-                    .append(structure.getWorld().worldName(), TextType.HIGHLIGHT);
-
-                if (location.isEmpty())
-                    return;
-
-                final double distance = Util.getDistanceToStructure(location.get(), structure);
-                if (distance >= 0)
-                    text.append(", Distance: ", TextType.INFO)
-                        .append(String.format("%.1f", distance), TextType.HIGHLIGHT);
-            });
+        options.forEach(structure -> appendStructureInfo(text, structure, location));
     }
 
     @AllArgsConstructor(onConstructor = @__(@Inject))
@@ -157,7 +154,8 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
                 return CompletableFuture.completedFuture(Optional.empty());
 
             return new DelayedStructureSpecificationInputRequest(
-                timeout, options, player, localizer, textFactory, structureSpecificationManager).get();
+                timeout, options, player, localizer, textFactory, structureSpecificationManager)
+                .get().exceptionally(Util::exceptionallyOptional);
         }
 
         /**
