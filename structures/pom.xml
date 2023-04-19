@@ -77,28 +77,6 @@
                         </archive>
                     </configuration>
                 </plugin>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-shade-plugin</artifactId>
-                    <configuration>
-                        <!-- We do not want to shade anything into the resulting jars
-                        This is explicitly required here because we're exporting to separate jars -->
-                        <artifactSet>
-                            <includes>
-                                <include>nl.pim16aap2.animatedarchitecture.structures:*</include>
-                            </includes>
-                        </artifactSet>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <phase>package</phase>
-                            <goals>
-                                <goal>shade</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
             </plugins>
         </pluginManagement>
     </build>
