@@ -1,5 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.structures.clock;
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
+import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
@@ -17,17 +19,18 @@ import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
 @Flogger
+@ThreadSafe
+@ToString(callSuper = true)
 public class CreatorClock extends Creator
 {
     private static final StructureType STRUCTURE_TYPE = StructureTypeClock.get();
-
-    protected @Nullable BlockFace hourArmSide;
 
     /**
      * The valid open directions when the structure is positioned along the north/south axis.
@@ -41,6 +44,10 @@ public class CreatorClock extends Creator
     private static final Set<MovementDirection> EAST_WEST_AXIS_OPEN_DIRS =
         EnumSet.of(MovementDirection.EAST, MovementDirection.WEST);
 
+    @GuardedBy("this")
+    private @Nullable BlockFace hourArmSide;
+
+    @GuardedBy("this")
     private boolean northSouthAligned;
 
     public CreatorClock(ToolUser.Context context, IPlayer player, @Nullable String name)
@@ -49,7 +56,7 @@ public class CreatorClock extends Creator
     }
 
     @Override
-    protected List<Step> generateSteps()
+    protected synchronized List<Step> generateSteps()
         throws InstantiationException
     {
         final Step stepSelectHourArm = stepFactory
@@ -83,12 +90,12 @@ public class CreatorClock extends Creator
      *     The selected location.
      * @return True if step finished successfully.
      */
-    protected boolean completeSelectHourArmStep(ILocation loc)
+    protected synchronized boolean completeSelectHourArmStep(ILocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;
 
-        Util.requireNonNull(cuboid, "cuboid");
+        final Cuboid cuboid = Util.requireNonNull(getCuboid(), "cuboid");
         if (northSouthAligned)
             hourArmSide = loc.getBlockX() == cuboid.getMin().x() ? BlockFace.WEST :
                           loc.getBlockX() == cuboid.getMax().x() ? BlockFace.EAST : null;
@@ -103,12 +110,12 @@ public class CreatorClock extends Creator
     }
 
     @Override
-    protected boolean setSecondPos(ILocation loc)
+    protected synchronized boolean setSecondPos(ILocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;
 
-        Util.requireNonNull(firstPos, "firstPos");
+        final Vector3Di firstPos = Util.requireNonNull(getFirstPos(), "firstPos");
         final Vector3Di cuboidDims = new Cuboid(firstPos, new Vector3Di(loc.getBlockX(), loc.getBlockY(),
                                                                         loc.getBlockZ())).getDimensions();
 
@@ -158,16 +165,16 @@ public class CreatorClock extends Creator
     }
 
     @Override
-    public Set<MovementDirection> getValidOpenDirections()
+    public synchronized Set<MovementDirection> getValidOpenDirections()
     {
-        if (isOpen)
+        if (isOpen())
             return getStructureType().getValidOpenDirections();
         // When the garage structure is not open (i.e. vertical), it can only be opened along one axis.
         return northSouthAligned ? NORTH_SOUTH_AXIS_OPEN_DIRS : EAST_WEST_AXIS_OPEN_DIRS;
     }
 
     @Override
-    protected void giveTool()
+    protected synchronized void giveTool()
     {
         giveTool("tool_user.base.stick_name", "creator.clock.stick_lore");
     }
@@ -176,26 +183,27 @@ public class CreatorClock extends Creator
      * Calculates the position of the rotation point. This should be called at the end of the process, as not all
      * variables may be set at an earlier stage.
      */
-    protected void setRotationPoint()
+    protected synchronized void setRotationPoint()
     {
+        final @Nullable Cuboid cuboid = getCuboid();
         if (cuboid == null)
             return;
-        rotationPoint = cuboid.getCenterBlock();
+        setRotationPoint(cuboid.getCenterBlock());
     }
 
     /**
      * Calculates the open direction from the current physical aspects of this clock.
      */
-    protected void setOpenDirection()
+    protected synchronized void setOpenDirection()
     {
         if (northSouthAligned)
-            openDir = hourArmSide == BlockFace.NORTH ? MovementDirection.WEST : MovementDirection.EAST;
+            setMovementDirection(hourArmSide == BlockFace.NORTH ? MovementDirection.WEST : MovementDirection.EAST);
         else
-            openDir = hourArmSide == BlockFace.EAST ? MovementDirection.NORTH : MovementDirection.SOUTH;
+            setMovementDirection(hourArmSide == BlockFace.EAST ? MovementDirection.NORTH : MovementDirection.SOUTH);
     }
 
     @Override
-    protected AbstractStructure constructStructure()
+    protected synchronized AbstractStructure constructStructure()
     {
         setRotationPoint();
         setOpenDirection();
@@ -207,5 +215,17 @@ public class CreatorClock extends Creator
     protected StructureType getStructureType()
     {
         return STRUCTURE_TYPE;
+    }
+
+    @SuppressWarnings("unused") // It is used by the generated toString method.
+    protected final synchronized @Nullable BlockFace getHourArmSide()
+    {
+        return hourArmSide;
+    }
+
+    @SuppressWarnings("unused") // It is used by the generated toString method.
+    protected final synchronized boolean isNorthSouthAligned()
+    {
+        return northSouthAligned;
     }
 }

@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.tooluser;
 
 import com.google.common.flogger.StackSize;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -23,11 +24,13 @@ import java.util.List;
  *
  * @author Pim
  */
-@ToString
 @Flogger
+@ToString(callSuper = true)
 public class PowerBlockRelocator extends ToolUser
 {
     private final AbstractStructure structure;
+
+    @GuardedBy("this")
     private @Nullable ILocation newLoc;
 
     @AssistedInject
@@ -39,14 +42,14 @@ public class PowerBlockRelocator extends ToolUser
     }
 
     @Override
-    protected void init()
+    protected synchronized void init()
     {
         giveTool(
             "tool_user.base.stick_name", "tool_user.powerblock_relocator.stick_lore",
             textFactory.newText().append(localizer.getMessage("tool_user.powerblock_relocator.init"), TextType.INFO));
     }
 
-    protected boolean moveToLoc(ILocation loc)
+    protected synchronized boolean moveToLoc(ILocation loc)
     {
         if (!loc.getWorld().equals(structure.getWorld()))
         {
@@ -69,7 +72,7 @@ public class PowerBlockRelocator extends ToolUser
         return true;
     }
 
-    private boolean completeProcess()
+    private synchronized boolean completeProcess()
     {
         if (newLoc == null)
         {
@@ -90,7 +93,7 @@ public class PowerBlockRelocator extends ToolUser
     }
 
     @Override
-    protected List<Step> generateSteps()
+    protected synchronized List<Step> generateSteps()
         throws InstantiationException
     {
         final Step stepPowerblockRelocatorInit = stepFactory
@@ -106,6 +109,17 @@ public class PowerBlockRelocator extends ToolUser
             .waitForUserInput(false).construct();
 
         return Arrays.asList(stepPowerblockRelocatorInit, stepPowerblockRelocatorCompleted);
+    }
+
+    /**
+     * Gets the new location of the powerblock.
+     *
+     * @return The new location of the powerblock. May be {@code null} if the powerblock has not been relocated yet.
+     */
+    @SuppressWarnings("unused") // It is used by the generated toString method.
+    protected final synchronized @Nullable ILocation getNewLoc()
+    {
+        return newLoc;
     }
 
     @AssistedFactory

@@ -1,5 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.structures.garagedoor;
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
+import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
@@ -14,11 +16,14 @@ import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
+@ThreadSafe
+@ToString(callSuper = true)
 public class CreatorGarageDoor extends Creator
 {
     private static final StructureType STRUCTURE_TYPE = StructureTypeGarageDoor.get();
@@ -35,6 +40,7 @@ public class CreatorGarageDoor extends Creator
     private static final Set<MovementDirection> EAST_WEST_AXIS_OPEN_DIRS =
         EnumSet.of(MovementDirection.EAST, MovementDirection.WEST);
 
+    @GuardedBy("this")
     private boolean northSouthAnimated;
 
     public CreatorGarageDoor(ToolUser.Context context, IPlayer player, @Nullable String name)
@@ -43,7 +49,7 @@ public class CreatorGarageDoor extends Creator
     }
 
     @Override
-    protected List<Step> generateSteps()
+    protected synchronized List<Step> generateSteps()
         throws InstantiationException
     {
         return Arrays.asList(
@@ -65,12 +71,12 @@ public class CreatorGarageDoor extends Creator
     }
 
     @Override
-    protected boolean setSecondPos(ILocation loc)
+    protected synchronized boolean setSecondPos(ILocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;
 
-        Util.requireNonNull(firstPos, "firstPos");
+        final Vector3Di firstPos = Util.requireNonNull(getFirstPos(), "firstPos");
         final Vector3Di cuboidDims = new Cuboid(firstPos, new Vector3Di(loc.getBlockX(), loc.getBlockY(),
                                                                         loc.getBlockZ())).getDimensions();
 
@@ -78,7 +84,7 @@ public class CreatorGarageDoor extends Creator
         if ((cuboidDims.x() == 1) ^ (cuboidDims.y() == 1) ^ (cuboidDims.z() == 1))
         {
             northSouthAnimated = cuboidDims.z() == 1;
-            isOpen = cuboidDims.y() == 1;
+            setOpen(cuboidDims.y() == 1);
             return super.setSecondPos(loc);
         }
 
@@ -87,26 +93,29 @@ public class CreatorGarageDoor extends Creator
     }
 
     @Override
-    public Set<MovementDirection> getValidOpenDirections()
+    public synchronized Set<MovementDirection> getValidOpenDirections()
     {
-        if (isOpen)
+        if (isOpen())
             return getStructureType().getValidOpenDirections();
         // When the garage structure is not open (i.e. vertical), it can only be opened along one axis.
         return northSouthAnimated ? NORTH_SOUTH_AXIS_OPEN_DIRS : EAST_WEST_AXIS_OPEN_DIRS;
     }
 
     @Override
-    protected void giveTool()
+    protected synchronized void giveTool()
     {
         giveTool("tool_user.base.stick_name", "creator.garage_door.stick_lore");
     }
 
     @Override
-    protected boolean completeSetOpenDirStep(MovementDirection direction)
+    protected synchronized boolean completeSetOpenDirStep(MovementDirection direction)
     {
         if (super.completeSetOpenDirStep(direction))
         {
-            if (openDir == MovementDirection.NORTH || openDir == MovementDirection.SOUTH)
+            final MovementDirection movementDirection =
+                Util.requireNonNull(getMovementDirection(), "movementDirection");
+
+            if (movementDirection == MovementDirection.NORTH || movementDirection == MovementDirection.SOUTH)
                 northSouthAnimated = true;
             return true;
         }
@@ -117,10 +126,13 @@ public class CreatorGarageDoor extends Creator
      * Calculates the position of the rotation point. This should be called at the end of the process, as not all
      * variables may be set at an earlier stage.
      */
-    protected void setRotationPoint()
+    protected synchronized void setRotationPoint()
     {
+        final @Nullable Cuboid cuboid = getCuboid();
         if (cuboid == null)
             return;
+
+        final MovementDirection movementDirection = Util.requireNonNull(getMovementDirection(), "movementDirection");
 
         final Vector3Di center = cuboid.getCenterBlock();
         final boolean isVertical = cuboid.getDimensions().y() > 1;
@@ -131,20 +143,20 @@ public class CreatorGarageDoor extends Creator
 
         if (isVertical)
             newY = cuboid.getMax().y() + 1;
-        else if (openDir == MovementDirection.NORTH)
+        else if (movementDirection == MovementDirection.NORTH)
             newZ = cuboid.getMax().z() + 1;
-        else if (openDir == MovementDirection.EAST)
+        else if (movementDirection == MovementDirection.EAST)
             newX = cuboid.getMin().x() - 1;
-        else if (openDir == MovementDirection.SOUTH)
+        else if (movementDirection == MovementDirection.SOUTH)
             newZ = cuboid.getMin().z() - 1;
-        else if (openDir == MovementDirection.WEST)
+        else if (movementDirection == MovementDirection.WEST)
             newX = cuboid.getMax().x() + 1;
 
-        rotationPoint = new Vector3Di(newX, newY, newZ);
+        setRotationPoint(new Vector3Di(newX, newY, newZ));
     }
 
     @Override
-    protected AbstractStructure constructStructure()
+    protected synchronized AbstractStructure constructStructure()
     {
         setRotationPoint();
         return new GarageDoor(constructStructureData(), northSouthAnimated);
@@ -154,5 +166,11 @@ public class CreatorGarageDoor extends Creator
     protected StructureType getStructureType()
     {
         return STRUCTURE_TYPE;
+    }
+
+    @SuppressWarnings("unused") // It is used by the generated toString method.
+    protected final synchronized boolean isNorthSouthAnimated()
+    {
+        return northSouthAnimated;
     }
 }

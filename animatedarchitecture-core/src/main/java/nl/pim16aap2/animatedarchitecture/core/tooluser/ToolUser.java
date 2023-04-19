@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.tooluser;
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.Getter;
-import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.StructureActivityManager;
 import nl.pim16aap2.animatedarchitecture.core.annotations.Initializer;
@@ -24,17 +24,16 @@ import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
 
-@ToString(onlyExplicitlyIncluded = true)
 @Flogger
+@ThreadSafe
 public abstract class ToolUser
 {
     @Getter
-    @ToString.Include
     private final IPlayer player;
 
     protected final ILocalizer localizer;
@@ -52,27 +51,26 @@ public abstract class ToolUser
     /**
      * The {@link Procedure} that this {@link ToolUser} will go through.
      */
-    @Getter
-    @ToString.Include
+    @GuardedBy("this")
     private final Procedure procedure;
 
     /**
      * Checks if this {@link ToolUser} has been shut down or not.
      */
-    @ToString.Include
-    private final AtomicBoolean isShutDown = new AtomicBoolean(false);
+    @GuardedBy("this")
+    private boolean isShutDown = false;
 
     /**
      * Keeps track of whether this {@link ToolUser} is active or not.
      */
-    @ToString.Include
-    protected final AtomicBoolean active = new AtomicBoolean(true);
+    @GuardedBy("this")
+    private boolean active = true;
 
     /**
      * Keeps track of whether the player has the tool or not.
      */
-    @ToString.Include
-    protected final AtomicBoolean playerHasTool = new AtomicBoolean(false);
+    @GuardedBy("this")
+    private boolean playerHasTool = false;
 
     protected ToolUser(Context context, IPlayer player)
     {
@@ -96,7 +94,7 @@ public abstract class ToolUser
                                            getPlayer().asString(), e);
         }
 
-        if (!active.get())
+        if (!active)
             return;
 
         toolUserManager.registerToolUser(this);
@@ -123,16 +121,17 @@ public abstract class ToolUser
      * Takes care of the final part of the process. This unregisters this {@link ToolUser} and removes the tool from the
      * player's inventory (if they still have it).
      */
-    protected final void cleanUpProcess()
+    protected final synchronized void cleanUpProcess()
     {
-        if (isShutDown.getAndSet(true))
+        if (isShutDown)
             return;
+        isShutDown = true;
         removeTool();
-        active.set(false);
+        active = false;
         toolUserManager.abortToolUser(this);
     }
 
-    public void abort()
+    public synchronized void abort()
     {
         cleanUpProcess();
     }
@@ -147,11 +146,11 @@ public abstract class ToolUser
      * @param text
      *     The message to send to the player after giving them the tool.
      */
-    protected final void giveTool(String nameKey, String loreKey, @Nullable Text text)
+    protected final synchronized void giveTool(String nameKey, String loreKey, @Nullable Text text)
     {
         animatedArchitectureToolUtil.giveToPlayer(
             getPlayer(), localizer.getMessage(nameKey), localizer.getMessage(loreKey));
-        playerHasTool.set(true);
+        playerHasTool = true;
 
         if (text != null)
             getPlayer().sendMessage(text);
@@ -160,10 +159,10 @@ public abstract class ToolUser
     /**
      * Removes the AnimatedArchitecture tool from the player's inventory.
      */
-    protected final void removeTool()
+    protected final synchronized void removeTool()
     {
         animatedArchitectureToolUtil.removeTool(getPlayer());
-        playerHasTool.set(false);
+        playerHasTool = false;
     }
 
     /**
@@ -172,7 +171,7 @@ public abstract class ToolUser
      * @return The message of the current step if possible. Otherwise, an empty String is returned.
      */
     @SuppressWarnings("unused")
-    public Text getCurrentStepMessage()
+    public synchronized Text getCurrentStepMessage()
     {
         return getProcedure().getMessage();
     }
@@ -182,7 +181,7 @@ public abstract class ToolUser
      * <p>
      * This should be used after proceeding to the next step.
      */
-    protected void prepareCurrentStep()
+    protected synchronized void prepareCurrentStep()
     {
         getProcedure().runCurrentStepPreparation();
         sendMessage();
@@ -197,7 +196,7 @@ public abstract class ToolUser
      * {@link #prepareCurrentStep()}.
      */
     @SuppressWarnings("unused")
-    protected boolean skipToStep(Step goalStep)
+    protected synchronized boolean skipToStep(Step goalStep)
     {
         if (!getProcedure().skipToStep(goalStep))
             return false;
@@ -212,7 +211,7 @@ public abstract class ToolUser
      *     The object to apply.
      * @return The result of running the step executor on the provided input.
      */
-    private boolean applyInput(@Nullable Object obj)
+    private synchronized boolean applyInput(@Nullable Object obj)
     {
         try
         {
@@ -228,13 +227,13 @@ public abstract class ToolUser
     }
 
     @SuppressWarnings("PMD.PrematureDeclaration")
-    private boolean handleInput0(@Nullable Object obj)
+    private synchronized boolean handleInput0(@Nullable Object obj)
     {
         log.atFine().log("Handling input: %s (%s) for step: %s in ToolUser: %s.",
                          obj, (obj == null ? "null" : obj.getClass().getSimpleName()),
                          getProcedure().getCurrentStepName(), this);
 
-        if (!active.get())
+        if (!active)
             return false;
 
         final boolean isLastStep = !getProcedure().hasNextStep();
@@ -262,7 +261,7 @@ public abstract class ToolUser
      *     The input to handle. What actual type is expected depends on the step.
      * @return True if the input was processed successfully.
      */
-    public boolean handleInput(@Nullable Object obj)
+    public synchronized boolean handleInput(@Nullable Object obj)
     {
         try
         {
@@ -279,7 +278,7 @@ public abstract class ToolUser
     /**
      * Sends the localized message of the current step to the player that owns this object.
      */
-    protected void sendMessage()
+    protected synchronized void sendMessage()
     {
         final var message = getProcedure().getMessage();
         if (message.isEmpty())
@@ -293,7 +292,7 @@ public abstract class ToolUser
      *
      * @return The current {@link Step} in the {@link #procedure}.
      */
-    public Optional<Step> getCurrentStep()
+    public synchronized Optional<Step> getCurrentStep()
     {
         return Optional.ofNullable(getProcedure().getCurrentStep());
     }
@@ -308,7 +307,7 @@ public abstract class ToolUser
      *     The location to check.
      * @return True if the player is allowed to break the block at the given location.
      */
-    public boolean playerHasAccessToLocation(ILocation loc)
+    public synchronized boolean playerHasAccessToLocation(ILocation loc)
     {
         final Optional<String> result = protectionHookManager.canBreakBlock(getPlayer(), loc);
         result.ifPresent(
@@ -334,7 +333,7 @@ public abstract class ToolUser
      *     The world to check in.
      * @return True if the player is allowed to break all blocks inside the cuboid.
      */
-    public boolean playerHasAccessToCuboid(Cuboid cuboid, IWorld world)
+    public synchronized boolean playerHasAccessToCuboid(Cuboid cuboid, IWorld world)
     {
         final Optional<String> result = protectionHookManager.canBreakBlocksBetweenLocs(getPlayer(), cuboid, world);
         result.ifPresent(
@@ -353,9 +352,51 @@ public abstract class ToolUser
      *
      * @return true if this tool user is active.
      */
-    public boolean isActive()
+    public final synchronized boolean isActive()
     {
-        return active.get();
+        return active;
+    }
+
+    /**
+     * Checks if the player currently has the tool in their inventory.
+     *
+     * @return True if the player has the tool in their inventory.
+     */
+    @SuppressWarnings("unused") // It is used by the generated toString method.
+    public final synchronized boolean playerHasTool()
+    {
+        return playerHasTool;
+    }
+
+    /**
+     * Sets the playerHasTool field.
+     *
+     * @param playerHasTool
+     *     The new value.
+     * @return The old value.
+     */
+    protected final synchronized boolean setPlayerHasTool(boolean playerHasTool)
+    {
+        final boolean old = this.playerHasTool;
+        this.playerHasTool = playerHasTool;
+        return old;
+    }
+
+    /**
+     * Gets the {@link Procedure} used by this tool user.
+     *
+     * @return The {@link Procedure} used by this tool user.
+     */
+    public final synchronized Procedure getProcedure()
+    {
+        return procedure;
+    }
+
+    @Override
+    public synchronized String toString()
+    {
+        return "ToolUser(player=" + this.player + ", procedure=" + this.getProcedure() + ", isShutDown=" +
+            this.isShutDown + ", active=" + this.isActive() + ", playerHasTool=" + this.playerHasTool + ")";
     }
 
     @Getter
