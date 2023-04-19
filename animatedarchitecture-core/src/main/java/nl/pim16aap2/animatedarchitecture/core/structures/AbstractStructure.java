@@ -21,14 +21,14 @@ import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -264,47 +264,25 @@ public abstract class AbstractStructure implements IStructure
     public abstract MovementDirection getCurrentToggleDir();
 
     /**
-     * Cycle the {@link MovementDirection} direction this {@link IStructure} will open in. By default, it'll set and
-     * return the opposite direction of the current direction.
+     * Cycle the {@link MovementDirection} direction this {@link IStructure} will open in. By default, it will loop over
+     * all valid directions. See {@link StructureType#getValidOpenDirectionsList()}. However, subclasses may override
+     * this behavior.
      * <p>
      * Note that this does not actually change the open direction; it merely tells you which direction comes next!
      *
      * @return The new {@link MovementDirection} direction this {@link IStructure} will open in.
      */
-    @SuppressWarnings("unused")
-    @Locked.Write
-    public MovementDirection cycleOpenDirection()
+    @Locked.Read
+    public MovementDirection getCycledOpenDirection()
     {
-        final Set<MovementDirection> validOpenDirections = getType().getValidOpenDirections();
+        final List<MovementDirection> validOpenDirections = getType().getValidOpenDirectionsList();
         final MovementDirection currentDir = getOpenDir();
 
-        @Nullable MovementDirection first = null;
-        final Iterator<MovementDirection> it = validOpenDirections.iterator();
-        while (it.hasNext())
-        {
-            final MovementDirection dir = it.next();
-            if (first == null)
-                first = dir;
+        if (validOpenDirections.size() <= 1)
+            return currentDir;
 
-            if (dir != currentDir)
-                continue;
-
-            if (it.hasNext())
-                return it.next();
-            break;
-        }
-
-        if (first != null)
-        {
-            invalidateAnimationData();
-            return first;
-        }
-
-        log.atFine()
-           .log("Failed to cycle open direction for structure of type '%s' with open dir '%s' " +
-                    "given valid directions '%s'",
-                getType(), currentDir, validOpenDirections);
-        return MovementDirection.NONE;
+        final int index = Math.max(0, validOpenDirections.indexOf(currentDir));
+        return validOpenDirections.get((index + 1) % validOpenDirections.size());
     }
 
     /**
@@ -370,6 +348,21 @@ public abstract class AbstractStructure implements IStructure
     /**
      * Synchronizes this structure and its serialized type-specific data of an {@link AbstractStructure} with the
      * database.
+     * <p>
+     * Unlike {@link #syncData()}, this method will not block the current thread to wait for 1) a read lock to be
+     * obtained, 2) the snapshot to be created, and 3) the data to be serialized.
+     */
+    public final CompletableFuture<DatabaseManager.ActionResult> syncDataAsync()
+    {
+        return CompletableFuture
+            .supplyAsync(this::syncData)
+            .thenCompose(Function.identity())
+            .exceptionally(ex -> Util.exceptionally(ex, DatabaseManager.ActionResult.FAIL));
+    }
+
+    /**
+     * Synchronizes this structure and its serialized type-specific data of an {@link AbstractStructure} with the
+     * database.
      *
      * @return The result of the synchronization.
      */
@@ -378,9 +371,10 @@ public abstract class AbstractStructure implements IStructure
     {
         try
         {
-            return base.getDatabaseManager()
-                       .syncStructureData(getSnapshot(), serializer.serialize(this))
-                       .exceptionally(Util::exceptionally);
+            return base
+                .getDatabaseManager()
+                .syncStructureData(getSnapshot(), serializer.serialize(this))
+                .exceptionally(ex -> Util.exceptionally(ex, DatabaseManager.ActionResult.FAIL));
         }
         catch (Exception e)
         {

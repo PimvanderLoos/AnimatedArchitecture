@@ -72,6 +72,16 @@ public abstract class StructureType
     private final String fullNameWithVersion;
 
     /**
+     * Gets a set of all theoretically valid {@link MovementDirection} for this given type. It does NOT take the
+     * physical aspects of the {@link AbstractStructure} into consideration. Therefore, the actual set of valid
+     * {@link MovementDirection}s is most likely going to be a subset of those returned by this method.
+     *
+     * @return A set of all valid {@link MovementDirection} for this given type.
+     */
+    @Getter
+    private final Set<MovementDirection> validOpenDirections;
+
+    /**
      * Gets a list of all theoretically valid {@link MovementDirection} for this given type. It does NOT take the
      * physical aspects of the {@link AbstractStructure} into consideration. Therefore, the actual list of valid
      * {@link MovementDirection}s is most likely going to be a subset of those returned by this method.
@@ -79,7 +89,7 @@ public abstract class StructureType
      * @return A list of all valid {@link MovementDirection} for this given type.
      */
     @Getter
-    private final Set<MovementDirection> validOpenDirections;
+    private final List<MovementDirection> validOpenDirectionsList;
 
     private final LazyValue<StructureSerializer<?>> lazyStructureSerializer;
 
@@ -104,6 +114,7 @@ public abstract class StructureType
         this.validOpenDirections =
             validOpenDirections.isEmpty() ? EnumSet.noneOf(MovementDirection.class) :
             EnumSet.copyOf(validOpenDirections);
+        this.validOpenDirectionsList = List.copyOf(this.validOpenDirections);
         this.localizationKey = localizationKey;
         this.fullName = formatFullName(getPluginName(), getSimpleName());
         this.fullNameWithVersion = fullName + ":" + version;

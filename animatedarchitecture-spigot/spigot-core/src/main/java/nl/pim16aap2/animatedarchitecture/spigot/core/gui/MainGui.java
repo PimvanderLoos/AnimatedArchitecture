@@ -136,6 +136,7 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
                     infoGui.getInventoryGui().setCloseAction(
                         close ->
                         {
+                            infoGui.getStructure().syncDataAsync();
                             this.selectedStructure = null;
                             return true;
                         });

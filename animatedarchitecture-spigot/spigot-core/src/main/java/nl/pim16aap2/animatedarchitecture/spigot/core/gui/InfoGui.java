@@ -8,6 +8,7 @@ import de.themoep.inventorygui.GuiElement;
 import de.themoep.inventorygui.GuiElementGroup;
 import de.themoep.inventorygui.InventoryGui;
 import de.themoep.inventorygui.StaticGuiElement;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
@@ -46,6 +47,7 @@ class InfoGui implements IGuiPage
     private final InventoryGui inventoryGui;
 
     @ToString.Include
+    @Getter(AccessLevel.PACKAGE)
     private final AbstractStructure structure;
 
     @ToString.Include

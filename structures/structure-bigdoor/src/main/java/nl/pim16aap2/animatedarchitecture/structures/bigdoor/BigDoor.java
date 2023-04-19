@@ -68,7 +68,7 @@ public class BigDoor extends AbstractStructure
     }
 
     @Override
-    public MovementDirection cycleOpenDirection()
+    public MovementDirection getCycledOpenDirection()
     {
         return getOpenDir().equals(MovementDirection.CLOCKWISE) ?
                MovementDirection.COUNTERCLOCKWISE : MovementDirection.CLOCKWISE;

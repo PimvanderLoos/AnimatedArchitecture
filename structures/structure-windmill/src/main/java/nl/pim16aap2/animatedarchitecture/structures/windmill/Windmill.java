@@ -78,7 +78,7 @@ public class Windmill extends AbstractStructure implements IHorizontalAxisAligne
     }
 
     @Override
-    public MovementDirection cycleOpenDirection()
+    public MovementDirection getCycledOpenDirection()
     {
         final MovementDirection openDir = getOpenDir();
         return openDir.equals(MovementDirection.NORTH) ? MovementDirection.EAST :

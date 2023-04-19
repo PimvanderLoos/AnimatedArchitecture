@@ -106,7 +106,7 @@ public class GarageDoor extends AbstractStructure implements IHorizontalAxisAlig
     }
 
     @Override
-    public MovementDirection cycleOpenDirection()
+    public MovementDirection getCycledOpenDirection()
     {
         if (isNorthSouthAnimated())
             return getOpenDir().equals(MovementDirection.EAST) ? MovementDirection.WEST : MovementDirection.EAST;

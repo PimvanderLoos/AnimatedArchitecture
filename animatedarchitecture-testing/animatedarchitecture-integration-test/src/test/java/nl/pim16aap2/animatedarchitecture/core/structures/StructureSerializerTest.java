@@ -275,7 +275,7 @@ class StructureSerializerTest
         }
 
         @Override
-        public MovementDirection cycleOpenDirection()
+        public MovementDirection getCycledOpenDirection()
         {
             return null;
         }
