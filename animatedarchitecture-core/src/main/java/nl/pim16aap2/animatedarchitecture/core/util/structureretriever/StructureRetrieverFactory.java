@@ -10,6 +10,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.VisibleForTesting;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -31,7 +32,8 @@ public final class StructureRetrieverFactory
     private final ILocalizer localizer;
     private final ITextFactory textFactory;
 
-    @Inject StructureRetrieverFactory(
+    @VisibleForTesting
+    @Inject public StructureRetrieverFactory(
         DatabaseManager databaseManager, IConfig config,
         StructureSpecificationManager structureSpecificationManager,
         StructureFinderCache structureFinderCache, ILocalizer localizer,
@@ -160,8 +162,7 @@ public final class StructureRetrieverFactory
      *     The structure object itself.
      * @return The new {@link StructureRetriever}.
      */
-    public static StructureRetriever ofStructure(
-        @Nullable AbstractStructure structure)
+    public static StructureRetriever ofStructure(@Nullable AbstractStructure structure)
     {
         return new StructureRetriever.StructureObjectRetriever(structure);
     }
@@ -173,8 +174,7 @@ public final class StructureRetrieverFactory
      *     The future structure.
      * @return The new {@link StructureRetriever}.
      */
-    public static StructureRetriever ofStructure(
-        CompletableFuture<Optional<AbstractStructure>> structure)
+    public static StructureRetriever ofStructure(CompletableFuture<Optional<AbstractStructure>> structure)
     {
         return new StructureRetriever.FutureStructureRetriever(structure);
     }
@@ -186,10 +186,11 @@ public final class StructureRetrieverFactory
      *     The structures.
      * @return The new {@link StructureRetriever}.
      */
-    public static StructureRetriever ofStructures(
-        List<AbstractStructure> structures)
+    @SuppressWarnings("unused")
+    public StructureRetriever ofStructures(List<AbstractStructure> structures)
     {
-        return new StructureRetriever.StructureListRetriever(structures);
+        return new StructureRetriever.StructureListRetriever(
+            config, structureSpecificationManager, localizer, textFactory, structures);
     }
 
     /**
@@ -199,11 +200,11 @@ public final class StructureRetrieverFactory
      *     The structures.
      * @return The new {@link StructureRetriever}.
      */
-    public static StructureRetriever ofStructures(
+    public StructureRetriever ofStructures(
         CompletableFuture<List<AbstractStructure>> structures)
     {
         return new StructureRetriever.FutureStructureListRetriever(
-            structures);
+            config, structureSpecificationManager, localizer, textFactory, structures);
     }
 
     /**

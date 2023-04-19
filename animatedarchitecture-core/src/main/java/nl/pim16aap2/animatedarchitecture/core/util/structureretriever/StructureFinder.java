@@ -156,7 +156,8 @@ public final class StructureFinder
     public synchronized CompletableFuture<Set<String>> getStructureIdentifiers(boolean fullMatch)
     {
         final String lastInput0 = lastInput;
-        return waitForDescriptions().thenApply(descs -> getIdentifiers(descs, fullMatch ? lastInput0 : null));
+        return waitForDescriptions().thenApply(
+            descriptions -> getIdentifiers(descriptions, fullMatch ? lastInput0 : null));
     }
 
     /**
@@ -196,7 +197,7 @@ public final class StructureFinder
      */
     public StructureRetriever asRetriever(boolean fullMatch)
     {
-        return StructureRetrieverFactory.ofStructures(getStructures(fullMatch));
+        return structureRetrieverFactory.ofStructures(getStructures(fullMatch));
     }
 
     /**
@@ -204,9 +205,10 @@ public final class StructureFinder
      * <p>
      * Returns the result as a {@link StructureRetriever}.
      */
+    @SuppressWarnings("unused")
     public StructureRetriever asRetriever()
     {
-        return StructureRetrieverFactory.ofStructures(getStructures());
+        return structureRetrieverFactory.ofStructures(getStructures());
     }
 
     /**
