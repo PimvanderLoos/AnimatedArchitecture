@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.structures.drawbridge;
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,7 +19,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Rectangle;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 
-import javax.annotation.concurrent.GuardedBy;
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Stream;
