@@ -27,10 +27,13 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.concurrent.NotThreadSafe;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @ToString(onlyExplicitlyIncluded = true)
+@NotThreadSafe
 class MainGui implements IGuiPage.IGuiStructureDeletionListener
 {
     private static final ItemStack FILLER = new ItemStack(Material.GRAY_STAINED_GLASS_PANE, 1);
@@ -42,17 +45,20 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
     private final ITextFactory textFactory;
     private final GuiStructureDeletionManager deletionManager;
     private final IExecutor executor;
-    private InventoryGui inventoryGui;
-    private @Nullable AbstractStructure selectedStructure;
-
-    @ToString.Include
-    private final Long2ObjectMap<NamedStructure> structures;
-
     private final ConfigSpigot config;
 
     @Getter
     @ToString.Include
     private final PlayerSpigot inventoryHolder;
+
+    private InventoryGui inventoryGui;
+
+    private @Nullable AbstractStructure selectedStructure;
+
+    @ToString.Include
+    private Long2ObjectMap<NamedStructure> structures;
+
+    private SortingMethod sortingMethod = SortingMethod.BY_NAME;
 
     @AssistedInject//
     MainGui(
@@ -100,7 +106,7 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
 
     private InventoryGui createGUI()
     {
-        final String[] guiSetup = GuiUtil.fillLinesWithChar('g', structures.size(), "fp  h  nl");
+        final String[] guiSetup = GuiUtil.fillLinesWithChar('g', structures.size(), "fps h  nl");
 
         final InventoryGui gui =
             new InventoryGui(animatedArchitecturePlugin,
@@ -178,6 +184,25 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
         gui.addElement(new GuiPageElement(
             'l', new ItemStack(Material.ARROW), GuiPageElement.PageAction.LAST,
             localizer.getMessage("gui.main_page.nav.last_page")));
+
+        gui.addElement(new StaticGuiElement(
+            's',
+            new ItemStack(Material.KNOWLEDGE_BOOK),
+            click ->
+            {
+                sortingMethod = sortingMethod.next();
+                structures = sortingMethod.sort(structures);
+                click.getGui().removeElement('g');
+                addElementGroup(click.getGui());
+                ((StaticGuiElement) click.getElement()).setText(
+                    localizer.getMessage(sortingMethod.next().getLocalizationKeySort()),
+                    localizer.getMessage(sortingMethod.getLocalizationKeySorted()));
+                click.getGui().draw(click.getWhoClicked(), true, false);
+                return true;
+            },
+            localizer.getMessage(sortingMethod.next().getLocalizationKeySort()),
+            localizer.getMessage(sortingMethod.getLocalizationKeySorted())
+        ));
     }
 
     /**
@@ -270,6 +295,68 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
         public String getNameAndUid()
         {
             return IStructureConst.formatNameAndUid(name, structure.getUid());
+        }
+    }
+
+    private enum SortingMethod
+    {
+        BY_NAME("gui.main_page.button.sorted_by_name",
+                "gui.main_page.button.sort_by_name",
+                Comparator.comparing(entry -> entry.getValue().name())),
+
+        BY_TYPE("gui.main_page.button.sorted_by_type",
+                "gui.main_page.button.sort_by_type",
+                Comparator.comparing(entry -> entry.getValue().structure().getType().getSimpleName())),
+
+        BY_UID("gui.main_page.button.sorted_by_uid",
+               "gui.main_page.button.sort_by_uid",
+               Comparator.comparingLong(Long2ObjectMap.Entry::getLongKey));
+
+        private static final SortingMethod[] VALUES = SortingMethod.values();
+
+        @Getter
+        private final String localizationKeySorted;
+
+        @Getter
+        private final String localizationKeySort;
+
+        private final Comparator<Long2ObjectMap.Entry<NamedStructure>> comparator;
+
+        SortingMethod(
+            String localizationKeySorted, String localizationKeySort,
+            Comparator<Long2ObjectMap.Entry<NamedStructure>> comparator)
+        {
+            this.localizationKeySorted = localizationKeySorted;
+            this.localizationKeySort = localizationKeySort;
+            this.comparator = comparator;
+        }
+
+        /**
+         * Sorts the given structures map according to the sorting method.
+         * <p>
+         * The sorting method is not applied in-place!
+         *
+         * @param structures
+         *     The structures to sort.
+         * @return The sorted structures.
+         */
+        public Long2ObjectMap<NamedStructure> sort(Long2ObjectMap<NamedStructure> structures)
+        {
+            return structures.long2ObjectEntrySet().stream().sorted(comparator).collect(
+                Collectors.toMap(Long2ObjectMap.Entry::getLongKey,
+                                 Long2ObjectMap.Entry::getValue,
+                                 (a, b) -> a,
+                                 Long2ObjectLinkedOpenHashMap::new));
+        }
+
+        /**
+         * Returns the next sorting method based on the definition order of the enum values.
+         *
+         * @return The next sorting method.
+         */
+        public SortingMethod next()
+        {
+            return VALUES[(this.ordinal() + 1) % VALUES.length];
         }
     }
 
