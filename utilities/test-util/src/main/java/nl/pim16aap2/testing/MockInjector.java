@@ -38,8 +38,11 @@ public class MockInjector<T>
         for (final Constructor<?> constructor : clz.getDeclaredConstructors())
         {
             if (constructor.isAnnotationPresent(javax.inject.Inject.class))
+            {
+                constructor.setAccessible(true);
                 //noinspection unchecked
                 return (Constructor<T>) constructor;
+            }
         }
         throw new IllegalArgumentException("No constructor annotated with @Inject found in class " + clz.getName());
     }

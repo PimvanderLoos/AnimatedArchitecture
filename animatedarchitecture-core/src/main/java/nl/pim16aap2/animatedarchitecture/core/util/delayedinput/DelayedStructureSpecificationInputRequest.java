@@ -1,5 +1,10 @@
 package nl.pim16aap2.animatedarchitecture.core.util.delayedinput;
 
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
@@ -10,6 +15,7 @@ import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 
+import javax.inject.Inject;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
@@ -21,13 +27,19 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author Pim
  */
+@Flogger
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 public final class DelayedStructureSpecificationInputRequest extends DelayedInputRequest<String>
 {
     private final List<AbstractStructure> options;
     private final IPlayer player;
     @SuppressWarnings({"FieldCanBeLocal", "unused", "PMD.SingularField"})
+    @ToString.Exclude @EqualsAndHashCode.Exclude
     private final ILocalizer localizer;
+    @ToString.Exclude @EqualsAndHashCode.Exclude
     private final ITextFactory textFactory;
+    @ToString.Exclude @EqualsAndHashCode.Exclude
     private final StructureSpecificationManager structureSpecificationManager;
 
     private DelayedStructureSpecificationInputRequest(
@@ -58,41 +70,24 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
         player.sendMessage(text);
     }
 
-    /**
-     * Asks the user to specify which one of multiple structures they want to select.
-     * <p>
-     * Note that this will block the current thread until either one of the exit conditions is met.
-     *
-     * @param timeout
-     *     The amount of time to give the user to provide the input.
-     *     <p>
-     *     If the user fails to provide input within this timeout window, an empty result will be returned.
-     * @param options
-     *     The list of options they can choose from.
-     * @param player
-     *     The player that is asked to make a choice.
-     * @return The specified structure if the user specified a valid one. Otherwise, an empty Optional.
-     */
-    public static CompletableFuture<Optional<AbstractStructure>> get(
-        Duration timeout, List<AbstractStructure> options, IPlayer player, ILocalizer localizer,
-        ITextFactory textFactory, StructureSpecificationManager structureSpecificationManager)
+    private Optional<AbstractStructure> parseInput(Optional<String> input)
     {
-        if (options.size() == 1)
-            return CompletableFuture.completedFuture(Optional.of(options.get(0)));
-        if (options.isEmpty())
-            return CompletableFuture.completedFuture(Optional.empty());
+        final OptionalLong uidOpt = Util.parseLong(input);
+        if (uidOpt.isEmpty())
+            return Optional.empty();
 
-        return new DelayedStructureSpecificationInputRequest(
-            timeout, options, player, localizer, textFactory, structureSpecificationManager).getInputResult().thenApply(
-            input ->
-            {
-                final OptionalLong uidOpt = Util.parseLong(input);
-                if (uidOpt.isEmpty())
-                    return Optional.empty();
+        final long uid = uidOpt.getAsLong();
+        return Util.searchIterable(options, structure -> structure.getUid() == uid);
+    }
 
-                final long uid = uidOpt.getAsLong();
-                return Util.searchIterable(options, structure -> structure.getUid() == uid);
-            });
+    /**
+     * Retrieves the structure that the user specified.
+     *
+     * @return The structure that the user specified.
+     */
+    public CompletableFuture<Optional<AbstractStructure>> get()
+    {
+        return super.getInputResult().thenApply(this::parseInput);
     }
 
     @Override
@@ -125,5 +120,67 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
                     text.append(", Distance: ", TextType.INFO)
                         .append(String.format("%.1f", distance), TextType.HIGHLIGHT);
             });
+    }
+
+    @AllArgsConstructor(onConstructor = @__(@Inject))
+    public static final class Factory
+    {
+        private final IConfig config;
+        private final ILocalizer localizer;
+        private final ITextFactory textFactory;
+        private final StructureSpecificationManager structureSpecificationManager;
+
+        /**
+         * Requests the user to specify which structure they want to use out of a list of multiple.
+         *
+         * @param timeout
+         *     The time to wait for the user to specify a structure.
+         * @param options
+         *     The list of structures to choose from.
+         * @param player
+         *     The player to request the structure from.
+         * @return A {@link CompletableFuture} that will be completed with the structure the user specified. If the user
+         * did not specify a structure in time, the future will be completed with {@link Optional#empty()}.
+         * <p>
+         * If the list of options is empty, the future will be completed with {@link Optional#empty()} and no request
+         * will be sent to the user.
+         * <p>
+         * If the list of options contains only one element, the future will be completed with that element and no
+         * request will be sent to the user.
+         */
+        public CompletableFuture<Optional<AbstractStructure>> get(
+            Duration timeout, List<AbstractStructure> options, IPlayer player)
+        {
+            if (options.size() == 1)
+                return CompletableFuture.completedFuture(Optional.of(options.get(0)));
+            if (options.isEmpty())
+                return CompletableFuture.completedFuture(Optional.empty());
+
+            return new DelayedStructureSpecificationInputRequest(
+                timeout, options, player, localizer, textFactory, structureSpecificationManager).get();
+        }
+
+        /**
+         * Requests the user to specify which structure they want to use out of a list of multiple.
+         * <p>
+         * Uses {@link IConfig#specificationTimeout()} for the timeout.
+         *
+         * @param options
+         *     The list of structures to choose from.
+         * @param player
+         *     The player to request the structure from.
+         * @return A {@link CompletableFuture} that will be completed with the structure the user specified. If the user
+         * did not specify a structure in time, the future will be completed with {@link Optional#empty()}.
+         * <p>
+         * If the list of options is empty, the future will be completed with {@link Optional#empty()} and no request
+         * will be sent to the user.
+         * <p>
+         * If the list of options contains only one element, the future will be completed with that element and no
+         * request will be sent to the user.
+         */
+        public CompletableFuture<Optional<AbstractStructure>> get(List<AbstractStructure> options, IPlayer player)
+        {
+            return get(Duration.ofSeconds(config.specificationTimeout()), options, player);
+        }
     }
 }

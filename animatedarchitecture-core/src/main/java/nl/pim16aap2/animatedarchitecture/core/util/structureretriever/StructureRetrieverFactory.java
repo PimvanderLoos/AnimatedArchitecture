@@ -1,16 +1,12 @@
 package nl.pim16aap2.animatedarchitecture.core.util.structureretriever;
 
-import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
-import nl.pim16aap2.animatedarchitecture.core.managers.StructureSpecificationManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.delayedinput.DelayedStructureSpecificationInputRequest;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.VisibleForTesting;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -25,26 +21,18 @@ import java.util.concurrent.CompletableFuture;
  */
 public final class StructureRetrieverFactory
 {
+    private final DelayedStructureSpecificationInputRequest.Factory specificationFactory;
     private final DatabaseManager databaseManager;
-    private final IConfig config;
-    private final StructureSpecificationManager structureSpecificationManager;
     private final StructureFinderCache structureFinderCache;
-    private final ILocalizer localizer;
-    private final ITextFactory textFactory;
 
-    @VisibleForTesting
-    @Inject public StructureRetrieverFactory(
-        DatabaseManager databaseManager, IConfig config,
-        StructureSpecificationManager structureSpecificationManager,
-        StructureFinderCache structureFinderCache, ILocalizer localizer,
-        ITextFactory textFactory)
+    @Inject StructureRetrieverFactory(
+        DelayedStructureSpecificationInputRequest.Factory specificationFactory,
+        DatabaseManager databaseManager,
+        StructureFinderCache structureFinderCache)
     {
+        this.specificationFactory = specificationFactory;
         this.databaseManager = databaseManager;
-        this.config = config;
-        this.structureSpecificationManager = structureSpecificationManager;
         this.structureFinderCache = structureFinderCache;
-        this.localizer = localizer;
-        this.textFactory = textFactory;
     }
 
     /**
@@ -61,8 +49,7 @@ public final class StructureRetrieverFactory
                new StructureRetriever.StructureUIDRetriever(
                    databaseManager, structureUID.getAsLong()) :
                new StructureRetriever.StructureNameRetriever(
-                   databaseManager, config, structureSpecificationManager,
-                   localizer, textFactory, structureID);
+                   databaseManager, specificationFactory, structureID);
     }
 
     /**
@@ -189,8 +176,7 @@ public final class StructureRetrieverFactory
     @SuppressWarnings("unused")
     public StructureRetriever ofStructures(List<AbstractStructure> structures)
     {
-        return new StructureRetriever.StructureListRetriever(
-            config, structureSpecificationManager, localizer, textFactory, structures);
+        return new StructureRetriever.StructureListRetriever(specificationFactory, structures);
     }
 
     /**
@@ -203,8 +189,7 @@ public final class StructureRetrieverFactory
     public StructureRetriever ofStructures(
         CompletableFuture<List<AbstractStructure>> structures)
     {
-        return new StructureRetriever.FutureStructureListRetriever(
-            config, structureSpecificationManager, localizer, textFactory, structures);
+        return new StructureRetriever.FutureStructureListRetriever(specificationFactory, structures);
     }
 
     /**

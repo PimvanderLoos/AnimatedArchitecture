@@ -6,18 +6,14 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
-import nl.pim16aap2.animatedarchitecture.core.managers.StructureSpecificationManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.delayedinput.DelayedStructureSpecificationInputRequest;
 import org.jetbrains.annotations.Nullable;
 
-import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -96,20 +92,14 @@ public sealed abstract class StructureRetriever
      *     The structures to choose from.
      * @param player
      *     The player for whom to get the structure.
-     * @param config
-     *     The configuration.
-     * @param localizer
-     *     The localizer.
-     * @param textFactory
-     *     The text factory to use for creating the text that is sent to the player.
-     * @param structureSpecificationManager
-     *     The {@link StructureSpecificationManager} to use to get the structure specification.
+     * @param specificationFactory
+     *     The factory to use to create the request if needed.
      * @return The structure that the user specified, the structure that was the only match, or {@link Optional#empty()}
      * if no structure was found or the user did not specify a structure within the timeout.
      */
     static CompletableFuture<Optional<AbstractStructure>> getStructureInteractive(
-        List<AbstractStructure> structures, IPlayer player, IConfig config, ILocalizer localizer,
-        ITextFactory textFactory, StructureSpecificationManager structureSpecificationManager)
+        List<AbstractStructure> structures, IPlayer player,
+        DelayedStructureSpecificationInputRequest.Factory specificationFactory)
     {
         if (structures.size() == 1)
             return CompletableFuture.completedFuture(Optional.of(structures.get(0)));
@@ -117,9 +107,7 @@ public sealed abstract class StructureRetriever
         if (structures.isEmpty())
             return CompletableFuture.completedFuture(Optional.empty());
 
-        final Duration timeOut = Duration.ofSeconds(config.specificationTimeout());
-        return DelayedStructureSpecificationInputRequest
-            .get(timeOut, structures, player, localizer, textFactory, structureSpecificationManager);
+        return specificationFactory.get(structures, player);
     }
 
     /**
@@ -286,16 +274,7 @@ public sealed abstract class StructureRetriever
         private final DatabaseManager databaseManager;
 
         @ToString.Exclude
-        private final IConfig config;
-
-        @ToString.Exclude
-        private final StructureSpecificationManager structureSpecificationManager;
-
-        @ToString.Exclude
-        private final ILocalizer localizer;
-
-        @ToString.Exclude
-        private final ITextFactory textFactory;
+        private final DelayedStructureSpecificationInputRequest.Factory specificationFactory;
 
         private final String name;
 
@@ -333,8 +312,7 @@ public sealed abstract class StructureRetriever
             IPlayer player, PermissionLevel permissionLevel)
         {
             return getStructures(player, permissionLevel).thenCompose(
-                structures -> getStructureInteractive(
-                    structures, player, config, localizer, textFactory, structureSpecificationManager));
+                structures -> getStructureInteractive(structures, player, specificationFactory));
         }
     }
 
@@ -404,16 +382,7 @@ public sealed abstract class StructureRetriever
     static final class StructureListRetriever extends StructureRetriever
     {
         @ToString.Exclude
-        private final IConfig config;
-
-        @ToString.Exclude
-        private final StructureSpecificationManager structureSpecificationManager;
-
-        @ToString.Exclude
-        private final ILocalizer localizer;
-
-        @ToString.Exclude
-        private final ITextFactory textFactory;
+        private final DelayedStructureSpecificationInputRequest.Factory specificationFactory;
 
         private final List<AbstractStructure> structures;
 
@@ -453,8 +422,7 @@ public sealed abstract class StructureRetriever
             IPlayer player, PermissionLevel permissionLevel)
         {
             return getStructures(player, permissionLevel).thenCompose(
-                structures -> getStructureInteractive(
-                    structures, player, config, localizer, textFactory, structureSpecificationManager));
+                structures -> getStructureInteractive(structures, player, specificationFactory));
         }
     }
 
@@ -467,30 +435,15 @@ public sealed abstract class StructureRetriever
     static final class FutureStructureListRetriever extends StructureRetriever
     {
         @ToString.Exclude
-        private final IConfig config;
-
-        @ToString.Exclude
-        private final StructureSpecificationManager structureSpecificationManager;
-
-        @ToString.Exclude
-        private final ILocalizer localizer;
-
-        @ToString.Exclude
-        private final ITextFactory textFactory;
+        private final DelayedStructureSpecificationInputRequest.Factory specificationFactory;
 
         private final CompletableFuture<List<AbstractStructure>> structures;
 
         FutureStructureListRetriever(
-            IConfig config,
-            StructureSpecificationManager structureSpecificationManager,
-            ILocalizer localizer,
-            ITextFactory textFactory,
+            DelayedStructureSpecificationInputRequest.Factory specificationFactory,
             CompletableFuture<List<AbstractStructure>> structures)
         {
-            this.config = config;
-            this.structureSpecificationManager = structureSpecificationManager;
-            this.localizer = localizer;
-            this.textFactory = textFactory;
+            this.specificationFactory = specificationFactory;
             this.structures = structures.exceptionally(t -> Util.exceptionally(t, Collections.emptyList()));
         }
 
@@ -536,8 +489,7 @@ public sealed abstract class StructureRetriever
             IPlayer player, PermissionLevel permissionLevel)
         {
             return getStructures(player, permissionLevel).thenCompose(
-                structures -> getStructureInteractive(
-                    structures, player, config, localizer, textFactory, structureSpecificationManager));
+                structures -> getStructureInteractive(structures, player, specificationFactory));
         }
     }
 
