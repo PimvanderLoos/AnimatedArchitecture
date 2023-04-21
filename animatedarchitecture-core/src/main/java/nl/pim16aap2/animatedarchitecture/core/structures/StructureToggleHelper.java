@@ -47,7 +47,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 /**
- * Represents a utility singleton that is used to open {@link IStructure}s.
+ * Represents a utility singleton that is used to open {@link AbstractStructure}s.
  *
  * @author Pim
  */
@@ -111,10 +111,10 @@ import java.util.logging.Level;
     }
 
     /**
-     * Aborts an attempt to toggle a {@link IStructure} and cleans up leftover data from this attempt.
+     * Aborts an attempt to toggle a {@link AbstractStructure} and cleans up leftover data from this attempt.
      *
      * @param structure
-     *     The {@link IStructure}.
+     *     The {@link AbstractStructure}.
      * @param result
      *     The reason the action was aborted.
      * @param cause
@@ -383,7 +383,7 @@ import java.util.logging.Level;
      * If the player is not allowed to break the block(s), they'll receive a message about this.
      *
      * @param structure
-     *     The {@link IStructure} being opened.
+     *     The {@link AbstractStructure} being opened.
      * @param cuboid0
      *     The first area of blocks to check.
      * @param cuboid1

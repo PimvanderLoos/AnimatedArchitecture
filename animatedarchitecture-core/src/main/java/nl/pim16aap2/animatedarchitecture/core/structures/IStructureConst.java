@@ -97,30 +97,30 @@ public interface IStructureConst
     }
 
     /**
-     * Gets the IWorld this {@link IStructure} exists in.
+     * Gets the IWorld this {@link AbstractStructure} exists in.
      *
-     * @return The IWorld this {@link IStructure} exists in
+     * @return The IWorld this {@link AbstractStructure} exists in
      */
     IWorld getWorld();
 
     /**
-     * Gets the UID of the {@link IStructure} as used in the database. Guaranteed to be unique and available.
+     * Gets the UID of the {@link AbstractStructure} as used in the database. Guaranteed to be unique and available.
      *
-     * @return The UID of the {@link IStructure} as used in the database.
+     * @return The UID of the {@link AbstractStructure} as used in the database.
      */
     long getUid();
 
     /**
-     * Check if the {@link IStructure} is currently locked. When locked, structures cannot be opened.
+     * Check if the {@link AbstractStructure} is currently locked. When locked, structures cannot be opened.
      *
-     * @return True if the {@link IStructure} is locked
+     * @return True if the {@link AbstractStructure} is locked
      */
     boolean isLocked();
 
     /**
-     * Check if the {@link IStructure} is currently open.
+     * Check if the {@link AbstractStructure} is currently open.
      *
-     * @return True if the {@link IStructure} is open
+     * @return True if the {@link AbstractStructure} is open
      */
     boolean isOpen();
 
@@ -221,12 +221,12 @@ public interface IStructureConst
     }
 
     /**
-     * Gets the {@link MovementDirection} this {@link IStructure} will open if currently closed.
+     * Gets the {@link MovementDirection} this {@link AbstractStructure} will open if currently closed.
      * <p>
      * Note that if it's currently in the open status, it is supposed go in the opposite direction, as the closing
      * direction is the opposite of the opening direction. This isn't taken into account by this method.
      *
-     * @return The {@link MovementDirection} this {@link IStructure} will open in.
+     * @return The {@link MovementDirection} this {@link AbstractStructure} will open in.
      */
     MovementDirection getOpenDir();
 
@@ -265,12 +265,12 @@ public interface IStructureConst
     }
 
     /**
-     * Retrieve the total number of blocks this {@link IStructure} is made out of. If invalidated or not calculated *
-     * yet, it is (re)calculated first.
+     * Retrieve the total number of blocks this {@link AbstractStructure} is made out of. If invalidated or not
+     * calculated * yet, it is (re)calculated first.
      * <p>
      * It's calculated once and then stored until invalidated.
      *
-     * @return Total number of blocks this {@link IStructure} is made out of.
+     * @return Total number of blocks this {@link AbstractStructure} is made out of.
      */
     default int getBlockCount()
     {
