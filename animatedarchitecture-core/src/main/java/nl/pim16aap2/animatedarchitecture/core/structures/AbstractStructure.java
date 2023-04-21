@@ -20,6 +20,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -33,11 +34,16 @@ import java.util.function.Supplier;
 
 /**
  * Represents the abstract base all structure types should extend.
- *
- * @author Pim
+ * <p>
+ * Please read the documentation of {@link nl.pim16aap2.animatedarchitecture.core.structures} for more information about
+ * the structure system.
+ * <p>
+ * Changes made to this class will not automatically be updated in the database. To update the state in the database,
+ * you can use either the {@link #syncData()} method or the {@link #syncDataAsync()} method.
  */
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Flogger
+@ThreadSafe
 public abstract class AbstractStructure implements IStructureConst
 {
     /**

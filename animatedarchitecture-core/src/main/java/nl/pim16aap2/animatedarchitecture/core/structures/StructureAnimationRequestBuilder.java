@@ -27,8 +27,32 @@ import java.util.concurrent.CompletableFuture;
  * <p>
  * You can obtain an instance of this class using
  * {@link IAnimatedArchitecturePlatform#getStructureAnimationRequestBuilder()}.
- *
- * @author Pim
+ * <p>
+ * Example usage:
+ * <pre>{@code
+ * structureAnimationRequestBuilder
+ *     .builder()
+ *     .structure(structure) // Structures or their retrievers both work
+ *     .structureActionCause(StructureActionCause.PLUGIN)
+ *     .structureActionType(StructureActionType.TOGGLE)
+ *     .responsible(player)
+ *     .messageReceiver(player)
+ *     .build()
+ *     .execute()
+ *     .thenAccept(structureToggleResult -> ...)
+ *     .exceptionally(throwable -> ...);
+ * }</pre>
+ * <p>
+ * The builder is implemented as a guided builder, which means that you can only call methods in a specific order until
+ * all required data is available. After that, there are additional options to specify optional data, such as the time
+ * the animation should take or the animation type.
+ * <p>
+ * One thing to note is that when the animation cause is set to {@link StructureActionCause#PLAYER}, the request
+ * requires the responsible player to be set using the otherwise-optional {@link IBuilder#responsible(IPlayer)} method.
+ * <p>
+ * Even when providing a responsible player, the builder allows you to specify a message receiver. This is useful when a
+ * player is responsible for the animation, but any messages should be sent elsewhere. For example, you can ensure all
+ * messages are only sent to the server console by using {@link IBuilder#messageReceiverServer()}.
  */
 public class StructureAnimationRequestBuilder
 {
@@ -177,13 +201,15 @@ public class StructureAnimationRequestBuilder
         {
             if (structureActionCause == StructureActionCause.REDSTONE && !config.isRedstoneEnabled())
                 throw new IllegalStateException("Trying to execute redstone toggle while redstone is disabled!");
+            if (structureActionCause == StructureActionCause.PLAYER && responsible == null)
+                throw new IllegalStateException("Trying to execute player toggle without a responsible player!");
         }
 
         @Override
         public StructureAnimationRequest build()
         {
-            updateMessageReceiver();
             verify();
+            updateMessageReceiver();
 
             return structureToggleRequestFactory.create(
                 structureRetriever, structureActionCause,
@@ -207,7 +233,7 @@ public class StructureAnimationRequestBuilder
                 //noinspection ConstantConditions
                 messageReceiver = Objects.requireNonNull(
                     responsible,
-                    "Responsible player must be set when the structure action " + "is caused by a player!");
+                    "Responsible player must be set when the structure action is caused by a player!");
             else
                 messageReceiver = messageableServer;
         }

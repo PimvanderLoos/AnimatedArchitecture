@@ -14,8 +14,9 @@ import java.util.UUID;
 
 /**
  * Represents a read-only structure.
- *
- * @author Pim
+ * <p>
+ * Please read the documentation of {@link nl.pim16aap2.animatedarchitecture.core.structures} for more information about
+ * the structure system.
  */
 @SuppressWarnings("unused")
 public interface IStructureConst

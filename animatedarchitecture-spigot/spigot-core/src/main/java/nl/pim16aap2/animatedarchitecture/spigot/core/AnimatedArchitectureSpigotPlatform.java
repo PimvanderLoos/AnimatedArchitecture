@@ -58,6 +58,16 @@ import org.jetbrains.annotations.Nullable;
 import javax.inject.Singleton;
 import java.util.function.Function;
 
+/**
+ * The main class of the Animated Architecture Spigot plugin.
+ * <p>
+ * This class is responsible for initializing the various components of the plugin and to provide access to them for
+ * external plugins. Internally, this plugin uses dependency injection and as such does not use the getters provided by
+ * this class.
+ * <p>
+ * Refer to {@link nl.pim16aap2.animatedarchitecture.spigot.core} for more information on how to obtain the instance of
+ * this class.
+ */
 @Flogger
 @Singleton
 public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchitecturePlatform

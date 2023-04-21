@@ -10,6 +10,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.Rectangle;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -19,11 +20,13 @@ import java.util.UUID;
  * Represents a (read-only) snapshot of a structure at a particular point in time.
  * <p>
  * All access to this class is thread safe and does not lock.
- *
- * @author Pim
+ * <p>
+ * Please read the documentation of {@link nl.pim16aap2.animatedarchitecture.core.structures} for more information about
+ * the structure system.
  */
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
+@ThreadSafe
 public final class StructureSnapshot implements IStructureConst
 {
     private final long uid;

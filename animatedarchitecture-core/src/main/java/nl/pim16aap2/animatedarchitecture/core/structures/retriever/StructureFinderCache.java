@@ -12,6 +12,13 @@ import javax.inject.Provider;
 import javax.inject.Singleton;
 import java.time.Duration;
 
+/**
+ * Represents a cache of {@link StructureFinder}s.
+ * <p>
+ * This cache is used to keep track of the {@link StructureFinder}s that are currently being used by players. This
+ * allows us to keep track of the current state of the {@link StructureFinder} and to update it when new input is
+ * provided.
+ */
 @Singleton final class StructureFinderCache implements IRestartable
 {
     private final Provider<StructureRetrieverFactory> structureRetrieverFactoryProvider;

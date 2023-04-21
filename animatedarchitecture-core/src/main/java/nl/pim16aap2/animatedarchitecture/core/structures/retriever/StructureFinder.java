@@ -17,6 +17,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.ThreadSafe;
 import java.time.Duration;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -42,10 +43,18 @@ import java.util.stream.Collectors;
  * For example, given a set of structures with the names "myDoor", "myPortcullis", "flagThatIsMine", this can be used to
  * retrieve "myDoor" and "myPortcullis" from a search input of "my" (provided both structures are owned by the
  * {@link ICommandSender} responsible for the search request.)
- *
- * @author Pim
+ * <p>
+ * This class uses a {@link nl.pim16aap2.animatedarchitecture.core.data.cache.RollingCache} to keep track of provided
+ * inputs. This allows both narrowing the search results from new input and rolling back to previous states (e.g. when
+ * fixing typos) without causing new database requests. For example, assume we have an input of "My" and some returned
+ * results "MyPortcullis" and "MyWindmill". If the next input is then "MyW", the finder will return only "MyWindmill"
+ * without querying the database again.
+ * <p>
+ * The finder uses the command sender to determine which structures are visible to the user if the command sender is a
+ * player. If the command sender is the console, all structures are visible.
  */
 @Flogger
+@ThreadSafe
 public final class StructureFinder
 {
     /**
@@ -76,7 +85,8 @@ public final class StructureFinder
         StructureRetrieverFactory structureRetrieverFactory,
         DatabaseManager databaseManager,
         ICommandSender commandSender,
-        String input, PermissionLevel maxPermission)
+        String input,
+        PermissionLevel maxPermission)
     {
         this.structureRetrieverFactory = structureRetrieverFactory;
         this.databaseManager = databaseManager;
@@ -95,7 +105,20 @@ public final class StructureFinder
         this(structureRetrieverFactory, databaseManager, commandSender, input, PermissionLevel.CREATOR);
     }
 
-    synchronized StructureFinder processInput(String input)
+    /**
+     * Processes the given input.
+     * <p>
+     * If the new input starts with the last input, the new input is used to narrow down the search results.
+     * <p>
+     * If the new input does not start with the last input, an attempt is made to roll back the search results to a
+     * previous state where the last input was a prefix of the new input. If this is not possible, the search is
+     * restarted.
+     *
+     * @param input
+     *     The input to process.
+     * @return The current instance of this class.
+     */
+    public synchronized StructureFinder processInput(String input)
     {
         if (input.length() <= lastInput.length())
         {
@@ -146,6 +169,8 @@ public final class StructureFinder
     }
 
     /**
+     * Gets the identifiers of all the structures that have been found using the given search parameters.
+     *
      * @param fullMatch
      *     When true, only the entries that have a complete match are returned. E.g. for an input of "door", "door"
      *     would be returned, but "door1" would not. Gets the UIDs of all the structures that have been found so far.
@@ -169,6 +194,8 @@ public final class StructureFinder
     }
 
     /**
+     * Gets the UIDs of all the structures that have been found using the given search parameters.
+     *
      * @param fullMatch
      *     When true, only the entries that have a complete match are returned. E.g. for an input of "door", "door"
      *     would be returned, but "door1" would not. Gets the UIDs of all the structures that have been found so far.
@@ -193,7 +220,12 @@ public final class StructureFinder
     /**
      * See {@link #getStructures(boolean)}.
      * <p>
-     * Returns the result as a {@link StructureRetriever}.
+     *
+     * @param fullMatch
+     *     When true, only the entries that have a complete match are returned. E.g. for an input of "door", "door"
+     *     would be returned, but "door1" would not. Gets the UIDs of all the structures that have been found so far.
+     *     Defaults to false.
+     * @return The result as a {@link StructureRetriever}.
      */
     public StructureRetriever asRetriever(boolean fullMatch)
     {
@@ -203,7 +235,8 @@ public final class StructureFinder
     /**
      * See {@link #getStructures()}.
      * <p>
-     * Returns the result as a {@link StructureRetriever}.
+     *
+     * @return The result as a {@link StructureRetriever}.
      */
     @SuppressWarnings("unused")
     public StructureRetriever asRetriever()
