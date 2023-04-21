@@ -17,6 +17,7 @@ import cloud.commandframework.paper.PaperCommandManager;
 import lombok.extern.flogger.Flogger;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.format.NamedTextColor;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPermissionsManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
@@ -58,7 +59,8 @@ public final class CommandManager
     private final StructureTypeParser structureTypeParser;
     private final DirectionParser directionParser;
     private final IsOpenParser isOpenParser;
-    private final CommandExecutor executor;
+    private final CommandExecutor commandExecutor;
+    private final IExecutor executor;
 
     @Inject CommandManager(
         JavaPlugin plugin,
@@ -70,7 +72,7 @@ public final class CommandManager
         StructureTypeParser structureTypeParser,
         DirectionParser directionParser,
         IsOpenParser isOpenParser,
-        CommandExecutor executor)
+        CommandExecutor commandExecutor, IExecutor executor)
     {
         this.plugin = plugin;
         this.localizer = localizer;
@@ -82,6 +84,7 @@ public final class CommandManager
         this.directionParser = directionParser;
         this.bukkitAudiences = BukkitAudiences.create(plugin);
         this.isOpenParser = isOpenParser;
+        this.commandExecutor = commandExecutor;
         this.executor = executor;
     }
 
@@ -210,7 +213,7 @@ public final class CommandManager
                                   localizer.getMessage("commands.add_owner.param.permission_level.description")))
                               .build())
                 .argument(defaultStructureArgument(false, StructureAttribute.ADD_OWNER).build())
-                .handler(executor::addOwner)
+                .handler(commandExecutor::addOwner)
         );
     }
 
@@ -219,7 +222,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.CANCEL, "commands.cancel.description")
-                .handler(executor::cancel)
+                .handler(commandExecutor::cancel)
         );
     }
 
@@ -228,7 +231,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.CONFIRM, "commands.confirm.description")
-                .handler(executor::confirm)
+                .handler(commandExecutor::confirm)
         );
     }
 
@@ -237,7 +240,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.DEBUG, "commands.debug.description")
-                .handler(executor::debug)
+                .handler(commandExecutor::debug)
         );
     }
 
@@ -247,7 +250,7 @@ public final class CommandManager
         manager.command(
             baseInit(builder, CommandDefinition.DELETE, "commands.delete.description")
                 .argument(defaultStructureArgument(true, StructureAttribute.DELETE).build())
-                .handler(executor::delete)
+                .handler(commandExecutor::delete)
         );
     }
 
@@ -257,7 +260,7 @@ public final class CommandManager
         manager.command(
             baseInit(builder, CommandDefinition.INFO, "commands.info.description")
                 .argument(defaultStructureArgument(true, StructureAttribute.INFO).build())
-                .handler(executor::info)
+                .handler(commandExecutor::info)
         );
     }
 
@@ -266,7 +269,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.INSPECT_POWER_BLOCK, "commands.inspect_power_block.description")
-                .handler(executor::inspectPowerBlock)
+                .handler(commandExecutor::inspectPowerBlock)
         );
     }
 
@@ -276,7 +279,7 @@ public final class CommandManager
         manager.command(
             baseInit(builder, CommandDefinition.LIST_STRUCTURES, "commands.list_structures.description")
                 .argument(StringArgument.optional("structureName"))
-                .handler(executor::listStructures)
+                .handler(commandExecutor::listStructures)
         );
     }
 
@@ -287,7 +290,7 @@ public final class CommandManager
             baseInit(builder, CommandDefinition.LOCK, "commands.lock.description")
                 .argument(BooleanArgument.<ICommandSender>builder("lockStatus").withLiberal(true).build())
                 .argument(defaultStructureArgument(true, StructureAttribute.INFO).build())
-                .handler(executor::lock)
+                .handler(commandExecutor::lock)
         );
     }
 
@@ -297,7 +300,7 @@ public final class CommandManager
         manager.command(
             baseInit(builder, CommandDefinition.MENU, "commands.menu.description")
                 .argument(PlayerArgument.<ICommandSender>builder("targetPlayer").asOptional())
-                .handler(executor::menu)
+                .handler(commandExecutor::menu)
         );
     }
 
@@ -307,7 +310,7 @@ public final class CommandManager
         manager.command(
             baseInit(builder, CommandDefinition.MOVE_POWER_BLOCK, "commands.move_power_block.description")
                 .argument(defaultStructureArgument(true, StructureAttribute.RELOCATE_POWERBLOCK).build())
-                .handler(executor::movePowerBlock)
+                .handler(commandExecutor::movePowerBlock)
         );
     }
 
@@ -319,7 +322,7 @@ public final class CommandManager
                 .argument(defaultStructureTypeArgument(true).build())
                 .argument(StringArgument.<ICommandSender>builder("structureName").asOptional().build())
                 .permission(this::hasPermissionForNewStructure)
-                .handler(executor::newStructure)
+                .handler(commandExecutor::newStructure)
         );
     }
 
@@ -343,7 +346,7 @@ public final class CommandManager
             baseInit(builder, CommandDefinition.REMOVE_OWNER, "commands.remove_owner.description")
                 .argument(PlayerArgument.of("targetPlayer"))
                 .argument(defaultStructureArgument(false, StructureAttribute.REMOVE_OWNER).build())
-                .handler(executor::removeOwner)
+                .handler(commandExecutor::removeOwner)
         );
     }
 
@@ -352,7 +355,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.RESTART, "commands.restart.description")
-                .handler(executor::restart)
+                .handler(commandExecutor::restart)
         );
     }
 
@@ -363,7 +366,7 @@ public final class CommandManager
             baseInit(builder, CommandDefinition.SET_BLOCKS_TO_MOVE, "commands.set_blocks_to_move.description")
                 .argument(IntegerArgument.of("blocksToMove"))
                 .argument(defaultStructureArgument(false, StructureAttribute.BLOCKS_TO_MOVE).build())
-                .handler(executor::setBlocksToMove)
+                .handler(commandExecutor::setBlocksToMove)
         );
     }
 
@@ -373,7 +376,7 @@ public final class CommandManager
         manager.command(
             baseInit(builder, CommandDefinition.SET_NAME, "commands.set_name.description")
                 .argument(StringArgument.of("name"))
-                .handler(executor::setName)
+                .handler(commandExecutor::setName)
         );
     }
 
@@ -384,7 +387,7 @@ public final class CommandManager
             baseInit(builder, CommandDefinition.SET_OPEN_STATUS, "commands.set_open_status.description")
                 .argument(defaultOpenStatusArgument(true).build())
                 .argument(defaultStructureArgument(false, StructureAttribute.OPEN_STATUS).build())
-                .handler(executor::setOpenStatus)
+                .handler(commandExecutor::setOpenStatus)
         );
     }
 
@@ -395,7 +398,7 @@ public final class CommandManager
             baseInit(builder, CommandDefinition.SET_OPEN_DIRECTION, "commands.set_open_direction.description")
                 .argument(defaultDirectionArgument(true).build())
                 .argument(defaultStructureArgument(false, StructureAttribute.OPEN_DIRECTION).build())
-                .handler(executor::setOpenDirection)
+                .handler(commandExecutor::setOpenDirection)
         );
     }
 
@@ -405,7 +408,7 @@ public final class CommandManager
         manager.command(
             baseInit(builder, CommandDefinition.SPECIFY, "commands.specify.description")
                 .argument(StringArgument.of("data"))
-                .handler(executor::specify)
+                .handler(commandExecutor::specify)
         );
     }
 
@@ -414,7 +417,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.STOP_STRUCTURES, "commands.stop_structures.description")
-                .handler(executor::stopStructures)
+                .handler(commandExecutor::stopStructures)
         );
     }
 
@@ -424,7 +427,7 @@ public final class CommandManager
         manager.command(
             baseInit(builder, CommandDefinition.TOGGLE, "commands.toggle.description")
                 .argument(defaultStructureArgument(true, StructureAttribute.TOGGLE).build())
-                .handler(executor::toggle)
+                .handler(commandExecutor::toggle)
         );
     }
 
@@ -439,7 +442,7 @@ public final class CommandManager
         manager.command(
             baseInit(builder, previewDefinition, "commands.preview.description")
                 .argument(defaultStructureArgument(true, StructureAttribute.TOGGLE).build())
-                .handler(executor::preview)
+                .handler(commandExecutor::preview)
         );
     }
 
@@ -448,7 +451,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.VERSION, "commands.version.description")
-                .handler(executor::version)
+                .handler(commandExecutor::version)
         );
     }
 
@@ -461,7 +464,7 @@ public final class CommandManager
                    .argument(StringArgument.of("stepName"))
                    .argument(StringArgument.optional("stepValue"))
                    .hidden()
-                   .handler(executor::updateCreator)
+                   .handler(commandExecutor::updateCreator)
         );
     }
 
@@ -469,7 +472,7 @@ public final class CommandManager
         boolean required, StructureAttribute structureAttribute)
     {
         return StructureArgument.builder().required(required).name("structureRetriever")
-                                .asyncSuggestions(asyncCompletions)
+                                .asyncSuggestions(asyncCompletions).executor(executor)
                                 .structureRetrieverFactory(structureRetrieverFactory)
                                 .maxPermission(structureAttribute.getPermissionLevel());
     }
