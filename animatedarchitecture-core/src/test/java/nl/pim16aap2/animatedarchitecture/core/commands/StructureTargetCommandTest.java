@@ -7,7 +7,7 @@ import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
-import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
+import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.testing.AssertionsUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

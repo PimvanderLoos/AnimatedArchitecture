@@ -24,9 +24,9 @@ import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequest;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureRegistry;
-import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureFinder;
-import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetriever;
-import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
+import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureFinder;
+import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
+import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.util.versioning.BuildDataReader;
 import nl.pim16aap2.animatedarchitecture.core.util.versioning.ProjectVersion;
 

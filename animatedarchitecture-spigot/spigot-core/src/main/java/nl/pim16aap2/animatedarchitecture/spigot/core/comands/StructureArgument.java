@@ -8,8 +8,8 @@ import cloud.commandframework.context.CommandContext;
 import cloud.commandframework.exceptions.parsing.NoInputProvidedException;
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
-import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetriever;
-import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
+import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
+import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;

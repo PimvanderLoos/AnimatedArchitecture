@@ -8,9 +8,9 @@ import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
+import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
+import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
-import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetriever;
-import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;

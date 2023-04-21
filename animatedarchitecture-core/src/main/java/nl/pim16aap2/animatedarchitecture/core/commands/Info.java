@@ -12,11 +12,11 @@ import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
+import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
+import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
-import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetriever;
-import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 
 import java.time.Duration;

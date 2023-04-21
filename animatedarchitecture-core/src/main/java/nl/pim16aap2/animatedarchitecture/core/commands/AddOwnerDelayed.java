@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
-import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetriever;
+import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;

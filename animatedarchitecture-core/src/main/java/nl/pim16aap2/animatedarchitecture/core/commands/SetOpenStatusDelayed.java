@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
-import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetriever;
+import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;

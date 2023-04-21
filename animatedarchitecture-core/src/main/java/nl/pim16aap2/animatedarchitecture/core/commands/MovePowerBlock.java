@@ -5,15 +5,15 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
-import nl.pim16aap2.animatedarchitecture.core.tooluser.PowerBlockRelocator;
-import nl.pim16aap2.animatedarchitecture.core.util.Constants;
-import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetriever;
-import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
-import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
+import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
+import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
+import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
+import nl.pim16aap2.animatedarchitecture.core.tooluser.PowerBlockRelocator;
+import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 
 import java.util.concurrent.CompletableFuture;
 
