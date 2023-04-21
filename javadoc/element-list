@@ -17,6 +17,7 @@ nl.pim16aap2.animatedarchitecture.core.managers
 nl.pim16aap2.animatedarchitecture.core.storage
 nl.pim16aap2.animatedarchitecture.core.storage.sqlite
 nl.pim16aap2.animatedarchitecture.core.structures
+nl.pim16aap2.animatedarchitecture.core.structures.retriever
 nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes
 nl.pim16aap2.animatedarchitecture.core.text
 nl.pim16aap2.animatedarchitecture.core.tooluser
@@ -25,7 +26,6 @@ nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor
 nl.pim16aap2.animatedarchitecture.core.util
 nl.pim16aap2.animatedarchitecture.core.util.delayedinput
 nl.pim16aap2.animatedarchitecture.core.util.functional
-nl.pim16aap2.animatedarchitecture.core.util.structureretriever
 nl.pim16aap2.animatedarchitecture.core.util.updater
 nl.pim16aap2.animatedarchitecture.core.util.vector
 nl.pim16aap2.animatedarchitecture.core.util.versioning
