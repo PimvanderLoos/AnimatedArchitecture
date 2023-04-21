@@ -38,7 +38,7 @@ import java.util.function.Supplier;
  */
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Flogger
-public abstract class AbstractStructure implements IStructure
+public abstract class AbstractStructure implements IStructureConst
 {
     /**
      * The lock as used by both the {@link StructureBase} and this class.
@@ -264,13 +264,13 @@ public abstract class AbstractStructure implements IStructure
     public abstract MovementDirection getCurrentToggleDir();
 
     /**
-     * Cycle the {@link MovementDirection} direction this {@link IStructure} will open in. By default, it will loop over
-     * all valid directions. See {@link StructureType#getValidOpenDirectionsList()}. However, subclasses may override
-     * this behavior.
+     * Cycle the {@link MovementDirection} direction this {@link AbstractStructure} will open in. By default, it will
+     * loop over all valid directions. See {@link StructureType#getValidOpenDirectionsList()}. However, subclasses may
+     * override this behavior.
      * <p>
      * Note that this does not actually change the open direction; it merely tells you which direction comes next!
      *
-     * @return The new {@link MovementDirection} direction this {@link IStructure} will open in.
+     * @return The new {@link MovementDirection} direction this {@link AbstractStructure} will open in.
      */
     @Locked.Read
     public MovementDirection getCycledOpenDirection()
@@ -558,7 +558,12 @@ public abstract class AbstractStructure implements IStructure
         return base.isOwner(uuid, permissionLevel);
     }
 
-    @Override
+    /**
+     * Changes the position of this {@link AbstractStructure}. The min/max order of the positions doesn't matter.
+     *
+     * @param newCuboid
+     *     The {@link Cuboid} representing the area the structure will take up from now on.
+     */
     public void setCoordinates(Cuboid newCuboid)
     {
         assertWriteLockable();
@@ -566,7 +571,12 @@ public abstract class AbstractStructure implements IStructure
         base.setCoordinates(newCuboid);
     }
 
-    @Override
+    /**
+     * Updates the position of the rotation point.
+     *
+     * @param pos
+     *     The new position.
+     */
     public void setRotationPoint(Vector3Di pos)
     {
         assertWriteLockable();
@@ -574,7 +584,12 @@ public abstract class AbstractStructure implements IStructure
         base.setRotationPoint(pos);
     }
 
-    @Override
+    /**
+     * Updates the position of the powerblock.
+     *
+     * @param pos
+     *     The new position.
+     */
     public void setPowerBlock(Vector3Di pos)
     {
         assertWriteLockable();
@@ -583,7 +598,12 @@ public abstract class AbstractStructure implements IStructure
         verifyRedstoneState();
     }
 
-    @Override
+    /**
+     * Changes the name of the structure.
+     *
+     * @param name
+     *     The new name of this structure.
+     */
     public void setName(String name)
     {
         assertWriteLockable();
@@ -591,7 +611,12 @@ public abstract class AbstractStructure implements IStructure
         base.setName(name);
     }
 
-    @Override
+    /**
+     * Changes the open-status of this structure. True if open, False if closed.
+     *
+     * @param open
+     *     The new open-status of the structure.
+     */
     public void setOpen(boolean open)
     {
         assertWriteLockable();
@@ -600,7 +625,15 @@ public abstract class AbstractStructure implements IStructure
         verifyRedstoneState();
     }
 
-    @Override
+    /**
+     * Sets the {@link MovementDirection} this {@link AbstractStructure} will open if currently closed.
+     * <p>
+     * Note that if it's currently in the open status, it is supposed go in the opposite direction, as the closing
+     * direction is the opposite of the opening direction.
+     *
+     * @param openDir
+     *     The {@link MovementDirection} this {@link AbstractStructure} will open in.
+     */
     public void setOpenDir(MovementDirection openDir)
     {
         assertWriteLockable();
@@ -608,7 +641,12 @@ public abstract class AbstractStructure implements IStructure
         base.setOpenDir(openDir);
     }
 
-    @Override
+    /**
+     * Changes the lock status of this structure. Locked structures cannot be opened.
+     *
+     * @param locked
+     *     New lock status.
+     */
     public void setLocked(boolean locked)
     {
         assertWriteLockable();
@@ -685,6 +723,19 @@ public abstract class AbstractStructure implements IStructure
         if (result)
             invalidateBasicData();
         return result;
+    }
+
+    /**
+     * Changes the position of this {@link AbstractStructure}. The min/max order of the positions does not matter.
+     *
+     * @param posA
+     *     The first new position.
+     * @param posB
+     *     The second new position.
+     */
+    public void setCoordinates(Vector3Di posA, Vector3Di posB)
+    {
+        setCoordinates(new Cuboid(posA, posB));
     }
 
     @AllArgsConstructor(access = AccessLevel.PACKAGE)
