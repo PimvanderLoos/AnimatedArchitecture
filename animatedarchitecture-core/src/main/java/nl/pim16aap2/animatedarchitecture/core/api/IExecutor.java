@@ -248,4 +248,29 @@ public interface IExecutor
     {
         assertMainThread("Assertion Failed: Not on main thread!");
     }
+
+    /**
+     * Asserts that this method was not called from the main thread. See {@link #isMainThread()}.
+     *
+     * @param message
+     *     The error message for the exception.
+     * @throws IllegalStateException
+     *     When called from the main thread.
+     */
+    default void assertNotMainThread(String message)
+    {
+        if (isMainThread())
+            throw new IllegalThreadStateException(message);
+    }
+
+    /**
+     * Asserts that this method was not called from the main thread. See {@link #isMainThread()}.
+     *
+     * @throws IllegalStateException
+     *     When called from the main thread.
+     */
+    default void assertNotMainThread()
+    {
+        assertMainThread("Assertion Failed: On main thread!");
+    }
 }

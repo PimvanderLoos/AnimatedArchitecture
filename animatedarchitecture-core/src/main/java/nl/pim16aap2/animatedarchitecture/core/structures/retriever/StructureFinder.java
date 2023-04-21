@@ -181,8 +181,8 @@ public final class StructureFinder
     public synchronized CompletableFuture<Set<String>> getStructureIdentifiers(boolean fullMatch)
     {
         final String lastInput0 = lastInput;
-        return waitForDescriptions().thenApply(
-            descriptions -> getIdentifiers(descriptions, fullMatch ? lastInput0 : null));
+        return waitForDescriptions()
+            .thenApply(descriptions -> getIdentifiers(descriptions, fullMatch ? lastInput0 : null));
     }
 
     /**

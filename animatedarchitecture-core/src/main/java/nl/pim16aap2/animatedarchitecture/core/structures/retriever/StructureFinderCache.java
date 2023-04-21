@@ -23,7 +23,7 @@ import java.time.Duration;
 {
     private final Provider<StructureRetrieverFactory> structureRetrieverFactoryProvider;
     private final DatabaseManager databaseManager;
-    private TimedCache<ICommandSender, StructureFinder> cache = TimedCache.emptyCache();
+    private volatile TimedCache<ICommandSender, StructureFinder> cache = TimedCache.emptyCache();
 
     @Inject StructureFinderCache(
         Provider<StructureRetrieverFactory> structureRetrieverFactoryProvider,
@@ -64,7 +64,7 @@ import java.time.Duration;
     }
 
     @Override
-    public synchronized void initialize()
+    public void initialize()
     {
         cache = TimedCache.<ICommandSender, StructureFinder>builder()
                           .duration(Duration.ofMinutes(2))
@@ -75,7 +75,7 @@ import java.time.Duration;
     }
 
     @Override
-    public synchronized void shutDown()
+    public void shutDown()
     {
         cache.shutDown();
     }
