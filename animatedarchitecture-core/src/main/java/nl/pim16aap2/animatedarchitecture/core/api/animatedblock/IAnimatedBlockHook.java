@@ -24,25 +24,30 @@ import nl.pim16aap2.animatedarchitecture.core.managers.AnimatedBlockHookManager;
  * Example usage:
  * <p>
  * <pre>{@code
- * private void registerMyAnimatedBlockHookFactory(IAnimatedArchitecturePlatform animatedArchitecturePlatform) {
+ * private void registerMyAnimatedBlockHookFactory(IAnimatedArchitecturePlatform animatedArchitecturePlatform)
+ * {
  *     animatedArchitecturePlatform.getAnimatedBlockHookManager().registerFactory(MyAnimatedBlockHook::new);
  * }
  *
- * private static final class MyAnimatedBlockHook implements IAnimatedBlockHook {
+ * private static final class MyAnimatedBlockHook implements IAnimatedBlockHook
+ * {
  *
  *     private final IAnimatedBlock animatedBlock;
  *
- *     public MyAnimatedBlockHook(IAnimatedBlock animatedBlock) {
+ *     public MyAnimatedBlockHook(IAnimatedBlock animatedBlock)
+ *     {
  *         this.animatedBlock = animatedBlock;
  *     }
  *
  *     @Override
- *     public String getName() {
+ *     public String getName()
+ *     {
  *         return "MyAnimatedBlockHook";
  *     }
  *
  *     @Override
- *     public void preSpawn() {
+ *     public void preSpawn()
+ *     {
  *         // Some code that runs before the animated block is spawned.
  *     }
  * }}</pre>

@@ -22,22 +22,30 @@ import nl.pim16aap2.animatedarchitecture.core.managers.AnimationHookManager;
  * Example usage:
  * <p>
  * <pre>{@code
- * private void registerMyAnimationHookFactory(IAnimatedArchitecturePlatform animatedArchitecturePlatform) {
+ * private void registerMyAnimationHookFactory(IAnimatedArchitecturePlatform animatedArchitecturePlatform)
+ * {
  *     animatedArchitecturePlatform.getAnimationHookManager().registerFactory(
  *         animation -> new MyAnimationHook(animation));
  * }
  *
- * private static final class MyAnimationHook implements IAnimationHook<IAnimatedBlock> {
+ * private static final class MyAnimationHook implements IAnimationHook<IAnimatedBlock>
+ * {
  *     private final Animation<IAnimatedBlock> animation;
- *     MyAnimationHook(Animation<IAnimatedBlock> animation) {
+ *
+ *     MyAnimationHook(Animation<IAnimatedBlock> animation)
+ *     {
  *         this.animation = animation;
  *     }
+ *
  *     @Override
- *     public String getName() {
+ *     public String getName()
+ *     {
  *         return "MyAnimationHook";
  *     }
+ *
  *     @Override
- *     public void onPostAnimationStep() {
+ *     public void onPostAnimationStep()
+ *     {
  *         // Some code that is executed after each step of the animation.
  *     }
  * }}</pre>

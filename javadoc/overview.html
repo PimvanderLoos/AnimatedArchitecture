@@ -1,0 +1,76 @@
+<body>
+<p>Welcome to the Javadocs API for the AnimatedArchitecture project.</p>
+<p>The AnimatedArchitecture API provides a way of hooking into the AnimatedArchitecture plugin. This allows you to
+    control
+    many aspects of the plugin, such as: Interacting with structures, react to events, initiate animations, extend the
+    animated blocks, etc.</p>
+<p>In this overview, we will introduce some of the key concepts you will encounter when using the Animated Architecture
+    API. The documentation here is not meant to be a complete reference, but rather a quick introduction. It is
+    recommended
+    to read the documentation of the classes and packages you are interested in to get a better understanding of the
+    API.</p>
+<h2>Animated Architecture Platform</h2>
+<p>Perhaps the most important class to know about when getting started with the API is
+    the <a href="nl/pim16aap2/animatedarchitecture/core/api/IAnimatedArchitecturePlatform.html">IAnimatedArchitecturePlatform</a>.
+    It provides access to many of the core features of the plugin.</p>
+<p>The way to obtain an instance of the platform depends on the platform you are using. For Spigot, you can find an
+    example
+    in the <a href="nl/pim16aap2/animatedarchitecture/spigot/core/package-summary.html">Spigot core package</a>.</p>
+<h2>Structures</h2>
+<p>The most important concept in the AnimatedArchitecture API is the structure. A structure is an abstract
+    representation
+    of a collection of blocks that can be animated. The most common representation of a structure is
+    the <a href="nl/pim16aap2/animatedarchitecture/core/structures/AbstractStructure.html">AbstractStructure</a> class,
+    but there are
+    representations, such a snapshots, immutable structures, etc.</p>
+<p>It is recommended to read the documentation of
+    the <a href="nl/pim16aap2/animatedarchitecture/core/structures/package-summary.html">Structure package</a> to get a
+    better
+    understanding of the structure concept.</p>
+<p>Instead, you should use
+    the
+    <a href="nl/pim16aap2/animatedarchitecture/core/structures/retriever/StructureRetriever.html">StructureRetriever</a>
+    class
+    to obtain instances of structures. The StructureRetriever class provides a number of methods to retrieve structures
+    from
+    the database.</p>
+<p>When you want to make changes to a structure, you should use commands when making the changes on behalf of a player.
+    If
+    not, you should remember to synchronize the changes with the database. More information about this can be found in
+    the
+    <a href="nl/pim16aap2/animatedarchitecture/core/structures/package-summary.html">Structure package</a>.</p>
+<h2>Structure Retrievers</h2>
+<p>Structure retrievers are used to retrieve structures from the database. They are the recommended way of obtaining an
+    instance of a structure. The retrievers are created using the factory class.</p>
+<p>The factory allow you to create retrievers in a number of ways. For example, you can create a structure retriever
+    from a
+    structure's name, by its ID, or by its pre-existing instance.</p>
+<p>The structure retrievers contain several methods to obtain the instance or instances of the structure(s) they refer
+    to.
+    For example, you can get a list of all structures they refer to, or only those owned by a specific player, or only
+    get a
+    single structure in case the retriever refers to exactly structure.</p>
+<p>More information about the structure retrievers can be found in
+    the <a href="nl/pim16aap2/animatedarchitecture/core/structures/retriever/package-summary.html">retriever package</a>.
+</p>
+<h2>Commands</h2>
+<p>Commands are the preferred way of making changes to structures. They allow you to make changes on behalf of a
+    player.</p>
+<p>More information and examples about commands can be found in
+    the <a href="nl/pim16aap2/animatedarchitecture/core/commands/package-summary.html">commands package</a>.</p>
+<h2>Animation Hooks</h2>
+<p>The API includes two types of animation hooks that allow you to add custom behaviour either to the animations
+    themselves
+    or to the animated blocks that together make up an animation. More information about the animation hooks can be
+    found in
+    the <a href="nl/pim16aap2/animatedarchitecture/core/api/animatedblock/package-summary.html">animatedblock</a>
+    package.</p>
+<h2>Events</h2>
+<p>The API includes a number of events that allow you to react to certain events. For example, you can react to the
+    creation of a structure, to the start of an animation, or to the deletion of a structure.</p>
+<p>The way to use the events depends on the platform you are using. For Spigot, you can find an example in the
+    <a href="nl/pim16aap2/animatedarchitecture/spigot/core/events/package-summary.html">event package</a> for Spigot.
+</p>
+<p>A full list of events can be found in
+    the <a href="nl/pim16aap2/animatedarchitecture/core/events/package-summary.html">event package</a>.</p>
+</body>

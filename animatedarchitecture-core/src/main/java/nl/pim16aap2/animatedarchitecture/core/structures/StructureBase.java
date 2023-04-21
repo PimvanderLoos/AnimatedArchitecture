@@ -41,9 +41,10 @@ import java.util.UUID;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * Represents an unspecialized structure.
- *
- * @author Pim
+ * Represents the base of a structure.
+ * <p>
+ * Please read the documentation of {@link nl.pim16aap2.animatedarchitecture.core.structures} for more information about
+ * the structure system.
  */
 @EqualsAndHashCode(callSuper = false)
 @Flogger final class StructureBase

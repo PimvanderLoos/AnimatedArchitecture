@@ -20,7 +20,34 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Represents a way to retrieve a structure. It may be referenced by its name, its UID, or the object itself.
+ * Represents a way to retrieve structures. It may be referenced by its name, its UID, or the object(s) itself.
+ * <p>
+ * Once a {@link StructureRetriever} is created, it can be used to retrieve the structure(s) it references using any of
+ * the {@code getStructure} methods.
+ * <p>
+ * For example:
+ * <pre>{@code
+ * // Get the referenced structure if there is exactly 1 match.
+ * final CompletableFuture<Optional<AbstractStructure>> result =
+ *     structureRetriever.getStructure();
+ *
+ * // Get the referenced structure if there is exactly 1 match that the player is an admin of.
+ * final CompletableFuture<Optional<AbstractStructure>> result =
+ *     structureRetriever.getStructure(player, PermissionLevel.ADMIN);
+ *
+ * // Get the referenced structure that the player is the creator of. If there is more than 1 match, the player
+ * // will be asked to select one (if supported).
+ * final CompletableFuture<Optional<AbstractStructure>> result =
+ *     structureRetriever.getStructureInteractive(player, PermissionLevel.CREATOR);
+ *
+ * // Get all structures that match the description.
+ * final CompletableFuture<List<AbstractStructure>> result =
+ *     structureRetriever.getStructures();
+ *
+ * // Get all structures that match the description and that the player is a user of.
+ * final CompletableFuture<List<AbstractStructure>> result =
+ *     structureRetriever.getStructures(player, PermissionLevel.USER);
+ * }</pre>
  */
 @Flogger
 public sealed abstract class StructureRetriever

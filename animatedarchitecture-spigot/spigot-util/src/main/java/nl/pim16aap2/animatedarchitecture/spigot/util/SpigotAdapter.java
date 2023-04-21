@@ -23,6 +23,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Class that contains utility methods to convert between AnimatedArchitecture and Spigot objects.
+ * <p>
+ * For example, {@link #getBukkitWorld(IWorld)} converts an {@link IWorld} to a {@link World} and
+ * {@link #wrapWorld(World)} can be used to do the opposite.
+ */
 public final class SpigotAdapter
 {
     private SpigotAdapter()

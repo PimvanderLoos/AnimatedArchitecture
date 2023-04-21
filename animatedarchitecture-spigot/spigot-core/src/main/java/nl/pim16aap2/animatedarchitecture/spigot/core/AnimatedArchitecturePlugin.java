@@ -33,6 +33,9 @@ import java.util.logging.Level;
  * Represents the base {@link JavaPlugin} for AnimatedArchitecture.
  * <p>
  * This is the entry point of the Spigot platform.
+ * <p>
+ * Refer to {@link nl.pim16aap2.animatedarchitecture.spigot.core} for more information on how to interact with this
+ * plugin.
  *
  * @author Pim
  */

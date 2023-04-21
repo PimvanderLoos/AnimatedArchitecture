@@ -629,6 +629,8 @@
                                 <failOnError>false</failOnError>
                                 <doclint>none</doclint>
                                 <sourcepath>${delombok.output}</sourcepath>
+
+                                <overview>${project.root-dir}/javadoc/overview.html</overview>
                             </configuration>
                         </plugin>
 

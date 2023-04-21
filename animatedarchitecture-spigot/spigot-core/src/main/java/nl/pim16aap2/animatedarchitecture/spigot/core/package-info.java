@@ -11,7 +11,7 @@
  * private IAnimatedArchitecturePlatform getAnimatedArchitecturePlatform(JavaPlugin accessor)
  * {
  *     final @Nullable AnimatedArchitecturePlugin animatedArchitecturePlugin =
- *         (AnimatedArchitecturePlugin) Bukkit.getPluginManager().getPlugin("AnimatedArchitecture2");
+ *         (AnimatedArchitecturePlugin) Bukkit.getPluginManager().getPlugin("AnimatedArchitecture");
  *     if (animatedArchitecturePlugin == null)
  *         // Handle this issue.
  *     return animatedArchitecturePlugin.getAnimatedArchitectureSpigotPlatform(accessor).orElseThrow();
@@ -23,6 +23,10 @@
  * The platform will not be available before this plugin has been enabled or if some issue occurred while attempting to
  * enable it. How to deal with the AnimatedArchitecturePlugin being null or the platform not existing is up to the
  * plugin requesting access.
+ * <p>
+ * A useful class for plugins that want to interact with the AnimatedArchitecture API is the
+ * {@link nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter}. This class contains some static utility methods
+ * to wrap and unwrap Spigot objects to AnimatedArchitecture objects and vice versa.
  */
 @NonNullByDefault
 package nl.pim16aap2.animatedarchitecture.spigot.core;
