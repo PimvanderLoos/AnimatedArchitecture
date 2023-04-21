@@ -1,10 +1,10 @@
-package nl.pim16aap2.animatedarchitecture.core.util.structureretriever;
+package nl.pim16aap2.animatedarchitecture.core.structures.retriever;
 
-import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.IRestartable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.data.cache.timed.TimedCache;
+import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 
 import javax.inject.Inject;

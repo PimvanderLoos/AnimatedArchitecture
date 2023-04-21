@@ -1,4 +1,4 @@
-package nl.pim16aap2.animatedarchitecture.core.util.structureretriever;
+package nl.pim16aap2.animatedarchitecture.core.structures.retriever;
 
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
@@ -331,7 +331,8 @@ class StructureFinderTest
                                 structureFinder.getStructures(true).get(1, TimeUnit.SECONDS));
     }
 
-    private List<DatabaseManager.StructureIdentifier> createStructureIdentifiers(List<Long> uids, List<String> names, boolean useNames)
+    private List<DatabaseManager.StructureIdentifier> createStructureIdentifiers(
+        List<Long> uids, List<String> names, boolean useNames)
     {
         final List<DatabaseManager.StructureIdentifier> ret = new ArrayList<>(uids.size());
         final List<?> idSource = useNames ? names : uids;

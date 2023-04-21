@@ -4,8 +4,8 @@ import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IGuiFactory;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
+import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
-import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetrieverFactory;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;

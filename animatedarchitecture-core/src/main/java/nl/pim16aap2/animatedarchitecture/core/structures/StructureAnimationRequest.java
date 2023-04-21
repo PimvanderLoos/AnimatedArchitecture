@@ -17,8 +17,8 @@ import nl.pim16aap2.animatedarchitecture.core.api.factories.IPlayerFactory;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
-import nl.pim16aap2.animatedarchitecture.core.util.structureretriever.StructureRetriever;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;

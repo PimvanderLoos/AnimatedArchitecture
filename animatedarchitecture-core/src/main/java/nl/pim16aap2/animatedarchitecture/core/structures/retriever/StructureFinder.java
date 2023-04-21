@@ -1,4 +1,4 @@
-package nl.pim16aap2.animatedarchitecture.core.util.structureretriever;
+package nl.pim16aap2.animatedarchitecture.core.structures.retriever;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet;
