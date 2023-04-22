@@ -5,9 +5,6 @@ import dagger.Lazy;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
 import it.unimi.dsi.fastutil.longs.LongList;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
@@ -818,51 +815,26 @@ public final class DatabaseManager extends Restartable implements IDebuggable
 
     /**
      * Contains the result of an attempt to insert a structure into the database.
+     *
+     * @param structure
+     *     The structure as it was inserted into the database. This will be empty when inserted failed.
+     * @param cancelled
+     *     Whether the insertion was cancelled. An insertion may be cancelled if some listener cancels the
+     *     {@link IStructurePrepareCreateEvent} event.
      */
-    @AllArgsConstructor @EqualsAndHashCode @ToString
-    public static final class StructureInsertResult
+    public record StructureInsertResult(Optional<AbstractStructure> structure, boolean cancelled)
     {
-        /**
-         * The structure as it was inserted into the database. This will be empty when inserted failed.
-         */
-        private final Optional<AbstractStructure> structure;
-        /**
-         * Whether the insertion was cancelled. An insertion may be cancelled if some listener cancels the
-         * {@link IStructurePrepareCreateEvent} event.
-         */
-        private final boolean cancelled;
-
-        /**
-         * See {@link #structure}.
-         */
-        public Optional<AbstractStructure> structure()
-        {
-            return structure;
-        }
-
-        /**
-         * See {@link #cancelled}.
-         */
-        public boolean cancelled()
-        {
-            return cancelled;
-        }
     }
 
-    @AllArgsConstructor @EqualsAndHashCode @ToString
-    public static final class StructureIdentifier
+    /**
+     * Represents the identifier of a structure. This is a combination of the UID and the name of the structure.
+     *
+     * @param uid
+     *     The UID of the structure.
+     * @param name
+     *     The name of the structure.
+     */
+    public record StructureIdentifier(long uid, String name)
     {
-        private final long uid;
-        private final String name;
-
-        public long uid()
-        {
-            return uid;
-        }
-
-        public String name()
-        {
-            return name;
-        }
     }
 }
