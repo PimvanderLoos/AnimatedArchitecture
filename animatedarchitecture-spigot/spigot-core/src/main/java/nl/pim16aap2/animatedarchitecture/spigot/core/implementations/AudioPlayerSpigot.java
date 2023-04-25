@@ -9,6 +9,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.SoundCategory;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -25,6 +26,11 @@ import javax.inject.Singleton;
 @Singleton
 public class AudioPlayerSpigot implements IAudioPlayer
 {
+    /**
+     * Half the range of the audio in blocks in the x, y, and z direction.
+     */
+    private static final int AUDIO_RANGE = 15;
+
     private final IExecutor executor;
 
     @Inject
@@ -58,7 +64,7 @@ public class AudioPlayerSpigot implements IAudioPlayer
     }
 
     /**
-     * Play a sound for all players in a range of 15 blocks around the provided location.
+     * Play a sound for all players in a range of {@link #AUDIO_RANGE} blocks around the provided location.
      */
     private void playSound(Location loc, String sound, float volume, float pitch)
     {
@@ -66,16 +72,13 @@ public class AudioPlayerSpigot implements IAudioPlayer
         if (world == null)
             return;
 
-        if (executor.isMainThread())
-            playSound(loc, world, sound, volume, pitch, 15);
-        else
-            executor.scheduleOnMainThread(() -> playSound(loc, world, sound, volume, pitch, 15));
+        executor.runOnMainThread(() -> playSound(loc, world, sound, volume, pitch, AUDIO_RANGE));
     }
 
     private void playSound(Location loc, World world, String sound, float volume, float pitch, int range)
     {
         for (final Entity ent : world.getNearbyEntities(loc, range, range, range))
             if (ent instanceof Player player)
-                player.playSound(loc, sound, volume, pitch);
+                player.playSound(loc, sound, SoundCategory.BLOCKS, volume, pitch);
     }
 }
