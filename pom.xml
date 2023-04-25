@@ -42,7 +42,7 @@
         <dependency.version.junit>5.9.2</dependency.version.junit>
         <dependency.version.surefire>3.0.0</dependency.version.surefire>
         <dependency.version.failsafe>3.0.0-M6</dependency.version.failsafe>
-        <dependency.version.jacoco>0.8.9</dependency.version.jacoco>
+        <dependency.version.jacoco>0.8.10</dependency.version.jacoco>
         <dependency.version.git-commit-id>5.0.0</dependency.version.git-commit-id>
         <dependency.version.maven-build-helper>3.3.0</dependency.version.maven-build-helper>
         <dependency.version.maven-compiler>3.11.0</dependency.version.maven-compiler>
