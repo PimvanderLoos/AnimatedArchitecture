@@ -289,7 +289,7 @@ public final class Animator implements IAnimator
 
         final Animation<IAnimatedBlock> animation = new Animation<>(
             animationDuration, perpetualMovement, oldCuboid, getAnimatedBlocks(),
-            snapshot, structure.getType(), animationType);
+            snapshot, structure.getType(), animationType, player);
 
         this.animationData = animation;
 

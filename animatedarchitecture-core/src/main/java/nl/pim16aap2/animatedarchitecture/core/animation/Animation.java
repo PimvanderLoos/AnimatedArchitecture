@@ -3,6 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.animation;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
@@ -77,6 +78,17 @@ public class Animation<T extends IAnimatedBlock>
     @Getter
     private final AnimationType animationType;
 
+    /**
+     * The player responsible for the animation.
+     * <p>
+     * This player may be the player who requested the animation, or it may be the prime owner of the structure if the
+     * animation request was not made by a player.
+     * <p>
+     * This player may not be online.
+     */
+    @Getter
+    private final IPlayer responsible;
+
     Animation(
         int duration,
         boolean perpetual,
@@ -84,7 +96,8 @@ public class Animation<T extends IAnimatedBlock>
         List<T> animatedBlocks,
         StructureSnapshot structureSnapshot,
         StructureType structureType,
-        AnimationType animationType)
+        AnimationType animationType,
+        IPlayer responsible)
     {
         this.duration = duration;
         this.perpetual = perpetual;
@@ -93,6 +106,7 @@ public class Animation<T extends IAnimatedBlock>
         this.structureSnapshot = structureSnapshot;
         this.structureType = structureType;
         this.animationType = animationType;
+        this.responsible = responsible;
     }
 
     /**
