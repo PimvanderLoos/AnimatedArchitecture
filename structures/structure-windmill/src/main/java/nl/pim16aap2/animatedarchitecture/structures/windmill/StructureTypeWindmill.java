@@ -1,8 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.structures.windmill;
 
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.audio.AudioDescription;
-import nl.pim16aap2.animatedarchitecture.core.audio.AudioSet;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
@@ -18,10 +16,6 @@ public final class StructureTypeWindmill extends StructureType
     private static final int TYPE_VERSION = 1;
 
     private static final StructureTypeWindmill INSTANCE = new StructureTypeWindmill();
-
-    private static final AudioSet AUDIO_SET = new AudioSet(
-        new AudioDescription("bd.drawbridge-rattling", 0.8f, 0.7f, 800),
-        new AudioDescription("bd.thud", 0.2f, 0.15f, 250));
 
     private StructureTypeWindmill()
     {
@@ -50,11 +44,5 @@ public final class StructureTypeWindmill extends StructureType
     public Creator getCreator(ToolUser.Context context, IPlayer player, @Nullable String name)
     {
         return new CreatorWindMill(context, player, name);
-    }
-
-    @Override
-    public AudioSet getAudioSet()
-    {
-        return AUDIO_SET;
     }
 }
