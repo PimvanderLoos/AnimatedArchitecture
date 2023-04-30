@@ -13,7 +13,7 @@ import java.util.List;
  * The most common example will be a manager that replaces existing blocks with animated blocks and places them in the
  * new location after the animation ends.
  */
-public interface IAnimationBlockManager
+public interface IAnimatedBlockContainer
 {
     /**
      * Attempts to create and spawn the animated blocks for the given input.

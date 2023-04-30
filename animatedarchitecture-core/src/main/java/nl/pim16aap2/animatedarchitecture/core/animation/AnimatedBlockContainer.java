@@ -19,7 +19,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Flogger
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(onlyExplicitlyIncluded = true)
-public class AnimationBlockManager implements IAnimationBlockManager
+public class AnimatedBlockContainer implements IAnimatedBlockContainer
 {
     private final IAnimatedBlockFactory animatedBlockFactory;
     private final IExecutor executor;
@@ -36,7 +36,7 @@ public class AnimationBlockManager implements IAnimationBlockManager
     @ToString.Include @EqualsAndHashCode.Include
     private final List<IAnimatedBlock> animatedBlocks;
 
-    AnimationBlockManager(IAnimatedBlockFactory animatedBlockFactory, IExecutor executor)
+    AnimatedBlockContainer(IAnimatedBlockFactory animatedBlockFactory, IExecutor executor)
     {
         this.animatedBlockFactory = animatedBlockFactory;
         this.executor = executor;

@@ -78,7 +78,7 @@ public final class Animator implements IAnimator
      */
     private final IAnimationComponent animationComponent;
 
-    private final IAnimationBlockManager animationBlockManager;
+    private final IAnimatedBlockContainer animatedBlockContainer;
 
     /**
      * What caused the structure to be moved.
@@ -180,12 +180,12 @@ public final class Animator implements IAnimator
      *     The data of the movement request.
      * @param animationComponent
      *     The animation component to use for the animation. This determines the type of animation.
-     * @param animationBlockManager
+     * @param animatedBlockContainer
      *     The manager of the animated blocks. This is responsible for handling the lifecycle of the animated blocks.
      */
     public Animator(
         AbstractStructure structure, AnimationRequestData data, IAnimationComponent animationComponent,
-        IAnimationBlockManager animationBlockManager)
+        IAnimatedBlockContainer animatedBlockContainer)
     {
         executor = data.getExecutor();
         structureActivityManager = data.getStructureActivityManager();
@@ -198,7 +198,7 @@ public final class Animator implements IAnimator
         this.skipAnimation = data.isAnimationSkipped();
         this.player = data.getResponsible();
         this.animationComponent = animationComponent;
-        this.animationBlockManager = animationBlockManager;
+        this.animatedBlockContainer = animatedBlockContainer;
         this.newCuboid = data.getNewCuboid();
         this.oldCuboid = snapshot.getCuboid();
         this.cause = data.getCause();
@@ -243,7 +243,7 @@ public final class Animator implements IAnimator
     @Override
     public List<IAnimatedBlock> getAnimatedBlocks()
     {
-        return animationBlockManager.getAnimatedBlocks();
+        return animatedBlockContainer.getAnimatedBlocks();
     }
 
     /**
@@ -293,7 +293,7 @@ public final class Animator implements IAnimator
 
         this.animationData = animation;
 
-        if (!animationBlockManager.createAnimatedBlocks(snapshot, animationComponent))
+        if (!animatedBlockContainer.createAnimatedBlocks(snapshot, animationComponent))
         {
             handleInitFailure();
             return;
@@ -324,7 +324,7 @@ public final class Animator implements IAnimator
             return;
         }
 
-        animationBlockManager.restoreBlocksOnFailure();
+        animatedBlockContainer.restoreBlocksOnFailure();
         structureActivityManager.processFinishedAnimation(this);
     }
 
@@ -482,7 +482,7 @@ public final class Animator implements IAnimator
         // world to place the blocks in their final position.
         // However, updating the coordinates of the structure is best left to another thread, as it may block the
         // calling thread while it waits to acquire the write lock.
-        executor.runOnMainThreadWithResponse(animationBlockManager::handleAnimationCompletion)
+        executor.runOnMainThreadWithResponse(animatedBlockContainer::handleAnimationCompletion)
                 .thenRunAsync(
                     () ->
                     {

@@ -12,14 +12,14 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public class AnimationBlockManagerFactory
+public class AnimatedBlockContainerFactory
 {
     private final ILocationFactory locationFactory;
     private final IAnimatedBlockFactory animatedBlockFactory;
     private final IExecutor executor;
     private final HighlightedBlockSpawner glowingBlockSpawner;
 
-    @Inject AnimationBlockManagerFactory(
+    @Inject AnimatedBlockContainerFactory(
         ILocationFactory locationFactory,
         IAnimatedBlockFactory animatedBlockFactory,
         IExecutor executor, HighlightedBlockSpawner glowingBlockSpawner)
@@ -30,23 +30,23 @@ public class AnimationBlockManagerFactory
         this.glowingBlockSpawner = glowingBlockSpawner;
     }
 
-    public IAnimationBlockManager newManager(AnimationType animationType, @Nullable IPlayer player)
+    public IAnimatedBlockContainer newContainer(AnimationType animationType, @Nullable IPlayer player)
     {
         return switch (animationType)
         {
-            case MOVE_BLOCKS -> newMoveBlockManager();
-            case PREVIEW -> newPreviewBlockManager(player);
+            case MOVE_BLOCKS -> newMoveBlockContainer();
+            case PREVIEW -> newPreviewBlockContainer(player);
         };
     }
 
-    private IAnimationBlockManager newPreviewBlockManager(@Nullable IPlayer player)
+    private IAnimatedBlockContainer newPreviewBlockContainer(@Nullable IPlayer player)
     {
-        return new AnimationPreviewBlockManager(
+        return new AnimatedPreviewBlockContainer(
             locationFactory, glowingBlockSpawner, Util.requireNonNull(player, "Player for preview blocks"));
     }
 
-    private IAnimationBlockManager newMoveBlockManager()
+    private IAnimatedBlockContainer newMoveBlockContainer()
     {
-        return new AnimationBlockManager(animatedBlockFactory, executor);
+        return new AnimatedBlockContainer(animatedBlockFactory, executor);
     }
 }

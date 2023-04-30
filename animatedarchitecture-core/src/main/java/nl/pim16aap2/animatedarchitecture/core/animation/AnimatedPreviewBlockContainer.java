@@ -25,7 +25,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Flogger
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(onlyExplicitlyIncluded = true)
-public class AnimationPreviewBlockManager implements IAnimationBlockManager
+public class AnimatedPreviewBlockContainer implements IAnimatedBlockContainer
 {
     private final ILocationFactory locationFactory;
     private final HighlightedBlockSpawner glowingBlockSpawner;
@@ -43,7 +43,7 @@ public class AnimationPreviewBlockManager implements IAnimationBlockManager
     @ToString.Include @EqualsAndHashCode.Include
     private final List<IAnimatedBlock> animatedBlocks;
 
-    AnimationPreviewBlockManager(
+    AnimatedPreviewBlockContainer(
         ILocationFactory locationFactory, HighlightedBlockSpawner glowingBlockSpawner, IPlayer player)
     {
         this.locationFactory = locationFactory;

@@ -2,11 +2,11 @@ package nl.pim16aap2.animatedarchitecture.core.structures;
 
 import com.google.common.flogger.StackSize;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.animatedarchitecture.core.animation.AnimationBlockManagerFactory;
+import nl.pim16aap2.animatedarchitecture.core.animation.AnimatedBlockContainerFactory;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationType;
 import nl.pim16aap2.animatedarchitecture.core.animation.Animator;
-import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationBlockManager;
+import nl.pim16aap2.animatedarchitecture.core.animation.IAnimatedBlockContainer;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.animation.StructureActivityManager;
 import nl.pim16aap2.animatedarchitecture.core.api.Color;
@@ -68,7 +68,7 @@ import java.util.logging.Level;
     private final IChunkLoader chunkLoader;
     private final LimitsManager limitsManager;
     private final IAnimatedArchitectureEventCaller animatedArchitectureEventCaller;
-    private final AnimationBlockManagerFactory animationBlockManagerFactory;
+    private final AnimatedBlockContainerFactory animatedBlockContainerFactory;
     private final AnimationRequestData.IFactory movementRequestDataFactory;
 
     @Inject //
@@ -88,7 +88,7 @@ import java.util.logging.Level;
         IChunkLoader chunkLoader,
         LimitsManager limitsManager,
         IAnimatedArchitectureEventCaller animatedArchitectureEventCaller,
-        AnimationBlockManagerFactory animationBlockManagerFactory,
+        AnimatedBlockContainerFactory animatedBlockContainerFactory,
         AnimationRequestData.IFactory movementRequestDataFactory)
     {
         this.localizer = localizer;
@@ -106,7 +106,7 @@ import java.util.logging.Level;
         this.chunkLoader = chunkLoader;
         this.limitsManager = limitsManager;
         this.animatedArchitectureEventCaller = animatedArchitectureEventCaller;
-        this.animationBlockManagerFactory = animationBlockManagerFactory;
+        this.animatedBlockContainerFactory = animatedBlockContainerFactory;
         this.movementRequestDataFactory = movementRequestDataFactory;
     }
 
@@ -240,11 +240,11 @@ import java.util.logging.Level;
     {
         try
         {
-            final IAnimationBlockManager animationBlockManager =
-                animationBlockManagerFactory.newManager(animationType, player);
+            final IAnimatedBlockContainer animatedBlockContainer =
+                animatedBlockContainerFactory.newContainer(animationType, player);
 
             final Animator blockMover =
-                new Animator(structure, data, component, animationBlockManager);
+                new Animator(structure, data, component, animatedBlockContainer);
 
             structureActivityManager.addAnimator(stamp, blockMover);
             executor.runOnMainThread(blockMover::startAnimation);
