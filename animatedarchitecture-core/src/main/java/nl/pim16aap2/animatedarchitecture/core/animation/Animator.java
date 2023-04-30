@@ -16,7 +16,6 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes.IPerpetualMover;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
-import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -330,8 +329,15 @@ public final class Animator implements IAnimator
 
     private void executeAnimationStep(int counter, Animation<IAnimatedBlock> animation)
     {
-        animationComponent.executeAnimationStep(this, counter);
-        animation.setRegion(getAnimationRegion());
+        animationComponent.executeAnimationStep(this, this.getAnimatedBlocks(), counter);
+
+        final var animationRegion = this.animatedBlockContainer.getAnimationRegion();
+        if (animationRegion != null)
+        {
+            animationComponent.executeAnimationStep(this, animationRegion.getMarkerBlocks(), counter);
+            animation.setRegion(animationRegion.getRegion());
+        }
+
         animation.setState(AnimationState.ACTIVE);
     }
 
@@ -341,12 +347,23 @@ public final class Animator implements IAnimator
         animatedBlock.moveToTarget(targetPosition);
     }
 
+    private void executeFinishingStep(List<IAnimatedBlock> animatedBlocks)
+    {
+        for (final IAnimatedBlock animatedBlock : animatedBlocks)
+            applyMovement(animatedBlock, animatedBlock.getFinalPosition());
+    }
+
     private void executeFinishingStep(Animation<IAnimatedBlock> animation)
     {
-        for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
-            applyMovement(animatedBlock, animatedBlock.getFinalPosition());
+        executeFinishingStep(animation.getAnimatedBlocks());
 
-        animation.setRegion(getAnimationRegion());
+        final @Nullable var animationRegion = this.animatedBlockContainer.getAnimationRegion();
+        if (animationRegion != null)
+        {
+            executeFinishingStep(animationRegion.getMarkerBlocks());
+            animation.setRegion(animationRegion.getRegion());
+        }
+
         animation.setState(AnimationState.FINISHING);
     }
 
@@ -358,7 +375,9 @@ public final class Animator implements IAnimator
     {
         if (animation != null)
         {
-            animation.setRegion(getAnimationRegion());
+            final @Nullable var animationRegion = this.animatedBlockContainer.getAnimationRegion();
+            if (animationRegion != null)
+                animation.setRegion(animationRegion.getRegion());
             animation.setState(AnimationState.STOPPING);
         }
 
@@ -515,37 +534,6 @@ public final class Animator implements IAnimator
     public long getStructureUID()
     {
         return snapshot.getUid();
-    }
-
-    private Cuboid getAnimationRegion()
-    {
-        double xMin = Double.MAX_VALUE;
-        double yMin = Double.MAX_VALUE;
-        double zMin = Double.MAX_VALUE;
-
-        double xMax = Double.MIN_VALUE;
-        double yMax = Double.MIN_VALUE;
-        double zMax = Double.MIN_VALUE;
-
-        for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
-        {
-            final Vector3Dd pos = animatedBlock.getPosition();
-            if (pos.x() < xMin)
-                xMin = pos.x();
-            else if (pos.x() > xMax)
-                xMax = pos.x();
-
-            if (pos.y() < yMin)
-                yMin = pos.y();
-            else if (pos.y() > yMax)
-                yMax = pos.y();
-
-            if (pos.z() < zMin)
-                zMin = pos.z();
-            else if (pos.z() > zMax)
-                zMax = pos.z();
-        }
-        return Cuboid.of(new Vector3Dd(xMin, yMin, zMin), new Vector3Dd(xMax, yMax, zMax), Cuboid.RoundingMode.OUTWARD);
     }
 
     private void forEachHook(String actionName, Consumer<IAnimationHook> call)

@@ -66,13 +66,13 @@ public class BigDoorAnimationComponent implements IAnimationComponent
     }
 
     @Override
-    public void executeAnimationStep(IAnimator animator, int ticks)
+    public void executeAnimationStep(IAnimator animator, Iterable<IAnimatedBlock> animatedBlocks, int ticks)
     {
         final double stepSum = Util.clampAngleRad(step * ticks);
         final double cos = Math.cos(stepSum);
         final double sin = Math.sin(stepSum);
 
-        for (final IAnimatedBlock animatedBlock : animator.getAnimatedBlocks())
+        for (final IAnimatedBlock animatedBlock : animatedBlocks)
             animator.applyMovement(animatedBlock, getGoalPos(animatedBlock, cos, sin));
     }
 

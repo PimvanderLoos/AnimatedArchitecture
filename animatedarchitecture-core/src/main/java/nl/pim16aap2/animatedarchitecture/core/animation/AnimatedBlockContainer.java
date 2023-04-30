@@ -10,6 +10,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockFa
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,6 +36,9 @@ public class AnimatedBlockContainer implements IAnimatedBlockContainer
     @Getter
     @ToString.Include @EqualsAndHashCode.Include
     private final List<IAnimatedBlock> animatedBlocks;
+
+    @Getter
+    private volatile @Nullable AnimationRegion animationRegion;
 
     AnimatedBlockContainer(IAnimatedBlockFactory animatedBlockFactory, IExecutor executor)
     {
@@ -95,6 +99,10 @@ public class AnimatedBlockContainer implements IAnimatedBlockContainer
         }
 
         this.privateAnimatedBlocks.addAll(animatedBlocksTmp);
+
+        animationRegion = new AnimationRegion(
+            animatedBlocks, animationComponent::getRadius, animationComponent::getFinalPosition);
+
         return true;
     }
 
