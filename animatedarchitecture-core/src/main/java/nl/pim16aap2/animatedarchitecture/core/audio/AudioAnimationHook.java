@@ -71,8 +71,19 @@ public final class AudioAnimationHook implements IAnimationHook
     {
         if (audioDescription == null)
             return;
-        audioPlayer.playSound(position, animation.getStructureSnapshot().getWorld(), audioDescription.sound(),
-                              audioDescription.volume(), audioDescription.pitch());
+
+        final double range = 15;
+
+        audioPlayer.playSound(
+            position.x(),
+            position.y(),
+            position.z(),
+            animation.getStructureSnapshot().getWorld(),
+            audioDescription.sound(),
+            audioDescription.volume(),
+            audioDescription.pitch(),
+            range,
+            distance -> (range - distance) / range);
     }
 
     @Override

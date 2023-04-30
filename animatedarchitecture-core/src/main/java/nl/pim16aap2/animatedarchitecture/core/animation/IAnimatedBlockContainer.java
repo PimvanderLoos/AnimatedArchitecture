@@ -2,6 +2,7 @@ package nl.pim16aap2.animatedarchitecture.core.animation;
 
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -13,7 +14,7 @@ import java.util.List;
  * The most common example will be a manager that replaces existing blocks with animated blocks and places them in the
  * new location after the animation ends.
  */
-public interface IAnimationBlockManager
+public interface IAnimatedBlockContainer
 {
     /**
      * Attempts to create and spawn the animated blocks for the given input.
@@ -31,6 +32,13 @@ public interface IAnimationBlockManager
      * this will contain all the animated blocks that have been created up to the point that the problem occurred.
      */
     List<IAnimatedBlock> getAnimatedBlocks();
+
+    /**
+     * Getter for the animation region.
+     *
+     * @return The animation region.
+     */
+    @Nullable AnimationRegion getAnimationRegion();
 
     /**
      * Restores all spawned animated blocks to their original positions.

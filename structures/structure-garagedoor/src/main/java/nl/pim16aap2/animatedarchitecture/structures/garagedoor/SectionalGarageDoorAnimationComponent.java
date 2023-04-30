@@ -169,11 +169,11 @@ public final class SectionalGarageDoorAnimationComponent extends CounterWeightGa
     }
 
     @Override
-    public void executeAnimationStep(IAnimator animator, int ticks)
+    public void executeAnimationStep(IAnimator animator, Iterable<IAnimatedBlock> animatedBlocks, int ticks)
     {
         final double stepSum = step * ticks;
 
-        for (final IAnimatedBlock animatedBlock : animator.getAnimatedBlocks())
+        for (final IAnimatedBlock animatedBlock : animatedBlocks)
             animator.applyMovement(animatedBlock, getVector.apply(animatedBlock, stepSum));
     }
 }

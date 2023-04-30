@@ -9,7 +9,7 @@ import nl.pim16aap2.animatedarchitecture.spigot.v1_19_R3.BlockAnalyzer;
 import javax.inject.Singleton;
 
 @Module
-public interface AnimationBlockDisplayModule
+public interface AnimatedBlockDisplayModule
 {
     @Binds
     @Singleton

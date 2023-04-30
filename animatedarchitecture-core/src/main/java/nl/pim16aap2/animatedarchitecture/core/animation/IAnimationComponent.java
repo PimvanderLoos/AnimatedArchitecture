@@ -68,10 +68,12 @@ public interface IAnimationComponent
      *
      * @param animator
      *     The animator responsible for the animation.
+     * @param animatedBlocks
+     *     The animated blocks for which to execute the animation step.
      * @param ticks
      *     The number of ticks that have passed since the start of the animation.
      */
-    void executeAnimationStep(IAnimator animator, int ticks);
+    void executeAnimationStep(IAnimator animator, Iterable<IAnimatedBlock> animatedBlocks, int ticks);
 
     /**
      * Gets the radius of a block at the given coordinates.

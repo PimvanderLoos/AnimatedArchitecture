@@ -91,9 +91,9 @@ public final class FlagAnimationComponent implements IAnimationComponent
     }
 
     @Override
-    public void executeAnimationStep(IAnimator animator, int ticks)
+    public void executeAnimationStep(IAnimator animator, Iterable<IAnimatedBlock> animatedBlocks, int ticks)
     {
-        for (final IAnimatedBlock animatedBlock : animator.getAnimatedBlocks())
+        for (final IAnimatedBlock animatedBlock : animatedBlocks)
             animator.applyMovement(animatedBlock, getGoalPos.apply(animatedBlock, ticks));
     }
 

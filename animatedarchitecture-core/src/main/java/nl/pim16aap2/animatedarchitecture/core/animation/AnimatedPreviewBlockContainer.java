@@ -13,6 +13,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.factories.ILocationFactory;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,7 +26,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Flogger
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(onlyExplicitlyIncluded = true)
-public class AnimationPreviewBlockManager implements IAnimationBlockManager
+public class AnimatedPreviewBlockContainer implements IAnimatedBlockContainer
 {
     private final ILocationFactory locationFactory;
     private final HighlightedBlockSpawner glowingBlockSpawner;
@@ -43,7 +44,10 @@ public class AnimationPreviewBlockManager implements IAnimationBlockManager
     @ToString.Include @EqualsAndHashCode.Include
     private final List<IAnimatedBlock> animatedBlocks;
 
-    AnimationPreviewBlockManager(
+    @Getter
+    private volatile @Nullable AnimationRegion animationRegion;
+
+    AnimatedPreviewBlockContainer(
         ILocationFactory locationFactory, HighlightedBlockSpawner glowingBlockSpawner, IPlayer player)
     {
         this.locationFactory = locationFactory;
@@ -94,6 +98,10 @@ public class AnimationPreviewBlockManager implements IAnimationBlockManager
         }
 
         this.privateAnimatedBlocks.addAll(animatedBlocksTmp);
+
+        animationRegion = new AnimationRegion(
+            animatedBlocks, animationComponent::getRadius, animationComponent::getFinalPosition);
+
         return true;
     }
 

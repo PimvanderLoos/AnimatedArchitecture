@@ -42,7 +42,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetr
 import nl.pim16aap2.animatedarchitecture.core.util.updater.UpdateChecker;
 import nl.pim16aap2.animatedarchitecture.core.util.versioning.BuildDataReader;
 import nl.pim16aap2.animatedarchitecture.core.util.versioning.ProjectVersion;
-import nl.pim16aap2.animatedarchitecture.spigot.core.animation.AnimationBlockDisplayModule;
+import nl.pim16aap2.animatedarchitecture.spigot.core.animation.AnimatedBlockDisplayModule;
 import nl.pim16aap2.animatedarchitecture.spigot.core.comands.CommandManager;
 import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigotModule;
@@ -100,7 +100,7 @@ import javax.inject.Singleton;
     MessagingInterfaceSpigotModule.class,
     AudioPlayerSpigotModule.class,
     PowerBlockRedstoneManagerSpigotModule.class,
-    AnimationBlockDisplayModule.class,
+    AnimatedBlockDisplayModule.class,
     HighlightedBlockSpawnerModule.class,
     SQLiteStorageModule.class,
     DebugReporterSpigotModule.class,

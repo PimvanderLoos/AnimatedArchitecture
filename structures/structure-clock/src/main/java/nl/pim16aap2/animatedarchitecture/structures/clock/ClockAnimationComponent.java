@@ -91,13 +91,13 @@ public final class ClockAnimationComponent extends DrawbridgeAnimationComponent
     }
 
     @Override
-    public void executeAnimationStep(IAnimator animator, int ticks)
+    public void executeAnimationStep(IAnimator animator, Iterable<IAnimatedBlock> animatedBlocks, int ticks)
     {
         final WorldTime worldTime = snapshot.getWorld().getTime();
         final double hourAngle = angleDirectionMultiplier * hoursToAngle(worldTime.getHours(), worldTime.getMinutes());
         final double minuteAngle = angleDirectionMultiplier * minutesToAngle(worldTime.getMinutes());
 
-        for (final IAnimatedBlock animatedBlock : animator.getAnimatedBlocks())
+        for (final IAnimatedBlock animatedBlock : animatedBlocks)
         {
             final double timeAngle = isHourArm.test(animatedBlock) ? hourAngle : minuteAngle;
             animator.applyMovement(animatedBlock, getGoalPos(timeAngle, animatedBlock));

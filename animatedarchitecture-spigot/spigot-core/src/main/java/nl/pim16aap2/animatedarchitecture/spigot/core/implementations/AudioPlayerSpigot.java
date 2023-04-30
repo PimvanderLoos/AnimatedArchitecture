@@ -1,12 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.implementations;
 
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
-import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.audio.IAudioPlayer;
-import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
-import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
-import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -16,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.function.DoubleUnaryOperator;
 
 /**
  * Represents an implementation of {@link IAudioPlayer} for the Spigot platform.
@@ -25,6 +22,7 @@ import javax.inject.Singleton;
 @Singleton
 public class AudioPlayerSpigot implements IAudioPlayer
 {
+
     private final IExecutor executor;
 
     @Inject
@@ -34,48 +32,51 @@ public class AudioPlayerSpigot implements IAudioPlayer
     }
 
     @Override
-    public void playSound(ILocation loc, String sound, float volume, float pitch)
+    public void playSound(
+        double x, double y, double z, IWorld world, String sound, float volume, float pitch, double range,
+        @Nullable DoubleUnaryOperator attenuationFunction)
     {
-        playSound(SpigotAdapter.getBukkitLocation(loc), sound, volume, pitch);
+        playSound(
+            new Location(Bukkit.getWorld(world.worldName()), x, y, z),
+            sound, volume, pitch, range, attenuationFunction);
     }
 
-    @Override
-    public void playSound(Vector3Di pos, IWorld world, String sound, float volume, float pitch)
-    {
-        playSound(new Location(Bukkit.getWorld(world.worldName()), pos.x(), pos.y(), pos.z()), sound, volume, pitch);
-    }
-
-    @Override
-    public void playSound(Vector3Dd pos, IWorld world, String sound, float volume, float pitch)
-    {
-        playSound(new Location(Bukkit.getWorld(world.worldName()), pos.x(), pos.y(), pos.z()), sound, volume, pitch);
-    }
-
-    @Override
-    public void playSound(double x, double y, double z, IWorld world, String sound, float volume, float pitch)
-    {
-        playSound(new Location(Bukkit.getWorld(world.worldName()), x, y, z), sound, volume, pitch);
-    }
-
-    /**
-     * Play a sound for all players in a range of 15 blocks around the provided location.
-     */
-    private void playSound(Location loc, String sound, float volume, float pitch)
+    private void playSound(
+        Location loc,
+        String sound,
+        float volume,
+        float pitch,
+        double range,
+        @Nullable DoubleUnaryOperator attenuationFunction)
     {
         final @Nullable World world = loc.getWorld();
         if (world == null)
             return;
 
-        if (executor.isMainThread())
-            playSound(loc, world, sound, volume, pitch, 15);
-        else
-            executor.scheduleOnMainThread(() -> playSound(loc, world, sound, volume, pitch, 15));
+        executor.runOnMainThread(() -> playSound(loc, world, sound, volume, pitch, range, attenuationFunction));
     }
 
-    private void playSound(Location loc, World world, String sound, float volume, float pitch, int range)
+    private void playSound(
+        Location loc, World world, String sound, float volume, float pitch, double range,
+        @Nullable DoubleUnaryOperator attenuationFunction)
     {
-        for (final Entity ent : world.getNearbyEntities(loc, range, range, range))
+        for (final Entity ent : world.getNearbyEntities(loc, range, range, range, e -> e instanceof Player))
             if (ent instanceof Player player)
-                player.playSound(loc, sound, volume, pitch);
+                playSound(player, loc, sound, volume, pitch, attenuationFunction);
+    }
+
+    private void playSound(
+        Player player, Location loc, String sound, float volume, float pitch,
+        @Nullable DoubleUnaryOperator attenuationFunction)
+    {
+        final double distance = player.getLocation().distance(loc);
+        if (distance > AUDIO_RANGE)
+            return;
+
+        float attenuatedVolume = volume;
+        if (attenuationFunction != null)
+            attenuatedVolume *= attenuationFunction.applyAsDouble(distance);
+
+        player.playSound(loc, sound, attenuatedVolume, pitch);
     }
 }

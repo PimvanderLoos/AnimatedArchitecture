@@ -16,7 +16,6 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes.IPerpetualMover;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
-import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -78,7 +77,7 @@ public final class Animator implements IAnimator
      */
     private final IAnimationComponent animationComponent;
 
-    private final IAnimationBlockManager animationBlockManager;
+    private final IAnimatedBlockContainer animatedBlockContainer;
 
     /**
      * What caused the structure to be moved.
@@ -180,12 +179,12 @@ public final class Animator implements IAnimator
      *     The data of the movement request.
      * @param animationComponent
      *     The animation component to use for the animation. This determines the type of animation.
-     * @param animationBlockManager
+     * @param animatedBlockContainer
      *     The manager of the animated blocks. This is responsible for handling the lifecycle of the animated blocks.
      */
     public Animator(
         AbstractStructure structure, AnimationRequestData data, IAnimationComponent animationComponent,
-        IAnimationBlockManager animationBlockManager)
+        IAnimatedBlockContainer animatedBlockContainer)
     {
         executor = data.getExecutor();
         structureActivityManager = data.getStructureActivityManager();
@@ -198,7 +197,7 @@ public final class Animator implements IAnimator
         this.skipAnimation = data.isAnimationSkipped();
         this.player = data.getResponsible();
         this.animationComponent = animationComponent;
-        this.animationBlockManager = animationBlockManager;
+        this.animatedBlockContainer = animatedBlockContainer;
         this.newCuboid = data.getNewCuboid();
         this.oldCuboid = snapshot.getCuboid();
         this.cause = data.getCause();
@@ -243,7 +242,7 @@ public final class Animator implements IAnimator
     @Override
     public List<IAnimatedBlock> getAnimatedBlocks()
     {
-        return animationBlockManager.getAnimatedBlocks();
+        return animatedBlockContainer.getAnimatedBlocks();
     }
 
     /**
@@ -289,11 +288,11 @@ public final class Animator implements IAnimator
 
         final Animation<IAnimatedBlock> animation = new Animation<>(
             animationDuration, perpetualMovement, oldCuboid, getAnimatedBlocks(),
-            snapshot, structure.getType(), animationType);
+            snapshot, structure.getType(), animationType, player);
 
         this.animationData = animation;
 
-        if (!animationBlockManager.createAnimatedBlocks(snapshot, animationComponent))
+        if (!animatedBlockContainer.createAnimatedBlocks(snapshot, animationComponent))
         {
             handleInitFailure();
             return;
@@ -324,14 +323,21 @@ public final class Animator implements IAnimator
             return;
         }
 
-        animationBlockManager.restoreBlocksOnFailure();
+        animatedBlockContainer.restoreBlocksOnFailure();
         structureActivityManager.processFinishedAnimation(this);
     }
 
     private void executeAnimationStep(int counter, Animation<IAnimatedBlock> animation)
     {
-        animationComponent.executeAnimationStep(this, counter);
-        animation.setRegion(getAnimationRegion());
+        animationComponent.executeAnimationStep(this, this.getAnimatedBlocks(), counter);
+
+        final var animationRegion = this.animatedBlockContainer.getAnimationRegion();
+        if (animationRegion != null)
+        {
+            animationComponent.executeAnimationStep(this, animationRegion.getMarkerBlocks(), counter);
+            animation.setRegion(animationRegion.getRegion());
+        }
+
         animation.setState(AnimationState.ACTIVE);
     }
 
@@ -341,12 +347,23 @@ public final class Animator implements IAnimator
         animatedBlock.moveToTarget(targetPosition);
     }
 
+    private void executeFinishingStep(List<IAnimatedBlock> animatedBlocks)
+    {
+        for (final IAnimatedBlock animatedBlock : animatedBlocks)
+            applyMovement(animatedBlock, animatedBlock.getFinalPosition());
+    }
+
     private void executeFinishingStep(Animation<IAnimatedBlock> animation)
     {
-        for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
-            applyMovement(animatedBlock, animatedBlock.getFinalPosition());
+        executeFinishingStep(animation.getAnimatedBlocks());
 
-        animation.setRegion(getAnimationRegion());
+        final @Nullable var animationRegion = this.animatedBlockContainer.getAnimationRegion();
+        if (animationRegion != null)
+        {
+            executeFinishingStep(animationRegion.getMarkerBlocks());
+            animation.setRegion(animationRegion.getRegion());
+        }
+
         animation.setState(AnimationState.FINISHING);
     }
 
@@ -358,7 +375,9 @@ public final class Animator implements IAnimator
     {
         if (animation != null)
         {
-            animation.setRegion(getAnimationRegion());
+            final @Nullable var animationRegion = this.animatedBlockContainer.getAnimationRegion();
+            if (animationRegion != null)
+                animation.setRegion(animationRegion.getRegion());
             animation.setState(AnimationState.STOPPING);
         }
 
@@ -482,7 +501,7 @@ public final class Animator implements IAnimator
         // world to place the blocks in their final position.
         // However, updating the coordinates of the structure is best left to another thread, as it may block the
         // calling thread while it waits to acquire the write lock.
-        executor.runOnMainThreadWithResponse(animationBlockManager::handleAnimationCompletion)
+        executor.runOnMainThreadWithResponse(animatedBlockContainer::handleAnimationCompletion)
                 .thenRunAsync(
                     () ->
                     {
@@ -515,37 +534,6 @@ public final class Animator implements IAnimator
     public long getStructureUID()
     {
         return snapshot.getUid();
-    }
-
-    private Cuboid getAnimationRegion()
-    {
-        double xMin = Double.MAX_VALUE;
-        double yMin = Double.MAX_VALUE;
-        double zMin = Double.MAX_VALUE;
-
-        double xMax = Double.MIN_VALUE;
-        double yMax = Double.MIN_VALUE;
-        double zMax = Double.MIN_VALUE;
-
-        for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
-        {
-            final Vector3Dd pos = animatedBlock.getPosition();
-            if (pos.x() < xMin)
-                xMin = pos.x();
-            else if (pos.x() > xMax)
-                xMax = pos.x();
-
-            if (pos.y() < yMin)
-                yMin = pos.y();
-            else if (pos.y() > yMax)
-                yMax = pos.y();
-
-            if (pos.z() < zMin)
-                zMin = pos.z();
-            else if (pos.z() > zMax)
-                zMax = pos.z();
-        }
-        return Cuboid.of(new Vector3Dd(xMin, yMin, zMin), new Vector3Dd(xMax, yMax, zMax), Cuboid.RoundingMode.OUTWARD);
     }
 
     private void forEachHook(String actionName, Consumer<IAnimationHook> call)
