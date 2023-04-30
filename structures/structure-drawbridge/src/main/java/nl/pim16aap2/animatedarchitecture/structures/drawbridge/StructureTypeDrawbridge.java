@@ -20,7 +20,7 @@ public final class StructureTypeDrawbridge extends StructureType
     private static final StructureTypeDrawbridge INSTANCE = new StructureTypeDrawbridge();
 
     private static final AudioSet AUDIO_SET = new AudioSet(
-        new AudioDescription("bd.drawbridge-rattling", 0.8f, 0.7f, 750),
+        new AudioDescription("bd.drawbridge-rattling", 0.8f, 0.7f, 800),
         new AudioDescription("bd.closing-vault-door", 0.2f, 0.15f, 750));
 
     private StructureTypeDrawbridge()
