@@ -60,5 +60,5 @@ public final class Constants
     /**
      * The amount of time (in milliseconds) a user has to complete the structure creation process.
      */
-    public static final int STRUCTURE_CREATOR_TIME_LIMIT = 180_000; // 3 minutes
+    public static final int STRUCTURE_CREATOR_TIME_LIMIT = 900_000; // 15 minutes
 }
