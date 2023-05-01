@@ -3,6 +3,7 @@ package nl.pim16aap2.animatedarchitecture.spigot.core.gui;
 import de.themoep.inventorygui.GuiElement;
 import de.themoep.inventorygui.GuiStateElement;
 import de.themoep.inventorygui.StaticGuiElement;
+import nl.pim16aap2.animatedarchitecture.core.animation.AnimationType;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
@@ -98,6 +99,27 @@ class AttributeButtonFactory
                 return true;
             },
             localizer.getMessage("gui.info_page.attribute.toggle",
+                                 localizer.getMessage(structure.getType().getLocalizationKey()))
+        );
+    }
+
+    private GuiElement previewButton(AbstractStructure structure, PlayerSpigot player, char slotChar)
+    {
+        return new StaticGuiElement(
+            slotChar,
+            new ItemStack(Material.ENDER_EYE),
+            click ->
+            {
+                commandFactory.newToggle(
+                    player,
+                    Toggle.DEFAULT_STRUCTURE_ACTION_TYPE,
+                    AnimationType.PREVIEW,
+                    config.getAnimationTimeMultiplier(structure.getType()),
+                    true,
+                    structureRetrieverFactory.of(structure)).run().exceptionally(Util::exceptionally);
+                return true;
+            },
+            localizer.getMessage("gui.info_page.attribute.preview",
                                  localizer.getMessage(structure.getType().getLocalizationKey()))
         );
     }
@@ -284,17 +306,18 @@ class AttributeButtonFactory
     {
         return switch (attribute)
         {
-            case LOCK -> this.lockButton(structure, player, slotChar);
-            case TOGGLE -> this.toggleButton(structure, player, slotChar);
-            case SWITCH -> throw new UnsupportedOperationException("Switch attribute has not been implemented yet.");
-            case INFO -> this.infoButton(structure, player, slotChar);
-            case DELETE -> this.deleteButton(structure, player, slotChar);
-            case RELOCATE_POWERBLOCK -> this.relocatePowerBlockButton(structure, player, slotChar);
-            case OPEN_STATUS -> this.openStatusButton(structure, player, slotChar);
-            case OPEN_DIRECTION -> this.openDirectionButton(structure, player, slotChar);
-            case BLOCKS_TO_MOVE -> this.blocksToMoveButton(structure, player, slotChar);
             case ADD_OWNER -> this.addOwnerButton(structure, player, slotChar);
+            case BLOCKS_TO_MOVE -> this.blocksToMoveButton(structure, player, slotChar);
+            case DELETE -> this.deleteButton(structure, player, slotChar);
+            case INFO -> this.infoButton(structure, player, slotChar);
+            case LOCK -> this.lockButton(structure, player, slotChar);
+            case OPEN_DIRECTION -> this.openDirectionButton(structure, player, slotChar);
+            case OPEN_STATUS -> this.openStatusButton(structure, player, slotChar);
+            case PREVIEW -> this.previewButton(structure, player, slotChar);
+            case RELOCATE_POWERBLOCK -> this.relocatePowerBlockButton(structure, player, slotChar);
             case REMOVE_OWNER -> this.removeOwnerButton(structure, player, slotChar);
+            case SWITCH -> throw new UnsupportedOperationException("Switch attribute has not been implemented yet.");
+            case TOGGLE -> this.toggleButton(structure, player, slotChar);
         };
     }
 }
