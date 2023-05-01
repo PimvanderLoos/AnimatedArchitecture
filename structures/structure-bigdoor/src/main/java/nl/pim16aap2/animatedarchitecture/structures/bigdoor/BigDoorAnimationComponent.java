@@ -24,7 +24,7 @@ public class BigDoorAnimationComponent implements IAnimationComponent
     private final MovementDirection movementDirection;
     private final StructureSnapshot snapshot;
     private final Vector3Dd rotationCenter;
-    private final double angle;
+    private final double resultAngle;
     private final double step;
     private final int quarterCircles;
 
@@ -34,11 +34,11 @@ public class BigDoorAnimationComponent implements IAnimationComponent
         this.movementDirection = movementDirection;
         this.quarterCircles = quarterCircles;
 
-        angle = movementDirection == MovementDirection.CLOCKWISE ? quarterCircles * MathUtil.HALF_PI :
-                movementDirection == MovementDirection.COUNTERCLOCKWISE ? quarterCircles * -MathUtil.HALF_PI :
-                0.0D;
+        resultAngle = movementDirection == MovementDirection.CLOCKWISE ? quarterCircles * MathUtil.HALF_PI :
+                      movementDirection == MovementDirection.COUNTERCLOCKWISE ? quarterCircles * -MathUtil.HALF_PI :
+                      0.0D;
 
-        if (angle == 0.0D)
+        if (resultAngle == 0.0D)
             log.atSevere()
                .log("Invalid open direction '%s' for structure: %d", movementDirection.name(), snapshot.getUid());
 
@@ -50,13 +50,13 @@ public class BigDoorAnimationComponent implements IAnimationComponent
         final int animationDuration =
             AnimationUtil.getAnimationTicks(data.getAnimationTime(), data.getServerTickTime());
 
-        this.step = this.angle / animationDuration;
+        this.step = this.resultAngle / animationDuration;
     }
 
     @Override
     public RotatedPosition getFinalPosition(int xAxis, int yAxis, int zAxis)
     {
-        return getGoalPos(Util.clampAngleRad(angle), xAxis, yAxis, zAxis);
+        return getGoalPos(Util.clampAngleRad(resultAngle), xAxis, yAxis, zAxis);
     }
 
     @Override
@@ -68,15 +68,19 @@ public class BigDoorAnimationComponent implements IAnimationComponent
     @Override
     public void executeAnimationStep(IAnimator animator, Iterable<IAnimatedBlock> animatedBlocks, int ticks)
     {
-        final double stepSum = Util.clampAngleRad(step * ticks);
-        final double cos = Math.cos(stepSum);
-        final double sin = Math.sin(stepSum);
+        final double angle = Util.clampAngleRad(step * ticks);
+        final double cos = Math.cos(angle);
+        final double sin = Math.sin(angle);
+        final Vector3Dd localRotation = getGoalRotation(angle);
 
         for (final IAnimatedBlock animatedBlock : animatedBlocks)
-            animator.applyMovement(animatedBlock, getGoalPos(animatedBlock, cos, sin));
+            animator.applyMovement(animatedBlock, getGoalPos(animatedBlock, localRotation, angle, cos, sin));
     }
 
-    private RotatedPosition getGoalPos(double cos, double sin, double startX, double startY, double startZ)
+    private RotatedPosition getGoalPos(
+        @Nullable Vector3Dd localRotation,
+        double angle, double cos, double sin,
+        double startX, double startY, double startZ)
     {
         final double translatedX = startX - rotationCenter.x();
         final double translatedZ = startZ - rotationCenter.z();
@@ -85,26 +89,28 @@ public class BigDoorAnimationComponent implements IAnimationComponent
         final double changeZ = translatedX * sin + translatedZ * cos;
 
         final Vector3Dd goalPos = new Vector3Dd(rotationCenter.x() + changeX, startY, rotationCenter.z() + changeZ);
-        final Vector3Dd goalRotation = getGoalRotation(goalPos);
+        final Vector3Dd goalRot = localRotation != null ? localRotation : getGoalRotation(angle);
 
-        return new RotatedPosition(goalPos, goalRotation);
+        return new RotatedPosition(goalPos, goalRot);
     }
 
-    private Vector3Dd getGoalRotation(Vector3Dd goalPos)
+    private Vector3Dd getGoalRotation(double angle)
     {
-        final double yaw =
-            -Math.atan2(rotationCenter.x() - goalPos.x(), rotationCenter.z() - goalPos.z()) + MathUtil.HALF_PI;
-        return new Vector3Dd(0, 0, -Math.toDegrees(yaw));
+        final double yaw = -Math.toDegrees(angle + MathUtil.HALF_PI);
+        return new Vector3Dd(0, 0, yaw);
     }
 
     private RotatedPosition getGoalPos(double angle, double startX, double startY, double startZ)
     {
-        return getGoalPos(Math.cos(angle), Math.sin(angle), startX, startY, startZ);
+        return getGoalPos(null, angle, Math.cos(angle), Math.sin(angle), startX, startY, startZ);
     }
 
-    private RotatedPosition getGoalPos(IAnimatedBlock animatedBlock, double cos, double sin)
+    private RotatedPosition getGoalPos(
+        IAnimatedBlock animatedBlock, @Nullable Vector3Dd localRotation, double angle, double cos, double sin)
     {
-        return getGoalPos(cos, sin, animatedBlock.getStartX(), animatedBlock.getStartY(), animatedBlock.getStartZ());
+        return getGoalPos(
+            localRotation, angle, cos, sin,
+            animatedBlock.getStartX(), animatedBlock.getStartY(), animatedBlock.getStartZ());
     }
 
     static float getRadius(IVector3D rotationPoint, int xAxis, int zAxis)
