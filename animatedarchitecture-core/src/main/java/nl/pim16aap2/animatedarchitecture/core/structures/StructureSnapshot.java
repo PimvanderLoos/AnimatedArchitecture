@@ -43,6 +43,9 @@ public final class StructureSnapshot implements IStructureConst
     private final Map<UUID, StructureOwner> owners;
     private final StructureType type;
 
+    @Getter(AccessLevel.NONE)
+    private final Map<String, Object> propertyMap;
+
     StructureSnapshot(AbstractStructure structure)
     {
         this(
@@ -58,7 +61,8 @@ public final class StructureSnapshot implements IStructureConst
             structure.isLocked(),
             structure.getPrimeOwner(),
             Map.copyOf(structure.getOwnersView()),
-            structure.getType()
+            structure.getType(),
+            getPropertyMap(structure)
         );
     }
 
@@ -91,5 +95,31 @@ public final class StructureSnapshot implements IStructureConst
     public StructureSnapshot getSnapshot()
     {
         return this;
+    }
+
+    /**
+     * Gets the value of a property of this structure.
+     * <p>
+     * This can be used to retrieve type-specific properties of a structure.
+     *
+     * @param key
+     *     The key of the property.
+     * @return The value of the property, or {@link Optional#empty()} if the property does not exist.
+     */
+    public Optional<Object> getProperty(String key)
+    {
+        return Optional.ofNullable(propertyMap.get(key));
+    }
+
+    private static Map<String, Object> getPropertyMap(AbstractStructure structure)
+    {
+        try
+        {
+            return structure.getType().getStructureSerializer().getPropertyMap(structure);
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 }
