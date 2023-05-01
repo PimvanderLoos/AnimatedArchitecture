@@ -100,7 +100,7 @@ public final class ClockAnimationComponent extends DrawbridgeAnimationComponent
         for (final IAnimatedBlock animatedBlock : animatedBlocks)
         {
             final double timeAngle = isHourArm.test(animatedBlock) ? hourAngle : minuteAngle;
-            animator.applyMovement(animatedBlock, getGoalPos(timeAngle, animatedBlock));
+            animator.applyMovement(animatedBlock, getGoalPos(null, timeAngle, animatedBlock));
         }
     }
 
