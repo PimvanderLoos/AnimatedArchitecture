@@ -16,19 +16,15 @@ import java.util.Locale;
 public enum StructureAttribute
 {
     /**
-     * Add an owner.
+     * Toggle the structure. If it is currently opened, it will be closed. If it is currently closed, it will be opened
+     * instead.
      */
-    ADD_OWNER(PermissionLevel.ADMIN),
+    TOGGLE(PermissionLevel.USER),
 
     /**
-     * The number of blocks an animated will try to move.
+     * Show a preview of the animation.
      */
-    BLOCKS_TO_MOVE(PermissionLevel.ADMIN),
-
-    /**
-     * Delete the structure.
-     */
-    DELETE(PermissionLevel.CREATOR),
+    PREVIEW(PermissionLevel.USER),
 
     /**
      * Get the info of the structure.
@@ -41,6 +37,26 @@ public enum StructureAttribute
     LOCK(PermissionLevel.USER),
 
     /**
+     * Delete the structure.
+     */
+    DELETE(PermissionLevel.CREATOR),
+
+    /**
+     * Add an owner.
+     */
+    ADD_OWNER(PermissionLevel.ADMIN),
+
+    /**
+     * Remove an owner.
+     */
+    REMOVE_OWNER(PermissionLevel.ADMIN),
+
+    /**
+     * The number of blocks an animated will try to move.
+     */
+    BLOCKS_TO_MOVE(PermissionLevel.ADMIN),
+
+    /**
      * The open direction of a structure.
      */
     OPEN_DIRECTION(PermissionLevel.USER),
@@ -51,31 +67,15 @@ public enum StructureAttribute
     OPEN_STATUS(PermissionLevel.USER),
 
     /**
-     * Show a preview of the animation.
-     */
-    PREVIEW(PermissionLevel.USER),
-
-    /**
      * Relocate the power block.
      */
     RELOCATE_POWERBLOCK(PermissionLevel.ADMIN),
 
     /**
-     * Remove an owner.
-     */
-    REMOVE_OWNER(PermissionLevel.ADMIN),
-
-    /**
      * Turns a structure on or off. When on, the structure will rotate until turned off or until the chunks are
      * unloaded.
      */
-    SWITCH(PermissionLevel.USER),
-
-    /**
-     * Toggle the structure. If it is currently opened, it will be closed. If it is currently closed, it will be opened
-     * instead.
-     */
-    TOGGLE(PermissionLevel.USER);
+    SWITCH(PermissionLevel.USER);
 
     private static final List<StructureAttribute> VALUES = Arrays.asList(values());
 
