@@ -22,7 +22,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -268,28 +267,6 @@ public abstract class AbstractStructure implements IStructureConst
      * @return The direction the structure would go if it were to be toggled.
      */
     public abstract MovementDirection getCurrentToggleDir();
-
-    /**
-     * Cycle the {@link MovementDirection} direction this {@link AbstractStructure} will open in. By default, it will
-     * loop over all valid directions. See {@link StructureType#getValidOpenDirectionsList()}. However, subclasses may
-     * override this behavior.
-     * <p>
-     * Note that this does not actually change the open direction; it merely tells you which direction comes next!
-     *
-     * @return The new {@link MovementDirection} direction this {@link AbstractStructure} will open in.
-     */
-    @Locked.Read
-    public MovementDirection getCycledOpenDirection()
-    {
-        final List<MovementDirection> validOpenDirections = getType().getValidOpenDirectionsList();
-        final MovementDirection currentDir = getOpenDir();
-
-        if (validOpenDirections.size() <= 1)
-            return currentDir;
-
-        final int index = Math.max(0, validOpenDirections.indexOf(currentDir));
-        return validOpenDirections.get((index + 1) % validOpenDirections.size());
-    }
 
     /**
      * @param data

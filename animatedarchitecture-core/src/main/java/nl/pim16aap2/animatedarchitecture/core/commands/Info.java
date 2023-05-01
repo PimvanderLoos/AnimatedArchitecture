@@ -12,11 +12,11 @@ import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
-import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 
 import java.time.Duration;
@@ -53,46 +53,121 @@ public class Info extends StructureTargetCommand
     @Override
     protected CompletableFuture<?> performAction(AbstractStructure structure)
     {
-        sendInfoMessage(structure);
-        highlightBlocks(structure);
+        final StructureSnapshot snapshot = structure.getSnapshot();
+        try
+        {
+            sendInfoMessage(snapshot);
+        }
+        catch (Exception e)
+        {
+            log.atSevere().withCause(e).log("Failed to send info message to command sender: %s", getCommandSender());
+        }
+        try
+        {
+            highlightBlocks(snapshot);
+        }
+        catch (Exception e)
+        {
+            log.atSevere().withCause(e).log("Failed to highlight blocks for command sender: %s", getCommandSender());
+        }
         return CompletableFuture.completedFuture(null);
     }
 
-    protected void sendInfoMessage(AbstractStructure structure)
+    private void decorateHeader(StructureSnapshot structure, Text text)
     {
-        final Cuboid cuboid = structure.getCuboid();
-        final Vector3Di min = cuboid.getMin();
-        final Vector3Di max = cuboid.getMax();
+        text.append(
+                localizer.getMessage("commands.info.output.header"), TextType.INFO,
+                arg -> arg.highlight(localizer.getStructureType(structure)),
+                arg -> arg.highlight(structure.getNameAndUid()))
+            .append('\n');
+    }
 
+    private void decorateLocation(StructureSnapshot structure, Text text)
+    {
+        final Vector3Di min = structure.getMinimum();
+        final Vector3Di max = structure.getMaximum();
+        text.append(
+                localizer.getMessage("commands.info.output.location"), TextType.INFO,
+                arg -> arg.highlight(String.format("%d %d %d", min.x(), min.y(), min.z())),
+                arg -> arg.highlight(String.format("%d %d %d", max.x(), max.y(), max.z())))
+            .append('\n');
+    }
+
+    private void decorateOpenStatus(StructureSnapshot structure, Text text)
+    {
+        final String localizedOpenStatus =
+            localizer.getMessage(structure.isOpen() ? "constants.open_status.open" : "constants.open_status.closed");
+        final String oppositeLocalizedOpenStatus =
+            localizer.getMessage(structure.isOpen() ? "constants.open_status.closed" : "constants.open_status.open");
+
+        final var openStatusArgument =
+            text.getTextArgumentFactory().clickable(
+                localizedOpenStatus,
+                String.format(
+                    "/animatedarchitecture setopenstatus %s %d true", oppositeLocalizedOpenStatus, structure.getUid()));
+
+        text.append(localizer.getMessage("commands.info.output.open_status"), TextType.INFO, openStatusArgument)
+            .append('\n');
+    }
+
+    private void decorateOpenDirection(StructureSnapshot structure, Text text)
+    {
+        final var argument = text.getTextArgumentFactory().clickable(
+            localizer.getMessage(structure.getOpenDir().getLocalizationKey()),
+            String.format(
+                "/animatedarchitecture setopendirection %s %d true",
+                localizer.getMessage(structure.getCycledOpenDirection().getLocalizationKey()), structure.getUid()));
+
+        text.append(localizer.getMessage("commands.info.output.open_direction"), TextType.INFO, argument).append('\n');
+    }
+
+    private void decorateLockedStatus(StructureSnapshot structure, Text text)
+    {
+        final String localizationKey =
+            structure.isLocked() ? "constants.locked_status.locked" : "constants.locked_status.unlocked";
+
+        final var argument = text.getTextArgumentFactory().clickable(
+            localizer.getMessage(localizationKey),
+            String.format(
+                "/animatedarchitecture lock %s %d true",
+                !structure.isLocked(), structure.getUid()));
+
+        text.append(localizer.getMessage("commands.info.output.locked_status"), TextType.INFO, argument).append('\n');
+    }
+
+    private void decorateBlocksToMove(StructureSnapshot structure, Text text)
+    {
+        structure.getProperty("blocksToMove").ifPresent(
+            blocksToMove ->
+                text.append(
+                    localizer.getMessage("commands.info.output.blocks_to_move"), TextType.INFO,
+                    arg -> arg.highlight(blocksToMove)).append('\n'));
+    }
+
+    private void decoratePowerBlock(StructureSnapshot structure, Text text)
+    {
+        final Vector3Di loc = structure.getPowerBlock();
+        text.append(
+            localizer.getMessage("commands.info.output.power_block_location"), TextType.INFO,
+            arg -> arg.highlight(String.format("%d %d %d", loc.x(), loc.y(), loc.z()))).append('\n');
+    }
+
+    protected void sendInfoMessage(StructureSnapshot structure)
+    {
         final Text output = textFactory.newText();
 
-        // TODO: Localization
-        output.append(localizer.getStructureType(structure.getType()), TextType.HIGHLIGHT)
-              .append(" '", TextType.INFO).append(structure.getNameAndUid(), TextType.HIGHLIGHT)
-              .append("' at [", TextType.INFO)
-              .append(String.format("%d %d %d", min.x(), min.y(), min.z()), TextType.HIGHLIGHT)
-              .append(" ; ", TextType.INFO)
-              .append(String.format("%d %d %d", max.x(), max.y(), max.z()), TextType.HIGHLIGHT)
-              .append("]\n", TextType.INFO)
-
-              .append("It is currently ", TextType.INFO)
-              .append(localizer.getMessage(structure.isOpen() ?
-                                           "constants.open_status.open" : "constants.open_status.closed"))
-              .append('\n')
-
-              .append("Its open direction is: ", TextType.INFO)
-              .append(localizer.getMessage(structure.getOpenDir().getLocalizationKey()), TextType.HIGHLIGHT)
-              .append('\n')
-
-              .append("It is ", TextType.INFO)
-              .append(localizer.getMessage(structure.isLocked() ?
-                                           "constants.locked_status.locked" : "constants.locked_status.unlocked"));
-
+        decorateHeader(structure, output);
+        decorateLocation(structure, output);
+        decorateOpenStatus(structure, output);
+        decorateOpenDirection(structure, output);
+        decorateLockedStatus(structure, output);
+        decorateBlocksToMove(structure, output);
+        decoratePowerBlock(structure, output);
 
         getCommandSender().sendMessage(output);
     }
 
-    protected void highlightBlocks(AbstractStructure structure)
+    protected void highlightBlocks(StructureSnapshot structure)
     {
         if (!(getCommandSender() instanceof IPlayer player))
         {

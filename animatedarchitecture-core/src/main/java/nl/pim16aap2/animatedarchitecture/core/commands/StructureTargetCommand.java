@@ -11,8 +11,10 @@ import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
+import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -27,6 +29,10 @@ import java.util.concurrent.TimeUnit;
 @Flogger
 public abstract class StructureTargetCommand extends BaseCommand
 {
+    private final boolean sendUpdatedInfo;
+
+    private final @Nullable CommandFactory commandFactory;
+
     @Getter
     protected final StructureRetriever structureRetriever;
 
@@ -45,6 +51,27 @@ public abstract class StructureTargetCommand extends BaseCommand
     @Setter(onMethod_ = @Locked.Write)
     private @Nullable AbstractStructure retrieverResult;
 
+    @Contract("_, _, _, _, _, true, null -> fail")
+    protected StructureTargetCommand(
+        ICommandSender commandSender,
+        ILocalizer localizer,
+        ITextFactory textFactory,
+        StructureRetriever structureRetriever,
+        StructureAttribute structureAttribute,
+        boolean sendUpdatedInfo,
+        @Nullable CommandFactory commandFactory)
+    {
+        super(commandSender, localizer, textFactory);
+
+        if (sendUpdatedInfo && commandFactory == null)
+            throw new IllegalArgumentException("Command factory cannot be null if sendUpdatedInfo is true.");
+
+        this.sendUpdatedInfo = sendUpdatedInfo;
+        this.commandFactory = commandFactory;
+        this.structureRetriever = structureRetriever;
+        this.structureAttribute = structureAttribute;
+    }
+
     protected StructureTargetCommand(
         ICommandSender commandSender,
         ILocalizer localizer,
@@ -52,9 +79,7 @@ public abstract class StructureTargetCommand extends BaseCommand
         StructureRetriever structureRetriever,
         StructureAttribute structureAttribute)
     {
-        super(commandSender, localizer, textFactory);
-        this.structureRetriever = structureRetriever;
-        this.structureAttribute = structureAttribute;
+        this(commandSender, localizer, textFactory, structureRetriever, structureAttribute, false, null);
     }
 
     @Override
@@ -68,6 +93,21 @@ public abstract class StructureTargetCommand extends BaseCommand
                        })
             .thenAcceptAsync(structure -> processStructureResult(structure, permissions))
             .exceptionally(Util::exceptionally);
+    }
+
+    /**
+     * Sends the updated info of the structure to the {@link ICommandSender}.
+     * <p>
+     * Only applies if {@link #sendUpdatedInfo} is true.
+     *
+     * @param structure
+     *     The structure to send the updated info of.
+     */
+    protected void sendUpdatedInfo(AbstractStructure structure)
+    {
+        if (sendUpdatedInfo)
+            Util.requireNonNull(commandFactory, "CommandFactor")
+                .newInfo(getCommandSender(), StructureRetrieverFactory.ofStructure(structure)).run().join();
     }
 
     /**

@@ -7,6 +7,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IProtectionHookManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
@@ -22,6 +23,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 class PowerBlockRelocatorTest
 {
@@ -54,6 +56,8 @@ class PowerBlockRelocatorTest
 
         Mockito.when(structure.getWorld()).thenReturn(world);
         Mockito.when(structure.getPowerBlock()).thenReturn(currentPowerBlockLoc);
+        Mockito.when(structure.syncData())
+               .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
 
         final StructureType structureTypeType = Mockito.mock(StructureType.class);
         Mockito.when(structure.getType()).thenReturn(structureTypeType);

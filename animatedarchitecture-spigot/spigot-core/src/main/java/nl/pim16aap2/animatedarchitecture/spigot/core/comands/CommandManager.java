@@ -2,6 +2,7 @@ package nl.pim16aap2.animatedarchitecture.spigot.core.comands;
 
 import cloud.commandframework.ArgumentDescription;
 import cloud.commandframework.Command;
+import cloud.commandframework.arguments.CommandArgument;
 import cloud.commandframework.arguments.standard.BooleanArgument;
 import cloud.commandframework.arguments.standard.IntegerArgument;
 import cloud.commandframework.arguments.standard.StringArgument;
@@ -37,6 +38,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -290,6 +292,7 @@ public final class CommandManager
             baseInit(builder, CommandDefinition.LOCK, "commands.lock.description")
                 .argument(BooleanArgument.<ICommandSender>builder("lockStatus").withLiberal(true).build())
                 .argument(defaultStructureArgument(true, StructureAttribute.INFO).build())
+                .argument(newHiddenSendInfoArgument().build())
                 .handler(commandExecutor::lock)
         );
     }
@@ -387,6 +390,7 @@ public final class CommandManager
             baseInit(builder, CommandDefinition.SET_OPEN_STATUS, "commands.set_open_status.description")
                 .argument(defaultOpenStatusArgument(true).build())
                 .argument(defaultStructureArgument(false, StructureAttribute.OPEN_STATUS).build())
+                .argument(newHiddenSendInfoArgument().build())
                 .handler(commandExecutor::setOpenStatus)
         );
     }
@@ -398,6 +402,7 @@ public final class CommandManager
             baseInit(builder, CommandDefinition.SET_OPEN_DIRECTION, "commands.set_open_direction.description")
                 .argument(defaultDirectionArgument(true).build())
                 .argument(defaultStructureArgument(false, StructureAttribute.OPEN_DIRECTION).build())
+                .argument(newHiddenSendInfoArgument().build())
                 .handler(commandExecutor::setOpenDirection)
         );
     }
@@ -490,6 +495,16 @@ public final class CommandManager
     private StructureTypeArgument.StructureTypeArgumentBuilder defaultStructureTypeArgument(boolean required)
     {
         return StructureTypeArgument.builder().required(required).name("structureType").parser(structureTypeParser);
+    }
+
+    private static CommandArgument.Builder<ICommandSender, Boolean> newHiddenSendInfoArgument()
+    {
+        return BooleanArgument
+            .<ICommandSender>builder("sendUpdatedInfo")
+            .withLiberal(true)
+            .asOptionalWithDefault("false")
+            .withSuggestionsProvider((iCommandSenderCommandContext, s) -> Collections.emptyList())
+            .withDefaultDescription(ArgumentDescription.empty());
     }
 
     private static void registerBrigadier(BukkitCommandManager<ICommandSender> manager)

@@ -28,10 +28,16 @@ public class SetOpenStatus extends StructureTargetCommand
 
     @AssistedInject //
     SetOpenStatus(
-        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
-        @Assisted StructureRetriever structureRetriever, @Assisted boolean isOpen)
+        @Assisted ICommandSender commandSender,
+        @Assisted StructureRetriever structureRetriever,
+        @Assisted("isOpen") boolean isOpen,
+        @Assisted("sendUpdatedInfo") boolean sendUpdatedInfo,
+        ILocalizer localizer,
+        ITextFactory textFactory,
+        CommandFactory commandFactory)
     {
-        super(commandSender, localizer, textFactory, structureRetriever, StructureAttribute.OPEN_STATUS);
+        super(commandSender, localizer, textFactory, structureRetriever, StructureAttribute.OPEN_STATUS,
+              sendUpdatedInfo, commandFactory);
         this.isOpen = isOpen;
     }
 
@@ -71,7 +77,9 @@ public class SetOpenStatus extends StructureTargetCommand
         }
 
         structure.setOpen(isOpen);
-        return structure.syncData().thenAccept(this::handleDatabaseActionResult);
+        return structure.syncData()
+                        .thenAccept(this::handleDatabaseActionResult)
+                        .thenRunAsync(() -> sendUpdatedInfo(structure));
     }
 
     @AssistedFactory
@@ -87,9 +95,34 @@ public class SetOpenStatus extends StructureTargetCommand
          *     will be modified.
          * @param isOpen
          *     The new open status of the structure.
+         * @param sendUpdatedInfo
+         *     True to send the updated info text to the user after the command has been executed.
          * @return See {@link BaseCommand#run()}.
          */
         SetOpenStatus newSetOpenStatus(
-            ICommandSender commandSender, StructureRetriever structureRetriever, boolean isOpen);
+            ICommandSender commandSender,
+            StructureRetriever structureRetriever,
+            @Assisted("isOpen") boolean isOpen,
+            @Assisted("sendUpdatedInfo") boolean sendUpdatedInfo);
+
+        /**
+         * Creates (but does not execute!) a new {@link SetOpenStatus} command.
+         *
+         * @param commandSender
+         *     The {@link ICommandSender} responsible for changing open status of the structure.
+         * @param structureRetriever
+         *     A {@link StructureRetrieverFactory} representing the {@link AbstractStructure} for which the open status
+         *     will be modified.
+         * @param isOpen
+         *     The new open status of the structure.
+         * @return See {@link BaseCommand#run()}.
+         */
+        default SetOpenStatus newSetOpenStatus(
+            ICommandSender commandSender,
+            StructureRetriever structureRetriever,
+            boolean isOpen)
+        {
+            return newSetOpenStatus(commandSender, structureRetriever, isOpen, false);
+        }
     }
 }

@@ -107,7 +107,8 @@ class CommandExecutor
     {
         final StructureRetriever structureRetriever = context.get("structureRetriever");
         final boolean lockStatus = context.get("lockStatus");
-        commandFactory.newLock(context.getSender(), structureRetriever, lockStatus).run()
+        final boolean sendUpdatedInfo = context.get("sendUpdatedInfo");
+        commandFactory.newLock(context.getSender(), structureRetriever, lockStatus, sendUpdatedInfo).run()
                       .exceptionally(Util::exceptionally);
     }
 
@@ -186,11 +187,12 @@ class CommandExecutor
     void setOpenStatus(CommandContext<ICommandSender> context)
     {
         final boolean isOpen = context.get("isOpen");
+        final boolean sendUpdatedInfo = context.get("sendUpdatedInfo");
         final ICommandSender commandSender = context.getSender();
         final @Nullable StructureRetriever structureRetriever = nullable(context, "structureRetriever");
 
         if (structureRetriever != null)
-            commandFactory.newSetOpenStatus(commandSender, structureRetriever, isOpen).run()
+            commandFactory.newSetOpenStatus(commandSender, structureRetriever, isOpen, sendUpdatedInfo).run()
                           .exceptionally(Util::exceptionally);
         else
             commandFactory.getSetOpenStatusDelayed().provideDelayedInput(commandSender, isOpen)
@@ -200,11 +202,12 @@ class CommandExecutor
     void setOpenDirection(CommandContext<ICommandSender> context)
     {
         final MovementDirection direction = context.get("direction");
+        final boolean sendUpdatedInfo = context.get("sendUpdatedInfo");
         final ICommandSender commandSender = context.getSender();
         final @Nullable StructureRetriever structureRetriever = nullable(context, "structureRetriever");
 
         if (structureRetriever != null)
-            commandFactory.newSetOpenDirection(commandSender, structureRetriever, direction).run()
+            commandFactory.newSetOpenDirection(commandSender, structureRetriever, direction, sendUpdatedInfo).run()
                           .exceptionally(Util::exceptionally);
         else
             commandFactory.getSetOpenDirectionDelayed().provideDelayedInput(commandSender, direction)
