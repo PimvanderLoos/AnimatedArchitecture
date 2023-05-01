@@ -26,19 +26,25 @@ import java.util.concurrent.CompletableFuture;
 @Flogger
 public class Lock extends StructureTargetCommand
 {
-    private final boolean lockedStatus;
+    private final boolean isLocked;
     private final IAnimatedArchitectureEventCaller animatedArchitectureEventCaller;
     private final IAnimatedArchitectureEventFactory animatedArchitectureEventFactory;
 
     @AssistedInject //
     Lock(
-        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
-        @Assisted StructureRetriever structureRetriever, @Assisted boolean lockedStatus,
+        @Assisted ICommandSender commandSender,
+        @Assisted StructureRetriever structureRetriever,
+        @Assisted("isLocked") boolean isLocked,
+        @Assisted("sendUpdatedInfo") boolean sendUpdatedInfo,
+        ILocalizer localizer,
+        ITextFactory textFactory,
+        CommandFactory commandFactory,
         IAnimatedArchitectureEventCaller animatedArchitectureEventCaller,
         IAnimatedArchitectureEventFactory animatedArchitectureEventFactory)
     {
-        super(commandSender, localizer, textFactory, structureRetriever, StructureAttribute.LOCK);
-        this.lockedStatus = lockedStatus;
+        super(commandSender, localizer, textFactory, structureRetriever, StructureAttribute.LOCK,
+              sendUpdatedInfo, commandFactory);
+        this.isLocked = isLocked;
         this.animatedArchitectureEventCaller = animatedArchitectureEventCaller;
         this.animatedArchitectureEventFactory = animatedArchitectureEventFactory;
     }
@@ -46,7 +52,7 @@ public class Lock extends StructureTargetCommand
     @Override
     protected void handleDatabaseActionSuccess()
     {
-        final String msg = lockedStatus ? "commands.lock.success.locked" : "commands.lock.success.unlocked";
+        final String msg = isLocked ? "commands.lock.success.locked" : "commands.lock.success.unlocked";
         final var desc = getRetrievedStructureDescription();
         getCommandSender().sendMessage(textFactory.newText().append(
             localizer.getMessage(msg), TextType.SUCCESS,
@@ -63,9 +69,8 @@ public class Lock extends StructureTargetCommand
     @Override
     protected CompletableFuture<?> performAction(AbstractStructure structure)
     {
-        final var event = animatedArchitectureEventFactory
-            .createStructurePrepareLockChangeEvent(structure, lockedStatus,
-                                                   getCommandSender().getPlayer().orElse(null));
+        final var event = animatedArchitectureEventFactory.createStructurePrepareLockChangeEvent(
+            structure, isLocked, getCommandSender().getPlayer().orElse(null));
 
         animatedArchitectureEventCaller.callAnimatedArchitectureEvent(event);
 
@@ -75,8 +80,10 @@ public class Lock extends StructureTargetCommand
             return CompletableFuture.completedFuture(null);
         }
 
-        structure.setLocked(lockedStatus);
-        return structure.syncData().thenAccept(this::handleDatabaseActionResult);
+        structure.setLocked(isLocked);
+        return structure.syncData()
+                        .thenAccept(this::handleDatabaseActionResult)
+                        .thenRunAsync(() -> sendUpdatedInfo(structure));
     }
 
     @AssistedFactory
@@ -90,10 +97,33 @@ public class Lock extends StructureTargetCommand
          * @param structureRetriever
          *     A {@link StructureRetrieverFactory} representing the {@link AbstractStructure} for which the locked
          *     status will be modified.
-         * @param lock
-         *     The new lock status.
+         * @param isLocked
+         *     True if the structure should be locked, false if it should be unlocked.
+         * @param sendUpdatedInfo
+         *     True to send the updated info text to the user after the command has been executed.
          * @return See {@link BaseCommand#run()}.
          */
-        Lock newLock(ICommandSender commandSender, StructureRetriever structureRetriever, boolean lock);
+        Lock newLock(
+            ICommandSender commandSender,
+            StructureRetriever structureRetriever,
+            @Assisted("isLocked") boolean isLocked,
+            @Assisted("sendUpdatedInfo") boolean sendUpdatedInfo);
+
+        /**
+         * Creates (but does not execute!) a new {@link Lock} command.
+         *
+         * @param commandSender
+         *     The {@link ICommandSender} responsible for changing the locked status of the structure.
+         * @param structureRetriever
+         *     A {@link StructureRetrieverFactory} representing the {@link AbstractStructure} for which the locked
+         *     status will be modified.
+         * @param isLocked
+         *     True if the structure should be locked, false if it should be unlocked.
+         * @return See {@link BaseCommand#run()}.
+         */
+        default Lock newLock(ICommandSender commandSender, StructureRetriever structureRetriever, boolean isLocked)
+        {
+            return newLock(commandSender, structureRetriever, isLocked, false);
+        }
     }
 }

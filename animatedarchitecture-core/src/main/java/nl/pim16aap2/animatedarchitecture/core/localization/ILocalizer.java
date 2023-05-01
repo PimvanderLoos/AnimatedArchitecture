@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.localization;
 
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 
 import java.util.List;
@@ -56,7 +56,7 @@ public interface ILocalizer
     /**
      * See {@link #getStructureType(StructureType)}
      */
-    default String getStructureType(AbstractStructure structure)
+    default String getStructureType(IStructureConst structure)
     {
         return getStructureType(structure.getType());
     }

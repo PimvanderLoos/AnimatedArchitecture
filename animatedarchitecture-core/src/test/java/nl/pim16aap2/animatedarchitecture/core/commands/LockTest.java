@@ -65,11 +65,15 @@ class LockTest
 
         Mockito.when(factory.newLock(Mockito.any(ICommandSender.class),
                                      Mockito.any(StructureRetriever.class),
+                                     Mockito.anyBoolean(),
                                      Mockito.anyBoolean()))
-               .thenAnswer(invoc -> new Lock(invoc.getArgument(0, ICommandSender.class), localizer,
-                                             ITextFactory.getSimpleTextFactory(),
+               .thenAnswer(invoc -> new Lock(invoc.getArgument(0, ICommandSender.class),
                                              invoc.getArgument(1, StructureRetriever.class),
                                              invoc.getArgument(2, Boolean.class),
+                                             invoc.getArgument(3, Boolean.class),
+                                             localizer,
+                                             ITextFactory.getSimpleTextFactory(),
+                                             Mockito.mock(CommandFactory.class),
                                              Mockito.mock(IAnimatedArchitectureEventCaller.class),
                                              eventFactory));
     }

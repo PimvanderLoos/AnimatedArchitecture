@@ -29,10 +29,16 @@ public class SetOpenDirection extends StructureTargetCommand
 
     @AssistedInject //
     SetOpenDirection(
-        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
-        @Assisted StructureRetriever structureRetriever, @Assisted MovementDirection movementDirection)
+        @Assisted ICommandSender commandSender,
+        @Assisted StructureRetriever structureRetriever,
+        @Assisted MovementDirection movementDirection,
+        @Assisted boolean sendUpdatedInfo,
+        ILocalizer localizer,
+        ITextFactory textFactory,
+        CommandFactory commandFactory)
     {
-        super(commandSender, localizer, textFactory, structureRetriever, StructureAttribute.OPEN_DIRECTION);
+        super(commandSender, localizer, textFactory, structureRetriever, StructureAttribute.OPEN_DIRECTION,
+              sendUpdatedInfo, commandFactory);
         this.movementDirection = movementDirection;
     }
 
@@ -66,7 +72,9 @@ public class SetOpenDirection extends StructureTargetCommand
         }
 
         structure.setOpenDir(movementDirection);
-        return structure.syncData().thenAccept(this::handleDatabaseActionResult);
+        return structure.syncData()
+                        .thenAccept(this::handleDatabaseActionResult)
+                        .thenRunAsync(() -> sendUpdatedInfo(structure));
     }
 
     @AssistedFactory
@@ -82,9 +90,34 @@ public class SetOpenDirection extends StructureTargetCommand
          *     direction will be modified.
          * @param movementDirection
          *     The new movement direction.
+         * @param sendUpdatedInfo
+         *     True to send the updated info text to the user after the command has been executed.
          * @return See {@link BaseCommand#run()}.
          */
         SetOpenDirection newSetOpenDirection(
-            ICommandSender commandSender, StructureRetriever structureRetriever, MovementDirection movementDirection);
+            ICommandSender commandSender,
+            StructureRetriever structureRetriever,
+            MovementDirection movementDirection,
+            boolean sendUpdatedInfo);
+
+        /**
+         * Creates (but does not execute!) a new {@link SetOpenDirection} command.
+         *
+         * @param commandSender
+         *     The {@link ICommandSender} responsible for changing open direction of the structure.
+         * @param structureRetriever
+         *     A {@link StructureRetrieverFactory} representing the {@link AbstractStructure} for which the open
+         *     direction will be modified.
+         * @param movementDirection
+         *     The new movement direction.
+         * @return See {@link BaseCommand#run()}.
+         */
+        default SetOpenDirection newSetOpenDirection(
+            ICommandSender commandSender,
+            StructureRetriever structureRetriever,
+            MovementDirection movementDirection)
+        {
+            return newSetOpenDirection(commandSender, structureRetriever, movementDirection, false);
+        }
     }
 }

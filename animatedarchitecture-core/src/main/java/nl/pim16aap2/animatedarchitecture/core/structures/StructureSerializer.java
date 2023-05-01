@@ -239,13 +239,18 @@ public final class StructureSerializer<T extends AbstractStructure>
     }
 
     /**
-     * Serializes the type-specific data of a structure.
+     * Gets a map of all the values of the fields annotated with {@link PersistentVariable} in the given structure.
+     * <p>
+     * The map is keyed by the field name and the value is the value of the field in the given structure.
      *
      * @param structure
      *     The structure.
-     * @return The serialized type-specific data represented as a json string.
+     * @return The map of field values.
+     *
+     * @throws Exception
+     *     If an error occurs while getting the value of a field.
      */
-    public String serialize(AbstractStructure structure)
+    public Map<String, Object> getPropertyMap(AbstractStructure structure)
         throws Exception
     {
         final HashMap<String, Object> values = new HashMap<>(MathUtil.ceil(1.25 * fields.size()));
@@ -259,6 +264,20 @@ public final class StructureSerializer<T extends AbstractStructure>
                 throw new Exception(String.format("Failed to get value of field %s (type %s) for structure type %s!",
                                                   field.name(), field.typeName(), getStructureTypeName()), e);
             }
+        return values;
+    }
+
+    /**
+     * Serializes the type-specific data of a structure.
+     *
+     * @param structure
+     *     The structure.
+     * @return The serialized type-specific data represented as a json string.
+     */
+    public String serialize(AbstractStructure structure)
+        throws Exception
+    {
+        final Map<String, Object> values = getPropertyMap(structure);
         try
         {
             return JSON.toJSONString(values);

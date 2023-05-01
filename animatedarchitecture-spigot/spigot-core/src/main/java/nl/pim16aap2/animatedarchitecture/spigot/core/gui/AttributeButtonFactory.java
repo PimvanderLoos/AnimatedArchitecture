@@ -131,7 +131,8 @@ class AttributeButtonFactory
             new ItemStack(Material.BOOKSHELF),
             click ->
             {
-                player.sendInfo(textFactory, structure.getBasicInfo());
+                commandFactory.newInfo(player, structureRetrieverFactory.of(structure))
+                              .run().exceptionally(Util::exceptionally);
                 return true;
             },
             localizer.getMessage("gui.info_page.attribute.info",

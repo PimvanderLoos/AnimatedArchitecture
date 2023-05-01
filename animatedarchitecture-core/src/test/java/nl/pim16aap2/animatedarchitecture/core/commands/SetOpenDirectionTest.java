@@ -57,11 +57,15 @@ class SetOpenDirectionTest
 
         Mockito.when(factory.newSetOpenDirection(Mockito.any(ICommandSender.class),
                                                  Mockito.any(StructureRetriever.class),
-                                                 Mockito.any(MovementDirection.class)))
-               .thenAnswer(invoc -> new SetOpenDirection(invoc.getArgument(0, ICommandSender.class), localizer,
-                                                         ITextFactory.getSimpleTextFactory(),
+                                                 Mockito.any(MovementDirection.class),
+                                                 Mockito.anyBoolean()))
+               .thenAnswer(invoc -> new SetOpenDirection(invoc.getArgument(0, ICommandSender.class),
                                                          invoc.getArgument(1, StructureRetriever.class),
-                                                         invoc.getArgument(2, MovementDirection.class)));
+                                                         invoc.getArgument(2, MovementDirection.class),
+                                                         invoc.getArgument(3, Boolean.class),
+                                                         localizer,
+                                                         ITextFactory.getSimpleTextFactory(),
+                                                         Mockito.mock(CommandFactory.class)));
     }
 
     @Test
