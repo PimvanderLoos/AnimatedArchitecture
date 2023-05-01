@@ -51,6 +51,11 @@ public enum StructureAttribute
     OPEN_STATUS(PermissionLevel.USER),
 
     /**
+     * Show a preview of the animation.
+     */
+    PREVIEW(PermissionLevel.USER),
+
+    /**
      * Relocate the power block.
      */
     RELOCATE_POWERBLOCK(PermissionLevel.ADMIN),
