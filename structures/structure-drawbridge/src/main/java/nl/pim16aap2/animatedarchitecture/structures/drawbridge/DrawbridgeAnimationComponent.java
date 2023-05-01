@@ -79,46 +79,48 @@ public class DrawbridgeAnimationComponent implements IAnimationComponent
     @Override
     public RotatedPosition getStartPosition(int xAxis, int yAxis, int zAxis)
     {
-        return getGoalPos(0, xAxis, yAxis, zAxis);
+        return getGoalPos(null, 0, xAxis, yAxis, zAxis);
     }
 
-    protected Vector3Dd getGoalRotation(Vector3Dd goalPos)
+    protected Vector3Dd getGoalRotation(double angle)
     {
-        final Vector3Dd vec = rotationCenter.subtract(goalPos);
         double pitch = 0;
         double roll = 0;
         if (northSouth)
-            pitch = Math.toDegrees(-Math.atan2(vec.y(), vec.z()) + MathUtil.HALF_PI);
+            pitch = Math.toDegrees(angle + MathUtil.HALF_PI);
         else
-            roll = -Math.toDegrees(-Math.atan2(vec.y(), vec.x()) + MathUtil.HALF_PI);
+            roll = -Math.toDegrees(angle + MathUtil.HALF_PI);
 
         return new Vector3Dd(roll, pitch, 0);
     }
 
-    protected RotatedPosition getGoalPos(double angle, double x, double y, double z)
+    protected RotatedPosition getGoalPos(@Nullable Vector3Dd localRotation, double angle, double x, double y, double z)
     {
         final Vector3Dd goalPos = rotator.apply(new Vector3Dd(x, y, z), rotationCenter, angle);
-        final Vector3Dd goalRot = getGoalRotation(goalPos);
+        final Vector3Dd goalRot = localRotation != null ? localRotation : getGoalRotation(angle);
         return new RotatedPosition(goalPos, goalRot);
     }
 
-    protected RotatedPosition getGoalPos(double angle, IAnimatedBlock animatedBlock)
+    protected RotatedPosition getGoalPos(@Nullable Vector3Dd localRotation, double angle, IAnimatedBlock animatedBlock)
     {
-        return getGoalPos(angle, animatedBlock.getStartX(), animatedBlock.getStartY(), animatedBlock.getStartZ());
+        return getGoalPos(
+            localRotation, angle, animatedBlock.getStartX(), animatedBlock.getStartY(), animatedBlock.getStartZ());
     }
 
     @Override
     public RotatedPosition getFinalPosition(int xAxis, int yAxis, int zAxis)
     {
-        return getGoalPos(Util.clampAngleRad(angle), xAxis, yAxis, zAxis);
+        return getGoalPos(null, Util.clampAngleRad(angle), xAxis, yAxis, zAxis);
     }
 
     @Override
     public void executeAnimationStep(IAnimator animator, Iterable<IAnimatedBlock> animatedBlocks, int ticks)
     {
-        final double stepSum = Util.clampAngleRad(step * ticks);
+        final double angle = Util.clampAngleRad(step * ticks);
+        final Vector3Dd localRotation = getGoalRotation(angle);
+
         for (final IAnimatedBlock animatedBlock : animatedBlocks)
-            animator.applyMovement(animatedBlock, getGoalPos(stepSum, animatedBlock));
+            animator.applyMovement(animatedBlock, getGoalPos(localRotation, angle, animatedBlock));
     }
 
     public static float getRadius(boolean northSouthAligned, IVector3D rotationPoint, int xAxis, int yAxis, int zAxis)

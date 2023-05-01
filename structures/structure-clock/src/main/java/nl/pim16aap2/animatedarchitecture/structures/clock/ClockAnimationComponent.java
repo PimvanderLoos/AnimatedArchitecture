@@ -11,6 +11,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.WorldTime;
+import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import nl.pim16aap2.animatedarchitecture.structures.drawbridge.DrawbridgeAnimationComponent;
 import org.jetbrains.annotations.Nullable;
 
@@ -96,11 +97,24 @@ public final class ClockAnimationComponent extends DrawbridgeAnimationComponent
         final WorldTime worldTime = snapshot.getWorld().getTime();
         final double hourAngle = angleDirectionMultiplier * hoursToAngle(worldTime.getHours(), worldTime.getMinutes());
         final double minuteAngle = angleDirectionMultiplier * minutesToAngle(worldTime.getMinutes());
+        final Vector3Dd hourRotation = getGoalRotation(hourAngle);
+        final Vector3Dd minuteRotation = getGoalRotation(minuteAngle);
 
         for (final IAnimatedBlock animatedBlock : animatedBlocks)
         {
-            final double timeAngle = isHourArm.test(animatedBlock) ? hourAngle : minuteAngle;
-            animator.applyMovement(animatedBlock, getGoalPos(timeAngle, animatedBlock));
+            final double angle;
+            final Vector3Dd localRotation;
+            if (isHourArm.test(animatedBlock))
+            {
+                angle = hourAngle;
+                localRotation = hourRotation;
+            }
+            else
+            {
+                angle = minuteAngle;
+                localRotation = minuteRotation;
+            }
+            animator.applyMovement(animatedBlock, getGoalPos(localRotation, angle, animatedBlock));
         }
     }
 
