@@ -107,7 +107,7 @@ class CommandExecutor
     {
         final StructureRetriever structureRetriever = context.get("structureRetriever");
         final boolean lockStatus = context.get("lockStatus");
-        final boolean sendUpdatedInfo = context.get("sendUpdatedInfo");
+        final boolean sendUpdatedInfo = context.getOrDefault("sendUpdatedInfo", false);
         commandFactory.newLock(context.getSender(), structureRetriever, lockStatus, sendUpdatedInfo).run()
                       .exceptionally(Util::exceptionally);
     }
@@ -187,7 +187,7 @@ class CommandExecutor
     void setOpenStatus(CommandContext<ICommandSender> context)
     {
         final boolean isOpen = context.get("isOpen");
-        final boolean sendUpdatedInfo = context.get("sendUpdatedInfo");
+        final boolean sendUpdatedInfo = context.getOrDefault("sendUpdatedInfo", false);
         final ICommandSender commandSender = context.getSender();
         final @Nullable StructureRetriever structureRetriever = nullable(context, "structureRetriever");
 
@@ -202,7 +202,7 @@ class CommandExecutor
     void setOpenDirection(CommandContext<ICommandSender> context)
     {
         final MovementDirection direction = context.get("direction");
-        final boolean sendUpdatedInfo = context.get("sendUpdatedInfo");
+        final boolean sendUpdatedInfo = context.getOrDefault("sendUpdatedInfo", false);
         final ICommandSender commandSender = context.getSender();
         final @Nullable StructureRetriever structureRetriever = nullable(context, "structureRetriever");
 
