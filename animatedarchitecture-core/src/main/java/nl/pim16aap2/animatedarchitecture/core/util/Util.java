@@ -967,4 +967,23 @@ public final class Util
             return;
         list.sort(Comparator.comparing(mapper));
     }
+
+    /**
+     * Removes the trailing new line from a {@link StringBuilder}.
+     *
+     * @param sb
+     *     The {@link StringBuilder} to remove the trailing new line from.
+     *     <p>
+     *     This object is modified in place.
+     *     <p>
+     *     If the {@link StringBuilder} is empty or does not end with a new line, nothing is done.
+     * @return The {@link StringBuilder} for chaining.
+     */
+    @Contract("_ -> param1")
+    public static StringBuilder removeTrailingNewLine(StringBuilder sb)
+    {
+        if (sb.length() > 0 && sb.charAt(sb.length() - 1) == '\n')
+            sb.deleteCharAt(sb.length() - 1);
+        return sb;
+    }
 }

@@ -6,6 +6,8 @@ import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.Getter;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
+import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
+import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IAnimatedArchitectureEventFactory;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.Restartable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
@@ -14,6 +16,7 @@ import nl.pim16aap2.animatedarchitecture.core.managers.StructureDeletionManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.util.Mutable;
+import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -38,7 +41,8 @@ import java.util.stream.Stream;
  */
 @Singleton
 @Flogger
-public final class StructureActivityManager extends Restartable implements StructureDeletionManager.IDeletionListener
+public final class StructureActivityManager extends Restartable
+    implements StructureDeletionManager.IDeletionListener, IDebuggable
 {
     /**
      * The amount of time (in milliseconds) to wait when performing a delayed redstone check.
@@ -76,13 +80,17 @@ public final class StructureActivityManager extends Restartable implements Struc
         IAnimatedArchitectureEventFactory eventFactory,
         IAnimatedArchitectureEventCaller animatedArchitectureEventCaller,
         IExecutor executor,
+        DebuggableRegistry debuggableRegistry,
         StructureDeletionManager structureDeletionManager)
     {
         super(holder);
-        structureDeletionManager.registerDeletionListener(this);
+
         this.eventFactory = eventFactory;
         this.executor = executor;
         this.animatedArchitectureEventCaller = animatedArchitectureEventCaller;
+
+        structureDeletionManager.registerDeletionListener(this);
+        debuggableRegistry.registerDebuggable(this);
     }
 
     /**
@@ -330,7 +338,7 @@ public final class StructureActivityManager extends Restartable implements Struc
         if (removed == null)
             return;
 
-        log.atInfo().log("Aborted animation:%s\nFor deleted structure: %s", removed, structure);
+        log.atInfo().log("Aborted animation: %s\nFor deleted structure: %s", removed, structure);
 
         removed.abort();
     }
@@ -362,6 +370,15 @@ public final class StructureActivityManager extends Restartable implements Struc
     {
         isActive = true;
         handleStructureAnimationsAbortedOnShutdown();
+    }
+
+    @Override
+    public String getDebugInformation()
+    {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("Registered animators:\n");
+        animators.values().forEach(entry -> sb.append(" * ").append(entry).append('\n'));
+        return Util.removeTrailingNewLine(sb).toString();
     }
 
     /**
@@ -573,8 +590,12 @@ public final class StructureActivityManager extends Restartable implements Struc
             @Override
             public synchronized String toString()
             {
-                return "ReadOnlyAnimatorEntry(stamp=" + this.getStamp() + ", key=" + this.key + ", animators=" +
-                    this.animators + ", isAborted=" + this.isAborted + ")";
+                return "ReadOnlyAnimatorEntry("
+                    + "stamp=" + this.getStamp()
+                    + ", Structure=" + this.key
+                    + ", isAborted=" + this.isAborted
+                    + ", animators=" + this.animators.size()
+                    + ")";
             }
         }
 
@@ -686,8 +707,11 @@ public final class StructureActivityManager extends Restartable implements Struc
             @Override
             public synchronized String toString()
             {
-                return "ReadWriteAnimatorEntry(stamp=" + this.getStamp() + ", key=" + this.key + ", isAborted=" +
-                    this.isAborted + ", animator=" + this.animator + ")";
+                return "ReadWriteAnimatorEntry("
+                    + "stamp=" + this.getStamp()
+                    + ", Structure=" + this.key
+                    + ", isAborted=" + this.isAborted
+                    + ")";
             }
         }
     }
