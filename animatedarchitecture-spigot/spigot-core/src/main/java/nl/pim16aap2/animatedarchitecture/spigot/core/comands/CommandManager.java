@@ -32,12 +32,14 @@ import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetr
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Objects;
@@ -50,6 +52,7 @@ import static net.kyori.adventure.text.Component.text;
 public final class CommandManager
 {
     private final JavaPlugin plugin;
+    private final ConfigSpigot config;
     private final ILocalizer localizer;
     private final ITextFactory textFactory;
     private final IPermissionsManager permissionsManager;
@@ -66,6 +69,7 @@ public final class CommandManager
 
     @Inject CommandManager(
         JavaPlugin plugin,
+        ConfigSpigot config,
         ILocalizer localizer,
         ITextFactory textFactory,
         IPermissionsManager permissionsManager,
@@ -74,9 +78,11 @@ public final class CommandManager
         StructureTypeParser structureTypeParser,
         DirectionParser directionParser,
         IsOpenParser isOpenParser,
-        CommandExecutor commandExecutor, IExecutor executor)
+        CommandExecutor commandExecutor,
+        IExecutor executor)
     {
         this.plugin = plugin;
+        this.config = config;
         this.localizer = localizer;
         this.textFactory = textFactory;
         this.permissionsManager = permissionsManager;
@@ -139,8 +145,12 @@ public final class CommandManager
 
     private void initCommands(BukkitCommandManager<ICommandSender> manager)
     {
-        final Command.Builder<ICommandSender> builder =
-            manager.commandBuilder("animatedarchitecture", "AnimatedArchitecture");
+        final String[] commandNames = config.getCommandAliases().toArray(new String[0]);
+        if (commandNames.length == 0)
+            throw new IllegalArgumentException("No command aliases specified!");
+
+        final String[] aliases = Arrays.copyOfRange(commandNames, 1, commandNames.length);
+        final Command.Builder<ICommandSender> builder = manager.commandBuilder(commandNames[0], aliases);
 
         initCmdHelp(manager, builder);
 
