@@ -249,9 +249,14 @@ public final class StructureActivityManager extends Restartable implements Struc
         {
             if (entry != null)
                 return entry.remove(animator) ? null : entry;
+
             // We don't care about attempts to remove non-existent entries while shut(ting) down.
             // On shutdown, the map is cleared, so it is likely to reach this point.
-            if (isActive)
+            //
+            // Generally, aborted animations are non-standard operations, which may happen under several circumstances,
+            // with more potential causes being added as the code evolves. As such, we allow some flexibility in the
+            // handling of these cases.
+            if (isActive && !animator.isAborted())
                 throw new IllegalStateException("Trying to remove unregistered animator: " + animator);
             return null;
         });
@@ -321,13 +326,13 @@ public final class StructureActivityManager extends Restartable implements Struc
     @Override
     public void onStructureDeletion(IStructureConst structure)
     {
-        final @Nullable StructureActivityManager.RegisteredAnimatorEntry removed = animators.remove(
-            structure.getUid());
+        final @Nullable StructureActivityManager.RegisteredAnimatorEntry removed = animators.remove(structure.getUid());
         if (removed == null)
             return;
 
-        log.atFinest().log("Aborted animation:%s\nFor deleted structure: %s", removed, structure);
+        log.atInfo().log("Aborted animation:%s\nFor deleted structure: %s", removed, structure);
 
+        removed.abort();
     }
 
     @Override

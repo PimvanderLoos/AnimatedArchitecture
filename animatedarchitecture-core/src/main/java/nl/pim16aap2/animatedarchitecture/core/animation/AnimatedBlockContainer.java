@@ -8,14 +8,14 @@ import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockFactory;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
-import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
-import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
+import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
 
 @Flogger
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -128,8 +128,7 @@ public class AnimatedBlockContainer implements IAnimatedBlockContainer
         }
     }
 
-    @Override
-    public void restoreBlocksOnFailure()
+    private void putBlocks(Function<IAnimatedBlock, IVector3D> mapper)
     {
         executor.assertMainThread("Blocks cannot be placed asynchronously!");
         for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
@@ -144,27 +143,26 @@ public class AnimatedBlockContainer implements IAnimatedBlockContainer
             }
             try
             {
-                final Vector3Dd startPos = animatedBlock.getStartPosition().position();
-                final Vector3Di goalPos = startPos.floor().toInteger();
+                final IVector3D goalPos = mapper.apply(animatedBlock).floor().toInteger();
                 animatedBlock.getAnimatedBlockData().putBlock(goalPos);
             }
             catch (Exception e)
             {
-                log.atSevere().withCause(e).log("Failed to restore block: %s", animatedBlock);
+                log.atSevere().withCause(e).log("Failed to place block: %s", animatedBlock);
             }
         }
         privateAnimatedBlocks.clear();
     }
 
     @Override
+    public void restoreBlocksOnFailure()
+    {
+        putBlocks(animatedBlock -> animatedBlock.getStartPosition().position());
+    }
+
+    @Override
     public void handleAnimationCompletion()
     {
-        executor.assertMainThread("Blocks cannot be placed asynchronously!");
-        for (final IAnimatedBlock animatedBlock : privateAnimatedBlocks)
-        {
-            animatedBlock.kill();
-            animatedBlock.getAnimatedBlockData().putBlock(animatedBlock.getFinalPosition().position());
-        }
-        privateAnimatedBlocks.clear();
+        putBlocks(animatedBlock -> animatedBlock.getFinalPosition().position());
     }
 }
