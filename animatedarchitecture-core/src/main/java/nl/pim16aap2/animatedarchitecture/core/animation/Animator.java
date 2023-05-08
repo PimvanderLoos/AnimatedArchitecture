@@ -73,6 +73,12 @@ public final class Animator implements IAnimator
     private final IPlayer player;
 
     /**
+     * Flag that indicates whether the animation has been aborted.
+     */
+    @Getter
+    private volatile boolean aborted = false;
+
+    /**
      * The animation component used to do all the animation stuff.
      */
     private final IAnimationComponent animationComponent;
@@ -232,6 +238,7 @@ public final class Animator implements IAnimator
      */
     public void abort()
     {
+        aborted = true;
         final @Nullable TimerTask moverTask0 = moverTask;
         if (moverTask0 != null)
             executor.cancel(moverTask0, Objects.requireNonNull(moverTaskID));
@@ -497,22 +504,27 @@ public final class Animator implements IAnimator
         if (isFinished.getAndSet(true))
             return;
 
+        final boolean isAborted = isAborted();
+        final Runnable handler =
+            isAborted ?
+            animatedBlockContainer::restoreBlocksOnFailure :
+            animatedBlockContainer::handleAnimationCompletion;
+
         // Only the handleAnimationCompletion method needs to be called on the main thread, as it interacts with the
         // world to place the blocks in their final position.
         // However, updating the coordinates of the structure is best left to another thread, as it may block the
         // calling thread while it waits to acquire the write lock.
-        executor.runOnMainThreadWithResponse(animatedBlockContainer::handleAnimationCompletion)
-                .thenRunAsync(
-                    () ->
-                    {
-                        if (animationType.requiresWriteAccess())
-                            // Tell the structure object it has been opened and what its new coordinates are.
-                            structure.withWriteLock(this::updateCoords);
+        executor.runOnMainThreadWithResponse(handler).thenRunAsync(
+            () ->
+            {
+                if (!isAborted && animationType.requiresWriteAccess())
+                    // Tell the structure object it has been opened and what its new coordinates are.
+                    structure.withWriteLock(this::updateCoords);
 
-                        forEachHook("onAnimationCompleted", IAnimationHook::onAnimationCompleted);
+                forEachHook("onAnimationCompleted", IAnimationHook::onAnimationCompleted);
 
-                        structureActivityManager.processFinishedAnimation(this);
-                    }).exceptionally(Util::exceptionally);
+                structureActivityManager.processFinishedAnimation(this);
+            }).exceptionally(Util::exceptionally);
     }
 
     /**
