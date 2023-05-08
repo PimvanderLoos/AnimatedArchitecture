@@ -55,6 +55,9 @@ import java.util.logging.Level;
 @Flogger
 public final class ConfigSpigot implements IConfig, IDebuggable
 {
+    private static final List<String> DEFAULT_COMMAND_ALIASES = List.of(
+        "animatedarchitecture", "AnimatedArchitecture", "aa");
+
     @ToString.Exclude
     private final JavaPlugin plugin;
     @ToString.Exclude
@@ -77,6 +80,8 @@ public final class ConfigSpigot implements IConfig, IDebuggable
     private final Map<StructureType, Material> structureTypeGuiMaterials;
     @ToString.Exclude
     private final String header;
+
+    private final List<String> commandAliases = new ArrayList<>(DEFAULT_COMMAND_ALIASES);
 
     private int coolDown;
     private OptionalInt maxStructureSize = OptionalInt.empty();
@@ -120,7 +125,13 @@ public final class ConfigSpigot implements IConfig, IDebuggable
         structureAnimationTimeMultipliers = new HashMap<>();
         structureTypeGuiMaterials = new HashMap<>();
 
-        header = "Config file for AnimatedArchitecture. Don't forget to make a backup before making changes!";
+        header =
+            """
+            # Config file for AnimatedArchitecture. Don't forget to make a backup before making changes!
+            #
+            # For most options, you can apply your changes using "/animatedarchitecture restart".
+            # When an option requires a restart, it will be mentioned in the description.
+            """;
 
         restartableHolder.registerRestartable(this);
         debuggableRegistry.registerDebuggable(this);
@@ -223,12 +234,20 @@ public final class ConfigSpigot implements IConfig, IDebuggable
             # You can set it to -1 to disable this limit.
             #
             # You can use permissions if you need more finely grained control using this node:
-            # '%s.x', where 'x' can be any positive value."
+            # '%s.x', where 'x' can be any positive value.
             """, Limit.POWERBLOCK_DISTANCE.getUserPermission());
 
         final String localeComment =
             """
-            # Determines which locale to use. Defaults to root."
+            # Determines which locale to use. Defaults to root.
+            """;
+
+        final String commandAliasesComment =
+            """
+            # List of aliases for the /animatedarchitecture command.
+            # The first alias will be used as the main command.
+            # Aliases are case sensitive, can not contain spaces, and should not have a leading slash.
+            # Changing this will require a server restart to take effect.
             """;
 
         final String resourcePackComment =
@@ -242,7 +261,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable
             """
             # Determines the global speed limit of animated blocks measured in blocks/second.
             # Animated objects will slow down when necessary to avoid any of their animated blocks exceeding this limit
-            # Higher values may result in choppier and/or glitchier animations."
+            # Higher values may result in choppier and/or glitchier animations.
             """;
 
         final String animationTimeMultiplierComment =
@@ -260,7 +279,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable
 
         final String coolDownComment =
             """
-            # Cool-down on using structures. Time is measured in seconds."
+            # Cool-down on using structures. Time is measured in seconds.
             """;
 
         final String cacheTimeoutComment =
@@ -376,6 +395,9 @@ public final class ConfigSpigot implements IConfig, IDebuggable
         locale = LocalizationUtil.getLocale(localeStr);
 
         resourcePackEnabled = addNewConfigEntry(config, "resourcePackEnabled", false, resourcePackComment);
+
+        readCommandAliases(config, commandAliasesComment);
+
         headCacheTimeout = addNewConfigEntry(config, "headCacheTimeout", 120, headCacheTimeoutComment);
         coolDown = addNewConfigEntry(config, "coolDown", 0, coolDownComment);
         cacheTimeout = addNewConfigEntry(config, "cacheTimeout", 120, cacheTimeoutComment);
@@ -412,6 +434,19 @@ public final class ConfigSpigot implements IConfig, IDebuggable
 
         if (printResults)
             printInfo();
+    }
+
+    private void readCommandAliases(IConfigReader config, String commandAliasesComment)
+    {
+        commandAliases.clear();
+        commandAliases.addAll(
+            addNewConfigEntry(config, "commandAliases", DEFAULT_COMMAND_ALIASES, commandAliasesComment));
+        if (commandAliases.isEmpty())
+        {
+            log.atWarning().log(
+                "No command aliases were found. Using the default aliases: %s", DEFAULT_COMMAND_ALIASES);
+            commandAliases.addAll(DEFAULT_COMMAND_ALIASES);
+        }
     }
 
     private Set<IProtectionHookSpigotSpecification> parseProtectionHooks(
@@ -603,8 +638,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable
                 log.atWarning().log("=======================================");
             }
 
-            final StringBuilder sb = new StringBuilder()
-                .append("# ").append(header).append('\n');
+            final StringBuilder sb = new StringBuilder().append(header).append('\n');
 
             for (int idx = 0; idx < configEntries.size(); ++idx)
                 sb.append(configEntries.get(idx).toString()).append('\n')
@@ -760,6 +794,11 @@ public final class ConfigSpigot implements IConfig, IDebuggable
     public boolean isHookEnabled(IProtectionHookSpigotSpecification spec)
     {
         return enabledProtectionHooks.contains(spec);
+    }
+
+    public List<String> getCommandAliases()
+    {
+        return Collections.unmodifiableList(commandAliases);
     }
 
     /**
