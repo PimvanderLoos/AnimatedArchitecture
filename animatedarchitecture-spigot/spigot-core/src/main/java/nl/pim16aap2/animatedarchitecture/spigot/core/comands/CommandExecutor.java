@@ -4,18 +4,25 @@ import cloud.commandframework.context.CommandContext;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationType;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
+import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.AddOwnerDelayed;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
+import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
+import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureToggleResult;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
+import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -27,13 +34,22 @@ class CommandExecutor
 {
     private final CommandFactory commandFactory;
     private final StructureRetrieverFactory structureRetrieverFactory;
+    private final StructureAnimationRequestBuilder structureAnimationRequestBuilder;
+    private final ITextFactory textFactory;
+    private final ILocalizer localizer;
 
     @Inject CommandExecutor(
         CommandFactory commandFactory,
-        StructureRetrieverFactory structureRetrieverFactory)
+        StructureRetrieverFactory structureRetrieverFactory,
+        StructureAnimationRequestBuilder structureAnimationRequestBuilder,
+        ITextFactory textFactory,
+        ILocalizer localizer)
     {
         this.commandFactory = commandFactory;
         this.structureRetrieverFactory = structureRetrieverFactory;
+        this.structureAnimationRequestBuilder = structureAnimationRequestBuilder;
+        this.textFactory = textFactory;
+        this.localizer = localizer;
     }
 
     // NullAway doesn't see the @Nullable on permissionLevel. Not sure if this is because of Lombok or NullAway.
@@ -226,15 +242,31 @@ class CommandExecutor
 
     void toggle(CommandContext<ICommandSender> context)
     {
-        commandFactory.newToggle(context.getSender(), context.<StructureRetriever>get("structureRetriever")).run()
-                      .exceptionally(Util::exceptionally);
+        structureAnimationRequestBuilder
+            .builder()
+            .structure(context.<StructureRetriever>get("structureRetriever"))
+            .structureActionCause(
+                context.getSender().isPlayer() ? StructureActionCause.PLAYER : StructureActionCause.SERVER)
+            .structureActionType(StructureActionType.TOGGLE)
+            .responsible(context.getSender().getPlayer().orElse(null))
+            .messageReceiver(context.getSender())
+            .build()
+            .execute()
+            .exceptionally(ex -> handleException(context, ex, StructureToggleResult.ERROR));
     }
 
     void preview(CommandContext<ICommandSender> context)
     {
-        commandFactory.newToggle(
-            context.getSender(), StructureActionType.TOGGLE, AnimationType.PREVIEW,
-            context.<StructureRetriever>get("structureRetriever")).run().exceptionally(Util::exceptionally);
+        structureAnimationRequestBuilder
+            .builder()
+            .structure(context.<StructureRetriever>get("structureRetriever"))
+            .structureActionCause(StructureActionCause.PLAYER)
+            .structureActionType(StructureActionType.TOGGLE)
+            .responsible(context.getSender().getPlayer().orElse(null))
+            .animationType(AnimationType.PREVIEW)
+            .build()
+            .execute()
+            .exceptionally(ex -> handleException(context, ex, StructureToggleResult.ERROR));
     }
 
     void version(CommandContext<ICommandSender> context)
@@ -254,5 +286,42 @@ class CommandExecutor
     private <T> @Nullable T nullable(CommandContext<ICommandSender> context, String key)
     {
         return context.<@Nullable T>getOrDefault(key, null);
+    }
+
+    /**
+     * Sends a generic error message to the command sender.
+     *
+     * @param context
+     *     The command context to get the command sender from.
+     */
+    private void sendGenericError(CommandContext<ICommandSender> context)
+    {
+        context.getSender().sendMessage(
+            textFactory.newText().append(localizer.getMessage("commands.base.error.generic"), TextType.ERROR));
+    }
+
+    /**
+     * Logs the exception and sends a generic error message to the command sender.
+     * <p>
+     * See {@link #sendGenericError(CommandContext)} and {@link Util#exceptionally(Throwable, T)}.
+     *
+     * @param context
+     *     The command context to get the command sender from.
+     * @param ex
+     *     The exception to log.
+     * @param defaultValue
+     *     The default value to return.
+     * @param <T>
+     *     The type of the default value.
+     * @return The default value.
+     */
+    @Contract("_, _, _ -> param3")
+    private <T> @Nullable T handleException(
+        CommandContext<ICommandSender> context,
+        Throwable ex,
+        @Nullable T defaultValue)
+    {
+        sendGenericError(context);
+        return Util.exceptionally(ex, defaultValue);
     }
 }

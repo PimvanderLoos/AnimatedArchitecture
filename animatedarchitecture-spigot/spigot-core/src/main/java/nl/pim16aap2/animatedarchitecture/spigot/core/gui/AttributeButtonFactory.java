@@ -4,13 +4,14 @@ import de.themoep.inventorygui.GuiElement;
 import de.themoep.inventorygui.GuiStateElement;
 import de.themoep.inventorygui.StaticGuiElement;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationType;
-import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandFactory;
-import nl.pim16aap2.animatedarchitecture.core.commands.Toggle;
+import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
+import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextComponent;
@@ -30,21 +31,25 @@ class AttributeButtonFactory
     private final CommandFactory commandFactory;
     private final IExecutor executor;
     private final StructureRetrieverFactory structureRetrieverFactory;
+    private final StructureAnimationRequestBuilder structureAnimationRequestBuilder;
     private final DeleteGui.IFactory deleteGuiFactory;
-    private final IConfig config;
 
-    @Inject //
-    AttributeButtonFactory(
-        ILocalizer localizer, ITextFactory textFactory, CommandFactory commandFactory, IExecutor executor,
-        StructureRetrieverFactory structureRetrieverFactory, DeleteGui.IFactory deleteGuiFactory, IConfig config)
+    @Inject AttributeButtonFactory(
+        ILocalizer localizer,
+        ITextFactory textFactory,
+        CommandFactory commandFactory,
+        IExecutor executor,
+        StructureRetrieverFactory structureRetrieverFactory,
+        StructureAnimationRequestBuilder structureAnimationRequestBuilder,
+        DeleteGui.IFactory deleteGuiFactory)
     {
         this.localizer = localizer;
         this.textFactory = textFactory;
         this.commandFactory = commandFactory;
         this.executor = executor;
         this.structureRetrieverFactory = structureRetrieverFactory;
+        this.structureAnimationRequestBuilder = structureAnimationRequestBuilder;
         this.deleteGuiFactory = deleteGuiFactory;
-        this.config = config;
     }
 
     private void lockButtonExecute(
@@ -89,13 +94,15 @@ class AttributeButtonFactory
             new ItemStack(Material.LEVER),
             click ->
             {
-                commandFactory.newToggle(
-                    player,
-                    Toggle.DEFAULT_STRUCTURE_ACTION_TYPE,
-                    Toggle.DEFAULT_ANIMATION_TYPE,
-                    config.getAnimationTimeMultiplier(structure.getType()),
-                    true,
-                    structureRetrieverFactory.of(structure)).run().exceptionally(Util::exceptionally);
+                structureAnimationRequestBuilder
+                    .builder()
+                    .structure(structure)
+                    .structureActionCause(StructureActionCause.PLAYER)
+                    .structureActionType(StructureActionType.TOGGLE)
+                    .responsible(player)
+                    .build()
+                    .execute()
+                    .exceptionally(Util::exceptionally);
                 return true;
             },
             localizer.getMessage("gui.info_page.attribute.toggle",
@@ -110,13 +117,16 @@ class AttributeButtonFactory
             new ItemStack(Material.ENDER_EYE),
             click ->
             {
-                commandFactory.newToggle(
-                    player,
-                    Toggle.DEFAULT_STRUCTURE_ACTION_TYPE,
-                    AnimationType.PREVIEW,
-                    config.getAnimationTimeMultiplier(structure.getType()),
-                    true,
-                    structureRetrieverFactory.of(structure)).run().exceptionally(Util::exceptionally);
+                structureAnimationRequestBuilder
+                    .builder()
+                    .structure(structure)
+                    .structureActionCause(StructureActionCause.PLAYER)
+                    .structureActionType(StructureActionType.TOGGLE)
+                    .responsible(player)
+                    .animationType(AnimationType.PREVIEW)
+                    .build()
+                    .execute()
+                    .exceptionally(Util::exceptionally);
                 return true;
             },
             localizer.getMessage("gui.info_page.attribute.preview",
