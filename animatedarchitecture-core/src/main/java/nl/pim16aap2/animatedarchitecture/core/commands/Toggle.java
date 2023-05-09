@@ -27,10 +27,11 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Represents a command that toggles a structure.
  *
- * @author Pim
+ * @deprecated Use {@link StructureAnimationRequestBuilder} instead.
  */
 @ToString
 @Flogger
+@Deprecated
 public class Toggle extends BaseCommand
 {
     public static final StructureActionType DEFAULT_STRUCTURE_ACTION_TYPE = StructureActionType.TOGGLE;
@@ -200,7 +201,10 @@ public class Toggle extends BaseCommand
          * @param structureRetrievers
          *     The structure(s) to toggle.
          * @return See {@link BaseCommand#run()}.
+         *
+         * @deprecated Use {@link StructureAnimationRequestBuilder} instead.
          */
+        @Deprecated
         Toggle newToggle(
             ICommandSender commandSender, StructureActionType actionType, AnimationType animationType,
             @Nullable Double speedMultiplier, boolean preventPerpetualMovement,
@@ -212,7 +216,10 @@ public class Toggle extends BaseCommand
          * StructureRetriever...)}.
          * <p>
          * Defaults to null for the speed multiplier and true for preventPerpetualMovement.
+         *
+         * @deprecated Use {@link StructureAnimationRequestBuilder} instead.
          */
+        @Deprecated
         default Toggle newToggle(
             ICommandSender commandSender, StructureActionType actionType, AnimationType animationType,
             StructureRetriever... structureRetrievers)
@@ -229,7 +236,10 @@ public class Toggle extends BaseCommand
          * Defaults to null for the speed multiplier, to {@link Toggle#DEFAULT_STRUCTURE_ACTION_TYPE} for the structure
          * action type, to {@link Toggle#DEFAULT_ANIMATION_TYPE} for the animation type, and to true for
          * preventPerpetualMovement.
+         *
+         * @deprecated Use {@link StructureAnimationRequestBuilder} instead.
          */
+        @Deprecated
         default Toggle newToggle(ICommandSender commandSender, StructureRetriever... structureRetrievers)
         {
             return newToggle(
