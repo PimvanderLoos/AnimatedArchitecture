@@ -553,4 +553,16 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
     {
         return this;
     }
+
+    @Override
+    public Vector3Di round()
+    {
+        return this;
+    }
+
+    @Override
+    public Vector3Di ceil()
+    {
+        return this;
+    }
 }

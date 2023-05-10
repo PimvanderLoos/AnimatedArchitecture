@@ -347,6 +347,18 @@ public record Vector3Dd(double x, double y, double z) implements IVector3D
         return new Vector3Dd(Math.floor(x), Math.floor(y), Math.floor(z));
     }
 
+    @Override
+    public Vector3Dd round()
+    {
+        return new Vector3Dd(Math.round(x), Math.round(y), Math.round(z));
+    }
+
+    @Override
+    public Vector3Dd ceil()
+    {
+        return new Vector3Dd(Math.ceil(x), Math.ceil(y), Math.ceil(z));
+    }
+
     /**
      * Clamps the vector using a cuboid to provide the upper and lower limits.
      *
