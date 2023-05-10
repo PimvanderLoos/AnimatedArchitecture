@@ -143,7 +143,7 @@ public class AnimatedBlockContainer implements IAnimatedBlockContainer
             }
             try
             {
-                final IVector3D goalPos = mapper.apply(animatedBlock).floor().toInteger();
+                final IVector3D goalPos = mapper.apply(animatedBlock).round().toInteger();
                 animatedBlock.getAnimatedBlockData().putBlock(goalPos);
             }
             catch (Exception e)

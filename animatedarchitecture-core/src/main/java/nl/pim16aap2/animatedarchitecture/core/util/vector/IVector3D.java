@@ -93,6 +93,16 @@ public sealed interface IVector3D permits Vector3Dd, Vector3Di
     IVector3D floor();
 
     /**
+     * @return A new vector with {@link Math#round(double)} applied to the current values.
+     */
+    IVector3D round();
+
+    /**
+     * @return A new vector with {@link Math#ceil(double)} applied to the current values.
+     */
+    IVector3D ceil();
+
+    /**
      * Converts all the values in this 3d vector to tadians.
      * <p>
      * See {@link Math#toRadians(double)}.
