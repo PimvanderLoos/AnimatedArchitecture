@@ -33,7 +33,7 @@
         <dependency.version.eclipse-annotations>2.2.700</dependency.version.eclipse-annotations>
         <dependency.version.lombok>1.18.27-SNAPSHOT</dependency.version.lombok>
         <dependency.version.lombok-plugin>1.18.20.0</dependency.version.lombok-plugin>
-        <dependency.version.errorprone>2.19.0</dependency.version.errorprone>
+        <dependency.version.errorprone>2.19.1</dependency.version.errorprone>
         <dependency.version.nullaway>0.10.10</dependency.version.nullaway>
         <dependency.version.checkstyle>10.11.0</dependency.version.checkstyle>
         <dependency.version.pmd>3.19.0</dependency.version.pmd>
