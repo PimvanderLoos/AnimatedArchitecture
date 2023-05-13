@@ -9,7 +9,7 @@
     <parent>
         <groupId>nl.pim16aap2.animatedarchitecture</groupId>
         <artifactId>animatedarchitecture-testing</artifactId>
-        <version>0.5-SNAPSHOT</version>
+        <version>0.5</version>
     </parent>
 
     <properties>
@@ -20,21 +20,21 @@
         <dependency>
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>animatedarchitecture-integration-test-lib</artifactId>
-            <version>0.5-SNAPSHOT</version>
+            <version>0.5</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>test-util</artifactId>
-            <version>0.5-SNAPSHOT</version>
+            <version>0.5</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>animatedarchitecture-core</artifactId>
-            <version>0.5-SNAPSHOT</version>
+            <version>0.5</version>
             <scope>test</scope>
         </dependency>
 
@@ -172,7 +172,7 @@
                 <dependency>
                     <groupId>nl.pim16aap2.animatedarchitecture</groupId>
                     <artifactId>animatedarchitecture-core</artifactId>
-                    <version>0.5-SNAPSHOT</version>
+                    <version>0.5</version>
                     <type>test-jar</type>
                     <scope>test</scope>
                 </dependency>

@@ -9,7 +9,7 @@
     <parent>
         <groupId>nl.pim16aap2.animatedarchitecture</groupId>
         <artifactId>animatedarchitecture-parent</artifactId>
-        <version>0.5-SNAPSHOT</version>
+        <version>0.5</version>
     </parent>
 
     <properties>
@@ -35,14 +35,14 @@
         <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>util</artifactId>
-            <version>0.5-SNAPSHOT</version>
+            <version>0.5</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>test-util</artifactId>
-            <version>0.5-SNAPSHOT</version>
+            <version>0.5</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
