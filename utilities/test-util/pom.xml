@@ -10,7 +10,7 @@
     <parent>
         <artifactId>utilities</artifactId>
         <groupId>nl.pim16aap2</groupId>
-        <version>0.5</version>
+        <version>0.6-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -21,7 +21,7 @@
         <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>util</artifactId>
-            <version>0.5</version>
+            <version>0.6-SNAPSHOT</version>
         </dependency>
 
         <dependency>
