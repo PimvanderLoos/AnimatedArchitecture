@@ -5,17 +5,10 @@
 AnimatedArchitecture is a plugin for the Minecraft server mod [Spigot](https://spigotmc.org). Its aim is to enhance your
 server with animated blocks that can be used to create many kinds of animated architectural structures.
 
-AnimatedArchitecture is the new upcoming rewrite of the old BigDoors plugin. It does not currently have a release
-date<br>
-If you are looking for BigDoors please check out [v1](https://github.com/PimvanderLoos/BigDoors/) instead.
+AnimatedArchitecture is a rewrite of the old BigDoors plugin. You can find the legacy BigDoors plugin
+[here](https://github.com/PimvanderLoos/BigDoors/).
 
 ## Using AnimatedArchitecture
-
-### Warnings
-
-Before you try to use AnimatedArchitecture, please be aware that this project is still very much in development. So
-please ensure you regularly update the plugin, make frequent updates (and verify them), and don't be too surprised if
-you run into the occasional bug or two.
 
 ### Requirements:
 
@@ -26,18 +19,19 @@ you run into the occasional bug or two.
 
 * Grab the files of the latest [release](https://github.com/PimvanderLoos/AnimatedArchitecture/releases). You will need
   both the `AnimatedArchitecture-Spigot.jar` file and the `Structures.zip` file.
-* Extract the `Structures.zip` file.
 * Place the `AnimatedArchitecture-Spigot.jar` in the plugins directory of your server.
-* Create the following folder (or start the server to generate it
-  automatically): `plugins/AnimatedArchitecture/extensions`.
-* Move all the jars from the `Structures.zip` file to the new `extensions` directory.
+* Create the following folder (or start the server to generate it automatically): `plugins/AnimatedArchitecture/extensions`.
+* Move all the jars from the `Structures.zip` file to the new `extensions` directory.<br>
+  Don't forget to update these when installing new updates!
 * (Re)start your server.
 
 ### Importing BigDoors' Database
 
 As of [release](https://github.com/PimvanderLoos/BigDoors/releases) Alpha 0.1.8.44, BigDoors has a command that allows
-you to export the old
-database to the new format. While running that version, you can run the `BigDoors PrepareDatabaseForV2` command <b>in
+you to export the old database to the new format. Newer versions may contain additional improvements to the export
+process, so it is recommended to use the latest version of BigDoors to export your database.
+
+While running a supported version, you can run the `BigDoors PrepareDatabaseForV2` command <b>in
 the console</b> to export the database. Read the output in the console to see if everything was exported correctly.
 Running this command does not affect the existing database for BigDoors.
 
@@ -135,7 +129,7 @@ You could also use `animatedarchitecture-core` if you wish to only use the API a
     <dependency>
         <groupId>com.github.PimvanderLoos.AnimatedArchitecture</groupId>
         <artifactId>spigot-core</artifactId>
-        <version>0.3</version>
+        <version>0.5</version>
         <scope>provided</scope>
     </dependency>
 </dependencies>
@@ -149,7 +143,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("com.github.PimvanderLoos.AnimatedArchitecture", "spigot-core", "0.3")
+    compileOnly("com.github.PimvanderLoos.AnimatedArchitecture", "spigot-core", "0.5")
 }
 ```
 
