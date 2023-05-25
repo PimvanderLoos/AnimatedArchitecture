@@ -34,8 +34,13 @@ public class AnimatedHighlightedBlock implements IAnimatedBlock
     private volatile RotatedPosition currentTarget;
 
     public AnimatedHighlightedBlock(
-        ILocationFactory locationFactory, HighlightedBlockSpawner highlightedBlockSpawner, IWorld world, IPlayer player,
-        RotatedPosition position, float startRadius, Color color)
+        ILocationFactory locationFactory,
+        HighlightedBlockSpawner highlightedBlockSpawner,
+        IWorld world,
+        IPlayer player,
+        RotatedPosition position,
+        float startRadius,
+        Color color)
     {
         this.locationFactory = locationFactory;
         this.highlightedBlockSpawner = highlightedBlockSpawner;
@@ -163,12 +168,6 @@ public class AnimatedHighlightedBlock implements IAnimatedBlock
         return startRadius;
     }
 
-    @Override
-    public boolean isOnEdge()
-    {
-        return false;
-    }
-
     private static final class PreviewAnimatedBlockData implements IAnimatedBlockData
     {
         @Override
@@ -189,7 +188,7 @@ public class AnimatedHighlightedBlock implements IAnimatedBlock
         }
 
         @Override
-        public void deleteOriginalBlock(boolean applyPhysics)
+        public void deleteOriginalBlock()
         {
         }
     }
