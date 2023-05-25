@@ -40,16 +40,13 @@ class LocalizationUtilIntegrationTest
         LocalizationTestingUtilities.addFilesToZip(zipFile,
                                                    base + ".properties",
                                                    base + "_en_us.properties",
-                                                   base + "_en_us_random.properties",
                                                    base + "_nl.properties",
                                                    base + "_nl_NL.properties");
 
         final List<Locale> locales = LocalizationUtil.getLocalesInZip(zipFile, base);
-        Assertions.assertEquals(5, locales.size());
+        Assertions.assertEquals(4, locales.size());
         Assertions.assertTrue(locales.contains(Locale.ROOT));
         Assertions.assertTrue(locales.contains(Locale.US));
-        Assertions.assertTrue(locales.contains(
-            new Locale.Builder().setLanguage("en").setRegion("US").setVariant("random").build()));
         Assertions.assertTrue(locales.contains(new Locale.Builder().setLanguage("nl").build()));
         Assertions.assertTrue(locales.contains(new Locale.Builder().setLanguage("nl").setRegion("NL").build()));
     }

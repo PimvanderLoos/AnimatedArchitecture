@@ -25,6 +25,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Consumer;
@@ -39,6 +40,13 @@ import java.util.zip.ZipOutputStream;
 @Flogger
 public final class LocalizationUtil
 {
+    /**
+     * The list of all installed locales.
+     *
+     * @see Locale#getAvailableLocales()
+     */
+    private static final List<Locale> AVAILABLE_LOCALES = List.of(Locale.getAvailableLocales());
+
     private LocalizationUtil()
     {
         // utility class
@@ -559,10 +567,14 @@ public final class LocalizationUtil
     {
         try (FileSystem fs = createNewFileSystem(zipFile))
         {
-            return LocalizationUtil.getLocaleFilesInDirectory(fs.getPath("."), baseName).stream()
-                                   .map(localeFile -> getLocale(localeFile.locale())).toList();
+            return LocalizationUtil
+                .getLocaleFilesInDirectory(fs.getPath("."), baseName)
+                .stream()
+                .map(localeFile -> parseLocale(localeFile.locale()))
+                .filter(Objects::nonNull)
+                .toList();
         }
-        catch (IOException | URISyntaxException | ProviderNotFoundException e)
+        catch (Exception e)
         {
             log.atSevere().withCause(e).log("Failed to find locales in file: %s", zipFile);
             return Collections.emptyList();
@@ -570,27 +582,26 @@ public final class LocalizationUtil
     }
 
     /**
-     * Gets a {@link Locale} from a String representing a locale. E.g. "en_US".
+     * Parses a {@link Locale} from a String representing a locale. E.g. "en_US".
      * <p>
-     * If the locale string is empty, the root locale is returned. See {@link Locale#ROOT}.
+     * When the provided locale is null or blank, {@link Locale#ROOT} is returned.
      *
-     * @param localeStr
+     * @param locale
      *     A String representing a locale.
-     * @return The decoded Locale.
+     * @return The parse Locale.
      */
-    public static Locale getLocale(String localeStr)
+    public static @Nullable Locale parseLocale(@Nullable String locale)
     {
-        final String[] parts = localeStr.split("_", 3);
-        if (parts[0].isBlank())
+        if (locale == null || locale.isBlank())
             return Locale.ROOT;
 
-        final Locale.Builder builder = new Locale.Builder().setLanguage(parts[0]);
-        if (parts.length >= 2)
-            builder.setRegion(parts[1]);
-        if (parts.length >= 3)
-            builder.setVariant(parts[2]);
-        return builder.build();
+        final var languages = Locale.LanguageRange.parse(locale.replace('_', '-'));
+        final Locale parsed = Locale.lookup(languages, AVAILABLE_LOCALES);
+
+        if (parsed == null)
+            log.atSevere().log("Failed to parse locale: '%s'", locale);
+
+        log.atFine().log("Parsed locale: '%s' -> '%s'", locale, parsed);
+        return parsed;
     }
-
-
 }
