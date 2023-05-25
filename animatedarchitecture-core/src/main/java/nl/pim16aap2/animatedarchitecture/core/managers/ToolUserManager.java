@@ -14,6 +14,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
+import nl.pim16aap2.animatedarchitecture.core.util.Mutable;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -49,14 +50,14 @@ public final class ToolUserManager extends Restartable
 
     public void registerToolUser(ToolUser toolUser)
     {
-        final @Nullable ToolUserEntry result =
+        final @Nullable ToolUserEntry replaced =
             toolUsers.put(toolUser.getPlayer().getUUID(), new ToolUserEntry(toolUser, null));
 
-        if (result != null)
+        if (replaced != null)
         {
             log.atInfo().log("Aborting previous ToolUser for user: %s (%s) because a new ToolUser was initiated!",
                              toolUser.getPlayer().getName(), toolUser.getPlayer().getUUID());
-            abortPair(toolUser.getPlayer().getUUID(), result);
+            abortEntry(replaced);
         }
     }
 
@@ -118,7 +119,7 @@ public final class ToolUserManager extends Restartable
         while (it.hasNext())
         {
             final Map.Entry<UUID, ToolUserEntry> entry = it.next();
-            abortPair(entry.getKey(), entry.getValue());
+            abortEntry(entry.getValue());
         }
 
         if (!toolUsers.isEmpty())
@@ -127,18 +128,6 @@ public final class ToolUserManager extends Restartable
             toolUsers.forEach((uuid, pair) -> log.atSevere().log("Failed to abort ToolUer for user: %s", uuid));
             toolUsers.clear();
         }
-    }
-
-    /**
-     * Stops and removes a {@link ToolUser}. "Stop" here means that it will make sure to properly clean up the
-     * {@link ToolUser}.
-     *
-     * @param toolUser
-     *     The {@link ToolUser} to stop and remove.
-     */
-    public void abortToolUser(ToolUser toolUser)
-    {
-        abortToolUser(toolUser.getPlayer().getUUID());
     }
 
     /**
@@ -160,11 +149,19 @@ public final class ToolUserManager extends Restartable
             return;
         }
 
+        if (pair.toolUser != toolUser)
+        {
+            log.atSevere().withStackTrace(StackSize.FULL)
+               .log("Trying to start a tool user while another instance is already running! Aborting...");
+            abortToolUser(toolUser);
+            return;
+        }
+
         if (pair.timerTask != null)
         {
             log.atSevere().withStackTrace(StackSize.FULL)
                .log("Trying to create a timer for a tool user even though it already has one! Aborting...");
-            abortToolUser(toolUser.getPlayer().getUUID());
+            abortToolUser(toolUser);
             return;
         }
 
@@ -185,19 +182,6 @@ public final class ToolUserManager extends Restartable
     }
 
     /**
-     * Stops and removes an {@link IPlayer} if it is currently active. "Stop" here means that it will make sure to
-     * properly clean up the {@link ToolUser}.
-     *
-     * @param player
-     *     The {@link IPlayer} whose {@link ToolUser} to stop and remove.
-     */
-    @SuppressWarnings("unused")
-    public void abortToolUser(IPlayer player)
-    {
-        abortToolUser(player.getUUID());
-    }
-
-    /**
      * Stops and removes a player (defined by their {@link UUID}) if it is currently active. "Stop" here means that it
      * will make sure to properly clean up the {@link ToolUser}.
      * <p>
@@ -208,23 +192,54 @@ public final class ToolUserManager extends Restartable
      */
     public void abortToolUser(UUID playerUUID)
     {
-        abortPair(playerUUID, toolUsers.get(playerUUID));
+        abortEntry(toolUsers.remove(playerUUID));
     }
 
-    private void abortPair(UUID uuid, @Nullable ToolUserEntry pair)
+    /**
+     * Stops and removes a {@link ToolUser}. "Stop" here means that it will make sure to properly clean up the
+     * {@link ToolUser}.
+     *
+     * @param toolUser
+     *     The {@link ToolUser} to stop and remove.
+     */
+    public void abortToolUser(ToolUser toolUser)
     {
-        toolUsers.remove(uuid);
+        @SuppressWarnings("NullAway") // NullAway doesn't see the @Nullable here
+        final Mutable<@Nullable ToolUserEntry> removed = new Mutable<>(null);
+        toolUsers.computeIfPresent(toolUser.getPlayer().getUUID(), (uuid, entry) ->
+        {
+            // Make sure we remove the specific ToolUser instance we want to remove, and not some other
+            // ToolUser that might have been registered in the meantime.
+            if (entry.toolUser != toolUser)
+                return entry;
 
-        if (pair == null)
+            removed.set(entry);
+            return null;
+        });
+
+        final @Nullable ToolUserEntry removedEntry = removed.get();
+        if (removedEntry == null)
+            abortEntry(toolUser, null);
+        else
+            abortEntry(removedEntry);
+    }
+
+    private void abortEntry(@Nullable ToolUserEntry entry)
+    {
+        if (entry == null)
             return;
+        abortEntry(entry.toolUser, entry.timerTask);
+    }
 
-        if (pair.toolUser.isActive())
-            pair.toolUser.getPlayer()
-                         .sendError(textFactory, localizer.getMessage("creator.base.error.creation_cancelled"));
-        pair.toolUser.abort();
+    private void abortEntry(ToolUser toolUser, @Nullable TimerTask timerTask)
+    {
+        if (toolUser.isActive())
+            toolUser.getPlayer().sendError(textFactory, localizer.getMessage("creator.base.error.aborted"));
 
-        if (pair.timerTask != null)
-            pair.timerTask.cancel();
+        if (timerTask != null)
+            timerTask.cancel();
+
+        toolUser.abort();
     }
 
     @ToString
@@ -233,7 +248,8 @@ public final class ToolUserManager extends Restartable
     private static final class ToolUserEntry
     {
         @Getter
-        private ToolUser toolUser;
+        private final ToolUser toolUser;
+
         @Getter
         private @Nullable TimerTask timerTask;
     }
