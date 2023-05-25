@@ -559,10 +559,13 @@ public final class LocalizationUtil
     {
         try (FileSystem fs = createNewFileSystem(zipFile))
         {
-            return LocalizationUtil.getLocaleFilesInDirectory(fs.getPath("."), baseName).stream()
-                                   .map(localeFile -> getLocale(localeFile.locale())).toList();
+            return LocalizationUtil
+                .getLocaleFilesInDirectory(fs.getPath("."), baseName)
+                .stream()
+                .map(localeFile -> getLocale(localeFile.locale()))
+                .toList();
         }
-        catch (IOException | URISyntaxException | ProviderNotFoundException e)
+        catch (Exception e)
         {
             log.atSevere().withCause(e).log("Failed to find locales in file: %s", zipFile);
             return Collections.emptyList();
