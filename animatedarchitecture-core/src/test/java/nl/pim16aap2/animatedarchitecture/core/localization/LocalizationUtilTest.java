@@ -1,11 +1,13 @@
 package nl.pim16aap2.animatedarchitecture.core.localization;
 
+import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import static nl.pim16aap2.animatedarchitecture.core.localization.LocalizationUtil.*;
@@ -140,5 +142,19 @@ class LocalizationUtilTest
         Assertions.assertEquals("", parseLocaleFile("Translation.properties"));
         Assertions.assertEquals("", parseLocaleFile("Translated.properties"));
         Assertions.assertNull(parseLocaleFile("Translation.txt"));
+    }
+
+    @Test
+    void getLocale()
+    {
+        Assertions.assertEquals(Locale.US, parseLocale("en_US"));
+        Assertions.assertEquals(Locale.US, parseLocale("en-US"));
+        Assertions.assertEquals(Locale.ROOT, parseLocale(""));
+        Assertions.assertNull(parseLocale("not-a-language"));
+
+        final @Nullable Locale traditionalChinese = parseLocale("zh_Hant");
+        Assertions.assertNotNull(traditionalChinese);
+        Assertions.assertEquals("Chinese (Traditional)", traditionalChinese.getDisplayName());
+        Assertions.assertEquals("Hant", traditionalChinese.getScript());
     }
 }

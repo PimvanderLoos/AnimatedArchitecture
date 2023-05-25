@@ -41,6 +41,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.logging.Level;
@@ -392,7 +393,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable
         // So we map it to an empty String to ensure we get Locale#ROOT instead.
         if ("root".equalsIgnoreCase(localeStr))
             localeStr = "";
-        locale = LocalizationUtil.getLocale(localeStr);
+        locale = Objects.requireNonNullElse(LocalizationUtil.parseLocale(localeStr), Locale.ROOT);
 
         resourcePackEnabled = addNewConfigEntry(config, "resourcePackEnabled", false, resourcePackComment);
 
