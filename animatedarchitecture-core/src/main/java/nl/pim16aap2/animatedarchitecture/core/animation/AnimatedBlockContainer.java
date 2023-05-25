@@ -88,8 +88,7 @@ public class AnimatedBlockContainer implements IAnimatedBlockContainer
                             .ifPresent(animatedBlocksTmp::add);
                     }
 
-            tryRemoveOriginalBlocks(animatedBlocksTmp, false);
-            tryRemoveOriginalBlocks(animatedBlocksTmp, true);
+            tryRemoveOriginalBlocks(animatedBlocksTmp);
         }
         catch (Exception e)
         {
@@ -111,21 +110,14 @@ public class AnimatedBlockContainer implements IAnimatedBlockContainer
      *
      * @param animatedBlocks
      *     The animated blocks to process.
-     * @param edgePass
-     *     True to do a pass over the edges specifically.
      * @return True if the original blocks could be spawned. If something went wrong and the process had to be aborted,
      * false is returned instead.
      */
-    private void tryRemoveOriginalBlocks(List<IAnimatedBlock> animatedBlocks, boolean edgePass)
+    private void tryRemoveOriginalBlocks(List<IAnimatedBlock> animatedBlocks)
     {
         executor.assertMainThread("Blocks must be removed on the main thread!");
-
-        for (final IAnimatedBlock animatedBlock : animatedBlocks)
-        {
-            if (edgePass && !animatedBlock.isOnEdge())
-                continue;
-            animatedBlock.getAnimatedBlockData().deleteOriginalBlock(edgePass);
-        }
+        animatedBlocks.forEach(block -> block.getAnimatedBlockData().deleteOriginalBlock());
+        animatedBlocks.forEach(block -> block.getAnimatedBlockData().postProcessStructureRemoval());
     }
 
     private void putBlocks(Function<IAnimatedBlock, IVector3D> mapper)

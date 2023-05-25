@@ -4,10 +4,11 @@ import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 
 /**
- * Represents an NMS block.
- *
- * @author Pim
+ * Represents the internal data of an animated block.
+ * <p>
+ * These data represent a representation of the block in the structure as it is in the world.
  */
+@SuppressWarnings("unused")
 public interface IAnimatedBlockData
 {
     /**
@@ -48,10 +49,16 @@ public interface IAnimatedBlockData
 
     /**
      * Deletes the block at the original location.
-     *
-     * @param applyPhysics
-     *     True to apply physics when removing this block. When this is false, stuff like torches that are attached to
-     *     this block will not be broken upon removal of this block.
      */
-    void deleteOriginalBlock(boolean applyPhysics);
+    void deleteOriginalBlock();
+
+    /**
+     * Called after all blocks in a structure have been removed for any potential post-processing.
+     * <p>
+     * Subclasses can override this method if they need to do any post-processing, such as updating the physics around
+     * the edges of the empty space where the structure used to be.
+     */
+    default void postProcessStructureRemoval()
+    {
+    }
 }

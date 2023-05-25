@@ -198,12 +198,6 @@ public final class AnimationRegion
         }
 
         @Override
-        public boolean isOnEdge()
-        {
-            return false;
-        }
-
-        @Override
         public int getTicksLived()
         {
             return 0;

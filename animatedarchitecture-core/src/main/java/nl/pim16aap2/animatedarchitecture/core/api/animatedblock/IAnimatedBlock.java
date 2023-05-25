@@ -7,8 +7,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 
 /**
  * Represents a block that is being animated.
- *
- * @author Pim
  */
 @SuppressWarnings("unused")
 public interface IAnimatedBlock
@@ -130,11 +128,6 @@ public interface IAnimatedBlock
      * @return The radius this animated block had in relation to the engine when the animation first started.
      */
     float getRadius();
-
-    /**
-     * @return True if this animated block is on the edge of the cuboid being animated.
-     */
-    boolean isOnEdge();
 
     enum TeleportMode
     {

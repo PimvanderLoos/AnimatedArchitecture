@@ -38,8 +38,11 @@ public class SimpleBlockData implements IAnimatedBlockData
     private final World bukkitWorld;
 
     SimpleBlockData(
-        AnimatedBlockDisplay animatedBlock, IExecutor executor,
-        @Nullable Consumer<IAnimatedBlockData> blockDataRotator, World bukkitWorld, Vector3Di position)
+        AnimatedBlockDisplay animatedBlock,
+        IExecutor executor,
+        @Nullable Consumer<IAnimatedBlockData> blockDataRotator,
+        World bukkitWorld,
+        Vector3Di position)
     {
         this.executor = executor;
         this.animatedBlock = animatedBlock;
@@ -227,18 +230,29 @@ public class SimpleBlockData implements IAnimatedBlockData
         return blockData;
     }
 
-    @Override
-    public synchronized void deleteOriginalBlock(boolean applyPhysics)
+    private void deleteOriginalBlock(boolean applyPhysics)
     {
         if (!executor.isMainThread())
         {
-            log.atSevere().withStackTrace(StackSize.FULL).log("Caught async block placement! THIS IS A BUG!");
+            log.atSevere().withStackTrace(StackSize.FULL).log("Caught async block removal! THIS IS A BUG!");
             return;
         }
-
-        animatedBlock.forEachHook("prePutBlock", IAnimatedBlockHook::preDeleteOriginalBlock);
         this.bukkitWorld.getBlockAt(originalPosition.x(), originalPosition.y(), originalPosition.z())
                         .setType(Material.AIR, applyPhysics);
+    }
+
+    @Override
+    public synchronized void deleteOriginalBlock()
+    {
+        animatedBlock.forEachHook("prePutBlock", IAnimatedBlockHook::preDeleteOriginalBlock);
+        deleteOriginalBlock(false);
         animatedBlock.forEachHook("postPutBlock", IAnimatedBlockHook::postDeleteOriginalBlock);
+    }
+
+    @Override
+    public synchronized void postProcessStructureRemoval()
+    {
+        if (this.animatedBlock.isOnEdge())
+            deleteOriginalBlock(true);
     }
 }
