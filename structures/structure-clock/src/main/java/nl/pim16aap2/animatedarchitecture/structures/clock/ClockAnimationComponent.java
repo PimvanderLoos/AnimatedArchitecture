@@ -55,7 +55,9 @@ public final class ClockAnimationComponent extends DrawbridgeAnimationComponent
     private final StructureSnapshot snapshot;
 
     public ClockAnimationComponent(
-        AnimationRequestData data, MovementDirection movementDirection, boolean isNorthSouthAligned)
+        AnimationRequestData data,
+        MovementDirection movementDirection,
+        boolean isNorthSouthAligned)
     {
         super(data, movementDirection, isNorthSouthAligned, 4);
         this.snapshot = data.getStructureSnapshot();

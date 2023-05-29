@@ -47,6 +47,9 @@ public class CreatorClock extends Creator
     @GuardedBy("this")
     private @Nullable BlockFace hourArmSide;
 
+    /**
+     * Whether the structure is aligned along the north/south axis.
+     */
     @GuardedBy("this")
     private boolean northSouthAligned;
 
@@ -105,8 +108,40 @@ public class CreatorClock extends Creator
 
         if (hourArmSide == null)
             getPlayer().sendError(textFactory, localizer.getMessage("creator.clock.error.invalid_hour_arm_side"));
+        else
+            setRotationPoint(calculateRotationPoint(northSouthAligned, hourArmSide, cuboid));
 
         return hourArmSide != null;
+    }
+
+    private static Vector3Di calculateRotationPoint(
+        boolean northSouthAligned,
+        BlockFace hourArmSide,
+        Cuboid cuboid)
+    {
+        final Vector3Di center = cuboid.getCenterBlock();
+
+        final int x;
+        final int y = center.y();
+        final int z;
+
+        if (northSouthAligned)
+        {
+            z = center.z();
+            if (hourArmSide == BlockFace.WEST)
+                x = cuboid.getMin().x();
+            else
+                x = cuboid.getMax().x();
+        }
+        else
+        {
+            x = center.x();
+            if (hourArmSide == BlockFace.NORTH)
+                z = cuboid.getMin().z();
+            else
+                z = cuboid.getMax().z();
+        }
+        return new Vector3Di(x, y, z);
     }
 
     @Override
@@ -167,9 +202,6 @@ public class CreatorClock extends Creator
     @Override
     public synchronized Set<MovementDirection> getValidOpenDirections()
     {
-        if (isOpen())
-            return getStructureType().getValidOpenDirections();
-        // When the garage structure is not open (i.e. vertical), it can only be opened along one axis.
         return northSouthAligned ? NORTH_SOUTH_AXIS_OPEN_DIRS : EAST_WEST_AXIS_OPEN_DIRS;
     }
 
@@ -180,32 +212,19 @@ public class CreatorClock extends Creator
     }
 
     /**
-     * Calculates the position of the rotation point. This should be called at the end of the process, as not all
-     * variables may be set at an earlier stage.
-     */
-    protected synchronized void setRotationPoint()
-    {
-        final @Nullable Cuboid cuboid = getCuboid();
-        if (cuboid == null)
-            return;
-        setRotationPoint(cuboid.getCenterBlock());
-    }
-
-    /**
      * Calculates the open direction from the current physical aspects of this clock.
      */
     protected synchronized void setOpenDirection()
     {
         if (northSouthAligned)
-            setMovementDirection(hourArmSide == BlockFace.NORTH ? MovementDirection.WEST : MovementDirection.EAST);
+            setMovementDirection(hourArmSide == BlockFace.EAST ? MovementDirection.SOUTH : MovementDirection.NORTH);
         else
-            setMovementDirection(hourArmSide == BlockFace.EAST ? MovementDirection.NORTH : MovementDirection.SOUTH);
+            setMovementDirection(hourArmSide == BlockFace.NORTH ? MovementDirection.EAST : MovementDirection.WEST);
     }
 
     @Override
     protected synchronized AbstractStructure constructStructure()
     {
-        setRotationPoint();
         setOpenDirection();
         Util.requireNonNull(hourArmSide, "hourArmSide");
         return new Clock(constructStructureData(), northSouthAligned, hourArmSide);
