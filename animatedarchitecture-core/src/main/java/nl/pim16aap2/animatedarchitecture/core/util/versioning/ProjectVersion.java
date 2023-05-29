@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.util.versioning;
 
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatform;
 import org.jetbrains.annotations.VisibleForTesting;
 
 import java.util.List;
@@ -8,7 +9,20 @@ import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 
 /**
- * Representation of the project version that is currently running.
+ * Representation of a version of the project.
+ * <p>
+ * To obtain the version of the project that is currently running, use
+ * {@link IAnimatedArchitecturePlatform#getProjectVersion()}.
+ * <p>
+ * This class can be used to compare versions. For example, to check if the current version is at least version 1.0:
+ * <pre>{@code
+ * ProjectVersion currentVersion = platform.getProjectVersion();
+ * if (!currentVersion.isAtLeast("0.6-SNAPSHOT")) {
+ *     // Do something
+ *     return;
+ * }}</pre>
+ * <p>
+ * For more information about the accepted version format, see {@link #parse(String)}.
  *
  * @param version
  *     The (cleaned) version of the project.
@@ -28,15 +42,40 @@ public record ProjectVersion(String version, boolean snapshot)
     private static final Pattern VERSION_PATTERN = Pattern.compile("^[0-9]+(\\.[0-9]+)*$");
 
     /**
+     * Matches the insignificant zeroes of a version.
+     * <p>
+     * For example, "1.0.0" will match ".0.0", "1.0" will match ".0", and "1" and "1.0.1" will not match anything.
+     * <p>
+     * This pattern is used to remove the insignificant ".0" part from version Strings, leaving us only with the
+     * important parts.
+     */
+    private static final Pattern INSIGNIFICANT_ZEROES_PATTERN = Pattern.compile("(\\.0+)*$");
+
+    /**
      * The suffix of input snapshot versions.
      */
     private static final String SNAPSHOT_SUFFIX = "-SNAPSHOT";
 
     /**
-     * The version that is returned as error state.
+     * The version that is returned as error state. This is always equal to version "0-SNAPSHOT"; the lowest possible
+     * version.
      */
     public static final ProjectVersion ERROR_VERSION = new ProjectVersion("0", true);
 
+    /**
+     * Creates a new ProjectVersion.
+     *
+     * @param version
+     *     The (cleaned) version of the project.
+     *     <p>
+     *     If the actual version is "1.0-SNAPSHOT", the version is "1.0".
+     * @param snapshot
+     *     True if this is a snapshot version.
+     * @throws IllegalStateException
+     *     When the version pattern does not find exactly 1 match in the input String.
+     * @throws IllegalStateException
+     *     When the String that matches the pattern is not equal to the input String.
+     */
     public ProjectVersion
     {
         verifyVersionPattern(version);
@@ -44,10 +83,14 @@ public record ProjectVersion(String version, boolean snapshot)
 
     /**
      * Parses the ProjectVersion from the input String.
+     * <p>
+     * If the input String is invalid, {@link #ERROR_VERSION} is returned.
      *
      * @param input
      *     The input string. Must be of the form "version[.sub-version[.etc]][-SNAPSHOT]", where everything between
      *     brackets is optional.
+     *     <p>
+     *     For example, "1", "1.0", "1.0.1", "1-SNAPSHOT", "1.0-SNAPSHOT", "1.0.1-SNAPSHOT", etc.
      * @return The parsed project version.
      */
     public static ProjectVersion parse(String input)
@@ -63,6 +106,73 @@ public record ProjectVersion(String version, boolean snapshot)
             log.atSevere().withCause(e).log("Failed to parse project version from input: '%s'", input);
         }
         return ERROR_VERSION;
+    }
+
+    /**
+     * Checks if the current version is newer than the other version.
+     * <p>
+     * If both the version and the snapshot are equal, the current version is not considered newer.
+     * <p>
+     * If only the versions are equal, the snapshot version is considered older than the non-snapshot version.
+     *
+     * @param other
+     *     The other version to compare to.
+     * @return True if the current version is newer than the other version.
+     */
+    public boolean isNewerThan(ProjectVersion other)
+    {
+        if (this.equals(other))
+            return false;
+        if (version.equals(other.version))
+            return other.snapshot;
+        return isNewer(other.version, this.version);
+    }
+
+    /**
+     * Checks if the current version is newer than the other version.
+     * <p>
+     * If both the version and the snapshot are equal, the current version is not considered newer and the result will
+     * be 'false'.
+     * <p>
+     * If only the versions are equal, the snapshot version is considered older than the non-snapshot version.
+     *
+     * @param other
+     *     The String representation of the other version to compare to.
+     *     <p>
+     *     See {@link #parse(String)}.
+     * @return True if the current version is newer than the other version.
+     */
+    public boolean isNewerThan(String other)
+    {
+        return isNewerThan(ProjectVersion.parse(other));
+    }
+
+    /**
+     * Checks if the current version is greater than or equal to the other version.
+     *
+     * @param other
+     *     The other version to compare to.
+     * @return True if the current version is greater than or equal to the other version.
+     */
+    public boolean isAtLeast(ProjectVersion other)
+    {
+        if (this.equals(other))
+            return true;
+        return isNewerThan(other);
+    }
+
+    /**
+     * Checks if the current version is greater than or equal to the other version.
+     *
+     * @param other
+     *     The String representation of the other version to compare to.
+     *     <p>
+     *     See {@link #parse(String)}.
+     * @return True if the current version is greater than or equal to the other version.
+     */
+    public boolean isAtLeast(String other)
+    {
+        return isAtLeast(ProjectVersion.parse(other));
     }
 
     /**
@@ -118,10 +228,28 @@ public record ProjectVersion(String version, boolean snapshot)
     }
 
     /**
+     * Trims insignificant zeroes from a version String.
+     * <p>
+     * This method removes all 'insignificant' zeroes from a version String. This means that all zeroes that are not at
+     * the start of the String are removed.
+     * <p>
+     * For example, "1.0.0" will be trimmed to "1", but "1.0.1" and "0.1" will be returned as-is.
+     *
+     * @param input
+     *     The input String to trim.
+     * @return The trimmed version String.
+     */
+    @VisibleForTesting
+    static String trimInsignificantZeroes(String input)
+    {
+        return INSIGNIFICANT_ZEROES_PATTERN.matcher(input).replaceAll("");
+    }
+
+    /**
      * Checks if one version is greater than another version.
      * <p>
      * All version Strings are expected to be of the format "version[.sub-version[.etc]]", with everything between
-     * brackets being optional.
+     * brackets being optional. Note that this method assumes that the input Strings may not contain a snapshot suffix.
      * <p>
      * This method splits a version on the dots and compares each group of characters against each other.
      *
@@ -134,8 +262,8 @@ public record ProjectVersion(String version, boolean snapshot)
     @VisibleForTesting
     static boolean isNewer(String base, String test)
     {
-        final String[] baseParts = base.split("\\.");
-        final String[] testParts = test.split("\\.");
+        final String[] baseParts = trimInsignificantZeroes(base).split("\\.");
+        final String[] testParts = trimInsignificantZeroes(test).split("\\.");
 
         final int partsLen = Math.min(baseParts.length, testParts.length);
         for (int idx = 0; idx < partsLen; ++idx)
@@ -154,15 +282,6 @@ public record ProjectVersion(String version, boolean snapshot)
                 return testVer > baseVer;
         }
         return testParts.length > baseParts.length;
-    }
-
-    public boolean isNewerThan(ProjectVersion other)
-    {
-        if (this.equals(other))
-            return false;
-        if (version.equals(other.version))
-            return other.snapshot;
-        return isNewer(other.version, this.version);
     }
 
     /**
