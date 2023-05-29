@@ -116,12 +116,6 @@ public class Clock extends AbstractStructure implements IHorizontalAxisAligned, 
     }
 
     @Override
-    public boolean canSkipAnimation()
-    {
-        return false;
-    }
-
-    @Override
     public boolean isOpenable()
     {
         return true;
