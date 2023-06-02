@@ -180,7 +180,7 @@ public class EventListeners extends AbstractListener
         try
         {
             final @Nullable ItemStack currentItem = event.getCurrentItem();
-            if (currentItem != null && !animatedArchitectureToolUtil.isTool(currentItem))
+            if (currentItem == null || !animatedArchitectureToolUtil.isTool(currentItem))
                 return;
 
             final @Nullable Inventory clickedInventory = event.getClickedInventory();
@@ -190,14 +190,14 @@ public class EventListeners extends AbstractListener
             if (event.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY) ||
                 !clickedInventory.getType().equals(InventoryType.PLAYER))
             {
-                if (event.getWhoClicked() instanceof Player)
+                if (event.getWhoClicked() instanceof Player player)
                 {
-                    if (isToolUser((Player) event.getWhoClicked()))
+                    if (isToolUser(player))
                         event.setCancelled(true);
                     else
-                        event.getInventory().removeItem(event.getCurrentItem());
+                        event.getInventory().removeItem(currentItem);
                 }
-                event.setCancelled(true); // TODO: Check this.
+                event.setCancelled(true);
             }
         }
         catch (Exception e)
