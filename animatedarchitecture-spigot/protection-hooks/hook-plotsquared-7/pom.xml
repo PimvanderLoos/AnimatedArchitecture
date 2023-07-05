@@ -15,6 +15,7 @@
 
     <properties>
         <project.root-dir>${project.basedir}/../../..</project.root-dir>
+        <dependency.version.plotsquared>7.0.0-SNAPSHOT</dependency.version.plotsquared>
     </properties>
 
     <repositories>
@@ -45,15 +46,15 @@
         </dependency>
 
         <dependency>
-            <groupId>com.plotsquared</groupId>
-            <artifactId>PlotSquared-Core</artifactId>
-            <version>7.0.0-SNAPSHOT</version>
+            <groupId>com.intellectualsites.plotsquared</groupId>
+            <artifactId>plotsquared-core</artifactId>
+            <version>${dependency.version.plotsquared}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.plotsquared</groupId>
-            <artifactId>PlotSquared-Bukkit</artifactId>
-            <version>7.0.0-SNAPSHOT</version>
+            <groupId>com.intellectualsites.plotsquared</groupId>
+            <artifactId>plotsquared-bukkit</artifactId>
+            <version>${dependency.version.plotsquared}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
