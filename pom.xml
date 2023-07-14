@@ -37,7 +37,7 @@
         <dependency.version.nullaway>0.10.11</dependency.version.nullaway>
         <dependency.version.checkstyle>10.12.1</dependency.version.checkstyle>
         <dependency.version.pmd>3.19.0</dependency.version.pmd>
-        <dependency.version.dagger>2.46.1</dependency.version.dagger>
+        <dependency.version.dagger>2.47</dependency.version.dagger>
         <dependency.version.mockito>5.4.0</dependency.version.mockito>
         <dependency.version.junit>5.9.3</dependency.version.junit>
         <dependency.version.surefire>3.1.2</dependency.version.surefire>
