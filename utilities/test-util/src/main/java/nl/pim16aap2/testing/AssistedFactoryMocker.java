@@ -33,25 +33,95 @@ import java.util.stream.Collectors;
  * <p>
  * Any dependencies that cannot be mocked will default to null. These can later be manually updated using
  * {@link AssistedFactoryMocker#setMock(Class, String, Object)} if needed.
+ * <p>
+ * Example usage:
+ * <pre>{@code
+ * // The class with the AssistedInject constructor that we want to create a factory for.
+ * public class MyObject {
+ *     @AssistedInject
+ *     MyObject(MyDependency myDependency,
+ *              @Assisted String someString) {
+ *         ...
+ *     }
+ * }
+ *
+ * // The interface that represents the factory.
+ * @AssistedFactory
+ * public interface MyObjectFactory {
+ *    MyObject create(String someString);
+ * }
+ *
+ * // Create a new factory using an existing instance of MyDependency.
+ * public MyObjectFactory createMyObjectFactory(MyDependency existingMyDependency) {
+ *     final var mocker = new AssistedFactoryMocker<>(MyObject.class, MyObjectFactory.class);
+ *     mocker.setMock(MyDependency.class, existingMyDependency);
+ *     return mocker.getFactory();
+ * }
+ *
+ * public MyObject createMyObject(MyObjectFactory factory, String someString) {
+ *     return factory.create(someString);
+ * }
+ * }</pre>
  *
  * @param <T>
  *     The type of the class that is instantiated by the factory.
  * @param <U>
  *     The type of the factory that instantiates the target class.
- * @author Pim
  */
 public class AssistedFactoryMocker<T, U>
 {
+    /**
+     * The class that is used to create new instances of the target class.
+     */
     private final Class<U> factoryClass;
-    private final MockSettings mockSettings;
 
-    private final Method factoryMethod;
-    private final Constructor<T> targetCtor;
-    private final List<MappedParameter> mappedParameters;
-    private final Int2ObjectMap<MappedParameter> mockedParameters;
-
+    /**
+     * The factory instance that can be used to create new instances of the target class.
+     */
     private final U factory;
 
+    /**
+     * The method in the factory class that is used to create new instances of the target class.
+     */
+    private final Method factoryMethod;
+
+    /**
+     * The target constructor of the target class. This is the constructor that is annotated with
+     * {@link AssistedInject}.
+     */
+    private final Constructor<T> targetCtor;
+
+    /**
+     * The list of parameters of the target constructor (see {@link #targetCtor}).
+     * <p>
+     * The parameters are mapped from their index in the factory method to their index in the target constructor.
+     */
+    private final List<MappedParameter> mappedParameters;
+
+    /**
+     * The parameters that are injected into the target class and are not provided by the factory method.
+     * <p>
+     * The keys of the map are provided by {@link MappedParameter#getNamedTypeHash(Class, String)}.
+     */
+    private final Int2ObjectMap<MappedParameter> injectedParameters;
+
+    /**
+     * The mock settings that are used to create the injected objects for the factory (i.e. the objects that are not
+     * provided by the factory method).
+     */
+    private final MockSettings mockSettings;
+
+    /**
+     * @param targetClass
+     *     The class that is instantiated by the factory.
+     * @param factoryClass
+     *     The factory class that instantiates the target class.
+     * @param mockSettings
+     *     The mock settings that are used to create the injected objects for the factory (i.e. the objects that are not
+     *     provided by the factory method).
+     * @throws NoSuchMethodException
+     *     If the factory method or the target constructor could not be found.
+     */
     public AssistedFactoryMocker(Class<T> targetClass, Class<U> factoryClass, MockSettings mockSettings)
         throws NoSuchMethodException
     {
@@ -71,11 +141,21 @@ public class AssistedFactoryMocker<T, U>
         validateAssistedParameterCounts();
 
         mappedParameters = mapParameters(factoryMethod, targetCtor);
-        mockedParameters = insertMocks();
+        injectedParameters = insertMocks();
 
         factory = Objects.requireNonNull(constructFactory());
     }
 
+    /**
+     * @param targetClass
+     *     The class that is instantiated by the factory.
+     * @param factoryClass
+     *     The factory class that instantiates the target class.
+     * @param defaultAnswer
+     *     The default answer that is used for all mocks that are created for the factory.
+     * @throws NoSuchMethodException
+     *     If the factory method or the target constructor could not be found.
+     */
     @SuppressWarnings("unused")
     public AssistedFactoryMocker(Class<T> targetClass, Class<U> factoryClass, Answer<?> defaultAnswer)
         throws NoSuchMethodException
@@ -83,6 +163,14 @@ public class AssistedFactoryMocker<T, U>
         this(targetClass, factoryClass, Mockito.withSettings().defaultAnswer(defaultAnswer));
     }
 
+    /**
+     * @param targetClass
+     *     The class that is instantiated by the factory.
+     * @param factoryClass
+     *     The factory class that instantiates the target class.
+     * @throws NoSuchMethodException
+     *     If the factory method or the target constructor could not be found.
+     */
     @SuppressWarnings("unused")
     public AssistedFactoryMocker(Class<T> targetClass, Class<U> factoryClass)
         throws NoSuchMethodException
@@ -90,6 +178,16 @@ public class AssistedFactoryMocker<T, U>
         this(targetClass, factoryClass, Mockito.withSettings());
     }
 
+    /**
+     * Creates a new instance of the target class using the provided parameters.
+     * <p>
+     * The arguments of the invocation are mixed in with the mocked/provided instances to get the final array of
+     * parameters of the target constructor.
+     *
+     * @param invocation
+     *     The invocation of the factory method.
+     * @return The new instance of the target class.
+     */
     T instantiateNewTarget(InvocationOnMock invocation)
     {
         final Object[] ctorParams = new Object[targetCtor.getParameterCount()];
@@ -98,7 +196,7 @@ public class AssistedFactoryMocker<T, U>
         for (final MappedParameter parameter : mappedParameters)
         {
             final int idx = parameter.getTargetIdx();
-            final @Nullable Object value = parameter.isMocked() ?
+            final @Nullable Object value = parameter.isInjected() ?
                                            parameter.getValue() : factoryParams[parameter.getFactoryIdx()];
             //noinspection ConstantConditions
             ctorParams[idx] = value;
@@ -165,7 +263,7 @@ public class AssistedFactoryMocker<T, U>
     @Contract("true, _, _ -> !null")
     public <V> V getMock(boolean nonNull, Class<V> type, @Nullable String name)
     {
-        final @Nullable MappedParameter param = mockedParameters.get(MappedParameter.getNamedTypeHash(type, name));
+        final @Nullable MappedParameter param = injectedParameters.get(MappedParameter.getNamedTypeHash(type, name));
         //noinspection unchecked
         final @Nullable V ret = param == null ? null : (V) param.getValue();
         if (ret == null)
@@ -186,7 +284,7 @@ public class AssistedFactoryMocker<T, U>
     @SuppressWarnings("unused")
     public boolean hasMock(Class<?> type, @Nullable String name)
     {
-        return mockedParameters.containsKey(MappedParameter.getNamedTypeHash(type, name));
+        return injectedParameters.containsKey(MappedParameter.getNamedTypeHash(type, name));
     }
 
     /**
@@ -218,12 +316,18 @@ public class AssistedFactoryMocker<T, U>
     public <V> AssistedFactoryMocker<T, U> setMock(Class<V> type, @Nullable String name, V mock)
     {
         final MappedParameter param =
-            Objects.requireNonNull(mockedParameters.get(MappedParameter.getNamedTypeHash(type, name)),
+            Objects.requireNonNull(injectedParameters.get(MappedParameter.getNamedTypeHash(type, name)),
                                    "No mocked parameter of type " + type + " and name " + name + " could be found!");
         param.setValue(mock);
         return this;
     }
 
+    /**
+     * Creates a new (mocked) instance of the factory class that can be used to construct new instances of the target
+     * class using the values provided through the factory and the mocked instances for the remaining values.
+     *
+     * @return The new factory instance.
+     */
     private U constructFactory()
     {
         final Function<InvocationOnMock, Object> mapper = this::instantiateNewTarget;
@@ -244,7 +348,7 @@ public class AssistedFactoryMocker<T, U>
         final Int2ObjectMap<MappedParameter> ret = new Int2ObjectOpenHashMap<>();
         for (final MappedParameter parameter : mappedParameters)
         {
-            if (!parameter.isMocked())
+            if (!parameter.isInjected())
                 continue;
             parameter.setValue(Util.newMock(parameter.getType(), mockSettings));
             ret.put(parameter.getNamedTypeHash(), parameter);
@@ -477,6 +581,8 @@ public class AssistedFactoryMocker<T, U>
 
         /**
          * The index of the parameter from the input factory method.
+         * <p>
+         * This will be -1 if the parameter is injected and thus not provided by the factory method.
          */
         private final int factoryIdx;
 
@@ -499,7 +605,12 @@ public class AssistedFactoryMocker<T, U>
         @Setter
         private @Nullable Object value;
 
-        public boolean isMocked()
+        /**
+         * Gets whether this parameter is injected, i.e. not provided by the factory method.
+         *
+         * @return True if this parameter is injected, false otherwise.
+         */
+        public boolean isInjected()
         {
             return factoryIdx == -1;
         }
@@ -529,6 +640,11 @@ public class AssistedFactoryMocker<T, U>
     {
     }
 
+    /**
+     * Represents the answer of a method invocation on the factory class.
+     * <p>
+     * This will either call the real method or apply a mapper to create a new instance of the target class.
+     */
     @AllArgsConstructor
     private static class DefaultAnswer implements Answer<Object>
     {
@@ -539,6 +655,10 @@ public class AssistedFactoryMocker<T, U>
         public Object answer(InvocationOnMock invocation)
             throws Throwable
         {
+            // If the invoked method is the target (factory) method, then apply the mapper to create a new instance of
+            // the target class.
+            // Otherwise, call the real method. This ensures that default methods in the factory interface are called,
+            // which will eventually call the target method.
             return invocation.getMethod().equals(targetMethod) ?
                    mapper.apply(invocation) : Mockito.CALLS_REAL_METHODS.answer(invocation);
         }
