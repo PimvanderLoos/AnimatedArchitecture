@@ -2,10 +2,16 @@ package nl.pim16aap2.animatedarchitecture.core.api;
 
 
 /**
- * Analyzes blocks to obtain various information.
+ * Analyzes blocks and materials for various properties. This is used to determine if a block can be used for
+ * animations. For example, air and liquids are processed differently than solid blocks, and users can blacklist or
+ * whitelist certain blocks to override the default behavior.
+ * <p>
+ * An instance of this class can be obtained through {@link IAnimatedArchitecturePlatform#getBlockAnalyzer()}.
+ * <p>
+ * This class is platform-independent, and should be implemented for each platform.
  *
  * @param <T>
- *     The type of block/material this class can analyze.
+ *     The type of block or material that is processed by this analyzer. This is usually a platform-specific type.
  */
 public interface IBlockAnalyzer<T>
 {
