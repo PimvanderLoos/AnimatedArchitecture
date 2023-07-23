@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 public enum MinecraftVersion
 {
     v1_19_R3,
+    v1_20_R1,
     ;
 
     private static final MinecraftVersion LATEST_VERSION;

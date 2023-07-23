@@ -28,8 +28,10 @@ public final class BlockAnalyzerProvider
     private IBlockAnalyzerSpigot instantiateBlockAnalyzer()
     {
         return switch (MinecraftVersion.getUsedVersion())
-            {
-                case v1_19_R3 -> new nl.pim16aap2.animatedarchitecture.spigot.v1_19_R3.BlockAnalyzer();
-            };
+        {
+            // 1.20 did not introduce any new blocks that were not in 1.19 as experimental entries,
+            // so we can use the 1.19 analyzer.
+            case v1_19_R3, v1_20_R1 -> new nl.pim16aap2.animatedarchitecture.spigot.v1_19_R3.BlockAnalyzer();
+        };
     }
 }
