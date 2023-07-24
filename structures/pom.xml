@@ -32,6 +32,14 @@
         </dependency>
 
         <dependency>
+            <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+            <artifactId>animatedarchitecture-core</artifactId>
+            <version>0.6-SNAPSHOT</version>
+            <scope>test</scope>
+            <type>test-jar</type>
+        </dependency>
+
+        <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>test-util</artifactId>
             <version>0.6-SNAPSHOT</version>

@@ -17,6 +17,7 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import javax.inject.Named;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -405,13 +406,13 @@ public class AssistedFactoryMocker<T, U>
      */
     static List<ParameterDescription> getParameterDescriptions(Parameter... parameters)
     {
-        final Function<Assisted, @Nullable String> assistedMapper = Assisted::value;
-
         final ArrayList<ParameterDescription> ret = new ArrayList<>(parameters.length);
         ret.ensureCapacity(parameters.length);
         for (final Parameter parameter : parameters)
         {
-            final @Nullable String named = getAnnotationValue(Assisted.class, parameter, assistedMapper);
+            @Nullable String named = getAnnotationValue(Assisted.class, parameter, Assisted::value);
+            if (named == null)
+                named = getAnnotationValue(Named.class, parameter, Named::value);
 
             final boolean isAssisted = parameter.isAnnotationPresent(Assisted.class);
             ret.add(new ParameterDescription(parameter.getType(), isAssisted, named));

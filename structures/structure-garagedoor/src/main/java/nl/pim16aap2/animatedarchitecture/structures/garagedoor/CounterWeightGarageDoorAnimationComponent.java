@@ -92,7 +92,7 @@ public class CounterWeightGarageDoorAnimationComponent implements IAnimationComp
         this.step = angle / quarterCircles / animationSteps;
     }
 
-    private Cuboid getMergedCuboid(Cuboid oldCuboid, Vector3Di directionVec, boolean wasVertical)
+    private static Cuboid getMergedCuboid(Cuboid oldCuboid, Vector3Di directionVec, boolean wasVertical)
     {
         if (wasVertical)
         {

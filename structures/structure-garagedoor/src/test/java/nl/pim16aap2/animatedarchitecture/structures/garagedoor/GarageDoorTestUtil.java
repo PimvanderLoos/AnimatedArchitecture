@@ -5,6 +5,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
+import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
+import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.LazyValue;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
@@ -136,10 +139,19 @@ class GarageDoorTestUtil
         public GarageDoor createGarageDoor()
         {
             final GarageDoor garageDoor = Mockito.mock(GarageDoor.class, InvocationOnMock::callRealMethod);
-            ReflectionUtil.setField(garageDoor, "lock", new ReentrantReadWriteLock());
+
+            final var lock = new ReentrantReadWriteLock();
+            ReflectionUtil.setField(GarageDoor.class, garageDoor, "lock", lock);
+            ReflectionUtil.setField(AbstractStructure.class, garageDoor, "lock", lock);
+
             Mockito.doReturn(startCuboid).when(garageDoor).getCuboid();
             Mockito.doReturn(currentToggleDir).when(garageDoor).getCurrentToggleDir();
             Mockito.doReturn(rotationPoint).when(garageDoor).getRotationPoint();
+
+            final LazyValue<StructureSnapshot> snapshot = new LazyValue<>(
+                () -> UnitTestUtil.createStructureSnapshotForStructure(garageDoor));
+            Mockito.doAnswer(invocation -> snapshot.get()).when(garageDoor).getSnapshot();
+
             return garageDoor;
         }
 
