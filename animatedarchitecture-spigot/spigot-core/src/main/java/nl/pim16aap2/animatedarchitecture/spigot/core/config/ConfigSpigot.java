@@ -98,6 +98,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable
     private boolean loadChunksForToggle;
     private Locale locale = Locale.ROOT;
     private int headCacheTimeout;
+    private boolean skipAnimationsByDefault;
     private boolean consoleLogging;
     private Level logLevel = Level.INFO;
     private boolean debug = false;
@@ -342,6 +343,13 @@ public final class ConfigSpigot implements IConfig, IDebuggable
             # Don't use this. Just leave it on false.
             """;
 
+        final String skipAnimationsByDefaultComment =
+            """
+            # When enabled, all animations will be skipped by default, causing any toggles to simply teleport the blocks
+            # to their destination instantly.
+            # Note that this only determines the default value. It can be overridden in some cases.
+            """;
+
         final String consoleLoggingComment =
             """
             # Write errors and exceptions to console.
@@ -421,6 +429,9 @@ public final class ConfigSpigot implements IConfig, IDebuggable
 
         enabledProtectionHooks.clear();
         enabledProtectionHooks.addAll(parseProtectionHooks(config, enabledProtectionHooksComment));
+
+        skipAnimationsByDefault = addNewConfigEntry(
+            config, "skipAnimationsByDefault", false, skipAnimationsByDefaultComment);
 
         consoleLogging = addNewConfigEntry(config, "consoleLogging", true, consoleLoggingComment);
         final String logLevelName = addNewConfigEntry(config, "logLevel", "INFO", logLevelComment);
@@ -678,6 +689,12 @@ public final class ConfigSpigot implements IConfig, IDebuggable
     public Locale locale()
     {
         return locale;
+    }
+
+    @Override
+    public boolean skipAnimationsByDefault()
+    {
+        return skipAnimationsByDefault;
     }
 
     @Override

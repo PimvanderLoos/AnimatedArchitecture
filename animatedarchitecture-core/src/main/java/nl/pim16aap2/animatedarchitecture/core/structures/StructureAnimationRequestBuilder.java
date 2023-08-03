@@ -100,7 +100,7 @@ public class StructureAnimationRequestBuilder
         private @Nullable IPlayer responsible = null;
         private @Nullable Double time = null;
         private @Nullable AnimationType animationType = null;
-        private boolean skipAnimation = false;
+        private @Nullable Boolean skipAnimation = null;
         private boolean preventPerpetualMovement = false;
 
         @Override
@@ -212,9 +212,14 @@ public class StructureAnimationRequestBuilder
             updateMessageReceiver();
 
             return structureToggleRequestFactory.create(
-                structureRetriever, structureActionCause,
+                structureRetriever,
+                structureActionCause,
                 Util.requireNonNull(messageReceiver, "MessageReceiver"),
-                responsible, time, skipAnimation, preventPerpetualMovement, structureActionType,
+                responsible,
+                time,
+                Objects.requireNonNullElse(skipAnimation, config.skipAnimationsByDefault()),
+                preventPerpetualMovement,
+                structureActionType,
                 Objects.requireNonNullElse(animationType, AnimationType.MOVE_BLOCKS));
         }
 
