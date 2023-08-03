@@ -117,6 +117,15 @@ public interface IConfig extends IRestartable
     double maxBlockSpeed();
 
     /**
+     * Whether to skip all animations by default. If true, toggling a structure will simply teleport the blocks to their
+     * destination without any animations. For structures that don't have a destination, any toggle request will be
+     * ignored.
+     *
+     * @return True if all animations should be skipped by default.
+     */
+    boolean skipAnimationsByDefault();
+
+    /**
      * The log level to use.
      *
      * @return The log level.
