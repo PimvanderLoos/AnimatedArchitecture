@@ -28,7 +28,7 @@
         <dependency.version.commodore>2.2</dependency.version.commodore>
         <dependency.version.flogger>0.7.4</dependency.version.flogger>
         <dependency.version.slf4j>1.7.36</dependency.version.slf4j>
-        <dependency.version.logback>1.2.11</dependency.version.logback>
+        <dependency.version.logback>1.4.11</dependency.version.logback>
         <dependency.version.annotations>24.0.1</dependency.version.annotations>
         <dependency.version.eclipse-annotations>2.2.700</dependency.version.eclipse-annotations>
         <dependency.version.lombok>1.18.27-SNAPSHOT</dependency.version.lombok>
