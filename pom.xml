@@ -17,7 +17,7 @@
         <delombok.source>${project.build.sourceDirectory}</delombok.source>
         <delombok.output>${project.root-dir}/delombok</delombok.output>
 
-        <dependency.version.bytebuddy>1.14.6</dependency.version.bytebuddy>
+        <dependency.version.bytebuddy>1.14.7</dependency.version.bytebuddy>
         <dependency.version.jcalculator>1.10</dependency.version.jcalculator>
         <dependency.version.gson>2.10.1</dependency.version.gson>
         <dependency.version.fastutil>8.5.12</dependency.version.fastutil>
