@@ -3,8 +3,8 @@ package nl.pim16aap2.animatedarchitecture.structures.portcullis;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Locked;
 import lombok.ToString;
-import lombok.experimental.Locked;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.annotations.Deserialization;
@@ -35,7 +35,7 @@ public class Portcullis extends AbstractStructure implements IDiscreteMovement
 
     @PersistentVariable(value = "blocksToMove")
     @GuardedBy("lock")
-    @Getter(onMethod_ = @Locked.Read)
+    @Getter(onMethod_ = @Locked.Read("lock"))
     protected int blocksToMove;
 
     protected Portcullis(
@@ -55,7 +55,7 @@ public class Portcullis extends AbstractStructure implements IDiscreteMovement
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     protected double calculateAnimationCycleDistance()
     {
         return blocksToMove;
@@ -68,7 +68,7 @@ public class Portcullis extends AbstractStructure implements IDiscreteMovement
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     protected Rectangle calculateAnimationRange()
     {
         final Cuboid cuboid = getCuboid();
@@ -79,7 +79,7 @@ public class Portcullis extends AbstractStructure implements IDiscreteMovement
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     public MovementDirection getCurrentToggleDir()
     {
         return isOpen() ? MovementDirection.getOpposite(getOpenDir()) : getOpenDir();
@@ -108,14 +108,14 @@ public class Portcullis extends AbstractStructure implements IDiscreteMovement
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     protected IAnimationComponent constructAnimationComponent(AnimationRequestData data)
     {
         return new VerticalAnimationComponent(data, getDirectedBlocksToMove());
     }
 
     @Override
-    @Locked.Write
+    @Locked.Write("lock")
     public void setBlocksToMove(int blocksToMove)
     {
         this.blocksToMove = blocksToMove;

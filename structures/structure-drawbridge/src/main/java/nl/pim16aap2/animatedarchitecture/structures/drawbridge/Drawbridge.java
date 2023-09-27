@@ -3,9 +3,9 @@ package nl.pim16aap2.animatedarchitecture.structures.drawbridge;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Locked;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
@@ -44,8 +44,8 @@ public class Drawbridge extends AbstractStructure implements IHorizontalAxisAlig
      */
     @PersistentVariable(value = "quarterCircles")
     @GuardedBy("lock")
-    @Getter(onMethod_ = @Locked.Read)
-    @Setter(onMethod_ = @Locked.Write)
+    @Getter(onMethod_ = @Locked.Read("lock"))
+    @Setter(onMethod_ = @Locked.Write("lock"))
     private int quarterCircles;
 
     @Deserialization
@@ -62,14 +62,14 @@ public class Drawbridge extends AbstractStructure implements IHorizontalAxisAlig
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     public MovementDirection getCurrentToggleDir()
     {
         return isOpen() ? MovementDirection.getOpposite(getOpenDir()) : getOpenDir();
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     public Optional<Cuboid> getPotentialNewCoordinates()
     {
         final MovementDirection movementDirection = getCurrentToggleDir();
@@ -95,7 +95,7 @@ public class Drawbridge extends AbstractStructure implements IHorizontalAxisAlig
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     protected IAnimationComponent constructAnimationComponent(AnimationRequestData data)
     {
         return new DrawbridgeAnimationComponent(data, getCurrentToggleDir(), isNorthSouthAnimated(), quarterCircles);
@@ -109,7 +109,7 @@ public class Drawbridge extends AbstractStructure implements IHorizontalAxisAlig
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     protected double calculateAnimationCycleDistance()
     {
         final double maxRadius = getMaxRadius(isNorthSouthAnimated(), getCuboid(), getRotationPoint());
@@ -117,7 +117,7 @@ public class Drawbridge extends AbstractStructure implements IHorizontalAxisAlig
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     protected Rectangle calculateAnimationRange()
     {
         final double maxRadius = getMaxRadius(isNorthSouthAnimated(), getCuboid(), getRotationPoint());

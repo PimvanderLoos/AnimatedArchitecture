@@ -2,7 +2,7 @@ package nl.pim16aap2.animatedarchitecture.core.managers;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.Getter;
-import lombok.experimental.Locked;
+import lombok.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
@@ -42,7 +42,7 @@ public final class StructureTypeManager implements IDebuggable
     /**
      * Private, modifiable list of all {@link StructureType}s that are currently enabled.
      */
-    @GuardedBy("lock")
+    @GuardedBy("$lock")
     private final List<StructureType> enabledStructureTypes0 = new ArrayList<>()
     {
         @Override
@@ -57,7 +57,7 @@ public final class StructureTypeManager implements IDebuggable
     /**
      * Private, modifiable list of all {@link StructureType}s that are currently disabled.
      */
-    @GuardedBy("lock")
+    @GuardedBy("$lock")
     private final List<StructureType> disabledStructureTypes0 = new ArrayList<>()
     {
         @Override
@@ -89,7 +89,7 @@ public final class StructureTypeManager implements IDebuggable
      * Private, modifiable map of all {@link StructureType}s that are currently registered and whether they are
      * enabled.
      */
-    @GuardedBy("lock")
+    @GuardedBy("$lock")
     private final Map<StructureType, Boolean> registeredStructureTypes0 = new IdentityHashMap<>();
 
     /**
@@ -101,7 +101,7 @@ public final class StructureTypeManager implements IDebuggable
     private final Set<StructureType> registeredStructureTypes = Collections.unmodifiableSet(
         registeredStructureTypes0.keySet());
 
-    @GuardedBy("lock")
+    @GuardedBy("$lock")
     private final Map<String, StructureType> structureTypeFromFullName = new HashMap<>();
 
     @Inject
@@ -157,7 +157,7 @@ public final class StructureTypeManager implements IDebuggable
         return result != null && result;
     }
 
-    @GuardedBy("lock")
+    @GuardedBy("$lock")
     private void register0(StructureType structureType, boolean isEnabled)
     {
         log.atInfo()
@@ -190,7 +190,7 @@ public final class StructureTypeManager implements IDebuggable
      * @param types
      *     The type(s) to register with the localization manager.
      */
-    @GuardedBy("lock")
+    @GuardedBy("$lock")
     private void registerWithLocalizer(List<StructureType> types)
     {
         if (types.isEmpty())
