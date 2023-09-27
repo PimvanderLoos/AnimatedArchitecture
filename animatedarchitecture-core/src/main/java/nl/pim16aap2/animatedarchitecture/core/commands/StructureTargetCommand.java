@@ -1,9 +1,10 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
 import com.google.common.flogger.StackSize;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.Getter;
+import lombok.Locked;
 import lombok.Setter;
-import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
@@ -49,6 +50,7 @@ public abstract class StructureTargetCommand extends BaseCommand
      */
     @Getter(onMethod_ = @Locked.Read)
     @Setter(onMethod_ = @Locked.Write)
+    @GuardedBy("$lock")
     private @Nullable AbstractStructure retrieverResult;
 
     @Contract("_, _, _, _, _, true, null -> fail")

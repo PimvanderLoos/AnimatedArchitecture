@@ -2,8 +2,8 @@ package nl.pim16aap2.animatedarchitecture.structures.clock;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Locked;
 import lombok.ToString;
-import lombok.experimental.Locked;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.annotations.Deserialization;
@@ -76,7 +76,7 @@ public class Clock extends AbstractStructure implements IHorizontalAxisAligned, 
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     protected Rectangle calculateAnimationRange()
     {
         final Cuboid cuboid = getCuboid();
@@ -103,7 +103,7 @@ public class Clock extends AbstractStructure implements IHorizontalAxisAligned, 
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     protected IAnimationComponent constructAnimationComponent(AnimationRequestData data)
     {
         return new ClockAnimationComponent(data, getCurrentToggleDir(), isNorthSouthAnimated());

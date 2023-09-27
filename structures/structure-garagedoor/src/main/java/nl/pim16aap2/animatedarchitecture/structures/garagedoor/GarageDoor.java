@@ -2,8 +2,8 @@ package nl.pim16aap2.animatedarchitecture.structures.garagedoor;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Locked;
 import lombok.ToString;
-import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
@@ -57,7 +57,7 @@ public class GarageDoor extends AbstractStructure implements IHorizontalAxisAlig
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     protected double calculateAnimationCycleDistance()
     {
         final Cuboid cuboid = getCuboid();
@@ -73,7 +73,7 @@ public class GarageDoor extends AbstractStructure implements IHorizontalAxisAlig
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     protected Rectangle calculateAnimationRange()
     {
         final Cuboid cuboid = getCuboid();
@@ -96,7 +96,7 @@ public class GarageDoor extends AbstractStructure implements IHorizontalAxisAlig
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     public MovementDirection getCurrentToggleDir()
     {
         final MovementDirection movementDirection = getOpenDir();
@@ -114,7 +114,7 @@ public class GarageDoor extends AbstractStructure implements IHorizontalAxisAlig
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     public Optional<Cuboid> getPotentialNewCoordinates()
     {
         final MovementDirection movementDirection = getCurrentToggleDir();
@@ -133,7 +133,7 @@ public class GarageDoor extends AbstractStructure implements IHorizontalAxisAlig
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     protected IAnimationComponent constructAnimationComponent(AnimationRequestData data)
     {
         return USE_COUNTER_WEIGHT ?

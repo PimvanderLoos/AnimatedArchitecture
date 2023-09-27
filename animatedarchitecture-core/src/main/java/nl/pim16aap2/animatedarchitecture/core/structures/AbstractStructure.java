@@ -3,7 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.structures;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
-import lombok.experimental.Locked;
+import lombok.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.animation.Animator;
@@ -164,7 +164,7 @@ public abstract class AbstractStructure implements IStructureConst
     protected abstract Rectangle calculateAnimationRange();
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     public final Rectangle getAnimationRange()
     {
         return lazyAnimationRange.get();
@@ -315,14 +315,14 @@ public abstract class AbstractStructure implements IStructureConst
         base.onRedstoneChange(this, isPowered);
     }
 
-    @Locked.Read
+    @Locked.Read("lock")
     private StructureSnapshot createNewSnapshot()
     {
         return new StructureSnapshot(this);
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     public StructureSnapshot getSnapshot()
     {
         return lazyStructureSnapshot.get();
@@ -349,7 +349,7 @@ public abstract class AbstractStructure implements IStructureConst
      *
      * @return The result of the synchronization.
      */
-    @Locked.Read
+    @Locked.Read("lock")
     public final CompletableFuture<DatabaseManager.ActionResult> syncData()
     {
         try
@@ -383,6 +383,17 @@ public abstract class AbstractStructure implements IStructureConst
     }
 
     /**
+     * Use {@link #withWriteLock(Supplier)} instead.
+     */
+    @Locked.Write("lock")
+    private <T> T withWriteLock0(Supplier<T> supplier)
+    {
+        final T result = supplier.get();
+        invalidateAnimationData();
+        return result;
+    }
+
+    /**
      * Executes a supplier under a write lock.
      *
      * @param supplier
@@ -397,20 +408,18 @@ public abstract class AbstractStructure implements IStructureConst
     @SuppressWarnings("unused")
     public final <T> T withWriteLock(Supplier<T> supplier)
     {
-        // Sadly, we cannot use Locked.Read, as we need to ensure that
-        // we can obtain a write lock in the first place.
         assertWriteLockable();
-        lock.writeLock().lock();
-        try
-        {
-            final T result = supplier.get();
-            invalidateAnimationData();
-            return result;
-        }
-        finally
-        {
-            lock.writeLock().unlock();
-        }
+        return withWriteLock0(supplier);
+    }
+
+    /**
+     * Use {@link #withWriteLock(Runnable)} instead.
+     */
+    @Locked.Write("lock")
+    private void withWriteLock0(Runnable runnable)
+    {
+        runnable.run();
+        invalidateAnimationData();
     }
 
     /**
@@ -422,19 +431,8 @@ public abstract class AbstractStructure implements IStructureConst
     @SuppressWarnings("unused")
     public final void withWriteLock(Runnable runnable)
     {
-        // Sadly, we cannot use Locked.Read, as we need to ensure that
-        // we can obtain a write lock in the first place.
         assertWriteLockable();
-        lock.writeLock().lock();
-        try
-        {
-            runnable.run();
-            invalidateAnimationData();
-        }
-        finally
-        {
-            lock.writeLock().unlock();
-        }
+        withWriteLock0(runnable);
     }
 
     /**
@@ -448,7 +446,7 @@ public abstract class AbstractStructure implements IStructureConst
      */
     // Obtaining a read lock won't cause a deadlock,
     // so no need to check it's possible.
-    @Locked.Read
+    @Locked.Read("lock")
     @SuppressWarnings("unused")
     public final <T> T withReadLock(Supplier<T> supplier)
     {
@@ -460,21 +458,21 @@ public abstract class AbstractStructure implements IStructureConst
      */
     // Obtaining a read lock won't cause a deadlock,
     // so no need to check it's possible.
-    @Locked.Read
+    @Locked.Read("lock")
     @SuppressWarnings("unused")
     public final void withReadLock(Runnable runnable)
     {
         runnable.run();
     }
 
-    @Locked.Read
+    @Locked.Read("lock")
     public String getBasicInfo()
     {
         return getUid() + " (" + getPrimeOwner() + ") - " + getType().getSimpleName() + ": " + getName();
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     public String toString()
     {
         String ret = base + "\n"
@@ -692,7 +690,7 @@ public abstract class AbstractStructure implements IStructureConst
         return base.getPrimeOwner();
     }
 
-    @Locked.Write final @Nullable StructureOwner removeOwner(UUID ownerUUID)
+    @Locked.Write("lock") final @Nullable StructureOwner removeOwner(UUID ownerUUID)
     {
         final @Nullable StructureOwner removed = base.removeOwner(ownerUUID);
         if (removed != null)
@@ -700,7 +698,7 @@ public abstract class AbstractStructure implements IStructureConst
         return removed;
     }
 
-    @Locked.Write final boolean addOwner(StructureOwner structureOwner)
+    @Locked.Write("lock") final boolean addOwner(StructureOwner structureOwner)
     {
         final boolean result = base.addOwner(structureOwner);
         if (result)

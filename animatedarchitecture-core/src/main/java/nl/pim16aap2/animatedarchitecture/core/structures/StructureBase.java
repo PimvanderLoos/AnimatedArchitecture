@@ -8,8 +8,8 @@ import dagger.assisted.AssistedInject;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Locked;
 import lombok.Setter;
-import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.StructureActivityManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IChunkLoader;
@@ -63,40 +63,40 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
     private final StructureAnimationRequestBuilder structureToggleRequestBuilder;
 
     @GuardedBy("lock")
-    @Getter(onMethod_ = @Locked.Read)
-    @Setter(onMethod_ = @Locked.Write)
+    @Getter(onMethod_ = @Locked.Read("lock"))
+    @Setter(onMethod_ = @Locked.Write("lock"))
     private Vector3Di rotationPoint;
 
     @GuardedBy("lock")
-    @Getter(onMethod_ = @Locked.Read)
-    @Setter(onMethod_ = @Locked.Write)
+    @Getter(onMethod_ = @Locked.Read("lock"))
+    @Setter(onMethod_ = @Locked.Write("lock"))
     private Vector3Di powerBlock;
 
     @GuardedBy("lock")
-    @Getter(onMethod_ = @Locked.Read)
-    @Setter(onMethod_ = @Locked.Write)
+    @Getter(onMethod_ = @Locked.Read("lock"))
+    @Setter(onMethod_ = @Locked.Write("lock"))
     private String name;
 
     @GuardedBy("lock")
-    @Getter(onMethod_ = @Locked.Read)
+    @Getter(onMethod_ = @Locked.Read("lock"))
     private Cuboid cuboid;
 
     @GuardedBy("lock")
-    @Getter(onMethod_ = @Locked.Read)
-    @Setter(onMethod_ = @Locked.Write)
+    @Getter(onMethod_ = @Locked.Read("lock"))
+    @Setter(onMethod_ = @Locked.Write("lock"))
     private boolean isOpen;
 
     @GuardedBy("lock")
-    @Getter(onMethod_ = @Locked.Read)
-    @Setter(onMethod_ = @Locked.Write)
+    @Getter(onMethod_ = @Locked.Read("lock"))
+    @Setter(onMethod_ = @Locked.Write("lock"))
     private MovementDirection openDir;
 
     /**
      * Represents the locked status of this structure. True = locked, False = unlocked.
      */
     @GuardedBy("lock")
-    @Getter(onMethod_ = @Locked.Read)
-    @Setter(onMethod_ = @Locked.Write)
+    @Getter(onMethod_ = @Locked.Read("lock"))
+    @Setter(onMethod_ = @Locked.Write("lock"))
     private boolean isLocked;
 
     @Getter
@@ -118,7 +118,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
     @EqualsAndHashCode.Exclude
     @GuardedBy("lock")
-    @Getter(onMethod_ = @Locked.Read, value = AccessLevel.PACKAGE)
+    @Getter(onMethod_ = @Locked.Read("lock"), value = AccessLevel.PACKAGE)
     private final Map<UUID, StructureOwner> ownersView;
 
     @EqualsAndHashCode.Exclude
@@ -203,7 +203,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
         this.executor = executor;
     }
 
-    @Locked.Write
+    @Locked.Write("lock")
     boolean addOwner(StructureOwner structureOwner)
     {
         if (structureOwner.permission() == PermissionLevel.CREATOR)
@@ -218,7 +218,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
         return true;
     }
 
-    @Locked.Write
+    @Locked.Write("lock")
     @Nullable StructureOwner removeOwner(UUID uuid)
     {
         if (primeOwner.playerData().getUUID().equals(uuid))
@@ -246,7 +246,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
         return uid < 1 || !config.isRedstoneEnabled();
     }
 
-    @Locked.Read
+    @Locked.Read("lock")
     public void onChunkLoad(AbstractStructure structure)
     {
         if (shouldIgnoreRedstone())
@@ -281,7 +281,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
         verifyRedstoneState(structure, getPowerBlock());
     }
 
-    @Locked.Read void onRedstoneChange(AbstractStructure structure, boolean isPowered)
+    @Locked.Read("lock") void onRedstoneChange(AbstractStructure structure, boolean isPowered)
     {
         if (shouldIgnoreRedstone())
             return;
@@ -323,7 +323,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
             .exceptionally(Util::exceptionally);
     }
 
-    @Locked.Read
+    @Locked.Read("lock")
     public Collection<StructureOwner> getOwners()
     {
         final List<StructureOwner> ret = new ArrayList<>(owners.size());
@@ -331,26 +331,26 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
         return ret;
     }
 
-    @Locked.Read
+    @Locked.Read("lock")
     public Optional<StructureOwner> getOwner(UUID uuid)
     {
         return Optional.ofNullable(owners.get(uuid));
     }
 
-    @Locked.Read
+    @Locked.Read("lock")
     public boolean isOwner(UUID uuid)
     {
         return owners.containsKey(uuid);
     }
 
-    @Locked.Read
+    @Locked.Read("lock")
     public boolean isOwner(UUID uuid, PermissionLevel permissionLevel)
     {
         final @Nullable StructureOwner owner = owners.get(uuid);
         return owner != null && owner.permission().isLowerThanOrEquals(permissionLevel);
     }
 
-    @Locked.Write
+    @Locked.Write("lock")
     public void setCoordinates(Cuboid newCuboid)
     {
         cuboid = newCuboid;
@@ -360,7 +360,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
      * @return String with (almost) all data of this structure.
      */
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     public String toString()
     {
         return uid + ": " + name + "\n"
@@ -374,7 +374,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
             + formatLine("OpenDir", openDir.name());
     }
 
-    @Locked.Read
+    @Locked.Read("lock")
     private String formatLine(String name, @Nullable Object obj)
     {
         final String objString = obj == null ? "NULL" : obj.toString();

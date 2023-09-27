@@ -63,7 +63,7 @@ class StructureTargetCommandTest
         UnitTestUtil.setField(
             StructureTargetCommand.class, structureTargetCommand, "structureAttribute", structureAttribute);
         UnitTestUtil.setField(
-            StructureTargetCommand.class, structureTargetCommand, "lock", new ReentrantReadWriteLock());
+            StructureTargetCommand.class, structureTargetCommand, "$lock", new ReentrantReadWriteLock());
 
         UnitTestUtil.setField(BaseCommand.class, structureTargetCommand, "commandSender", commandSender);
         UnitTestUtil.setField(BaseCommand.class, structureTargetCommand, "localizer", localizer);

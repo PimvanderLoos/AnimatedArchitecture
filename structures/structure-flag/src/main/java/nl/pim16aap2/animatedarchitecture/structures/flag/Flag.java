@@ -2,8 +2,8 @@ package nl.pim16aap2.animatedarchitecture.structures.flag;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Locked;
 import lombok.ToString;
-import lombok.experimental.Locked;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.annotations.Deserialization;
@@ -61,7 +61,7 @@ public class Flag extends AbstractStructure implements IHorizontalAxisAligned, I
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     protected Rectangle calculateAnimationRange()
     {
         final Cuboid cuboid = getCuboid();
@@ -88,7 +88,7 @@ public class Flag extends AbstractStructure implements IHorizontalAxisAligned, I
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     protected IAnimationComponent constructAnimationComponent(AnimationRequestData data)
     {
         return new FlagAnimationComponent(data, isNorthSouthAnimated());

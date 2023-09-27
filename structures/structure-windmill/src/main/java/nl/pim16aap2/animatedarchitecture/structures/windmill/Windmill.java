@@ -1,8 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.structures.windmill;
 
 import lombok.EqualsAndHashCode;
+import lombok.Locked;
 import lombok.ToString;
-import lombok.experimental.Locked;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.annotations.Deserialization;
@@ -63,14 +63,14 @@ public class Windmill extends AbstractStructure implements IHorizontalAxisAligne
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     protected double calculateAnimationCycleDistance()
     {
         return Drawbridge.getMaxRadius(isNorthSouthAnimated(), getCuboid(), getRotationPoint()) * Math.TAU;
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     protected Rectangle calculateAnimationRange()
     {
         final double maxRadius = Drawbridge.getMaxRadius(isNorthSouthAnimated(), getCuboid(), getRotationPoint());
@@ -87,7 +87,7 @@ public class Windmill extends AbstractStructure implements IHorizontalAxisAligne
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     protected IAnimationComponent constructAnimationComponent(AnimationRequestData data)
     {
         return new WindmillAnimationComponent(data, getCurrentToggleDir(), isNorthSouthAnimated());

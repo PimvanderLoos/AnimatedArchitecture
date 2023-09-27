@@ -1,8 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.structures.revolvingdoor;
 
 import lombok.EqualsAndHashCode;
+import lombok.Locked;
 import lombok.ToString;
-import lombok.experimental.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
@@ -39,14 +39,14 @@ public class RevolvingDoor extends AbstractStructure implements IPerpetualMover
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     protected double calculateAnimationCycleDistance()
     {
         return BigDoor.getMaxRadius(getCuboid(), getRotationPoint()) * Math.TAU;
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     protected Rectangle calculateAnimationRange()
     {
         final double maxRadius = BigDoor.getMaxRadius(getCuboid(), getRotationPoint());
@@ -66,7 +66,7 @@ public class RevolvingDoor extends AbstractStructure implements IPerpetualMover
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     protected IAnimationComponent constructAnimationComponent(AnimationRequestData data)
     {
         return new RevolvingDoorAnimationComponent(data, getCurrentToggleDir());
