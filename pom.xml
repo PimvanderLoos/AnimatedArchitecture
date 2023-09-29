@@ -24,7 +24,7 @@
         <dependency.version.fastjson>2.0.40</dependency.version.fastjson>
         <dependency.version.cloud>1.8.4</dependency.version.cloud>
         <dependency.version.adventure-api>4.14.0</dependency.version.adventure-api>
-        <dependency.version.adventure-bukkit>4.3.0</dependency.version.adventure-bukkit>
+        <dependency.version.adventure-bukkit>4.3.1</dependency.version.adventure-bukkit>
         <dependency.version.commodore>2.2</dependency.version.commodore>
         <dependency.version.flogger>0.7.4</dependency.version.flogger>
         <dependency.version.slf4j>1.7.36</dependency.version.slf4j>
