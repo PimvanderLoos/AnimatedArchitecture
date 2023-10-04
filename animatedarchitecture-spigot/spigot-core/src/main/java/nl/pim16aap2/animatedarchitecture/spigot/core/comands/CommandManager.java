@@ -175,6 +175,8 @@ public final class CommandManager
         initCmdSpecify(manager, builder);
         initCmdStopStructures(manager, builder);
         initCmdToggle(manager, builder);
+        initCmdOpen(manager, builder);
+        initCmdClose(manager, builder);
         initCmdPreview(manager, builder);
         initCmdVersion(manager, builder);
         initCmdUpdateCreator(manager, builder);
@@ -201,11 +203,17 @@ public final class CommandManager
     }
 
     private Command.Builder<ICommandSender> baseInit(
-        Command.Builder<ICommandSender> builder, CommandDefinition cmd, String descriptionKey)
+        Command.Builder<ICommandSender> builder, String name, CommandDefinition cmd, String descriptionKey)
     {
-        return builder.literal(cmd.getName().replace("_", "").toLowerCase(Locale.ROOT))
+        return builder.literal(name.replace("_", "").toLowerCase(Locale.ROOT))
                       .permission(cmd.getLowestPermission())
                       .meta(CommandMeta.DESCRIPTION, localizer.getMessage(descriptionKey));
+    }
+
+    private Command.Builder<ICommandSender> baseInit(
+        Command.Builder<ICommandSender> builder, CommandDefinition cmd, String descriptionKey)
+    {
+        return baseInit(builder, cmd.getName(), cmd, descriptionKey);
     }
 
     private void initCmdAddOwner(
@@ -443,6 +451,26 @@ public final class CommandManager
             baseInit(builder, CommandDefinition.TOGGLE, "commands.toggle.description")
                 .argument(defaultStructureArgument(true, StructureAttribute.TOGGLE).build())
                 .handler(commandExecutor::toggle)
+        );
+    }
+
+    private void initCmdOpen(
+        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+    {
+        manager.command(
+            baseInit(builder, "open", CommandDefinition.TOGGLE, "commands.open.description")
+                .argument(defaultStructureArgument(true, StructureAttribute.TOGGLE).build())
+                .handler(commandExecutor::open)
+        );
+    }
+
+    private void initCmdClose(
+        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+    {
+        manager.command(
+            baseInit(builder, "close", CommandDefinition.TOGGLE, "commands.close.description")
+                .argument(defaultStructureArgument(true, StructureAttribute.TOGGLE).build())
+                .handler(commandExecutor::close)
         );
     }
 

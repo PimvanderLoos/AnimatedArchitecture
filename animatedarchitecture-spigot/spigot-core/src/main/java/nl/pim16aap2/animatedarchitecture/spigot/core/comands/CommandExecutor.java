@@ -240,19 +240,34 @@ class CommandExecutor
         commandFactory.newStopStructures(context.getSender()).run().exceptionally(Util::exceptionally);
     }
 
-    void toggle(CommandContext<ICommandSender> context)
+    private void toggle(CommandContext<ICommandSender> context, StructureActionType structureActionType)
     {
         structureAnimationRequestBuilder
             .builder()
             .structure(context.<StructureRetriever>get("structureRetriever"))
             .structureActionCause(
                 context.getSender().isPlayer() ? StructureActionCause.PLAYER : StructureActionCause.SERVER)
-            .structureActionType(StructureActionType.TOGGLE)
+            .structureActionType(structureActionType)
             .responsible(context.getSender().getPlayer().orElse(null))
             .messageReceiver(context.getSender())
             .build()
             .execute()
             .exceptionally(ex -> handleException(context, ex, StructureToggleResult.ERROR));
+    }
+
+    void toggle(CommandContext<ICommandSender> context)
+    {
+        toggle(context, StructureActionType.TOGGLE);
+    }
+
+    void open(CommandContext<ICommandSender> context)
+    {
+        toggle(context, StructureActionType.OPEN);
+    }
+
+    void close(CommandContext<ICommandSender> context)
+    {
+        toggle(context, StructureActionType.CLOSE);
     }
 
     void preview(CommandContext<ICommandSender> context)
