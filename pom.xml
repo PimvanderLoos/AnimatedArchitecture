@@ -26,7 +26,7 @@
         <dependency.version.adventure-api>4.14.0</dependency.version.adventure-api>
         <dependency.version.adventure-bukkit>4.3.1</dependency.version.adventure-bukkit>
         <dependency.version.commodore>2.2</dependency.version.commodore>
-        <dependency.version.flogger>0.7.4</dependency.version.flogger>
+        <dependency.version.flogger>0.8</dependency.version.flogger>
         <dependency.version.slf4j>1.7.36</dependency.version.slf4j>
         <dependency.version.logback>1.2.11</dependency.version.logback>
         <dependency.version.annotations>24.0.1</dependency.version.annotations>
