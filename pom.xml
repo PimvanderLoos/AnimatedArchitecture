@@ -49,7 +49,7 @@
         <dependency.version.maven-shade>3.5.1</dependency.version.maven-shade>
         <dependency.version.maven-source>3.2.1</dependency.version.maven-source>
         <dependency.version.maven-jar>3.3.0</dependency.version.maven-jar>
-        <dependency.version.maven-clean>3.3.1</dependency.version.maven-clean>
+        <dependency.version.maven-clean>3.3.2</dependency.version.maven-clean>
         <dependency.version.maven-javadoc>3.6.0</dependency.version.maven-javadoc>
         <dependency.version.maven-source>3.3.0</dependency.version.maven-source>
         <dependency.version.maven-dependency>3.6.1</dependency.version.maven-dependency>
