@@ -164,6 +164,11 @@ public class CreatorTestsUtil
         Mockito.when(assistedStepFactory.stepName(Mockito.anyString()))
                .thenAnswer(invocation -> new Step.Factory(localizer, invocation.getArgument(0, String.class)));
 
+        Mockito.when(protectionHookManager.canBreakBlock(Mockito.any(), Mockito.any()))
+               .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
+        Mockito.when(protectionHookManager.canBreakBlocksBetweenLocs(Mockito.any(), Mockito.any(), Mockito.any()))
+               .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
+
         context = new ToolUser.Context(
             structureBaseBuilder, localizer, ITextFactory.getSimpleTextFactory(), toolUserManager, databaseManager,
             limitsManager, economyManager, protectionHookManager, animatedArchitectureToolUtil,

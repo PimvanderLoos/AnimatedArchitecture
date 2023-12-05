@@ -43,7 +43,7 @@ import javax.inject.Inject;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.OptionalLong;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 /**
@@ -126,12 +126,12 @@ import java.util.logging.Level;
      *     will 'release the lock' for the UID.
      * @return The same result that was passed in as argument.
      */
-    private StructureToggleResult abort(
+    private CompletableFuture<StructureToggleResult> abort(
         AbstractStructure structure, StructureToggleResult result, StructureActionCause cause, IPlayer responsible,
         IMessageable messageReceiver, @Nullable Long stamp)
     {
         log.atFine().log("Aborted toggle for structure %d because of %s. Toggle Reason: %s, Responsible: %s",
-                         structure.getUid(), result.name(), cause.name(), responsible.asString());
+            structure.getUid(), result.name(), cause.name(), responsible.asString());
 
         // If the reason the toggle attempt was cancelled was because it was busy, it should obviously
         // not reset the busy status of this structure. However, in every other case it should, because the structure is
@@ -150,11 +150,11 @@ import java.util.logging.Level;
 
             if (result.equals(StructureToggleResult.INSTANCE_UNREGISTERED))
                 log.at(level).withStackTrace(StackSize.FULL)
-                   .log("Encountered unregistered structure structure: %d", structure.getUid());
+                    .log("Encountered unregistered structure structure: %d", structure.getUid());
             else
                 log.at(level).log("Failed to toggle structure: %d, reason: %s", structure.getUid(), result.name());
         }
-        return result;
+        return CompletableFuture.completedFuture(result);
     }
 
     /**
@@ -257,7 +257,7 @@ import java.util.logging.Level;
         return true;
     }
 
-    private StructureToggleResult toggle(
+    private CompletableFuture<StructureToggleResult> toggle(
         StructureSnapshot snapshot,
         AbstractStructure targetStructure,
         AnimationRequestData data,
@@ -269,18 +269,18 @@ import java.util.logging.Level;
         if (snapshot.getOpenDir() == MovementDirection.NONE)
         {
             log.atSevere().withStackTrace(StackSize.FULL).log("OpenDir cannot be 'NONE'!");
-            return StructureToggleResult.ERROR;
+            return CompletableFuture.completedFuture(StructureToggleResult.ERROR);
         }
 
         // Read-only animations are fine for unregistered structures, as they do (should) not have any side effects.
         if (animationType.requiresWriteAccess() && !structureRegistry.isRegistered(targetStructure))
             return abort(targetStructure, StructureToggleResult.INSTANCE_UNREGISTERED, data.getCause(),
-                         data.getResponsible(), messageReceiver, null);
+                data.getResponsible(), messageReceiver, null);
 
         final OptionalLong registrationResult =
             structureActivityManager.registerAnimation(targetStructure, animationType.requiresWriteAccess());
         if (registrationResult.isEmpty())
-            return StructureToggleResult.BUSY;
+            return CompletableFuture.completedFuture(StructureToggleResult.BUSY);
 
         final long stamp = registrationResult.getAsLong();
 
@@ -293,7 +293,7 @@ import java.util.logging.Level;
         final IStructureEventTogglePrepare prepareEvent = callTogglePrepareEvent(data);
         if (prepareEvent.isCancelled())
             return abort(targetStructure, StructureToggleResult.CANCELLED, data.getCause(), data.getResponsible(),
-                         messageReceiver, stamp);
+                messageReceiver, stamp);
 
         final @Nullable IPlayer responsiblePlayer =
             data.getCause().equals(StructureActionCause.PLAYER) ? data.getResponsible() : null;
@@ -301,23 +301,42 @@ import java.util.logging.Level;
         if (animationType.requiresWriteAccess() &&
             !isLocationEmpty(data.getNewCuboid(), snapshot.getCuboid(), responsiblePlayer, snapshot.getWorld()))
             return abort(targetStructure, StructureToggleResult.OBSTRUCTED, data.getCause(), data.getResponsible(),
-                         messageReceiver, stamp);
+                messageReceiver, stamp);
 
-        if (animationType.requiresWriteAccess() &&
-            !canBreakBlocks(snapshot, snapshot.getCuboid(), data.getNewCuboid(), data.getResponsible()))
-            return abort(targetStructure, StructureToggleResult.NO_PERMISSION, data.getCause(), data.getResponsible(),
-                         messageReceiver, stamp);
+        if (!animationType.requiresWriteAccess())
+            return toggle(stamp, targetStructure, data, component, player, animationType);
 
+        return canBreakBlocks(snapshot, snapshot.getCuboid(), data.getNewCuboid(), data.getResponsible())
+            .thenCompose(canBreakBlocks ->
+            {
+                if (!canBreakBlocks)
+                    return abort(targetStructure, StructureToggleResult.NO_PERMISSION,
+                        data.getCause(), data.getResponsible(), messageReceiver, stamp);
+                return toggle(stamp, targetStructure, data, component, player, animationType);
+            });
+
+
+    }
+
+    private CompletableFuture<StructureToggleResult> toggle(
+        long stamp,
+        AbstractStructure targetStructure,
+        AnimationRequestData data,
+        IAnimationComponent component,
+        @Nullable IPlayer player,
+        AnimationType animationType)
+    {
         final boolean scheduled = registerBlockMover(targetStructure, data, component, player, animationType, stamp);
         if (!scheduled)
-            return StructureToggleResult.ERROR;
+            return CompletableFuture.completedFuture(StructureToggleResult.ERROR);
 
         executor.runAsync(() -> callToggleStartEvent(targetStructure, data));
 
-        return StructureToggleResult.SUCCESS;
+        return CompletableFuture.completedFuture(StructureToggleResult.SUCCESS);
     }
 
-    StructureToggleResult toggle(AbstractStructure structure, StructureAnimationRequest request, IPlayer responsible)
+    CompletableFuture<StructureToggleResult> toggle(
+        AbstractStructure structure, StructureAnimationRequest request, IPlayer responsible)
     {
         final StructureSnapshot snapshot;
         final AnimationRequestData data;
@@ -329,8 +348,7 @@ import java.util.logging.Level;
             if (request.isSkipAnimation() && !structure.canSkipAnimation())
                 return abort(
                     structure, StructureToggleResult.ERROR, request.getCause(), responsible,
-                    request.getMessageReceiver(),
-                    null);
+                    request.getMessageReceiver(), null);
 
             if (exceedSizeLimit(structure, responsible))
                 return abort(
@@ -341,8 +359,7 @@ import java.util.logging.Level;
             if (newCuboid.isEmpty())
                 return abort(
                     structure, StructureToggleResult.ERROR, request.getCause(), responsible,
-                    request.getMessageReceiver(),
-                    null);
+                    request.getMessageReceiver(), null);
 
             final double animationTime = structure.getAnimationTime(request.getTime());
             snapshot = structure.getSnapshot();
@@ -392,41 +409,48 @@ import java.util.logging.Level;
      *     Who is responsible for the action.
      * @return True if the player is allowed to break the block(s).
      */
-    public boolean canBreakBlocks(IStructureConst structure, Cuboid cuboid0, Cuboid cuboid1, IPlayer responsible)
+    public CompletableFuture<Boolean> canBreakBlocks(
+        IStructureConst structure, Cuboid cuboid0, Cuboid cuboid1, IPlayer responsible)
     {
         if (protectionHookManager.canSkipCheck())
-            return true;
-        try
-        {
-            return executor.runOnMainThread(() -> canBreakBlocks0(structure, cuboid0, cuboid1, responsible))
-                           .get(500, TimeUnit.MILLISECONDS);
-        }
-        catch (Exception e)
-        {
-            log.atSevere().withCause(e)
-               .log("Failed to check if blocks can be broken in cuboids %s and %s for user: '%s' for structure %s",
+            return CompletableFuture.completedFuture(true);
+
+        return canBreakBlocks0(structure, cuboid0, cuboid1, responsible)
+            .exceptionally(exception ->
+            {
+                log.atSevere().withCause(exception).log(
+                    "Failed to check if blocks can be broken in cuboids %s and %s for user: '%s' for structure %s",
                     cuboid0, cuboid1, responsible, structure);
-            return false;
-        }
+                return false;
+            });
     }
 
-    private boolean canBreakBlocks0(IStructureConst structure, Cuboid cuboid0, Cuboid cuboid1, IPlayer responsible)
+    private CompletableFuture<Boolean> canBreakBlocks0(
+        IStructureConst structure, Cuboid cuboid0, Cuboid cuboid1, IPlayer responsible)
     {
-        final boolean access0 = canBreakBlocks0(structure, cuboid0, responsible);
-        final boolean access1 = cuboid0.equals(cuboid1) || canBreakBlocks0(structure, cuboid1, responsible);
-        return access0 && access1;
+        final CompletableFuture<Boolean> access0 = canBreakBlocks0(structure, cuboid0, responsible);
+        if (cuboid0.equals(cuboid1))
+            return access0;
+
+        final CompletableFuture<Boolean> access1 = canBreakBlocks0(structure, cuboid1, responsible);
+        return access0.thenCombine(access1, (a0, a1) -> a0 && a1);
     }
 
-    private boolean canBreakBlocks0(IStructureConst structure, Cuboid cuboid, IPlayer responsible)
+    private CompletableFuture<Boolean> canBreakBlocks0(IStructureConst structure, Cuboid cuboid, IPlayer responsible)
     {
         // If the returned value is an empty Optional, the player is allowed to break blocks.
-        return protectionHookManager.canBreakBlocksBetweenLocs(responsible, cuboid, structure.getWorld()).map(
-            protectionCompat ->
-            {
-                log.atWarning().log("Player '%s' is not allowed to open structure '%s' (%d) here! Reason: %s",
-                                    responsible, structure.getName(), structure.getUid(), protectionCompat);
-                return false;
-            }).orElse(true);
+        return protectionHookManager
+            .canBreakBlocksBetweenLocs(responsible, cuboid, structure.getWorld())
+            .thenApply(protectionCompatOpt -> protectionCompatOpt
+                .map(protectionCompat ->
+                {
+                    log.atWarning().log(
+                        "Player '%s' is not allowed to open structure '%s' (%d) here! Reason: %s",
+                        responsible, structure.getName(), structure.getUid(), protectionCompat);
+                    return false;
+                })
+                .orElse(true)
+            );
     }
 
     /**

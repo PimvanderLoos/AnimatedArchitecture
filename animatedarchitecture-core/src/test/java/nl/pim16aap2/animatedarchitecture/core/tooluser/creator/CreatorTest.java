@@ -24,6 +24,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Procedure;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
+import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.AsyncStepExecutor;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutor;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorBoolean;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorLocation;
@@ -96,11 +97,11 @@ public class CreatorTest
         final var assistedStepFactory = Mockito.mock(Step.Factory.IFactory.class);
         //noinspection deprecation
         Mockito.when(assistedStepFactory.stepName(Mockito.anyString()))
-               .thenAnswer(invocation -> new Step.Factory(localizer, invocation.getArgument(0, String.class)));
+            .thenAnswer(invocation -> new Step.Factory(localizer, invocation.getArgument(0, String.class)));
 
         final var structureAnimationRequestBuilder = Mockito.mock(StructureAnimationRequestBuilder.class);
         Mockito.when(structureAnimationRequestBuilder.builder())
-               .thenReturn(Mockito.mock(StructureAnimationRequestBuilder.IBuilderStructure.class));
+            .thenReturn(Mockito.mock(StructureAnimationRequestBuilder.IBuilderStructure.class));
 
         context = new ToolUser.Context(
             Mockito.mock(StructureBaseBuilder.class),
@@ -175,7 +176,7 @@ public class CreatorTest
 
         Assertions.assertFalse(creator.verifyWorldMatch(UnitTestUtil.getWorld()));
         Mockito.verify(player)
-               .sendMessage(UnitTestUtil.textArgumentMatcher("creator.base.error.world_mismatch"));
+            .sendMessage(UnitTestUtil.textArgumentMatcher("creator.base.error.world_mismatch"));
     }
 
     @Test
@@ -187,16 +188,14 @@ public class CreatorTest
 
         Assertions.assertTrue(creator.verifyWorldMatch(Objects.requireNonNull(creator.getWorld())));
         Mockito.verify(player, Mockito.never())
-               .sendMessage(UnitTestUtil.textArgumentMatcher("creator.base.error.world_mismatch"));
+            .sendMessage(UnitTestUtil.textArgumentMatcher("creator.base.error.world_mismatch"));
     }
 
     @Test
     void testFirstLocationNoAccessToLocation()
     {
+        blockedByProtectionHooks();
         final var creator = newFirstLocationCreator();
-
-        Mockito.when(protectionHookManager.canBreakBlock(Mockito.any(), Mockito.any()))
-               .thenReturn(Optional.of("NOT_ALLOWED"));
 
         // No access to location
         Assertions.assertFalse(creator.handleInput(UnitTestUtil.getLocation(DEFAULT_MIN, creator.getWorld())).join());
@@ -213,6 +212,7 @@ public class CreatorTest
     @Test
     void testFirstLocationSuccess()
     {
+        allowedByProtectionHooks();
         final var creator = newFirstLocationCreator();
 
         final var location = UnitTestUtil.getLocation(DEFAULT_MIN.toDouble().add(0.5F), creator.getWorld());
@@ -231,7 +231,9 @@ public class CreatorTest
         final var creator = newSecondLocationCreator();
 
         Mockito.when(protectionHookManager.canBreakBlock(Mockito.any(), Mockito.any()))
-               .thenReturn(Optional.of("NOT_ALLOWED"));
+            .thenReturn(CompletableFuture.completedFuture(Optional.of("NOT_ALLOWED")));
+        Mockito.when(protectionHookManager.canBreakBlocksBetweenLocs(Mockito.any(), Mockito.any(), Mockito.any()))
+            .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
 
         Assertions.assertFalse(creator.handleInput(UnitTestUtil.getLocation(DEFAULT_MAX, creator.getWorld())).join());
 
@@ -248,8 +250,10 @@ public class CreatorTest
     {
         final var creator = newSecondLocationCreator();
 
+        Mockito.when(protectionHookManager.canBreakBlock(Mockito.any(), Mockito.any()))
+            .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
         Mockito.when(protectionHookManager.canBreakBlocksBetweenLocs(Mockito.any(), Mockito.any(), Mockito.any()))
-               .thenReturn(Optional.of("NOT_ALLOWED"));
+            .thenReturn(CompletableFuture.completedFuture(Optional.of("NOT_ALLOWED")));
 
         Assertions.assertFalse(creator.handleInput(UnitTestUtil.getLocation(DEFAULT_MAX, creator.getWorld())).join());
 
@@ -264,13 +268,14 @@ public class CreatorTest
     @Test
     void testSecondLocationTooBig()
     {
+        allowedByProtectionHooks();
         final var creator = newSecondLocationCreator();
 
         Mockito.when(protectionHookManager.canBreakBlocksBetweenLocs(Mockito.any(), Mockito.any(), Mockito.any()))
-               .thenReturn(Optional.empty());
+            .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
 
         Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any()))
-               .thenReturn(OptionalInt.of(DEFAULT_CUBOID.getVolume() - 1));
+            .thenReturn(OptionalInt.of(DEFAULT_CUBOID.getVolume() - 1));
 
         // Not allowed, because the selected area is too big.
         Assertions.assertFalse(creator.handleInput(UnitTestUtil.getLocation(DEFAULT_MAX, creator.getWorld())).join());
@@ -286,13 +291,14 @@ public class CreatorTest
     @Test
     void testSecondLocationSuccess()
     {
+        allowedByProtectionHooks();
         final var creator = newSecondLocationCreator();
 
         Mockito.when(protectionHookManager.canBreakBlocksBetweenLocs(Mockito.any(), Mockito.any(), Mockito.any()))
-               .thenReturn(Optional.empty());
+            .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
 
         Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any()))
-               .thenReturn(OptionalInt.of(DEFAULT_CUBOID.getVolume()));
+            .thenReturn(OptionalInt.of(DEFAULT_CUBOID.getVolume()));
 
         Assertions.assertTrue(creator.handleInput(UnitTestUtil.getLocation(DEFAULT_MAX, creator.getWorld())).join());
 
@@ -304,10 +310,8 @@ public class CreatorTest
     @Test
     void testSecondLocationSuccessNoLimits()
     {
+        allowedByProtectionHooks();
         final var creator = newSecondLocationCreator();
-
-        Mockito.when(protectionHookManager.canBreakBlocksBetweenLocs(Mockito.any(), Mockito.any(), Mockito.any()))
-               .thenReturn(Optional.empty());
 
         Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any())).thenReturn(OptionalInt.empty());
 
@@ -353,7 +357,7 @@ public class CreatorTest
         Mockito.when(economyManager.isEconomyEnabled()).thenReturn(true);
         Mockito.when(economyManager.getPrice(Mockito.any(), Mockito.anyInt())).thenReturn(OptionalDouble.empty());
         Mockito.when(economyManager.buyStructure(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyInt()))
-               .thenReturn(false);
+            .thenReturn(false);
 
         Assertions.assertTrue(creator.handleInput(true).join());
         Mockito.verify(player).sendMessage(
@@ -371,7 +375,7 @@ public class CreatorTest
         Mockito.when(economyManager.isEconomyEnabled()).thenReturn(true);
         Mockito.when(economyManager.getPrice(Mockito.any(), Mockito.anyInt())).thenReturn(OptionalDouble.of(1));
         Mockito.when(economyManager.buyStructure(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyInt()))
-               .thenReturn(true);
+            .thenReturn(true);
 
         Assertions.assertTrue(creator.handleInput(true).join());
 
@@ -387,7 +391,7 @@ public class CreatorTest
         Mockito.when(economyManager.isEconomyEnabled()).thenReturn(true);
         Mockito.when(economyManager.getPrice(Mockito.any(), Mockito.anyInt())).thenReturn(OptionalDouble.empty());
         Mockito.when(economyManager.buyStructure(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyInt()))
-               .thenReturn(true);
+            .thenReturn(true);
 
         Assertions.assertTrue(creator.handleInput(true).join());
 
@@ -401,13 +405,13 @@ public class CreatorTest
         final var creator = newMovementDirectionCreator();
 
         Mockito.when(structureType.getValidMovementDirections())
-               .thenReturn(EnumSet.of(MovementDirection.EAST, MovementDirection.WEST));
+            .thenReturn(EnumSet.of(MovementDirection.EAST, MovementDirection.WEST));
 
         final var setDirectionDelayed = Mockito.mock(SetOpenDirectionDelayed.class);
         Mockito.when(commandFactory.getSetOpenDirectionDelayed())
-               .thenReturn(setDirectionDelayed);
+            .thenReturn(setDirectionDelayed);
         Mockito.when(setDirectionDelayed.runDelayed(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-               .thenReturn(CompletableFuture.completedFuture(null));
+            .thenReturn(CompletableFuture.completedFuture(null));
 
         Assertions.assertFalse(creator.handleInput(MovementDirection.NORTH).join());
 
@@ -415,7 +419,7 @@ public class CreatorTest
             UnitTestUtil.textArgumentMatcher("creator.base.error.invalid_option"));
 
         Mockito.verify(setDirectionDelayed)
-               .runDelayed(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+            .runDelayed(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
 
         Assertions.assertEquals(0, creator.getStepsCompleted());
         Assertions.assertTrue(creator.isActive());
@@ -428,7 +432,7 @@ public class CreatorTest
         final var creator = newMovementDirectionCreator();
 
         Mockito.when(structureType.getValidMovementDirections())
-               .thenReturn(EnumSet.of(MovementDirection.EAST, MovementDirection.WEST));
+            .thenReturn(EnumSet.of(MovementDirection.EAST, MovementDirection.WEST));
 
         Assertions.assertTrue(creator.handleInput(MovementDirection.EAST).join());
 
@@ -462,7 +466,7 @@ public class CreatorTest
 
         Mockito.when(economyManager.isEconomyEnabled()).thenReturn(true);
         Mockito.when(economyManager.getPrice(Mockito.any(), Mockito.anyInt()))
-               .thenAnswer(invocation -> OptionalDouble.of(invocation.getArgument(1, Integer.class).doubleValue()));
+            .thenAnswer(invocation -> OptionalDouble.of(invocation.getArgument(1, Integer.class).doubleValue()));
 
         final OptionalDouble price = creator.getPrice();
         Assertions.assertTrue(price.isPresent());
@@ -472,6 +476,7 @@ public class CreatorTest
     @Test
     void testCompleteSetPowerBlockStepWorldMismatch()
     {
+        allowedByProtectionHooks();
         final var creator = newPowerBlockCreator();
 
         Assertions.assertFalse(creator.handleInput(UnitTestUtil.getLocation(DEFAULT_MAX.add(10))).join());
@@ -487,10 +492,8 @@ public class CreatorTest
     @Test
     void testCompleteSetPowerBlockStepLocationNotAllowed()
     {
+        blockedByProtectionHooks();
         final var creator = newPowerBlockCreator();
-
-        Mockito.when(protectionHookManager.canBreakBlock(Mockito.any(), Mockito.any()))
-               .thenReturn(Optional.of("NOT_ALLOWED"));
 
         Assertions.assertFalse(
             creator.handleInput(UnitTestUtil.getLocation(DEFAULT_MAX.add(10), creator.getWorld())).join());
@@ -506,6 +509,7 @@ public class CreatorTest
     @Test
     void testCompleteSetPowerBlockStepInsideStructure()
     {
+        allowedByProtectionHooks();
         final var creator = newPowerBlockCreator();
 
         final ILocation location = UnitTestUtil.getLocation(DEFAULT_MAX, creator.getWorld());
@@ -523,12 +527,14 @@ public class CreatorTest
     @Test
     void testCompleteSetPowerBlockStepTooFar()
     {
+        allowedByProtectionHooks();
         final var creator = newPowerBlockCreator();
 
         final ILocation location = UnitTestUtil.getLocation(DEFAULT_MAX.add(10), creator.getWorld());
         final double distance = DEFAULT_CUBOID.getCenter().getDistance(location.getPosition());
         final int lowLimit = (int) (distance - 1);
         Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any())).thenReturn(OptionalInt.of(lowLimit));
+        allowedByProtectionHooks();
 
         Assertions.assertFalse(creator.handleInput(location).join());
 
@@ -543,6 +549,7 @@ public class CreatorTest
     @Test
     void testCompleteSetPowerBlockStepSuccess()
     {
+        allowedByProtectionHooks();
         final var creator = newPowerBlockCreator();
 
         final Vector3Di position = DEFAULT_MAX.add(10);
@@ -562,6 +569,7 @@ public class CreatorTest
     @Test
     void testCompleteSetPowerBlockStepSuccessNoLimits()
     {
+        allowedByProtectionHooks();
         final var creator = newPowerBlockCreator();
 
         final Vector3Di position = DEFAULT_MAX.add(10);
@@ -584,24 +592,6 @@ public class CreatorTest
 
         Mockito.verify(player).sendMessage(
             UnitTestUtil.textArgumentMatcher("creator.base.error.world_mismatch"));
-
-        Assertions.assertEquals(0, creator.getStepsCompleted());
-        Assertions.assertTrue(creator.isActive());
-        Assertions.assertNull(creator.getRotationPoint());
-    }
-
-    @Test
-    void testCompleteSetRotationPointStepLocationNotAllowed()
-    {
-        final var creator = newSetRotationPointCreator();
-
-        Mockito.when(protectionHookManager.canBreakBlock(Mockito.any(), Mockito.any()))
-               .thenReturn(Optional.of("NOT_ALLOWED"));
-
-        Assertions.assertFalse(creator.handleInput(UnitTestUtil.getLocation(DEFAULT_MAX, creator.getWorld())).join());
-
-        Mockito.verify(player).sendMessage(
-            UnitTestUtil.textArgumentMatcher("tool_user.base.error.no_permission_for_location"));
 
         Assertions.assertEquals(0, creator.getStepsCompleted());
         Assertions.assertTrue(creator.isActive());
@@ -643,7 +633,7 @@ public class CreatorTest
         final var creator = newUpdateCreator();
 
         Mockito.when(structureType.getValidMovementDirections())
-               .thenReturn(EnumSet.of(MovementDirection.EAST, MovementDirection.WEST));
+            .thenReturn(EnumSet.of(MovementDirection.EAST, MovementDirection.WEST));
 
         Assertions.assertFalse(creator.isProcessIsUpdatable());
         Assertions.assertTrue(creator.handleInput(MovementDirection.EAST).join());
@@ -698,7 +688,7 @@ public class CreatorTest
     {
         return newCreatorFactory()
             .steps(
-                newStepSupplier(creator0 -> new StepExecutorLocation(creator0::provideFirstPos)),
+                newStepSupplier(creator0 -> new AsyncStepExecutor<>(ILocation.class, creator0::provideFirstPos)),
                 newDefaultStep())
             .create();
     }
@@ -707,7 +697,7 @@ public class CreatorTest
     {
         return newCreatorFactory()
             .steps(
-                newStepSupplier(creator0 -> new StepExecutorLocation(creator0::provideSecondPos)),
+                newStepSupplier(creator0 -> new AsyncStepExecutor<>(ILocation.class, creator0::provideSecondPos)),
                 newDefaultStep())
             .mockedWorld()
             .firstPos(DEFAULT_MIN)
@@ -718,7 +708,8 @@ public class CreatorTest
     {
         return newCreatorFactory()
             .steps(
-                newStepSupplier(creator0 -> new StepExecutorLocation(creator0::completeSetPowerBlockStep)),
+                newStepSupplier(
+                    creator0 -> new AsyncStepExecutor<>(ILocation.class, creator0::completeSetPowerBlockStep)),
                 newDefaultStep())
             .mockedWorld()
             .firstPos(DEFAULT_MIN)
@@ -757,6 +748,22 @@ public class CreatorTest
             .defaultCuboid()
             .mockedWorld()
             .create();
+    }
+
+    private void allowedByProtectionHooks()
+    {
+        Mockito.when(protectionHookManager.canBreakBlock(Mockito.any(), Mockito.any()))
+            .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
+        Mockito.when(protectionHookManager.canBreakBlocksBetweenLocs(Mockito.any(), Mockito.any(), Mockito.any()))
+            .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
+    }
+
+    private void blockedByProtectionHooks()
+    {
+        Mockito.when(protectionHookManager.canBreakBlock(Mockito.any(), Mockito.any()))
+            .thenReturn(CompletableFuture.completedFuture(Optional.of("NOT_ALLOWED")));
+        Mockito.when(protectionHookManager.canBreakBlocksBetweenLocs(Mockito.any(), Mockito.any(), Mockito.any()))
+            .thenReturn(CompletableFuture.completedFuture(Optional.of("NOT_ALLOWED")));
     }
 
     /**

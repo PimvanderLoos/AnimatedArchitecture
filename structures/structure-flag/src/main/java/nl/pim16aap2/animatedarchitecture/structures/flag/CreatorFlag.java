@@ -18,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @ToString(callSuper = true)
 public class CreatorFlag extends Creator
@@ -64,15 +65,13 @@ public class CreatorFlag extends Creator
     }
 
     @Override
-    protected synchronized boolean provideSecondPos(ILocation loc)
+    protected synchronized CompletableFuture<Boolean> provideSecondPos(ILocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
-            return false;
+            return CompletableFuture.completedFuture(false);
 
         final Vector3Di firstPos = Util.requireNonNull(getFirstPos(), "firstPos");
-        final Vector3Di cuboidDims = new Cuboid(firstPos, new Vector3Di(loc.getBlockX(), loc.getBlockY(),
-                                                                        loc.getBlockZ())).getDimensions();
-
+        final Vector3Di cuboidDims = new Cuboid(firstPos, loc.getPosition()).getDimensions();
         // Flags must have a dimension of 1 along either the x or z axis, as it's a `2d` shape.
         if ((cuboidDims.x() == 1) ^ (cuboidDims.z() == 1))
         {
@@ -81,7 +80,7 @@ public class CreatorFlag extends Creator
         }
 
         getPlayer().sendError(textFactory, localizer.getMessage("creator.base.second_pos_not_2d"));
-        return false;
+        return CompletableFuture.completedFuture(false);
     }
 
     @Override

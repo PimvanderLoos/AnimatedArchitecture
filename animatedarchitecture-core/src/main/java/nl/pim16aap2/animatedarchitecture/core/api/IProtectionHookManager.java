@@ -3,6 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.api;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Class that manages all objects of IProtectionCompat.
@@ -20,7 +21,7 @@ public interface IProtectionHookManager
      *     The {@link ILocation} to check.
      * @return The name of the IProtectionCompat that objects, if any, or an empty Optional if allowed by all compats.
      */
-    Optional<String> canBreakBlock(IPlayer player, ILocation loc);
+    CompletableFuture<Optional<String>> canBreakBlock(IPlayer player, ILocation loc);
 
     /**
      * Check if a player can break all blocks in a cuboid.
@@ -33,7 +34,7 @@ public interface IProtectionHookManager
      *     The world.
      * @return The name of the IProtectionCompat that objects, if any, or an empty Optional if allowed by all compats.
      */
-    Optional<String> canBreakBlocksBetweenLocs(IPlayer player, Cuboid cuboid, IWorld world);
+    CompletableFuture<Optional<String>> canBreakBlocksBetweenLocs(IPlayer player, Cuboid cuboid, IWorld world);
 
     /**
      * @return True if all checks for block-breaking access can be skipped. This may happen when no hooks are enabled.

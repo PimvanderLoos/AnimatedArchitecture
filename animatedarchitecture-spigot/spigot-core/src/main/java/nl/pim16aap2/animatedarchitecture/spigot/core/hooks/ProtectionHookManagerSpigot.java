@@ -2,6 +2,7 @@ package nl.pim16aap2.animatedarchitecture.spigot.core.hooks;
 
 import dagger.Lazy;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IProtectionHookManager;
@@ -40,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -56,6 +58,7 @@ public final class ProtectionHookManagerSpigot
     private final IPermissionsManagerSpigot permissionsManager;
     private final Map<String, IProtectionHookSpigotSpecification> registeredDefinitions;
     private final JavaPlugin animatedArchitecture;
+    private final IExecutor executor;
 
     private List<IProtectionHookSpigot> protectionHooks = new ArrayList<>();
 
@@ -65,12 +68,14 @@ public final class ProtectionHookManagerSpigot
         DebuggableRegistry debuggableRegistry,
         Lazy<ConfigSpigot> config,
         IPermissionsManagerSpigot permissionsManager,
-        FakePlayerCreator fakePlayerCreator)
+        FakePlayerCreator fakePlayerCreator,
+        IExecutor executor)
     {
         this.animatedArchitecture = animatedArchitecture;
         this.fakePlayerCreator = fakePlayerCreator;
         this.config = config;
         this.permissionsManager = permissionsManager;
+        this.executor = executor;
 
         this.registeredDefinitions = new LinkedHashMap<>(
             AbstractProtectionHookSpecification.DEFAULT_HOOK_DEFINITIONS
@@ -187,6 +192,10 @@ public final class ProtectionHookManagerSpigot
      */
     private Optional<String> checkForEachHook(Predicate<IProtectionHookSpigot> predicate)
     {
+        executor.assertMainThread("Hooks should be checked on the main thread!");
+
+        // TODO: Add real async support + ensure that most code runs on the main thread
+        //  (except for the async parts, ofc).
         for (final IProtectionHookSpigot hook : protectionHooks)
         {
             try
@@ -224,31 +233,41 @@ public final class ProtectionHookManagerSpigot
     }
 
     @Override
-    public Optional<String> canBreakBlock(IPlayer player, ILocation location)
+    public CompletableFuture<Optional<String>> canBreakBlock(IPlayer player, ILocation location)
     {
+        // TODO: Ensure that most code runs on the main thread (except for the async parts, ofc).
+
         if (protectionHooks.isEmpty())
-            return Optional.empty();
+            return CompletableFuture.completedFuture(Optional.empty());
 
         final Location bukkitLocation = SpigotAdapter.getBukkitLocation(location);
-        return getPlayer(player, bukkitLocation)
+
+        // TODO: Add real async support.
+        final var result = getPlayer(player, bukkitLocation)
             .map(bukkitPlayer -> checkForEachHook(hook -> hook.canBreakBlock(bukkitPlayer, bukkitLocation)))
             .orElseGet(() -> Optional.of("ERROR!"));
+        return CompletableFuture.completedFuture(result);
     }
 
     @Override
-    public Optional<String> canBreakBlocksBetweenLocs(IPlayer player, Cuboid cuboid, IWorld world)
+    public CompletableFuture<Optional<String>> canBreakBlocksBetweenLocs(IPlayer player, Cuboid cuboid, IWorld world)
     {
+        // TODO: Ensure that most code runs on the main thread (except for the async parts, ofc).
+
         if (protectionHooks.isEmpty())
-            return Optional.empty();
+            return CompletableFuture.completedFuture(Optional.empty());
 
         final IVector3D vec = cuboid.getMin();
         final Location loc0 = new Location(SpigotAdapter.getBukkitWorld(world), vec.xD(), vec.yD(), vec.zD());
 
         final World world0 = Util.requireNonNull(SpigotAdapter.getBukkitWorld(world), "World");
 
-        return getPlayer(player, loc0)
+        // TODO: Add real async support.
+        final var result = getPlayer(player, loc0)
             .map(bukkitPlayer -> checkForEachHook(hook -> hook.canBreakBlocksBetweenLocs(bukkitPlayer, world0, cuboid)))
             .orElseGet(() -> Optional.of("ERROR!"));
+
+        return CompletableFuture.completedFuture(result);
     }
 
     @Override

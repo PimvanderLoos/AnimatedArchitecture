@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 @ToString(callSuper = true)
 public class CreatorGarageDoor extends Creator
@@ -70,14 +71,13 @@ public class CreatorGarageDoor extends Creator
     }
 
     @Override
-    protected synchronized boolean provideSecondPos(ILocation loc)
+    protected synchronized CompletableFuture<Boolean> provideSecondPos(ILocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
-            return false;
+            return CompletableFuture.completedFuture(false);
 
         final Vector3Di firstPos = Util.requireNonNull(getFirstPos(), "firstPos");
-        final Vector3Di cuboidDims = new Cuboid(firstPos, new Vector3Di(loc.getBlockX(), loc.getBlockY(),
-                                                                        loc.getBlockZ())).getDimensions();
+        final Vector3Di cuboidDims = new Cuboid(firstPos, loc.getPosition()).getDimensions();
 
         // Check if there's exactly 1 dimension that is 1 block deep.
         if ((cuboidDims.x() == 1) ^ (cuboidDims.y() == 1) ^ (cuboidDims.z() == 1))
@@ -88,7 +88,7 @@ public class CreatorGarageDoor extends Creator
         }
 
         getPlayer().sendError(textFactory, localizer.getMessage("creator.base.second_pos_not_2d"));
-        return false;
+        return CompletableFuture.completedFuture(false);
     }
 
     @Override

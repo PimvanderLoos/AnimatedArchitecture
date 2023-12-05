@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 @Flogger
 @ToString(callSuper = true)
@@ -144,14 +145,13 @@ public class CreatorClock extends Creator
     }
 
     @Override
-    protected synchronized boolean provideSecondPos(ILocation loc)
+    protected synchronized CompletableFuture<Boolean> provideSecondPos(ILocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
-            return false;
+            return CompletableFuture.completedFuture(false);
 
         final Vector3Di firstPos = Util.requireNonNull(getFirstPos(), "firstPos");
-        final Vector3Di cuboidDims = new Cuboid(firstPos, new Vector3Di(loc.getBlockX(), loc.getBlockY(),
-                                                                        loc.getBlockZ())).getDimensions();
+        final Vector3Di cuboidDims = new Cuboid(firstPos, loc.getPosition()).getDimensions();
 
         final int height = cuboidDims.y();
         final int maxHorizontalDim = Math.max(cuboidDims.x(), cuboidDims.z());
@@ -162,7 +162,7 @@ public class CreatorClock extends Creator
                 getStructureArg(),
                 arg -> arg.highlight(maxHorizontalDim),
                 arg -> arg.highlight(height)));
-            return false;
+            return CompletableFuture.completedFuture(false);
         }
 
         if (height != maxHorizontalDim)
@@ -171,7 +171,7 @@ public class CreatorClock extends Creator
                 localizer.getMessage("creator.clock.error.not_square"), TextType.ERROR,
                 arg -> arg.highlight(maxHorizontalDim),
                 arg -> arg.highlight(height)));
-            return false;
+            return CompletableFuture.completedFuture(false);
         }
 
         // The clock has to be an odd number of blocks tall.
@@ -181,7 +181,7 @@ public class CreatorClock extends Creator
                 localizer.getMessage("creator.clock.error.not_odd"), TextType.ERROR,
                 arg -> arg.highlight(maxHorizontalDim),
                 arg -> arg.highlight(height)));
-            return false;
+            return CompletableFuture.completedFuture(false);
         }
 
         final int depth = Math.min(cuboidDims.x(), cuboidDims.z());
@@ -191,7 +191,7 @@ public class CreatorClock extends Creator
                 localizer.getMessage("creator.clock.error.not_2_deep"), TextType.ERROR,
                 getStructureArg(),
                 arg -> arg.highlight(depth)));
-            return false;
+            return CompletableFuture.completedFuture(false);
         }
 
         northSouthAligned = cuboidDims.x() == 2;

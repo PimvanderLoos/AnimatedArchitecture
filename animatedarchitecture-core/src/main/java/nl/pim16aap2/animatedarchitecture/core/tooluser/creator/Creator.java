@@ -27,6 +27,7 @@ import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Procedure;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
+import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.AsyncStepExecutor;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorBoolean;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorLocation;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorOpenDirection;
@@ -39,6 +40,8 @@ import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.Set;
@@ -236,19 +239,18 @@ public abstract class Creator extends ToolUser
 
         factoryProvideFirstPos = stepFactory
             .stepName("SET_FIRST_POS")
-            .stepExecutor(new StepExecutorLocation(this::provideFirstPos));
+            .stepExecutor(new AsyncStepExecutor<>(ILocation.class, this::provideFirstPos));
 
         factoryProvideSecondPos = stepFactory
             .stepName("SET_SECOND_POS")
             .propertyName(localizer.getMessage("creator.base.property.cuboid"))
-            .propertyValueSupplier(
-                () ->
-                {
-                    final @Nullable Cuboid cuboid0 = getCuboid();
-                    return cuboid0 == null ? "[]" :
-                           String.format("[%s; %s]", formatVector(cuboid0.getMin()), formatVector(cuboid0.getMax()));
-                })
-            .stepExecutor(new StepExecutorLocation(this::provideSecondPos));
+            .propertyValueSupplier(() ->
+            {
+                final @Nullable Cuboid cuboid0 = getCuboid();
+                return cuboid0 == null ? "[]" :
+                       String.format("[%s; %s]", formatVector(cuboid0.getMin()), formatVector(cuboid0.getMax()));
+            })
+            .stepExecutor(new AsyncStepExecutor<>(ILocation.class, this::provideSecondPos));
 
         factoryProvideRotationPointPos = stepFactory
             .stepName("SET_ROTATION_POINT")
@@ -263,7 +265,7 @@ public abstract class Creator extends ToolUser
             .propertyName(localizer.getMessage("creator.base.property.power_block_position"))
             .propertyValueSupplier(() -> formatVector(getPowerBlock()))
             .updatable(true)
-            .stepExecutor(new StepExecutorLocation(this::completeSetPowerBlockStep));
+            .stepExecutor(new AsyncStepExecutor<>(ILocation.class, this::completeSetPowerBlockStep));
 
         factoryProvideOpenStatus = stepFactory
             .stepName("SET_OPEN_STATUS")
@@ -282,12 +284,11 @@ public abstract class Creator extends ToolUser
             .stepExecutor(new StepExecutorOpenDirection(this::completeSetOpenDirStep))
             .stepPreparation(this::prepareSetOpenDirection)
             .propertyName(localizer.getMessage("creator.base.property.open_direction"))
-            .propertyValueSupplier(
-                () ->
-                {
-                    final @Nullable MovementDirection openDir0 = getMovementDirection();
-                    return openDir0 == null ? "NULL" : localizer.getMessage(openDir0.getLocalizationKey());
-                })
+            .propertyValueSupplier(() ->
+            {
+                final @Nullable MovementDirection openDir0 = getMovementDirection();
+                return openDir0 == null ? "NULL" : localizer.getMessage(openDir0.getLocalizationKey());
+            })
             .updatable(true)
             .textSupplier(this::setOpenDirectionTextSupplier);
 
@@ -352,18 +353,16 @@ public abstract class Creator extends ToolUser
                     " while the process is not in an updatable state!");
         processIsUpdatable = false;
 
-        return runWithLock(
-            () ->
-            {
-                insertStep(stepName);
-                return prepareCurrentStep();
-            }).exceptionally(
-            ex ->
-            {
-                log.atSevere().withCause(ex).log(
-                    "Failed to handle updated step '%s' with value '%s' in Creator '%s'", stepName, stepValue, this);
-                return false;
-            });
+        return runWithLock(() ->
+        {
+            insertStep(stepName);
+            return prepareCurrentStep();
+        }).exceptionally(ex ->
+        {
+            log.atSevere().withCause(ex).log(
+                "Failed to handle updated step '%s' with value '%s' in Creator '%s'", stepName, stepValue, this);
+            return false;
+        });
     }
 
     /**
@@ -523,34 +522,38 @@ public abstract class Creator extends ToolUser
      *     The first location of the cuboid.
      * @return True if setting the location was successful.
      */
-    protected synchronized boolean provideFirstPos(ILocation loc)
+    protected CompletableFuture<Boolean> provideFirstPos(ILocation loc)
     {
-        if (!playerHasAccessToLocation(loc))
-            return false;
+        return playerHasAccessToLocation(loc)
+            .thenApply(isAllowed ->
+            {
+                if (!isAllowed)
+                    return false;
 
-        world = loc.getWorld();
-        firstPos = new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
-        return true;
+                synchronized (this)
+                {
+                    world = loc.getWorld();
+                    firstPos = loc.getPosition();
+                }
+
+                return true;
+            });
     }
 
     /**
-     * Provides the second location of the selection and advances the procedure if successful.
+     * Creates a new {@link Cuboid} with the first position and the combined with position.
+     * <p>
+     * If the created {@link Cuboid} exceeds the size limit, the player will be informed and the result will be empty.
      *
-     * @param loc
-     *     The second location of the cuboid.
-     * @return True if setting the location was successful.
+     * @param combinedWith
+     *     The position to combine with the first position.
+     * @return The newly-created {@link Cuboid} if the volume is within the limits, otherwise an empty {@link Optional}.
      */
-    protected synchronized boolean provideSecondPos(ILocation loc)
+    protected final synchronized Optional<Cuboid> createCuboid(Vector3Di combinedWith)
     {
-        if (!verifyWorldMatch(loc.getWorld()))
-            return false;
-
-        if (!playerHasAccessToLocation(loc))
-            return false;
-
         final Cuboid newCuboid = new Cuboid(
             Util.requireNonNull(firstPos, "firstPos"),
-            new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
+            new Vector3Di(combinedWith.x(), combinedWith.y(), combinedWith.z()));
 
         final OptionalInt sizeLimit = limitsManager.getLimit(getPlayer(), Limit.STRUCTURE_SIZE);
         if (sizeLimit.isPresent() && newCuboid.getVolume() > sizeLimit.getAsInt())
@@ -560,13 +563,45 @@ public abstract class Creator extends ToolUser
                 arg -> arg.highlight(localizer.getStructureType(getStructureType())),
                 arg -> arg.highlight(newCuboid.getVolume()),
                 arg -> arg.highlight(sizeLimit.getAsInt())));
-            return false;
+            return Optional.empty();
         }
+        return Optional.of(newCuboid);
+    }
 
-        final boolean result = playerHasAccessToCuboid(newCuboid, Util.requireNonNull(world, "world"));
-        if (result)
-            cuboid = newCuboid;
-        return result;
+    /**
+     * Provides the second location of the selection and advances the procedure if successful.
+     *
+     * @param loc
+     *     The second location of the cuboid.
+     * @return True if setting the location was successful.
+     */
+    protected CompletableFuture<Boolean> provideSecondPos(ILocation loc)
+    {
+        if (!verifyWorldMatch(loc.getWorld()))
+            return CompletableFuture.completedFuture(false);
+
+        return playerHasAccessToLocation(loc)
+            .<Optional<Cuboid>>thenApply(isAllowed ->
+            {
+                if (!isAllowed)
+                    return Optional.empty();
+                return createCuboid(loc.getPosition());
+            })
+            .thenCompose(cuboidOpt ->
+                cuboidOpt
+                    .map(newCuboid -> playerHasAccessToCuboid(newCuboid, Util.requireNonNull(getWorld(), "world")))
+                    .orElse(CompletableFuture.completedFuture(Optional.empty())))
+            .thenApply(newCuboid ->
+            {
+                if (newCuboid.isEmpty())
+                    return false;
+
+                synchronized (this)
+                {
+                    cuboid = newCuboid.get();
+                }
+                return true;
+            });
     }
 
     /**
@@ -588,7 +623,7 @@ public abstract class Creator extends ToolUser
         if (!confirm)
         {
             getPlayer().sendMessage(textFactory, TextType.INFO,
-                                    localizer.getMessage("creator.base.error.creation_cancelled"));
+                localizer.getMessage("creator.base.error.creation_cancelled"));
             abort();
             return true;
         }
@@ -676,8 +711,8 @@ public abstract class Creator extends ToolUser
      */
     protected void insertStructure(AbstractStructure structure)
     {
-        databaseManager.addStructure(structure, getPlayer()).thenAccept(
-            result ->
+        databaseManager.addStructure(structure, getPlayer())
+            .thenAccept(result ->
             {
                 if (result.cancelled())
                 {
@@ -713,7 +748,7 @@ public abstract class Creator extends ToolUser
             return true;
 
         return economyManager.buyStructure(getPlayer(), Util.requireNonNull(world, "world"), getStructureType(),
-                                           Util.requireNonNull(cuboid, "cuboid").getVolume());
+            Util.requireNonNull(cuboid, "cuboid").getVolume());
     }
 
     /**
@@ -761,13 +796,10 @@ public abstract class Creator extends ToolUser
      *     The selected location of the rotation point.
      * @return True if the location of the area was set successfully.
      */
-    protected synchronized boolean completeSetPowerBlockStep(ILocation loc)
+    protected synchronized CompletableFuture<Boolean> completeSetPowerBlockStep(ILocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
-            return false;
-
-        if (!playerHasAccessToLocation(loc))
-            return false;
+            return CompletableFuture.completedFuture(false);
 
         final Vector3Di pos = loc.getPosition();
         if (Util.requireNonNull(cuboid, "cuboid").isPosInsideCuboid(pos))
@@ -775,23 +807,30 @@ public abstract class Creator extends ToolUser
             getPlayer().sendMessage(textFactory.newText().append(
                 "creator.base.error.powerblock_inside_structure", TextType.ERROR,
                 arg -> arg.highlight(localizer.getStructureType(getStructureType()))));
-            return false;
+            return CompletableFuture.completedFuture(false);
         }
+
         final OptionalInt distanceLimit = limitsManager.getLimit(getPlayer(), Limit.POWERBLOCK_DISTANCE);
         final double distance;
         if (distanceLimit.isPresent() &&
-            (distance = cuboid.getCenter().getDistance(pos)) > distanceLimit.getAsInt())
+            (distance = Objects.requireNonNull(cuboid).getCenter().getDistance(pos)) > distanceLimit.getAsInt())
         {
             getPlayer().sendMessage(textFactory.newText().append(
                 "creator.base.error.powerblock_too_far", TextType.ERROR,
                 arg -> arg.highlight(localizer.getStructureType(getStructureType())),
                 arg -> arg.highlight(distance),
                 arg -> arg.highlight(distanceLimit.getAsInt())));
-            return false;
+            return CompletableFuture.completedFuture(false);
         }
 
-        powerblock = pos;
-        return true;
+        return playerHasAccessToLocation(loc)
+            .thenApply(isAllowed ->
+            {
+                if (!isAllowed)
+                    return false;
+                setPowerblock(pos);
+                return true;
+            });
     }
 
     /**
@@ -805,9 +844,6 @@ public abstract class Creator extends ToolUser
     protected synchronized boolean completeSetRotationPointStep(ILocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
-            return false;
-
-        if (!playerHasAccessToLocation(loc))
             return false;
 
         if (!Util.requireNonNull(cuboid, "cuboid").isInRange(loc, 1))
@@ -842,7 +878,7 @@ public abstract class Creator extends ToolUser
     protected Text setOpenDirectionTextSupplier(Text text)
     {
         text.append(localizer.getMessage("creator.base.set_open_direction") + "\n", TextType.INFO,
-                    arg -> arg.highlight(localizer.getStructureType(getStructureType())));
+            arg -> arg.highlight(localizer.getStructureType(getStructureType())));
 
         getValidOpenDirections().stream().map(dir -> localizer.getMessage(dir.getLocalizationKey())).sorted().forEach(
             dir -> text.appendClickableText(
