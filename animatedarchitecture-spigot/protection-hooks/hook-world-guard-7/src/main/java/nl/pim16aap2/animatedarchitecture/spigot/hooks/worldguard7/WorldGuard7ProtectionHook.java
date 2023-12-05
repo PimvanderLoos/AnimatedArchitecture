@@ -15,9 +15,9 @@ import lombok.Getter;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
+import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.IFakePlayer;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.IProtectionHookSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.ProtectionHookContext;
-import nl.pim16aap2.util.reflection.ReflectionBuilder;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 /**
@@ -36,15 +37,6 @@ import java.util.logging.Level;
 @Flogger
 public class WorldGuard7ProtectionHook implements IProtectionHookSpigot
 {
-    /**
-     * The package-private class "{@code BukkitOfflinePlayer}" is a partial implementation of {@link LocalPlayer} that
-     * throws {@link UnsupportedOperationException}s when accessing certain methods.
-     * <p>
-     * By getting the class object itself, we can ensure we do not make calls to those unsupported methods.
-     */
-    private static final Class<?> CLASS_BUKKIT_OFFLINE_PLAYER =
-        ReflectionBuilder.findClass("com.sk89q.worldguard.bukkit.BukkitOfflinePlayer").get();
-
     private final WorldGuard worldGuard;
     private final WorldGuardPlugin worldGuardPlugin;
     @Getter
@@ -69,11 +61,11 @@ public class WorldGuard7ProtectionHook implements IProtectionHookSpigot
         final boolean result = query().testState(location, player, Flags.BLOCK_BREAK, Flags.BLOCK_PLACE);
         if (!result)
         {
-            final boolean finer = log.atFiner().isEnabled();
+            final boolean finer = log.atInfo().isEnabled();
             // Only log the full details on the 'finer' level.
             final var setDetails =
                 finer ? LazyArgs.lazy(() -> getApplicableRegionSetDetails(location, player)) : "Skipped";
-            final var level = finer ? Level.FINER : Level.FINE;
+            final var level = finer ? Level.INFO : Level.INFO;
 
             log.at(level).log(
                 "Player %s is not allowed to break block at %s: Region details: %s",
@@ -85,22 +77,47 @@ public class WorldGuard7ProtectionHook implements IProtectionHookSpigot
         return result;
     }
 
-    @Override
-    public boolean canBreakBlock(Player player, Location loc)
+    private CompletableFuture<Boolean> canBreakBlock0(
+        Player player, Location loc, LocalPlayer wgPlayer,
+        com.sk89q.worldedit.world.World wgWorld)
     {
-        final var wgWorld = toWorldGuardWorld(loc.getWorld());
-        if (!enabledInWorld(wgWorld))
-            return true;
-
-        final var wgPlayer = toWorldGuardPlayer(player);
-        if (canBypass(wgPlayer, wgWorld))
-            return true;
-
-        return canBreakBlock(toWorldGuardLocation(loc, wgWorld), wgPlayer, player);
+        return CompletableFuture.completedFuture(canBreakBlock(toWorldGuardLocation(loc, wgWorld), wgPlayer, player));
     }
 
     @Override
-    public boolean canBreakBlocksBetweenLocs(Player player, World world, Cuboid cuboid)
+    public CompletableFuture<Boolean> canBreakBlock(Player player, Location loc)
+    {
+        final var wgWorld = toWorldGuardWorld(loc.getWorld());
+        if (!enabledInWorld(wgWorld))
+            return CompletableFuture.completedFuture(true);
+
+        final var wgPlayer = toWorldGuardPlayer(player);
+        return canBypass(wgPlayer, wgWorld, player, Objects.requireNonNull(loc.getWorld())).thenCompose(
+            bypass ->
+            {
+                if (bypass)
+                    return CompletableFuture.completedFuture(true);
+                return canBreakBlock0(player, loc, wgPlayer, wgWorld);
+            });
+
+    }
+
+    public CompletableFuture<Boolean> canBreakBlocksBetweenLocs0(
+        Player player, Cuboid cuboid,
+        LocalPlayer wgPlayer, com.sk89q.worldedit.world.World wgWorld)
+    {
+        final Vector3Di min = cuboid.getMin();
+        final Vector3Di max = cuboid.getMax();
+        for (int xPos = min.x(); xPos <= max.x(); ++xPos)
+            for (int yPos = min.y(); yPos <= max.y(); ++yPos)
+                for (int zPos = min.z(); zPos <= max.z(); ++zPos)
+                    if (!canBreakBlock(toWorldEditLocation(wgWorld, xPos, yPos, zPos), wgPlayer, player))
+                        return CompletableFuture.completedFuture(false);
+        return CompletableFuture.completedFuture(true);
+    }
+
+    @Override
+    public CompletableFuture<Boolean> canBreakBlocksBetweenLocs(Player player, World world, Cuboid cuboid)
     {
         log.atInfo().log(
             "Checking if player %s can break blocks between %s and %s",
@@ -108,20 +125,20 @@ public class WorldGuard7ProtectionHook implements IProtectionHookSpigot
 
         final var wgWorld = toWorldGuardWorld(world);
         if (!enabledInWorld(wgWorld))
-            return true;
+            return CompletableFuture.completedFuture(true);
 
         final var wgPlayer = toWorldGuardPlayer(player);
-        if (canBypass(wgPlayer, wgWorld))
-            return true;
 
-        final Vector3Di min = cuboid.getMin();
-        final Vector3Di max = cuboid.getMax();
-        for (int xPos = min.x(); xPos <= max.x(); ++xPos)
-            for (int yPos = min.y(); yPos <= max.y(); ++yPos)
-                for (int zPos = min.z(); zPos <= max.z(); ++zPos)
-                    if (!canBreakBlock(toWorldEditLocation(wgWorld, xPos, yPos, zPos), wgPlayer, player))
-                        return false;
-        return true;
+        return canBypass(wgPlayer, wgWorld, player, world).thenCompose(
+            bypass ->
+            {
+                if (bypass)
+                    return CompletableFuture.completedFuture(true);
+
+                return context
+                    .getExecutor()
+                    .composeOnMainThread(() -> canBreakBlocksBetweenLocs0(player, cuboid, wgPlayer, wgWorld));
+            });
     }
 
     @Override
@@ -135,11 +152,23 @@ public class WorldGuard7ProtectionHook implements IProtectionHookSpigot
         return worldGuard.getPlatform().getRegionContainer().createQuery();
     }
 
-    private boolean canBypass(LocalPlayer player, com.sk89q.worldedit.world.World world)
+    private CompletableFuture<Boolean> canBypass(
+        LocalPlayer player, com.sk89q.worldedit.world.World world,
+        Player bukkitPlayer, World bukkitWorld)
     {
-        // TODO: Make this work for offline players.
-        return player.getClass() != CLASS_BUKKIT_OFFLINE_PLAYER &&
-            worldGuard.getPlatform().getSessionManager().hasBypass(player, world);
+        if (bukkitPlayer instanceof IFakePlayer)
+            return hasPermissionOffline(bukkitWorld, bukkitPlayer, "worldguard.region.bypass." + world.getName())
+                .thenApply(
+                    result ->
+                    {
+                        log.atInfo().log(
+                            "Player %s has bypass permission: %s",
+                            lazyFormatPlayerName(bukkitPlayer),
+                            result
+                        );
+                        return result;
+                    });
+        return CompletableFuture.completedFuture(worldGuard.getPlatform().getSessionManager().hasBypass(player, world));
     }
 
     private LocalPlayer toWorldGuardPlayer(Player player)

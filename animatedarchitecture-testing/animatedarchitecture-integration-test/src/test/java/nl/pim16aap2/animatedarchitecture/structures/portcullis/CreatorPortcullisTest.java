@@ -38,15 +38,15 @@ class CreatorPortcullisTest extends CreatorTestsUtil
             new Portcullis(constructStructureBase(getTemporaryUid(creator)), blocksToMove);
 
         testCreation(creator, actualStructure,
-                     structureName,
-                     min.toLocation(locationFactory, world),
-                     max.toLocation(locationFactory, world),
-                     powerblock.toLocation(locationFactory, world),
-                     false,
-                     openDirection,
-                     blocksToMove,
-                     true,
-                     true);
+            structureName,
+            min.toLocation(locationFactory, world),
+            max.toLocation(locationFactory, world),
+            powerblock.toLocation(locationFactory, world),
+            false,
+            openDirection,
+            blocksToMove,
+            true,
+            true);
     }
 
     @Test

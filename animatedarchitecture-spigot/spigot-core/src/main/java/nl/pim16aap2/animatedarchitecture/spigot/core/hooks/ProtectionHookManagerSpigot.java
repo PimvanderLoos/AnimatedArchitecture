@@ -42,7 +42,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Predicate;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -159,10 +159,10 @@ public final class ProtectionHookManagerSpigot
             if (this.protectionHooks.stream().map(IProtectionHookSpigot::getClass).anyMatch(hookClass::equals))
                 return;
 
-            final var context = new ProtectionHookContext(animatedArchitecture, spec, permissionsManager);
+            final var context = new ProtectionHookContext(animatedArchitecture, spec, permissionsManager, executor);
             this.protectionHooks.add(hookClass.getConstructor(ProtectionHookContext.class).newInstance(context));
             log.atInfo()
-               .log("Successfully loaded protection hook for plugin '%s' (version '%s')!", pluginName, version);
+                .log("Successfully loaded protection hook for plugin '%s' (version '%s')!", pluginName, version);
         }
         catch (NoClassDefFoundError | ExceptionInInitializerError | Exception e)
         {
@@ -184,32 +184,69 @@ public final class ProtectionHookManagerSpigot
     }
 
     /**
+     * Used to apply a predicate to a protection hook.
+     *
+     * @param predicate
+     *     The predicate to apply.
+     * @param hook
+     *     The hook to apply the predicate to.
+     * @return A future that will contain the name of the hook if the predicate returned false, or an empty Optional if
+     * it returned true.
+     */
+    private CompletableFuture<HookCheckResult> checkForHook(
+        Function<IProtectionHookSpigot, CompletableFuture<Boolean>> predicate,
+        IProtectionHookSpigot hook)
+    {
+        return predicate
+            .apply(hook)
+            .thenApply(
+                result ->
+                {
+                    if (!result)
+                        return HookCheckResult.denied(hook.getName());
+                    return HookCheckResult.allowed();
+                })
+            .exceptionally(
+                e ->
+                {
+                    log.atSevere().withCause(e).log("Error while checking protection hook %s", hook.getName());
+                    return HookCheckResult.denied(hook.getName());
+                });
+    }
+
+    /**
      * Used to apply a predicate to all registered protection hooks.
      *
      * @param predicate
      *     The predicate to apply.
      * @return The name of the protection hook that returned false, or an empty Optional if all returned true.
      */
-    private Optional<String> checkForEachHook(Predicate<IProtectionHookSpigot> predicate)
+    private CompletableFuture<HookCheckResult> checkForEachHook(
+        Function<IProtectionHookSpigot, CompletableFuture<Boolean>> predicate)
     {
-        executor.assertMainThread("Hooks should be checked on the main thread!");
+        CompletableFuture<HookCheckResult> result = new CompletableFuture<>();
 
-        // TODO: Add real async support + ensure that most code runs on the main thread
-        //  (except for the async parts, ofc).
         for (final IProtectionHookSpigot hook : protectionHooks)
         {
-            try
+            result = result.thenCompose(previousResult ->
             {
-                if (!predicate.test(hook))
-                    return Optional.of(hook.getName());
-            }
-            catch (Exception e)
-            {
-                log.atSevere().withCause(e).log("Error while checking protection hook %s", hook.getName());
-                return Optional.of(hook.getName());
-            }
+                log.atInfo().log("Checking hook %s", hook.getName());
+
+                // Propagate the previous result if it was denied. We only need a single hook to deny the check.
+                if (previousResult.isDenied())
+                {
+                    log.atFinest().log(
+                        "Not checking hook %s because it was already denied by hook %s",
+                        hook.getName(), previousResult.denyingHookName());
+                    return CompletableFuture.completedFuture(previousResult);
+                }
+
+                // Ensure that the check is run on the main thread to make it easier to implement hooks that do not
+                // need any async code.
+                return executor.composeOnMainThread(() -> checkForHook(predicate, hook));
+            });
         }
-        return Optional.empty();
+        return result;
     }
 
     /**
@@ -233,41 +270,33 @@ public final class ProtectionHookManagerSpigot
     }
 
     @Override
-    public CompletableFuture<Optional<String>> canBreakBlock(IPlayer player, ILocation location)
+    public CompletableFuture<HookCheckResult> canBreakBlock(IPlayer player, ILocation location)
     {
-        // TODO: Ensure that most code runs on the main thread (except for the async parts, ofc).
-
         if (protectionHooks.isEmpty())
-            return CompletableFuture.completedFuture(Optional.empty());
+            return CompletableFuture.completedFuture(HookCheckResult.allowed());
 
         final Location bukkitLocation = SpigotAdapter.getBukkitLocation(location);
 
-        // TODO: Add real async support.
-        final var result = getPlayer(player, bukkitLocation)
+        return getPlayer(player, bukkitLocation)
             .map(bukkitPlayer -> checkForEachHook(hook -> hook.canBreakBlock(bukkitPlayer, bukkitLocation)))
-            .orElseGet(() -> Optional.of("ERROR!"));
-        return CompletableFuture.completedFuture(result);
+            .orElseGet(() -> CompletableFuture.completedFuture(HookCheckResult.denied("ERROR!")));
     }
 
     @Override
-    public CompletableFuture<Optional<String>> canBreakBlocksBetweenLocs(IPlayer player, Cuboid cuboid, IWorld world)
+    public CompletableFuture<HookCheckResult> canBreakBlocksBetweenLocs(
+        IPlayer player, Cuboid cuboid, IWorld world)
     {
-        // TODO: Ensure that most code runs on the main thread (except for the async parts, ofc).
-
         if (protectionHooks.isEmpty())
-            return CompletableFuture.completedFuture(Optional.empty());
+            return CompletableFuture.completedFuture(HookCheckResult.allowed());
 
         final IVector3D vec = cuboid.getMin();
         final Location loc0 = new Location(SpigotAdapter.getBukkitWorld(world), vec.xD(), vec.yD(), vec.zD());
 
         final World world0 = Util.requireNonNull(SpigotAdapter.getBukkitWorld(world), "World");
 
-        // TODO: Add real async support.
-        final var result = getPlayer(player, loc0)
+        return getPlayer(player, loc0)
             .map(bukkitPlayer -> checkForEachHook(hook -> hook.canBreakBlocksBetweenLocs(bukkitPlayer, world0, cuboid)))
-            .orElseGet(() -> Optional.of("ERROR!"));
-
-        return CompletableFuture.completedFuture(result);
+            .orElseGet(() -> CompletableFuture.completedFuture(HookCheckResult.denied("ERROR!")));
     }
 
     @Override
@@ -300,7 +329,7 @@ public final class ProtectionHookManagerSpigot
     {
         final StringBuilder sb = new StringBuilder();
         sb.append("Can create fake players: ").append(fakePlayerCreator.canCreatePlayers()).append('\n')
-          .append("Protection hooks: \n");
+            .append("Protection hooks: \n");
         for (final IProtectionHookSpigot protectionHook : protectionHooks)
             sb.append("  ").append(protectionHook.getName()).append('\n');
 

@@ -14,6 +14,8 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.concurrent.CompletableFuture;
+
 /**
  * Protection hook for RedProtect.
  */
@@ -31,8 +33,7 @@ public class RedProtectProtectionHook implements IProtectionHookSpigot
         this.redProtect = JavaPlugin.getPlugin(RedProtect.class);
     }
 
-    @Override
-    public boolean canBreakBlock(Player player, Location loc)
+    private boolean canBreakBlock0(Player player, Location loc)
     {
         try
         {
@@ -57,16 +58,22 @@ public class RedProtectProtectionHook implements IProtectionHookSpigot
     }
 
     @Override
-    public boolean canBreakBlocksBetweenLocs(Player player, World world, Cuboid cuboid)
+    public CompletableFuture<Boolean> canBreakBlock(Player player, Location loc)
+    {
+        return CompletableFuture.completedFuture(canBreakBlock0(player, loc));
+    }
+
+    @Override
+    public CompletableFuture<Boolean> canBreakBlocksBetweenLocs(Player player, World world, Cuboid cuboid)
     {
         final Vector3Di min = cuboid.getMin();
         final Vector3Di max = cuboid.getMax();
         for (int xPos = min.x(); xPos <= max.x(); ++xPos)
             for (int yPos = min.y(); yPos <= max.y(); ++yPos)
                 for (int zPos = min.z(); zPos <= max.z(); ++zPos)
-                    if (!canBreakBlock(player, new Location(world, xPos, yPos, zPos)))
-                        return false;
-        return true;
+                    if (!canBreakBlock0(player, new Location(world, xPos, yPos, zPos)))
+                        return CompletableFuture.completedFuture(false);
+        return CompletableFuture.completedFuture(true);
     }
 
     @Override

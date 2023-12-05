@@ -40,14 +40,17 @@ public class LimitsManager
      */
     public OptionalInt getLimit(IPlayer player, Limit limit)
     {
-        final boolean hasBypass = permissionsManager.hasPermission(player, limit.getAdminPermission());
+        final boolean hasBypass =
+            player.isOnline() && permissionsManager.hasPermission(player, limit.getAdminPermission());
+
         final OptionalInt globalLimit = filterNegative(limit.getGlobalLimit(config));
         if (hasBypass)
             return globalLimit;
 
         final OptionalInt playerLimit = filterNegative(
-            player.isOnline() ? permissionsManager.getMaxPermissionSuffix(player, limit.getUserPermission()) :
-            OptionalInt.of(player.getStructureSizeLimit()));
+            player.isOnline() ?
+            permissionsManager.getMaxPermissionSuffix(player, limit.getUserPermission()) :
+            OptionalInt.of(player.getLimit(limit)));
 
         if (globalLimit.isPresent() && playerLimit.isPresent())
             return OptionalInt.of(Math.min(globalLimit.getAsInt(), playerLimit.getAsInt()));

@@ -16,8 +16,6 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents a compatibility hook.
- *
- * @author Pim
  */
 public interface IProtectionHookSpigot
 {
@@ -30,7 +28,7 @@ public interface IProtectionHookSpigot
      *     The location to check.
      * @return True if the player is allowed to break blocks at the given location.
      */
-    boolean canBreakBlock(Player player, Location loc);
+    CompletableFuture<Boolean> canBreakBlock(Player player, Location loc);
 
     /**
      * Check if this compatibility hook allows a player to break blocks in a given cuboid.
@@ -43,7 +41,7 @@ public interface IProtectionHookSpigot
      *     The cuboid to check.
      * @return True if the player is allowed to break all the blocks in the given cuboid.
      */
-    boolean canBreakBlocksBetweenLocs(Player player, World world, Cuboid cuboid);
+    CompletableFuture<Boolean> canBreakBlocksBetweenLocs(Player player, World world, Cuboid cuboid);
 
     /**
      * Get the name of the {@link JavaPlugin} that is being hooked into.

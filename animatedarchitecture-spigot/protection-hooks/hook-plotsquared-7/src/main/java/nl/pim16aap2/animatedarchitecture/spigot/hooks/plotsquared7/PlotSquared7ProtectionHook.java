@@ -23,6 +23,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.concurrent.CompletableFuture;
+
 /**
  * Protection hook for PlotSquared 7.
  */
@@ -41,13 +43,13 @@ public class PlotSquared7ProtectionHook implements IProtectionHookSpigot
     }
 
     @Override
-    public boolean canBreakBlock(Player player, Location loc)
+    public CompletableFuture<Boolean> canBreakBlock(Player player, Location loc)
     {
         final com.plotsquared.core.location.Location psLocation = BukkitUtil.adapt(loc);
         final @Nullable PlotArea area = psLocation.getPlotArea();
 
         if (area == null)
-            return true;
+            return CompletableFuture.completedFuture(true);
 
         final boolean result = canBreakBlock(player, area, area.getPlot(psLocation), loc);
         if (!result)
@@ -55,7 +57,7 @@ public class PlotSquared7ProtectionHook implements IProtectionHookSpigot
                 "Player %s is not allowed to break block at %s",
                 lazyFormatPlayerName(player), loc
             );
-        return result;
+        return CompletableFuture.completedFuture(result);
     }
 
     /**
@@ -167,7 +169,7 @@ public class PlotSquared7ProtectionHook implements IProtectionHookSpigot
     }
 
     @Override
-    public boolean canBreakBlocksBetweenLocs(Player player, World world, Cuboid cuboid)
+    public CompletableFuture<Boolean> canBreakBlocksBetweenLocs(Player player, World world, Cuboid cuboid)
     {
         com.plotsquared.core.location.Location psLocation;
 
@@ -185,7 +187,7 @@ public class PlotSquared7ProtectionHook implements IProtectionHookSpigot
                     continue;
 
                 if (!isHeightAllowed(player, area, min.y()) || !isHeightAllowed(player, area, max.y()))
-                    return false;
+                    return CompletableFuture.completedFuture(false);
 
                 loc.setY(area.getMaxBuildHeight() - 1);
 
@@ -196,15 +198,15 @@ public class PlotSquared7ProtectionHook implements IProtectionHookSpigot
                         "Player %s is not allowed to break block at %s: Not in a plot area and cannot break roads!",
                         lazyFormatPlayerName(player), loc
                     );
-                    return false;
+                    return CompletableFuture.completedFuture(false);
                 }
                 else if (!canBreakBlock(player, area, newPlot, loc))
                 {
-                    return false;
+                    return CompletableFuture.completedFuture(false);
                 }
             }
         }
-        return true;
+        return CompletableFuture.completedFuture(true);
     }
 
     @Override

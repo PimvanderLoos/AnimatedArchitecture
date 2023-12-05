@@ -23,6 +23,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.concurrent.CompletableFuture;
+
 /**
  * Protection hook for PlotSquared 6.
  *
@@ -47,15 +49,15 @@ public class PlotSquared6ProtectionHook implements IProtectionHookSpigot
     }
 
     @Override
-    public boolean canBreakBlock(Player player, Location loc)
+    public CompletableFuture<Boolean> canBreakBlock(Player player, Location loc)
     {
         final com.plotsquared.core.location.Location psLocation = BukkitUtil.adapt(loc);
         final PlotArea area = psLocation.getPlotArea();
 
         if (area == null)
-            return true;
+            return CompletableFuture.completedFuture(true);
 
-        return canBreakBlock(player, area, area.getPlot(psLocation), loc);
+        return CompletableFuture.completedFuture(canBreakBlock(player, area, area.getPlot(psLocation), loc));
     }
 
     private boolean isHeightAllowed(Player player, PlotArea area, int height)
@@ -105,7 +107,7 @@ public class PlotSquared6ProtectionHook implements IProtectionHookSpigot
     }
 
     @Override
-    public boolean canBreakBlocksBetweenLocs(Player player, World world, Cuboid cuboid)
+    public CompletableFuture<Boolean> canBreakBlocksBetweenLocs(Player player, World world, Cuboid cuboid)
     {
         com.plotsquared.core.location.Location psLocation;
 
@@ -123,17 +125,17 @@ public class PlotSquared6ProtectionHook implements IProtectionHookSpigot
                     continue;
 
                 if (!isHeightAllowed(player, area, min.y()) || !isHeightAllowed(player, area, max.y()))
-                    return false;
+                    return CompletableFuture.completedFuture(false);
 
                 loc.setY(area.getMaxBuildHeight() - 1);
 
                 final Plot newPlot = area.getPlot(psLocation);
                 if (newPlot == null && (!canBreakRoads))
-                    return false;
+                    return CompletableFuture.completedFuture(false);
                 else if (!canBreakBlock(player, area, newPlot, loc))
-                    return false;
+                    return CompletableFuture.completedFuture(false);
             }
-        return true;
+        return CompletableFuture.completedFuture(true);
     }
 
     @Override

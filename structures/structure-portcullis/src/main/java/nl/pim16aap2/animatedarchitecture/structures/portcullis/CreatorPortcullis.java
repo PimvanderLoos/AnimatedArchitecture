@@ -3,6 +3,7 @@ package nl.pim16aap2.animatedarchitecture.structures.portcullis;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.ToString;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
@@ -22,6 +23,7 @@ import java.util.OptionalInt;
 import java.util.concurrent.CompletableFuture;
 
 @ToString(callSuper = true)
+@Flogger
 public class CreatorPortcullis extends Creator
 {
     private static final StructureType STRUCTURE_TYPE = StructureTypePortcullis.get();
@@ -75,14 +77,17 @@ public class CreatorPortcullis extends Creator
     protected synchronized void prepareSetBlocksToMove()
     {
         commandFactory.getSetBlocksToMoveDelayed().runDelayed(getPlayer(), this, blocks ->
-                          CompletableFuture.completedFuture(handleInput(blocks)), null)
-                      .exceptionally(Util::exceptionally);
+                CompletableFuture.completedFuture(handleInput(blocks)), null)
+            .exceptionally(Util::exceptionally);
     }
 
     protected synchronized boolean setBlocksToMove(int blocksToMove)
     {
         if (blocksToMove < 1)
+        {
+            log.atFiner().log("Blocks to move must be at least 1. Got: %d", blocksToMove);
             return false;
+        }
 
         final OptionalInt blocksToMoveLimit = limitsManager.getLimit(getPlayer(), Limit.BLOCKS_TO_MOVE);
         if (blocksToMoveLimit.isPresent() && blocksToMove > blocksToMoveLimit.getAsInt())
@@ -92,6 +97,8 @@ public class CreatorPortcullis extends Creator
                 getStructureArg(),
                 arg -> arg.highlight(blocksToMove),
                 arg -> arg.highlight(blocksToMoveLimit.getAsInt())));
+            log.atFiner().log(
+                "Blocks to move is too far. Got: %d, Limit: %d", blocksToMove, blocksToMoveLimit.getAsInt());
             return false;
         }
 

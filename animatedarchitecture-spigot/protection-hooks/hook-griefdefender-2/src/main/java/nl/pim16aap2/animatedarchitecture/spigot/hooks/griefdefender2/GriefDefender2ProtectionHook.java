@@ -15,6 +15,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Protection hook for GriefDefender 2.
@@ -63,18 +64,18 @@ public class GriefDefender2ProtectionHook implements IProtectionHookSpigot
     }
 
     @Override
-    public boolean canBreakBlock(Player player, Location loc)
+    public CompletableFuture<Boolean> canBreakBlock(Player player, Location loc)
     {
         if (!enabledInWorldChecks(Objects.requireNonNull(loc.getWorld())))
-            return true;
-        return checkLocation(player, loc);
+            return CompletableFuture.completedFuture(true);
+        return CompletableFuture.completedFuture(checkLocation(player, loc));
     }
 
     @Override
-    public boolean canBreakBlocksBetweenLocs(Player player, World world, Cuboid cuboid)
+    public CompletableFuture<Boolean> canBreakBlocksBetweenLocs(Player player, World world, Cuboid cuboid)
     {
         if (!enabledInWorldChecks(Objects.requireNonNull(world)))
-            return true;
+            return CompletableFuture.completedFuture(true);
 
         final Vector3Di min = cuboid.getMin();
         final Vector3Di max = cuboid.getMax();
@@ -82,8 +83,8 @@ public class GriefDefender2ProtectionHook implements IProtectionHookSpigot
             for (int yPos = min.y(); yPos <= max.y(); ++yPos)
                 for (int zPos = min.z(); zPos <= max.z(); ++zPos)
                     if (!checkLocation(player, new Location(world, xPos, yPos, zPos)))
-                        return false;
-        return true;
+                        return CompletableFuture.completedFuture(false);
+        return CompletableFuture.completedFuture(true);
     }
 
     @Override

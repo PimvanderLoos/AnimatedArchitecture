@@ -14,6 +14,8 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.concurrent.CompletableFuture;
+
 /**
  * Protection hook for <a href="https://www.spigotmc.org/resources/53313/">Lands</a>.
  * <p>
@@ -48,13 +50,13 @@ public class LandsProtectionHook implements IProtectionHookSpigot
     }
 
     @Override
-    public boolean canBreakBlock(Player player, Location loc)
+    public CompletableFuture<Boolean> canBreakBlock(Player player, Location loc)
     {
-        return canBreakBlock(landsAddon.getArea(loc), player, loc);
+        return CompletableFuture.completedFuture(canBreakBlock(landsAddon.getArea(loc), player, loc));
     }
 
     @Override
-    public boolean canBreakBlocksBetweenLocs(Player player, World world, Cuboid cuboid)
+    public CompletableFuture<Boolean> canBreakBlocksBetweenLocs(Player player, World world, Cuboid cuboid)
     {
         final Vector3Di min = cuboid.getMin();
         final Vector3Di max = cuboid.getMax();
@@ -81,11 +83,11 @@ public class LandsProtectionHook implements IProtectionHookSpigot
                         continue;
 
                     if (!canBreakBlock(area, player, loc))
-                        return false;
+                        return CompletableFuture.completedFuture(false);
                 }
             }
         }
-        return true;
+        return CompletableFuture.completedFuture(true);
     }
 
     @Override

@@ -356,7 +356,10 @@ public abstract class ToolUser
             procedure.getCurrentStepName(), this);
 
         if (!isActive())
+        {
+            log.atInfo().log("Cannot handle input '%s' for ToolUser '%s' because it is not active!", obj, this);
             return CompletableFuture.completedFuture(false);
+        }
 
         final boolean isLastStep = !procedure.hasNextStep();
 
@@ -489,18 +492,18 @@ public abstract class ToolUser
     {
         return protectionHookManager
             .canBreakBlock(getPlayer(), loc)
-            .thenApply(completed ->
+            .thenApply(result ->
             {
-                completed.ifPresent(hookName ->
-                {
-                    log.atFine().log(
-                        "Blocked access to location %s for player %s! Reason: %s",
-                        loc, getPlayer(), hookName);
-                    getPlayer().sendMessage(
-                        textFactory, TextType.ERROR,
-                        localizer.getMessage("tool_user.base.error.no_permission_for_location"));
-                });
-                return completed.isEmpty();
+                if (result.isAllowed())
+                    return true;
+
+                log.atFine().log(
+                    "Blocked access to location %s for player %s! Reason: %s",
+                    loc, getPlayer(), result.denyingHookName());
+                getPlayer().sendMessage(
+                    textFactory, TextType.ERROR,
+                    localizer.getMessage("tool_user.base.error.no_permission_for_location"));
+                return false;
             });
     }
 
@@ -520,14 +523,14 @@ public abstract class ToolUser
     {
         return protectionHookManager
             .canBreakBlocksBetweenLocs(getPlayer(), cuboid, world)
-            .thenApply(completed ->
+            .thenApply(result ->
             {
-                if (completed.isEmpty())
+                if (result.isAllowed())
                     return Optional.of(cuboid);
 
                 log.atFine().log(
                     "Blocked access to cuboid %s for player %s in world %s! Reason: %s",
-                    cuboid, getPlayer(), world, completed.get());
+                    cuboid, getPlayer(), world, result.denyingHookName());
                 getPlayer().sendMessage(
                     textFactory, TextType.ERROR,
                     localizer.getMessage("tool_user.base.error.no_permission_for_location"));

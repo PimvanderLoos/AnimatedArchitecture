@@ -26,13 +26,13 @@ class CreatorBigDoorTest extends CreatorTestsUtil
         final CreatorBigDoor creator = new CreatorBigDoor(context, player, null);
         final BigDoor actualStructure = new BigDoor(constructStructureBase(getTemporaryUid(creator)));
         testCreation(creator, actualStructure,
-                     structureName,
-                     min.toLocation(locationFactory, world),
-                     max.toLocation(locationFactory, world),
-                     rotationPoint.toLocation(locationFactory, world),
-                     powerblock.toLocation(locationFactory, world),
-                     false,
-                     openDirection,
-                     true);
+            structureName,
+            min.toLocation(locationFactory, world),
+            max.toLocation(locationFactory, world),
+            rotationPoint.toLocation(locationFactory, world),
+            powerblock.toLocation(locationFactory, world),
+            false,
+            openDirection,
+            true);
     }
 }

@@ -53,7 +53,6 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.concurrent.CompletableFuture;
@@ -194,7 +193,7 @@ public class CreatorTest
     @Test
     void testFirstLocationNoAccessToLocation()
     {
-        blockedByProtectionHooks();
+        locationBlockedByProtectionHook();
         final var creator = newFirstLocationCreator();
 
         // No access to location
@@ -230,10 +229,9 @@ public class CreatorTest
     {
         final var creator = newSecondLocationCreator();
 
-        Mockito.when(protectionHookManager.canBreakBlock(Mockito.any(), Mockito.any()))
-            .thenReturn(CompletableFuture.completedFuture(Optional.of("NOT_ALLOWED")));
+        locationBlockedByProtectionHook();
         Mockito.when(protectionHookManager.canBreakBlocksBetweenLocs(Mockito.any(), Mockito.any(), Mockito.any()))
-            .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
+            .thenReturn(CompletableFuture.completedFuture(IProtectionHookManager.HookCheckResult.allowed()));
 
         Assertions.assertFalse(creator.handleInput(UnitTestUtil.getLocation(DEFAULT_MAX, creator.getWorld())).join());
 
@@ -251,9 +249,8 @@ public class CreatorTest
         final var creator = newSecondLocationCreator();
 
         Mockito.when(protectionHookManager.canBreakBlock(Mockito.any(), Mockito.any()))
-            .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
-        Mockito.when(protectionHookManager.canBreakBlocksBetweenLocs(Mockito.any(), Mockito.any(), Mockito.any()))
-            .thenReturn(CompletableFuture.completedFuture(Optional.of("NOT_ALLOWED")));
+            .thenReturn(CompletableFuture.completedFuture(IProtectionHookManager.HookCheckResult.allowed()));
+        cuboidBlockedByProtectionHook();
 
         Assertions.assertFalse(creator.handleInput(UnitTestUtil.getLocation(DEFAULT_MAX, creator.getWorld())).join());
 
@@ -272,7 +269,7 @@ public class CreatorTest
         final var creator = newSecondLocationCreator();
 
         Mockito.when(protectionHookManager.canBreakBlocksBetweenLocs(Mockito.any(), Mockito.any(), Mockito.any()))
-            .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
+            .thenReturn(CompletableFuture.completedFuture(IProtectionHookManager.HookCheckResult.allowed()));
 
         Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any()))
             .thenReturn(OptionalInt.of(DEFAULT_CUBOID.getVolume() - 1));
@@ -295,7 +292,7 @@ public class CreatorTest
         final var creator = newSecondLocationCreator();
 
         Mockito.when(protectionHookManager.canBreakBlocksBetweenLocs(Mockito.any(), Mockito.any(), Mockito.any()))
-            .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
+            .thenReturn(CompletableFuture.completedFuture(IProtectionHookManager.HookCheckResult.allowed()));
 
         Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any()))
             .thenReturn(OptionalInt.of(DEFAULT_CUBOID.getVolume()));
@@ -492,7 +489,7 @@ public class CreatorTest
     @Test
     void testCompleteSetPowerBlockStepLocationNotAllowed()
     {
-        blockedByProtectionHooks();
+        locationBlockedByProtectionHook();
         final var creator = newPowerBlockCreator();
 
         Assertions.assertFalse(
@@ -753,17 +750,21 @@ public class CreatorTest
     private void allowedByProtectionHooks()
     {
         Mockito.when(protectionHookManager.canBreakBlock(Mockito.any(), Mockito.any()))
-            .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
+            .thenReturn(CompletableFuture.completedFuture(IProtectionHookManager.HookCheckResult.allowed()));
         Mockito.when(protectionHookManager.canBreakBlocksBetweenLocs(Mockito.any(), Mockito.any(), Mockito.any()))
-            .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
+            .thenReturn(CompletableFuture.completedFuture(IProtectionHookManager.HookCheckResult.allowed()));
     }
 
-    private void blockedByProtectionHooks()
+    private void locationBlockedByProtectionHook()
     {
         Mockito.when(protectionHookManager.canBreakBlock(Mockito.any(), Mockito.any()))
-            .thenReturn(CompletableFuture.completedFuture(Optional.of("NOT_ALLOWED")));
+            .thenReturn(CompletableFuture.completedFuture(IProtectionHookManager.HookCheckResult.denied("BLOCKED")));
+    }
+
+    private void cuboidBlockedByProtectionHook()
+    {
         Mockito.when(protectionHookManager.canBreakBlocksBetweenLocs(Mockito.any(), Mockito.any(), Mockito.any()))
-            .thenReturn(CompletableFuture.completedFuture(Optional.of("NOT_ALLOWED")));
+            .thenReturn(CompletableFuture.completedFuture(IProtectionHookManager.HookCheckResult.denied("BLOCKED")));
     }
 
     /**

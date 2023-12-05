@@ -23,7 +23,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @ExtendWith(MockitoExtension.class)
@@ -64,9 +63,9 @@ class PowerBlockRelocatorTest
 
         hookManager = Mockito.mock(IProtectionHookManager.class);
         Mockito.when(hookManager.canBreakBlock(Mockito.any(), Mockito.any()))
-            .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
+               .thenReturn(CompletableFuture.completedFuture(IProtectionHookManager.HookCheckResult.allowed()));
         Mockito.when(hookManager.canBreakBlocksBetweenLocs(Mockito.any(), Mockito.any(), Mockito.any()))
-            .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
+               .thenReturn(CompletableFuture.completedFuture(IProtectionHookManager.HookCheckResult.allowed()));
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
@@ -122,7 +121,7 @@ class PowerBlockRelocatorTest
 
         final String compat = "TestCompat";
         Mockito.when(hookManager.canBreakBlock(Mockito.any(), Mockito.any()))
-            .thenReturn(CompletableFuture.completedFuture(Optional.of(compat)));
+               .thenReturn(CompletableFuture.completedFuture(IProtectionHookManager.HookCheckResult.denied(compat)));
 
         Mockito.when(location.getWorld()).thenReturn(world);
         Mockito.when(location.getPosition()).thenReturn(new Vector3Di(0, 0, 0));

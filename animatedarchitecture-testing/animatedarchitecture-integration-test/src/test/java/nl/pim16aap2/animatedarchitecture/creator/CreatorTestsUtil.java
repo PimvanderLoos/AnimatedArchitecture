@@ -65,6 +65,7 @@ public class CreatorTestsUtil
 {
     protected final Vector3Di min = new Vector3Di(10, 15, 20);
     protected final Vector3Di max = new Vector3Di(20, 25, 30);
+    protected final Cuboid cuboid = new Cuboid(min, max);
     protected final Vector3Di powerblock = new Vector3Di(40, 40, 40);
     protected final String structureName = "testDoor123";
     protected final IWorld world = getWorld();
@@ -153,21 +154,20 @@ public class CreatorTestsUtil
 
         final var builderResult = newStructureBaseBuilder();
         builderResult.assistedFactoryMocker()
-                     .setMock(ILocalizer.class, localizer)
-                     .setMock(StructureRegistry.class,
-                              StructureRegistry.unCached(debuggableRegistry,
-                                                         Mockito.mock(StructureDeletionManager.class)));
+            .setMock(ILocalizer.class, localizer)
+            .setMock(StructureRegistry.class,
+                StructureRegistry.unCached(debuggableRegistry, Mockito.mock(StructureDeletionManager.class)));
         structureBaseBuilder = builderResult.structureBaseBuilder();
 
         final var assistedStepFactory = Mockito.mock(Step.Factory.IFactory.class);
         //noinspection deprecation
         Mockito.when(assistedStepFactory.stepName(Mockito.anyString()))
-               .thenAnswer(invocation -> new Step.Factory(localizer, invocation.getArgument(0, String.class)));
+            .thenAnswer(invocation -> new Step.Factory(localizer, invocation.getArgument(0, String.class)));
 
         Mockito.when(protectionHookManager.canBreakBlock(Mockito.any(), Mockito.any()))
-               .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
+            .thenReturn(CompletableFuture.completedFuture(IProtectionHookManager.HookCheckResult.allowed()));
         Mockito.when(protectionHookManager.canBreakBlocksBetweenLocs(Mockito.any(), Mockito.any(), Mockito.any()))
-               .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
+            .thenReturn(CompletableFuture.completedFuture(IProtectionHookManager.HookCheckResult.allowed()));
 
         context = new ToolUser.Context(
             structureBaseBuilder, localizer, ITextFactory.getSimpleTextFactory(), toolUserManager, databaseManager,
@@ -181,7 +181,7 @@ public class CreatorTestsUtil
 
         final IPlayerFactory playerFactory = Mockito.mock(IPlayerFactory.class);
         Mockito.when(playerFactory.create(playerData.getUUID()))
-               .thenReturn(CompletableFuture.completedFuture(Optional.of(player)));
+            .thenReturn(CompletableFuture.completedFuture(Optional.of(player)));
 
         // Immediately return whatever structure was being added to the database as if it was successful.
         Mockito.when(databaseManager.addStructure(ArgumentMatchers.any())).thenAnswer(
@@ -189,12 +189,15 @@ public class CreatorTestsUtil
                 CompletableFuture.completedFuture(Optional.of((AbstractStructure) invocation.getArguments()[0])));
 
         Mockito.when(databaseManager.addStructure(
-                   ArgumentMatchers.any(AbstractStructure.class), Mockito.any(IPlayer.class)))
-               .thenAnswer((Answer<CompletableFuture<DatabaseManager.StructureInsertResult>>) invocation ->
-                   CompletableFuture.completedFuture(new DatabaseManager.StructureInsertResult(
-                       Optional.of(invocation.getArgument(0, AbstractStructure.class)), false)));
+                ArgumentMatchers.any(AbstractStructure.class), Mockito.any(IPlayer.class)))
+            .thenAnswer((Answer<CompletableFuture<DatabaseManager.StructureInsertResult>>) invocation ->
+                CompletableFuture.completedFuture(new DatabaseManager.StructureInsertResult(
+                    Optional.of(invocation.getArgument(0, AbstractStructure.class)), false)));
 
         Mockito.when(permissionsManager.hasPermission(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(true);
+
+        Mockito.when(player.getStructureSizeLimit()).thenReturn(cuboid.getVolume());
+        Mockito.when(player.getStructureCountLimit()).thenReturn(cuboid.getVolume());
 
         Mockito.when(config.maxStructureSize()).thenReturn(OptionalInt.empty());
         Mockito.when(config.maxStructureCount()).thenReturn(OptionalInt.empty());
@@ -226,8 +229,7 @@ public class CreatorTestsUtil
                 .setMock(DelayedCommandInputManager.class, delayedCommandInputManager);
 
         final var commandContext = new DelayedCommand.Context(delayedCommandInputManager, localizer,
-                                                              ITextFactory.getSimpleTextFactory(),
-                                                              () -> commandFactory);
+            ITextFactory.getSimpleTextFactory(), () -> commandFactory);
 
         final SetOpenStatusDelayed setOpenStatusDelayed =
             new SetOpenStatusDelayed(commandContext, assistedFactory.getFactory());
@@ -257,14 +259,14 @@ public class CreatorTestsUtil
     protected void setEconomyPrice(double price)
     {
         Mockito.when(economyManager.getPrice(ArgumentMatchers.any(), ArgumentMatchers.anyInt()))
-               .thenReturn(OptionalDouble.of(price));
+            .thenReturn(OptionalDouble.of(price));
     }
 
     protected void setBuyStructure(boolean status)
     {
         Mockito.when(economyManager.buyStructure(ArgumentMatchers.any(), ArgumentMatchers.any(),
-                                                 ArgumentMatchers.any(), ArgumentMatchers.anyInt()))
-               .thenReturn(status);
+                ArgumentMatchers.any(), ArgumentMatchers.anyInt()))
+            .thenReturn(status);
     }
 
     protected long getTemporaryUid(Creator creator)
@@ -272,8 +274,8 @@ public class CreatorTestsUtil
         try
         {
             return (Long) ReflectionBuilder.findField(Creator.class)
-                                           .withName("structureUidPlaceholder")
-                                           .setAccessible().get().get(creator);
+                .withName("structureUidPlaceholder")
+                .setAccessible().get().get(creator);
         }
         catch (IllegalAccessException e)
         {
@@ -283,12 +285,19 @@ public class CreatorTestsUtil
 
     protected AbstractStructure.BaseHolder constructStructureBase(long uid)
     {
-        return structureBaseBuilder.builder()
-                                   .uid(uid).name(structureName).cuboid(new Cuboid(min, max))
-                                   .rotationPoint(rotationPoint)
-                                   .powerBlock(powerblock).world(world).isOpen(false).isLocked(false)
-                                   .openDir(openDirection).primeOwner(structureOwner)
-                                   .build();
+        return structureBaseBuilder
+            .builder()
+            .uid(uid)
+            .name(structureName)
+            .cuboid(cuboid)
+            .rotationPoint(rotationPoint)
+            .powerBlock(powerblock)
+            .world(world)
+            .isOpen(false)
+            .isLocked(false)
+            .openDir(openDirection)
+            .primeOwner(structureOwner)
+            .build();
     }
 
     public void applySteps(Creator creator, Object... input)
@@ -300,7 +309,7 @@ public class CreatorTestsUtil
             Assertions.assertNotNull(stepName);
 
             Assertions.assertTrue(creator.handleInput(obj).join(),
-                                  String.format("IDX: %d, Input: %s, Step: %s", idx, obj, stepName));
+                String.format("IDX: %d, Input: %s, Step: %s", idx, obj, stepName));
         }
     }
 
@@ -308,7 +317,7 @@ public class CreatorTestsUtil
     {
         applySteps(creator, input);
         Mockito.verify(creator.getPlayer(), Mockito.never())
-               .sendMessage(UnitTestUtil.textArgumentMatcher("creator.base.error.creation_cancelled"));
+            .sendMessage(UnitTestUtil.textArgumentMatcher("creator.base.error.creation_cancelled"));
         Mockito.verify(databaseManager).addStructure(actualStructure, player);
     }
 }
