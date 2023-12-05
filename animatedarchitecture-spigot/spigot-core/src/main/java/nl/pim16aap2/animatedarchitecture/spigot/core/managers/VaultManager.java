@@ -71,11 +71,8 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         this.structureTypeManager = structureTypeManager;
 
         flatPrices = new HashMap<>();
-        if (isVaultInstalled())
-        {
-            economyEnabled = setupEconomy();
-            permissionsEnabled = setupPermissions();
-        }
+        economyEnabled = setupEconomy();
+        permissionsEnabled = setupPermissions();
 
         debuggableRegistry.registerDebuggable(this);
     }
@@ -270,24 +267,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     }
 
     /**
-     * Checks if Vault is installed on this server.
-     *
-     * @return True if vault is installed on this server.
-     */
-    private boolean isVaultInstalled()
-    {
-        try
-        {
-            return Bukkit.getServer().getPluginManager().getPlugin("Vault") != null;
-        }
-        catch (NullPointerException e)
-        {
-            return false;
-        }
-    }
-
-    /**
-     * Initialize the economy dependency. Assumes Vault is installed on this server. See {@link #isVaultInstalled()}.
+     * Initialize the economy dependency. Assumes Vault is installed on this server.
      *
      * @return True if the initialization process was successful.
      */
@@ -312,8 +292,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     }
 
     /**
-     * Initialize the "permissions" dependency. Assumes Vault is installed on this server. See
-     * {@link #isVaultInstalled()}.
+     * Initialize the "permissions" dependency. Assumes Vault is installed on this server.
      *
      * @return True if the initialization process was successful.
      */

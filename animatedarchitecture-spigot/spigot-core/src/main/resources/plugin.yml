@@ -3,6 +3,8 @@ main: nl.pim16aap2.animatedarchitecture.spigot.core.AnimatedArchitecturePlugin
 version: ${project.version}
 author: pim16aap2
 api-version: 1.19
+depend:
+  - Vault
 libraries:
   - it.unimi.dsi:fastutil:${dependency.fastutil.version}
   - com.alibaba:fastjson:${dependency.fastjson.version}
