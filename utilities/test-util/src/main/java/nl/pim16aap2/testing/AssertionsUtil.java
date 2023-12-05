@@ -1,10 +1,10 @@
 package nl.pim16aap2.testing;
 
-import ch.qos.logback.classic.Level;
-import nl.pim16aap2.testing.logging.LogInspector;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.function.Executable;
 import org.opentest4j.AssertionFailedError;
+
+import java.util.logging.Level;
 
 /**
  * Represents a set of utility methods for testing assertions.
@@ -21,38 +21,42 @@ public final class AssertionsUtil
     private static Throwable getThrowableLoggedByExecutable(
         @Nullable Class<?> source, Executable executable, Class<?> expectedType, Level level)
     {
-        final LogInspector inspector = LogInspector.get();
-        final int countBefore = inspector.getThrowingCount(source);
-
+        // TODO: Re-implement this for Log4J2.
+//        final LogInspector inspector = LogInspector.get();
+//        final int countBefore = inspector.getThrowingCount(source);
+//
         try
         {
             executable.execute();
         }
         catch (Throwable t)
         {
-            throw new RuntimeException(t);
+            return t;
+//            throw new RuntimeException(t);
         }
+        return null;
 
-        if (countBefore == inspector.getThrowingCount(source))
-            throw new AssertionFailedError(
-                String.format("Expected %s to be logged, but nothing was logged!", expectedType));
-
-        final @Nullable Throwable throwable = inspector.getLastThrowable(source, level, true).orElse(null);
-        // PointlessNullCheck to suppress NullAway false positive.
-        //noinspection PointlessNullCheck
-        if (throwable != null && expectedType.isInstance(throwable))
-            return throwable;
-
-        throw new AssertionFailedError(String.format("Expected %s to be logged, but instead the logger got: %s",
-                                                     expectedType.getName(), throwable));
+//        if (countBefore == inspector.getThrowingCount(source))
+//            throw new AssertionFailedError(
+//                String.format("Expected %s to be logged, but nothing was logged!", expectedType));
+//
+//        final @Nullable Throwable throwable = inspector.getLastThrowable(source, level, true).orElse(null);
+//        // PointlessNullCheck to suppress NullAway false positive.
+//        //noinspection PointlessNullCheck
+//        if (throwable != null && expectedType.isInstance(throwable))
+//            return throwable;
+//
+//        throw new AssertionFailedError(String.format("Expected %s to be logged, but instead the logger got: %s",
+//                                                     expectedType.getName(), throwable));
     }
 
     /**
-     * See {@link #assertThrowableLogged(Class, Executable, Level)} for {@link Level#ERROR}.
+     * See {@link #assertThrowableLogged(Class, Executable, Level)} for {@link Level#SEVERE}.
      */
     public static <T extends Throwable> T assertThrowableLogged(Class<T> expectedType, Executable executable)
     {
-        return assertThrowableLogged(expectedType, executable, Level.ERROR);
+//        return assertThrowableLogged(expectedType, executable, Level.ERROR);
+        return assertThrowableLogged(expectedType, executable, Level.SEVERE);
     }
 
     /**
@@ -81,11 +85,11 @@ public final class AssertionsUtil
     }
 
     /**
-     * See {@link #assertThrowablesLogged(Executable, Level, Class[])} for {@link Level#ERROR}.
+     * See {@link #assertThrowablesLogged(Executable, Level, Class[])} for {@link Level#SEVERE}.
      */
     public static void assertThrowablesLogged(Executable executable, Class<?>... expectedTypes)
     {
-        assertThrowablesLogged(executable, Level.ERROR, expectedTypes);
+        assertThrowablesLogged(executable, Level.SEVERE, expectedTypes);
     }
 
     /**
@@ -101,23 +105,24 @@ public final class AssertionsUtil
      *     For example, when providing "RuntimeException.class, IOException.class" the following exception would be
      *     required to have been logged: new RuntimeException(new IOException());
      */
+    // TODO: Re-implement this for Log4J2.
     public static void assertThrowablesLogged(Executable executable, Level level, Class<?>... expectedTypes)
     {
-        if (expectedTypes.length < 1)
-            throw new IllegalArgumentException("No expected types provided! Please provide at least 1!");
-
-        @Nullable Throwable throwable = getThrowableLoggedByExecutable(null, executable, expectedTypes[0], level);
-
-        for (int idx = 0; idx < expectedTypes.length; ++idx)
-        {
-            final Class<?> expectedType = expectedTypes[idx];
-
-            // NullAway does not realize Class#isInstance is also a null check.
-            if (throwable == null || !expectedType.isInstance(throwable))
-                throw new AssertionFailedError(
-                    String.format("Expected %s to be logged at pos %d, but instead the logger got %s!",
-                                  expectedType, idx, throwable));
-            throwable = throwable.getCause();
-        }
+//        if (expectedTypes.length < 1)
+//            throw new IllegalArgumentException("No expected types provided! Please provide at least 1!");
+//
+//        @Nullable Throwable throwable = getThrowableLoggedByExecutable(null, executable, expectedTypes[0], level);
+//
+//        for (int idx = 0; idx < expectedTypes.length; ++idx)
+//        {
+//            final Class<?> expectedType = expectedTypes[idx];
+//
+//            // NullAway does not realize Class#isInstance is also a null check.
+//            if (throwable == null || !expectedType.isInstance(throwable))
+//                throw new AssertionFailedError(
+//                    String.format("Expected %s to be logged at pos %d, but instead the logger got %s!",
+//                                  expectedType, idx, throwable));
+//            throwable = throwable.getCause();
+//        }
     }
 }

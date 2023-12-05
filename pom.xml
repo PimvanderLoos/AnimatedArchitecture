@@ -27,11 +27,8 @@
         <dependency.version.adventure-bukkit>4.3.1</dependency.version.adventure-bukkit>
         <dependency.version.commodore>2.2</dependency.version.commodore>
         <dependency.version.flogger>0.7.4</dependency.version.flogger>
-
         <dependency.version.log4j>2.19.0</dependency.version.log4j>
         <dependency.version.slf4j>2.0.1</dependency.version.slf4j>
-        <dependency.version.logback>1.4.9</dependency.version.logback>
-
         <dependency.version.annotations>24.0.1</dependency.version.annotations>
         <dependency.version.eclipse-annotations>2.2.700</dependency.version.eclipse-annotations>
         <dependency.version.lombok>1.18.31-SNAPSHOT</dependency.version.lombok>
@@ -161,20 +158,6 @@
             <!--            <scope>provided</scope>-->
             <scope>compile</scope>
             <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-core</artifactId>
-            <version>${dependency.version.logback}</version>
-            <!--            <scope>provided</scope>-->
-            <scope>compile</scope>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>${dependency.version.logback}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -430,10 +413,6 @@
                             <!--                                <pattern>com.google.common.flogger</pattern>-->
                             <!--                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.flogger</shadedPattern>-->
                             <!--                            </relocation>-->
-                            <relocation>
-                                <pattern>ch.qos.logback</pattern>
-                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.logback</shadedPattern>
-                            </relocation>
                             <!--                            <relocation>-->
                             <!--                                <pattern>nl.pim16aap2.logging</pattern>-->
                             <!--                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.logging</shadedPattern>-->

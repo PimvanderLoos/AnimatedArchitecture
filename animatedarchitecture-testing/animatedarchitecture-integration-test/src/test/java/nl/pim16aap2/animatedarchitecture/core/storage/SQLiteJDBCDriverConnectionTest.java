@@ -34,7 +34,6 @@ import nl.pim16aap2.animatedarchitecture.structures.portcullis.StructureTypePort
 import nl.pim16aap2.animatedarchitecture.testimplementations.TestWorld;
 import nl.pim16aap2.animatedarchitecture.testimplementations.TestWorldFactory;
 import nl.pim16aap2.testing.AssertionsUtil;
-import nl.pim16aap2.testing.logging.LogInspector;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -96,7 +95,6 @@ public class SQLiteJDBCDriverConnectionTest
 
     static
     {
-        LogInspector.get().clearHistory();
         DB_FILE = Path.of(".", "tests", "test.db");
         DB_FILE_BACKUP = DB_FILE.resolveSibling(DB_FILE.getFileName() + ".BACKUP");
     }

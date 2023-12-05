@@ -7,9 +7,7 @@ libraries:
   - it.unimi.dsi:fastutil:${dependency.version.fastutil}
   - com.alibaba:fastjson:${dependency.version.fastjson}
   - net.bytebuddy:byte-buddy:${dependency.version.bytebuddy}
-  #  - com.google.flogger:flogger:${dependency.version.flogger}
-  #  - com.google.flogger:flogger-slf4j-backend:${dependency.version.flogger}
-  #  - org.slf4j:slf4j-api:${dependency.version.slf4j}
-  #  - com.google.flogger:flogger-log4j2-backend:${dependency.version.flogger}
-  #  - ch.qos.logback:logback-core:${dependency.version.logback}
-  #  - ch.qos.logback:logback-classic:${dependency.version.logback}
+#  - com.google.flogger:flogger:${dependency.version.flogger}
+#  - com.google.flogger:flogger-slf4j-backend:${dependency.version.flogger}
+#  - org.slf4j:slf4j-api:${dependency.version.slf4j}
+#  - com.google.flogger:flogger-log4j2-backend:${dependency.version.flogger}

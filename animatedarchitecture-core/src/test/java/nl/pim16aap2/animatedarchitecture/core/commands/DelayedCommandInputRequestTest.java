@@ -6,7 +6,6 @@ import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
 import nl.pim16aap2.testing.AssertionsUtil;
-import nl.pim16aap2.testing.logging.LogInspector;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,7 +38,6 @@ class DelayedCommandInputRequestTest
     {
         MockitoAnnotations.openMocks(this);
 
-        LogInspector.get().clearHistory();
         localizer = UnitTestUtil.initLocalizer();
         delayedCommandInputManager = new DelayedCommandInputManager(Mockito.mock(DebuggableRegistry.class));
     }

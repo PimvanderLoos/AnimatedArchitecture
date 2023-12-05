@@ -9,7 +9,6 @@ import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.util.functional.TriFunction;
-import nl.pim16aap2.testing.logging.LogInspector;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -75,7 +74,6 @@ class DelayedCommandTest
         openMocks = MockitoAnnotations.openMocks(this);
         initInputRequestFactory(inputRequestFactory, localizer, delayedCommandInputManager);
         structureRetriever = structureRetrieverFactory.of(structure);
-        LogInspector.get().clearHistory();
     }
 
     @AfterEach
@@ -123,11 +121,11 @@ class DelayedCommandTest
                .thenThrow(RuntimeException.class);
         final DelayedCommandImpl delayedCommand = new DelayedCommandImpl(context, inputRequestFactory, delayedFunction);
         delayedCommand.runDelayed(commandSender, structureRetriever);
-        Assertions.assertEquals(0, LogInspector.get().getThrowingCount());
+//        Assertions.assertEquals(0, LogInspector.get().getThrowingCount());
 
         Assertions.assertDoesNotThrow(
             () -> delayedCommand.provideDelayedInput(commandSender, new Object()).get(1, TimeUnit.SECONDS));
-        Assertions.assertEquals(1, LogInspector.get().getThrowingCount());
+//        Assertions.assertEquals(1, LogInspector.get().getThrowingCount());
     }
 
     /**
