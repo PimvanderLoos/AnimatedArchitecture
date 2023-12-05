@@ -4,6 +4,8 @@ import com.griefdefender.api.Core;
 import com.griefdefender.api.GriefDefender;
 import com.griefdefender.api.User;
 import com.griefdefender.api.claim.Claim;
+import lombok.Getter;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.IProtectionHookSpigot;
@@ -17,14 +19,18 @@ import java.util.Objects;
 /**
  * Protection hook for GriefDefender 2.
  */
+@Flogger
 public class GriefDefender2ProtectionHook implements IProtectionHookSpigot
 {
     private final Core griefDefender;
+    @Getter
+    private final ProtectionHookContext context;
 
     @SuppressWarnings("unused") // Called by reflection.
     public GriefDefender2ProtectionHook(ProtectionHookContext context)
     {
         griefDefender = GriefDefender.getCore();
+        this.context = context;
     }
 
     private boolean enabledInWorldChecks(World world)
@@ -47,7 +53,13 @@ public class GriefDefender2ProtectionHook implements IProtectionHookSpigot
             return true;
 
         final User wrappedPlayer = GriefDefender.getCore().getUser(player.getUniqueId());
-        return targetClaim.canBreak(player, loc, wrappedPlayer);
+        final boolean result = targetClaim.canBreak(player, loc, wrappedPlayer);
+        if (!result)
+            log.atFine().log(
+                "Player %s is not allowed to break block at %s",
+                formatPlayerName(player), loc
+            );
+        return result;
     }
 
     @Override

@@ -1,5 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.spigot.hooks.lands;
 
+import lombok.Getter;
+import lombok.extern.flogger.Flogger;
 import me.angeschossen.lands.api.LandsIntegration;
 import me.angeschossen.lands.api.flags.type.Flags;
 import me.angeschossen.lands.api.land.Area;
@@ -12,16 +14,16 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.UUID;
-
 /**
  * Protection hook for <a href="https://www.spigotmc.org/resources/53313/">Lands</a>.
  * <p>
  * Uses <a href="https://github.com/Angeschossen/LandsAPI">LandsAPI</a>.
  */
+@Flogger
 public class LandsProtectionHook implements IProtectionHookSpigot
 {
     private final LandsIntegration landsAddon;
+    @Getter
     private final ProtectionHookContext context;
 
     @SuppressWarnings("unused") // Called by reflection.
@@ -31,20 +33,29 @@ public class LandsProtectionHook implements IProtectionHookSpigot
         landsAddon = LandsIntegration.of(context.getPlugin());
     }
 
+    private boolean canBreakBlock(@Nullable Area area, Player player, Location loc)
+    {
+        if (area == null)
+            return true;
+
+        final boolean result = area.hasRoleFlag(player.getUniqueId(), Flags.BLOCK_BREAK);
+        if (!result)
+            log.atFine().log(
+                "Player %s is not allowed to break block at %s",
+                formatPlayerName(player), loc
+            );
+        return result;
+    }
+
     @Override
     public boolean canBreakBlock(Player player, Location loc)
     {
-        final @Nullable Area area = landsAddon.getArea(loc);
-        if (area == null)
-            return true;
-        return area.hasRoleFlag(player.getUniqueId(), Flags.BLOCK_BREAK);
+        return canBreakBlock(landsAddon.getArea(loc), player, loc);
     }
 
     @Override
     public boolean canBreakBlocksBetweenLocs(Player player, World world, Cuboid cuboid)
     {
-        final UUID playerUUID = player.getUniqueId();
-
         final Vector3Di min = cuboid.getMin();
         final Vector3Di max = cuboid.getMax();
 
@@ -64,10 +75,12 @@ public class LandsProtectionHook implements IProtectionHookSpigot
                 for (int y = min.y(); y <= max.y(); ++y)
                 {
                     loc.setY(y);
+
                     final @Nullable Area area = landsAddon.getArea(loc);
                     if (area == null)
                         continue;
-                    if (!area.hasRoleFlag(playerUUID, Flags.BLOCK_BREAK))
+
+                    if (!canBreakBlock(area, player, loc))
                         return false;
                 }
             }

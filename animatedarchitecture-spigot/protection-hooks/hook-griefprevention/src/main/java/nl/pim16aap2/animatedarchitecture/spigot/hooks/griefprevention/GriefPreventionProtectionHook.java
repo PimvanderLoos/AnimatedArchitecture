@@ -1,5 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.spigot.hooks.griefprevention;
 
+import lombok.Getter;
+import lombok.extern.flogger.Flogger;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
@@ -16,25 +18,42 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Protection hook for GriefPrevention.
  */
+@Flogger
 public class GriefPreventionProtectionHook implements IProtectionHookSpigot
 {
     private final @Nullable GriefPrevention griefPrevention;
+    @Getter
+    private final ProtectionHookContext context;
 
     @SuppressWarnings("unused")
     public GriefPreventionProtectionHook(ProtectionHookContext context)
     {
         griefPrevention = JavaPlugin.getPlugin(GriefPrevention.class);
+        this.context = context;
     }
 
     @Override
     public boolean canBreakBlock(Player player, Location loc)
     {
         if (griefPrevention == null)
+        {
+            log.atInfo().log(
+                "Failed to access GriefPrevention while checking if player %s can break block at %s; " +
+                    "defaulting to false.",
+                formatPlayerName(player), loc
+            );
             return false;
+        }
 
         final Block block = loc.getBlock();
         final BlockBreakEvent blockBreakEvent = new BlockBreakEvent(block, player);
-        return griefPrevention.allowBreak(player, block, loc, blockBreakEvent) == null;
+        final boolean result = griefPrevention.allowBreak(player, block, loc, blockBreakEvent) == null;
+        if (!result)
+            log.atFine().log(
+                "Player %s is not allowed to break block at %s",
+                formatPlayerName(player), loc
+            );
+        return result;
     }
 
     @Override

@@ -9,6 +9,7 @@ import net.bytebuddy.implementation.Implementation;
 import net.bytebuddy.implementation.MethodCall;
 import net.bytebuddy.implementation.StubMethod;
 import nl.pim16aap2.animatedarchitecture.spigot.core.AnimatedArchitecturePlugin;
+import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.IFakePlayer;
 import nl.pim16aap2.util.codegeneration.ClassGenerator;
 import nl.pim16aap2.util.reflection.MethodFinder;
 import org.bukkit.Location;
@@ -27,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import static net.bytebuddy.implementation.MethodCall.construct;
 import static net.bytebuddy.implementation.MethodCall.invoke;
@@ -441,49 +441,5 @@ public final class FakePlayerClassGenerator extends ClassGenerator
     protected Class<?>[] getConstructorArgumentTypes()
     {
         return Arrays.copyOf(constructorParameterTypes, constructorParameterTypes.length);
-    }
-
-    /**
-     * The interface that is implemented by all fake players to allow easy identification.
-     * <p>
-     * It also contains some internal methods that are used by the generated subclass. It is not recommended to use
-     * these methods.
-     */
-    @SuppressWarnings("unused")
-    public interface IFakePlayer
-    {
-        OfflinePlayer getOfflinePlayer0();
-
-        /**
-         * Gets the location of the player.
-         * <p>
-         * Please consider using {@link Player#getLocation()} or {@link Player#getLocation(Location)} instead.
-         * <p>
-         * Those methods create defensive copies of the location; this method does not.
-         *
-         * @return The location of the player.
-         */
-        Location getLocation0();
-
-        default int hashCode0()
-        {
-            return Objects.hash(getOfflinePlayer0(), getLocation0());
-        }
-
-        default boolean equals0(Object other)
-        {
-            if (!(other instanceof IFakePlayer player))
-                return false;
-            return Objects.equals(getOfflinePlayer0(), player.getOfflinePlayer0()) &&
-                Objects.equals(getLocation0(), player.getLocation0());
-        }
-
-        default String toString0()
-        {
-            return "FakePlayer{" +
-                "offlinePlayer=" + getOfflinePlayer0() +
-                ", location=" + getLocation0() +
-                '}';
-        }
     }
 }

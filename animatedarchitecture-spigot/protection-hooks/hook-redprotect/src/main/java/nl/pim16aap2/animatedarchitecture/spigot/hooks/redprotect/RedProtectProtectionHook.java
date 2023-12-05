@@ -3,6 +3,8 @@ package nl.pim16aap2.animatedarchitecture.spigot.hooks.redprotect;
 import br.net.fabiozumbi12.RedProtect.Bukkit.API.RedProtectAPI;
 import br.net.fabiozumbi12.RedProtect.Bukkit.RedProtect;
 import br.net.fabiozumbi12.RedProtect.Bukkit.Region;
+import lombok.Getter;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.IProtectionHookSpigot;
@@ -15,9 +17,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 /**
  * Protection hook for RedProtect.
  */
+@Flogger
 public class RedProtectProtectionHook implements IProtectionHookSpigot
 {
     private final RedProtect redProtect;
+    @Getter
     private final ProtectionHookContext context;
 
     @SuppressWarnings("unused") // Called by reflection.
@@ -34,11 +38,20 @@ public class RedProtectProtectionHook implements IProtectionHookSpigot
         {
             final RedProtectAPI rpAPI = redProtect.getAPI();
             final Region rpRegion = rpAPI.getRegion(loc);
-            return rpRegion == null || rpRegion.canBuild(player);
+            final boolean result = rpRegion == null || rpRegion.canBuild(player);
+            if (!result)
+                log.atFine().log(
+                    "Player %s is not allowed to break block at %s",
+                    formatPlayerName(player), loc
+                );
+            return result;
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            log.atSevere().withCause(e).log(
+                "Failed to check if player %s can break block at %s; defaulting to false.",
+                formatPlayerName(player), loc
+            );
             return false;
         }
     }

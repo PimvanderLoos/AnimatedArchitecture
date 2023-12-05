@@ -9,6 +9,8 @@ import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IEconomyManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
+import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
+import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.IRestartable;
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
@@ -43,7 +45,7 @@ import java.util.Set;
  */
 @Singleton
 @Flogger
-public final class VaultManager implements IRestartable, IEconomyManager, IPermissionsManagerSpigot
+public final class VaultManager implements IRestartable, IEconomyManager, IPermissionsManagerSpigot, IDebuggable
 {
     private final Map<StructureType, Double> flatPrices;
     private boolean economyEnabled = false;
@@ -57,7 +59,11 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
 
     @Inject
     public VaultManager(
-        ILocalizer localizer, ITextFactory textFactory, IConfig config, StructureTypeManager structureTypeManager)
+        ILocalizer localizer,
+        ITextFactory textFactory,
+        IConfig config,
+        StructureTypeManager structureTypeManager,
+        DebuggableRegistry debuggableRegistry)
     {
         this.localizer = localizer;
         this.textFactory = textFactory;
@@ -70,6 +76,8 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
             economyEnabled = setupEconomy();
             permissionsEnabled = setupPermissions();
         }
+
+        debuggableRegistry.registerDebuggable(this);
     }
 
     @Override
@@ -101,6 +109,9 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
             localizer.getMessage("creator.base.error.insufficient_funds"), TextType.ERROR,
             arg -> arg.highlight(localizer.getMessage(type.getLocalizationKey())),
             arg -> arg.highlight(price)));
+        log.atFine().log(
+            "Player '%s' does not have enough money to buy structure of type '%s' of size %d! Price: %f",
+            player.asString(), type.getSimpleName(), blockCount, price);
         return false;
     }
 
@@ -428,5 +439,13 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
             return null;
         }
         return bukkitPlayer;
+    }
+
+    @Override
+    public String getDebugInformation()
+    {
+        return "Economy Enabled: " + economyEnabled + "\n"
+            + "Permissions Enabled: " + permissionsEnabled + "\n"
+            + "Flat prices map: " + flatPrices;
     }
 }

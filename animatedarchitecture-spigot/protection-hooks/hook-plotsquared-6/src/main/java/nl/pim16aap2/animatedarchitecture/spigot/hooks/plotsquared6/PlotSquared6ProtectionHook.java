@@ -11,6 +11,8 @@ import com.plotsquared.core.plot.flag.implementations.DoneFlag;
 import com.plotsquared.core.plot.flag.types.BlockTypeWrapper;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.world.block.BlockType;
+import lombok.Getter;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.IProtectionHookSpigot;
@@ -23,10 +25,15 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Protection hook for PlotSquared 6.
+ *
+ * @deprecated PlotSquared 6 is no longer supported. It will be removed in a future version.
  */
+@Deprecated
+@Flogger
 public class PlotSquared6ProtectionHook implements IProtectionHookSpigot
 {
     private final JavaPlugin plotSquaredPlugin;
+    @Getter
     private final ProtectionHookContext context;
 
     @SuppressWarnings("unused") // Called by reflection.
@@ -34,6 +41,9 @@ public class PlotSquared6ProtectionHook implements IProtectionHookSpigot
     {
         this.context = context;
         plotSquaredPlugin = JavaPlugin.getPlugin(BukkitPlatform.class);
+        log.atSevere().log(
+            "PlotSquared 6 support is deprecated and will be removed in a future version. " +
+                "Please upgrade to PlotSquared 7.");
     }
 
     @Override
@@ -51,18 +61,15 @@ public class PlotSquared6ProtectionHook implements IProtectionHookSpigot
     private boolean isHeightAllowed(Player player, PlotArea area, int height)
     {
         if (height == 0)
-            return context.getPermissionsManager()
-                          .hasPermission(player, Permission.PERMISSION_ADMIN_DESTROY_GROUNDLEVEL.toString());
+            return hasPermission(player, Permission.PERMISSION_ADMIN_DESTROY_GROUNDLEVEL.toString());
         else
             return (height <= area.getMaxBuildHeight() && height >= area.getMinBuildHeight()) ||
-                context.getPermissionsManager()
-                       .hasPermission(player, Permission.PERMISSION_ADMIN_BUILD_HEIGHT_LIMIT.toString());
+                hasPermission(player, Permission.PERMISSION_ADMIN_BUILD_HEIGHT_LIMIT.toString());
     }
 
     private boolean canBreakRoads(Player player)
     {
-        return context.getPermissionsManager()
-                      .hasPermission(player, Permission.PERMISSION_ADMIN_DESTROY_ROAD.toString());
+        return hasPermission(player, Permission.PERMISSION_ADMIN_DESTROY_ROAD.toString());
     }
 
     // Check if a given player is allowed to build in a given plot.
@@ -77,8 +84,7 @@ public class PlotSquared6ProtectionHook implements IProtectionHookSpigot
             return false;
 
         if (!plot.hasOwner())
-            return context.getPermissionsManager()
-                          .hasPermission(player, Permission.PERMISSION_ADMIN_DESTROY_UNOWNED.toString());
+            return hasPermission(player, Permission.PERMISSION_ADMIN_DESTROY_UNOWNED.toString());
 
         if (!plot.isAdded(player.getUniqueId()))
         {
@@ -88,13 +94,11 @@ public class PlotSquared6ProtectionHook implements IProtectionHookSpigot
                 if (blockTypeWrapper.accepts(blockType))
                     return true;
 
-            return context.getPermissionsManager()
-                          .hasPermission(player, Permission.PERMISSION_ADMIN_DESTROY_OTHER.toString());
+            return hasPermission(player, Permission.PERMISSION_ADMIN_DESTROY_OTHER.toString());
         }
         else if (Settings.Done.RESTRICT_BUILDING && DoneFlag.isDone(plot))
         {
-            return context.getPermissionsManager()
-                          .hasPermission(player, Permission.PERMISSION_ADMIN_BUILD_OTHER.toString());
+            return hasPermission(player, Permission.PERMISSION_ADMIN_BUILD_OTHER.toString());
         }
         return true;
 
