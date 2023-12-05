@@ -7,6 +7,7 @@ import net.milkbowl.vault.economy.EconomyResponse;
 import net.milkbowl.vault.permission.Permission;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IEconomyManager;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
@@ -22,9 +23,11 @@ import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.IPermissionsManagerSpigot;
+import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.IFakePlayer;
 import nl.pim16aap2.jcalculator.JCalculator;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -34,9 +37,11 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Manages all interactions with Vault.
@@ -48,14 +53,15 @@ import java.util.Set;
 public final class VaultManager implements IRestartable, IEconomyManager, IPermissionsManagerSpigot, IDebuggable
 {
     private final Map<StructureType, Double> flatPrices;
-    private boolean economyEnabled = false;
-    private boolean permissionsEnabled = false;
-    private @Nullable Economy economy = null;
-    private @Nullable Permission perms = null;
+    private final Permission perms;
     private final ILocalizer localizer;
     private final ITextFactory textFactory;
     private final IConfig config;
     private final StructureTypeManager structureTypeManager;
+    private final IExecutor executor;
+
+    private boolean economyEnabled = false;
+    private @Nullable Economy economy = null;
 
     @Inject
     public VaultManager(
@@ -63,16 +69,18 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         ITextFactory textFactory,
         IConfig config,
         StructureTypeManager structureTypeManager,
-        DebuggableRegistry debuggableRegistry)
+        DebuggableRegistry debuggableRegistry,
+        IExecutor executor)
     {
         this.localizer = localizer;
         this.textFactory = textFactory;
         this.config = config;
         this.structureTypeManager = structureTypeManager;
+        this.executor = executor;
 
         flatPrices = new HashMap<>();
         economyEnabled = setupEconomy();
-        permissionsEnabled = setupPermissions();
+        perms = setupPermissions();
 
         debuggableRegistry.registerDebuggable(this);
     }
@@ -130,19 +138,27 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         Util.parseDouble(config.getPrice(type)).ifPresent(price -> flatPrices.put(type, price));
     }
 
-    /**
-     * Checks if a player has a specific permission node.
-     *
-     * @param player
-     *     The player.
-     * @param permission
-     *     The permission node.
-     * @return True if the player has the node.
-     */
     @Override
     public boolean hasPermission(Player player, String permission)
     {
-        return permissionsEnabled && perms != null && perms.playerHas(player.getWorld().getName(), player, permission);
+        if (executor.isMainThread() &&
+            (player instanceof IFakePlayer || !player.isOnline()))
+        {
+            throw new RuntimeException(String.format(
+                "Failed to check permission '%s' for player '%s'! " +
+                    "Cannot check permissions for offline players on the main thread! Online: %b, Fake: %b",
+                permission, player.getName(), player.isOnline(), player instanceof IFakePlayer));
+        }
+
+        final boolean result = perms.playerHas(player.getWorld().getName(), player, permission);
+        log.atFine().log("Player '%s' has permission '%s': %b", player.getName(), permission, result);
+        return result;
+    }
+
+    @Override
+    public CompletableFuture<Boolean> hasPermissionOffline(World world, OfflinePlayer player, String permission)
+    {
+        return CompletableFuture.supplyAsync(() -> perms.playerHas(world.getName(), player, permission));
     }
 
     /**
@@ -296,23 +312,18 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
      *
      * @return True if the initialization process was successful.
      */
-    private boolean setupPermissions()
+    private Permission setupPermissions()
     {
         try
         {
-            final @Nullable RegisteredServiceProvider<Permission> permissionProvider =
-                Bukkit.getServer().getServicesManager().getRegistration(Permission.class);
+            final RegisteredServiceProvider<Permission> permissionProvider =
+                Objects.requireNonNull(Bukkit.getServer().getServicesManager().getRegistration(Permission.class));
 
-            if (permissionProvider == null)
-                return false;
-
-            perms = permissionProvider.getProvider();
-            return true;
+            return Objects.requireNonNull(permissionProvider.getProvider());
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log();
-            return false;
+            throw new IllegalStateException("Failed to initialize permissions!", e);
         }
     }
 
@@ -348,26 +359,18 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     @Override
     public OptionalInt getMaxPermissionSuffix(IPlayer player, String permissionBase)
     {
-        final @Nullable Player bukkitPlayer = SpigotAdapter.getBukkitPlayer(player);
+        final @Nullable Player bukkitPlayer = getBukkitPlayer(player);
         if (bukkitPlayer == null)
-        {
-            log.atSevere().withStackTrace(StackSize.FULL)
-               .log("Failed to obtain BukkitPlayer for player: '%s'", player.asString());
             return OptionalInt.empty();
-        }
         return getMaxPermissionSuffix(bukkitPlayer, permissionBase);
     }
 
     @Override
     public boolean hasPermission(IPlayer player, String permissionNode)
     {
-        final @Nullable Player bukkitPlayer = SpigotAdapter.getBukkitPlayer(player);
+        final @Nullable Player bukkitPlayer = getBukkitPlayer(player);
         if (bukkitPlayer == null)
-        {
-            log.atFinest().withStackTrace(StackSize.FULL)
-               .log("Failed to obtain BukkitPlayer for player: '%s'", player.asString());
             return false;
-        }
 
         return bukkitPlayer.hasPermission(permissionNode);
     }
@@ -424,7 +427,6 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     public String getDebugInformation()
     {
         return "Economy Enabled: " + economyEnabled + "\n"
-            + "Permissions Enabled: " + permissionsEnabled + "\n"
             + "Flat prices map: " + flatPrices;
     }
 }

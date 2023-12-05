@@ -5,10 +5,14 @@ import com.google.common.flogger.LazyArgs;
 import nl.pim16aap2.animatedarchitecture.core.api.IPermissionsManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
+import nl.pim16aap2.animatedarchitecture.spigot.util.api.IPermissionsManagerSpigot;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents a compatibility hook.
@@ -70,6 +74,26 @@ public interface IProtectionHookSpigot
     default boolean hasPermission(Player player, String node)
     {
         return getContext().getPermissionsManager().hasPermission(player, node);
+    }
+
+    /**
+     * Shortcut method to check if an offline player has a given permission node.
+     * <p>
+     * See {@link ProtectionHookContext#getPermissionsManager()} and
+     * {@link IPermissionsManagerSpigot#hasPermissionOffline(World, OfflinePlayer, String)}
+     *
+     * @param world
+     *     The world to check in.
+     * @param player
+     *     The player to check.
+     * @param permission
+     *     The permission node to check.
+     * @return A CompletableFuture that will be completed with true if the player has the permission node in the given
+     * world, false otherwise.
+     */
+    default CompletableFuture<Boolean> hasPermissionOffline(World world, OfflinePlayer player, String permission)
+    {
+        return getContext().getPermissionsManager().hasPermissionOffline(world, player, permission);
     }
 
     /**

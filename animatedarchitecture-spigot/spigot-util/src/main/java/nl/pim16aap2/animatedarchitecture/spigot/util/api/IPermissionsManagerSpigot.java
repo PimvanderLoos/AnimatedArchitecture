@@ -2,9 +2,12 @@ package nl.pim16aap2.animatedarchitecture.spigot.util.api;
 
 import nl.pim16aap2.animatedarchitecture.core.api.IPermissionsManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.util.OptionalInt;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * This interface is used to provide a permissions manager for Spigot.
@@ -30,11 +33,30 @@ public interface IPermissionsManagerSpigot extends IPermissionsManager
      *
      * @param player
      *     The player whose permissions to check.
+     *     <p>
+     *     This player CANNOT be offline or a fake player! Use
+     *     {@link #hasPermissionOffline(World, OfflinePlayer, String)} instead.
      * @param permissionNode
      *     The permission node to check.
      * @return True if the player has the permission node.
+     *
+     * @throws RuntimeException
+     *     If the provided player is offline or a fake player.
      */
     boolean hasPermission(Player player, String permissionNode);
+
+    /**
+     * Asynchronously checks if an (offline) player has a certain permission node.
+     *
+     * @param world
+     *     The world to check in.
+     * @param player
+     *     The player whose permissions to check.
+     * @param permission
+     *     The permission node to check.
+     * @return A CompletableFuture that will be completed with true if the player has the permission node, false
+     */
+    CompletableFuture<Boolean> hasPermissionOffline(World world, OfflinePlayer player, String permission);
 
     /**
      * Checks if a player has bypass permissions for a specific attribute.
