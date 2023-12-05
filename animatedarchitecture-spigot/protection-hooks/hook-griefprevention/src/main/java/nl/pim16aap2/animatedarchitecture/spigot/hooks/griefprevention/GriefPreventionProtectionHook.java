@@ -40,7 +40,7 @@ public class GriefPreventionProtectionHook implements IProtectionHookSpigot
             log.atInfo().log(
                 "Failed to access GriefPrevention while checking if player %s can break block at %s; " +
                     "defaulting to false.",
-                formatPlayerName(player), loc
+                lazyFormatPlayerName(player), loc
             );
             return false;
         }
@@ -51,7 +51,7 @@ public class GriefPreventionProtectionHook implements IProtectionHookSpigot
         if (!result)
             log.atFine().log(
                 "Player %s is not allowed to break block at %s",
-                formatPlayerName(player), loc
+                lazyFormatPlayerName(player), loc
             );
         return result;
     }

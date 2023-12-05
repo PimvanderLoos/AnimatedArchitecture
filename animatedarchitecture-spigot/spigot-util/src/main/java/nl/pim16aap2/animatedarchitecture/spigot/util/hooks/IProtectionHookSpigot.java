@@ -1,5 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.spigot.util.hooks;
 
+import com.google.common.flogger.LazyArg;
+import com.google.common.flogger.LazyArgs;
 import nl.pim16aap2.animatedarchitecture.core.api.IPermissionsManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
@@ -71,21 +73,24 @@ public interface IProtectionHookSpigot
     }
 
     /**
-     * Format a player's name to a string that can be used in a message.
+     * Formats a player's name to a string that can be used in a message.
      *
      * @param player
      *     The player to format.
-     * @return The formatted player name.
+     * @return The formatted player name wrapped in a {@link LazyArg}.
      */
-    default String formatPlayerName(Player player)
+    default LazyArg<String> lazyFormatPlayerName(Player player)
     {
-        return String.format(
-            "['%s': '%s', fake: %b, online: %b, op: %b]",
-            player.getName(),
-            player.getUniqueId(),
-            player instanceof IFakePlayer,
-            player.isOnline(),
-            player.isOp()
+        return LazyArgs.lazy(
+            () ->
+                String.format(
+                    "['%s': '%s', fake: %b, online: %b, op: %b]",
+                    player.getName(),
+                    player.getUniqueId(),
+                    player instanceof IFakePlayer,
+                    player.isOnline(),
+                    player.isOp()
+                )
         );
     }
 }

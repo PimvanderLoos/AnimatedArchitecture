@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.spigot.hooks.worldguard7;
 
+import com.google.common.flogger.LazyArgs;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
@@ -70,12 +71,13 @@ public class WorldGuard7ProtectionHook implements IProtectionHookSpigot
         {
             final boolean finer = log.atFiner().isEnabled();
             // Only log the full details on the 'finer' level.
-            final var setDetails = finer ? getApplicableRegionSetDetails(location, player) : "Skipped";
+            final var setDetails =
+                finer ? LazyArgs.lazy(() -> getApplicableRegionSetDetails(location, player)) : "Skipped";
             final var level = finer ? Level.FINER : Level.FINE;
 
             log.at(level).log(
                 "Player %s is not allowed to break block at %s: Region details: %s",
-                formatPlayerName(bukkitPlayer),
+                lazyFormatPlayerName(bukkitPlayer),
                 formatWorldEditLocation(location),
                 setDetails
             );
@@ -102,7 +104,7 @@ public class WorldGuard7ProtectionHook implements IProtectionHookSpigot
     {
         log.atInfo().log(
             "Checking if player %s can break blocks between %s and %s",
-            formatPlayerName(player), cuboid.getMin(), cuboid.getMax());
+            lazyFormatPlayerName(player), cuboid.getMin(), cuboid.getMax());
 
         final var wgWorld = toWorldGuardWorld(world);
         if (!enabledInWorld(wgWorld))

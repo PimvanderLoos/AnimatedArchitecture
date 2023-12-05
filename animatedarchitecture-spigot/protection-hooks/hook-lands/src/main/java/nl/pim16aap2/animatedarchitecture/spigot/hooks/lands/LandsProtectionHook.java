@@ -42,7 +42,7 @@ public class LandsProtectionHook implements IProtectionHookSpigot
         if (!result)
             log.atFine().log(
                 "Player %s is not allowed to break block at %s",
-                formatPlayerName(player), loc
+                lazyFormatPlayerName(player), loc
             );
         return result;
     }
