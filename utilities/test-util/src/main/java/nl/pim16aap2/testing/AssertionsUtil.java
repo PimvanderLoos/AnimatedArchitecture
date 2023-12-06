@@ -31,10 +31,10 @@ public final class AssertionsUtil
         }
         catch (Throwable t)
         {
-            return t;
-//            throw new RuntimeException(t);
+//            return t;
+            return new RuntimeException(t);
         }
-        return null;
+        return new RuntimeException("FIXME: Implement this!");
 
 //        if (countBefore == inspector.getThrowingCount(source))
 //            throw new AssertionFailedError(

@@ -58,6 +58,7 @@ public final class LazyValue<T>
      * Note that calling this method will result in {@link #get()} being called for both objects if the other object is
      * also a {@link LazyValue}.
      */
+    @Override
     public boolean equals(final Object o)
     {
         if (o == this)
@@ -72,6 +73,7 @@ public final class LazyValue<T>
      * <p>
      * Note that calling this method will result in {@link #get()} being called.
      */
+    @Override
     public int hashCode()
     {
         return Objects.hash(get(), this.supplier);

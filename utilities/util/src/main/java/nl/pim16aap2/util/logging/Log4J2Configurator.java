@@ -13,6 +13,8 @@ import org.apache.logging.log4j.core.layout.PatternLayout;
 
 import java.nio.file.Path;
 
+import static nl.pim16aap2.util.logging.floggerbackend.Log4j2LogEventUtil.toLog4jLevel;
+
 /**
  * Configures Log4J2 to log to a file at the specified path.
  * <p>
@@ -20,7 +22,7 @@ import java.nio.file.Path;
  * <p>
  * This class is a singleton. Use {@link #getInstance()} to get the instance.
  */
-public class Log4J2Configurator
+public final class Log4J2Configurator
 {
     private static final Log4J2Configurator INSTANCE = new Log4J2Configurator();
     private static final String LOGGER_NAME = "nl.pim16aap2";
@@ -69,43 +71,6 @@ public class Log4J2Configurator
     public void setJULLevel(java.util.logging.Level level)
     {
         setLevel(toLog4jLevel(level));
-    }
-
-    /**
-     * Converts a java.util.logging.Level to a Log4J2 Level.
-     *
-     * @param level
-     *     The level to convert.
-     * @return The converted level.
-     */
-    public static Level toLog4jLevel(java.util.logging.Level level)
-    {
-        /*
-         * ALL     -> ALL
-         * FINEST  -> TRACE
-         * FINER   -> TRACE
-         * FINE    -> DEBUG
-         * CONFIG  -> DEBUG
-         * INFO    -> INFO
-         * WARNING -> WARN
-         * SEVERE  -> ERROR
-         * OFF     -> OFF
-         */
-        final int logLevel = level.intValue();
-        if (logLevel < java.util.logging.Level.FINEST.intValue())
-            return Level.ALL;
-        else if (logLevel < java.util.logging.Level.FINE.intValue())
-            return Level.TRACE;
-        else if (logLevel < java.util.logging.Level.INFO.intValue())
-            return Level.DEBUG;
-        else if (logLevel < java.util.logging.Level.WARNING.intValue())
-            return Level.INFO;
-        else if (logLevel < java.util.logging.Level.SEVERE.intValue())
-            return Level.WARN;
-        else if (logLevel < java.util.logging.Level.OFF.intValue())
-            return Level.ERROR;
-        else
-            return Level.OFF;
     }
 
     /**
