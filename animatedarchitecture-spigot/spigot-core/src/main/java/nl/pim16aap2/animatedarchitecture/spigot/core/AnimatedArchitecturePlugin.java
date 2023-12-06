@@ -113,7 +113,7 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
 
     private void setLogLevel(Level level)
     {
-        Log4J2Configurator.getInstance().setLevel(level);
+        Log4J2Configurator.getInstance().setJULLevel(level);
     }
 
     /**

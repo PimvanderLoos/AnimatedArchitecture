@@ -66,7 +66,7 @@ public class Log4J2Configurator
      * @param level
      *     The level to filter on.
      */
-    public void setLevel(java.util.logging.Level level)
+    public void setJULLevel(java.util.logging.Level level)
     {
         setLevel(toLog4jLevel(level));
     }
@@ -80,6 +80,17 @@ public class Log4J2Configurator
      */
     public static Level toLog4jLevel(java.util.logging.Level level)
     {
+        /*
+         * ALL     -> ALL
+         * FINEST  -> TRACE
+         * FINER   -> TRACE
+         * FINE    -> DEBUG
+         * CONFIG  -> DEBUG
+         * INFO    -> INFO
+         * WARNING -> WARN
+         * SEVERE  -> ERROR
+         * OFF     -> OFF
+         */
         final int logLevel = level.intValue();
         if (logLevel < java.util.logging.Level.FINEST.intValue())
             return Level.ALL;
