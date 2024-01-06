@@ -71,6 +71,12 @@ public final class ConfigSpigot implements IConfig, IDebuggable
     private static final List<String> DEFAULT_POWERBLOCK_TYPE = List.of("GOLD_BLOCK");
     private static final List<String> DEFAULT_BLACKLIST = Collections.emptyList();
 
+    /**
+     * The default thread pool size for redstone events if no value is specified in the config.
+     */
+    private static final int DEFAULT_REDSTONE_THREAD_POOL_SIZE =
+        Math.max(2, Runtime.getRuntime().availableProcessors());
+
     private final Set<Material> powerBlockTypes = EnumSet.noneOf(Material.class);
     private final Set<Material> materialBlacklist = EnumSet.noneOf(Material.class);
     private final Set<IProtectionHookSpigotSpecification> enabledProtectionHooks = new HashSet<>();
@@ -95,6 +101,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable
     private double maxBlockSpeed;
     private int cacheTimeout;
     private boolean enableRedstone;
+    private int redstoneThreadPoolSize;
     private boolean loadChunksForToggle;
     private Locale locale = Locale.ROOT;
     private int headCacheTimeout;
@@ -292,6 +299,13 @@ public final class ConfigSpigot implements IConfig, IDebuggable
             # It'll get updated automatically when needed anyway.
             """;
 
+        final String redstoneThreadPoolSizeComment =
+            """
+            # The size of the thread pool used for redstone events.
+            # A bigger pool means more redstone events can be processed at the same time, but increases resource usage.
+            # Set to -1 to use the default value.
+            """;
+
         final String flagMovementFormulaComment =
             """
             # The movement formula of the blocks for flags. THe formula is evaluated for each block
@@ -410,6 +424,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable
         headCacheTimeout = addNewConfigEntry(config, "headCacheTimeout", 120, headCacheTimeoutComment);
         coolDown = addNewConfigEntry(config, "coolDown", 0, coolDownComment);
         cacheTimeout = addNewConfigEntry(config, "cacheTimeout", 120, cacheTimeoutComment);
+        redstoneThreadPoolSize = addNewConfigEntry(config, "redstoneThreadPoolSize", -1, redstoneThreadPoolSizeComment);
 
         flagMovementFormula = addNewConfigEntry(
             config, "flagMovementFormula",
@@ -817,6 +832,16 @@ public final class ConfigSpigot implements IConfig, IDebuggable
     public List<String> getCommandAliases()
     {
         return Collections.unmodifiableList(commandAliases);
+    }
+
+    /**
+     * Gets the size of the thread pool used for redstone events.
+     *
+     * @return The size of the thread pool used for redstone events.
+     */
+    public int redstoneThreadPoolSize()
+    {
+        return redstoneThreadPoolSize < 1 ? DEFAULT_REDSTONE_THREAD_POOL_SIZE : redstoneThreadPoolSize;
     }
 
     /**
