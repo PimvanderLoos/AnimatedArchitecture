@@ -39,7 +39,7 @@
         <dependency.version.pmd>3.19.0</dependency.version.pmd>
         <dependency.version.dagger>2.48.1</dependency.version.dagger>
         <dependency.version.mockito>5.6.0</dependency.version.mockito>
-        <dependency.version.junit>5.10.0</dependency.version.junit>
+        <dependency.version.junit>5.10.2</dependency.version.junit>
         <dependency.version.surefire>3.1.2</dependency.version.surefire>
         <dependency.version.failsafe>3.0.0-M6</dependency.version.failsafe>
         <dependency.version.jacoco>0.8.11</dependency.version.jacoco>
