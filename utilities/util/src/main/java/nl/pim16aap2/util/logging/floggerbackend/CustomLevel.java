@@ -18,7 +18,7 @@ public final class CustomLevel
     /**
      * A custom level that lies between {@link Level#DEBUG} and {@link Level#INFO}.
      */
-    public static final Level CONFIG = Level.forName("CONFIG", StandardLevel.DEBUG.intLevel() - 50);
+    public static final Level CONF = Level.forName("CONF", StandardLevel.DEBUG.intLevel() - 50);
 
     private CustomLevel()
     {

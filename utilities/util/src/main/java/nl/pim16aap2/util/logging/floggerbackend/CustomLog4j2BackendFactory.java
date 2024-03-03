@@ -41,10 +41,10 @@ import org.apache.logging.log4j.core.Logger;
  * documentation.
  */
 @SuppressWarnings({"unused", "PMD"}) // Ignore PMD warnings because this is a copy of the original code.
-public final class Log4j2BackendFactory extends BackendFactory
+public final class CustomLog4j2BackendFactory extends BackendFactory
 {
     // Must be public for ServiceLoader
-    public Log4j2BackendFactory()
+    public CustomLog4j2BackendFactory()
     {
     }
 
@@ -64,6 +64,6 @@ public final class Log4j2BackendFactory extends BackendFactory
     @Override
     public String toString()
     {
-        return "Log4j2 backend";
+        return "Log4j2 Customized Backend";
     }
 }

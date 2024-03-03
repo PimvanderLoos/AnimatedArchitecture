@@ -31,11 +31,11 @@ import static nl.pim16aap2.util.logging.floggerbackend.Log4j2LogEventUtil.toLog4
  * Log4j2 backend</a>
  */
 @SuppressWarnings("PMD") // Ignore PMD warnings because this is a copy of the original code.
-public class Log4j2LoggerBackend extends LoggerBackend
+final class Log4j2LoggerBackend extends LoggerBackend
 {
     private final Logger logger;
 
-    // VisibleForTesting?
+    // VisibleForTesting
     Log4j2LoggerBackend(Logger logger)
     {
         this.logger = logger;

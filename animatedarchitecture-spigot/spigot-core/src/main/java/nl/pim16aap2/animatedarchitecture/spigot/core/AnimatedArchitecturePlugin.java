@@ -16,6 +16,7 @@ import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.TextFactory
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.BackupCommandListener;
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.LoginMessageListener;
 import nl.pim16aap2.util.logging.Log4J2Configurator;
+import nl.pim16aap2.util.logging.floggerbackend.CustomLog4j2BackendFactory;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -46,9 +47,12 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
     {
         final String propName = "flogger.backend_factory";
         final @Nullable String oldProp = System.getProperty(propName);
+
         // The #getInstance does not exist, but without it, Flogger derps out and won't load the specified backend.
-        System.setProperty(propName, "com.google.common.flogger.backend.log4j2.Log4j2BackendFactory#getInstance");
+        System.setProperty(propName, CustomLog4j2BackendFactory.class.getName() + "#getInstance");
+
         log = FluentLogger.forEnclosingClass();
+
         if (oldProp != null)
             System.setProperty(propName, oldProp);
     }
@@ -74,7 +78,7 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
 
     public AnimatedArchitecturePlugin()
     {
-        Log4J2Configurator.getInstance().setLogPath(getDataFolder().toPath().resolve("log.txt"));
+        Log4J2Configurator.getInstance().setLogPath(getDataFolder().toPath());
 
         mainThreadId = Thread.currentThread().threadId();
         restartableHolder = new RestartableHolder();

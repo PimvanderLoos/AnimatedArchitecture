@@ -66,7 +66,7 @@ import static java.util.logging.Level.WARNING;
  * <ul>
  *     <li>{@link CustomLevel#FINER}</li>
  *          (between {@link org.apache.logging.log4j.Level#TRACE} and {@link org.apache.logging.log4j.Level#DEBUG})
- *     <li>{@link CustomLevel#CONFIG}</li>
+ *     <li>{@link CustomLevel#CONF}</li>
  *          (between {@link org.apache.logging.log4j.Level#DEBUG} and {@link org.apache.logging.log4j.Level#INFO})
  * </ul>
  */
@@ -167,30 +167,33 @@ public final class Log4j2LogEventUtil
      * Converts java.util.logging.Level to org.apache.log4j.Level.
      * <p>
      * This method was modified to add more log levels than the default ones. {@link CustomLevel#FINER} and
-     * {@link CustomLevel#CONFIG} were added. More information can be found in the documentation of this class.
+     * {@link CustomLevel#CONF} were added. More information can be found in the documentation of this class.
      */
     public static org.apache.logging.log4j.Level toLog4jLevel(java.util.logging.Level level)
     {
         int logLevel = level.intValue();
+
+        if (logLevel == Level.OFF.intValue())
+        {
+            return org.apache.logging.log4j.Level.OFF;
+        }
+        if (logLevel == Level.ALL.intValue())
+        {
+            return org.apache.logging.log4j.Level.ALL;
+        }
+
         /*
-         * ALL     -> ALL
          * FINEST  -> TRACE
          * FINER   -> (before: TRACE) -> FINER
          * FINE    -> DEBUG
-         * CONFIG  -> (before: DEBUG) -> CONFIG
+         * CONFIG  -> (before: DEBUG) -> CONF
          * INFO    -> INFO
          * WARNING -> WARN
          * SEVERE  -> ERROR
-         * OFF     -> OFF
          */
-        if (logLevel < java.util.logging.Level.FINEST.intValue())
-        {
-            // ALL -> ALL
-            return org.apache.logging.log4j.Level.ALL;
-        }
         if (logLevel < java.util.logging.Level.FINER.intValue())
         {
-            // FINEST -> TRACE
+            // <=FINEST -> TRACE
             return org.apache.logging.log4j.Level.TRACE;
         }
         if (logLevel < java.util.logging.Level.FINE.intValue())
@@ -205,8 +208,8 @@ public final class Log4j2LogEventUtil
         }
         else if (logLevel < java.util.logging.Level.INFO.intValue())
         {
-            // CONFIG -> (custom) CONFIG
-            return CustomLevel.CONFIG;
+            // CONFIG -> (custom) CONF
+            return CustomLevel.CONF;
         }
         else if (logLevel < java.util.logging.Level.WARNING.intValue())
         {
@@ -218,12 +221,8 @@ public final class Log4j2LogEventUtil
             // WARNING -> WARN
             return org.apache.logging.log4j.Level.WARN;
         }
-        else if (logLevel < java.util.logging.Level.OFF.intValue())
-        {
-            // SEVERE -> ERROR
-            return org.apache.logging.log4j.Level.ERROR;
-        }
-        return org.apache.logging.log4j.Level.OFF;
+        // >=SEVERE -> ERROR
+        return org.apache.logging.log4j.Level.ERROR;
     }
 
     /**
