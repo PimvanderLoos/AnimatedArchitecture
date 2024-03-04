@@ -21,7 +21,7 @@
         <dependency>
             <groupId>com.github.TownyAdvanced</groupId>
             <artifactId>towny</artifactId>
-            <version>0.100.0.2</version>
+            <version>0.100.1.18</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
