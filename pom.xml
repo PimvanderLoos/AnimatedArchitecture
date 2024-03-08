@@ -47,7 +47,7 @@
         <dependency.version.git-commit-id>6.0.0</dependency.version.git-commit-id>
         <dependency.version.maven-build-helper>3.3.0</dependency.version.maven-build-helper>
         <dependency.version.maven-compiler>3.11.0</dependency.version.maven-compiler>
-        <dependency.version.maven-shade>3.5.1</dependency.version.maven-shade>
+        <dependency.version.maven-shade>3.5.2</dependency.version.maven-shade>
         <dependency.version.maven-source>3.2.1</dependency.version.maven-source>
         <dependency.version.maven-jar>3.3.0</dependency.version.maven-jar>
         <dependency.version.maven-clean>3.3.2</dependency.version.maven-clean>
