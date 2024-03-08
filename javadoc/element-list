@@ -39,7 +39,6 @@ nl.pim16aap2.animatedarchitecture.spigot.core.gui
 nl.pim16aap2.animatedarchitecture.spigot.core.hooks
 nl.pim16aap2.animatedarchitecture.spigot.core.implementations
 nl.pim16aap2.animatedarchitecture.spigot.core.listeners
-nl.pim16aap2.animatedarchitecture.spigot.core.logging
 nl.pim16aap2.animatedarchitecture.spigot.core.managers
 nl.pim16aap2.animatedarchitecture.spigot.core.util
 nl.pim16aap2.animatedarchitecture.spigot.hooks.bundle
@@ -71,4 +70,5 @@ nl.pim16aap2.testing.logging
 nl.pim16aap2.util
 nl.pim16aap2.util.codegeneration
 nl.pim16aap2.util.logging
+nl.pim16aap2.util.logging.floggerbackend
 nl.pim16aap2.util.reflection
