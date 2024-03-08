@@ -3,14 +3,13 @@ package nl.pim16aap2.animatedarchitecture.core.storage;
 import com.google.common.flogger.LogSiteStackTrace;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.longs.LongList;
-import lombok.extern.flogger.Flogger;
+import nl.altindag.log.LogCaptor;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IWorldFactory;
-import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.localization.LocalizationManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureDeletionManager;
@@ -33,15 +32,19 @@ import nl.pim16aap2.animatedarchitecture.structures.portcullis.Portcullis;
 import nl.pim16aap2.animatedarchitecture.structures.portcullis.StructureTypePortcullis;
 import nl.pim16aap2.animatedarchitecture.testimplementations.TestWorld;
 import nl.pim16aap2.animatedarchitecture.testimplementations.TestWorldFactory;
-import nl.pim16aap2.testing.AssertionsUtil;
+import nl.pim16aap2.testing.logging.LogAssertionsUtil;
+import nl.pim16aap2.testing.logging.WithLogCapture;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.lang.reflect.Field;
 import java.nio.file.Files;
@@ -53,8 +56,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static nl.pim16aap2.animatedarchitecture.core.UnitTestUtil.newStructureBaseBuilder;
+import static nl.pim16aap2.testing.logging.LogAssertionsUtil.MessageComparisonMethod;
 
-@Flogger
+@WithLogCapture
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class SQLiteJDBCDriverConnectionTest
 {
     /**
@@ -108,9 +114,6 @@ public class SQLiteJDBCDriverConnectionTest
     private StructureRegistry structureRegistry;
 
     @Mock
-    private RestartableHolder restartableHolder;
-
-    @Mock
     private DebuggableRegistry debuggableRegistry;
 
     @Mock
@@ -120,8 +123,6 @@ public class SQLiteJDBCDriverConnectionTest
     void beforeEach()
         throws Exception
     {
-        MockitoAnnotations.openMocks(this);
-
         worldFactory = new TestWorldFactory();
         structureRegistry =
             StructureRegistry.unCached(debuggableRegistry, Mockito.mock(StructureDeletionManager.class));
@@ -168,7 +169,7 @@ public class SQLiteJDBCDriverConnectionTest
         }
         catch (Exception exception)
         {
-            log.atSevere().withCause(exception).log("Failed to move database file to finished file!");
+            exception.printStackTrace();
         }
         try
         {
@@ -202,25 +203,51 @@ public class SQLiteJDBCDriverConnectionTest
         structureTypeManager.register(StructureTypeDrawbridge.get());
     }
 
+    private void resetLogCaptor(LogCaptor logCaptor)
+    {
+        logCaptor.clearLogs();
+        logCaptor.setLogLevelToTrace();
+    }
+
     /**
      * Runs all tests.
      */
     @Test
-    void runTests()
+    void runTests(LogCaptor logCaptor)
         throws IllegalAccessException, NoSuchFieldException
     {
+        // Start with a reset, so we can ensure all methods use the same settings.
+        resetLogCaptor(logCaptor);
+
         registerStructureTypes();
+        resetLogCaptor(logCaptor);
+
         insertStructures();
+        resetLogCaptor(logCaptor);
+
         verifyStructures();
+        resetLogCaptor(logCaptor);
+
         partialIdentifiersFromName();
+        resetLogCaptor(logCaptor);
+
         auxiliaryMethods();
+        resetLogCaptor(logCaptor);
+
         modifyStructures();
+        resetLogCaptor(logCaptor);
 
         testStructureTypes();
-        failures();
+        resetLogCaptor(logCaptor);
+
+        failures(logCaptor);
+        resetLogCaptor(logCaptor);
 
         insertBulkStructures();
+        resetLogCaptor(logCaptor);
+
         partialIdentifiersFromId();
+        resetLogCaptor(logCaptor);
     }
 
     private void insertBulkStructures()
@@ -567,7 +594,7 @@ public class SQLiteJDBCDriverConnectionTest
     /**
      * Runs tests to verify that exceptions are caught when they should be and properly handled.
      */
-    public void failures()
+    public void failures(LogCaptor logCaptor)
         throws NoSuchFieldException, IllegalAccessException
     {
         // Set the enabled status of the database to false.
@@ -575,8 +602,19 @@ public class SQLiteJDBCDriverConnectionTest
         databaseLock.setAccessible(true);
         databaseLock.set(storage, IStorage.DatabaseState.ERROR);
 
-        AssertionsUtil.assertThrowablesLogged(() -> storage.getStructure(PLAYER_DATA_1.getUUID(), 1L),
-                                              LogSiteStackTrace.class);
+        storage.getStructure(PLAYER_DATA_1.getUUID(), 1L);
+
+        LogAssertionsUtil.assertThrowableLogged(
+            logCaptor, 0, "Database connection could not be created! " +
+                "Requested database for state 'OK' while it is actually in state 'ERROR'!",
+            LogSiteStackTrace.class);
+
+        LogAssertionsUtil.assertThrowableLogged(
+            logCaptor, 1, "Failed to execute query: Connection is null!", LogSiteStackTrace.class);
+
+        LogAssertionsUtil.assertLogged(
+            logCaptor, 2, "Executed statement: ", MessageComparisonMethod.STARTS_WITH);
+
 
         // Set the database state to enabled again and verify that it's now possible to retrieve structures again.
         databaseLock.set(storage, IStorage.DatabaseState.OK);

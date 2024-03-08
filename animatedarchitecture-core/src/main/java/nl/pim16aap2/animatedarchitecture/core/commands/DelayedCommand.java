@@ -129,7 +129,6 @@ public abstract class DelayedCommand<T>
                 log.atSevere().withCause(e)
                    .log("Failed to executed delayed command '%s' for command sender '%s' with input '%s'",
                         this, commandSender, delayedInput);
-                e.printStackTrace();
                 return CompletableFuture.completedFuture(null);
             }
         };

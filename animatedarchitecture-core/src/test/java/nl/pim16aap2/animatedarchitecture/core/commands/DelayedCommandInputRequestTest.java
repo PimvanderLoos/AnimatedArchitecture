@@ -1,26 +1,36 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
+import nl.altindag.log.LogCaptor;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
-import nl.pim16aap2.testing.AssertionsUtil;
+import nl.pim16aap2.testing.logging.LogAssertionsUtil;
+import nl.pim16aap2.testing.logging.WithLogCapture;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @Timeout(1)
+@WithLogCapture
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class DelayedCommandInputRequestTest
 {
     @Mock(answer = Answers.CALLS_REAL_METHODS)
@@ -36,8 +46,6 @@ class DelayedCommandInputRequestTest
     @BeforeEach
     void init()
     {
-        MockitoAnnotations.openMocks(this);
-
         localizer = UnitTestUtil.initLocalizer();
         delayedCommandInputManager = new DelayedCommandInputManager(Mockito.mock(DebuggableRegistry.class));
     }
@@ -77,7 +85,8 @@ class DelayedCommandInputRequestTest
     }
 
     @Test
-    void testException()
+    void testException(LogCaptor logCaptor)
+        throws ExecutionException, InterruptedException, TimeoutException
     {
         // Ensure that exceptions are properly propagated.
         final DelayedCommandInputRequest<?> inputRequest =
@@ -89,12 +98,18 @@ class DelayedCommandInputRequestTest
                                              ITextFactory.getSimpleTextFactory(),
                                              delayedCommandInputManager);
 
-        AssertionsUtil.assertThrowablesLogged(() -> inputRequest.provide(new DelayedInput(UUID.randomUUID(), ""))
-                                                                .get(1, TimeUnit.SECONDS),
-                                              // Logged by the inputRequest's exception handler.
-                                              CompletionException.class,
-                                              // Root exception we threw above.
-                                              IllegalArgumentException.class);
+        final UUID uuid = UUID.randomUUID();
+        final String providedInput = UUID.randomUUID().toString();
+
+        inputRequest.provide(new DelayedInput(uuid, providedInput)).get(1, TimeUnit.SECONDS);
+
+        LogAssertionsUtil.assertThrowableLogged(
+            logCaptor,
+            -1,
+            null,
+            CompletionException.class, null,
+            IllegalArgumentException.class, String.format("DelayedInput[uuid=%s, string=%s]", uuid, providedInput)
+        );
     }
 
     private CompletableFuture<Boolean> verifyInput(DelayedInput actualInput, DelayedInput delayedInput)

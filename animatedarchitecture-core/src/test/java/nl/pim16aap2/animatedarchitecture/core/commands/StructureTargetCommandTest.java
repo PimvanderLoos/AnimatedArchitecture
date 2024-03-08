@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
+import nl.altindag.log.LogCaptor;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
@@ -8,23 +9,32 @@ import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
-import nl.pim16aap2.testing.AssertionsUtil;
+import nl.pim16aap2.testing.logging.LogAssertionsUtil;
+import nl.pim16aap2.testing.logging.WithLogCapture;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 @Timeout(1)
+@WithLogCapture
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class StructureTargetCommandTest
 {
     @Mock
@@ -41,8 +51,6 @@ class StructureTargetCommandTest
     @BeforeEach
     void init()
     {
-        MockitoAnnotations.openMocks(this);
-
         CommandTestingUtil.initCommandSenderPermissions(commandSender, true, true);
         Mockito.when(structure.isOwner(Mockito.any(UUID.class), Mockito.any())).thenReturn(true);
         Mockito.when(structure.isOwner(Mockito.any(IPlayer.class), Mockito.any())).thenReturn(true);
@@ -100,18 +108,31 @@ class StructureTargetCommandTest
     }
 
     @Test
-    void testPerformActionFailure()
+    void testPerformActionFailure(LogCaptor logCaptor)
+        throws ExecutionException, InterruptedException, TimeoutException
     {
         Mockito.when(structureTargetCommand.performAction(Mockito.any()))
                .thenThrow(new IllegalStateException("Generic Exception!"));
 
-        AssertionsUtil.assertThrowablesLogged(
-            () -> structureTargetCommand.executeCommand(new PermissionsStatus(true, true)).get(1, TimeUnit.SECONDS),
-            // Thrown by the structureTargetCommand CompletableFuture's exception handler (via Util).
-            CompletionException.class,
-            // Thrown when the command action failed.
-            RuntimeException.class,
-            // The root exception we threw; the "Generic Exception!".
-            IllegalStateException.class);
+        structureTargetCommand.executeCommand(new PermissionsStatus(true, true)).get(1, TimeUnit.SECONDS);
+
+        LogAssertionsUtil.assertThrowableLogged(
+            logCaptor,
+            -1,
+            null,
+            new LogAssertionsUtil.ThrowableSpec(
+                CompletionException.class
+            ),
+            new LogAssertionsUtil.ThrowableSpec(
+                RuntimeException.class,
+                "Failed to perform command BaseCommand" +
+                    "(commandSender=nl.pim16aap2.animatedarchitecture.core.api.IPlayer",
+                LogAssertionsUtil.MessageComparisonMethod.STARTS_WITH
+            ),
+            new LogAssertionsUtil.ThrowableSpec(
+                IllegalStateException.class,
+                "Generic Exception!"
+            )
+        );
     }
 }
