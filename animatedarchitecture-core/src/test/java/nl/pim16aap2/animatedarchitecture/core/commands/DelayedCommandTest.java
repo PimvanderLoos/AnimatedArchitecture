@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
+import nl.altindag.log.LogCaptor;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
@@ -9,18 +10,21 @@ import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.util.functional.TriFunction;
-import nl.pim16aap2.testing.logging.LogInspector;
-import org.junit.jupiter.api.AfterEach;
+import nl.pim16aap2.testing.logging.LogAssertionsUtil;
+import nl.pim16aap2.testing.logging.WithLogCapture;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import javax.inject.Provider;
 import java.util.concurrent.CompletableFuture;
@@ -30,6 +34,9 @@ import static org.mockito.AdditionalAnswers.delegatesTo;
 
 @Timeout(1)
 @SuppressWarnings("unused")
+@WithLogCapture
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class DelayedCommandTest
 {
     CommandFactory commandFactory = Mockito.mock(CommandFactory.class);
@@ -67,22 +74,12 @@ class DelayedCommandTest
     @Mock
     TriFunction<ICommandSender, StructureRetriever, Object, CompletableFuture<Boolean>> delayedFunction;
 
-    AutoCloseable openMocks;
 
     @BeforeEach
     void init()
     {
-        openMocks = MockitoAnnotations.openMocks(this);
         initInputRequestFactory(inputRequestFactory, localizer, delayedCommandInputManager);
         structureRetriever = structureRetrieverFactory.of(structure);
-        LogInspector.get().clearHistory();
-    }
-
-    @AfterEach
-    void cleanup()
-        throws Exception
-    {
-        openMocks.close();
     }
 
     @Test
@@ -117,17 +114,24 @@ class DelayedCommandTest
     }
 
     @Test
-    void exception()
+    void exception(LogCaptor logCaptor)
     {
         Mockito.when(delayedFunction.apply(Mockito.any(), Mockito.any(), Mockito.any()))
                .thenThrow(RuntimeException.class);
         final DelayedCommandImpl delayedCommand = new DelayedCommandImpl(context, inputRequestFactory, delayedFunction);
         delayedCommand.runDelayed(commandSender, structureRetriever);
-        Assertions.assertEquals(0, LogInspector.get().getThrowingCount());
+        Assertions.assertEquals(0, LogAssertionsUtil.getThrowingCount(logCaptor));
 
         Assertions.assertDoesNotThrow(
             () -> delayedCommand.provideDelayedInput(commandSender, new Object()).get(1, TimeUnit.SECONDS));
-        Assertions.assertEquals(1, LogInspector.get().getThrowingCount());
+
+        LogAssertionsUtil.assertThrowableLogged(logCaptor, -1, null, RuntimeException.class);
+        LogAssertionsUtil.assertLogged(
+            logCaptor,
+            -1,
+            "Failed to executed delayed command ",
+            LogAssertionsUtil.MessageComparisonMethod.STARTS_WITH
+        );
     }
 
     /**

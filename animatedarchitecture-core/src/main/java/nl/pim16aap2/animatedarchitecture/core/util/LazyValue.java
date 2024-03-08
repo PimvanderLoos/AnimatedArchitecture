@@ -3,6 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.util;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.concurrent.ThreadSafe;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
@@ -49,6 +50,33 @@ public final class LazyValue<T>
             }
         }
         return tmp;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Note that calling this method will result in {@link #get()} being called for both objects if the other object is
+     * also a {@link LazyValue}.
+     */
+    @Override
+    public boolean equals(final Object o)
+    {
+        if (o == this)
+            return true;
+        if (!(o instanceof LazyValue<?> other))
+            return false;
+        return Objects.equals(this.supplier, other.supplier) && Objects.equals(this.get(), other.get());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Note that calling this method will result in {@link #get()} being called.
+     */
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(get(), this.supplier);
     }
 
     /**

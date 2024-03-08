@@ -374,7 +374,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable
         final String logLevelComment =
             """
             # The log level to use. Note that levels lower than INFO aren't shown in the console by default,
-            # regardless of this setting.
+            # regardless of this setting. They are still written to this plugin's log file, though.
             #
             # Supported levels are:
             #   OFF, SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST, ALL.

@@ -27,8 +27,8 @@
         <dependency.version.adventure-bukkit>4.3.1</dependency.version.adventure-bukkit>
         <dependency.version.commodore>2.2</dependency.version.commodore>
         <dependency.version.flogger>0.8</dependency.version.flogger>
-        <dependency.version.slf4j>1.7.36</dependency.version.slf4j>
-        <dependency.version.logback>1.2.11</dependency.version.logback>
+        <dependency.version.log4j>2.23.0</dependency.version.log4j>
+        <dependency.version.slf4j>2.0.12</dependency.version.slf4j>
         <dependency.version.annotations>24.0.1</dependency.version.annotations>
         <dependency.version.eclipse-annotations>2.2.700</dependency.version.eclipse-annotations>
         <dependency.version.lombok>1.18.31-SNAPSHOT</dependency.version.lombok>
@@ -37,11 +37,12 @@
         <dependency.version.nullaway>0.10.17</dependency.version.nullaway>
         <dependency.version.checkstyle>10.12.4</dependency.version.checkstyle>
         <dependency.version.pmd>3.19.0</dependency.version.pmd>
-        <dependency.version.dagger>2.48.1</dependency.version.dagger>
-        <dependency.version.mockito>5.6.0</dependency.version.mockito>
-        <dependency.version.junit>5.10.0</dependency.version.junit>
-        <dependency.version.surefire>3.1.2</dependency.version.surefire>
-        <dependency.version.failsafe>3.0.0-M6</dependency.version.failsafe>
+        <dependency.version.dagger>2.51</dependency.version.dagger>
+        <dependency.version.mockito>5.11.0</dependency.version.mockito>
+        <dependency.version.junit>5.10.2</dependency.version.junit>
+        <dependency.version.logcaptor>2.9.2</dependency.version.logcaptor>
+        <dependency.version.surefire>3.2.5</dependency.version.surefire>
+        <dependency.version.failsafe>3.2.5</dependency.version.failsafe>
         <dependency.version.jacoco>0.8.11</dependency.version.jacoco>
         <dependency.version.git-commit-id>6.0.0</dependency.version.git-commit-id>
         <dependency.version.maven-build-helper>3.3.0</dependency.version.maven-build-helper>
@@ -149,34 +150,6 @@
             <scope>compile</scope>
             <optional>true</optional>
         </dependency>
-        <dependency>
-            <groupId>com.google.flogger</groupId>
-            <artifactId>flogger-slf4j-backend</artifactId>
-            <version>${dependency.version.flogger}</version>
-            <scope>compile</scope>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${dependency.version.slf4j}</version>
-            <scope>compile</scope>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-core</artifactId>
-            <version>${dependency.version.logback}</version>
-            <scope>compile</scope>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>${dependency.version.logback}</version>
-            <scope>compile</scope>
-            <optional>true</optional>
-        </dependency>
 
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -214,6 +187,31 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
             <version>${dependency.version.mockito}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${dependency.version.log4j}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.flogger</groupId>
+            <artifactId>flogger-slf4j-backend</artifactId>
+            <version>${dependency.version.flogger}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${dependency.version.slf4j}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.github.hakky54</groupId>
+            <artifactId>logcaptor</artifactId>
+            <version>${dependency.version.logcaptor}</version>
             <scope>test</scope>
         </dependency>
 
@@ -416,24 +414,8 @@
                                 <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.checkerframework</shadedPattern>
                             </relocation>
                             <relocation>
-                                <pattern>org.slf4j</pattern>
-                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.slf4j</shadedPattern>
-                            </relocation>
-                            <relocation>
                                 <pattern>com.google.common.flogger</pattern>
                                 <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.flogger</shadedPattern>
-                            </relocation>
-                            <relocation>
-                                <pattern>ch.qos.logback</pattern>
-                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.logback</shadedPattern>
-                            </relocation>
-                            <relocation>
-                                <pattern>nl.pim16aap2.logging</pattern>
-                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.logging</shadedPattern>
-                            </relocation>
-                            <relocation>
-                                <pattern>nl.pim16aap2.reflection</pattern>
-                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.reflection</shadedPattern>
                             </relocation>
                             <relocation>
                                 <pattern>nl.pim16aap2.util</pattern>

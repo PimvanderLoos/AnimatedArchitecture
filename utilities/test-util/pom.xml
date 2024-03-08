@@ -48,5 +48,12 @@
             <version>${dependency.version.mockito}</version>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>io.github.hakky54</groupId>
+            <artifactId>logcaptor</artifactId>
+            <version>${dependency.version.logcaptor}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>

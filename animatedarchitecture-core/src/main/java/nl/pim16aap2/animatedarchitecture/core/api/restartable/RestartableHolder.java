@@ -113,7 +113,13 @@ public final class RestartableHolder implements IDebuggable
     @Override
     public String getDebugInformation()
     {
-        return "Registered Restartables: " + restartables.size() + "\n" +
-            "ShutDownCount: " + shutdownCount + ", InitCount: " + initCount;
+        final var sb = new StringBuilder()
+            .append("Number of Registered Restartables: ").append(restartables.size()).append('\n')
+            .append("ShutDownCount: ").append(shutdownCount).append('\n')
+            .append("InitCount: ").append(initCount).append('\n')
+            .append("Registered Restartables:\n");
+
+        restartables.forEach(restartable -> sb.append("  - ").append(restartable.getClass().getName()).append('\n'));
+        return sb.toString();
     }
 }

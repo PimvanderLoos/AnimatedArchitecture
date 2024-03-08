@@ -15,8 +15,8 @@ import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.DebugReport
 import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.TextFactorySpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.BackupCommandListener;
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.LoginMessageListener;
-import nl.pim16aap2.animatedarchitecture.spigot.core.logging.ConsoleAppender;
-import nl.pim16aap2.util.logging.LogBackConfigurator;
+import nl.pim16aap2.util.logging.Log4J2Configurator;
+import nl.pim16aap2.util.logging.floggerbackend.CustomLog4j2BackendFactory;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -36,16 +36,10 @@ import java.util.logging.Level;
  * <p>
  * Refer to {@link nl.pim16aap2.animatedarchitecture.spigot.core} for more information on how to interact with this
  * plugin.
- *
- * @author Pim
  */
 @Singleton
 public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAnimatedArchitecturePlatformProvider
 {
-    private static final LogBackConfigurator LOG_BACK_CONFIGURATOR =
-        new LogBackConfigurator().addAppender("SpigotConsoleRedirect", ConsoleAppender.class.getName())
-                                 .setLevel(Level.FINEST)
-                                 .apply();
     @SuppressWarnings("PMD.FieldNamingConventions")
     private static final FluentLogger log;
 
@@ -53,8 +47,12 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
     {
         final String propName = "flogger.backend_factory";
         final @Nullable String oldProp = System.getProperty(propName);
-        System.setProperty(propName, "com.google.common.flogger.backend.slf4j.Slf4jBackendFactory#getInstance");
+
+        // The #getInstance does not exist, but without it, Flogger derps out and won't load the specified backend.
+        System.setProperty(propName, CustomLog4j2BackendFactory.class.getName() + "#getInstance");
+
         log = FluentLogger.forEnclosingClass();
+
         if (oldProp != null)
             System.setProperty(propName, oldProp);
     }
@@ -80,7 +78,7 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
 
     public AnimatedArchitecturePlugin()
     {
-        LOG_BACK_CONFIGURATOR.setLogFile(getDataFolder().toPath().resolve("log.txt")).apply();
+        Log4J2Configurator.getInstance().setLogPath(getDataFolder().toPath());
 
         mainThreadId = Thread.currentThread().threadId();
         restartableHolder = new RestartableHolder();
@@ -96,7 +94,6 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
             .setRestartableHolder(restartableHolder)
             .build();
 
-        // Update logger again because the config *should* be available now.
         updateLogger();
     }
 
@@ -120,10 +117,7 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
 
     private void setLogLevel(Level level)
     {
-        LOG_BACK_CONFIGURATOR
-            .setLogFile(getDataFolder().toPath().resolve("log.txt"))
-            .setLevel(level)
-            .apply();
+        Log4J2Configurator.getInstance().setJULLevel(level);
     }
 
     /**
@@ -153,6 +147,8 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
     @Override
     public void onEnable()
     {
+        log.atInfo().log("Enabling AnimatedArchitecture %s...", getDescription().getVersion());
+
         // onEnable may be called more than once during the lifetime of the plugin.
         // As such, we make sure to initialize the platform just once and then
         // restart it on all onEnable calls after the first one, provided it was
@@ -172,14 +168,12 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
             return;
         }
 
-        LOG_BACK_CONFIGURATOR
-            .setLevel(animatedArchitectureSpigotPlatform.getAnimatedArchitectureConfig().logLevel())
-            .apply();
         restartableHolder.initialize();
 
         // Rewrite the config after everything has been loaded to ensure all
         // extensions/addons have their hooks in.
         ((ConfigSpigot) animatedArchitectureSpigotPlatform.getAnimatedArchitectureConfig()).rewriteConfig(false);
+        updateLogger();
 
         if (firstInit)
             initCommands(animatedArchitectureSpigotPlatform);
@@ -219,7 +213,25 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
     @Override
     public void onDisable()
     {
+        log.atInfo().log("Disabling AnimatedArchitecture %s...", getDescription().getVersion());
         restartableHolder.shutDown();
+    }
+
+    private void initStats()
+    {
+        try
+        {
+            new Metrics(this, 18_011);
+        }
+        catch (Exception e)
+        {
+            log.atSevere().withCause(e).log("Failed to enable stats! :(");
+        }
+    }
+
+    public ClassLoader getPluginClassLoader()
+    {
+        return super.getClassLoader();
     }
 
     // Synchronized to ensure visibility of the platform.
@@ -251,23 +263,6 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
         log.atWarning().log("%s", new DebugReporterSpigot(this, this, new DebuggableRegistry()));
         successfulInit = false;
         restartableHolder.shutDown();
-    }
-
-    private void initStats()
-    {
-        try
-        {
-            new Metrics(this, 18_011);
-        }
-        catch (Exception e)
-        {
-            log.atSevere().withCause(e).log("Failed to enable stats! :(");
-        }
-    }
-
-    public ClassLoader getPluginClassLoader()
-    {
-        return super.getClassLoader();
     }
 
     /**
