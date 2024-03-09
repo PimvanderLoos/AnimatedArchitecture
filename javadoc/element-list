@@ -67,6 +67,7 @@ nl.pim16aap2.animatedarchitecture.structures.slidingdoor
 nl.pim16aap2.animatedarchitecture.structures.windmill
 nl.pim16aap2.testing
 nl.pim16aap2.testing.logging
+nl.pim16aap2.testing.reflection
 nl.pim16aap2.util
 nl.pim16aap2.util.codegeneration
 nl.pim16aap2.util.logging
