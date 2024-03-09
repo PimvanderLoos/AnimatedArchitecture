@@ -49,7 +49,7 @@
         <dependency>
             <groupId>de.themoep</groupId>
             <artifactId>inventorygui</artifactId>
-            <version>${dependency.infentory-gui.version}</version>
+            <version>${dependency.inventory-gui.version}</version>
             <scope>compile</scope>
         </dependency>
 
