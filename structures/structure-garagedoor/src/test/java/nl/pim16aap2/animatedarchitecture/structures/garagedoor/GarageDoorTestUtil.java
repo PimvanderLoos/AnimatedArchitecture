@@ -3,7 +3,6 @@ package nl.pim16aap2.animatedarchitecture.structures.garagedoor;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.ToString;
 import lombok.experimental.Accessors;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
@@ -23,21 +22,52 @@ class GarageDoorTestUtil
 {
     public static final List<OpeningData> OPENING_DATA_LIST = List.of(
         new OpeningData(
+            "North-South-OddY",
             MovementDirection.NORTH, new Vector3Di(150, 68, -51),
             new Vector3Di(147, 63, -51), new Vector3Di(153, 67, -51),
             new Vector3Di(147, 68, -56), new Vector3Di(153, 68, -52)
         ),
         new OpeningData(
+            "North-South-EvenY",
+            MovementDirection.NORTH, new Vector3Di(150, 68, -51),
+            new Vector3Di(147, 62, -51), new Vector3Di(153, 67, -51),
+            new Vector3Di(147, 68, -57), new Vector3Di(153, 68, -52)
+        ),
+
+        new OpeningData(
+            "West-East-OddY",
+            MovementDirection.WEST, new Vector3Di(-144, -68, -45),
+            new Vector3Di(-144, -75, -48), new Vector3Di(-144, -69, -42),
+            new Vector3Di(-151, -68, -48), new Vector3Di(-145, -68, -42)
+        ),
+        new OpeningData(
+            "West-East-EvenY",
             MovementDirection.WEST, new Vector3Di(-144, -68, -45),
             new Vector3Di(-144, -74, -48), new Vector3Di(-144, -69, -42),
             new Vector3Di(-150, -68, -48), new Vector3Di(-145, -68, -42)
         ),
+
         new OpeningData(
+            "South-North-OddY",
+            MovementDirection.SOUTH, new Vector3Di(150, 68, 39),
+            new Vector3Di(147, 62, 39), new Vector3Di(153, 67, 39),
+            new Vector3Di(147, 68, 40), new Vector3Di(153, 68, 45)
+        ),
+        new OpeningData(
+            "South-North-EvenY",
             MovementDirection.SOUTH, new Vector3Di(150, 68, 39),
             new Vector3Di(147, 63, 39), new Vector3Di(153, 67, 39),
             new Vector3Di(147, 68, 40), new Vector3Di(153, 68, 44)
         ),
+
         new OpeningData(
+            "East-West-OddY",
+            MovementDirection.EAST, new Vector3Di(156, -68, -45),
+            new Vector3Di(156, -74, -48), new Vector3Di(156, -69, -42),
+            new Vector3Di(157, -68, -48), new Vector3Di(162, -68, -42)
+        ),
+        new OpeningData(
+            "East-West-EvenY",
             MovementDirection.EAST, new Vector3Di(156, -68, -45),
             new Vector3Di(156, -73, -48), new Vector3Di(156, -69, -42),
             new Vector3Di(157, -68, -48), new Vector3Di(161, -68, -42)
@@ -49,12 +79,12 @@ class GarageDoorTestUtil
      */
     @Accessors(fluent = true)
     @Getter
-    @ToString
     @EqualsAndHashCode
     public static final class OpeningData
     {
+        private final String name;
+
         @Getter(AccessLevel.NONE)
-        @ToString.Exclude
         @EqualsAndHashCode.Exclude
         private final LazyValue<OpeningData> opposite;
 
@@ -70,12 +100,14 @@ class GarageDoorTestUtil
          * opposite of the opposite will return the same instance.
          */
         private OpeningData(
+            String name,
             OpeningData opposite,
             MovementDirection currentToggleDir,
             Vector3Di rotationPoint,
             Cuboid startCuboid,
             Cuboid endCuboid)
         {
+            this.name = name;
             this.opposite = new LazyValue<>(() -> opposite);
             this.currentToggleDir = currentToggleDir;
             this.rotationPoint = rotationPoint;
@@ -84,6 +116,8 @@ class GarageDoorTestUtil
         }
 
         /**
+         * @param name
+         *     The name of the opening data. This is used to make the data more readable in test logs.
          * @param currentToggleDir
          *     The current toggle direction. See {@link GarageDoor#getCurrentToggleDir()}.
          * @param rotationPoint
@@ -94,11 +128,13 @@ class GarageDoorTestUtil
          *     The cuboid that will describe the structure after a potential toggle.
          */
         public OpeningData(
+            String name,
             MovementDirection currentToggleDir,
             Vector3Di rotationPoint,
             Cuboid startCuboid,
             Cuboid endCuboid)
         {
+            this.name = name;
             this.opposite = new LazyValue<>(this::createOpposite);
             this.currentToggleDir = currentToggleDir;
             this.rotationPoint = rotationPoint;
@@ -107,6 +143,8 @@ class GarageDoorTestUtil
         }
 
         /**
+         * @param name
+         *     The name of the opening data. This is used to make the data more readable in test logs.
          * @param currentToggleDir
          *     The current toggle direction. See {@link GarageDoor#getCurrentToggleDir()}.
          * @param rotationPoint
@@ -121,6 +159,7 @@ class GarageDoorTestUtil
          *     The maximum coordinates of the new cuboid after the toggle.
          */
         public OpeningData(
+            String name,
             MovementDirection currentToggleDir,
             Vector3Di rotationPoint,
             Vector3Di startMin,
@@ -128,7 +167,7 @@ class GarageDoorTestUtil
             Vector3Di endMin,
             Vector3Di endMax)
         {
-            this(currentToggleDir, rotationPoint, new Cuboid(startMin, startMax), new Cuboid(endMin, endMax));
+            this(name, currentToggleDir, rotationPoint, new Cuboid(startMin, startMax), new Cuboid(endMin, endMax));
         }
 
         /**
@@ -174,11 +213,27 @@ class GarageDoorTestUtil
         private OpeningData createOpposite()
         {
             return new OpeningData(
+                name + " (Opposite)",
                 this,
                 MovementDirection.getOpposite(currentToggleDir),
                 rotationPoint,
                 endCuboid,
                 startCuboid);
+        }
+
+        public String toString()
+        {
+            return String.format(
+                """
+                OpeningData(
+                  name             = '%s'
+                  currentToggleDir = '%s'
+                  rotationPoint    = '%s'
+                  startCuboid      = '%s'
+                  endCuboid        = '%s'
+                )
+                """,
+                name, currentToggleDir, rotationPoint, startCuboid, endCuboid);
         }
     }
 }

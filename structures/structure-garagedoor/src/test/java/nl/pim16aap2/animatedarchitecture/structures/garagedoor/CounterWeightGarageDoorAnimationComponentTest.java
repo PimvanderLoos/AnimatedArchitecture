@@ -63,7 +63,11 @@ class CounterWeightGarageDoorAnimationComponentTest
 
         Assertions.assertEquals(
             expectedCuboid, actualCuboid,
-            "Expected cuboid:\n  <" + expectedCuboid + ">\nbut got:\n  <" + actualCuboid + ">\nfor " + openingData);
+            "Expected cuboid:\n  <" + expectedCuboid + ">\n" +
+                "but got:\n  <" + actualCuboid + ">\n" +
+                "for opening data: '" + openingData.name() + "':\n" +
+                openingData
+        );
     }
 
     private AnimationRequestData createData(GarageDoor garageDoor)
