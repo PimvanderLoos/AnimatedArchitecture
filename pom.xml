@@ -30,7 +30,7 @@
         <dependency.version.log4j>2.23.0</dependency.version.log4j>
         <dependency.version.slf4j>2.0.12</dependency.version.slf4j>
         <dependency.version.annotations>24.0.1</dependency.version.annotations>
-        <dependency.version.eclipse-annotations>2.2.700</dependency.version.eclipse-annotations>
+        <dependency.version.eclipse-annotations>2.2.800</dependency.version.eclipse-annotations>
         <dependency.version.lombok>1.18.31-SNAPSHOT</dependency.version.lombok>
         <dependency.version.lombok-plugin>1.18.20.0</dependency.version.lombok-plugin>
         <dependency.version.errorprone>2.25.0</dependency.version.errorprone>
