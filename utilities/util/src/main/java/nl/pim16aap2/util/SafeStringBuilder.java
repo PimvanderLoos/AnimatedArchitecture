@@ -45,8 +45,6 @@ public final class SafeStringBuilder implements CharSequence, Appendable, Serial
         return this;
     }
 
-    // NullAway doesn't like nullable return types in functional interfaces
-    @SuppressWarnings("NullAway")
     public SafeStringBuilder append(Supplier<@Nullable Object> fun)
     {
         try
@@ -97,8 +95,6 @@ public final class SafeStringBuilder implements CharSequence, Appendable, Serial
         return this;
     }
 
-    // NullAway doesn't like nullable return types in functional interfaces
-    @SuppressWarnings("NullAway")
     public SafeStringBuilder appendIndented(int indent, Supplier<@Nullable Object> fun)
     {
         @Nullable Object obj;

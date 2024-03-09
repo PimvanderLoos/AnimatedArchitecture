@@ -66,17 +66,16 @@ public final class HeadManager extends Restartable
     @SuppressWarnings("unused")
     public CompletableFuture<Optional<ItemStack>> getPlayerHead(UUID playerUUID, String displayName)
     {
-        if (headMap == null)
+        final var headMap0 = headMap;
+        if (headMap0 == null)
         {
             log.atSevere().log("Trying to retrieve player head while head map is not initialized!");
             return CompletableFuture.completedFuture(Optional.empty());
         }
-        // Satisfy NullAway that headMap won't be null.
-        final var headMapNN = headMap;
 
         return CompletableFuture
-            .supplyAsync(() -> headMapNN.computeIfAbsent(playerUUID,
-                                                         (p) -> createItemStack(playerUUID, displayName)))
+            .supplyAsync(() -> headMap0.computeIfAbsent(playerUUID,
+                                                        (p) -> createItemStack(playerUUID, displayName)))
             .exceptionally(Util::exceptionallyOptional);
     }
 

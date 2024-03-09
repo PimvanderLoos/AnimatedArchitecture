@@ -59,7 +59,7 @@
         <dependency.maven-source.version>3.2.1</dependency.maven-source.version>
         <dependency.maven-source.version>3.3.0</dependency.maven-source.version>
         <dependency.mockito.version>5.11.0</dependency.mockito.version>
-        <dependency.nullaway.version>0.10.17</dependency.nullaway.version>
+        <dependency.nullaway.version>0.10.24</dependency.nullaway.version>
         <dependency.pmd.version>3.19.0</dependency.pmd.version>
         <dependency.slf4j.version>2.0.12</dependency.slf4j.version>
         <dependency.surefire.version>3.2.5</dependency.surefire.version>

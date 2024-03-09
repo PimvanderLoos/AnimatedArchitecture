@@ -137,7 +137,8 @@ public class PositionIterator implements Iterable<Vector3Di>
 
         private void forEach(TriIntConsumer action)
         {
-            do action.accept(x, y, z);
+            do
+                action.accept(x, y, z);
             while (step());
         }
 
@@ -148,15 +149,14 @@ public class PositionIterator implements Iterable<Vector3Di>
          *     The {@link #PositionIterator ::Axis}.
          * @return The supplier that increments an {@link #PositionIterator ::Axis}.
          */
-        @SuppressWarnings("NullAway") // Workaround for https://github.com/uber/NullAway/issues/289
         private Supplier<Boolean> getIncrementor(Axis axis)
         {
             return switch (axis)
-                {
-                    case X -> this::incrementX;
-                    case Y -> this::incrementY;
-                    case Z -> this::incrementZ;
-                };
+            {
+                case X -> this::incrementX;
+                case Y -> this::incrementY;
+                case Z -> this::incrementZ;
+            };
         }
 
         /**
@@ -217,15 +217,14 @@ public class PositionIterator implements Iterable<Vector3Di>
          *     The {@link #PositionIterator ::Axis}.
          * @return The runnable that increments an {@link #PositionIterator ::Axis}.
          */
-        @SuppressWarnings("NullAway") // Workaround for https://github.com/uber/NullAway/issues/289
         private Runnable getResetMethod(Axis axis)
         {
             return switch (axis)
-                {
-                    case X -> this::resetX;
-                    case Y -> this::resetY;
-                    case Z -> this::resetZ;
-                };
+            {
+                case X -> this::resetX;
+                case Y -> this::resetY;
+                case Z -> this::resetZ;
+            };
         }
 
         /**

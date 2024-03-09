@@ -14,7 +14,6 @@ import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
-import nl.pim16aap2.animatedarchitecture.core.util.Mutable;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -25,6 +24,7 @@ import java.util.Optional;
 import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Singleton
 @Flogger
@@ -204,8 +204,7 @@ public final class ToolUserManager extends Restartable
      */
     public void abortToolUser(ToolUser toolUser)
     {
-        @SuppressWarnings("NullAway") // NullAway doesn't see the @Nullable here
-        final Mutable<@Nullable ToolUserEntry> removed = new Mutable<>(null);
+        final AtomicReference<@Nullable ToolUserEntry> removed = new AtomicReference<>(null);
         toolUsers.computeIfPresent(toolUser.getPlayer().getUUID(), (uuid, entry) ->
         {
             // Make sure we remove the specific ToolUser instance we want to remove, and not some other
