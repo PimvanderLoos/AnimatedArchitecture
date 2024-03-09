@@ -3,14 +3,25 @@ package nl.pim16aap2.animatedarchitecture.core;
 import lombok.AllArgsConstructor;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
+import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
+import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
+import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
+import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.functional.CheckedSupplier;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector2Di;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.testing.AssistedFactoryMocker;
+import nl.pim16aap2.testing.reflection.ReflectionUtil;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.function.Executable;
@@ -21,11 +32,15 @@ import org.mockito.invocation.InvocationOnMock;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class UnitTestUtil
 {
@@ -127,6 +142,112 @@ public class UnitTestUtil
         final var builder = (StructureBaseBuilder) ctorStructureBaseBuilder.newInstance(
             assistedFactoryMocker.getFactory());
         return new StructureBaseBuilderResult(builder, assistedFactoryMocker);
+    }
+
+    /**
+     * Creates a new {@link StructureSnapshot} for a given {@link AbstractStructure}.
+     * <p>
+     * If the provided structure is not a mock, it will return the result of {@link AbstractStructure#getSnapshot()}.
+     * <p>
+     * If the provided structure is a mock, it will return a mocked {@link StructureSnapshot} that uses as much data as
+     * possible from the provided structure.
+     *
+     * @param structure
+     *     The structure to create a snapshot for.
+     * @return The created snapshot.
+     */
+    public static StructureSnapshot createStructureSnapshotForStructure(AbstractStructure structure)
+    {
+        if (!Mockito.mockingDetails(structure).isMock())
+            return structure.getSnapshot();
+
+        final var ret = Mockito.mock(StructureSnapshot.class, Mockito.CALLS_REAL_METHODS);
+        final var random = ThreadLocalRandom.current();
+
+        final long uid = safeSupplierSimple(random.nextLong(), structure::getUid);
+        final Vector3Di min = safeSupplier(
+            () -> new Vector3Di(random.nextInt(), random.nextInt(), random.nextInt()), structure::getMinimum);
+        final Vector3Di max = safeSupplier(() -> min.multiply(2).absolute(), structure::getMaximum);
+        final StructureOwner primeOwner = safeSupplier(
+            () ->
+            {
+                final var playerData = Mockito.mock(PlayerData.class);
+                Mockito.when(playerData.getUUID()).thenReturn(UUID.randomUUID());
+                Mockito.when(playerData.getName()).thenReturn(Util.randomInsecureString(6));
+                return new StructureOwner(uid, PermissionLevel.CREATOR, playerData);
+            },
+            structure::getPrimeOwner);
+
+        Mockito.when(ret.getUid()).thenReturn(uid);
+
+        Mockito.when(ret.getWorld()).thenReturn(safeSupplier(UnitTestUtil::getWorld, structure::getWorld));
+
+        Mockito.when(ret.getCuboid()).thenReturn(safeSupplier(() -> new Cuboid(min, max), structure::getCuboid));
+
+        Mockito.doReturn(safeSupplier(() -> ret.getCuboid().asFlatRectangle(), structure::getAnimationRange))
+               .when(ret).getAnimationRange();
+
+        Mockito.when(ret.getRotationPoint()).thenReturn(safeSupplier(
+            () -> new Vector3Di(random.nextInt(), random.nextInt(), random.nextInt()), structure::getRotationPoint));
+
+        Mockito.when(ret.getPowerBlock()).thenReturn(safeSupplier(
+            () -> new Vector3Di(random.nextInt(), random.nextInt(), random.nextInt()), structure::getPowerBlock));
+
+        Mockito.when(ret.getName()).thenReturn(safeSupplierSimple("TestStructureSnapshot", structure::getName));
+
+        Mockito.when(ret.isOpen()).thenReturn(safeSupplierSimple(true, structure::isOpen));
+
+        Mockito.when(ret.getOpenDir()).thenReturn(safeSupplierSimple(MovementDirection.NONE, structure::getOpenDir));
+
+        Mockito.when(ret.isLocked()).thenReturn(safeSupplierSimple(false, structure::isLocked));
+
+        Mockito.when(ret.getPrimeOwner()).thenReturn(primeOwner);
+
+        // We only need to mock the 'getOwnersMap' method, as all other owner-related methods call it.
+        Mockito.when(ret.getOwnersMap()).thenReturn(safeSupplier(
+            () -> Map.of(primeOwner.playerData().getUUID(), primeOwner),
+            () -> structure.getOwners().stream().collect(Collectors.toMap(
+                owner -> owner.playerData().getUUID(), owner -> owner))));
+
+        Mockito.when(ret.getType()).thenReturn(safeSupplier(
+            () -> Mockito.mock(StructureType.class), structure::getType));
+
+        final Map<String, Object> propertyMap = safeSupplierSimple(
+            Collections.emptyMap(), () -> StructureSnapshot.getPropertyMap(structure));
+
+        //noinspection SuspiciousMethodCalls
+        Mockito.doAnswer(invocation -> propertyMap.get(invocation.getArgument(0)))
+               .when(ret).getProperty(Mockito.anyString());
+
+        return ret;
+    }
+
+    private static <T> T safeSupplierSimple(T fallback, CheckedSupplier<T, ?> supplier)
+    {
+        try
+        {
+            final @Nullable T ret = supplier.get();
+            if (ret != null)
+                return ret;
+        }
+        catch (Exception ignored)
+        {
+        }
+        return fallback;
+    }
+
+    private static <T> T safeSupplier(Supplier<T> fallbackSupplier, CheckedSupplier<T, ?> supplier)
+    {
+        try
+        {
+            final @Nullable T ret = supplier.get();
+            if (ret != null)
+                return ret;
+        }
+        catch (Exception ignored)
+        {
+        }
+        return fallbackSupplier.get();
     }
 
     /**
@@ -236,16 +357,7 @@ public class UnitTestUtil
      */
     public static void setField(Class<?> clz, Object obj, String fieldName, Object value)
     {
-        try
-        {
-            Field field = clz.getDeclaredField(fieldName);
-            field.setAccessible(true);
-            field.set(obj, value);
-        }
-        catch (Exception e)
-        {
-            throw new RuntimeException(e);
-        }
+        ReflectionUtil.setField(clz, obj, fieldName, value);
     }
 
     /**

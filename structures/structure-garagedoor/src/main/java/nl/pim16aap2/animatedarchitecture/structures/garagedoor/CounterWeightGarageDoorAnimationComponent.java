@@ -87,12 +87,12 @@ public class CounterWeightGarageDoorAnimationComponent implements IAnimationComp
         this.mergedCuboidRadius = mergedCuboid.getDimensions().multiply(directionVec.absolute()).getMax() / 2.0D;
         this.newCuboid = data.getNewCuboid();
 
-        this.rotationCenter = mergedCuboid.getCenter().floor();
+        this.rotationCenter = mergedCuboid.getCenter();
         final int animationSteps = AnimationUtil.getAnimationTicks(data.getAnimationTime(), data.getServerTickTime());
         this.step = angle / quarterCircles / animationSteps;
     }
 
-    private Cuboid getMergedCuboid(Cuboid oldCuboid, Vector3Di directionVec, boolean wasVertical)
+    private static Cuboid getMergedCuboid(Cuboid oldCuboid, Vector3Di directionVec, boolean wasVertical)
     {
         if (wasVertical)
         {

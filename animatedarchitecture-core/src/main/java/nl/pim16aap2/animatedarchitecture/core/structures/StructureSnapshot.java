@@ -9,6 +9,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Rectangle;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.VisibleForTesting;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
@@ -40,7 +41,7 @@ public final class StructureSnapshot implements IStructureConst
     private MovementDirection openDir;
     private boolean isLocked;
     private final StructureOwner primeOwner;
-    private final Map<UUID, StructureOwner> owners;
+    private final Map<UUID, StructureOwner> ownersMap;
     private final StructureType type;
 
     @Getter(AccessLevel.NONE)
@@ -69,26 +70,26 @@ public final class StructureSnapshot implements IStructureConst
     @Override
     public Optional<StructureOwner> getOwner(UUID player)
     {
-        return Optional.ofNullable(owners.get(player));
+        return Optional.ofNullable(getOwnersMap().get(player));
     }
 
     @Override
     public boolean isOwner(UUID player)
     {
-        return owners.containsKey(player);
+        return getOwnersMap().containsKey(player);
     }
 
     @Override
     public boolean isOwner(UUID uuid, PermissionLevel permissionLevel)
     {
-        final @Nullable StructureOwner owner = owners.get(uuid);
+        final @Nullable StructureOwner owner = getOwnersMap().get(uuid);
         return owner != null && owner.permission().isLowerThanOrEquals(permissionLevel);
     }
 
     @Override
     public Collection<StructureOwner> getOwners()
     {
-        return owners.values();
+        return getOwnersMap().values();
     }
 
     @Override
@@ -111,7 +112,15 @@ public final class StructureSnapshot implements IStructureConst
         return Optional.ofNullable(propertyMap.get(key));
     }
 
-    private static Map<String, Object> getPropertyMap(AbstractStructure structure)
+    /**
+     * Gets the property map of a structure.
+     *
+     * @param structure
+     *     The structure to get the property map of.
+     * @return The property map of the structure.
+     */
+    @VisibleForTesting
+    public static Map<String, Object> getPropertyMap(AbstractStructure structure)
     {
         try
         {
