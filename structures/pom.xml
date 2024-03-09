@@ -61,7 +61,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>${dependency.version.maven-jar}</version>
+                    <version>${dependency.maven-jar.version}</version>
                     <configuration>
                         <outputDirectory>../StructuresOutput/</outputDirectory>
                         <archive>

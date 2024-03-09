@@ -49,21 +49,21 @@
         <dependency>
             <groupId>de.themoep</groupId>
             <artifactId>inventorygui</artifactId>
-            <version>${dependency.version.infentory-gui}</version>
+            <version>${dependency.infentory-gui.version}</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>${dependency.version.spigot-base}</version>
+            <version>${dependency.spigot-base.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>net.bytebuddy</groupId>
             <artifactId>byte-buddy</artifactId>
-            <version>${dependency.version.bytebuddy}</version>
+            <version>${dependency.bytebuddy.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -87,7 +87,7 @@
         <dependency>
             <groupId>cloud.commandframework</groupId>
             <artifactId>cloud-core</artifactId>
-            <version>${dependency.version.cloud}</version>
+            <version>${dependency.cloud.version}</version>
             <scope>compile</scope>
             <optional>true</optional>
             <exclusions>
@@ -100,7 +100,7 @@
         <dependency>
             <groupId>cloud.commandframework</groupId>
             <artifactId>cloud-bukkit</artifactId>
-            <version>${dependency.version.cloud}</version>
+            <version>${dependency.cloud.version}</version>
             <scope>compile</scope>
             <optional>true</optional>
             <exclusions>
@@ -113,7 +113,7 @@
         <dependency>
             <groupId>cloud.commandframework</groupId>
             <artifactId>cloud-minecraft-extras</artifactId>
-            <version>${dependency.version.cloud}</version>
+            <version>${dependency.cloud.version}</version>
             <scope>compile</scope>
             <optional>true</optional>
             <exclusions>
@@ -126,7 +126,7 @@
         <dependency>
             <groupId>cloud.commandframework</groupId>
             <artifactId>cloud-paper</artifactId>
-            <version>${dependency.version.cloud}</version>
+            <version>${dependency.cloud.version}</version>
             <scope>compile</scope>
             <optional>true</optional>
             <exclusions>
@@ -139,7 +139,7 @@
         <dependency>
             <groupId>me.lucko</groupId>
             <artifactId>commodore</artifactId>
-            <version>${dependency.version.commodore}</version>
+            <version>${dependency.commodore.version}</version>
             <scope>compile</scope>
             <optional>true</optional>
         </dependency>
@@ -147,14 +147,14 @@
         <dependency>
             <groupId>net.kyori</groupId>
             <artifactId>adventure-api</artifactId>
-            <version>${dependency.version.adventure-api}</version>
+            <version>${dependency.adventure-api.version}</version>
             <scope>compile</scope>
             <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>net.kyori</groupId>
             <artifactId>adventure-platform-bukkit</artifactId>
-            <version>${dependency.version.adventure-bukkit}</version>
+            <version>${dependency.adventure-bukkit.version}</version>
             <scope>compile</scope>
             <optional>true</optional>
         </dependency>

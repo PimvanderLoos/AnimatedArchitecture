@@ -14,7 +14,7 @@
 
     <properties>
         <project.root-dir>${project.basedir}/..</project.root-dir>
-        <dependency.version.spigot-base>1.19.4-R0.1-SNAPSHOT</dependency.version.spigot-base>
+        <dependency.spigot-base.version>1.19.4-R0.1-SNAPSHOT</dependency.spigot-base.version>
     </properties>
 
     <modules>
