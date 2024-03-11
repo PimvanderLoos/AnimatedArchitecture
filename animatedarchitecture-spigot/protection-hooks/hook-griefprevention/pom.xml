@@ -15,20 +15,15 @@
 
     <properties>
         <project.root-dir>${project.basedir}/../../..</project.root-dir>
-    </properties>
 
-    <repositories>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-    </repositories>
+        <dependency.griefprevention.version>16.18.2</dependency.griefprevention.version>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.github.TechFortress</groupId>
             <artifactId>GriefPrevention</artifactId>
-            <version>16.18.1</version>
+            <version>${dependency.griefprevention.version}</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>

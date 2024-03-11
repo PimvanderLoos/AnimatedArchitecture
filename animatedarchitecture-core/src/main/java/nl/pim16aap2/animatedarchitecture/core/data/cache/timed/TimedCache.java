@@ -300,7 +300,6 @@ public sealed class TimedCache<K, V>
         })).map(entry -> entry.getValue(refresh));
     }
 
-    @SuppressWarnings("NullAway") // NullAway doesn't like nullable in the BiFunction
     private AbstractTimedValue<V> createTimedValue(BiFunction<K, @Nullable V, V> function, K key, @Nullable V val)
     {
         return timedValueCreator.apply(function.apply(key, val));
@@ -548,8 +547,6 @@ public sealed class TimedCache<K, V>
         }
 
         @Override
-        // NullAway doesn't see that remappingFunction itself is not null.
-        @SuppressWarnings("NullAway")
         public Optional<V> computeIfPresent(K key, BiFunction<K, @Nullable V, V> remappingFunction)
         {
             validateState();
@@ -557,7 +554,6 @@ public sealed class TimedCache<K, V>
         }
 
         @Override
-        @SuppressWarnings("NullAway") // NullAway doesn't like nullable in the BiFunction
         public V compute(K key, BiFunction<K, @Nullable V, V> mappingFunction)
         {
             validateState();

@@ -325,7 +325,7 @@ public final class RollingCache<T> extends AbstractCollection<T> implements Iter
         ++modCount;
     }
 
-    @SuppressWarnings({"AssignmentToNull", "ConstantConditions", "NullAway"})
+    @SuppressWarnings({"AssignmentToNull", "ConstantConditions"})
     private void setNull(int idx)
     {
         arr[idx] = null;

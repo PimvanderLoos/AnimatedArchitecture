@@ -297,7 +297,6 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
             safeGetter(AnimatedArchitectureSpigotComponent::getAudioAnimationHookFactory));
     }
 
-    @SuppressWarnings("NullAway") // NullAway doesn't like nullable in functional interfaces
     private <T> T safeGetter(Function<AnimatedArchitectureSpigotComponent, @Nullable T> fun)
         throws InitializationException
     {

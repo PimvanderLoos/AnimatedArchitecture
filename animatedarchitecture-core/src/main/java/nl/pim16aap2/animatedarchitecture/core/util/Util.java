@@ -713,8 +713,6 @@ public final class Util
      *     The function to map objects to strings.
      * @return Resulting concatenated string.
      */
-    // NullAway doesn't appear to enjoy nullable values in an enhanced for-each loop.
-    @SuppressWarnings("NullAway")
     public static <T> String toString(Collection<@Nullable T> entries, Function<T, String> mapper)
     {
         final StringBuilder builder = new StringBuilder("[");

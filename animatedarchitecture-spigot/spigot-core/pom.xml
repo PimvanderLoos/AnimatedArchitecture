@@ -13,6 +13,14 @@
 
     <properties>
         <project.root-dir>${project.basedir}/../..</project.root-dir>
+
+        <dependency.adventure-api.version>4.16.0</dependency.adventure-api.version>
+        <dependency.adventure-bukkit.version>4.3.2</dependency.adventure-bukkit.version>
+        <dependency.bstats.version>3.0.2</dependency.bstats.version>
+        <dependency.commodore.version>2.2</dependency.commodore.version>
+        <dependency.cloud.version>1.8.4</dependency.cloud.version>
+        <dependency.inventory-gui.version>1.6-SNAPSHOT</dependency.inventory-gui.version>
+        <dependency.vault-api.version>1.7.1</dependency.vault-api.version>
     </properties>
 
     <repositories>
@@ -49,21 +57,21 @@
         <dependency>
             <groupId>de.themoep</groupId>
             <artifactId>inventorygui</artifactId>
-            <version>${dependency.version.infentory-gui}</version>
+            <version>${dependency.inventory-gui.version}</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>${dependency.version.spigot-base}</version>
+            <version>${dependency.spigot-base.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>net.bytebuddy</groupId>
             <artifactId>byte-buddy</artifactId>
-            <version>${dependency.version.bytebuddy}</version>
+            <version>${dependency.bytebuddy.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -71,7 +79,7 @@
         <dependency>
             <groupId>org.bstats</groupId>
             <artifactId>bstats-bukkit</artifactId>
-            <version>3.0.2</version>
+            <version>${dependency.bstats.version}</version>
             <scope>compile</scope>
             <optional>true</optional>
         </dependency>
@@ -80,14 +88,14 @@
         <dependency>
             <groupId>com.github.MilkBowl</groupId>
             <artifactId>VaultAPI</artifactId>
-            <version>1.7.1</version>
+            <version>${dependency.vault-api.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>cloud.commandframework</groupId>
             <artifactId>cloud-core</artifactId>
-            <version>${dependency.version.cloud}</version>
+            <version>${dependency.cloud.version}</version>
             <scope>compile</scope>
             <optional>true</optional>
             <exclusions>
@@ -100,7 +108,7 @@
         <dependency>
             <groupId>cloud.commandframework</groupId>
             <artifactId>cloud-bukkit</artifactId>
-            <version>${dependency.version.cloud}</version>
+            <version>${dependency.cloud.version}</version>
             <scope>compile</scope>
             <optional>true</optional>
             <exclusions>
@@ -113,7 +121,7 @@
         <dependency>
             <groupId>cloud.commandframework</groupId>
             <artifactId>cloud-minecraft-extras</artifactId>
-            <version>${dependency.version.cloud}</version>
+            <version>${dependency.cloud.version}</version>
             <scope>compile</scope>
             <optional>true</optional>
             <exclusions>
@@ -126,7 +134,7 @@
         <dependency>
             <groupId>cloud.commandframework</groupId>
             <artifactId>cloud-paper</artifactId>
-            <version>${dependency.version.cloud}</version>
+            <version>${dependency.cloud.version}</version>
             <scope>compile</scope>
             <optional>true</optional>
             <exclusions>
@@ -139,7 +147,7 @@
         <dependency>
             <groupId>me.lucko</groupId>
             <artifactId>commodore</artifactId>
-            <version>${dependency.version.commodore}</version>
+            <version>${dependency.commodore.version}</version>
             <scope>compile</scope>
             <optional>true</optional>
         </dependency>
@@ -147,14 +155,14 @@
         <dependency>
             <groupId>net.kyori</groupId>
             <artifactId>adventure-api</artifactId>
-            <version>${dependency.version.adventure-api}</version>
+            <version>${dependency.adventure-api.version}</version>
             <scope>compile</scope>
             <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>net.kyori</groupId>
             <artifactId>adventure-platform-bukkit</artifactId>
-            <version>${dependency.version.adventure-bukkit}</version>
+            <version>${dependency.adventure-bukkit.version}</version>
             <scope>compile</scope>
             <optional>true</optional>
         </dependency>

@@ -81,7 +81,6 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
      */
     Map<StructureType, AudioSet> getFinalMap(ConfigData configData)
     {
-        @SuppressWarnings("NullAway") // NullAway currently does not work well with nullable annotations in generics.
         final Map<StructureType, AudioSet> ret = new LinkedHashMap<>(configData.sets.size());
 
         final AudioSet fallback = configData.defaultSet == null ? EMPTY_AUDIO_SET : configData.defaultSet;
@@ -98,7 +97,6 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
         final Map<StructureType, @Nullable AudioSet> defaults = getDefaults();
         final Map<String, @Nullable AudioSet> parsed = audioConfigIO.readConfig();
 
-        @SuppressWarnings("NullAway") // NullAway currently does not work well with nullable annotations in generics.
         final @Nullable AudioSet defaultAudioSet = parsed.get(KEY_DEFAULT);
         return new ConfigData(defaultAudioSet, mergeMaps(parsed, defaults));
     }
@@ -115,8 +113,6 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
         return defaultMap;
     }
 
-    // NullAway currently does not work well with nullable annotations in generics.
-    @SuppressWarnings("NullAway")
     private Map<StructureType, @Nullable AudioSet> mergeMaps(
         Map<String, @Nullable AudioSet> parsed, Map<StructureType, @Nullable AudioSet> defaults)
     {
@@ -169,8 +165,6 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
             return defaultSet;
         }
 
-        // NullAway currently does not work well with nullable annotations in generics.
-        @SuppressWarnings("NullAway")
         Map<StructureType, @Nullable AudioSet> sets()
         {
             return sets;

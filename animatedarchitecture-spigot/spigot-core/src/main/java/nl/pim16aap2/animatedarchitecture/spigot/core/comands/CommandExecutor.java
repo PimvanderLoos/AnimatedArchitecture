@@ -52,7 +52,7 @@ class CommandExecutor
         this.localizer = localizer;
     }
 
-    // NullAway doesn't see the @Nullable on permissionLevel. Not sure if this is because of Lombok or NullAway.
+    // NullAway doesn't see the @Nullable on permissionLevel.
     @SuppressWarnings("NullAway")
     void addOwner(CommandContext<ICommandSender> context)
     {
@@ -148,7 +148,7 @@ class CommandExecutor
                       .exceptionally(Util::exceptionally);
     }
 
-    // NullAway doesn't see the @Nullable on structureName. Not sure if this is because of Lombok or NullAway.
+    // NullAway doesn't see the @Nullable on structureName.
     @SuppressWarnings("NullAway")
     void newStructure(CommandContext<ICommandSender> context)
     {

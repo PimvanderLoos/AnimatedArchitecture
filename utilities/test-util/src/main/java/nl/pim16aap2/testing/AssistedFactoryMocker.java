@@ -383,7 +383,6 @@ public class AssistedFactoryMocker<T, U>
      *     The parameter to analyze.
      * @return The name as provided by {@link Assisted#value()} if the parameter has a non-blank name, otherwise null.
      */
-    @SuppressWarnings("NullAway")
     static @Nullable <T extends Annotation> String getAnnotationValue(
         Class<T> annotationType, Parameter parameter, Function<T, @Nullable String> mapper)
     {

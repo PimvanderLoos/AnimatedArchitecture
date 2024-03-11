@@ -15,7 +15,6 @@ import nl.pim16aap2.animatedarchitecture.core.events.IAnimatedArchitectureEventC
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureDeletionManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
-import nl.pim16aap2.animatedarchitecture.core.util.Mutable;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,6 +31,7 @@ import java.util.OptionalLong;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 /**
@@ -99,7 +99,7 @@ public final class StructureActivityManager extends Restartable
      * @param entryRef
      *     A reference to an animator entry. The references object may be null, in which case nothing happens.
      */
-    private void abort(Mutable<@Nullable RegisteredAnimatorEntry> entryRef)
+    private void abort(AtomicReference<@Nullable RegisteredAnimatorEntry> entryRef)
     {
         final @Nullable StructureActivityManager.RegisteredAnimatorEntry entry = entryRef.get();
         if (entry != null)
@@ -127,10 +127,8 @@ public final class StructureActivityManager extends Restartable
     @CheckReturnValue
     public OptionalLong registerAnimation(AbstractStructure targetStructure, boolean requiresWriteAccess)
     {
-        @SuppressWarnings("NullAway") // NullAway doesn't see the @Nullable here
-        final Mutable<@Nullable RegisteredAnimatorEntry> abortEntryRef = new Mutable<>(null);
-        @SuppressWarnings("NullAway") // Or here
-        final Mutable<@Nullable RegisteredAnimatorEntry> newEntryRef = new Mutable<>(null);
+        final AtomicReference<@Nullable RegisteredAnimatorEntry> abortEntryRef = new AtomicReference<>(null);
+        final AtomicReference<@Nullable RegisteredAnimatorEntry> newEntryRef = new AtomicReference<>(null);
 
         animators.compute(targetStructure.getUid(), (key, entry)
             ->

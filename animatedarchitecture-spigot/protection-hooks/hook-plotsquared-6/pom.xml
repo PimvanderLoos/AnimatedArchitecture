@@ -15,14 +15,11 @@
 
     <properties>
         <project.root-dir>${project.basedir}/../../..</project.root-dir>
+
+        <dependency.plotsquared.version>6.11.1</dependency.plotsquared.version>
     </properties>
 
     <repositories>
-        <repository>
-            <id>EngineHub</id>
-            <url>https://maven.enginehub.org/repo/</url>
-        </repository>
-
         <repository>
             <id>s01-sonatype</id>
             <url>https://s01.oss.sonatype.org/content/groups/public/</url>
@@ -33,27 +30,27 @@
         <dependency>
             <groupId>com.sk89q.worldedit</groupId>
             <artifactId>worldedit-bukkit</artifactId>
-            <version>7.2.17</version>
+            <version>${dependency.worldedit.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>io.papermc</groupId>
             <artifactId>paperlib</artifactId>
-            <version>1.0.8</version>
+            <version>${dependency.paperlib.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.plotsquared</groupId>
             <artifactId>PlotSquared-Core</artifactId>
-            <version>6.11.1</version>
+            <version>${dependency.plotsquared.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.plotsquared</groupId>
             <artifactId>PlotSquared-Bukkit</artifactId>
-            <version>6.11.1</version>
+            <version>${dependency.plotsquared.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

@@ -247,8 +247,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         {
             if (!Files.isRegularFile(dbFile))
             {
-                if (!Files.isDirectory(dbFile.getParent()))
-                    Files.createDirectories(dbFile.getParent());
+                final var parent = Objects.requireNonNull(dbFile.getParent());
+                if (!Files.isDirectory(parent))
+                    Files.createDirectories(parent);
                 Files.createFile(dbFile);
                 log.atInfo().log("New file created at: %s", dbFile);
             }

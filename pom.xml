@@ -17,52 +17,46 @@
         <delombok.source>${project.build.sourceDirectory}</delombok.source>
         <delombok.output>${project.root-dir}/delombok</delombok.output>
 
-        <dependency.version.bytebuddy>1.14.12</dependency.version.bytebuddy>
-        <dependency.version.jcalculator>1.10</dependency.version.jcalculator>
-        <dependency.version.gson>2.10.1</dependency.version.gson>
-        <dependency.version.fastutil>8.5.12</dependency.version.fastutil>
-        <dependency.version.fastjson>2.0.47</dependency.version.fastjson>
-        <dependency.version.cloud>1.8.4</dependency.version.cloud>
-        <dependency.version.adventure-api>4.14.0</dependency.version.adventure-api>
-        <dependency.version.adventure-bukkit>4.3.1</dependency.version.adventure-bukkit>
-        <dependency.version.commodore>2.2</dependency.version.commodore>
-        <dependency.version.flogger>0.8</dependency.version.flogger>
-        <dependency.version.log4j>2.23.0</dependency.version.log4j>
-        <dependency.version.slf4j>2.0.12</dependency.version.slf4j>
-        <dependency.version.annotations>24.0.1</dependency.version.annotations>
-        <dependency.version.eclipse-annotations>2.2.700</dependency.version.eclipse-annotations>
-        <dependency.version.lombok>1.18.31-SNAPSHOT</dependency.version.lombok>
-        <dependency.version.lombok-plugin>1.18.20.0</dependency.version.lombok-plugin>
-        <dependency.version.errorprone>2.25.0</dependency.version.errorprone>
-        <dependency.version.nullaway>0.10.17</dependency.version.nullaway>
-        <dependency.version.checkstyle>10.14.0</dependency.version.checkstyle>
-        <dependency.version.pmd>3.19.0</dependency.version.pmd>
-        <dependency.version.dagger>2.51</dependency.version.dagger>
-        <dependency.version.mockito>5.11.0</dependency.version.mockito>
-        <dependency.version.junit>5.10.2</dependency.version.junit>
-        <dependency.version.logcaptor>2.9.2</dependency.version.logcaptor>
-        <dependency.version.surefire>3.2.5</dependency.version.surefire>
-        <dependency.version.failsafe>3.2.5</dependency.version.failsafe>
-        <dependency.version.jacoco>0.8.11</dependency.version.jacoco>
-        <dependency.version.git-commit-id>6.0.0</dependency.version.git-commit-id>
-        <dependency.version.maven-build-helper>3.3.0</dependency.version.maven-build-helper>
-        <dependency.version.maven-compiler>3.11.0</dependency.version.maven-compiler>
-        <dependency.version.maven-shade>3.5.1</dependency.version.maven-shade>
-        <dependency.version.maven-source>3.2.1</dependency.version.maven-source>
-        <dependency.version.maven-jar>3.3.0</dependency.version.maven-jar>
-        <dependency.version.maven-clean>3.3.2</dependency.version.maven-clean>
-        <dependency.version.maven-javadoc>3.6.3</dependency.version.maven-javadoc>
-        <dependency.version.maven-source>3.3.0</dependency.version.maven-source>
-        <dependency.version.maven-dependency>3.6.1</dependency.version.maven-dependency>
-        <dependency.version.maven-resources>3.3.1</dependency.version.maven-resources>
-        <dependency.version.maven-install>3.1.1</dependency.version.maven-install>
-        <dependency.version.maven-site>3.12.1</dependency.version.maven-site>
-        <dependency.version.maven-jxr>3.3.0</dependency.version.maven-jxr>
-        <dependency.version.maven-project-reports>3.5.0</dependency.version.maven-project-reports>
-        <dependency.version.maven-checkstyle>3.3.0</dependency.version.maven-checkstyle>
-        <dependency.version.jdbc-sqlite>3.44.0.0</dependency.version.jdbc-sqlite>
-        <dependency.version.jimfs>1.3.0</dependency.version.jimfs>
-        <dependency.version.infentory-gui>1.6-SNAPSHOT</dependency.version.infentory-gui>
+        <dependency.annotations.version>24.1.0</dependency.annotations.version>
+        <dependency.bytebuddy.version>1.14.12</dependency.bytebuddy.version>
+        <dependency.checkstyle.version>10.14.0</dependency.checkstyle.version>
+        <dependency.dagger.version>2.51</dependency.dagger.version>
+        <dependency.eclipse-annotations.version>2.2.800</dependency.eclipse-annotations.version>
+        <dependency.errorprone.version>2.25.0</dependency.errorprone.version>
+        <dependency.failsafe.version>3.2.5</dependency.failsafe.version>
+        <dependency.fastjson.version>2.0.47</dependency.fastjson.version>
+        <dependency.fastutil.version>8.5.13</dependency.fastutil.version>
+        <dependency.flogger.version>0.8</dependency.flogger.version>
+        <dependency.git-commit-id.version>8.0.1</dependency.git-commit-id.version>
+        <dependency.gson.version>2.10.1</dependency.gson.version>
+        <dependency.jacoco.version>0.8.11</dependency.jacoco.version>
+        <dependency.jcalculator.version>1.10</dependency.jcalculator.version>
+        <dependency.jdbc-sqlite.version>3.45.1.0</dependency.jdbc-sqlite.version>
+        <dependency.jimfs.version>1.3.0</dependency.jimfs.version>
+        <dependency.junit.version>5.10.2</dependency.junit.version>
+        <dependency.log4j.version>2.23.0</dependency.log4j.version>
+        <dependency.logcaptor.version>2.9.2</dependency.logcaptor.version>
+        <dependency.lombok-plugin.version>1.18.20.0</dependency.lombok-plugin.version>
+        <dependency.lombok.version>1.18.31-SNAPSHOT</dependency.lombok.version>
+        <dependency.maven-build-helper.version>3.5.0</dependency.maven-build-helper.version>
+        <dependency.maven-checkstyle.version>3.3.1</dependency.maven-checkstyle.version>
+        <dependency.maven-clean.version>3.3.2</dependency.maven-clean.version>
+        <dependency.maven-compiler.version>3.12.1</dependency.maven-compiler.version>
+        <dependency.maven-dependency.version>3.6.1</dependency.maven-dependency.version>
+        <dependency.maven-install.version>3.1.1</dependency.maven-install.version>
+        <dependency.maven-jar.version>3.3.0</dependency.maven-jar.version>
+        <dependency.maven-javadoc.version>3.6.3</dependency.maven-javadoc.version>
+        <dependency.maven-jxr.version>3.3.2</dependency.maven-jxr.version>
+        <dependency.maven-project-reports.version>3.5.0</dependency.maven-project-reports.version>
+        <dependency.maven-resources.version>3.3.1</dependency.maven-resources.version>
+        <dependency.maven-shade.version>3.5.2</dependency.maven-shade.version>
+        <dependency.maven-site.version>3.12.1</dependency.maven-site.version>
+        <dependency.maven-source.version>3.3.0</dependency.maven-source.version>
+        <dependency.mockito.version>5.11.0</dependency.mockito.version>
+        <dependency.nullaway.version>0.10.24</dependency.nullaway.version>
+        <dependency.pmd.version>3.19.0</dependency.pmd.version>
+        <dependency.slf4j.version>2.0.12</dependency.slf4j.version>
+        <dependency.surefire.version>3.2.5</dependency.surefire.version>
     </properties>
 
     <modules>
@@ -100,7 +94,7 @@
             <dependency>
                 <groupId>com.github.PimvanderLoos</groupId>
                 <artifactId>JCalculator</artifactId>
-                <version>${dependency.version.jcalculator}</version>
+                <version>${dependency.jcalculator.version}</version>
                 <scope>compile</scope>
                 <optional>true</optional>
             </dependency>
@@ -111,42 +105,42 @@
         <dependency>
             <groupId>com.google.dagger</groupId>
             <artifactId>dagger</artifactId>
-            <version>${dependency.version.dagger}</version>
+            <version>${dependency.dagger.version}</version>
             <scope>compile</scope>
             <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>com.google.dagger</groupId>
             <artifactId>dagger-compiler</artifactId>
-            <version>${dependency.version.dagger}</version>
+            <version>${dependency.dagger.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.eclipse.jdt</groupId>
             <artifactId>org.eclipse.jdt.annotation</artifactId>
-            <version>${dependency.version.eclipse-annotations}</version>
+            <version>${dependency.eclipse-annotations.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>it.unimi.dsi</groupId>
             <artifactId>fastutil</artifactId>
-            <version>${dependency.version.fastutil}</version>
+            <version>${dependency.fastutil.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.google.flogger</groupId>
             <artifactId>flogger</artifactId>
-            <version>${dependency.version.flogger}</version>
+            <version>${dependency.flogger.version}</version>
             <scope>compile</scope>
             <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>com.google.flogger</groupId>
             <artifactId>flogger-system-backend</artifactId>
-            <version>${dependency.version.flogger}</version>
+            <version>${dependency.flogger.version}</version>
             <scope>compile</scope>
             <optional>true</optional>
         </dependency>
@@ -154,99 +148,99 @@
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>${dependency.version.gson}</version>
+            <version>${dependency.gson.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>${dependency.version.annotations}</version>
+            <version>${dependency.annotations.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>${dependency.version.junit}</version>
+            <version>${dependency.junit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>${dependency.version.junit}</version>
+            <version>${dependency.junit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>${dependency.version.mockito}</version>
+            <version>${dependency.mockito.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
-            <version>${dependency.version.mockito}</version>
+            <version>${dependency.mockito.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>${dependency.version.log4j}</version>
+            <version>${dependency.log4j.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.google.flogger</groupId>
             <artifactId>flogger-slf4j-backend</artifactId>
-            <version>${dependency.version.flogger}</version>
+            <version>${dependency.flogger.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>${dependency.version.slf4j}</version>
+            <version>${dependency.slf4j.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.github.hakky54</groupId>
             <artifactId>logcaptor</artifactId>
-            <version>${dependency.version.logcaptor}</version>
+            <version>${dependency.logcaptor.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>com.google.jimfs</groupId>
             <artifactId>jimfs</artifactId>
-            <version>${dependency.version.jimfs}</version>
+            <version>${dependency.jimfs.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>${dependency.version.lombok}</version>
+            <version>${dependency.lombok.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.google.errorprone</groupId>
             <artifactId>error_prone_annotations</artifactId>
-            <version>${dependency.version.errorprone}</version>
+            <version>${dependency.errorprone.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.puppycrawl.tools</groupId>
             <artifactId>checkstyle</artifactId>
-            <version>${dependency.version.checkstyle}</version>
+            <version>${dependency.checkstyle.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>${dependency.version.fastjson}</version>
+            <version>${dependency.fastjson.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -256,7 +250,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
-                <version>${dependency.version.maven-clean}</version>
+                <version>${dependency.maven-clean.version}</version>
                 <configuration>
                     <filesets>
                         <fileset>
@@ -269,13 +263,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
-                <version>${dependency.version.maven-site}</version>
+                <version>${dependency.maven-site.version}</version>
             </plugin>
 
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>${dependency.version.jacoco}</version>
+                <version>${dependency.jacoco.version}</version>
                 <executions>
                     <execution>
                         <id>prepare-unit-tests</id>
@@ -299,43 +293,43 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-project-info-reports-plugin</artifactId>
-                    <version>${dependency.version.maven-project-reports}</version>
+                    <version>${dependency.maven-project-reports.version}</version>
                 </plugin>
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-install-plugin</artifactId>
-                    <version>${dependency.version.maven-install}</version>
+                    <version>${dependency.maven-install.version}</version>
                 </plugin>
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>${dependency.version.maven-jar}</version>
+                    <version>${dependency.maven-jar.version}</version>
                 </plugin>
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-clean-plugin</artifactId>
-                    <version>${dependency.version.maven-clean}</version>
+                    <version>${dependency.maven-clean.version}</version>
                 </plugin>
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
-                    <version>${dependency.version.maven-dependency}</version>
+                    <version>${dependency.maven-dependency.version}</version>
                 </plugin>
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
-                    <version>${dependency.version.maven-resources}</version>
+                    <version>${dependency.maven-resources.version}</version>
                 </plugin>
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>${dependency.version.surefire}</version>
+                    <version>${dependency.surefire.version}</version>
                     <configuration>
                         <trimStackTrace>false</trimStackTrace>
                         <useFile>false</useFile>
@@ -348,12 +342,12 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-checkstyle-plugin</artifactId>
-                    <version>${dependency.version.maven-checkstyle}</version>
+                    <version>${dependency.maven-checkstyle.version}</version>
                     <dependencies>
                         <dependency>
                             <groupId>com.puppycrawl.tools</groupId>
                             <artifactId>checkstyle</artifactId>
-                            <version>${dependency.version.checkstyle}</version>
+                            <version>${dependency.checkstyle.version}</version>
                         </dependency>
                     </dependencies>
                     <configuration>
@@ -370,7 +364,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-shade-plugin</artifactId>
-                    <version>${dependency.version.maven-shade}</version>
+                    <version>${dependency.maven-shade.version}</version>
                     <configuration>
                         <relocations>
                             <relocation>
@@ -448,7 +442,7 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>${dependency.version.jacoco}</version>
+                    <version>${dependency.jacoco.version}</version>
                     <executions>
                         <execution>
                             <id>prepare-agent</id>
@@ -481,7 +475,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-pmd-plugin</artifactId>
-                    <version>${dependency.version.pmd}</version>
+                    <version>${dependency.pmd.version}</version>
                     <configuration>
                         <rulesets>
                             <ruleset>${user.dir}/coderules/pmd-ruleset.xml</ruleset>
@@ -522,7 +516,7 @@
                         <plugin>
                             <groupId>org.apache.maven.plugins</groupId>
                             <artifactId>maven-compiler-plugin</artifactId>
-                            <version>${dependency.version.maven-compiler}</version>
+                            <version>${dependency.maven-compiler.version}</version>
                             <configuration>
                                 <encoding>UTF-8</encoding>
                                 <release>${maven.compiler.release}</release>
@@ -530,12 +524,12 @@
                                     <path>
                                         <groupId>org.projectlombok</groupId>
                                         <artifactId>lombok</artifactId>
-                                        <version>${dependency.version.lombok}</version>
+                                        <version>${dependency.lombok.version}</version>
                                     </path>
                                     <path>
                                         <groupId>com.google.dagger</groupId>
                                         <artifactId>dagger-compiler</artifactId>
-                                        <version>${dependency.version.dagger}</version>
+                                        <version>${dependency.dagger.version}</version>
                                     </path>
                                 </annotationProcessorPaths>
                             </configuration>
@@ -556,7 +550,7 @@
                         <plugin>
                             <groupId>org.apache.maven.plugins</groupId>
                             <artifactId>maven-compiler-plugin</artifactId>
-                            <version>${dependency.version.maven-compiler}</version>
+                            <version>${dependency.maven-compiler.version}</version>
                             <configuration>
                                 <encoding>UTF-8</encoding>
                                 <release>${maven.compiler.release}</release>
@@ -564,12 +558,12 @@
                                     <path>
                                         <groupId>org.projectlombok</groupId>
                                         <artifactId>lombok</artifactId>
-                                        <version>${dependency.version.lombok}</version>
+                                        <version>${dependency.lombok.version}</version>
                                     </path>
                                     <path>
                                         <groupId>com.google.dagger</groupId>
                                         <artifactId>dagger-compiler</artifactId>
-                                        <version>${dependency.version.dagger}</version>
+                                        <version>${dependency.dagger.version}</version>
                                     </path>
                                 </annotationProcessorPaths>
                             </configuration>
@@ -578,7 +572,7 @@
                         <plugin>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok-maven-plugin</artifactId>
-                            <version>${dependency.version.lombok-plugin}</version>
+                            <version>${dependency.lombok-plugin.version}</version>
                             <configuration>
                                 <sourceDirectory>${delombok.source}</sourceDirectory>
                                 <outputDirectory>${delombok.output}</outputDirectory>
@@ -597,7 +591,7 @@
                                 <dependency>
                                     <groupId>org.projectlombok</groupId>
                                     <artifactId>lombok</artifactId>
-                                    <version>${dependency.version.lombok}</version>
+                                    <version>${dependency.lombok.version}</version>
                                 </dependency>
                             </dependencies>
                         </plugin>
@@ -605,7 +599,7 @@
                         <plugin>
                             <groupId>org.apache.maven.plugins</groupId>
                             <artifactId>maven-javadoc-plugin</artifactId>
-                            <version>${dependency.version.maven-javadoc}</version>
+                            <version>${dependency.maven-javadoc.version}</version>
                             <configuration>
                                 <quiet>true</quiet>
                                 <failOnError>false</failOnError>
@@ -619,7 +613,7 @@
                         <plugin>
                             <groupId>org.apache.maven.plugins</groupId>
                             <artifactId>maven-source-plugin</artifactId>
-                            <version>${dependency.version.maven-source}</version>
+                            <version>${dependency.maven-source.version}</version>
                             <executions>
                                 <execution>
                                     <id>attach-sources</id>
@@ -642,7 +636,7 @@
                         <plugin>
                             <groupId>org.apache.maven.plugins</groupId>
                             <artifactId>maven-compiler-plugin</artifactId>
-                            <version>${dependency.version.maven-compiler}</version>
+                            <version>${dependency.maven-compiler.version}</version>
 
                             <configuration>
                                 <encoding>UTF-8</encoding>
@@ -666,22 +660,22 @@
                                     <path>
                                         <groupId>org.projectlombok</groupId>
                                         <artifactId>lombok</artifactId>
-                                        <version>${dependency.version.lombok}</version>
+                                        <version>${dependency.lombok.version}</version>
                                     </path>
                                     <path>
                                         <groupId>com.google.errorprone</groupId>
                                         <artifactId>error_prone_core</artifactId>
-                                        <version>${dependency.version.errorprone}</version>
+                                        <version>${dependency.errorprone.version}</version>
                                     </path>
                                     <path>
                                         <groupId>com.uber.nullaway</groupId>
                                         <artifactId>nullaway</artifactId>
-                                        <version>${dependency.version.nullaway}</version>
+                                        <version>${dependency.nullaway.version}</version>
                                     </path>
                                     <path>
                                         <groupId>com.google.dagger</groupId>
                                         <artifactId>dagger-compiler</artifactId>
-                                        <version>${dependency.version.dagger}</version>
+                                        <version>${dependency.dagger.version}</version>
                                     </path>
                                 </annotationProcessorPaths>
                             </configuration>
@@ -697,13 +691,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jxr-plugin</artifactId>
-                <version>${dependency.version.maven-jxr}</version>
+                <version>${dependency.maven-jxr.version}</version>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>${dependency.version.maven-javadoc}</version>
+                <version>${dependency.maven-javadoc.version}</version>
                 <configuration>
                     <!-- Default configuration for all reports -->
                     <quiet>true</quiet>

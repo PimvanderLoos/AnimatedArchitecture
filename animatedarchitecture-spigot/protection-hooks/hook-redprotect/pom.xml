@@ -15,89 +15,33 @@
 
     <properties>
         <project.root-dir>${project.basedir}/../../..</project.root-dir>
+
+        <dependency.redprotect.version>8.1.1</dependency.redprotect.version>
     </properties>
-
-    <repositories>
-        <repository>
-            <id>redprotect-repo</id>
-            <url>https://raw.githubusercontent.com/FabioZumbi12/RedProtect/mvn-repo/</url>
-        </repository>
-
-        <repository>
-            <id>sk89q-repo</id>
-            <url>https://maven.enginehub.org/repo/</url>
-        </repository>
-    </repositories>
 
     <dependencies>
         <dependency>
-            <groupId>br.net.fabiozumbi12.RedProtect</groupId>
+            <groupId>io.github.fabiozumbi12.RedProtect</groupId>
             <artifactId>RedProtect-Core</artifactId>
-            <version>7.7.3</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>br.net.fabiozumbi12.RedProtect</groupId>
-            <artifactId>RedProtect-Spigot-1.13</artifactId>
-            <version>7.7.3</version>
+            <version>${dependency.redprotect.version}</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>
-                    <artifactId>ActionBarAPI-1.5.4.jar</artifactId>
+                    <artifactId>*</artifactId>
                 </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.fabiozumbi12.RedProtect</groupId>
+            <artifactId>RedProtect-Spigot</artifactId>
+            <version>${dependency.redprotect.version}</version>
+            <scope>provided</scope>
+            <exclusions>
                 <exclusion>
                     <groupId>*</groupId>
-                    <artifactId>BossBarAPI_v2.4.1</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>spigot-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>dynmap-2.5</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>Factions</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>GriefPrevention</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>InfernalMobs</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>MassiveCore</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>mcMMO</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>MyChunk</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>mypet</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>PvPManager</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>SimpleClans</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>SkillAPI</artifactId>
+                    <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

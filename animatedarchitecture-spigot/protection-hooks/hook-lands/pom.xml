@@ -15,20 +15,15 @@
 
     <properties>
         <project.root-dir>${project.basedir}/../../..</project.root-dir>
-    </properties>
 
-    <repositories>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-    </repositories>
+        <dependency.lands-api.version>6.44.13</dependency.lands-api.version>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.github.Angeschossen</groupId>
             <artifactId>LandsAPI</artifactId>
-            <version>6.37.1</version>
+            <version>${dependency.lands-api.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
