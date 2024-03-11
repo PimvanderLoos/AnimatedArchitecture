@@ -15,7 +15,17 @@
 
     <properties>
         <project.root-dir>${project.basedir}/../..</project.root-dir>
+
+        <dependency.spigot.version>1.19.4-R0.1-SNAPSHOT</dependency.spigot.version>
+        <dependency.worldedit.version>7.3.0</dependency.worldedit.version>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>EngineHub</id>
+            <url>https://maven.enginehub.org/repo/</url>
+        </repository>
+    </repositories>
 
     <modules>
         <module>hook-plotsquared-6</module>
@@ -40,7 +50,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.19.4-R0.1-SNAPSHOT</version>
+            <version>${dependency.spigot.version}</version>
             <scope>provided</scope>
         </dependency>
 

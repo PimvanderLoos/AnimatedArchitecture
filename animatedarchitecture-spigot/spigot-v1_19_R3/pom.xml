@@ -14,6 +14,8 @@
 
     <properties>
         <project.root-dir>${project.basedir}/../..</project.root-dir>
+
+        <dependency.spigot.version>1.19.4-R0.1-SNAPSHOT</dependency.spigot.version>
     </properties>
 
     <dependencies>
@@ -26,7 +28,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.19.4-R0.1-SNAPSHOT</version>
+            <version>${dependency.spigot.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

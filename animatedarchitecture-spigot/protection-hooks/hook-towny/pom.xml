@@ -15,13 +15,15 @@
 
     <properties>
         <project.root-dir>${project.basedir}/../../..</project.root-dir>
+
+        <dependency.towny.version>0.100.1.19</dependency.towny.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.github.TownyAdvanced</groupId>
             <artifactId>towny</artifactId>
-            <version>0.100.1.18</version>
+            <version>${dependency.towny.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

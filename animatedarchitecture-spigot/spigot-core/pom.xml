@@ -13,6 +13,14 @@
 
     <properties>
         <project.root-dir>${project.basedir}/../..</project.root-dir>
+
+        <dependency.adventure-api.version>4.16.0</dependency.adventure-api.version>
+        <dependency.adventure-bukkit.version>4.3.2</dependency.adventure-bukkit.version>
+        <dependency.bstats.version>3.0.2</dependency.bstats.version>
+        <dependency.commodore.version>2.2</dependency.commodore.version>
+        <dependency.cloud.version>1.8.4</dependency.cloud.version>
+        <dependency.inventory-gui.version>1.6-SNAPSHOT</dependency.inventory-gui.version>
+        <dependency.vault-api.version>1.7.1</dependency.vault-api.version>
     </properties>
 
     <repositories>
@@ -71,7 +79,7 @@
         <dependency>
             <groupId>org.bstats</groupId>
             <artifactId>bstats-bukkit</artifactId>
-            <version>3.0.2</version>
+            <version>${dependency.bstats.version}</version>
             <scope>compile</scope>
             <optional>true</optional>
         </dependency>
@@ -80,7 +88,7 @@
         <dependency>
             <groupId>com.github.MilkBowl</groupId>
             <artifactId>VaultAPI</artifactId>
-            <version>1.7.1</version>
+            <version>${dependency.vault-api.version}</version>
             <scope>provided</scope>
         </dependency>
 
