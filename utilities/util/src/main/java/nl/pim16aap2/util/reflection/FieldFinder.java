@@ -72,9 +72,9 @@ public class FieldFinder
          * @return The new {@link TypedFieldFinder}.
          */
         @CheckReturnValue @Contract(pure = true)
-        public TypedFieldFinder ofType(Class<?> type)
+        public <T> TypedFieldFinder<T> ofType(Class<T> type)
         {
-            return new TypedFieldFinder(source, type);
+            return new TypedFieldFinder<>(source, type);
         }
 
         /**
@@ -104,7 +104,7 @@ public class FieldFinder
         }
     }
 
-    private static abstract class ReflectionFieldFinder<T, U extends ReflectionFinder<T, U>>
+    private static abstract class ReflectionFieldFinder<T, U extends ReflectionFinder<T, U>, V>
         extends ReflectionFinder<T, U>
         implements IAccessibleSetter<U>, IAnnotationFinder<U>
     {
@@ -145,10 +145,114 @@ public class FieldFinder
     }
 
     /**
+     * A specialized version of {@link ReflectionFieldFinder} that only retrieves a single field.
+     *
+     * @param <T>
+     *     The type of the source class.
+     * @param <U>
+     *     The type of the field.
+     */
+    private static abstract class SingleFieldFinder<T extends ReflectionFinder<Field, T>, U>
+        extends ReflectionFieldFinder<Field, T, U>
+    {
+        protected abstract Class<U> getType();
+
+        // We throw our own ClassCastException, ignoring the original stack trace.
+        @SuppressWarnings("PMD.PreserveStackTrace")
+        private @Nullable U getNullable(Field field, @Nullable Object instance)
+        {
+            final Class<U> type = getType();
+
+            @Nullable Object object = null;
+            try
+            {
+                object = field.get(instance);
+                return type.cast(object);
+            }
+            catch (IllegalAccessException e)
+            {
+                throw new IllegalArgumentException(String.format(
+                    "Failed to access field %s in instance %s. Was set accessible: %s",
+                    field.toGenericString(),
+                    instance,
+                    setAccessible
+                ), e);
+            }
+            catch (ClassCastException e)
+            {
+                throw new ClassCastException(String.format(
+                    "Failed to cast object of field %s from type %s to type %s in instance %s",
+                    field,
+                    object == null ? "null" : object.getClass().getName(),
+                    type.getName(),
+                    instance
+                ));
+            }
+        }
+
+        /**
+         * Retrieves the object of the field from the given instance.
+         * <p>
+         * The field will be retrieved using {@link #get()} first.
+         *
+         * @param instance
+         *     The instance to retrieve the field from.
+         *     <p>
+         *     This can be null if the field is static.
+         *     <p>
+         * @return The object of the field from the given instance.
+         *
+         * @throws NullPointerException
+         *     If the field could not be found, if the instance was null and the field was not static, or if the object
+         *     of the field was null.
+         * @throws ClassCastException
+         *     If the field could be found, but could not be cast to the correct type.
+         * @throws IllegalArgumentException
+         *     If the field could be found, but could not be accessed or
+         */
+        public @Nullable U get(@Nullable Object instance)
+        {
+            final Field field = get();
+            return Objects.requireNonNull(
+                getNullable(field, instance),
+                String.format(
+                    "Failed to retrieve object of field %s in instance %s",
+                    field.toGenericString(),
+                    instance
+                ));
+        }
+
+        /**
+         * Retrieves the object of the field from the given instance.
+         * <p>
+         * The field will be retrieved using {@link #get()} first.
+         *
+         * @param instance
+         *     The instance to retrieve the field from.
+         *     <p>
+         *     This can be null if the field is static.
+         *     <p>
+         * @return The object of the field from the given instance.
+         *
+         * @throws NullPointerException
+         *     If the field could not be found or if the instance was null and the field was not static.
+         * @throws ClassCastException
+         *     If the field could be found, but could not be cast to the correct type.
+         * @throws IllegalArgumentException
+         *     If the field could be found, but could not be accessed or
+         */
+        public @Nullable U getNullable(@Nullable Object instance)
+        {
+            final Field field = get();
+            return getNullable(field, instance);
+        }
+    }
+
+    /**
      * Represents an implementation of {@link ReflectionFinder} to retrieve a field by its name.
      */
     public static final class NamedFieldFinder
-        extends ReflectionFieldFinder<Field, NamedFieldFinder>
+        extends SingleFieldFinder<NamedFieldFinder, Object>
     {
         private final String name;
         private final Class<?> source;
@@ -166,12 +270,14 @@ public class FieldFinder
             //noinspection ConstantConditions
             return Objects.requireNonNull(
                 getNullable(),
-                String.format("Failed to find field %s[%s %s %s.%s]. Super classes were %s.",
-                              ReflectionBackend.formatAnnotations(annotations),
-                              optionalModifiersToString(modifiers),
-                              ReflectionBackend.formatOptionalValue(fieldType, Class::getName),
-                              source.getName(), name,
-                              checkSuperClasses ? "included" : "excluded"));
+                String.format(
+                    "Failed to find field %s[%s %s %s.%s]. Super classes were %s.",
+                    ReflectionBackend.formatAnnotations(annotations),
+                    optionalModifiersToString(modifiers),
+                    ReflectionBackend.formatOptionalValue(fieldType, Class::getName),
+                    source.getName(), name,
+                    checkSuperClasses ? "included" : "excluded"
+                ));
         }
 
         @Override
@@ -195,18 +301,24 @@ public class FieldFinder
             this.fieldType = fieldType;
             return this;
         }
+
+        @Override
+        protected Class<Object> getType()
+        {
+            return Object.class;
+        }
     }
 
     /**
      * Represents an implementation of {@link ReflectionFinder} to retrieve a field by its type.
      */
-    public static final class TypedFieldFinder
-        extends ReflectionFieldFinder<Field, TypedFieldFinder>
+    public static final class TypedFieldFinder<T>
+        extends SingleFieldFinder<TypedFieldFinder<T>, T>
     {
         private final Class<?> source;
-        private final Class<?> fieldType;
+        private final Class<T> fieldType;
 
-        private TypedFieldFinder(Class<?> source, Class<?> fieldType)
+        private TypedFieldFinder(Class<?> source, Class<T> fieldType)
         {
             this.source = source;
             this.fieldType = Objects.requireNonNull(fieldType, "Field type cannot be null!");
@@ -218,12 +330,14 @@ public class FieldFinder
             //noinspection ConstantConditions
             return Objects.requireNonNull(
                 getNullable(),
-                String.format("Failed to find field: %s[%s %s %s.[*]]. Super classes were %s.",
-                              ReflectionBackend.formatAnnotations(annotations),
-                              optionalModifiersToString(modifiers),
-                              fieldType.getName(),
-                              source.getName(),
-                              checkSuperClasses ? "included" : "excluded"));
+                String.format(
+                    "Failed to find field: %s[%s %s %s.[*]]. Super classes were %s.",
+                    ReflectionBackend.formatAnnotations(annotations),
+                    optionalModifiersToString(modifiers),
+                    fieldType.getName(),
+                    source.getName(),
+                    checkSuperClasses ? "included" : "excluded"
+                ));
         }
 
         @Override
@@ -232,13 +346,19 @@ public class FieldFinder
             return ReflectionBackend.getField(
                 source, modifiers, fieldType, setAccessible, checkSuperClasses, annotations);
         }
+
+        @Override
+        protected Class<T> getType()
+        {
+            return fieldType;
+        }
     }
 
     /**
      * Represents an implementation of {@link ReflectionFinder} to retrieve all fields in a class of a given type.
      */
     public static final class MultipleFieldsFinder
-        extends ReflectionFieldFinder<List<Field>, MultipleFieldsFinder>
+        extends ReflectionFieldFinder<List<Field>, MultipleFieldsFinder, Object[]>
     {
         private final Class<?> source;
         private @Nullable Class<?> fieldType;
@@ -292,22 +412,25 @@ public class FieldFinder
                     source, modifiers, fieldType, setAccessible, checkSuperClasses, annotations);
 
             if (expected >= 0 && expected != found.size())
-                return handleInvalid(nonnull, "Expected %d fields of type %s in class %s " +
-                                         "with modifiers %d annotated with %s, but found %d.  Super classes were %s.",
-                                     expected, fieldType, source, modifiers, annotations, found.size(),
-                                     checkSuperClasses ? "included" : "excluded");
+                return handleInvalid(
+                    nonnull, "Expected %d fields of type %s in class %s " +
+                             "with modifiers %d annotated with %s, but found %d.  Super classes were %s.",
+                    expected, fieldType, source, modifiers, annotations, found.size(),
+                    checkSuperClasses ? "included" : "excluded");
 
             if (atMost >= 0 && found.size() > atMost)
-                return handleInvalid(nonnull, "Expected at most %d fields of type %s in class %s " +
-                                         "with modifiers %d annotated with %s, but found %d.  Super classes were %s.",
-                                     atMost, fieldType, source, modifiers, annotations, found.size(),
-                                     checkSuperClasses ? "included" : "excluded");
+                return handleInvalid
+                    (nonnull, "Expected at most %d fields of type %s in class %s " +
+                              "with modifiers %d annotated with %s, but found %d.  Super classes were %s.",
+                     atMost, fieldType, source, modifiers, annotations, found.size(),
+                     checkSuperClasses ? "included" : "excluded");
 
             if (atLeast >= 0 && found.size() < atLeast)
-                return handleInvalid(nonnull, "Expected at least %d fields of type %s in class %s " +
-                                         "with modifiers %d annotated with %s, but found %d.  Super classes were %s.",
-                                     atLeast, fieldType, source, modifiers, annotations, found.size(),
-                                     checkSuperClasses ? "included" : "excluded");
+                return handleInvalid(
+                    nonnull, "Expected at least %d fields of type %s in class %s " +
+                             "with modifiers %d annotated with %s, but found %d.  Super classes were %s.",
+                    atLeast, fieldType, source, modifiers, annotations, found.size(),
+                    checkSuperClasses ? "included" : "excluded");
             return found;
         }
 
