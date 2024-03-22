@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v4.1.1
 
       - name: Set up JDK 21
-        uses: actions/setup-java@80ae3c2885b277a440ee4931b74570716d9a0e27 # v4.1.0 with fix with slow cleanup
+        uses: actions/setup-java@v4.2.1
         with:
           distribution: 'temurin'
           java-version: '21'
