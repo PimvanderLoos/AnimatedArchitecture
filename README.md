@@ -12,7 +12,7 @@ AnimatedArchitecture is a rewrite of the old BigDoors plugin. You can find the l
 
 ### Requirements:
 
-* Java 19+
+* Java 21+
 * A Spigot server (or a fork) for Minecraft 1.19.4+
 
 ### Installation:
@@ -86,7 +86,7 @@ follow these steps:
 
 Compilation requirements:
 
-* Java 19+
+* Java 21+
 * Maven
 
 You can then compile the project by running the following command in this directory:

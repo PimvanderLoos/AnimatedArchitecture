@@ -11,7 +11,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <lombok.encoding>UTF-8</lombok.encoding>
-        <maven.compiler.release>19</maven.compiler.release>
+        <maven.compiler.release>21</maven.compiler.release>
 
         <project.root-dir>${project.basedir}</project.root-dir>
         <delombok.source>${project.build.sourceDirectory}</delombok.source>
