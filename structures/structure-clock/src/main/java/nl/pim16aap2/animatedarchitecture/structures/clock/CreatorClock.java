@@ -213,7 +213,7 @@ public class CreatorClock extends Creator
     /**
      * Calculates the open direction from the current physical aspects of this clock.
      */
-    protected synchronized void setOpenDirection()
+    protected synchronized void updateOpenDirection()
     {
         if (northSouthAligned)
             setMovementDirection(hourArmSide == BlockFace.EAST ? MovementDirection.SOUTH : MovementDirection.NORTH);
@@ -224,7 +224,7 @@ public class CreatorClock extends Creator
     @Override
     protected synchronized AbstractStructure constructStructure()
     {
-        setOpenDirection();
+        updateOpenDirection();
         Util.requireNonNull(hourArmSide, "hourArmSide");
         return new Clock(constructStructureData(), northSouthAligned, hourArmSide);
     }

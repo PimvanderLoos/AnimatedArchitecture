@@ -125,7 +125,7 @@ public class CreatorGarageDoor extends Creator
      * Calculates the position of the rotation point. This should be called at the end of the process, as not all
      * variables may be set at an earlier stage.
      */
-    protected synchronized void setRotationPoint()
+    protected synchronized void updateRotationPoint()
     {
         final @Nullable Cuboid cuboid = getCuboid();
         if (cuboid == null)
@@ -157,7 +157,7 @@ public class CreatorGarageDoor extends Creator
     @Override
     protected synchronized AbstractStructure constructStructure()
     {
-        setRotationPoint();
+        updateRotationPoint();
         return new GarageDoor(constructStructureData(), northSouthAnimated);
     }
 

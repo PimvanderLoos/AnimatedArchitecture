@@ -48,7 +48,7 @@ public class CreatorPortcullis extends Creator
             .propertyName(localizer.getMessage("creator.base.property.blocks_to_move"))
             .propertyValueSupplier(this::getBlocksToMove)
             .updatable(true)
-            .stepExecutor(new StepExecutorInteger(this::setBlocksToMove))
+            .stepExecutor(new StepExecutorInteger(this::provideBlocksToMove))
             .stepPreparation(this::prepareSetBlocksToMove)
             .waitForUserInput(true).construct();
 
@@ -81,7 +81,7 @@ public class CreatorPortcullis extends Creator
             .exceptionally(Util::exceptionally);
     }
 
-    protected synchronized boolean setBlocksToMove(int blocksToMove)
+    protected synchronized boolean provideBlocksToMove(int blocksToMove)
     {
         if (blocksToMove < 1)
         {

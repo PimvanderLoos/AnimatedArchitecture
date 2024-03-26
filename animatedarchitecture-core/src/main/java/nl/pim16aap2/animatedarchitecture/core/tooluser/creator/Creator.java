@@ -516,7 +516,7 @@ public abstract class Creator extends ToolUser
     }
 
     /**
-     * Sets the first location of the selection and advances the procedure if successful.
+     * Provides the first location of the selection and advances the procedure if successful.
      *
      * @param loc
      *     The first location of the cuboid.
