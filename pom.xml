@@ -20,7 +20,7 @@
         <dependency.annotations.version>24.1.0</dependency.annotations.version>
         <dependency.bytebuddy.version>1.14.12</dependency.bytebuddy.version>
         <dependency.checkstyle.version>10.14.2</dependency.checkstyle.version>
-        <dependency.dagger.version>2.51</dependency.dagger.version>
+        <dependency.dagger.version>2.51.1</dependency.dagger.version>
         <dependency.eclipse-annotations.version>2.3.0</dependency.eclipse-annotations.version>
         <dependency.errorprone.version>2.26.1</dependency.errorprone.version>
         <dependency.failsafe.version>3.2.5</dependency.failsafe.version>
