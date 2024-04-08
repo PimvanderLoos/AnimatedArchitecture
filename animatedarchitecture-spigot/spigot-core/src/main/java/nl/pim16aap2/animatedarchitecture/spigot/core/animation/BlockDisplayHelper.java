@@ -9,13 +9,18 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.BlockDisplay;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Transformation;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-final class BlockDisplayHelper
+/**
+ * Helper class for BlockDisplay entities.
+ */
+public final class BlockDisplayHelper
 {
     private static final Vector3f ONE_VECTOR = new Vector3f(1F, 1F, 1F);
     private static final Vector3f HALF_VECTOR_POSITIVE = new Vector3f(0.5F, 0.5F, 0.5F);
@@ -25,7 +30,27 @@ final class BlockDisplayHelper
     {
     }
 
-    static BlockDisplay spawn(IExecutor executor, World bukkitWorld, RotatedPosition spawnPose, BlockData blockData)
+    /**
+     * Spawns a new BlockDisplay entity.
+     *
+     * @param plugin
+     *     The plugin that is spawning the entity. Used for metadata.
+     * @param executor
+     *     The executor to assert that this method is called on the main thread.
+     * @param bukkitWorld
+     *     The world to spawn the entity in.
+     * @param spawnPose
+     *     The pose to use for the entity.
+     * @param blockData
+     *     The block data of the entity to spawn.
+     * @return The spawned entity.
+     */
+    static BlockDisplay spawn(
+        JavaPlugin plugin,
+        IExecutor executor,
+        World bukkitWorld,
+        RotatedPosition spawnPose,
+        BlockData blockData)
     {
         executor.assertMainThread("Animated blocks must be spawned on the main thread!");
         final Vector3Dd pos = spawnPose.position().floor();
@@ -33,12 +58,23 @@ final class BlockDisplayHelper
 
         final BlockDisplay newEntity = bukkitWorld.spawn(loc, BlockDisplay.class);
         newEntity.setBlock(blockData);
-        newEntity.setCustomName(Constants.ANIMATED_ARCHITECTURE_ENTITY_NAME);
-        newEntity.setCustomNameVisible(false);
+        newEntity.setMetadata(Constants.ANIMATED_ARCHITECTURE_ENTITY_MARKER_KEY, new FixedMetadataValue(plugin, true));
         newEntity.setInterpolationDuration(1);
         return newEntity;
     }
 
+    /**
+     * Moves an entity from the start position to the target position.
+     * <p>
+     * This method updates the transformation of the entity to move it from the start position to the target position.
+     *
+     * @param entity
+     *     The entity to move. If null, this method does nothing.
+     * @param startPosition
+     *     The start position of the entity. This is original position the entity was created at.
+     * @param target
+     *     The target position of the entity.
+     */
     public static void moveToTarget(
         @Nullable BlockDisplay entity, RotatedPosition startPosition, RotatedPosition target)
     {
@@ -76,6 +112,17 @@ final class BlockDisplayHelper
         return new Vector3f((float) vec.xD(), (float) vec.yD(), (float) vec.zD());
     }
 
+    /**
+     * Creates a quaternion from roll, pitch and yaw.
+     *
+     * @param roll
+     *     The roll. Rotation around the z-axis measured in radians.
+     * @param pitch
+     *     The pitch. Rotation around the x-axis measured in radians.
+     * @param yaw
+     *     The yaw. Rotation around the y-axis measured in radians.
+     * @return The quaternion representing the rotation.
+     */
     public static Quaternionf fromRollPitchYaw(float roll, float pitch, float yaw)
     {
         return new Quaternionf().rotateY(yaw).rotateX(pitch).rotateZ(roll);

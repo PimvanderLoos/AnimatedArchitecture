@@ -12,6 +12,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.IBlockAnalyzerSpigot;
 import org.bukkit.Material;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -25,15 +26,18 @@ public class AnimatedBlockDisplayFactory implements IAnimatedBlockFactory
     private final IExecutor executor;
     private final AnimatedBlockHookManager animatedBlockHookManager;
     private final IBlockAnalyzerSpigot blockAnalyzer;
+    private final JavaPlugin plugin;
 
     @Inject AnimatedBlockDisplayFactory(
         IExecutor executor,
         AnimatedBlockHookManager animatedBlockHookManager,
-        IBlockAnalyzerSpigot blockAnalyzer)
+        IBlockAnalyzerSpigot blockAnalyzer,
+        JavaPlugin plugin)
     {
         this.executor = executor;
         this.animatedBlockHookManager = animatedBlockHookManager;
         this.blockAnalyzer = blockAnalyzer;
+        this.plugin = plugin;
     }
 
     @Override
@@ -49,6 +53,7 @@ public class AnimatedBlockDisplayFactory implements IAnimatedBlockFactory
             return Optional.empty();
 
         return Optional.of(new AnimatedBlockDisplay(
+            plugin,
             executor,
             animatedBlockHookManager,
             blockDataRotator,

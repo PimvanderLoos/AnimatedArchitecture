@@ -38,9 +38,9 @@ public final class Constants
     public static final String PERMISSION_PREFIX_ADMIN_BYPASS_LIMIT = PERMISSION_PREFIX_ADMIN_BYPASS + "limit.";
 
     /**
-     * The name used by all entities created by AnimatedArchitecture.
+     * The key used to identify entities created by AnimatedArchitecture.
      */
-    public static final String ANIMATED_ARCHITECTURE_ENTITY_NAME = "AnimatedArchitectureEntity";
+    public static final String ANIMATED_ARCHITECTURE_ENTITY_MARKER_KEY = "AnimatedArchitectureEntity";
 
     /**
      * The amount of time (in ms) a user gets to complete a command waiter.

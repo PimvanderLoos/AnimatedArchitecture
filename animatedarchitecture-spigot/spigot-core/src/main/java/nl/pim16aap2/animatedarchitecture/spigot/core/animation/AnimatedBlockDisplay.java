@@ -18,6 +18,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Entity;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -35,6 +36,7 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     @Getter
     private final boolean onEdge;
     private final List<IAnimatedBlockHook> hooks;
+    private final JavaPlugin plugin;
     private final IExecutor executor;
     @Getter
     private final RotatedPosition startPosition;
@@ -51,10 +53,17 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     private RotatedPosition currentTarget;
 
     public AnimatedBlockDisplay(
-        IExecutor executor, AnimatedBlockHookManager animatedBlockHookManager,
-        @Nullable Consumer<IAnimatedBlockData> blockDataRotator, RotatedPosition startPosition,
-        IWorld world, RotatedPosition finalPosition, boolean onEdge, float radius)
+        JavaPlugin plugin,
+        IExecutor executor,
+        AnimatedBlockHookManager animatedBlockHookManager,
+        @Nullable Consumer<IAnimatedBlockData> blockDataRotator,
+        RotatedPosition startPosition,
+        IWorld world,
+        RotatedPosition finalPosition,
+        boolean onEdge,
+        float radius)
     {
+        this.plugin = plugin;
         this.executor = executor;
         this.startPosition = startPosition;
         this.world = world;
@@ -74,7 +83,7 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     @GuardedBy("this")
     private void spawn0()
     {
-        this.entity = BlockDisplayHelper.spawn(executor, bukkitWorld, currentTarget, blockData.getBlockData());
+        this.entity = BlockDisplayHelper.spawn(plugin, executor, bukkitWorld, currentTarget, blockData.getBlockData());
         this.entity.setViewRange(2.5F);
     }
 

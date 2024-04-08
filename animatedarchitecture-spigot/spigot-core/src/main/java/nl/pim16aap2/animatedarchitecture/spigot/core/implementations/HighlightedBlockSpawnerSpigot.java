@@ -116,7 +116,7 @@ public class HighlightedBlockSpawnerSpigot extends HighlightedBlockSpawner imple
             log.atSevere().log("Failed to create glowing entity!");
             return Optional.empty();
         }
-        //noinspection deprecation
+        //noinspection UnstableApiUsage
         spigotPlayer.showEntity(plugin, entity);
 
         onBlockSpawn(block, time);
@@ -126,7 +126,7 @@ public class HighlightedBlockSpawnerSpigot extends HighlightedBlockSpawner imple
     private HighlightedBlockDisplay newPreviewBlock(IWorld world, RotatedPosition rotatedPosition, Color color)
     {
         final HighlightedBlockDisplay ret =
-            new HighlightedBlockDisplay(executor, rotatedPosition, world, color);
+            new HighlightedBlockDisplay(plugin, executor, rotatedPosition, world, color);
         ret.spawn();
         return ret;
     }
