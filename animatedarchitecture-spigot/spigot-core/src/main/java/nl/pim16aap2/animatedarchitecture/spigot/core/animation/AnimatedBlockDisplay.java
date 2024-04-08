@@ -12,13 +12,13 @@ import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockHo
 import nl.pim16aap2.animatedarchitecture.core.managers.AnimatedBlockHookManager;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
+import nl.pim16aap2.animatedarchitecture.spigot.core.animation.recovery.IAnimatedBlockRecoveryData;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.LocationSpigot;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Entity;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -27,7 +27,10 @@ import java.util.function.Consumer;
 @Flogger
 public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
 {
+    private final BlockDisplayHelper blockDisplayHelper;
+
     private final SimpleBlockData blockData;
+    private final IAnimatedBlockRecoveryData recoveryData;
 
     @Getter
     private final RotatedPosition finalPosition;
@@ -36,7 +39,6 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     @Getter
     private final boolean onEdge;
     private final List<IAnimatedBlockHook> hooks;
-    private final JavaPlugin plugin;
     private final IExecutor executor;
     @Getter
     private final RotatedPosition startPosition;
@@ -53,7 +55,7 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     private RotatedPosition currentTarget;
 
     public AnimatedBlockDisplay(
-        JavaPlugin plugin,
+        BlockDisplayHelper blockDisplayHelper,
         IExecutor executor,
         AnimatedBlockHookManager animatedBlockHookManager,
         @Nullable Consumer<IAnimatedBlockData> blockDataRotator,
@@ -63,7 +65,7 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
         boolean onEdge,
         float radius)
     {
-        this.plugin = plugin;
+        this.blockDisplayHelper = blockDisplayHelper;
         this.executor = executor;
         this.startPosition = startPosition;
         this.world = world;
@@ -77,13 +79,21 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
         this.blockData = new SimpleBlockData(
             this, executor, blockDataRotator, bukkitWorld, this.startPosition.position().floor().toInteger());
 
+        this.recoveryData = new IAnimatedBlockRecoveryData.AnimatedBlockRecoveryData(
+            this.bukkitWorld,
+            this.startPosition.position().floor().toInteger(),
+            this.blockData.getBlockData()
+        );
+
         this.hooks = animatedBlockHookManager.instantiateHooks(this);
     }
 
     @GuardedBy("this")
     private void spawn0()
     {
-        this.entity = BlockDisplayHelper.spawn(plugin, executor, bukkitWorld, currentTarget, blockData.getBlockData());
+        this.entity = blockDisplayHelper.spawn(
+            recoveryData, executor, bukkitWorld, currentTarget, blockData.getBlockData());
+
         this.entity.setViewRange(2.5F);
     }
 
@@ -136,7 +146,7 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     public synchronized void moveToTarget(RotatedPosition target)
     {
         forEachHook("preMove", hook -> hook.preMove(target));
-        BlockDisplayHelper.moveToTarget(entity, startPosition, target);
+        blockDisplayHelper.moveToTarget(entity, startPosition, target);
         cycleTargets(target);
         forEachHook("onMoved", hook -> hook.postMove(target));
     }

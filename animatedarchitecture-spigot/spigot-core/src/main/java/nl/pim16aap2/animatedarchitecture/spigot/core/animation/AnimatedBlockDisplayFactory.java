@@ -12,7 +12,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.IBlockAnalyzerSpigot;
 import org.bukkit.Material;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -26,23 +25,27 @@ public class AnimatedBlockDisplayFactory implements IAnimatedBlockFactory
     private final IExecutor executor;
     private final AnimatedBlockHookManager animatedBlockHookManager;
     private final IBlockAnalyzerSpigot blockAnalyzer;
-    private final JavaPlugin plugin;
+    private final BlockDisplayHelper blockDisplayHelper;
 
     @Inject AnimatedBlockDisplayFactory(
         IExecutor executor,
         AnimatedBlockHookManager animatedBlockHookManager,
         IBlockAnalyzerSpigot blockAnalyzer,
-        JavaPlugin plugin)
+        BlockDisplayHelper blockDisplayHelper)
     {
         this.executor = executor;
         this.animatedBlockHookManager = animatedBlockHookManager;
         this.blockAnalyzer = blockAnalyzer;
-        this.plugin = plugin;
+        this.blockDisplayHelper = blockDisplayHelper;
     }
 
     @Override
     public Optional<IAnimatedBlock> create(
-        IWorld world, RotatedPosition startPosition, float radius, boolean onEdge, RotatedPosition finalPosition,
+        IWorld world,
+        RotatedPosition startPosition,
+        float radius,
+        boolean onEdge,
+        RotatedPosition finalPosition,
         @Nullable Consumer<IAnimatedBlockData> blockDataRotator)
     {
         final Vector3Di pos = startPosition.position().floor().toInteger();
@@ -53,7 +56,7 @@ public class AnimatedBlockDisplayFactory implements IAnimatedBlockFactory
             return Optional.empty();
 
         return Optional.of(new AnimatedBlockDisplay(
-            plugin,
+            blockDisplayHelper,
             executor,
             animatedBlockHookManager,
             blockDataRotator,
