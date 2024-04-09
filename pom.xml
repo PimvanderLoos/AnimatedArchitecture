@@ -51,7 +51,7 @@
         <dependency.maven-resources.version>3.3.1</dependency.maven-resources.version>
         <dependency.maven-shade.version>3.5.2</dependency.maven-shade.version>
         <dependency.maven-site.version>3.12.1</dependency.maven-site.version>
-        <dependency.maven-source.version>3.3.0</dependency.maven-source.version>
+        <dependency.maven-source.version>3.3.1</dependency.maven-source.version>
         <dependency.mockito.version>5.11.0</dependency.mockito.version>
         <dependency.nullaway.version>0.10.25</dependency.nullaway.version>
         <dependency.pmd.version>3.21.2</dependency.pmd.version>
