@@ -16,7 +16,7 @@
     <properties>
         <project.root-dir>${project.basedir}/../../..</project.root-dir>
 
-        <dependency.plotsquared.version>7.2.0</dependency.plotsquared.version>
+        <dependency.plotsquared.version>7.3.7</dependency.plotsquared.version>
     </properties>
 
     <repositories>
