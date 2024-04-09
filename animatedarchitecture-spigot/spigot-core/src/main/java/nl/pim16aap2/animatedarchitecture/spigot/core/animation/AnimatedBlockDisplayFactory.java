@@ -25,20 +25,27 @@ public class AnimatedBlockDisplayFactory implements IAnimatedBlockFactory
     private final IExecutor executor;
     private final AnimatedBlockHookManager animatedBlockHookManager;
     private final IBlockAnalyzerSpigot blockAnalyzer;
+    private final BlockDisplayHelper blockDisplayHelper;
 
     @Inject AnimatedBlockDisplayFactory(
         IExecutor executor,
         AnimatedBlockHookManager animatedBlockHookManager,
-        IBlockAnalyzerSpigot blockAnalyzer)
+        IBlockAnalyzerSpigot blockAnalyzer,
+        BlockDisplayHelper blockDisplayHelper)
     {
         this.executor = executor;
         this.animatedBlockHookManager = animatedBlockHookManager;
         this.blockAnalyzer = blockAnalyzer;
+        this.blockDisplayHelper = blockDisplayHelper;
     }
 
     @Override
     public Optional<IAnimatedBlock> create(
-        IWorld world, RotatedPosition startPosition, float radius, boolean onEdge, RotatedPosition finalPosition,
+        IWorld world,
+        RotatedPosition startPosition,
+        float radius,
+        boolean onEdge,
+        RotatedPosition finalPosition,
         @Nullable Consumer<IAnimatedBlockData> blockDataRotator)
     {
         final Vector3Di pos = startPosition.position().floor().toInteger();
@@ -49,6 +56,7 @@ public class AnimatedBlockDisplayFactory implements IAnimatedBlockFactory
             return Optional.empty();
 
         return Optional.of(new AnimatedBlockDisplay(
+            blockDisplayHelper,
             executor,
             animatedBlockHookManager,
             blockDataRotator,

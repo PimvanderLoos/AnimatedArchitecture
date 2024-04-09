@@ -14,6 +14,10 @@ import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * An {@link IAnimatedBlock} that represents a highlighted block. This block can be used to highlight a block in the
+ * world for a player. Usage of this block will not result in any changes to the world.
+ */
 public class AnimatedHighlightedBlock implements IAnimatedBlock
 {
     private static final IAnimatedBlockData ANIMATED_BLOCK_DATA = new PreviewAnimatedBlockData();

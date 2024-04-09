@@ -13,9 +13,11 @@ import nl.pim16aap2.animatedarchitecture.core.util.Rectangle;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector2Di;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
+import nl.pim16aap2.animatedarchitecture.spigot.core.animation.AnimatedBlockHelper;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import org.bukkit.Chunk;
 import org.bukkit.World;
+import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.world.ChunkLoadEvent;
@@ -44,6 +46,7 @@ public class ChunkListener extends AbstractListener
     private final DatabaseManager databaseManager;
     private final PowerBlockManager powerBlockManager;
     private final StructureActivityManager structureActivityManager;
+    private final AnimatedBlockHelper animatedBlockHelper;
     private final IExecutor executor;
 
     @Inject ChunkListener(
@@ -52,12 +55,14 @@ public class ChunkListener extends AbstractListener
         PowerBlockManager powerBlockManager,
         RestartableHolder restartableHolder,
         StructureActivityManager structureActivityManager,
+        AnimatedBlockHelper animatedBlockHelper,
         IExecutor executor)
     {
         super(restartableHolder, javaPlugin);
         this.databaseManager = databaseManager;
         this.powerBlockManager = powerBlockManager;
         this.structureActivityManager = structureActivityManager;
+        this.animatedBlockHelper = animatedBlockHelper;
         this.executor = executor;
     }
 
@@ -78,16 +83,35 @@ public class ChunkListener extends AbstractListener
     /**
      * Listens to chunks being loaded and ensures that {@link AbstractStructure#onChunkLoad()} is called for any
      * structures whose rotation point lies in the chunk that is being loaded.
+     *
+     * @param event
+     *     The chunk load event to process.
      */
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onChunkLoad(ChunkLoadEvent event)
+    public void onAnyChunkLoad(ChunkLoadEvent event)
     {
         executor.runAsyncLater(() -> onChunkLoad(event.getWorld(), event.getChunk()), PROCESS_LOAD_DELAY);
     }
 
     /**
+     * Listens to chunks being loaded and checks if there are any animated blocks in it that need to be recovered.
+     *
+     * @param event
+     *     The chunk load event to process.
+     */
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onChunkLoadAnimatedBlockRecovery(ChunkLoadEvent event)
+    {
+        for (final Entity entity : event.getChunk().getEntities())
+            animatedBlockHelper.recoverAnimatedBlock(entity);
+    }
+
+    /**
      * Listens to chunks being unloaded and checks if it intersects with the region of the active
      * {@link AbstractStructure}s.
+     *
+     * @param event
+     *     The chunk unload event to process.
      */
     @EventHandler(priority = EventPriority.LOWEST)
     public void onChunkUnload(ChunkUnloadEvent event)

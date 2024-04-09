@@ -7,6 +7,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IHighlightedBlock;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.spigot.core.animation.recovery.IAnimatedBlockRecoveryData;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -19,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 @Flogger
 public final class HighlightedBlockDisplay implements IHighlightedBlock
 {
+    private final BlockDisplayHelper blockDisplayHelper;
     private final IExecutor executor;
     private final RotatedPosition startPosition;
     private final World bukkitWorld;
@@ -26,8 +28,14 @@ public final class HighlightedBlockDisplay implements IHighlightedBlock
 
     private @Nullable BlockDisplay entity;
 
-    public HighlightedBlockDisplay(IExecutor executor, RotatedPosition startPosition, IWorld world, Color color)
+    public HighlightedBlockDisplay(
+        BlockDisplayHelper blockDisplayHelper,
+        IExecutor executor,
+        RotatedPosition startPosition,
+        IWorld world,
+        Color color)
     {
+        this.blockDisplayHelper = blockDisplayHelper;
         this.executor = executor;
         this.startPosition = startPosition;
         this.bukkitWorld = Util.requireNonNull(SpigotAdapter.getBukkitWorld(world), "Bukkit World");
@@ -62,11 +70,12 @@ public final class HighlightedBlockDisplay implements IHighlightedBlock
         executor.assertMainThread("Highlighted blocks must be spawned on the main thread!");
         if (this.entity != null)
             kill();
-        this.entity = BlockDisplayHelper.spawn(executor, bukkitWorld, startPosition, blockData);
+        this.entity = blockDisplayHelper.spawn(
+            IAnimatedBlockRecoveryData.EMPTY, executor, bukkitWorld, startPosition, blockData);
         this.entity.setViewRange(1F);
         this.entity.setGlowing(true);
         this.entity.setBrightness(new Display.Brightness(15, 15));
-        //noinspection deprecation
+        //noinspection UnstableApiUsage
         this.entity.setVisibleByDefault(false);
     }
 
@@ -83,7 +92,7 @@ public final class HighlightedBlockDisplay implements IHighlightedBlock
     @Override
     public synchronized void moveToTarget(RotatedPosition target)
     {
-        BlockDisplayHelper.moveToTarget(entity, startPosition, target);
+        blockDisplayHelper.moveToTarget(entity, startPosition, target);
     }
 
     public synchronized @Nullable Entity getEntity()

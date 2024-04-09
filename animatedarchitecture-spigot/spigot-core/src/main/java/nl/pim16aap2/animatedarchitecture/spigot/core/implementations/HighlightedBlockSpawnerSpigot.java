@@ -15,6 +15,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.restartable.IRestartable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.spigot.core.AnimatedArchitecturePlugin;
+import nl.pim16aap2.animatedarchitecture.spigot.core.animation.BlockDisplayHelper;
 import nl.pim16aap2.animatedarchitecture.spigot.core.animation.HighlightedBlockDisplay;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotUtil;
@@ -63,11 +64,17 @@ public class HighlightedBlockSpawnerSpigot extends HighlightedBlockSpawner imple
     @Getter(AccessLevel.PROTECTED)
     private final IExecutor executor;
 
+    private final BlockDisplayHelper blockDisplayHelper;
+
     @Inject HighlightedBlockSpawnerSpigot(
-        RestartableHolder holder, AnimatedArchitecturePlugin plugin, IExecutor executor)
+        RestartableHolder holder,
+        AnimatedArchitecturePlugin plugin,
+        BlockDisplayHelper blockDisplayHelper,
+        IExecutor executor)
     {
         this.plugin = plugin;
         this.executor = executor;
+        this.blockDisplayHelper = blockDisplayHelper;
         holder.registerRestartable(this);
     }
 
@@ -116,7 +123,7 @@ public class HighlightedBlockSpawnerSpigot extends HighlightedBlockSpawner imple
             log.atSevere().log("Failed to create glowing entity!");
             return Optional.empty();
         }
-        //noinspection deprecation
+        //noinspection UnstableApiUsage
         spigotPlayer.showEntity(plugin, entity);
 
         onBlockSpawn(block, time);
@@ -126,7 +133,7 @@ public class HighlightedBlockSpawnerSpigot extends HighlightedBlockSpawner imple
     private HighlightedBlockDisplay newPreviewBlock(IWorld world, RotatedPosition rotatedPosition, Color color)
     {
         final HighlightedBlockDisplay ret =
-            new HighlightedBlockDisplay(executor, rotatedPosition, world, color);
+            new HighlightedBlockDisplay(blockDisplayHelper, executor, rotatedPosition, world, color);
         ret.spawn();
         return ret;
     }
