@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents a procedure as defined by a series of {@link Step}s.
@@ -161,15 +162,26 @@ public final class Procedure
      *     The input to apply.
      * @return True if the application was successful.
      */
-    public synchronized boolean applyStepExecutor(@Nullable Object obj)
+    public CompletableFuture<Boolean> applyStepExecutor(@Nullable Object obj)
     {
-        if (currentStep == null)
+        final var currentStep0 = this.getCurrentStep();
+        if (currentStep0 == null)
         {
             log.atSevere().withStackTrace(StackSize.FULL)
                .log("Cannot apply step executor because there is no active step!");
-            return false;
+            return CompletableFuture.failedFuture(new IllegalStateException("No active step!"));
         }
-        return currentStep.getStepExecutor().map(stepExecutor -> stepExecutor.apply(obj)).orElse(false);
+        return currentStep0
+            .getStepExecutor()
+            .map(stepExecutor -> stepExecutor.apply(obj))
+            .orElse(CompletableFuture.completedFuture(false))
+            .exceptionally(
+                e ->
+                {
+                    log.atSevere().withCause(e).withStackTrace(StackSize.FULL)
+                       .log("Failed to apply step executor for step: %s", currentStep0.getName());
+                    return false;
+                });
     }
 
     /**

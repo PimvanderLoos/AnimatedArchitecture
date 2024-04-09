@@ -294,7 +294,7 @@ public class CreatorTestsUtil
             final @Nullable String stepName = creator.getCurrentStep().map(Step::getName).orElse(null);
             Assertions.assertNotNull(stepName);
 
-            Assertions.assertTrue(creator.handleInput(obj),
+            Assertions.assertTrue(creator.handleInput(obj).join(),
                                   String.format("IDX: %d, Input: %s, Step: %s", idx, obj, stepName));
         }
     }

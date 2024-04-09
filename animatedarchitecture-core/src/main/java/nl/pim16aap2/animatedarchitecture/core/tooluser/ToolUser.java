@@ -22,15 +22,22 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
+/**
+ * This class is responsible for guiding the player through a process using the tool. This process is defined by a
+ * {@link Procedure} that is populated with {@link Step}s.
+ * <p>
+ * The procedure can be used to guide the player through the process of creating a structure, or any other process that
+ * uses the animated architecture tool for user input.
+ */
 @Flogger
-@ThreadSafe
 public abstract class ToolUser
 {
     @Getter
@@ -51,7 +58,6 @@ public abstract class ToolUser
     /**
      * The {@link Procedure} that this {@link ToolUser} will go through.
      */
-    @GuardedBy("this")
     private final Procedure procedure;
 
     /**
@@ -180,13 +186,18 @@ public abstract class ToolUser
      * Prepares the next step. For example by sending the player some instructions about what they should do.
      * <p>
      * This should be used after proceeding to the next step.
+     *
+     * @return A {@link CompletableFuture} that will be completed when the current step is prepared.
      */
-    protected synchronized void prepareCurrentStep()
+    @CheckReturnValue
+    protected CompletableFuture<?> prepareCurrentStep()
     {
         getProcedure().runCurrentStepPreparation();
         sendMessage();
+
         if (!getProcedure().waitForUserInput())
-            handleInput(null);
+            return handleInput(null);
+        return CompletableFuture.completedFuture(null);
     }
 
     /**
@@ -196,12 +207,11 @@ public abstract class ToolUser
      * {@link #prepareCurrentStep()}.
      */
     @SuppressWarnings("unused")
-    protected synchronized boolean skipToStep(Step goalStep)
+    protected CompletableFuture<?> skipToStep(Step goalStep)
     {
         if (!getProcedure().skipToStep(goalStep))
-            return false;
-        prepareCurrentStep();
-        return true;
+            return CompletableFuture.completedFuture(false);
+        return prepareCurrentStep();
     }
 
     /**
@@ -211,7 +221,7 @@ public abstract class ToolUser
      *     The object to apply.
      * @return The result of running the step executor on the provided input.
      */
-    private synchronized boolean applyInput(@Nullable Object obj)
+    private CompletableFuture<Boolean> applyInput(@Nullable Object obj)
     {
         try
         {
@@ -222,36 +232,39 @@ public abstract class ToolUser
             log.atSevere().withCause(e).log("Failed to apply input %s to ToolUser %s", obj, this);
             getPlayer().sendMessage(textFactory, TextType.ERROR, localizer.getMessage("constants.error.generic"));
             abort();
-            return false;
+            return CompletableFuture.completedFuture(false);
         }
     }
 
     @SuppressWarnings("PMD.PrematureDeclaration")
-    private synchronized boolean handleInput0(@Nullable Object obj)
+    private CompletableFuture<Boolean> handleInput0(@Nullable Object obj)
     {
         log.atFine().log("Handling input: %s (%s) for step: %s in ToolUser: %s.",
                          obj, (obj == null ? "null" : obj.getClass().getSimpleName()),
                          getProcedure().getCurrentStepName(), this);
 
-        if (!active)
-            return false;
+        if (!isActive())
+            return CompletableFuture.completedFuture(false);
 
         final boolean isLastStep = !getProcedure().hasNextStep();
 
-        if (!applyInput(obj))
-            return false;
+        return applyInput(obj).thenCompose(
+            inputSuccess ->
+            {
+                if (!inputSuccess)
+                    return CompletableFuture.completedFuture(false);
 
-        if (isLastStep)
-        {
-            cleanUpProcess();
-            return true;
-        }
+                if (isLastStep)
+                {
+                    cleanUpProcess();
+                    return CompletableFuture.completedFuture(true);
+                }
 
-        if (getProcedure().implicitNextStep())
-            getProcedure().goToNextStep();
+                if (getProcedure().implicitNextStep())
+                    getProcedure().goToNextStep();
 
-        prepareCurrentStep();
-        return true;
+                return prepareCurrentStep().thenApply(ignored -> true);
+            });
     }
 
     /**
@@ -261,24 +274,29 @@ public abstract class ToolUser
      *     The input to handle. What actual type is expected depends on the step.
      * @return True if the input was processed successfully.
      */
-    public synchronized boolean handleInput(@Nullable Object obj)
+    public synchronized CompletableFuture<Boolean> handleInput(@Nullable Object obj)
     {
         try
         {
-            return handleInput0(obj);
+            return handleInput0(obj)
+                .exceptionally(
+                    ex ->
+                    {
+                        log.atSevere().withCause(ex).log("Failed to handle input '%s' for ToolUser '%s'!", obj, this);
+                        return false;
+                    });
         }
         catch (Exception e)
         {
-            e.printStackTrace();
             log.atSevere().withCause(e).log("Failed to handle input '%s' for ToolUser '%s'!", obj, this);
-            return false;
+            return CompletableFuture.completedFuture(false);
         }
     }
 
     /**
      * Sends the localized message of the current step to the player that owns this object.
      */
-    protected synchronized void sendMessage()
+    protected void sendMessage()
     {
         final var message = getProcedure().getMessage();
         if (message.isEmpty())
@@ -292,7 +310,7 @@ public abstract class ToolUser
      *
      * @return The current {@link Step} in the {@link #procedure}.
      */
-    public synchronized Optional<Step> getCurrentStep()
+    public Optional<Step> getCurrentStep()
     {
         return Optional.ofNullable(getProcedure().getCurrentStep());
     }
@@ -307,7 +325,7 @@ public abstract class ToolUser
      *     The location to check.
      * @return True if the player is allowed to break the block at the given location.
      */
-    public synchronized boolean playerHasAccessToLocation(ILocation loc)
+    public boolean playerHasAccessToLocation(ILocation loc)
     {
         final Optional<String> result = protectionHookManager.canBreakBlock(getPlayer(), loc);
         result.ifPresent(
@@ -333,7 +351,7 @@ public abstract class ToolUser
      *     The world to check in.
      * @return True if the player is allowed to break all blocks inside the cuboid.
      */
-    public synchronized boolean playerHasAccessToCuboid(Cuboid cuboid, IWorld world)
+    public boolean playerHasAccessToCuboid(Cuboid cuboid, IWorld world)
     {
         final Optional<String> result = protectionHookManager.canBreakBlocksBetweenLocs(getPlayer(), cuboid, world);
         result.ifPresent(
@@ -358,17 +376,6 @@ public abstract class ToolUser
     }
 
     /**
-     * Checks if the player currently has the tool in their inventory.
-     *
-     * @return True if the player has the tool in their inventory.
-     */
-    @SuppressWarnings("unused") // It is used by the generated toString method.
-    public final synchronized boolean playerHasTool()
-    {
-        return playerHasTool;
-    }
-
-    /**
      * Sets the playerHasTool field.
      *
      * @param playerHasTool
@@ -387,7 +394,7 @@ public abstract class ToolUser
      *
      * @return The {@link Procedure} used by this tool user.
      */
-    public final synchronized Procedure getProcedure()
+    public final Procedure getProcedure()
     {
         return procedure;
     }

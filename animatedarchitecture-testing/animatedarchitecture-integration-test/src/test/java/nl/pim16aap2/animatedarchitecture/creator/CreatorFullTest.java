@@ -10,6 +10,7 @@ import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.CreatorTest;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -107,7 +108,7 @@ class CreatorFullTest extends CreatorTestsUtil
         }
 
         @Override
-        protected synchronized List<Step> generateSteps()
+        protected synchronized @NotNull List<Step> generateSteps()
             throws InstantiationException
         {
             return Arrays.asList(factorySetName.messageKey("CREATOR_BASE_GIVE_NAME").construct(),
@@ -127,13 +128,13 @@ class CreatorFullTest extends CreatorTestsUtil
         }
 
         @Override
-        protected AbstractStructure constructStructure()
+        protected @NotNull AbstractStructure constructStructure()
         {
             return structure;
         }
 
         @Override
-        protected StructureType getStructureType()
+        protected @NotNull StructureType getStructureType()
         {
             return structureType;
         }

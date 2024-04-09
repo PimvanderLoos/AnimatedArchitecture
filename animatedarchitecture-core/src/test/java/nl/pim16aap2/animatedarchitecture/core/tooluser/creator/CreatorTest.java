@@ -23,14 +23,16 @@ import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.lang.reflect.Field;
 import java.util.EnumSet;
@@ -40,6 +42,8 @@ import java.util.OptionalInt;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class CreatorTest
 {
     @Mock(answer = Answers.CALLS_REAL_METHODS)
@@ -57,13 +61,9 @@ public class CreatorTest
     @Mock
     private CommandFactory commandFactory;
 
-    private AutoCloseable mocks;
-
     @BeforeEach
     void init()
     {
-        mocks = MockitoAnnotations.openMocks(this);
-
         final StructureType structureType = Mockito.mock(StructureType.class);
         Mockito.when(structureType.getLocalizationKey()).thenReturn("StructureType");
 
@@ -104,13 +104,6 @@ public class CreatorTest
         UnitTestUtil.setField(ToolUser.class, creator, "animatedArchitectureToolUtil",
                               Mockito.mock(IAnimatedArchitectureToolUtil.class));
         UnitTestUtil.setField(ToolUser.class, creator, "stepFactory", assistedStepFactory);
-    }
-
-    @AfterEach
-    void cleanup()
-        throws Exception
-    {
-        mocks.close();
     }
 
     @Test
