@@ -2,6 +2,33 @@
   "extends": [
     "config:recommended"
   ],
+  "packageRules": [
+    {
+      "depTypeList": [
+        "build"
+      ],
+      "packageNames": [
+        "com.google.dagger:dagger",
+        "org.junit.jupiter:junit-jupiter-api",
+        "org.mockito:mockito-core",
+        "com.google.jimfs:jimfs",
+        "org.projectlombok:lombok",
+        "com.alibaba:fastjson",
+        "com.puppycrawl.tools:checkstyle"
+      ],
+      "packagePatterns": [
+        "^org\\.apache\\.maven\\.plugins:.*",
+        "^org\\.slf4j:.*",
+        "^ch\\.qos\\.logback:.*",
+        "^log4j:.*"
+      ],
+      "automerge": true,
+      "automergeType": "branch",
+      "requiredStatusChecks": [
+        "build"
+      ]
+    }
+  ],
   "ignoreDeps": [
     "nl.pim16aap2:test-util",
     "nl.pim16aap2:util",
