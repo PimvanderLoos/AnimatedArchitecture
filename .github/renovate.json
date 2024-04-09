@@ -33,6 +33,8 @@
     "nl.pim16aap2.animatedarchitecture:structure-revolvingdoor",
     "nl.pim16aap2.animatedarchitecture:structure-slidingdoor",
     "nl.pim16aap2.animatedarchitecture:structure-windmill",
-    "nl.pim16aap2.animatedarchitecture:structures"
+    "nl.pim16aap2.animatedarchitecture:structures",
+    "com.plotsquared:PlotSquared-Bukkit",
+    "com.plotsquared:PlotSquared-Core"
   ]
 }
