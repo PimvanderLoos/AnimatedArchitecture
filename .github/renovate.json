@@ -1,6 +1,6 @@
 {
   "extends": [
-    "config:base"
+    "config:recommended"
   ],
   "ignoreDeps": [
     "nl.pim16aap2:test-util",
