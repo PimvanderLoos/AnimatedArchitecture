@@ -27,6 +27,19 @@
       "requiredStatusChecks": [
         "build"
       ]
+    },
+    {
+      "matchFileNames": [
+        "animatedarchitecture-spigot/protection-hooks/**/pom.xml"
+      ],
+      "schedule": [
+        "on the first day of the month"
+      ],
+      "automerge": true,
+      "automergeType": "branch",
+      "requiredStatusChecks": [
+        "build"
+      ]
     }
   ],
   "ignoreDeps": [
