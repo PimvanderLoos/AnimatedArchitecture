@@ -3,19 +3,13 @@ package nl.pim16aap2.animatedarchitecture.spigot.core.animation;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
-import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
-import nl.pim16aap2.animatedarchitecture.spigot.core.animation.recovery.AnimatedBlockRecoveryDataType;
 import nl.pim16aap2.animatedarchitecture.spigot.core.animation.recovery.IAnimatedBlockRecoveryData;
-import nl.pim16aap2.animatedarchitecture.spigot.core.animation.recovery.RecoveryFailureException;
 import org.bukkit.Location;
-import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.BlockDisplay;
-import org.bukkit.entity.Entity;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Transformation;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
@@ -35,51 +29,11 @@ public final class BlockDisplayHelper
     private final Vector3f ONE_VECTOR = new Vector3f(1F, 1F, 1F);
     private final Vector3f HALF_VECTOR_POSITIVE = new Vector3f(0.5F, 0.5F, 0.5F);
     private final Vector3f HALF_VECTOR_NEGATIVE = new Vector3f(-0.5F, -0.5F, -0.5F);
+    private final AnimatedBlockHelper animatedBlockHelper;
 
-    private final NamespacedKey RECOVERY_KEY;
-
-    @Inject BlockDisplayHelper(JavaPlugin plugin)
+    @Inject BlockDisplayHelper(AnimatedBlockHelper animatedBlockHelper)
     {
-        RECOVERY_KEY = new NamespacedKey(plugin, Constants.ANIMATED_ARCHITECTURE_ENTITY_RECOVERY_KEY);
-    }
-
-    /**
-     * Attempts to recover an animated block from an entity.
-     * <p>
-     * If the entity is not an animated block (or null), this method does nothing.
-     * <p>
-     * If the entity is an animated block, this method will attempt to perform a recovery action by calling
-     * {@link IAnimatedBlockRecoveryData#recover()}. If the recovery action is successful, the entity will be removed.
-     *
-     * @param entity
-     */
-    public void recoverAnimatedBlock(@Nullable Entity entity)
-    {
-        if (entity == null)
-            return;
-
-        final IAnimatedBlockRecoveryData recoveryData = entity.getPersistentDataContainer().get(
-            RECOVERY_KEY,
-            AnimatedBlockRecoveryDataType.INSTANCE);
-
-        if (recoveryData == null)
-            return;
-
-        try
-        {
-            if (recoveryData.recover())
-                log.atWarning().log(
-                    "Recovered animated block with recovery data '%s'! " +
-                        "This is not intended behavior, please contact the author(s) of this plugin!",
-                    recoveryData);
-            entity.remove();
-        }
-        catch (RecoveryFailureException e)
-        {
-            log.atSevere().withCause(e).log(
-                "Failed to recover animated block '%s' from recovery: '%s'",
-                entity, recoveryData);
-        }
+        this.animatedBlockHelper = animatedBlockHelper;
     }
 
     /**
@@ -109,12 +63,7 @@ public final class BlockDisplayHelper
 
         final BlockDisplay newEntity = bukkitWorld.spawn(loc, BlockDisplay.class);
         newEntity.setBlock(blockData);
-
-        newEntity.getPersistentDataContainer().set(
-            RECOVERY_KEY,
-            AnimatedBlockRecoveryDataType.INSTANCE,
-            recoveryData);
-
+        animatedBlockHelper.setRecoveryData(newEntity, recoveryData);
         newEntity.setInterpolationDuration(1);
         return newEntity;
     }

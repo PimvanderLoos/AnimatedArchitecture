@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.animation.recovery;
 
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
 
@@ -41,6 +42,13 @@ public sealed interface IAnimatedBlockRecoveryData
      * The recovery data consists of the world, position, and block data of the block that needs to be recovered.
      * <p>
      * The recovery action is performed by placing the block data at the specified position in the specified world.
+     *
+     * @param world
+     *     The world the block exists in.
+     * @param position
+     *     The position of the block.
+     * @param data
+     *     The recovery data.
      */
     record AnimatedBlockRecoveryData(
         World world,
@@ -48,6 +56,13 @@ public sealed interface IAnimatedBlockRecoveryData
         BlockData data
     ) implements IAnimatedBlockRecoveryData
     {
+        public AnimatedBlockRecoveryData
+        {
+            // We need to make a deep copy of BlockData because it is mutable and
+            // may be altered after this object is created.
+            Bukkit.createBlockData(data.getAsString());
+        }
+
         @Override
         public boolean recover()
         {

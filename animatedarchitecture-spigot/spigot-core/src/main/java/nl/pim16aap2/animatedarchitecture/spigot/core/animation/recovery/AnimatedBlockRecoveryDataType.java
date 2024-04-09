@@ -11,11 +11,13 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.lang.reflect.Type;
+import java.util.Objects;
 
 /**
  * Represents the data type for the recovery data of an animated block.
@@ -33,8 +35,8 @@ public final class AnimatedBlockRecoveryDataType implements PersistentDataType<S
     public static final AnimatedBlockRecoveryDataType INSTANCE = new AnimatedBlockRecoveryDataType();
 
     private final Gson gson = new GsonBuilder()
-        .registerTypeAdapter(BlockData.class, new BlockDataSerializer())
-        .registerTypeAdapter(BlockData.class, new BlockDataDeserializer())
+        .registerTypeHierarchyAdapter(BlockData.class, new BlockDataAdapter())
+        .registerTypeHierarchyAdapter(World.class, new WorldAdapter())
         .create();
 
     private AnimatedBlockRecoveryDataType()
@@ -56,10 +58,17 @@ public final class AnimatedBlockRecoveryDataType implements PersistentDataType<S
     @Override
     public String toPrimitive(IAnimatedBlockRecoveryData complex, PersistentDataAdapterContext context)
     {
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("type", complex.getClass().getName());
-        jsonObject.add("data", gson.toJsonTree(complex));
-        return gson.toJson(jsonObject);
+        try
+        {
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("type", complex.getClass().getName());
+            jsonObject.add("data", gson.toJsonTree(complex));
+            return gson.toJson(jsonObject);
+        }
+        catch (Exception e)
+        {
+            throw new IllegalArgumentException("Failed to serialize RecoveryData: " + complex, e);
+        }
     }
 
     @Override
@@ -80,22 +89,35 @@ public final class AnimatedBlockRecoveryDataType implements PersistentDataType<S
         }
     }
 
-    private static class BlockDataSerializer implements JsonSerializer<BlockData>
+    private static class BlockDataAdapter implements JsonSerializer<BlockData>, JsonDeserializer<BlockData>
     {
         @Override
         public JsonElement serialize(BlockData src, Type typeOfSrc, JsonSerializationContext context)
         {
             return new JsonPrimitive(src.getAsString());
         }
-    }
 
-    private static class BlockDataDeserializer implements JsonDeserializer<BlockData>
-    {
         @Override
         public BlockData deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
             throws JsonParseException
         {
             return Bukkit.createBlockData(json.getAsString());
+        }
+    }
+
+    private static class WorldAdapter implements JsonSerializer<World>, JsonDeserializer<World>
+    {
+        @Override
+        public JsonElement serialize(World src, Type typeOfSrc, JsonSerializationContext context)
+        {
+            return new JsonPrimitive(src.getName());
+        }
+
+        @Override
+        public World deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+            throws JsonParseException
+        {
+            return Objects.requireNonNull(Bukkit.getWorld(json.getAsString()));
         }
     }
 }

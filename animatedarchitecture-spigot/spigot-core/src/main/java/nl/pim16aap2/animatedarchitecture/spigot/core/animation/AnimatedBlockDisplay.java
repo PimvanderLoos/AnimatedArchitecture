@@ -80,7 +80,7 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
             this, executor, blockDataRotator, bukkitWorld, this.startPosition.position().floor().toInteger());
 
         this.recoveryData = new IAnimatedBlockRecoveryData.AnimatedBlockRecoveryData(
-            this.bukkitWorld,
+            bukkitWorld,
             this.startPosition.position().floor().toInteger(),
             this.blockData.getBlockData()
         );
