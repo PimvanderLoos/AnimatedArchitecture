@@ -30,21 +30,21 @@ public class CreatorRevolvingDoor extends CreatorBigDoor
         throws InstantiationException
     {
         return Arrays.asList(
-            factorySetName.construct(),
-            factorySetFirstPos
+            factoryProvideName.construct(),
+            factoryProvideFirstPos
                 .textSupplier(text -> text.append(
                     localizer.getMessage("creator.revolving_door.step_1"), TextType.INFO, getStructureArg()))
                 .construct(),
-            factorySetSecondPos
+            factoryProvideSecondPos
                 .textSupplier(text -> text.append(
                     localizer.getMessage("creator.revolving_door.step_2"), TextType.INFO, getStructureArg()))
                 .construct(),
-            factorySetRotationPointPos
+            factoryProvideRotationPointPos
                 .textSupplier(text -> text.append(
                     localizer.getMessage("creator.revolving_door.step_3"), TextType.INFO, getStructureArg()))
                 .construct(),
-            factorySetPowerBlockPos.construct(),
-            factorySetOpenDir.construct(),
+            factoryProvidePowerBlockPos.construct(),
+            factoryProvideOpenDir.construct(),
             factoryReviewResult.construct(),
             factoryConfirmPrice.construct(),
             factoryCompleteProcess.construct());

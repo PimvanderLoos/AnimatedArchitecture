@@ -30,22 +30,22 @@ public class CreatorDrawbridge extends Creator
         throws InstantiationException
     {
         return Arrays.asList(
-            factorySetName.construct(),
-            factorySetFirstPos
+            factoryProvideName.construct(),
+            factoryProvideFirstPos
                 .textSupplier(text -> text.append(
                     localizer.getMessage("creator.draw_bridge.step_1"), TextType.INFO, getStructureArg()))
                 .construct(),
-            factorySetSecondPos
+            factoryProvideSecondPos
                 .textSupplier(text -> text.append(
                     localizer.getMessage("creator.draw_bridge.step_2"), TextType.INFO, getStructureArg()))
                 .construct(),
-            factorySetRotationPointPos
+            factoryProvideRotationPointPos
                 .textSupplier(text -> text.append(
                     localizer.getMessage("creator.draw_bridge.step_3"), TextType.INFO, getStructureArg()))
                 .construct(),
-            factorySetPowerBlockPos.construct(),
-            factorySetOpenStatus.construct(),
-            factorySetOpenDir.construct(),
+            factoryProvidePowerBlockPos.construct(),
+            factoryProvideOpenStatus.construct(),
+            factoryProvideOpenDir.construct(),
             factoryReviewResult.construct(),
             factoryConfirmPrice.construct(),
             factoryCompleteProcess.construct());

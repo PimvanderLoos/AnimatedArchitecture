@@ -52,18 +52,18 @@ public class CreatorPortcullis extends Creator
             .waitForUserInput(true).construct();
 
         return Arrays.asList(
-            factorySetName.construct(),
-            factorySetFirstPos
+            factoryProvideName.construct(),
+            factoryProvideFirstPos
                 .textSupplier(text -> text.append(
                     localizer.getMessage("creator.portcullis.step_1"), TextType.INFO, getStructureArg()))
                 .construct(),
-            factorySetSecondPos
+            factoryProvideSecondPos
                 .textSupplier(text -> text.append(
                     localizer.getMessage("creator.portcullis.step_2"), TextType.INFO, getStructureArg()))
                 .construct(),
-            factorySetPowerBlockPos.construct(),
-            factorySetOpenStatus.construct(),
-            factorySetOpenDir.construct(),
+            factoryProvidePowerBlockPos.construct(),
+            factoryProvideOpenStatus.construct(),
+            factoryProvideOpenDir.construct(),
             stepBlocksToMove,
             factoryReviewResult.construct(),
             factoryConfirmPrice.construct(),

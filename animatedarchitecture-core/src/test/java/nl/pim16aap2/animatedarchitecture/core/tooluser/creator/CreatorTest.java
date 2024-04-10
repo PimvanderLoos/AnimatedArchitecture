@@ -125,10 +125,10 @@ public class CreatorTest
 
         Mockito.doReturn(false).when(creator).playerHasAccessToLocation(Mockito.any());
         // No access to location
-        Assertions.assertFalse(creator.setFirstPos(loc));
+        Assertions.assertFalse(creator.provideFirstPos(loc));
 
         Mockito.doReturn(true).when(creator).playerHasAccessToLocation(Mockito.any());
-        Assertions.assertTrue(creator.setFirstPos(loc));
+        Assertions.assertTrue(creator.provideFirstPos(loc));
         Assertions.assertEquals(loc.getWorld(), creator.getWorld());
         Assertions.assertEquals(new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()),
                                 creator.getFirstPos());
@@ -173,13 +173,13 @@ public class CreatorTest
         final ILocation loc = UnitTestUtil.getLocation(vec2, world);
 
         // Not allowed, because no access to location
-        Assertions.assertFalse(creator.setSecondPos(loc));
+        Assertions.assertFalse(creator.provideSecondPos(loc));
 
         Mockito.doReturn(true).when(creator).playerHasAccessToLocation(Mockito.any());
         Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any()))
                .thenReturn(OptionalInt.of(cuboid.getVolume() - 1));
         // Not allowed, because the selected area is too big.
-        Assertions.assertFalse(creator.setSecondPos(loc));
+        Assertions.assertFalse(creator.provideSecondPos(loc));
         Mockito.verify(player).sendMessage(
             UnitTestUtil.textArgumentMatcher("creator.base.error.area_too_big"));
 
@@ -187,10 +187,10 @@ public class CreatorTest
                .thenReturn(OptionalInt.of(cuboid.getVolume() + 1));
         Mockito.doReturn(false).when(creator).playerHasAccessToCuboid(Mockito.any(), Mockito.any());
         // Not allowed, because no access to one or more blocks in the cuboid area.
-        Assertions.assertFalse(creator.setSecondPos(loc));
+        Assertions.assertFalse(creator.provideSecondPos(loc));
 
         Mockito.doReturn(true).when(creator).playerHasAccessToCuboid(Mockito.any(), Mockito.any());
-        Assertions.assertTrue(creator.setSecondPos(loc));
+        Assertions.assertTrue(creator.provideSecondPos(loc));
         Assertions.assertEquals(cuboid, creator.getCuboid());
     }
 

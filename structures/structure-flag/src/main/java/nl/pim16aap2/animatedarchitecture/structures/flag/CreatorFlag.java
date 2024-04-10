@@ -39,20 +39,20 @@ public class CreatorFlag extends Creator
         throws InstantiationException
     {
         return Arrays.asList(
-            factorySetName.construct(),
-            factorySetFirstPos
+            factoryProvideName.construct(),
+            factoryProvideFirstPos
                 .textSupplier(text -> text.append(
                     localizer.getMessage("creator.flag.step_1"), TextType.INFO, getStructureArg()))
                 .construct(),
-            factorySetSecondPos
+            factoryProvideSecondPos
                 .textSupplier(text -> text.append(
                     localizer.getMessage("creator.flag.step_2"), TextType.INFO, getStructureArg()))
                 .construct(),
-            factorySetRotationPointPos
+            factoryProvideRotationPointPos
                 .textSupplier(text -> text.append(
                     localizer.getMessage("creator.flag.step_3"), TextType.INFO, getStructureArg()))
                 .construct(),
-            factorySetPowerBlockPos.construct(),
+            factoryProvidePowerBlockPos.construct(),
             factoryReviewResult.construct(),
             factoryConfirmPrice.construct(),
             factoryCompleteProcess.construct());
@@ -65,7 +65,7 @@ public class CreatorFlag extends Creator
     }
 
     @Override
-    protected synchronized boolean setSecondPos(ILocation loc)
+    protected synchronized boolean provideSecondPos(ILocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;
@@ -78,7 +78,7 @@ public class CreatorFlag extends Creator
         if ((cuboidDims.x() == 1) ^ (cuboidDims.z() == 1))
         {
             northSouthAnimated = cuboidDims.x() == 1;
-            return super.setSecondPos(loc);
+            return super.provideSecondPos(loc);
         }
 
         getPlayer().sendError(textFactory, localizer.getMessage("creator.base.second_pos_not_2d"));
