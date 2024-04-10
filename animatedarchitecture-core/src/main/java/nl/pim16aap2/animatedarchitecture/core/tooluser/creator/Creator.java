@@ -224,9 +224,7 @@ public abstract class Creator extends ToolUser
             arg -> arg.clickable(
                 "/AnimatedArchitecture cancel", TextType.CLICKABLE_REFUSE, "/AnimatedArchitecture cancel")));
 
-        if (name != null)
-            handleInput(name);
-        else
+        if (name == null || !handleInput(name).join())
             prepareCurrentStep().join();
     }
 
