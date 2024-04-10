@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.tooluser;
 
 import com.google.common.flogger.StackSize;
+import com.google.errorprone.annotations.ThreadSafe;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
@@ -26,6 +27,7 @@ import java.util.List;
  */
 @Flogger
 @ToString(callSuper = true)
+@ThreadSafe
 public class PowerBlockRelocator extends ToolUser
 {
     private final AbstractStructure structure;

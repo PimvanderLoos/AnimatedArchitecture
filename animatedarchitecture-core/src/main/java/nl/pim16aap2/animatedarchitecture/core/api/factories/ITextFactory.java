@@ -25,7 +25,7 @@ public interface ITextFactory
     }
 
     /**
-     * Represents a very simply {@link ITextFactory} that only creates unstyled
+     * Represents a very simply {@link ITextFactory} that only creates unstyled texts.
      */
     class SimpleTextFactory implements ITextFactory
     {

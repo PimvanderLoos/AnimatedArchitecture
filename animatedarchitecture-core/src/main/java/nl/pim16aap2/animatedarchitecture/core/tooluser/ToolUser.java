@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.tooluser;
 
+import com.google.errorprone.annotations.ThreadSafe;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.Getter;
 import lombok.extern.flogger.Flogger;
@@ -38,6 +39,7 @@ import java.util.concurrent.CompletableFuture;
  * uses the animated architecture tool for user input.
  */
 @Flogger
+@ThreadSafe
 public abstract class ToolUser
 {
     @Getter
@@ -274,6 +276,7 @@ public abstract class ToolUser
      *     The input to handle. What actual type is expected depends on the step.
      * @return True if the input was processed successfully.
      */
+    @CheckReturnValue
     public synchronized CompletableFuture<Boolean> handleInput(@Nullable Object obj)
     {
         try
