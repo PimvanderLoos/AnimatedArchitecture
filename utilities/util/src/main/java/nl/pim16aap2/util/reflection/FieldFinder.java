@@ -246,6 +246,39 @@ public class FieldFinder
             final Field field = get();
             return getNullable(field, instance);
         }
+
+        /**
+         * Sets the value of the field in the given instance.
+         * <p>
+         * The field will be retrieved using {@link #get()} first.
+         *
+         * @param instance
+         *     The instance to set the field in.
+         * @param value
+         *     The value to set the field to.
+         * @throws NullPointerException
+         *     If the field could not be found or if the instance was null and the field was not static.
+         * @throws IllegalArgumentException
+         *     If the field could not be accessed, or if the field could not be set to the given value.
+         */
+        public void set(@Nullable Object instance, @Nullable U value)
+        {
+            final Field field = get();
+            try
+            {
+                field.set(instance, value);
+            }
+            catch (IllegalAccessException e)
+            {
+                throw new IllegalArgumentException(String.format(
+                    "Failed to set field %s in instance %s to value %s. Was set accessible: %s",
+                    field.toGenericString(),
+                    instance,
+                    value,
+                    setAccessible
+                ), e);
+            }
+        }
     }
 
     /**
@@ -414,21 +447,21 @@ public class FieldFinder
             if (expected >= 0 && expected != found.size())
                 return handleInvalid(
                     nonnull, "Expected %d fields of type %s in class %s " +
-                             "with modifiers %d annotated with %s, but found %d.  Super classes were %s.",
+                        "with modifiers %d annotated with %s, but found %d.  Super classes were %s.",
                     expected, fieldType, source, modifiers, annotations, found.size(),
                     checkSuperClasses ? "included" : "excluded");
 
             if (atMost >= 0 && found.size() > atMost)
                 return handleInvalid
                     (nonnull, "Expected at most %d fields of type %s in class %s " +
-                              "with modifiers %d annotated with %s, but found %d.  Super classes were %s.",
+                         "with modifiers %d annotated with %s, but found %d.  Super classes were %s.",
                      atMost, fieldType, source, modifiers, annotations, found.size(),
                      checkSuperClasses ? "included" : "excluded");
 
             if (atLeast >= 0 && found.size() < atLeast)
                 return handleInvalid(
                     nonnull, "Expected at least %d fields of type %s in class %s " +
-                             "with modifiers %d annotated with %s, but found %d.  Super classes were %s.",
+                        "with modifiers %d annotated with %s, but found %d.  Super classes were %s.",
                     atLeast, fieldType, source, modifiers, annotations, found.size(),
                     checkSuperClasses ? "included" : "excluded");
             return found;
