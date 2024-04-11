@@ -39,7 +39,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.concurrent.ThreadSafe;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.Set;
@@ -54,7 +53,6 @@ import java.util.function.Function;
  */
 @ToString(callSuper = true, onlyExplicitlyIncluded = true)
 @Flogger
-@ThreadSafe
 public abstract class Creator extends ToolUser
 {
     private static final AtomicLong STRUCTURE_UID_PLACEHOLDER_COUNTER = new AtomicLong(-1000L);

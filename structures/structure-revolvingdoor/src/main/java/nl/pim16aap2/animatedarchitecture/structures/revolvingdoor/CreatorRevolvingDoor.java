@@ -10,11 +10,9 @@ import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.structures.bigdoor.CreatorBigDoor;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.concurrent.ThreadSafe;
 import java.util.Arrays;
 import java.util.List;
 
-@ThreadSafe
 @ToString(callSuper = true)
 public class CreatorRevolvingDoor extends CreatorBigDoor
 {

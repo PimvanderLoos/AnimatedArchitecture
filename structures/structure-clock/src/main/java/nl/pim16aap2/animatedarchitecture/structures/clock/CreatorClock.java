@@ -19,14 +19,12 @@ import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.concurrent.ThreadSafe;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
 @Flogger
-@ThreadSafe
 @ToString(callSuper = true)
 public class CreatorClock extends Creator
 {

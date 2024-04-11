@@ -16,13 +16,11 @@ import nl.pim16aap2.animatedarchitecture.core.util.Limit;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.concurrent.ThreadSafe;
 import java.util.Arrays;
 import java.util.List;
 import java.util.OptionalInt;
 import java.util.concurrent.CompletableFuture;
 
-@ThreadSafe
 @ToString(callSuper = true)
 public class CreatorPortcullis extends Creator
 {

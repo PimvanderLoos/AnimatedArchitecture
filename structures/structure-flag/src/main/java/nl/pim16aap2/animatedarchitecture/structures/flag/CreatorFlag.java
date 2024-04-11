@@ -16,11 +16,9 @@ import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.concurrent.ThreadSafe;
 import java.util.Arrays;
 import java.util.List;
 
-@ThreadSafe
 @ToString(callSuper = true)
 public class CreatorFlag extends Creator
 {

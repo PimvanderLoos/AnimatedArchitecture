@@ -1,6 +1,5 @@
 package nl.pim16aap2.animatedarchitecture.core.tooluser;
 
-import com.google.errorprone.annotations.ThreadSafe;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.Getter;
 import lombok.extern.flogger.Flogger;
@@ -39,7 +38,6 @@ import java.util.concurrent.CompletableFuture;
  * uses the animated architecture tool for user input.
  */
 @Flogger
-@ThreadSafe
 public abstract class ToolUser
 {
     @Getter
