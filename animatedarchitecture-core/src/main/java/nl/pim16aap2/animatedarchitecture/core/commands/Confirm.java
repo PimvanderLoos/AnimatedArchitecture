@@ -50,10 +50,10 @@ public class Confirm extends BaseCommand
     {
         final var toolUser = toolUserManager.getToolUser(((IPlayer) getCommandSender()).getUUID());
         if (toolUser.isPresent())
-            toolUser.get().handleInput(true);
-        else
-            getCommandSender().sendError(
-                textFactory, localizer.getMessage("commands.confirm.error.no_confirmation_request"));
+            return toolUser.get().handleInput(true);
+
+        getCommandSender().sendError(
+            textFactory, localizer.getMessage("commands.confirm.error.no_confirmation_request"));
 
         return CompletableFuture.completedFuture(null);
     }

@@ -5,12 +5,12 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
-import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
-import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
+import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
+import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -54,10 +54,7 @@ public class SetName extends BaseCommand
         final IPlayer player = (IPlayer) getCommandSender();
         final Optional<ToolUser> tu = toolUserManager.getToolUser(player.getUUID());
         if (tu.isPresent() && tu.get() instanceof Creator creator)
-        {
-            creator.handleInput(name);
-            return CompletableFuture.completedFuture(null);
-        }
+            return creator.handleInput(name);
 
         getCommandSender().sendMessage(textFactory, TextType.ERROR,
                                        localizer.getMessage("commands.base.error.no_pending_process"));

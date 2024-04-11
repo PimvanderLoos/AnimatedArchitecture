@@ -7,22 +7,29 @@ import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
+import nl.pim16aap2.testing.AssistedFactoryMocker;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import static nl.pim16aap2.animatedarchitecture.core.commands.CommandTestingUtil.initCommandSenderPermissions;
 
 @Timeout(1)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class ConfirmTest
 {
     @Mock(answer = Answers.CALLS_REAL_METHODS)
@@ -34,27 +41,26 @@ class ConfirmTest
     @Mock
     private ToolUserManager toolUserManager;
 
-    @Mock(answer = Answers.CALLS_REAL_METHODS)
     private Confirm.IFactory factory;
 
     private UUID uuid;
 
     @BeforeEach
     void init()
+        throws NoSuchMethodException
     {
         uuid = UUID.randomUUID();
-
-        MockitoAnnotations.openMocks(this);
 
         initCommandSenderPermissions(commandSender, true, true);
         Mockito.when(commandSender.getUUID()).thenReturn(uuid);
         Mockito.when(toolUserManager.getToolUser(uuid)).thenReturn(Optional.of(toolUser));
+        Mockito.when(toolUser.handleInput(true)).thenReturn(CompletableFuture.completedFuture(null));
 
-        final ILocalizer localizer = UnitTestUtil.initLocalizer();
-
-        Mockito.when(factory.newConfirm(Mockito.any(ICommandSender.class)))
-               .thenAnswer(invoc -> new Confirm(invoc.getArgument(0, ICommandSender.class),
-                                                localizer, ITextFactory.getSimpleTextFactory(), toolUserManager));
+        factory = new AssistedFactoryMocker<>(Confirm.class, Confirm.IFactory.class, Mockito.CALLS_REAL_METHODS)
+            .setMock(ILocalizer.class, UnitTestUtil.initLocalizer())
+            .setMock(ToolUserManager.class, toolUserManager)
+            .setMock(ITextFactory.class, ITextFactory.getSimpleTextFactory())
+            .getFactory();
     }
 
     @Test
