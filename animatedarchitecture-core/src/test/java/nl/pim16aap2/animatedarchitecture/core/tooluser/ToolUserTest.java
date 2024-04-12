@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.tooluser;
 
+import nl.altindag.log.LogCaptor;
 import nl.pim16aap2.animatedarchitecture.core.animation.StructureActivityManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitectureToolUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IEconomyManager;
@@ -20,6 +21,7 @@ import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutor
 import nl.pim16aap2.testing.AssistedFactoryMocker;
 import nl.pim16aap2.util.reflection.ReflectionBuilder;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -34,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -54,6 +57,13 @@ public class ToolUserTest
     private Step.Factory.IFactory stepFactory;
 
     private ToolUser.Context context;
+
+    @BeforeAll
+    static void beforeAll()
+    {
+        // Set the log level to INFO to reduce the spammy output.
+        LogCaptor.forClass(ToolUser.class).setLogLevelToInfo();
+    }
 
     @BeforeEach
     void init()
@@ -120,6 +130,53 @@ public class ToolUserTest
         Assertions.assertEquals(stepCount, values.size());
         for (int idx = 0; idx < stepCount; idx++)
             assert values.get(idx) == idx;
+    }
+
+    @Test
+    void testAsyncInputs()
+        throws InstantiationException, InterruptedException
+    {
+        final var toolUser = new TestToolUser(context, player);
+
+        final var steps = List.of(
+            createStep(
+                stepFactory, "step_1",
+                new AsyncStepExecutor<>(Boolean.class, ignored ->
+                {
+                    sleep(500);
+                    return toolUser.appendValueAsync(1);
+                })),
+            createStep(
+                stepFactory, "step_2",
+                new AsyncStepExecutor<>(
+                    Boolean.class, ignored -> toolUser.appendValueAsync(2))),
+            createStep(
+                stepFactory, "step_3",
+                new AsyncStepExecutor<>(
+                    Boolean.class, ignored -> toolUser.appendValueAsync(3)))
+        );
+
+        setProcedure(toolUser, steps);
+
+        final var countDownLatch = new CountDownLatch(3);
+
+        for (int idx = 0; idx < 3; idx++)
+            toolUser.handleInput(false).thenAccept(ignored -> countDownLatch.countDown());
+
+        countDownLatch.await();
+        Assertions.assertEquals(List.of(1, 2, 3), toolUser.getValues());
+    }
+
+    private static void sleep(long millis)
+    {
+        try
+        {
+            Thread.sleep(millis);
+        }
+        catch (InterruptedException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     private static Step createStep(Step.Factory.IFactory stepFactory, String name, StepExecutor stepExecutor)
