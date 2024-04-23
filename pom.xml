@@ -24,7 +24,7 @@
         <dependency.eclipse-annotations.version>2.3.0</dependency.eclipse-annotations.version>
         <dependency.errorprone.version>2.26.1</dependency.errorprone.version>
         <dependency.failsafe.version>3.2.5</dependency.failsafe.version>
-        <dependency.fastjson.version>2.0.48</dependency.fastjson.version>
+        <dependency.fastjson.version>2.0.49</dependency.fastjson.version>
         <dependency.fastutil.version>8.5.13</dependency.fastutil.version>
         <dependency.flogger.version>0.8</dependency.flogger.version>
         <dependency.git-commit-id.version>8.0.2</dependency.git-commit-id.version>
