@@ -44,7 +44,7 @@
         <dependency.maven-compiler.version>3.13.0</dependency.maven-compiler.version>
         <dependency.maven-dependency.version>3.6.1</dependency.maven-dependency.version>
         <dependency.maven-install.version>3.1.1</dependency.maven-install.version>
-        <dependency.maven-jar.version>3.4.0</dependency.maven-jar.version>
+        <dependency.maven-jar.version>3.4.1</dependency.maven-jar.version>
         <dependency.maven-javadoc.version>3.6.3</dependency.maven-javadoc.version>
         <dependency.maven-jxr.version>3.3.2</dependency.maven-jxr.version>
         <dependency.maven-project-reports.version>3.5.0</dependency.maven-project-reports.version>
