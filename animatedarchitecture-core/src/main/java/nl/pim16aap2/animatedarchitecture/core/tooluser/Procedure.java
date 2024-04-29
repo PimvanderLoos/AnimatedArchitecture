@@ -52,6 +52,8 @@ public final class Procedure
     }
 
     /**
+     * Getter for the steps in this procedure.
+     *
      * @return A list containing all steps in this procedure including any that may have been completed already.
      */
     public synchronized List<Step> getAllSteps()
@@ -88,7 +90,7 @@ public final class Procedure
     }
 
     /**
-     * Inserts a named step.
+     * Inserts an existing, named step at the current position.
      * <p>
      * See {@link #getStepByName(String)} and {@link #insertStep(Step)}.
      *
@@ -178,9 +180,8 @@ public final class Procedure
             .exceptionally(
                 e ->
                 {
-                    log.atSevere().withCause(e).withStackTrace(StackSize.FULL)
-                       .log("Failed to apply step executor for step: %s", currentStep0.getName());
-                    return false;
+                    throw new IllegalStateException(
+                        "Failed to apply step executor for step: '" + currentStep0.getName() + "'", e);
                 });
     }
 
@@ -189,31 +190,65 @@ public final class Procedure
      *
      * @return The message for the current step.
      */
-    public synchronized Text getMessage()
+    public synchronized Text getCurrentStepMessage()
     {
-        if (currentStep == null)
+        return getMessage(currentStep);
+    }
+
+    /**
+     * Gets the message for a specific step, with all the variables filled in.
+     * <p>
+     * If the step is null, a generic error message will be returned.
+     * <p>
+     * A shortcut for getting the message for the current step is {@link #getCurrentStepMessage()}.
+     *
+     * @param step
+     *     The step to get the message for.
+     * @return The message for the step.
+     */
+    public Text getMessage(@Nullable Step step)
+    {
+        if (step == null)
         {
             log.atSevere().withStackTrace(StackSize.FULL)
                .log("Cannot get the current step message because there is no active step!");
             return textFactory.newText().append(localizer.getMessage("constants.error.generic"), TextType.ERROR);
         }
-        return currentStep.getLocalizedMessage(textFactory);
+        return step.getLocalizedMessage(textFactory);
     }
 
     /**
      * Gets the name of the current step.
+     * <p>
+     * This is a shortcut for {@link #getStepName(Step)} with the current step.
      *
      * @return The name of the current step.
      */
     public synchronized String getCurrentStepName()
     {
-        if (currentStep == null)
+        return getStepName(currentStep);
+    }
+
+    /**
+     * Gets the name of a specific step.
+     * <p>
+     * If the step is null, a generic error message will be returned.
+     * <p>
+     * A shortcut for getting the name of the current step is {@link #getCurrentStepName()}.
+     *
+     * @param step
+     *     The step to get the name of.
+     * @return The name of the step.
+     */
+    public String getStepName(@Nullable Step step)
+    {
+        if (step == null)
         {
             log.atSevere().withStackTrace(StackSize.FULL)
                .log("Cannot get the name of the current because there is no active step!");
             return "NULL";
         }
-        return currentStep.getName();
+        return step.getName();
     }
 
     /**
@@ -287,7 +322,8 @@ public final class Procedure
     @Override
     public synchronized String toString()
     {
-        return "Procedure(currentStep=" + this.getCurrentStep() + ", stepMap=" + this.stepMap + ", steps=" +
-            this.steps + ")";
+        return "Procedure(currentStep=" + this.getCurrentStep() +
+            ", stepMap=" + this.stepMap +
+            ", steps=" + this.steps + ")";
     }
 }

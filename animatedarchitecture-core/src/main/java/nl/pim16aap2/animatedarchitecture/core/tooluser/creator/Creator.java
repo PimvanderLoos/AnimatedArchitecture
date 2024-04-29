@@ -223,7 +223,7 @@ public abstract class Creator extends ToolUser
                 "/AnimatedArchitecture cancel", TextType.CLICKABLE_REFUSE, "/AnimatedArchitecture cancel")));
 
         if (name == null || !handleInput(name).join())
-            prepareCurrentStep().join();
+            runWithLock(this::prepareCurrentStep).join();
     }
 
     @Override
@@ -347,8 +347,19 @@ public abstract class Creator extends ToolUser
                 "Trying to update step " + stepName + " with value " + stepValue +
                     " while the process is not in an updatable state!");
         processIsUpdatable = false;
-        getProcedure().insertStep(stepName);
-        return prepareCurrentStep().thenCompose(ignored -> handleInput(stepValue));
+
+        return runWithLock(
+            () ->
+            {
+                insertStep(stepName);
+                return handleInputWithLock(stepValue);
+            }).exceptionally(
+            ex ->
+            {
+                log.atSevere().withCause(ex).log(
+                    "Failed to handle updated step '%s' with value '%s' in Creator '%s'", stepName, stepValue, this);
+                return false;
+            });
     }
 
     /**
@@ -585,7 +596,7 @@ public abstract class Creator extends ToolUser
             return true;
         }
 
-        getProcedure().goToNextStep();
+        goToNextStep();
         return true;
     }
 
@@ -655,8 +666,8 @@ public abstract class Creator extends ToolUser
      */
     protected synchronized void insertStructure(AbstractStructure structure)
     {
-        databaseManager.addStructure(structure, getPlayer()).whenComplete(
-            (result, throwable) ->
+        databaseManager.addStructure(structure, getPlayer()).thenAccept(
+            result ->
             {
                 if (result.cancelled())
                 {
@@ -839,7 +850,7 @@ public abstract class Creator extends ToolUser
             localizer.getMessage("creator.base.property.type") + "\n", TextType.INFO,
             arg -> arg.highlight(localizer.getStructureType(getStructureType())));
 
-        for (final Step step : getProcedure().getAllSteps())
+        for (final Step step : getAllSteps())
             step.getPropertyText(textFactory).ifPresent(property -> text.append(property).append('\n'));
 
         text.append(

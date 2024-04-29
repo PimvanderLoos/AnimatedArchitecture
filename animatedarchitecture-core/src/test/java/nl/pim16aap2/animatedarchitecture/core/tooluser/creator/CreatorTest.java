@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.tooluser.creator;
 
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
+import nl.pim16aap2.animatedarchitecture.core.animation.StructureActivityManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitectureToolUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IEconomyManager;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
@@ -13,15 +14,19 @@ import nl.pim16aap2.animatedarchitecture.core.commands.SetOpenDirectionDelayed;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.LimitsManager;
+import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
+import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Procedure;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
+import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutor;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
+import nl.pim16aap2.testing.reflection.ReflectionUtil;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,7 +40,9 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
@@ -46,8 +53,12 @@ import java.util.concurrent.CompletableFuture;
 @MockitoSettings(strictness = Strictness.LENIENT)
 public class CreatorTest
 {
-    @Mock(answer = Answers.CALLS_REAL_METHODS)
-    private Creator creator;
+//    private CreatorImpl creator;
+
+    private ToolUser.Context context;
+
+    @Mock
+    private StructureType structureType;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private IPlayer player;
@@ -64,10 +75,8 @@ public class CreatorTest
     @BeforeEach
     void init()
     {
-        final StructureType structureType = Mockito.mock(StructureType.class);
         Mockito.when(structureType.getLocalizationKey()).thenReturn("StructureType");
 
-        Mockito.when(creator.getStructureType()).thenReturn(structureType);
         Mockito.when(economyManager.isEconomyEnabled()).thenReturn(true);
 
         final IProtectionHookManager protectionHookManager = Mockito.mock(IProtectionHookManager.class);
@@ -86,29 +95,28 @@ public class CreatorTest
         Mockito.when(structureAnimationRequestBuilder.builder())
                .thenReturn(Mockito.mock(StructureAnimationRequestBuilder.IBuilderStructure.class));
 
-        UnitTestUtil.setField(Creator.class, creator, "limitsManager", limitsManager);
-        UnitTestUtil.setField(Creator.class, creator, "structureBaseBuilder", Mockito.mock(StructureBaseBuilder.class));
-        UnitTestUtil.setField(Creator.class, creator, "databaseManager", Mockito.mock(DatabaseManager.class));
-        UnitTestUtil.setField(Creator.class, creator, "economyManager", economyManager);
-        UnitTestUtil.setField(Creator.class, creator, "commandFactory", commandFactory);
-        UnitTestUtil.setField(Creator.class, creator, "processIsUpdatable", false);
-        UnitTestUtil.setField(
-            Creator.class, creator, "structureAnimationRequestBuilder", structureAnimationRequestBuilder);
-
-        UnitTestUtil.setField(ToolUser.class, creator, "playerHasTool", false);
-        UnitTestUtil.setField(ToolUser.class, creator, "active", false);
-        UnitTestUtil.setField(ToolUser.class, creator, "player", player);
-        UnitTestUtil.setField(ToolUser.class, creator, "localizer", localizer);
-        UnitTestUtil.setField(ToolUser.class, creator, "textFactory", ITextFactory.getSimpleTextFactory());
-        UnitTestUtil.setField(ToolUser.class, creator, "protectionHookManager", protectionHookManager);
-        UnitTestUtil.setField(ToolUser.class, creator, "animatedArchitectureToolUtil",
-                              Mockito.mock(IAnimatedArchitectureToolUtil.class));
-        UnitTestUtil.setField(ToolUser.class, creator, "stepFactory", assistedStepFactory);
+        context = new ToolUser.Context(
+            Mockito.mock(StructureBaseBuilder.class),
+            localizer,
+            ITextFactory.getSimpleTextFactory(),
+            Mockito.mock(ToolUserManager.class),
+            Mockito.mock(DatabaseManager.class),
+            limitsManager,
+            economyManager,
+            protectionHookManager,
+            Mockito.mock(IAnimatedArchitectureToolUtil.class),
+            structureAnimationRequestBuilder,
+            Mockito.mock(StructureActivityManager.class),
+            commandFactory,
+            assistedStepFactory
+        );
     }
 
     @Test
     void testNameInput()
     {
+        final Creator creator = newCreator();
+
         final String input = "1";
         // Numerical names are not allowed.
         Assertions.assertFalse(creator.completeNamingStep(input));
@@ -121,6 +129,8 @@ public class CreatorTest
     @Test
     void testFirstLocation()
     {
+        final Creator creator = newCreator();
+
         final ILocation loc = UnitTestUtil.getLocation(12.7, 128, 56.12);
 
         Mockito.doReturn(false).when(creator).playerHasAccessToLocation(Mockito.any());
@@ -137,9 +147,11 @@ public class CreatorTest
     @Test
     void testWorldMatch()
     {
+        final Creator creator = newCreator();
+
         final IWorld world = UnitTestUtil.getWorld();
         final String worldName = world.worldName();
-        setField("world", world);
+        setField(creator, "world", world);
 
         final IWorld secondWorld = UnitTestUtil.getWorld();
         // Different world, so no match!
@@ -153,12 +165,16 @@ public class CreatorTest
     @Test
     void testInit()
     {
-        Assertions.assertDoesNotThrow(() -> creator.init());
+        final Creator creator = newCreator();
+
+        Assertions.assertDoesNotThrow(creator::init);
     }
 
     @Test
     void testSecondLocation()
     {
+        final Creator creator = newCreator();
+
         Mockito.doReturn(false).when(creator).playerHasAccessToLocation(Mockito.any());
 
         final IWorld world = UnitTestUtil.getWorld();
@@ -167,8 +183,8 @@ public class CreatorTest
         final Vector3Di vec2 = vec1.add(10, 10, 10);
         final Cuboid cuboid = new Cuboid(vec1, vec2);
 
-        setField("firstPos", vec1);
-        setField("world", world);
+        setField(creator, "firstPos", vec1);
+        setField(creator, "world", world);
 
         final ILocation loc = UnitTestUtil.getLocation(vec2, world);
 
@@ -197,10 +213,11 @@ public class CreatorTest
     @Test
     void testConfirmPrice()
     {
+        final CreatorImpl creator = newCreator();
+
         Mockito.doNothing().when(creator).abort();
 
-        final Procedure procedure = Mockito.mock(Procedure.class);
-        Mockito.doReturn(procedure).when(creator).getProcedure();
+        final var procedure = Mockito.spy(creator.getProcedure());
 
         Assertions.assertTrue(creator.confirmPrice(false));
         Mockito.verify(player).sendMessage(UnitTestUtil.textArgumentMatcher("creator.base.error.creation_cancelled"));
@@ -220,13 +237,20 @@ public class CreatorTest
             UnitTestUtil.textArgumentMatcher("creator.base.error.insufficient_funds"));
 
         Mockito.doReturn(true).when(creator).buyStructure();
+
+        // Get the lock manually because we do not use the regular procedure.
+        creator.acquireInputLock();
         Assertions.assertTrue(creator.confirmPrice(true));
+        creator.releaseInputLock();
+
         Mockito.verify(procedure).goToNextStep();
     }
 
     @Test
     void testSkipPrice()
     {
+        final Creator creator = newCreator();
+
         Mockito.doReturn(OptionalDouble.empty()).when(creator).getPrice();
         Assertions.assertTrue(creator.skipConfirmPrice());
 
@@ -237,6 +261,8 @@ public class CreatorTest
     @Test
     void testOpenDirectionStep()
     {
+        final Creator creator = newCreator();
+
         final var setOpenDirectionDelayed = Mockito.mock(SetOpenDirectionDelayed.class);
         Mockito.when(setOpenDirectionDelayed.runDelayed(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                .thenReturn(CompletableFuture.completedFuture(null));
@@ -262,9 +288,11 @@ public class CreatorTest
     @Test
     void testGetPrice()
     {
+        final Creator creator = newCreator();
+
         Mockito.when(economyManager.isEconomyEnabled()).thenReturn(false);
         final Cuboid cuboid = new Cuboid(new Vector3Di(1, 2, 3), new Vector3Di(4, 5, 6));
-        setField("cuboid", cuboid);
+        setField(creator, "cuboid", cuboid);
         Assertions.assertTrue(creator.getPrice().isEmpty());
 
         Mockito.when(economyManager.isEconomyEnabled()).thenReturn(true);
@@ -279,14 +307,16 @@ public class CreatorTest
     @Test
     void testBuyStructure()
     {
+        final Creator creator = newCreator();
+
         Mockito.when(economyManager.isEconomyEnabled()).thenReturn(false);
 
         final Cuboid cuboid = new Cuboid(new Vector3Di(1, 2, 3), new Vector3Di(4, 5, 6));
-        setField("cuboid", cuboid);
+        setField(creator, "cuboid", cuboid);
         Assertions.assertTrue(creator.buyStructure());
 
         final IWorld world = Mockito.mock(IWorld.class);
-        setField("world", world);
+        setField(creator, "world", world);
 
         final StructureType StructureType = Mockito.mock(StructureType.class);
         Mockito.when(creator.getStructureType()).thenReturn(StructureType);
@@ -299,6 +329,8 @@ public class CreatorTest
     @Test
     void testCompleteSetPowerBlockStep()
     {
+        final Creator creator = newCreator();
+
         Mockito.doNothing().when(creator).abort();
 
         final IWorld world = UnitTestUtil.getWorld();
@@ -310,8 +342,8 @@ public class CreatorTest
         final ILocation outsideCuboid = UnitTestUtil.getLocation(70, 80, 90, world);
         final ILocation insideCuboid = UnitTestUtil.getLocation(25, 35, 45, world);
 
-        setField("cuboid", cuboid);
-        setField("world", world);
+        setField(creator, "cuboid", cuboid);
+        setField(creator, "world", world);
 
         Assertions.assertFalse(creator.completeSetPowerBlockStep(UnitTestUtil.getLocation(0, 1, 2)));
 
@@ -339,14 +371,16 @@ public class CreatorTest
     @Test
     void testCompleteSetRotationPointStep()
     {
+        final Creator creator = newCreator();
+
         final IWorld world = UnitTestUtil.getWorld();
 
         final Vector3Di cuboidMin = new Vector3Di(10, 20, 30);
         final Vector3Di cuboidMax = new Vector3Di(40, 50, 60);
         final Cuboid cuboid = new Cuboid(cuboidMin, cuboidMax);
 
-        setField("world", world);
-        setField("cuboid", cuboid);
+        setField(creator, "world", world);
+        setField(creator, "cuboid", cuboid);
 
         // World mismatch, so not allowed
         Assertions.assertFalse(creator.completeSetRotationPointStep(UnitTestUtil.getLocation(1, 1, 1)));
@@ -364,7 +398,36 @@ public class CreatorTest
         Assertions.assertTrue(creator.completeSetRotationPointStep(UnitTestUtil.getLocation(11, 21, 31, world)));
     }
 
-    private void setField(String fieldName, @Nullable Object obj)
+    private Step newDefaultStep()
+    {
+        try
+        {
+            return context
+                .getStepFactory()
+                .stepName("test")
+                .stepExecutor(Mockito.mock(StepExecutor.class))
+                .textSupplier(text -> text.append("test"))
+                .construct();
+        }
+        catch (InstantiationException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private CreatorImpl newCreator()
+    {
+        return newCreator(null);
+    }
+
+    private CreatorImpl newCreator(@Nullable List<Step> steps)
+    {
+        final List<Step> stepsList = steps == null ? List.of(newDefaultStep()) : steps;
+        final CreatorImpl creator = new CreatorImpl(context, player, structureType, stepsList, null);
+        return Mockito.spy(creator);
+    }
+
+    private void setField(Creator creator, String fieldName, @Nullable Object obj)
     {
         try
         {
@@ -375,6 +438,99 @@ public class CreatorTest
         catch (Exception e)
         {
             throw new RuntimeException(e);
+        }
+    }
+
+    private static final class CreatorImpl extends Creator
+    {
+        private final StructureType structureType;
+        private final List<Step> steps;
+        private final Procedure procedure;
+
+        private final Method acquireInputLock;
+        private final Method releaseInputLock;
+
+        public CreatorImpl(
+            ToolUser.Context context,
+            IPlayer player,
+            StructureType structureType,
+            List<Step> steps,
+            @Nullable String name)
+        {
+            super(context, player, name);
+            this.structureType = structureType;
+            this.steps = List.copyOf(steps);
+            this.procedure = findProcedure();
+            this.acquireInputLock = ReflectionUtil.getMethod(ToolUser.class, "acquireInputLock");
+            this.releaseInputLock = ReflectionUtil.getMethod(ToolUser.class, "releaseInputLock");
+        }
+
+        public void acquireInputLock()
+        {
+            try
+            {
+                acquireInputLock.invoke(this);
+            }
+            catch (Exception e)
+            {
+                throw new RuntimeException(e);
+            }
+        }
+
+        public void releaseInputLock()
+        {
+            try
+            {
+                releaseInputLock.invoke(this);
+            }
+            catch (Exception e)
+            {
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Override
+        protected void giveTool()
+        {
+            // Do nothing
+        }
+
+        @Override
+        protected AbstractStructure constructStructure()
+        {
+            throw new UnsupportedOperationException("No implemented!");
+        }
+
+        @Override
+        protected StructureType getStructureType()
+        {
+            return structureType;
+        }
+
+        @Override
+        protected List<Step> generateSteps()
+            throws InstantiationException
+        {
+            return this.steps;
+        }
+
+        private Procedure findProcedure()
+        {
+            final var field = ReflectionUtil.getField(ToolUser.class, "procedure");
+            field.setAccessible(true);
+            try
+            {
+                return (Procedure) field.get(this);
+            }
+            catch (IllegalAccessException | ClassCastException e)
+            {
+                throw new RuntimeException("Failed to obtain procedure!", e);
+            }
+        }
+
+        public Procedure getProcedure()
+        {
+            return procedure;
         }
     }
 }

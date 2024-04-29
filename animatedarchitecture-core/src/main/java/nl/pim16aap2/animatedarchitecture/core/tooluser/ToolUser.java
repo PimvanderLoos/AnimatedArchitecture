@@ -2,6 +2,7 @@ package nl.pim16aap2.animatedarchitecture.core.tooluser;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.Getter;
+import lombok.Synchronized;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.StructureActivityManager;
 import nl.pim16aap2.animatedarchitecture.core.annotations.Initializer;
@@ -27,8 +28,11 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Semaphore;
+import java.util.function.Supplier;
 
 /**
  * This class is responsible for guiding the player through a process using the tool. This process is defined by a
@@ -42,6 +46,13 @@ public abstract class ToolUser
 {
     @Getter
     private final IPlayer player;
+
+    /**
+     * Lock used to ensure that only one input is processed at a time.
+     * <p>
+     * Should be accessed using {@link #acquireInputLock()} and {@link #releaseInputLock()}.
+     */
+    private final Semaphore inputLock = new Semaphore(1);
 
     protected final ILocalizer localizer;
 
@@ -58,7 +69,7 @@ public abstract class ToolUser
     /**
      * The {@link Procedure} that this {@link ToolUser} will go through.
      */
-    private final Procedure procedure;
+    private volatile Procedure procedure;
 
     /**
      * Checks if this {@link ToolUser} has been shut down or not.
@@ -78,6 +89,18 @@ public abstract class ToolUser
     @GuardedBy("this")
     private boolean playerHasTool = false;
 
+
+    /**
+     * Creates a new {@link ToolUser} for the given player.
+     * <p>
+     * Do not forget to call {@link #init()} after creating the object. Preferably, this should be done in the
+     * constructor.
+     *
+     * @param context
+     *     The context to use.
+     * @param player
+     *     The player to create the {@link ToolUser} for.
+     */
     protected ToolUser(Context context, IPlayer player)
     {
         stepFactory = context.getStepFactory();
@@ -87,9 +110,14 @@ public abstract class ToolUser
         protectionHookManager = context.getProtectionHookManager();
         animatedArchitectureToolUtil = context.getAnimatedArchitectureToolUtil();
         textFactory = context.getTextFactory();
+    }
 
-        init();
-
+    /**
+     * Basic initialization executed at the start of the constructor.
+     */
+    @Initializer
+    protected void init()
+    {
         try
         {
             procedure = new Procedure(generateSteps(), localizer, textFactory);
@@ -105,12 +133,6 @@ public abstract class ToolUser
 
         toolUserManager.registerToolUser(this);
     }
-
-    /**
-     * Basic initialization executed at the start of the constructor.
-     */
-    @Initializer
-    protected abstract void init();
 
     /**
      * Generates the list of {@link Step}s that together will make up the {@link #procedure}.
@@ -179,7 +201,7 @@ public abstract class ToolUser
     @SuppressWarnings("unused")
     public synchronized Text getCurrentStepMessage()
     {
-        return getProcedure().getMessage();
+        return procedure.getCurrentStepMessage();
     }
 
     /**
@@ -188,15 +210,20 @@ public abstract class ToolUser
      * This should be used after proceeding to the next step.
      *
      * @return A {@link CompletableFuture} that will be completed when the current step is prepared.
+     *
+     * @throws IllegalStateException
+     *     If the lock is not held. See {@link #acquireInputLock()}.
      */
     @CheckReturnValue
     protected CompletableFuture<?> prepareCurrentStep()
     {
-        getProcedure().runCurrentStepPreparation();
+        assertLockHeld();
+
+        procedure.runCurrentStepPreparation();
         sendMessage();
 
-        if (!getProcedure().waitForUserInput())
-            return handleInput(null);
+        if (!procedure.waitForUserInput())
+            return handleInputWithLock(null);
         return CompletableFuture.completedFuture(null);
     }
 
@@ -205,11 +232,16 @@ public abstract class ToolUser
      * <p>
      * After successfully skipping to the target step, the newly-selected step will be prepared. See
      * {@link #prepareCurrentStep()}.
+     *
+     * @throws IllegalStateException
+     *     If the lock is not held. See {@link #acquireInputLock()}.
      */
     @SuppressWarnings("unused")
     protected CompletableFuture<?> skipToStep(Step goalStep)
     {
-        if (!getProcedure().skipToStep(goalStep))
+        assertLockHeld();
+
+        if (!procedure.skipToStep(goalStep))
             return CompletableFuture.completedFuture(false);
         return prepareCurrentStep();
     }
@@ -220,12 +252,18 @@ public abstract class ToolUser
      * @param obj
      *     The object to apply.
      * @return The result of running the step executor on the provided input.
+     *
+     * @throws IllegalStateException
+     *     If the lock is not held. See {@link #acquireInputLock()}.
      */
+    @CheckReturnValue
     private CompletableFuture<Boolean> applyInput(@Nullable Object obj)
     {
+        assertLockHeld();
+
         try
         {
-            return getProcedure().applyStepExecutor(obj);
+            return procedure.applyStepExecutor(obj);
         }
         catch (Exception e)
         {
@@ -236,50 +274,74 @@ public abstract class ToolUser
         }
     }
 
+    /**
+     * Handles user input for the given step.
+     * <p>
+     * This method assumes that the input lock is already held. See {@link #acquireInputLock()}.
+     *
+     * @param obj
+     *     The input to handle. What actual type is expected depends on the step.
+     * @return A completable future that will either complete with true if the step was completed successfully, or false
+     * if it was not.
+     *
+     * @throws IllegalStateException
+     *     If the lock is not held.
+     */
+    @CheckReturnValue
     @SuppressWarnings("PMD.PrematureDeclaration")
-    private CompletableFuture<Boolean> handleInput0(@Nullable Object obj)
+    protected final CompletableFuture<Boolean> handleInputWithLock(@Nullable Object obj)
     {
+        assertLockHeld();
+
         log.atFine().log("Handling input: %s (%s) for step: %s in ToolUser: %s.",
                          obj, (obj == null ? "null" : obj.getClass().getSimpleName()),
-                         getProcedure().getCurrentStepName(), this);
+                         procedure.getCurrentStepName(), this);
 
         if (!isActive())
             return CompletableFuture.completedFuture(false);
 
-        final boolean isLastStep = !getProcedure().hasNextStep();
+        final boolean isLastStep = !procedure.hasNextStep();
 
-        return applyInput(obj).thenCompose(
-            inputSuccess ->
-            {
-                if (!inputSuccess)
-                    return CompletableFuture.completedFuture(false);
-
-                if (isLastStep)
+        return applyInput(obj)
+            .thenCompose(
+                inputSuccess ->
                 {
-                    cleanUpProcess();
-                    return CompletableFuture.completedFuture(true);
-                }
+                    if (!inputSuccess)
+                        return CompletableFuture.completedFuture(false);
 
-                if (getProcedure().implicitNextStep())
-                    getProcedure().goToNextStep();
+                    if (isLastStep)
+                    {
+                        cleanUpProcess();
+                        return CompletableFuture.completedFuture(true);
+                    }
 
-                return prepareCurrentStep().thenApply(ignored -> true);
-            });
+                    if (procedure.implicitNextStep())
+                        procedure.goToNextStep();
+
+                    return prepareCurrentStep().thenApply(ignored -> true);
+                })
+            .exceptionally(
+                ex ->
+                {
+                    throw new RuntimeException("Failed to handle input '" + obj + "' for ToolUser '" + this + "'!", ex);
+                });
     }
 
     /**
      * Handles user input for the given step.
+     * <p>
+     * This method will acquire the input lock, handle the input, and then release the input lock.
      *
      * @param obj
      *     The input to handle. What actual type is expected depends on the step.
      * @return True if the input was processed successfully.
      */
     @CheckReturnValue
-    public synchronized CompletableFuture<Boolean> handleInput(@Nullable Object obj)
+    public final CompletableFuture<Boolean> handleInput(@Nullable Object obj)
     {
         try
         {
-            return handleInput0(obj)
+            return runWithLock(() -> handleInputWithLock(obj))
                 .exceptionally(
                     ex ->
                     {
@@ -295,13 +357,42 @@ public abstract class ToolUser
     }
 
     /**
+     * Runs the provided supplier while holding the input lock.
+     * <p>
+     * This method will acquire the input lock, run the supplier, and then release the input lock.
+     * <p>
+     * If the supplier throws an exception, the lock will still be released.
+     *
+     * @param supplier
+     *     The supplier to run.
+     * @param <T>
+     *     The type of the result of the supplier.
+     * @return The result of the supplier.
+     */
+    protected final <T> CompletableFuture<T> runWithLock(Supplier<CompletableFuture<T>> supplier)
+    {
+        acquireInputLock();
+        try
+        {
+            return supplier.get().whenComplete((ignored, ex) -> releaseInputLock());
+        }
+        catch (Exception e)
+        {
+            releaseInputLock();
+            throw new RuntimeException("Failed to run supplier with lock!", e);
+        }
+    }
+
+    /**
      * Sends the localized message of the current step to the player that owns this object.
      */
     protected void sendMessage()
     {
-        final var message = getProcedure().getMessage();
+        final var currentStep = procedure.getCurrentStep();
+
+        final var message = procedure.getMessage(currentStep);
         if (message.isEmpty())
-            log.atWarning().log("Missing translation for step: %s", getProcedure().getCurrentStepName());
+            log.atWarning().log("Missing translation for step: %s", procedure.getStepName(currentStep));
         else
             getPlayer().sendMessage(message);
     }
@@ -311,9 +402,9 @@ public abstract class ToolUser
      *
      * @return The current {@link Step} in the {@link #procedure}.
      */
-    public Optional<Step> getCurrentStep()
+    public final Optional<Step> getCurrentStep()
     {
-        return Optional.ofNullable(getProcedure().getCurrentStep());
+        return Optional.ofNullable(procedure.getCurrentStep());
     }
 
     /**
@@ -332,10 +423,12 @@ public abstract class ToolUser
         result.ifPresent(
             compat ->
             {
-                log.atFine().log("Blocked access to cuboid %s for player %s! Reason: %s",
-                                 loc, getPlayer(), compat);
-                getPlayer().sendMessage(textFactory, TextType.ERROR,
-                                        localizer.getMessage("tool_user.base.error.no_permission_for_location"));
+                log.atFine().log(
+                    "Blocked access to cuboid %s for player %s! Reason: %s",
+                    loc, getPlayer(), compat);
+                getPlayer().sendMessage(
+                    textFactory, TextType.ERROR,
+                    localizer.getMessage("tool_user.base.error.no_permission_for_location"));
             });
         return result.isEmpty();
     }
@@ -355,14 +448,19 @@ public abstract class ToolUser
     public boolean playerHasAccessToCuboid(Cuboid cuboid, IWorld world)
     {
         final Optional<String> result = protectionHookManager.canBreakBlocksBetweenLocs(getPlayer(), cuboid, world);
+
         result.ifPresent(
             compat ->
             {
-                log.atFine().log("Blocked access to cuboid %s for player %s in world %s. Reason: %s",
-                                 cuboid, getPlayer(), world, compat);
-                getPlayer().sendMessage(textFactory, TextType.ERROR,
-                                        localizer.getMessage("tool_user.base.error.no_permission_for_location"));
+                log.atFine().log(
+                    "Blocked access to cuboid %s for player %s in world %s. Reason: %s",
+                    cuboid, getPlayer(), world, compat);
+
+                getPlayer().sendMessage(
+                    textFactory, TextType.ERROR,
+                    localizer.getMessage("tool_user.base.error.no_permission_for_location"));
             });
+
         return result.isEmpty();
     }
 
@@ -391,20 +489,116 @@ public abstract class ToolUser
     }
 
     /**
-     * Gets the {@link Procedure} used by this tool user.
+     * Accessor for {@link Procedure#getAllSteps()}.
      *
-     * @return The {@link Procedure} used by this tool user.
+     * @return All the steps in the procedure including any that may have been completed/skipped already.
      */
-    public final Procedure getProcedure()
+    protected final List<Step> getAllSteps()
     {
-        return procedure;
+        return procedure.getAllSteps();
+    }
+
+    /**
+     * Proceeds to the next step in the procedure.
+     * <p>
+     * This method assumes that the lock is held. See {@link #acquireInputLock()}.
+     * <p>
+     * This method is a wrapper around {@link Procedure#goToNextStep()}.
+     *
+     * @throws IllegalStateException
+     *     If the lock is not held. See {@link #acquireInputLock()}.
+     */
+    protected final void goToNextStep()
+    {
+        assertLockHeld();
+        procedure.goToNextStep();
+    }
+
+    /**
+     * Inserts an existing, named step at the current position.
+     * <p>
+     * This method assumes that the lock is held. See {@link #acquireInputLock()}.
+     * <p>
+     * This method is a wrapper around {@link Procedure#insertStep(String)}.
+     *
+     * @param name
+     *     The name of the step to insert.
+     * @throws NoSuchElementException
+     *     If no step can be found by that name.
+     * @throws IllegalStateException
+     *     If the lock is not held. See {@link #acquireInputLock()}.
+     */
+    protected final void insertStep(String name)
+    {
+        assertLockHeld();
+        procedure.insertStep(name);
+    }
+
+    /**
+     * Ensures that the input lock is held.
+     *
+     * @throws IllegalStateException
+     *     If the lock is not held.
+     */
+    // Use Lombok's synchronized annotation to use a different lock than the object's monitor.
+    @Synchronized
+    protected final void assertLockHeld()
+    {
+        if (inputLock.availablePermits() == 1)
+            throw new IllegalStateException("Failed to assert that the input lock is held!");
+    }
+
+    /**
+     * Acquires the input lock.
+     * <p>
+     * If the lock is not currently held, the thread will wait until it is available.
+     * <p>
+     * Once the lock is acquired, it will be held until {@link #releaseInputLock()} is called.
+     * <p>
+     * The lock has no notion of ownership, so it is not reentrant and, once acquired, it can be released by any
+     * thread.
+     */
+    @Synchronized
+    private void acquireInputLock()
+    {
+        try
+        {
+            inputLock.acquire();
+        }
+        catch (InterruptedException e)
+        {
+            throw new RuntimeException(
+                "Thread was interrupted waiting for ToolUser input semaphore to become available!", e);
+        }
+    }
+
+    /**
+     * Releases the input lock.
+     * <p>
+     * It does not matter which thread acquired the lock in the first place, any thread can release it.
+     *
+     * @throws IllegalStateException
+     *     if the lock is not currently held.
+     */
+    @Synchronized
+    private void releaseInputLock()
+    {
+        final int availablePermits = inputLock.availablePermits();
+        if (availablePermits != 0)
+            throw new IllegalStateException("Failed to release the input lock! Permits available: " + availablePermits);
+        inputLock.release();
     }
 
     @Override
     public synchronized String toString()
     {
-        return "ToolUser(player=" + this.player + ", procedure=" + this.getProcedure() + ", isShutDown=" +
-            this.isShutDown + ", active=" + this.isActive() + ", playerHasTool=" + this.playerHasTool + ")";
+        return "ToolUser(player=" + this.player +
+            ", procedure=" + this.procedure +
+            ", isShutDown=" + this.isShutDown +
+            ", active=" + this.active +
+            ", playerHasTool=" + this.playerHasTool +
+            ", inputLock=" + inputLock +
+            ")";
     }
 
     @Getter
