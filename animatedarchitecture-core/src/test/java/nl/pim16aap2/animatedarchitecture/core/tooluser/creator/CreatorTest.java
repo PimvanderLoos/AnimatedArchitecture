@@ -1,5 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.tooluser.creator;
 
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.animation.StructureActivityManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitectureToolUtil;
@@ -23,14 +25,20 @@ import nl.pim16aap2.animatedarchitecture.core.tooluser.Procedure;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutor;
+import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorBoolean;
+import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorLocation;
+import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorOpenDirection;
+import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorString;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
+import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.testing.reflection.ReflectionUtil;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
@@ -39,21 +47,24 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
+@Timeout(1)
 public class CreatorTest
 {
-//    private CreatorImpl creator;
+    public static Vector3Di DEFAULT_MIN = new Vector3Di(10, 20, 30);
+    public static Vector3Di DEFAULT_MAX = new Vector3Di(40, 50, 60);
+    public static Cuboid DEFAULT_CUBOID = new Cuboid(DEFAULT_MIN, DEFAULT_MAX);
 
     private ToolUser.Context context;
 
@@ -72,18 +83,13 @@ public class CreatorTest
     @Mock
     private CommandFactory commandFactory;
 
+    @Mock
+    private IProtectionHookManager protectionHookManager;
+
     @BeforeEach
     void init()
     {
         Mockito.when(structureType.getLocalizationKey()).thenReturn("StructureType");
-
-        Mockito.when(economyManager.isEconomyEnabled()).thenReturn(true);
-
-        final IProtectionHookManager protectionHookManager = Mockito.mock(IProtectionHookManager.class);
-        Mockito.when(protectionHookManager.canBreakBlock(Mockito.any(), Mockito.any())).thenReturn(Optional.empty());
-        Mockito.when(protectionHookManager.canBreakBlocksBetweenLocs(Mockito.any(),
-                                                                     Mockito.any(), Mockito.any()))
-               .thenReturn(Optional.empty());
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
         final var assistedStepFactory = Mockito.mock(Step.Factory.IFactory.class);
@@ -113,187 +119,345 @@ public class CreatorTest
     }
 
     @Test
-    void testNameInput()
+    void testInvalidNameInput()
     {
-        final Creator creator = newCreator();
+        final var creator = newCreatorFactory()
+            .steps(
+                newStepSupplier(creator0 -> new StepExecutorString(creator0::completeNamingStep)),
+                newDefaultStep()
+            )
+            .create();
 
-        final String input = "1";
-        // Numerical names are not allowed.
-        Assertions.assertFalse(creator.completeNamingStep(input));
-        Mockito.verify(player).sendMessage(UnitTestUtil.textArgumentMatcher("creator.base.error.invalid_name"));
+        final String invalidName = "123";
+        // Verify the name is indeed invalid according to the latest implementation.
+        Assertions.assertFalse(Util.isValidStructureName(invalidName));
 
-        Assertions.assertTrue(creator.completeNamingStep("newDoor"));
-        Mockito.verify(creator).giveTool();
+        Assertions.assertFalse(creator.handleInput(invalidName).join());
+
+        Mockito.verify(player).sendMessage(
+            UnitTestUtil.textArgumentMatcher("creator.base.error.invalid_name"));
+
+        Assertions.assertEquals(0, creator.getStepsCompleted());
+        Assertions.assertTrue(creator.isActive());
+        Assertions.assertNull(creator.getName());
+        Assertions.assertFalse(creator.playerHasTool());
     }
 
     @Test
-    void testFirstLocation()
+    void testValidNameInput()
     {
-        final Creator creator = newCreator();
+        final var creator = newCreatorFactory()
+            .steps(
+                newStepSupplier(creator0 -> new StepExecutorString(creator0::completeNamingStep)),
+                newDefaultStep()
+            )
+            .create();
 
-        final ILocation loc = UnitTestUtil.getLocation(12.7, 128, 56.12);
+        final String validName = "ValidName";
+        // Verify the name is indeed valid according to the latest implementation.
+        Assertions.assertTrue(Util.isValidStructureName(validName));
 
-        Mockito.doReturn(false).when(creator).playerHasAccessToLocation(Mockito.any());
-        // No access to location
-        Assertions.assertFalse(creator.provideFirstPos(loc));
+        Assertions.assertTrue(creator.handleInput(validName).join());
 
-        Mockito.doReturn(true).when(creator).playerHasAccessToLocation(Mockito.any());
-        Assertions.assertTrue(creator.provideFirstPos(loc));
-        Assertions.assertEquals(loc.getWorld(), creator.getWorld());
-        Assertions.assertEquals(new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()),
-                                creator.getFirstPos());
+        Assertions.assertEquals(1, creator.getStepsCompleted());
+        Assertions.assertTrue(creator.isActive());
+        Assertions.assertEquals(validName, creator.getName());
+        Assertions.assertTrue(creator.playerHasTool());
+    }
+
+    @Test
+    void testWorldMismatch()
+    {
+        final var creator = newCreatorFactory(1)
+            .mockedWorld()
+            .create();
+
+        Assertions.assertFalse(creator.verifyWorldMatch(UnitTestUtil.getWorld()));
+        Mockito.verify(player)
+               .sendMessage(UnitTestUtil.textArgumentMatcher("creator.base.error.world_mismatch"));
     }
 
     @Test
     void testWorldMatch()
     {
-        final Creator creator = newCreator();
+        final var creator = newCreatorFactory(1)
+            .mockedWorld()
+            .create();
 
-        final IWorld world = UnitTestUtil.getWorld();
-        final String worldName = world.worldName();
-        setField(creator, "world", world);
-
-        final IWorld secondWorld = UnitTestUtil.getWorld();
-        // Different world, so no match!
-        Assertions.assertFalse(creator.verifyWorldMatch(Mockito.mock(IWorld.class)));
-
-        Mockito.when(secondWorld.worldName()).thenReturn(worldName);
-        // Same world name, so match!
-        Assertions.assertTrue(creator.verifyWorldMatch(secondWorld));
+        Assertions.assertTrue(creator.verifyWorldMatch(Objects.requireNonNull(creator.getWorld())));
+        Mockito.verify(player, Mockito.never())
+               .sendMessage(UnitTestUtil.textArgumentMatcher("creator.base.error.world_mismatch"));
     }
 
     @Test
-    void testInit()
+    void testFirstLocationNoAccessToLocation()
     {
-        final Creator creator = newCreator();
+        final var creator = newFirstLocationCreator();
 
-        Assertions.assertDoesNotThrow(creator::init);
+        Mockito.when(protectionHookManager.canBreakBlock(Mockito.any(), Mockito.any()))
+               .thenReturn(Optional.of("NOT_ALLOWED"));
+
+        // No access to location
+        Assertions.assertFalse(creator.handleInput(UnitTestUtil.getLocation(DEFAULT_MIN, creator.getWorld())).join());
+
+        Mockito.verify(player).sendMessage(
+            UnitTestUtil.textArgumentMatcher("tool_user.base.error.no_permission_for_location"));
+
+        Assertions.assertEquals(0, creator.getStepsCompleted());
+        Assertions.assertTrue(creator.isActive());
+        Assertions.assertNull(creator.getFirstPos());
+        Assertions.assertNull(creator.getWorld());
     }
 
     @Test
-    void testSecondLocation()
+    void testFirstLocationSuccess()
     {
-        final Creator creator = newCreator();
+        final var creator = newFirstLocationCreator();
 
-        Mockito.doReturn(false).when(creator).playerHasAccessToLocation(Mockito.any());
+        final var location = UnitTestUtil.getLocation(DEFAULT_MIN.toDouble().add(0.5F), creator.getWorld());
 
-        final IWorld world = UnitTestUtil.getWorld();
+        Assertions.assertTrue(creator.handleInput(location).join());
 
-        final Vector3Di vec1 = new Vector3Di(12, 128, 56);
-        final Vector3Di vec2 = vec1.add(10, 10, 10);
-        final Cuboid cuboid = new Cuboid(vec1, vec2);
+        Assertions.assertEquals(1, creator.getStepsCompleted());
+        Assertions.assertTrue(creator.isActive());
+        Assertions.assertEquals(DEFAULT_MIN, creator.getFirstPos());
+        Assertions.assertEquals(creator.getWorld(), location.getWorld());
+    }
 
-        setField(creator, "firstPos", vec1);
-        setField(creator, "world", world);
+    @Test
+    void testSecondLocationNoAccessToLocation()
+    {
+        final var creator = newSecondLocationCreator();
 
-        final ILocation loc = UnitTestUtil.getLocation(vec2, world);
+        Mockito.when(protectionHookManager.canBreakBlock(Mockito.any(), Mockito.any()))
+               .thenReturn(Optional.of("NOT_ALLOWED"));
 
-        // Not allowed, because no access to location
-        Assertions.assertFalse(creator.provideSecondPos(loc));
+        Assertions.assertFalse(creator.handleInput(UnitTestUtil.getLocation(DEFAULT_MAX, creator.getWorld())).join());
 
-        Mockito.doReturn(true).when(creator).playerHasAccessToLocation(Mockito.any());
+        Mockito.verify(player).sendMessage(
+            UnitTestUtil.textArgumentMatcher("tool_user.base.error.no_permission_for_location"));
+
+        Assertions.assertEquals(0, creator.getStepsCompleted());
+        Assertions.assertTrue(creator.isActive());
+        Assertions.assertNull(creator.getCuboid());
+    }
+
+    @Test
+    void testSecondLocationNoAccessToCuboid()
+    {
+        final var creator = newSecondLocationCreator();
+
+        Mockito.when(protectionHookManager.canBreakBlocksBetweenLocs(Mockito.any(), Mockito.any(), Mockito.any()))
+               .thenReturn(Optional.of("NOT_ALLOWED"));
+
+        Assertions.assertFalse(creator.handleInput(UnitTestUtil.getLocation(DEFAULT_MAX, creator.getWorld())).join());
+
+        Mockito.verify(player).sendMessage(
+            UnitTestUtil.textArgumentMatcher("tool_user.base.error.no_permission_for_location"));
+
+        Assertions.assertEquals(0, creator.getStepsCompleted());
+        Assertions.assertTrue(creator.isActive());
+        Assertions.assertNull(creator.getCuboid());
+    }
+
+    @Test
+    void testSecondLocationTooBig()
+    {
+        final var creator = newSecondLocationCreator();
+
+        Mockito.when(protectionHookManager.canBreakBlocksBetweenLocs(Mockito.any(), Mockito.any(), Mockito.any()))
+               .thenReturn(Optional.empty());
+
         Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any()))
-               .thenReturn(OptionalInt.of(cuboid.getVolume() - 1));
+               .thenReturn(OptionalInt.of(DEFAULT_CUBOID.getVolume() - 1));
+
         // Not allowed, because the selected area is too big.
-        Assertions.assertFalse(creator.provideSecondPos(loc));
+        Assertions.assertFalse(creator.handleInput(UnitTestUtil.getLocation(DEFAULT_MAX, creator.getWorld())).join());
+
         Mockito.verify(player).sendMessage(
             UnitTestUtil.textArgumentMatcher("creator.base.error.area_too_big"));
 
-        Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any()))
-               .thenReturn(OptionalInt.of(cuboid.getVolume() + 1));
-        Mockito.doReturn(false).when(creator).playerHasAccessToCuboid(Mockito.any(), Mockito.any());
-        // Not allowed, because no access to one or more blocks in the cuboid area.
-        Assertions.assertFalse(creator.provideSecondPos(loc));
-
-        Mockito.doReturn(true).when(creator).playerHasAccessToCuboid(Mockito.any(), Mockito.any());
-        Assertions.assertTrue(creator.provideSecondPos(loc));
-        Assertions.assertEquals(cuboid, creator.getCuboid());
+        Assertions.assertEquals(0, creator.getStepsCompleted());
+        Assertions.assertTrue(creator.isActive());
+        Assertions.assertNull(creator.getCuboid());
     }
 
     @Test
-    void testConfirmPrice()
+    void testSecondLocationSuccess()
     {
-        final CreatorImpl creator = newCreator();
+        final var creator = newSecondLocationCreator();
 
-        Mockito.doNothing().when(creator).abort();
+        Mockito.when(protectionHookManager.canBreakBlocksBetweenLocs(Mockito.any(), Mockito.any(), Mockito.any()))
+               .thenReturn(Optional.empty());
 
-        final var procedure = Mockito.spy(creator.getProcedure());
+        Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any()))
+               .thenReturn(OptionalInt.of(DEFAULT_CUBOID.getVolume()));
 
-        Assertions.assertTrue(creator.confirmPrice(false));
+        Assertions.assertTrue(creator.handleInput(UnitTestUtil.getLocation(DEFAULT_MAX, creator.getWorld())).join());
+
+        Assertions.assertEquals(1, creator.getStepsCompleted());
+        Assertions.assertTrue(creator.isActive());
+        Assertions.assertEquals(DEFAULT_CUBOID, creator.getCuboid());
+    }
+
+    @Test
+    void testSecondLocationSuccessNoLimits()
+    {
+        final var creator = newSecondLocationCreator();
+
+        Mockito.when(protectionHookManager.canBreakBlocksBetweenLocs(Mockito.any(), Mockito.any(), Mockito.any()))
+               .thenReturn(Optional.empty());
+
+        Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any())).thenReturn(OptionalInt.empty());
+
+        Assertions.assertTrue(creator.handleInput(UnitTestUtil.getLocation(DEFAULT_MAX, creator.getWorld())).join());
+
+        Assertions.assertEquals(1, creator.getStepsCompleted());
+        Assertions.assertTrue(creator.isActive());
+        Assertions.assertEquals(DEFAULT_CUBOID, creator.getCuboid());
+    }
+
+    @Test
+    void testConfirmPriceCancel()
+    {
+        final var creator = newConfirmPriceCreator();
+
+        // The result is true because the input 'false' was handled successfully.
+        Assertions.assertTrue(creator.handleInput(false).join());
+
         Mockito.verify(player).sendMessage(UnitTestUtil.textArgumentMatcher("creator.base.error.creation_cancelled"));
 
-        Mockito.doReturn(OptionalDouble.empty()).when(creator).getPrice();
-        Mockito.doReturn(false).when(creator).buyStructure();
+        Assertions.assertEquals(1, creator.getStepsCompleted());
+        Assertions.assertFalse(creator.isActive());
+    }
 
-        Assertions.assertTrue(creator.confirmPrice(true));
+    @Test
+    void testConfirmPriceNoEconomy()
+    {
+        final var creator = newConfirmPriceCreator();
+
+        Mockito.when(economyManager.isEconomyEnabled()).thenReturn(false);
+
+        Assertions.assertTrue(creator.handleInput(true).join());
+
+        Assertions.assertEquals(1, creator.getStepsCompleted());
+        Assertions.assertTrue(creator.isActive());
+    }
+
+    @Test
+    void testConfirmPriceInsufficientFunds()
+    {
+        final var creator = newConfirmPriceCreator();
+
+        Mockito.when(economyManager.isEconomyEnabled()).thenReturn(true);
+        Mockito.when(economyManager.getPrice(Mockito.any(), Mockito.anyInt())).thenReturn(OptionalDouble.empty());
+        Mockito.when(economyManager.buyStructure(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyInt()))
+               .thenReturn(false);
+
+        Assertions.assertTrue(creator.handleInput(true).join());
         Mockito.verify(player).sendMessage(
             UnitTestUtil.textArgumentMatcher("creator.base.error.insufficient_funds"));
 
-        final double price = 123.41;
-        Mockito.doReturn(OptionalDouble.of(price)).when(creator).getPrice();
-        Mockito.doReturn(false).when(creator).buyStructure();
-        Assertions.assertTrue(creator.confirmPrice(true));
-        Mockito.verify(player, Mockito.times(2)).sendMessage(
-            UnitTestUtil.textArgumentMatcher("creator.base.error.insufficient_funds"));
-
-        Mockito.doReturn(true).when(creator).buyStructure();
-
-        // Get the lock manually because we do not use the regular procedure.
-        creator.acquireInputLock();
-        Assertions.assertTrue(creator.confirmPrice(true));
-        creator.releaseInputLock();
-
-        Mockito.verify(procedure).goToNextStep();
+        Assertions.assertEquals(1, creator.getStepsCompleted());
+        Assertions.assertFalse(creator.isActive());
     }
 
     @Test
-    void testSkipPrice()
+    void testConfirmPriceSuccess()
     {
-        final Creator creator = newCreator();
+        final var creator = newConfirmPriceCreator();
 
-        Mockito.doReturn(OptionalDouble.empty()).when(creator).getPrice();
-        Assertions.assertTrue(creator.skipConfirmPrice());
+        Mockito.when(economyManager.isEconomyEnabled()).thenReturn(true);
+        Mockito.when(economyManager.getPrice(Mockito.any(), Mockito.anyInt())).thenReturn(OptionalDouble.of(1));
+        Mockito.when(economyManager.buyStructure(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyInt()))
+               .thenReturn(true);
 
-        Mockito.doReturn(OptionalDouble.of(1)).when(creator).getPrice();
-        Assertions.assertFalse(creator.skipConfirmPrice());
+        Assertions.assertTrue(creator.handleInput(true).join());
+
+        Assertions.assertEquals(1, creator.getStepsCompleted());
+        Assertions.assertTrue(creator.isActive());
     }
 
     @Test
-    void testOpenDirectionStep()
+    void testConfirmPriceSuccessNoPrice()
     {
-        final Creator creator = newCreator();
+        final var creator = newConfirmPriceCreator();
 
-        final var setOpenDirectionDelayed = Mockito.mock(SetOpenDirectionDelayed.class);
-        Mockito.when(setOpenDirectionDelayed.runDelayed(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(economyManager.isEconomyEnabled()).thenReturn(true);
+        Mockito.when(economyManager.getPrice(Mockito.any(), Mockito.anyInt())).thenReturn(OptionalDouble.empty());
+        Mockito.when(economyManager.buyStructure(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyInt()))
+               .thenReturn(true);
+
+        Assertions.assertTrue(creator.handleInput(true).join());
+
+        Assertions.assertEquals(1, creator.getStepsCompleted());
+        Assertions.assertTrue(creator.isActive());
+    }
+
+    @Test
+    void testMovementDirectionStepInvalid()
+    {
+        final var creator = newMovementDirectionCreator();
+
+        Mockito.when(structureType.getValidMovementDirections())
+               .thenReturn(EnumSet.of(MovementDirection.EAST, MovementDirection.WEST));
+
+        final var setDirectionDelayed = Mockito.mock(SetOpenDirectionDelayed.class);
+        Mockito.when(commandFactory.getSetOpenDirectionDelayed())
+               .thenReturn(setDirectionDelayed);
+        Mockito.when(setDirectionDelayed.runDelayed(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                .thenReturn(CompletableFuture.completedFuture(null));
-        Mockito.when(commandFactory.getSetOpenDirectionDelayed()).thenReturn(setOpenDirectionDelayed);
 
-        final StructureType structureType = Mockito.mock(StructureType.class);
-        final Set<MovementDirection> validOpenDirections = EnumSet.of(MovementDirection.EAST, MovementDirection.WEST);
-        Mockito.when(structureType.getValidOpenDirections()).thenReturn(validOpenDirections);
+        Assertions.assertFalse(creator.handleInput(MovementDirection.NORTH).join());
 
-        Mockito.when(creator.getStructureType()).thenReturn(structureType);
+        Mockito.verify(player).sendMessage(
+            UnitTestUtil.textArgumentMatcher("creator.base.error.invalid_option"));
 
-        Assertions.assertFalse(creator.completeSetOpenDirStep(MovementDirection.NONE));
-        Assertions.assertFalse(creator.completeSetOpenDirStep(MovementDirection.NORTH));
-        Assertions.assertTrue(creator.completeSetOpenDirStep(MovementDirection.EAST));
-        Assertions.assertFalse(creator.completeSetOpenDirStep(MovementDirection.SOUTH));
-        Assertions.assertTrue(creator.completeSetOpenDirStep(MovementDirection.WEST));
-        Assertions.assertFalse(creator.completeSetOpenDirStep(MovementDirection.CLOCKWISE));
-        Assertions.assertFalse(creator.completeSetOpenDirStep(MovementDirection.COUNTERCLOCKWISE));
-        Assertions.assertFalse(creator.completeSetOpenDirStep(MovementDirection.UP));
-        Assertions.assertFalse(creator.completeSetOpenDirStep(MovementDirection.DOWN));
+        Mockito.verify(setDirectionDelayed)
+               .runDelayed(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+
+        Assertions.assertEquals(0, creator.getStepsCompleted());
+        Assertions.assertTrue(creator.isActive());
+        Assertions.assertNull(creator.getMovementDirection());
+    }
+
+    @Test
+    void testMovementDirectionStepSuccess()
+    {
+        final var creator = newMovementDirectionCreator();
+
+        Mockito.when(structureType.getValidMovementDirections())
+               .thenReturn(EnumSet.of(MovementDirection.EAST, MovementDirection.WEST));
+
+        Assertions.assertTrue(creator.handleInput(MovementDirection.EAST).join());
+
+        Mockito.verify(player, Mockito.never()).sendMessage(
+            UnitTestUtil.textArgumentMatcher("creator.base.error.invalid_option"));
+
+        Assertions.assertEquals(1, creator.getStepsCompleted());
+        Assertions.assertTrue(creator.isActive());
+        Assertions.assertEquals(MovementDirection.EAST, creator.getMovementDirection());
+    }
+
+    @Test
+    void testGetPriceNoEconomy()
+    {
+        final var creator = newCreatorFactory()
+            .steps(newDefaultStep())
+            .defaultCuboid()
+            .create();
+
+        Mockito.when(economyManager.isEconomyEnabled()).thenReturn(false);
+        Assertions.assertTrue(creator.getPrice().isEmpty());
     }
 
     @Test
     void testGetPrice()
     {
-        final Creator creator = newCreator();
-
-        Mockito.when(economyManager.isEconomyEnabled()).thenReturn(false);
-        final Cuboid cuboid = new Cuboid(new Vector3Di(1, 2, 3), new Vector3Di(4, 5, 6));
-        setField(creator, "cuboid", cuboid);
-        Assertions.assertTrue(creator.getPrice().isEmpty());
+        final var creator = newCreatorFactory()
+            .steps(newDefaultStep())
+            .defaultCuboid()
+            .create();
 
         Mockito.when(economyManager.isEconomyEnabled()).thenReturn(true);
         Mockito.when(economyManager.getPrice(Mockito.any(), Mockito.anyInt()))
@@ -301,113 +465,268 @@ public class CreatorTest
 
         final OptionalDouble price = creator.getPrice();
         Assertions.assertTrue(price.isPresent());
-        Assertions.assertEquals(cuboid.getVolume(), price.getAsDouble());
+        Assertions.assertEquals(DEFAULT_CUBOID.getVolume(), price.getAsDouble());
     }
 
     @Test
-    void testBuyStructure()
+    void testCompleteSetPowerBlockStepWorldMismatch()
     {
-        final Creator creator = newCreator();
+        final var creator = newPowerBlockCreator();
 
-        Mockito.when(economyManager.isEconomyEnabled()).thenReturn(false);
+        Assertions.assertFalse(creator.handleInput(UnitTestUtil.getLocation(DEFAULT_MAX.add(10))).join());
 
-        final Cuboid cuboid = new Cuboid(new Vector3Di(1, 2, 3), new Vector3Di(4, 5, 6));
-        setField(creator, "cuboid", cuboid);
-        Assertions.assertTrue(creator.buyStructure());
+        Mockito.verify(player).sendMessage(
+            UnitTestUtil.textArgumentMatcher("creator.base.error.world_mismatch"));
 
-        final IWorld world = Mockito.mock(IWorld.class);
-        setField(creator, "world", world);
-
-        final StructureType StructureType = Mockito.mock(StructureType.class);
-        Mockito.when(creator.getStructureType()).thenReturn(StructureType);
-
-        Mockito.when(economyManager.isEconomyEnabled()).thenReturn(true);
-        creator.buyStructure();
-        Mockito.verify(economyManager).buyStructure(player, world, StructureType, cuboid.getVolume());
+        Assertions.assertEquals(0, creator.getStepsCompleted());
+        Assertions.assertTrue(creator.isActive());
+        Assertions.assertNull(creator.getPowerBlock());
     }
 
     @Test
-    void testCompleteSetPowerBlockStep()
+    void testCompleteSetPowerBlockStepLocationNotAllowed()
     {
-        final Creator creator = newCreator();
+        final var creator = newPowerBlockCreator();
 
-        Mockito.doNothing().when(creator).abort();
+        Mockito.when(protectionHookManager.canBreakBlock(Mockito.any(), Mockito.any()))
+               .thenReturn(Optional.of("NOT_ALLOWED"));
 
-        final IWorld world = UnitTestUtil.getWorld();
+        Assertions.assertFalse(
+            creator.handleInput(UnitTestUtil.getLocation(DEFAULT_MAX.add(10), creator.getWorld())).join());
 
-        final Vector3Di cuboidMin = new Vector3Di(10, 20, 30);
-        final Vector3Di cuboidMax = new Vector3Di(40, 50, 60);
-        final Cuboid cuboid = new Cuboid(cuboidMin, cuboidMax);
+        Mockito.verify(player).sendMessage(
+            UnitTestUtil.textArgumentMatcher("tool_user.base.error.no_permission_for_location"));
 
-        final ILocation outsideCuboid = UnitTestUtil.getLocation(70, 80, 90, world);
-        final ILocation insideCuboid = UnitTestUtil.getLocation(25, 35, 45, world);
+        Assertions.assertEquals(0, creator.getStepsCompleted());
+        Assertions.assertTrue(creator.isActive());
+        Assertions.assertNull(creator.getPowerBlock());
+    }
 
-        setField(creator, "cuboid", cuboid);
-        setField(creator, "world", world);
+    @Test
+    void testCompleteSetPowerBlockStepInsideStructure()
+    {
+        final var creator = newPowerBlockCreator();
 
-        Assertions.assertFalse(creator.completeSetPowerBlockStep(UnitTestUtil.getLocation(0, 1, 2)));
+        final ILocation location = UnitTestUtil.getLocation(DEFAULT_MAX, creator.getWorld());
 
-        Mockito.doReturn(false).when(creator).playerHasAccessToLocation(Mockito.any());
-        Assertions.assertFalse(creator.completeSetPowerBlockStep(outsideCuboid));
-
-        Mockito.doReturn(true).when(creator).playerHasAccessToLocation(Mockito.any());
-        Assertions.assertFalse(creator.completeSetPowerBlockStep(insideCuboid));
+        Assertions.assertFalse(creator.handleInput(location).join());
 
         Mockito.verify(player).sendMessage(
             UnitTestUtil.textArgumentMatcher("creator.base.error.powerblock_inside_structure"));
 
-        final double distance = cuboid.getCenter().getDistance(outsideCuboid.getPosition());
-        final int lowLimit = (int) (distance - 1);
-        Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any())).thenReturn(OptionalInt.of(lowLimit));
-
-        Assertions.assertFalse(creator.completeSetPowerBlockStep(outsideCuboid));
-        Mockito.verify(player).sendMessage(
-            UnitTestUtil.textArgumentMatcher("creator.base.error.powerblock_too_far"));
-
-        Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any())).thenReturn(OptionalInt.of(lowLimit + 10));
-        Assertions.assertTrue(creator.completeSetPowerBlockStep(outsideCuboid));
+        Assertions.assertEquals(0, creator.getStepsCompleted());
+        Assertions.assertTrue(creator.isActive());
+        Assertions.assertNull(creator.getPowerBlock());
     }
 
     @Test
-    void testCompleteSetRotationPointStep()
+    void testCompleteSetPowerBlockStepTooFar()
     {
-        final Creator creator = newCreator();
+        final var creator = newPowerBlockCreator();
 
-        final IWorld world = UnitTestUtil.getWorld();
+        final ILocation location = UnitTestUtil.getLocation(DEFAULT_MAX.add(10), creator.getWorld());
+        final double distance = DEFAULT_CUBOID.getCenter().getDistance(location.getPosition());
+        final int lowLimit = (int) (distance - 1);
+        Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any())).thenReturn(OptionalInt.of(lowLimit));
 
-        final Vector3Di cuboidMin = new Vector3Di(10, 20, 30);
-        final Vector3Di cuboidMax = new Vector3Di(40, 50, 60);
-        final Cuboid cuboid = new Cuboid(cuboidMin, cuboidMax);
+        Assertions.assertFalse(creator.handleInput(location).join());
 
-        setField(creator, "world", world);
-        setField(creator, "cuboid", cuboid);
+        Mockito.verify(player).sendMessage(
+            UnitTestUtil.textArgumentMatcher("creator.base.error.powerblock_too_far"));
 
-        // World mismatch, so not allowed
-        Assertions.assertFalse(creator.completeSetRotationPointStep(UnitTestUtil.getLocation(1, 1, 1)));
+        Assertions.assertEquals(0, creator.getStepsCompleted());
+        Assertions.assertTrue(creator.isActive());
+        Assertions.assertNull(creator.getPowerBlock());
+    }
 
-        Mockito.doReturn(false).when(creator).playerHasAccessToLocation(Mockito.any());
-        // Location not allowed
-        Assertions.assertFalse(creator.completeSetRotationPointStep(UnitTestUtil.getLocation(1, 1, 1, world)));
+    @Test
+    void testCompleteSetPowerBlockStepSuccess()
+    {
+        final var creator = newPowerBlockCreator();
 
-        Mockito.doReturn(true).when(creator).playerHasAccessToLocation(Mockito.any());
-        // Point too far away
-        Assertions.assertFalse(creator.completeSetRotationPointStep(UnitTestUtil.getLocation(1, 1, 1, world)));
+        final Vector3Di position = DEFAULT_MAX.add(10);
+
+        final ILocation location = UnitTestUtil.getLocation(position, creator.getWorld());
+        final double distance = DEFAULT_CUBOID.getCenter().getDistance(location.getPosition());
+        final int lowLimit = (int) (distance + 1);
+        Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any())).thenReturn(OptionalInt.of(lowLimit));
+
+        Assertions.assertTrue(creator.handleInput(location).join());
+
+        Assertions.assertEquals(1, creator.getStepsCompleted());
+        Assertions.assertTrue(creator.isActive());
+        Assertions.assertEquals(position, creator.getPowerBlock());
+    }
+
+    @Test
+    void testCompleteSetPowerBlockStepSuccessNoLimits()
+    {
+        final var creator = newPowerBlockCreator();
+
+        final Vector3Di position = DEFAULT_MAX.add(10);
+
+        Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any())).thenReturn(OptionalInt.empty());
+
+        Assertions.assertTrue(creator.handleInput(UnitTestUtil.getLocation(position, creator.getWorld())).join());
+
+        Assertions.assertEquals(1, creator.getStepsCompleted());
+        Assertions.assertTrue(creator.isActive());
+        Assertions.assertEquals(position, creator.getPowerBlock());
+    }
+
+    @Test
+    void testCompleteSetRotationPointStepWorldMismatch()
+    {
+        final var creator = newSetRotationPointCreator();
+
+        Assertions.assertFalse(creator.handleInput(UnitTestUtil.getLocation(DEFAULT_MAX)).join());
+
+        Mockito.verify(player).sendMessage(
+            UnitTestUtil.textArgumentMatcher("creator.base.error.world_mismatch"));
+
+        Assertions.assertEquals(0, creator.getStepsCompleted());
+        Assertions.assertTrue(creator.isActive());
+        Assertions.assertNull(creator.getRotationPoint());
+    }
+
+    @Test
+    void testCompleteSetRotationPointStepLocationNotAllowed()
+    {
+        final var creator = newSetRotationPointCreator();
+
+        Mockito.when(protectionHookManager.canBreakBlock(Mockito.any(), Mockito.any()))
+               .thenReturn(Optional.of("NOT_ALLOWED"));
+
+        Assertions.assertFalse(creator.handleInput(UnitTestUtil.getLocation(DEFAULT_MAX, creator.getWorld())).join());
+
+        Mockito.verify(player).sendMessage(
+            UnitTestUtil.textArgumentMatcher("tool_user.base.error.no_permission_for_location"));
+
+        Assertions.assertEquals(0, creator.getStepsCompleted());
+        Assertions.assertTrue(creator.isActive());
+        Assertions.assertNull(creator.getRotationPoint());
+    }
+
+    @Test
+    void testCompleteSetRotationPointStepPointInvalid()
+    {
+        final var creator = newSetRotationPointCreator();
+
+        Assertions.assertFalse(
+            creator.handleInput(UnitTestUtil.getLocation(DEFAULT_MAX.add(2, 2, 2), creator.getWorld())).join());
+
         Mockito.verify(player).sendMessage(
             UnitTestUtil.textArgumentMatcher("creator.base.error.invalid_rotation_point"));
 
-        Assertions.assertTrue(creator.completeSetRotationPointStep(UnitTestUtil.getLocation(11, 21, 31, world)));
+        Assertions.assertEquals(0, creator.getStepsCompleted());
+        Assertions.assertTrue(creator.isActive());
+        Assertions.assertNull(creator.getRotationPoint());
     }
 
-    private Step newDefaultStep()
+    @Test
+    void testCompleteSetRotationPointStepSuccess()
+    {
+        final var creator = newSetRotationPointCreator();
+
+        Assertions.assertTrue(
+            creator.handleInput(UnitTestUtil.getLocation(DEFAULT_MAX, creator.getWorld())).join());
+
+        Assertions.assertEquals(1, creator.getStepsCompleted());
+        Assertions.assertTrue(creator.isActive());
+        Assertions.assertEquals(DEFAULT_MAX, creator.getRotationPoint());
+    }
+
+    private CreatorImpl newFirstLocationCreator()
+    {
+        return newCreatorFactory()
+            .steps(
+                newStepSupplier(creator0 -> new StepExecutorLocation(creator0::provideFirstPos)),
+                newDefaultStep())
+            .create();
+    }
+
+    private CreatorImpl newSecondLocationCreator()
+    {
+        return newCreatorFactory()
+            .steps(
+                newStepSupplier(creator0 -> new StepExecutorLocation(creator0::provideSecondPos)),
+                newDefaultStep())
+            .mockedWorld()
+            .firstPos(DEFAULT_MIN)
+            .create();
+    }
+
+    private CreatorImpl newPowerBlockCreator()
+    {
+        return newCreatorFactory()
+            .steps(
+                newStepSupplier(creator0 -> new StepExecutorLocation(creator0::completeSetPowerBlockStep)),
+                newDefaultStep())
+            .mockedWorld()
+            .firstPos(DEFAULT_MIN)
+            .defaultCuboid()
+            .create();
+    }
+
+    private CreatorImpl newConfirmPriceCreator()
+    {
+        return newCreatorFactory()
+            .steps(
+                newStepSupplier(creator0 -> new StepExecutorBoolean(creator0::confirmPrice)),
+                newDefaultStep())
+            .defaultCuboid()
+            .mockedWorld()
+            .create();
+    }
+
+    private CreatorImpl newMovementDirectionCreator()
+    {
+        return newCreatorFactory()
+            .steps(
+                newStepSupplier(creator0 -> new StepExecutorOpenDirection(creator0::completeSetOpenDirStep)),
+                newDefaultStep())
+            .defaultCuboid()
+            .mockedWorld()
+            .create();
+    }
+
+    private CreatorImpl newSetRotationPointCreator()
+    {
+        return newCreatorFactory()
+            .steps(
+                newStepSupplier(creator0 -> new StepExecutorLocation(creator0::completeSetRotationPointStep)),
+                newDefaultStep())
+            .defaultCuboid()
+            .mockedWorld()
+            .create();
+    }
+
+    /**
+     * Creates a function that creates a new step with the given executor for a Creator that will be supplied later.
+     *
+     * @param executorFunction
+     *     The function that creates the executor.
+     * @return The new function.
+     */
+    private Function<Creator, Step> newStepSupplier(Function<Creator, StepExecutor> executorFunction)
+    {
+        return creator -> newStep(executorFunction.apply(creator));
+    }
+
+    /**
+     * Creates a new step with the given executor.
+     * <p>
+     * See {@link #newDefaultStepFactory(StepExecutor)}.
+     *
+     * @param executor
+     *     The executor to use.
+     * @return The new step.
+     */
+    private Step newStep(StepExecutor executor)
     {
         try
         {
-            return context
-                .getStepFactory()
-                .stepName("test")
-                .stepExecutor(Mockito.mock(StepExecutor.class))
-                .textSupplier(text -> text.append("test"))
-                .construct();
+            return newDefaultStepFactory(executor).construct();
         }
         catch (InstantiationException e)
         {
@@ -415,78 +734,218 @@ public class CreatorTest
         }
     }
 
-    private CreatorImpl newCreator()
+    /**
+     * Creates a new default step factory.
+     * <p>
+     * All the required fields are defined either using dummy values or mocks.
+     * <p>
+     * The step is named "DefaultStep_" followed by the current nano time.
+     *
+     * @return The new default step factory.
+     */
+    private Step.Factory newDefaultStepFactory(@Nullable StepExecutor stepExecutor)
     {
-        return newCreator(null);
+        final String stepName = "DefaultStep_" + System.nanoTime();
+        return context
+            .getStepFactory()
+            .stepName(stepName)
+            .stepExecutor(Objects.requireNonNullElseGet(stepExecutor, () -> Mockito.mock(StepExecutor.class)))
+            .textSupplier(text -> text.append(stepName));
     }
 
-    private CreatorImpl newCreator(@Nullable List<Step> steps)
+    /**
+     * See {@link #newDefaultStepFactory(StepExecutor)}.
+     * <p>
+     * Uses a mock for the step executor.
+     *
+     * @return The new default step factory.
+     */
+    private Step.Factory newDefaultStepFactory()
     {
-        final List<Step> stepsList = steps == null ? List.of(newDefaultStep()) : steps;
-        final CreatorImpl creator = new CreatorImpl(context, player, structureType, stepsList, null);
-        return Mockito.spy(creator);
+        return newDefaultStepFactory(null);
     }
 
-    private void setField(Creator creator, String fieldName, @Nullable Object obj)
+    /**
+     * Creates a new default step.
+     * <p>
+     * See {@link #newDefaultStepFactory()}.
+     *
+     * @return The new default step.
+     */
+    private Step newDefaultStep()
     {
         try
         {
-            final Field f = Creator.class.getDeclaredField(fieldName);
-            f.setAccessible(true);
-            f.set(creator, obj);
+            return newDefaultStepFactory().construct();
         }
-        catch (Exception e)
+        catch (InstantiationException e)
         {
             throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Creates a new factory for a Creator.
+     *
+     * @return The new factory.
+     */
+    private CreatorImplFactory newCreatorFactory()
+    {
+        return new CreatorImplFactory(context, player, structureType);
+    }
+
+    /**
+     * Creates a new factory for a Creator with the given number of default steps.
+     * <p>
+     * See {@link #newCreatorFactory()} and {@link #newDefaultStep()}.
+     *
+     * @param defaultSteps
+     *     The number of default steps to create.
+     * @return The new factory.
+     */
+    private CreatorImplFactory newCreatorFactory(int defaultSteps)
+    {
+        final var factory = newCreatorFactory();
+        final List<Step> steps = new ArrayList<>(defaultSteps);
+        for (int i = 0; i < defaultSteps; i++)
+            steps.add(newDefaultStep());
+        return factory.steps(steps);
+    }
+
+    @Setter
+    @Accessors(fluent = true, chain = true)
+    private static final class CreatorImplFactory
+    {
+        private final StructureType structureType;
+        private final ToolUser.Context context;
+        private final IPlayer player;
+
+        private @Nullable List<?> steps;
+        private @Nullable IWorld world;
+        private @Nullable Vector3Di firstPos;
+        private @Nullable Cuboid cuboid;
+        private @Nullable String name;
+
+        public CreatorImplFactory(
+            ToolUser.Context context,
+            IPlayer player,
+            StructureType structureType)
+        {
+            this.structureType = structureType;
+            this.context = context;
+            this.player = player;
+        }
+
+        public CreatorImplFactory defaultCuboid()
+        {
+            return cuboid(DEFAULT_CUBOID);
+        }
+
+        public CreatorImplFactory mockedWorld()
+        {
+            return world(UnitTestUtil.getWorld());
+        }
+
+        /**
+         * Sets the steps or step suppliers for the Creator.
+         * <p>
+         * If the step is a {@link Step}, it is added directly.
+         * <p>
+         * If the step is a {@link Function}, it should be a function that takes a {@link Creator} and returns a
+         * {@link Step}. The function will be called with the Creator as the argument.
+         *
+         * @param steps
+         *     The steps or step suppliers to use.
+         * @return This factory.
+         */
+        public CreatorImplFactory steps(List<?> steps)
+        {
+            this.steps = steps;
+            return this;
+        }
+
+        /**
+         * Sets the steps or step suppliers for the Creator.
+         * <p>
+         * If the step is a {@link Step}, it is added directly.
+         * <p>
+         * If the step is a {@link Function}, it should be a function that takes a {@link Creator} and returns a
+         * {@link Step}. The function will be called with the Creator as the argument.
+         *
+         * @param steps
+         *     The steps or step suppliers to use.
+         * @return This factory.
+         */
+        public CreatorImplFactory steps(Object... steps)
+        {
+            if (steps.length == 1 &&
+                steps[0] instanceof List<?> lst &&
+                !lst.isEmpty() &&
+                lst.getFirst() instanceof Step)
+                return steps(lst);
+
+            return steps(List.of(steps));
+        }
+
+        public CreatorImpl create()
+        {
+            if (steps == null)
+                throw new IllegalStateException("No steps or step suppliers defined!");
+
+            final var ret = new CreatorImpl(context, player, structureType, name);
+
+            final List<Step> realSteps = new ArrayList<>(steps.size());
+            for (final Object step : steps)
+            {
+                if (step instanceof Step)
+                    realSteps.add((Step) step);
+                else if (step instanceof Function)
+                    //noinspection unchecked
+                    realSteps.add(((Function<Creator, Step>) step).apply(ret));
+                else
+                    throw new IllegalArgumentException("Invalid step type: " + step.getClass().getSimpleName());
+            }
+
+            ret.steps = realSteps;
+
+            if (world != null)
+                ret.setWorld(world);
+
+            if (firstPos != null)
+                ret.setFirstPos(firstPos);
+
+            if (cuboid != null)
+                ret.setCuboid(cuboid);
+
+            ret.init();
+
+            return ret;
         }
     }
 
     private static final class CreatorImpl extends Creator
     {
         private final StructureType structureType;
-        private final List<Step> steps;
-        private final Procedure procedure;
 
-        private final Method acquireInputLock;
-        private final Method releaseInputLock;
+        private List<Step> steps;
+        private Procedure procedure;
 
         public CreatorImpl(
             ToolUser.Context context,
             IPlayer player,
             StructureType structureType,
-            List<Step> steps,
             @Nullable String name)
         {
             super(context, player, name);
             this.structureType = structureType;
-            this.steps = List.copyOf(steps);
+        }
+
+        @Override
+        protected void init()
+        {
+            Objects.requireNonNull(steps, "Steps must be defined!");
+            super.init();
             this.procedure = findProcedure();
-            this.acquireInputLock = ReflectionUtil.getMethod(ToolUser.class, "acquireInputLock");
-            this.releaseInputLock = ReflectionUtil.getMethod(ToolUser.class, "releaseInputLock");
-        }
-
-        public void acquireInputLock()
-        {
-            try
-            {
-                acquireInputLock.invoke(this);
-            }
-            catch (Exception e)
-            {
-                throw new RuntimeException(e);
-            }
-        }
-
-        public void releaseInputLock()
-        {
-            try
-            {
-                releaseInputLock.invoke(this);
-            }
-            catch (Exception e)
-            {
-                throw new RuntimeException(e);
-            }
         }
 
         @Override
@@ -509,9 +968,13 @@ public class CreatorTest
 
         @Override
         protected List<Step> generateSteps()
-            throws InstantiationException
         {
             return this.steps;
+        }
+
+        public Procedure getProcedure()
+        {
+            return procedure;
         }
 
         private Procedure findProcedure()
@@ -528,9 +991,14 @@ public class CreatorTest
             }
         }
 
-        public Procedure getProcedure()
+        /**
+         * Shortcut for getting the number of steps completed.
+         *
+         * @return The number of steps completed in the procedure.
+         */
+        public int getStepsCompleted()
         {
-            return procedure;
+            return getProcedure().getStepsCompleted();
         }
     }
 }

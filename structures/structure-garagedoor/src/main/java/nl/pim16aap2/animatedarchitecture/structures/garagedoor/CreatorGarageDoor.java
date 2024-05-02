@@ -44,6 +44,7 @@ public class CreatorGarageDoor extends Creator
     public CreatorGarageDoor(ToolUser.Context context, IPlayer player, @Nullable String name)
     {
         super(context, player, name);
+        init();
     }
 
     @Override
@@ -94,7 +95,7 @@ public class CreatorGarageDoor extends Creator
     public synchronized Set<MovementDirection> getValidOpenDirections()
     {
         if (isOpen())
-            return getStructureType().getValidOpenDirections();
+            return getStructureType().getValidMovementDirections();
         // When the garage structure is not open (i.e. vertical), it can only be opened along one axis.
         return northSouthAnimated ? NORTH_SOUTH_AXIS_OPEN_DIRS : EAST_WEST_AXIS_OPEN_DIRS;
     }

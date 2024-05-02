@@ -21,6 +21,7 @@ public class CreatorBigDoor extends Creator
     public CreatorBigDoor(ToolUser.Context context, IPlayer player, @Nullable String name)
     {
         super(context, player, name);
+        init();
     }
 
     @Override

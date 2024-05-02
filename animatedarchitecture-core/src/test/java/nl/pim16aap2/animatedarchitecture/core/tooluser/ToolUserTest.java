@@ -208,11 +208,7 @@ public class ToolUserTest
         public TestToolUser(Context context, IPlayer player)
         {
             super(context, player);
-        }
-
-        @Override
-        protected void init()
-        {
+            init();
         }
 
         @Override

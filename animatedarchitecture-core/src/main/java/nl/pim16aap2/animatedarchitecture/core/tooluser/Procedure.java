@@ -42,6 +42,14 @@ public final class Procedure
     @GuardedBy("this")
     private final Deque<Step> steps;
 
+    /**
+     * The number of steps that have been completed.
+     * <p>
+     * We start at -1 because moving to the first step counts as completing a step.
+     */
+    @GuardedBy("this")
+    private int stepsCompleted = -1;
+
     public Procedure(List<Step> steps, ILocalizer localizer, ITextFactory textFactory)
     {
         this.stepMap = createStepMap(steps);
@@ -128,7 +136,9 @@ public final class Procedure
                     (currentStep == null ? "NULL" : getCurrentStepName()));
             return;
         }
+
         currentStep = steps.pop();
+        stepsCompleted++;
 
         if (currentStep.skip())
             goToNextStep();
@@ -148,6 +158,8 @@ public final class Procedure
         while (hasNextStep())
         {
             final Step step = steps.pop();
+            stepsCompleted++;
+
             if (step.equals(goalStep))
             {
                 currentStep = step;
@@ -319,10 +331,21 @@ public final class Procedure
         return this.currentStep;
     }
 
+    /**
+     * Gets the number of steps that have been completed.
+     *
+     * @return The number of steps that have been completed.
+     */
+    public synchronized int getStepsCompleted()
+    {
+        return this.stepsCompleted;
+    }
+
     @Override
     public synchronized String toString()
     {
         return "Procedure(currentStep=" + this.getCurrentStep() +
+            ", stepsCompleted=" + this.stepsCompleted +
             ", stepMap=" + this.stepMap +
             ", steps=" + this.steps + ")";
     }

@@ -32,6 +32,7 @@ public class CreatorPortcullis extends Creator
     public CreatorPortcullis(ToolUser.Context context, IPlayer player, @Nullable String name)
     {
         super(context, player, name);
+        init();
     }
 
     @Override

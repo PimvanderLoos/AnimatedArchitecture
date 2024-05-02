@@ -42,14 +42,12 @@ public class PowerBlockInspector extends ToolUser
         super(context, player);
         this.powerBlockManager = powerBlockManager;
         this.bypassPermission = bypassPermission;
-    }
 
-    @Override
-    protected void init()
-    {
         giveTool(
             "tool_user.base.stick_name", "tool_user.powerblock_inspector.stick_lore",
             textFactory.newText().append(localizer.getMessage("tool_user.powerblock_inspector.init"), TextType.INFO));
+
+        init();
     }
 
     protected boolean inspectLoc(ILocation loc)

@@ -150,14 +150,14 @@ public abstract class Creator extends ToolUser
     /**
      * Factory for the {@link Step} that provides the name.
      */
-    protected Step.Factory factoryProvideName;
+    protected final Step.Factory factoryProvideName;
 
     /**
      * Factory for the {@link Step} that provides the first position of the area of the structure.
      * <p>
      * Don't forget to set the message before using it!
      */
-    protected Step.Factory factoryProvideFirstPos;
+    protected final Step.Factory factoryProvideFirstPos;
 
     /**
      * Factory for the {@link Step} that provides the second position of the area of the structure, thus completing the
@@ -165,50 +165,51 @@ public abstract class Creator extends ToolUser
      * <p>
      * Don't forget to set the message before using it!
      */
-    protected Step.Factory factoryProvideSecondPos;
+    protected final Step.Factory factoryProvideSecondPos;
 
     /**
      * Factory for the {@link Step} that provides the position of the structure's rotation point.
      * <p>
      * Don't forget to set the message before using it!
      */
-    protected Step.Factory factoryProvideRotationPointPos;
+    protected final Step.Factory factoryProvideRotationPointPos;
 
     /**
      * Factory for the {@link Step} that provides the position of the structure's power block.
      */
-    protected Step.Factory factoryProvidePowerBlockPos;
+    protected final Step.Factory factoryProvidePowerBlockPos;
 
     /**
      * Factory for the {@link Step} that provides the open status of the structure.
      */
-    protected Step.Factory factoryProvideOpenStatus;
+    protected final Step.Factory factoryProvideOpenStatus;
 
     /**
      * Factory for the {@link Step} that provides the open direction of the structure.
      */
-    protected Step.Factory factoryProvideOpenDir;
+    protected final Step.Factory factoryProvideOpenDir;
 
     /**
      * Factory for the {@link Step} that allows the player to confirm or reject the price of the structure.
      */
-    protected Step.Factory factoryConfirmPrice;
+    protected final Step.Factory factoryConfirmPrice;
 
     /**
      * Factory for the {@link Step} that allows players to review the created structure
      */
-    protected Step.Factory factoryReviewResult;
+    protected final Step.Factory factoryReviewResult;
 
     /**
      * Factory for the {@link Step} that completes this process.
      * <p>
      * Don't forget to set the message before using it!
      */
-    protected Step.Factory factoryCompleteProcess;
+    protected final Step.Factory factoryCompleteProcess;
 
     protected Creator(ToolUser.Context context, IPlayer player, @Nullable String name)
     {
         super(context, player);
+
         this.structureAnimationRequestBuilder = context.getStructureAnimationRequestBuilder();
         this.structureActivityManager = context.getStructureActivityManager();
         this.limitsManager = context.getLimitsManager();
@@ -217,18 +218,13 @@ public abstract class Creator extends ToolUser
         this.economyManager = context.getEconomyManager();
         this.commandFactory = context.getCommandFactory();
 
+        this.name = name;
+
         player.sendMessage(textFactory.newText().append(
             localizer.getMessage("creator.base.init"), TextType.INFO,
             arg -> arg.clickable(
                 "/AnimatedArchitecture cancel", TextType.CLICKABLE_REFUSE, "/AnimatedArchitecture cancel")));
 
-        if (name == null || !handleInput(name).join())
-            runWithLock(this::prepareCurrentStep).join();
-    }
-
-    @Override
-    protected synchronized void init()
-    {
         factoryProvideName = stepFactory
             .stepName("SET_NAME")
             .stepExecutor(new StepExecutorString(this::completeNamingStep))
@@ -314,6 +310,14 @@ public abstract class Creator extends ToolUser
             .textSupplier(text -> text.append(
                 localizer.getMessage("creator.base.success"), TextType.SUCCESS, getStructureArg()))
             .waitForUserInput(false);
+    }
+
+    protected synchronized void init()
+    {
+        super.init();
+
+        if (name == null || !handleInput(name).join())
+            runWithLock(this::prepareCurrentStep).join();
     }
 
     /**
@@ -558,9 +562,10 @@ public abstract class Creator extends ToolUser
             return false;
         }
 
-        cuboid = newCuboid;
-
-        return playerHasAccessToCuboid(cuboid, Util.requireNonNull(world, "world"));
+        final boolean result = playerHasAccessToCuboid(newCuboid, Util.requireNonNull(world, "world"));
+        if (result)
+            cuboid = newCuboid;
+        return result;
     }
 
     /**
@@ -654,6 +659,10 @@ public abstract class Creator extends ToolUser
     {
         if (Util.requireNonNull(world, "world").worldName().equals(targetWorld.worldName()))
             return true;
+
+        getPlayer().sendError(
+            textFactory, localizer.getMessage("creator.base.error.world_mismatch"));
+
         log.atFine().log("World mismatch in ToolUser for player: %s", getPlayer());
         return false;
     }
@@ -733,14 +742,14 @@ public abstract class Creator extends ToolUser
 
     /**
      * Gets the list of valid open directions for this type. It returns a subset of
-     * {@link StructureType#getValidOpenDirections()} based on the current physical aspects of the
+     * {@link StructureType#getValidMovementDirections()} based on the current physical aspects of the
      * {@link AbstractStructure}.
      *
      * @return The list of valid open directions for this type given its current physical dimensions.
      */
     public synchronized Set<MovementDirection> getValidOpenDirections()
     {
-        return getStructureType().getValidOpenDirections();
+        return getStructureType().getValidMovementDirections();
     }
 
     /**

@@ -37,7 +37,7 @@ class CreatorFullTest extends CreatorTestsUtil
         openDirection = MovementDirection.NORTH;
 
         structureType = Mockito.mock(StructureType.class);
-        Mockito.when(structureType.getValidOpenDirections())
+        Mockito.when(structureType.getValidMovementDirections())
                .thenReturn(EnumSet.of(MovementDirection.NORTH, MovementDirection.SOUTH));
 
         final var structure = Mockito.mock(AbstractStructure.class);
@@ -68,7 +68,7 @@ class CreatorFullTest extends CreatorTestsUtil
         openDirection = MovementDirection.NORTH;
 
         structureType = Mockito.mock(StructureType.class);
-        Mockito.when(structureType.getValidOpenDirections())
+        Mockito.when(structureType.getValidMovementDirections())
                .thenReturn(EnumSet.of(MovementDirection.NORTH, MovementDirection.SOUTH));
 
         final var structure = Mockito.mock(AbstractStructure.class);
@@ -105,6 +105,7 @@ class CreatorFullTest extends CreatorTestsUtil
         {
             super(context, player, null);
             this.structure = structure;
+            init();
         }
 
         @Override

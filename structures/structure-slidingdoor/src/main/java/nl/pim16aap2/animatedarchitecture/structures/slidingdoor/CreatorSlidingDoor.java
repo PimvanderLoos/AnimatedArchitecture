@@ -31,6 +31,7 @@ public class CreatorSlidingDoor extends Creator
     public CreatorSlidingDoor(ToolUser.Context context, IPlayer player, @Nullable String name)
     {
         super(context, player, name);
+        init();
     }
 
     @Override

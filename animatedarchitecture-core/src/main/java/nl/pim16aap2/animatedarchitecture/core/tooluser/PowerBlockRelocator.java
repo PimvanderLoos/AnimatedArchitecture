@@ -39,14 +39,12 @@ public class PowerBlockRelocator extends ToolUser
     {
         super(context, player);
         this.structure = structure;
-    }
 
-    @Override
-    protected synchronized void init()
-    {
         giveTool(
             "tool_user.base.stick_name", "tool_user.powerblock_relocator.stick_lore",
             textFactory.newText().append(localizer.getMessage("tool_user.powerblock_relocator.init"), TextType.INFO));
+
+        init();
     }
 
     protected synchronized boolean moveToLoc(ILocation loc)

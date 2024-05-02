@@ -54,6 +54,7 @@ public class CreatorClock extends Creator
     public CreatorClock(ToolUser.Context context, IPlayer player, @Nullable String name)
     {
         super(context, player, name);
+        init();
     }
 
     @Override

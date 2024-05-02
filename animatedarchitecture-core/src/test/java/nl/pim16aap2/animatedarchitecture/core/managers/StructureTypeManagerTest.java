@@ -72,7 +72,7 @@ class StructureTypeManagerTest
         Mockito.when(structureType.getLocalizationKey()).thenReturn("localization.key." + simpleName0);
         Mockito.when(structureType.getFullName()).thenReturn(fullName);
         Mockito.when(structureType.getFullNameWithVersion()).thenReturn(fullName + ":" + version);
-        Mockito.when(structureType.getValidOpenDirections()).thenReturn(Collections.emptySet());
+        Mockito.when(structureType.getValidMovementDirections()).thenReturn(Collections.emptySet());
 
         Mockito.when(structureType.toString()).thenReturn(
             "MockedStructureType[@" + Integer.toHexString(structureType.hashCode()) + "] " + fullName + ":" + version);

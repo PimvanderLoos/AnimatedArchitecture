@@ -21,6 +21,7 @@ public class CreatorRevolvingDoor extends CreatorBigDoor
     public CreatorRevolvingDoor(ToolUser.Context context, IPlayer player, @Nullable String name)
     {
         super(context, player, name);
+        init();
     }
 
     @Override

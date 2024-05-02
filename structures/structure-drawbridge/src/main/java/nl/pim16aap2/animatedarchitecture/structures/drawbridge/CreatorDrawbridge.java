@@ -21,6 +21,7 @@ public class CreatorDrawbridge extends Creator
     public CreatorDrawbridge(ToolUser.Context context, IPlayer player, @Nullable String name)
     {
         super(context, player, name);
+        init();
     }
 
     @Override

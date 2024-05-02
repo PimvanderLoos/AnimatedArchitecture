@@ -79,7 +79,7 @@ public abstract class StructureType
      * @return A set of all valid {@link MovementDirection} for this given type.
      */
     @Getter
-    private final Set<MovementDirection> validOpenDirections;
+    private final Set<MovementDirection> validMovementDirections;
 
     /**
      * Gets a list of all theoretically valid {@link MovementDirection} for this given type. It does NOT take the
@@ -105,16 +105,16 @@ public abstract class StructureType
      *     The version of this {@link StructureType}.
      */
     protected StructureType(
-        String pluginName, String simpleName, int version, List<MovementDirection> validOpenDirections,
+        String pluginName, String simpleName, int version, List<MovementDirection> validMovementDirections,
         String localizationKey)
     {
         this.pluginName = pluginName;
         this.simpleName = simpleName.toLowerCase(Locale.ENGLISH);
         this.version = version;
-        this.validOpenDirections =
-            validOpenDirections.isEmpty() ? EnumSet.noneOf(MovementDirection.class) :
-            EnumSet.copyOf(validOpenDirections);
-        this.validOpenDirectionsList = List.copyOf(this.validOpenDirections);
+        this.validMovementDirections =
+            validMovementDirections.isEmpty() ? EnumSet.noneOf(MovementDirection.class) :
+            EnumSet.copyOf(validMovementDirections);
+        this.validOpenDirectionsList = List.copyOf(this.validMovementDirections);
         this.localizationKey = localizationKey;
         this.fullName = formatFullName(getPluginName(), getSimpleName());
         this.fullNameWithVersion = fullName + ":" + version;
@@ -141,7 +141,7 @@ public abstract class StructureType
      */
     public final boolean isValidOpenDirection(MovementDirection movementDirection)
     {
-        return validOpenDirections.contains(movementDirection);
+        return validMovementDirections.contains(movementDirection);
     }
 
     /**

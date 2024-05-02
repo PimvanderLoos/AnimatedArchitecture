@@ -30,6 +30,7 @@ public class CreatorFlag extends Creator
     public CreatorFlag(ToolUser.Context context, IPlayer player, @Nullable String name)
     {
         super(context, player, name);
+        init();
     }
 
     @Override
