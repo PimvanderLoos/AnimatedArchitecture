@@ -2,7 +2,6 @@ package nl.pim16aap2.animatedarchitecture.core.tooluser;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.Getter;
-import lombok.Synchronized;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.StructureActivityManager;
 import nl.pim16aap2.animatedarchitecture.core.annotations.Initializer;
@@ -352,7 +351,8 @@ public abstract class ToolUser
             .exceptionally(
                 ex ->
                 {
-                    throw new RuntimeException("Failed to handle input '" + obj + "' for ToolUser '" + this + "'!", ex);
+                    throw new RuntimeException(
+                        "An error occurred applying input '" + obj + "' for ToolUser '" + this + "'!", ex);
                 });
     }
 
@@ -375,7 +375,8 @@ public abstract class ToolUser
                 .exceptionally(
                     ex ->
                     {
-                        log.atSevere().withCause(ex).log("Failed to handle input '%s' for ToolUser '%s'!", obj, this);
+                        log.atSevere().withCause(ex)
+                           .log("An error occurred handling input '%s' for ToolUser '%s'!", obj, this);
                         return false;
                     });
         }
@@ -402,7 +403,6 @@ public abstract class ToolUser
     protected final <T> CompletableFuture<T> runWithLock(Supplier<CompletableFuture<T>> supplier)
     {
         assertInitialized();
-
         acquireInputLock();
         try
         {
@@ -588,8 +588,6 @@ public abstract class ToolUser
      * @throws IllegalStateException
      *     If the lock is not held.
      */
-    // Use Lombok's synchronized annotation to use a different lock than the object's monitor.
-    @Synchronized
     protected final void assertLockHeld()
     {
         if (inputLock.availablePermits() == 1)
@@ -606,7 +604,6 @@ public abstract class ToolUser
      * The lock has no notion of ownership, so it is not reentrant and, once acquired, it can be released by any
      * thread.
      */
-    @Synchronized
     private void acquireInputLock()
     {
         try
@@ -628,12 +625,10 @@ public abstract class ToolUser
      * @throws IllegalStateException
      *     if the lock is not currently held.
      */
-    @Synchronized
     private void releaseInputLock()
     {
-        final int availablePermits = inputLock.availablePermits();
-        if (availablePermits != 0)
-            throw new IllegalStateException("Failed to release the input lock! Permits available: " + availablePermits);
+        if (inputLock.availablePermits() != 0)
+            throw new IllegalStateException("Failed to release the input lock!");
         inputLock.release();
     }
 

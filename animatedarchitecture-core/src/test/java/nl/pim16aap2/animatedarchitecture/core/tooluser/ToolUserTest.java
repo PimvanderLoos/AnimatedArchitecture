@@ -141,7 +141,7 @@ public class ToolUserTest
         final var steps = List.of(
             createStep(
                 stepFactory, "step_1",
-                new AsyncStepExecutor<>(Boolean.class, ignored ->
+                new AsyncStepExecutor<>(Integer.class, ignored ->
                 {
                     sleep(500);
                     return toolUser.appendValueAsync(1);
@@ -149,11 +149,11 @@ public class ToolUserTest
             createStep(
                 stepFactory, "step_2",
                 new AsyncStepExecutor<>(
-                    Boolean.class, ignored -> toolUser.appendValueAsync(2))),
+                    Integer.class, ignored -> toolUser.appendValueAsync(2))),
             createStep(
                 stepFactory, "step_3",
                 new AsyncStepExecutor<>(
-                    Boolean.class, ignored -> toolUser.appendValueAsync(3)))
+                    Integer.class, ignored -> toolUser.appendValueAsync(3)))
         );
 
         setProcedure(toolUser, steps);
@@ -161,7 +161,7 @@ public class ToolUserTest
         final var countDownLatch = new CountDownLatch(3);
 
         for (int idx = 0; idx < 3; idx++)
-            toolUser.handleInput(false).thenAccept(ignored -> countDownLatch.countDown());
+            toolUser.handleInput(idx).thenAccept(ignored -> countDownLatch.countDown());
 
         countDownLatch.await();
         Assertions.assertEquals(List.of(1, 2, 3), toolUser.getValues());
