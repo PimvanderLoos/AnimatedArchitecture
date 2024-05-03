@@ -32,6 +32,7 @@ import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutor
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.functional.CheckedFunction;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.testing.reflection.ReflectionUtil;
 import org.jetbrains.annotations.Nullable;
@@ -636,6 +637,63 @@ public class CreatorTest
         Assertions.assertEquals(DEFAULT_MAX, creator.getRotationPoint());
     }
 
+    @Test
+    void testUpdateProcess()
+    {
+        final var creator = newUpdateCreator();
+
+        Mockito.when(structureType.getValidMovementDirections())
+               .thenReturn(EnumSet.of(MovementDirection.EAST, MovementDirection.WEST));
+
+        Assertions.assertFalse(creator.isProcessIsUpdatable());
+        Assertions.assertTrue(creator.handleInput(MovementDirection.EAST).join());
+        // The process is now updatable because the preview step supports it.
+        Assertions.assertTrue(creator.isProcessIsUpdatable());
+
+        // Make sure that we cannot update the step after it has been completed regardless of the updatable flag.
+        Assertions.assertFalse(creator.handleInput(MovementDirection.WEST).join());
+
+        Assertions.assertEquals(1, creator.getStepsCompleted());
+        Assertions.assertTrue(creator.isActive());
+        Assertions.assertEquals(MovementDirection.EAST, creator.getMovementDirection());
+
+        Assertions.assertTrue(creator.update("OPEN_DIRECTION", null).join());
+        Assertions.assertTrue(creator.handleInput(MovementDirection.WEST).join());
+
+        Assertions.assertEquals(2, creator.getStepsCompleted());
+        Assertions.assertTrue(creator.isActive());
+        Assertions.assertEquals(MovementDirection.WEST, creator.getMovementDirection());
+        Assertions.assertFalse(creator.getProcedure().hasNextStep());
+    }
+
+    private CreatorImpl newUpdateCreator()
+    {
+        final CheckedFunction<Creator, Step, InstantiationException> openDirectionStep =
+            creator -> context
+                .getStepFactory()
+                .stepName("OPEN_DIRECTION")
+                .stepExecutor(new StepExecutorOpenDirection(creator::completeSetOpenDirStep))
+                .textSupplier(text -> text.append("OPEN_DIRECTION"))
+                .updatable(true)
+                .construct();
+
+        final CheckedFunction<Creator, Step, InstantiationException> previewStep =
+            creator -> context
+                .getStepFactory()
+                .stepName("PREVIEW")
+                .stepPreparation(creator::prepareReviewResult)
+                .stepExecutor(new StepExecutorBoolean(ignored -> true))
+                .textSupplier(text -> text.append("PREVIEW"))
+                .construct();
+
+        return newCreatorFactory()
+            .steps(
+                openDirectionStep,
+                previewStep
+            )
+            .create();
+    }
+
     private CreatorImpl newFirstLocationCreator()
     {
         return newCreatorFactory()
@@ -897,13 +955,29 @@ public class CreatorTest
             final List<Step> realSteps = new ArrayList<>(steps.size());
             for (final Object step : steps)
             {
-                if (step instanceof Step)
-                    realSteps.add((Step) step);
-                else if (step instanceof Function)
-                    //noinspection unchecked
-                    realSteps.add(((Function<Creator, Step>) step).apply(ret));
-                else
-                    throw new IllegalArgumentException("Invalid step type: " + step.getClass().getSimpleName());
+                switch (step)
+                {
+                    case Step step1 -> realSteps.add(step1);
+                    //noinspection rawtypes
+                    case Function function ->
+                        //noinspection unchecked
+                        realSteps.add(((Function<Creator, Step>) function).apply(ret));
+                    //noinspection rawtypes
+                    case CheckedFunction checkedFunction ->
+                    {
+                        try
+                        {
+                            //noinspection unchecked
+                            realSteps.add(((CheckedFunction<Creator, Step, ?>) checkedFunction).apply(ret));
+                        }
+                        catch (Exception e)
+                        {
+                            throw new RuntimeException("Failed to create step! Previous steps: " + realSteps, e);
+                        }
+                    }
+                    case null, default ->
+                        throw new IllegalArgumentException("Invalid step type: " + step.getClass().getSimpleName());
+                }
             }
 
             ret.steps = realSteps;
@@ -970,6 +1044,12 @@ public class CreatorTest
         protected List<Step> generateSteps()
         {
             return this.steps;
+        }
+
+        @Override
+        protected void showPreview()
+        {
+            // Do nothing
         }
 
         public Procedure getProcedure()

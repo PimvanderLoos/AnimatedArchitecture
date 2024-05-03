@@ -356,7 +356,7 @@ public abstract class Creator extends ToolUser
             () ->
             {
                 insertStep(stepName);
-                return handleInputWithLock(stepValue);
+                return prepareCurrentStep();
             }).exceptionally(
             ex ->
             {

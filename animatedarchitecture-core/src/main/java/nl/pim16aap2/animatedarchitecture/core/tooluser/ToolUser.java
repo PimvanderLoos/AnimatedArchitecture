@@ -234,12 +234,15 @@ public abstract class ToolUser
      * This should be used after proceeding to the next step.
      *
      * @return A {@link CompletableFuture} that will be completed when the current step is prepared.
+     * <p>
+     * If the step does not wait for user input, the returned future will be the result of
+     * {@link #handleInputWithLock(Object)}. Otherwise, it will be completed with true.
      *
      * @throws IllegalStateException
      *     If the lock is not held. See {@link #acquireInputLock()}.
      */
     @CheckReturnValue
-    protected CompletableFuture<?> prepareCurrentStep()
+    protected CompletableFuture<Boolean> prepareCurrentStep()
     {
         assertInitialized();
         assertLockHeld();
@@ -249,7 +252,7 @@ public abstract class ToolUser
 
         if (!procedure.waitForUserInput())
             return handleInputWithLock(null);
-        return CompletableFuture.completedFuture(null);
+        return CompletableFuture.completedFuture(true);
     }
 
     /**
@@ -262,7 +265,7 @@ public abstract class ToolUser
      *     If the lock is not held. See {@link #acquireInputLock()}.
      */
     @SuppressWarnings("unused")
-    protected CompletableFuture<?> skipToStep(Step goalStep)
+    protected CompletableFuture<Boolean> skipToStep(Step goalStep)
     {
         assertInitialized();
         assertLockHeld();
