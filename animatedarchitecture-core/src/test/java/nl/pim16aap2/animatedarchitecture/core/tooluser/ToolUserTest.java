@@ -93,6 +93,43 @@ public class ToolUserTest
     }
 
     @Test
+    void testStepThreadId()
+        throws InstantiationException
+    {
+        // We want to make sure that even in mixed-sync procedures, the sync steps are executed on the main thread.
+        final long currentThreadId = Thread.currentThread().threadId();
+
+        final int stepCount = 100;
+        final List<Step> steps = new ArrayList<>(stepCount);
+
+        final TestToolUser toolUser = new TestToolUser(context, player);
+
+        for (int idx = 0; idx < stepCount; idx++)
+        {
+            final int value = idx;
+
+            final boolean isAsync = idx % 2 == 0; // Every 2nd step is sync.
+            final String stepName = "Step_" + value + (isAsync ? " (async)" : " (sync)");
+
+            final StepExecutor stepExecutorSupplier =
+                isAsync ?
+                new AsyncStepExecutor<>(Boolean.class, ignored ->
+                {
+                    Assertions.assertNotEquals(currentThreadId, Thread.currentThread().threadId());
+                    return toolUser.appendValueAsync(value);
+                }) :
+                new StepExecutorBoolean(
+                    ignored ->
+                    {
+                        Assertions.assertEquals(currentThreadId, Thread.currentThread().threadId());
+                        return toolUser.appendValue(value);
+                    });
+
+            steps.add(createStep(stepFactory, stepName, stepExecutorSupplier));
+        }
+    }
+
+    @Test
     void testAsyncProcedure()
         throws InstantiationException
     {
@@ -108,13 +145,13 @@ public class ToolUserTest
         {
             final int value = idx;
 
-            final boolean isAsync = idx % 5 != 0;
+            final boolean isAsync = idx % 5 != 0; // Every 5th step is sync.
             final String stepName = "Step_" + value + (isAsync ? " (async)" : " (sync)");
 
             final StepExecutor stepExecutorSupplier =
                 isAsync ?
-                new StepExecutorBoolean(ignored -> toolUser.appendValue(value)) :
-                new AsyncStepExecutor<>(Boolean.class, ignored -> toolUser.appendValueAsync(value));
+                new AsyncStepExecutor<>(Boolean.class, ignored -> toolUser.appendValueAsync(value)) :
+                new StepExecutorBoolean(ignored -> toolUser.appendValue(value));
 
             steps.add(createStep(stepFactory, stepName, stepExecutorSupplier));
         }
