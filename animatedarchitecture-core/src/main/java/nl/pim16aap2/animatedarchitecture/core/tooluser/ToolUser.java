@@ -51,7 +51,7 @@ public abstract class ToolUser
      * <p>
      * Should be accessed using {@link #acquireInputLock()} and {@link #releaseInputLock()}.
      */
-    private final Semaphore inputLock = new Semaphore(1);
+    private final Semaphore inputLock = new Semaphore(1, true);
 
     protected final ILocalizer localizer;
 
