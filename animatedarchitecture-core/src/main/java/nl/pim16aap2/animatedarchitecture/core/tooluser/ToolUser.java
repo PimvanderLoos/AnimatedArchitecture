@@ -38,7 +38,17 @@ import java.util.function.Supplier;
  * {@link Procedure} that is populated with {@link Step}s.
  * <p>
  * The procedure can be used to guide the player through the process of creating a structure, or any other process that
- * uses the animated architecture tool for user input.
+ * uses any kind of input.
+ * <p>
+ * The main way to interact with this class is the {@link #handleInput(Object)} method. This method takes the provided
+ * input and applies it to the current step in the procedure. The expected input type and behavior depend on the
+ * currently-active step.
+ * <p>
+ * The {@link #handleInput(Object)} method is thread-safe and will handle input in a synchronized manner. This means
+ * that only one input can be processed at a time. If multiple inputs are provided, they will be processed in the order
+ * they were received. The lock is not thread-specific, so subclasses should be careful around threading issues. If a
+ * subclass needs to perform multiple operations that require the lock, it should use the {@link #runWithLock(Supplier)}
+ * method.
  */
 @Flogger
 public abstract class ToolUser
@@ -182,6 +192,12 @@ public abstract class ToolUser
         toolUserManager.abortToolUser(this);
     }
 
+    /**
+     * Aborts the process this {@link ToolUser} is currently in.
+     * <p>
+     * By default, this method only calls {@link #cleanUpProcess()}. Subclasses can override this method to add
+     * additional behavior.
+     */
     public synchronized void abort()
     {
         cleanUpProcess();
@@ -222,7 +238,7 @@ public abstract class ToolUser
      * @return The message of the current step if possible. Otherwise, an empty String is returned.
      */
     @SuppressWarnings("unused")
-    public synchronized Text getCurrentStepMessage()
+    public Text getCurrentStepMessage()
     {
         assertInitialized();
         return procedure.getCurrentStepMessage();
@@ -242,7 +258,7 @@ public abstract class ToolUser
      *     If the lock is not held. See {@link #acquireInputLock()}.
      */
     @CheckReturnValue
-    protected CompletableFuture<Boolean> prepareCurrentStep()
+    protected synchronized CompletableFuture<Boolean> prepareCurrentStep()
     {
         assertInitialized();
         assertLockHeld();
@@ -261,17 +277,22 @@ public abstract class ToolUser
      * After successfully skipping to the target step, the newly-selected step will be prepared. See
      * {@link #prepareCurrentStep()}.
      *
+     * @param goalStep
+     *     The step to skip to.
+     * @return A {@link CompletableFuture} that will be completed an exception if the step could not be found, or the
+     * result of {@link #prepareCurrentStep()} otherwise.
+     *
      * @throws IllegalStateException
      *     If the lock is not held. See {@link #acquireInputLock()}.
      */
     @SuppressWarnings("unused")
-    protected CompletableFuture<Boolean> skipToStep(Step goalStep)
+    protected synchronized CompletableFuture<Boolean> skipToStep(Step goalStep)
     {
         assertInitialized();
         assertLockHeld();
 
         if (!procedure.skipToStep(goalStep))
-            return CompletableFuture.completedFuture(false);
+            return CompletableFuture.failedFuture(new NoSuchElementException("Step '" + goalStep + "' not found!"));
         return prepareCurrentStep();
     }
 
@@ -307,7 +328,11 @@ public abstract class ToolUser
     /**
      * Handles user input for the given step.
      * <p>
-     * This method assumes that the input lock is already held. See {@link #acquireInputLock()}.
+     * This method assumes that the input lock is already held. If the caller does not hold the lock, they should use
+     * either {@link #handleInput(Object)} or {@link #runWithLock(Supplier)}.
+     * <p>
+     * This method is intended for use by subclasses or step executors that need to provide input as part of their
+     * operation and therefore already hold the lock.
      *
      * @param obj
      *     The input to handle. What actual type is expected depends on the step.
@@ -318,7 +343,6 @@ public abstract class ToolUser
      *     If the lock is not held.
      */
     @CheckReturnValue
-    @SuppressWarnings("PMD.PrematureDeclaration")
     protected final CompletableFuture<Boolean> handleInputWithLock(@Nullable Object obj)
     {
         assertInitialized();
@@ -360,9 +384,7 @@ public abstract class ToolUser
     }
 
     /**
-     * Handles user input for the given step.
-     * <p>
-     * This method will acquire the input lock, handle the input, and then release the input lock.
+     * Handles some kind of input for the given step.
      *
      * @param obj
      *     The input to handle. What actual type is expected depends on the step.
@@ -419,19 +441,28 @@ public abstract class ToolUser
     }
 
     /**
+     * Sends the localized message of the given step to the player that owns this object.
+     *
+     * @param step
+     *     The step to send the message for.
+     */
+    protected void sendMessage(@Nullable Step step)
+    {
+        assertInitialized();
+        final var message = procedure.getMessage(step);
+        if (message.isEmpty())
+            log.atWarning().log("Missing translation for step: %s", procedure.getStepName(step));
+        else
+            getPlayer().sendMessage(message);
+    }
+
+    /**
      * Sends the localized message of the current step to the player that owns this object.
      */
     protected void sendMessage()
     {
         assertInitialized();
-
-        final var currentStep = procedure.getCurrentStep();
-
-        final var message = procedure.getMessage(currentStep);
-        if (message.isEmpty())
-            log.atWarning().log("Missing translation for step: %s", procedure.getStepName(currentStep));
-        else
-            getPlayer().sendMessage(message);
+        sendMessage(procedure.getCurrentStep());
     }
 
     /**
