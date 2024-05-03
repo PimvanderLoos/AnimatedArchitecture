@@ -327,7 +327,7 @@ public abstract class Creator extends ToolUser
      *
      * @return The function that creates a new structure arg.
      */
-    protected final synchronized Function<TextArgumentFactory, TextArgument> getStructureArg()
+    protected final Function<TextArgumentFactory, TextArgument> getStructureArg()
     {
         return arg -> arg.highlight(localizer.getStructureType(getStructureType()));
     }
@@ -369,17 +369,18 @@ public abstract class Creator extends ToolUser
     /**
      * Prepares the step that sets the open status.
      */
-    protected synchronized void prepareSetOpenStatus()
+    protected void prepareSetOpenStatus()
     {
-        commandFactory.getSetOpenStatusDelayed().runDelayed(getPlayer(), this, status ->
-                          CompletableFuture.completedFuture(handleInput(status)), null)
-                      .exceptionally(Util::exceptionally);
+        commandFactory
+            .getSetOpenStatusDelayed()
+            .runDelayed(getPlayer(), this, status -> CompletableFuture.completedFuture(handleInput(status)), null)
+            .exceptionally(Util::exceptionally);
     }
 
     /**
      * Prepares the step that sets the open direction.
      */
-    protected synchronized void prepareSetOpenDirection()
+    protected void prepareSetOpenDirection()
     {
         commandFactory
             .getSetOpenDirectionDelayed()
@@ -475,7 +476,7 @@ public abstract class Creator extends ToolUser
      * @param loreKey
      *     The localization key of the lore of the tool.
      */
-    protected final synchronized void giveTool(String nameKey, String loreKey)
+    protected final void giveTool(String nameKey, String loreKey)
     {
         super.giveTool(nameKey, loreKey, textFactory.newText().append(
             localizer.getMessage("creator.base.received_tool"), TextType.INFO, getStructureArg()));
@@ -673,7 +674,7 @@ public abstract class Creator extends ToolUser
      * @param structure
      *     The structure to send to the {@link DatabaseManager}.
      */
-    protected synchronized void insertStructure(AbstractStructure structure)
+    protected void insertStructure(AbstractStructure structure)
     {
         databaseManager.addStructure(structure, getPlayer()).thenAccept(
             result ->
@@ -735,7 +736,7 @@ public abstract class Creator extends ToolUser
      *
      * @return True if the step that asks the user to confirm that they want to buy the structure should be skipped.
      */
-    protected synchronized boolean skipConfirmPrice()
+    protected boolean skipConfirmPrice()
     {
         return getPrice().isEmpty();
     }
@@ -747,7 +748,7 @@ public abstract class Creator extends ToolUser
      *
      * @return The list of valid open directions for this type given its current physical dimensions.
      */
-    public synchronized Set<MovementDirection> getValidOpenDirections()
+    public Set<MovementDirection> getValidOpenDirections()
     {
         return getStructureType().getValidMovementDirections();
     }
@@ -820,7 +821,7 @@ public abstract class Creator extends ToolUser
         return true;
     }
 
-    protected synchronized Text setOpenStatusTextSupplier(Text text)
+    protected Text setOpenStatusTextSupplier(Text text)
     {
         return text.append(
             localizer.getMessage("creator.base.set_open_status"), TextType.INFO,
@@ -838,7 +839,7 @@ public abstract class Creator extends ToolUser
                 localizer.getMessage("creator.base.set_open_status.arg2.closed.hint")));
     }
 
-    protected synchronized Text setOpenDirectionTextSupplier(Text text)
+    protected Text setOpenDirectionTextSupplier(Text text)
     {
         text.append(localizer.getMessage("creator.base.set_open_direction") + "\n", TextType.INFO,
                     arg -> arg.highlight(localizer.getStructureType(getStructureType())));
@@ -852,7 +853,7 @@ public abstract class Creator extends ToolUser
         return text;
     }
 
-    private synchronized Text reviewResultTextSupplier(Text text)
+    private Text reviewResultTextSupplier(Text text)
     {
         text.append(localizer.getMessage("creator.base.review_result.header") + "\n", TextType.SUCCESS);
         text.append(
@@ -877,7 +878,7 @@ public abstract class Creator extends ToolUser
         return text;
     }
 
-    private synchronized Text confirmPriceTextSupplier(Text text)
+    private Text confirmPriceTextSupplier(Text text)
     {
         return text.append(
             localizer.getMessage("creator.base.confirm_structure_price"), TextType.INFO,
@@ -897,7 +898,7 @@ public abstract class Creator extends ToolUser
         );
     }
 
-    private synchronized String formatVector(@Nullable Vector3Di vector)
+    private String formatVector(@Nullable Vector3Di vector)
     {
         return vector == null ? "NULL" : String.format("%d, %d, %d", vector.x(), vector.y(), vector.z());
     }

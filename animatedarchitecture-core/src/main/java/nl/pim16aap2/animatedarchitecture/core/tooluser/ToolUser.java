@@ -198,7 +198,7 @@ public abstract class ToolUser
      * By default, this method only calls {@link #cleanUpProcess()}. Subclasses can override this method to add
      * additional behavior.
      */
-    public synchronized void abort()
+    public void abort()
     {
         cleanUpProcess();
     }
@@ -258,15 +258,18 @@ public abstract class ToolUser
      *     If the lock is not held. See {@link #acquireInputLock()}.
      */
     @CheckReturnValue
-    protected synchronized CompletableFuture<Boolean> prepareCurrentStep()
+    protected CompletableFuture<Boolean> prepareCurrentStep()
     {
         assertInitialized();
         assertLockHeld();
 
-        procedure.runCurrentStepPreparation();
-        sendMessage();
+        final var step = procedure.runCurrentStepPreparation();
+        if (step == null)
+            return CompletableFuture.failedFuture(new NoSuchElementException("Procedure has no active step!"));
 
-        if (!procedure.waitForUserInput())
+        sendMessage(step);
+
+        if (!step.waitForUserInput())
             return handleInputWithLock(null);
         return CompletableFuture.completedFuture(true);
     }
@@ -286,7 +289,7 @@ public abstract class ToolUser
      *     If the lock is not held. See {@link #acquireInputLock()}.
      */
     @SuppressWarnings("unused")
-    protected synchronized CompletableFuture<Boolean> skipToStep(Step goalStep)
+    protected CompletableFuture<Boolean> skipToStep(Step goalStep)
     {
         assertInitialized();
         assertLockHeld();
@@ -370,8 +373,7 @@ public abstract class ToolUser
                         return CompletableFuture.completedFuture(true);
                     }
 
-                    if (procedure.implicitNextStep())
-                        procedure.goToNextStep();
+                    procedure.handleStepCompletion();
 
                     return prepareCurrentStep().thenApply(ignored -> true);
                 })

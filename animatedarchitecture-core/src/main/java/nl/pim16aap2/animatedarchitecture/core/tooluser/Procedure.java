@@ -280,6 +280,21 @@ public final class Procedure
     }
 
     /**
+     * Handles the completion of the current step.
+     * <p>
+     * This will automatically move to the next step if {@link #implicitNextStep()} returns true.
+     * <p>
+     * If the current step is null, this will do nothing.
+     * <p>
+     * This is a shortcut for {@link #implicitNextStep()} and {@link #goToNextStep()} (if the former returns true).
+     */
+    public synchronized void handleStepCompletion()
+    {
+        if (implicitNextStep())
+            goToNextStep();
+    }
+
+    /**
      * Whether the current step should continue to the next step if execution was successful.
      * <p>
      * If no next step (see {@link #hasNextStep()}) is available, this will always return false.
@@ -305,15 +320,19 @@ public final class Procedure
 
     /**
      * Runs the step preparation for the current step if applicable. See {@link Step#getStepPreparation()}.
+     *
+     * @return The current step if it exists, otherwise null.
      */
-    public synchronized void runCurrentStepPreparation()
+    public synchronized @Nullable Step runCurrentStepPreparation()
     {
         if (currentStep == null)
-            return;
+            return null;
+
         final @Nullable Runnable preparation = currentStep.getStepPreparation();
-        if (preparation == null)
-            return;
-        preparation.run();
+        if (preparation != null)
+            preparation.run();
+
+        return currentStep;
     }
 
     private static Map<String, Step> createStepMap(List<Step> steps)
