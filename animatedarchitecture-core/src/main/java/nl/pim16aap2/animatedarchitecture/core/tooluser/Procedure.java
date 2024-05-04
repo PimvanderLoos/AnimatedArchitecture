@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents a procedure as defined by a series of {@link Step}s.
@@ -41,6 +42,14 @@ public final class Procedure
     @GuardedBy("this")
     private final Deque<Step> steps;
 
+    /**
+     * The number of steps that have been completed.
+     * <p>
+     * We start at -1 because moving to the first step counts as completing a step.
+     */
+    @GuardedBy("this")
+    private int stepsCompleted = -1;
+
     public Procedure(List<Step> steps, ILocalizer localizer, ITextFactory textFactory)
     {
         this.stepMap = createStepMap(steps);
@@ -51,6 +60,8 @@ public final class Procedure
     }
 
     /**
+     * Getter for the steps in this procedure.
+     *
      * @return A list containing all steps in this procedure including any that may have been completed already.
      */
     public synchronized List<Step> getAllSteps()
@@ -87,7 +98,7 @@ public final class Procedure
     }
 
     /**
-     * Inserts a named step.
+     * Inserts an existing, named step at the current position.
      * <p>
      * See {@link #getStepByName(String)} and {@link #insertStep(Step)}.
      *
@@ -125,7 +136,9 @@ public final class Procedure
                     (currentStep == null ? "NULL" : getCurrentStepName()));
             return;
         }
+
         currentStep = steps.pop();
+        stepsCompleted++;
 
         if (currentStep.skip())
             goToNextStep();
@@ -145,6 +158,8 @@ public final class Procedure
         while (hasNextStep())
         {
             final Step step = steps.pop();
+            stepsCompleted++;
+
             if (step.equals(goalStep))
             {
                 currentStep = step;
@@ -161,15 +176,25 @@ public final class Procedure
      *     The input to apply.
      * @return True if the application was successful.
      */
-    public synchronized boolean applyStepExecutor(@Nullable Object obj)
+    public CompletableFuture<Boolean> applyStepExecutor(@Nullable Object obj)
     {
-        if (currentStep == null)
+        final var currentStep0 = this.getCurrentStep();
+        if (currentStep0 == null)
         {
             log.atSevere().withStackTrace(StackSize.FULL)
                .log("Cannot apply step executor because there is no active step!");
-            return false;
+            return CompletableFuture.failedFuture(new IllegalStateException("No active step!"));
         }
-        return currentStep.getStepExecutor().map(stepExecutor -> stepExecutor.apply(obj)).orElse(false);
+        return currentStep0
+            .getStepExecutor()
+            .map(stepExecutor -> stepExecutor.apply(obj))
+            .orElse(CompletableFuture.completedFuture(false))
+            .exceptionally(
+                e ->
+                {
+                    throw new IllegalStateException(
+                        "Failed to apply step executor for step: '" + currentStep0.getName() + "'", e);
+                });
     }
 
     /**
@@ -177,31 +202,65 @@ public final class Procedure
      *
      * @return The message for the current step.
      */
-    public synchronized Text getMessage()
+    public synchronized Text getCurrentStepMessage()
     {
-        if (currentStep == null)
+        return getMessage(currentStep);
+    }
+
+    /**
+     * Gets the message for a specific step, with all the variables filled in.
+     * <p>
+     * If the step is null, a generic error message will be returned.
+     * <p>
+     * A shortcut for getting the message for the current step is {@link #getCurrentStepMessage()}.
+     *
+     * @param step
+     *     The step to get the message for.
+     * @return The message for the step.
+     */
+    public Text getMessage(@Nullable Step step)
+    {
+        if (step == null)
         {
             log.atSevere().withStackTrace(StackSize.FULL)
                .log("Cannot get the current step message because there is no active step!");
             return textFactory.newText().append(localizer.getMessage("constants.error.generic"), TextType.ERROR);
         }
-        return currentStep.getLocalizedMessage(textFactory);
+        return step.getLocalizedMessage(textFactory);
     }
 
     /**
      * Gets the name of the current step.
+     * <p>
+     * This is a shortcut for {@link #getStepName(Step)} with the current step.
      *
      * @return The name of the current step.
      */
     public synchronized String getCurrentStepName()
     {
-        if (currentStep == null)
+        return getStepName(currentStep);
+    }
+
+    /**
+     * Gets the name of a specific step.
+     * <p>
+     * If the step is null, a generic error message will be returned.
+     * <p>
+     * A shortcut for getting the name of the current step is {@link #getCurrentStepName()}.
+     *
+     * @param step
+     *     The step to get the name of.
+     * @return The name of the step.
+     */
+    public String getStepName(@Nullable Step step)
+    {
+        if (step == null)
         {
             log.atSevere().withStackTrace(StackSize.FULL)
                .log("Cannot get the name of the current because there is no active step!");
             return "NULL";
         }
-        return currentStep.getName();
+        return step.getName();
     }
 
     /**
@@ -218,6 +277,21 @@ public final class Procedure
             return false;
         }
         return currentStep.waitForUserInput();
+    }
+
+    /**
+     * Handles the completion of the current step.
+     * <p>
+     * This will automatically move to the next step if {@link #implicitNextStep()} returns true.
+     * <p>
+     * If the current step is null, this will do nothing.
+     * <p>
+     * This is a shortcut for {@link #implicitNextStep()} and {@link #goToNextStep()} (if the former returns true).
+     */
+    public synchronized void handleStepCompletion()
+    {
+        if (implicitNextStep())
+            goToNextStep();
     }
 
     /**
@@ -246,15 +320,19 @@ public final class Procedure
 
     /**
      * Runs the step preparation for the current step if applicable. See {@link Step#getStepPreparation()}.
+     *
+     * @return The current step if it exists, otherwise null.
      */
-    public synchronized void runCurrentStepPreparation()
+    public synchronized @Nullable Step runCurrentStepPreparation()
     {
         if (currentStep == null)
-            return;
+            return null;
+
         final @Nullable Runnable preparation = currentStep.getStepPreparation();
-        if (preparation == null)
-            return;
-        preparation.run();
+        if (preparation != null)
+            preparation.run();
+
+        return currentStep;
     }
 
     private static Map<String, Step> createStepMap(List<Step> steps)
@@ -272,10 +350,22 @@ public final class Procedure
         return this.currentStep;
     }
 
+    /**
+     * Gets the number of steps that have been completed.
+     *
+     * @return The number of steps that have been completed.
+     */
+    public synchronized int getStepsCompleted()
+    {
+        return this.stepsCompleted;
+    }
+
     @Override
     public synchronized String toString()
     {
-        return "Procedure(currentStep=" + this.getCurrentStep() + ", stepMap=" + this.stepMap + ", steps=" +
-            this.steps + ")";
+        return "Procedure(currentStep=" + this.getCurrentStep() +
+            ", stepsCompleted=" + this.stepsCompleted +
+            ", stepMap=" + this.stepMap +
+            ", steps=" + this.steps + ")";
     }
 }

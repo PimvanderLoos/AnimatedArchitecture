@@ -13,7 +13,6 @@ import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorLocation;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 
-import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collections;
 import java.util.List;
 
@@ -23,7 +22,6 @@ import java.util.List;
  * @author Pim
  */
 @ToString(callSuper = true)
-@ThreadSafe
 public class PowerBlockInspector extends ToolUser
 {
     @ToString.Exclude
@@ -44,14 +42,12 @@ public class PowerBlockInspector extends ToolUser
         super(context, player);
         this.powerBlockManager = powerBlockManager;
         this.bypassPermission = bypassPermission;
-    }
 
-    @Override
-    protected void init()
-    {
         giveTool(
             "tool_user.base.stick_name", "tool_user.powerblock_inspector.stick_lore",
             textFactory.newText().append(localizer.getMessage("tool_user.powerblock_inspector.init"), TextType.INFO));
+
+        init();
     }
 
     protected boolean inspectLoc(ILocation loc)

@@ -16,13 +16,11 @@ import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.concurrent.ThreadSafe;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-@ThreadSafe
 @ToString(callSuper = true)
 public class CreatorGarageDoor extends Creator
 {
@@ -46,6 +44,7 @@ public class CreatorGarageDoor extends Creator
     public CreatorGarageDoor(ToolUser.Context context, IPlayer player, @Nullable String name)
     {
         super(context, player, name);
+        init();
     }
 
     @Override
@@ -53,25 +52,25 @@ public class CreatorGarageDoor extends Creator
         throws InstantiationException
     {
         return Arrays.asList(
-            factorySetName.construct(),
-            factorySetFirstPos
+            factoryProvideName.construct(),
+            factoryProvideFirstPos
                 .textSupplier(text -> text.append(
                     localizer.getMessage("creator.garage_door.step_1"), TextType.INFO, getStructureArg()))
                 .construct(),
-            factorySetSecondPos
+            factoryProvideSecondPos
                 .textSupplier(text -> text.append(
                     localizer.getMessage("creator.garage_door.step_2"), TextType.INFO, getStructureArg()))
                 .construct(),
-            factorySetPowerBlockPos.construct(),
-            factorySetOpenStatus.construct(),
-            factorySetOpenDir.construct(),
+            factoryProvidePowerBlockPos.construct(),
+            factoryProvideOpenStatus.construct(),
+            factoryProvideOpenDir.construct(),
             factoryReviewResult.construct(),
             factoryConfirmPrice.construct(),
             factoryCompleteProcess.construct());
     }
 
     @Override
-    protected synchronized boolean setSecondPos(ILocation loc)
+    protected synchronized boolean provideSecondPos(ILocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;
@@ -85,7 +84,7 @@ public class CreatorGarageDoor extends Creator
         {
             northSouthAnimated = cuboidDims.z() == 1;
             setOpen(cuboidDims.y() == 1);
-            return super.setSecondPos(loc);
+            return super.provideSecondPos(loc);
         }
 
         getPlayer().sendError(textFactory, localizer.getMessage("creator.base.second_pos_not_2d"));
@@ -96,7 +95,7 @@ public class CreatorGarageDoor extends Creator
     public synchronized Set<MovementDirection> getValidOpenDirections()
     {
         if (isOpen())
-            return getStructureType().getValidOpenDirections();
+            return getStructureType().getValidMovementDirections();
         // When the garage structure is not open (i.e. vertical), it can only be opened along one axis.
         return northSouthAnimated ? NORTH_SOUTH_AXIS_OPEN_DIRS : EAST_WEST_AXIS_OPEN_DIRS;
     }

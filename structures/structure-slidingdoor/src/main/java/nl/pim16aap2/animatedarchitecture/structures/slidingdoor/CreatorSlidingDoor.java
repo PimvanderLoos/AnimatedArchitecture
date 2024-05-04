@@ -15,13 +15,11 @@ import nl.pim16aap2.animatedarchitecture.core.util.Limit;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.concurrent.ThreadSafe;
 import java.util.Arrays;
 import java.util.List;
 import java.util.OptionalInt;
 import java.util.concurrent.CompletableFuture;
 
-@ThreadSafe
 @ToString(callSuper = true)
 public class CreatorSlidingDoor extends Creator
 {
@@ -33,6 +31,7 @@ public class CreatorSlidingDoor extends Creator
     public CreatorSlidingDoor(ToolUser.Context context, IPlayer player, @Nullable String name)
     {
         super(context, player, name);
+        init();
     }
 
     @Override
@@ -51,18 +50,18 @@ public class CreatorSlidingDoor extends Creator
             .waitForUserInput(true).construct();
 
         return Arrays.asList(
-            factorySetName.construct(),
-            factorySetFirstPos
+            factoryProvideName.construct(),
+            factoryProvideFirstPos
                 .textSupplier(text -> text.append(
                     localizer.getMessage("creator.sliding_door.step_1"), TextType.INFO, getStructureArg()))
                 .construct(),
-            factorySetSecondPos
+            factoryProvideSecondPos
                 .textSupplier(text -> text.append(
                     localizer.getMessage("creator.sliding_door.step_2"), TextType.INFO, getStructureArg()))
                 .construct(),
-            factorySetPowerBlockPos.construct(),
-            factorySetOpenStatus.construct(),
-            factorySetOpenDir.construct(),
+            factoryProvidePowerBlockPos.construct(),
+            factoryProvideOpenStatus.construct(),
+            factoryProvideOpenDir.construct(),
             stepBlocksToMove,
             factoryReviewResult.construct(),
             factoryConfirmPrice.construct(),

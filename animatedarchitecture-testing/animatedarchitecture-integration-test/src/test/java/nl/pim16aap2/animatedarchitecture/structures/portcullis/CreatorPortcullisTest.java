@@ -7,10 +7,12 @@ import nl.pim16aap2.animatedarchitecture.creator.CreatorTestsUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.mockito.Mockito;
 
 import java.util.OptionalInt;
 
+@Timeout(1)
 class CreatorPortcullisTest extends CreatorTestsUtil
 {
     private static final int blocksToMove = 17;

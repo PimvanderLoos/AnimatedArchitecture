@@ -19,14 +19,12 @@ import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.concurrent.ThreadSafe;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
 @Flogger
-@ThreadSafe
 @ToString(callSuper = true)
 public class CreatorClock extends Creator
 {
@@ -56,6 +54,7 @@ public class CreatorClock extends Creator
     public CreatorClock(ToolUser.Context context, IPlayer player, @Nullable String name)
     {
         super(context, player, name);
+        init();
     }
 
     @Override
@@ -70,17 +69,17 @@ public class CreatorClock extends Creator
             .waitForUserInput(true).construct();
 
         return Arrays.asList(
-            factorySetName.construct(),
-            factorySetFirstPos
+            factoryProvideName.construct(),
+            factoryProvideFirstPos
                 .textSupplier(text -> text.append(
                     localizer.getMessage("creator.clock.step_1"), TextType.INFO, getStructureArg()))
                 .construct(),
-            factorySetSecondPos
+            factoryProvideSecondPos
                 .textSupplier(text -> text.append(
                     localizer.getMessage("creator.clock.step_2"), TextType.INFO, getStructureArg()))
                 .construct(),
             stepSelectHourArm,
-            factorySetPowerBlockPos.construct(),
+            factoryProvidePowerBlockPos.construct(),
             factoryReviewResult.construct(),
             factoryConfirmPrice.construct(),
             factoryCompleteProcess.construct());
@@ -145,7 +144,7 @@ public class CreatorClock extends Creator
     }
 
     @Override
-    protected synchronized boolean setSecondPos(ILocation loc)
+    protected synchronized boolean provideSecondPos(ILocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;
@@ -196,7 +195,7 @@ public class CreatorClock extends Creator
         }
 
         northSouthAligned = cuboidDims.x() == 2;
-        return super.setSecondPos(loc);
+        return super.provideSecondPos(loc);
     }
 
     @Override

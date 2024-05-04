@@ -10,28 +10,29 @@ import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
-import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+@Timeout(1)
 class PowerBlockRelocatorTest
 {
     @Mock
     private AbstractStructure structure;
-
-    @Captor
-    private ArgumentCaptor<Text> textCaptor;
 
     @Mock
     private IWorld world;
@@ -52,8 +53,6 @@ class PowerBlockRelocatorTest
     @BeforeEach
     void init()
     {
-        MockitoAnnotations.openMocks(this);
-
         Mockito.when(structure.getWorld()).thenReturn(world);
         Mockito.when(structure.getPowerBlock()).thenReturn(currentPowerBlockLoc);
         Mockito.when(structure.syncData())
@@ -138,7 +137,7 @@ class PowerBlockRelocatorTest
         Mockito.when(location.getWorld()).thenReturn(world);
         Mockito.when(location.getPosition()).thenReturn(new Vector3Di(0, 0, 0));
 
-        Assertions.assertTrue(relocator.handleInput(location));
+        Assertions.assertTrue(relocator.handleInput(location).join());
 
         Mockito.verify(structure).syncData();
     }
@@ -151,7 +150,7 @@ class PowerBlockRelocatorTest
         Mockito.when(location.getWorld()).thenReturn(world);
         Mockito.when(location.getPosition()).thenReturn(currentPowerBlockLoc);
 
-        Assertions.assertTrue(relocator.handleInput(location));
+        Assertions.assertTrue(relocator.handleInput(location).join());
 
         Mockito.verify(structure, Mockito.never()).syncData();
     }

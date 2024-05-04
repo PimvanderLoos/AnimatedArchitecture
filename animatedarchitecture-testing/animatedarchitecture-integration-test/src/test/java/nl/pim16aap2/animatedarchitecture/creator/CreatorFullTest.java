@@ -10,6 +10,7 @@ import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.CreatorTest;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -36,7 +37,7 @@ class CreatorFullTest extends CreatorTestsUtil
         openDirection = MovementDirection.NORTH;
 
         structureType = Mockito.mock(StructureType.class);
-        Mockito.when(structureType.getValidOpenDirections())
+        Mockito.when(structureType.getValidMovementDirections())
                .thenReturn(EnumSet.of(MovementDirection.NORTH, MovementDirection.SOUTH));
 
         final var structure = Mockito.mock(AbstractStructure.class);
@@ -67,7 +68,7 @@ class CreatorFullTest extends CreatorTestsUtil
         openDirection = MovementDirection.NORTH;
 
         structureType = Mockito.mock(StructureType.class);
-        Mockito.when(structureType.getValidOpenDirections())
+        Mockito.when(structureType.getValidMovementDirections())
                .thenReturn(EnumSet.of(MovementDirection.NORTH, MovementDirection.SOUTH));
 
         final var structure = Mockito.mock(AbstractStructure.class);
@@ -104,21 +105,23 @@ class CreatorFullTest extends CreatorTestsUtil
         {
             super(context, player, null);
             this.structure = structure;
+            init();
         }
 
         @Override
-        protected synchronized List<Step> generateSteps()
+        protected synchronized @NotNull List<Step> generateSteps()
             throws InstantiationException
         {
-            return Arrays.asList(factorySetName.messageKey("CREATOR_BASE_GIVE_NAME").construct(),
-                                 factorySetFirstPos.messageKey("CREATOR_BIG_DOOR_STEP1").construct(),
-                                 factorySetSecondPos.messageKey("CREATOR_BIG_DOOR_STEP2").construct(),
-                                 factorySetRotationPointPos.messageKey("CREATOR_BIG_DOOR_STEP3").construct(),
-                                 factorySetPowerBlockPos.messageKey("CREATOR_BASE_SET_POWER_BLOCK").construct(),
-                                 factorySetOpenStatus.messageKey("CREATOR_BASE_SET_OPEN_DIR").construct(),
-                                 factorySetOpenDir.messageKey("CREATOR_BASE_SET_OPEN_DIR").construct(),
-                                 factoryConfirmPrice.messageKey("CREATOR_BASE_CONFIRM_PRICE").construct(),
-                                 factoryCompleteProcess.messageKey("CREATOR_BIG_DOOR_SUCCESS").construct());
+            return Arrays.asList(
+                factoryProvideName.messageKey("CREATOR_BASE_GIVE_NAME").construct(),
+                factoryProvideFirstPos.messageKey("CREATOR_BIG_DOOR_STEP1").construct(),
+                factoryProvideSecondPos.messageKey("CREATOR_BIG_DOOR_STEP2").construct(),
+                factoryProvideRotationPointPos.messageKey("CREATOR_BIG_DOOR_STEP3").construct(),
+                factoryProvidePowerBlockPos.messageKey("CREATOR_BASE_SET_POWER_BLOCK").construct(),
+                factoryProvideOpenStatus.messageKey("CREATOR_BASE_SET_OPEN_DIR").construct(),
+                factoryProvideOpenDir.messageKey("CREATOR_BASE_SET_OPEN_DIR").construct(),
+                factoryConfirmPrice.messageKey("CREATOR_BASE_CONFIRM_PRICE").construct(),
+                factoryCompleteProcess.messageKey("CREATOR_BIG_DOOR_SUCCESS").construct());
         }
 
         @Override
@@ -127,13 +130,13 @@ class CreatorFullTest extends CreatorTestsUtil
         }
 
         @Override
-        protected AbstractStructure constructStructure()
+        protected @NotNull AbstractStructure constructStructure()
         {
             return structure;
         }
 
         @Override
-        protected StructureType getStructureType()
+        protected @NotNull StructureType getStructureType()
         {
             return structureType;
         }
