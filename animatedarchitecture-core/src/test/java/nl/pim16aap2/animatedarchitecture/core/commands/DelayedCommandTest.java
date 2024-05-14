@@ -120,7 +120,7 @@ class DelayedCommandTest
                .thenThrow(RuntimeException.class);
         final DelayedCommandImpl delayedCommand = new DelayedCommandImpl(context, inputRequestFactory, delayedFunction);
         delayedCommand.runDelayed(commandSender, structureRetriever);
-        Assertions.assertEquals(0, LogAssertionsUtil.getThrowingCount(logCaptor));
+        LogAssertionsUtil.assertThrowingCount(logCaptor, 0);
 
         Assertions.assertDoesNotThrow(
             () -> delayedCommand.provideDelayedInput(commandSender, new Object()).get(1, TimeUnit.SECONDS));

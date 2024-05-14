@@ -7,8 +7,8 @@ import lombok.Getter;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
-import nl.pim16aap2.animatedarchitecture.core.util.versioning.ProjectVersion;
 import org.jetbrains.annotations.Nullable;
+import org.semver4j.Semver;
 
 import javax.inject.Singleton;
 import java.io.IOException;
@@ -28,7 +28,7 @@ public final class UpdateChecker implements IDebuggable
     private static final @Nullable URL UPDATE_URL =
         createUrl("https://api.github.com/repos/PimvanderLoos/AnimatedArchitecture/releases/latest");
 
-    private final ProjectVersion currentVersion;
+    private final Semver currentVersion;
 
     /**
      * The most recently retrieve update information.
@@ -44,7 +44,7 @@ public final class UpdateChecker implements IDebuggable
      * @param currentVersion
      *     The current version of the project to compare potential updates against.
      */
-    public UpdateChecker(ProjectVersion currentVersion)
+    public UpdateChecker(Semver currentVersion)
     {
         this.currentVersion = currentVersion;
         checkForUpdates();
@@ -111,15 +111,15 @@ public final class UpdateChecker implements IDebuggable
     {
         final @Nullable JsonElement element = readUrl();
         if (element == null)
-            return setCurrentUpdateInformation(new UpdateInformation(UpdateCheckResult.ERROR));
+            return setCurrentUpdateInformation(UpdateInformation.ofErrorState(UpdateCheckResult.ERROR));
 
         if (!element.isJsonObject())
-            return setCurrentUpdateInformation(new UpdateInformation(UpdateCheckResult.INVALID_JSON));
+            return setCurrentUpdateInformation(UpdateInformation.ofErrorState(UpdateCheckResult.INVALID_JSON));
         final JsonObject jsonObject = element.getAsJsonObject();
 
-        final @Nullable ProjectVersion newVersion = getNewVersion(jsonObject);
+        final @Nullable Semver newVersion = getNewVersion(jsonObject);
         if (newVersion == null)
-            return setCurrentUpdateInformation(new UpdateInformation(UpdateCheckResult.ERROR));
+            return setCurrentUpdateInformation(UpdateInformation.ofErrorState(UpdateCheckResult.ERROR));
 
         return setCurrentUpdateInformation(getUpdateInformation(newVersion, jsonObject));
     }
@@ -132,12 +132,12 @@ public final class UpdateChecker implements IDebuggable
      * @return {@link UpdateCheckResult#UPDATE_AVAILABLE} if the new version is newer than {@link #currentVersion} or
      * {@link UpdateCheckResult#UP_TO_DATE} if not.
      */
-    private UpdateCheckResult processNewVersion(ProjectVersion newVersion)
+    private UpdateCheckResult processNewVersion(Semver newVersion)
     {
         if (this.currentVersion.equals(newVersion))
             return UpdateCheckResult.UP_TO_DATE;
 
-        return newVersion.isNewerThan(this.currentVersion) ?
+        return newVersion.isGreaterThan(this.currentVersion) ?
                UpdateCheckResult.UPDATE_AVAILABLE :
                UpdateCheckResult.UP_TO_DATE;
     }
@@ -151,7 +151,7 @@ public final class UpdateChecker implements IDebuggable
      *     The json data.
      * @return The parsed update information, or null if an error occurred.
      */
-    private @Nullable UpdateInformation getUpdateInformation(ProjectVersion newVersion, JsonObject element)
+    private @Nullable UpdateInformation getUpdateInformation(Semver newVersion, JsonObject element)
     {
         try
         {
@@ -174,11 +174,11 @@ public final class UpdateChecker implements IDebuggable
      *     The json element containing the project version.
      * @return The parsed project version, or null if an error occurred.
      */
-    private @Nullable ProjectVersion getNewVersion(JsonObject element)
+    private @Nullable Semver getNewVersion(JsonObject element)
     {
         try
         {
-            return ProjectVersion.parse(element.get("tag_name").getAsString());
+            return Semver.coerce(element.get("tag_name").getAsString());
         }
         catch (Exception e)
         {

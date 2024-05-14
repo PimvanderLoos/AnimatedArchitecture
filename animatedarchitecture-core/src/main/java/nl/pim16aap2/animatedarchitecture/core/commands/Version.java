@@ -41,7 +41,7 @@ public class Version extends BaseCommand
     {
         final String version = platformProvider
             .getPlatform()
-            .map(platform -> platform.getProjectVersion().toVersionString())
+            .map(platform -> platform.getProjectVersion().toString())
             .orElse("ERROR");
 
         getCommandSender().sendMessage(textFactory.newText().append(

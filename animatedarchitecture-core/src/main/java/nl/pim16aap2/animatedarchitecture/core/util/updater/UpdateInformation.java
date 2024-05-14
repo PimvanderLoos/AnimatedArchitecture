@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.util.updater;
 
-import nl.pim16aap2.animatedarchitecture.core.util.versioning.ProjectVersion;
 import org.jetbrains.annotations.Nullable;
+import org.semver4j.Semver;
 
 /**
  * Represents information about a potential update for this project.
@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public record UpdateInformation(
     UpdateCheckResult updateCheckResult,
-    @Nullable ProjectVersion newVersion,
+    @Nullable Semver newVersion,
     @Nullable String updateUrl,
     @Nullable String updateName
 )
@@ -38,10 +38,10 @@ public record UpdateInformation(
      * @throws IllegalArgumentException
      *     If the provided result is not an error-state. See {@link UpdateCheckResult#isError()}.
      */
-    UpdateInformation(UpdateCheckResult updateCheckResult)
+    public static UpdateInformation ofErrorState(UpdateCheckResult updateCheckResult)
     {
-        this(updateCheckResult, null, null, null);
-        if (!updateCheckResult().isError())
+        if (!updateCheckResult.isError())
             throw new IllegalArgumentException("Cannot set null values for non-error state update information!");
+        return new UpdateInformation(updateCheckResult, null, null, null);
     }
 }

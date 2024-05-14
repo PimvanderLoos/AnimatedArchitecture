@@ -41,7 +41,6 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationReque
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureRegistry;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.util.versioning.BuildDataReader;
-import nl.pim16aap2.animatedarchitecture.core.util.versioning.ProjectVersion;
 import nl.pim16aap2.animatedarchitecture.spigot.core.comands.CommandManager;
 import nl.pim16aap2.animatedarchitecture.spigot.core.exceptions.InitializationException;
 import nl.pim16aap2.animatedarchitecture.spigot.core.gui.GuiFactory;
@@ -54,6 +53,7 @@ import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.WorldListener;
 import nl.pim16aap2.animatedarchitecture.spigot.core.managers.HeadManager;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.IBlockAnalyzerSpigot;
 import org.jetbrains.annotations.Nullable;
+import org.semver4j.Semver;
 
 import javax.inject.Singleton;
 import java.util.function.Function;
@@ -214,7 +214,7 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
     private final BuildDataReader.BuildData buildData;
 
     @Getter
-    private final ProjectVersion projectVersion;
+    private final Semver projectVersion;
 
     AnimatedArchitectureSpigotPlatform(AnimatedArchitectureSpigotComponent animatedArchitectureSpigotComponent)
         throws InitializationException
