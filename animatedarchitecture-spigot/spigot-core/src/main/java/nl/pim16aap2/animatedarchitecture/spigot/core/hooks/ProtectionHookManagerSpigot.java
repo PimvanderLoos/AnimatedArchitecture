@@ -216,14 +216,22 @@ public final class ProtectionHookManagerSpigot
 
     /**
      * Used to apply a predicate to all registered protection hooks.
+     * <p>
+     * This method should only be called from the main thread. When the caller is not on the main thread, use
+     * {@link #checkForEachHook(Function)} instead.
      *
      * @param predicate
      *     The predicate to apply.
      * @return The name of the protection hook that returned false, or an empty Optional if all returned true.
+     *
+     * @throws IllegalStateException
+     *     If called from a non-main thread.
      */
-    private CompletableFuture<HookCheckResult> checkForEachHook(
+    private CompletableFuture<HookCheckResult> checkForEachHook0(
         Function<IProtectionHookSpigot, CompletableFuture<Boolean>> predicate)
     {
+        executor.assertMainThread();
+
         CompletableFuture<HookCheckResult> result = new CompletableFuture<>();
 
         for (final IProtectionHookSpigot hook : protectionHooks)
@@ -241,12 +249,23 @@ public final class ProtectionHookManagerSpigot
                     return CompletableFuture.completedFuture(previousResult);
                 }
 
-                // Ensure that the check is run on the main thread to make it easier to implement hooks that do not
-                // need any async code.
-                return executor.composeOnMainThread(() -> checkForHook(predicate, hook));
+                return checkForHook(predicate, hook);
             });
         }
         return result;
+    }
+
+    /**
+     * Used to apply a predicate to all registered protection hooks.
+     *
+     * @param predicate
+     *     The predicate to apply.
+     * @return The name of the protection hook that returned false, or an empty Optional if all returned true.
+     */
+    private CompletableFuture<HookCheckResult> checkForEachHook(
+        Function<IProtectionHookSpigot, CompletableFuture<Boolean>> predicate)
+    {
+        return executor.composeOnMainThread(() -> checkForEachHook0(predicate));
     }
 
     /**
