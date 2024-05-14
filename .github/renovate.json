@@ -4,25 +4,27 @@
   ],
   "packageRules": [
     {
-      "depTypeList": [
-        "build"
-      ],
       "packageNames": [
+        "actions/checkout",
         "com.alibaba:fastjson",
         "com.google.code.gson:gson",
         "com.google.dagger:dagger",
+        "com.google.errorprone:error_prone_annotations",
         "com.google.errorprone:error_prone_core",
         "com.google.jimfs:jimfs",
         "com.puppycrawl.tools:checkstyle",
         "com.uber.nullaway:nullaway",
         "io.github.hakky54:logcaptor",
         "it.unimi.dsi:fastutil",
+        "net.bytebuddy:byte-buddy",
+        "net.kyori:adventure-api",
         "org.apache.logging.log4j:log4j-core",
         "org.eclipse.jdt:org.eclipse.jdt.annotation",
         "org.jacoco:jacoco-maven-plugin",
         "org.jetbrains:annotations",
         "org.junit.jupiter:junit-jupiter-api",
         "org.mockito:mockito-core",
+        "org.mockito:mockito-junit-jupiter",
         "org.projectlombok:lombok",
         "org.slf4j:slf4j-api"
       ],
