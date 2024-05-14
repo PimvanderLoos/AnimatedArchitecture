@@ -28,7 +28,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureFind
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.util.versioning.BuildDataReader;
-import nl.pim16aap2.animatedarchitecture.core.util.versioning.ProjectVersion;
+import org.semver4j.Semver;
 
 /**
  * Represents a set of getter methods to get access to the internals of AnimatedArchitecture.
@@ -53,7 +53,7 @@ public interface IAnimatedArchitecturePlatform
      *
      * @return The current version of this project.
      */
-    ProjectVersion getProjectVersion();
+    Semver getProjectVersion();
 
     /**
      * @return The build data. This provides access to items such as the commit hash, the build id, etc.

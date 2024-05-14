@@ -27,7 +27,8 @@ public abstract class DebugReporter
           .append("AnimatedArchitecture version: ")
           .append(() -> platformProvider
               .getPlatform()
-              .map(platform -> platform.getProjectVersion().toVersionString()).orElse("NULL"))
+              .map(platform -> platform.getProjectVersion().toString())
+              .orElse("NULL"))
           .append('\n')
           .append("Registered Platform: ")
           .append(() -> platformProvider.getPlatform().map(platform -> platform.getClass().getName()).orElse("NULL"))

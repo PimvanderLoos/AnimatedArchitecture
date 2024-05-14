@@ -9,7 +9,6 @@ import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.util.updater.UpdateChecker;
-import nl.pim16aap2.animatedarchitecture.core.util.versioning.ProjectVersion;
 import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.DebugReporterSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.TextFactorySpigot;
@@ -21,6 +20,7 @@ import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
+import org.semver4j.Semver;
 
 import javax.inject.Singleton;
 import java.util.Collections;
@@ -83,7 +83,7 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
         mainThreadId = Thread.currentThread().threadId();
         restartableHolder = new RestartableHolder();
 
-        final ProjectVersion projectVersion = ProjectVersion.parse(getDescription().getVersion());
+        final Semver projectVersion = new Semver(getDescription().getVersion());
         this.updateChecker = new UpdateChecker(projectVersion);
 
         animatedArchitectureSpigotComponent = DaggerAnimatedArchitectureSpigotComponent

@@ -5,7 +5,7 @@
     <groupId>nl.pim16aap2.animatedarchitecture</groupId>
     <artifactId>animatedarchitecture-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.6-SNAPSHOT</version>
+    <version>0.6.0-SNAPSHOT</version>
     <name>animatedarchitecture</name>
 
     <properties>
@@ -55,6 +55,7 @@
         <dependency.mockito.version>5.11.0</dependency.mockito.version>
         <dependency.nullaway.version>0.10.25</dependency.nullaway.version>
         <dependency.pmd.version>3.21.2</dependency.pmd.version>
+        <dependency.semver4j.version>5.3.0</dependency.semver4j.version>
         <dependency.slf4j.version>2.0.13</dependency.slf4j.version>
         <dependency.surefire.version>3.2.5</dependency.surefire.version>
     </properties>
@@ -114,6 +115,14 @@
             <artifactId>dagger-compiler</artifactId>
             <version>${dependency.dagger.version}</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.semver4j</groupId>
+            <artifactId>semver4j</artifactId>
+            <version>${dependency.semver4j.version}</version>
+            <scope>compile</scope>
+            <optional>true</optional>
         </dependency>
 
         <dependency>
@@ -368,12 +377,32 @@
                     <configuration>
                         <relocations>
                             <relocation>
-                                <pattern>org.bstats</pattern>
-                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.bstats</shadedPattern>
-                            </relocation>
-                            <relocation>
                                 <pattern>cloud.commandframework</pattern>
                                 <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.cloud</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>com.google.common.flogger</pattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.flogger</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>com.google.errorprone</pattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.errorprone</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>com.mojang.brigadier</pattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.brigadier</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>dagger</pattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.dagger</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>de.themoep.inventorygui</pattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.inventorygui</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>io.leangen</pattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.leangen</shadedPattern>
                             </relocation>
                             <relocation>
                                 <pattern>me.lucko.commodore</pattern>
@@ -384,32 +413,8 @@
                                 <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.kyori</shadedPattern>
                             </relocation>
                             <relocation>
-                                <pattern>io.leangen</pattern>
-                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.leangen</shadedPattern>
-                            </relocation>
-                            <relocation>
                                 <pattern>nl.pim16aap2.jcalculator</pattern>
                                 <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.jcalculator</shadedPattern>
-                            </relocation>
-                            <relocation>
-                                <pattern>com.google.errorprone</pattern>
-                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.errorprone</shadedPattern>
-                            </relocation>
-                            <relocation>
-                                <pattern>javax.inject</pattern>
-                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.javax.inject</shadedPattern>
-                            </relocation>
-                            <relocation>
-                                <pattern>dagger</pattern>
-                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.dagger</shadedPattern>
-                            </relocation>
-                            <relocation>
-                                <pattern>org.checkerframework</pattern>
-                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.checkerframework</shadedPattern>
-                            </relocation>
-                            <relocation>
-                                <pattern>com.google.common.flogger</pattern>
-                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.flogger</shadedPattern>
                             </relocation>
                             <relocation>
                                 <pattern>nl.pim16aap2.util</pattern>
@@ -420,12 +425,20 @@
                                 <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.apiguardian</shadedPattern>
                             </relocation>
                             <relocation>
-                                <pattern>com.mojang.brigadier</pattern>
-                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.brigadier</shadedPattern>
+                                <pattern>org.bstats</pattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.bstats</shadedPattern>
                             </relocation>
                             <relocation>
-                                <pattern>de.themoep.inventorygui</pattern>
-                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.inventorygui</shadedPattern>
+                                <pattern>org.checkerframework</pattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.checkerframework</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>org.semver4j</pattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.semver4j</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>javax.inject</pattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.javax.inject</shadedPattern>
                             </relocation>
                         </relocations>
                     </configuration>

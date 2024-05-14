@@ -207,6 +207,30 @@ public final class LogAssertionsUtil
     }
 
     /**
+     * Ensures that a certain number of throwables were logged. The assertion will fail if the number of throwables
+     * logged does not match the expected count.
+     *
+     * @param logCaptor
+     *     The log captor to check.
+     * @param count
+     *     The expected number of throwables to be logged.
+     */
+    public static void assertThrowingCount(LogCaptor logCaptor, int count)
+    {
+        final int throwingCount = getThrowingCount(logCaptor);
+        if (throwingCount == count)
+            return;
+
+        Assertions.fail(
+            String.format(
+                """
+                Expected %d throwables to be logged, but instead got %d!
+                %s
+                """,
+                count, throwingCount, formatLogEvents(logCaptor.getLogEvents(), count)));
+    }
+
+    /**
      * Ensures that a throwable with the correct causes was logged. The assertion will fail if the throwable was not
      * logged.
      * <p>

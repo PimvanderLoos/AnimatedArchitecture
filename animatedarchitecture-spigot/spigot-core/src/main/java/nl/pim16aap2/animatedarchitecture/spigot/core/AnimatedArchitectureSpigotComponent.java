@@ -41,7 +41,6 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureRegistry;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.util.updater.UpdateChecker;
 import nl.pim16aap2.animatedarchitecture.core.util.versioning.BuildDataReader;
-import nl.pim16aap2.animatedarchitecture.core.util.versioning.ProjectVersion;
 import nl.pim16aap2.animatedarchitecture.spigot.core.animation.AnimatedBlockDisplayModule;
 import nl.pim16aap2.animatedarchitecture.spigot.core.comands.CommandManager;
 import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigot;
@@ -79,6 +78,7 @@ import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.MessagingIn
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.SpigotServerModule;
 import nl.pim16aap2.animatedarchitecture.spigot.util.text.TextComponentFactorySpigotModule;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.semver4j.Semver;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -121,7 +121,7 @@ interface AnimatedArchitectureSpigotComponent
         Builder setPlugin(AnimatedArchitecturePlugin javaPlugin);
 
         @BindsInstance
-        Builder setProjectVersion(ProjectVersion projectVersion);
+        Builder setProjectVersion(Semver projectVersion);
 
         @BindsInstance
         Builder setUpdateChecker(UpdateChecker updateChecker);
@@ -138,7 +138,7 @@ interface AnimatedArchitectureSpigotComponent
 
     RestartableHolder getRestartableHolder();
 
-    ProjectVersion getProjectVersion();
+    Semver getProjectVersion();
 
     IAnimatedArchitectureEventCaller getDoorEventCaller();
 
