@@ -72,7 +72,7 @@ public class GriefDefender2ProtectionHook implements IProtectionHookSpigot
     }
 
     @Override
-    public CompletableFuture<Boolean> canBreakBlocksBetweenLocs(Player player, World world, Cuboid cuboid)
+    public CompletableFuture<Boolean> canBreakBlocksInCuboid(Player player, World world, Cuboid cuboid)
     {
         if (!enabledInWorldChecks(Objects.requireNonNull(world)))
             return CompletableFuture.completedFuture(true);

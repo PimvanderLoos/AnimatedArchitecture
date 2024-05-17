@@ -440,17 +440,17 @@ import java.util.logging.Level;
     {
         // If the returned value is an empty Optional, the player is allowed to break blocks.
         return protectionHookManager
-            .canBreakBlocksBetweenLocs(responsible, cuboid, structure.getWorld())
+            .canBreakBlocksInCuboid(responsible, cuboid, structure.getWorld())
             .thenApply(protectionCheckResult ->
-                {
-                    if (protectionCheckResult.isAllowed())
-                        return true;
+            {
+                if (protectionCheckResult.isAllowed())
+                    return true;
 
-                    log.atWarning().log(
-                        "Player '%s' is not allowed to open structure '%s' (%d) here! Reason: %s",
-                        responsible, structure.getName(), structure.getUid(), protectionCheckResult.denyingHookName());
-                    return false;
-                });
+                log.atWarning().log(
+                    "Player %s is not allowed to open structure '%s' (%d) here! Reason: %s",
+                    responsible, structure.getName(), structure.getUid(), protectionCheckResult.denyingHookName());
+                return false;
+            });
     }
 
     /**

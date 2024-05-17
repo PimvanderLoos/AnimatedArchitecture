@@ -292,6 +292,6 @@ public interface IExecutor
      */
     default void assertNotMainThread()
     {
-        assertMainThread("Assertion Failed: On main thread!");
+        assertNotMainThread("Assertion Failed: On main thread!");
     }
 }

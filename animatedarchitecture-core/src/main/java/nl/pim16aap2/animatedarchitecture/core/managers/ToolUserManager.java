@@ -56,7 +56,7 @@ public final class ToolUserManager extends Restartable
         if (replaced != null)
         {
             log.atInfo().log("Aborting previous ToolUser for user: %s (%s) because a new ToolUser was initiated!",
-                             toolUser.getPlayer().getName(), toolUser.getPlayer().getUUID());
+                toolUser.getPlayer().getName(), toolUser.getPlayer().getUUID());
             abortEntry(replaced);
         }
     }
@@ -145,14 +145,14 @@ public final class ToolUserManager extends Restartable
         if (pair == null)
         {
             log.atSevere().withStackTrace(StackSize.FULL)
-               .log("Trying to start a tool user even though it wasn't registered, somehow!");
+                .log("Trying to start a tool user even though it wasn't registered, somehow!");
             return;
         }
 
         if (pair.toolUser != toolUser)
         {
             log.atSevere().withStackTrace(StackSize.FULL)
-               .log("Trying to start a tool user while another instance is already running! Aborting...");
+                .log("Trying to start a tool user while another instance is already running! Aborting...");
             abortToolUser(toolUser);
             return;
         }
@@ -160,7 +160,7 @@ public final class ToolUserManager extends Restartable
         if (pair.timerTask != null)
         {
             log.atSevere().withStackTrace(StackSize.FULL)
-               .log("Trying to create a timer for a tool user even though it already has one! Aborting...");
+                .log("Trying to create a timer for a tool user even though it already has one! Aborting...");
             abortToolUser(toolUser);
             return;
         }
@@ -172,7 +172,7 @@ public final class ToolUserManager extends Restartable
             {
                 if (toolUser.isActive())
                     toolUser.getPlayer().sendMessage(textFactory, TextType.ERROR,
-                                                     localizer.getMessage("creator.base.error.timed_out"));
+                        localizer.getMessage("creator.base.error.timed_out"));
                 toolUser.abort();
             }
         };
@@ -233,7 +233,7 @@ public final class ToolUserManager extends Restartable
     private void abortEntry(ToolUser toolUser, @Nullable TimerTask timerTask)
     {
         if (toolUser.isActive())
-            toolUser.getPlayer().sendError(textFactory, localizer.getMessage("creator.base.error.aborted"));
+            toolUser.getPlayer().sendError(textFactory, localizer.getMessage("creator.base.error.creation_cancelled"));
 
         if (timerTask != null)
             timerTask.cancel();

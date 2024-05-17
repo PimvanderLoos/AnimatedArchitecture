@@ -63,9 +63,9 @@ class PowerBlockRelocatorTest
 
         hookManager = Mockito.mock(IProtectionHookManager.class);
         Mockito.when(hookManager.canBreakBlock(Mockito.any(), Mockito.any()))
-               .thenReturn(CompletableFuture.completedFuture(IProtectionHookManager.HookCheckResult.allowed()));
-        Mockito.when(hookManager.canBreakBlocksBetweenLocs(Mockito.any(), Mockito.any(), Mockito.any()))
-               .thenReturn(CompletableFuture.completedFuture(IProtectionHookManager.HookCheckResult.allowed()));
+            .thenReturn(CompletableFuture.completedFuture(IProtectionHookManager.HookCheckResult.allowed()));
+        Mockito.when(hookManager.canBreakBlocksInCuboid(Mockito.any(), Mockito.any(), Mockito.any()))
+            .thenReturn(CompletableFuture.completedFuture(IProtectionHookManager.HookCheckResult.allowed()));
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
@@ -121,7 +121,7 @@ class PowerBlockRelocatorTest
 
         final String compat = "TestCompat";
         Mockito.when(hookManager.canBreakBlock(Mockito.any(), Mockito.any()))
-               .thenReturn(CompletableFuture.completedFuture(IProtectionHookManager.HookCheckResult.denied(compat)));
+            .thenReturn(CompletableFuture.completedFuture(IProtectionHookManager.HookCheckResult.denied(compat)));
 
         Mockito.when(location.getWorld()).thenReturn(world);
         Mockito.when(location.getPosition()).thenReturn(new Vector3Di(0, 0, 0));

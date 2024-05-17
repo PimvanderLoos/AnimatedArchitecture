@@ -522,7 +522,7 @@ public abstract class ToolUser
     public CompletableFuture<Optional<Cuboid>> playerHasAccessToCuboid(Cuboid cuboid, IWorld world)
     {
         return protectionHookManager
-            .canBreakBlocksBetweenLocs(getPlayer(), cuboid, world)
+            .canBreakBlocksInCuboid(getPlayer(), cuboid, world)
             .thenApply(result ->
             {
                 if (result.isAllowed())

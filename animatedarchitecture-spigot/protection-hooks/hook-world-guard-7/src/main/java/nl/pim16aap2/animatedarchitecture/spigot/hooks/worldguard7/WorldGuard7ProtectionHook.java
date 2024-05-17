@@ -1,35 +1,32 @@
 package nl.pim16aap2.animatedarchitecture.spigot.hooks.worldguard7;
 
-import com.google.common.flogger.LazyArgs;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.bukkit.BukkitPlayer;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import com.sk89q.worldguard.protection.FlagValueCalculator;
+import com.sk89q.worldguard.protection.association.RegionAssociable;
 import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
 import lombok.Getter;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
+import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.HookPreCheckResult;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.IFakePlayer;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.IProtectionHookSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.ProtectionHookContext;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.annotation.Nullable;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.logging.Level;
 
 /**
  * Protection hook for WorldGuard 7.
@@ -37,6 +34,8 @@ import java.util.logging.Level;
 @Flogger
 public class WorldGuard7ProtectionHook implements IProtectionHookSpigot
 {
+    private static final StateFlag[] FLAGS = new StateFlag[]{Flags.BLOCK_BREAK, Flags.BLOCK_PLACE, Flags.BUILD};
+
     private final WorldGuard worldGuard;
     private final WorldGuardPlugin worldGuardPlugin;
     @Getter
@@ -56,89 +55,106 @@ public class WorldGuard7ProtectionHook implements IProtectionHookSpigot
         return regionManager != null && regionManager.size() > 0;
     }
 
-    private boolean canBreakBlock(com.sk89q.worldedit.util.Location location, LocalPlayer player, Player bukkitPlayer)
+    @Override
+    public HookPreCheckResult preCheck(Player player, World world)
     {
-        final boolean result = query().testState(location, player, Flags.BLOCK_BREAK, Flags.BLOCK_PLACE);
-        if (!result)
-        {
-            final boolean finer = log.atInfo().isEnabled();
-            // Only log the full details on the 'finer' level.
-            final var setDetails =
-                finer ? LazyArgs.lazy(() -> getApplicableRegionSetDetails(location, player)) : "Skipped";
-            final var level = finer ? Level.INFO : Level.INFO;
+        if (!enabledInWorld(toWorldGuardWorld(world)))
+            return HookPreCheckResult.BYPASS;
 
-            log.at(level).log(
-                "Player %s is not allowed to break block at %s: Region details: %s",
-                lazyFormatPlayerName(bukkitPlayer),
-                formatWorldEditLocation(location),
-                setDetails
+        // We don't want to check fake players synchronously.
+        if (isFakePlayer(player))
+        {
+            log.atFinest().log(
+                "Player %s is a fake player, skipping sync pre-check.",
+                lazyFormatPlayerName(player)
             );
+            return HookPreCheckResult.ALLOW;
         }
+
+        final var wgPlayer = toWorldGuardPlayer(player);
+        final var wgWorld = toWorldGuardWorld(world);
+
+        final boolean hasBypass = worldGuard.getPlatform().getSessionManager().hasBypass(wgPlayer, wgWorld);
+        final var result = hasBypass ? HookPreCheckResult.BYPASS : HookPreCheckResult.ALLOW;
+        log.atFiner().log(
+            "Sync pre-check for player %s in world '%s': %s",
+            lazyFormatPlayerName(player), world.getName(), result
+        );
         return result;
     }
 
-    private CompletableFuture<Boolean> canBreakBlock0(
-        Player player, Location loc, LocalPlayer wgPlayer,
-        com.sk89q.worldedit.world.World wgWorld)
+    @Override
+    public CompletableFuture<HookPreCheckResult> preCheckAsync(Player player, World world)
     {
-        return CompletableFuture.completedFuture(canBreakBlock(toWorldGuardLocation(loc, wgWorld), wgPlayer, player));
+        if (!isFakePlayer(player))
+        {
+            log.atFinest().log(
+                "Player %s is not a fake player, skipping async pre-check.",
+                lazyFormatPlayerName(player)
+            );
+            return CompletableFuture.completedFuture(HookPreCheckResult.ALLOW);
+        }
+
+        return hasPermissionOffline(world, player, "worldguard.region.bypass." + world.getName())
+            .exceptionally(e ->
+            {
+                log.atSevere().withCause(e).log(
+                    "Error while checking permission for player %s in world '%s'.",
+                    lazyFormatPlayerName(player), world.getName()
+                );
+                return false;
+            })
+            .thenApply(result ->
+            {
+                final var result0 = result ? HookPreCheckResult.BYPASS : HookPreCheckResult.ALLOW;
+                log.atFiner().log(
+                    "Async pre-check for player %s in world '%s': %s",
+                    lazyFormatPlayerName(player), world.getName(), result0
+                );
+                return result0;
+            });
     }
 
     @Override
     public CompletableFuture<Boolean> canBreakBlock(Player player, Location loc)
     {
         final var wgWorld = toWorldGuardWorld(loc.getWorld());
-        if (!enabledInWorld(wgWorld))
-            return CompletableFuture.completedFuture(true);
 
         final var wgPlayer = toWorldGuardPlayer(player);
-        return canBypass(wgPlayer, wgWorld, player, Objects.requireNonNull(loc.getWorld())).thenCompose(
-            bypass ->
-            {
-                if (bypass)
-                    return CompletableFuture.completedFuture(true);
-                return canBreakBlock0(player, loc, wgPlayer, wgWorld);
-            });
+        final var wgLoc = toWorldGuardLocation(loc, wgWorld);
 
+        return CompletableFuture.completedFuture(query().testState(wgLoc, wgPlayer, FLAGS));
     }
 
-    public CompletableFuture<Boolean> canBreakBlocksBetweenLocs0(
-        Player player, Cuboid cuboid,
-        LocalPlayer wgPlayer, com.sk89q.worldedit.world.World wgWorld)
+    @Override
+    public CompletableFuture<Boolean> canBreakBlocksInCuboid(Player player, World world, Cuboid cuboid)
     {
+        final var wgWorld = toWorldGuardWorld(world);
+
+        final RegionQuery query = worldGuard.getPlatform().getRegionContainer().createQuery();
+        final RegionAssociable regionAssociable = regionAssociableFromPlayer(player);
+
         final Vector3Di min = cuboid.getMin();
         final Vector3Di max = cuboid.getMax();
         for (int xPos = min.x(); xPos <= max.x(); ++xPos)
             for (int yPos = min.y(); yPos <= max.y(); ++yPos)
                 for (int zPos = min.z(); zPos <= max.z(); ++zPos)
-                    if (!canBreakBlock(toWorldEditLocation(wgWorld, xPos, yPos, zPos), wgPlayer, player))
+                {
+                    final com.sk89q.worldedit.util.Location wgLoc =
+                        new com.sk89q.worldedit.util.Location(wgWorld, xPos, yPos, zPos);
+
+                    if (!query.testState(wgLoc, regionAssociable, FLAGS))
                         return CompletableFuture.completedFuture(false);
+                }
         return CompletableFuture.completedFuture(true);
     }
 
-    @Override
-    public CompletableFuture<Boolean> canBreakBlocksBetweenLocs(Player player, World world, Cuboid cuboid)
+    private RegionAssociable regionAssociableFromPlayer(Player player)
     {
-        log.atInfo().log(
-            "Checking if player %s can break blocks between %s and %s",
-            lazyFormatPlayerName(player), cuboid.getMin(), cuboid.getMax());
-
-        final var wgWorld = toWorldGuardWorld(world);
-        if (!enabledInWorld(wgWorld))
-            return CompletableFuture.completedFuture(true);
-
-        final var wgPlayer = toWorldGuardPlayer(player);
-
-        return canBypass(wgPlayer, wgWorld, player, world).thenCompose(
-            bypass ->
-            {
-                if (bypass)
-                    return CompletableFuture.completedFuture(true);
-
-                return context
-                    .getExecutor()
-                    .composeOnMainThread(() -> canBreakBlocksBetweenLocs0(player, cuboid, wgPlayer, wgWorld));
-            });
+        if (Bukkit.getPlayer(player.getUniqueId()) == null)
+            return worldGuardPlugin.wrapOfflinePlayer(player);
+        else
+            return new BukkitPlayer(worldGuardPlugin, player);
     }
 
     @Override
@@ -152,23 +168,9 @@ public class WorldGuard7ProtectionHook implements IProtectionHookSpigot
         return worldGuard.getPlatform().getRegionContainer().createQuery();
     }
 
-    private CompletableFuture<Boolean> canBypass(
-        LocalPlayer player, com.sk89q.worldedit.world.World world,
-        Player bukkitPlayer, World bukkitWorld)
+    private boolean isFakePlayer(Player player)
     {
-        if (bukkitPlayer instanceof IFakePlayer)
-            return hasPermissionOffline(bukkitWorld, bukkitPlayer, "worldguard.region.bypass." + world.getName())
-                .thenApply(
-                    result ->
-                    {
-                        log.atInfo().log(
-                            "Player %s has bypass permission: %s",
-                            lazyFormatPlayerName(bukkitPlayer),
-                            result
-                        );
-                        return result;
-                    });
-        return CompletableFuture.completedFuture(worldGuard.getPlatform().getSessionManager().hasBypass(player, world));
+        return player instanceof IFakePlayer;
     }
 
     private LocalPlayer toWorldGuardPlayer(Player player)
@@ -184,106 +186,5 @@ public class WorldGuard7ProtectionHook implements IProtectionHookSpigot
     private com.sk89q.worldedit.util.Location toWorldGuardLocation(Location loc, com.sk89q.worldedit.world.World world)
     {
         return new com.sk89q.worldedit.util.Location(world, loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
-    }
-
-    /**
-     * Format a WorldEdit {@link com.sk89q.worldedit.util.Location} to a string.
-     *
-     * @param location
-     *     The WorldEdit location to format.
-     * @return The formatted location.
-     */
-    private String formatWorldEditLocation(com.sk89q.worldedit.util.Location location)
-    {
-        return String.format(
-            "[%d, %d, %d]",
-            location.getBlockX(),
-            location.getBlockY(),
-            location.getBlockZ()
-        );
-    }
-
-    /**
-     * Create a new WorldEdit {@link com.sk89q.worldedit.util.Location} given the provided parameters.
-     *
-     * @param wgWorld
-     *     The WorldEdit world.
-     * @param xPos
-     *     The x position.
-     * @param yPos
-     *     The y position.
-     * @param zPos
-     *     The z position.
-     * @return The created WorldEdit location.
-     */
-    private com.sk89q.worldedit.util.Location toWorldEditLocation(
-        com.sk89q.worldedit.world.World wgWorld,
-        int xPos, int yPos, int zPos)
-    {
-        return new com.sk89q.worldedit.util.Location(wgWorld, xPos, yPos, zPos);
-    }
-
-    /**
-     * Gets the applicable region set details for the provided location and player.
-     * <p>
-     * For each region, we gather details such as whether it is ignored, the effective value of the flag, the priority,
-     * etc.
-     *
-     * @param location
-     *     The location to get the applicable region set details for.
-     * @param player
-     *     The player to get the applicable region set details for.
-     * @return The applicable region set details for the provided location and player.
-     */
-    private String getApplicableRegionSetDetails(com.sk89q.worldedit.util.Location location, LocalPlayer player)
-    {
-        final StringBuilder sb = new StringBuilder();
-
-        final Set<ProtectedRegion> regions = query().getApplicableRegions(location).getRegions();
-
-        for (final var flag : List.of(Flags.BLOCK_BREAK, Flags.BLOCK_PLACE))
-        {
-            sb.append("\nPer-region details for flag ").append(flag.getName()).append(":\n");
-
-            final Set<ProtectedRegion> ignoredParents = new HashSet<>();
-            for (final ProtectedRegion region : regions)
-            {
-                sb.append('\n').append("  Region: ").append(region.getId()).append('\n');
-
-                final boolean isIgnored = ignoredParents.contains(region);
-                sb.append("    Ignored: ").append(isIgnored).append('\n');
-
-                final StateFlag.State effectiveValue = FlagValueCalculator.getEffectiveFlagOf(region, flag, player);
-                sb.append("    Effective value: ").append(effectiveValue).append('\n');
-
-                final int priority = FlagValueCalculator.getPriorityOf(region);
-                sb.append("    Priority: ").append(priority).append('\n');
-
-                final var parents = getParentsOfRegion(region);
-                sb.append("    Parents: ").append(parents).append('\n');
-                ignoredParents.addAll(parents);
-            }
-        }
-
-        return sb.toString();
-    }
-
-    /**
-     * Gets all parents of the provided region.
-     *
-     * @param region
-     *     The region to get the parents of.
-     * @return All parents of the provided region.
-     */
-    private Set<ProtectedRegion> getParentsOfRegion(ProtectedRegion region)
-    {
-        final Set<ProtectedRegion> parents = new HashSet<>();
-        @Nullable ProtectedRegion parent = region.getParent();
-        while (parent != null)
-        {
-            parents.add(parent);
-            parent = parent.getParent();
-        }
-        return parents;
     }
 }

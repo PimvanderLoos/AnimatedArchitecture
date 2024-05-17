@@ -64,7 +64,7 @@ public class RedProtectProtectionHook implements IProtectionHookSpigot
     }
 
     @Override
-    public CompletableFuture<Boolean> canBreakBlocksBetweenLocs(Player player, World world, Cuboid cuboid)
+    public CompletableFuture<Boolean> canBreakBlocksInCuboid(Player player, World world, Cuboid cuboid)
     {
         final Vector3Di min = cuboid.getMin();
         final Vector3Di max = cuboid.getMax();

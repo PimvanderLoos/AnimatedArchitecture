@@ -166,7 +166,7 @@ public class CreatorTestsUtil
 
         Mockito.when(protectionHookManager.canBreakBlock(Mockito.any(), Mockito.any()))
             .thenReturn(CompletableFuture.completedFuture(IProtectionHookManager.HookCheckResult.allowed()));
-        Mockito.when(protectionHookManager.canBreakBlocksBetweenLocs(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(protectionHookManager.canBreakBlocksInCuboid(Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(CompletableFuture.completedFuture(IProtectionHookManager.HookCheckResult.allowed()));
 
         context = new ToolUser.Context(

@@ -19,6 +19,51 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface IProtectionHookSpigot
 {
+
+    /**
+     * Method that runs before any other checks are done.
+     * <p>
+     * The intention of this method is to allow for running quick checks that can prevent more expensive checks from
+     * being run.
+     * <p>
+     * This method is run on the main thread. If you need to run this method asynchronously, use
+     * {@link #preCheckAsync(Player, World)} instead.
+     * <p>
+     * If the method returns false, no further checks will be run.
+     *
+     * @param player
+     *     The player to check.
+     * @param world
+     *     The world to check in.
+     * @return True if the player is allowed to break blocks in the given world.
+     */
+    default HookPreCheckResult preCheck(Player player, World world)
+    {
+        return HookPreCheckResult.ALLOW;
+    }
+
+    /**
+     * Method that runs before any other checks are done.
+     * <p>
+     * The intention of this method is to allow for running quick checks that can prevent more expensive checks from
+     * being run.
+     * <p>
+     * This method is run asynchronously. If you need to run this method on the main thread, use
+     * {@link #preCheck(Player, World)} instead.
+     * <p>
+     * If the method returns false, no further checks will be run.
+     *
+     * @param player
+     *     The player to check.
+     * @param world
+     *     The world to check in.
+     * @return True if the player is allowed to break blocks in the given world.
+     */
+    default CompletableFuture<HookPreCheckResult> preCheckAsync(Player player, World world)
+    {
+        return CompletableFuture.completedFuture(HookPreCheckResult.ALLOW);
+    }
+
     /**
      * Check if this compatibility hook allows a player to break blocks at a given location.
      *
@@ -41,7 +86,7 @@ public interface IProtectionHookSpigot
      *     The cuboid to check.
      * @return True if the player is allowed to break all the blocks in the given cuboid.
      */
-    CompletableFuture<Boolean> canBreakBlocksBetweenLocs(Player player, World world, Cuboid cuboid);
+    CompletableFuture<Boolean> canBreakBlocksInCuboid(Player player, World world, Cuboid cuboid);
 
     /**
      * Get the name of the {@link JavaPlugin} that is being hooked into.

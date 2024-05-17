@@ -13,10 +13,10 @@ import java.util.function.Supplier;
  * @param <T>
  *     The type of the object to initialize lazily.
  */
-public final class LazyInit<T>
+public sealed class LazyInit<T>
 {
     private final Supplier<T> supplier;
-    private volatile @Nullable T obj;
+    protected volatile @Nullable T obj;
 
     /**
      * @param supplier
@@ -81,5 +81,27 @@ public final class LazyInit<T>
     public String toString()
     {
         return "LazyInit(obj=" + obj + ")";
+    }
+
+    /**
+     * A {@link LazyInit} that can be reset to its uninitialized state.
+     *
+     * @param <T>
+     *     The type of the object to initialize lazily.
+     */
+    public static final class Resettable<T> extends LazyInit<T>
+    {
+        public Resettable(Supplier<T> supplier)
+        {
+            super(supplier);
+        }
+
+        /**
+         * Resets the object to its uninitialized state.
+         */
+        public synchronized void reset()
+        {
+            obj = null;
+        }
     }
 }
