@@ -55,7 +55,7 @@ public interface IProtectionHookManager
         /**
          * Generic error result that denies the check.
          */
-        public static HookCheckResult ERROR = new HookCheckResult(true, "ERROR");
+        public static final HookCheckResult ERROR = new HookCheckResult(true, "ERROR");
 
         /**
          * Check if the check was allowed.

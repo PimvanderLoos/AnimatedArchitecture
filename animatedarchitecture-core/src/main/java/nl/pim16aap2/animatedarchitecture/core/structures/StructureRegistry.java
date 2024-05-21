@@ -144,8 +144,11 @@ public final class StructureRegistry implements IDebuggable, StructureDeletionMa
         {
             if (value == null)
                 return Util.requireNonNull(supplier.get(), "Supplied Structure");
-            log.atSevere().withStackTrace(StackSize.FULL)
-                .log("Caught attempted double registering of structure %d! Existing = %s", uid, value);
+
+            log.atFine().withStackTrace(StackSize.FULL).log(
+                "Caught attempted double registering of structure %d! Existing = %s",
+                uid, value
+            );
             return value;
         });
     }

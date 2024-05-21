@@ -21,7 +21,6 @@ import nl.pim16aap2.animatedarchitecture.spigot.util.api.IPermissionsManagerSpig
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.IProtectionHookSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.IProtectionHookSpigotSpecification;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.ProtectionHookContext;
-import nl.pim16aap2.util.collections.SnapshotCopyOnWriteArrayList;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -36,11 +35,14 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -64,8 +66,7 @@ public final class ProtectionHookManagerSpigot
      */
     private volatile boolean isActive = false;
 
-    private volatile SnapshotCopyOnWriteArrayList<IProtectionHookSpigot> protectionHooks =
-        new SnapshotCopyOnWriteArrayList<>();
+    private volatile List<IProtectionHookSpigot> protectionHooks = new CopyOnWriteArrayList<>();
 
     @Inject ProtectionHookManagerSpigot(
         JavaPlugin animatedArchitecture,
@@ -314,7 +315,7 @@ public final class ProtectionHookManagerSpigot
     @Override
     public void initialize()
     {
-        this.protectionHooks = new SnapshotCopyOnWriteArrayList<>();
+        this.protectionHooks = new CopyOnWriteArrayList<>();
         this.isActive = true;
         loadHooks();
     }
@@ -324,7 +325,7 @@ public final class ProtectionHookManagerSpigot
     {
         this.isActive = false;
         protectionHooks.clear();
-        this.protectionHooks = new SnapshotCopyOnWriteArrayList<>();
+        this.protectionHooks = Collections.emptyList();
     }
 
     @Override
