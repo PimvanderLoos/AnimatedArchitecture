@@ -61,7 +61,7 @@ public class WorldGuard7ProtectionHook implements IProtectionHookSpigot
         if (!enabledInWorld(toWorldGuardWorld(world)))
             return HookPreCheckResult.BYPASS;
 
-        // We don't want to check fake players synchronously.
+        // We don't want to check permissions for fake (offline) players on the main thread.
         if (isFakePlayer(player))
         {
             log.atFinest().log(

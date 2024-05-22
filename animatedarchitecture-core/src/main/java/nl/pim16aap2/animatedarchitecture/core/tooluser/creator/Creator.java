@@ -553,7 +553,7 @@ public abstract class Creator extends ToolUser
     {
         final Cuboid newCuboid = new Cuboid(
             Util.requireNonNull(firstPos, "firstPos"),
-            new Vector3Di(combinedWith.x(), combinedWith.y(), combinedWith.z()));
+            combinedWith);
 
         final OptionalInt sizeLimit = limitsManager.getLimit(getPlayer(), Limit.STRUCTURE_SIZE);
         if (sizeLimit.isPresent() && newCuboid.getVolume() > sizeLimit.getAsInt())

@@ -402,8 +402,10 @@ public abstract class ToolUser
             return runWithLock(() -> handleInputWithLock(obj))
                 .exceptionally(ex ->
                 {
-                    log.atSevere().withCause(ex)
-                        .log("An error occurred handling input '%s' for ToolUser '%s'!", obj, this);
+                    log.atSevere().withCause(ex).log(
+                        "An error occurred handling input '%s' for ToolUser '%s'!",
+                        obj, this
+                    );
                     return false;
                 });
         }

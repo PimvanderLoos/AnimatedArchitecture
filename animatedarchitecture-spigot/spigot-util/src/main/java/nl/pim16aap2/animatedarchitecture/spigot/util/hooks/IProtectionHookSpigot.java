@@ -15,11 +15,36 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Represents a compatibility hook.
+ * Represents a protection hook for a specific plugin.
+ * <p>
+ * The intended use of this interface is to allow for checking if a player is allowed to break blocks at a given
+ * location. This is used to prevent players from creating or operating structures in protected areas.
+ * <p>
+ * Additionally, this interface allows for running quick checks that can prevent more expensive checks from being run.
+ * These pre-checks can give one of three results:
+ * <ul>
+ *     <li>
+ *         {@link HookPreCheckResult#ALLOW}:
+ *         All further checks will be run as normal. This is the default behavior.
+ *     </li>
+ *     <li>
+ *         {@link HookPreCheckResult#DENY}:
+ *         The action will be denied. This means that no further checks are necessary, because only a single hook needs
+ *         to deny the action for it to be denied.
+ *     </li>
+ *     <li>
+ *         {@link HookPreCheckResult#BYPASS}:
+ *         The check is bypassed. This means that the main check of this hook is not run at all. This can be useful if
+ *         the hook is not enabled in the world that the check is run in. This has no effect on other hooks.
+ *     </li>
+ * </ul>
+ * <p>
+ * The pre-checks have two methods: {@link #preCheck(Player, World)} and {@link #preCheckAsync(Player, World)}. Both
+ * methods should be run to get the final result, as the async method should only check things that must be done
+ * asynchronously and the sync method should only check things that must be done on the main thread.
  */
 public interface IProtectionHookSpigot
 {
-
     /**
      * Method that runs before any other checks are done.
      * <p>
@@ -29,7 +54,8 @@ public interface IProtectionHookSpigot
      * This method is run on the main thread. If you need to run this method asynchronously, use
      * {@link #preCheckAsync(Player, World)} instead.
      * <p>
-     * If the method returns false, no further checks will be run.
+     * If the method returns {@link HookPreCheckResult#ALLOW}, all further checks will be run as normal. This is the
+     * default behavior.
      *
      * @param player
      *     The player to check.
@@ -51,7 +77,8 @@ public interface IProtectionHookSpigot
      * This method is run asynchronously. If you need to run this method on the main thread, use
      * {@link #preCheck(Player, World)} instead.
      * <p>
-     * If the method returns false, no further checks will be run.
+     * If the method returns {@link HookPreCheckResult#ALLOW}, all further checks will be run as normal. This is the
+     * default behavior.
      *
      * @param player
      *     The player to check.
@@ -149,15 +176,7 @@ public interface IProtectionHookSpigot
     default LazyArg<String> lazyFormatPlayerName(Player player)
     {
         return LazyArgs.lazy(
-            () ->
-                String.format(
-                    "['%s': '%s', fake: %b, online: %b, op: %b]",
-                    player.getName(),
-                    player.getUniqueId(),
-                    player instanceof IFakePlayer,
-                    player.isOnline(),
-                    player.isOp()
-                )
-        );
+            () -> String.format("['%s': '%s', fake: %b, online: %b, op: %b]", player.getName(), player.getUniqueId(),
+                player instanceof IFakePlayer, player.isOnline(), player.isOp()));
     }
 }

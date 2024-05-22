@@ -130,8 +130,10 @@ import java.util.logging.Level;
         AbstractStructure structure, StructureToggleResult result, StructureActionCause cause, IPlayer responsible,
         IMessageable messageReceiver, @Nullable Long stamp)
     {
-        log.atFine().log("Aborted toggle for structure %d because of %s. Toggle Reason: %s, Responsible: %s",
-            structure.getUid(), result.name(), cause.name(), responsible.asString());
+        log.atFine().log(
+            "Aborted toggle for structure %d because of %s. Toggle Reason: %s, Responsible: %s",
+            structure.getUid(), result.name(), cause.name(), responsible.asString()
+        );
 
         // If the reason the toggle attempt was cancelled was because it was busy, it should obviously
         // not reset the busy status of this structure. However, in every other case it should, because the structure is
@@ -149,8 +151,10 @@ import java.util.logging.Level;
             final Level level = result == StructureToggleResult.BUSY ? Level.FINE : Level.INFO;
 
             if (result.equals(StructureToggleResult.INSTANCE_UNREGISTERED))
-                log.at(level).withStackTrace(StackSize.FULL)
-                    .log("Encountered unregistered structure structure: %d", structure.getUid());
+                log.at(level).withStackTrace(StackSize.FULL).log(
+                    "Encountered unregistered structure structure: %d",
+                    structure.getUid()
+                );
             else
                 log.at(level).log("Failed to toggle structure: %d, reason: %s", structure.getUid(), result.name());
         }

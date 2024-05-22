@@ -8,13 +8,13 @@ import lombok.Getter;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
+import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.HookPreCheckResult;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.IProtectionHookSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.ProtectionHookContext;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -37,6 +37,12 @@ public class GriefDefender2ProtectionHook implements IProtectionHookSpigot
     private boolean enabledInWorldChecks(World world)
     {
         return GriefDefender.getCore().isEnabled(world.getUID());
+    }
+
+    @Override
+    public HookPreCheckResult preCheck(Player player, World world)
+    {
+        return enabledInWorldChecks(world) ? HookPreCheckResult.ALLOW : HookPreCheckResult.BYPASS;
     }
 
     private boolean isTypeBlockIgnored(Location loc)
@@ -66,17 +72,12 @@ public class GriefDefender2ProtectionHook implements IProtectionHookSpigot
     @Override
     public CompletableFuture<Boolean> canBreakBlock(Player player, Location loc)
     {
-        if (!enabledInWorldChecks(Objects.requireNonNull(loc.getWorld())))
-            return CompletableFuture.completedFuture(true);
         return CompletableFuture.completedFuture(checkLocation(player, loc));
     }
 
     @Override
     public CompletableFuture<Boolean> canBreakBlocksInCuboid(Player player, World world, Cuboid cuboid)
     {
-        if (!enabledInWorldChecks(Objects.requireNonNull(world)))
-            return CompletableFuture.completedFuture(true);
-
         final Vector3Di min = cuboid.getMin();
         final Vector3Di max = cuboid.getMax();
         for (int xPos = min.x(); xPos <= max.x(); ++xPos)

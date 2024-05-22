@@ -517,8 +517,8 @@ final class HookCheckStateContainer
             }
             catch (Exception e)
             {
-                log.atSevere().withCause(e)
-                    .log("An exception occurred while running pre-check for hook '%s'.", hookName());
+                log.atSevere().withCause(e).log(
+                    "An exception occurred while running pre-check for hook '%s'.", hookName());
                 result = HookPreCheckResult.DENY;
             }
 

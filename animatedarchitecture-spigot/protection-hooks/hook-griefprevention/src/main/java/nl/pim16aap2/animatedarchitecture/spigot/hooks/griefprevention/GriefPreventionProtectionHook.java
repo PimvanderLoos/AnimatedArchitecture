@@ -5,6 +5,7 @@ import lombok.extern.flogger.Flogger;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
+import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.HookPreCheckResult;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.IProtectionHookSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.ProtectionHookContext;
 import org.bukkit.Location;
@@ -15,6 +16,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -34,21 +36,22 @@ public class GriefPreventionProtectionHook implements IProtectionHookSpigot
         this.context = context;
     }
 
+    @Override
+    public HookPreCheckResult preCheck(Player player, World world)
+    {
+        if (griefPrevention == null || !griefPrevention.claimsEnabledForWorld(world))
+            return HookPreCheckResult.BYPASS;
+        return HookPreCheckResult.ALLOW;
+    }
+
     private boolean canBreakBlock0(Player player, Location loc)
     {
-        if (griefPrevention == null)
-        {
-            log.atInfo().log(
-                "Failed to access GriefPrevention while checking if player %s can break block at %s; " +
-                    "defaulting to false.",
-                lazyFormatPlayerName(player), loc
-            );
-            return false;
-        }
-
         final Block block = loc.getBlock();
         final BlockBreakEvent blockBreakEvent = new BlockBreakEvent(block, player);
-        final boolean result = griefPrevention.allowBreak(player, block, loc, blockBreakEvent) == null;
+
+        final boolean result =
+            Objects.requireNonNull(griefPrevention).allowBreak(player, block, loc, blockBreakEvent) == null;
+
         if (!result)
             log.atFine().log(
                 "Player %s is not allowed to break block at %s",

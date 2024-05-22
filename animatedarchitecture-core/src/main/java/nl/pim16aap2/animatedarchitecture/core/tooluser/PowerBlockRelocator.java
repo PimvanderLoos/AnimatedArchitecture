@@ -85,8 +85,8 @@ public class PowerBlockRelocator extends ToolUser
     {
         if (newLoc == null)
         {
-            log.atSevere().withStackTrace(StackSize.FULL)
-                .log("newLoc is null, which should not be possible at this point!");
+            log.atSevere().withStackTrace(StackSize.FULL).log(
+                "newLoc is null, which should not be possible at this point!");
             getPlayer().sendError(textFactory, localizer.getMessage("constants.error.generic"));
         }
         else if (structure.getPowerBlock().equals(newLoc.getPosition()))

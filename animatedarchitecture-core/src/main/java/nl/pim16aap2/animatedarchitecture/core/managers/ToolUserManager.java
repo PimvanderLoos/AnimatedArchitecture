@@ -26,6 +26,9 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * Represents a class that manages {@link ToolUser}s.
+ */
 @Singleton
 @Flogger
 public final class ToolUserManager extends Restartable
@@ -35,8 +38,7 @@ public final class ToolUserManager extends Restartable
     private final ITextFactory textFactory;
     private final IExecutor executor;
 
-    @Inject
-    public ToolUserManager(
+    @Inject ToolUserManager(
         RestartableHolder holder,
         ILocalizer localizer,
         ITextFactory textFactory,
@@ -48,6 +50,12 @@ public final class ToolUserManager extends Restartable
         this.executor = executor;
     }
 
+    /**
+     * Registers a {@link ToolUser} for a player.
+     *
+     * @param toolUser
+     *     The {@link ToolUser} to register.
+     */
     public void registerToolUser(ToolUser toolUser)
     {
         final @Nullable ToolUserEntry replaced =
@@ -61,23 +69,52 @@ public final class ToolUserManager extends Restartable
         }
     }
 
+    /**
+     * Checks if a player is currently a tool user. See {@link #isToolUser(UUID)}.
+     *
+     * @param player
+     *     The player to check.
+     * @return True if the player is a tool user.
+     */
     @SuppressWarnings("unused")
     public boolean isToolUser(IPlayer player)
     {
         return isToolUser(player.getUUID());
     }
 
+    /**
+     * Checks if a player is currently a tool user. A player is a tool user if they have an active {@link ToolUser}
+     * process.
+     *
+     * @param uuid
+     *     The UUID of the player to check.
+     * @return True if the player is a tool user.
+     */
     public boolean isToolUser(UUID uuid)
     {
         return toolUsers.containsKey(uuid);
     }
 
+    /**
+     * Gets the {@link ToolUser} for a player. See {@link #getToolUser(UUID)}.
+     *
+     * @param player
+     *     The player to get the {@link ToolUser} for.
+     * @return The {@link ToolUser} for the player, if they are a tool user. Otherwise, an empty {@link Optional}.
+     */
     @SuppressWarnings("unused")
     public Optional<ToolUser> getToolUser(IPlayer player)
     {
         return getToolUser(player.getUUID());
     }
 
+    /**
+     * Gets the {@link ToolUser} for a player.
+     *
+     * @param uuid
+     *     The UUID of the player.
+     * @return The {@link ToolUser} for the player, if they are a tool user. Otherwise, an empty {@link Optional}.
+     */
     public Optional<ToolUser> getToolUser(UUID uuid)
     {
         return Optional.ofNullable(toolUsers.get(uuid)).map(pair -> pair.toolUser);
@@ -144,23 +181,23 @@ public final class ToolUserManager extends Restartable
         final @Nullable ToolUserEntry pair = toolUsers.get(toolUser.getPlayer().getUUID());
         if (pair == null)
         {
-            log.atSevere().withStackTrace(StackSize.FULL)
-                .log("Trying to start a tool user even though it wasn't registered, somehow!");
+            log.atSevere().withStackTrace(StackSize.FULL).log(
+                "Trying to start a tool user even though it wasn't registered, somehow!");
             return;
         }
 
         if (pair.toolUser != toolUser)
         {
-            log.atSevere().withStackTrace(StackSize.FULL)
-                .log("Trying to start a tool user while another instance is already running! Aborting...");
+            log.atSevere().withStackTrace(StackSize.FULL).log(
+                "Trying to start a tool user while another instance is already running! Aborting...");
             abortToolUser(toolUser);
             return;
         }
 
         if (pair.timerTask != null)
         {
-            log.atSevere().withStackTrace(StackSize.FULL)
-                .log("Trying to create a timer for a tool user even though it already has one! Aborting...");
+            log.atSevere().withStackTrace(StackSize.FULL).log(
+                "Trying to create a timer for a tool user even though it already has one! Aborting...");
             abortToolUser(toolUser);
             return;
         }
@@ -223,6 +260,14 @@ public final class ToolUserManager extends Restartable
             abortEntry(removedEntry);
     }
 
+    /**
+     * Aborts a {@link ToolUserEntry}.
+     * <p>
+     * See {@link #abortEntry(ToolUser, TimerTask)}.
+     *
+     * @param entry
+     *     The {@link ToolUserEntry} to abort. If the entry is null, nothing happens.
+     */
     private void abortEntry(@Nullable ToolUserEntry entry)
     {
         if (entry == null)
@@ -230,6 +275,18 @@ public final class ToolUserManager extends Restartable
         abortEntry(entry.toolUser, entry.timerTask);
     }
 
+    /**
+     * Aborts a {@link ToolUser} process.
+     * <p>
+     * If the {@link ToolUser} is active, the player will be notified that the process was cancelled.
+     * <p>
+     * If a {@link TimerTask} is provided, it will be cancelled.
+     *
+     * @param toolUser
+     *     The {@link ToolUser} to abort.
+     * @param timerTask
+     *     The {@link TimerTask} to cancel.
+     */
     private void abortEntry(ToolUser toolUser, @Nullable TimerTask timerTask)
     {
         if (toolUser.isActive())
