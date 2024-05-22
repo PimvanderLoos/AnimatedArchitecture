@@ -2,6 +2,7 @@ package nl.pim16aap2.animatedarchitecture.spigot.core.hooks;
 
 import dagger.Lazy;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IProtectionHookManager;
@@ -34,13 +35,15 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Predicate;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 /**
@@ -56,8 +59,14 @@ public final class ProtectionHookManagerSpigot
     private final IPermissionsManagerSpigot permissionsManager;
     private final Map<String, IProtectionHookSpigotSpecification> registeredDefinitions;
     private final JavaPlugin animatedArchitecture;
+    private final IExecutor executor;
 
-    private List<IProtectionHookSpigot> protectionHooks = new ArrayList<>();
+    /**
+     * Whether this manager is active.
+     */
+    private volatile boolean isActive = false;
+
+    private volatile List<IProtectionHookSpigot> protectionHooks = new CopyOnWriteArrayList<>();
 
     @Inject ProtectionHookManagerSpigot(
         JavaPlugin animatedArchitecture,
@@ -65,16 +74,20 @@ public final class ProtectionHookManagerSpigot
         DebuggableRegistry debuggableRegistry,
         Lazy<ConfigSpigot> config,
         IPermissionsManagerSpigot permissionsManager,
-        FakePlayerCreator fakePlayerCreator)
+        FakePlayerCreator fakePlayerCreator,
+        IExecutor executor)
     {
         this.animatedArchitecture = animatedArchitecture;
         this.fakePlayerCreator = fakePlayerCreator;
         this.config = config;
         this.permissionsManager = permissionsManager;
+        this.executor = executor;
 
         this.registeredDefinitions = new LinkedHashMap<>(
-            AbstractProtectionHookSpecification.DEFAULT_HOOK_DEFINITIONS
-                .stream().collect(Collectors.toMap(IProtectionHookSpigotSpecification::getName, c -> c)));
+            AbstractProtectionHookSpecification
+                .DEFAULT_HOOK_DEFINITIONS
+                .stream()
+                .collect(Collectors.toMap(IProtectionHookSpigotSpecification::getName, c -> c)));
 
         holder.registerRestartable(this);
         debuggableRegistry.registerDebuggable(this);
@@ -101,6 +114,9 @@ public final class ProtectionHookManagerSpigot
     @SuppressWarnings("unused")
     public void registerHookDefinition(IProtectionHookSpigotSpecification hookDefinition)
     {
+        if (!isActive)
+            throw new IllegalStateException("Cannot register hooks when the manager is not active!");
+
         registeredDefinitions.put(hookDefinition.getName(), hookDefinition);
     }
 
@@ -123,10 +139,13 @@ public final class ProtectionHookManagerSpigot
      */
     private void loadFromPluginName(String pluginName)
     {
+        if (!isActive)
+            throw new IllegalStateException("Cannot load hooks when the manager is not active!");
+
         final @Nullable IProtectionHookSpigotSpecification spec = registeredDefinitions.get(pluginName);
         if (spec == null)
         {
-            log.atFinest().log("Not loading hook for plugin '%s' because it is not registered.", pluginName);
+            log.atFinest().log("Skipping plugin '%s' because no hook implementation exists for it", pluginName);
             return;
         }
 
@@ -154,10 +173,12 @@ public final class ProtectionHookManagerSpigot
             if (this.protectionHooks.stream().map(IProtectionHookSpigot::getClass).anyMatch(hookClass::equals))
                 return;
 
-            final var context = new ProtectionHookContext(animatedArchitecture, spec, permissionsManager);
+            final var context = new ProtectionHookContext(animatedArchitecture, spec, permissionsManager, executor);
             this.protectionHooks.add(hookClass.getConstructor(ProtectionHookContext.class).newInstance(context));
-            log.atInfo()
-               .log("Successfully loaded protection hook for plugin '%s' (version '%s')!", pluginName, version);
+            log.atInfo().log(
+                "Successfully loaded protection hook for plugin '%s' (version '%s')!",
+                pluginName, version
+            );
         }
         catch (NoClassDefFoundError | ExceptionInInitializerError | Exception e)
         {
@@ -176,31 +197,6 @@ public final class ProtectionHookManagerSpigot
     void onPluginEnable(PluginEnableEvent event)
     {
         loadFromPluginName(event.getPlugin().getName());
-    }
-
-    /**
-     * Used to apply a predicate to all registered protection hooks.
-     *
-     * @param predicate
-     *     The predicate to apply.
-     * @return The name of the protection hook that returned false, or an empty Optional if all returned true.
-     */
-    private Optional<String> checkForEachHook(Predicate<IProtectionHookSpigot> predicate)
-    {
-        for (final IProtectionHookSpigot hook : protectionHooks)
-        {
-            try
-            {
-                if (!predicate.test(hook))
-                    return Optional.of(hook.getName());
-            }
-            catch (Exception e)
-            {
-                log.atSevere().withCause(e).log("Error while checking protection hook %s", hook.getName());
-                return Optional.of(hook.getName());
-            }
-        }
-        return Optional.empty();
     }
 
     /**
@@ -224,31 +220,85 @@ public final class ProtectionHookManagerSpigot
     }
 
     @Override
-    public Optional<String> canBreakBlock(IPlayer player, ILocation location)
+    public CompletableFuture<HookCheckResult> canBreakBlock(IPlayer player, ILocation location)
     {
-        if (protectionHooks.isEmpty())
-            return Optional.empty();
+        if (canSkipCheck(player))
+            return CompletableFuture.completedFuture(HookCheckResult.allowed());
 
         final Location bukkitLocation = SpigotAdapter.getBukkitLocation(location);
-        return getPlayer(player, bukkitLocation)
-            .map(bukkitPlayer -> checkForEachHook(hook -> hook.canBreakBlock(bukkitPlayer, bukkitLocation)))
-            .orElseGet(() -> Optional.of("ERROR!"));
+
+        return runCheck(player, bukkitLocation, (hook, player0) -> hook.canBreakBlock(player0, bukkitLocation))
+            .thenApply(result ->
+            {
+                if (result.isDenied())
+                    log.atInfo().log(
+                        "Player %s cannot break block at location %s because of hook '%s'.",
+                        player.getName(), location, result.denyingHookName());
+                return result;
+            });
+    }
+
+    private CompletableFuture<HookCheckResult> runCheck(
+        IPlayer player,
+        Location location,
+        BiFunction<IProtectionHookSpigot, Player, CompletableFuture<Boolean>> function)
+    {
+        final var result = HookCheckStateContainer.of(protectionHooks);
+
+        final World world = Util.requireNonNull(location.getWorld(), "World");
+
+        return getPlayer(player, location)
+            .map(bukkitPlayer ->
+                result.runAllChecks(
+                    executor,
+                    bukkitPlayer,
+                    world,
+                    hook -> function.apply(hook, bukkitPlayer)))
+            .orElseGet(() -> CompletableFuture.completedFuture(HookCheckResult.ERROR))
+            .exceptionally(e ->
+            {
+                log.atSevere().withCause(e).log(
+                    "Error while checking protection hooks for player %s.",
+                    player.getName()
+                );
+                return HookCheckResult.ERROR;
+            });
     }
 
     @Override
-    public Optional<String> canBreakBlocksBetweenLocs(IPlayer player, Cuboid cuboid, IWorld world)
+    public CompletableFuture<HookCheckResult> canBreakBlocksInCuboid(
+        IPlayer player,
+        Cuboid cuboid,
+        IWorld world)
     {
-        if (protectionHooks.isEmpty())
-            return Optional.empty();
+        if (canSkipCheck(player))
+            return CompletableFuture.completedFuture(HookCheckResult.allowed());
 
         final IVector3D vec = cuboid.getMin();
-        final Location loc0 = new Location(SpigotAdapter.getBukkitWorld(world), vec.xD(), vec.yD(), vec.zD());
-
         final World world0 = Util.requireNonNull(SpigotAdapter.getBukkitWorld(world), "World");
+        final Location loc0 = new Location(world0, vec.xD(), vec.yD(), vec.zD());
 
-        return getPlayer(player, loc0)
-            .map(bukkitPlayer -> checkForEachHook(hook -> hook.canBreakBlocksBetweenLocs(bukkitPlayer, world0, cuboid)))
-            .orElseGet(() -> Optional.of("ERROR!"));
+        return runCheck(player, loc0, (hook, player0) -> hook.canBreakBlocksInCuboid(player0, world0, cuboid))
+            .thenApply(result ->
+            {
+                if (result.isDenied())
+                    log.atInfo().log(
+                        "Player %s cannot break blocks in cuboid %s because of hook '%s'.",
+                        player.getName(), cuboid, result.denyingHookName());
+                return result;
+            });
+    }
+
+    /**
+     * Check if the checks can be skipped for a given player.
+     *
+     * @param player
+     *     The player to check.
+     * @return True if the checks can be skipped for the given player.
+     */
+    public boolean canSkipCheck(IPlayer player)
+    {
+        return canSkipCheck() || player.isOp();
     }
 
     @Override
@@ -265,15 +315,17 @@ public final class ProtectionHookManagerSpigot
     @Override
     public void initialize()
     {
-        this.protectionHooks = new ArrayList<>();
+        this.protectionHooks = new CopyOnWriteArrayList<>();
+        this.isActive = true;
         loadHooks();
     }
 
     @Override
     public void shutDown()
     {
+        this.isActive = false;
         protectionHooks.clear();
-        this.protectionHooks = List.of();
+        this.protectionHooks = Collections.emptyList();
     }
 
     @Override
@@ -281,7 +333,7 @@ public final class ProtectionHookManagerSpigot
     {
         final StringBuilder sb = new StringBuilder();
         sb.append("Can create fake players: ").append(fakePlayerCreator.canCreatePlayers()).append('\n')
-          .append("Protection hooks: \n");
+            .append("Protection hooks: \n");
         for (final IProtectionHookSpigot protectionHook : protectionHooks)
             sb.append("  ").append(protectionHook.getName()).append('\n');
 

@@ -286,7 +286,7 @@ public abstract class AbstractStructure implements IStructureConst
      *     or the prime owner when this data is not available.
      * @return The result of the attempt.
      */
-    final StructureToggleResult toggle(StructureAnimationRequest request, IPlayer responsible)
+    final CompletableFuture<StructureToggleResult> toggle(StructureAnimationRequest request, IPlayer responsible)
     {
         return base.getStructureOpeningHelper().toggle(this, request, responsible);
     }

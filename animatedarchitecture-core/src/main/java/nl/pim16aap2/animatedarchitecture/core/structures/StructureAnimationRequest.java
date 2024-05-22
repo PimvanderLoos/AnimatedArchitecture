@@ -101,16 +101,17 @@ public class StructureAnimationRequest
     {
         log.atFine().log("Executing toggle request: %s", this);
         return structureRetriever
-            .getStructure().thenApply(this::execute)
+            .getStructure()
+            .thenCompose(this::execute)
             .exceptionally(throwable -> Util.exceptionally(throwable, StructureToggleResult.ERROR));
     }
 
-    private StructureToggleResult execute(Optional<AbstractStructure> structureOpt)
+    private CompletableFuture<StructureToggleResult> execute(Optional<AbstractStructure> structureOpt)
     {
         if (structureOpt.isEmpty())
         {
             log.atInfo().log("Toggle failure (no structure found): %s", this);
-            return StructureToggleResult.ERROR;
+            return CompletableFuture.completedFuture(StructureToggleResult.ERROR);
         }
         final AbstractStructure structure = structureOpt.get();
         final IPlayer actualResponsible = getActualResponsible(structure);

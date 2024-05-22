@@ -44,11 +44,11 @@ public final class StructureRegistry implements IDebuggable, StructureDeletionMa
             structureCache = TimedCache.emptyCache();
         else
             structureCache = TimedCache.<Long, AbstractStructure>builder()
-                                       .cleanup(Duration.ofMinutes(15))
-                                       .softReference(true)
-                                       .keepAfterTimeOut(true)
-                                       .duration(cacheExpiry)
-                                       .build();
+                .cleanup(Duration.ofMinutes(15))
+                .softReference(true)
+                .keepAfterTimeOut(true)
+                .duration(cacheExpiry)
+                .build();
 
         debuggableRegistry.registerDebuggable(this);
         structureDeletionManager.registerDeletionListener(this);
@@ -144,7 +144,11 @@ public final class StructureRegistry implements IDebuggable, StructureDeletionMa
         {
             if (value == null)
                 return Util.requireNonNull(supplier.get(), "Supplied Structure");
-            log.atFine().withStackTrace(StackSize.FULL).log("Caught attempted double registering of structure %d", uid);
+
+            log.atFine().withStackTrace(StackSize.FULL).log(
+                "Caught attempted double registering of structure %d! Existing = %s",
+                uid, value
+            );
             return value;
         });
     }

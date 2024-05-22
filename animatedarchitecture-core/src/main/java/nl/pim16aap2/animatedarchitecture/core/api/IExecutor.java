@@ -4,6 +4,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.Util;
 
 import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -36,6 +37,26 @@ public interface IExecutor
             return CompletableFuture.completedFuture(supplier.get());
         else
             return scheduleOnMainThread(supplier).exceptionally(Util::exceptionally);
+    }
+
+    /**
+     * Ensures a supplier is run on the main thread.
+     * <p>
+     * When called from the main thread, it will be executed immediately. When called from another thread, the supplier
+     * is scheduled to run on the next tick of the main thread instead.
+     *
+     * @param supplier
+     *     The supplier to run.
+     * @param <T>
+     *     The type of the result.
+     * @return The result of the action.
+     */
+    default <T> CompletableFuture<T> composeOnMainThread(Supplier<CompletableFuture<T>> supplier)
+    {
+        if (isMainThread())
+            return supplier.get();
+        else
+            return runOnMainThread(supplier).thenCompose(Function.identity());
     }
 
     /**
@@ -271,6 +292,6 @@ public interface IExecutor
      */
     default void assertNotMainThread()
     {
-        assertMainThread("Assertion Failed: On main thread!");
+        assertNotMainThread("Assertion Failed: On main thread!");
     }
 }

@@ -11,13 +11,14 @@ import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
-import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorLocation;
+import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.AsyncStepExecutor;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorVoid;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents a tool user that relocates a powerblock to a new position.
@@ -47,40 +48,50 @@ public class PowerBlockRelocator extends ToolUser
         init();
     }
 
-    protected synchronized boolean moveToLoc(ILocation loc)
+    protected CompletableFuture<Boolean> moveToLoc(ILocation loc)
     {
         if (!loc.getWorld().equals(structure.getWorld()))
         {
             getPlayer().sendMessage(textFactory.newText().append(
                 localizer.getMessage("tool_user.powerblock_relocator.error.world_mismatch"), TextType.ERROR,
                 arg -> arg.highlight(localizer.getStructureType(structure.getType()))));
-            return false;
+            return CompletableFuture.completedFuture(false);
         }
 
         if (loc.getPosition().equals(structure.getPowerBlock()))
         {
-            newLoc = loc;
-            return true;
+            synchronized (this)
+            {
+                newLoc = loc;
+            }
+            return CompletableFuture.completedFuture(true);
         }
 
-        if (!playerHasAccessToLocation(loc))
-            return false;
+        return playerHasAccessToLocation(loc)
+            .thenApply(hasAccess ->
+            {
+                if (!hasAccess)
+                    return false;
 
-        newLoc = loc;
-        return true;
+                synchronized (this)
+                {
+                    newLoc = loc;
+                }
+                return true;
+            });
     }
 
     private synchronized boolean completeProcess()
     {
         if (newLoc == null)
         {
-            log.atSevere().withStackTrace(StackSize.FULL)
-               .log("newLoc is null, which should not be possible at this point!");
+            log.atSevere().withStackTrace(StackSize.FULL).log(
+                "newLoc is null, which should not be possible at this point!");
             getPlayer().sendError(textFactory, localizer.getMessage("constants.error.generic"));
         }
         else if (structure.getPowerBlock().equals(newLoc.getPosition()))
             getPlayer().sendError(textFactory,
-                                  localizer.getMessage("tool_user.powerblock_relocator.error.location_unchanged"));
+                localizer.getMessage("tool_user.powerblock_relocator.error.location_unchanged"));
         else
         {
             structure.setPowerBlock(newLoc.getPosition());
@@ -97,7 +108,7 @@ public class PowerBlockRelocator extends ToolUser
         final Step stepPowerblockRelocatorInit = stepFactory
             .stepName("RELOCATE_POWER_BLOCK_INIT")
             .messageKey("tool_user.powerblock_relocator.init")
-            .stepExecutor(new StepExecutorLocation(this::moveToLoc))
+            .stepExecutor(new AsyncStepExecutor<>(ILocation.class, this::moveToLoc))
             .waitForUserInput(true).construct();
 
         final Step stepPowerblockRelocatorCompleted = stepFactory

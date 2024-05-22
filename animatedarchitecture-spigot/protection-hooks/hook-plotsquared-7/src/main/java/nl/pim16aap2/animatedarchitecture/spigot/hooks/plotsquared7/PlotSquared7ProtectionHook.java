@@ -11,6 +11,8 @@ import com.plotsquared.core.plot.flag.implementations.DoneFlag;
 import com.plotsquared.core.plot.flag.types.BlockTypeWrapper;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.world.block.BlockType;
+import lombok.Getter;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.IProtectionHookSpigot;
@@ -21,48 +23,94 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.concurrent.CompletableFuture;
+
 /**
  * Protection hook for PlotSquared 7.
  */
+@Flogger
 public class PlotSquared7ProtectionHook implements IProtectionHookSpigot
 {
     private final JavaPlugin plotSquaredPlugin;
-    private final ProtectionHookContext hookContext;
+    @Getter
+    private final ProtectionHookContext context;
 
     @SuppressWarnings("unused") // Called by reflection.
     public PlotSquared7ProtectionHook(ProtectionHookContext context)
     {
-        this.hookContext = context;
+        this.context = context;
         plotSquaredPlugin = JavaPlugin.getPlugin(BukkitPlatform.class);
     }
 
     @Override
-    public boolean canBreakBlock(Player player, Location loc)
+    public CompletableFuture<Boolean> canBreakBlock(Player player, Location loc)
     {
         final com.plotsquared.core.location.Location psLocation = BukkitUtil.adapt(loc);
         final @Nullable PlotArea area = psLocation.getPlotArea();
 
         if (area == null)
-            return true;
+            return CompletableFuture.completedFuture(true);
 
-        return canBreakBlock(player, area, area.getPlot(psLocation), loc);
+        final boolean result = canBreakBlock(player, area, area.getPlot(psLocation), loc);
+        if (!result)
+            log.atFine().log(
+                "Player %s is not allowed to break block at %s",
+                lazyFormatPlayerName(player), loc
+            );
+        return CompletableFuture.completedFuture(result);
     }
 
+    /**
+     * Check if a given height is inside the allowed range for a given plot area.
+     *
+     * @param height
+     *     The height to check.
+     * @param area
+     *     The plot area whose height range to check.
+     * @return True if the given height is inside the allowed range for the given plot area.
+     */
+    private boolean heightInsideAllowedRange(int height, PlotArea area)
+    {
+        return height <= area.getMaxBuildHeight() && height > area.getMinBuildHeight();
+    }
+
+    /**
+     * Check if a given player is allowed to break blocks at a given height in a given plot area.
+     *
+     * @param player
+     *     The player to check.
+     * @param area
+     *     The plot area to check.
+     * @param height
+     *     The height to check.
+     * @return True if the player is allowed to break blocks at the given height in the given plot area.
+     */
     private boolean isHeightAllowed(Player player, PlotArea area, int height)
     {
+        final boolean result;
         if (height == 0)
-            return hookContext.getPermissionsManager()
-                              .hasPermission(player, Permission.PERMISSION_ADMIN_DESTROY_GROUNDLEVEL.toString());
+            result = hasPermission(player, Permission.PERMISSION_ADMIN_DESTROY_GROUNDLEVEL.toString());
         else
-            return (height <= area.getMaxBuildHeight() && height >= area.getMinBuildHeight()) ||
-                hookContext.getPermissionsManager()
-                           .hasPermission(player, Permission.PERMISSION_ADMIN_BUILD_HEIGHT_LIMIT.toString());
+            result = heightInsideAllowedRange(height, area) ||
+                hasPermission(player, Permission.PERMISSION_ADMIN_BUILD_HEIGHT_LIMIT.toString());
+
+        if (!result)
+            log.atFiner().log(
+                "Player %s is not allowed to break blocks at height %d in plot area '%s' with region '%s'",
+                lazyFormatPlayerName(player), height, area, area.getRegion()
+            );
+        return result;
     }
 
     private boolean canBreakRoads(Player player)
     {
-        return hookContext.getPermissionsManager()
-                          .hasPermission(player, Permission.PERMISSION_ADMIN_DESTROY_ROAD.toString());
+        final boolean result = hasPermission(player, Permission.PERMISSION_ADMIN_DESTROY_ROAD.toString());
+        if (!result)
+            log.atFiner().log(
+                "Player %s is not allowed to break roads",
+                lazyFormatPlayerName(player)
+            );
+        return result;
     }
 
     // Check if a given player is allowed to build in a given plot.
@@ -77,8 +125,15 @@ public class PlotSquared7ProtectionHook implements IProtectionHookSpigot
             return false;
 
         if (!plot.hasOwner())
-            return hookContext.getPermissionsManager()
-                              .hasPermission(player, Permission.PERMISSION_ADMIN_DESTROY_UNOWNED.toString());
+        {
+            final boolean result = hasPermission(player, Permission.PERMISSION_ADMIN_DESTROY_UNOWNED.toString());
+            if (!result)
+                log.atFiner().log(
+                    "Player %s is not allowed to break block in unowned plot '%s' at location '%s'",
+                    lazyFormatPlayerName(player), plot, loc
+                );
+            return result;
+        }
 
         if (!plot.isAdded(player.getUniqueId()))
         {
@@ -88,19 +143,33 @@ public class PlotSquared7ProtectionHook implements IProtectionHookSpigot
                 if (blockTypeWrapper.accepts(blockType))
                     return true;
 
-            return hookContext.getPermissionsManager()
-                              .hasPermission(player, Permission.PERMISSION_ADMIN_DESTROY_OTHER.toString());
+            final boolean result = hasPermission(player, Permission.PERMISSION_ADMIN_DESTROY_OTHER.toString());
+            if (!result)
+                log.atFiner().log(
+                    "Player %s is not allowed to break block in plot '%s' at location '%s': " +
+                        "block type '%s' is not allowed!",
+                    lazyFormatPlayerName(player), plot.toString(), loc, blockType
+                );
+            return result;
         }
         else if (Settings.Done.RESTRICT_BUILDING && DoneFlag.isDone(plot))
         {
-            return hookContext.getPermissionsManager()
-                              .hasPermission(player, Permission.PERMISSION_ADMIN_BUILD_OTHER.toString());
+            final boolean result = hasPermission(player, Permission.PERMISSION_ADMIN_BUILD_OTHER.toString());
+            if (!result)
+                log.atFiner().log(
+                    "Player %s is not allowed to break block in plot '%s' at location '%s': plot is marked as done!",
+                    lazyFormatPlayerName(player), plot.toString(), loc
+                );
+            return result;
         }
-        return true;
+        else
+        {
+            return true;
+        }
     }
 
     @Override
-    public boolean canBreakBlocksBetweenLocs(Player player, World world, Cuboid cuboid)
+    public CompletableFuture<Boolean> canBreakBlocksInCuboid(Player player, World world, Cuboid cuboid)
     {
         com.plotsquared.core.location.Location psLocation;
 
@@ -108,6 +177,7 @@ public class PlotSquared7ProtectionHook implements IProtectionHookSpigot
         final Vector3Di min = cuboid.getMin();
         final Vector3Di max = cuboid.getMax();
         for (int xPos = min.x(); xPos <= max.x(); ++xPos)
+        {
             for (int zPos = min.z(); zPos <= max.z(); ++zPos)
             {
                 final Location loc = new Location(world, xPos, min.y(), zPos);
@@ -117,17 +187,26 @@ public class PlotSquared7ProtectionHook implements IProtectionHookSpigot
                     continue;
 
                 if (!isHeightAllowed(player, area, min.y()) || !isHeightAllowed(player, area, max.y()))
-                    return false;
+                    return CompletableFuture.completedFuture(false);
 
                 loc.setY(area.getMaxBuildHeight() - 1);
 
                 final Plot newPlot = area.getPlot(psLocation);
                 if (newPlot == null && (!canBreakRoads))
-                    return false;
+                {
+                    log.atFiner().log(
+                        "Player %s is not allowed to break block at %s: Not in a plot area and cannot break roads!",
+                        lazyFormatPlayerName(player), loc
+                    );
+                    return CompletableFuture.completedFuture(false);
+                }
                 else if (!canBreakBlock(player, area, newPlot, loc))
-                    return false;
+                {
+                    return CompletableFuture.completedFuture(false);
+                }
             }
-        return true;
+        }
+        return CompletableFuture.completedFuture(true);
     }
 
     @Override

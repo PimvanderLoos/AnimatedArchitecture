@@ -33,12 +33,12 @@ class CreatorFullTest extends CreatorTestsUtil
     @Test
     void runThroughProcess()
     {
-        rotationPoint = new Cuboid(min, max).getCenterBlock();
+        rotationPoint = cuboid.getCenterBlock();
         openDirection = MovementDirection.NORTH;
 
         structureType = Mockito.mock(StructureType.class);
         Mockito.when(structureType.getValidMovementDirections())
-               .thenReturn(EnumSet.of(MovementDirection.NORTH, MovementDirection.SOUTH));
+            .thenReturn(EnumSet.of(MovementDirection.NORTH, MovementDirection.SOUTH));
 
         final var structure = Mockito.mock(AbstractStructure.class);
         Mockito.when(structure.getType()).thenReturn(structureType);
@@ -50,14 +50,14 @@ class CreatorFullTest extends CreatorTestsUtil
         setBuyStructure(true);
 
         testCreation(creator, structure,
-                     structureName,
-                     UnitTestUtil.getLocation(min, world),
-                     UnitTestUtil.getLocation(max, world),
-                     UnitTestUtil.getLocation(rotationPoint, world),
-                     UnitTestUtil.getLocation(powerblock, world),
-                     false,
-                     openDirection,
-                     true);
+            structureName,
+            UnitTestUtil.getLocation(min, world),
+            UnitTestUtil.getLocation(max, world),
+            UnitTestUtil.getLocation(rotationPoint, world),
+            UnitTestUtil.getLocation(powerblock, world),
+            false,
+            openDirection,
+            true);
     }
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")
@@ -69,7 +69,7 @@ class CreatorFullTest extends CreatorTestsUtil
 
         structureType = Mockito.mock(StructureType.class);
         Mockito.when(structureType.getValidMovementDirections())
-               .thenReturn(EnumSet.of(MovementDirection.NORTH, MovementDirection.SOUTH));
+            .thenReturn(EnumSet.of(MovementDirection.NORTH, MovementDirection.SOUTH));
 
         final var structure = Mockito.mock(AbstractStructure.class);
         Mockito.when(structure.getType()).thenReturn(structureType);
@@ -81,18 +81,20 @@ class CreatorFullTest extends CreatorTestsUtil
         setBuyStructure(true);
 
         applySteps(creator,
-                   structureName,
-                   UnitTestUtil.getLocation(min, world),
-                   UnitTestUtil.getLocation(max, world),
-                   UnitTestUtil.getLocation(rotationPoint, world),
-                   UnitTestUtil.getLocation(powerblock, world));
+            structureName,
+            UnitTestUtil.getLocation(min, world),
+            UnitTestUtil.getLocation(max, world),
+            UnitTestUtil.getLocation(rotationPoint, world),
+            UnitTestUtil.getLocation(powerblock, world));
 
-        Assertions.assertDoesNotThrow(() -> delayedCommandInputManager.getInputRequest(player).get()
-                                                                      .provide(false).join());
-        Assertions.assertDoesNotThrow(() -> delayedCommandInputManager.getInputRequest(player).get()
-                                                                      .provide(MovementDirection.EAST).join());
-        Assertions.assertDoesNotThrow(() -> delayedCommandInputManager.getInputRequest(player).get()
-                                                                      .provide(openDirection).join());
+        Assertions.assertDoesNotThrow(() ->
+            delayedCommandInputManager.getInputRequest(player).get().provide(false).join());
+
+        Assertions.assertDoesNotThrow(() ->
+            delayedCommandInputManager.getInputRequest(player).get().provide(MovementDirection.EAST).join());
+
+        Assertions.assertDoesNotThrow(() ->
+            delayedCommandInputManager.getInputRequest(player).get().provide(openDirection).join());
 
         testCreation(creator, structure, true);
     }

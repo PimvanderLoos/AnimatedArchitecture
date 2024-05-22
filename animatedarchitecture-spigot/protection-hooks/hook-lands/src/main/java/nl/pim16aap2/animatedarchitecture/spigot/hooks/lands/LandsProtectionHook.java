@@ -1,5 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.spigot.hooks.lands;
 
+import lombok.Getter;
+import lombok.extern.flogger.Flogger;
 import me.angeschossen.lands.api.LandsIntegration;
 import me.angeschossen.lands.api.flags.type.Flags;
 import me.angeschossen.lands.api.land.Area;
@@ -12,16 +14,18 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Protection hook for <a href="https://www.spigotmc.org/resources/53313/">Lands</a>.
  * <p>
  * Uses <a href="https://github.com/Angeschossen/LandsAPI">LandsAPI</a>.
  */
+@Flogger
 public class LandsProtectionHook implements IProtectionHookSpigot
 {
     private final LandsIntegration landsAddon;
+    @Getter
     private final ProtectionHookContext context;
 
     @SuppressWarnings("unused") // Called by reflection.
@@ -31,20 +35,29 @@ public class LandsProtectionHook implements IProtectionHookSpigot
         landsAddon = LandsIntegration.of(context.getPlugin());
     }
 
-    @Override
-    public boolean canBreakBlock(Player player, Location loc)
+    private boolean canBreakBlock(@Nullable Area area, Player player, Location loc)
     {
-        final @Nullable Area area = landsAddon.getArea(loc);
         if (area == null)
             return true;
-        return area.hasRoleFlag(player.getUniqueId(), Flags.BLOCK_BREAK);
+
+        final boolean result = area.hasRoleFlag(player.getUniqueId(), Flags.BLOCK_BREAK);
+        if (!result)
+            log.atFine().log(
+                "Player %s is not allowed to break block at %s",
+                lazyFormatPlayerName(player), loc
+            );
+        return result;
     }
 
     @Override
-    public boolean canBreakBlocksBetweenLocs(Player player, World world, Cuboid cuboid)
+    public CompletableFuture<Boolean> canBreakBlock(Player player, Location loc)
     {
-        final UUID playerUUID = player.getUniqueId();
+        return CompletableFuture.completedFuture(canBreakBlock(landsAddon.getArea(loc), player, loc));
+    }
 
+    @Override
+    public CompletableFuture<Boolean> canBreakBlocksInCuboid(Player player, World world, Cuboid cuboid)
+    {
         final Vector3Di min = cuboid.getMin();
         final Vector3Di max = cuboid.getMax();
 
@@ -64,15 +77,17 @@ public class LandsProtectionHook implements IProtectionHookSpigot
                 for (int y = min.y(); y <= max.y(); ++y)
                 {
                     loc.setY(y);
+
                     final @Nullable Area area = landsAddon.getArea(loc);
                     if (area == null)
                         continue;
-                    if (!area.hasRoleFlag(playerUUID, Flags.BLOCK_BREAK))
-                        return false;
+
+                    if (!canBreakBlock(area, player, loc))
+                        return CompletableFuture.completedFuture(false);
                 }
             }
         }
-        return true;
+        return CompletableFuture.completedFuture(true);
     }
 
     @Override

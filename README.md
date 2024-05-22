@@ -14,6 +14,7 @@ AnimatedArchitecture is a rewrite of the old BigDoors plugin. You can find the l
 
 * Java 21+
 * A Spigot server (or a fork) for Minecraft 1.19.4+
+* Vault
 
 ### Installation:
 

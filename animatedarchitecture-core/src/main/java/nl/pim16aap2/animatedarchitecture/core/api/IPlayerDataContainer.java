@@ -2,6 +2,7 @@ package nl.pim16aap2.animatedarchitecture.core.api;
 
 import lombok.Getter;
 import nl.pim16aap2.animatedarchitecture.core.util.IBitFlag;
+import nl.pim16aap2.animatedarchitecture.core.util.Limit;
 
 import java.util.List;
 import java.util.UUID;
@@ -64,6 +65,26 @@ interface IPlayerDataContainer
     int getStructureCountLimit();
 
     /**
+     * Gets the value of the {@link Limit} for this player.
+     * <p>
+     * Note that this does not take the global limit into account.
+     *
+     * @param limit
+     *     The {@link Limit} to get the value of.
+     * @return The value of the limit for this player.
+     */
+    default int getLimit(Limit limit)
+    {
+        return switch (limit)
+        {
+            case STRUCTURE_SIZE -> getStructureSizeLimit();
+            case STRUCTURE_COUNT -> getStructureCountLimit();
+            // TODO: Store the values properly.
+            case POWERBLOCK_DISTANCE, BLOCKS_TO_MOVE -> -1;
+        };
+    }
+
+    /**
      * Checks if this player is an OP or not.
      *
      * @return True if the player is an OP.
@@ -78,7 +99,7 @@ interface IPlayerDataContainer
     default PlayerData getPlayerData()
     {
         return new PlayerData(getUUID(), getName(), getStructureSizeLimit(), getStructureCountLimit(),
-                              isOp(), hasProtectionBypassPermission());
+            isOp(), hasProtectionBypassPermission());
     }
 
     default long getPermissionsFlag()

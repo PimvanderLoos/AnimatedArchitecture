@@ -11,6 +11,8 @@ import com.plotsquared.core.plot.flag.implementations.DoneFlag;
 import com.plotsquared.core.plot.flag.types.BlockTypeWrapper;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.world.block.BlockType;
+import lombok.Getter;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.IProtectionHookSpigot;
@@ -21,12 +23,19 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.concurrent.CompletableFuture;
+
 /**
  * Protection hook for PlotSquared 6.
+ *
+ * @deprecated PlotSquared 6 is no longer supported. It will be removed in a future version.
  */
+@Deprecated
+@Flogger
 public class PlotSquared6ProtectionHook implements IProtectionHookSpigot
 {
     private final JavaPlugin plotSquaredPlugin;
+    @Getter
     private final ProtectionHookContext context;
 
     @SuppressWarnings("unused") // Called by reflection.
@@ -34,35 +43,35 @@ public class PlotSquared6ProtectionHook implements IProtectionHookSpigot
     {
         this.context = context;
         plotSquaredPlugin = JavaPlugin.getPlugin(BukkitPlatform.class);
+        log.atSevere().log(
+            "PlotSquared 6 support is deprecated and will be removed in a future version. " +
+                "Please upgrade to PlotSquared 7.");
     }
 
     @Override
-    public boolean canBreakBlock(Player player, Location loc)
+    public CompletableFuture<Boolean> canBreakBlock(Player player, Location loc)
     {
         final com.plotsquared.core.location.Location psLocation = BukkitUtil.adapt(loc);
         final PlotArea area = psLocation.getPlotArea();
 
         if (area == null)
-            return true;
+            return CompletableFuture.completedFuture(true);
 
-        return canBreakBlock(player, area, area.getPlot(psLocation), loc);
+        return CompletableFuture.completedFuture(canBreakBlock(player, area, area.getPlot(psLocation), loc));
     }
 
     private boolean isHeightAllowed(Player player, PlotArea area, int height)
     {
         if (height == 0)
-            return context.getPermissionsManager()
-                          .hasPermission(player, Permission.PERMISSION_ADMIN_DESTROY_GROUNDLEVEL.toString());
+            return hasPermission(player, Permission.PERMISSION_ADMIN_DESTROY_GROUNDLEVEL.toString());
         else
             return (height <= area.getMaxBuildHeight() && height >= area.getMinBuildHeight()) ||
-                context.getPermissionsManager()
-                       .hasPermission(player, Permission.PERMISSION_ADMIN_BUILD_HEIGHT_LIMIT.toString());
+                hasPermission(player, Permission.PERMISSION_ADMIN_BUILD_HEIGHT_LIMIT.toString());
     }
 
     private boolean canBreakRoads(Player player)
     {
-        return context.getPermissionsManager()
-                      .hasPermission(player, Permission.PERMISSION_ADMIN_DESTROY_ROAD.toString());
+        return hasPermission(player, Permission.PERMISSION_ADMIN_DESTROY_ROAD.toString());
     }
 
     // Check if a given player is allowed to build in a given plot.
@@ -77,8 +86,7 @@ public class PlotSquared6ProtectionHook implements IProtectionHookSpigot
             return false;
 
         if (!plot.hasOwner())
-            return context.getPermissionsManager()
-                          .hasPermission(player, Permission.PERMISSION_ADMIN_DESTROY_UNOWNED.toString());
+            return hasPermission(player, Permission.PERMISSION_ADMIN_DESTROY_UNOWNED.toString());
 
         if (!plot.isAdded(player.getUniqueId()))
         {
@@ -88,20 +96,18 @@ public class PlotSquared6ProtectionHook implements IProtectionHookSpigot
                 if (blockTypeWrapper.accepts(blockType))
                     return true;
 
-            return context.getPermissionsManager()
-                          .hasPermission(player, Permission.PERMISSION_ADMIN_DESTROY_OTHER.toString());
+            return hasPermission(player, Permission.PERMISSION_ADMIN_DESTROY_OTHER.toString());
         }
         else if (Settings.Done.RESTRICT_BUILDING && DoneFlag.isDone(plot))
         {
-            return context.getPermissionsManager()
-                          .hasPermission(player, Permission.PERMISSION_ADMIN_BUILD_OTHER.toString());
+            return hasPermission(player, Permission.PERMISSION_ADMIN_BUILD_OTHER.toString());
         }
         return true;
 
     }
 
     @Override
-    public boolean canBreakBlocksBetweenLocs(Player player, World world, Cuboid cuboid)
+    public CompletableFuture<Boolean> canBreakBlocksInCuboid(Player player, World world, Cuboid cuboid)
     {
         com.plotsquared.core.location.Location psLocation;
 
@@ -119,17 +125,17 @@ public class PlotSquared6ProtectionHook implements IProtectionHookSpigot
                     continue;
 
                 if (!isHeightAllowed(player, area, min.y()) || !isHeightAllowed(player, area, max.y()))
-                    return false;
+                    return CompletableFuture.completedFuture(false);
 
                 loc.setY(area.getMaxBuildHeight() - 1);
 
                 final Plot newPlot = area.getPlot(psLocation);
                 if (newPlot == null && (!canBreakRoads))
-                    return false;
+                    return CompletableFuture.completedFuture(false);
                 else if (!canBreakBlock(player, area, newPlot, loc))
-                    return false;
+                    return CompletableFuture.completedFuture(false);
             }
-        return true;
+        return CompletableFuture.completedFuture(true);
     }
 
     @Override

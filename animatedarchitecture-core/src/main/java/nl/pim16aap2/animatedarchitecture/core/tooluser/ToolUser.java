@@ -156,7 +156,7 @@ public abstract class ToolUser
         catch (InstantiationException | IndexOutOfBoundsException e)
         {
             throw new RuntimeException("Failed to instantiate procedure for ToolUser for player: " +
-                                           getPlayer().asString(), e);
+                getPlayer().asString(), e);
         }
 
         if (!active)
@@ -352,37 +352,38 @@ public abstract class ToolUser
         assertLockHeld();
 
         log.atFine().log("Handling input: %s (%s) for step: %s in ToolUser: %s.",
-                         obj, (obj == null ? "null" : obj.getClass().getSimpleName()),
-                         procedure.getCurrentStepName(), this);
+            obj, (obj == null ? "null" : obj.getClass().getSimpleName()),
+            procedure.getCurrentStepName(), this);
 
         if (!isActive())
+        {
+            log.atInfo().log("Cannot handle input '%s' for ToolUser '%s' because it is not active!", obj, this);
             return CompletableFuture.completedFuture(false);
+        }
 
         final boolean isLastStep = !procedure.hasNextStep();
 
         return applyInput(obj)
-            .thenCompose(
-                inputSuccess ->
+            .thenCompose(inputSuccess ->
+            {
+                if (!inputSuccess)
+                    return CompletableFuture.completedFuture(false);
+
+                if (isLastStep)
                 {
-                    if (!inputSuccess)
-                        return CompletableFuture.completedFuture(false);
+                    cleanUpProcess();
+                    return CompletableFuture.completedFuture(true);
+                }
 
-                    if (isLastStep)
-                    {
-                        cleanUpProcess();
-                        return CompletableFuture.completedFuture(true);
-                    }
+                procedure.handleStepCompletion();
 
-                    procedure.handleStepCompletion();
-
-                    return prepareCurrentStep().thenApply(ignored -> true);
-                })
-            .exceptionally(
-                ex ->
-                {
-                    throw new RuntimeException(
-                        "An error occurred applying input '" + obj + "' for ToolUser '" + this + "'!", ex);
-                });
+                return prepareCurrentStep().thenApply(ignored -> true);
+            })
+            .exceptionally(ex ->
+            {
+                throw new RuntimeException(
+                    "An error occurred applying input '" + obj + "' for ToolUser '" + this + "'!", ex);
+            });
     }
 
     /**
@@ -399,13 +400,14 @@ public abstract class ToolUser
         try
         {
             return runWithLock(() -> handleInputWithLock(obj))
-                .exceptionally(
-                    ex ->
-                    {
-                        log.atSevere().withCause(ex)
-                           .log("An error occurred handling input '%s' for ToolUser '%s'!", obj, this);
-                        return false;
-                    });
+                .exceptionally(ex ->
+                {
+                    log.atSevere().withCause(ex).log(
+                        "An error occurred handling input '%s' for ToolUser '%s'!",
+                        obj, this
+                    );
+                    return false;
+                });
         }
         catch (Exception e)
         {
@@ -488,20 +490,23 @@ public abstract class ToolUser
      *     The location to check.
      * @return True if the player is allowed to break the block at the given location.
      */
-    public boolean playerHasAccessToLocation(ILocation loc)
+    public CompletableFuture<Boolean> playerHasAccessToLocation(ILocation loc)
     {
-        final Optional<String> result = protectionHookManager.canBreakBlock(getPlayer(), loc);
-        result.ifPresent(
-            compat ->
+        return protectionHookManager
+            .canBreakBlock(getPlayer(), loc)
+            .thenApply(result ->
             {
+                if (result.isAllowed())
+                    return true;
+
                 log.atFine().log(
-                    "Blocked access to cuboid %s for player %s! Reason: %s",
-                    loc, getPlayer(), compat);
+                    "Blocked access to location %s for player %s! Reason: %s",
+                    loc, getPlayer(), result.denyingHookName());
                 getPlayer().sendMessage(
                     textFactory, TextType.ERROR,
                     localizer.getMessage("tool_user.base.error.no_permission_for_location"));
+                return false;
             });
-        return result.isEmpty();
     }
 
     /**
@@ -514,25 +519,25 @@ public abstract class ToolUser
      *     The cuboid to check.
      * @param world
      *     The world to check in.
-     * @return True if the player is allowed to break all blocks inside the cuboid.
+     * @return The cuboid if the player is allowed to break all blocks in it, or an empty Optional otherwise.
      */
-    public boolean playerHasAccessToCuboid(Cuboid cuboid, IWorld world)
+    public CompletableFuture<Optional<Cuboid>> playerHasAccessToCuboid(Cuboid cuboid, IWorld world)
     {
-        final Optional<String> result = protectionHookManager.canBreakBlocksBetweenLocs(getPlayer(), cuboid, world);
-
-        result.ifPresent(
-            compat ->
+        return protectionHookManager
+            .canBreakBlocksInCuboid(getPlayer(), cuboid, world)
+            .thenApply(result ->
             {
-                log.atFine().log(
-                    "Blocked access to cuboid %s for player %s in world %s. Reason: %s",
-                    cuboid, getPlayer(), world, compat);
+                if (result.isAllowed())
+                    return Optional.of(cuboid);
 
+                log.atFine().log(
+                    "Blocked access to cuboid %s for player %s in world %s! Reason: %s",
+                    cuboid, getPlayer(), world, result.denyingHookName());
                 getPlayer().sendMessage(
                     textFactory, TextType.ERROR,
                     localizer.getMessage("tool_user.base.error.no_permission_for_location"));
+                return Optional.empty();
             });
-
-        return result.isEmpty();
     }
 
     /**

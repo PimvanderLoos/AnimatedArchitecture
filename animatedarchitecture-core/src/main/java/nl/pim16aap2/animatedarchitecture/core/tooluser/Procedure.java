@@ -131,9 +131,10 @@ public final class Procedure
     {
         if (!hasNextStep())
         {
-            log.atSevere().withStackTrace(StackSize.FULL)
-               .log("Trying to advance to the next step while there is none! Step: %s",
-                    (currentStep == null ? "NULL" : getCurrentStepName()));
+            log.atSevere().withStackTrace(StackSize.FULL).log(
+                "Trying to advance to the next step while there is none! Step: %s",
+                (currentStep == null ? "NULL" : getCurrentStepName())
+            );
             return;
         }
 
@@ -182,19 +183,18 @@ public final class Procedure
         if (currentStep0 == null)
         {
             log.atSevere().withStackTrace(StackSize.FULL)
-               .log("Cannot apply step executor because there is no active step!");
+                .log("Cannot apply step executor because there is no active step!");
             return CompletableFuture.failedFuture(new IllegalStateException("No active step!"));
         }
         return currentStep0
             .getStepExecutor()
             .map(stepExecutor -> stepExecutor.apply(obj))
             .orElse(CompletableFuture.completedFuture(false))
-            .exceptionally(
-                e ->
-                {
-                    throw new IllegalStateException(
-                        "Failed to apply step executor for step: '" + currentStep0.getName() + "'", e);
-                });
+            .exceptionally(e ->
+            {
+                throw new IllegalStateException(
+                    "Failed to apply step executor for step: '" + currentStep0.getName() + "'", e);
+            });
     }
 
     /**
@@ -222,8 +222,8 @@ public final class Procedure
     {
         if (step == null)
         {
-            log.atSevere().withStackTrace(StackSize.FULL)
-               .log("Cannot get the current step message because there is no active step!");
+            log.atSevere().withStackTrace(StackSize.FULL).log(
+                "Cannot get the current step message because there is no active step!");
             return textFactory.newText().append(localizer.getMessage("constants.error.generic"), TextType.ERROR);
         }
         return step.getLocalizedMessage(textFactory);
@@ -256,8 +256,8 @@ public final class Procedure
     {
         if (step == null)
         {
-            log.atSevere().withStackTrace(StackSize.FULL)
-               .log("Cannot get the name of the current because there is no active step!");
+            log.atSevere().withStackTrace(StackSize.FULL).log(
+                "Cannot get the name of the current because there is no active step!");
             return "NULL";
         }
         return step.getName();
@@ -272,8 +272,8 @@ public final class Procedure
     {
         if (currentStep == null)
         {
-            log.atSevere().withStackTrace(StackSize.FULL)
-               .log("Cannot wait for user input because there is no active step!");
+            log.atSevere().withStackTrace(StackSize.FULL).log(
+                "Cannot wait for user input because there is no active step!");
             return false;
         }
         return currentStep.waitForUserInput();
@@ -312,7 +312,7 @@ public final class Procedure
         if (currentStep == null)
         {
             log.atSevere().withStackTrace(StackSize.FULL)
-               .log("Cannot check for implicit next step as there is no current step!");
+                .log("Cannot check for implicit next step as there is no current step!");
             return false;
         }
         return currentStep.isImplicitNextStep();
