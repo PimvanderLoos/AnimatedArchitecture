@@ -154,9 +154,9 @@ class CuboidTest
         final Vector3Dd center = new Vector3Dd(5.5d, 4.5d, 30);
 
         final Vector3Dd foundCenter = new Cuboid(val1, val2).getCenter();
-        Assertions.assertTrue(Math.abs(center.x() - foundCenter.x()) < EPSILON);
-        Assertions.assertTrue(Math.abs(center.y() - foundCenter.y()) < EPSILON);
-        Assertions.assertTrue(Math.abs(center.z() - foundCenter.z()) < EPSILON);
+        Assertions.assertEquals(center.x(), foundCenter.x(), EPSILON);
+        Assertions.assertEquals(center.y(), foundCenter.y(), EPSILON);
+        Assertions.assertEquals(center.z(), foundCenter.z(), EPSILON);
     }
 
     @Test
@@ -173,6 +173,46 @@ class CuboidTest
         Assertions.assertTrue(cuboid.isInRange(new Vector3Di(-11, 31, 10), 1));
         Assertions.assertFalse(cuboid.isInRange(new Vector3Di(-11, 31, 10), 0));
         Assertions.assertTrue(cuboid.isInRange(new Vector3Di(-10, 0, 40), 1));
+    }
+
+    @Test
+    void testGetDistanceToPointInsideCuboid()
+    {
+        final Cuboid cuboid = new Cuboid(new Vector3Di(-10, -10, -10), new Vector3Di(10, 10, 10));
+        final Vector3Di pos = new Vector3Di(0, 0, 0);
+        Assertions.assertEquals(-1, cuboid.getDistanceToPoint(pos));
+    }
+
+    @Test
+    void testGetDistanceToPointNegative()
+    {
+        final Cuboid cuboid = new Cuboid(new Vector3Di(-10, -10, -10), new Vector3Di(10, 10, 10));
+        final Vector3Di pos = new Vector3Di(0, 0, -11);
+        Assertions.assertEquals(1, cuboid.getDistanceToPoint(pos));
+    }
+
+    @Test
+    void testGetDistanceToPointPositive()
+    {
+        final Cuboid cuboid = new Cuboid(new Vector3Di(-10, -10, -10), new Vector3Di(10, 10, 10));
+        final Vector3Di pos = new Vector3Di(0, 0, 11);
+        Assertions.assertEquals(1, cuboid.getDistanceToPoint(pos));
+    }
+
+    @Test
+    void testGetDistanceToPointMixedPositive()
+    {
+        final Cuboid cuboid = new Cuboid(new Vector3Di(-10, -10, -10), new Vector3Di(10, 10, 10));
+        final Vector3Di pos = new Vector3Di(11, -14, 15);
+        Assertions.assertEquals(5, cuboid.getDistanceToPoint(pos));
+    }
+
+    @Test
+    void testGetDistanceToPointMixedNegative()
+    {
+        final Cuboid cuboid = new Cuboid(new Vector3Di(-10, -10, -10), new Vector3Di(10, 10, 10));
+        final Vector3Di pos = new Vector3Di(15, -11, -15);
+        Assertions.assertEquals(5, cuboid.getDistanceToPoint(pos));
     }
 
     @Test

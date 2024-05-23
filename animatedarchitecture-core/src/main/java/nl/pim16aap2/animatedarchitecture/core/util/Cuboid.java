@@ -49,9 +49,9 @@ public final class Cuboid
 
     public Cuboid(Vector3Di a, Vector3Di b)
     {
-        final Vector3Di[] minmax = getSortedCoordinates(a, b);
-        this.min = minmax[0];
-        this.max = minmax[1];
+        final Vector3Di[] minMax = getSortedCoordinates(a, b);
+        this.min = minMax[0];
+        this.max = minMax[1];
         volume = calculateVolume();
         dimensions = calculateDimensions();
     }
@@ -137,7 +137,7 @@ public final class Cuboid
      * <p>
      * So for a test value of 5 and a range of 6 to 10, this distance would be 1.
      * <p>
-     * If the test value exists within the provided range, 0 is returned.
+     * If the test value exists within the provided range, -1 is returned.
      *
      * @param test
      *     The test value.
@@ -145,14 +145,14 @@ public final class Cuboid
      *     The lower bound value of the range.
      * @param max
      *     The upper bound value of the range.
-     * @return The distance between the test value and the provided range, or 0 if the test value lies on the provided
+     * @return The distance between the test value and the provided range, or -1 if the test value lies on the provided
      * range.
      */
     @CheckReturnValue @Contract(pure = true)
     private static int getOuterDistance(int test, int min, int max)
     {
         if (Util.between(test, min, max))
-            return 0;
+            return -1;
         if (test <= min)
             return min - test;
         return test - max;
@@ -176,6 +176,9 @@ public final class Cuboid
      *     The range the position might be in. A range of 0 gives the same result as
      *     {@link #isPosInsideCuboid(Vector3Di)}.
      * @return True if the provided position lies within the range of this cuboid.
+     *
+     * @throws IllegalArgumentException
+     *     If the range is smaller than 0.
      */
     @CheckReturnValue @Contract(pure = true)
     public boolean isInRange(int x, int y, int z, int range)
@@ -204,6 +207,30 @@ public final class Cuboid
     public boolean isInRange(ILocation loc, int range)
     {
         return isInRange(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), range);
+    }
+
+    /**
+     * Gets the distance of a position to the cuboid.
+     * <p>
+     * This the largest distance of the position along the x, y, or z axis to the cuboid.
+     * <p>
+     * The distance is -1 if the position is inside the cuboid.
+     * <p>
+     * This works similarly to {@link #isInRange(int, int, int, int)}, but it returns the distance value.
+     *
+     * @param pos
+     *     The position to check.
+     * @return The distance of the position to the cuboid or -1 if the position is inside the cuboid.
+     */
+    @CheckReturnValue @Contract(pure = true)
+    public int getDistanceToPoint(Vector3Di pos)
+    {
+        return Math.max(
+            Math.max(
+                getOuterDistance(pos.x(), min.x(), max.x()),
+                getOuterDistance(pos.y(), min.y(), max.y())),
+            getOuterDistance(pos.z(), min.z(), max.z())
+        );
     }
 
     /**

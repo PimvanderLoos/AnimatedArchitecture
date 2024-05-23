@@ -40,7 +40,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
@@ -787,6 +786,45 @@ public abstract class Creator extends ToolUser
     }
 
     /**
+     * Checks if the power block is within the range limit.
+     * <p>
+     * If the power block is too far away, the player will be informed and the method will return false.
+     * <p>
+     * If the distance limit is not set, the method will return true.
+     * <p>
+     * If the power block is inside the structure, the player will be informed and the method will return false.
+     *
+     * @param pos
+     *     The position of the power block.
+     * @param cuboid
+     *     The cuboid that defines the structure.
+     * @return True if the power block is within the range limit.
+     */
+    protected final boolean isPowerBlockWithinRangeLimit(Vector3Di pos, Cuboid cuboid)
+    {
+        final int distance = cuboid.getDistanceToPoint(pos);
+        if (distance == -1)
+        {
+            getPlayer().sendMessage(textFactory.newText().append(
+                "creator.base.error.powerblock_inside_structure", TextType.ERROR,
+                arg -> arg.highlight(localizer.getStructureType(getStructureType()))));
+            return false;
+        }
+
+        final OptionalInt distanceLimit = limitsManager.getLimit(getPlayer(), Limit.POWERBLOCK_DISTANCE);
+        if (distanceLimit.isEmpty() || distance <= distanceLimit.getAsInt())
+            return true;
+
+        getPlayer().sendMessage(textFactory.newText().append(
+            "creator.base.error.powerblock_too_far", TextType.ERROR,
+            arg -> arg.highlight(localizer.getStructureType(getStructureType())),
+            arg -> arg.highlight(distance),
+            arg -> arg.highlight(distanceLimit.getAsInt())));
+
+        return false;
+    }
+
+    /**
      * Attempts to complete the step in the {@link Procedure} that sets the second position of the
      * {@link AbstractStructure} that is being created.
      *
@@ -800,26 +838,9 @@ public abstract class Creator extends ToolUser
             return CompletableFuture.completedFuture(false);
 
         final Vector3Di pos = loc.getPosition();
-        if (Util.requireNonNull(cuboid, "cuboid").isPosInsideCuboid(pos))
-        {
-            getPlayer().sendMessage(textFactory.newText().append(
-                "creator.base.error.powerblock_inside_structure", TextType.ERROR,
-                arg -> arg.highlight(localizer.getStructureType(getStructureType()))));
-            return CompletableFuture.completedFuture(false);
-        }
 
-        final OptionalInt distanceLimit = limitsManager.getLimit(getPlayer(), Limit.POWERBLOCK_DISTANCE);
-        final double distance;
-        if (distanceLimit.isPresent() &&
-            (distance = Objects.requireNonNull(cuboid).getCenter().getDistance(pos)) > distanceLimit.getAsInt())
-        {
-            getPlayer().sendMessage(textFactory.newText().append(
-                "creator.base.error.powerblock_too_far", TextType.ERROR,
-                arg -> arg.highlight(localizer.getStructureType(getStructureType())),
-                arg -> arg.highlight(distance),
-                arg -> arg.highlight(distanceLimit.getAsInt())));
+        if (!isPowerBlockWithinRangeLimit(pos, Util.requireNonNull(cuboid, "cuboid")))
             return CompletableFuture.completedFuture(false);
-        }
 
         return playerHasAccessToLocation(loc)
             .thenApply(isAllowed ->
