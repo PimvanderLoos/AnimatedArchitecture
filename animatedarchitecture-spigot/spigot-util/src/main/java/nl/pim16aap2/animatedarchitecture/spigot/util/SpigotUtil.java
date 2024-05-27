@@ -7,11 +7,11 @@ import nl.pim16aap2.animatedarchitecture.core.util.BlockFace;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.permissions.PermissionAttachmentInfo;
 
 import java.time.Duration;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.OptionalInt;
 
 /**
  * Represents various small and Spigot-specific utility functions.
@@ -150,17 +150,35 @@ public final class SpigotUtil
         messagePlayer(player, ChatColor.WHITE, msg);
     }
 
-    public static int getPermissionSuffixValue(String permissionNode, String permissionBase)
+    /**
+     * Retrieves the integer value suffix of a specific permission node, if it exists.
+     * <p>
+     * For example, if the permission node is "{@code example.permission.10}" and the permission base is
+     * "{@code example.permission.}", then this method would return "10".
+     *
+     * @param permissionNode
+     *     The permission node to analyze.
+     * @param permissionBase
+     *     The base permission node to find the suffix for. E.g. "{@code example.permission.}".
+     * @return The integer suffix or -1 if none could be found.
+     */
+    public static OptionalInt getPermissionSuffixValue(String permissionNode, String permissionBase)
     {
         if (permissionNode.startsWith(permissionBase))
         {
             final String[] parts = permissionNode.split(permissionBase);
             if (parts.length != 2)
-                return -1;
+                return OptionalInt.empty();
 
-            return Util.parseInt(parts[1]).orElse(-1);
+            String suffix = parts[1];
+            // Remove leading '.' if it exists. E.g., ".10" -> "10".
+            // This is needed in case the permission base is provided without a trailing '.'.
+            if (suffix.length() > 2 && suffix.charAt(0) == '.')
+                suffix = suffix.substring(1);
+
+            return Util.parseInt(suffix);
         }
-        return -1;
+        return OptionalInt.empty();
     }
 
     /**
@@ -173,16 +191,16 @@ public final class SpigotUtil
      *     The player whose permissions to analyze.
      * @param permissionBase
      *     The base permission node to find the suffix for. E.g. "{@code example.permission.}".
-     * @return The highest integer suffix or -1 if none could be found.
+     * @return The highest integer suffix or an empty {@link OptionalInt} if none could be found.
      */
-    public static int getHighestPermissionSuffix(Player player, String permissionBase)
+    public static OptionalInt getHighestPermissionSuffix(Player player, String permissionBase)
     {
         return player
             .getEffectivePermissions()
             .stream()
-            .map(PermissionAttachmentInfo::getPermission)
-            .mapToInt(node -> getPermissionSuffixValue(node, permissionBase))
-            .max()
-            .orElse(-1);
+            .map(info -> getPermissionSuffixValue(info.getPermission(), permissionBase))
+            .filter(OptionalInt::isPresent)
+            .mapToInt(OptionalInt::getAsInt)
+            .max();
     }
 }

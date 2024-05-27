@@ -5,6 +5,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.IBitFlag;
 import nl.pim16aap2.animatedarchitecture.core.util.Limit;
 
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -45,22 +46,30 @@ interface IPlayerDataContainer
     boolean hasProtectionBypassPermission();
 
     /**
-     * Gets the limit for the size of structures this player can create/operate based on their permission.
-     * <p>
-     * Note that this does not take the global limit into account.
+     * Gets the {@link Limit#STRUCTURE_SIZE} limit for this player.
      *
-     * @return The maximum structure size this player can make/operate measured in number of blocks.
+     * @return The {@link Limit#STRUCTURE_SIZE} limit for this player or -1 if the limit is not set.
+     *
+     * @deprecated Use {@link #getLimit(Limit)} instead.
      */
-    int getStructureSizeLimit();
+    @Deprecated
+    default int getStructureSizeLimit()
+    {
+        return getLimit(Limit.STRUCTURE_SIZE).orElse(-1);
+    }
 
     /**
-     * Gets the limit for the number of structures this player can own based on their permission.
-     * <p>
-     * Note that this does not take the global limit into account.
+     * Gets the {@link Limit#STRUCTURE_COUNT} limit for this player.
      *
-     * @return The number of structures this player can own.
+     * @return The {@link Limit#STRUCTURE_COUNT} limit for this player or -1 if the limit is not set.
+     *
+     * @deprecated Use {@link #getLimit(Limit)} instead.
      */
-    int getStructureCountLimit();
+    @Deprecated
+    default int getStructureCountLimit()
+    {
+        return getLimit(Limit.STRUCTURE_COUNT).orElse(-1);
+    }
 
     /**
      * Gets the value of the {@link Limit} for this player.
@@ -71,16 +80,7 @@ interface IPlayerDataContainer
      *     The {@link Limit} to get the value of.
      * @return The value of the limit for this player.
      */
-    default int getLimit(Limit limit)
-    {
-        return switch (limit)
-        {
-            case STRUCTURE_SIZE -> getStructureSizeLimit();
-            case STRUCTURE_COUNT -> getStructureCountLimit();
-            // TODO: Store the values properly.
-            case POWERBLOCK_DISTANCE, BLOCKS_TO_MOVE -> -1;
-        };
-    }
+    OptionalInt getLimit(Limit limit);
 
     /**
      * Checks if this player is an OP or not.
@@ -96,8 +96,13 @@ interface IPlayerDataContainer
      */
     default PlayerData getPlayerData()
     {
-        return new PlayerData(getUUID(), getName(), getStructureSizeLimit(), getStructureCountLimit(),
-            isOp(), hasProtectionBypassPermission());
+        return new PlayerData(
+            getUUID(),
+            getName(),
+            LimitContainer.of(this),
+            isOp(),
+            hasProtectionBypassPermission()
+        );
     }
 
     default long getPermissionsFlag()
@@ -129,7 +134,7 @@ interface IPlayerDataContainer
             this.fun = fun;
         }
 
-        public static long setFlag(IPlayerDataContainer playerDataContainer, long currentValue, PermissionFlag flag)
+        static long setFlag(IPlayerDataContainer playerDataContainer, long currentValue, PermissionFlag flag)
         {
             final boolean result = flag.fun.apply(playerDataContainer);
             return result ? IBitFlag.setFlag(flag.val, currentValue) : IBitFlag.unsetFlag(flag.val, currentValue);
