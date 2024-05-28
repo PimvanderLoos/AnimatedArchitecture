@@ -1,9 +1,11 @@
 package nl.pim16aap2.animatedarchitecture.structures.portcullis;
 
+import nl.altindag.log.LogCaptor;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.creator.CreatorTestsUtil;
+import nl.pim16aap2.testing.logging.WithLogCapture;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,6 +14,7 @@ import org.mockito.Mockito;
 
 import java.util.OptionalInt;
 
+@WithLogCapture
 @Timeout(1)
 class CreatorPortcullisTest extends CreatorTestsUtil
 {
@@ -24,8 +27,10 @@ class CreatorPortcullisTest extends CreatorTestsUtil
     }
 
     @Test
-    void createPortcullis()
+    void createPortcullis(LogCaptor logCaptor)
     {
+        logCaptor.setLogLevelToInfo();
+
         rotationPoint = new Cuboid(min, max).getCenterBlock();
         openDirection = MovementDirection.UP;
 
@@ -51,8 +56,10 @@ class CreatorPortcullisTest extends CreatorTestsUtil
     }
 
     @Test
-    void testBlocksToMove()
+    void testBlocksToMove(LogCaptor logCaptor)
     {
+        logCaptor.setLogLevelToInfo();
+
         final CreatorPortcullis creator = new CreatorPortcullis(context, player, null);
         final int blocksToMoveLimit = blocksToMove - 1;
         Mockito.when(config.maxBlocksToMove()).thenReturn(OptionalInt.of(blocksToMoveLimit));

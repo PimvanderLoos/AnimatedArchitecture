@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.creator;
 
+import nl.altindag.log.LogCaptor;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
@@ -10,6 +11,7 @@ import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.CreatorTest;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
+import nl.pim16aap2.testing.logging.WithLogCapture;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -25,14 +27,17 @@ import java.util.List;
  * <p>
  * The specific methods are test in {@link CreatorTest}.
  */
+@WithLogCapture
 @Timeout(1)
 class CreatorFullTest extends CreatorTestsUtil
 {
     private static StructureType structureType;
 
     @Test
-    void runThroughProcess()
+    void runThroughProcess(LogCaptor logCaptor)
     {
+        logCaptor.setLogLevelToInfo();
+
         rotationPoint = cuboid.getCenterBlock();
         openDirection = MovementDirection.NORTH;
 
@@ -65,8 +70,10 @@ class CreatorFullTest extends CreatorTestsUtil
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     @Test
-    void delayedOpenDirectionInput()
+    void delayedOpenDirectionInput(LogCaptor logCaptor)
     {
+        logCaptor.setLogLevelToInfo();
+
         rotationPoint = new Cuboid(min, max).getCenterBlock();
         openDirection = MovementDirection.NORTH;
 

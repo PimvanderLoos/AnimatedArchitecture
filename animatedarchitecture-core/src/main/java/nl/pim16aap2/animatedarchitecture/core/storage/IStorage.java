@@ -387,7 +387,7 @@ public interface IStorage
         /**
          * The database is out of date and needs to be upgraded before it can work.
          */
-        OUT_OF_DATE,
+        UPGRADE_REQUIRED,
 
         /**
          * The database version is newer than the maximum allowed version.
@@ -397,7 +397,7 @@ public interface IStorage
         /**
          * The database version is older than the minimum allowed version and can therefore not be upgraded.
          */
-        TOO_OLD,
+        UPGRADE_IMPOSSIBLE,
 
         /**
          * The database has not been initialized yet.

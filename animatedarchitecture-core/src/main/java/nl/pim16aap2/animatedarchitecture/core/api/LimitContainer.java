@@ -14,6 +14,34 @@ public record LimitContainer(
     OptionalInt powerBlockDistanceLimit,
     OptionalInt blocksToMoveLimit)
 {
+    public LimitContainer(
+        @Nullable Integer structureSizeLimit,
+        @Nullable Integer structureCountLimit,
+        @Nullable Integer powerBlockDistanceLimit,
+        @Nullable Integer blocksToMoveLimit)
+    {
+        this(
+            ofNullable(structureSizeLimit),
+            ofNullable(structureCountLimit),
+            ofNullable(powerBlockDistanceLimit),
+            ofNullable(blocksToMoveLimit)
+        );
+    }
+
+    public LimitContainer(
+        int structureSizeLimit,
+        int structureCountLimit,
+        int powerBlockDistanceLimit,
+        int blocksToMoveLimit)
+    {
+        this(
+            OptionalInt.of(structureSizeLimit),
+            OptionalInt.of(structureCountLimit),
+            OptionalInt.of(powerBlockDistanceLimit),
+            OptionalInt.of(blocksToMoveLimit)
+        );
+    }
+
     /**
      * Gets the limit for the specified {@link Limit}.
      *
@@ -32,6 +60,13 @@ public record LimitContainer(
         };
     }
 
+    /**
+     * Creates a {@link LimitContainer} from the given {@link IPlayerDataContainer}.
+     *
+     * @param player
+     *     The {@link IPlayerDataContainer} to create the {@link LimitContainer} from.
+     * @return The created {@link LimitContainer}.
+     */
     static LimitContainer of(IPlayerDataContainer player)
     {
         return new LimitContainer(
@@ -64,33 +99,6 @@ public record LimitContainer(
     public static LimitContainer of(PlayerData playerData)
     {
         return of((IPlayerDataContainer) playerData);
-    }
-
-    /**
-     * Creates a {@link LimitContainer} from the given values.
-     *
-     * @param structureSizeLimit
-     *     The structure size limit.
-     * @param structureCountLimit
-     *     The structure count limit.
-     * @param powerBlockDistanceLimit
-     *     The power block distance limit.
-     * @param blocksToMoveLimit
-     *     The blocks to move limit.
-     * @return The created {@link LimitContainer}.
-     */
-    public static LimitContainer of(
-        @Nullable Integer structureSizeLimit,
-        @Nullable Integer structureCountLimit,
-        @Nullable Integer powerBlockDistanceLimit,
-        @Nullable Integer blocksToMoveLimit)
-    {
-        return new LimitContainer(
-            ofNullable(structureSizeLimit),
-            ofNullable(structureCountLimit),
-            ofNullable(powerBlockDistanceLimit),
-            ofNullable(blocksToMoveLimit)
-        );
     }
 
     /**

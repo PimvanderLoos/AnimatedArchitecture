@@ -256,7 +256,7 @@ public class DelayedPreparedStatement
      *
      * @return This {@link DelayedPreparedStatement}.
      */
-    public DelayedPreparedStatement setNextInt(Integer obj)
+    public DelayedPreparedStatement setNextInt(int obj)
     {
         return setInt(currentIDX, obj);
     }
@@ -266,7 +266,7 @@ public class DelayedPreparedStatement
      *
      * @return This {@link DelayedPreparedStatement}.
      */
-    public DelayedPreparedStatement setInt(int idx, Integer obj)
+    public DelayedPreparedStatement setInt(int idx, int obj)
     {
         currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action<>(PreparedStatement::setInt, idx - skipCount, obj);
@@ -490,26 +490,34 @@ public class DelayedPreparedStatement
     }
 
     /**
-     * See {@link PreparedStatement#setObject(int, Object)}.
+     * See {@link PreparedStatement#setObject(int, Object, int)}.
      * <p>
      * The index used is simply the one following from the previous set action.
      *
+     * @param targetSqlType
+     *     The SQL type to send to the database as defined in {@link java.sql.Types}.
      * @return This {@link DelayedPreparedStatement}.
      */
-    public DelayedPreparedStatement setNextObject(@Nullable Object obj)
+    public DelayedPreparedStatement setNextObject(@Nullable Object obj, int targetSqlType)
     {
-        return setObject(currentIDX, obj);
+        return setObject(currentIDX, obj, targetSqlType);
     }
 
     /**
-     * See {@link PreparedStatement#setObject(int, Object)}.
+     * See {@link PreparedStatement#setObject(int, Object, int)}.
      *
+     * @param targetSqlType
+     *     The SQL type to send to the database as defined in {@link java.sql.Types}.
      * @return This {@link DelayedPreparedStatement}.
      */
-    public DelayedPreparedStatement setObject(int idx, @Nullable Object obj)
+    public DelayedPreparedStatement setObject(int idx, @Nullable Object obj, int targetSqlType)
     {
         currentIDX = idx + 1;
-        actions[getRealIndex(idx)] = new Action<>(PreparedStatement::setObject, idx - skipCount, obj);
+        actions[getRealIndex(idx)] = new Action<>(
+            (stmt, actionIdx, val) -> stmt.setObject(actionIdx, val, targetSqlType),
+            idx - skipCount,
+            obj
+        );
         return this;
     }
 
