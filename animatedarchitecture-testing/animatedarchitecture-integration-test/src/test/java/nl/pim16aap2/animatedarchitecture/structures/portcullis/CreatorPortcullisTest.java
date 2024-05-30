@@ -18,7 +18,7 @@ import java.util.OptionalInt;
 @Timeout(1)
 class CreatorPortcullisTest extends CreatorTestsUtil
 {
-    private static final int blocksToMove = 17;
+    private static final int blocksToMove = 11;
 
     @BeforeEach
     public void setup()

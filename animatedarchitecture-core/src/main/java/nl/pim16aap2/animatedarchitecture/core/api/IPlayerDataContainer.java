@@ -46,32 +46,6 @@ interface IPlayerDataContainer
     boolean hasProtectionBypassPermission();
 
     /**
-     * Gets the {@link Limit#STRUCTURE_SIZE} limit for this player.
-     *
-     * @return The {@link Limit#STRUCTURE_SIZE} limit for this player or -1 if the limit is not set.
-     *
-     * @deprecated Use {@link #getLimit(Limit)} instead.
-     */
-    @Deprecated
-    default int getStructureSizeLimit()
-    {
-        return getLimit(Limit.STRUCTURE_SIZE).orElse(-1);
-    }
-
-    /**
-     * Gets the {@link Limit#STRUCTURE_COUNT} limit for this player.
-     *
-     * @return The {@link Limit#STRUCTURE_COUNT} limit for this player or -1 if the limit is not set.
-     *
-     * @deprecated Use {@link #getLimit(Limit)} instead.
-     */
-    @Deprecated
-    default int getStructureCountLimit()
-    {
-        return getLimit(Limit.STRUCTURE_COUNT).orElse(-1);
-    }
-
-    /**
      * Gets the value of the {@link Limit} for this player.
      * <p>
      * Note that this does not take the global limit into account.

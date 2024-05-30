@@ -6,6 +6,7 @@ import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.annotations.Deserialization;
 import nl.pim16aap2.animatedarchitecture.core.annotations.PersistentVariable;
+import nl.pim16aap2.animatedarchitecture.core.api.LimitContainer;
 import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
@@ -22,6 +23,7 @@ import org.mockito.Mockito;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
@@ -46,7 +48,15 @@ class StructureSerializerTest
 
         final String structureName = "randomDoorName";
         final Vector3Di zeroPos = new Vector3Di(0, 0, 0);
-        final PlayerData playerData = new PlayerData(UUID.randomUUID(), "player", -1, -1, true, true);
+
+        final var limits = new LimitContainer(
+            OptionalInt.empty(),
+            OptionalInt.empty(),
+            OptionalInt.empty(),
+            OptionalInt.empty()
+        );
+
+        final PlayerData playerData = new PlayerData(UUID.randomUUID(), "player", limits, true, true);
         final StructureOwner structureOwner = new StructureOwner(1, PermissionLevel.CREATOR, playerData);
 
         structureBase = factory
@@ -131,9 +141,11 @@ class StructureSerializerTest
         final var instantiator = Assertions.assertDoesNotThrow(
             () -> new StructureSerializer<>(TestStructureSubTypeEnum.class, 2));
 
-        final TestStructureSubTypeEnum realObj =
-            new TestStructureSubTypeEnum(structureBase, TestStructureSubTypeEnum.ArbitraryEnum.ENTRY_0,
-                TestStructureSubTypeEnum.ArbitraryEnum.ENTRY_2);
+        final TestStructureSubTypeEnum realObj = new TestStructureSubTypeEnum(
+            structureBase,
+            TestStructureSubTypeEnum.ArbitraryEnum.ENTRY_0,
+            TestStructureSubTypeEnum.ArbitraryEnum.ENTRY_2
+        );
 
         final String serialized = Assertions.assertDoesNotThrow(() -> instantiator.serialize(realObj));
         final var deserialized = Assertions.assertDoesNotThrow(
@@ -163,10 +175,13 @@ class StructureSerializerTest
             () -> new StructureSerializer<>(TestStructureType.class, 1));
         final TestStructureType realObj = new TestStructureType(structureBase, null, true, 42);
 
-        final TestStructureType deserialized =
-            instantiator.instantiate(structureBase, 1,
-                Map.of("isCoolType", true,
-                    "blockTestCount", 42));
+        final TestStructureType deserialized = instantiator.instantiate(
+            structureBase,
+            1,
+            Map.of(
+                "isCoolType", true,
+                "blockTestCount", 42)
+        );
 
         Assertions.assertEquals(realObj, deserialized);
     }
@@ -186,8 +201,8 @@ class StructureSerializerTest
                 1,
                 Map.of(
                     "testName", "testName",
-                    "isCoolType", false))
-        );
+                    "isCoolType", false)
+            ));
     }
 
     @Test
