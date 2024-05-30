@@ -8,12 +8,29 @@ server with animated blocks that can be used to create many kinds of animated ar
 AnimatedArchitecture is a rewrite of the old BigDoors plugin. You can find the legacy BigDoors plugin
 [here](https://github.com/PimvanderLoos/BigDoors/).
 
+## Preview
+
+[![AnimatedArchitecture Showcase](https://img.youtube.com/vi/45TwFLBv8yY/0.jpg)](https://www.youtube.com/watch?v=45TwFLBv8yY)<br>
+(Click the image to go to YouTube and watch the video)
+
+## Supported structure types
+The following structure types are currently supported:
+- Big Doors
+- Clocks that display the in-game time
+- Drawbridges
+- Flags
+- Garage Doors
+- Portcullises
+- Revolving Doors
+- Sliding Doors
+- Windmills
+
 ## Using AnimatedArchitecture
 
 ### Requirements:
 
 * Java 21+
-* A Spigot server (or a fork) for Minecraft 1.19.4+
+* A Spigot server (or a fork of Spigot) for Minecraft 1.19.4+
 * Vault
 
 ### Installation:
