@@ -18,7 +18,7 @@
         <delombok.output>${project.root-dir}/delombok</delombok.output>
 
         <dependency.annotations.version>24.1.0</dependency.annotations.version>
-        <dependency.bytebuddy.version>1.14.16</dependency.bytebuddy.version>
+        <dependency.bytebuddy.version>1.14.17</dependency.bytebuddy.version>
         <dependency.checkstyle.version>10.17.0</dependency.checkstyle.version>
         <dependency.dagger.version>2.51.1</dependency.dagger.version>
         <dependency.eclipse-annotations.version>2.3.0</dependency.eclipse-annotations.version>
