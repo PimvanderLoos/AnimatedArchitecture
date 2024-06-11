@@ -61,13 +61,7 @@ import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.PlayerFacto
 import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.TextFactorySpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.TextFactorySpigotModule;
 import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.WorldFactorySpigotModule;
-import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.ChunkListener;
-import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.EventListeners;
-import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.LoginMessageListener;
-import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.LoginResourcePackListener;
-import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.RedstoneListener;
-import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.ToolUserListener;
-import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.WorldListener;
+import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.ListenerHolder;
 import nl.pim16aap2.animatedarchitecture.spigot.core.managers.HeadManager;
 import nl.pim16aap2.animatedarchitecture.spigot.core.managers.PowerBlockRedstoneManagerSpigotModule;
 import nl.pim16aap2.animatedarchitecture.spigot.core.managers.VaultManager;
@@ -158,23 +152,11 @@ interface AnimatedArchitectureSpigotComponent
 
     ConfigSpigot getConfig();
 
-    RedstoneListener getRedstoneListener();
-
-    LoginResourcePackListener getLoginResourcePackListener();
+    ListenerHolder getListenerHolder();
 
     IExecutor getExecutor();
 
     PowerBlockManager getPowerBlockManager();
-
-    WorldListener getWorldListener();
-
-    ChunkListener getChunkListener();
-
-    EventListeners getEventListeners();
-
-    ToolUserListener getToolUserListener();
-
-    LoginMessageListener getLoginMessageListener();
 
     VaultManager getVaultManager();
 

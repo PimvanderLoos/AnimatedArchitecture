@@ -35,9 +35,8 @@ import javax.inject.Singleton;
  * It also listens to players trying to move the AnimatedArchitecture stick out of their inventory. Either by dropping
  * it or moving it to another inventory.
  */
-@Singleton
 @Flogger
-public final class ToolUserListener extends AbstractListener
+@Singleton final class ToolUserListener extends AbstractListener
 {
     private final AnimatedArchitectureToolUtilSpigot animatedArchitectureToolUtil;
     private final ToolUserManager toolUserManager;

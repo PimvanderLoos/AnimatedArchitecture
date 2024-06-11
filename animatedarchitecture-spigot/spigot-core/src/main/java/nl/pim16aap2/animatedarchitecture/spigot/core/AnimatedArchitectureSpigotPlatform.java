@@ -44,13 +44,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.versioning.BuildDataReader;
 import nl.pim16aap2.animatedarchitecture.spigot.core.comands.CommandManager;
 import nl.pim16aap2.animatedarchitecture.spigot.core.exceptions.InitializationException;
 import nl.pim16aap2.animatedarchitecture.spigot.core.gui.GuiFactory;
-import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.ChunkListener;
-import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.EventListeners;
-import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.LoginMessageListener;
-import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.LoginResourcePackListener;
-import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.RedstoneListener;
-import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.ToolUserListener;
-import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.WorldListener;
+import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.ListenerHolder;
 import nl.pim16aap2.animatedarchitecture.spigot.core.managers.HeadManager;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.IBlockAnalyzerSpigot;
 import org.jetbrains.annotations.Nullable;
@@ -191,25 +185,7 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
     private final LocalizationManager localizationManager;
 
     @SuppressWarnings({"FieldCanBeLocal", "unused", "PMD.SingularField"})
-    private final ChunkListener chunkListener;
-
-    @SuppressWarnings({"FieldCanBeLocal", "unused", "PMD.SingularField"})
-    private final EventListeners eventListeners;
-
-    @SuppressWarnings({"FieldCanBeLocal", "unused", "PMD.SingularField"})
-    private final ToolUserListener toolUserListener;
-
-    @SuppressWarnings({"FieldCanBeLocal", "unused", "PMD.SingularField"})
-    private final LoginMessageListener loginMessageListener;
-
-    @SuppressWarnings({"FieldCanBeLocal", "unused", "PMD.SingularField"})
-    private final LoginResourcePackListener loginResourcePackListener;
-
-    @SuppressWarnings({"FieldCanBeLocal", "unused", "PMD.SingularField"})
-    private final RedstoneListener redstoneListener;
-
-    @SuppressWarnings({"FieldCanBeLocal", "unused", "PMD.SingularField"})
-    private final WorldListener worldListener;
+    private final ListenerHolder listenerHolder;
 
     @Getter
     private final CommandManager commandListener;
@@ -261,16 +237,10 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
         structureAnimationRequestBuilder = safeGetter(
             AnimatedArchitectureSpigotComponent::structureAnimationRequestBuilder);
 
-        redstoneListener = safeGetter(AnimatedArchitectureSpigotComponent::getRedstoneListener);
-        loginResourcePackListener = safeGetter(AnimatedArchitectureSpigotComponent::getLoginResourcePackListener);
-        chunkListener = safeGetter(AnimatedArchitectureSpigotComponent::getChunkListener);
-        eventListeners = safeGetter(AnimatedArchitectureSpigotComponent::getEventListeners);
-        toolUserListener = safeGetter(AnimatedArchitectureSpigotComponent::getToolUserListener);
-        loginMessageListener = safeGetter(AnimatedArchitectureSpigotComponent::getLoginMessageListener);
+        listenerHolder = safeGetter(AnimatedArchitectureSpigotComponent::getListenerHolder);
 
         animatedArchitectureConfig = safeGetter(AnimatedArchitectureSpigotComponent::getConfig);
         executor = safeGetter(AnimatedArchitectureSpigotComponent::getExecutor);
-        worldListener = safeGetter(AnimatedArchitectureSpigotComponent::getWorldListener);
         highlightedBlockSpawner = safeGetter(AnimatedArchitectureSpigotComponent::getHighlightedBlockSpawner);
         server = safeGetter(AnimatedArchitectureSpigotComponent::getServer);
         audioPlayer = safeGetter(AnimatedArchitectureSpigotComponent::getIAudioPlayer);

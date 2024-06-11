@@ -19,9 +19,8 @@ import javax.inject.Singleton;
 /**
  * Represents a listener that keeps track of various events.
  */
-@Singleton
 @Flogger
-public class EventListeners extends AbstractListener
+@Singleton final class EventListeners extends AbstractListener
 {
     private final DatabaseManager databaseManager;
     private final ToolUserManager toolUserManager;

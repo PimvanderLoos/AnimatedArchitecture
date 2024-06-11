@@ -12,8 +12,6 @@ import java.util.function.BooleanSupplier;
 
 /**
  * Represents a base Listener class.
- *
- * @author Pim
  */
 abstract class AbstractListener implements Listener, IRestartable
 {

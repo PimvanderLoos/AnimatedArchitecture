@@ -15,8 +15,6 @@ import org.jetbrains.annotations.Nullable;
  * Represents a command listener that replaces all command input with failure messages.
  * <p>
  * This is intended to be used as a failure state.
- *
- * @author Pim
  */
 @Flogger
 public final class BackupCommandListener implements CommandExecutor

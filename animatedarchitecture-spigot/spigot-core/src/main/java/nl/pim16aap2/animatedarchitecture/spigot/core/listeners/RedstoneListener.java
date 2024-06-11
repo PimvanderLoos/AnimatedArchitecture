@@ -30,12 +30,9 @@ import java.util.concurrent.TimeoutException;
 
 /**
  * Represents a listener that keeps track redstone changes.
- *
- * @author Pim
  */
-@Singleton
 @Flogger
-public class RedstoneListener extends AbstractListener implements IDebuggable
+@Singleton final class RedstoneListener extends AbstractListener implements IDebuggable
 {
     private final ConfigSpigot config;
     private final Set<Material> powerBlockTypes = new CopyOnWriteArraySet<>();
