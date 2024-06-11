@@ -11,6 +11,7 @@ import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.AnimatedArc
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -32,8 +33,6 @@ import javax.inject.Singleton;
 
 /**
  * Represents a listener that keeps track of various events.
- *
- * @author Pim
  */
 @Singleton
 @Flogger
@@ -96,8 +95,9 @@ public class EventListeners extends AbstractListener
     {
         try
         {
-            databaseManager.updatePlayer(SpigotAdapter.wrapPlayer(event.getPlayer()))
-                           .exceptionally(Util::exceptionally);
+            databaseManager
+                .updatePlayer(SpigotAdapter.wrapPlayer(event.getPlayer()))
+                .exceptionally(Util::exceptionally);
         }
         catch (Exception e)
         {
@@ -148,7 +148,7 @@ public class EventListeners extends AbstractListener
      * @param event
      *     The {@link PlayerDropItemEvent}.
      */
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onItemDropEvent(PlayerDropItemEvent event)
     {
         try
@@ -174,7 +174,7 @@ public class EventListeners extends AbstractListener
      * @param event
      *     The {@link InventoryClickEvent}.
      */
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void inventoryClickEvent(InventoryClickEvent event)
     {
         try
@@ -213,7 +213,7 @@ public class EventListeners extends AbstractListener
      * @param event
      *     The {@link InventoryDragEvent}.
      */
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void inventoryDragEvent(InventoryDragEvent event)
     {
         try
@@ -237,7 +237,7 @@ public class EventListeners extends AbstractListener
      * @param event
      *     The {@link InventoryMoveItemEvent}.
      */
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onItemMoved(InventoryMoveItemEvent event)
     {
         try
