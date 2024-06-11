@@ -49,6 +49,7 @@ import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.EventListeners;
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.LoginMessageListener;
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.LoginResourcePackListener;
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.RedstoneListener;
+import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.ToolUserListener;
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.WorldListener;
 import nl.pim16aap2.animatedarchitecture.spigot.core.managers.HeadManager;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.IBlockAnalyzerSpigot;
@@ -196,6 +197,9 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
     private final EventListeners eventListeners;
 
     @SuppressWarnings({"FieldCanBeLocal", "unused", "PMD.SingularField"})
+    private final ToolUserListener toolUserListener;
+
+    @SuppressWarnings({"FieldCanBeLocal", "unused", "PMD.SingularField"})
     private final LoginMessageListener loginMessageListener;
 
     @SuppressWarnings({"FieldCanBeLocal", "unused", "PMD.SingularField"})
@@ -223,8 +227,9 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
 
         databaseManager = animatedArchitectureSpigotComponent.getDatabaseManager();
         if (databaseManager.getDatabaseState() != IStorage.DatabaseState.OK)
-            throw new InitializationException("Failed to initialize AnimatedArchitecture database! Database state: " +
-                                                  databaseManager.getDatabaseState().name());
+            throw new InitializationException(
+                "Failed to initialize AnimatedArchitecture database! Database state: " +
+                    databaseManager.getDatabaseState().name());
 
         protectionHookManager = safeGetter(AnimatedArchitectureSpigotComponent::getProtectionHookManager);
         economyManager = safeGetter(AnimatedArchitectureSpigotComponent::getVaultManager);
@@ -260,6 +265,7 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
         loginResourcePackListener = safeGetter(AnimatedArchitectureSpigotComponent::getLoginResourcePackListener);
         chunkListener = safeGetter(AnimatedArchitectureSpigotComponent::getChunkListener);
         eventListeners = safeGetter(AnimatedArchitectureSpigotComponent::getEventListeners);
+        toolUserListener = safeGetter(AnimatedArchitectureSpigotComponent::getToolUserListener);
         loginMessageListener = safeGetter(AnimatedArchitectureSpigotComponent::getLoginMessageListener);
 
         animatedArchitectureConfig = safeGetter(AnimatedArchitectureSpigotComponent::getConfig);

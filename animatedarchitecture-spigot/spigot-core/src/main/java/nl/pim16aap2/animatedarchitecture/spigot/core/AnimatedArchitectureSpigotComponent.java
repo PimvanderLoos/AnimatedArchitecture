@@ -66,6 +66,7 @@ import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.EventListeners;
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.LoginMessageListener;
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.LoginResourcePackListener;
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.RedstoneListener;
+import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.ToolUserListener;
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.WorldListener;
 import nl.pim16aap2.animatedarchitecture.spigot.core.managers.HeadManager;
 import nl.pim16aap2.animatedarchitecture.spigot.core.managers.PowerBlockRedstoneManagerSpigotModule;
@@ -170,6 +171,8 @@ interface AnimatedArchitectureSpigotComponent
     ChunkListener getChunkListener();
 
     EventListeners getEventListeners();
+
+    ToolUserListener getToolUserListener();
 
     LoginMessageListener getLoginMessageListener();
 
