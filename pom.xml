@@ -27,7 +27,7 @@
         <dependency.fastjson.version>2.0.51</dependency.fastjson.version>
         <dependency.fastutil.version>8.5.13</dependency.fastutil.version>
         <dependency.flogger.version>0.8</dependency.flogger.version>
-        <dependency.git-commit-id.version>8.0.2</dependency.git-commit-id.version>
+        <dependency.git-commit-id.version>9.0.0</dependency.git-commit-id.version>
         <dependency.gson.version>2.11.0</dependency.gson.version>
         <dependency.jacoco.version>0.8.12</dependency.jacoco.version>
         <dependency.jcalculator.version>1.10</dependency.jcalculator.version>
