@@ -8,9 +8,12 @@ import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -18,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class AudioConfiguratorTest
 {
     static final AudioDescription DESC_0 = new AudioDescription("audio_description_0", 0.1f, 0.1f, 1);
@@ -57,9 +62,8 @@ class AudioConfiguratorTest
     @BeforeEach
     void init()
     {
-        MockitoAnnotations.openMocks(this);
         Mockito.when(structureTypeManager.getRegisteredStructureTypes())
-               .thenReturn(Set.of(TYPE_0, TYPE_1, TYPE_2, TYPE_3, TYPE_4, TYPE_5));
+            .thenReturn(Set.of(TYPE_0, TYPE_1, TYPE_2, TYPE_3, TYPE_4, TYPE_5));
     }
 
     @SuppressWarnings("ConstantConditions") @Test
@@ -79,10 +83,10 @@ class AudioConfiguratorTest
         parsed.put(KEY_4, null); // Null for both
 
         final AudioConfigurator configurator = new AudioConfigurator(audioConfigIO, restartableHolder,
-                                                                     debuggableRegistry, structureTypeManager);
+            debuggableRegistry, structureTypeManager);
         Mockito.when(audioConfigIO.readConfig()).thenReturn(parsed);
         Mockito.when(structureTypeManager.getEnabledStructureTypes())
-               .thenReturn(List.of(TYPE_0, TYPE_1, TYPE_2, TYPE_3, TYPE_4, TYPE_5));
+            .thenReturn(List.of(TYPE_0, TYPE_1, TYPE_2, TYPE_3, TYPE_4, TYPE_5));
 
         final AudioConfigurator.ConfigData configData = configurator.generateConfigData();
         final Map<StructureType, @Nullable AudioSet> output = configData.sets();
@@ -102,7 +106,7 @@ class AudioConfiguratorTest
     void getFinalMap()
     {
         final AudioConfigurator configurator = new AudioConfigurator(audioConfigIO, restartableHolder,
-                                                                     debuggableRegistry, structureTypeManager);
+            debuggableRegistry, structureTypeManager);
 
         final Map<StructureType, @Nullable AudioSet> merged = new LinkedHashMap<>();
         merged.put(TYPE_0, SET_0);

@@ -10,14 +10,19 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.util.concurrent.TimeUnit;
 
 @Timeout(1)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class SpecifyTest
 {
     @Mock(answer = Answers.CALLS_REAL_METHODS)
@@ -32,18 +37,18 @@ class SpecifyTest
     @BeforeEach
     void init()
     {
-        MockitoAnnotations.openMocks(this);
-
         CommandTestingUtil.initCommandSenderPermissions(commandSender, true, true);
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
         Mockito.when(factory.newSpecify(Mockito.any(ICommandSender.class), Mockito.anyString()))
-               .thenAnswer(invoc -> new Specify(invoc.getArgument(0, ICommandSender.class),
-                                                invoc.getArgument(1, String.class),
-                                                localizer,
-                                                ITextFactory.getSimpleTextFactory(),
-                                                structureSpecificationManager));
+            .thenAnswer(invoc -> new Specify(
+                invoc.getArgument(0, ICommandSender.class),
+                invoc.getArgument(1, String.class),
+                localizer,
+                ITextFactory.getSimpleTextFactory(),
+                structureSpecificationManager)
+            );
     }
 
     @Test

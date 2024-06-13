@@ -12,8 +12,10 @@ class MessageFormatProcessorTest
     {
         Assertions.assertEquals("Test", new MessageFormatProcessor("Test").getFormattedString());
         Assertions.assertEquals("Test", new MessageFormatProcessor("Test", "Ignored").getFormattedString());
-        Assertions.assertEquals("Test 3.14",
-                                new MessageFormatProcessor("Test {0,number,#.##}", Math.PI).getFormattedString());
+        Assertions.assertEquals(
+            "Test 3.14",
+            new MessageFormatProcessor("Test {0,number,#.##}", Math.PI).getFormattedString()
+        );
     }
 
     @Test
@@ -23,9 +25,10 @@ class MessageFormatProcessorTest
 
         Assertions.assertEquals(
             List.of(new MessageFormatProcessor.MessageFormatSection(0, 13, -1),
-                    new MessageFormatProcessor.MessageFormatSection(13, 23, 0),
-                    new MessageFormatProcessor.MessageFormatSection(23, 24, -1)),
-            proc.getSections());
+                new MessageFormatProcessor.MessageFormatSection(13, 23, 0),
+                new MessageFormatProcessor.MessageFormatSection(23, 24, -1)),
+            proc.getSections()
+        );
 
         Assertions.assertEquals("Hello there, John Smith!", proc.getFormattedString());
     }
@@ -39,10 +42,11 @@ class MessageFormatProcessorTest
 
         Assertions.assertEquals(
             List.of(new MessageFormatProcessor.MessageFormatSection(0, 1, 2),
-                    new MessageFormatProcessor.MessageFormatSection(1, 2, -1),
-                    new MessageFormatProcessor.MessageFormatSection(2, 3, 1),
-                    new MessageFormatProcessor.MessageFormatSection(3, 4, -1),
-                    new MessageFormatProcessor.MessageFormatSection(4, 5, 0)),
-            proc.getSections());
+                new MessageFormatProcessor.MessageFormatSection(1, 2, -1),
+                new MessageFormatProcessor.MessageFormatSection(2, 3, 1),
+                new MessageFormatProcessor.MessageFormatSection(3, 4, -1),
+                new MessageFormatProcessor.MessageFormatSection(4, 5, 0)),
+            proc.getSections()
+        );
     }
 }

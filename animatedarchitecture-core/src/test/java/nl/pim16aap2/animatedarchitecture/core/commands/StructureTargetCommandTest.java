@@ -61,7 +61,7 @@ class StructureTargetCommandTest
 
         Mockito.doReturn(true).when(structureTargetCommand).isAllowed(Mockito.any(), Mockito.anyBoolean());
         Mockito.when(structureTargetCommand.performAction(Mockito.any()))
-               .thenReturn(CompletableFuture.completedFuture(null));
+            .thenReturn(CompletableFuture.completedFuture(null));
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
@@ -75,15 +75,19 @@ class StructureTargetCommandTest
 
         UnitTestUtil.setField(BaseCommand.class, structureTargetCommand, "commandSender", commandSender);
         UnitTestUtil.setField(BaseCommand.class, structureTargetCommand, "localizer", localizer);
-        UnitTestUtil.setField(BaseCommand.class, structureTargetCommand, "textFactory",
-                              ITextFactory.getSimpleTextFactory());
+        UnitTestUtil.setField(
+            BaseCommand.class,
+            structureTargetCommand,
+            "textFactory",
+            ITextFactory.getSimpleTextFactory()
+        );
     }
 
     @Test
     void testExecutionSuccess()
     {
         Assertions.assertDoesNotThrow(() -> structureTargetCommand.executeCommand(new PermissionsStatus(true, true))
-                                                                  .get(1, TimeUnit.SECONDS));
+            .get(1, TimeUnit.SECONDS));
         Mockito.verify(structureTargetCommand).performAction(Mockito.any());
     }
 
@@ -94,7 +98,7 @@ class StructureTargetCommandTest
         Mockito.when(structure.isOwner(Mockito.any(IPlayer.class), Mockito.any())).thenReturn(false);
 
         Assertions.assertDoesNotThrow(() -> structureTargetCommand.executeCommand(new PermissionsStatus(true, true))
-                                                                  .get(1, TimeUnit.SECONDS));
+            .get(1, TimeUnit.SECONDS));
     }
 
     @Test
@@ -103,7 +107,7 @@ class StructureTargetCommandTest
         Mockito.doReturn(false).when(structureTargetCommand).isAllowed(Mockito.any(), Mockito.anyBoolean());
 
         Assertions.assertDoesNotThrow(() -> structureTargetCommand.executeCommand(new PermissionsStatus(true, true))
-                                                                  .get(1, TimeUnit.SECONDS));
+            .get(1, TimeUnit.SECONDS));
         Mockito.verify(structureTargetCommand, Mockito.never()).performAction(Mockito.any());
     }
 
@@ -112,7 +116,7 @@ class StructureTargetCommandTest
         throws ExecutionException, InterruptedException, TimeoutException
     {
         Mockito.when(structureTargetCommand.performAction(Mockito.any()))
-               .thenThrow(new IllegalStateException("Generic Exception!"));
+            .thenThrow(new IllegalStateException("Generic Exception!"));
 
         structureTargetCommand.executeCommand(new PermissionsStatus(true, true)).get(1, TimeUnit.SECONDS);
 
@@ -120,9 +124,7 @@ class StructureTargetCommandTest
             logCaptor,
             -1,
             null,
-            new LogAssertionsUtil.ThrowableSpec(
-                CompletionException.class
-            ),
+            new LogAssertionsUtil.ThrowableSpec(CompletionException.class),
             new LogAssertionsUtil.ThrowableSpec(
                 RuntimeException.class,
                 "Failed to perform command BaseCommand" +

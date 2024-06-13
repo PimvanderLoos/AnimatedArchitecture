@@ -8,14 +8,19 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.util.concurrent.TimeUnit;
 
 @Timeout(1)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class StopStructuresTest
 {
     @Mock(answer = Answers.CALLS_REAL_METHODS)
@@ -30,16 +35,16 @@ class StopStructuresTest
     @BeforeEach
     void init()
     {
-        MockitoAnnotations.openMocks(this);
-
         CommandTestingUtil.initCommandSenderPermissions(commandSender, true, true);
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
         Mockito.when(factory.newStopStructures(Mockito.any(ICommandSender.class)))
-               .thenAnswer(invoc -> new StopStructures(invoc.getArgument(0, ICommandSender.class),
-                                                       localizer, ITextFactory.getSimpleTextFactory(),
-                                                       structureActivityManager));
+            .thenAnswer(invoc -> new StopStructures(
+                invoc.getArgument(0, ICommandSender.class),
+                localizer, ITextFactory.getSimpleTextFactory(),
+                structureActivityManager)
+            );
     }
 
     @Test

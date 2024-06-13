@@ -14,15 +14,20 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 @Timeout(1)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class SetBlocksToMoveTest
 {
     private AbstractStructure structure;
@@ -41,12 +46,13 @@ class SetBlocksToMoveTest
     @BeforeEach
     void init()
     {
-        MockitoAnnotations.openMocks(this);
+        structure = Mockito.mock(
+            AbstractStructure.class,
+            Mockito.withSettings().extraInterfaces(IDiscreteMovement.class)
+        );
 
-        structure = Mockito.mock(AbstractStructure.class,
-                                 Mockito.withSettings().extraInterfaces(IDiscreteMovement.class));
         Mockito.when(structure.syncData())
-               .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
+            .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
 
         Mockito.when(structureType.getLocalizationKey()).thenReturn("StructureType");
         Mockito.when(structure.getType()).thenReturn(structureType);
@@ -56,13 +62,17 @@ class SetBlocksToMoveTest
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
-        Mockito.when(factory.newSetBlocksToMove(Mockito.any(ICommandSender.class),
-                                                Mockito.any(StructureRetriever.class),
-                                                Mockito.anyInt()))
-               .thenAnswer(invoc -> new SetBlocksToMove(invoc.getArgument(0, ICommandSender.class), localizer,
-                                                        ITextFactory.getSimpleTextFactory(),
-                                                        invoc.getArgument(1, StructureRetriever.class),
-                                                        invoc.getArgument(2, Integer.class)));
+        Mockito.when(factory.newSetBlocksToMove(
+                Mockito.any(ICommandSender.class),
+                Mockito.any(StructureRetriever.class),
+                Mockito.anyInt()))
+            .thenAnswer(invoc -> new SetBlocksToMove(
+                invoc.getArgument(0, ICommandSender.class),
+                localizer,
+                ITextFactory.getSimpleTextFactory(),
+                invoc.getArgument(1, StructureRetriever.class),
+                invoc.getArgument(2, Integer.class))
+            );
     }
 
     @Test

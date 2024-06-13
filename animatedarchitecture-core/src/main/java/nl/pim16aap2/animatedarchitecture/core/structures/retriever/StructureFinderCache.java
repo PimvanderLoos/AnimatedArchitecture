@@ -52,26 +52,35 @@ import java.time.Duration;
      */
     StructureFinder getStructureFinder(ICommandSender commandSender, String input, PermissionLevel maxPermission)
     {
-        return cache.compute(commandSender, (sender, finder) ->
-            finder == null ? newInstance(sender, input, maxPermission) : finder.processInput(input));
+        return cache.compute(
+            commandSender,
+            (sender, finder) ->
+                finder == null ?
+                newInstance(sender, input, maxPermission) :
+                finder.processInput(input)
+        );
     }
 
     private StructureFinder newInstance(ICommandSender commandSender, String input, PermissionLevel maxPermission)
     {
         return new StructureFinder(
-            structureRetrieverFactoryProvider.get(), databaseManager, commandSender, input,
-            maxPermission);
+            structureRetrieverFactoryProvider.get(),
+            databaseManager,
+            commandSender,
+            input,
+            maxPermission
+        );
     }
 
     @Override
     public void initialize()
     {
         cache = TimedCache.<ICommandSender, StructureFinder>builder()
-                          .duration(Duration.ofMinutes(2))
-                          .cleanup(Duration.ofMinutes(5))
-                          .softReference(false)
-                          .refresh(true)
-                          .build();
+            .timeOut(Duration.ofMinutes(2))
+            .cleanup(Duration.ofMinutes(5))
+            .softReference(false)
+            .refresh(true)
+            .build();
     }
 
     @Override

@@ -412,8 +412,7 @@ public class CreatorTest
 
         Assertions.assertFalse(creator.handleInput(MovementDirection.NORTH).join());
 
-        Mockito.verify(player).sendMessage(
-            UnitTestUtil.textArgumentMatcher("creator.base.error.invalid_option"));
+        Mockito.verify(player).sendMessage(UnitTestUtil.textArgumentMatcher("creator.base.error.invalid_option"));
 
         Mockito.verify(setDirectionDelayed)
             .runDelayed(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
@@ -433,8 +432,8 @@ public class CreatorTest
 
         Assertions.assertTrue(creator.handleInput(MovementDirection.EAST).join());
 
-        Mockito.verify(player, Mockito.never()).sendMessage(
-            UnitTestUtil.textArgumentMatcher("creator.base.error.invalid_option"));
+        Mockito.verify(player, Mockito.never())
+            .sendMessage(UnitTestUtil.textArgumentMatcher("creator.base.error.invalid_option"));
 
         Assertions.assertEquals(1, creator.getStepsCompleted());
         Assertions.assertTrue(creator.isActive());
@@ -535,8 +534,7 @@ public class CreatorTest
 
         Assertions.assertFalse(creator.handleInput(location).join());
 
-        Mockito.verify(player).sendMessage(
-            UnitTestUtil.textArgumentMatcher("creator.base.error.powerblock_too_far"));
+        Mockito.verify(player).sendMessage(UnitTestUtil.textArgumentMatcher("creator.base.error.powerblock_too_far"));
 
         Assertions.assertEquals(0, creator.getStepsCompleted());
         Assertions.assertTrue(creator.isActive());
@@ -587,8 +585,7 @@ public class CreatorTest
 
         Assertions.assertFalse(creator.handleInput(UnitTestUtil.getLocation(DEFAULT_MAX)).join());
 
-        Mockito.verify(player).sendMessage(
-            UnitTestUtil.textArgumentMatcher("creator.base.error.world_mismatch"));
+        Mockito.verify(player).sendMessage(UnitTestUtil.textArgumentMatcher("creator.base.error.world_mismatch"));
 
         Assertions.assertEquals(0, creator.getStepsCompleted());
         Assertions.assertTrue(creator.isActive());

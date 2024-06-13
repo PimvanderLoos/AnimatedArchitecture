@@ -9,10 +9,10 @@ class TextTest
 {
     final ColorScheme<Style> colorScheme =
         ColorScheme.<Style>builder()
-                   .addStyle(TextType.ERROR, new Style("<err>", "</err>"))
-                   .addStyle(TextType.INFO, new Style("<info>", "</info>"))
-                   .setDefaultStyle(new Style("", ""))
-                   .build();
+            .addStyle(TextType.ERROR, new Style("<err>", "</err>"))
+            .addStyle(TextType.INFO, new Style("<info>", "</info>"))
+            .setDefaultStyle(new Style("", ""))
+            .build();
 
     final TextComponentFactory textComponentFactory = new TextComponentFactory(colorScheme);
 
@@ -128,30 +128,35 @@ class TextTest
             "<a href=\"my_url\">CLICK HERE</a>",
             new Text(textComponentFactory)
                 .appendClickableText("CLICK HERE", null, "my_url", null)
-                .render(new Renderer()));
+                .render(new Renderer())
+        );
 
         Assertions.assertEquals(
             "<a href=\"my_url\"><info>CLICK HERE</info></a>",
             new Text(textComponentFactory)
                 .appendClickableText("CLICK HERE", TextType.INFO, "my_url", null)
-                .render(new Renderer()));
+                .render(new Renderer())
+        );
 
         Assertions.assertEquals(
             "<a href=\"my_url\" title=\"click for help\"><info>CLICK HERE</info></a>",
             new Text(textComponentFactory)
                 .appendClickableText("CLICK HERE", TextType.INFO, "my_url", "click for help")
-                .render(new Renderer()));
+                .render(new Renderer())
+        );
     }
 
     @Test
     void testArguments()
     {
         final Text text = new Text(textComponentFactory);
-        text.append("Click {1}, {2}, or {0} to do {3}!", TextType.INFO,
-                    new TextArgument("HERE0", text.newClickableTextComponent(TextType.INFO, "url0", null)),
-                    new TextArgument("HERE1", text.newClickableTextComponent(TextType.ERROR, "url1", null)),
-                    new TextArgument("HERE2", text.newClickableTextComponent(TextType.ERROR, "url2", "hi")),
-                    new TextArgument("something", text.newTextComponent(null)));
+        text.append(
+            "Click {1}, {2}, or {0} to do {3}!", TextType.INFO,
+            new TextArgument("HERE0", text.newClickableTextComponent(TextType.INFO, "url0", null)),
+            new TextArgument("HERE1", text.newClickableTextComponent(TextType.ERROR, "url1", null)),
+            new TextArgument("HERE2", text.newClickableTextComponent(TextType.ERROR, "url2", "hi")),
+            new TextArgument("something", text.newTextComponent(null))
+        );
 
         final String result =
             "<info>Click </info>" +

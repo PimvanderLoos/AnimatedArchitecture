@@ -14,10 +14,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -25,6 +28,8 @@ import java.util.concurrent.TimeUnit;
 import static nl.pim16aap2.animatedarchitecture.core.commands.CommandTestingUtil.initCommandSenderPermissions;
 
 @Timeout(1)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class SetOpenDirectionTest
 {
     @Mock
@@ -44,10 +49,8 @@ class SetOpenDirectionTest
     @BeforeEach
     void init()
     {
-        MockitoAnnotations.openMocks(this);
-
         Mockito.when(structure.syncData())
-               .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
+            .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
         Mockito.when(structure.getType()).thenReturn(structureType);
 
         initCommandSenderPermissions(commandSender, true, true);
@@ -55,17 +58,20 @@ class SetOpenDirectionTest
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
-        Mockito.when(factory.newSetOpenDirection(Mockito.any(ICommandSender.class),
-                                                 Mockito.any(StructureRetriever.class),
-                                                 Mockito.any(MovementDirection.class),
-                                                 Mockito.anyBoolean()))
-               .thenAnswer(invoc -> new SetOpenDirection(invoc.getArgument(0, ICommandSender.class),
-                                                         invoc.getArgument(1, StructureRetriever.class),
-                                                         invoc.getArgument(2, MovementDirection.class),
-                                                         invoc.getArgument(3, Boolean.class),
-                                                         localizer,
-                                                         ITextFactory.getSimpleTextFactory(),
-                                                         Mockito.mock(CommandFactory.class)));
+        Mockito.when(factory.newSetOpenDirection(
+                Mockito.any(ICommandSender.class),
+                Mockito.any(StructureRetriever.class),
+                Mockito.any(MovementDirection.class),
+                Mockito.anyBoolean()))
+            .thenAnswer(invoc -> new SetOpenDirection(
+                invoc.getArgument(0, ICommandSender.class),
+                invoc.getArgument(1, StructureRetriever.class),
+                invoc.getArgument(2, MovementDirection.class),
+                invoc.getArgument(3, Boolean.class),
+                localizer,
+                ITextFactory.getSimpleTextFactory(),
+                Mockito.mock(CommandFactory.class))
+            );
     }
 
     @Test
@@ -80,7 +86,6 @@ class SetOpenDirectionTest
         Assertions.assertDoesNotThrow(() -> command.performAction(structure).get(1, TimeUnit.SECONDS));
         Mockito.verify(structure, Mockito.never()).syncData();
         Mockito.verify(structure, Mockito.never()).setOpenDir(movementDirection);
-
 
         Mockito.when(structureType.isValidOpenDirection(movementDirection)).thenReturn(true);
         Assertions.assertDoesNotThrow(() -> command.performAction(structure).get(1, TimeUnit.SECONDS));

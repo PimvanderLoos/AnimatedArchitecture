@@ -25,6 +25,7 @@
 package nl.pim16aap2.animatedarchitecture.core.data.cache.timed;
 
 import com.google.common.flogger.StackSize;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
@@ -34,6 +35,7 @@ import java.lang.ref.SoftReference;
 import java.time.Clock;
 import java.time.Duration;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -53,7 +55,6 @@ import java.util.function.Function;
  *     Type of the Key of the map.
  * @param <V>
  *     Type of the value of the map.
- * @author Pim
  */
 @Flogger
 public sealed class TimedCache<K, V>
@@ -111,7 +112,7 @@ public sealed class TimedCache<K, V>
      */
     private volatile boolean alive = true;
 
-    TimedCache(Clock clock, long timeOut, boolean softReference, boolean refresh, boolean keepAfterTimeOut)
+    private TimedCache(Clock clock, long timeOut, boolean softReference, boolean refresh, boolean keepAfterTimeOut)
     {
         this.clock = clock;
         this.refresh = refresh;
@@ -120,17 +121,35 @@ public sealed class TimedCache<K, V>
         timedValueCreator = softReference ? this::createTimedSoftValue : this::createTimedValue;
     }
 
-    TimedCache(
-        Clock clock, Duration duration, @Nullable Duration cleanup, boolean softReference,
-        boolean refresh, boolean keepAfterTimeOut)
+    @Builder(
+        // This builder is used for testing purposes only.
+        access = AccessLevel.PACKAGE,
+        builderClassName = "TimedCacheBuilderWithClock",
+        builderMethodName = "builderWithClock"
+    )
+    private TimedCache(
+        Clock clock,
+        @Nullable Duration timeOut,
+        @Nullable Duration cleanup,
+        boolean softReference,
+        boolean refresh,
+        boolean keepAfterTimeOut)
     {
-        this(clock, duration.toMillis(), softReference, refresh, keepAfterTimeOut);
+        this(
+            clock,
+            Objects.requireNonNullElse(timeOut, Duration.ZERO).toMillis(),
+            softReference,
+            refresh,
+            keepAfterTimeOut
+        );
 
         final long cleanupMillis = cleanup == null ? 0 : cleanup.toMillis();
 
-        if (timeOut == 0 && (!softReference || cleanupMillis == 0))
-            throw new IllegalArgumentException("A duration of zero is only allowed in combination with soft " +
-                                                   "reference and a non-zero cleanup duration!");
+        if (this.timeOut == 0 && (!softReference || cleanupMillis < 1))
+            throw new IllegalArgumentException(
+                "A timeOut of zero is only allowed in combination with soft " +
+                    "references and a non-zero positive cleanup timeOut!"
+            );
         setupCleanupTask(cleanupMillis);
     }
 
@@ -149,16 +168,18 @@ public sealed class TimedCache<K, V>
     /**
      * Constructor of {@link TimedCache}
      *
-     * @param duration
+     * @param timeOut
      *     The amount of time a cached entry remains valid.
      *     <p>
      *     Note that this value is used for millisecond precision. Anything smaller than that will be ignored.
      *     <p>
      *     Setting this value to 0 means that values will never be evicted from the cache based on their age. This is a
-     *     valid configuration in combination with the softReference option and a non-zero cleanup duration. This will
+     *     valid configuration in combination with the softReference option and a non-zero cleanup timeOut. This will
      *     cause all entries to exist in the cache until they are no longer referenced.
+     *     <p>
+     *     When null, this value defaults to {@link Duration#ZERO}.
      * @param cleanup
-     *     The duration between each cleanup cycle. During cleanup, all expired entries will be removed from the cache.
+     *     The timeOut between each cleanup cycle. During cleanup, all expired entries will be removed from the cache.
      *     When null (default) or 0, entries are evicted from the cache whenever they are accessed after they have
      *     expired. This value also uses millisecond precision.
      * @param softReference
@@ -180,10 +201,13 @@ public sealed class TimedCache<K, V>
      */
     @Builder
     protected TimedCache(
-        Duration duration, @Nullable Duration cleanup, boolean softReference, boolean refresh,
+        @Nullable Duration timeOut,
+        @Nullable Duration cleanup,
+        boolean softReference,
+        boolean refresh,
         boolean keepAfterTimeOut)
     {
-        this(DEFAULT_CLOCK, duration, cleanup, softReference, refresh, keepAfterTimeOut);
+        this(DEFAULT_CLOCK, timeOut, cleanup, softReference, refresh, keepAfterTimeOut);
     }
 
     /**
@@ -274,7 +298,7 @@ public sealed class TimedCache<K, V>
             if (tValue == null || tValue.timedOut() || (innerValue = tValue.getValue(refresh)) == null)
             {
                 innerValue = Util.requireNonNull(mappingFunction.apply(k),
-                                                 "Computed TimedCache value for key: \"" + key + "\"");
+                    "Computed TimedCache value for key: \"" + key + "\"");
                 returnValue.set(innerValue);
                 return timedValueCreator.apply(innerValue);
             }

@@ -245,13 +245,13 @@ class RollingCacheTest
 
         Assertions.assertTrue(cache.getPtrHead() != 0);
         Assertions.assertTrue(cache.getPtrTail() != 0);
-        Assertions.assertTrue(cache.size() != 0);
+        Assertions.assertFalse(cache.isEmpty());
 
         final int mc = cache.getModCount();
         cache.clear();
 
         Assertions.assertTrue(cache.getModCount() > mc);
-        Assertions.assertEquals(0, cache.size());
+        Assertions.assertTrue(cache.isEmpty());
         Assertions.assertEquals(0, cache.getPtrHead());
         Assertions.assertEquals(0, cache.getPtrTail());
 
@@ -259,7 +259,6 @@ class RollingCacheTest
         testEquals(new Object[]{null, null, null}, cache.rawArray());
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
     void peek()
     {
@@ -375,9 +374,14 @@ class RollingCacheTest
         // Now: 0, 1, 2, 3, 4
 
         final RollingCache<Integer>.RollingSpliterator spliterator = cache.spliterator();
-        Assertions.assertEquals(spliterator.characteristics(),
-                                Spliterator.NONNULL | Spliterator.ORDERED | Spliterator.SIZED |
-                                    Spliterator.SUBSIZED | Spliterator.IMMUTABLE);
+        Assertions.assertEquals(
+            spliterator.characteristics(),
+            Spliterator.NONNULL |
+                Spliterator.ORDERED |
+                Spliterator.SIZED |
+                Spliterator.SUBSIZED |
+                Spliterator.IMMUTABLE
+        );
         Assertions.assertEquals(5, spliterator.estimateSize());
 
         final AtomicReference<Integer> ref = new AtomicReference<>();
@@ -407,8 +411,10 @@ class RollingCacheTest
         cache.removeFirst();
         Assertions.assertThrows(ConcurrentModificationException.class, spliterator::trySplit);
         Assertions.assertThrows(ConcurrentModificationException.class, () -> spliterator.tryAdvance(NO_OP_CONSUMER));
-        Assertions.assertThrows(ConcurrentModificationException.class,
-                                () -> spliterator.forEachRemaining(NO_OP_CONSUMER));
+        Assertions.assertThrows(
+            ConcurrentModificationException.class,
+            () -> spliterator.forEachRemaining(NO_OP_CONSUMER)
+        );
     }
 
     @Test

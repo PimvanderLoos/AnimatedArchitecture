@@ -29,7 +29,10 @@ class StructureTypeInitializerTest
         graph.addConnectedNodes(l3, l2);
         graph.addConnectedNodes(l4, l2);
 
-        l1.setLoadFailure(new StructureTypeInitializer.LoadFailure(StructureTypeInitializer.LoadFailureType.GENERIC_LOAD_FAILURE, "TestFailure!"));
+        l1.setLoadFailure(new StructureTypeInitializer.LoadFailure(
+            StructureTypeInitializer.LoadFailureType.GENERIC_LOAD_FAILURE,
+            "TestFailure!")
+        );
         StructureTypeInitializer.propagateLoadFailures(graph, List.of(l0, l1, l2, l3, l4));
         Assertions.assertNull(l0.getLoadFailure());
         Assertions.assertNotNull(l1.getLoadFailure());
@@ -47,28 +50,35 @@ class StructureTypeInitializerTest
 
         // Base case. No dependencies, so nothing happens.
         StructureTypeInitializer.addDependenciesToGraph(graph, Map.of("l0", l0, "l1", l1), l1);
-        Mockito.verify(graph, Mockito.never()).addConnection(Mockito.any(), (StructureTypeInitializer.Loadable) Mockito.any());
+        Mockito.verify(graph, Mockito.never())
+            .addConnection(Mockito.any(), (StructureTypeInitializer.Loadable) Mockito.any());
         Assertions.assertNull(l0.getLoadFailure());
         Assertions.assertNull(l1.getLoadFailure());
 
         // Add dependency for l1 on l0.
-        Mockito.when(l1.getStructureTypeInfo().getDependencies()).thenReturn(List.of(new StructureTypeInfo.Dependency("l0", 0, 2)));
+        Mockito.when(l1.getStructureTypeInfo().getDependencies())
+            .thenReturn(List.of(new StructureTypeInfo.Dependency("l0", 0, 2)));
 
         // Ensure dependencies not being in the map result in DEPENDENCY_UNAVAILABLE.
         StructureTypeInitializer.addDependenciesToGraph(graph, Map.of("l1", l1), l1);
-        Mockito.verify(graph, Mockito.never()).addConnection(Mockito.any(), (StructureTypeInitializer.Loadable) Mockito.any());
-        Assertions.assertEquals(StructureTypeInitializer.LoadFailureType.DEPENDENCY_UNAVAILABLE, l1.getLoadFailure().loadFailuretype());
+        Mockito.verify(graph, Mockito.never())
+            .addConnection(Mockito.any(), (StructureTypeInitializer.Loadable) Mockito.any());
+        Assertions.assertEquals(StructureTypeInitializer.LoadFailureType.DEPENDENCY_UNAVAILABLE,
+            l1.getLoadFailure().loadFailuretype());
 
         // Ensure dependencies with versions outside the specified range result int DEPENDENCY_UNSUPPORTED_VERSION.
         Mockito.when(l0.getStructureTypeInfo().getVersion()).thenReturn(4);
         StructureTypeInitializer.addDependenciesToGraph(graph, Map.of("l0", l0, "l1", l1), l1);
-        Mockito.verify(graph, Mockito.never()).addConnection(Mockito.any(), (StructureTypeInitializer.Loadable) Mockito.any());
-        Assertions.assertEquals(StructureTypeInitializer.LoadFailureType.DEPENDENCY_UNSUPPORTED_VERSION, l1.getLoadFailure().loadFailuretype());
+        Mockito.verify(graph, Mockito.never())
+            .addConnection(Mockito.any(), (StructureTypeInitializer.Loadable) Mockito.any());
+        Assertions.assertEquals(StructureTypeInitializer.LoadFailureType.DEPENDENCY_UNSUPPORTED_VERSION,
+            l1.getLoadFailure().loadFailuretype());
 
         // Ensure that a valid dependency setup results in a dependency being added to the graph.
         Mockito.when(l0.getStructureTypeInfo().getVersion()).thenReturn(2);
         StructureTypeInitializer.addDependenciesToGraph(graph, Map.of("l0", l0, "l1", l1), l1);
-        Mockito.verify(graph, Mockito.times(1)).addConnection(Mockito.any(), (StructureTypeInitializer.Loadable) Mockito.any());
+        Mockito.verify(graph, Mockito.times(1))
+            .addConnection(Mockito.any(), (StructureTypeInitializer.Loadable) Mockito.any());
     }
 
     @Test
@@ -90,22 +100,24 @@ class StructureTypeInitializerTest
         Mockito.when(middleType.getStructureSerializer()).thenThrow(IllegalStateException.class);
 
         final IStructureTypeClassLoader structureTypeClassLoader = Mockito.mock(IStructureTypeClassLoader.class);
-        Mockito.when(structureTypeClassLoader.loadStructureTypeClass(Mockito.anyString())).thenAnswer(
-            invocation -> switch (invocation.getArgument(0, String.class))
+        Mockito.when(structureTypeClassLoader.loadStructureTypeClass(Mockito.anyString()))
+            .thenAnswer(invocation ->
+                switch (invocation.getArgument(0, String.class))
                 {
                     case goodClassName -> goodType;
                     case middleClassName -> middleType;
                     case badClassName -> throw new NoSuchMethodException();
                     default -> throw new IllegalArgumentException();
                 });
-        Mockito.when(structureTypeClassLoader.loadJar(Mockito.any())).thenAnswer(
-            invocation -> goodPath.equals(invocation.getArgument(0, Path.class)));
+        Mockito.when(structureTypeClassLoader.loadJar(Mockito.any()))
+            .thenAnswer(invocation -> goodPath.equals(invocation.getArgument(0, Path.class)));
 
         final StructureTypeInfo info = Mockito.mock(StructureTypeInfo.class);
         Mockito.when(info.getJarFile()).thenReturn(badPath);
 
-        final StructureTypeInitializer initializer = new StructureTypeInitializer(List.of(), structureTypeClassLoader,
-                                                                                  false);
+        final StructureTypeInitializer initializer =
+            new StructureTypeInitializer(List.of(), structureTypeClassLoader, false);
+
         Assertions.assertNull(initializer.loadStructureType(info));
 
         Mockito.when(info.getJarFile()).thenReturn(goodPath);
@@ -134,17 +146,18 @@ class StructureTypeInitializerTest
         final StructureType dt5 = newStructureType();
 
         Mockito.when(structureTypeClassLoader.loadStructureTypeClass(Mockito.anyString()))
-               .thenAnswer(invocation -> switch (invocation.getArgument(0, String.class))
-                   {
-                       case "i0" -> dt0;
-                       case "i1" -> dt1;
-                       case "i2" -> dt2;
-                       case "i3" -> dt3;
-                       case "i4" -> dt4;
-                       case "i5" -> dt5;
-                       case "i6" -> throw new NoSuchMethodException();
-                       default -> throw new IllegalArgumentException(invocation.getArgument(0, String.class));
-                   });
+            .thenAnswer(invocation ->
+                switch (invocation.getArgument(0, String.class))
+                {
+                    case "i0" -> dt0;
+                    case "i1" -> dt1;
+                    case "i2" -> dt2;
+                    case "i3" -> dt3;
+                    case "i4" -> dt4;
+                    case "i5" -> dt5;
+                    case "i6" -> throw new NoSuchMethodException();
+                    default -> throw new IllegalArgumentException(invocation.getArgument(0, String.class));
+                });
 
         // Loads fine
         final StructureTypeInfo i0 = newStructureTypeInfo("i0");
@@ -174,7 +187,9 @@ class StructureTypeInitializerTest
 
         final StructureTypeInitializer structureTypeInitializer = new StructureTypeInitializer(
             List.of(i0, i1, i2, i3, i4, i5, i6),
-            structureTypeClassLoader, false);
+            structureTypeClassLoader,
+            false
+        );
 
         Assertions.assertEquals(List.of(dt0, dt1, dt3), structureTypeInitializer.loadStructureTypes());
     }

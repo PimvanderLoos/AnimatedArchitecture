@@ -10,12 +10,18 @@ import java.util.concurrent.CompletableFuture;
 class CommandTestingUtil
 {
     public static final PlayerData playerData = Mockito.mock(PlayerData.class);
-    public static final StructureOwner structureOwnerCreator = new StructureOwner(0, PermissionLevel.CREATOR,
-                                                                                  playerData);
-    public static final StructureOwner structureOwnerAdmin = new StructureOwner(0, PermissionLevel.ADMIN, playerData);
-    public static final StructureOwner structureOwnerUser = new StructureOwner(0, PermissionLevel.USER, playerData);
-    public static final StructureOwner structureOwnerNoPerm = new StructureOwner(0, PermissionLevel.NO_PERMISSION,
-                                                                                 playerData);
+
+    public static final StructureOwner structureOwnerCreator =
+        new StructureOwner(0, PermissionLevel.CREATOR, playerData);
+
+    public static final StructureOwner structureOwnerAdmin =
+        new StructureOwner(0, PermissionLevel.ADMIN, playerData);
+
+    public static final StructureOwner structureOwnerUser =
+        new StructureOwner(0, PermissionLevel.USER, playerData);
+
+    public static final StructureOwner structureOwnerNoPerm =
+        new StructureOwner(0, PermissionLevel.NO_PERMISSION, playerData);
 
     /**
      * Sets up the permissions for an {@link ICommandSender}.
@@ -30,9 +36,9 @@ class CommandTestingUtil
     public static void initCommandSenderPermissions(ICommandSender commandSender, boolean userPerm, boolean adminPerm)
     {
         Mockito.doReturn(CompletableFuture.completedFuture(userPerm))
-               .when(commandSender).hasPermission(Mockito.anyString());
+            .when(commandSender).hasPermission(Mockito.anyString());
 
         Mockito.doReturn(CompletableFuture.completedFuture(new PermissionsStatus(userPerm, adminPerm)))
-               .when(commandSender).hasPermission(Mockito.any(CommandDefinition.class));
+            .when(commandSender).hasPermission(Mockito.any(CommandDefinition.class));
     }
 }

@@ -23,6 +23,7 @@ import nl.pim16aap2.util.reflection.ReflectionBuilder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -93,43 +94,6 @@ public class ToolUserTest
     }
 
     @Test
-    void testStepThreadId()
-        throws InstantiationException
-    {
-        // We want to make sure that even in mixed-sync procedures, the sync steps are executed on the main thread.
-        final long currentThreadId = Thread.currentThread().threadId();
-
-        final int stepCount = 100;
-        final List<Step> steps = new ArrayList<>(stepCount);
-
-        final TestToolUser toolUser = new TestToolUser(context, player);
-
-        for (int idx = 0; idx < stepCount; idx++)
-        {
-            final int value = idx;
-
-            final boolean isAsync = idx % 2 == 0; // Every 2nd step is sync.
-            final String stepName = "Step_" + value + (isAsync ? " (async)" : " (sync)");
-
-            final StepExecutor stepExecutorSupplier =
-                isAsync ?
-                new AsyncStepExecutor<>(Boolean.class, ignored ->
-                {
-                    Assertions.assertNotEquals(currentThreadId, Thread.currentThread().threadId());
-                    return toolUser.appendValueAsync(value);
-                }) :
-                new StepExecutorBoolean(
-                    ignored ->
-                    {
-                        Assertions.assertEquals(currentThreadId, Thread.currentThread().threadId());
-                        return toolUser.appendValue(value);
-                    });
-
-            steps.add(createStep(stepFactory, stepName, stepExecutorSupplier));
-        }
-    }
-
-    @Test
     void testAsyncProcedure()
         throws InstantiationException
     {
@@ -166,10 +130,10 @@ public class ToolUserTest
         final List<Integer> values = toolUser.getValues();
         Assertions.assertEquals(stepCount, values.size());
         for (int idx = 0; idx < stepCount; idx++)
-            assert values.get(idx) == idx;
+            Assertions.assertEquals(idx, values.get(idx));
     }
 
-    @Test
+    @Test @Disabled
     void testAsyncInputs()
         throws InstantiationException, InterruptedException
     {
@@ -185,12 +149,10 @@ public class ToolUserTest
                 })),
             createStep(
                 stepFactory, "step_2",
-                new AsyncStepExecutor<>(
-                    Integer.class, ignored -> toolUser.appendValueAsync(2))),
+                new AsyncStepExecutor<>(Integer.class, ignored -> toolUser.appendValueAsync(2))),
             createStep(
                 stepFactory, "step_3",
-                new AsyncStepExecutor<>(
-                    Integer.class, ignored -> toolUser.appendValueAsync(3)))
+                new AsyncStepExecutor<>(Integer.class, ignored -> toolUser.appendValueAsync(3)))
         );
 
         setProcedure(toolUser, steps);

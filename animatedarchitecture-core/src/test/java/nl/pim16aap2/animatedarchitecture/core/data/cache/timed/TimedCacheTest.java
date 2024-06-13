@@ -29,7 +29,6 @@ import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.lang.ref.SoftReference;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -46,8 +45,13 @@ class TimedCacheTest
     void testExpiry()
     {
         final MockClock clock = new MockClock(0);
-        final TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
-                                                                       null, false, false, false);
+
+        final var timedCache = TimedCache
+            .<String, String>builderWithClock()
+            .clock(clock)
+            .timeOut(Duration.ofMillis(100))
+            .build();
+
         timedCache.put("key", "value");
         Assertions.assertTrue(timedCache.get("key").isPresent());
         Assertions.assertEquals(1, timedCache.getSize());
@@ -72,21 +76,29 @@ class TimedCacheTest
     void testShutDown()
     {
         final MockClock clock = new MockClock(0);
-        final TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
-                                                                       null, false, false, false);
+
+        final var timedCache = TimedCache
+            .<String, String>builderWithClock()
+            .clock(clock)
+            .timeOut(Duration.ofMillis(100))
+            .build();
+
         timedCache.shutDown();
         Assertions.assertThrows(IllegalStateException.class, () -> timedCache.put("a", "b"));
     }
 
-    /**
-     * Test whether the keepAfterTimeOut option keeps the values around after the timeOut when possible.
-     */
     @Test
     void testKeepAfterTimeOut()
     {
         final MockClock clock = new MockClock(0);
-        final TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
-                                                                       null, true, false, true);
+        final var timedCache = TimedCache
+            .<String, String>builderWithClock()
+            .clock(clock)
+            .timeOut(Duration.ofMillis(100))
+            .softReference(true)
+            .keepAfterTimeOut(true)
+            .build();
+
         // Set a hard reference, so the value cannot be garbage collected.
         String value = "can't touch this";
 
@@ -131,30 +143,70 @@ class TimedCacheTest
     private <T> TimedSoftValue<T> getTimedSoftValue(TimedCache<String, T> cache, String keyName)
     {
         @Nullable AbstractTimedValue<T> retrieved = cache.getRaw(keyName);
-        Assertions.assertNotNull(retrieved);
-        Assertions.assertTrue(retrieved instanceof TimedSoftValue);
+        Assertions.assertInstanceOf(TimedSoftValue.class, retrieved);
         return (TimedSoftValue<T>) retrieved;
     }
 
-    /**
-     * Make sure that configuring the cache to use {@link SoftReference}s actually wraps the values in them and that
-     * they behave properly when cleared.
-     */
     @Test
-    void testSoftReference()
+    void testZeroTimeOutValidation()
+    {
+        Assertions.assertThrows(
+            IllegalArgumentException.class,
+            () -> TimedCache
+                .builder()
+                .timeOut(Duration.ZERO)
+                .cleanup(Duration.ZERO)
+                .softReference(true)
+                .build()
+        );
+
+        Assertions.assertThrows(
+            IllegalArgumentException.class,
+            () -> TimedCache
+                .builder()
+                .timeOut(Duration.ZERO)
+                .cleanup(Duration.ofMillis(1))
+                .build()
+        );
+
+        Assertions.assertThrows(
+            IllegalArgumentException.class,
+            () -> TimedCache
+                .builder()
+                .timeOut(null)
+                .cleanup(Duration.ofMillis(1))
+                .build()
+        );
+
+        Assertions.assertDoesNotThrow(
+            () -> TimedCache
+                .builder()
+                .timeOut(Duration.ZERO)
+                .cleanup(Duration.ofMillis(1))
+                .softReference(true)
+                .build()
+        );
+    }
+
+    @Test
+    void testSoftReferenceClearing()
     {
         final MockClock clock = new MockClock(0);
         final Duration longDuration = Duration.ofHours(100);
-        Assertions.assertThrows(IllegalArgumentException.class,
-                                () -> new TimedCache<>(clock, Duration.ZERO, longDuration, false, false, false));
-        Assertions.assertThrows(IllegalArgumentException.class,
-                                () -> new TimedCache<>(clock, Duration.ZERO, Duration.ZERO, true, false, false));
 
-        TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ZERO, longDuration,
-                                                                 true, false, false);
+        final var timedCache = TimedCache
+            .<String, String>builderWithClock()
+            .clock(clock)
+            .timeOut(Duration.ofMillis(100))
+            .cleanup(longDuration)
+            .softReference(true)
+            .build();
+
         timedCache.put("key", "value");
 
         TimedSoftValue<String> retrieved = getTimedSoftValue(timedCache, "key");
+        Assertions.assertEquals("value", retrieved.getValue(false));
+        // The hard reference should be null, as 'keepAfterTimeOut' is false.
         Assertions.assertNull(retrieved.getRawHardReference());
 
         Assertions.assertTrue(timedCache.get("key").isPresent());
@@ -162,14 +214,23 @@ class TimedCacheTest
         retrieved.getRawValue().clear();
         Assertions.assertFalse(timedCache.get("key").isPresent());
         Assertions.assertEquals(0, timedCache.getSize());
+    }
 
+    @Test
+    void testTimedValueCreator()
+    {
+        final MockClock clock = new MockClock(0);
 
-        // Now test that setting soft-reference to false doesn't wrap values in them.
-        timedCache = new TimedCache<>(clock, Duration.ofMillis(100), null, false, false, false);
+        final var timedCache = TimedCache
+            .<String, String>builderWithClock()
+            .clock(clock)
+            .timeOut(Duration.ofMillis(100))
+            .build();
+
         timedCache.put("key2", "value");
         @Nullable AbstractTimedValue<String> retrieved2 = timedCache.getRaw("key2");
         Assertions.assertNotNull(retrieved2);
-        Assertions.assertFalse(retrieved2 instanceof TimedSoftValue);
+        Assertions.assertInstanceOf(TimedValue.class, retrieved2);
     }
 
     /**
@@ -182,8 +243,13 @@ class TimedCacheTest
     void testRefresh()
     {
         final MockClock clock = new MockClock(0);
-        final TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
-                                                                       null, false, true, false);
+        final var timedCache = TimedCache
+            .<String, String>builderWithClock()
+            .clock(clock)
+            .timeOut(Duration.ofMillis(100))
+            .refresh(true)
+            .build();
+
         timedCache.put("key", "value");
         Assertions.assertTrue(timedCache.get("key").isPresent());
         Assertions.assertEquals(1, timedCache.getSize());
@@ -219,8 +285,12 @@ class TimedCacheTest
     void computeIfAbsent()
     {
         final MockClock clock = new MockClock(0);
-        final TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
-                                                                       null, false, false, false);
+
+        final var timedCache = TimedCache
+            .<String, String>builderWithClock()
+            .clock(clock)
+            .timeOut(Duration.ofMillis(100))
+            .build();
 
         // Make sure inserting a new item properly returns the new value
         Assertions.assertEquals("value0", timedCache.computeIfAbsent("key", (k) -> "value0"));
@@ -251,8 +321,12 @@ class TimedCacheTest
     void computeIfPresent()
     {
         final MockClock clock = new MockClock(0);
-        final TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
-                                                                       null, false, false, false);
+        final var timedCache = TimedCache
+            .<String, String>builderWithClock()
+            .clock(clock)
+            .timeOut(Duration.ofMillis(100))
+            .build();
+
         timedCache.put("key", "value");
 
         optionalEquals(timedCache.computeIfPresent("key", (k, v) -> "newValue"), "newValue");
@@ -268,8 +342,12 @@ class TimedCacheTest
     void compute()
     {
         final MockClock clock = new MockClock(0);
-        final TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
-                                                                       null, false, false, false);
+        final var timedCache = TimedCache
+            .<String, String>builderWithClock()
+            .clock(clock)
+            .timeOut(Duration.ofMillis(100))
+            .build();
+
         String returned = timedCache.compute("key", (k, v) -> v == null ? "value" : (v + v));
         Assertions.assertTrue(timedCache.get("key").isPresent());
         Assertions.assertEquals(1, timedCache.getSize());
@@ -288,13 +366,14 @@ class TimedCacheTest
     void putIfAbsent()
     {
         final MockClock clock = new MockClock(0);
-        final TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
-                                                                       null, false, false, false);
+        final var timedCache = TimedCache
+            .<String, String>builderWithClock()
+            .clock(clock)
+            .timeOut(Duration.ofMillis(100))
+            .build();
 
         Assertions.assertFalse(timedCache.putIfAbsent("key", "value").isPresent());
-
         optionalEquals(timedCache.putIfAbsent("key", "value"), "value");
-
 
         clock.addMillis(110);
 
@@ -305,8 +384,11 @@ class TimedCacheTest
     void putIfPresent()
     {
         final MockClock clock = new MockClock(0);
-        TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
-                                                                 null, false, false, false);
+        final var timedCache = TimedCache
+            .<String, String>builderWithClock()
+            .clock(clock)
+            .timeOut(Duration.ofMillis(100))
+            .build();
 
         timedCache.put("key", "value");
 
@@ -326,8 +408,12 @@ class TimedCacheTest
     void remove()
     {
         final MockClock clock = new MockClock(0);
-        final TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
-                                                                       null, false, false, false);
+        final var timedCache = TimedCache
+            .<String, String>builderWithClock()
+            .clock(clock)
+            .timeOut(Duration.ofMillis(100))
+            .build();
+
         timedCache.put("key", "value");
         Assertions.assertTrue(timedCache.get("key").isPresent());
         Assertions.assertEquals(1, timedCache.getSize());
@@ -349,12 +435,15 @@ class TimedCacheTest
      * Make sure that the cleanup task properly cleans up any items it should.
      */
     @Test
-    void cleanupTask()
+    void testCleanupTask()
     {
         final MockClock clock = new MockClock(0);
-        final TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
-                                                                       Duration.ofMillis(1), false, false,
-                                                                       false);
+        final var timedCache = TimedCache
+            .<String, String>builderWithClock()
+            .clock(clock)
+            .timeOut(Duration.ofMillis(100))
+            .cleanup(Duration.ofMillis(1))
+            .build();
 
         timedCache.put("key", "value");
         Assertions.assertTrue(timedCache.get("key").isPresent());
@@ -428,8 +517,6 @@ class TimedCacheTest
 
     /**
      * Clock that displays a determined millisecond value which can be set/updated manually.
-     *
-     * @author Pim
      */
     private static final class MockClock extends Clock
     {

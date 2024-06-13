@@ -15,10 +15,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -27,6 +30,8 @@ import java.util.concurrent.TimeUnit;
 import static nl.pim16aap2.animatedarchitecture.core.commands.CommandTestingUtil.initCommandSenderPermissions;
 
 @Timeout(1)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class LockTest
 {
     private StructureRetriever doorRetriever;
@@ -46,36 +51,39 @@ class LockTest
     @BeforeEach
     void init()
     {
-        MockitoAnnotations.openMocks(this);
-
         initCommandSenderPermissions(commandSender, true, true);
         Mockito.when(door.isOwner(Mockito.any(UUID.class), Mockito.any())).thenReturn(true);
         Mockito.when(door.isOwner(Mockito.any(IPlayer.class), Mockito.any())).thenReturn(true);
         doorRetriever = StructureRetrieverFactory.ofStructure(door);
 
         Mockito.when(door.syncData())
-               .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
+            .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
 
         final IAnimatedArchitectureEventFactory eventFactory = Mockito.mock(IAnimatedArchitectureEventFactory.class);
         Mockito.when(eventFactory.createStructurePrepareLockChangeEvent(
-                   Mockito.any(), Mockito.anyBoolean(), Mockito.any()))
-               .thenReturn(event);
+                Mockito.any(),
+                Mockito.anyBoolean(),
+                Mockito.any()))
+            .thenReturn(event);
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
-        Mockito.when(factory.newLock(Mockito.any(ICommandSender.class),
-                                     Mockito.any(StructureRetriever.class),
-                                     Mockito.anyBoolean(),
-                                     Mockito.anyBoolean()))
-               .thenAnswer(invoc -> new Lock(invoc.getArgument(0, ICommandSender.class),
-                                             invoc.getArgument(1, StructureRetriever.class),
-                                             invoc.getArgument(2, Boolean.class),
-                                             invoc.getArgument(3, Boolean.class),
-                                             localizer,
-                                             ITextFactory.getSimpleTextFactory(),
-                                             Mockito.mock(CommandFactory.class),
-                                             Mockito.mock(IAnimatedArchitectureEventCaller.class),
-                                             eventFactory));
+        Mockito.when(factory.newLock(
+                Mockito.any(ICommandSender.class),
+                Mockito.any(StructureRetriever.class),
+                Mockito.anyBoolean(),
+                Mockito.anyBoolean()))
+            .thenAnswer(invoc -> new Lock(
+                invoc.getArgument(0, ICommandSender.class),
+                invoc.getArgument(1, StructureRetriever.class),
+                invoc.getArgument(2, Boolean.class),
+                invoc.getArgument(3, Boolean.class),
+                localizer,
+                ITextFactory.getSimpleTextFactory(),
+                Mockito.mock(CommandFactory.class),
+                Mockito.mock(IAnimatedArchitectureEventCaller.class),
+                eventFactory)
+            );
     }
 
     @Test

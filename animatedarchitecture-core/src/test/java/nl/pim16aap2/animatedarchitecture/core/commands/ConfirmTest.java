@@ -68,8 +68,10 @@ class ConfirmTest
     {
         // Ensure the server running the method does not result in a ToolUser being started.
         Assertions.assertDoesNotThrow(
-            () -> factory.newConfirm(Mockito.mock(IServer.class, Answers.CALLS_REAL_METHODS)).run()
-                         .get(1, TimeUnit.SECONDS));
+            () -> factory.newConfirm(Mockito.mock(IServer.class, Answers.CALLS_REAL_METHODS))
+                .run()
+                .get(1, TimeUnit.SECONDS)
+        );
         Mockito.verify(toolUserManager, Mockito.never()).getToolUser(Mockito.any(UUID.class));
     }
 

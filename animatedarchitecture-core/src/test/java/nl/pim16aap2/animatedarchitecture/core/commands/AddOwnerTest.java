@@ -15,10 +15,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.mockito.stubbing.Answer;
 
 import java.util.Optional;
@@ -27,6 +30,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 @Timeout(1)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class AddOwnerTest
 {
     private ILocalizer localizer;
@@ -55,30 +60,32 @@ class AddOwnerTest
     @BeforeEach
     void init()
     {
-        MockitoAnnotations.openMocks(this);
-
         final StructureType doorType = Mockito.mock(StructureType.class);
         Mockito.when(doorType.getLocalizationKey()).thenReturn("DoorType");
         Mockito.when(door.getType()).thenReturn(doorType);
         Mockito.when(door.isOwner(commandSender, StructureAttribute.ADD_OWNER.getPermissionLevel())).thenReturn(true);
         Mockito.when(door.isOwner(commandSender.getUUID(), StructureAttribute.ADD_OWNER.getPermissionLevel()))
-               .thenReturn(true);
+            .thenReturn(true);
 
         localizer = UnitTestUtil.initLocalizer();
 
         Mockito.when(databaseManager.addOwner(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-               .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
+            .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
 
-        Mockito.when(factory.newAddOwner(Mockito.any(ICommandSender.class),
-                                         Mockito.any(StructureRetriever.class),
-                                         Mockito.any(IPlayer.class),
-                                         Mockito.any(PermissionLevel.class)))
-               .thenAnswer((Answer<AddOwner>) invoc ->
-                   new AddOwner(invoc.getArgument(0, ICommandSender.class), localizer,
-                                ITextFactory.getSimpleTextFactory(),
-                                invoc.getArgument(1, StructureRetriever.class),
-                                invoc.getArgument(2, IPlayer.class), invoc.getArgument(3, PermissionLevel.class),
-                                databaseManager));
+        Mockito.when(factory.newAddOwner(
+                Mockito.any(ICommandSender.class),
+                Mockito.any(StructureRetriever.class),
+                Mockito.any(IPlayer.class),
+                Mockito.any(PermissionLevel.class)))
+            .thenAnswer((Answer<AddOwner>) invoc -> new AddOwner(
+                invoc.getArgument(0, ICommandSender.class),
+                localizer,
+                ITextFactory.getSimpleTextFactory(),
+                invoc.getArgument(1, StructureRetriever.class),
+                invoc.getArgument(2, IPlayer.class),
+                invoc.getArgument(3, PermissionLevel.class),
+                databaseManager)
+            );
 
         CommandTestingUtil.initCommandSenderPermissions(commandSender, true, true);
         doorRetriever = StructureRetrieverFactory.ofStructure(door);
@@ -174,7 +181,7 @@ class AddOwnerTest
             factory.newAddOwner(commandSender, doorRetriever, target, AddOwner.DEFAULT_PERMISSION_LEVEL).run();
 
         Assertions.assertDoesNotThrow(() -> result.get(1, TimeUnit.SECONDS));
-        Mockito.verify(databaseManager, Mockito.times(1)).addOwner(door, target, AddOwner.DEFAULT_PERMISSION_LEVEL,
-                                                                   commandSender.getPlayer().orElse(null));
+        Mockito.verify(databaseManager, Mockito.times(1))
+            .addOwner(door, target, AddOwner.DEFAULT_PERMISSION_LEVEL, commandSender.getPlayer().orElse(null));
     }
 }

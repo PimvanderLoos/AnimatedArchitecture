@@ -34,7 +34,6 @@ import java.time.Clock;
  *
  * @param <T>
  *     The type of the value to store.
- * @author Pim
  */
 class TimedSoftValue<T> extends AbstractTimedValue<T>
 {
@@ -45,7 +44,7 @@ class TimedSoftValue<T> extends AbstractTimedValue<T>
     // However, its sole purpose is to keep a reference to the value
     // to avoid garbage collection reclaiming it before it has timed out.
     @SuppressWarnings("unused")
-    private @Nullable T hardReference;
+    private volatile @Nullable T hardReference;
 
     /**
      * Constructor of {@link TimedSoftValue}.

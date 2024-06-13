@@ -6,13 +6,15 @@ import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +28,8 @@ import static org.mockito.ArgumentMatchers.eq;
 
 @SuppressWarnings({"OptionalGetWithoutIsPresent", "DefaultAnnotationParam"})
 @Timeout(value = 10, unit = TimeUnit.SECONDS, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class StructureFinderTest
 {
     @Mock
@@ -37,38 +41,38 @@ class StructureFinderTest
     @Mock
     ICommandSender commandSender;
 
-    @BeforeEach
-    void init()
-    {
-        MockitoAnnotations.openMocks(this);
-    }
-
     @Test
     void propagateMaxPermission()
     {
         final CompletableFuture<List<DatabaseManager.StructureIdentifier>> databaseResult = new CompletableFuture<>();
         Mockito.when(databaseManager.getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any()))
-               .thenReturn(databaseResult);
+            .thenReturn(databaseResult);
 
         new StructureFinder(structureRetrieverFactory,
-                            databaseManager,
-                            commandSender, "M");
+            databaseManager,
+            commandSender,
+            "M"
+        );
         Mockito.verify(databaseManager, Mockito.times(1))
-               .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), eq(PermissionLevel.CREATOR));
+            .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), eq(PermissionLevel.CREATOR));
 
         new StructureFinder(structureRetrieverFactory,
-                            databaseManager,
-                            commandSender, "M",
-                            PermissionLevel.ADMIN);
+            databaseManager,
+            commandSender,
+            "M",
+            PermissionLevel.ADMIN
+        );
         Mockito.verify(databaseManager, Mockito.times(1))
-               .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), eq(PermissionLevel.ADMIN));
+            .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), eq(PermissionLevel.ADMIN));
 
         new StructureFinder(structureRetrieverFactory,
-                            databaseManager,
-                            commandSender, "M",
-                            PermissionLevel.USER);
+            databaseManager,
+            commandSender,
+            "M",
+            PermissionLevel.USER
+        );
         Mockito.verify(databaseManager, Mockito.times(1))
-               .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), eq(PermissionLevel.USER));
+            .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), eq(PermissionLevel.USER));
     }
 
     @RepeatedTest(value = 30)
@@ -77,11 +81,10 @@ class StructureFinderTest
     {
         final CompletableFuture<List<DatabaseManager.StructureIdentifier>> databaseResult = new CompletableFuture<>();
         Mockito.when(databaseManager.getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any()))
-               .thenReturn(databaseResult);
+            .thenReturn(databaseResult);
 
         final StructureFinder structureFinder =
-            new StructureFinder(structureRetrieverFactory,
-                                databaseManager, commandSender, "M");
+            new StructureFinder(structureRetrieverFactory, databaseManager, commandSender, "M");
 
         Assertions.assertTrue(structureFinder.getStructureIdentifiersIfAvailable().isEmpty());
         final CompletableFuture<Set<String>> returned = structureFinder.getStructureIdentifiers();
@@ -112,10 +115,8 @@ class StructureFinderTest
         Assertions.assertTrue(StructureFinder.startsWith("a", "Ab"));
         Assertions.assertTrue(StructureFinder.startsWith("a", "A"));
 
-        Assertions.assertFalse(
-            StructureFinder.startsWith("ab", "A"));
-        Assertions.assertFalse(
-            StructureFinder.startsWith("ab", "bA"));
+        Assertions.assertFalse(StructureFinder.startsWith("ab", "A"));
+        Assertions.assertFalse(StructureFinder.startsWith("ab", "bA"));
         Assertions.assertFalse(StructureFinder.startsWith("a", ""));
     }
 
@@ -128,22 +129,24 @@ class StructureFinderTest
         setDatabaseIdentifierResults(uids, names);
 
         final StructureFinder structureFinder =
-            new StructureFinder(structureRetrieverFactory,
-                                databaseManager, commandSender,
-                                "My");
+            new StructureFinder(structureRetrieverFactory, databaseManager, commandSender, "My");
 
         Assertions.assertTrue(structureFinder.getStructureUIDs().isPresent());
         Assertions.assertEquals(names, new ArrayList<>(structureFinder.getStructureIdentifiersIfAvailable().get()));
 
         structureFinder.processInput("Myd"); // case-insensitive
         structureFinder.processInput("Myd"); // Repeating shouldn't change anything
-        Assertions.assertEquals(Set.of("MyDoor", "MyDrawbridge"),
-                                structureFinder.getStructureIdentifiersIfAvailable().get());
-        Assertions.assertEquals(Set.of("MyDoor", "MyDrawbridge"),
-                                structureFinder.getStructureIdentifiers().get(10, TimeUnit.SECONDS));
+        Assertions.assertEquals(
+            Set.of("MyDoor", "MyDrawbridge"),
+            structureFinder.getStructureIdentifiersIfAvailable().get()
+        );
+        Assertions.assertEquals(
+            Set.of("MyDoor", "MyDrawbridge"),
+            structureFinder.getStructureIdentifiers().get(10, TimeUnit.SECONDS)
+        );
         Assertions.assertEquals(Set.of(0L, 2L), structureFinder.getStructureUIDs().get());
         Mockito.verify(databaseManager, Mockito.times(1))
-               .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any());
+            .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any());
     }
 
     @Test
@@ -154,11 +157,10 @@ class StructureFinderTest
         final List<DatabaseManager.StructureIdentifier> identifiers = createStructureIdentifiers(uids, names, true);
         final CompletableFuture<List<DatabaseManager.StructureIdentifier>> output = new CompletableFuture<>();
         Mockito.when(databaseManager.getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any()))
-               .thenReturn(output);
+            .thenReturn(output);
 
         final StructureFinder structureFinder =
-            new StructureFinder(structureRetrieverFactory,
-                                databaseManager, commandSender, "M");
+            new StructureFinder(structureRetrieverFactory, databaseManager, commandSender, "M");
 
         structureFinder.processInput("My");
         structureFinder.processInput("MyD");
@@ -168,11 +170,13 @@ class StructureFinderTest
         Assertions.assertTrue(structureFinder.getStructureUIDs().isEmpty());
         output.complete(identifiers);
         Assertions.assertFalse(structureFinder.getStructureUIDs().isEmpty());
-        Assertions.assertEquals(Set.of("MyDoor", "MyDrawbridge"),
-                                structureFinder.getStructureIdentifiersIfAvailable().get());
+        Assertions.assertEquals(
+            Set.of("MyDoor", "MyDrawbridge"),
+            structureFinder.getStructureIdentifiersIfAvailable().get()
+        );
 
         Mockito.verify(databaseManager, Mockito.times(1))
-               .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any());
+            .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any());
     }
 
     @Test
@@ -183,11 +187,10 @@ class StructureFinderTest
         final List<DatabaseManager.StructureIdentifier> identifiers = createStructureIdentifiers(uids, names, true);
         final CompletableFuture<List<DatabaseManager.StructureIdentifier>> output = new CompletableFuture<>();
         Mockito.when(databaseManager.getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any()))
-               .thenReturn(output);
+            .thenReturn(output);
 
         final StructureFinder structureFinder =
-            new StructureFinder(structureRetrieverFactory,
-                                databaseManager, commandSender, "M");
+            new StructureFinder(structureRetrieverFactory, databaseManager, commandSender, "M");
 
         structureFinder.processInput("My");
         structureFinder.processInput("MyD");
@@ -202,11 +205,10 @@ class StructureFinderTest
         Assertions.assertTrue(structureFinder.getStructureUIDs().isEmpty());
         output.complete(identifiers);
         Assertions.assertFalse(structureFinder.getStructureUIDs().isEmpty());
-        Assertions.assertEquals(Set.of("TheirFlag"),
-                                structureFinder.getStructureIdentifiersIfAvailable().get());
+        Assertions.assertEquals(Set.of("TheirFlag"), structureFinder.getStructureIdentifiersIfAvailable().get());
 
         Mockito.verify(databaseManager, Mockito.times(2))
-               .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any());
+            .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any());
     }
 
     @Test
@@ -217,32 +219,39 @@ class StructureFinderTest
         setDatabaseIdentifierResults(uids, names);
 
         final StructureFinder structureFinder =
-            new StructureFinder(structureRetrieverFactory,
-                                databaseManager, commandSender, "M");
+            new StructureFinder(structureRetrieverFactory, databaseManager, commandSender, "M");
 
         Mockito.verify(databaseManager, Mockito.times(1))
-               .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any());
+            .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any());
         Assertions.assertTrue(structureFinder.getStructureUIDs().isPresent());
-        Assertions.assertEquals(Set.of("MyDoor", "MyPortcullis", "MyDrawbridge"),
-                                structureFinder.getStructureIdentifiersIfAvailable().get());
+        Assertions.assertEquals(
+            Set.of("MyDoor", "MyPortcullis", "MyDrawbridge"),
+            structureFinder.getStructureIdentifiersIfAvailable().get()
+        );
 
         structureFinder.processInput("MyD");
         Mockito.verify(databaseManager, Mockito.times(1))
-               .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any());
-        Assertions.assertEquals(Set.of("MyDoor", "MyDrawbridge"),
-                                structureFinder.getStructureIdentifiersIfAvailable().get());
+            .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any());
+        Assertions.assertEquals(
+            Set.of("MyDoor", "MyDrawbridge"),
+            structureFinder.getStructureIdentifiersIfAvailable().get()
+        );
 
         structureFinder.processInput("M");
         Mockito.verify(databaseManager, Mockito.times(1))
-               .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any());
-        Assertions.assertEquals(Set.of("MyDoor", "MyDrawbridge", "MyPortcullis"),
-                                structureFinder.getStructureIdentifiersIfAvailable().get());
+            .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any());
+        Assertions.assertEquals(
+            Set.of("MyDoor", "MyDrawbridge", "MyPortcullis"),
+            structureFinder.getStructureIdentifiersIfAvailable().get()
+        );
 
         structureFinder.processInput("T");
         Mockito.verify(databaseManager, Mockito.times(2))
-               .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any());
-        Assertions.assertEquals(Set.of("TheirFlag"),
-                                structureFinder.getStructureIdentifiersIfAvailable().get());
+            .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any());
+        Assertions.assertEquals(
+            Set.of("TheirFlag"),
+            structureFinder.getStructureIdentifiersIfAvailable().get()
+        );
     }
 
     @Test
@@ -254,14 +263,16 @@ class StructureFinderTest
 
         final StructureFinder structureFinder =
             new StructureFinder(structureRetrieverFactory,
-                                databaseManager, commandSender, "1");
+                databaseManager, commandSender, "1");
 
         structureFinder.processInput("10");
         Assertions.assertTrue(structureFinder.getStructureIdentifiersIfAvailable().isPresent());
-        Assertions.assertEquals(Set.of("100", "101"),
-                                structureFinder.getStructureIdentifiersIfAvailable().get());
+        Assertions.assertEquals(
+            Set.of("100", "101"),
+            structureFinder.getStructureIdentifiersIfAvailable().get()
+        );
         Mockito.verify(databaseManager, Mockito.times(1))
-               .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any());
+            .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any());
     }
 
     @Test
@@ -273,8 +284,7 @@ class StructureFinderTest
         setDatabaseIdentifierResults(uids, names);
 
         final StructureFinder structureFinder =
-            new StructureFinder(structureRetrieverFactory,
-                                databaseManager, commandSender, "M");
+            new StructureFinder(structureRetrieverFactory, databaseManager, commandSender, "M");
 
         Assertions.assertTrue(structureFinder.getStructureUIDs(true).isPresent());
         Assertions.assertTrue(structureFinder.getStructureUIDs(true).get().isEmpty());
@@ -282,13 +292,17 @@ class StructureFinderTest
 
         structureFinder.processInput("MyDoor");
         Assertions.assertTrue(structureFinder.getStructureIdentifiersIfAvailable(true).isPresent());
-        Assertions.assertEquals(Set.of("MyDoor"),
-                                structureFinder.getStructureIdentifiersIfAvailable(true).get());
-        Assertions.assertEquals(Set.of("MyDoor"),
-                                structureFinder.getStructureIdentifiers(true).get(10, TimeUnit.SECONDS));
+        Assertions.assertEquals(
+            Set.of("MyDoor"),
+            structureFinder.getStructureIdentifiersIfAvailable(true).get()
+        );
+        Assertions.assertEquals(
+            Set.of("MyDoor"),
+            structureFinder.getStructureIdentifiers(true).get(10, TimeUnit.SECONDS)
+        );
 
         Mockito.verify(databaseManager, Mockito.times(1))
-               .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any());
+            .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any());
     }
 
     @Test
@@ -308,8 +322,8 @@ class StructureFinderTest
             structures.add(idx, structure);
         }
 
-        Mockito.when(structureRetrieverFactory.of(Mockito.anyLong())).thenAnswer(
-            invocation ->
+        Mockito.when(structureRetrieverFactory.of(Mockito.anyLong()))
+            .thenAnswer(invocation ->
             {
                 final long uid = invocation.getArgument(0, Long.class);
                 if (uid < 0 || uid >= structures.size())
@@ -319,16 +333,17 @@ class StructureFinderTest
             });
 
         final StructureFinder structureFinder =
-            new StructureFinder(structureRetrieverFactory,
-                                databaseManager, commandSender, "M");
+            new StructureFinder(structureRetrieverFactory, databaseManager, commandSender, "M");
 
         // Only idx=3 is excluded.
         Assertions.assertEquals(structures.subList(0, 3), structureFinder.getStructures().get(1, TimeUnit.SECONDS));
 
         Assertions.assertTrue(structureFinder.getStructures(true).get(1, TimeUnit.SECONDS).isEmpty());
         structureFinder.processInput("MyDrawbridge");
-        Assertions.assertEquals(List.of(structures.get(2)),
-                                structureFinder.getStructures(true).get(1, TimeUnit.SECONDS));
+        Assertions.assertEquals(
+            List.of(structures.get(2)),
+            structureFinder.getStructures(true).get(1, TimeUnit.SECONDS)
+        );
     }
 
     private List<DatabaseManager.StructureIdentifier> createStructureIdentifiers(
@@ -344,9 +359,8 @@ class StructureFinderTest
     private void setDatabaseIdentifierResults(List<Long> uids, List<String> names)
     {
         Assertions.assertEquals(uids.size(), names.size());
-        Mockito.when(databaseManager.getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(),
-                                                               Mockito.any())).thenAnswer(
-            invocation ->
+        Mockito.when(databaseManager.getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any()))
+            .thenAnswer(invocation ->
             {
                 final String input = invocation.getArgument(0, String.class);
                 final boolean useNames = Util.parseLong(invocation.getArgument(0, String.class)).isEmpty();
@@ -355,8 +369,7 @@ class StructureFinderTest
                 for (int idx = 0; idx < uids.size(); ++idx)
                 {
                     final String identifier = String.valueOf(idSource.get(idx));
-                    if (StructureFinder.startsWith(input,
-                                                   identifier))
+                    if (StructureFinder.startsWith(input, identifier))
                         identifiers.add(new DatabaseManager.StructureIdentifier(uids.get(idx), identifier));
                 }
                 identifiers.trimToSize();

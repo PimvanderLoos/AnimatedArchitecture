@@ -76,7 +76,7 @@ class SetOpenDirectionDelayedTest
         Mockito.when(setOpenDirection.run()).thenReturn(CompletableFuture.completedFuture(null));
 
         Mockito.when(commandFactory.newSetOpenDirection(Mockito.any(), Mockito.any(), Mockito.any()))
-               .thenReturn(setOpenDirection);
+            .thenReturn(setOpenDirection);
     }
 
     @AfterEach
@@ -100,6 +100,6 @@ class SetOpenDirectionDelayedTest
         Assertions.assertDoesNotThrow(() -> result1.get(1, TimeUnit.SECONDS));
 
         Mockito.verify(commandFactory, Mockito.times(1))
-               .newSetOpenDirection(commandSender, structureRetriever, MovementDirection.UP);
+            .newSetOpenDirection(commandSender, structureRetriever, MovementDirection.UP);
     }
 }

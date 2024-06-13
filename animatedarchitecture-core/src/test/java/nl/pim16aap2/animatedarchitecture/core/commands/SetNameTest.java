@@ -89,8 +89,10 @@ class SetNameTest
     @Test
     void testServer()
     {
-        Assertions.assertDoesNotThrow(
-            () -> factory.newSetName(Mockito.mock(IServer.class, Answers.CALLS_REAL_METHODS), "newDoor")
-                         .run().get(1, TimeUnit.SECONDS));
+        Assertions.assertDoesNotThrow(() -> factory
+            .newSetName(Mockito.mock(IServer.class, Answers.CALLS_REAL_METHODS), "newDoor")
+            .run()
+            .get(1, TimeUnit.SECONDS)
+        );
     }
 }

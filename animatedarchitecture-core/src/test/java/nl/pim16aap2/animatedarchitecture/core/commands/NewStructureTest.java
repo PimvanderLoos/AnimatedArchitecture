@@ -14,16 +14,21 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 @Timeout(1)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class NewStructureTest
 {
     @Mock(answer = Answers.CALLS_REAL_METHODS)
@@ -47,24 +52,28 @@ class NewStructureTest
     @BeforeEach
     void init()
     {
-        MockitoAnnotations.openMocks(this);
-
         CommandTestingUtil.initCommandSenderPermissions(commandSender, true, true);
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
         Mockito.when(permissionsManager.hasPermissionToCreateStructure(Mockito.any(), Mockito.any())).thenReturn(true);
         Mockito.when(permissionsManager.hasPermission(Mockito.any(), Mockito.any())).thenReturn(true);
         Mockito.when(commandSender.hasPermission(Mockito.any(CommandDefinition.class)))
-               .thenReturn(CompletableFuture.completedFuture(new PermissionsStatus(true, false)));
+            .thenReturn(CompletableFuture.completedFuture(new PermissionsStatus(true, false)));
 
-        Mockito.when(factory.newNewStructure(Mockito.any(ICommandSender.class), Mockito.any(StructureType.class),
-                                             Mockito.any()))
-               .thenAnswer(invoc -> new NewStructure(invoc.getArgument(0, ICommandSender.class),
-                                                     invoc.getArgument(1, StructureType.class),
-                                                     invoc.getArgument(2, String.class), localizer,
-                                                     ITextFactory.getSimpleTextFactory(),
-                                                     permissionsManager,
-                                                     toolUserManager, creatorContextProvider));
+        Mockito.when(factory.newNewStructure(
+                Mockito.any(ICommandSender.class),
+                Mockito.any(StructureType.class),
+                Mockito.any()))
+            .thenAnswer(invoc -> new NewStructure(
+                invoc.getArgument(0, ICommandSender.class),
+                invoc.getArgument(1, StructureType.class),
+                invoc.getArgument(2, String.class),
+                localizer,
+                ITextFactory.getSimpleTextFactory(),
+                permissionsManager,
+                toolUserManager,
+                creatorContextProvider)
+            );
     }
 
     @Test
@@ -125,7 +134,7 @@ class NewStructureTest
         final Creator namedCreator = Mockito.mock(Creator.class);
 
         Mockito.when(doorType.getCreator(Mockito.any(), Mockito.any(), Mockito.any()))
-               .thenAnswer(inv -> name.equals(inv.getArgument(2, String.class)) ? namedCreator : unnamedCreator);
+            .thenAnswer(inv -> name.equals(inv.getArgument(2, String.class)) ? namedCreator : unnamedCreator);
 
         Assertions.assertDoesNotThrow(
             () -> factory.newNewStructure(commandSender, doorType).run().get(1, TimeUnit.SECONDS));
@@ -140,7 +149,7 @@ class NewStructureTest
         ICommandSender commandSender, boolean userPermission, boolean adminPermission)
     {
         Mockito.when(commandSender.hasPermission(Mockito.any(CommandDefinition.class)))
-               .thenReturn(CompletableFuture.completedFuture(
-                   new PermissionsStatus(userPermission, adminPermission)));
+            .thenReturn(CompletableFuture.completedFuture(
+                new PermissionsStatus(userPermission, adminPermission)));
     }
 }

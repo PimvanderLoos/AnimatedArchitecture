@@ -8,16 +8,18 @@ import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManage
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import javax.inject.Provider;
 import java.util.concurrent.CompletableFuture;
@@ -26,6 +28,8 @@ import java.util.concurrent.TimeUnit;
 import static org.mockito.AdditionalAnswers.delegatesTo;
 
 @Timeout(1)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 @SuppressWarnings("unused")
 class RemoveOwnerDelayedTest
 {
@@ -65,13 +69,10 @@ class RemoveOwnerDelayedTest
     @Mock
     IPlayer targetPlayer;
 
-    AutoCloseable openMocks;
 
     @BeforeEach
     void init()
     {
-        openMocks = MockitoAnnotations.openMocks(this);
-
         DelayedCommandTest.initInputRequestFactory(inputRequestFactory, localizer, delayedCommandInputManager);
 
         structureRetriever = structureRetrieverFactory.of(structure);
@@ -79,14 +80,7 @@ class RemoveOwnerDelayedTest
         Mockito.when(removeOwner.run()).thenReturn(CompletableFuture.completedFuture(null));
 
         Mockito.when(commandFactory.newRemoveOwner(Mockito.any(), Mockito.any(), Mockito.any()))
-               .thenReturn(removeOwner);
-    }
-
-    @AfterEach
-    void cleanup()
-        throws Exception
-    {
-        openMocks.close();
+            .thenReturn(removeOwner);
     }
 
     @Test
@@ -101,6 +95,6 @@ class RemoveOwnerDelayedTest
         Assertions.assertDoesNotThrow(() -> result1.get(1, TimeUnit.SECONDS));
 
         Mockito.verify(commandFactory, Mockito.times(1))
-               .newRemoveOwner(commandSender, structureRetriever, targetPlayer);
+            .newRemoveOwner(commandSender, structureRetriever, targetPlayer);
     }
 }

@@ -53,7 +53,9 @@ public final class PowerBlockManager extends Restartable implements StructureDel
      *     The database manager to use for power block retrieval.
      */
     @Inject PowerBlockManager(
-        RestartableHolder restartableHolder, IConfig config, DatabaseManager databaseManager,
+        RestartableHolder restartableHolder,
+        IConfig config,
+        DatabaseManager databaseManager,
         StructureDeletionManager structureDeletionManager)
     {
         super(restartableHolder);
@@ -278,10 +280,11 @@ public final class PowerBlockManager extends Restartable implements StructureDel
          */
         private final TimedCache<Long, CompletableFuture<PowerBlockChunk>> powerBlockChunks =
             TimedCache.<Long, CompletableFuture<PowerBlockChunk>>builder()
-                      .duration(Duration.ofMinutes(config.cacheTimeout()))
-                      .cleanup(Duration.ofMinutes(Math.max(1, config.cacheTimeout())))
-                      .softReference(true)
-                      .refresh(true).build();
+                .timeOut(Duration.ofMinutes(config.cacheTimeout()))
+                .cleanup(Duration.ofMinutes(Math.max(1, config.cacheTimeout())))
+                .softReference(true)
+                .refresh(true)
+                .build();
 
         private PowerBlockWorld(String worldName)
         {
@@ -307,8 +310,10 @@ public final class PowerBlockManager extends Restartable implements StructureDel
 
             final long chunkId = Util.getChunkId(loc);
 
-            return powerBlockChunks.computeIfAbsent(chunkId, chunkId0 ->
-                databaseManager.getPowerBlockData(chunkId).thenApply(PowerBlockChunk::new));
+            return powerBlockChunks.computeIfAbsent(
+                chunkId,
+                chunkId0 -> databaseManager.getPowerBlockData(chunkId).thenApply(PowerBlockChunk::new)
+            );
         }
 
         /**
@@ -358,9 +363,10 @@ public final class PowerBlockManager extends Restartable implements StructureDel
          */
         private void checkAnimatedArchitectureWorldStatus()
         {
-            databaseManager.isAnimatedArchitectureWorld(worldName)
-                           .thenAccept(result -> isAnimatedArchitectureWorld = result)
-                           .exceptionally(Util::exceptionally);
+            databaseManager
+                .isAnimatedArchitectureWorld(worldName)
+                .thenAccept(result -> isAnimatedArchitectureWorld = result)
+                .exceptionally(Util::exceptionally);
         }
 
         void clear()
@@ -395,8 +401,8 @@ public final class PowerBlockManager extends Restartable implements StructureDel
         public PowerBlockChunk(Int2ObjectMap<LongList> powerBlocksMap)
         {
             this.powerBlocksMap = powerBlocksMap;
-            this.powerBlocks =
-                LongImmutableList.toList(powerBlocksMap.values().stream().flatMapToLong(LongList::longStream));
+            this.powerBlocks = LongImmutableList.toList(
+                powerBlocksMap.values().stream().flatMapToLong(LongList::longStream));
         }
 
         /**
@@ -411,8 +417,10 @@ public final class PowerBlockManager extends Restartable implements StructureDel
             if (!isPowerBlockChunk())
                 return LongLists.emptyList();
 
-            return powerBlocksMap.getOrDefault(Util.simpleChunkSpaceLocationHash(loc.x(), loc.y(), loc.z()),
-                                               LongLists.emptyList());
+            return powerBlocksMap.getOrDefault(
+                Util.simpleChunkSpaceLocationHash(loc.x(), loc.y(), loc.z()),
+                LongLists.emptyList()
+            );
         }
 
         /**

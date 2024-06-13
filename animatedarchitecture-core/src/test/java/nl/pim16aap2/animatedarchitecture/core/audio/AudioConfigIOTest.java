@@ -22,36 +22,36 @@ class AudioConfigIOTest
 {
     private static final String JSON =
         """
-        {
-          "DEFAULT": {
-            "activeAudio": {
-              "sound": "bd.dragging2",
-              "volume": 0.1,
-              "pitch": 0.17,
-              "duration": 1500
-            },
-            "endAudio": null
-          },
-          "slidingdoor": {
-            "activeAudio": {
-              "sound": "bd.dragging2",
-              "volume": 0.8,
-              "pitch": 0.7,
-              "duration": 15
-            },
-            "endAudio": {
-              "sound": "bd.thud",
-              "volume": 0.2,
-              "pitch": 0.15,
-              "duration": 5
-            }
-          },
-          "flag": null,
-          "garagedoor": {
-            "activeAudio": null,
-            "endAudio": null
-          }
-        }""";
+            {
+              "DEFAULT": {
+                "activeAudio": {
+                  "sound": "bd.dragging2",
+                  "volume": 0.1,
+                  "pitch": 0.17,
+                  "duration": 1500
+                },
+                "endAudio": null
+              },
+              "slidingdoor": {
+                "activeAudio": {
+                  "sound": "bd.dragging2",
+                  "volume": 0.8,
+                  "pitch": 0.7,
+                  "duration": 15
+                },
+                "endAudio": {
+                  "sound": "bd.thud",
+                  "volume": 0.2,
+                  "pitch": 0.15,
+                  "duration": 5
+                }
+              },
+              "flag": null,
+              "garagedoor": {
+                "activeAudio": null,
+                "endAudio": null
+              }
+            }""";
 
     private static final AudioSet SET_DEFAULT = new AudioSet(
         new AudioDescription("bd.dragging2", 0.1f, 0.17f, 1500),

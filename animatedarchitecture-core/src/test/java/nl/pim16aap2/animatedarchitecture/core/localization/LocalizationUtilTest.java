@@ -34,7 +34,6 @@ class LocalizationUtilTest
         paths.add(Path.of(".", baseName + "nl_NL.txt"));
 
         final List<LocaleFile> localeFiles = getLocaleFiles(baseName, paths);
-        System.out.println(localeFiles);
         Assertions.assertEquals(2, localeFiles.size());
         Assertions.assertEquals(new LocaleFile(path0, ""), localeFiles.get(0));
         Assertions.assertEquals(new LocaleFile(path1, "en_US"), localeFiles.get(1));
@@ -61,7 +60,9 @@ class LocalizationUtilTest
     {
         Assertions.assertEquals(new LocalizationEntry("key", "value"), getEntryFromLine("key=value"));
         Assertions.assertEquals(
-            new LocalizationEntry("key", "value=another_value"), getEntryFromLine("key=value=another_value"));
+            new LocalizationEntry("key", "value=another_value"),
+            getEntryFromLine("key=value=another_value")
+        );
         Assertions.assertNull(getEntryFromLine("key"));
         Assertions.assertNull(getEntryFromLine(""));
     }
