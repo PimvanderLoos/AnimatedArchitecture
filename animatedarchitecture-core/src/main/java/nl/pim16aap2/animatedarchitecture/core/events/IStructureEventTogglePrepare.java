@@ -8,8 +8,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
  * locked).
  * <p>
  * If you are looking for a guaranteed action, use {@link IStructureEventToggleStart} instead.
- *
- * @author Pim
  */
 public interface IStructureEventTogglePrepare extends IStructureToggleEvent, ICancellableAnimatedArchitectureEvent
 {

@@ -33,7 +33,6 @@ import java.util.function.Supplier;
  *
  * @param <T>
  *     The type of data that is to be retrieved from the player.
- * @author Pim
  */
 @ToString
 @EqualsAndHashCode(callSuper = false)
@@ -158,8 +157,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     {
         if (!inputClass.isInstance(input))
         {
-            log.atFine().log("Trying to supply object of type %s for request: %s",
-                             input.getClass().getName(), this);
+            log.atFine().log("Trying to supply object of type %s for request: %s", input.getClass().getName(), this);
             return CompletableFuture.completedFuture(null);
         }
 
@@ -174,13 +172,17 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
         delayedCommandInputManager.deregister(commandSender, this);
         if (getStatus() == Status.TIMED_OUT)
             commandSender.sendMessage(textFactory.newText().append(
-                localizer.getMessage("commands.base.error.timed_out"), TextType.ERROR,
-                arg -> arg.highlight(commandDefinition.getName().toLowerCase(Locale.ROOT))));
+                localizer.getMessage("commands.base.error.timed_out"),
+                TextType.ERROR,
+                arg -> arg.highlight(commandDefinition.getName().toLowerCase(Locale.ROOT)))
+            );
 
         if (getStatus() == Status.CANCELLED)
             commandSender.sendMessage(textFactory.newText().append(
-                localizer.getMessage("commands.base.error.cancelled"), TextType.ERROR,
-                arg -> arg.highlight(commandDefinition.getName().toLowerCase(Locale.ROOT))));
+                localizer.getMessage("commands.base.error.cancelled"),
+                TextType.ERROR,
+                arg -> arg.highlight(commandDefinition.getName().toLowerCase(Locale.ROOT)))
+            );
     }
 
     /**
@@ -195,8 +197,12 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     public interface IFactory<T>
     {
         DelayedCommandInputRequest<T> create(
-            long timeout, ICommandSender commandSender, CommandDefinition commandDefinition,
-            Function<T, CompletableFuture<?>> executor, @Nullable Supplier<String> initMessageSupplier,
-            Class<T> inputClass);
+            long timeout,
+            ICommandSender commandSender,
+            CommandDefinition commandDefinition,
+            Function<T, CompletableFuture<?>> executor,
+            @Nullable Supplier<String> initMessageSupplier,
+            Class<T> inputClass
+        );
     }
 }

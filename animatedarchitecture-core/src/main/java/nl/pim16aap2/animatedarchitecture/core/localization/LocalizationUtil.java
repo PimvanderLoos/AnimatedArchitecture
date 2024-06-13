@@ -34,8 +34,6 @@ import java.util.zip.ZipOutputStream;
 
 /**
  * Represents a utility class with methods that can be used for the localization system.
- *
- * @author Pim
  */
 @Flogger
 public final class LocalizationUtil

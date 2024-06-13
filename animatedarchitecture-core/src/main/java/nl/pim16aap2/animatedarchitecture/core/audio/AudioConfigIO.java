@@ -22,8 +22,6 @@ import java.util.Map;
 
 /**
  * Handles all I/O for the audio config.
- *
- * @author Pim
  */
 @Flogger
 class AudioConfigIO

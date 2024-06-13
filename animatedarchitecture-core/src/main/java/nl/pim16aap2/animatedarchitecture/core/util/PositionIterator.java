@@ -11,7 +11,6 @@ import java.util.function.Supplier;
 /**
  * Iterator that iterates over all values between 2 {@link Vector3Di}s.
  *
- * @author Pim
  * @deprecated This class does not have any tests and is likely to be removed in the future!
  */
 @Deprecated

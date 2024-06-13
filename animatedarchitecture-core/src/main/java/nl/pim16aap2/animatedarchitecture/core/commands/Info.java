@@ -24,8 +24,6 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents the information command that provides the issuer with more information about the structure.
- *
- * @author Pim
  */
 @ToString
 @Flogger
@@ -76,7 +74,8 @@ public class Info extends StructureTargetCommand
     private void decorateHeader(StructureSnapshot structure, Text text)
     {
         text.append(
-                localizer.getMessage("commands.info.output.header"), TextType.INFO,
+                localizer.getMessage("commands.info.output.header"),
+                TextType.INFO,
                 arg -> arg.highlight(localizer.getStructureType(structure)),
                 arg -> arg.highlight(structure.getNameAndUid()))
             .append('\n');
@@ -87,7 +86,8 @@ public class Info extends StructureTargetCommand
         final Vector3Di min = structure.getMinimum();
         final Vector3Di max = structure.getMaximum();
         text.append(
-                localizer.getMessage("commands.info.output.location"), TextType.INFO,
+                localizer.getMessage("commands.info.output.location"),
+                TextType.INFO,
                 arg -> arg.highlight(String.format("%d %d %d", min.x(), min.y(), min.z())),
                 arg -> arg.highlight(String.format("%d %d %d", max.x(), max.y(), max.z())))
             .append('\n');
@@ -100,11 +100,13 @@ public class Info extends StructureTargetCommand
         final String oppositeLocalizedOpenStatus =
             localizer.getMessage(structure.isOpen() ? "constants.open_status.closed" : "constants.open_status.open");
 
-        final var openStatusArgument =
-            text.getTextArgumentFactory().clickable(
-                localizedOpenStatus,
-                String.format(
-                    "/animatedarchitecture setopenstatus %s %d true", oppositeLocalizedOpenStatus, structure.getUid()));
+        final var openStatusArgument = text.getTextArgumentFactory().clickable(
+            localizedOpenStatus,
+            String.format(
+                "/animatedarchitecture setopenstatus %s %d true",
+                oppositeLocalizedOpenStatus,
+                structure.getUid())
+        );
 
         text.append(localizer.getMessage("commands.info.output.open_status"), TextType.INFO, openStatusArgument)
             .append('\n');
@@ -116,7 +118,9 @@ public class Info extends StructureTargetCommand
             localizer.getMessage(structure.getOpenDir().getLocalizationKey()),
             String.format(
                 "/animatedarchitecture setopendirection %s %d true",
-                localizer.getMessage(structure.getCycledOpenDirection().getLocalizationKey()), structure.getUid()));
+                localizer.getMessage(structure.getCycledOpenDirection().getLocalizationKey()),
+                structure.getUid())
+        );
 
         text.append(localizer.getMessage("commands.info.output.open_direction"), TextType.INFO, argument).append('\n');
     }
@@ -130,26 +134,32 @@ public class Info extends StructureTargetCommand
             localizer.getMessage(localizationKey),
             String.format(
                 "/animatedarchitecture lock %s %d true",
-                !structure.isLocked(), structure.getUid()));
+                !structure.isLocked(),
+                structure.getUid())
+        );
 
         text.append(localizer.getMessage("commands.info.output.locked_status"), TextType.INFO, argument).append('\n');
     }
 
     private void decorateBlocksToMove(StructureSnapshot structure, Text text)
     {
-        structure.getProperty("blocksToMove").ifPresent(
-            blocksToMove ->
-                text.append(
-                    localizer.getMessage("commands.info.output.blocks_to_move"), TextType.INFO,
-                    arg -> arg.highlight(blocksToMove)).append('\n'));
+        structure.getProperty("blocksToMove")
+            .ifPresent(blocksToMove -> text.append(
+                    localizer.getMessage("commands.info.output.blocks_to_move"),
+                    TextType.INFO,
+                    arg -> arg.highlight(blocksToMove))
+                .append('\n')
+            );
     }
 
     private void decoratePowerBlock(StructureSnapshot structure, Text text)
     {
         final Vector3Di loc = structure.getPowerBlock();
         text.append(
-            localizer.getMessage("commands.info.output.power_block_location"), TextType.INFO,
-            arg -> arg.highlight(String.format("%d %d %d", loc.x(), loc.y(), loc.z()))).append('\n');
+                localizer.getMessage("commands.info.output.power_block_location"),
+                TextType.INFO,
+                arg -> arg.highlight(String.format("%d %d %d", loc.x(), loc.y(), loc.z())))
+            .append('\n');
     }
 
     protected void sendInfoMessage(StructureSnapshot structure)

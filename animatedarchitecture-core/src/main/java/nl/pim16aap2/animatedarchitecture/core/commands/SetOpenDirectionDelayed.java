@@ -7,6 +7,13 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Delayed version of {@link SetOpenDirection}.
+ * <p>
+ * This command is used to set the opening direction of a structure.
+ * <p>
+ * The opening direction can be provided as delayed input.
+ */
 @Singleton
 public class SetOpenDirectionDelayed extends DelayedCommand<MovementDirection>
 {

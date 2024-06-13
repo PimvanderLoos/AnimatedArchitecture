@@ -10,8 +10,6 @@ import java.util.Optional;
 
 /**
  * Represents all possible movement directions of a Structure.
- *
- * @author Pim
  */
 public enum MovementDirection
 {
@@ -103,16 +101,16 @@ public enum MovementDirection
     public static MovementDirection getOpposite(MovementDirection dir)
     {
         return switch (dir)
-            {
-                case DOWN -> MovementDirection.UP;
-                case EAST -> MovementDirection.WEST;
-                case NORTH -> MovementDirection.SOUTH;
-                case SOUTH -> MovementDirection.NORTH;
-                case UP -> MovementDirection.DOWN;
-                case WEST -> MovementDirection.EAST;
-                case CLOCKWISE -> MovementDirection.COUNTERCLOCKWISE;
-                case COUNTERCLOCKWISE -> MovementDirection.CLOCKWISE;
-                default -> MovementDirection.NONE;
-            };
+        {
+            case DOWN -> MovementDirection.UP;
+            case EAST -> MovementDirection.WEST;
+            case NORTH -> MovementDirection.SOUTH;
+            case SOUTH -> MovementDirection.NORTH;
+            case UP -> MovementDirection.DOWN;
+            case WEST -> MovementDirection.EAST;
+            case CLOCKWISE -> MovementDirection.COUNTERCLOCKWISE;
+            case COUNTERCLOCKWISE -> MovementDirection.CLOCKWISE;
+            default -> MovementDirection.NONE;
+        };
     }
 }

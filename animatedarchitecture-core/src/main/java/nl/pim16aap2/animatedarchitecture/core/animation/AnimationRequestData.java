@@ -106,9 +106,15 @@ public final class AnimationRequestData
          * @return The new {@link AnimationRequestData}.
          */
         AnimationRequestData newToggleRequestData(
-            StructureSnapshot structureSnapshot, StructureActionCause cause, double time,
+            StructureSnapshot structureSnapshot,
+            StructureActionCause cause,
+            double time,
             @Assisted("animationSkipped") boolean skipAnimation,
-            @Assisted("preventPerpetualMovement") boolean preventPerpetualMovement, Cuboid newCuboid,
-            IPlayer responsible, AnimationType animationType, StructureActionType actionType);
+            @Assisted("preventPerpetualMovement") boolean preventPerpetualMovement,
+            Cuboid newCuboid,
+            IPlayer responsible,
+            AnimationType animationType,
+            StructureActionType actionType
+        );
     }
 }

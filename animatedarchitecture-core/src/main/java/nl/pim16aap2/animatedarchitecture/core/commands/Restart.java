@@ -15,8 +15,6 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents the command that is used to restart AnimatedArchitecture.
- *
- * @author Pim
  */
 @ToString
 @Flogger
@@ -24,9 +22,10 @@ public class Restart extends BaseCommand
 {
     private final IAnimatedArchitecturePlatformProvider platformProvider;
 
-    @AssistedInject //
-    Restart(
-        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
+    @AssistedInject Restart(
+        @Assisted ICommandSender commandSender,
+        ILocalizer localizer,
+        ITextFactory textFactory,
         IAnimatedArchitecturePlatformProvider platformProvider)
     {
         super(commandSender, localizer, textFactory);

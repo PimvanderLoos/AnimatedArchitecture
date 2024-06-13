@@ -32,8 +32,9 @@ public interface ICommandSender extends IMessageable
      */
     default CompletableFuture<Boolean> hasPermission(String permission)
     {
-        return getPlayer().map(player -> player.hasPermission(permission))
-                          .orElse(CompletableFuture.completedFuture(false));
+        return getPlayer()
+            .map(player -> player.hasPermission(permission))
+            .orElse(CompletableFuture.completedFuture(false));
     }
 
     /**
@@ -49,7 +50,8 @@ public interface ICommandSender extends IMessageable
      */
     default CompletableFuture<PermissionsStatus> hasPermission(CommandDefinition command)
     {
-        return getPlayer().map(player -> player.hasPermission(command))
-                          .orElse(CompletableFuture.completedFuture(new PermissionsStatus(false, false)));
+        return getPlayer()
+            .map(player -> player.hasPermission(command))
+            .orElse(CompletableFuture.completedFuture(new PermissionsStatus(false, false)));
     }
 }

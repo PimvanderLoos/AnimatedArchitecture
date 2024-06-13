@@ -9,8 +9,6 @@ import java.util.logging.Level;
 
 /**
  * Represents the configured settings.
- *
- * @author Pim
  */
 public interface IConfig extends IRestartable
 {

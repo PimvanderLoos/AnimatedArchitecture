@@ -30,8 +30,6 @@ import java.util.function.Supplier;
  * select a structure to apply the change to, but we'll need to wait for user input to update the name. For a user,
  * having to use specify the structure they would need to change in a command or something would be rather awkward, so
  * this way we can remember that information and not require the user to input duplicate data.
- *
- * @author Pim
  */
 @Flogger
 public abstract class DelayedCommand<T>
@@ -72,17 +70,26 @@ public abstract class DelayedCommand<T>
      *     A {@link Creator} that will wait for the input.
      */
     public CompletableFuture<?> runDelayed(
-        ICommandSender commandSender, Creator creator, Function<T, CompletableFuture<?>> executor,
+        ICommandSender commandSender,
+        Creator creator,
+        Function<T, CompletableFuture<?>> executor,
         @Nullable Supplier<String> initMessageSupplier)
     {
-        log.atFinest()
-           .log("Creating delayed command for command '%s' with command sender: '%s' for Creator: %s",
-                getCommandDefinition(), commandSender, creator);
+        log.atFinest().log(
+            "Creating delayed command for command '%s' with command sender: '%s' for Creator: %s",
+            getCommandDefinition(),
+            commandSender, creator
+        );
 
         final int commandTimeout = Constants.COMMAND_WAITER_TIMEOUT;
         return inputRequestFactory
-            .create(commandTimeout, commandSender, getCommandDefinition(), wrapExecutor(commandSender, executor),
-                    initMessageSupplier, delayedInputClz)
+            .create(
+                commandTimeout,
+                commandSender,
+                getCommandDefinition(),
+                wrapExecutor(commandSender, executor),
+                initMessageSupplier,
+                delayedInputClz)
             .getCommandOutput();
     }
 
@@ -104,15 +111,23 @@ public abstract class DelayedCommand<T>
      */
     public CompletableFuture<?> runDelayed(ICommandSender commandSender, StructureRetriever structureRetriever)
     {
-        log.atFinest()
-           .log("Creating delayed command for command '%s' with command sender: '%s' for StructureRetriever: %s",
-                getCommandDefinition(), commandSender, structureRetriever);
+        log.atFinest().log(
+            "Creating delayed command for command '%s' with command sender: '%s' for StructureRetriever: %s",
+            getCommandDefinition(),
+            commandSender, structureRetriever
+        );
 
         final int commandTimeout = Constants.COMMAND_WAITER_TIMEOUT;
-        return inputRequestFactory.create(commandTimeout, commandSender, getCommandDefinition(),
-                                          getExecutor(commandSender, structureRetriever),
-                                          () -> inputRequestMessage(commandSender, structureRetriever), delayedInputClz)
-                                  .getCommandOutput().exceptionally(Util::exceptionally);
+        return inputRequestFactory
+            .create(
+                commandTimeout,
+                commandSender,
+                getCommandDefinition(),
+                getExecutor(commandSender, structureRetriever),
+                () -> inputRequestMessage(commandSender, structureRetriever),
+                delayedInputClz)
+            .getCommandOutput()
+            .exceptionally(Util::exceptionally);
     }
 
     private Function<T, CompletableFuture<?>> getExecutor(
@@ -126,9 +141,12 @@ public abstract class DelayedCommand<T>
             }
             catch (Exception e)
             {
-                log.atSevere().withCause(e)
-                   .log("Failed to executed delayed command '%s' for command sender '%s' with input '%s'",
-                        this, commandSender, delayedInput);
+                log.atSevere().withCause(e).log(
+                    "Failed to executed delayed command '%s' for command sender '%s' with input '%s'",
+                    this,
+                    commandSender,
+                    delayedInput
+                );
                 return CompletableFuture.completedFuture(null);
             }
         };
@@ -145,10 +163,12 @@ public abstract class DelayedCommand<T>
             }
             catch (Exception e)
             {
-                log.atSevere().withCause(e)
-                   .log("Delayed command '%s' failed to provide data for command sender '%s' with input '%s'",
-                        this, commandSender, delayedInput);
-                e.printStackTrace();
+                log.atSevere().withCause(e).log(
+                    "Delayed command '%s' failed to provide data for command sender '%s' with input '%s'",
+                    this,
+                    commandSender,
+                    delayedInput
+                );
                 return CompletableFuture.completedFuture(null);
             }
         };
@@ -170,9 +190,12 @@ public abstract class DelayedCommand<T>
      */
     public CompletableFuture<?> provideDelayedInput(ICommandSender commandSender, T data)
     {
-        log.atFinest()
-           .log("Providing delayed command data for command '%s' with command sender: '%s' and data: '%s'",
-                getCommandDefinition(), commandSender, data);
+        log.atFinest().log(
+            "Providing delayed command data for command '%s' with command sender: '%s' and data: '%s'",
+            getCommandDefinition(),
+            commandSender,
+            data
+        );
 
         return delayedCommandInputManager
             .getInputRequest(commandSender)
@@ -182,10 +205,16 @@ public abstract class DelayedCommand<T>
 
     private CompletableFuture<?> handleMissingInputRequest(ICommandSender commandSender, T data)
     {
-        log.atSevere()
-           .log("'%s' tried to issue delayed command input '%s' without active command waiter!", commandSender, data);
-        commandSender.sendMessage(textFactory, TextType.ERROR,
-                                  localizer.getMessage("commands.base.error.not_waiting"));
+        log.atSevere().log(
+            "'%s' tried to issue delayed command input '%s' without active command waiter!",
+            commandSender,
+            data
+        );
+        commandSender.sendMessage(
+            textFactory,
+            TextType.ERROR,
+            localizer.getMessage("commands.base.error.not_waiting")
+        );
         return CompletableFuture.completedFuture(null);
     }
 
@@ -207,7 +236,10 @@ public abstract class DelayedCommand<T>
      * @return See {@link BaseCommand#run()}.
      */
     protected abstract CompletableFuture<?> delayedInputExecutor(
-        ICommandSender commandSender, StructureRetriever structureRetriever, T delayedInput);
+        ICommandSender commandSender,
+        StructureRetriever structureRetriever,
+        T delayedInput
+    );
 
     /**
      * Retrieves the message that will be sent to the command sender after initialization of a delayed input request.

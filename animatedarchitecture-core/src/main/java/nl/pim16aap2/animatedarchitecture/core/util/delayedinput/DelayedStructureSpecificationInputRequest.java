@@ -24,8 +24,6 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents a {@link DelayedInputRequest} to specify which structure was meant out of a list of multiple.
- *
- * @author Pim
  */
 @Flogger
 @ToString(callSuper = true)

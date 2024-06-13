@@ -13,8 +13,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Represents a manager for handling structure specifications requests.
- *
- * @author Pim
  */
 @Singleton
 public final class StructureSpecificationManager extends Restartable
@@ -53,14 +51,13 @@ public final class StructureSpecificationManager extends Restartable
      */
     public void placeRequest(IPlayer player, DelayedInputRequest<String> request)
     {
-        requests.compute(
-            player, (key, value) ->
-            {
-                // Cancel previous requests if any are still active.
-                if (value != null)
-                    value.cancel();
-                return request;
-            });
+        requests.compute(player, (key, value) ->
+        {
+            // Cancel previous requests if any are still active.
+            if (value != null)
+                value.cancel();
+            return request;
+        });
     }
 
     /**

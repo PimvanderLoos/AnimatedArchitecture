@@ -13,17 +13,16 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents the command that shows the {@link ICommandSender} the current version of the plugin that is running.
- *
- * @author Pim
  */
 @ToString
 public class Version extends BaseCommand
 {
     private final IAnimatedArchitecturePlatformProvider platformProvider;
 
-    @AssistedInject //
-    Version(
-        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
+    @AssistedInject Version(
+        @Assisted ICommandSender commandSender,
+        ILocalizer localizer,
+        ITextFactory textFactory,
         IAnimatedArchitecturePlatformProvider platformProvider)
     {
         super(commandSender, localizer, textFactory);
@@ -45,8 +44,10 @@ public class Version extends BaseCommand
             .orElse("ERROR");
 
         getCommandSender().sendMessage(textFactory.newText().append(
-            localizer.getMessage("commands.version.success"), TextType.SUCCESS,
-            arg -> arg.highlight(version)));
+            localizer.getMessage("commands.version.success"),
+            TextType.SUCCESS,
+            arg -> arg.highlight(version))
+        );
 
         return CompletableFuture.completedFuture(null);
     }

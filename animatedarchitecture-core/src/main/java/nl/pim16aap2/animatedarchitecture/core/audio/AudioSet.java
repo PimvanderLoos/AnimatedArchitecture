@@ -49,7 +49,8 @@ public record AudioSet(@Nullable AudioDescription activeAudio, @Nullable AudioDe
             final JsonObject jsonObject = json.getAsJsonObject();
             return new AudioSet(
                 getAudioDescription(context, jsonObject.get("activeAudio")),
-                getAudioDescription(context, jsonObject.get("endAudio")));
+                getAudioDescription(context, jsonObject.get("endAudio"))
+            );
         }
 
         private @Nullable AudioDescription getAudioDescription(JsonDeserializationContext context, JsonElement src)

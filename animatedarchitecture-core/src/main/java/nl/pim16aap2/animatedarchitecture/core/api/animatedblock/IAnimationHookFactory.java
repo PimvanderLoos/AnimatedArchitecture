@@ -5,8 +5,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a factory for {@link IAnimationHook}s.
- *
- * @author Pim
  */
 public interface IAnimationHookFactory<T extends IAnimatedBlock>
 {

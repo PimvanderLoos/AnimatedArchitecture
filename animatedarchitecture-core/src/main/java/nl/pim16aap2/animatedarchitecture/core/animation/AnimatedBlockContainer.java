@@ -17,6 +17,9 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 
+/**
+ * Represents an implementation of {@link IAnimatedBlockContainer} for animated blocks that affect the world.
+ */
 @Flogger
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(onlyExplicitlyIncluded = true)
@@ -54,6 +57,10 @@ public class AnimatedBlockContainer implements IAnimatedBlockContainer
     {
         final List<IAnimatedBlock> animatedBlocksTmp = new ArrayList<>(snapshot.getBlockCount());
 
+        int posX = Integer.MAX_VALUE;
+        int posY = Integer.MAX_VALUE;
+        int posZ = Integer.MAX_VALUE;
+
         try
         {
             final int xMin = snapshot.getCuboid().getMin().x();
@@ -64,27 +71,30 @@ public class AnimatedBlockContainer implements IAnimatedBlockContainer
             final int yMax = snapshot.getCuboid().getMax().y();
             final int zMax = snapshot.getCuboid().getMax().z();
 
-            for (int xAxis = xMin; xAxis <= xMax; ++xAxis)
-                for (int yAxis = yMax; yAxis >= yMin; --yAxis)
-                    for (int zAxis = zMin; zAxis <= zMax; ++zAxis)
+            for (posX = xMin; posX <= xMax; ++posX)
+                for (posY = yMax; posY >= yMin; --posY)
+                    for (posZ = zMin; posZ <= zMax; ++posZ)
                     {
                         final boolean onEdge =
-                            xAxis == xMin || xAxis == xMax ||
-                                yAxis == yMin || yAxis == yMax ||
-                                zAxis == zMin || zAxis == zMax;
+                            posX == xMin ||
+                                posX == xMax ||
+                                posY == yMin ||
+                                posY == yMax ||
+                                posZ == zMin ||
+                                posZ == zMax;
 
-                        final float radius = animationComponent.getRadius(xAxis, yAxis, zAxis);
+                        final float radius = animationComponent.getRadius(posX, posY, posZ);
                         final var blockDataRotator = animationComponent.getBlockDataRotator();
-                        final RotatedPosition startPosition = animationComponent.getStartPosition(xAxis, yAxis, zAxis);
-                        final RotatedPosition finalPosition = animationComponent.getFinalPosition(xAxis, yAxis, zAxis);
+                        final RotatedPosition startPosition = animationComponent.getStartPosition(posX, posY, posZ);
+                        final RotatedPosition finalPosition = animationComponent.getFinalPosition(posX, posY, posZ);
 
-                        animatedBlockFactory
-                            .create(snapshot.getWorld(),
-                                    startPosition,
-                                    radius,
-                                    onEdge,
-                                    finalPosition,
-                                    blockDataRotator)
+                        animatedBlockFactory.create(
+                                snapshot.getWorld(),
+                                startPosition,
+                                radius,
+                                onEdge,
+                                finalPosition,
+                                blockDataRotator)
                             .ifPresent(animatedBlocksTmp::add);
                     }
 
@@ -92,7 +102,10 @@ public class AnimatedBlockContainer implements IAnimatedBlockContainer
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log();
+            log.atSevere().withCause(e).log(
+                "Failed to create animated blocks at position: [%s, %s, %s]",
+                posX, posY, posZ
+            );
             this.privateAnimatedBlocks.addAll(animatedBlocksTmp);
             return false;
         }
@@ -100,7 +113,10 @@ public class AnimatedBlockContainer implements IAnimatedBlockContainer
         this.privateAnimatedBlocks.addAll(animatedBlocksTmp);
 
         animationRegion = new AnimationRegion(
-            animatedBlocks, animationComponent::getRadius, animationComponent::getFinalPosition);
+            animatedBlocks,
+            animationComponent::getRadius,
+            animationComponent::getFinalPosition
+        );
 
         return true;
     }

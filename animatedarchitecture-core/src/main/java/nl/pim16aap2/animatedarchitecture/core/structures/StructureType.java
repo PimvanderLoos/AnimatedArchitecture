@@ -18,8 +18,6 @@ import java.util.Set;
 
 /**
  * This class represents a type of Structure.
- *
- * @author Pim
  */
 public abstract class StructureType
 {

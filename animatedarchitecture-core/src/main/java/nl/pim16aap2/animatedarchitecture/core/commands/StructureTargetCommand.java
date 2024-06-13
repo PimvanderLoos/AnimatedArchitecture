@@ -24,8 +24,6 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Represents a command that relates to an existing structure.
- *
- * @author Pim
  */
 @Flogger
 public abstract class StructureTargetCommand extends BaseCommand
@@ -89,10 +87,10 @@ public abstract class StructureTargetCommand extends BaseCommand
     {
         return getStructure(getStructureRetriever(), getStructureAttribute().getPermissionLevel())
             .thenApply(structure ->
-                       {
-                           setRetrieverResult(structure.orElse(null));
-                           return structure;
-                       })
+            {
+                setRetrieverResult(structure.orElse(null));
+                return structure;
+            })
             .thenAcceptAsync(structure -> processStructureResult(structure, permissions))
             .exceptionally(Util::exceptionally);
     }
@@ -127,19 +125,22 @@ public abstract class StructureTargetCommand extends BaseCommand
             log.atFine().log("Failed to find structure %s for command: %s", getStructureRetriever(), this);
 
             getCommandSender().sendError(
-                textFactory, localizer.getMessage("commands.structure_target_command.base.error.structure_not_found"));
+                textFactory,
+                localizer.getMessage("commands.structure_target_command.base.error.structure_not_found")
+            );
             return;
         }
 
         if (!isAllowed(structure.get(), permissions.hasAdminPermission()))
         {
             log.atFine()
-               .log("%s does not have access to structure %s for command %s", getCommandSender(), structure, this);
+                .log("%s does not have access to structure %s for command %s", getCommandSender(), structure, this);
 
             getCommandSender().sendMessage(textFactory.newText().append(
                 localizer.getMessage("commands.structure_target_command.base.error.no_permission_for_action"),
                 TextType.ERROR,
-                arg -> arg.highlight(localizer.getStructureType(structure.get()))));
+                arg -> arg.highlight(localizer.getStructureType(structure.get())))
+            );
             return;
         }
 
@@ -191,8 +192,11 @@ public abstract class StructureTargetCommand extends BaseCommand
      */
     protected void handleDatabaseActionCancelled()
     {
-        getCommandSender().sendMessage(textFactory, TextType.ERROR,
-                                       localizer.getMessage("commands.base.error.action_cancelled"));
+        getCommandSender().sendMessage(
+            textFactory,
+            TextType.ERROR,
+            localizer.getMessage("commands.base.error.action_cancelled")
+        );
     }
 
     /**

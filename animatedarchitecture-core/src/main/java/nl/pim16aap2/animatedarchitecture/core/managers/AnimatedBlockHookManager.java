@@ -19,8 +19,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Represents a manager for {@link IAnimatedBlockHookFactory} instances.
  * <p>
  * Factories that are registered with this manager will be inserted into every animated block separately.
- *
- * @author Pim
  */
 @Singleton
 @Flogger
@@ -59,7 +57,7 @@ public final class AnimatedBlockHookManager implements IDebuggable
             catch (Exception e)
             {
                 log.atSevere().withCause(e).log("Failed to create hook with factory '%s'.",
-                                                factory.getClass().getName());
+                    factory.getClass().getName());
             }
         }
         instantiated.trimToSize();

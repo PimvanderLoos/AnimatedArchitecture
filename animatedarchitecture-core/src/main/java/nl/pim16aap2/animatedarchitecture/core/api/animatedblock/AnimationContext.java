@@ -7,8 +7,6 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 
 /**
  * Contains the context in which an animation takes place. For example, the structure that is being animated.
- *
- * @author Pim
  */
 @Value
 public class AnimationContext

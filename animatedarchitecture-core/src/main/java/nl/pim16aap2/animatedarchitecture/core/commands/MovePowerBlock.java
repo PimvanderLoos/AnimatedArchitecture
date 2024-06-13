@@ -19,8 +19,6 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents the command to initiate the process to move the powerblock of a structure to a different location.
- *
- * @author Pim
  */
 @ToString
 public class MovePowerBlock extends StructureTargetCommand
@@ -28,10 +26,12 @@ public class MovePowerBlock extends StructureTargetCommand
     private final ToolUserManager toolUserManager;
     private final PowerBlockRelocator.IFactory powerBlockRelocatorFactory;
 
-    @AssistedInject //
-    MovePowerBlock(
-        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
-        @Assisted StructureRetriever structureRetriever, ToolUserManager toolUserManager,
+    @AssistedInject MovePowerBlock(
+        @Assisted ICommandSender commandSender,
+        ILocalizer localizer,
+        ITextFactory textFactory,
+        @Assisted StructureRetriever structureRetriever,
+        ToolUserManager toolUserManager,
         PowerBlockRelocator.IFactory powerBlockRelocatorFactory)
     {
         super(commandSender, localizer, textFactory, structureRetriever, StructureAttribute.RELOCATE_POWERBLOCK);
@@ -54,8 +54,10 @@ public class MovePowerBlock extends StructureTargetCommand
     @Override
     protected CompletableFuture<?> performAction(AbstractStructure structure)
     {
-        toolUserManager.startToolUser(powerBlockRelocatorFactory.create((IPlayer) getCommandSender(), structure),
-                                      Constants.STRUCTURE_CREATOR_TIME_LIMIT);
+        toolUserManager.startToolUser(
+            powerBlockRelocatorFactory.create((IPlayer) getCommandSender(), structure),
+            Constants.STRUCTURE_CREATOR_TIME_LIMIT
+        );
         return CompletableFuture.completedFuture(null);
     }
 

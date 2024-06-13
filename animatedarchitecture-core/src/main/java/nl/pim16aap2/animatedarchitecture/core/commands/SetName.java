@@ -17,8 +17,6 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents the setName command, which is used to provide a name for a {@link ToolUser}.
- *
- * @author Pim
  */
 @ToString
 public class SetName extends BaseCommand
@@ -26,9 +24,11 @@ public class SetName extends BaseCommand
     private final String name;
     private final ToolUserManager toolUserManager;
 
-    @AssistedInject //
-    SetName(
-        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory, @Assisted String name,
+    @AssistedInject SetName(
+        @Assisted ICommandSender commandSender,
+        ILocalizer localizer,
+        ITextFactory textFactory,
+        @Assisted String name,
         ToolUserManager toolUserManager)
     {
         super(commandSender, localizer, textFactory);
@@ -56,8 +56,11 @@ public class SetName extends BaseCommand
         if (tu.isPresent() && tu.get() instanceof Creator creator)
             return creator.handleInput(name);
 
-        getCommandSender().sendMessage(textFactory, TextType.ERROR,
-                                       localizer.getMessage("commands.base.error.no_pending_process"));
+        getCommandSender().sendMessage(
+            textFactory,
+            TextType.ERROR,
+            localizer.getMessage("commands.base.error.no_pending_process")
+        );
         return CompletableFuture.completedFuture(null);
     }
 

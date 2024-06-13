@@ -30,8 +30,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Manages all power block interactions.
- *
- * @author Pim
  */
 @Singleton
 @Flogger

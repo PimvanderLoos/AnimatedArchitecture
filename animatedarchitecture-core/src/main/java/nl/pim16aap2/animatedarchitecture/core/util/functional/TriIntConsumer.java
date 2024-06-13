@@ -3,8 +3,6 @@ package nl.pim16aap2.animatedarchitecture.core.util.functional;
 
 /**
  * Represents a consumer with 3 integer input arguments.
- *
- * @author Pim
  */
 @FunctionalInterface
 public interface TriIntConsumer

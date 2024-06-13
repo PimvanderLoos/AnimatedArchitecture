@@ -7,8 +7,6 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Class that manages all objects of IProtectionCompat.
- *
- * @author Pim
  */
 public interface IProtectionHookManager
 {

@@ -8,8 +8,6 @@ import java.util.List;
 
 /**
  * Represents an option in a config file.
- *
- * @author Pim
  */
 @Flogger
 public final class ConfigEntry<V>
@@ -78,7 +76,7 @@ public final class ConfigEntry<V>
         catch (Exception e)
         {
             log.atSevere().withCause(e)
-               .log("Failed to read config value of: \"%s\"! Using default value instead!", optionName);
+                .log("Failed to read config value of: \"%s\"! Using default value instead!", optionName);
             value = defaultValue;
         }
         if (verifyValue != null)

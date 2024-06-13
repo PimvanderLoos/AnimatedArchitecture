@@ -98,7 +98,14 @@ public interface IAudioPlayer
      *     The range of the sound.
      */
     default void playSound(
-        double x, double y, double z, IWorld world, String sound, float volume, float pitch, double range)
+        double x,
+        double y,
+        double z,
+        IWorld world,
+        String sound,
+        float volume,
+        float pitch,
+        double range)
     {
         playSound(x, y, z, world, sound, volume, pitch, range, null);
     }
@@ -130,6 +137,14 @@ public interface IAudioPlayer
      *     players that are 10 blocks away from the sound.
      */
     void playSound(
-        double x, double y, double z, IWorld world, String sound, float volume, float pitch, double range,
-        @Nullable DoubleUnaryOperator attenuationFunction);
+        double x,
+        double y,
+        double z,
+        IWorld world,
+        String sound,
+        float volume,
+        float pitch,
+        double range,
+        @Nullable DoubleUnaryOperator attenuationFunction
+    );
 }

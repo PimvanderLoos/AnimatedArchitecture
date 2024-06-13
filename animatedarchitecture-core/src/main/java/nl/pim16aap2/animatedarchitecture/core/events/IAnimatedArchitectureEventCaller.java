@@ -2,8 +2,6 @@ package nl.pim16aap2.animatedarchitecture.core.events;
 
 /**
  * Represents an object that can call AnimatedArchitecture events.
- *
- * @author Pim
  */
 public interface IAnimatedArchitectureEventCaller
 {

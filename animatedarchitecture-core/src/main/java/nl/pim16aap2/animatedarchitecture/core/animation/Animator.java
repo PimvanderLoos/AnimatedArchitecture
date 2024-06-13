@@ -28,8 +28,6 @@ import static nl.pim16aap2.animatedarchitecture.core.animation.Animation.Animati
 
 /**
  * Represents a class that animates blocks.
- *
- * @author Pim
  */
 @ToString
 @Flogger
@@ -189,7 +187,9 @@ public final class Animator implements IAnimator
      *     The manager of the animated blocks. This is responsible for handling the lifecycle of the animated blocks.
      */
     public Animator(
-        AbstractStructure structure, AnimationRequestData data, IAnimationComponent animationComponent,
+        AbstractStructure structure,
+        AnimationRequestData data,
+        IAnimationComponent animationComponent,
         IAnimatedBlockContainer animatedBlockContainer)
     {
         executor = data.getExecutor();
@@ -264,19 +264,18 @@ public final class Animator implements IAnimator
             throw new IllegalStateException(
                 "Trying to start an animation with invalid endCount value: " + animationDuration);
 
-        executor.runOnMainThread(
-            () ->
+        executor.runOnMainThread(() ->
+        {
+            try
             {
-                try
-                {
-                    startAnimation0();
-                }
-                catch (Exception e)
-                {
-                    log.atSevere().withCause(e).log("Failed to start animation!");
-                    handleInitFailure();
-                }
-            });
+                startAnimation0();
+            }
+            catch (Exception e)
+            {
+                log.atSevere().withCause(e).log("Failed to start animation!");
+                handleInitFailure();
+            }
+        });
     }
 
     /**
@@ -294,8 +293,14 @@ public final class Animator implements IAnimator
             throw new IllegalStateException("Trying to start an animation again!");
 
         final Animation<IAnimatedBlock> animation = new Animation<>(
-            animationDuration, perpetualMovement, oldCuboid, getAnimatedBlocks(),
-            snapshot, structure.getType(), animationType, player);
+            animationDuration,
+            perpetualMovement,
+            oldCuboid,
+            getAnimatedBlocks(),
+            snapshot,
+            structure.getType(),
+            animationType,
+            player);
 
         this.animationData = animation;
 
@@ -514,17 +519,16 @@ public final class Animator implements IAnimator
         // world to place the blocks in their final position.
         // However, updating the coordinates of the structure is best left to another thread, as it may block the
         // calling thread while it waits to acquire the write lock.
-        executor.runOnMainThreadWithResponse(handler).thenRunAsync(
-            () ->
-            {
-                if (!isAborted && animationType.requiresWriteAccess())
-                    // Tell the structure object it has been opened and what its new coordinates are.
-                    structure.withWriteLock(this::updateCoords);
+        executor.runOnMainThreadWithResponse(handler).thenRunAsync(() ->
+        {
+            if (!isAborted && animationType.requiresWriteAccess())
+                // Tell the structure object it has been opened and what its new coordinates are.
+                structure.withWriteLock(this::updateCoords);
 
-                forEachHook("onAnimationCompleted", IAnimationHook::onAnimationCompleted);
+            forEachHook("onAnimationCompleted", IAnimationHook::onAnimationCompleted);
 
-                structureActivityManager.processFinishedAnimation(this);
-            }).exceptionally(Util::exceptionally);
+            structureActivityManager.processFinishedAnimation(this);
+        }).exceptionally(Util::exceptionally);
     }
 
     /**
@@ -563,8 +567,8 @@ public final class Animator implements IAnimator
             }
             catch (Exception e)
             {
-                log.atSevere().withCause(e)
-                   .log("Failed to execute '%s' for hook '%s'!", actionName, hook.getName());
+                log.atSevere().withCause(e).log(
+                    "Failed to execute '%s' for hook '%s'!", actionName, hook.getName());
             }
         }
     }

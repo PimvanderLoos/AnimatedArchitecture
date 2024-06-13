@@ -17,7 +17,6 @@ import java.util.function.Supplier;
 /**
  * Represents a registry of structures.
  *
- * @author Pim
  * @see <a href="https://en.wikipedia.org/wiki/Multiton_pattern">Wikipedia: Multiton</a>
  */
 @Singleton

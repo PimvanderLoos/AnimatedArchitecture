@@ -20,8 +20,6 @@ import java.util.regex.Pattern;
 
 /**
  * Represents storage of all structure related stuff.
- *
- * @author Pim
  */
 public interface IStorage
 {

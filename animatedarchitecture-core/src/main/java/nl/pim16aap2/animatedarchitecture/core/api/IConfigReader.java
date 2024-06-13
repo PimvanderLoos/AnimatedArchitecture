@@ -7,8 +7,6 @@ import java.util.Set;
 
 /**
  * Represents an object that can read values from configs.
- *
- * @author Pim
  */
 public interface IConfigReader
 {

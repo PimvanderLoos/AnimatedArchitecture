@@ -23,8 +23,6 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents a procedure as defined by a series of {@link Step}s.
- *
- * @author Pim
  */
 @Flogger
 @ThreadSafe

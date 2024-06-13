@@ -3,7 +3,6 @@ package nl.pim16aap2.animatedarchitecture.core.events;
 /**
  * Represents a cancellable AnimatedArchitecture event.
  *
- * @author Pim
  * @see IAnimatedArchitectureEvent
  */
 public interface ICancellableAnimatedArchitectureEvent extends IAnimatedArchitectureEvent

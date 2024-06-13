@@ -13,8 +13,6 @@ import javax.inject.Singleton;
 
 /**
  * Represents an {@link IAnimationHook} that provides audio for animations.
- *
- * @author Pim
  */
 public final class AudioAnimationHook implements IAnimationHook
 {
@@ -83,7 +81,8 @@ public final class AudioAnimationHook implements IAnimationHook
             audioDescription.volume(),
             audioDescription.pitch(),
             range,
-            distance -> (range - distance) / range);
+            distance -> (range - distance) / range
+        );
     }
 
     @Override

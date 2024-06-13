@@ -44,8 +44,6 @@ import java.util.function.Function;
 
 /**
  * Manages all database interactions.
- *
- * @author Pim
  */
 @Singleton
 @Flogger
@@ -175,8 +173,8 @@ public final class DatabaseManager extends Restartable implements IDebuggable
                         powerBlockManager.get().onStructureAddOrRemove(
                             newStructure.getWorld().worldName(),
                             new Vector3Di(newStructure.getPowerBlock().x(),
-                                          newStructure.getPowerBlock().y(),
-                                          newStructure.getPowerBlock().z()));
+                                newStructure.getPowerBlock().y(),
+                                newStructure.getPowerBlock().z()));
                         newStructure.verifyRedstoneState();
                     },
                     () -> log.atSevere().withStackTrace(StackSize.FULL).log("Failed to process event: %s", event));
@@ -186,7 +184,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
             ex -> Util.exceptionally(ex, new StructureInsertResult(Optional.empty(), false)));
 
         ret.thenAccept(result -> result.structure.ifPresent(unused -> callStructureCreatedEvent(result, responsible)))
-           .exceptionally(Util::exceptionally);
+            .exceptionally(Util::exceptionally);
 
         return ret;
     }
@@ -275,7 +273,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     {
         final long chunkId = Util.getChunkId(chunkX, chunkZ);
         return CompletableFuture.supplyAsync(() -> db.getStructuresInChunk(chunkId), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
+            .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
@@ -288,7 +286,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     public CompletableFuture<List<AbstractStructure>> getStructuresOfType(String typeName)
     {
         return CompletableFuture.supplyAsync(() -> db.getStructuresOfType(typeName), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
+            .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
@@ -303,7 +301,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     public CompletableFuture<List<AbstractStructure>> getStructuresOfType(String typeName, int version)
     {
         return CompletableFuture.supplyAsync(() -> db.getStructuresOfType(typeName, version), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
+            .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
@@ -323,12 +321,12 @@ public final class DatabaseManager extends Restartable implements IDebuggable
         if (structureUID.isPresent())
             return CompletableFuture
                 .supplyAsync(() -> db.getStructure(playerUUID, structureUID.getAsLong())
-                                     .map(Collections::singletonList)
-                                     .orElse(Collections.emptyList()), threadPool)
+                    .map(Collections::singletonList)
+                    .orElse(Collections.emptyList()), threadPool)
                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
 
         return CompletableFuture.supplyAsync(() -> db.getStructures(playerUUID, structureID), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
+            .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
@@ -349,7 +347,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     public CompletableFuture<List<AbstractStructure>> getStructures(UUID playerUUID)
     {
         return CompletableFuture.supplyAsync(() -> db.getStructures(playerUUID), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
+            .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
@@ -375,7 +373,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
         IPlayer player, String name, PermissionLevel maxPermission)
     {
         return CompletableFuture.supplyAsync(() -> db.getStructures(player.getUUID(), name, maxPermission), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
+            .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
@@ -388,7 +386,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     public CompletableFuture<List<AbstractStructure>> getStructures(String name)
     {
         return CompletableFuture.supplyAsync(() -> db.getStructures(name), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
+            .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
@@ -402,7 +400,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     public CompletableFuture<Boolean> updatePlayer(IPlayer player)
     {
         return CompletableFuture.supplyAsync(() -> db.updatePlayerData(player.getPlayerData()), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
+            .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
     }
 
     /**
@@ -415,7 +413,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     public CompletableFuture<Optional<PlayerData>> getPlayerData(UUID uuid)
     {
         return CompletableFuture.supplyAsync(() -> db.getPlayerData(uuid), threadPool)
-                                .exceptionally(Util::exceptionallyOptional);
+            .exceptionally(Util::exceptionallyOptional);
     }
 
     /**
@@ -432,7 +430,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     public CompletableFuture<List<PlayerData>> getPlayerData(String playerName)
     {
         return CompletableFuture.supplyAsync(() -> db.getPlayerData(playerName), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
+            .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
@@ -445,7 +443,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     public CompletableFuture<Optional<AbstractStructure>> getStructure(long structureUID)
     {
         return CompletableFuture.supplyAsync(() -> db.getStructure(structureUID), threadPool)
-                                .exceptionally(Util::exceptionallyOptional);
+            .exceptionally(Util::exceptionallyOptional);
     }
 
     /**
@@ -476,7 +474,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     public CompletableFuture<Optional<AbstractStructure>> getStructure(UUID uuid, long structureUID)
     {
         return CompletableFuture.supplyAsync(() -> db.getStructure(uuid, structureUID), threadPool)
-                                .exceptionally(Util::exceptionallyOptional);
+            .exceptionally(Util::exceptionallyOptional);
     }
 
     /**
@@ -490,7 +488,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     public CompletableFuture<Integer> countStructuresOwnedByPlayer(UUID playerUUID)
     {
         return CompletableFuture.supplyAsync(() -> db.getStructureCountForPlayer(playerUUID), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, -1));
+            .exceptionally(ex -> Util.exceptionally(ex, -1));
     }
 
     /**
@@ -506,7 +504,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     public CompletableFuture<Integer> countStructuresOwnedByPlayer(UUID playerUUID, String structureName)
     {
         return CompletableFuture.supplyAsync(() -> db.getStructureCountForPlayer(playerUUID, structureName), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, -1));
+            .exceptionally(ex -> Util.exceptionally(ex, -1));
     }
 
     /**
@@ -520,7 +518,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     public CompletableFuture<Integer> countStructuresByName(String structureName)
     {
         return CompletableFuture.supplyAsync(() -> db.getStructureCountByName(structureName), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, -1));
+            .exceptionally(ex -> Util.exceptionally(ex, -1));
     }
 
     /**
@@ -673,14 +671,14 @@ public final class DatabaseManager extends Restartable implements IDebuggable
         if (structureOwner.isEmpty())
         {
             log.atFine().log("Trying to remove player: %s from structure: %d, but the player is not an owner!",
-                             playerUUID, structure.getUid());
+                playerUUID, structure.getUid());
             return CompletableFuture.completedFuture(ActionResult.FAIL);
         }
         if (structureOwner.get().permission() == PermissionLevel.CREATOR)
         {
             log.atFine().log("Trying to remove player: %s from structure: %d, but the player is the prime owner! " +
-                                 "This is not allowed!",
-                             playerUUID, structure.getUid());
+                    "This is not allowed!",
+                playerUUID, structure.getUid());
             return CompletableFuture.completedFuture(ActionResult.FAIL);
         }
 
@@ -696,7 +694,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
                     if (oldOwner == null)
                     {
                         log.atSevere()
-                           .log("Failed to remove owner %s from structure %s!", structureOwner.get(), structure);
+                            .log("Failed to remove owner %s from structure %s!", structureOwner.get(), structure);
                         return ActionResult.FAIL;
                     }
 
@@ -727,7 +725,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     {
         return CompletableFuture
             .supplyAsync(() -> db.syncStructureData(snapshot, typeData) ? ActionResult.SUCCESS : ActionResult.FAIL,
-                         threadPool)
+                threadPool)
             .exceptionally(ex -> Util.exceptionally(ex, ActionResult.FAIL));
     }
 
@@ -747,7 +745,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
         String input, @Nullable IPlayer player, PermissionLevel maxPermission)
     {
         return CompletableFuture.supplyAsync(() -> db.getPartialIdentifiers(input, player, maxPermission), threadPool)
-                                .exceptionally(t -> Util.exceptionally(t, Collections.emptyList()));
+            .exceptionally(t -> Util.exceptionally(t, Collections.emptyList()));
     }
 
     /**
@@ -760,7 +758,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     CompletableFuture<Boolean> isAnimatedArchitectureWorld(String worldName)
     {
         return CompletableFuture.supplyAsync(() -> db.isAnimatedArchitectureWorld(worldName), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
+            .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
     }
 
     /**
@@ -776,7 +774,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     CompletableFuture<Int2ObjectMap<LongList>> getPowerBlockData(long chunkId)
     {
         return CompletableFuture.supplyAsync(() -> db.getPowerBlockData(chunkId), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, Int2ObjectMaps.emptyMap()));
+            .exceptionally(ex -> Util.exceptionally(ex, Int2ObjectMaps.emptyMap()));
     }
 
     @Override

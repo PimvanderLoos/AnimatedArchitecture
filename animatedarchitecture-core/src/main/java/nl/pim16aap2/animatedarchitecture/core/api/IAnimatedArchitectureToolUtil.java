@@ -4,8 +4,6 @@ import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 
 /**
  * Represents a set of utility functions around the tool used by {@link ToolUser}s.
- *
- * @author Pim
  */
 public interface IAnimatedArchitectureToolUtil
 {
@@ -15,7 +13,7 @@ public interface IAnimatedArchitectureToolUtil
      * @param player
      *     The player to give the tool to.
      * @param name
-     *     The itemname of the tool.
+     *     The name of the tool.
      * @param lore
      *     The lore of the tool.
      */

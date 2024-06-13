@@ -4,8 +4,6 @@ import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 
 /**
  * Represents the different kind of causes that can be the reason of a {@link AbstractStructure} action.
- *
- * @author Pim
  */
 public enum StructureActionCause
 {

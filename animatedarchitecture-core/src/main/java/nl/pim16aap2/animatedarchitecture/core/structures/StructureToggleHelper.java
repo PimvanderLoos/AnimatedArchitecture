@@ -48,8 +48,6 @@ import java.util.logging.Level;
 
 /**
  * Represents a utility singleton that is used to open {@link AbstractStructure}s.
- *
- * @author Pim
  */
 @Flogger final class StructureToggleHelper
 {

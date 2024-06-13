@@ -56,8 +56,6 @@ import nl.pim16aap2.animatedarchitecture.core.managers.AnimatedBlockHookManager;
  * {@link IAnimatedBlock}. This can be used to specialize the type of animated block for the specific platform. For
  * example, animated blocks on the Spigot platform will be subclasses of the IAnimatedBlockSpigot interface, which adds
  * some methods specific to the Spigot platform.
- *
- * @author Pim
  */
 @SuppressWarnings("unused")
 public interface IAnimatedBlockHook

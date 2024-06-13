@@ -3,8 +3,6 @@ package nl.pim16aap2.animatedarchitecture.core.commands;
 /**
  * Represents a pair of booleans that determine whether a user has user-level and/or admin-level permission access to
  * some kind of action.
- *
- * @author Pim
  */
 public record PermissionsStatus(boolean hasUserPermission, boolean hasAdminPermission)
 {

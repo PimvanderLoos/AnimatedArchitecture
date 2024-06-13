@@ -18,8 +18,6 @@ import java.util.List;
 
 /**
  * Represents a type of {@link ToolUser} that tries to find powerblocks based on the locations provided by the user.
- *
- * @author Pim
  */
 @ToString(callSuper = true)
 public class PowerBlockInspector extends ToolUser

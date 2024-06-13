@@ -52,10 +52,13 @@ public final class UpdateCreator extends BaseCommand
     {
         final @Nullable var toolUser =
             toolUserManager.getToolUser(((IPlayer) getCommandSender()).getUUID()).orElse(null);
+
         if (!(toolUser instanceof Creator creator))
         {
             getCommandSender().sendError(
-                textFactory, localizer.getMessage("commands.update_creator.error.no_creator_process"));
+                textFactory,
+                localizer.getMessage("commands.update_creator.error.no_creator_process")
+            );
             return CompletableFuture.completedFuture(null);
         }
 

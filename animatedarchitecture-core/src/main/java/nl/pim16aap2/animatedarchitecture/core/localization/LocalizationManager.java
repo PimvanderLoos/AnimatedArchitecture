@@ -21,8 +21,6 @@ import java.util.function.Supplier;
 
 /**
  * Represents a manager for the localization system.
- *
- * @author Pim
  */
 @Singleton
 @Flogger
@@ -134,28 +132,28 @@ public final class LocalizationManager extends Restartable implements ILocalizat
     public synchronized void addResources(Path path, @Nullable String baseName)
     {
         runForGenerators(generator -> generator.addResources(path, baseName),
-                         () -> "Add resources from path: " + path + ", with baseName: " + baseName);
+            () -> "Add resources from path: " + path + ", with baseName: " + baseName);
     }
 
     @Override
     public synchronized void addResources(List<Path> paths)
     {
         runForGenerators(generator -> generator.addResources(paths),
-                         () -> "Add resources from paths: " + paths);
+            () -> "Add resources from paths: " + paths);
     }
 
     @Override
     public synchronized void addResourcesFromClass(Class<?> clz, @Nullable String baseName)
     {
         runForGenerators(generator -> generator.addResourcesFromClass(clz, baseName),
-                         () -> "Add resources from class: " + clz.getName() + ", with baseName: " + baseName);
+            () -> "Add resources from class: " + clz.getName() + ", with baseName: " + baseName);
     }
 
     @Override
     public synchronized void addResourcesFromClass(List<Class<?>> classes)
     {
         runForGenerators(generator -> generator.addResourcesFromClass(classes),
-                         () -> "Add resources from classes: " + classes.stream().map(Class::getName).toList());
+            () -> "Add resources from classes: " + classes.stream().map(Class::getName).toList());
     }
 
     @Override
@@ -164,7 +162,7 @@ public final class LocalizationManager extends Restartable implements ILocalizat
         localizer.setDefaultLocale(config.locale());
         applyPatches();
         runForGenerators(generator -> generator.addResourcesFromClass(List.of(LocalizationManager.class)),
-                         () -> "Adding resources from LocalizationManager.class.");
+            () -> "Adding resources from LocalizationManager.class.");
         localizer.reInit();
     }
 

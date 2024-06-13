@@ -17,8 +17,6 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents the command that changes the opening direction of structures.
- *
- * @author Pim
  */
 @ToString
 public class SetOpenDirection extends StructureTargetCommand
@@ -27,8 +25,7 @@ public class SetOpenDirection extends StructureTargetCommand
 
     private final MovementDirection movementDirection;
 
-    @AssistedInject //
-    SetOpenDirection(
+    @AssistedInject SetOpenDirection(
         @Assisted ICommandSender commandSender,
         @Assisted StructureRetriever structureRetriever,
         @Assisted MovementDirection movementDirection,
@@ -37,8 +34,15 @@ public class SetOpenDirection extends StructureTargetCommand
         ITextFactory textFactory,
         CommandFactory commandFactory)
     {
-        super(commandSender, localizer, textFactory, structureRetriever, StructureAttribute.OPEN_DIRECTION,
-              sendUpdatedInfo, commandFactory);
+        super(
+            commandSender,
+            localizer,
+            textFactory,
+            structureRetriever,
+            StructureAttribute.OPEN_DIRECTION,
+            sendUpdatedInfo,
+            commandFactory
+        );
         this.movementDirection = movementDirection;
     }
 
@@ -53,9 +57,11 @@ public class SetOpenDirection extends StructureTargetCommand
     {
         final var desc = getRetrievedStructureDescription();
         getCommandSender().sendMessage(textFactory.newText().append(
-            localizer.getMessage("commands.set_open_direction.success"), TextType.SUCCESS,
+            localizer.getMessage("commands.set_open_direction.success"),
+            TextType.SUCCESS,
             arg -> arg.highlight(desc.localizedTypeName()),
-            arg -> arg.highlight(desc.id())));
+            arg -> arg.highlight(desc.id()))
+        );
     }
 
     @Override
@@ -64,17 +70,19 @@ public class SetOpenDirection extends StructureTargetCommand
         if (!structure.getType().isValidOpenDirection(movementDirection))
         {
             getCommandSender().sendMessage(textFactory.newText().append(
-                localizer.getMessage("commands.set_open_direction.error.invalid_rotation"), TextType.ERROR,
+                localizer.getMessage("commands.set_open_direction.error.invalid_rotation"),
+                TextType.ERROR,
                 arg -> arg.highlight(localizer.getMessage(movementDirection.getLocalizationKey())),
                 arg -> arg.highlight(localizer.getStructureType(structure)),
-                arg -> arg.highlight(structure.getBasicInfo())));
+                arg -> arg.highlight(structure.getBasicInfo()))
+            );
             return CompletableFuture.completedFuture(null);
         }
 
         structure.setOpenDir(movementDirection);
         return structure.syncData()
-                        .thenAccept(this::handleDatabaseActionResult)
-                        .thenRunAsync(() -> sendUpdatedInfo(structure));
+            .thenAccept(this::handleDatabaseActionResult)
+            .thenRunAsync(() -> sendUpdatedInfo(structure));
     }
 
     @AssistedFactory

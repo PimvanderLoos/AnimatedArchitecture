@@ -46,8 +46,6 @@ import java.util.zip.ZipInputStream;
 
 /**
  * Represents various small and platform-agnostic utility functions.
- *
- * @author Pim
  */
 @SuppressWarnings("unused")
 @UtilityClass
@@ -788,14 +786,14 @@ public final class Util
     {
         final CompletableFuture<Void> result = CompletableFuture.allOf(futures);
         return result.thenApply(ignored ->
-                                {
-                                    final List<T> ret = new ArrayList<>(futures.length);
-                                    for (final CompletableFuture<T> future : futures)
-                                    {
-                                        ret.add(future.join());
-                                    }
-                                    return ret;
-                                }).exceptionally(throwable -> exceptionally(throwable, Collections.emptyList()));
+        {
+            final List<T> ret = new ArrayList<>(futures.length);
+            for (final CompletableFuture<T> future : futures)
+            {
+                ret.add(future.join());
+            }
+            return ret;
+        }).exceptionally(throwable -> exceptionally(throwable, Collections.emptyList()));
     }
 
     /**
@@ -828,12 +826,12 @@ public final class Util
     {
         final CompletableFuture<Void> result = CompletableFuture.allOf(futures);
         return result.thenApply(ignored ->
-                                {
-                                    final List<T> ret = new ArrayList<>();
-                                    for (final CompletableFuture<? extends Collection<T>> future : futures)
-                                        ret.addAll(future.join());
-                                    return ret;
-                                }).exceptionally(throwable -> exceptionally(throwable, Collections.emptyList()));
+        {
+            final List<T> ret = new ArrayList<>();
+            for (final CompletableFuture<? extends Collection<T>> future : futures)
+                ret.addAll(future.join());
+            return ret;
+        }).exceptionally(throwable -> exceptionally(throwable, Collections.emptyList()));
     }
 
     /**

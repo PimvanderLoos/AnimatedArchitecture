@@ -4,8 +4,6 @@ import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 
 /**
  * Represents the event where a structure will be (un)locked.
- *
- * @author Pim
  */
 public interface IStructurePrepareLockChangeEvent extends IStructureEvent, ICancellableAnimatedArchitectureEvent
 {

@@ -15,16 +15,23 @@ import java.util.Optional;
 
 /**
  * Represents a highlighted animated block. These can be useful for highlighting locations and structures.
- *
- * @author Pim
  */
 public abstract class HighlightedBlockSpawner
 {
     protected abstract Optional<IHighlightedBlock> spawnHighlightedBlock(
-        IPlayer player, IWorld world, @Nullable Duration duration, RotatedPosition rotatedPosition, Color color);
+        IPlayer player,
+        IWorld world,
+        @Nullable Duration duration,
+        RotatedPosition rotatedPosition,
+        Color color
+    );
 
     private Optional<IHighlightedBlock> spawnHighlightedBlock(
-        IPlayer player, IWorld world, @Nullable Duration duration, Vector3Dd position, Color color)
+        IPlayer player,
+        IWorld world,
+        @Nullable Duration duration,
+        Vector3Dd position,
+        Color color)
     {
         return spawnHighlightedBlock(
             player, world, duration, new RotatedPosition(position, new Vector3Dd(0, 0, 0)), color);
@@ -56,28 +63,44 @@ public abstract class HighlightedBlockSpawner
         final IWorld world = structure.getWorld();
 
         spawnHighlightedBlock(
-            player, world, duration,
+            player,
+            world,
+            duration,
             structure.getPowerBlock().x() + 0.5,
             structure.getPowerBlock().y(),
-            structure.getPowerBlock().z() + 0.5, Color.GOLD);
+            structure.getPowerBlock().z() + 0.5,
+            Color.GOLD
+        );
 
         spawnHighlightedBlock(
-            player, world, duration,
+            player,
+            world,
+            duration,
             structure.getRotationPoint().x() + 0.5,
             structure.getRotationPoint().y(),
-            structure.getRotationPoint().z() + 0.5, Color.DARK_PURPLE);
+            structure.getRotationPoint().z() + 0.5,
+            Color.DARK_PURPLE
+        );
 
         spawnHighlightedBlock(
-            player, world, duration,
+            player,
+            world,
+            duration,
             structure.getMinimum().x() + 0.5,
             structure.getMinimum().y(),
-            structure.getMinimum().z() + 0.5, Color.BLUE);
+            structure.getMinimum().z() + 0.5,
+            Color.BLUE
+        );
 
         spawnHighlightedBlock(
-            player, world, duration,
+            player,
+            world,
+            duration,
             structure.getMaximum().x() + 0.5,
             structure.getMaximum().y(),
-            structure.getMaximum().z() + 0.5, Color.RED);
+            structure.getMaximum().z() + 0.5,
+            Color.RED
+        );
     }
 
     /**
@@ -108,16 +131,24 @@ public abstract class HighlightedBlockSpawner
         final Cuboid cuboid = cuboidOptional.get();
 
         spawnHighlightedBlock(
-            player, world, duration,
+            player,
+            world,
+            duration,
             cuboid.getMin().x() + 0.5,
             cuboid.getMin().y(),
-            cuboid.getMin().z() + 0.5, Color.DARK_AQUA);
+            cuboid.getMin().z() + 0.5,
+            Color.DARK_AQUA
+        );
 
         spawnHighlightedBlock(
-            player, world, duration,
+            player,
+            world,
+            duration,
             cuboid.getMax().x() + 0.5,
             cuboid.getMax().y(),
-            cuboid.getMax().z() + 0.5, Color.DARK_RED);
+            cuboid.getMax().z() + 0.5,
+            Color.DARK_RED
+        );
     }
 
     /**
@@ -270,7 +301,8 @@ public abstract class HighlightedBlockSpawner
                     Util.requireNonNull(world, "World"),
                     duration,
                     new RotatedPosition(
-                        new Vector3Dd(x, y, z), new Vector3Dd(rotX, rotY, rotZ)),
+                        new Vector3Dd(x, y, z),
+                        new Vector3Dd(rotX, rotY, rotZ)),
                     Util.requireNonNull(color, "Color")
                 );
             }

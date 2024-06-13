@@ -4,8 +4,6 @@ import lombok.Getter;
 
 /**
  * Represent the possible outcomes of trying to toggle a structure.
- *
- * @author Pim
  */
 public enum StructureToggleResult
 {

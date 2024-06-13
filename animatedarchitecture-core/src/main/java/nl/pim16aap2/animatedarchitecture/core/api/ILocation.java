@@ -8,8 +8,6 @@ import org.jetbrains.annotations.Contract;
 
 /**
  * Represents a position in a world.
- *
- * @author Pim
  */
 public interface ILocation
 {

@@ -10,8 +10,6 @@ import java.util.Locale;
 
 /**
  * Represent the possible attributes of a structure.
- *
- * @author Pim
  */
 public enum StructureAttribute
 {

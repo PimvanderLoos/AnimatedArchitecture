@@ -10,7 +10,6 @@ package nl.pim16aap2.animatedarchitecture.core.util.functional;
  *     The type of the result of the function
  * @param <E>
  *     The type of the exception thrown by the function.
- * @author Pim
  */
 @FunctionalInterface
 public interface CheckedFunction<T, R, E extends Exception>

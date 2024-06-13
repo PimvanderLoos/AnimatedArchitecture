@@ -51,8 +51,6 @@ import java.util.function.Function;
 
 /**
  * Represents a specialization of the {@link ToolUser} that is used for creating new {@link AbstractStructure}s.
- *
- * @author Pim
  */
 @ToString(callSuper = true, onlyExplicitlyIncluded = true)
 @Flogger

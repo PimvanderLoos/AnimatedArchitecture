@@ -16,17 +16,16 @@ import java.util.concurrent.CompletableFuture;
  * <p>
  * For example, when buying something, the process might require the user to confirm that they agree to the
  * transaction.
- *
- * @author Pim
  */
 @ToString
 public class Confirm extends BaseCommand
 {
     private final ToolUserManager toolUserManager;
 
-    @AssistedInject //
-    Confirm(
-        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
+    @AssistedInject Confirm(
+        @Assisted ICommandSender commandSender,
+        ILocalizer localizer,
+        ITextFactory textFactory,
         ToolUserManager toolUserManager)
     {
         super(commandSender, localizer, textFactory);
@@ -53,7 +52,9 @@ public class Confirm extends BaseCommand
             return toolUser.get().handleInput(true);
 
         getCommandSender().sendError(
-            textFactory, localizer.getMessage("commands.confirm.error.no_confirmation_request"));
+            textFactory,
+            localizer.getMessage("commands.confirm.error.no_confirmation_request")
+        );
 
         return CompletableFuture.completedFuture(null);
     }

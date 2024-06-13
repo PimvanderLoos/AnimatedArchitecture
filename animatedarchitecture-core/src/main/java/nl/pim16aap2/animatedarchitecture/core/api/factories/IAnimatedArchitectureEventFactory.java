@@ -21,8 +21,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a class that can create {@link IAnimatedArchitectureEvent}s.
- *
- * @author Pim
  */
 public interface IAnimatedArchitectureEventFactory
 {
@@ -59,7 +57,9 @@ public interface IAnimatedArchitectureEventFactory
      *     The {@link IPlayer} responsible for the action, if a player was responsible for it.
      */
     IStructurePrepareCreateEvent createPrepareStructureCreateEvent(
-        AbstractStructure structure, @Nullable IPlayer responsible);
+        AbstractStructure structure,
+        @Nullable IPlayer responsible
+    );
 
     /**
      * Constructs a new {@link IStructurePrepareCreateEvent} and assumes it was not created by an {@link IPlayer}.
@@ -84,7 +84,9 @@ public interface IAnimatedArchitectureEventFactory
      *     The {@link IPlayer} responsible for the action, if a player was responsible for it.
      */
     IStructurePrepareDeleteEvent createPrepareDeleteStructureEvent(
-        AbstractStructure structure, @Nullable IPlayer responsible);
+        AbstractStructure structure,
+        @Nullable IPlayer responsible
+    );
 
     /**
      * Constructs a new {@link IStructurePrepareDeleteEvent} and assumes it was not deleted by an {@link IPlayer}.
@@ -111,7 +113,10 @@ public interface IAnimatedArchitectureEventFactory
      *     The {@link IPlayer} responsible for the action, if a player was responsible for it.
      */
     IStructurePrepareAddOwnerEvent createStructurePrepareAddOwnerEvent(
-        AbstractStructure structure, StructureOwner newOwner, @Nullable IPlayer responsible);
+        AbstractStructure structure,
+        StructureOwner newOwner,
+        @Nullable IPlayer responsible
+    );
 
     /**
      * Constructs a new {@link IStructurePrepareAddOwnerEvent} and assumes it was not added by an {@link IPlayer}.
@@ -125,7 +130,8 @@ public interface IAnimatedArchitectureEventFactory
      *     The new {@link StructureOwner} that is to be added to the structure.
      */
     default IStructurePrepareAddOwnerEvent createStructurePrepareAddOwnerEvent(
-        AbstractStructure structure, StructureOwner newOwner)
+        AbstractStructure structure,
+        StructureOwner newOwner)
     {
         return createStructurePrepareAddOwnerEvent(structure, newOwner, null);
     }
@@ -141,7 +147,10 @@ public interface IAnimatedArchitectureEventFactory
      *     The {@link IPlayer} responsible for the action, if a player was responsible for it.
      */
     IStructurePrepareRemoveOwnerEvent createStructurePrepareRemoveOwnerEvent(
-        AbstractStructure structure, StructureOwner removedOwner, @Nullable IPlayer responsible);
+        AbstractStructure structure,
+        StructureOwner removedOwner,
+        @Nullable IPlayer responsible
+    );
 
     /**
      * Constructs a new {@link IStructurePrepareRemoveOwnerEvent} and assumes the owner was not removed by an
@@ -156,7 +165,8 @@ public interface IAnimatedArchitectureEventFactory
      *     The {@link StructureOwner} that is to be removed from the structure.
      */
     default IStructurePrepareRemoveOwnerEvent createStructurePrepareRemoveOwnerEvent(
-        AbstractStructure structure, StructureOwner removedOwner)
+        AbstractStructure structure,
+        StructureOwner removedOwner)
     {
         return createStructurePrepareRemoveOwnerEvent(structure, removedOwner, null);
     }
@@ -173,7 +183,10 @@ public interface IAnimatedArchitectureEventFactory
      *     The {@link IPlayer} responsible for the action, if a player was responsible for it.
      */
     IStructurePrepareLockChangeEvent createStructurePrepareLockChangeEvent(
-        AbstractStructure structure, boolean newLockStatus, @Nullable IPlayer responsible);
+        AbstractStructure structure,
+        boolean newLockStatus,
+        @Nullable IPlayer responsible
+    );
 
     /**
      * Constructs a new {@link IStructurePrepareLockChangeEvent} and assumes it was not added by an {@link IPlayer}.
@@ -187,7 +200,8 @@ public interface IAnimatedArchitectureEventFactory
      *     The new locked status of the structure.
      */
     default IStructurePrepareLockChangeEvent createStructurePrepareLockChangeEvent(
-        AbstractStructure structure, boolean newLockStatus)
+        AbstractStructure structure,
+        boolean newLockStatus)
     {
         return createStructurePrepareLockChangeEvent(structure, newLockStatus, null);
     }
@@ -213,8 +227,14 @@ public interface IAnimatedArchitectureEventFactory
      *     The {@link Cuboid} representing the area the structure will take up after the toggle.
      */
     IStructureEventTogglePrepare createTogglePrepareEvent(
-        StructureSnapshot snapshot, StructureActionCause cause, StructureActionType actionType, IPlayer responsible,
-        double time, boolean skipAnimation, Cuboid newCuboid);
+        StructureSnapshot snapshot,
+        StructureActionCause cause,
+        StructureActionType actionType,
+        IPlayer responsible,
+        double time,
+        boolean skipAnimation,
+        Cuboid newCuboid
+    );
 
     /**
      * Constructs a {@link IStructureEventToggleStart}.
@@ -239,8 +259,15 @@ public interface IAnimatedArchitectureEventFactory
      *     The {@link Cuboid} representing the area the structure will take up after the toggle.
      */
     IStructureEventToggleStart createToggleStartEvent(
-        AbstractStructure structure, StructureSnapshot structureSnapshot, StructureActionCause cause,
-        StructureActionType actionType, IPlayer responsible, double time, boolean skipAnimation, Cuboid newCuboid);
+        AbstractStructure structure,
+        StructureSnapshot structureSnapshot,
+        StructureActionCause cause,
+        StructureActionType actionType,
+        IPlayer responsible,
+        double time,
+        boolean skipAnimation,
+        Cuboid newCuboid
+    );
 
     /**
      * Constructs a {@link IStructureEventToggleEnd}.
@@ -263,6 +290,12 @@ public interface IAnimatedArchitectureEventFactory
      *     If true, the structure will skip the animation and open instantly.
      */
     IStructureEventToggleEnd createToggleEndEvent(
-        AbstractStructure structure, StructureSnapshot snapshot, StructureActionCause cause,
-        StructureActionType actionType, IPlayer responsible, double time, boolean skipAnimation);
+        AbstractStructure structure,
+        StructureSnapshot snapshot,
+        StructureActionCause cause,
+        StructureActionType actionType,
+        IPlayer responsible,
+        double time,
+        boolean skipAnimation
+    );
 }

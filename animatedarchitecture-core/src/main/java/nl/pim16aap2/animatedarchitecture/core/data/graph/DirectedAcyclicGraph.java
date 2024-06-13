@@ -26,7 +26,6 @@ import java.util.Set;
  *
  * @param <T>
  *     The type of data to store in the nodes.
- * @author Pim
  */
 public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
 {

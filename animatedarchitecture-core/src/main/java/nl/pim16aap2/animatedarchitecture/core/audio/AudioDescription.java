@@ -19,7 +19,6 @@ import java.lang.reflect.Type;
  *     The pitch of the sound.
  * @param duration
  *     The duration of the sound (in milliseconds).
- * @author Pim
  */
 public record AudioDescription(String sound, float volume, float pitch, int duration)
 {

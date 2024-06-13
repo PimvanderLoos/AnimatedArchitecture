@@ -12,8 +12,6 @@ import java.util.function.Consumer;
 
 /**
  * Represents an object that can issue a restart or shutdown to {@link IRestartable} objects.
- *
- * @author Pim
  */
 @Flogger
 public final class RestartableHolder implements IDebuggable
@@ -106,7 +104,7 @@ public final class RestartableHolder implements IDebuggable
         catch (Exception e)
         {
             log.atSevere().withCause(e).log("Failed to %s restartable of type %s:\n%s",
-                                            actionName, restartable.getClass().getName(), restartable);
+                actionName, restartable.getClass().getName(), restartable);
         }
     }
 

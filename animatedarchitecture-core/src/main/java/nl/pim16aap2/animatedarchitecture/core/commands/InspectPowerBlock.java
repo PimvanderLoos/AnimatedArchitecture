@@ -4,20 +4,18 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
+import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
+import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
+import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.PowerBlockInspector;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
-import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 
 import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents the command to inspect a location to check if there are any powerblocks registered there.
- *
- * @author Pim
  */
 @ToString
 public class InspectPowerBlock extends BaseCommand
@@ -25,10 +23,12 @@ public class InspectPowerBlock extends BaseCommand
     private final ToolUserManager toolUserManager;
     private final PowerBlockInspector.IFactory inspectPowerBlockFactory;
 
-    @AssistedInject //
-    InspectPowerBlock(
-        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
-        ToolUserManager toolUserManager, PowerBlockInspector.IFactory inspectPowerBlockFactory)
+    @AssistedInject InspectPowerBlock(
+        @Assisted ICommandSender commandSender,
+        ILocalizer localizer,
+        ITextFactory textFactory,
+        ToolUserManager toolUserManager,
+        PowerBlockInspector.IFactory inspectPowerBlockFactory)
     {
         super(commandSender, localizer, textFactory);
         this.toolUserManager = toolUserManager;
@@ -50,9 +50,10 @@ public class InspectPowerBlock extends BaseCommand
     @Override
     protected CompletableFuture<?> executeCommand(PermissionsStatus permissions)
     {
-        toolUserManager.startToolUser(inspectPowerBlockFactory.create((IPlayer) getCommandSender(),
-                                                                      permissions.hasAdminPermission()),
-                                      Constants.STRUCTURE_CREATOR_TIME_LIMIT);
+        toolUserManager.startToolUser(
+            inspectPowerBlockFactory.create((IPlayer) getCommandSender(), permissions.hasAdminPermission()),
+            Constants.STRUCTURE_CREATOR_TIME_LIMIT
+        );
         return CompletableFuture.completedFuture(null);
     }
 

@@ -4,8 +4,6 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 
 /**
  * Represents the event where an owner is removed from a structure.
- *
- * @author Pim
  */
 public interface IStructurePrepareRemoveOwnerEvent extends IStructureEvent, ICancellableAnimatedArchitectureEvent
 {

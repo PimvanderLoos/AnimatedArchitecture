@@ -11,8 +11,6 @@ import java.util.function.UnaryOperator;
 
 /**
  * Represents the 6 faces of a cube.
- *
- * @author Pim
  */
 public enum BlockFace
 {
@@ -61,15 +59,15 @@ public enum BlockFace
     public static BlockFace getOpposite(BlockFace dir)
     {
         return switch (dir)
-            {
-                case DOWN -> BlockFace.UP;
-                case EAST -> BlockFace.WEST;
-                case NORTH -> BlockFace.SOUTH;
-                case SOUTH -> BlockFace.NORTH;
-                case UP -> BlockFace.DOWN;
-                case WEST -> BlockFace.EAST;
-                default -> BlockFace.NONE;
-            };
+        {
+            case DOWN -> BlockFace.UP;
+            case EAST -> BlockFace.WEST;
+            case NORTH -> BlockFace.SOUTH;
+            case SOUTH -> BlockFace.NORTH;
+            case UP -> BlockFace.DOWN;
+            case WEST -> BlockFace.EAST;
+            default -> BlockFace.NONE;
+        };
     }
 
     /**
@@ -113,13 +111,13 @@ public enum BlockFace
     public static BlockFace rotateClockwise(BlockFace myFace)
     {
         return switch (myFace)
-            {
-                case NORTH -> EAST;
-                case EAST -> SOUTH;
-                case SOUTH -> WEST;
-                case WEST -> NORTH;
-                default -> myFace;
-            };
+        {
+            case NORTH -> EAST;
+            case EAST -> SOUTH;
+            case SOUTH -> WEST;
+            case WEST -> NORTH;
+            default -> myFace;
+        };
     }
 
     /**
@@ -133,13 +131,13 @@ public enum BlockFace
     public static BlockFace rotateCounterClockwise(BlockFace myFace)
     {
         return switch (myFace)
-            {
-                case NORTH -> WEST;
-                case EAST -> NORTH;
-                case SOUTH -> EAST;
-                case WEST -> SOUTH;
-                default -> myFace;
-            };
+        {
+            case NORTH -> WEST;
+            case EAST -> NORTH;
+            case SOUTH -> EAST;
+            case WEST -> SOUTH;
+            default -> myFace;
+        };
     }
 
     /**
@@ -153,13 +151,13 @@ public enum BlockFace
     public static BlockFace rotateVerticallyNorth(BlockFace curFace)
     {
         return switch (curFace)
-            {
-                case DOWN -> BlockFace.SOUTH;
-                case NORTH -> BlockFace.DOWN;
-                case SOUTH -> BlockFace.UP;
-                case UP -> BlockFace.NORTH;
-                default -> curFace;
-            };
+        {
+            case DOWN -> BlockFace.SOUTH;
+            case NORTH -> BlockFace.DOWN;
+            case SOUTH -> BlockFace.UP;
+            case UP -> BlockFace.NORTH;
+            default -> curFace;
+        };
     }
 
     /**
@@ -173,13 +171,13 @@ public enum BlockFace
     public static BlockFace rotateVerticallySouth(BlockFace curFace)
     {
         return switch (curFace)
-            {
-                case DOWN -> BlockFace.NORTH;
-                case NORTH -> BlockFace.UP;
-                case SOUTH -> BlockFace.DOWN;
-                case UP -> BlockFace.SOUTH;
-                default -> curFace;
-            };
+        {
+            case DOWN -> BlockFace.NORTH;
+            case NORTH -> BlockFace.UP;
+            case SOUTH -> BlockFace.DOWN;
+            case UP -> BlockFace.SOUTH;
+            default -> curFace;
+        };
     }
 
     /**
@@ -193,13 +191,13 @@ public enum BlockFace
     public static BlockFace rotateVerticallyEast(BlockFace curFace)
     {
         return switch (curFace)
-            {
-                case DOWN -> BlockFace.WEST;
-                case EAST -> BlockFace.DOWN;
-                case WEST -> BlockFace.UP;
-                case UP -> BlockFace.EAST;
-                default -> curFace;
-            };
+        {
+            case DOWN -> BlockFace.WEST;
+            case EAST -> BlockFace.DOWN;
+            case WEST -> BlockFace.UP;
+            case UP -> BlockFace.EAST;
+            default -> curFace;
+        };
     }
 
     /**
@@ -213,13 +211,13 @@ public enum BlockFace
     public static BlockFace rotateVerticallyWest(BlockFace curFace)
     {
         return switch (curFace)
-            {
-                case DOWN -> BlockFace.EAST;
-                case EAST -> BlockFace.UP;
-                case WEST -> BlockFace.DOWN;
-                case UP -> BlockFace.WEST;
-                default -> curFace;
-            };
+        {
+            case DOWN -> BlockFace.EAST;
+            case EAST -> BlockFace.UP;
+            case WEST -> BlockFace.DOWN;
+            case UP -> BlockFace.WEST;
+            default -> curFace;
+        };
     }
 
     /**
@@ -245,15 +243,15 @@ public enum BlockFace
     public static @Nullable UnaryOperator<BlockFace> getDirFun(MovementDirection movementDirection)
     {
         return switch (movementDirection)
-            {
-                case NORTH -> BlockFace::rotateVerticallyNorth;
-                case EAST -> BlockFace::rotateVerticallyEast;
-                case SOUTH -> BlockFace::rotateVerticallySouth;
-                case WEST -> BlockFace::rotateVerticallyWest;
-                case CLOCKWISE -> BlockFace::rotateClockwise;
-                case COUNTERCLOCKWISE -> BlockFace::rotateCounterClockwise;
-                default -> null;
-            };
+        {
+            case NORTH -> BlockFace::rotateVerticallyNorth;
+            case EAST -> BlockFace::rotateVerticallyEast;
+            case SOUTH -> BlockFace::rotateVerticallySouth;
+            case WEST -> BlockFace::rotateVerticallyWest;
+            case CLOCKWISE -> BlockFace::rotateClockwise;
+            case COUNTERCLOCKWISE -> BlockFace::rotateCounterClockwise;
+            default -> null;
+        };
     }
 
     /**

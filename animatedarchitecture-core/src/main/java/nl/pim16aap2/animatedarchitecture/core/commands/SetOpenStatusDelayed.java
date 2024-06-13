@@ -6,11 +6,19 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Delayed version of {@link SetOpenStatus}.
+ * <p>
+ * This command is used to set the open status of a structure.
+ * <p>
+ * The open status can be provided as delayed input.
+ */
 @Singleton
 public class SetOpenStatusDelayed extends DelayedCommand<Boolean>
 {
     @Inject public SetOpenStatusDelayed(
-        Context context, DelayedCommandInputRequest.IFactory<Boolean> inputRequestFactory)
+        Context context,
+        DelayedCommandInputRequest.IFactory<Boolean> inputRequestFactory)
     {
         super(context, inputRequestFactory, Boolean.class);
     }
@@ -23,7 +31,9 @@ public class SetOpenStatusDelayed extends DelayedCommand<Boolean>
 
     @Override
     protected CompletableFuture<?> delayedInputExecutor(
-        ICommandSender commandSender, StructureRetriever structureRetriever, Boolean isOpen)
+        ICommandSender commandSender,
+        StructureRetriever structureRetriever,
+        Boolean isOpen)
     {
         return commandFactory.get().newSetOpenStatus(commandSender, structureRetriever, isOpen).run();
     }

@@ -14,7 +14,6 @@ import java.util.function.BiFunction;
  *     The type of the result of the function
  * @param <E>
  *     The type of the exception thrown by the function.
- * @author Pim
  */
 @FunctionalInterface
 public interface CheckedBiFunction<T, U, R, E extends Exception>

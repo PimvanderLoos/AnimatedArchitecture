@@ -4,8 +4,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a class that is debuggable by reporting debug information to {@link DebugReporter}.
- *
- * @author Pim
  */
 public interface IDebuggable
 {

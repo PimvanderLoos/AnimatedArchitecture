@@ -21,8 +21,6 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents the remove owner command. This command is used to remove owners from a structure.
- *
- * @author Pim
  */
 @ToString
 @Flogger
@@ -33,10 +31,12 @@ public class RemoveOwner extends StructureTargetCommand
     private final IPlayer targetPlayer;
     private final DatabaseManager databaseManager;
 
-    @AssistedInject //
-    RemoveOwner(
-        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
-        @Assisted StructureRetriever structureRetriever, @Assisted IPlayer targetPlayer,
+    @AssistedInject RemoveOwner(
+        @Assisted ICommandSender commandSender,
+        ILocalizer localizer,
+        ITextFactory textFactory,
+        @Assisted StructureRetriever structureRetriever,
+        @Assisted IPlayer targetPlayer,
         DatabaseManager databaseManager)
     {
         super(commandSender, localizer, textFactory, structureRetriever, StructureAttribute.REMOVE_OWNER);
@@ -56,13 +56,15 @@ public class RemoveOwner extends StructureTargetCommand
         final var description = getRetrievedStructureDescription();
 
         getCommandSender().sendMessage(textFactory.newText().append(
-            localizer.getMessage("commands.remove_owner.success"), TextType.SUCCESS,
+            localizer.getMessage("commands.remove_owner.success"),
+            TextType.SUCCESS,
             arg -> arg.highlight(targetPlayer.getName()),
             arg -> arg.highlight(description.localizedTypeName())
         ));
 
         targetPlayer.sendMessage(textFactory.newText().append(
-            localizer.getMessage("commands.remove_owner.removed_player_notification"), TextType.INFO,
+            localizer.getMessage("commands.remove_owner.removed_player_notification"),
+            TextType.INFO,
             arg -> arg.highlight(description.localizedTypeName()),
             arg -> arg.highlight(description.id())
         ));
@@ -71,8 +73,9 @@ public class RemoveOwner extends StructureTargetCommand
     @Override
     protected CompletableFuture<?> performAction(AbstractStructure structure)
     {
-        return databaseManager.removeOwner(structure, targetPlayer, getCommandSender().getPlayer().orElse(null))
-                              .thenAccept(this::handleDatabaseActionResult);
+        return databaseManager
+            .removeOwner(structure, targetPlayer, getCommandSender().getPlayer().orElse(null))
+            .thenAccept(this::handleDatabaseActionResult);
     }
 
     @Override
@@ -84,19 +87,23 @@ public class RemoveOwner extends StructureTargetCommand
         if (structureOwner.isEmpty() && !bypassOwnership)
         {
             getCommandSender().sendMessage(textFactory.newText().append(
-                localizer.getMessage("commands.remove_owner.error.not_an_owner"), TextType.ERROR,
-                arg -> arg.highlight(localizer.getStructureType(structure))));
+                localizer.getMessage("commands.remove_owner.error.not_an_owner"),
+                TextType.ERROR,
+                arg -> arg.highlight(localizer.getStructureType(structure)))
+            );
             return false;
         }
 
         // Assume a permission level of 0 in case the command sender is not an owner but DOES have bypass access.
         final PermissionLevel ownerPermission = structureOwner.map(StructureOwner::permission)
-                                                              .orElse(PermissionLevel.CREATOR);
+            .orElse(PermissionLevel.CREATOR);
         if (!StructureAttribute.REMOVE_OWNER.canAccessWith(ownerPermission))
         {
             getCommandSender().sendMessage(textFactory.newText().append(
-                localizer.getMessage("commands.remove_owner.error.not_allowed"), TextType.ERROR,
-                arg -> arg.highlight(localizer.getStructureType(structure))));
+                localizer.getMessage("commands.remove_owner.error.not_allowed"),
+                TextType.ERROR,
+                arg -> arg.highlight(localizer.getStructureType(structure)))
+            );
             return false;
         }
 
@@ -104,17 +111,21 @@ public class RemoveOwner extends StructureTargetCommand
         if (targetStructureOwner.isEmpty())
         {
             getCommandSender().sendMessage(textFactory.newText().append(
-                localizer.getMessage("commands.remove_owner.error.target_not_an_owner"), TextType.ERROR,
+                localizer.getMessage("commands.remove_owner.error.target_not_an_owner"),
+                TextType.ERROR,
                 arg -> arg.highlight(targetPlayer.asString()),
                 arg -> arg.highlight(localizer.getStructureType(structure)),
-                arg -> arg.highlight(structure.getBasicInfo())));
+                arg -> arg.highlight(structure.getBasicInfo()))
+            );
             return false;
         }
 
         if (targetStructureOwner.get().permission().isLowerThanOrEquals(ownerPermission))
         {
             getCommandSender().sendError(
-                textFactory, localizer.getMessage("commands.remove_owner.error.cannot_remove_lower_permission"));
+                textFactory,
+                localizer.getMessage("commands.remove_owner.error.cannot_remove_lower_permission")
+            );
             return false;
         }
         return true;
@@ -136,6 +147,9 @@ public class RemoveOwner extends StructureTargetCommand
          * @return See {@link BaseCommand#run()}.
          */
         RemoveOwner newRemoveOwner(
-            ICommandSender commandSender, StructureRetriever structureRetriever, IPlayer targetPlayer);
+            ICommandSender commandSender,
+            StructureRetriever structureRetriever,
+            IPlayer targetPlayer
+        );
     }
 }

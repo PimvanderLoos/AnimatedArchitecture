@@ -12,16 +12,13 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents the command used to stop all active structures.
- *
- * @author Pim
  */
 @ToString
 public class StopStructures extends BaseCommand
 {
     private final StructureActivityManager structureActivityManager;
 
-    @AssistedInject //
-    StopStructures(
+    @AssistedInject StopStructures(
         @Assisted ICommandSender commandSender,
         ILocalizer localizer,
         ITextFactory textFactory,

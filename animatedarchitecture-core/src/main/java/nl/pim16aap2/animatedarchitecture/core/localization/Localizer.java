@@ -19,8 +19,6 @@ import java.util.ResourceBundle;
 
 /**
  * Represents a class that can be used to localize Strings.
- *
- * @author Pim
  */
 @Flogger //
 final class Localizer implements ILocalizer

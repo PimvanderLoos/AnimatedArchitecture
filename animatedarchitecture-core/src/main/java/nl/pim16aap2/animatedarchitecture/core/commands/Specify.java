@@ -15,8 +15,12 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Implements the command to specify a structure for the {@link StructureSpecificationManager}.
- *
- * @author Pim
+ * <p>
+ * For example, when a player wants to perform an action on a structure, but multiple structures fit the criteria. The
+ * Specify command is then used to specify which structure the player wants to perform the action on.
+ * <p>
+ * The specify command takes a String as input, which is then used to specify the structure. See
+ * {@link StructureSpecificationManager#handleInput(IPlayer, String)}.
  */
 @ToString
 public class Specify extends BaseCommand
@@ -53,7 +57,10 @@ public class Specify extends BaseCommand
     {
         if (!structureSpecificationManager.handleInput((IPlayer) getCommandSender(), input))
             getCommandSender().sendMessage(
-                textFactory, TextType.ERROR, localizer.getMessage("commands.base.error.no_pending_process"));
+                textFactory,
+                TextType.ERROR,
+                localizer.getMessage("commands.base.error.no_pending_process")
+            );
         return CompletableFuture.completedFuture(null);
     }
 

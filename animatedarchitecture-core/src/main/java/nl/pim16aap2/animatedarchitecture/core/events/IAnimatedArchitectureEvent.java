@@ -3,8 +3,6 @@ package nl.pim16aap2.animatedarchitecture.core.events;
 
 /**
  * Represents a AnimatedArchitecture event.
- *
- * @author Pim
  */
 public interface IAnimatedArchitectureEvent
 {

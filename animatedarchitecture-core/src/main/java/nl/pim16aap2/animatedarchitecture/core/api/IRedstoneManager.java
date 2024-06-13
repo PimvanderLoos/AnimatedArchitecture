@@ -4,8 +4,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 
 /**
  * Manages redstone status checks for power blocks.
- *
- * @author Pim
  */
 public interface IRedstoneManager
 {
@@ -30,6 +28,6 @@ public interface IRedstoneManager
     {
         POWERED,
         UNPOWERED,
-        DISABLED;
+        DISABLED
     }
 }

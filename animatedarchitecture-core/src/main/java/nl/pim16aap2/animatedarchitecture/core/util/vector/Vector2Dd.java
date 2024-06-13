@@ -7,8 +7,6 @@ import org.jetbrains.annotations.Contract;
  * Represents a double x/y pair.
  * <p>
  * This class is thread-safe, as all modifications return a new instance.
- *
- * @author Pim
  */
 @SuppressWarnings("unused")
 public record Vector2Dd(double x, double y)

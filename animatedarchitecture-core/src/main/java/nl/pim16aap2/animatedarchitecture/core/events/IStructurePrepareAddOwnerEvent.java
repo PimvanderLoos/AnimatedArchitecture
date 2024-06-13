@@ -4,8 +4,6 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 
 /**
  * Represents the event where a new owner is added to a structure.
- *
- * @author Pim
  */
 public interface IStructurePrepareAddOwnerEvent extends ICancellableAnimatedArchitectureEvent
 {

@@ -6,8 +6,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 /**
  * Represents a toggle action that will be applied to a structure.If you want to cancel the action, use
  * {@link IStructureEventTogglePrepare} instead.
- *
- * @author Pim
  */
 public interface IStructureEventToggleStart extends IStructureToggleEvent
 {

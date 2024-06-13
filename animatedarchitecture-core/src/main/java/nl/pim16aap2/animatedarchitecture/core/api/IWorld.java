@@ -4,8 +4,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.WorldTime;
 
 /**
  * Represents a AnimatedArchitecture world.
- *
- * @author Pim
  */
 public interface IWorld
 {

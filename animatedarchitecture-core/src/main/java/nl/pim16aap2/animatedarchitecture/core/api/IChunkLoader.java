@@ -5,8 +5,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 
 /**
  * Tool that can be used to load chunks or check if they are already loaded.
- *
- * @author Pim
  */
 public interface IChunkLoader
 {

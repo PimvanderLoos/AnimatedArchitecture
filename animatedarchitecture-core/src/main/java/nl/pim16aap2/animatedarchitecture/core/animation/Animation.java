@@ -12,6 +12,12 @@ import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Represents an animation.
+ *
+ * @param <T>
+ *     The type of the animated block.
+ */
 public class Animation<T extends IAnimatedBlock>
 {
     /**

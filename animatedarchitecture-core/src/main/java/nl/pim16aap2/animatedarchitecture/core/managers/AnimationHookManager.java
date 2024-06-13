@@ -20,8 +20,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Represents a manager for {@link IAnimationHookFactory} instances.
  * <p>
  * Factories that are registered with this manager will be inserted into every animation.
- *
- * @author Pim
  */
 @Singleton
 @Flogger
@@ -59,7 +57,7 @@ public final class AnimationHookManager implements IDebuggable
             catch (Exception e)
             {
                 log.atSevere().withCause(e).log("Failed to create hook with factory '%s'.",
-                                                factory.getClass().getName());
+                    factory.getClass().getName());
             }
         }
 

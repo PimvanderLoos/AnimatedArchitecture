@@ -14,8 +14,6 @@ import java.util.function.Function;
 
 /**
  * Represents a piece of text with styled sections.
- *
- * @author Pim
  */
 @SuppressWarnings("unused")
 public class Text implements CharSequence
@@ -89,11 +87,11 @@ public class Text implements CharSequence
 
         if (end <= start)
             throw new RuntimeException(String.format("The end (%d) of a substring cannot be before it (%d)!",
-                                                     end, start));
+                end, start));
 
         if (start < 0 || end > stringBuilder.length())
             throw new RuntimeException(String.format("Range [%d %d] out of bounds for range: [0 %d]!",
-                                                     start, end, stringBuilder.length()));
+                start, end, stringBuilder.length()));
 
         final String string = stringBuilder.substring(start, end);
         final Text newText = new Text(textComponentFactory);
@@ -436,8 +434,8 @@ public class Text implements CharSequence
     public Text prepend(Text other)
     {
         styledSections = appendSections(other.getLength(), other.styledSections, styledSections,
-                                        (section, offset) -> new StyledSection(section.startIndex + offset,
-                                                                               section.length, section.component));
+            (section, offset) -> new StyledSection(section.startIndex + offset,
+                section.length, section.component));
         stringBuilder.insert(0, other.stringBuilder);
         return this;
     }
@@ -486,8 +484,8 @@ public class Text implements CharSequence
             return this;
 
         styledSections = appendSections(getLength(), styledSections, other.styledSections,
-                                        (section, offset) -> new StyledSection(section.startIndex + offset,
-                                                                               section.length, section.component));
+            (section, offset) -> new StyledSection(section.startIndex + offset,
+                section.length, section.component));
         stringBuilder.append(other.stringBuilder);
         return this;
     }
