@@ -12,13 +12,13 @@ import java.util.function.Consumer;
 
 /**
  * Represents a {@link Animator} for {@link Windmill}s.
- *
- * @author Pim
  */
 public class WindmillAnimationComponent extends DrawbridgeAnimationComponent
 {
     public WindmillAnimationComponent(
-        AnimationRequestData data, MovementDirection movementDirection, boolean isNorthSouthAligned)
+        AnimationRequestData data,
+        MovementDirection movementDirection,
+        boolean isNorthSouthAligned)
     {
         super(data, movementDirection, isNorthSouthAligned, 4);
     }

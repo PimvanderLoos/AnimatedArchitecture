@@ -13,8 +13,6 @@ import java.util.function.Consumer;
 
 /**
  * Represents a {@link Animator} for {@link RevolvingDoor}s.
- *
- * @author Pim
  */
 public class RevolvingDoorAnimationComponent extends BigDoorAnimationComponent
 {

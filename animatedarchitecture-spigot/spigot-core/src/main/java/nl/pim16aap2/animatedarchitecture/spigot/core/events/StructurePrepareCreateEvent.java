@@ -12,8 +12,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents the event where a structure will be created.
- *
- * @author Pim
  */
 @ToString
 public class StructurePrepareCreateEvent extends StructureEvent implements IStructurePrepareCreateEvent

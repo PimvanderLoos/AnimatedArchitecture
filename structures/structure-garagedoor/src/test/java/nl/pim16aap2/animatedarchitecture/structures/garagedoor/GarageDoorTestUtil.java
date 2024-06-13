@@ -23,52 +23,60 @@ class GarageDoorTestUtil
     public static final List<OpeningData> OPENING_DATA_LIST = List.of(
         new OpeningData(
             "North-South-OddY",
-            MovementDirection.NORTH, new Vector3Di(150, 68, -51),
+            MovementDirection.NORTH,
+            new Vector3Di(150, 68, -51),
             new Vector3Di(147, 63, -51), new Vector3Di(153, 67, -51),
             new Vector3Di(147, 68, -56), new Vector3Di(153, 68, -52)
         ),
         new OpeningData(
             "North-South-EvenY",
-            MovementDirection.NORTH, new Vector3Di(150, 68, -51),
+            MovementDirection.NORTH,
+            new Vector3Di(150, 68, -51),
             new Vector3Di(147, 62, -51), new Vector3Di(153, 67, -51),
             new Vector3Di(147, 68, -57), new Vector3Di(153, 68, -52)
         ),
 
         new OpeningData(
             "West-East-OddY",
-            MovementDirection.WEST, new Vector3Di(-144, -68, -45),
+            MovementDirection.WEST,
+            new Vector3Di(-144, -68, -45),
             new Vector3Di(-144, -75, -48), new Vector3Di(-144, -69, -42),
             new Vector3Di(-151, -68, -48), new Vector3Di(-145, -68, -42)
         ),
         new OpeningData(
             "West-East-EvenY",
-            MovementDirection.WEST, new Vector3Di(-144, -68, -45),
+            MovementDirection.WEST,
+            new Vector3Di(-144, -68, -45),
             new Vector3Di(-144, -74, -48), new Vector3Di(-144, -69, -42),
             new Vector3Di(-150, -68, -48), new Vector3Di(-145, -68, -42)
         ),
 
         new OpeningData(
             "South-North-OddY",
-            MovementDirection.SOUTH, new Vector3Di(150, 68, 39),
+            MovementDirection.SOUTH,
+            new Vector3Di(150, 68, 39),
             new Vector3Di(147, 62, 39), new Vector3Di(153, 67, 39),
             new Vector3Di(147, 68, 40), new Vector3Di(153, 68, 45)
         ),
         new OpeningData(
             "South-North-EvenY",
-            MovementDirection.SOUTH, new Vector3Di(150, 68, 39),
+            MovementDirection.SOUTH,
+            new Vector3Di(150, 68, 39),
             new Vector3Di(147, 63, 39), new Vector3Di(153, 67, 39),
             new Vector3Di(147, 68, 40), new Vector3Di(153, 68, 44)
         ),
 
         new OpeningData(
             "East-West-OddY",
-            MovementDirection.EAST, new Vector3Di(156, -68, -45),
+            MovementDirection.EAST,
+            new Vector3Di(156, -68, -45),
             new Vector3Di(156, -74, -48), new Vector3Di(156, -69, -42),
             new Vector3Di(157, -68, -48), new Vector3Di(162, -68, -42)
         ),
         new OpeningData(
             "East-West-EvenY",
-            MovementDirection.EAST, new Vector3Di(156, -68, -45),
+            MovementDirection.EAST,
+            new Vector3Di(156, -68, -45),
             new Vector3Di(156, -73, -48), new Vector3Di(156, -69, -42),
             new Vector3Di(157, -68, -48), new Vector3Di(161, -68, -42)
         )
@@ -225,14 +233,14 @@ class GarageDoorTestUtil
         {
             return String.format(
                 """
-                OpeningData(
-                  name             = '%s'
-                  currentToggleDir = '%s'
-                  rotationPoint    = '%s'
-                  startCuboid      = '%s'
-                  endCuboid        = '%s'
-                )
-                """,
+                    OpeningData(
+                      name             = '%s'
+                      currentToggleDir = '%s'
+                      rotationPoint    = '%s'
+                      startCuboid      = '%s'
+                      endCuboid        = '%s'
+                    )
+                    """,
                 name, currentToggleDir, rotationPoint, startCuboid, endCuboid);
         }
     }

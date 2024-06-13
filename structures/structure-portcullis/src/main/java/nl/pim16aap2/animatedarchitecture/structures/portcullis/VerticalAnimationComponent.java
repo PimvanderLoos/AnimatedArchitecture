@@ -11,8 +11,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 
 /**
  * Represents a {@link Animator} for {@link Portcullis}'s.
- *
- * @author Pim
  */
 public final class VerticalAnimationComponent implements IAnimationComponent
 {

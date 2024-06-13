@@ -14,8 +14,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a {@link Animator} for {@link SlidingDoor}.
- *
- * @author Pim
  */
 public class SlidingDoorAnimationComponent implements IAnimationComponent
 {
@@ -67,11 +65,14 @@ public class SlidingDoorAnimationComponent implements IAnimationComponent
 
     protected RotatedPosition getGoalPos(IAnimatedBlock animatedBlock, double stepSum)
     {
-        return new RotatedPosition(
-            animatedBlock.getStartPosition().position()
-                         .add(northSouth ? 0 : stepSum,
-                              0,
-                              northSouth ? stepSum : 0));
+        return new RotatedPosition(animatedBlock
+            .getStartPosition()
+            .position()
+            .add(
+                northSouth ? 0 : stepSum,
+                0,
+                northSouth ? stepSum : 0)
+        );
     }
 
     @Override

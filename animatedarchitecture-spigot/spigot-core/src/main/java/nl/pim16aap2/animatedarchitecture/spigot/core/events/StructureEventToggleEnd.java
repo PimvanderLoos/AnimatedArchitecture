@@ -13,8 +13,6 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * Implementation of {@link IStructureEventToggleEnd} for the Spigot platform.
- *
- * @author Pim
  */
 @ToString
 public class StructureEventToggleEnd extends StructureToggleEvent implements IStructureEventToggleEnd

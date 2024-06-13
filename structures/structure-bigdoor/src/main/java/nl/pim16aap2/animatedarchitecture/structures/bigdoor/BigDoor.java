@@ -25,7 +25,6 @@ import java.util.stream.Stream;
 /**
  * Represents a Big Door structure type.
  *
- * @author Pim
  * @see AbstractStructure
  */
 @ToString(callSuper = true)
@@ -71,7 +70,8 @@ public class BigDoor extends AbstractStructure
     public MovementDirection getCycledOpenDirection()
     {
         return getOpenDir().equals(MovementDirection.CLOCKWISE) ?
-               MovementDirection.COUNTERCLOCKWISE : MovementDirection.CLOCKWISE;
+               MovementDirection.COUNTERCLOCKWISE :
+               MovementDirection.CLOCKWISE;
     }
 
     @Override
@@ -86,12 +86,14 @@ public class BigDoor extends AbstractStructure
     public Optional<Cuboid> getPotentialNewCoordinates()
     {
         final MovementDirection movementDirection = getCurrentToggleDir();
-        final double angle = movementDirection == MovementDirection.CLOCKWISE ? MathUtil.HALF_PI :
-                             movementDirection == MovementDirection.COUNTERCLOCKWISE ? -MathUtil.HALF_PI : 0.0D;
+        final double angle =
+            movementDirection == MovementDirection.CLOCKWISE ? MathUtil.HALF_PI :
+            movementDirection == MovementDirection.COUNTERCLOCKWISE ? -MathUtil.HALF_PI :
+            0.0D;
+
         if (angle == 0.0D)
         {
-            log.atSevere()
-               .log("Invalid movement direction '%s' for door: %d", movementDirection.name(), getUid());
+            log.atSevere().log("Invalid movement direction '%s' for door: %d", movementDirection.name(), getUid());
             return Optional.empty();
         }
 
@@ -126,9 +128,10 @@ public class BigDoor extends AbstractStructure
     public static Rectangle calculateAnimationRange(double maxRadius, Cuboid cuboid)
     {
         final int radius = MathUtil.ceil(maxRadius);
-        return new Cuboid(cuboid.getMin().add(-radius, 0, -radius),
-                          cuboid.getMax().add(radius, 0, radius))
-            .asFlatRectangle();
+        return new Cuboid(
+            cuboid.getMin().add(-radius, 0, -radius),
+            cuboid.getMax().add(radius, 0, radius)
+        ).asFlatRectangle();
     }
 
     /**
@@ -149,8 +152,9 @@ public class BigDoor extends AbstractStructure
         final Vector3Di other1 = new Vector3Di(max.x(), min.y(), min.z());
 
         return Stream.of(min, max, other0, other1)
-                     .mapToDouble(val -> BigDoorAnimationComponent.getRadius(rotationPoint, val.x(), val.z()))
-                     .max().orElseThrow();
+            .mapToDouble(val -> BigDoorAnimationComponent.getRadius(rotationPoint, val.x(), val.z()))
+            .max()
+            .orElseThrow();
     }
 
     @Override

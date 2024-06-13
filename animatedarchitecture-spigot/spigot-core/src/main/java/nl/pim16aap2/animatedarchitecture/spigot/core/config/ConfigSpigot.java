@@ -48,8 +48,6 @@ import java.util.logging.Level;
 
 /**
  * Represents the config loader.
- *
- * @author Pim
  */
 @ToString
 @Singleton
@@ -136,11 +134,11 @@ public final class ConfigSpigot implements IConfig, IDebuggable
 
         header =
             """
-            # Config file for AnimatedArchitecture. Don't forget to make a backup before making changes!
-            #
-            # For most options, you can apply your changes using "/animatedarchitecture restart".
-            # When an option requires a restart, it will be mentioned in the description.
-            """;
+                # Config file for AnimatedArchitecture. Don't forget to make a backup before making changes!
+                #
+                # For most options, you can apply your changes using "/animatedarchitecture restart".
+                # When an option requires a restart, it will be mentioned in the description.
+                """;
 
         restartableHolder.registerRestartable(this);
         debuggableRegistry.registerDebuggable(this);
@@ -173,214 +171,214 @@ public final class ConfigSpigot implements IConfig, IDebuggable
 
         final String loadChunksForToggleComment =
             """
-            # Try to load chunks when a structure is toggled. When set to false, structures will not be toggled if more
-            # than 1 chunk needs to be loaded.
-            # When set to true, the plugin will try to load all chunks the structure will interact with before toggling.
-            # If more than 1 chunk needs to be loaded, the structure will skip its animation to avoid spawning a bunch
-            # of entities no one can see anyway.
-            """;
+                # Try to load chunks when a structure is toggled. When set to false, structures will not be toggled if more
+                # than 1 chunk needs to be loaded.
+                # When set to true, the plugin will try to load all chunks the structure will interact with before toggling.
+                # If more than 1 chunk needs to be loaded, the structure will skip its animation to avoid spawning a bunch
+                # of entities no one can see anyway.
+                """;
 
         final String enableRedstoneComment =
             """
-            # Allow structures to be opened using redstone signals.
-            """;
+                # Allow structures to be opened using redstone signals.
+                """;
 
         final String powerBlockTypeComment =
             """
-            # Choose the type of the power block that is used to open structures using redstone.
-            # This is the block that will open the structure attached to it when it receives a redstone signal.
-            # Multiple types are allowed.
-            #
-            # A list of options can be found here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html
-            """;
+                # Choose the type of the power block that is used to open structures using redstone.
+                # This is the block that will open the structure attached to it when it receives a redstone signal.
+                # Multiple types are allowed.
+                #
+                # A list of options can be found here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html
+                """;
 
         final String blacklistComment =
             """
-            # List of blacklisted materials. Materials on this list can not be animated.
-            #
-            # Use the same list of materials as for the power blocks. For example, you would blacklist bedrock like so:
-            #   - BEDROCK
-            """;
+                # List of blacklisted materials. Materials on this list can not be animated.
+                #
+                # Use the same list of materials as for the power blocks. For example, you would blacklist bedrock like so:
+                #   - BEDROCK
+                """;
 
         final String maxStructureCountComment = String.format(
             """
-            # Global maximum number of structures a player can own. You can set it to -1 to disable it this limit.
-            #
-            # Not even admins and OPs can bypass this limit!
-            #
-            # You can use permissions if you need more finely grained control using this node:
-            # '%s.x', where 'x' can be any positive value.
-            """, Limit.STRUCTURE_COUNT.getUserPermission());
+                # Global maximum number of structures a player can own. You can set it to -1 to disable it this limit.
+                #
+                # Not even admins and OPs can bypass this limit!
+                #
+                # You can use permissions if you need more finely grained control using this node:
+                # '%s.x', where 'x' can be any positive value.
+                """, Limit.STRUCTURE_COUNT.getUserPermission());
 
         final String maxBlocksToMoveComment = String.format(
             """
-            # Global maximum number of structures a player can own. You can set it to -1 to disable it this limit.
-            #
-            # Not even admins and OPs can bypass this limit!
-            #
-            # You can use permissions if you need more finely grained control using this node:
-            # '%s.x', where 'x' can be any positive value.
-            """, Limit.BLOCKS_TO_MOVE.getUserPermission());
+                # Global maximum number of structures a player can own. You can set it to -1 to disable it this limit.
+                #
+                # Not even admins and OPs can bypass this limit!
+                #
+                # You can use permissions if you need more finely grained control using this node:
+                # '%s.x', where 'x' can be any positive value.
+                """, Limit.BLOCKS_TO_MOVE.getUserPermission());
 
         final String maxStructureSizeComment = String.format(
             """
-            # Global maximum number of blocks allowed in a structure. You can set it to -1 to disable it this limit.
-            # If this number is exceeded, structures will open instantly and skip the animation.
-            #
-            # Not even admins and OPs can bypass this limit!
-            #
-            # You can use permissions if you need more finely grained control using this node:
-            # '%s.x', where 'x' can be any positive value.
-            """, Limit.STRUCTURE_SIZE.getUserPermission());
+                # Global maximum number of blocks allowed in a structure. You can set it to -1 to disable it this limit.
+                # If this number is exceeded, structures will open instantly and skip the animation.
+                #
+                # Not even admins and OPs can bypass this limit!
+                #
+                # You can use permissions if you need more finely grained control using this node:
+                # '%s.x', where 'x' can be any positive value.
+                """, Limit.STRUCTURE_SIZE.getUserPermission());
 
         final String maxPowerBlockDistanceComment = String.format(
             """
-            # Global maximum distance between a structure and its powerblock.
-            # The distance is measured from the center of the structure.
-            #
-            # Not even admins and OPs can bypass this limit!
-            #
-            # You can set it to -1 to disable this limit.
-            #
-            # You can use permissions if you need more finely grained control using this node:
-            # '%s.x', where 'x' can be any positive value.
-            """, Limit.POWERBLOCK_DISTANCE.getUserPermission());
+                # Global maximum distance between a structure and its powerblock.
+                # The distance is measured from the center of the structure.
+                #
+                # Not even admins and OPs can bypass this limit!
+                #
+                # You can set it to -1 to disable this limit.
+                #
+                # You can use permissions if you need more finely grained control using this node:
+                # '%s.x', where 'x' can be any positive value.
+                """, Limit.POWERBLOCK_DISTANCE.getUserPermission());
 
         final String localeComment =
             """
-            # Determines which locale to use. Defaults to root.
-            """;
+                # Determines which locale to use. Defaults to root.
+                """;
 
         final String commandAliasesComment =
             """
-            # List of aliases for the /animatedarchitecture command.
-            # The first alias will be used as the main command.
-            # Aliases are case sensitive, can not contain spaces, and should not have a leading slash.
-            # Changing this will require a server restart to take effect.
-            """;
+                # List of aliases for the /animatedarchitecture command.
+                # The first alias will be used as the main command.
+                # Aliases are case sensitive, can not contain spaces, and should not have a leading slash.
+                # Changing this will require a server restart to take effect.
+                """;
 
         final String resourcePackComment =
             """
-            # This plugin uses a support resource pack for things such as sound.
-            # Enabling this may cause issues if you server or another plugin also uses a resource pack!
-            # When this is the case, it's recommended to disable this option and merge the pack with the other one.
-            """;
+                # This plugin uses a support resource pack for things such as sound.
+                # Enabling this may cause issues if you server or another plugin also uses a resource pack!
+                # When this is the case, it's recommended to disable this option and merge the pack with the other one.
+                """;
 
         final String maxBlockSpeedComment =
             """
-            # Determines the global speed limit of animated blocks measured in blocks/second.
-            # Animated objects will slow down when necessary to avoid any of their animated blocks exceeding this limit
-            # Higher values may result in choppier and/or glitchier animations.
-            """;
+                # Determines the global speed limit of animated blocks measured in blocks/second.
+                # Animated objects will slow down when necessary to avoid any of their animated blocks exceeding this limit
+                # Higher values may result in choppier and/or glitchier animations.
+                """;
 
         final String animationTimeMultiplierComment =
             """
-            # Change the animation time of each structure type.
-            # The higher the value, the more time an animation will take.
-            #
-            # For example, we have a structure with a default animation duration of 10 seconds.
-            # With a multiplier of 1.5, the animation will take 15 seconds, while a multiplier of 0.5 will result in a
-            # duration of 5 seconds.
-            #
-            # Note that the maximum speed of the animated blocks is limited by 'maxBlockSpeed', so there is a limit to
-            # how fast you can make the structures.
-            """;
+                # Change the animation time of each structure type.
+                # The higher the value, the more time an animation will take.
+                #
+                # For example, we have a structure with a default animation duration of 10 seconds.
+                # With a multiplier of 1.5, the animation will take 15 seconds, while a multiplier of 0.5 will result in a
+                # duration of 5 seconds.
+                #
+                # Note that the maximum speed of the animated blocks is limited by 'maxBlockSpeed', so there is a limit to
+                # how fast you can make the structures.
+                """;
 
         final String coolDownComment =
             """
-            # Cool-down on using structures. Time is measured in seconds.
-            """;
+                # Cool-down on using structures. Time is measured in seconds.
+                """;
 
         final String cacheTimeoutComment =
             """
-            # Amount of time (in minutes) to cache power block positions in a chunk.
-            # -1 means no caching (not recommended!), 0 = infinite cache (not recommended either!).
-            # It doesn't take up too much RAM, so it's recommended to leave this value high.
-            # It'll get updated automatically when needed anyway.
-            """;
+                # Amount of time (in minutes) to cache power block positions in a chunk.
+                # -1 means no caching (not recommended!), 0 = infinite cache (not recommended either!).
+                # It doesn't take up too much RAM, so it's recommended to leave this value high.
+                # It'll get updated automatically when needed anyway.
+                """;
 
         final String redstoneThreadPoolSizeComment =
             """
-            # The size of the thread pool used for redstone events.
-            # A bigger pool means more redstone events can be processed at the same time, but increases resource usage.
-            # Set to -1 to use the default value.
-            """;
+                # The size of the thread pool used for redstone events.
+                # A bigger pool means more redstone events can be processed at the same time, but increases resource usage.
+                # Set to -1 to use the default value.
+                """;
 
         final String flagMovementFormulaComment =
             """
-            # The movement formula of the blocks for flags. THe formula is evaluated for each block
-            # for each step in the animation.
-            #
-            # You can find a list of supported operators in the formula here:
-            # https://github.com/PimvanderLoos/JCalculator
-            #
-            # The formula can use the following variables:
-            #   'radius':  The distance of the block to the pole it is connected to.
-            #   'counter': The number of steps that have passed in the animation.
-            #   'length':  The total length of the flag.
-            #   'height':  The height of the block for which the formula is used. The bottom row has a height of 0.
-            #
-            # The return value of the formula is the horizontal displacement of a single block in the flag.
-            """;
+                # The movement formula of the blocks for flags. THe formula is evaluated for each block
+                # for each step in the animation.
+                #
+                # You can find a list of supported operators in the formula here:
+                # https://github.com/PimvanderLoos/JCalculator
+                #
+                # The formula can use the following variables:
+                #   'radius':  The distance of the block to the pole it is connected to.
+                #   'counter': The number of steps that have passed in the animation.
+                #   'length':  The total length of the flag.
+                #   'height':  The height of the block for which the formula is used. The bottom row has a height of 0.
+                #
+                # The return value of the formula is the horizontal displacement of a single block in the flag.
+                """;
 
         final String pricesComment =
             """
-            # When Vault is present, you can set the price of creation here for each type of structure.
-            # You can use the word "blockCount" (without quotation marks, case sensitive) as a variable that will be
-            # replaced by the actual blockCount.
-            #
-            # You can use the following operators:
-            #   -, +, *, /, sqrt(), ^, %, min(a,b), max(a,b), abs(), and parentheses.
-            #
-            # For example: "price='max(10, sqrt(16)^4/100*blockCount)'
-            # would return 10 for a blockCount of 0 to 3 and 10.24 for a blockCount of 4.
-            # You must always put the formula or simple value or whatever in quotation marks!
-            # Also, these settings do nothing if Vault isn't installed!
-            """;
+                # When Vault is present, you can set the price of creation here for each type of structure.
+                # You can use the word "blockCount" (without quotation marks, case sensitive) as a variable that will be
+                # replaced by the actual blockCount.
+                #
+                # You can use the following operators:
+                #   -, +, *, /, sqrt(), ^, %, min(a,b), max(a,b), abs(), and parentheses.
+                #
+                # For example: "price='max(10, sqrt(16)^4/100*blockCount)'
+                # would return 10 for a blockCount of 0 to 3 and 10.24 for a blockCount of 4.
+                # You must always put the formula or simple value or whatever in quotation marks!
+                # Also, these settings do nothing if Vault isn't installed!
+                """;
 
         final String headCacheTimeoutComment =
             """
-            # Amount of time (in minutes) to cache player heads.
-            #   -1 = no caching (not recommended!)
-            #    0 = infinite cache (not recommended either!)
-            """;
+                # Amount of time (in minutes) to cache player heads.
+                #   -1 = no caching (not recommended!)
+                #    0 = infinite cache (not recommended either!)
+                """;
 
         final String enabledProtectionHooksComment =
             """
-            # Enable or disable compatibility hooks for certain plugins.
-            # If the plugins aren't installed, these options do nothing.
-            # When enabled, structures cannot be toggled or created in areas not owned by the owner of that structure.
-            """;
+                # Enable or disable compatibility hooks for certain plugins.
+                # If the plugins aren't installed, these options do nothing.
+                # When enabled, structures cannot be toggled or created in areas not owned by the owner of that structure.
+                """;
 
         final String debugComment =
             """
-            # Don't use this. Just leave it on false.
-            """;
+                # Don't use this. Just leave it on false.
+                """;
 
         final String skipAnimationsByDefaultComment =
             """
-            # When enabled, all animations will be skipped by default, causing any toggles to simply teleport the blocks
-            # to their destination instantly.
-            # Note that this only determines the default value. It can be overridden in some cases.
-            """;
+                # When enabled, all animations will be skipped by default, causing any toggles to simply teleport the blocks
+                # to their destination instantly.
+                # Note that this only determines the default value. It can be overridden in some cases.
+                """;
 
         final String consoleLoggingComment =
             """
-            # Write errors and exceptions to console.
-            # If disabled, they will only be written to the AnimatedArchitecture log.
-            # If enabled, they will be written to both the console and the AnimatedArchitecture log.
-            """;
+                # Write errors and exceptions to console.
+                # If disabled, they will only be written to the AnimatedArchitecture log.
+                # If enabled, they will be written to both the console and the AnimatedArchitecture log.
+                """;
 
         final String logLevelComment =
             """
-            # The log level to use. Note that levels lower than INFO aren't shown in the console by default,
-            # regardless of this setting. They are still written to this plugin's log file, though.
-            #
-            # Supported levels are:
-            #   OFF, SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST, ALL.
-            #
-            # This will default to INFO in case an invalid option is provided.
-            """;
+                # The log level to use. Note that levels lower than INFO aren't shown in the console by default,
+                # regardless of this setting. They are still written to this plugin's log file, though.
+                #
+                # Supported levels are:
+                #   OFF, SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST, ALL.
+                #
+                # This will default to INFO in case an invalid option is provided.
+                """;
 
 
         final IConfigReader config = new ConfigReaderSpigot(plugin.getConfig());
@@ -392,9 +390,9 @@ public final class ConfigSpigot implements IConfig, IDebuggable
         // Because all entries need to be verified as valid blocks anyway, the list of power block types is
         // populated in the verification method.
         addNewConfigEntry(config, "powerBlockTypes", DEFAULT_POWERBLOCK_TYPE, powerBlockTypeComment,
-                          new MaterialVerifier(powerBlockTypes));
+            new MaterialVerifier(powerBlockTypes));
         addNewConfigEntry(config, "materialBlacklist", DEFAULT_BLACKLIST, blacklistComment,
-                          new MaterialVerifier(materialBlacklist));
+            new MaterialVerifier(materialBlacklist));
 
         final int maxStructureCount = addNewConfigEntry(config, "maxStructureCount", -1, maxStructureCountComment);
         this.maxStructureCount = maxStructureCount > 0 ? OptionalInt.of(maxStructureCount) : OptionalInt.empty();
@@ -406,7 +404,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable
         this.maxStructureSize = maxStructureSize > 0 ? OptionalInt.of(maxStructureSize) : OptionalInt.empty();
 
         final int maxPowerBlockDistance = addNewConfigEntry(config, "maxPowerBlockDistance", -1,
-                                                            maxPowerBlockDistanceComment);
+            maxPowerBlockDistanceComment);
         this.maxPowerBlockDistance = maxPowerBlockDistance > 0 ?
                                      OptionalInt.of(maxPowerBlockDistance) : OptionalInt.empty();
 
@@ -507,12 +505,12 @@ public final class ConfigSpigot implements IConfig, IDebuggable
 
         final String comment =
             """
-            # The materials to use in the GUI when looking at the overview of all structures.
-            """;
+                # The materials to use in the GUI when looking at the overview of all structures.
+                """;
 
         final Map<StructureType, String> materialNames = new HashMap<>();
         parseForEachStructureType(materialNames, config, enabledStructureTypes, comment, defaults,
-                                  DEFAULT_MATERIAL.name(), prefix);
+            DEFAULT_MATERIAL.name(), prefix);
 
         final Map<StructureType, Material> result = new HashMap<>(MathUtil.ceil(1.25 * materialNames.size()));
         for (final var entry : materialNames.entrySet())
@@ -521,7 +519,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable
             if (mat == null)
             {
                 log.atWarning().log("Could not find material with name '%s'! Defaulting to '%s'!",
-                                    entry.getValue(), DEFAULT_MATERIAL.name());
+                    entry.getValue(), DEFAULT_MATERIAL.name());
                 mat = DEFAULT_MATERIAL;
             }
             result.put(entry.getKey(), mat);
@@ -669,16 +667,16 @@ public final class ConfigSpigot implements IConfig, IDebuggable
 
             for (int idx = 0; idx < configEntries.size(); ++idx)
                 sb.append(configEntries.get(idx).toString()).append('\n')
-                  // Only print an additional newLine if the next config option has a comment.
-                  .append((idx < configEntries.size() - 1 && configEntries.get(idx + 1).getComment() == null ?
-                           "" : '\n'));
+                    // Only print an additional newLine if the next config option has a comment.
+                    .append((idx < configEntries.size() - 1 && configEntries.get(idx + 1).getComment() == null ?
+                             "" : '\n'));
 
             Files.writeString(configFile, sb.toString());
         }
         catch (IOException e)
         {
             log.atSevere().withCause(e)
-               .log("Could not save config.yml! Please contact pim16aap2 and show him the following stacktrace:");
+                .log("Could not save config.yml! Please contact pim16aap2 and show him the following stacktrace:");
         }
     }
 
@@ -909,7 +907,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable
                     else
                     {
                         log.atWarning()
-                           .log("Failed to add material: \"%s\". Only solid materials are allowed!", str);
+                            .log("Failed to add material: \"%s\". Only solid materials are allowed!", str);
                         it.remove();
                     }
                 }

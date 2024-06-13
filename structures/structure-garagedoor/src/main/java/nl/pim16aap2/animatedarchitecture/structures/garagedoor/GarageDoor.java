@@ -22,8 +22,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Represents a Garage Door structure type.
- *
- * @author Pim
  */
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)

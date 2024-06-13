@@ -30,8 +30,6 @@ import java.util.concurrent.TimeoutException;
 
 /**
  * Represents a listener that keeps track redstone changes.
- *
- * @author Pim
  */
 @Singleton
 @Flogger

@@ -19,8 +19,6 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents an implementation of {@link IPlayerFactory} for the Spigot platform.
- *
- * @author Pim
  */
 @Singleton
 public class PlayerFactorySpigot implements IPlayerFactory
@@ -50,7 +48,7 @@ public class PlayerFactorySpigot implements IPlayerFactory
             return CompletableFuture.completedFuture(Optional.of(new PlayerSpigot(player)));
 
         return databaseManager.getPlayerData(uuid)
-                              .thenApply(playerData -> playerData.<IPlayer>map(OfflinePlayerSpigot::new))
-                              .exceptionally(Util::exceptionallyOptional);
+            .thenApply(playerData -> playerData.<IPlayer>map(OfflinePlayerSpigot::new))
+            .exceptionally(Util::exceptionallyOptional);
     }
 }

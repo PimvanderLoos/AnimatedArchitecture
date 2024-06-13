@@ -14,8 +14,6 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * Implementation of {@link IStructureEventToggleStart} for the Spigot platform.
- *
- * @author Pim
  */
 @ToString
 public class StructureEventToggleStart extends StructureToggleEvent implements IStructureEventToggleStart

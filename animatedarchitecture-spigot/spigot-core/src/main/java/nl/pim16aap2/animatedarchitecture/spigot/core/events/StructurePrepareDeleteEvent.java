@@ -12,8 +12,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents the event where a structure was deleted.
- *
- * @author Pim
  */
 @ToString
 public class StructurePrepareDeleteEvent extends StructureEvent implements IStructurePrepareDeleteEvent

@@ -23,8 +23,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Represents a Sliding Door structure type.
- *
- * @author Pim
  */
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -85,7 +83,8 @@ public class SlidingDoor extends AbstractStructure implements IDiscreteMovement
         final MovementDirection openDirection = getOpenDir();
         return openDirection.equals(MovementDirection.NORTH) ? MovementDirection.EAST :
                openDirection.equals(MovementDirection.EAST) ? MovementDirection.SOUTH :
-               openDirection.equals(MovementDirection.SOUTH) ? MovementDirection.WEST : MovementDirection.NORTH;
+               openDirection.equals(MovementDirection.SOUTH) ? MovementDirection.WEST :
+               MovementDirection.NORTH;
     }
 
     @Override

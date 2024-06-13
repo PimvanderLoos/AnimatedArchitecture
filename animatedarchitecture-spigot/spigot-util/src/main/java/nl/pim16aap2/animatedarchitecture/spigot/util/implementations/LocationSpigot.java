@@ -18,8 +18,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents an implementation of {@link ILocation} for the Spigot platform.
- *
- * @author Pim
  */
 @Flogger
 public final class LocationSpigot implements ILocation

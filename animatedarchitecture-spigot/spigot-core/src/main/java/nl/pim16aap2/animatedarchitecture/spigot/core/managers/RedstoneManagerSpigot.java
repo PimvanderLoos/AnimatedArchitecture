@@ -16,16 +16,14 @@ import java.util.List;
 
 /**
  * Represents an implementation of {@link IRedstoneManager} for the Spigot platform.
- *
- * @author Pim
  */
 @Singleton
 public final class RedstoneManagerSpigot implements IRedstoneManager
 {
     private static final List<BlockFace> FACE_LIST =
         List.of(BlockFace.SELF,
-                BlockFace.UP, BlockFace.DOWN,
-                BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST);
+            BlockFace.UP, BlockFace.DOWN,
+            BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST);
 
     private final IConfig config;
 

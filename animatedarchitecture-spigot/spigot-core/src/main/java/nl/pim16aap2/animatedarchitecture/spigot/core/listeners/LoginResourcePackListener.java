@@ -13,8 +13,6 @@ import javax.inject.Singleton;
 
 /**
  * Represents a listener that keeps track of {@link Player}s logging in to send them the resource pack.
- *
- * @author Pim
  */
 @Singleton
 @Flogger

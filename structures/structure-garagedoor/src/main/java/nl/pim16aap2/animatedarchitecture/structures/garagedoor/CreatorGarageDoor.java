@@ -56,11 +56,15 @@ public class CreatorGarageDoor extends Creator
             factoryProvideName.construct(),
             factoryProvideFirstPos
                 .textSupplier(text -> text.append(
-                    localizer.getMessage("creator.garage_door.step_1"), TextType.INFO, getStructureArg()))
+                    localizer.getMessage("creator.garage_door.step_1"),
+                    TextType.INFO,
+                    getStructureArg()))
                 .construct(),
             factoryProvideSecondPos
                 .textSupplier(text -> text.append(
-                    localizer.getMessage("creator.garage_door.step_2"), TextType.INFO, getStructureArg()))
+                    localizer.getMessage("creator.garage_door.step_2"),
+                    TextType.INFO,
+                    getStructureArg()))
                 .construct(),
             factoryProvidePowerBlockPos.construct(),
             factoryProvideOpenStatus.construct(),

@@ -23,8 +23,6 @@ import java.util.Queue;
 
 /**
  * Represents an argument parser that can be used to retrieve and suggest structure types.
- *
- * @author Pim
  */
 public class StructureTypeParser implements ArgumentParser<ICommandSender, StructureType>, IRestartable
 {

@@ -25,8 +25,6 @@ import java.util.stream.Stream;
 
 /**
  * Represents a Drawbridge structure type.
- *
- * @author Pim
  */
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -83,8 +81,7 @@ public class Drawbridge extends AbstractStructure implements IHorizontalAxisAlig
             angle = quarterCircles * MathUtil.HALF_PI;
         else
         {
-            log.atSevere()
-               .log("Invalid open direction '%s' for door: %d", movementDirection.name(), getUid());
+            log.atSevere().log("Invalid open direction '%s' for door: %d", movementDirection.name(), getUid());
             return Optional.empty();
         }
 
@@ -153,8 +150,9 @@ public class Drawbridge extends AbstractStructure implements IHorizontalAxisAlig
     {
         return Stream
             .of(cuboid.getCorners())
-            .mapToDouble(val -> DrawbridgeAnimationComponent
-                .getRadius(northSouthAligned, rotationPoint, val.x(), val.y(), val.z()))
-            .max().orElseThrow();
+            .mapToDouble(val ->
+                DrawbridgeAnimationComponent.getRadius(northSouthAligned, rotationPoint, val.x(), val.y(), val.z()))
+            .max()
+            .orElseThrow();
     }
 }

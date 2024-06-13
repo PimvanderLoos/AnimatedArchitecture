@@ -31,8 +31,6 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents a listener that keeps track of chunks being unloaded.
- *
- * @author Pim
  */
 @Singleton
 @Flogger
@@ -73,7 +71,7 @@ public class ChunkListener extends AbstractListener
 
         final CompletableFuture<List<AbstractStructure>> powerBlocks =
             powerBlockManager.structuresInChunk(new Vector3Di(chunk.getX() << 4, 0, chunk.getZ() << 4),
-                                                world.getName());
+                world.getName());
 
         Util.getAllCompletableFutureResultsFlatMap(rotationPoints, powerBlocks)
             .thenAccept(lst -> lst.forEach(AbstractStructure::onChunkLoad))

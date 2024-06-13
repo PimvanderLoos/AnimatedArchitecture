@@ -28,8 +28,6 @@ import java.util.stream.Stream;
 
 /**
  * Represents an argument parser that can be used to retrieve and suggest structure types.
- *
- * @author Pim
  */
 public class DirectionParser implements ArgumentParser<ICommandSender, MovementDirection>, IRestartable
 {
@@ -78,7 +76,7 @@ public class DirectionParser implements ArgumentParser<ICommandSender, MovementD
     {
         final Stream<String> suggestionsStream =
             Objects.requireNonNullElseGet(tryRetrieveGuidedSuggestions(commandContext),
-                                          () -> invertedSuggestions.values().stream());
+                () -> invertedSuggestions.values().stream());
         return suggestionsStream
             .filter(val -> val.toLowerCase(Locale.ROOT).startsWith(input.toLowerCase(Locale.ROOT)))
             .toList();

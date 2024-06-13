@@ -13,8 +13,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents the event where a new owner is added to a structure.
- *
- * @author Pim
  */
 @ToString
 public class StructurePrepareAddOwnerEvent extends StructureEvent implements IStructurePrepareAddOwnerEvent

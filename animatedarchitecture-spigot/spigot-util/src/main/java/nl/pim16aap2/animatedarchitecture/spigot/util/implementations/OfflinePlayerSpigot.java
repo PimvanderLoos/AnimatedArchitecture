@@ -16,8 +16,6 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents an implementation of {@link IPlayer} for the Spigot platform.
- *
- * @author Pim
  */
 public final class OfflinePlayerSpigot implements IPlayer
 {

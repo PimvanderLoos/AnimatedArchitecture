@@ -8,8 +8,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents an {@link IAnimatedBlock} with some additional QoL methods for the Spigot platform.
- *
- * @author Pim
  */
 public interface IAnimatedBlockSpigot extends IAnimatedBlock
 {

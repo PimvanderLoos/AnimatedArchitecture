@@ -19,8 +19,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Represents a Windmill structure type.
- *
- * @author Pim
  */
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -83,7 +81,8 @@ public class Windmill extends AbstractStructure implements IHorizontalAxisAligne
         final MovementDirection openDir = getOpenDir();
         return openDir.equals(MovementDirection.NORTH) ? MovementDirection.EAST :
                openDir.equals(MovementDirection.EAST) ? MovementDirection.SOUTH :
-               openDir.equals(MovementDirection.SOUTH) ? MovementDirection.WEST : MovementDirection.NORTH;
+               openDir.equals(MovementDirection.SOUTH) ? MovementDirection.WEST :
+               MovementDirection.NORTH;
     }
 
     @Override

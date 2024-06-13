@@ -65,7 +65,9 @@ public class CreatorClock extends Creator
         final Step stepSelectHourArm = stepFactory
             .stepName("SELECT_HOUR_ARM")
             .textSupplier(text -> text.append(
-                localizer.getMessage("creator.clock.step_3"), TextType.INFO, getStructureArg()))
+                localizer.getMessage("creator.clock.step_3"),
+                TextType.INFO,
+                getStructureArg()))
             .stepExecutor(new StepExecutorLocation(this::completeSelectHourArmStep))
             .waitForUserInput(true).construct();
 
@@ -73,11 +75,15 @@ public class CreatorClock extends Creator
             factoryProvideName.construct(),
             factoryProvideFirstPos
                 .textSupplier(text -> text.append(
-                    localizer.getMessage("creator.clock.step_1"), TextType.INFO, getStructureArg()))
+                    localizer.getMessage("creator.clock.step_1"),
+                    TextType.INFO,
+                    getStructureArg()))
                 .construct(),
             factoryProvideSecondPos
                 .textSupplier(text -> text.append(
-                    localizer.getMessage("creator.clock.step_2"), TextType.INFO, getStructureArg()))
+                    localizer.getMessage("creator.clock.step_2"),
+                    TextType.INFO,
+                    getStructureArg()))
                 .construct(),
             stepSelectHourArm,
             factoryProvidePowerBlockPos.construct(),
@@ -100,11 +106,15 @@ public class CreatorClock extends Creator
 
         final Cuboid cuboid = Util.requireNonNull(getCuboid(), "cuboid");
         if (northSouthAligned)
-            hourArmSide = loc.getBlockX() == cuboid.getMin().x() ? BlockFace.WEST :
-                          loc.getBlockX() == cuboid.getMax().x() ? BlockFace.EAST : null;
+            hourArmSide =
+                loc.getBlockX() == cuboid.getMin().x() ? BlockFace.WEST :
+                loc.getBlockX() == cuboid.getMax().x() ? BlockFace.EAST :
+                null;
         else
-            hourArmSide = loc.getBlockZ() == cuboid.getMin().z() ? BlockFace.NORTH :
-                          loc.getBlockZ() == cuboid.getMax().z() ? BlockFace.SOUTH : null;
+            hourArmSide =
+                loc.getBlockZ() == cuboid.getMin().z() ? BlockFace.NORTH :
+                loc.getBlockZ() == cuboid.getMax().z() ? BlockFace.SOUTH :
+                null;
 
         if (hourArmSide == null)
             getPlayer().sendError(textFactory, localizer.getMessage("creator.clock.error.invalid_hour_arm_side"));
@@ -158,19 +168,23 @@ public class CreatorClock extends Creator
         if (height < 3 || maxHorizontalDim < 3)
         {
             getPlayer().sendMessage(textFactory.newText().append(
-                localizer.getMessage("creator.clock.error.too_small"), TextType.ERROR,
+                localizer.getMessage("creator.clock.error.too_small"),
+                TextType.ERROR,
                 getStructureArg(),
                 arg -> arg.highlight(maxHorizontalDim),
-                arg -> arg.highlight(height)));
+                arg -> arg.highlight(height))
+            );
             return CompletableFuture.completedFuture(false);
         }
 
         if (height != maxHorizontalDim)
         {
             getPlayer().sendMessage(textFactory.newText().append(
-                localizer.getMessage("creator.clock.error.not_square"), TextType.ERROR,
+                localizer.getMessage("creator.clock.error.not_square"),
+                TextType.ERROR,
                 arg -> arg.highlight(maxHorizontalDim),
-                arg -> arg.highlight(height)));
+                arg -> arg.highlight(height))
+            );
             return CompletableFuture.completedFuture(false);
         }
 
@@ -178,9 +192,11 @@ public class CreatorClock extends Creator
         if (height % 2 == 0)
         {
             getPlayer().sendMessage(textFactory.newText().append(
-                localizer.getMessage("creator.clock.error.not_odd"), TextType.ERROR,
+                localizer.getMessage("creator.clock.error.not_odd"),
+                TextType.ERROR,
                 arg -> arg.highlight(maxHorizontalDim),
-                arg -> arg.highlight(height)));
+                arg -> arg.highlight(height))
+            );
             return CompletableFuture.completedFuture(false);
         }
 
@@ -188,9 +204,11 @@ public class CreatorClock extends Creator
         if (depth != 2)
         {
             getPlayer().sendMessage(textFactory.newText().append(
-                localizer.getMessage("creator.clock.error.not_2_deep"), TextType.ERROR,
+                localizer.getMessage("creator.clock.error.not_2_deep"),
+                TextType.ERROR,
                 getStructureArg(),
-                arg -> arg.highlight(depth)));
+                arg -> arg.highlight(depth))
+            );
             return CompletableFuture.completedFuture(false);
         }
 

@@ -45,8 +45,6 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Manages all interactions with Vault.
- *
- * @author Pim
  */
 @Singleton
 @Flogger
@@ -179,8 +177,8 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         catch (Exception e)
         {
             log.atSevere().withCause(e)
-               .log("Failed to determine structure creation price! Please contact pim16aap2! "
-                        + "Include this: '%s' and stacktrace:", formula);
+                .log("Failed to determine structure creation price! Please contact pim16aap2! "
+                    + "Include this: '%s' and stacktrace:", formula);
             return 0.0d;
         }
     }
@@ -213,7 +211,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         if (economy == null)
         {
             log.atWarning().log("Economy not enabled! Could not subtract %f from the balance of player: %s!",
-                                amount, player);
+                amount, player);
             return defaultValue;
         }
 
@@ -224,7 +222,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         catch (Exception e)
         {
             log.atSevere().withCause(e)
-               .log("Failed to check balance of player %s! Please contact pim16aap2!", player);
+                .log("Failed to check balance of player %s! Please contact pim16aap2!", player);
         }
         return defaultValue;
     }
@@ -246,7 +244,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         if (economy == null)
         {
             log.atWarning()
-               .log("Economy not enabled! Could not subtract %f from the balance of player: %s in world: %s!",
+                .log("Economy not enabled! Could not subtract %f from the balance of player: %s in world: %s!",
                     amount, player, worldName);
             return defaultValue;
         }
@@ -261,7 +259,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         catch (Exception e)
         {
             log.atSevere().withCause(e)
-               .log("Failed to subtract %f money from player %s! Please contact pim16aap2!", amount, player);
+                .log("Failed to subtract %f money from player %s! Please contact pim16aap2!", amount, player);
         }
         return defaultValue;
     }
@@ -417,7 +415,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         if (bukkitPlayer == null)
         {
             log.atSevere().withStackTrace(StackSize.FULL)
-               .log("Failed to obtain BukkitPlayer for player: '%s'", player.asString());
+                .log("Failed to obtain BukkitPlayer for player: '%s'", player.asString());
             return null;
         }
         return bukkitPlayer;

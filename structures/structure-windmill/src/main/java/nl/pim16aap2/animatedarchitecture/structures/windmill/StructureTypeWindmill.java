@@ -19,9 +19,17 @@ public final class StructureTypeWindmill extends StructureType
 
     private StructureTypeWindmill()
     {
-        super(Constants.PLUGIN_NAME, "Windmill", TYPE_VERSION,
-              Arrays.asList(MovementDirection.NORTH, MovementDirection.EAST,
-                            MovementDirection.SOUTH, MovementDirection.WEST), "structure.type.windmill");
+        super(
+            Constants.PLUGIN_NAME,
+            "Windmill",
+            TYPE_VERSION,
+            Arrays.asList(
+                MovementDirection.NORTH,
+                MovementDirection.EAST,
+                MovementDirection.SOUTH,
+                MovementDirection.WEST),
+            "structure.type.windmill"
+        );
     }
 
     /**

@@ -16,8 +16,6 @@ import java.util.Optional;
 
 /**
  * Class used to create a fake-online player who is actually offline.
- *
- * @author Pim
  */
 @Singleton
 @Flogger

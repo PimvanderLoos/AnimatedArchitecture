@@ -10,8 +10,6 @@ import javax.inject.Singleton;
 
 /**
  * Represents an implementation of {@link ILocationFactory} for the Spigot platform.
- *
- * @author Pim
  */
 @Singleton
 public class WorldFactorySpigot implements IWorldFactory

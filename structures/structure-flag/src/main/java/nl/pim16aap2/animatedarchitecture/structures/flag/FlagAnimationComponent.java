@@ -18,8 +18,6 @@ import java.util.function.BiFunction;
 
 /**
  * Represents a {@link Animator} for {@link Flag}s.
- *
- * @author Pim
  */
 @SuppressWarnings({"FieldCanBeLocal", "unused", "squid:S1172", "PMD"})
 @Flogger
@@ -53,11 +51,21 @@ public final class FlagAnimationComponent implements IAnimationComponent
         final String formula = config.flagMovementFormula();
         try
         {
-            return JCalculator
-                .getResult(formula,
-                           new String[]{"radius", "counter", "length", "height"},
-                           new double[]{animatedBlock.getRadius(), counter, length,
-                                        Math.round(animatedBlock.getStartY() - minY)});
+            return JCalculator.getResult(
+                formula,
+                new String[]{
+                    "radius",
+                    "counter",
+                    "length",
+                    "height"
+                },
+                new double[]{
+                    animatedBlock.getRadius(),
+                    counter,
+                    length,
+                    Math.round(animatedBlock.getStartY() - minY)
+                }
+            );
         }
         catch (Exception e)
         {
@@ -71,8 +79,12 @@ public final class FlagAnimationComponent implements IAnimationComponent
         double xOff = 0;
         if (animatedBlock.getRadius() > 0)
             xOff = getOffset(counter, animatedBlock);
+
         return new RotatedPosition(
-            new Vector3Dd(animatedBlock.getStartX() + xOff, animatedBlock.getStartY(), animatedBlock.getStartZ()));
+            animatedBlock.getStartX() + xOff,
+            animatedBlock.getStartY(),
+            animatedBlock.getStartZ()
+        );
     }
 
     private RotatedPosition getGoalPosEW(IAnimatedBlock animatedBlock, int counter)
@@ -80,8 +92,12 @@ public final class FlagAnimationComponent implements IAnimationComponent
         double zOff = 0;
         if (animatedBlock.getRadius() > 0)
             zOff = getOffset(counter, animatedBlock);
+
         return new RotatedPosition(
-            new Vector3Dd(animatedBlock.getStartX(), animatedBlock.getStartY(), animatedBlock.getStartZ() + zOff));
+            animatedBlock.getStartX(),
+            animatedBlock.getStartY(),
+            animatedBlock.getStartZ() + zOff
+        );
     }
 
     @Override

@@ -10,8 +10,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents the event where a structure was created.
- *
- * @author Pim
  */
 @ToString
 public class StructureCreatedEvent extends StructureEvent implements IStructureCreatedEvent

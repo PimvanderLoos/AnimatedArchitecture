@@ -19,7 +19,10 @@ class CounterWeightGarageDoorAnimationComponentTest
         try
         {
             final var mocker = new AssistedFactoryMocker<>(
-                AnimationRequestData.class, AnimationRequestData.IFactory.class);
+                AnimationRequestData.class,
+                AnimationRequestData.IFactory.class
+            );
+
             mocker.setMock(int.class, "serverTickTime", 50);
             this.factory = mocker.getFactory();
         }
@@ -62,7 +65,8 @@ class CounterWeightGarageDoorAnimationComponentTest
         final var actualCuboid = new Cuboid(rotatedPositionMin.toInteger(), rotatedPositionMax.toInteger());
 
         Assertions.assertEquals(
-            expectedCuboid, actualCuboid,
+            expectedCuboid,
+            actualCuboid,
             "Expected cuboid:\n  <" + expectedCuboid + ">\n" +
                 "but got:\n  <" + actualCuboid + ">\n" +
                 "for opening data: '" + openingData.name() + "':\n" +

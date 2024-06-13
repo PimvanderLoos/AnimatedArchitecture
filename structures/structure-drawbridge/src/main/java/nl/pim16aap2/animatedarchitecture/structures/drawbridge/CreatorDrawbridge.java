@@ -32,15 +32,21 @@ public class CreatorDrawbridge extends Creator
             factoryProvideName.construct(),
             factoryProvideFirstPos
                 .textSupplier(text -> text.append(
-                    localizer.getMessage("creator.draw_bridge.step_1"), TextType.INFO, getStructureArg()))
+                    localizer.getMessage("creator.draw_bridge.step_1"),
+                    TextType.INFO,
+                    getStructureArg()))
                 .construct(),
             factoryProvideSecondPos
                 .textSupplier(text -> text.append(
-                    localizer.getMessage("creator.draw_bridge.step_2"), TextType.INFO, getStructureArg()))
+                    localizer.getMessage("creator.draw_bridge.step_2"),
+                    TextType.INFO,
+                    getStructureArg()))
                 .construct(),
             factoryProvideRotationPointPos
                 .textSupplier(text -> text.append(
-                    localizer.getMessage("creator.draw_bridge.step_3"), TextType.INFO, getStructureArg()))
+                    localizer.getMessage("creator.draw_bridge.step_3"),
+                    TextType.INFO,
+                    getStructureArg()))
                 .construct(),
             factoryProvidePowerBlockPos.construct(),
             factoryProvideOpenStatus.construct(),

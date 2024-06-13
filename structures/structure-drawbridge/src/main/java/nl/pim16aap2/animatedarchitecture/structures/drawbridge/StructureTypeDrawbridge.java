@@ -25,9 +25,17 @@ public final class StructureTypeDrawbridge extends StructureType
 
     private StructureTypeDrawbridge()
     {
-        super(Constants.PLUGIN_NAME, "DrawBridge", TYPE_VERSION,
-              Arrays.asList(MovementDirection.NORTH, MovementDirection.EAST,
-                            MovementDirection.SOUTH, MovementDirection.WEST), "structure.type.drawbridge");
+        super(
+            Constants.PLUGIN_NAME,
+            "DrawBridge",
+            TYPE_VERSION,
+            Arrays.asList(
+                MovementDirection.NORTH,
+                MovementDirection.EAST,
+                MovementDirection.SOUTH,
+                MovementDirection.WEST),
+            "structure.type.drawbridge"
+        );
     }
 
     @Override

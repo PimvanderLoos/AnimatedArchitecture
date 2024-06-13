@@ -22,8 +22,6 @@ import java.util.Objects;
 
 /**
  * Represents a listener that keeps track of {@link Player}s logging in to send them any messages if needed.
- *
- * @author Pim
  */
 @Singleton
 public final class LoginMessageListener extends AbstractListener

@@ -12,8 +12,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents the event where a structure will be (un)locked.
- *
- * @author Pim
  */
 @ToString
 public class StructurePrepareLockChangeEvent extends StructureEvent implements IStructurePrepareLockChangeEvent

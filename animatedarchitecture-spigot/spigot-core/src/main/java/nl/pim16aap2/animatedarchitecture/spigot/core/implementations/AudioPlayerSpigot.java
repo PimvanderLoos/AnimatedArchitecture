@@ -16,8 +16,6 @@ import java.util.function.DoubleUnaryOperator;
 
 /**
  * Represents an implementation of {@link IAudioPlayer} for the Spigot platform.
- *
- * @author Pim
  */
 @Singleton
 public class AudioPlayerSpigot implements IAudioPlayer

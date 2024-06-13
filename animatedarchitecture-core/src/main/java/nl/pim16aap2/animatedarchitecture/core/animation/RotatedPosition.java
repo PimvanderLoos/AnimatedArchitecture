@@ -15,9 +15,30 @@ public record RotatedPosition(Vector3Dd position, Vector3Dd rotation)
 {
     private static final Vector3Dd NULL_VEC = new Vector3Dd(0, 0, 0);
 
+    /**
+     * Creates a new RotatedPosition with the given position with a rotation of 0-0-0.
+     *
+     * @param position
+     *     The position of the RotatedPosition.
+     */
     public RotatedPosition(IVector3D position)
     {
         this(Vector3Dd.of(position), NULL_VEC);
+    }
+
+    /**
+     * Creates a new RotatedPosition with the given position with a rotation of 0-0-0.
+     *
+     * @param x
+     *     The x-coordinate of the position.
+     * @param y
+     *     The y-coordinate of the position.
+     * @param z
+     *     The z-coordinate of the position.
+     */
+    public RotatedPosition(double x, double y, double z)
+    {
+        this(new Vector3Dd(x, y, z), NULL_VEC);
     }
 
     public double roll()

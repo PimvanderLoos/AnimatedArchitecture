@@ -13,8 +13,6 @@ import javax.inject.Singleton;
 
 /**
  * Represents an implementation of {@link IAnimatedArchitectureEventCaller} for the Spigot platform.
- *
- * @author Pim
  */
 @Singleton
 @Flogger
@@ -36,7 +34,7 @@ public class AnimatedArchitectureEventCallerSpigot implements IAnimatedArchitect
         if (!(animatedArchitectureEvent instanceof AnimatedArchitectureSpigotEvent))
         {
             log.atSevere().withStackTrace(StackSize.FULL)
-               .log("Event '%s', is not a Spigot event, but it was called on the Spigot platform!",
+                .log("Event '%s', is not a Spigot event, but it was called on the Spigot platform!",
                     animatedArchitectureEvent.getEventName());
             return;
         }
@@ -44,7 +42,7 @@ public class AnimatedArchitectureEventCallerSpigot implements IAnimatedArchitect
         if (!plugin.isEnabled())
         {
             log.atFine()
-               .log("Is the server shutting down? Tried to call event while disabled: %s", animatedArchitectureEvent);
+                .log("Is the server shutting down? Tried to call event while disabled: %s", animatedArchitectureEvent);
             return;
         }
 

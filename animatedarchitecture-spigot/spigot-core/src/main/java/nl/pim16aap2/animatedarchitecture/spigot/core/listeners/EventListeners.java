@@ -32,8 +32,6 @@ import javax.inject.Singleton;
 
 /**
  * Represents a listener that keeps track of various events.
- *
- * @author Pim
  */
 @Singleton
 @Flogger
@@ -97,7 +95,7 @@ public class EventListeners extends AbstractListener
         try
         {
             databaseManager.updatePlayer(SpigotAdapter.wrapPlayer(event.getPlayer()))
-                           .exceptionally(Util::exceptionally);
+                .exceptionally(Util::exceptionally);
         }
         catch (Exception e)
         {

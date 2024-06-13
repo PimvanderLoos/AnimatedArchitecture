@@ -21,12 +21,20 @@ public final class StructureTypePortcullis extends StructureType
 
     private static final AudioSet AUDIO_SET = new AudioSet(
         new AudioDescription("bd.dragging2", 0.8f, 0.7f, 750),
-        new AudioDescription("bd.thud", 0.2f, 0.15f, 250));
+        new AudioDescription("bd.thud", 0.2f, 0.15f, 250)
+    );
 
     private StructureTypePortcullis()
     {
-        super(Constants.PLUGIN_NAME, "Portcullis", TYPE_VERSION,
-              Arrays.asList(MovementDirection.UP, MovementDirection.DOWN), "structure.type.portcullis");
+        super(
+            Constants.PLUGIN_NAME,
+            "Portcullis",
+            TYPE_VERSION,
+            Arrays.asList(
+                MovementDirection.UP,
+                MovementDirection.DOWN),
+            "structure.type.portcullis"
+        );
     }
 
     /**

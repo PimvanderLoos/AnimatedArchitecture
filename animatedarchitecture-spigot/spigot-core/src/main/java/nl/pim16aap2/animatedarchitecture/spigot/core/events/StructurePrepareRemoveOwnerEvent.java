@@ -13,8 +13,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents the event where an owner is removed from a structure.
- *
- * @author Pim
  */
 @ToString
 public class StructurePrepareRemoveOwnerEvent extends StructureEvent implements IStructurePrepareRemoveOwnerEvent

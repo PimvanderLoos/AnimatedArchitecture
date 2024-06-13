@@ -14,8 +14,6 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * Implementation of {@link IStructureEventTogglePrepare} for the Spigot platform.
- *
- * @author Pim
  */
 @ToString
 public class StructureEventTogglePrepare extends StructureToggleEvent implements IStructureEventTogglePrepare

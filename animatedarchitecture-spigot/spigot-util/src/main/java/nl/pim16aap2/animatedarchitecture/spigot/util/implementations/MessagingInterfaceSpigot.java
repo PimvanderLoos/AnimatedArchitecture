@@ -16,7 +16,6 @@ import java.util.logging.Level;
 /**
  * Implementation of {@link IMessagingInterface} for Spigot.
  *
- * @author Pim
  * @see IMessagingInterface
  */
 @Singleton

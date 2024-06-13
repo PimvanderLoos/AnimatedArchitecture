@@ -22,8 +22,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Represents a Clock structure type.
- *
- * @author Pim
  */
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -71,7 +69,8 @@ public class Clock extends AbstractStructure implements IHorizontalAxisAligned, 
     @Override
     protected double calculateAnimationCycleDistance()
     {
-        // Not needed for this type, as it is not affected by time/speed calculations anyway.
+        // Not needed for this type, as this type has no real cycle.
+        // Its movement is based on the in-game time.
         return 0;
     }
 

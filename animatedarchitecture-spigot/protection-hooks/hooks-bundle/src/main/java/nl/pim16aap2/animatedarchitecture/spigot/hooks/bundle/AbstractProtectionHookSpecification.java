@@ -19,8 +19,6 @@ import java.util.List;
 
 /**
  * Represents a definition of a protection hook.
- *
- * @author Pim
  */
 @SuppressWarnings("unused")
 @Flogger
