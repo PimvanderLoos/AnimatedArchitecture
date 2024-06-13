@@ -39,7 +39,8 @@ public class TownyProtectionHook implements IProtectionHookSpigot
         if (!result)
             log.atFine().log(
                 "Player %s is not allowed to break block at %s",
-                lazyFormatPlayerName(player), loc
+                lazyFormatPlayerName(player),
+                loc
             );
         return result;
     }

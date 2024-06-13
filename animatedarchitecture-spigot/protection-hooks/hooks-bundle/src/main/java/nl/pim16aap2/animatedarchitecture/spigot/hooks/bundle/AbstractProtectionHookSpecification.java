@@ -26,101 +26,103 @@ import java.util.List;
 @EqualsAndHashCode
 public abstract class AbstractProtectionHookSpecification implements IProtectionHookSpigotSpecification
 {
-    public static final IProtectionHookSpigotSpecification TOWNY = new AbstractProtectionHookSpecification("Towny")
-    {
-        @Override
-        public Class<? extends IProtectionHookSpigot> getClass(final String version)
+    public static final IProtectionHookSpigotSpecification TOWNY =
+        new AbstractProtectionHookSpecification("Towny")
         {
-            return TownyProtectionHook.class;
-        }
-    };
-
-    public static final IProtectionHookSpigotSpecification PLOT_SQUARED = new AbstractProtectionHookSpecification(
-        "PlotSquared")
-    {
-        @Override
-        public @Nullable Class<? extends IProtectionHookSpigot> getClass(final String version)
-        {
-            if (version.length() < 2)
-                return null;
-
-            final String majorVersion = version.substring(0, 2);
-            return switch (majorVersion)
+            @Override
+            public Class<? extends IProtectionHookSpigot> getClass(final String version)
             {
-                case "6." -> PlotSquared6ProtectionHook.class;
-                case "7." -> PlotSquared7ProtectionHook.class;
-                default ->
+                return TownyProtectionHook.class;
+            }
+        };
+
+    public static final IProtectionHookSpigotSpecification PLOT_SQUARED =
+        new AbstractProtectionHookSpecification("PlotSquared")
+        {
+            @Override
+            public @Nullable Class<? extends IProtectionHookSpigot> getClass(final String version)
+            {
+                if (version.length() < 2)
+                    return null;
+
+                final String majorVersion = version.substring(0, 2);
+                return switch (majorVersion)
                 {
-                    logUnsupportedVersion("PlotSquared", version);
-                    yield null;
+                    case "6." -> PlotSquared6ProtectionHook.class;
+                    case "7." -> PlotSquared7ProtectionHook.class;
+                    default ->
+                    {
+                        logUnsupportedVersion("PlotSquared", version);
+                        yield null;
+                    }
+                };
+            }
+        };
+
+    public static final IProtectionHookSpigotSpecification WORLD_GUARD =
+        new AbstractProtectionHookSpecification("WorldGuard")
+        {
+            @Override
+            public @Nullable Class<? extends IProtectionHookSpigot> getClass(final String version)
+            {
+                if (version.length() < 2)
+                    return null;
+
+                if (version.startsWith("7."))
+                    return WorldGuard7ProtectionHook.class;
+                else
+                {
+                    logUnsupportedVersion("WorldGuard", version);
+                    return null;
                 }
-            };
-        }
-    };
-
-    public static final IProtectionHookSpigotSpecification WORLD_GUARD = new AbstractProtectionHookSpecification(
-        "WorldGuard")
-    {
-        @Override
-        public @Nullable Class<? extends IProtectionHookSpigot> getClass(final String version)
-        {
-            if (version.length() < 2)
-                return null;
-
-            if (version.startsWith("7."))
-                return WorldGuard7ProtectionHook.class;
-            else
-            {
-                logUnsupportedVersion("WorldGuard", version);
-                return null;
             }
-        }
-    };
+        };
 
-    public static final IProtectionHookSpigotSpecification GRIEF_PREVENTION = new AbstractProtectionHookSpecification(
-        "GriefPrevention")
-    {
-        @Override
-        public Class<? extends IProtectionHookSpigot> getClass(final String version)
+    public static final IProtectionHookSpigotSpecification GRIEF_PREVENTION =
+        new AbstractProtectionHookSpecification("GriefPrevention")
         {
-            return GriefPreventionProtectionHook.class;
-        }
-    };
-
-    public static final IProtectionHookSpigotSpecification LANDS = new AbstractProtectionHookSpecification("Lands")
-    {
-        @Override
-        public Class<? extends IProtectionHookSpigot> getClass(final String version)
-        {
-            return LandsProtectionHook.class;
-        }
-    };
-
-    public static final IProtectionHookSpigotSpecification RED_PROTECT = new AbstractProtectionHookSpecification(
-        "RedProtect")
-    {
-        @Override
-        public Class<? extends IProtectionHookSpigot> getClass(final String version)
-        {
-            return RedProtectProtectionHook.class;
-        }
-    };
-
-    public static final IProtectionHookSpigotSpecification GRIEF_DEFENDER = new AbstractProtectionHookSpecification(
-        "GriefDefender")
-    {
-        @Override
-        public @Nullable Class<? extends IProtectionHookSpigot> getClass(String version)
-        {
-            if (version.startsWith("2"))
-                return GriefDefender2ProtectionHook.class;
-            else
+            @Override
+            public Class<? extends IProtectionHookSpigot> getClass(final String version)
             {
-                logUnsupportedVersion("GriefDefender", version);
-                return null;
+                return GriefPreventionProtectionHook.class;
             }
-        }
-    };
+        };
+
+    public static final IProtectionHookSpigotSpecification LANDS =
+        new AbstractProtectionHookSpecification("Lands")
+        {
+            @Override
+            public Class<? extends IProtectionHookSpigot> getClass(final String version)
+            {
+                return LandsProtectionHook.class;
+            }
+        };
+
+    public static final IProtectionHookSpigotSpecification RED_PROTECT =
+        new AbstractProtectionHookSpecification("RedProtect")
+        {
+            @Override
+            public Class<? extends IProtectionHookSpigot> getClass(final String version)
+            {
+                return RedProtectProtectionHook.class;
+            }
+        };
+
+    public static final IProtectionHookSpigotSpecification GRIEF_DEFENDER =
+        new AbstractProtectionHookSpecification("GriefDefender")
+        {
+            @Override
+            public @Nullable Class<? extends IProtectionHookSpigot> getClass(String version)
+            {
+                if (version.startsWith("2"))
+                    return GriefDefender2ProtectionHook.class;
+                else
+                {
+                    logUnsupportedVersion("GriefDefender", version);
+                    return null;
+                }
+            }
+        };
 
     /**
      * The set of default protection hook definitions.
@@ -128,7 +130,15 @@ public abstract class AbstractProtectionHookSpecification implements IProtection
      * More can be added by external plugins if needed.
      */
     public static final List<IProtectionHookSpigotSpecification> DEFAULT_HOOK_DEFINITIONS =
-        List.of(TOWNY, PLOT_SQUARED, WORLD_GUARD, GRIEF_PREVENTION, LANDS, RED_PROTECT, GRIEF_DEFENDER);
+        List.of(
+            TOWNY,
+            PLOT_SQUARED,
+            WORLD_GUARD,
+            GRIEF_PREVENTION,
+            LANDS,
+            RED_PROTECT,
+            GRIEF_DEFENDER
+        );
 
     private final String name;
 

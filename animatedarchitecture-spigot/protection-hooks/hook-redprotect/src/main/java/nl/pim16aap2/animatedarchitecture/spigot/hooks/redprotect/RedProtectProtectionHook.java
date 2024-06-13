@@ -43,7 +43,8 @@ public class RedProtectProtectionHook implements IProtectionHookSpigot
             if (!result)
                 log.atFine().log(
                     "Player %s is not allowed to break block at %s",
-                    lazyFormatPlayerName(player), loc
+                    lazyFormatPlayerName(player),
+                    loc
                 );
             return result;
         }
@@ -51,7 +52,8 @@ public class RedProtectProtectionHook implements IProtectionHookSpigot
         {
             log.atSevere().withCause(e).log(
                 "Failed to check if player %s can break block at %s; defaulting to false.",
-                lazyFormatPlayerName(player), loc
+                lazyFormatPlayerName(player),
+                loc
             );
             return false;
         }

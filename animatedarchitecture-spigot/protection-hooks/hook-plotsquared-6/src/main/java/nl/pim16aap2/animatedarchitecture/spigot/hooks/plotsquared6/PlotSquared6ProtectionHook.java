@@ -45,7 +45,8 @@ public class PlotSquared6ProtectionHook implements IProtectionHookSpigot
         plotSquaredPlugin = JavaPlugin.getPlugin(BukkitPlatform.class);
         log.atSevere().log(
             "PlotSquared 6 support is deprecated and will be removed in a future version. " +
-                "Please upgrade to PlotSquared 7.");
+                "Please upgrade to PlotSquared 7."
+        );
     }
 
     @Override

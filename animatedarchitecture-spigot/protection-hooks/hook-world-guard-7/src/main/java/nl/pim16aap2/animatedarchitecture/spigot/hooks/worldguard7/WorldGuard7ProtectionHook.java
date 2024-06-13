@@ -78,7 +78,9 @@ public class WorldGuard7ProtectionHook implements IProtectionHookSpigot
         final var result = hasBypass ? HookPreCheckResult.BYPASS : HookPreCheckResult.ALLOW;
         log.atFiner().log(
             "Sync pre-check for player %s in world '%s': %s",
-            lazyFormatPlayerName(player), world.getName(), result
+            lazyFormatPlayerName(player),
+            world.getName(),
+            result
         );
         return result;
     }
@@ -100,7 +102,8 @@ public class WorldGuard7ProtectionHook implements IProtectionHookSpigot
             {
                 log.atSevere().withCause(e).log(
                     "Error while checking permission for player %s in world '%s'.",
-                    lazyFormatPlayerName(player), world.getName()
+                    lazyFormatPlayerName(player),
+                    world.getName()
                 );
                 return false;
             })
@@ -109,7 +112,9 @@ public class WorldGuard7ProtectionHook implements IProtectionHookSpigot
                 final var result0 = result ? HookPreCheckResult.BYPASS : HookPreCheckResult.ALLOW;
                 log.atFiner().log(
                     "Async pre-check for player %s in world '%s': %s",
-                    lazyFormatPlayerName(player), world.getName(), result0
+                    lazyFormatPlayerName(player),
+                    world.getName(),
+                    result0
                 );
                 return result0;
             });
