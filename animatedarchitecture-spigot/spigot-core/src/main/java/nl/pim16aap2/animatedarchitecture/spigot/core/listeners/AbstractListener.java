@@ -12,6 +12,10 @@ import java.util.function.BooleanSupplier;
 
 /**
  * Represents a base Listener class.
+ * <p>
+ * Subclasses will automatically be registered and unregistered when the plugin is enabled or disabled.
+ * <p>
+ * To make sure that the listener is instantiated on startup, it can be injected into a {@link ListenerHolder}.
  */
 abstract class AbstractListener implements Listener, IRestartable
 {

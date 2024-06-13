@@ -13,7 +13,7 @@ import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.DebugReporterSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.TextFactorySpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.BackupCommandListener;
-import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.LoginMessageListener;
+import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.PlayerLoginListenerLoginMessage;
 import nl.pim16aap2.util.logging.Log4J2Configurator;
 import nl.pim16aap2.util.logging.floggerbackend.CustomLog4j2BackendFactory;
 import org.bstats.bukkit.Metrics;
@@ -266,13 +266,13 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
     }
 
     /**
-     * Registers a {@link LoginMessageListener} outside of the Dagger object graph.
+     * Registers a {@link PlayerLoginListenerLoginMessage} outside of the Dagger object graph.
      * <p>
      * This listener will inform admins about the issues that came up during plugin initialization.
      */
     private void registerFailureLoginListener()
     {
-        new LoginMessageListener(this, new TextFactorySpigot(), null, null);
+        new PlayerLoginListenerLoginMessage(this, new TextFactorySpigot(), null, null);
     }
 
     @Override

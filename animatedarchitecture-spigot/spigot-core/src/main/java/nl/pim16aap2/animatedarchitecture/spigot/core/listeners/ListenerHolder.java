@@ -24,21 +24,23 @@ public final class ListenerHolder
 
     @Inject ListenerHolder(
         ChunkListener chunkListener,
-        EventListeners eventListeners,
-        ToolUserListener toolUserListener,
-        LoginMessageListener loginMessageListener,
-        LoginResourcePackListener loginResourcePackListener,
+        PlayerLoginListener playerLoginListener,
+        PlayerLoginListenerLoginMessage playerLoginListenerLoginMessage,
+        PlayerLoginListenerResourcePack playerLoginListenerResourcePack,
+        PlayerLogoutListener playerLogoutListener,
         RedstoneListener redstoneListener,
+        ToolUserListener toolUserListener,
         WorldListener worldListener
     )
     {
         listeners = List.of(
             chunkListener,
-            eventListeners,
-            toolUserListener,
-            loginMessageListener,
-            loginResourcePackListener,
+            playerLoginListener,
+            playerLoginListenerLoginMessage,
+            playerLoginListenerResourcePack,
+            playerLogoutListener,
             redstoneListener,
+            toolUserListener,
             worldListener
         );
     }

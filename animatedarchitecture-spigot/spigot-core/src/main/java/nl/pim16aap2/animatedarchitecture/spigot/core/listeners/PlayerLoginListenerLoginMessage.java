@@ -22,16 +22,21 @@ import java.util.Objects;
 
 /**
  * Represents a listener that keeps track of {@link Player}s logging in to send them any messages if needed.
+ * <p>
+ * This listener should be unconditionally enabled on normal startup.
+ * <p>
+ * On startup failure, this listener will not be enabled and may therefore be instantiated manually to send a failure
+ * message to the player.
  */
 @Singleton
-public final class LoginMessageListener extends AbstractListener
+public final class PlayerLoginListenerLoginMessage extends AbstractListener
 {
     private final AnimatedArchitecturePlugin plugin;
     private final ITextFactory textFactory;
     private final @Nullable UpdateChecker updateChecker;
 
     @Inject
-    public LoginMessageListener(
+    public PlayerLoginListenerLoginMessage(
         AnimatedArchitecturePlugin javaPlugin,
         ITextFactory textFactory,
         @Nullable UpdateChecker updateChecker,
