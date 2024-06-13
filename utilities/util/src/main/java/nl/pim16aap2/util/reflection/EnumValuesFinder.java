@@ -12,8 +12,6 @@ import java.util.Objects;
  * This class can be used to retrieve enum values.
  * <p>
  * Calls should be chained, as the instance can change between invocations of some methods.
- *
- * @author Pim
  */
 @SuppressWarnings("unused")
 public class EnumValuesFinder
@@ -105,9 +103,13 @@ public class EnumValuesFinder
         public Object get()
         {
             //noinspection ConstantConditions
-            return Objects.requireNonNull(ReflectionBackend.getNamedEnumConstant(source, name),
-                                          String.format("Failed to find enum value: [%s.%s].",
-                                                        source.getName(), name));
+            return Objects.requireNonNull(
+                ReflectionBackend.getNamedEnumConstant(source, name),
+                String.format(
+                    "Failed to find enum value: [%s.%s].",
+                    source.getName(),
+                    name)
+            );
         }
 
         /**
@@ -154,9 +156,12 @@ public class EnumValuesFinder
             if (index >= values.length)
                 // An ArrayIndexOutOfBoundsException might seem more appropriate here,
                 // but to keep it in line with the other finders, we'll throw an NPE.
-                throw new NullPointerException(
-                    String.format("Requested index %d exceeded the %d enum values found in class %s!",
-                                  index, values.length, source.getName()));
+                throw new NullPointerException(String.format(
+                    "Requested index %d exceeded the %d enum values found in class %s!",
+                    index,
+                    values.length,
+                    source.getName())
+                );
             return values[index];
         }
 

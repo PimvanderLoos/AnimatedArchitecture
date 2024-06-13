@@ -20,8 +20,6 @@ import static nl.pim16aap2.util.reflection.ReflectionBackend.optionalModifiersTo
  * of that type in the given source class.
  * <p>
  * Calls should be chained, as the instance can change between invocations of some methods.
- *
- * @author Pim
  */
 @SuppressWarnings("unused")
 public class FieldFinder
@@ -169,14 +167,16 @@ public class FieldFinder
                 object = field.get(instance);
                 return type.cast(object);
             }
-            catch (IllegalAccessException e)
+            catch (IllegalAccessException exception)
             {
-                throw new IllegalArgumentException(String.format(
-                    "Failed to access field %s in instance %s. Was set accessible: %s",
-                    field.toGenericString(),
-                    instance,
-                    setAccessible
-                ), e);
+                throw new IllegalArgumentException(
+                    String.format(
+                        "Failed to access field %s in instance %s. Was set accessible: %s",
+                        field.toGenericString(),
+                        instance,
+                        setAccessible),
+                    exception
+                );
             }
             catch (ClassCastException e)
             {
@@ -185,8 +185,8 @@ public class FieldFinder
                     field,
                     object == null ? "null" : object.getClass().getName(),
                     type.getName(),
-                    instance
-                ));
+                    instance)
+                );
             }
         }
 
@@ -218,8 +218,8 @@ public class FieldFinder
                 String.format(
                     "Failed to retrieve object of field %s in instance %s",
                     field.toGenericString(),
-                    instance
-                ));
+                    instance)
+            );
         }
 
         /**
@@ -268,15 +268,17 @@ public class FieldFinder
             {
                 field.set(instance, value);
             }
-            catch (IllegalAccessException e)
+            catch (IllegalAccessException exception)
             {
-                throw new IllegalArgumentException(String.format(
-                    "Failed to set field %s in instance %s to value %s. Was set accessible: %s",
-                    field.toGenericString(),
-                    instance,
-                    value,
-                    setAccessible
-                ), e);
+                throw new IllegalArgumentException(
+                    String.format(
+                        "Failed to set field %s in instance %s to value %s. Was set accessible: %s",
+                        field.toGenericString(),
+                        instance,
+                        value,
+                        setAccessible),
+                    exception
+                );
             }
         }
     }
@@ -317,7 +319,14 @@ public class FieldFinder
         public @Nullable Field getNullable()
         {
             return ReflectionBackend.getField(
-                source, name, modifiers, fieldType, setAccessible, checkSuperClasses, annotations);
+                source,
+                name,
+                modifiers,
+                fieldType,
+                setAccessible,
+                checkSuperClasses,
+                annotations
+            );
         }
 
         /**
@@ -369,15 +378,21 @@ public class FieldFinder
                     optionalModifiersToString(modifiers),
                     fieldType.getName(),
                     source.getName(),
-                    checkSuperClasses ? "included" : "excluded"
-                ));
+                    checkSuperClasses ? "included" : "excluded")
+            );
         }
 
         @Override
         public @Nullable Field getNullable()
         {
             return ReflectionBackend.getField(
-                source, modifiers, fieldType, setAccessible, checkSuperClasses, annotations);
+                source,
+                modifiers,
+                fieldType,
+                setAccessible,
+                checkSuperClasses,
+                annotations
+            );
         }
 
         @Override
@@ -442,28 +457,55 @@ public class FieldFinder
         {
             final List<Field> found =
                 ReflectionBackend.getFields(
-                    source, modifiers, fieldType, setAccessible, checkSuperClasses, annotations);
+                    source,
+                    modifiers,
+                    fieldType,
+                    setAccessible,
+                    checkSuperClasses,
+                    annotations
+                );
 
             if (expected >= 0 && expected != found.size())
                 return handleInvalid(
-                    nonnull, "Expected %d fields of type %s in class %s " +
+                    nonnull,
+                    "Expected %d fields of type %s in class %s " +
                         "with modifiers %d annotated with %s, but found %d.  Super classes were %s.",
-                    expected, fieldType, source, modifiers, annotations, found.size(),
-                    checkSuperClasses ? "included" : "excluded");
+                    expected,
+                    fieldType,
+                    source,
+                    modifiers,
+                    annotations,
+                    found.size(),
+                    checkSuperClasses ? "included" : "excluded"
+                );
 
             if (atMost >= 0 && found.size() > atMost)
-                return handleInvalid
-                    (nonnull, "Expected at most %d fields of type %s in class %s " +
-                         "with modifiers %d annotated with %s, but found %d.  Super classes were %s.",
-                     atMost, fieldType, source, modifiers, annotations, found.size(),
-                     checkSuperClasses ? "included" : "excluded");
+                return handleInvalid(
+                    nonnull,
+                    "Expected at most %d fields of type %s in class %s " +
+                        "with modifiers %d annotated with %s, but found %d.  Super classes were %s.",
+                    atMost,
+                    fieldType,
+                    source,
+                    modifiers,
+                    annotations,
+                    found.size(),
+                    checkSuperClasses ? "included" : "excluded"
+                );
 
             if (atLeast >= 0 && found.size() < atLeast)
                 return handleInvalid(
-                    nonnull, "Expected at least %d fields of type %s in class %s " +
+                    nonnull,
+                    "Expected at least %d fields of type %s in class %s " +
                         "with modifiers %d annotated with %s, but found %d.  Super classes were %s.",
-                    atLeast, fieldType, source, modifiers, annotations, found.size(),
-                    checkSuperClasses ? "included" : "excluded");
+                    atLeast,
+                    fieldType,
+                    source,
+                    modifiers,
+                    annotations,
+                    found.size(),
+                    checkSuperClasses ? "included" : "excluded"
+                );
             return found;
         }
 
@@ -472,13 +514,27 @@ public class FieldFinder
         @SuppressWarnings("PMD.AvoidThrowingNullPointerException")
         @Contract(value = "true, _, _, _, _, _, _, _, _ -> fail", pure = true)
         private static List<Field> handleInvalid(
-            boolean nonnull, String str, int val, @Nullable Class<?> fieldType, Class<?> source, int modifiers,
-            Class<? extends Annotation>[] annotations, int foundSize, String checkSuperClasses)
+            boolean nonnull,
+            String str,
+            int val,
+            @Nullable Class<?> fieldType,
+            Class<?> source,
+            int modifiers,
+            Class<? extends Annotation>[] annotations,
+            int foundSize,
+            String checkSuperClasses)
         {
             if (nonnull)
                 throw new NullPointerException(
-                    String.format(str, val, fieldType, modifiers, Arrays.toString(annotations), fieldType,
-                                  checkSuperClasses));
+                    String.format(
+                        str,
+                        val,
+                        fieldType,
+                        modifiers,
+                        Arrays.toString(annotations),
+                        fieldType,
+                        checkSuperClasses)
+                );
             return Collections.emptyList();
         }
 

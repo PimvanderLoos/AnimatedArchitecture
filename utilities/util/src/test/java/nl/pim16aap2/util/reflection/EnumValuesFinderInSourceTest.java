@@ -8,16 +8,20 @@ class EnumValuesFinderInSourceTest
     @Test
     void testNamedRetrieval()
     {
-        Assertions.assertEquals(TestEnum.FIELD_0,
-                                new EnumValuesFinder(TestEnum.class).withName("FIELD_0").getNullable());
+        Assertions.assertEquals(
+            TestEnum.FIELD_0,
+            new EnumValuesFinder(TestEnum.class).withName("FIELD_0").getNullable()
+        );
         Assertions.assertEquals(TestEnum.FIELD_1, new EnumValuesFinder(TestEnum.class).withName("FIELD_1").get());
     }
 
     @Test
     void testIndexedRetrieval()
     {
-        Assertions.assertEquals(TestEnum.FIELD_2,
-                                new EnumValuesFinder(TestEnum.class).atIndex(2).getNullable());
+        Assertions.assertEquals(
+            TestEnum.FIELD_2,
+            new EnumValuesFinder(TestEnum.class).atIndex(2).getNullable()
+        );
         Assertions.assertEquals(TestEnum.FIELD_3, new EnumValuesFinder(TestEnum.class).atIndex(3).get());
     }
 
@@ -37,18 +41,20 @@ class EnumValuesFinderInSourceTest
     @Test
     void testInvalidName()
     {
-        //noinspection ResultOfMethodCallIgnored
-        Assertions.assertThrows(NullPointerException.class,
-                                () -> new EnumValuesFinder(TestEnum.class).withName("FIELD_999").get());
+        Assertions.assertThrows(
+            NullPointerException.class,
+            () -> new EnumValuesFinder(TestEnum.class).withName("FIELD_999").get()
+        );
         Assertions.assertNull(new EnumValuesFinder(TestEnum.class).withName("FIELD_999").getNullable());
     }
 
     @Test
     void testInvalidIndex()
     {
-        //noinspection ResultOfMethodCallIgnored
-        Assertions.assertThrows(NullPointerException.class,
-                                () -> new EnumValuesFinder(TestEnum.class).atIndex(999).get());
+        Assertions.assertThrows(
+            NullPointerException.class,
+            () -> new EnumValuesFinder(TestEnum.class).atIndex(999).get()
+        );
         Assertions.assertNull(new EnumValuesFinder(TestEnum.class).atIndex(999).getNullable());
     }
 

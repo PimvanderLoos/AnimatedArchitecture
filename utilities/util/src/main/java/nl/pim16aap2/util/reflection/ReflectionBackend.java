@@ -16,8 +16,6 @@ import java.util.function.Function;
 
 /**
  * Represents the reflection backend for the {@link ReflectionFinder} classes.
- *
- * @author Pim
  */
 @Flogger //
 final class ReflectionBackend
@@ -169,7 +167,11 @@ final class ReflectionBackend
      */
     @SafeVarargs
     public static @Nullable Field getField(
-        Class<?> source, int modifiers, Class<?> type, boolean setAccessible, boolean checkSuperClasses,
+        Class<?> source,
+        int modifiers,
+        Class<?> type,
+        boolean setAccessible,
+        boolean checkSuperClasses,
         Class<? extends Annotation>... annotations)
     {
         for (final Field field : getFields(source, checkSuperClasses))
@@ -203,7 +205,11 @@ final class ReflectionBackend
      */
     @SafeVarargs
     public static List<Field> getFields(
-        Class<?> source, int modifiers, @Nullable Class<?> type, boolean setAccessible, boolean checkSuperClasses,
+        Class<?> source,
+        int modifiers,
+        @Nullable Class<?> type,
+        boolean setAccessible,
+        boolean checkSuperClasses,
         Class<? extends Annotation>... annotations)
     {
         final List<Field> ret = new ArrayList<>();
@@ -239,7 +245,10 @@ final class ReflectionBackend
      * @return The method matching the specified description.
      */
     private static @Nullable Method findMethod(
-        Class<?> source, @Nullable String name, int modifiers, @Nullable ParameterGroup parameters,
+        Class<?> source,
+        @Nullable String name,
+        int modifiers,
+        @Nullable ParameterGroup parameters,
         @Nullable Class<?> returnType)
     {
         for (final Method method : source.getDeclaredMethods())
@@ -292,9 +301,14 @@ final class ReflectionBackend
      * @return The method matching the specified description.
      */
     public static @Nullable Method findMethod(
-        final boolean checkSuperClasses, final boolean checkInterfaces,
-        Class<?> source, @Nullable String name, int modifiers,
-        @Nullable ParameterGroup parameters, @Nullable Class<?> returnType, boolean setAccessible)
+        final boolean checkSuperClasses,
+        final boolean checkInterfaces,
+        Class<?> source,
+        @Nullable String name,
+        int modifiers,
+        @Nullable ParameterGroup parameters,
+        @Nullable Class<?> returnType,
+        boolean setAccessible)
     {
         @Nullable Method m = findMethod(source, name, modifiers, parameters, returnType);
         if (m != null)
@@ -315,8 +329,16 @@ final class ReflectionBackend
                     continue;
                 }
 
-                m = findMethod(true, continueInterfaceChecking, superClass, name, modifiers, parameters, returnType,
-                               setAccessible);
+                m = findMethod(
+                    true,
+                    continueInterfaceChecking,
+                    superClass,
+                    name,
+                    modifiers,
+                    parameters,
+                    returnType,
+                    setAccessible
+                );
                 if (m != null)
                     return setAccessibleIfNeeded(m, setAccessible);
             }
@@ -333,7 +355,16 @@ final class ReflectionBackend
 
                 for (final Class<?> superInterface : superInterfaces)
                 {
-                    m = findMethod(false, true, superInterface, name, modifiers, parameters, returnType, setAccessible);
+                    m = findMethod(
+                        false,
+                        true,
+                        superInterface,
+                        name,
+                        modifiers,
+                        parameters,
+                        returnType,
+                        setAccessible
+                    );
                     if (m != null)
                         return setAccessibleIfNeeded(m, setAccessible);
                 }
@@ -356,7 +387,8 @@ final class ReflectionBackend
      */
     @SafeVarargs
     private static boolean containsAnnotations(
-        AccessibleObject obj, Class<? extends Annotation>... annotations)
+        AccessibleObject obj,
+        Class<? extends Annotation>... annotations)
     {
         for (final Class<? extends Annotation> annotation : annotations)
             if (!obj.isAnnotationPresent(annotation))
@@ -384,7 +416,11 @@ final class ReflectionBackend
      */
     @SafeVarargs
     public static List<Constructor<?>> findCTor(
-        Class<?> source, int modifiers, @Nullable ParameterGroup parameters, boolean setAccessible, int maxCount,
+        Class<?> source,
+        int modifiers,
+        @Nullable ParameterGroup parameters,
+        boolean setAccessible,
+        int maxCount,
         Class<? extends Annotation>... annotations)
     {
         final List<Constructor<?>> ret = new ArrayList<>();

@@ -127,11 +127,12 @@ public class AssistedFactoryMocker<T, U>
         throws NoSuchMethodException
     {
         if (!factoryClass.isAnnotationPresent(AssistedFactory.class))
-            throw new IllegalArgumentException("Factory class " + factoryClass + " is not annotated with " +
-                                                   AssistedFactory.class);
+            throw new IllegalArgumentException(
+                "Factory class " + factoryClass + " is not annotated with " + AssistedFactory.class);
+
         if (!Modifier.isInterface(factoryClass.getModifiers()) && !Modifier.isAbstract(factoryClass.getModifiers()))
-            throw new IllegalArgumentException("Factory class " + factoryClass +
-                                                   " is not an interface or an abstract class!");
+            throw new IllegalArgumentException(
+                "Factory class " + factoryClass + " is not an interface or an abstract class!");
 
         this.factoryClass = factoryClass;
         this.mockSettings = mockSettings;
@@ -197,8 +198,12 @@ public class AssistedFactoryMocker<T, U>
         for (final MappedParameter parameter : mappedParameters)
         {
             final int idx = parameter.getTargetIdx();
-            final @Nullable Object value = parameter.isInjected() ?
-                                           parameter.getValue() : factoryParams[parameter.getFactoryIdx()];
+
+            final @Nullable Object value =
+                parameter.isInjected() ?
+                parameter.getValue() :
+                factoryParams[parameter.getFactoryIdx()];
+
             //noinspection ConstantConditions
             ctorParams[idx] = value;
         }
@@ -316,9 +321,10 @@ public class AssistedFactoryMocker<T, U>
      */
     public <V> AssistedFactoryMocker<T, U> setMock(Class<V> type, @Nullable String name, V mock)
     {
-        final MappedParameter param =
-            Objects.requireNonNull(injectedParameters.get(MappedParameter.getNamedTypeHash(type, name)),
-                                   "No mocked parameter of type " + type + " and name " + name + " could be found!");
+        final MappedParameter param = Objects.requireNonNull(
+            injectedParameters.get(MappedParameter.getNamedTypeHash(type, name)),
+            "No mocked parameter of type " + type + " and name " + name + " could be found!"
+        );
         param.setValue(mock);
         return this;
     }
@@ -372,8 +378,9 @@ public class AssistedFactoryMocker<T, U>
                 assistedTargetCount++;
 
         if (assistedTargetCount != factoryMethod.getParameterCount())
-            throw new IllegalStateException("Factory method provides " + factoryMethod.getParameterCount() +
-                                                " parameters while the constructor expects " + assistedTargetCount);
+            throw new IllegalStateException(
+                "Factory method provides " + factoryMethod.getParameterCount() +
+                    " parameters while the constructor expects " + assistedTargetCount);
     }
 
     /**
@@ -435,8 +442,9 @@ public class AssistedFactoryMocker<T, U>
     static ParameterDescription getMatchingParameter(ParameterDescription param, List<ParameterDescription> matches)
     {
         if (param.name() == null && matches.size() > 1)
-            throw new IllegalStateException("Found more than one match for param " + param + "!" +
-                                                " Potential matches: " + matches);
+            throw new IllegalStateException(
+                "Found more than one match for param " + param + "!" + " Potential matches: " + matches);
+
         if (matches.size() == 1)
         {
             final ParameterDescription match = matches.get(0);
@@ -447,14 +455,14 @@ public class AssistedFactoryMocker<T, U>
 
         @SuppressWarnings("ConstantConditions") // IntelliJ doesn't like potentially null values for requireNonNull -_-
         final String paramName = Objects.requireNonNull(param.name(),
-                                                        "Name of parameter " + param + " cannot be null!");
+            "Name of parameter " + param + " cannot be null!");
         final List<ParameterDescription> result = matches.stream().filter(val -> paramName.equals(val.name())).toList();
         if (result.isEmpty())
             throw new IllegalStateException(
                 "Failed to find a matching factory parameter for constructor parameter: " + param);
         if (result.size() > 1)
             throw new IllegalStateException("Found too many matches for constructor param " + param + ": " + result);
-        return result.get(0);
+        return result.getFirst();
     }
 
     /**
@@ -481,8 +489,9 @@ public class AssistedFactoryMocker<T, U>
 
             // Get a list of factory parameters with the same type as the current ctor param.
             final List<ParameterDescription> matches = factoryParams.stream()
-                                                                    .filter(val -> val.type().equals(ctorParam.type()))
-                                                                    .collect(Collectors.toList());
+                .filter(val -> val.type().equals(ctorParam.type()))
+                .collect(Collectors.toList());
+
             final ParameterDescription match = getMatchingParameter(ctorParam, matches);
             final int factoryIdx = factoryParams.indexOf(match);
             ret.add(new MappedParameter(idx, factoryIdx, match.type(), match.name(), null));
@@ -533,7 +542,7 @@ public class AssistedFactoryMocker<T, U>
                 return method;
         }
         throw new NoSuchMethodException("Failed to find non-default creation method in factory class: " +
-                                            factoryClass + " with return type: " + targetClass);
+            factoryClass + " with return type: " + targetClass);
     }
 
     /**
@@ -561,8 +570,8 @@ public class AssistedFactoryMocker<T, U>
             //noinspection unchecked
             return (Constructor<T>) ctor;
         }
-        throw new NoSuchMethodException("Failed to find constructor annotated with " + AssistedInject.class +
-                                            " in target class: " + targetClass);
+        throw new NoSuchMethodException(
+            "Failed to find constructor annotated with " + AssistedInject.class + " in target class: " + targetClass);
     }
 
     /**
@@ -660,7 +669,8 @@ public class AssistedFactoryMocker<T, U>
             // Otherwise, call the real method. This ensures that default methods in the factory interface are called,
             // which will eventually call the target method.
             return invocation.getMethod().equals(targetMethod) ?
-                   mapper.apply(invocation) : Mockito.CALLS_REAL_METHODS.answer(invocation);
+                   mapper.apply(invocation) :
+                   Mockito.CALLS_REAL_METHODS.answer(invocation);
         }
     }
 }

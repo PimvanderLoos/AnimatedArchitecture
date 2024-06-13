@@ -17,9 +17,10 @@ class AssistedFactoryMockerTest
     void testGetParameterName()
         throws NoSuchMethodException
     {
-        final Parameter[] parameters =
-            TestClassWithAnnotation.class.getDeclaredConstructor(Object.class, int.class, String.class)
-                                         .getParameters();
+        final Parameter[] parameters = TestClassWithAnnotation.class
+            .getDeclaredConstructor(Object.class, int.class, String.class)
+            .getParameters();
+
         final Parameter obj = parameters[0]; // @Assisted @Named("myObj") Object obj
         final Parameter idx = parameters[1]; // @Assisted int idx
 
@@ -67,8 +68,7 @@ class AssistedFactoryMockerTest
     public void testInvalidInput()
     {
         Assertions.assertThrows(IllegalArgumentException.class,
-                                () -> new AssistedFactoryMocker<>(TestClassWithAnnotation.class,
-                                                                  TestClassWithAnnotation.class));
+            () -> new AssistedFactoryMocker<>(TestClassWithAnnotation.class, TestClassWithAnnotation.class));
     }
 
     /**

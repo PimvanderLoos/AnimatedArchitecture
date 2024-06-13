@@ -12,8 +12,6 @@ import java.util.Objects;
  * Represents a {@link ReflectionFinder} for methods.
  * <p>
  * This class can be used to retrieve methods by name and by return type.
- *
- * @author Pim
  */
 @SuppressWarnings("unused")
 public final class MethodFinder
@@ -173,12 +171,15 @@ public final class MethodFinder
 
         protected final String getNullErrorMessage(@Nullable String name, @Nullable Class<?> returnType)
         {
-            return String.format("Failed to find method: [%s %s %s#%s(%s)]. Super classes were %s.",
-                                 ReflectionBackend.optionalModifiersToString(modifiers),
-                                 ReflectionBackend.formatOptionalValue(returnType, Class::getName),
-                                 source.getName(), ReflectionBackend.formatOptionalValue(null),
-                                 ReflectionBackend.formatOptionalValue(parameters),
-                                 checkSuperClasses ? "included" : "excluded");
+            return String.format(
+                "Failed to find method: [%s %s %s#%s(%s)]. Super classes were %s.",
+                ReflectionBackend.optionalModifiersToString(modifiers),
+                ReflectionBackend.formatOptionalValue(returnType, Class::getName),
+                source.getName(),
+                ReflectionBackend.formatOptionalValue(null),
+                ReflectionBackend.formatOptionalValue(parameters),
+                checkSuperClasses ? "included" : "excluded"
+            );
         }
     }
 
@@ -206,7 +207,15 @@ public final class MethodFinder
         public @Nullable Method getNullable()
         {
             return ReflectionBackend.findMethod(
-                checkSuperClasses, checkInterfaces, source, name, modifiers, parameters, null, setAccessible);
+                checkSuperClasses,
+                checkInterfaces,
+                source,
+                name,
+                modifiers,
+                parameters,
+                null,
+                setAccessible
+            );
         }
     }
 
@@ -234,7 +243,15 @@ public final class MethodFinder
         public @Nullable Method getNullable()
         {
             return ReflectionBackend.findMethod(
-                checkSuperClasses, checkInterfaces, source, null, modifiers, parameters, returnType, setAccessible);
+                checkSuperClasses,
+                checkInterfaces,
+                source,
+                null,
+                modifiers,
+                parameters,
+                returnType,
+                setAccessible
+            );
         }
     }
 }

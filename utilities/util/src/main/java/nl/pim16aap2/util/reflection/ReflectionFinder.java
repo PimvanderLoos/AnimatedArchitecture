@@ -15,7 +15,6 @@ import java.util.Objects;
  *     The type of objects to retrieve using reflection (e.g. {@link Field}, {@link Method}, etc.)
  * @param <U>
  *     The type of finder being used to find the reflection object.
- * @author Pim
  */
 @SuppressWarnings({"unused", "unchecked"})
 public abstract class ReflectionFinder<T, U extends ReflectionFinder<T, U>>

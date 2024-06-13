@@ -48,13 +48,15 @@ public final class LogAssertionsUtil
         final int index = isRelative ? logEvents.size() + position : position;
 
         if (index >= logEvents.size() || index < 0)
-            Assertions.fail(
-                String.format(
-                    """
+            Assertions.fail(String.format(
+                """
                     Expected at least %d log events, but only got %d!
                     %s
                     """,
-                    Math.abs(position), logEvents.size(), formatLogEvents(logEvents, isRelative ? -10 : 10)));
+                Math.abs(position),
+                logEvents.size(),
+                formatLogEvents(logEvents, isRelative ? -10 : 10))
+            );
 
         return logEvents.get(index);
     }
@@ -117,21 +119,28 @@ public final class LogAssertionsUtil
      *     The method to use when comparing the expected and actual messages.
      */
     public static void assertLogged(
-        LogCaptor logCaptor, int position, String message, MessageComparisonMethod comparisonMethod)
+        LogCaptor logCaptor,
+        int position,
+        String message,
+        MessageComparisonMethod comparisonMethod)
     {
         final var logEvents = logCaptor.getLogEvents();
         final var logEvent = getLogEvent(logEvents, position);
 
         if (!comparisonMethod.compare(message, logEvent.getMessage()))
-            Assertions.fail(
-                String.format(
-                    """
+            Assertions.fail(String.format(
+                """
                     Expected Message: '%s' at position %d
                     Received Message: '%s'
                     Comparison method: %s
                     %s
                     """,
-                    message, position, logEvent.getMessage(), comparisonMethod, formatLogEvents(logEvents, 10)));
+                message,
+                position,
+                logEvent.getMessage(),
+                comparisonMethod,
+                formatLogEvents(logEvents, 10))
+            );
     }
 
     /**
@@ -221,13 +230,15 @@ public final class LogAssertionsUtil
         if (throwingCount == count)
             return;
 
-        Assertions.fail(
-            String.format(
-                """
+        Assertions.fail(String.format(
+            """
                 Expected %d throwables to be logged, but instead got %d!
                 %s
                 """,
-                count, throwingCount, formatLogEvents(logCaptor.getLogEvents(), count)));
+            count,
+            throwingCount,
+            formatLogEvents(logCaptor.getLogEvents(), count))
+        );
     }
 
     /**
@@ -286,8 +297,11 @@ public final class LogAssertionsUtil
         @Nullable String throwableMessage0)
     {
         assertThrowableLogged(
-            logCaptor, position, expectedMessage,
-            new ThrowableSpec(throwableType0, throwableMessage0));
+            logCaptor,
+            position,
+            expectedMessage,
+            new ThrowableSpec(throwableType0, throwableMessage0)
+        );
     }
 
     /**
@@ -325,9 +339,12 @@ public final class LogAssertionsUtil
         @Nullable String throwableMessage1)
     {
         assertThrowableLogged(
-            logCaptor, position, expectedMessage,
+            logCaptor,
+            position,
+            expectedMessage,
             new ThrowableSpec(throwableType0, throwableMessage0),
-            new ThrowableSpec(throwableType1, throwableMessage1));
+            new ThrowableSpec(throwableType1, throwableMessage1)
+        );
     }
 
     /**
@@ -371,10 +388,13 @@ public final class LogAssertionsUtil
         @Nullable String throwableMessage2)
     {
         assertThrowableLogged(
-            logCaptor, position, expectedMessage,
+            logCaptor,
+            position,
+            expectedMessage,
             new ThrowableSpec(throwableType0, throwableMessage0),
             new ThrowableSpec(throwableType1, throwableMessage1),
-            new ThrowableSpec(throwableType2, throwableMessage2));
+            new ThrowableSpec(throwableType2, throwableMessage2)
+        );
     }
 
     /**
@@ -424,11 +444,14 @@ public final class LogAssertionsUtil
         @Nullable String throwableMessage3)
     {
         assertThrowableLogged(
-            logCaptor, position, expectedMessage,
+            logCaptor,
+            position,
+            expectedMessage,
             new ThrowableSpec(throwableType0, throwableMessage0),
             new ThrowableSpec(throwableType1, throwableMessage1),
             new ThrowableSpec(throwableType2, throwableMessage2),
-            new ThrowableSpec(throwableType3, throwableMessage3));
+            new ThrowableSpec(throwableType3, throwableMessage3)
+        );
     }
 
     /**
@@ -457,10 +480,11 @@ public final class LogAssertionsUtil
         final var logEvent = getLogEvent(logCaptor.getLogEvents(), position);
 
         if (expectedMessage != null && !logEvent.getMessage().equals(expectedMessage))
-            throw new AssertionFailedError(
-                String.format(
-                    "Expected message '%s' to be logged, but instead got '%s'!",
-                    expectedMessage, logEvent.getMessage()));
+            throw new AssertionFailedError(String.format(
+                "Expected message '%s' to be logged, but instead got '%s'!",
+                expectedMessage,
+                logEvent.getMessage())
+            );
 
         assertThrowableNesting(logEvent.getThrowable().orElse(null), throwableSpecs);
     }
@@ -520,20 +544,22 @@ public final class LogAssertionsUtil
 
             if (!expectedType.matches(throwable))
             {
-                throw new AssertionFailedError(
-                    String.format(
-                        """
+                throw new AssertionFailedError(String.format(
+                    """
                         Expected exception of type %s with message '%s' at index %d
                         Received exception of type %s with message '%s'
                         Expected types: %s
                         Full stack trace of the base throwable:
                         %s
                         """,
-                        expectedType.expectedType, expectedType.expectedMessage, idx,
-                        throwable == null ? "null" : throwable.getClass(),
-                        throwable == null ? "null" : throwable.getMessage(),
-                        Arrays.toString(throwableSpecs),
-                        throwableToString(base)));
+                    expectedType.expectedType,
+                    expectedType.expectedMessage,
+                    idx,
+                    throwable == null ? "null" : throwable.getClass(),
+                    throwable == null ? "null" : throwable.getMessage(),
+                    Arrays.toString(throwableSpecs),
+                    throwableToString(base))
+                );
             }
             throwable = throwable.getCause();
         }
@@ -639,8 +665,8 @@ public final class LogAssertionsUtil
         public static ThrowableSpec[] of(Class<?>... classes)
         {
             return Arrays.stream(classes)
-                         .map(ThrowableSpec::new)
-                         .toArray(ThrowableSpec[]::new);
+                .map(ThrowableSpec::new)
+                .toArray(ThrowableSpec[]::new);
         }
     }
 

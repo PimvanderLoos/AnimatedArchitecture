@@ -51,12 +51,16 @@ public final class ReflectionUtil
         {
             ReflectionCache.get().getField(source, fieldName).set(obj, value);
         }
-        catch (Exception e)
+        catch (Exception exception)
         {
             throw new RuntimeException(
-                "Failed to set value of field '" + fieldName +
-                    "' in class '" + obj.getClass().getTypeName() +
-                    "' to '" + value + "'", e);
+                String.format(
+                    "Failed to set value of field '%s' in class '%s' to '%s'",
+                    fieldName,
+                    obj.getClass().getTypeName(),
+                    value),
+                exception
+            );
         }
     }
 
