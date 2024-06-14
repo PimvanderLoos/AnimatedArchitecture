@@ -33,15 +33,25 @@ public class StructureArgument extends CommandArgument<ICommandSender, Structure
 {
     @lombok.Builder
     public StructureArgument(
-        boolean required, String name, @Nullable String defaultValue,
+        boolean required,
+        String name,
+        @Nullable String defaultValue,
         @Nullable BiFunction<CommandContext<ICommandSender>, String, List<String>> suggestionsProvider,
-        @Nullable ArgumentDescription defaultDescription, boolean asyncSuggestions,
-        IExecutor executor, StructureRetrieverFactory structureRetrieverFactory, PermissionLevel maxPermission)
+        @Nullable ArgumentDescription defaultDescription,
+        boolean asyncSuggestions,
+        IExecutor executor,
+        StructureRetrieverFactory structureRetrieverFactory,
+        PermissionLevel maxPermission)
     {
-        super(required, name,
-              new StructureArgumentParser(asyncSuggestions, structureRetrieverFactory, maxPermission, executor),
-              Objects.requireNonNullElse(defaultValue, ""), StructureRetriever.class, suggestionsProvider,
-              Objects.requireNonNullElse(defaultDescription, ArgumentDescription.empty()));
+        super(
+            required,
+            name,
+            new StructureArgumentParser(asyncSuggestions, structureRetrieverFactory, maxPermission, executor),
+            Objects.requireNonNullElse(defaultValue, ""),
+            StructureRetriever.class,
+            suggestionsProvider,
+            Objects.requireNonNullElse(defaultDescription, ArgumentDescription.empty())
+        );
     }
 
     public static final class StructureArgumentParser implements ArgumentParser<ICommandSender, StructureRetriever>
@@ -65,7 +75,8 @@ public class StructureArgument extends CommandArgument<ICommandSender, Structure
 
         @Override
         public ArgumentParseResult<StructureRetriever> parse(
-            CommandContext<ICommandSender> commandContext, Queue<String> inputQueue)
+            CommandContext<ICommandSender> commandContext,
+            Queue<String> inputQueue)
         {
             final @Nullable String input = inputQueue.peek();
             if (input == null || input.isEmpty())
@@ -117,9 +128,11 @@ public class StructureArgument extends CommandArgument<ICommandSender, Structure
             }
             catch (InterruptedException | ExecutionException | TimeoutException e)
             {
-                log.atSevere().withCause(e)
-                   .log("Failed to get suggestions for structure argument with input '%s' for user: '%s'",
-                        input, commandContext.getSender());
+                log.atSevere().withCause(e).log(
+                    "Failed to get suggestions for structure argument with input '%s' for user: '%s'",
+                    input,
+                    commandContext.getSender()
+                );
                 return Collections.emptyList();
             }
         }

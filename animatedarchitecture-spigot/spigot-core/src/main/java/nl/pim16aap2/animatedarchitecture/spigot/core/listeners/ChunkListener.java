@@ -69,9 +69,11 @@ public class ChunkListener extends AbstractListener
         final CompletableFuture<List<AbstractStructure>> rotationPoints =
             databaseManager.getStructuresInChunk(chunk.getX(), chunk.getZ());
 
-        final CompletableFuture<List<AbstractStructure>> powerBlocks =
-            powerBlockManager.structuresInChunk(new Vector3Di(chunk.getX() << 4, 0, chunk.getZ() << 4),
-                world.getName());
+        final CompletableFuture<List<AbstractStructure>> powerBlocks = powerBlockManager.structuresInChunk(
+            // Bit shift the chunk coordinates to get the world-space coordinates.
+            new Vector3Di(chunk.getX() << 4, 0, chunk.getZ() << 4),
+            world.getName()
+        );
 
         Util.getAllCompletableFutureResultsFlatMap(rotationPoints, powerBlocks)
             .thenAccept(lst -> lst.forEach(AbstractStructure::onChunkLoad))

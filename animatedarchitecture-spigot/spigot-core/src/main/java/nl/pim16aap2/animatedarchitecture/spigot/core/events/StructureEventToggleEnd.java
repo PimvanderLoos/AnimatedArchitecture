@@ -40,9 +40,13 @@ public class StructureEventToggleEnd extends StructureToggleEvent implements ISt
      *     If true, the structure will skip the animation and open instantly.
      */
     public StructureEventToggleEnd(
-        AbstractStructure structure, StructureSnapshot snapshot, StructureActionCause cause,
+        AbstractStructure structure,
+        StructureSnapshot snapshot,
+        StructureActionCause cause,
         StructureActionType actionType,
-        IPlayer responsible, double time, boolean skipAnimation)
+        IPlayer responsible,
+        double time,
+        boolean skipAnimation)
     {
         super(snapshot, cause, actionType, responsible, time, skipAnimation);
         this.structure = structure;

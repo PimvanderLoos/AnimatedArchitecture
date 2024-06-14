@@ -17,6 +17,9 @@ import org.jetbrains.annotations.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+/**
+ * Implementation of {@link ITextFactory} for the Spigot platform.
+ */
 @Singleton
 public class TextFactorySpigot implements ITextFactory
 {

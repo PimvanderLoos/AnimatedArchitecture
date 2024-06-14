@@ -12,5 +12,6 @@ public interface AnimatedArchitectureToolUtilSpigotModule
     @Binds
     @Singleton
     IAnimatedArchitectureToolUtil provideAnimatedArchitectureUtil(
-        AnimatedArchitectureToolUtilSpigot animatedArchitectureToolUtilSpigot);
+        AnimatedArchitectureToolUtilSpigot animatedArchitectureToolUtilSpigot
+    );
 }

@@ -7,7 +7,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Deque;
 
-@Flogger final class GuiUtil
+/**
+ * Utility class for GUI-related operations.
+ */
+@Flogger
+final class GuiUtil
 {
     private GuiUtil()
     {
@@ -23,7 +27,8 @@ import java.util.Deque;
      * @return The CloseAction.
      */
     public static InventoryGui.CloseAction getDeletionListenerUnregisterCloseAction(
-        GuiStructureDeletionManager manager, IGuiPage.IGuiStructureDeletionListener listener)
+        GuiStructureDeletionManager manager,
+        IGuiPage.IGuiStructureDeletionListener listener)
     {
         return close ->
         {
@@ -59,6 +64,17 @@ import java.util.Deque;
         InventoryGui.clearHistory(player.getBukkitPlayer());
     }
 
+    /**
+     * Closes all {@link InventoryGui}s that are currently open for a player, up to and including the provided guiPage.
+     * <p>
+     * This method will loop through the history of the player's guis and close them until the provided guiPage is
+     * encountered. Note that the provided guiPage will also be closed.
+     *
+     * @param guiPage
+     *     The guiPage to close up to.
+     * @param player
+     *     The player whose guis to close.
+     */
     public static void closeGuiPage(InventoryGui guiPage, PlayerSpigot player)
     {
         final Deque<InventoryGui> history = InventoryGui.getHistory(player.getBukkitPlayer());

@@ -35,11 +35,14 @@ class DeleteGui implements IGuiPage
     @ToString.Include
     private final PlayerSpigot inventoryHolder;
 
-    @AssistedInject //
+    @AssistedInject
     DeleteGui(
-        AnimatedArchitecturePlugin animatedArchitecturePlugin, ILocalizer localizer, CommandFactory commandFactory,
+        AnimatedArchitecturePlugin animatedArchitecturePlugin,
+        ILocalizer localizer,
+        CommandFactory commandFactory,
         StructureRetrieverFactory structureRetrieverFactory,
-        @Assisted AbstractStructure structure, @Assisted PlayerSpigot inventoryHolder)
+        @Assisted AbstractStructure structure,
+        @Assisted PlayerSpigot inventoryHolder)
     {
         this.animatedArchitecturePlugin = animatedArchitecturePlugin;
         this.localizer = localizer;
@@ -68,13 +71,15 @@ class DeleteGui implements IGuiPage
             "sssssssss"
         };
 
-        final InventoryGui gui =
-            new InventoryGui(animatedArchitecturePlugin,
-                             inventoryHolder.getBukkitPlayer(),
-                             localizer.getMessage("gui.delete_page.title",
-                                                  localizer.getMessage(structure.getType().getLocalizationKey()),
-                                                  structure.getNameAndUid()),
-                             guiSetup);
+        final InventoryGui gui = new InventoryGui(
+            animatedArchitecturePlugin,
+            inventoryHolder.getBukkitPlayer(),
+            localizer.getMessage(
+                "gui.delete_page.title",
+                localizer.getMessage(structure.getType().getLocalizationKey()),
+                structure.getNameAndUid()),
+            guiSetup);
+
         gui.setFiller(FILLER);
 
         populateGUI(gui);
@@ -92,21 +97,25 @@ class DeleteGui implements IGuiPage
                 GuiUtil.closeGuiPage(gui, inventoryHolder);
                 return true;
             },
-            localizer.getMessage("gui.delete_page.cancel",
-                                 localizer.getMessage(structure.getType().getLocalizationKey()))
+            localizer.getMessage(
+                "gui.delete_page.cancel",
+                localizer.getMessage(structure.getType().getLocalizationKey()))
         ));
         gui.addElement(new StaticGuiElement(
             'd',
             new ItemStack(Material.BARRIER),
             click ->
             {
-                commandFactory.newDelete(inventoryHolder, structureRetrieverFactory.of(structure)).run()
-                              .exceptionally(Util::exceptionally);
+                commandFactory
+                    .newDelete(inventoryHolder, structureRetrieverFactory.of(structure))
+                    .run()
+                    .exceptionally(Util::exceptionally);
                 GuiUtil.closeGuiPage(gui, inventoryHolder);
                 return true;
             },
-            localizer.getMessage("gui.delete_page.confirm",
-                                 localizer.getMessage(structure.getType().getLocalizationKey()))
+            localizer.getMessage(
+                "gui.delete_page.confirm",
+                localizer.getMessage(structure.getType().getLocalizationKey()))
         ));
     }
 

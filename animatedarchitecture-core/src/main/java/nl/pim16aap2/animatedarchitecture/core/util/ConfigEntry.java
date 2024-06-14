@@ -139,7 +139,6 @@ public final class ConfigEntry<V>
      *
      * @param <T>
      *     The type of the value.
-     * @author Pim
      */
     public interface ITestValue<T>
     {

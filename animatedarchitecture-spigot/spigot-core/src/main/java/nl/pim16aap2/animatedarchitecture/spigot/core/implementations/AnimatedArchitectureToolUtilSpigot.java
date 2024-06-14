@@ -21,6 +21,11 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Arrays;
 
+/**
+ * Implementation of {@link IAnimatedArchitectureToolUtil} for Spigot.
+ * <p>
+ * This class is responsible for giving the player the Animated Architecture tool and removing it from the player.
+ */
 @Singleton
 @Flogger
 public class AnimatedArchitectureToolUtilSpigot implements IAnimatedArchitectureToolUtil
@@ -41,13 +46,12 @@ public class AnimatedArchitectureToolUtilSpigot implements IAnimatedArchitecture
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
         {
-            log.atSevere().withStackTrace(StackSize.FULL)
-               .log("Failed to obtain Spigot player: %s", player.getUUID());
+            log.atSevere().withStackTrace(StackSize.FULL).log("Failed to obtain Spigot player: %s", player.getUUID());
             return;
         }
 
         final ItemStack tool = new ItemStack(TOOL_MATERIAL, 1);
-        tool.addUnsafeEnchantment(Enchantment.LUCK, 1);
+        tool.addUnsafeEnchantment(Enchantment.LUCK_OF_THE_SEA, 1);
 
         final @Nullable ItemMeta itemMeta =
             tool.hasItemMeta() ? tool.getItemMeta() : Bukkit.getItemFactory().getItemMeta(tool.getType());
@@ -76,12 +80,12 @@ public class AnimatedArchitectureToolUtilSpigot implements IAnimatedArchitecture
             log.atSevere().withStackTrace(StackSize.FULL).log("Failed to obtain Spigot player: '%s'", player.getUUID());
             return;
         }
-        spigotPlayer.getInventory().forEach(
-            item ->
-            {
-                if (isTool(item))
-                    item.setAmount(0);
-            });
+
+        spigotPlayer.getInventory().forEach(item ->
+        {
+            if (isTool(item))
+                item.setAmount(0);
+        });
     }
 
     public boolean isTool(@Nullable ItemStack item)

@@ -47,7 +47,8 @@ public class PlayerFactorySpigot implements IPlayerFactory
         if (player != null)
             return CompletableFuture.completedFuture(Optional.of(new PlayerSpigot(player)));
 
-        return databaseManager.getPlayerData(uuid)
+        return databaseManager
+            .getPlayerData(uuid)
             .thenApply(playerData -> playerData.<IPlayer>map(OfflinePlayerSpigot::new))
             .exceptionally(Util::exceptionallyOptional);
     }

@@ -1,14 +1,5 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.implementations;
 
-import nl.pim16aap2.animatedarchitecture.spigot.core.events.StructureCreatedEvent;
-import nl.pim16aap2.animatedarchitecture.spigot.core.events.StructureEventToggleEnd;
-import nl.pim16aap2.animatedarchitecture.spigot.core.events.StructureEventTogglePrepare;
-import nl.pim16aap2.animatedarchitecture.spigot.core.events.StructureEventToggleStart;
-import nl.pim16aap2.animatedarchitecture.spigot.core.events.StructurePrepareAddOwnerEvent;
-import nl.pim16aap2.animatedarchitecture.spigot.core.events.StructurePrepareCreateEvent;
-import nl.pim16aap2.animatedarchitecture.spigot.core.events.StructurePrepareDeleteEvent;
-import nl.pim16aap2.animatedarchitecture.spigot.core.events.StructurePrepareLockChangeEvent;
-import nl.pim16aap2.animatedarchitecture.spigot.core.events.StructurePrepareRemoveOwnerEvent;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IAnimatedArchitectureEventFactory;
 import nl.pim16aap2.animatedarchitecture.core.events.IStructureCreatedEvent;
@@ -26,11 +17,23 @@ import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
+import nl.pim16aap2.animatedarchitecture.spigot.core.events.StructureCreatedEvent;
+import nl.pim16aap2.animatedarchitecture.spigot.core.events.StructureEventToggleEnd;
+import nl.pim16aap2.animatedarchitecture.spigot.core.events.StructureEventTogglePrepare;
+import nl.pim16aap2.animatedarchitecture.spigot.core.events.StructureEventToggleStart;
+import nl.pim16aap2.animatedarchitecture.spigot.core.events.StructurePrepareAddOwnerEvent;
+import nl.pim16aap2.animatedarchitecture.spigot.core.events.StructurePrepareCreateEvent;
+import nl.pim16aap2.animatedarchitecture.spigot.core.events.StructurePrepareDeleteEvent;
+import nl.pim16aap2.animatedarchitecture.spigot.core.events.StructurePrepareLockChangeEvent;
+import nl.pim16aap2.animatedarchitecture.spigot.core.events.StructurePrepareRemoveOwnerEvent;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+/**
+ * The implementation of {@link IAnimatedArchitectureEventFactory} for the Spigot platform.
+ */
 @Singleton
 public class AnimatedArchitectureEventFactorySpigot implements IAnimatedArchitectureEventFactory
 {
@@ -48,21 +51,24 @@ public class AnimatedArchitectureEventFactorySpigot implements IAnimatedArchitec
 
     @Override
     public IStructurePrepareCreateEvent createPrepareStructureCreateEvent(
-        AbstractStructure structure, @Nullable IPlayer responsible)
+        AbstractStructure structure,
+        @Nullable IPlayer responsible)
     {
         return new StructurePrepareCreateEvent(structure, responsible);
     }
 
     @Override
     public IStructurePrepareDeleteEvent createPrepareDeleteStructureEvent(
-        AbstractStructure structure, @Nullable IPlayer responsible)
+        AbstractStructure structure,
+        @Nullable IPlayer responsible)
     {
         return new StructurePrepareDeleteEvent(structure, responsible);
     }
 
     @Override
     public IStructurePrepareAddOwnerEvent createStructurePrepareAddOwnerEvent(
-        AbstractStructure structure, StructureOwner newOwner,
+        AbstractStructure structure,
+        StructureOwner newOwner,
         @Nullable IPlayer responsible)
     {
         return new StructurePrepareAddOwnerEvent(structure, responsible, newOwner);
@@ -70,7 +76,8 @@ public class AnimatedArchitectureEventFactorySpigot implements IAnimatedArchitec
 
     @Override
     public IStructurePrepareRemoveOwnerEvent createStructurePrepareRemoveOwnerEvent(
-        AbstractStructure structure, StructureOwner removedOwner,
+        AbstractStructure structure,
+        StructureOwner removedOwner,
         @Nullable IPlayer responsible)
     {
         return new StructurePrepareRemoveOwnerEvent(structure, responsible, removedOwner);
@@ -78,7 +85,8 @@ public class AnimatedArchitectureEventFactorySpigot implements IAnimatedArchitec
 
     @Override
     public IStructurePrepareLockChangeEvent createStructurePrepareLockChangeEvent(
-        AbstractStructure structure, boolean newLockStatus,
+        AbstractStructure structure,
+        boolean newLockStatus,
         @Nullable IPlayer responsible)
     {
         return new StructurePrepareLockChangeEvent(structure, responsible, newLockStatus);
@@ -86,30 +94,58 @@ public class AnimatedArchitectureEventFactorySpigot implements IAnimatedArchitec
 
     @Override
     public IStructureEventTogglePrepare createTogglePrepareEvent(
-        StructureSnapshot snapshot, StructureActionCause cause,
-        StructureActionType actionType, IPlayer responsible,
-        double time, boolean skipAnimation, Cuboid newCuboid)
+        StructureSnapshot snapshot,
+        StructureActionCause cause,
+        StructureActionType actionType,
+        IPlayer responsible,
+        double time,
+        boolean skipAnimation,
+        Cuboid newCuboid)
     {
-        return new StructureEventTogglePrepare(snapshot, cause, actionType, responsible, time, skipAnimation,
-                                               newCuboid);
+        return new StructureEventTogglePrepare(
+            snapshot,
+            cause,
+            actionType,
+            responsible,
+            time,
+            skipAnimation,
+            newCuboid
+        );
     }
 
     @Override
     public IStructureEventToggleStart createToggleStartEvent(
-        AbstractStructure structure, StructureSnapshot structureSnapshot, StructureActionCause cause,
-        StructureActionType actionType, IPlayer responsible, double time,
-        boolean skipAnimation, Cuboid newCuboid)
+        AbstractStructure structure,
+        StructureSnapshot structureSnapshot,
+        StructureActionCause cause,
+        StructureActionType actionType,
+        IPlayer responsible,
+        double time,
+        boolean skipAnimation,
+        Cuboid newCuboid)
 
     {
         return new StructureEventToggleStart(
-            structure, structureSnapshot, cause, actionType, responsible, time, skipAnimation, newCuboid);
+            structure,
+            structureSnapshot,
+            cause,
+            actionType,
+            responsible,
+            time,
+            skipAnimation,
+            newCuboid
+        );
     }
 
     @Override
     public IStructureEventToggleEnd createToggleEndEvent(
-        AbstractStructure structure, StructureSnapshot snapshot, StructureActionCause cause,
+        AbstractStructure structure,
+        StructureSnapshot snapshot,
+        StructureActionCause cause,
         StructureActionType actionType,
-        IPlayer responsible, double time, boolean skipAnimation)
+        IPlayer responsible,
+        double time,
+        boolean skipAnimation)
     {
         return new StructureEventToggleEnd(structure, snapshot, cause, actionType, responsible, time, skipAnimation);
     }

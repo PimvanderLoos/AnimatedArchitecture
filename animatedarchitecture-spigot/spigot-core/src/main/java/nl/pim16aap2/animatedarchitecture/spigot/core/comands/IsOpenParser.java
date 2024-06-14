@@ -32,7 +32,8 @@ class IsOpenParser implements ArgumentParser<ICommandSender, Boolean>, IRestarta
 
     @Override
     public ArgumentParseResult<Boolean> parse(
-        CommandContext<ICommandSender> commandContext, Queue<String> inputQueue)
+        CommandContext<ICommandSender> commandContext,
+        Queue<String> inputQueue)
     {
         final @Nullable String input = inputQueue.peek();
         final @Nullable Boolean result = parseInput(input);
@@ -80,10 +81,5 @@ class IsOpenParser implements ArgumentParser<ICommandSender, Boolean>, IRestarta
 
         localizedOpenLowerCase = localizedOpen.toLowerCase(Locale.ROOT);
         localizedClosedLowerCase = localizedClosed.toLowerCase(Locale.ROOT);
-    }
-
-    @Override
-    public void shutDown()
-    {
     }
 }

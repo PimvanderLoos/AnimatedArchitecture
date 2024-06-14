@@ -44,7 +44,8 @@ public class RedstoneListener extends AbstractListener implements IDebuggable
      */
     private volatile @Nullable ExecutorService threadPool;
 
-    @Inject RedstoneListener(
+    @Inject
+    RedstoneListener(
         RestartableHolder holder,
         JavaPlugin plugin,
         ConfigSpigot config,
@@ -141,14 +142,16 @@ public class RedstoneListener extends AbstractListener implements IDebuggable
         {
             log.atWarning().log(
                 "Redstone event at location %s was not processed because the thread pool was null!",
-                event.getBlock().getLocation());
+                event.getBlock().getLocation()
+            );
             return;
         }
         if (currentThreadPool.isShutdown())
         {
             log.atWarning().log(
                 "Redstone event at location %s was not processed because the thread pool was shut down!",
-                event.getBlock().getLocation());
+                event.getBlock().getLocation()
+            );
             return;
         }
 
@@ -162,22 +165,22 @@ public class RedstoneListener extends AbstractListener implements IDebuggable
         CompletableFuture
             .runAsync(() -> processRedstoneEvent(event), currentThreadPool)
             .orTimeout(5, TimeUnit.SECONDS)
-            .exceptionally(
-                exception ->
+            .exceptionally(exception ->
+            {
+                if (exception instanceof TimeoutException)
                 {
-                    if (exception instanceof TimeoutException)
-                    {
-                        log.atWarning().log(
-                            "Timed out processing redstone event at location %s: '%s'",
-                            event.getBlock().getLocation(),
-                            exception.getMessage());
-                    }
-                    else
-                    {
-                        Util.exceptionally(exception);
-                    }
-                    return null;
-                });
+                    log.atWarning().log(
+                        "Timed out processing redstone event at location %s: '%s'",
+                        event.getBlock().getLocation(),
+                        exception.getMessage()
+                    );
+                }
+                else
+                {
+                    Util.exceptionally(exception);
+                }
+                return null;
+            });
     }
 
     private synchronized void initThreadPool()
@@ -200,14 +203,16 @@ public class RedstoneListener extends AbstractListener implements IDebuggable
                 if (!currentThreadPool.awaitTermination(30, TimeUnit.SECONDS))
                     log.atSevere().log(
                         "Timed out waiting to terminate DatabaseManager ExecutorService!" +
-                            " The database may be out of sync with the world!");
+                            " The database may be out of sync with the world!"
+                    );
             }
             catch (InterruptedException e)
             {
                 Thread.currentThread().interrupt();
                 throw new RuntimeException(
                     "Thread got interrupted waiting for DatabaseManager ExecutorService to terminate!" +
-                        " The database may be out of sync with the world!", e);
+                        " The database may be out of sync with the world!", e
+                );
             }
         }
     }
@@ -219,6 +224,7 @@ public class RedstoneListener extends AbstractListener implements IDebuggable
             "Listener status: registered=%s, powerBlockTypes=%s, threadPool=%s",
             super.isRegistered,
             powerBlockTypes,
-            threadPool);
+            threadPool
+        );
     }
 }

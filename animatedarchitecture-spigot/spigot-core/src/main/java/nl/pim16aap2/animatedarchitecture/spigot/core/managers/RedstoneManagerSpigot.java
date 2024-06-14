@@ -20,10 +20,15 @@ import java.util.List;
 @Singleton
 public final class RedstoneManagerSpigot implements IRedstoneManager
 {
-    private static final List<BlockFace> FACE_LIST =
-        List.of(BlockFace.SELF,
-            BlockFace.UP, BlockFace.DOWN,
-            BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST);
+    private static final List<BlockFace> FACE_LIST = List.of(
+        BlockFace.SELF,
+        BlockFace.UP,
+        BlockFace.DOWN,
+        BlockFace.NORTH,
+        BlockFace.EAST,
+        BlockFace.SOUTH,
+        BlockFace.WEST
+    );
 
     private final IConfig config;
 

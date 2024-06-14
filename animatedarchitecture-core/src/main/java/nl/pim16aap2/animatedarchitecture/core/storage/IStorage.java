@@ -368,8 +368,6 @@ public interface IStorage
 
     /**
      * Represents the status of the database.
-     *
-     * @author Pim
      */
     enum DatabaseState
     {
@@ -411,8 +409,6 @@ public interface IStorage
 
     /**
      * Set of bit flags to represent various properties of structures.
-     *
-     * @author Pim
      */
     enum StructureFlag implements IBitFlag
     {

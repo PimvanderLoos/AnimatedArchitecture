@@ -25,7 +25,9 @@ public class StructurePrepareLockChangeEvent extends StructureEvent implements I
     private final boolean newLockStatus;
 
     public StructurePrepareLockChangeEvent(
-        AbstractStructure structure, @Nullable IPlayer responsible, boolean newLockStatus)
+        AbstractStructure structure,
+        @Nullable IPlayer responsible,
+        boolean newLockStatus)
     {
         super(structure, responsible);
         this.newLockStatus = newLockStatus;

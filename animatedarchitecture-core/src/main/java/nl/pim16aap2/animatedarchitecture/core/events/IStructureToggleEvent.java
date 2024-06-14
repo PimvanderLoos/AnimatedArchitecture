@@ -3,6 +3,13 @@ package nl.pim16aap2.animatedarchitecture.core.events;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 
+/**
+ * Represents an event where a structure is toggled.
+ * <p>
+ * The subclasses of this class define the different stages of the toggle event.
+ * <p>
+ * Preparation stages can be cancelled, while the start and end stages cannot.
+ */
 public interface IStructureToggleEvent extends IAnimatedArchitectureEvent
 {
     /**

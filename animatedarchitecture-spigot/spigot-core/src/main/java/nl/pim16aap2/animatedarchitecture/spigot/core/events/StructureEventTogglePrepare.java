@@ -47,8 +47,13 @@ public class StructureEventTogglePrepare extends StructureToggleEvent implements
      *     The {@link Cuboid} representing the area the structure will take up after the toggle.
      */
     public StructureEventTogglePrepare(
-        StructureSnapshot snapshot, StructureActionCause cause, StructureActionType actionType, IPlayer responsible,
-        double time, boolean animationSkipped, Cuboid newCuboid)
+        StructureSnapshot snapshot,
+        StructureActionCause cause,
+        StructureActionType actionType,
+        IPlayer responsible,
+        double time,
+        boolean animationSkipped,
+        Cuboid newCuboid)
     {
         super(snapshot, cause, actionType, responsible, time, animationSkipped);
         this.newCuboid = newCuboid;

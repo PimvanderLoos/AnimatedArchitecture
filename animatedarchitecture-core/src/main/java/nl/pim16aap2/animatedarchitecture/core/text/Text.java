@@ -576,8 +576,6 @@ public class Text implements CharSequence
 
     /**
      * Represents a section in a text that is associated with a certain style.
-     *
-     * @author Pim
      */
     private record StyledSection(int startIndex, int length, TextComponent component)
     {

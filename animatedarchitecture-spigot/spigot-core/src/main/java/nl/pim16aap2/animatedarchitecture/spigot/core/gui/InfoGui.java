@@ -62,8 +62,7 @@ class InfoGui implements IGuiPage
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private final Map<StructureAttribute, GuiElement> attributeElements;
 
-    @AssistedInject //
-    InfoGui(
+    @AssistedInject InfoGui(
         AnimatedArchitecturePlugin animatedArchitecturePlugin,
         ILocalizer localizer,
         IPermissionsManager permissionsManager,
@@ -96,11 +95,12 @@ class InfoGui implements IGuiPage
     {
         final String[] guiSetup = GuiUtil.fillLinesWithChar('g', allowedAttributes.size(), "f   h    ");
 
-        final InventoryGui gui =
-            new InventoryGui(animatedArchitecturePlugin,
-                             inventoryHolder.getBukkitPlayer(),
-                             localizer.getMessage("gui.info_page.title", structure.getNameAndUid()),
-                             guiSetup);
+        final InventoryGui gui = new InventoryGui(
+            animatedArchitecturePlugin,
+            inventoryHolder.getBukkitPlayer(),
+            localizer.getMessage("gui.info_page.title", structure.getNameAndUid()),
+            guiSetup
+        );
         gui.setFiller(FILLER);
 
         populateGUI(gui);
@@ -119,16 +119,17 @@ class InfoGui implements IGuiPage
         gui.addElement(new StaticGuiElement(
             'h',
             new ItemStack(Material.BOOK),
-            localizer.getMessage("gui.info_page.header",
-                                 localizer.getMessage(structure.getType().getLocalizationKey()),
-                                 structure.getNameAndUid())
-        ));
+            localizer.getMessage(
+                "gui.info_page.header",
+                localizer.getMessage(structure.getType().getLocalizationKey()),
+                structure.getNameAndUid()))
+        );
 
         gui.addElement(new GuiBackElement(
             'f',
             new ItemStack(Material.ARROW),
-            localizer.getMessage("gui.info_page.back_button")
-        ));
+            localizer.getMessage("gui.info_page.back_button"))
+        );
     }
 
     private void addElements(InventoryGui gui)
@@ -148,8 +149,11 @@ class InfoGui implements IGuiPage
     private StructureOwner getDummyOwner()
     {
         log.atSevere().log("Player '%s' does not have access to structure: '%s'!", inventoryHolder, structure);
-        return new StructureOwner(structure.getUid(), PermissionLevel.NO_PERMISSION,
-                                  inventoryHolder.getPlayerData());
+        return new StructureOwner(
+            structure.getUid(),
+            PermissionLevel.NO_PERMISSION,
+            inventoryHolder.getPlayerData()
+        );
     }
 
     static List<StructureAttribute> analyzeAttributes(
@@ -157,9 +161,9 @@ class InfoGui implements IGuiPage
     {
         final PermissionLevel perm = structureOwner.permission();
         return StructureAttribute.getValues().stream()
-                                 .filter(attr -> hasAccessToAttribute(player, attr, perm, permissionsManager))
-                                 .filter(attr -> attr != StructureAttribute.SWITCH)
-                                 .toList();
+            .filter(attr -> hasAccessToAttribute(player, attr, perm, permissionsManager))
+            .filter(attr -> attr != StructureAttribute.SWITCH)
+            .toList();
     }
 
     private static boolean hasAccessToAttribute(

@@ -223,8 +223,10 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
 
         databaseManager = animatedArchitectureSpigotComponent.getDatabaseManager();
         if (databaseManager.getDatabaseState() != IStorage.DatabaseState.OK)
-            throw new InitializationException("Failed to initialize AnimatedArchitecture database! Database state: " +
-                                                  databaseManager.getDatabaseState().name());
+            throw new InitializationException(
+                "Failed to initialize AnimatedArchitecture database! Database state: " +
+                    databaseManager.getDatabaseState().name()
+            );
 
         protectionHookManager = safeGetter(AnimatedArchitectureSpigotComponent::getProtectionHookManager);
         economyManager = safeGetter(AnimatedArchitectureSpigotComponent::getVaultManager);
@@ -308,7 +310,7 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
         catch (Exception e)
         {
             throw e.getMessage() == null ?
-                  new InitializationException(e) : new InitializationException(e.getMessage(), e);
+                new InitializationException(e) : new InitializationException(e.getMessage(), e);
         }
         if (ret == null)
             throw new InitializationException(

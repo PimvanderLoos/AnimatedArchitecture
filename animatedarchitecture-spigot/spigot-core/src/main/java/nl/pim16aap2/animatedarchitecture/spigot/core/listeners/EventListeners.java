@@ -75,8 +75,9 @@ public class EventListeners extends AbstractListener
         if (!animatedArchitectureToolUtil.isPlayerHoldingTool(SpigotAdapter.wrapPlayer(event.getPlayer())))
             return;
 
-        toolUserManager.getToolUser(event.getPlayer().getUniqueId()).ifPresent(
-            toolUser ->
+        toolUserManager
+            .getToolUser(event.getPlayer().getUniqueId())
+            .ifPresent(toolUser ->
             {
                 event.setCancelled(true);
                 toolUser.handleInput(SpigotAdapter.wrapLocation(event.getClickedBlock().getLocation()));
@@ -94,7 +95,8 @@ public class EventListeners extends AbstractListener
     {
         try
         {
-            databaseManager.updatePlayer(SpigotAdapter.wrapPlayer(event.getPlayer()))
+            databaseManager
+                .updatePlayer(SpigotAdapter.wrapPlayer(event.getPlayer()))
                 .exceptionally(Util::exceptionally);
         }
         catch (Exception e)
@@ -216,12 +218,11 @@ public class EventListeners extends AbstractListener
     {
         try
         {
-            event.getNewItems().forEach(
-                (key, value) ->
-                {
-                    if (animatedArchitectureToolUtil.isTool(value))
-                        event.setCancelled(true);
-                });
+            event.getNewItems().forEach((key, value) ->
+            {
+                if (animatedArchitectureToolUtil.isTool(value))
+                    event.setCancelled(true);
+            });
         }
         catch (Exception e)
         {

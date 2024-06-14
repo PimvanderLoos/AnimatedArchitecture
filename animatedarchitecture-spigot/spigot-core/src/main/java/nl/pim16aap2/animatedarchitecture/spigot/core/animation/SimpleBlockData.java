@@ -26,6 +26,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Set;
 import java.util.function.Consumer;
 
+/**
+ * Represents the data of a block that is animated.
+ * <p>
+ * This class is used to store the data of a block that is animated. These data are used to rotate the block in the
+ * direction of the animation and to place the block back in the world when the animation finishes.
+ */
 @Flogger
 public class SimpleBlockData implements IAnimatedBlockData
 {
@@ -143,8 +149,10 @@ public class SimpleBlockData implements IAnimatedBlockData
         final @Nullable var mappedDir = BlockFace.getDirFun(dir);
         if (mappedDir == null)
         {
-            log.atSevere().withStackTrace(StackSize.FULL)
-               .log("Failed to get face from vector '%s'. Rotations will not work as expected!", dir);
+            log.atSevere().withStackTrace(StackSize.FULL).log(
+                "Failed to get face from vector '%s'. Rotations will not work as expected!",
+                dir
+            );
             return;
         }
 
@@ -169,22 +177,24 @@ public class SimpleBlockData implements IAnimatedBlockData
         final @Nullable var mappedDir = BlockFace.getDirFun(dir);
         if (mappedDir == null)
         {
-            log.atSevere().withStackTrace(StackSize.FULL)
-               .log("Failed to get face from vector '%s'. Rotations will not work as expected!", dir);
+            log.atSevere().withStackTrace(StackSize.FULL).log(
+                "Failed to get face from vector '%s'. Rotations will not work as expected!",
+                dir
+            );
             return;
         }
 
         final Set<org.bukkit.block.BlockFace> currentFaces = bd.getFaces();
         final Set<org.bukkit.block.BlockFace> allowedFaces = bd.getAllowedFaces();
         currentFaces.forEach((blockFace) -> bd.setFace(blockFace, false));
-        currentFaces.forEach(
-            (blockFace) ->
-            {
-                final org.bukkit.block.BlockFace newFace = SpigotUtil.getBukkitFace(
-                    BlockFace.rotate(SpigotUtil.getBlockFace(blockFace), steps, mappedDir));
-                if (allowedFaces.contains(newFace))
-                    bd.setFace(newFace, true);
-            });
+        currentFaces.forEach((blockFace) ->
+        {
+            final org.bukkit.block.BlockFace newFace =
+                SpigotUtil.getBukkitFace(BlockFace.rotate(SpigotUtil.getBlockFace(blockFace), steps, mappedDir));
+
+            if (allowedFaces.contains(newFace))
+                bd.setFace(newFace, true);
+        });
 
         // This should never be disabled. The center column of a cobble wall, for
         // example, would be invisible otherwise.
@@ -237,8 +247,9 @@ public class SimpleBlockData implements IAnimatedBlockData
             log.atSevere().withStackTrace(StackSize.FULL).log("Caught async block removal! THIS IS A BUG!");
             return;
         }
-        this.bukkitWorld.getBlockAt(originalPosition.x(), originalPosition.y(), originalPosition.z())
-                        .setType(Material.AIR, applyPhysics);
+        this.bukkitWorld
+            .getBlockAt(originalPosition.x(), originalPosition.y(), originalPosition.z())
+            .setType(Material.AIR, applyPhysics);
     }
 
     @Override

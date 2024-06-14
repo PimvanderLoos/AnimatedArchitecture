@@ -39,6 +39,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Represents an implementation of {@link HighlightedBlockSpawner} for the Spigot platform.
+ */
 @Singleton
 @Flogger
 public class HighlightedBlockSpawnerSpigot extends HighlightedBlockSpawner implements IRestartable
@@ -80,7 +83,11 @@ public class HighlightedBlockSpawnerSpigot extends HighlightedBlockSpawner imple
 
     @Override
     public Optional<IHighlightedBlock> spawnHighlightedBlock(
-        IPlayer player, IWorld world, @Nullable Duration duration, RotatedPosition rotatedPosition, Color color)
+        IPlayer player,
+        IWorld world,
+        @Nullable Duration duration,
+        RotatedPosition rotatedPosition,
+        Color color)
     {
         executor.assertMainThread("Glowing blocks must be spawned on the main thread!");
 
@@ -103,7 +110,7 @@ public class HighlightedBlockSpawnerSpigot extends HighlightedBlockSpawner imple
         if (spigotPlayer == null)
         {
             log.atSevere().withStackTrace(StackSize.FULL)
-               .log("Player %s does not appear to be online! They will not receive any GlowingBlock packets!", player);
+                .log("Player %s does not appear to be online! They will not receive any GlowingBlock packets!", player);
             return Optional.empty();
         }
 
@@ -111,7 +118,7 @@ public class HighlightedBlockSpawnerSpigot extends HighlightedBlockSpawner imple
         if (spigotWorld == null)
         {
             log.atSevere().withStackTrace(StackSize.FULL)
-               .log("World %s does not appear to be online! No Glowing Blocks can be spawned here!", world);
+                .log("World %s does not appear to be online! No Glowing Blocks can be spawned here!", world);
             return Optional.empty();
         }
 
@@ -123,7 +130,6 @@ public class HighlightedBlockSpawnerSpigot extends HighlightedBlockSpawner imple
             log.atSevere().log("Failed to create glowing entity!");
             return Optional.empty();
         }
-        //noinspection UnstableApiUsage
         spigotPlayer.showEntity(plugin, entity);
 
         onBlockSpawn(block, time);
@@ -132,8 +138,13 @@ public class HighlightedBlockSpawnerSpigot extends HighlightedBlockSpawner imple
 
     private HighlightedBlockDisplay newPreviewBlock(IWorld world, RotatedPosition rotatedPosition, Color color)
     {
-        final HighlightedBlockDisplay ret =
-            new HighlightedBlockDisplay(blockDisplayHelper, executor, rotatedPosition, world, color);
+        final HighlightedBlockDisplay ret = new HighlightedBlockDisplay(
+            blockDisplayHelper,
+            executor,
+            rotatedPosition,
+            world,
+            color
+        );
         ret.spawn();
         return ret;
     }
@@ -202,8 +213,10 @@ public class HighlightedBlockSpawnerSpigot extends HighlightedBlockSpawner imple
     @Override
     public synchronized void initialize()
     {
-        final ScoreboardManager scoreboardManager = Util.requireNonNull(Bukkit.getServer().getScoreboardManager(),
-                                                                        "scoreboardManager");
+        final ScoreboardManager scoreboardManager = Util.requireNonNull(
+            Bukkit.getServer().getScoreboardManager(),
+            "scoreboardManager"
+        );
         scoreboard = Util.requireNonNull(scoreboardManager.getMainScoreboard(), "scoreboard");
         registerTeams(scoreboard);
     }

@@ -114,14 +114,21 @@ public final class CommandManager
         }
 
         final CommandConfirmationManager<ICommandSender> confirmationManager = new CommandConfirmationManager<>(
-            30L, TimeUnit.SECONDS,
-            context -> context.getCommandContext().getSender().sendMessage(textFactory.newText().append(
-                localizer.getMessage("commands.spigot.confirmation.message"), TextType.INFO,
-                arg -> arg.clickable(localizer.getMessage("commands.spigot.confirmation.message.arg0.message"),
-                                     "/AnimatedArchitecture confirm",
-                                     localizer.getMessage("commands.spigot.confirmation.message.arg0.hint")))),
+            30L,
+            TimeUnit.SECONDS,
+            context -> context
+                .getCommandContext()
+                .getSender()
+                .sendMessage(textFactory.newText().append(
+                    localizer.getMessage("commands.spigot.confirmation.message"),
+                    TextType.INFO,
+                    arg -> arg.clickable(
+                        localizer.getMessage("commands.spigot.confirmation.message.arg0.message"),
+                        "/AnimatedArchitecture confirm",
+                        localizer.getMessage("commands.spigot.confirmation.message.arg0.hint")))),
             sender -> sender.sendError(
-                textFactory, localizer.getMessage("commands.spigot.confirmation.error.no_pending"))
+                textFactory,
+                localizer.getMessage("commands.spigot.confirmation.error.no_pending"))
         );
 
         confirmationManager.registerConfirmationProcessor(this.manager);
@@ -132,13 +139,13 @@ public final class CommandManager
             .withNoPermissionHandler()
             .withArgumentParsingHandler()
             .withCommandExecutionHandler()
-            .withDecorator(
-                component -> text()
-                    .append(text("[", NamedTextColor.DARK_GRAY))
-                    .append(text("AnimatedArchitecture", NamedTextColor.GOLD))
-                    .append(text("] ", NamedTextColor.DARK_GRAY))
-                    .append(component).build()
-            ).apply(manager, sender -> this.bukkitAudiences.sender(SpigotAdapter.unwrapCommandSender(sender)));
+            .withDecorator(component -> text()
+                .append(text("[", NamedTextColor.DARK_GRAY))
+                .append(text("AnimatedArchitecture", NamedTextColor.GOLD))
+                .append(text("] ", NamedTextColor.DARK_GRAY))
+                .append(component)
+                .build())
+            .apply(manager, sender -> this.bukkitAudiences.sender(SpigotAdapter.unwrapCommandSender(sender)));
 
         initCommands(manager);
     }
@@ -193,12 +200,11 @@ public final class CommandManager
             manager
         );
 
-        manager.command(
-            builder.literal("help")
-                   .argument(StringArgument.optional("query", StringArgument.StringMode.GREEDY))
-                   .handler(context ->
-                                minecraftHelp.queryCommands(Objects.requireNonNull(context.getOrDefault("query", "")),
-                                                            context.getSender()))
+        manager.command(builder
+            .literal("help")
+            .argument(StringArgument.optional("query", StringArgument.StringMode.GREEDY))
+            .handler(context -> minecraftHelp
+                .queryCommands(Objects.requireNonNull(context.getOrDefault("query", "")), context.getSender()))
         );
     }
 
@@ -206,8 +212,8 @@ public final class CommandManager
         Command.Builder<ICommandSender> builder, String name, CommandDefinition cmd, String descriptionKey)
     {
         return builder.literal(name.replace("_", "").toLowerCase(Locale.ROOT))
-                      .permission(cmd.getLowestPermission())
-                      .meta(CommandMeta.DESCRIPTION, localizer.getMessage(descriptionKey));
+            .permission(cmd.getLowestPermission())
+            .meta(CommandMeta.DESCRIPTION, localizer.getMessage(descriptionKey));
     }
 
     private Command.Builder<ICommandSender> baseInit(
@@ -223,15 +229,15 @@ public final class CommandManager
             baseInit(builder, CommandDefinition.ADD_OWNER, "commands.add_owner.description")
                 .argument(PlayerArgument.of("newOwner"))
                 .argument(PermissionLevelArgument
-                              .builder()
-                              .name("permissionLevel")
-                              .required(true)
-                              .minimumLevel(PermissionLevel.ADMIN)
-                              .maximumLevel(PermissionLevel.USER)
-                              .localizer(localizer)
-                              .defaultDescription(ArgumentDescription.of(
-                                  localizer.getMessage("commands.add_owner.param.permission_level.description")))
-                              .build())
+                    .builder()
+                    .name("permissionLevel")
+                    .required(true)
+                    .minimumLevel(PermissionLevel.ADMIN)
+                    .maximumLevel(PermissionLevel.USER)
+                    .localizer(localizer)
+                    .defaultDescription(ArgumentDescription.of(
+                        localizer.getMessage("commands.add_owner.param.permission_level.description")))
+                    .build())
                 .argument(defaultStructureArgument(false, StructureAttribute.ADD_OWNER).build())
                 .handler(commandExecutor::addOwner)
         );
@@ -479,8 +485,8 @@ public final class CommandManager
     {
         final CommandDefinition previewDefinition =
             new CommandDefinition("PREVIEW",
-                                  Constants.PERMISSION_PREFIX_USER + "preview",
-                                  Constants.PERMISSION_PREFIX_ADMIN + "bypass.preview");
+                Constants.PERMISSION_PREFIX_USER + "preview",
+                Constants.PERMISSION_PREFIX_ADMIN + "bypass.preview");
 
         manager.command(
             baseInit(builder, previewDefinition, "commands.preview.description")
@@ -503,11 +509,11 @@ public final class CommandManager
     {
         manager.command(
             builder.literal(CommandDefinition.UPDATE_CREATOR.getName().replace("_", "").toLowerCase(Locale.ROOT))
-                   .permission(CommandDefinition.UPDATE_CREATOR.getLowestPermission())
-                   .argument(StringArgument.of("stepName"))
-                   .argument(StringArgument.optional("stepValue"))
-                   .hidden()
-                   .handler(commandExecutor::updateCreator)
+                .permission(CommandDefinition.UPDATE_CREATOR.getLowestPermission())
+                .argument(StringArgument.of("stepName"))
+                .argument(StringArgument.optional("stepValue"))
+                .hidden()
+                .handler(commandExecutor::updateCreator)
         );
     }
 
@@ -515,9 +521,9 @@ public final class CommandManager
         boolean required, StructureAttribute structureAttribute)
     {
         return StructureArgument.builder().required(required).name("structureRetriever")
-                                .asyncSuggestions(asyncCompletions).executor(executor)
-                                .structureRetrieverFactory(structureRetrieverFactory)
-                                .maxPermission(structureAttribute.getPermissionLevel());
+            .asyncSuggestions(asyncCompletions).executor(executor)
+            .structureRetrieverFactory(structureRetrieverFactory)
+            .maxPermission(structureAttribute.getPermissionLevel());
     }
 
     private IsOpenArgument.IsOpenArgumentBuilder defaultOpenStatusArgument(boolean required)

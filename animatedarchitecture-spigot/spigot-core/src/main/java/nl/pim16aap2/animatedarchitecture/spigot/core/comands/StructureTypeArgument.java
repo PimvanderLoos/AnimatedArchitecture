@@ -11,16 +11,28 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
 
+/**
+ * Represents a command argument that parses into a {@link StructureType}.
+ */
 public class StructureTypeArgument extends CommandArgument<ICommandSender, StructureType>
 {
     @lombok.Builder
     public StructureTypeArgument(
-        boolean required, String name, @Nullable String defaultValue,
+        boolean required,
+        String name,
+        @Nullable String defaultValue,
         @Nullable BiFunction<CommandContext<ICommandSender>, String, List<String>> suggestionsProvider,
-        @Nullable ArgumentDescription defaultDescription, StructureTypeParser parser)
+        @Nullable ArgumentDescription defaultDescription,
+        StructureTypeParser parser)
     {
-        super(required, name, parser, Objects.requireNonNullElse(defaultValue, ""), StructureType.class,
-              suggestionsProvider,
-              Objects.requireNonNullElse(defaultDescription, ArgumentDescription.empty()));
+        super(
+            required,
+            name,
+            parser,
+            Objects.requireNonNullElse(defaultValue, ""),
+            StructureType.class,
+            suggestionsProvider,
+            Objects.requireNonNullElse(defaultDescription, ArgumentDescription.empty())
+        );
     }
 }

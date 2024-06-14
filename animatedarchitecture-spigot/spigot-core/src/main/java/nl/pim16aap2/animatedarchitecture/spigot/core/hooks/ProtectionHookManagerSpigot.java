@@ -68,7 +68,8 @@ public final class ProtectionHookManagerSpigot
 
     private volatile List<IProtectionHookSpigot> protectionHooks = new CopyOnWriteArrayList<>();
 
-    @Inject ProtectionHookManagerSpigot(
+    @Inject
+    ProtectionHookManagerSpigot(
         JavaPlugin animatedArchitecture,
         RestartableHolder holder,
         DebuggableRegistry debuggableRegistry,
@@ -233,7 +234,10 @@ public final class ProtectionHookManagerSpigot
                 if (result.isDenied())
                     log.atInfo().log(
                         "Player %s cannot break block at location %s because of hook '%s'.",
-                        player.getName(), location, result.denyingHookName());
+                        player.getName(),
+                        location,
+                        result.denyingHookName()
+                    );
                 return result;
             });
     }
@@ -284,7 +288,10 @@ public final class ProtectionHookManagerSpigot
                 if (result.isDenied())
                     log.atInfo().log(
                         "Player %s cannot break blocks in cuboid %s because of hook '%s'.",
-                        player.getName(), cuboid, result.denyingHookName());
+                        player.getName(),
+                        cuboid,
+                        result.denyingHookName()
+                    );
                 return result;
             });
     }

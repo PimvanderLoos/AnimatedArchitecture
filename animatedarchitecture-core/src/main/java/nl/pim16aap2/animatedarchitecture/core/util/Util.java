@@ -978,7 +978,7 @@ public final class Util
     @Contract("_ -> param1")
     public static StringBuilder removeTrailingNewLine(StringBuilder sb)
     {
-        if (sb.length() > 0 && sb.charAt(sb.length() - 1) == '\n')
+        if (!sb.isEmpty() && sb.charAt(sb.length() - 1) == '\n')
             sb.deleteCharAt(sb.length() - 1);
         return sb;
     }

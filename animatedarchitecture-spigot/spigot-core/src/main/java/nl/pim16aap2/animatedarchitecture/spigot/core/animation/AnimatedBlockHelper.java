@@ -67,7 +67,8 @@ public final class AnimatedBlockHelper
                 log.atWarning().log(
                     "Recovered animated block with recovery data '%s'! " +
                         "This is not intended behavior, please contact the author(s) of this plugin!",
-                    recoveryData);
+                    recoveryData
+                );
             else
                 log.atFine().log("No recovery action required for data '%s'", recoveryData);
 
@@ -77,7 +78,9 @@ public final class AnimatedBlockHelper
         {
             log.atSevere().withCause(e).log(
                 "Failed to recover animated block '%s' from recovery: '%s'",
-                entity, recoveryData);
+                entity,
+                recoveryData
+            );
         }
     }
 
@@ -94,6 +97,7 @@ public final class AnimatedBlockHelper
         entity.getPersistentDataContainer().set(
             RECOVERY_KEY,
             AnimatedBlockRecoveryDataType.INSTANCE,
-            Objects.requireNonNullElse(recoveryData, IAnimatedBlockRecoveryData.EMPTY));
+            Objects.requireNonNullElse(recoveryData, IAnimatedBlockRecoveryData.EMPTY)
+        );
     }
 }

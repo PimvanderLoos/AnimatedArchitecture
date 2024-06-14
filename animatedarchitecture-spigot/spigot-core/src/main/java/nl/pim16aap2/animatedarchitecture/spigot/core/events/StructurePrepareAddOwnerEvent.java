@@ -27,7 +27,9 @@ public class StructurePrepareAddOwnerEvent extends StructureEvent implements ISt
     private final StructureOwner newStructureOwner;
 
     public StructurePrepareAddOwnerEvent(
-        AbstractStructure structure, @Nullable IPlayer responsible, StructureOwner newStructureOwner)
+        AbstractStructure structure,
+        @Nullable IPlayer responsible,
+        StructureOwner newStructureOwner)
     {
         super(structure, responsible);
         this.newStructureOwner = newStructureOwner;

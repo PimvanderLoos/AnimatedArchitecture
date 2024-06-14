@@ -261,8 +261,6 @@ public final class PowerBlockManager extends Restartable implements StructureDel
 
     /**
      * Represents a world that may or may not contain any power blocks.
-     *
-     * @author Pim
      */
     private final class PowerBlockWorld
     {
@@ -375,8 +373,6 @@ public final class PowerBlockManager extends Restartable implements StructureDel
 
     /**
      * Represents a chunk that may or may not contain any power blocks.
-     *
-     * @author Pim
      */
     private static final class PowerBlockChunk
     {

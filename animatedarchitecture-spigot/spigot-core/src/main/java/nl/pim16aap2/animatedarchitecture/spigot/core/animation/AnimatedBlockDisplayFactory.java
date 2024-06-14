@@ -19,6 +19,9 @@ import javax.inject.Singleton;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+/**
+ * Implementation of {@link IAnimatedBlockFactory} for the Spigot platform.
+ */
 @Singleton
 public class AnimatedBlockDisplayFactory implements IAnimatedBlockFactory
 {
@@ -27,7 +30,8 @@ public class AnimatedBlockDisplayFactory implements IAnimatedBlockFactory
     private final IBlockAnalyzerSpigot blockAnalyzer;
     private final BlockDisplayHelper blockDisplayHelper;
 
-    @Inject AnimatedBlockDisplayFactory(
+    @Inject
+    AnimatedBlockDisplayFactory(
         IExecutor executor,
         AnimatedBlockHookManager animatedBlockHookManager,
         IBlockAnalyzerSpigot blockAnalyzer,
@@ -64,6 +68,7 @@ public class AnimatedBlockDisplayFactory implements IAnimatedBlockFactory
             world,
             finalPosition,
             onEdge,
-            radius));
+            radius)
+        );
     }
 }

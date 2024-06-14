@@ -6,6 +6,12 @@ import nl.pim16aap2.animatedarchitecture.core.text.Text;
 
 /**
  * Factory class that can be used to create new {@link Text} instances.
+ * <p>
+ * Certain things like colors and styles are set differently in different platforms. This factory allows for easy
+ * creation of texts that are styled according to the platform.
+ * <p>
+ * If you only need unstyled texts, you can use {@link #getSimpleTextFactory()}. This will return a simple factory that
+ * only creates unstyled texts.
  */
 public interface ITextFactory
 {

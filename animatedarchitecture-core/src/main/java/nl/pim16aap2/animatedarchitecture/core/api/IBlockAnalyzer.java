@@ -44,8 +44,6 @@ public interface IBlockAnalyzer<T>
 
     /**
      * Represents the status of a material.
-     *
-     * @author Pim
      */
     enum MaterialStatus
     {

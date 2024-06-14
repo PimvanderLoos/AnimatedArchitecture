@@ -23,7 +23,8 @@ public class FakePlayerCreator
 {
     private final @Nullable Constructor<?> ctor;
 
-    @Inject FakePlayerCreator(
+    @Inject
+    FakePlayerCreator(
         AnimatedArchitecturePlugin plugin,
         @Named("pluginBaseDirectory") Path pluginBaseDirectory)
     {
