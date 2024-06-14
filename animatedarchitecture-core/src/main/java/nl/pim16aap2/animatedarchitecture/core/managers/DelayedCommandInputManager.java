@@ -83,7 +83,8 @@ public class DelayedCommandInputManager implements IDebuggable
      */
     public void deregister(ICommandSender commandSender, DelayedCommandInputRequest<?> delayedCommandInputRequest)
     {
-        requests.computeIfPresent(commandSender,
+        requests.computeIfPresent(
+            commandSender,
             (sender, request) -> request == delayedCommandInputRequest ? null : request);
     }
 

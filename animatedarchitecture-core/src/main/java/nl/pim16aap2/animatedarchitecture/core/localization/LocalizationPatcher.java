@@ -20,7 +20,7 @@ import java.util.Set;
 /**
  * Represents a class that can be used to apply user-defined localization patches.
  */
-@Flogger //
+@Flogger
 final class LocalizationPatcher
 {
     @Getter

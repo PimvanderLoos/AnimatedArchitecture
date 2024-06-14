@@ -39,8 +39,11 @@ class LocalizationTestingUtilities
     static URLClassLoader loadJar(Path jar, ClassLoader parentClassLoader)
         throws MalformedURLException
     {
-        return new URLClassLoader("URLClassLoader_LocalizationGeneratorIntegrationTest",
-                                  new URL[]{jar.toUri().toURL()}, parentClassLoader);
+        return new URLClassLoader(
+            "URLClassLoader_LocalizationGeneratorIntegrationTest",
+            new URL[]{jar.toUri().toURL()},
+            parentClassLoader
+        );
     }
 
     static void addFilesToZip(Path zipFile, String... names)

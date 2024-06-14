@@ -69,7 +69,8 @@ public class HighlightedBlockSpawnerSpigot extends HighlightedBlockSpawner imple
 
     private final BlockDisplayHelper blockDisplayHelper;
 
-    @Inject HighlightedBlockSpawnerSpigot(
+    @Inject
+    HighlightedBlockSpawnerSpigot(
         RestartableHolder holder,
         AnimatedArchitecturePlugin plugin,
         BlockDisplayHelper blockDisplayHelper,

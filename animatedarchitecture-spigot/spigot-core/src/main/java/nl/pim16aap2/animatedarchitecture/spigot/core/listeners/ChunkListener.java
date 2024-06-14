@@ -47,7 +47,8 @@ public class ChunkListener extends AbstractListener
     private final AnimatedBlockHelper animatedBlockHelper;
     private final IExecutor executor;
 
-    @Inject ChunkListener(
+    @Inject
+    ChunkListener(
         JavaPlugin javaPlugin,
         DatabaseManager databaseManager,
         PowerBlockManager powerBlockManager,

@@ -77,9 +77,13 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      */
     @Inject
     public DatabaseManager(
-        RestartableHolder restartableHolder, IStorage storage, StructureDeletionManager structureDeletionManager,
-        Lazy<PowerBlockManager> powerBlockManager, IAnimatedArchitectureEventFactory animatedArchitectureEventFactory,
-        IAnimatedArchitectureEventCaller animatedArchitectureEventCaller, DebuggableRegistry debuggableRegistry)
+        RestartableHolder restartableHolder,
+        IStorage storage,
+        StructureDeletionManager structureDeletionManager,
+        Lazy<PowerBlockManager> powerBlockManager,
+        IAnimatedArchitectureEventFactory animatedArchitectureEventFactory,
+        IAnimatedArchitectureEventCaller animatedArchitectureEventCaller,
+        DebuggableRegistry debuggableRegistry)
     {
         super(restartableHolder);
         db = storage;
@@ -172,7 +176,8 @@ public final class DatabaseManager extends Restartable implements IDebuggable
                     {
                         powerBlockManager.get().onStructureAddOrRemove(
                             newStructure.getWorld().worldName(),
-                            new Vector3Di(newStructure.getPowerBlock().x(),
+                            new Vector3Di(
+                                newStructure.getPowerBlock().x(),
                                 newStructure.getPowerBlock().y(),
                                 newStructure.getPowerBlock().z()));
                         newStructure.verifyRedstoneState();
@@ -724,7 +729,8 @@ public final class DatabaseManager extends Restartable implements IDebuggable
         StructureSnapshot snapshot, String typeData)
     {
         return CompletableFuture
-            .supplyAsync(() -> db.syncStructureData(snapshot, typeData) ? ActionResult.SUCCESS : ActionResult.FAIL,
+            .supplyAsync(
+                () -> db.syncStructureData(snapshot, typeData) ? ActionResult.SUCCESS : ActionResult.FAIL,
                 threadPool)
             .exceptionally(ex -> Util.exceptionally(ex, ActionResult.FAIL));
     }

@@ -25,7 +25,8 @@ public class SetOpenDirection extends StructureTargetCommand
 
     private final MovementDirection movementDirection;
 
-    @AssistedInject SetOpenDirection(
+    @AssistedInject
+    SetOpenDirection(
         @Assisted ICommandSender commandSender,
         @Assisted StructureRetriever structureRetriever,
         @Assisted MovementDirection movementDirection,
@@ -80,7 +81,8 @@ public class SetOpenDirection extends StructureTargetCommand
         }
 
         structure.setOpenDir(movementDirection);
-        return structure.syncData()
+        return structure
+            .syncData()
             .thenAccept(this::handleDatabaseActionResult)
             .thenRunAsync(() -> sendUpdatedInfo(structure));
     }
@@ -106,7 +108,8 @@ public class SetOpenDirection extends StructureTargetCommand
             ICommandSender commandSender,
             StructureRetriever structureRetriever,
             MovementDirection movementDirection,
-            boolean sendUpdatedInfo);
+            boolean sendUpdatedInfo
+        );
 
         /**
          * Creates (but does not execute!) a new {@link SetOpenDirection} command.

@@ -201,8 +201,8 @@ public class AssistedFactoryMocker<T, U>
 
             final @Nullable Object value =
                 parameter.isInjected() ?
-                parameter.getValue() :
-                factoryParams[parameter.getFactoryIdx()];
+                    parameter.getValue() :
+                    factoryParams[parameter.getFactoryIdx()];
 
             //noinspection ConstantConditions
             ctorParams[idx] = value;
@@ -454,7 +454,8 @@ public class AssistedFactoryMocker<T, U>
         }
 
         @SuppressWarnings("ConstantConditions") // IntelliJ doesn't like potentially null values for requireNonNull -_-
-        final String paramName = Objects.requireNonNull(param.name(),
+        final String paramName = Objects.requireNonNull(
+            param.name(),
             "Name of parameter " + param + " cannot be null!");
         final List<ParameterDescription> result = matches.stream().filter(val -> paramName.equals(val.name())).toList();
         if (result.isEmpty())
@@ -669,8 +670,8 @@ public class AssistedFactoryMocker<T, U>
             // Otherwise, call the real method. This ensures that default methods in the factory interface are called,
             // which will eventually call the target method.
             return invocation.getMethod().equals(targetMethod) ?
-                   mapper.apply(invocation) :
-                   Mockito.CALLS_REAL_METHODS.answer(invocation);
+                mapper.apply(invocation) :
+                Mockito.CALLS_REAL_METHODS.answer(invocation);
         }
     }
 }

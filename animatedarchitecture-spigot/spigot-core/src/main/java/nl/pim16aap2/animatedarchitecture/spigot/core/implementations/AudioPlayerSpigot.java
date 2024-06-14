@@ -17,17 +17,20 @@ import java.util.function.DoubleUnaryOperator;
 /**
  * Represents an implementation of {@link IAudioPlayer} for the Spigot platform.
  */
-@Singleton public class AudioPlayerSpigot implements IAudioPlayer
+@Singleton
+public class AudioPlayerSpigot implements IAudioPlayer
 {
 
     private final IExecutor executor;
 
-    @Inject public AudioPlayerSpigot(IExecutor executor)
+    @Inject
+    public AudioPlayerSpigot(IExecutor executor)
     {
         this.executor = executor;
     }
 
-    @Override public void playSound(
+    @Override
+    public void playSound(
         double x,
         double y,
         double z,

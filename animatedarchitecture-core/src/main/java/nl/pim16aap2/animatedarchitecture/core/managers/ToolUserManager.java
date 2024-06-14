@@ -38,7 +38,8 @@ public final class ToolUserManager extends Restartable
     private final ITextFactory textFactory;
     private final IExecutor executor;
 
-    @Inject ToolUserManager(
+    @Inject
+    ToolUserManager(
         RestartableHolder holder,
         ILocalizer localizer,
         ITextFactory textFactory,

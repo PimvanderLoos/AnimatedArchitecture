@@ -31,7 +31,8 @@ public class Info extends StructureTargetCommand
 {
     private final HighlightedBlockSpawner glowingBlockSpawner;
 
-    @AssistedInject Info(
+    @AssistedInject
+    Info(
         @Assisted ICommandSender commandSender,
         @Assisted StructureRetriever structureRetriever,
         ILocalizer localizer,

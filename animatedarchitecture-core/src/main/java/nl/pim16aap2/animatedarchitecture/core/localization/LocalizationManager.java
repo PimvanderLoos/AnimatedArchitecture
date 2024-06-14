@@ -48,8 +48,10 @@ public final class LocalizationManager extends Restartable implements ILocalizat
 
     @Inject
     public LocalizationManager(
-        RestartableHolder restartableHolder, @Named("localizationBaseDir") Path baseDir,
-        @Named("localizationBaseName") String baseName, IConfig config)
+        RestartableHolder restartableHolder,
+        @Named("localizationBaseDir") Path baseDir,
+        @Named("localizationBaseName") String baseName,
+        IConfig config)
     {
         this(restartableHolder, baseDir, baseName, config, true);
     }
@@ -131,28 +133,32 @@ public final class LocalizationManager extends Restartable implements ILocalizat
     @Override
     public synchronized void addResources(Path path, @Nullable String baseName)
     {
-        runForGenerators(generator -> generator.addResources(path, baseName),
+        runForGenerators(
+            generator -> generator.addResources(path, baseName),
             () -> "Add resources from path: " + path + ", with baseName: " + baseName);
     }
 
     @Override
     public synchronized void addResources(List<Path> paths)
     {
-        runForGenerators(generator -> generator.addResources(paths),
+        runForGenerators(
+            generator -> generator.addResources(paths),
             () -> "Add resources from paths: " + paths);
     }
 
     @Override
     public synchronized void addResourcesFromClass(Class<?> clz, @Nullable String baseName)
     {
-        runForGenerators(generator -> generator.addResourcesFromClass(clz, baseName),
+        runForGenerators(
+            generator -> generator.addResourcesFromClass(clz, baseName),
             () -> "Add resources from class: " + clz.getName() + ", with baseName: " + baseName);
     }
 
     @Override
     public synchronized void addResourcesFromClass(List<Class<?>> classes)
     {
-        runForGenerators(generator -> generator.addResourcesFromClass(classes),
+        runForGenerators(
+            generator -> generator.addResourcesFromClass(classes),
             () -> "Add resources from classes: " + classes.stream().map(Class::getName).toList());
     }
 
@@ -161,7 +167,8 @@ public final class LocalizationManager extends Restartable implements ILocalizat
     {
         localizer.setDefaultLocale(config.locale());
         applyPatches();
-        runForGenerators(generator -> generator.addResourcesFromClass(List.of(LocalizationManager.class)),
+        runForGenerators(
+            generator -> generator.addResourcesFromClass(List.of(LocalizationManager.class)),
             () -> "Adding resources from LocalizationManager.class.");
         localizer.reInit();
     }

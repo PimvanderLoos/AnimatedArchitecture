@@ -35,7 +35,8 @@ class AudioConfigIO
 
     private final Path file;
 
-    @Inject AudioConfigIO(@Named("pluginBaseDirectory") Path baseDir)
+    @Inject
+    AudioConfigIO(@Named("pluginBaseDirectory") Path baseDir)
     {
         file = baseDir.resolve("audio_config.json");
     }

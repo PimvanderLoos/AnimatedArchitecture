@@ -17,8 +17,8 @@ import java.util.concurrent.CompletableFuture;
 @Singleton
 public class RemoveOwnerDelayed extends DelayedCommand<IPlayer>
 {
-    @Inject RemoveOwnerDelayed(
-        Context context, DelayedCommandInputRequest.IFactory<IPlayer> inputRequestFactory)
+    @Inject
+    RemoveOwnerDelayed(Context context, DelayedCommandInputRequest.IFactory<IPlayer> inputRequestFactory)
     {
         super(context, inputRequestFactory, IPlayer.class);
     }

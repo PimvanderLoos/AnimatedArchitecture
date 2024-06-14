@@ -42,7 +42,8 @@ public class EventListeners extends AbstractListener
     private final ToolUserManager toolUserManager;
     private final DelayedCommandInputManager delayedCommandInputManager;
 
-    @Inject EventListeners(
+    @Inject
+    EventListeners(
         JavaPlugin javaPlugin,
         AnimatedArchitectureToolUtilSpigot animatedArchitectureToolUtil,
         DatabaseManager databaseManager,

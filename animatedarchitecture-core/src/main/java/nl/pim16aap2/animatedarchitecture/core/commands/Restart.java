@@ -22,7 +22,8 @@ public class Restart extends BaseCommand
 {
     private final IAnimatedArchitecturePlatformProvider platformProvider;
 
-    @AssistedInject Restart(
+    @AssistedInject
+    Restart(
         @Assisted ICommandSender commandSender,
         ILocalizer localizer,
         ITextFactory textFactory,

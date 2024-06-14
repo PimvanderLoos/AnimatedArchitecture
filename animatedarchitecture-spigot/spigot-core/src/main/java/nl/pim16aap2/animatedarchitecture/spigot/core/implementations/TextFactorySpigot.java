@@ -52,7 +52,8 @@ public class TextFactorySpigot implements ITextFactory
         return new Text(textComponentFactory);
     }
 
-    @Accessors(chain = true, fluent = true) @Setter
+    @Accessors(chain = true, fluent = true)
+    @Setter
     public static final class StyleBuilder
     {
         private @Nullable ChatColor color;

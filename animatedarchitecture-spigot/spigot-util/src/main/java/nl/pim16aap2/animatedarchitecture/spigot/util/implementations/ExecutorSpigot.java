@@ -161,7 +161,8 @@ public final class ExecutorSpigot implements IExecutor
     {
         return new TimerTask()
         {
-            @Override public void run()
+            @Override
+            public void run()
             {
                 try
                 {

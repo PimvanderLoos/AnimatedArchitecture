@@ -21,7 +21,8 @@ public class Menu extends BaseCommand
     private final IGuiFactory guiFactory;
     private final @Nullable IPlayer source;
 
-    @AssistedInject Menu(
+    @AssistedInject
+    Menu(
         @Assisted ICommandSender commandSender,
         ILocalizer localizer,
         ITextFactory textFactory,

@@ -16,7 +16,8 @@ import java.util.concurrent.CompletableFuture;
 @Singleton
 public class SetBlocksToMoveDelayed extends DelayedCommand<Integer>
 {
-    @Inject public SetBlocksToMoveDelayed(
+    @Inject
+    public SetBlocksToMoveDelayed(
         Context context,
         DelayedCommandInputRequest.IFactory<Integer> inputRequestFactory)
     {

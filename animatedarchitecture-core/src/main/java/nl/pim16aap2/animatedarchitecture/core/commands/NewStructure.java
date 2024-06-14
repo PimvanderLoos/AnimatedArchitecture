@@ -30,7 +30,8 @@ public class NewStructure extends BaseCommand
     private final ToolUserManager toolUserManager;
     private final Provider<ToolUser.Context> creatorContextProvider;
 
-    @AssistedInject NewStructure(
+    @AssistedInject
+    NewStructure(
         @Assisted ICommandSender commandSender,
         @Assisted StructureType structureType,
         @Assisted @Nullable String structureName,
@@ -83,7 +84,8 @@ public class NewStructure extends BaseCommand
 
         return new PermissionsStatus(
             basePermissions.hasUserPermission() && permissionForType,
-            basePermissions.hasAdminPermission());
+            basePermissions.hasAdminPermission()
+        );
     }
 
     @Override

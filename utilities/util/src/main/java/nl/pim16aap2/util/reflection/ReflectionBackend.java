@@ -17,7 +17,7 @@ import java.util.function.Function;
 /**
  * Represents the reflection backend for the {@link ReflectionFinder} classes.
  */
-@Flogger //
+@Flogger
 final class ReflectionBackend
 {
     private ReflectionBackend()

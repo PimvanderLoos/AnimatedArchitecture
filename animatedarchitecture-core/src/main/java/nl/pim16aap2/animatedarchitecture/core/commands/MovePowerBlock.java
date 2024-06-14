@@ -26,7 +26,8 @@ public class MovePowerBlock extends StructureTargetCommand
     private final ToolUserManager toolUserManager;
     private final PowerBlockRelocator.IFactory powerBlockRelocatorFactory;
 
-    @AssistedInject MovePowerBlock(
+    @AssistedInject
+    MovePowerBlock(
         @Assisted ICommandSender commandSender,
         ILocalizer localizer,
         ITextFactory textFactory,

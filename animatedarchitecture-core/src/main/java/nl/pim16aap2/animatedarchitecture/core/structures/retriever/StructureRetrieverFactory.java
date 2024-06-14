@@ -73,7 +73,8 @@ public final class StructureRetrieverFactory
     private final DatabaseManager databaseManager;
     private final StructureFinderCache structureFinderCache;
 
-    @Inject StructureRetrieverFactory(
+    @Inject
+    StructureRetrieverFactory(
         DelayedStructureSpecificationInputRequest.Factory specificationFactory,
         DatabaseManager databaseManager,
         StructureFinderCache structureFinderCache)
@@ -94,10 +95,10 @@ public final class StructureRetrieverFactory
     {
         final OptionalLong structureUID = Util.parseLong(structureID);
         return structureUID.isPresent() ?
-               new StructureRetriever.StructureUIDRetriever(
-                   databaseManager, structureUID.getAsLong()) :
-               new StructureRetriever.StructureNameRetriever(
-                   databaseManager, specificationFactory, structureID);
+            new StructureRetriever.StructureUIDRetriever(
+                databaseManager, structureUID.getAsLong()) :
+            new StructureRetriever.StructureNameRetriever(
+                databaseManager, specificationFactory, structureID);
     }
 
     /**
@@ -159,8 +160,8 @@ public final class StructureRetrieverFactory
         ICommandSender commandSender, String input, StructureFinderMode mode, PermissionLevel maxPermission)
     {
         return mode == StructureFinderMode.USE_CACHE ?
-               structureFinderCache.getStructureFinder(commandSender, input, maxPermission) :
-               new StructureFinder(this, databaseManager, commandSender, input, maxPermission);
+            structureFinderCache.getStructureFinder(commandSender, input, maxPermission) :
+            new StructureFinder(this, databaseManager, commandSender, input, maxPermission);
     }
 
     /**

@@ -67,7 +67,8 @@ class AssistedFactoryMockerTest
     @Test
     public void testInvalidInput()
     {
-        Assertions.assertThrows(IllegalArgumentException.class,
+        Assertions.assertThrows(
+            IllegalArgumentException.class,
             () -> new AssistedFactoryMocker<>(TestClassWithAnnotation.class, TestClassWithAnnotation.class));
     }
 
@@ -98,7 +99,7 @@ class AssistedFactoryMockerTest
             this.obj2 = obj2;
         }
 
-        @AssistedInject //
+        @AssistedInject
         TestClassWithAnnotation(@Assisted("myObj") Object obj, @Assisted int idx, String str)
         {
             this(obj, idx, str, null);

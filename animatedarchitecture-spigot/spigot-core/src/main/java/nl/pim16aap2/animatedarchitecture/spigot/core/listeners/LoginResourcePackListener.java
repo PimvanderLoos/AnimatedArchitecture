@@ -21,7 +21,8 @@ public class LoginResourcePackListener extends AbstractListener
     private final ConfigSpigot config;
     private String resourcePackURL;
 
-    @Inject LoginResourcePackListener(RestartableHolder holder, ConfigSpigot config, JavaPlugin plugin)
+    @Inject
+    LoginResourcePackListener(RestartableHolder holder, ConfigSpigot config, JavaPlugin plugin)
     {
         super(holder, plugin, () -> shouldBeEnabled(config));
         this.config = config;

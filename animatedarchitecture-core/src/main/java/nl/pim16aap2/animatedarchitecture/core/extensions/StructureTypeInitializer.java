@@ -22,7 +22,7 @@ import java.util.Map;
  * This class will ensure that the dependencies between {@link StructureType}s are met and then load their jars into the
  * desired {@link StructureTypeClassLoader}.,
  */
-@Flogger //
+@Flogger
 final class StructureTypeInitializer
 {
     private final DirectedAcyclicGraph<Loadable> graph;
@@ -69,7 +69,8 @@ final class StructureTypeInitializer
             final @Nullable StructureType result = loadStructureType(loadable.getStructureTypeInfo());
             if (result == null)
             {
-                loadable.setLoadFailure(new LoadFailure(LoadFailureType.GENERIC_LOAD_FAILURE,
+                loadable.setLoadFailure(new LoadFailure(
+                    LoadFailureType.GENERIC_LOAD_FAILURE,
                     "'An error occurred while loading this structure type!'"));
                 cancelAllChildren(node);
             }
@@ -120,8 +121,10 @@ final class StructureTypeInitializer
     static void cancelAllChildren(Node<Loadable> node)
     {
         final LoadFailure loadResult =
-            new LoadFailure(LoadFailureType.DEPENDENCY_UNAVAILABLE,
-                String.format("'Dependency '%s' could not be loaded!'",
+            new LoadFailure(
+                LoadFailureType.DEPENDENCY_UNAVAILABLE,
+                String.format(
+                    "'Dependency '%s' could not be loaded!'",
                     node.getObj().getStructureTypeInfo()));
         node.getAllChildren().forEach(child -> child.getObj().setLoadFailure(loadResult));
     }
@@ -140,12 +143,14 @@ final class StructureTypeInitializer
             final @Nullable Loadable parent = loadables.get(dependency.dependencyName());
             if (parent == null)
                 loadable.setLoadFailure(
-                    new LoadFailure(LoadFailureType.DEPENDENCY_UNAVAILABLE,
+                    new LoadFailure(
+                        LoadFailureType.DEPENDENCY_UNAVAILABLE,
                         String.format("'Could not find dependency '%s' for type: '%s''",
                             dependency.dependencyName(), loadable)));
             else if (!dependency.satisfiedBy(parent.getStructureTypeInfo()))
                 loadable.setLoadFailure(
-                    new LoadFailure(LoadFailureType.DEPENDENCY_UNSUPPORTED_VERSION,
+                    new LoadFailure(
+                        LoadFailureType.DEPENDENCY_UNSUPPORTED_VERSION,
                         String.format("'Version %d does not satisfy dependency %s for type: '%s''",
                             parent.getStructureTypeInfo().getVersion(), dependency, loadable)));
             else
@@ -160,7 +165,8 @@ final class StructureTypeInitializer
      *     The {@link StructureTypeInfo} to load.
      * @return The {@link StructureType} that resulted from loading the {@link StructureTypeInfo}, if possible.
      */
-    @Nullable StructureType loadStructureType(StructureTypeInfo structureTypeInfo)
+    @Nullable
+    StructureType loadStructureType(StructureTypeInfo structureTypeInfo)
     {
         if (!structureTypeClassLoader.loadJar(structureTypeInfo.getJarFile()))
         {
@@ -188,7 +194,8 @@ final class StructureTypeInitializer
         }
 
         log.atFine()
-            .log("Loaded AnimatedArchitecture extension: %s",
+            .log(
+                "Loaded AnimatedArchitecture extension: %s",
                 Util.capitalizeFirstLetter(structureType.getSimpleName()));
         return structureType;
     }

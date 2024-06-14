@@ -49,7 +49,8 @@ import java.util.logging.Level;
 /**
  * Represents a utility singleton that is used to open {@link AbstractStructure}s.
  */
-@Flogger final class StructureToggleHelper
+@Flogger
+final class StructureToggleHelper
 {
     private final ILocalizer localizer;
     private final ITextFactory textFactory;
@@ -69,7 +70,7 @@ import java.util.logging.Level;
     private final AnimatedBlockContainerFactory animatedBlockContainerFactory;
     private final AnimationRequestData.IFactory movementRequestDataFactory;
 
-    @Inject //
+    @Inject
     StructureToggleHelper(
         ILocalizer localizer,
         ITextFactory textFactory,
@@ -565,7 +566,7 @@ import java.util.logging.Level;
     private boolean chunksLoaded(IStructureConst structure, Cuboid newCuboid)
     {
         final var mode = config.loadChunksForToggle() ?
-                         IChunkLoader.ChunkLoadMode.ATTEMPT_LOAD : IChunkLoader.ChunkLoadMode.VERIFY_LOADED;
+            IChunkLoader.ChunkLoadMode.ATTEMPT_LOAD : IChunkLoader.ChunkLoadMode.VERIFY_LOADED;
 
         final var result = chunkLoader.checkChunks(structure.getWorld(), structure.getCuboid(), mode);
         if (result == IChunkLoader.ChunkLoadResult.FAIL)

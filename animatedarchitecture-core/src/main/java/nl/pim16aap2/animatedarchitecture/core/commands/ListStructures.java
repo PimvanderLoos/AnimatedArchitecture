@@ -24,7 +24,8 @@ public class ListStructures extends BaseCommand
 {
     private final StructureRetriever structureRetriever;
 
-    @AssistedInject ListStructures(
+    @AssistedInject
+    ListStructures(
         @Assisted ICommandSender commandSender,
         ILocalizer localizer,
         ITextFactory textFactory,

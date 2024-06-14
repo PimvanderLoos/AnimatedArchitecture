@@ -283,9 +283,11 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
                 executeUpdate(conn, SQLStatement.CREATE_TABLE_STRUCTURE.constructDelayedPreparedStatement());
 
-                executeUpdate(conn,
+                executeUpdate(
+                    conn,
                     SQLStatement.CREATE_TABLE_STRUCTURE_OWNER_PLAYER.constructDelayedPreparedStatement());
-                executeUpdate(conn,
+                executeUpdate(
+                    conn,
                     SQLStatement.RESERVE_IDS_STRUCTURE_OWNER_PLAYER.constructDelayedPreparedStatement());
 
                 updateDBVersion(conn);
@@ -330,16 +332,20 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         if (openDirection.isEmpty())
             return Optional.empty();
 
-        final Vector3Di min = new Vector3Di(structureBaseRS.getInt("xMin"),
+        final Vector3Di min = new Vector3Di(
+            structureBaseRS.getInt("xMin"),
             structureBaseRS.getInt("yMin"),
             structureBaseRS.getInt("zMin"));
-        final Vector3Di max = new Vector3Di(structureBaseRS.getInt("xMax"),
+        final Vector3Di max = new Vector3Di(
+            structureBaseRS.getInt("xMax"),
             structureBaseRS.getInt("yMax"),
             structureBaseRS.getInt("zMax"));
-        final Vector3Di rotationPoint = new Vector3Di(structureBaseRS.getInt("rotationPointX"),
+        final Vector3Di rotationPoint = new Vector3Di(
+            structureBaseRS.getInt("rotationPointX"),
             structureBaseRS.getInt("rotationPointY"),
             structureBaseRS.getInt("rotationPointZ"));
-        final Vector3Di powerBlock = new Vector3Di(structureBaseRS.getInt("powerBlockX"),
+        final Vector3Di powerBlock = new Vector3Di(
+            structureBaseRS.getInt("powerBlockX"),
             structureBaseRS.getInt("powerBlockY"),
             structureBaseRS.getInt("powerBlockZ"));
 
@@ -351,7 +357,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
         final String name = structureBaseRS.getString("name");
 
-        final PlayerData playerData = new PlayerData(UUID.fromString(structureBaseRS.getString("playerUUID")),
+        final PlayerData playerData = new PlayerData(
+            UUID.fromString(structureBaseRS.getString("playerUUID")),
             structureBaseRS.getString("playerName"),
             structureBaseRS.getInt("sizeLimit"),
             structureBaseRS.getInt("countLimit"),
@@ -451,7 +458,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         {
             final String typeData = serializer.serialize(structure);
 
-            final long structureUID = executeTransaction(conn -> insert(conn, structure, structure.getType(), typeData),
+            final long structureUID = executeTransaction(
+                conn -> insert(conn, structure, structure.getType(), typeData),
                 -1L);
             if (structureUID > 0)
             {
@@ -770,7 +778,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     @Locked.Read
     public List<AbstractStructure> getStructuresOfType(String typeName)
     {
-        return executeQuery(SQLStatement.GET_STRUCTURES_OF_TYPE
+        return executeQuery(
+            SQLStatement.GET_STRUCTURES_OF_TYPE
                 .constructDelayedPreparedStatement()
                 .setNextString(typeName),
             this::getStructures,
@@ -781,7 +790,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     @Locked.Read
     public List<AbstractStructure> getStructuresOfType(String typeName, int version)
     {
-        return executeQuery(SQLStatement.GET_STRUCTURES_OF_VERSIONED_TYPE
+        return executeQuery(
+            SQLStatement.GET_STRUCTURES_OF_VERSIONED_TYPE
                 .constructDelayedPreparedStatement()
                 .setNextInt(version)
                 .setNextString(typeName),
@@ -850,7 +860,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 while (resultSet.next())
                 {
                     final int locationHash =
-                        Util.simpleChunkSpaceLocationHash(resultSet.getInt("powerBlockX"),
+                        Util.simpleChunkSpaceLocationHash(
+                            resultSet.getInt("powerBlockX"),
                             resultSet.getInt("powerBlockY"),
                             resultSet.getInt("powerBlockZ"));
                     if (!structures.containsKey(locationHash))
@@ -891,7 +902,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 {
                     final UUID uuid = UUID.fromString(resultSet.getString("playerUUID"));
                     final PlayerData playerData =
-                        new PlayerData(uuid,
+                        new PlayerData(
+                            uuid,
                             resultSet.getString("playerName"),
                             resultSet.getInt("sizeLimit"),
                             resultSet.getInt("countLimit"),
@@ -922,7 +934,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         return executeTransaction(
             conn ->
             {
-                final long playerID = getPlayerID(conn,
+                final long playerID = getPlayerID(
+                    conn,
                     new StructureOwner(structureUID, permission,
                         player.getPlayerData()));
 
@@ -939,8 +952,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                     {
                         final SQLStatement statement =
                             (rs.next() && (rs.getInt("permission") != permission.getValue())) ?
-                            SQLStatement.UPDATE_STRUCTURE_OWNER_PERMISSION :
-                            SQLStatement.INSERT_STRUCTURE_OWNER;
+                                SQLStatement.UPDATE_STRUCTURE_OWNER_PERMISSION :
+                                SQLStatement.INSERT_STRUCTURE_OWNER;
 
                         return
                             executeUpdate(conn, statement
@@ -1239,7 +1252,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      * @return The {@link ResultSet} of the query, or null in case an error occurred.
      */
     @Locked.Read
-    @SuppressWarnings("unused") @Contract(" _, _, !null -> !null;")
+    @SuppressWarnings("unused")
+    @Contract(" _, _, !null -> !null;")
     private @Nullable <T> T executeBatchQuery(
         DelayedPreparedStatement query, CheckedFunction<ResultSet, T, Exception> fun, @Nullable T fallback)
     {
@@ -1288,8 +1302,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         @Nullable T fallback)
     {
         logStatement(delayedPreparedStatement);
-        try (PreparedStatement ps = delayedPreparedStatement.construct(conn);
-             ResultSet rs = ps.executeQuery())
+        try (
+            PreparedStatement ps = delayedPreparedStatement.construct(conn);
+            ResultSet rs = ps.executeQuery())
         {
             return fun.apply(rs);
         }
@@ -1312,7 +1327,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      * @return The result of the Function.
      */
     @Locked.Read
-    @SuppressWarnings("unused") @Contract(" _, !null  -> !null")
+    @SuppressWarnings("unused")
+    @Contract(" _, !null  -> !null")
     private @Nullable <T> T execute(CheckedFunction<Connection, T, Exception> fun, @Nullable T fallback)
     {
         return execute(fun, fallback, FailureAction.IGNORE);

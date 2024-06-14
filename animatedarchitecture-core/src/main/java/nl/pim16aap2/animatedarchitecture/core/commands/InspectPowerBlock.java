@@ -23,7 +23,8 @@ public class InspectPowerBlock extends BaseCommand
     private final ToolUserManager toolUserManager;
     private final PowerBlockInspector.IFactory inspectPowerBlockFactory;
 
-    @AssistedInject InspectPowerBlock(
+    @AssistedInject
+    InspectPowerBlock(
         @Assisted ICommandSender commandSender,
         ILocalizer localizer,
         ITextFactory textFactory,

@@ -62,7 +62,8 @@ class InfoGui implements IGuiPage
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private final Map<StructureAttribute, GuiElement> attributeElements;
 
-    @AssistedInject InfoGui(
+    @AssistedInject
+    InfoGui(
         AnimatedArchitecturePlugin animatedArchitecturePlugin,
         ILocalizer localizer,
         IPermissionsManager permissionsManager,

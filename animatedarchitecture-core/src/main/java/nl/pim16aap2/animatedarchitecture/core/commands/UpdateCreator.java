@@ -27,7 +27,8 @@ public final class UpdateCreator extends BaseCommand
     private final @Nullable Object stepValue;
     private final ToolUserManager toolUserManager;
 
-    @AssistedInject UpdateCreator(
+    @AssistedInject
+    UpdateCreator(
         @Assisted ICommandSender commandSender,
         @Assisted String stepName,
         @Assisted @Nullable Object stepValue,

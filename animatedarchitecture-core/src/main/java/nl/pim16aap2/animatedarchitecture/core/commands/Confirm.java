@@ -22,7 +22,8 @@ public class Confirm extends BaseCommand
 {
     private final ToolUserManager toolUserManager;
 
-    @AssistedInject Confirm(
+    @AssistedInject
+    Confirm(
         @Assisted ICommandSender commandSender,
         ILocalizer localizer,
         ITextFactory textFactory,

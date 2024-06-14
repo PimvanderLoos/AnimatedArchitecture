@@ -68,7 +68,8 @@ public final class CommandFactory
     @Getter
     private final SetBlocksToMoveDelayed setBlocksToMoveDelayed;
 
-    @Inject CommandFactory(
+    @Inject
+    CommandFactory(
         AddOwner.IFactory addOwnerFactory, AddOwnerDelayed addOwnerDelayed,
         Cancel.IFactory cancelFactory,
         Confirm.IFactory confirmFactory,

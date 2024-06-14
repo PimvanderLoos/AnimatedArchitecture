@@ -49,7 +49,9 @@ class CreatorFullTest extends CreatorTestsUtil
         setEconomyPrice(12.34);
         setBuyStructure(true);
 
-        testCreation(creator, structure,
+        testCreation(
+            creator,
+            structure,
             structureName,
             UnitTestUtil.getLocation(min, world),
             UnitTestUtil.getLocation(max, world),
@@ -57,7 +59,8 @@ class CreatorFullTest extends CreatorTestsUtil
             UnitTestUtil.getLocation(powerblock, world),
             false,
             openDirection,
-            true);
+            true
+        );
     }
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")
@@ -80,12 +83,14 @@ class CreatorFullTest extends CreatorTestsUtil
         setEconomyPrice(12.34);
         setBuyStructure(true);
 
-        applySteps(creator,
+        applySteps(
+            creator,
             structureName,
             UnitTestUtil.getLocation(min, world),
             UnitTestUtil.getLocation(max, world),
             UnitTestUtil.getLocation(rotationPoint, world),
-            UnitTestUtil.getLocation(powerblock, world));
+            UnitTestUtil.getLocation(powerblock, world)
+        );
 
         Assertions.assertDoesNotThrow(() ->
             delayedCommandInputManager.getInputRequest(player).get().provide(false).join());

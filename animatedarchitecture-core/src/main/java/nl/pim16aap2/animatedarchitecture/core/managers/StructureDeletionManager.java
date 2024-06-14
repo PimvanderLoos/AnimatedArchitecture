@@ -21,7 +21,8 @@ public class StructureDeletionManager implements IDebuggable
      */
     private final List<IDeletionListener> deletionListeners = new CopyOnWriteArrayList<>();
 
-    @Inject StructureDeletionManager(DebuggableRegistry registry)
+    @Inject
+    StructureDeletionManager(DebuggableRegistry registry)
     {
         registry.registerDebuggable(this);
     }
@@ -104,7 +105,7 @@ public class StructureDeletionManager implements IDebuggable
             catch (Exception exception)
             {
                 log.atSevere().withCause(exception)
-                   .log("Failed to call structure deletion listener '%s' for structure %s!",
+                    .log("Failed to call structure deletion listener '%s' for structure %s!",
                         listener.getClass().getName(), structure);
             }
         }

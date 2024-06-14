@@ -20,7 +20,7 @@ import java.util.ResourceBundle;
 /**
  * Represents a class that can be used to localize Strings.
  */
-@Flogger //
+@Flogger
 final class Localizer implements ILocalizer
 {
     static final String KEY_NOT_FOUND_MESSAGE = "Failed to localize message: ";

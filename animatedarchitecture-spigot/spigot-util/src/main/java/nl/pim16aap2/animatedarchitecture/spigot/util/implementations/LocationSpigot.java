@@ -64,7 +64,8 @@ public final class LocationSpigot implements ILocation
      *     The {@link IWorld}.
      * @return The Bukkit world, if it could be found.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     private static @Nullable World retrieveBukkitWorld(IWorld world)
     {
         if (world instanceof WorldSpigot worldSpigot)
@@ -73,91 +74,104 @@ public final class LocationSpigot implements ILocation
     }
 
     @Override
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector2Di getChunk()
     {
         return new Vector2Di(location.getBlockX() << 4, location.getBlockZ() << 4);
     }
 
     @Override
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public int getBlockX()
     {
         return location.getBlockX();
     }
 
     @Override
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public int getBlockY()
     {
         return location.getBlockY();
     }
 
     @Override
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public int getBlockZ()
     {
         return location.getBlockZ();
     }
 
     @Override
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public double getX()
     {
         return location.getX();
     }
 
     @Override
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public double getY()
     {
         return location.getY();
     }
 
     @Override
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public double getZ()
     {
         return location.getZ();
     }
 
     @Override
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public ILocation setX(double newVal)
     {
         return new LocationSpigot(world, location.getWorld(), newVal, getY(), getZ());
     }
 
     @Override
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public ILocation setY(double newVal)
     {
         return new LocationSpigot(world, location.getWorld(), getX(), newVal, getZ());
     }
 
     @Override
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public ILocation setZ(double newVal)
     {
         return new LocationSpigot(world, location.getWorld(), getX(), getY(), newVal);
     }
 
     @Override
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public ILocation add(double x, double y, double z)
     {
         return new LocationSpigot(world, location.getWorld(), getX() + x, getY() + y, getZ() + z);
     }
 
     @Override
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public ILocation add(Vector3Di vector)
     {
         return add(vector.x(), vector.y(), vector.z());
     }
 
     @Override
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public ILocation add(Vector3Dd vector)
     {
         return add(vector.x(), vector.y(), vector.z());
@@ -170,7 +184,8 @@ public final class LocationSpigot implements ILocation
      *
      * @return The block at this location.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Block getBlock()
     {
         return location.getBlock();
@@ -181,21 +196,24 @@ public final class LocationSpigot implements ILocation
      *
      * @return The Bukkit location.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Location getBukkitLocation()
     {
         return location.clone();
     }
 
     @Override
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public String toString()
     {
         return getWorld() + ": " + getX() + ":" + getY() + ":" + getZ();
     }
 
     @Override
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public boolean equals(@Nullable Object o)
     {
         if (this == o)
@@ -209,14 +227,16 @@ public final class LocationSpigot implements ILocation
     }
 
     @Override
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public int hashCode()
     {
         return location.hashCode();
     }
 
     @Override
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public IWorld getWorld()
     {
         return world;

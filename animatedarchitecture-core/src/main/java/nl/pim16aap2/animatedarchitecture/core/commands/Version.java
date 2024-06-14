@@ -19,7 +19,8 @@ public class Version extends BaseCommand
 {
     private final IAnimatedArchitecturePlatformProvider platformProvider;
 
-    @AssistedInject Version(
+    @AssistedInject
+    Version(
         @Assisted ICommandSender commandSender,
         ILocalizer localizer,
         ITextFactory textFactory,

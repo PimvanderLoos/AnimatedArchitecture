@@ -24,7 +24,8 @@ class IsOpenParser implements ArgumentParser<ICommandSender, Boolean>, IRestarta
     private volatile String localizedClosed = "";
     private volatile String localizedClosedLowerCase = "";
 
-    @Inject IsOpenParser(RestartableHolder restartableHolder, ILocalizer localizer)
+    @Inject
+    IsOpenParser(RestartableHolder restartableHolder, ILocalizer localizer)
     {
         restartableHolder.registerRestartable(this);
         this.localizer = localizer;

@@ -21,7 +21,8 @@ import java.util.concurrent.CompletableFuture;
  */
 public class AddOwnerDelayed extends DelayedCommand<AddOwnerDelayed.DelayedInput>
 {
-    @Inject AddOwnerDelayed(
+    @Inject
+    AddOwnerDelayed(
         Context context,
         DelayedCommandInputRequest.IFactory<DelayedInput> inputRequestFactory)
     {

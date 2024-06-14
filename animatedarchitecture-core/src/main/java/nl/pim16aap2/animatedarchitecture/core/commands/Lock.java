@@ -28,7 +28,8 @@ public class Lock extends StructureTargetCommand
     private final IAnimatedArchitectureEventCaller animatedArchitectureEventCaller;
     private final IAnimatedArchitectureEventFactory animatedArchitectureEventFactory;
 
-    @AssistedInject Lock(
+    @AssistedInject
+    Lock(
         @Assisted ICommandSender commandSender,
         @Assisted StructureRetriever structureRetriever,
         @Assisted("isLocked") boolean isLocked,
@@ -91,7 +92,8 @@ public class Lock extends StructureTargetCommand
         }
 
         structure.setLocked(isLocked);
-        return structure.syncData()
+        return structure
+            .syncData()
             .thenAccept(this::handleDatabaseActionResult)
             .thenRunAsync(() -> sendUpdatedInfo(structure));
     }
@@ -117,7 +119,8 @@ public class Lock extends StructureTargetCommand
             ICommandSender commandSender,
             StructureRetriever structureRetriever,
             @Assisted("isLocked") boolean isLocked,
-            @Assisted("sendUpdatedInfo") boolean sendUpdatedInfo);
+            @Assisted("sendUpdatedInfo") boolean sendUpdatedInfo
+        );
 
         /**
          * Creates (but does not execute!) a new {@link Lock} command.

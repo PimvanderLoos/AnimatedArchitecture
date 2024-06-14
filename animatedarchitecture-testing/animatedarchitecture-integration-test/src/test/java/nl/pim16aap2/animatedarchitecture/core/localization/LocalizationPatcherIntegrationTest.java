@@ -47,11 +47,15 @@ class LocalizationPatcherIntegrationTest
         final LocalizationPatcher patcher = new LocalizationPatcher(directoryOutput, "patch");
         patcher.updatePatchKeys(List.of("key1", "key5", "key4"));
 
-        Assertions.assertArrayEquals(new Object[]{"key0", "key1", "key2", "key3", "key4", "key5"},
-                                     LocalizationUtil.getKeySet(file0).toArray());
+        Assertions.assertArrayEquals(
+            new Object[]{"key0", "key1", "key2", "key3", "key4", "key5"},
+            LocalizationUtil.getKeySet(file0).toArray()
+        );
 
-        Assertions.assertArrayEquals(new Object[]{"key1", "key10", "key11", "key12", "key13", "key4", "key5"},
-                                     LocalizationUtil.getKeySet(file1).toArray());
+        Assertions.assertArrayEquals(
+            new Object[]{"key1", "key10", "key11", "key12", "key13", "key4", "key5"},
+            LocalizationUtil.getKeySet(file1).toArray()
+        );
     }
 
     @Test

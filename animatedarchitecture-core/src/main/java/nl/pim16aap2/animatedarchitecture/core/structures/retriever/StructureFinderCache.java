@@ -19,13 +19,15 @@ import java.time.Duration;
  * allows us to keep track of the current state of the {@link StructureFinder} and to update it when new input is
  * provided.
  */
-@Singleton final class StructureFinderCache implements IRestartable
+@Singleton
+final class StructureFinderCache implements IRestartable
 {
     private final Provider<StructureRetrieverFactory> structureRetrieverFactoryProvider;
     private final DatabaseManager databaseManager;
     private volatile TimedCache<ICommandSender, StructureFinder> cache = TimedCache.emptyCache();
 
-    @Inject StructureFinderCache(
+    @Inject
+    StructureFinderCache(
         Provider<StructureRetrieverFactory> structureRetrieverFactoryProvider,
         RestartableHolder restartableHolder,
         DatabaseManager databaseManager)
@@ -56,8 +58,8 @@ import java.time.Duration;
             commandSender,
             (sender, finder) ->
                 finder == null ?
-                newInstance(sender, input, maxPermission) :
-                finder.processInput(input)
+                    newInstance(sender, input, maxPermission) :
+                    finder.processInput(input)
         );
     }
 

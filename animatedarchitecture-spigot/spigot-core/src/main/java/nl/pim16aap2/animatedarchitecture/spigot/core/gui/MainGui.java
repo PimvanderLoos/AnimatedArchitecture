@@ -65,7 +65,8 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
 
     private SortingMethod sortingMethod = SortingMethod.BY_NAME;
 
-    @AssistedInject MainGui(
+    @AssistedInject
+    MainGui(
         AnimatedArchitecturePlugin animatedArchitecturePlugin,
         ILocalizer localizer,
         ITextFactory textFactory,

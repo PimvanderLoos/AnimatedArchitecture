@@ -25,7 +25,8 @@ public class SetBlocksToMove extends StructureTargetCommand
 
     private final int blocksToMove;
 
-    @AssistedInject SetBlocksToMove(
+    @AssistedInject
+    SetBlocksToMove(
         @Assisted ICommandSender commandSender,
         ILocalizer localizer,
         ITextFactory textFactory,

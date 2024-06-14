@@ -155,8 +155,11 @@ public class CreatorTestsUtil
         final var builderResult = newStructureBaseBuilder();
         builderResult.assistedFactoryMocker()
             .setMock(ILocalizer.class, localizer)
-            .setMock(StructureRegistry.class,
-                StructureRegistry.unCached(debuggableRegistry, Mockito.mock(StructureDeletionManager.class)));
+            .setMock(
+                StructureRegistry.class,
+                StructureRegistry.unCached(debuggableRegistry, Mockito.mock(StructureDeletionManager.class))
+            );
+
         structureBaseBuilder = builderResult.structureBaseBuilder();
 
         final var assistedStepFactory = Mockito.mock(Step.Factory.IFactory.class);
@@ -170,10 +173,20 @@ public class CreatorTestsUtil
             .thenReturn(CompletableFuture.completedFuture(IProtectionHookManager.HookCheckResult.allowed()));
 
         context = new ToolUser.Context(
-            structureBaseBuilder, localizer, ITextFactory.getSimpleTextFactory(), toolUserManager, databaseManager,
-            limitsManager, economyManager, protectionHookManager, animatedArchitectureToolUtil,
-            Mockito.mock(StructureAnimationRequestBuilder.class), Mockito.mock(StructureActivityManager.class),
-            commandFactory, assistedStepFactory);
+            structureBaseBuilder,
+            localizer,
+            ITextFactory.getSimpleTextFactory(),
+            toolUserManager,
+            databaseManager,
+            limitsManager,
+            economyManager,
+            protectionHookManager,
+            animatedArchitectureToolUtil,
+            Mockito.mock(StructureAnimationRequestBuilder.class),
+            Mockito.mock(StructureActivityManager.class),
+            commandFactory,
+            assistedStepFactory
+        );
 
         initCommands();
 
@@ -189,10 +202,13 @@ public class CreatorTestsUtil
                 CompletableFuture.completedFuture(Optional.of((AbstractStructure) invocation.getArguments()[0])));
 
         Mockito.when(databaseManager.addStructure(
-                ArgumentMatchers.any(AbstractStructure.class), Mockito.any(IPlayer.class)))
+                ArgumentMatchers.any(AbstractStructure.class),
+                Mockito.any(IPlayer.class)))
             .thenAnswer((Answer<CompletableFuture<DatabaseManager.StructureInsertResult>>) invocation ->
                 CompletableFuture.completedFuture(new DatabaseManager.StructureInsertResult(
-                    Optional.of(invocation.getArgument(0, AbstractStructure.class)), false)));
+                    Optional.of(invocation.getArgument(0, AbstractStructure.class)),
+                    false))
+            );
 
         Mockito.when(permissionsManager.hasPermission(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(true);
 
@@ -228,19 +244,20 @@ public class CreatorTestsUtil
                 .setMock(ITextFactory.class, ITextFactory.getSimpleTextFactory())
                 .setMock(DelayedCommandInputManager.class, delayedCommandInputManager);
 
-        final var commandContext = new DelayedCommand.Context(delayedCommandInputManager, localizer,
-            ITextFactory.getSimpleTextFactory(), () -> commandFactory);
+        final var commandContext = new DelayedCommand.Context(
+            delayedCommandInputManager,
+            localizer,
+            ITextFactory.getSimpleTextFactory(),
+            () -> commandFactory
+        );
 
-        final SetOpenStatusDelayed setOpenStatusDelayed =
-            new SetOpenStatusDelayed(commandContext, assistedFactory.getFactory());
+        final var setOpenStatusDelayed = new SetOpenStatusDelayed(commandContext, assistedFactory.getFactory());
         Mockito.when(commandFactory.getSetOpenStatusDelayed()).thenReturn(setOpenStatusDelayed);
 
-        final SetOpenDirectionDelayed setOpenDirectionDelayed =
-            new SetOpenDirectionDelayed(commandContext, assistedFactory.getFactory());
+        final var setOpenDirectionDelayed = new SetOpenDirectionDelayed(commandContext, assistedFactory.getFactory());
         Mockito.when(commandFactory.getSetOpenDirectionDelayed()).thenReturn(setOpenDirectionDelayed);
 
-        final SetBlocksToMoveDelayed setBlocksToMoveDelayed =
-            new SetBlocksToMoveDelayed(commandContext, assistedFactory.getFactory());
+        final var setBlocksToMoveDelayed = new SetBlocksToMoveDelayed(commandContext, assistedFactory.getFactory());
         Mockito.when(commandFactory.getSetBlocksToMoveDelayed()).thenReturn(setBlocksToMoveDelayed);
     }
 
@@ -264,8 +281,11 @@ public class CreatorTestsUtil
 
     protected void setBuyStructure(boolean status)
     {
-        Mockito.when(economyManager.buyStructure(ArgumentMatchers.any(), ArgumentMatchers.any(),
-                ArgumentMatchers.any(), ArgumentMatchers.anyInt()))
+        Mockito.when(economyManager.buyStructure(
+                ArgumentMatchers.any(),
+                ArgumentMatchers.any(),
+                ArgumentMatchers.any(),
+                ArgumentMatchers.anyInt()))
             .thenReturn(status);
     }
 
@@ -308,8 +328,10 @@ public class CreatorTestsUtil
             final @Nullable String stepName = creator.getCurrentStep().map(Step::getName).orElse(null);
             Assertions.assertNotNull(stepName);
 
-            Assertions.assertTrue(creator.handleInput(obj).join(),
-                String.format("IDX: %d, Input: %s, Step: %s", idx, obj, stepName));
+            Assertions.assertTrue(
+                creator.handleInput(obj).join(),
+                String.format("IDX: %d, Input: %s, Step: %s", idx, obj, stepName)
+            );
         }
     }
 

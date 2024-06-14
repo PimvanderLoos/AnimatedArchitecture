@@ -27,7 +27,7 @@ import java.util.function.Function;
  * This class should be instantiated using {@link HookCheckStateContainer#of(List)}.
  */
 @Accessors(fluent = true, chain = true)
-@Flogger //
+@Flogger
 final class HookCheckStateContainer
 {
     private final List<HookCheckState> hookCheckStates;

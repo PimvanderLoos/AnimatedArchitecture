@@ -96,7 +96,8 @@ public final class ConfigSpigot implements IConfig, IDebuggable
     private OptionalInt maxStructureSize = OptionalInt.empty();
     private OptionalInt maxPowerBlockDistance = OptionalInt.empty();
     private boolean resourcePackEnabled = false;
-    private final String resourcePack = "https://www.dropbox.com/s/8vpwzjkd9jnp1xu/AnimatedArchitectureResourcePack-Format12.zip?dl=1";
+    private final String resourcePack =
+        "https://www.dropbox.com/s/8vpwzjkd9jnp1xu/AnimatedArchitectureResourcePack-Format12.zip?dl=1";
     private OptionalInt maxStructureCount = OptionalInt.empty();
     private OptionalInt maxBlocksToMove = OptionalInt.empty();
     private double maxBlockSpeed;

@@ -33,6 +33,7 @@ class CreatorBigDoorTest extends CreatorTestsUtil
             powerblock.toLocation(locationFactory, world),
             false,
             openDirection,
-            true);
+            true
+        );
     }
 }

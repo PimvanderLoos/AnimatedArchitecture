@@ -21,7 +21,8 @@ public class Cancel extends BaseCommand
     private final ToolUserManager toolUserManager;
     private final StructureSpecificationManager doorSpecificationManager;
 
-    @AssistedInject Cancel(
+    @AssistedInject
+    Cancel(
         @Assisted ICommandSender commandSender,
         ILocalizer localizer,
         ITextFactory textFactory,

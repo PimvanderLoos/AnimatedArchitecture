@@ -16,9 +16,8 @@ import java.util.concurrent.CompletableFuture;
 @Singleton
 public class SetOpenStatusDelayed extends DelayedCommand<Boolean>
 {
-    @Inject public SetOpenStatusDelayed(
-        Context context,
-        DelayedCommandInputRequest.IFactory<Boolean> inputRequestFactory)
+    @Inject
+    public SetOpenStatusDelayed(Context context, DelayedCommandInputRequest.IFactory<Boolean> inputRequestFactory)
     {
         super(context, inputRequestFactory, Boolean.class);
     }

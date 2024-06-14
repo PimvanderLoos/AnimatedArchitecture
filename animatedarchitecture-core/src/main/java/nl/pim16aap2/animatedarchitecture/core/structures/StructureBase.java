@@ -47,7 +47,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * the structure system.
  */
 @EqualsAndHashCode(callSuper = false)
-@Flogger final class StructureBase
+@Flogger
+final class StructureBase
 {
     @Getter(AccessLevel.PACKAGE)
     @EqualsAndHashCode.Exclude
@@ -148,7 +149,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
     @EqualsAndHashCode.Exclude
     private final IPlayerFactory playerFactory;
 
-    @AssistedInject StructureBase(
+    @AssistedInject
+    StructureBase(
         @Assisted long uid,
         @Assisted String name,
         @Assisted Cuboid cuboid,
@@ -209,9 +211,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
         if (structureOwner.permission() == PermissionLevel.CREATOR)
         {
             log.atSevere().withStackTrace(StackSize.FULL)
-               .log(
-                   "Failed to add Owner '%s' as owner to structure: %d because a permission level of 0 is not allowed!",
-                   structureOwner.playerData(), this.getUid());
+                .log(
+                    "Failed to add Owner '%s' as owner to structure: %d because a permission level of 0 is not allowed!",
+                    structureOwner.playerData(), this.getUid());
             return false;
         }
         owners.put(structureOwner.playerData().getUUID(), structureOwner);
@@ -219,12 +221,13 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
     }
 
     @Locked.Write("lock")
-    @Nullable StructureOwner removeOwner(UUID uuid)
+    @Nullable
+    StructureOwner removeOwner(UUID uuid)
     {
         if (primeOwner.playerData().getUUID().equals(uuid))
         {
             log.atSevere().withStackTrace(StackSize.FULL)
-               .log("Failed to remove owner: '%s' as owner from structure: '%d'" +
+                .log("Failed to remove owner: '%s' as owner from structure: '%d'" +
                         " because removing an owner with a permission level of 0 is not allowed!",
                     primeOwner.playerData(), this.getUid());
             return null;
@@ -281,7 +284,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
         verifyRedstoneState(structure, getPowerBlock());
     }
 
-    @Locked.Read("lock") void onRedstoneChange(AbstractStructure structure, boolean isPowered)
+    @Locked.Read("lock")
+    void onRedstoneChange(AbstractStructure structure, boolean isPowered)
     {
         if (shouldIgnoreRedstone())
             return;
@@ -307,7 +311,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
         else
         {
             log.atFinest().log("Aborted toggle attempt with %s redstone for structure: %s",
-                               (isPowered ? "powered" : "unpowered"), structure);
+                (isPowered ? "powered" : "unpowered"), structure);
             return;
         }
 

@@ -27,7 +27,8 @@ public class AnimatedBlockContainerFactory
     private final IExecutor executor;
     private final HighlightedBlockSpawner glowingBlockSpawner;
 
-    @Inject AnimatedBlockContainerFactory(
+    @Inject
+    AnimatedBlockContainerFactory(
         ILocationFactory locationFactory,
         IAnimatedBlockFactory animatedBlockFactory,
         IExecutor executor,

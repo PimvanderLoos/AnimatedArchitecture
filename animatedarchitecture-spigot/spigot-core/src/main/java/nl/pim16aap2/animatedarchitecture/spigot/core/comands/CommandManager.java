@@ -67,7 +67,8 @@ public final class CommandManager
     private final CommandExecutor commandExecutor;
     private final IExecutor executor;
 
-    @Inject CommandManager(
+    @Inject
+    CommandManager(
         JavaPlugin plugin,
         ConfigSpigot config,
         ILocalizer localizer,
@@ -484,7 +485,8 @@ public final class CommandManager
         BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
     {
         final CommandDefinition previewDefinition =
-            new CommandDefinition("PREVIEW",
+            new CommandDefinition(
+                "PREVIEW",
                 Constants.PERMISSION_PREFIX_USER + "preview",
                 Constants.PERMISSION_PREFIX_ADMIN + "bypass.preview");
 

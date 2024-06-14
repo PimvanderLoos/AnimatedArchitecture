@@ -22,7 +22,8 @@ public class Debug extends BaseCommand
     private final IMessagingInterface messagingInterface;
     private final DebugReporter debugReporter;
 
-    @AssistedInject Debug(
+    @AssistedInject
+    Debug(
         @Assisted ICommandSender commandSender,
         ILocalizer localizer,
         ITextFactory textFactory,

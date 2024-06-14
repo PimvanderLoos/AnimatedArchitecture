@@ -27,7 +27,7 @@ public final class AnimationHookManager implements IDebuggable
 {
     private final List<IAnimationHookFactory<? extends IAnimatedBlock>> factories = new CopyOnWriteArrayList<>();
 
-    @Inject//
+    @Inject
     AnimationHookManager(DebuggableRegistry debuggableRegistry)
     {
         debuggableRegistry.registerDebuggable(this);
@@ -56,7 +56,8 @@ public final class AnimationHookManager implements IDebuggable
             }
             catch (Exception e)
             {
-                log.atSevere().withCause(e).log("Failed to create hook with factory '%s'.",
+                log.atSevere().withCause(e).log(
+                    "Failed to create hook with factory '%s'.",
                     factory.getClass().getName());
             }
         }

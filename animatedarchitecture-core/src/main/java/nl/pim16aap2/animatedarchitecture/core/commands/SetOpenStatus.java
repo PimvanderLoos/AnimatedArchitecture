@@ -24,7 +24,8 @@ public class SetOpenStatus extends StructureTargetCommand
 
     private final boolean isOpen;
 
-    @AssistedInject SetOpenStatus(
+    @AssistedInject
+    SetOpenStatus(
         @Assisted ICommandSender commandSender,
         @Assisted StructureRetriever structureRetriever,
         @Assisted("isOpen") boolean isOpen,
@@ -70,8 +71,8 @@ public class SetOpenStatus extends StructureTargetCommand
         {
             final String localizedIsOpen =
                 isOpen ?
-                localizer.getMessage("constants.open_status.open") :
-                localizer.getMessage("constants.open_status.closed");
+                    localizer.getMessage("constants.open_status.open") :
+                    localizer.getMessage("constants.open_status.closed");
 
             getCommandSender().sendMessage(textFactory.newText().append(
                 localizer.getMessage("commands.set_open_status.error.status_not_changed"),
@@ -85,7 +86,8 @@ public class SetOpenStatus extends StructureTargetCommand
         }
 
         structure.setOpen(isOpen);
-        return structure.syncData()
+        return structure
+            .syncData()
             .thenAccept(this::handleDatabaseActionResult)
             .thenRunAsync(() -> sendUpdatedInfo(structure));
     }

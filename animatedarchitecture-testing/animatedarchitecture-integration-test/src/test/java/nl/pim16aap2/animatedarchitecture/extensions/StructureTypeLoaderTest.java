@@ -13,9 +13,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Objects;
 
 class StructureTypeLoaderTest
@@ -47,20 +45,32 @@ class StructureTypeLoaderTest
 
     @Test
     void test()
-        throws IOException
     {
         final Path basePath = Path.of("");
         final String extensionsPath =
-            basePath.toAbsolutePath().getParent().getParent().resolve("structures")
-                    .resolve("StructuresOutput").toAbsolutePath().toString();
+            basePath
+                .toAbsolutePath()
+                .getParent()
+                .getParent()
+                .resolve("structures")
+                .resolve("StructuresOutput")
+                .toAbsolutePath()
+                .toString();
+
         final int inputCount = Objects.requireNonNull(new File(extensionsPath).list()).length;
 
-        final var structureTypeLoader =
-            new StructureTypeLoader(restartableHolder, structureTypeManager, config, basePath);
+        final var structureTypeLoader = new StructureTypeLoader(
+            restartableHolder,
+            structureTypeManager,
+            config,
+            basePath
+        );
+
         structureTypeLoader.initialize();
-        System.out.println("Input: " + Arrays.toString(new File(extensionsPath).list()));
-        System.out.println("Loaded: " + structureTypeLoader.loadStructureTypesFromDirectory(Path.of(extensionsPath)));
-        Assertions.assertEquals(inputCount,
-                                structureTypeLoader.loadStructureTypesFromDirectory(Path.of(extensionsPath)).size());
+
+        Assertions.assertEquals(
+            inputCount,
+            structureTypeLoader.loadStructureTypesFromDirectory(Path.of(extensionsPath)).size()
+        );
     }
 }

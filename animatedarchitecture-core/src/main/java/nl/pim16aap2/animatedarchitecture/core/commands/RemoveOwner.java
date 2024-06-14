@@ -31,7 +31,8 @@ public class RemoveOwner extends StructureTargetCommand
     private final IPlayer targetPlayer;
     private final DatabaseManager databaseManager;
 
-    @AssistedInject RemoveOwner(
+    @AssistedInject
+    RemoveOwner(
         @Assisted ICommandSender commandSender,
         ILocalizer localizer,
         ITextFactory textFactory,

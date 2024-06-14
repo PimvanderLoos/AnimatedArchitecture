@@ -37,7 +37,8 @@ public class DirectionParser implements ArgumentParser<ICommandSender, MovementD
         new LinkedHashMap<>(MathUtil.ceil(1.25 * MovementDirection.values().length));
     private final Map<MovementDirection, String> invertedSuggestions = new EnumMap<>(MovementDirection.class);
 
-    @Inject DirectionParser(RestartableHolder restartableHolder, ToolUserManager toolUserManager, ILocalizer localizer)
+    @Inject
+    DirectionParser(RestartableHolder restartableHolder, ToolUserManager toolUserManager, ILocalizer localizer)
     {
         restartableHolder.registerRestartable(this);
         this.toolUserManager = toolUserManager;

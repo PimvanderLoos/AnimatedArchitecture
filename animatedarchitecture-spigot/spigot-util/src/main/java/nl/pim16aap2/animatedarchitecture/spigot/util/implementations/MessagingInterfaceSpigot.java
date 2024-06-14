@@ -1,8 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.spigot.util.implementations;
 
-import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IMessagingInterface;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
+import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;

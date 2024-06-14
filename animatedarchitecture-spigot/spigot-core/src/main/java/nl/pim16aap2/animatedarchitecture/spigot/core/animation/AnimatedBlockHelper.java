@@ -27,7 +27,8 @@ public final class AnimatedBlockHelper
      */
     private final NamespacedKey RECOVERY_KEY;
 
-    @Inject AnimatedBlockHelper(JavaPlugin plugin)
+    @Inject
+    AnimatedBlockHelper(JavaPlugin plugin)
     {
         RECOVERY_KEY = new NamespacedKey(plugin, Constants.ANIMATED_ARCHITECTURE_ENTITY_RECOVERY_KEY);
     }

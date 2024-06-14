@@ -50,7 +50,8 @@ public final class PowerBlockManager extends Restartable implements StructureDel
      * @param databaseManager
      *     The database manager to use for power block retrieval.
      */
-    @Inject PowerBlockManager(
+    @Inject
+    PowerBlockManager(
         RestartableHolder restartableHolder,
         IConfig config,
         DatabaseManager databaseManager,

@@ -40,7 +40,8 @@ public final class AnimationRequestData
     private final AnimationType animationType;
     private final StructureActionType actionType;
 
-    @AssistedInject AnimationRequestData(
+    @AssistedInject
+    AnimationRequestData(
         StructureActivityManager structureActivityManager,
         IAudioPlayer audioPlayer,
         IExecutor executor,

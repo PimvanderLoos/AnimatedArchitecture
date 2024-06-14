@@ -14,7 +14,8 @@ public interface IProtectionHookSpigotSpecification
      *     The version of the plugin to load the hook for.
      * @return The {@link IProtectionHookSpigot} class of the compat.
      */
-    @Nullable Class<? extends IProtectionHookSpigot> getClass(String version);
+    @Nullable
+    Class<? extends IProtectionHookSpigot> getClass(String version);
 
     /**
      * Get the name of the plugin the given compat hooks into.

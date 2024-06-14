@@ -58,7 +58,8 @@ public final class StructureRegistry implements IDebuggable, StructureDeletionMa
     /**
      * Constructs a new {@link #StructureRegistry} using the default cache expiry value: {@link #CACHE_EXPIRY}.
      */
-    @Inject StructureRegistry(
+    @Inject
+    StructureRegistry(
         DebuggableRegistry debuggableRegistry,
         StructureDeletionManager structureDeletionManager)
     {

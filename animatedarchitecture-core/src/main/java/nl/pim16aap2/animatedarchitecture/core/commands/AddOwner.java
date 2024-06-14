@@ -49,7 +49,7 @@ public class AddOwner extends StructureTargetCommand
 
     private final DatabaseManager databaseManager;
 
-    @AssistedInject //
+    @AssistedInject
     AddOwner(
         @Assisted ICommandSender commandSender,
         ILocalizer localizer,

@@ -23,7 +23,8 @@ public class Delete extends StructureTargetCommand
 {
     private final DatabaseManager databaseManager;
 
-    @AssistedInject Delete(
+    @AssistedInject
+    Delete(
         @Assisted ICommandSender commandSender,
         ILocalizer localizer,
         ITextFactory textFactory,

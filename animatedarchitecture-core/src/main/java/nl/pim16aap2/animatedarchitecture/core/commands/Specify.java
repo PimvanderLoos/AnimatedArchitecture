@@ -28,7 +28,8 @@ public class Specify extends BaseCommand
     private final String input;
     private final StructureSpecificationManager structureSpecificationManager;
 
-    @AssistedInject Specify(
+    @AssistedInject
+    Specify(
         @Assisted ICommandSender commandSender,
         @Assisted String input,
         ILocalizer localizer,

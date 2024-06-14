@@ -103,8 +103,12 @@ public final class RestartableHolder implements IDebuggable
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to %s restartable of type %s:\n%s",
-                actionName, restartable.getClass().getName(), restartable);
+            log.atSevere().withCause(e).log(
+                "Failed to %s restartable of type %s:\n%s",
+                actionName,
+                restartable.getClass().getName(),
+                restartable
+            );
         }
     }
 

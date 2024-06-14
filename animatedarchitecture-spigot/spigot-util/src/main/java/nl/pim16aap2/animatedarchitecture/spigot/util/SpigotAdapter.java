@@ -161,7 +161,7 @@ public final class SpigotAdapter
         if (commandSender instanceof SpigotServer)
             return Bukkit.getServer().getConsoleSender();
         throw new IllegalArgumentException("Trying to unwrap command sender of illegal type: " +
-                                               commandSender.getClass().getName());
+            commandSender.getClass().getName());
     }
 
     /**

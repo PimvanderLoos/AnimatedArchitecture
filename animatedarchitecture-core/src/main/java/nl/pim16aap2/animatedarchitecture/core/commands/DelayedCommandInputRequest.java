@@ -103,7 +103,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      * @param inputClass
      *     The class of the input object that is expected.
      */
-    @AssistedInject //
+    @AssistedInject
     DelayedCommandInputRequest(
         @Assisted long timeout,
         @Assisted ICommandSender commandSender,

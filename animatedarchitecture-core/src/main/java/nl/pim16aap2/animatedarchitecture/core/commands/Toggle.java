@@ -45,7 +45,8 @@ public class Toggle extends BaseCommand
     private final @Nullable Double time;
     private final boolean preventPerpetualMovement;
 
-    @AssistedInject Toggle(
+    @AssistedInject
+    Toggle(
         ILocalizer localizer,
         ITextFactory textFactory,
         @Named("MessageableServer") IMessageable messageableServer,

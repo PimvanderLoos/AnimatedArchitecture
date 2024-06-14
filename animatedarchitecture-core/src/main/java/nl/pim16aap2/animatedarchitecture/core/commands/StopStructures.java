@@ -18,7 +18,8 @@ public class StopStructures extends BaseCommand
 {
     private final StructureActivityManager structureActivityManager;
 
-    @AssistedInject StopStructures(
+    @AssistedInject
+    StopStructures(
         @Assisted ICommandSender commandSender,
         ILocalizer localizer,
         ITextFactory textFactory,
