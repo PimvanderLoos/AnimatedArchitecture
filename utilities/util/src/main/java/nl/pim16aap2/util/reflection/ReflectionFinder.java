@@ -41,7 +41,8 @@ public abstract class ReflectionFinder<T, U extends ReflectionFinder<T, U>>
      * @throws NullPointerException
      *     If the target reflection object(s) could not be found.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public abstract T get();
 
     /**
@@ -51,7 +52,8 @@ public abstract class ReflectionFinder<T, U extends ReflectionFinder<T, U>>
      *
      * @return The target reflection object(s) being searched for or null if no object(s) could be found.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public abstract @Nullable T getNullable();
 
     /**

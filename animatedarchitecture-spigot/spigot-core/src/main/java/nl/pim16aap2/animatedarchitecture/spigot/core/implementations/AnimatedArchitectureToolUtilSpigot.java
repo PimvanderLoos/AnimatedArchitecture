@@ -5,6 +5,7 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitectureToolUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
+import nl.pim16aap2.util.reflection.ReflectionBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -32,6 +33,13 @@ public class AnimatedArchitectureToolUtilSpigot implements IAnimatedArchitecture
 {
     private static final Material TOOL_MATERIAL = Material.STICK;
 
+    private static final Enchantment TOOL_ENCHANTMENT = ReflectionBuilder
+        .findField()
+        .inClass(Enchantment.class)
+        .withName("LUCK", "LUCK_OF_THE_SEA")
+        .ofType(Enchantment.class)
+        .get(null);
+
     private final NamespacedKey animatedArchitectureToolKey;
 
     @Inject
@@ -51,7 +59,7 @@ public class AnimatedArchitectureToolUtilSpigot implements IAnimatedArchitecture
         }
 
         final ItemStack tool = new ItemStack(TOOL_MATERIAL, 1);
-        tool.addUnsafeEnchantment(Enchantment.LUCK_OF_THE_SEA, 1);
+        tool.addUnsafeEnchantment(TOOL_ENCHANTMENT, 1);
 
         final @Nullable ItemMeta itemMeta =
             tool.hasItemMeta() ? tool.getItemMeta() : Bukkit.getItemFactory().getItemMeta(tool.getType());

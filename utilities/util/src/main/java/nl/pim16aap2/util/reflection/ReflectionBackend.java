@@ -114,8 +114,10 @@ final class ReflectionBackend
      *
      * @param source
      *     The class in which to look for the field.
-     * @param name
-     *     The name of the field to look for.
+     * @param names
+     *     The names of the field to look for.
+     *     <p>
+     *     If multiple names are provided, the first field that matches any of the names will be returned.
      * @param modifiers
      *     The {@link Modifier}s that the field should match. E.g. {@link Modifier#PUBLIC}. When this is 0, no modifier
      *     constraints will be applied during the search.
@@ -129,16 +131,48 @@ final class ReflectionBackend
      */
     @SafeVarargs
     public static @Nullable Field getField(
-        Class<?> source, String name, int modifiers, @Nullable Class<?> type, boolean setAccessible,
-        boolean checkSuperClasses, Class<? extends Annotation>... annotations)
+        Class<?> source,
+        List<String> names,
+        int modifiers,
+        @Nullable Class<?> type,
+        boolean setAccessible,
+        boolean checkSuperClasses,
+        Class<? extends Annotation>... annotations)
     {
-        for (final Field field : getFields(source, checkSuperClasses))
+        final var fields = getFields(source, checkSuperClasses);
+        final StringBuilder sb = new StringBuilder("Fields in ").append(source.getName()).append(": \n");
+        for (final var field : fields)
+            sb
+                .append("  [")
+                .append(String.format("%30s", field.getName()))
+                .append("] ")
+                .append(field.toGenericString())
+                .append('\n');
+        System.out.println(sb.toString());
+
+        System.out.println("Looking for fields with names: " + names);
+
+        for (final Field field : fields)
+//        for (final Field field : getFields(source, checkSuperClasses))
         {
+            System.out.println(
+                "\n\nChecking field: " + field.getName() + ", type? " + (type == null ? "null" : type.getName()));
+
             if (type != null && !field.getType().equals(type))
+            {
+                System.out.println(
+                    "Type mismatch! Expected: " + type.getName() + ", got: " + field.getType().getName());
                 continue;
+            }
             if (modifiers != 0 && field.getModifiers() != modifiers)
+            {
+                System.out.println(
+                    "Modifier mismatch! Expected: " + Modifier.toString(modifiers) + ", got: "
+                        + Modifier.toString(field.getModifiers()));
                 continue;
-            if (!field.getName().equals(name))
+            }
+            System.out.println("Checking if name '" + field.getName() + "' is in " + names);
+            if (!names.contains(field.getName()))
                 continue;
             if (!containsAnnotations(field, annotations))
                 continue;

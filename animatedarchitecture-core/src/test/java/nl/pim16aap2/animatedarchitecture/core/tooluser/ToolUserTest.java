@@ -23,7 +23,6 @@ import nl.pim16aap2.util.reflection.ReflectionBuilder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -114,8 +113,8 @@ public class ToolUserTest
 
             final StepExecutor stepExecutorSupplier =
                 isAsync ?
-                new AsyncStepExecutor<>(Boolean.class, ignored -> toolUser.appendValueAsync(value)) :
-                new StepExecutorBoolean(ignored -> toolUser.appendValue(value));
+                    new AsyncStepExecutor<>(Boolean.class, ignored -> toolUser.appendValueAsync(value)) :
+                    new StepExecutorBoolean(ignored -> toolUser.appendValue(value));
 
             steps.add(createStep(stepFactory, stepName, stepExecutorSupplier));
         }
@@ -133,7 +132,7 @@ public class ToolUserTest
             Assertions.assertEquals(idx, values.get(idx));
     }
 
-    @Test @Disabled
+    @Test
     void testAsyncInputs()
         throws InstantiationException, InterruptedException
     {

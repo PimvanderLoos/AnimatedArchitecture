@@ -31,7 +31,8 @@ public class FieldFinder
      *     The class to analyze.
      * @return The next step in the field finding process.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public FieldFinderInSource inClass(Class<?> source)
     {
         return new FieldFinderInSource(source);
@@ -52,14 +53,17 @@ public class FieldFinder
         /**
          * Creates a new {@link NamedFieldFinder} to retrieve the field by its name.
          *
-         * @param name
-         *     The name of the field to look for.
+         * @param names
+         *     The names of the field to look for.
+         *     <p>
+         *     If multiple names are provided, the first field found will be returned.
          * @return The new {@link NamedFieldFinder}.
          */
-        @CheckReturnValue @Contract(pure = true)
-        public NamedFieldFinder withName(String name)
+        @CheckReturnValue
+        @Contract(pure = true)
+        public NamedFieldFinder<?> withName(String... names)
         {
-            return new NamedFieldFinder(name, source);
+            return NamedFieldFinder.of(source, names);
         }
 
         /**
@@ -69,7 +73,8 @@ public class FieldFinder
          *     The type of the field to look for.
          * @return The new {@link TypedFieldFinder}.
          */
-        @CheckReturnValue @Contract(pure = true)
+        @CheckReturnValue
+        @Contract(pure = true)
         public <T> TypedFieldFinder<T> ofType(Class<T> type)
         {
             return new TypedFieldFinder<>(source, type);
@@ -82,7 +87,8 @@ public class FieldFinder
          *     The type of the fields to look for.
          * @return The new {@link MultipleFieldsFinder}.
          */
-        @CheckReturnValue @Contract(pure = true)
+        @CheckReturnValue
+        @Contract(pure = true)
         public MultipleFieldsFinder allOfType(Class<?> type)
         {
             return new MultipleFieldsFinder(source, type);
@@ -95,7 +101,9 @@ public class FieldFinder
          *     The type of the fields to look for.
          * @return The new {@link MultipleFieldsFinder}.
          */
-        @SafeVarargs @CheckReturnValue @Contract(pure = true)
+        @SafeVarargs
+        @CheckReturnValue
+        @Contract(pure = true)
         public final MultipleFieldsFinder withAnnotations(Class<? extends Annotation>... annotations)
         {
             return new MultipleFieldsFinder(source, annotations);
@@ -153,14 +161,33 @@ public class FieldFinder
     private static abstract class SingleFieldFinder<T extends ReflectionFinder<Field, T>, U>
         extends ReflectionFieldFinder<Field, T, U>
     {
-        protected abstract Class<U> getType();
+        /**
+         * Gets the configured type of the target field.
+         * <p>
+         * This is used to cast the field to the correct type when retrieving it.
+         *
+         * @return The type of the target field.
+         */
+        protected abstract Class<U> getTargetFieldType();
 
+        /**
+         * Retrieves the object of the field from the given instance.
+         *
+         * @param field
+         *     The field to retrieve.
+         * @param instance
+         *     The instance to retrieve the field from. Can be null if the field is static.
+         * @param type
+         *     The type of the field.
+         * @param <V>
+         *     The type of the field.
+         * @return The field instance.
+         */
         // We throw our own ClassCastException, ignoring the original stack trace.
         @SuppressWarnings("PMD.PreserveStackTrace")
-        private @Nullable U getNullable(Field field, @Nullable Object instance)
+        @CheckReturnValue
+        private <V> V get(Field field, @Nullable Object instance, Class<V> type)
         {
-            final Class<U> type = getType();
-
             @Nullable Object object = null;
             try
             {
@@ -192,6 +219,30 @@ public class FieldFinder
 
         /**
          * Retrieves the object of the field from the given instance.
+         *
+         * @param field
+         *     The field to retrieve the object from.
+         * @param instance
+         *     The instance to retrieve the field from.
+         *     <p>
+         *     This can be null if the field is static.
+         * @return The object of the field from the given instance.
+         */
+        protected U get(Field field, @Nullable Object instance)
+        {
+            final var type = Objects.requireNonNull(getTargetFieldType(), "Field type cannot be null!");
+
+            return Objects.requireNonNull(
+                get(field, instance, type),
+                String.format(
+                    "Failed to retrieve field %s in instance %s",
+                    field.toGenericString(),
+                    instance)
+            );
+        }
+
+        /**
+         * Retrieves the object of the field from the given instance.
          * <p>
          * The field will be retrieved using {@link #get()} first.
          *
@@ -199,7 +250,6 @@ public class FieldFinder
          *     The instance to retrieve the field from.
          *     <p>
          *     This can be null if the field is static.
-         *     <p>
          * @return The object of the field from the given instance.
          *
          * @throws NullPointerException
@@ -210,22 +260,18 @@ public class FieldFinder
          * @throws IllegalArgumentException
          *     If the field could be found, but could not be accessed or
          */
-        public @Nullable U get(@Nullable Object instance)
+        @CheckReturnValue
+        public U get(@Nullable Object instance)
         {
             final Field field = get();
-            return Objects.requireNonNull(
-                getNullable(field, instance),
-                String.format(
-                    "Failed to retrieve object of field %s in instance %s",
-                    field.toGenericString(),
-                    instance)
-            );
+            return get(field, instance);
         }
 
         /**
          * Retrieves the object of the field from the given instance.
          * <p>
-         * The field will be retrieved using {@link #get()} first.
+         * The field will be retrieved using {@link #getNullable(Object)} first. If the field could not be found, this
+         * method will return null.
          *
          * @param instance
          *     The instance to retrieve the field from.
@@ -241,10 +287,13 @@ public class FieldFinder
          * @throws IllegalArgumentException
          *     If the field could be found, but could not be accessed or
          */
+        @CheckReturnValue
         public @Nullable U getNullable(@Nullable Object instance)
         {
-            final Field field = get();
-            return getNullable(field, instance);
+            final @Nullable Field field = getNullable();
+            if (field == null)
+                return null;
+            return get(field, instance);
         }
 
         /**
@@ -261,7 +310,7 @@ public class FieldFinder
          * @throws IllegalArgumentException
          *     If the field could not be accessed, or if the field could not be set to the given value.
          */
-        public void set(@Nullable Object instance, @Nullable U value)
+        public void set(@Nullable Object instance, @Nullable Object value)
         {
             final Field field = get();
             try
@@ -286,17 +335,59 @@ public class FieldFinder
     /**
      * Represents an implementation of {@link ReflectionFinder} to retrieve a field by its name.
      */
-    public static final class NamedFieldFinder
-        extends SingleFieldFinder<NamedFieldFinder, Object>
+    public static final class NamedFieldFinder<T>
+        extends SingleFieldFinder<NamedFieldFinder<T>, T>
     {
-        private final String name;
+        private final List<String> names;
         private final Class<?> source;
-        private @Nullable Class<?> fieldType = null;
+        private final @Nullable Class<T> fieldType;
 
-        private NamedFieldFinder(String name, Class<?> source)
+        /**
+         * @param source
+         *     The class to analyze.
+         * @param fieldType
+         *     The type of the field to look for. If null, the type of {@code T} should be {@link Object}.
+         * @param names
+         *     The names of the field to look for.
+         */
+        private NamedFieldFinder(Class<?> source, @Nullable Class<T> fieldType, List<String> names)
         {
-            this.name = Objects.requireNonNull(name, "Name cannot be null!");
+            if (names.isEmpty())
+                throw new IllegalArgumentException("At least one name must be provided!");
+
+            this.names = names;
             this.source = source;
+            this.fieldType = fieldType;
+        }
+
+        /**
+         * @param source
+         *     The class to analyze.
+         * @param fieldType
+         *     The type of the field to look for. If null, the type of {@code T} should be {@link Object}.
+         * @param names
+         *     The names of the field to look for.
+         */
+        private NamedFieldFinder(Class<?> source, @Nullable Class<T> fieldType, String... names)
+        {
+            this(source, fieldType, Arrays.asList(names));
+        }
+
+        /**
+         * Creates a new {@link NamedFieldFinder} to retrieve the field by its name.
+         * <p>
+         * The type of the field will be set to {@link Object}.
+         *
+         * @param source
+         *     The class to analyze.
+         * @param names
+         *     The names of the field to look for.
+         * @return The new {@link NamedFieldFinder}.
+         */
+        @CheckReturnValue
+        private static NamedFieldFinder<Object> of(Class<?> source, String... names)
+        {
+            return new NamedFieldFinder<>(source, null, names);
         }
 
         @Override
@@ -310,9 +401,10 @@ public class FieldFinder
                     ReflectionBackend.formatAnnotations(annotations),
                     optionalModifiersToString(modifiers),
                     ReflectionBackend.formatOptionalValue(fieldType, Class::getName),
-                    source.getName(), name,
-                    checkSuperClasses ? "included" : "excluded"
-                ));
+                    source.getName(),
+                    names,
+                    checkSuperClasses ? "included" : "excluded")
+            );
         }
 
         @Override
@@ -320,7 +412,7 @@ public class FieldFinder
         {
             return ReflectionBackend.getField(
                 source,
-                name,
+                names,
                 modifiers,
                 fieldType,
                 setAccessible,
@@ -336,18 +428,26 @@ public class FieldFinder
          *
          * @param fieldType
          *     The type the field should have.
-         * @return The current finder instance.
+         * @return The new instance of the current finder.
          */
-        public NamedFieldFinder ofType(@Nullable Class<?> fieldType)
+        @CheckReturnValue
+        @Contract(pure = true)
+        public <U> NamedFieldFinder<U> ofType(Class<U> fieldType)
         {
-            this.fieldType = fieldType;
-            return this;
+            return new NamedFieldFinder<>(source, fieldType, names);
         }
 
         @Override
-        protected Class<Object> getType()
+        protected Class<T> getTargetFieldType()
         {
-            return Object.class;
+            if (fieldType != null)
+                return fieldType;
+
+            // The returned type is used for casting the object of the target field
+            // when retrieving it. If the field type is not set, we default to Object.
+            // This is safe because the returned object will be an Object anyway in that case.
+            //noinspection unchecked
+            return (Class<T>) Object.class;
         }
     }
 
@@ -396,7 +496,7 @@ public class FieldFinder
         }
 
         @Override
-        protected Class<T> getType()
+        protected Class<T> getTargetFieldType()
         {
             return fieldType;
         }
@@ -452,7 +552,8 @@ public class FieldFinder
             return getResult(false);
         }
 
-        @CheckReturnValue @Contract(pure = true)
+        @CheckReturnValue
+        @Contract(pure = true)
         private List<Field> getResult(boolean nonnull)
         {
             final List<Field> found =

@@ -214,7 +214,7 @@ public class SQLiteJDBCDriverConnectionTest
      */
     @Test
     void runTests(LogCaptor logCaptor)
-        throws IllegalAccessException, NoSuchFieldException
+        throws Exception
     {
         // Start with a reset, so we can ensure all methods use the same settings.
         resetLogCaptor(logCaptor);
