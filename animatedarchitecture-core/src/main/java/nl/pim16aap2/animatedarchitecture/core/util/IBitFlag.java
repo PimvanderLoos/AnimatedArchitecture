@@ -2,8 +2,6 @@ package nl.pim16aap2.animatedarchitecture.core.util;
 
 /**
  * Represents a bitflag utility.
- *
- * @author Pim
  */
 // TODO: This can be more useful with default methods.
 public interface IBitFlag

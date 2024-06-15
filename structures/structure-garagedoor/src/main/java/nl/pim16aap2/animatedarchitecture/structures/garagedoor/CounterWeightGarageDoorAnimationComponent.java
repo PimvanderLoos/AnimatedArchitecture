@@ -21,8 +21,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 
 /**
  * Represents a {@link Animator} for {@link GarageDoor}s.
- *
- * @author Pim
  */
 public class CounterWeightGarageDoorAnimationComponent implements IAnimationComponent
 {
@@ -77,9 +75,11 @@ public class CounterWeightGarageDoorAnimationComponent implements IAnimationComp
                 rotator = Vector3Dd::rotateAroundZAxis;
                 animationDirectionFace = BlockFace.WEST;
             }
-            default -> throw new IllegalStateException("Failed to open garage door \"" + snapshot.getUid()
-                                                           + "\". Reason: Invalid movement direction \"" +
-                                                           movementDirection + "\"");
+            default -> throw new IllegalStateException(String.format(
+                "Failed to open garage door '%d'. Reason: Invalid movement direction '%s'",
+                snapshot.getUid(),
+                movementDirection
+            ));
         }
         directionVec = BlockFace.getDirection(this.animationDirectionFace);
 

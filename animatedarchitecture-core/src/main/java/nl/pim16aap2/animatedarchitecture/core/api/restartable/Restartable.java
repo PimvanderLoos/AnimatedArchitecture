@@ -2,8 +2,6 @@ package nl.pim16aap2.animatedarchitecture.core.api.restartable;
 
 /**
  * Basic implementation of {@link IRestartable}.
- *
- * @author Pim
  */
 public abstract class Restartable implements IRestartable
 {

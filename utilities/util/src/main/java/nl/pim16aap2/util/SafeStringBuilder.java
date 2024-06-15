@@ -10,8 +10,6 @@ import java.util.function.Supplier;
  * A kind of {@link StringBuilder} with some added methods to append objects using suppliers in try/catch blocks.
  * <p>
  * Note that these catch all throwables, so carefully consider if you really need this class before using it!
- *
- * @author Pim
  */
 @Flogger
 public final class SafeStringBuilder implements CharSequence, Appendable, Serializable

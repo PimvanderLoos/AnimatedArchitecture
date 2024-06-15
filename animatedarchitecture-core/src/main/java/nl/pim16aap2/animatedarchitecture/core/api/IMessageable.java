@@ -1,14 +1,12 @@
 package nl.pim16aap2.animatedarchitecture.core.api;
 
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 
 /**
  * Represents objects that can receive messages.
- *
- * @author Pim
  */
 public interface IMessageable
 {

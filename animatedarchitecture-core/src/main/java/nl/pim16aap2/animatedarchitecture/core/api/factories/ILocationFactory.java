@@ -6,8 +6,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 
 /**
  * Represents a factory for {@link ILocation} objects.
- *
- * @author Pim
  */
 public interface ILocationFactory
 {

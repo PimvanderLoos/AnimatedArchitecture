@@ -11,16 +11,21 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Timeout(1)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class InspectPowerBlockTest
 {
     @Mock(answer = Answers.CALLS_REAL_METHODS)
@@ -40,8 +45,6 @@ class InspectPowerBlockTest
     {
         final UUID uuid = UUID.randomUUID();
 
-        MockitoAnnotations.openMocks(this);
-
         CommandTestingUtil.initCommandSenderPermissions(commandSender, true, true);
         Mockito.when(commandSender.getUUID()).thenReturn(uuid);
         Mockito.when(toolUserManager.getToolUser(uuid)).thenReturn(Optional.of(toolUser));
@@ -50,9 +53,13 @@ class InspectPowerBlockTest
         final PowerBlockInspector.IFactory inspectPowerBlockFactory = Mockito.mock(PowerBlockInspector.IFactory.class);
 
         Mockito.when(factory.newInspectPowerBlock(Mockito.any(ICommandSender.class)))
-               .thenAnswer(invoc -> new InspectPowerBlock(invoc.getArgument(0, ICommandSender.class),
-                                                          localizer, ITextFactory.getSimpleTextFactory(),
-                                                          toolUserManager, inspectPowerBlockFactory));
+            .thenAnswer(invoc -> new InspectPowerBlock(
+                invoc.getArgument(0, ICommandSender.class),
+                localizer,
+                ITextFactory.getSimpleTextFactory(),
+                toolUserManager,
+                inspectPowerBlockFactory)
+            );
     }
 
     @Test

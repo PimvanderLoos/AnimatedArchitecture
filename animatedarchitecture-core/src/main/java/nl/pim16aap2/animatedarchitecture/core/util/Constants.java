@@ -3,8 +3,6 @@ package nl.pim16aap2.animatedarchitecture.core.util;
 
 /**
  * Represents a list of constant variables.
- *
- * @author Pim
  */
 public final class Constants
 {

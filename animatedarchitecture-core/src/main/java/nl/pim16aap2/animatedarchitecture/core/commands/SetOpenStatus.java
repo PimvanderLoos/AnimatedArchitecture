@@ -16,8 +16,6 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents the command that changes the opening status of structures.
- *
- * @author Pim
  */
 @ToString
 public class SetOpenStatus extends StructureTargetCommand
@@ -26,7 +24,7 @@ public class SetOpenStatus extends StructureTargetCommand
 
     private final boolean isOpen;
 
-    @AssistedInject //
+    @AssistedInject
     SetOpenStatus(
         @Assisted ICommandSender commandSender,
         @Assisted StructureRetriever structureRetriever,
@@ -36,8 +34,15 @@ public class SetOpenStatus extends StructureTargetCommand
         ITextFactory textFactory,
         CommandFactory commandFactory)
     {
-        super(commandSender, localizer, textFactory, structureRetriever, StructureAttribute.OPEN_STATUS,
-              sendUpdatedInfo, commandFactory);
+        super(
+            commandSender,
+            localizer,
+            textFactory,
+            structureRetriever,
+            StructureAttribute.OPEN_STATUS,
+            sendUpdatedInfo,
+            commandFactory
+        );
         this.isOpen = isOpen;
     }
 
@@ -52,9 +57,11 @@ public class SetOpenStatus extends StructureTargetCommand
     {
         final var desc = getRetrievedStructureDescription();
         getCommandSender().sendMessage(textFactory.newText().append(
-            localizer.getMessage("commands.set_open_status.success"), TextType.SUCCESS,
+            localizer.getMessage("commands.set_open_status.success"),
+            TextType.SUCCESS,
             arg -> arg.highlight(desc.localizedTypeName()),
-            arg -> arg.highlight(desc.id())));
+            arg -> arg.highlight(desc.id()))
+        );
     }
 
     @Override
@@ -64,22 +71,25 @@ public class SetOpenStatus extends StructureTargetCommand
         {
             final String localizedIsOpen =
                 isOpen ?
-                localizer.getMessage("constants.open_status.open") :
-                localizer.getMessage("constants.open_status.closed");
+                    localizer.getMessage("constants.open_status.open") :
+                    localizer.getMessage("constants.open_status.closed");
 
             getCommandSender().sendMessage(textFactory.newText().append(
-                localizer.getMessage("commands.set_open_status.error.status_not_changed"), TextType.ERROR,
+                localizer.getMessage("commands.set_open_status.error.status_not_changed"),
+                TextType.ERROR,
                 arg -> arg.highlight(localizer.getStructureType(structure)),
                 arg -> arg.highlight(structure.getNameAndUid()),
-                arg -> arg.highlight(localizedIsOpen)));
+                arg -> arg.highlight(localizedIsOpen))
+            );
 
             return CompletableFuture.completedFuture(null);
         }
 
         structure.setOpen(isOpen);
-        return structure.syncData()
-                        .thenAccept(this::handleDatabaseActionResult)
-                        .thenRunAsync(() -> sendUpdatedInfo(structure));
+        return structure
+            .syncData()
+            .thenAccept(this::handleDatabaseActionResult)
+            .thenRunAsync(() -> sendUpdatedInfo(structure));
     }
 
     @AssistedFactory
@@ -103,7 +113,8 @@ public class SetOpenStatus extends StructureTargetCommand
             ICommandSender commandSender,
             StructureRetriever structureRetriever,
             @Assisted("isOpen") boolean isOpen,
-            @Assisted("sendUpdatedInfo") boolean sendUpdatedInfo);
+            @Assisted("sendUpdatedInfo") boolean sendUpdatedInfo
+        );
 
         /**
          * Creates (but does not execute!) a new {@link SetOpenStatus} command.

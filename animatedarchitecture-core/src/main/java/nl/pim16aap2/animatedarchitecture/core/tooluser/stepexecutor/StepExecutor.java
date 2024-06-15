@@ -8,8 +8,6 @@ import java.util.function.BiFunction;
 
 /**
  * Represents an executor for a single step in a larger procedure.
- *
- * @author Pim
  */
 @Flogger
 public abstract class StepExecutor
@@ -35,8 +33,8 @@ public abstract class StepExecutor
         else
         {
             log.atFine().log("Trying to pass a(n) %s into %s! This is an invalid operation!",
-                             (input == null ? "null" : input.getClass().getSimpleName()),
-                             getInputClass().getSimpleName());
+                (input == null ? "null" : input.getClass().getSimpleName()),
+                getInputClass().getSimpleName());
             return CompletableFuture.completedFuture(false);
         }
     }

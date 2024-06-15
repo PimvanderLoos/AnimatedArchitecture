@@ -5,17 +5,15 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IGuiFactory;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
+import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents the menu command, which is used to open the menu for a user.
- *
- * @author Pim
  */
 @ToString
 public class Menu extends BaseCommand
@@ -23,10 +21,13 @@ public class Menu extends BaseCommand
     private final IGuiFactory guiFactory;
     private final @Nullable IPlayer source;
 
-    @AssistedInject //
+    @AssistedInject
     Menu(
-        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
-        IGuiFactory guiFactory, @Assisted @Nullable IPlayer source)
+        @Assisted ICommandSender commandSender,
+        ILocalizer localizer,
+        ITextFactory textFactory,
+        IGuiFactory guiFactory,
+        @Assisted @Nullable IPlayer source)
     {
         super(commandSender, localizer, textFactory);
         this.guiFactory = guiFactory;

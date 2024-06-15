@@ -9,8 +9,6 @@ import java.lang.reflect.Method;
 
 /**
  * Contains several static methods to easily perform several types of complicated reflection lookups.
- *
- * @author Pim
  */
 @SuppressWarnings("unused")
 public final class ReflectionBuilder

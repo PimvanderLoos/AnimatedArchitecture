@@ -19,13 +19,15 @@ import java.time.Duration;
  * allows us to keep track of the current state of the {@link StructureFinder} and to update it when new input is
  * provided.
  */
-@Singleton final class StructureFinderCache implements IRestartable
+@Singleton
+final class StructureFinderCache implements IRestartable
 {
     private final Provider<StructureRetrieverFactory> structureRetrieverFactoryProvider;
     private final DatabaseManager databaseManager;
     private volatile TimedCache<ICommandSender, StructureFinder> cache = TimedCache.emptyCache();
 
-    @Inject StructureFinderCache(
+    @Inject
+    StructureFinderCache(
         Provider<StructureRetrieverFactory> structureRetrieverFactoryProvider,
         RestartableHolder restartableHolder,
         DatabaseManager databaseManager)
@@ -52,26 +54,35 @@ import java.time.Duration;
      */
     StructureFinder getStructureFinder(ICommandSender commandSender, String input, PermissionLevel maxPermission)
     {
-        return cache.compute(commandSender, (sender, finder) ->
-            finder == null ? newInstance(sender, input, maxPermission) : finder.processInput(input));
+        return cache.compute(
+            commandSender,
+            (sender, finder) ->
+                finder == null ?
+                    newInstance(sender, input, maxPermission) :
+                    finder.processInput(input)
+        );
     }
 
     private StructureFinder newInstance(ICommandSender commandSender, String input, PermissionLevel maxPermission)
     {
         return new StructureFinder(
-            structureRetrieverFactoryProvider.get(), databaseManager, commandSender, input,
-            maxPermission);
+            structureRetrieverFactoryProvider.get(),
+            databaseManager,
+            commandSender,
+            input,
+            maxPermission
+        );
     }
 
     @Override
     public void initialize()
     {
         cache = TimedCache.<ICommandSender, StructureFinder>builder()
-                          .duration(Duration.ofMinutes(2))
-                          .cleanup(Duration.ofMinutes(5))
-                          .softReference(false)
-                          .refresh(true)
-                          .build();
+            .timeOut(Duration.ofMinutes(2))
+            .cleanup(Duration.ofMinutes(5))
+            .softReference(false)
+            .refresh(true)
+            .build();
     }
 
     @Override

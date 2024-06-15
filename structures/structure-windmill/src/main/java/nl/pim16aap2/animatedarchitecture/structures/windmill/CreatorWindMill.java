@@ -32,15 +32,21 @@ public class CreatorWindMill extends Creator
             factoryProvideName.construct(),
             factoryProvideFirstPos
                 .textSupplier(text -> text.append(
-                    localizer.getMessage("creator.windmill.step_1"), TextType.INFO, getStructureArg()))
+                    localizer.getMessage("creator.windmill.step_1"),
+                    TextType.INFO,
+                    getStructureArg()))
                 .construct(),
             factoryProvideSecondPos
                 .textSupplier(text -> text.append(
-                    localizer.getMessage("creator.windmill.step_2"), TextType.INFO, getStructureArg()))
+                    localizer.getMessage("creator.windmill.step_2"),
+                    TextType.INFO,
+                    getStructureArg()))
                 .construct(),
             factoryProvideRotationPointPos
                 .textSupplier(text -> text.append(
-                    localizer.getMessage("creator.windmill.step_3"), TextType.INFO, getStructureArg()))
+                    localizer.getMessage("creator.windmill.step_3"),
+                    TextType.INFO,
+                    getStructureArg()))
                 .construct(),
             factoryProvidePowerBlockPos.construct(),
             factoryProvideOpenDir.construct(),

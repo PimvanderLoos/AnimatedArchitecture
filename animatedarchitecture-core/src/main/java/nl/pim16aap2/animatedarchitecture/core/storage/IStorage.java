@@ -20,8 +20,6 @@ import java.util.regex.Pattern;
 
 /**
  * Represents storage of all structure related stuff.
- *
- * @author Pim
  */
 public interface IStorage
 {
@@ -289,7 +287,10 @@ public interface IStorage
      * @return All {@link DatabaseManager.StructureIdentifier}s that start with the provided input.
      */
     List<DatabaseManager.StructureIdentifier> getPartialIdentifiers(
-        String input, @Nullable IPlayer player, PermissionLevel maxPermission);
+        String input,
+        @Nullable IPlayer player,
+        PermissionLevel maxPermission
+    );
 
     /**
      * Deletes a {@link StructureType} and all {@link AbstractStructure}s of this type from the database.
@@ -370,8 +371,6 @@ public interface IStorage
 
     /**
      * Represents the status of the database.
-     *
-     * @author Pim
      */
     enum DatabaseState
     {
@@ -413,8 +412,6 @@ public interface IStorage
 
     /**
      * Set of bit flags to represent various properties of structures.
-     *
-     * @author Pim
      */
     enum StructureFlag implements IBitFlag
     {

@@ -24,6 +24,9 @@ import org.bukkit.inventory.ItemStack;
 import javax.inject.Inject;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * Factory for creating buttons for the different attributes of a structure.
+ */
 class AttributeButtonFactory
 {
     private final ILocalizer localizer;
@@ -34,7 +37,8 @@ class AttributeButtonFactory
     private final StructureAnimationRequestBuilder structureAnimationRequestBuilder;
     private final DeleteGui.IFactory deleteGuiFactory;
 
-    @Inject AttributeButtonFactory(
+    @Inject
+    AttributeButtonFactory(
         ILocalizer localizer,
         ITextFactory textFactory,
         CommandFactory commandFactory,
@@ -53,7 +57,10 @@ class AttributeButtonFactory
     }
 
     private void lockButtonExecute(
-        boolean newState, GuiElement.Click change, AbstractStructure structure, PlayerSpigot player)
+        boolean newState,
+        GuiElement.Click change,
+        AbstractStructure structure,
+        PlayerSpigot player)
     {
         commandFactory
             .newLock(player, structureRetrieverFactory.of(structure), newState).run()
@@ -72,15 +79,17 @@ class AttributeButtonFactory
                 change -> lockButtonExecute(true, change, structure, player),
                 "isLocked",
                 new ItemStack(Material.RED_STAINED_GLASS_PANE),
-                localizer.getMessage("gui.info_page.attribute.unlock",
-                                     localizer.getMessage(structure.getType().getLocalizationKey()))
+                localizer.getMessage(
+                    "gui.info_page.attribute.unlock",
+                    localizer.getMessage(structure.getType().getLocalizationKey()))
             ),
             new GuiStateElement.State(
                 change -> lockButtonExecute(false, change, structure, player),
                 "isUnlocked",
                 new ItemStack(Material.GREEN_STAINED_GLASS_PANE),
-                localizer.getMessage("gui.info_page.attribute.lock",
-                                     localizer.getMessage(structure.getType().getLocalizationKey()))
+                localizer.getMessage(
+                    "gui.info_page.attribute.lock",
+                    localizer.getMessage(structure.getType().getLocalizationKey()))
             )
         );
         element.setState(structure.isLocked() ? "isLocked" : "isUnlocked");
@@ -105,8 +114,9 @@ class AttributeButtonFactory
                     .exceptionally(Util::exceptionally);
                 return true;
             },
-            localizer.getMessage("gui.info_page.attribute.toggle",
-                                 localizer.getMessage(structure.getType().getLocalizationKey()))
+            localizer.getMessage(
+                "gui.info_page.attribute.toggle",
+                localizer.getMessage(structure.getType().getLocalizationKey()))
         );
     }
 
@@ -129,8 +139,9 @@ class AttributeButtonFactory
                     .exceptionally(Util::exceptionally);
                 return true;
             },
-            localizer.getMessage("gui.info_page.attribute.preview",
-                                 localizer.getMessage(structure.getType().getLocalizationKey()))
+            localizer.getMessage(
+                "gui.info_page.attribute.preview",
+                localizer.getMessage(structure.getType().getLocalizationKey()))
         );
     }
 
@@ -141,12 +152,15 @@ class AttributeButtonFactory
             new ItemStack(Material.BOOKSHELF),
             click ->
             {
-                commandFactory.newInfo(player, structureRetrieverFactory.of(structure))
-                              .run().exceptionally(Util::exceptionally);
+                commandFactory
+                    .newInfo(player, structureRetrieverFactory.of(structure))
+                    .run()
+                    .exceptionally(Util::exceptionally);
                 return true;
             },
-            localizer.getMessage("gui.info_page.attribute.info",
-                                 localizer.getMessage(structure.getType().getLocalizationKey()))
+            localizer.getMessage(
+                "gui.info_page.attribute.info",
+                localizer.getMessage(structure.getType().getLocalizationKey()))
         );
     }
 
@@ -161,8 +175,9 @@ class AttributeButtonFactory
                 deleteGuiFactory.newDeleteGui(structure, player);
                 return true;
             },
-            localizer.getMessage("gui.info_page.attribute.delete",
-                                 localizer.getMessage(structure.getType().getLocalizationKey()))
+            localizer.getMessage(
+                "gui.info_page.attribute.delete",
+                localizer.getMessage(structure.getType().getLocalizationKey()))
         );
     }
 
@@ -173,13 +188,16 @@ class AttributeButtonFactory
             new ItemStack(Material.LEATHER_BOOTS),
             click ->
             {
-                commandFactory.newMovePowerBlock(player, structureRetrieverFactory.of(structure)).run()
-                              .exceptionally(Util::exceptionally);
+                commandFactory
+                    .newMovePowerBlock(player, structureRetrieverFactory.of(structure))
+                    .run()
+                    .exceptionally(Util::exceptionally);
                 GuiUtil.closeAllGuis(player);
                 return true;
             },
-            localizer.getMessage("gui.info_page.attribute.relocate_power_block",
-                                 localizer.getMessage(structure.getType().getLocalizationKey()))
+            localizer.getMessage(
+                "gui.info_page.attribute.relocate_power_block",
+                localizer.getMessage(structure.getType().getLocalizationKey()))
         );
     }
 
@@ -187,7 +205,8 @@ class AttributeButtonFactory
         boolean isOpen, GuiElement.Click change, AbstractStructure structure, PlayerSpigot player)
     {
         commandFactory
-            .newSetOpenStatus(player, structureRetrieverFactory.of(structure), isOpen).run()
+            .newSetOpenStatus(player, structureRetrieverFactory.of(structure), isOpen)
+            .run()
             // Force a draw with dynamic fields update to ensure the correct
             // state is displayed in case the command did not change the status.
             .thenRun(() -> executor.runOnMainThread(() -> change.getGui().draw(player.getBukkitPlayer(), true, false)))
@@ -203,15 +222,17 @@ class AttributeButtonFactory
                 change -> isOpenButtonExecute(true, change, structure, player),
                 "isOpen",
                 new ItemStack(Material.WARPED_DOOR),
-                localizer.getMessage("gui.info_page.attribute.set_open",
-                                     localizer.getMessage(structure.getType().getLocalizationKey()))
+                localizer.getMessage(
+                    "gui.info_page.attribute.set_open",
+                    localizer.getMessage(structure.getType().getLocalizationKey()))
             ),
             new GuiStateElement.State(
                 change -> isOpenButtonExecute(false, change, structure, player),
                 "isClosed",
                 new ItemStack(Material.MANGROVE_DOOR),
-                localizer.getMessage("gui.info_page.attribute.set_closed",
-                                     localizer.getMessage(structure.getType().getLocalizationKey()))
+                localizer.getMessage(
+                    "gui.info_page.attribute.set_closed",
+                    localizer.getMessage(structure.getType().getLocalizationKey()))
             )
         );
         element.setState(structure.isOpen() ? "isOpen" : "isClosed");
@@ -222,12 +243,16 @@ class AttributeButtonFactory
         StaticGuiElement staticGuiElement, AbstractStructure structure, MovementDirection direction)
     {
         staticGuiElement.setText(
-            localizer.getMessage("gui.info_page.attribute.open_direction",
-                                 localizer.getMessage(structure.getType().getLocalizationKey())),
-
-            textFactory.newText().append(
-                localizer.getMessage("gui.info_page.attribute.open_direction.lore"), TextComponent.EMPTY,
-                arg -> arg.info(localizer.getMessage(direction.getLocalizationKey()))).toString()
+            localizer.getMessage(
+                "gui.info_page.attribute.open_direction",
+                localizer.getMessage(structure.getType().getLocalizationKey())),
+            textFactory
+                .newText()
+                .append(
+                    localizer.getMessage("gui.info_page.attribute.open_direction.lore"),
+                    TextComponent.EMPTY,
+                    arg -> arg.info(localizer.getMessage(direction.getLocalizationKey())))
+                .toString()
         );
     }
 
@@ -242,12 +267,16 @@ class AttributeButtonFactory
             {
                 final var newOpenDir = structure.getCycledOpenDirection();
                 commandFactory
-                    .newSetOpenDirection(player, StructureRetrieverFactory.ofStructure(structure), newOpenDir).run()
+                    .newSetOpenDirection(player, StructureRetrieverFactory.ofStructure(structure), newOpenDir)
+                    .run()
                     .exceptionally(Util::exceptionally);
 
                 setOpenDirectionLore(
                     Util.requireNonNull(staticGuiElementRef.get(), "static GUI element reference"),
-                    structure, newOpenDir);
+                    structure,
+                    newOpenDir
+                );
+
                 click.getGui().draw(player.getBukkitPlayer(), true, false);
 
                 return true;
@@ -266,13 +295,16 @@ class AttributeButtonFactory
             new ItemStack(Material.STICKY_PISTON),
             click ->
             {
-                commandFactory.getSetBlocksToMoveDelayed().runDelayed(player, structureRetrieverFactory.of(structure))
-                              .exceptionally(Util::exceptionally);
+                commandFactory
+                    .getSetBlocksToMoveDelayed()
+                    .runDelayed(player, structureRetrieverFactory.of(structure))
+                    .exceptionally(Util::exceptionally);
                 GuiUtil.closeAllGuis(player);
                 return true;
             },
-            localizer.getMessage("gui.info_page.attribute.blocks_to_move",
-                                 localizer.getMessage(structure.getType().getLocalizationKey()))
+            localizer.getMessage(
+                "gui.info_page.attribute.blocks_to_move",
+                localizer.getMessage(structure.getType().getLocalizationKey()))
         );
     }
 
@@ -283,13 +315,16 @@ class AttributeButtonFactory
             new ItemStack(Material.PLAYER_HEAD),
             click ->
             {
-                commandFactory.getAddOwnerDelayed().runDelayed(player, structureRetrieverFactory.of(structure))
-                              .exceptionally(Util::exceptionally);
+                commandFactory
+                    .getAddOwnerDelayed()
+                    .runDelayed(player, structureRetrieverFactory.of(structure))
+                    .exceptionally(Util::exceptionally);
                 GuiUtil.closeAllGuis(player);
                 return true;
             },
-            localizer.getMessage("gui.info_page.attribute.add_owner",
-                                 localizer.getMessage(structure.getType().getLocalizationKey()))
+            localizer.getMessage(
+                "gui.info_page.attribute.add_owner",
+                localizer.getMessage(structure.getType().getLocalizationKey()))
         );
     }
 
@@ -300,13 +335,16 @@ class AttributeButtonFactory
             new ItemStack(Material.SKELETON_SKULL),
             click ->
             {
-                commandFactory.getRemoveOwnerDelayed().runDelayed(player, structureRetrieverFactory.of(structure))
-                              .exceptionally(Util::exceptionally);
+                commandFactory
+                    .getRemoveOwnerDelayed()
+                    .runDelayed(player, structureRetrieverFactory.of(structure))
+                    .exceptionally(Util::exceptionally);
                 GuiUtil.closeAllGuis(player);
                 return true;
             },
-            localizer.getMessage("gui.info_page.attribute.remove_owner",
-                                 localizer.getMessage(structure.getType().getLocalizationKey()))
+            localizer.getMessage(
+                "gui.info_page.attribute.remove_owner",
+                localizer.getMessage(structure.getType().getLocalizationKey()))
         );
     }
 

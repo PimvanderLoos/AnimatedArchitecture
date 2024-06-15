@@ -89,7 +89,7 @@ class DelayedCommandTest
 
         delayedCommand.runDelayed(commandSender, structureRetriever);
         Mockito.verify(commandSender, Mockito.times(1))
-               .sendMessage(UnitTestUtil.textArgumentMatcher(DelayedCommandImpl.INPUT_REQUEST_MSG));
+            .sendMessage(UnitTestUtil.textArgumentMatcher(DelayedCommandImpl.INPUT_REQUEST_MSG));
         Mockito.verify(inputRequestFactory, Mockito.times(1)).create(
             Mockito.anyLong(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.verify(delayedFunction, Mockito.never()).apply(Mockito.any(), Mockito.any(), Mockito.any());
@@ -100,7 +100,7 @@ class DelayedCommandTest
 
         delayedCommand.provideDelayedInput(commandSender, new Object());
         Mockito.verify(commandSender, Mockito.times(1))
-               .sendMessage(UnitTestUtil.textArgumentMatcher("commands.base.error.not_waiting"));
+            .sendMessage(UnitTestUtil.textArgumentMatcher("commands.base.error.not_waiting"));
     }
 
     @Test
@@ -110,14 +110,14 @@ class DelayedCommandTest
 
         delayedCommand.provideDelayedInput(commandSender, new Object());
         Mockito.verify(commandSender, Mockito.times(1))
-               .sendMessage(UnitTestUtil.textArgumentMatcher("commands.base.error.not_waiting"));
+            .sendMessage(UnitTestUtil.textArgumentMatcher("commands.base.error.not_waiting"));
     }
 
     @Test
     void exception(LogCaptor logCaptor)
     {
         Mockito.when(delayedFunction.apply(Mockito.any(), Mockito.any(), Mockito.any()))
-               .thenThrow(RuntimeException.class);
+            .thenThrow(RuntimeException.class);
         final DelayedCommandImpl delayedCommand = new DelayedCommandImpl(context, inputRequestFactory, delayedFunction);
         delayedCommand.runDelayed(commandSender, structureRetriever);
         LogAssertionsUtil.assertThrowingCount(logCaptor, 0);
@@ -142,9 +142,14 @@ class DelayedCommandTest
         DelayedCommandInputRequest.IFactory<T> inputRequestFactory, ILocalizer localizer,
         DelayedCommandInputManager delayedCommandInputManager)
     {
-        Mockito.when(inputRequestFactory.create(Mockito.anyLong(), Mockito.any(), Mockito.any(), Mockito.any(),
-                                                Mockito.any(), Mockito.any())).thenAnswer(
-            invocation -> new DelayedCommandInputRequest<T>(
+        Mockito.when(inputRequestFactory.create(
+                Mockito.anyLong(),
+                Mockito.any(),
+                Mockito.any(),
+                Mockito.any(),
+                Mockito.any(),
+                Mockito.any()))
+            .thenAnswer(invocation -> new DelayedCommandInputRequest<T>(
                 invocation.getArgument(0, Long.class),
                 invocation.getArgument(1, ICommandSender.class),
                 invocation.getArgument(2, CommandDefinition.class),
@@ -153,7 +158,8 @@ class DelayedCommandTest
                 invocation.getArgument(5),
                 localizer,
                 ITextFactory.getSimpleTextFactory(),
-                delayedCommandInputManager));
+                delayedCommandInputManager)
+            );
     }
 
     static final class DelayedCommandImpl extends DelayedCommand<Object>
@@ -166,7 +172,8 @@ class DelayedCommandTest
         private final TriFunction<ICommandSender, StructureRetriever, Object, CompletableFuture<Boolean>> delayedFunction;
 
         DelayedCommandImpl(
-            Context context, DelayedCommandInputRequest.IFactory<Object> inputRequestFactory,
+            Context context,
+            DelayedCommandInputRequest.IFactory<Object> inputRequestFactory,
             TriFunction<ICommandSender, StructureRetriever, Object, CompletableFuture<Boolean>> delayedFunction)
         {
             super(context, inputRequestFactory, Object.class);
@@ -181,13 +188,17 @@ class DelayedCommandTest
 
         @Override
         protected CompletableFuture<?> delayedInputExecutor(
-            ICommandSender commandSender, StructureRetriever structureRetriever, Object delayedInput)
+            ICommandSender commandSender,
+            StructureRetriever structureRetriever,
+            Object delayedInput)
         {
             return delayedFunction.apply(commandSender, structureRetriever, delayedInput);
         }
 
         @Override
-        protected String inputRequestMessage(ICommandSender commandSender, StructureRetriever structureRetriever)
+        protected String inputRequestMessage(
+            ICommandSender commandSender,
+            StructureRetriever structureRetriever)
         {
             return INPUT_REQUEST_MSG;
         }

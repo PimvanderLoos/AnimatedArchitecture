@@ -6,6 +6,14 @@ import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatformP
 import nl.pim16aap2.util.SafeStringBuilder;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents a class that can generate a debug report.
+ * <p>
+ * The debug report contains general information about the system and additional debug information from
+ * {@link IDebuggable}s that are registered with the {@link DebuggableRegistry}.
+ * <p>
+ * This class is abstract because it is meant to be extended by a platform-specific implementation.
+ */
 @Flogger
 @AllArgsConstructor
 public abstract class DebugReporter
@@ -21,21 +29,20 @@ public abstract class DebugReporter
         final SafeStringBuilder sb = new SafeStringBuilder("AnimatedArchitecture debug dump:\n");
 
         System.getProperties()
-              .forEach((key, val) -> sb.append(String.format("%-30s", key)).append(": ").append(val).append('\n'));
+            .forEach((key, val) -> sb.append(String.format("%-30s", key)).append(": ").append(val).append('\n'));
 
         sb.append("\n")
-          .append("AnimatedArchitecture version: ")
-          .append(() -> platformProvider
-              .getPlatform()
-              .map(platform -> platform.getProjectVersion().toString())
-              .orElse("NULL"))
-          .append('\n')
-          .append("Registered Platform: ")
-          .append(() -> platformProvider.getPlatform().map(platform -> platform.getClass().getName()).orElse("NULL"))
-          .append('\n')
-
-          .append(this::getAdditionalDebugReport0)
-          .append('\n');
+            .append("AnimatedArchitecture version: ")
+            .append(() -> platformProvider
+                .getPlatform()
+                .map(platform -> platform.getProjectVersion().toString())
+                .orElse("NULL"))
+            .append('\n')
+            .append("Registered Platform: ")
+            .append(() -> platformProvider.getPlatform().map(platform -> platform.getClass().getName()).orElse("NULL"))
+            .append('\n')
+            .append(this::getAdditionalDebugReport0)
+            .append('\n');
 
         for (final IDebuggable debuggable : debuggableRegistry.getDebuggables())
             appendDebuggable(sb, debuggable);

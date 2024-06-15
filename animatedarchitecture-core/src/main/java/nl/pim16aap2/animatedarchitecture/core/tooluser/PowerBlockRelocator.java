@@ -22,8 +22,6 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents a tool user that relocates a powerblock to a new position.
- *
- * @author Pim
  */
 @Flogger
 @ToString(callSuper = true)

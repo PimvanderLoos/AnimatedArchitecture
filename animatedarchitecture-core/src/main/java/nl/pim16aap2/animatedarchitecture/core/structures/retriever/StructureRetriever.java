@@ -83,7 +83,9 @@ public sealed abstract class StructureRetriever
      * @return The {@link AbstractStructure} if it can be found.
      */
     public abstract CompletableFuture<Optional<AbstractStructure>> getStructure(
-        IPlayer player, PermissionLevel permissionLevel);
+        IPlayer player,
+        PermissionLevel permissionLevel
+    );
 
     /**
      * Gets the structure referenced by this {@link StructureRetriever}.
@@ -101,7 +103,8 @@ public sealed abstract class StructureRetriever
      * @return The structure referenced by this {@link StructureRetriever}.
      */
     public CompletableFuture<Optional<AbstractStructure>> getStructure(
-        ICommandSender commandSender, PermissionLevel permissionLevel)
+        ICommandSender commandSender,
+        PermissionLevel permissionLevel)
     {
         if (commandSender instanceof IPlayer player)
             return getStructure(player, permissionLevel);
@@ -125,11 +128,12 @@ public sealed abstract class StructureRetriever
      * if no structure was found or the user did not specify a structure within the timeout.
      */
     static CompletableFuture<Optional<AbstractStructure>> getStructureInteractive(
-        List<AbstractStructure> structures, IPlayer player,
+        List<AbstractStructure> structures,
+        IPlayer player,
         DelayedStructureSpecificationInputRequest.Factory specificationFactory)
     {
         if (structures.size() == 1)
-            return CompletableFuture.completedFuture(Optional.of(structures.get(0)));
+            return CompletableFuture.completedFuture(Optional.of(structures.getFirst()));
 
         if (structures.isEmpty())
             return CompletableFuture.completedFuture(Optional.empty());
@@ -157,7 +161,8 @@ public sealed abstract class StructureRetriever
      * match was found.
      */
     public CompletableFuture<Optional<AbstractStructure>> getStructureInteractive(
-        IPlayer player, PermissionLevel permissionLevel)
+        IPlayer player,
+        PermissionLevel permissionLevel)
     {
         return getStructure(player, permissionLevel);
     }
@@ -200,7 +205,8 @@ public sealed abstract class StructureRetriever
      * @return The structures referenced by this {@link StructureRetriever}.
      */
     public CompletableFuture<List<AbstractStructure>> getStructures(
-        ICommandSender commandSender, PermissionLevel permissionLevel)
+        ICommandSender commandSender,
+        PermissionLevel permissionLevel)
     {
         if (commandSender instanceof IPlayer player)
             return getStructures(player, permissionLevel);
@@ -217,8 +223,9 @@ public sealed abstract class StructureRetriever
     private static CompletableFuture<List<AbstractStructure>> optionalToList(
         CompletableFuture<Optional<AbstractStructure>> optionalStructure)
     {
-        return optionalStructure.thenApply(
-            structure -> structure.map(Collections::singletonList).orElseGet(Collections::emptyList));
+        return optionalStructure
+            .thenApply(structure ->
+                structure.map(Collections::singletonList).orElseGet(Collections::emptyList));
     }
 
     /**
@@ -231,7 +238,8 @@ public sealed abstract class StructureRetriever
     private static Optional<AbstractStructure> listToOptional(List<AbstractStructure> list)
     {
         if (list.size() == 1)
-            return Optional.of(list.get(0));
+            return Optional.of(list.getFirst());
+
         log.atWarning().log("Tried to get 1 structure but received %d!", list.size());
         return Optional.empty();
     }
@@ -264,7 +272,9 @@ public sealed abstract class StructureRetriever
      * @return The filtered optional structure.
      */
     private static Optional<AbstractStructure> filter(
-        Optional<AbstractStructure> structure, IPlayer player, PermissionLevel permissionLevel)
+        Optional<AbstractStructure> structure,
+        IPlayer player,
+        PermissionLevel permissionLevel)
     {
         return structure.filter(val -> val.isOwner(player, permissionLevel));
     }
@@ -282,7 +292,9 @@ public sealed abstract class StructureRetriever
      * @return The filtered structures.
      */
     private static List<AbstractStructure> filter(
-        List<AbstractStructure> structures, IPlayer player, PermissionLevel permissionLevel)
+        List<AbstractStructure> structures,
+        IPlayer player,
+        PermissionLevel permissionLevel)
     {
         return structures.stream().filter(structure -> structure.isOwner(player, permissionLevel)).toList();
     }
@@ -313,7 +325,8 @@ public sealed abstract class StructureRetriever
 
         @Override
         public CompletableFuture<Optional<AbstractStructure>> getStructure(
-            IPlayer player, PermissionLevel permissionLevel)
+            IPlayer player,
+            PermissionLevel permissionLevel)
         {
             return listToOptional(databaseManager.getStructures(player, name, permissionLevel));
         }
@@ -336,10 +349,12 @@ public sealed abstract class StructureRetriever
 
         @Override
         public CompletableFuture<Optional<AbstractStructure>> getStructureInteractive(
-            IPlayer player, PermissionLevel permissionLevel)
+            IPlayer player,
+            PermissionLevel permissionLevel)
         {
-            return getStructures(player, permissionLevel).thenCompose(
-                structures -> getStructureInteractive(structures, player, specificationFactory));
+            return getStructures(player, permissionLevel)
+                .thenCompose(structures ->
+                    getStructureInteractive(structures, player, specificationFactory));
         }
     }
 
@@ -365,7 +380,8 @@ public sealed abstract class StructureRetriever
 
         @Override
         public CompletableFuture<Optional<AbstractStructure>> getStructure(
-            IPlayer player, PermissionLevel permissionLevel)
+            IPlayer player,
+            PermissionLevel permissionLevel)
         {
             return databaseManager
                 .getStructure(player, uid)
@@ -392,7 +408,8 @@ public sealed abstract class StructureRetriever
 
         @Override
         public CompletableFuture<Optional<AbstractStructure>> getStructure(
-            IPlayer player, PermissionLevel permissionLevel)
+            IPlayer player,
+            PermissionLevel permissionLevel)
         {
             return CompletableFuture.completedFuture(
                 StructureRetriever.filter(Optional.ofNullable(structure), player, permissionLevel));
@@ -438,7 +455,8 @@ public sealed abstract class StructureRetriever
 
         @Override
         public CompletableFuture<Optional<AbstractStructure>> getStructure(
-            IPlayer player, PermissionLevel permissionLevel)
+            IPlayer player,
+            PermissionLevel permissionLevel)
         {
             return CompletableFuture.completedFuture(
                 StructureRetriever.listToOptional(getStructures0(player, permissionLevel)));
@@ -446,10 +464,12 @@ public sealed abstract class StructureRetriever
 
         @Override
         public CompletableFuture<Optional<AbstractStructure>> getStructureInteractive(
-            IPlayer player, PermissionLevel permissionLevel)
+            IPlayer player,
+            PermissionLevel permissionLevel)
         {
-            return getStructures(player, permissionLevel).thenCompose(
-                structures -> getStructureInteractive(structures, player, specificationFactory));
+            return getStructures(player, permissionLevel)
+                .thenCompose(structures ->
+                    getStructureInteractive(structures, player, specificationFactory));
         }
     }
 
@@ -489,7 +509,8 @@ public sealed abstract class StructureRetriever
         }
 
         private CompletableFuture<List<AbstractStructure>> getStructures0(
-            IPlayer player, PermissionLevel permissionLevel)
+            IPlayer player,
+            PermissionLevel permissionLevel)
         {
             return structures
                 .thenApply(retrieved -> StructureRetriever.filter(retrieved, player, permissionLevel))
@@ -504,7 +525,8 @@ public sealed abstract class StructureRetriever
 
         @Override
         public CompletableFuture<Optional<AbstractStructure>> getStructure(
-            IPlayer player, PermissionLevel permissionLevel)
+            IPlayer player,
+            PermissionLevel permissionLevel)
         {
             return getStructures0(player, permissionLevel)
                 .thenApply(StructureRetriever::listToOptional)
@@ -513,10 +535,12 @@ public sealed abstract class StructureRetriever
 
         @Override
         public CompletableFuture<Optional<AbstractStructure>> getStructureInteractive(
-            IPlayer player, PermissionLevel permissionLevel)
+            IPlayer player,
+            PermissionLevel permissionLevel)
         {
-            return getStructures(player, permissionLevel).thenCompose(
-                structures -> getStructureInteractive(structures, player, specificationFactory));
+            return getStructures(player, permissionLevel)
+                .thenCompose(structures ->
+                    getStructureInteractive(structures, player, specificationFactory));
         }
     }
 
@@ -538,7 +562,8 @@ public sealed abstract class StructureRetriever
 
         @Override
         public CompletableFuture<Optional<AbstractStructure>> getStructure(
-            IPlayer player, PermissionLevel permissionLevel)
+            IPlayer player,
+            PermissionLevel permissionLevel)
         {
             return futureStructure
                 .thenApply(retrieved -> StructureRetriever.filter(retrieved, player, permissionLevel))

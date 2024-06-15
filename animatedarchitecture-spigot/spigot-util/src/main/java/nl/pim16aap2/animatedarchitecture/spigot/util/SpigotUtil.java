@@ -15,8 +15,6 @@ import java.util.Map;
 
 /**
  * Represents various small and Spigot-specific utility functions.
- *
- * @author Pim
  */
 public final class SpigotUtil
 {
@@ -179,9 +177,12 @@ public final class SpigotUtil
      */
     public static int getHighestPermissionSuffix(Player player, String permissionBase)
     {
-        return player.getEffectivePermissions().stream()
-                     .map(PermissionAttachmentInfo::getPermission)
-                     .mapToInt(node -> getPermissionSuffixValue(node, permissionBase))
-                     .max().orElse(-1);
+        return player
+            .getEffectivePermissions()
+            .stream()
+            .map(PermissionAttachmentInfo::getPermission)
+            .mapToInt(node -> getPermissionSuffixValue(node, permissionBase))
+            .max()
+            .orElse(-1);
     }
 }

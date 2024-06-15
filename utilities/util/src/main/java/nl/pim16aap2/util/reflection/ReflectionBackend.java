@@ -16,10 +16,8 @@ import java.util.function.Function;
 
 /**
  * Represents the reflection backend for the {@link ReflectionFinder} classes.
- *
- * @author Pim
  */
-@Flogger //
+@Flogger
 final class ReflectionBackend
 {
     private ReflectionBackend()
@@ -116,8 +114,10 @@ final class ReflectionBackend
      *
      * @param source
      *     The class in which to look for the field.
-     * @param name
-     *     The name of the field to look for.
+     * @param names
+     *     The names of the field to look for.
+     *     <p>
+     *     If multiple names are provided, the first field that matches any of the names will be returned.
      * @param modifiers
      *     The {@link Modifier}s that the field should match. E.g. {@link Modifier#PUBLIC}. When this is 0, no modifier
      *     constraints will be applied during the search.
@@ -131,16 +131,48 @@ final class ReflectionBackend
      */
     @SafeVarargs
     public static @Nullable Field getField(
-        Class<?> source, String name, int modifiers, @Nullable Class<?> type, boolean setAccessible,
-        boolean checkSuperClasses, Class<? extends Annotation>... annotations)
+        Class<?> source,
+        List<String> names,
+        int modifiers,
+        @Nullable Class<?> type,
+        boolean setAccessible,
+        boolean checkSuperClasses,
+        Class<? extends Annotation>... annotations)
     {
-        for (final Field field : getFields(source, checkSuperClasses))
+        final var fields = getFields(source, checkSuperClasses);
+        final StringBuilder sb = new StringBuilder("Fields in ").append(source.getName()).append(": \n");
+        for (final var field : fields)
+            sb
+                .append("  [")
+                .append(String.format("%30s", field.getName()))
+                .append("] ")
+                .append(field.toGenericString())
+                .append('\n');
+        System.out.println(sb.toString());
+
+        System.out.println("Looking for fields with names: " + names);
+
+        for (final Field field : fields)
+//        for (final Field field : getFields(source, checkSuperClasses))
         {
+            System.out.println(
+                "\n\nChecking field: " + field.getName() + ", type? " + (type == null ? "null" : type.getName()));
+
             if (type != null && !field.getType().equals(type))
+            {
+                System.out.println(
+                    "Type mismatch! Expected: " + type.getName() + ", got: " + field.getType().getName());
                 continue;
+            }
             if (modifiers != 0 && field.getModifiers() != modifiers)
+            {
+                System.out.println(
+                    "Modifier mismatch! Expected: " + Modifier.toString(modifiers) + ", got: "
+                        + Modifier.toString(field.getModifiers()));
                 continue;
-            if (!field.getName().equals(name))
+            }
+            System.out.println("Checking if name '" + field.getName() + "' is in " + names);
+            if (!names.contains(field.getName()))
                 continue;
             if (!containsAnnotations(field, annotations))
                 continue;
@@ -169,7 +201,11 @@ final class ReflectionBackend
      */
     @SafeVarargs
     public static @Nullable Field getField(
-        Class<?> source, int modifiers, Class<?> type, boolean setAccessible, boolean checkSuperClasses,
+        Class<?> source,
+        int modifiers,
+        Class<?> type,
+        boolean setAccessible,
+        boolean checkSuperClasses,
         Class<? extends Annotation>... annotations)
     {
         for (final Field field : getFields(source, checkSuperClasses))
@@ -203,7 +239,11 @@ final class ReflectionBackend
      */
     @SafeVarargs
     public static List<Field> getFields(
-        Class<?> source, int modifiers, @Nullable Class<?> type, boolean setAccessible, boolean checkSuperClasses,
+        Class<?> source,
+        int modifiers,
+        @Nullable Class<?> type,
+        boolean setAccessible,
+        boolean checkSuperClasses,
         Class<? extends Annotation>... annotations)
     {
         final List<Field> ret = new ArrayList<>();
@@ -239,7 +279,10 @@ final class ReflectionBackend
      * @return The method matching the specified description.
      */
     private static @Nullable Method findMethod(
-        Class<?> source, @Nullable String name, int modifiers, @Nullable ParameterGroup parameters,
+        Class<?> source,
+        @Nullable String name,
+        int modifiers,
+        @Nullable ParameterGroup parameters,
         @Nullable Class<?> returnType)
     {
         for (final Method method : source.getDeclaredMethods())
@@ -292,9 +335,14 @@ final class ReflectionBackend
      * @return The method matching the specified description.
      */
     public static @Nullable Method findMethod(
-        final boolean checkSuperClasses, final boolean checkInterfaces,
-        Class<?> source, @Nullable String name, int modifiers,
-        @Nullable ParameterGroup parameters, @Nullable Class<?> returnType, boolean setAccessible)
+        final boolean checkSuperClasses,
+        final boolean checkInterfaces,
+        Class<?> source,
+        @Nullable String name,
+        int modifiers,
+        @Nullable ParameterGroup parameters,
+        @Nullable Class<?> returnType,
+        boolean setAccessible)
     {
         @Nullable Method m = findMethod(source, name, modifiers, parameters, returnType);
         if (m != null)
@@ -315,8 +363,16 @@ final class ReflectionBackend
                     continue;
                 }
 
-                m = findMethod(true, continueInterfaceChecking, superClass, name, modifiers, parameters, returnType,
-                               setAccessible);
+                m = findMethod(
+                    true,
+                    continueInterfaceChecking,
+                    superClass,
+                    name,
+                    modifiers,
+                    parameters,
+                    returnType,
+                    setAccessible
+                );
                 if (m != null)
                     return setAccessibleIfNeeded(m, setAccessible);
             }
@@ -333,7 +389,16 @@ final class ReflectionBackend
 
                 for (final Class<?> superInterface : superInterfaces)
                 {
-                    m = findMethod(false, true, superInterface, name, modifiers, parameters, returnType, setAccessible);
+                    m = findMethod(
+                        false,
+                        true,
+                        superInterface,
+                        name,
+                        modifiers,
+                        parameters,
+                        returnType,
+                        setAccessible
+                    );
                     if (m != null)
                         return setAccessibleIfNeeded(m, setAccessible);
                 }
@@ -356,7 +421,8 @@ final class ReflectionBackend
      */
     @SafeVarargs
     private static boolean containsAnnotations(
-        AccessibleObject obj, Class<? extends Annotation>... annotations)
+        AccessibleObject obj,
+        Class<? extends Annotation>... annotations)
     {
         for (final Class<? extends Annotation> annotation : annotations)
             if (!obj.isAnnotationPresent(annotation))
@@ -384,7 +450,11 @@ final class ReflectionBackend
      */
     @SafeVarargs
     public static List<Constructor<?>> findCTor(
-        Class<?> source, int modifiers, @Nullable ParameterGroup parameters, boolean setAccessible, int maxCount,
+        Class<?> source,
+        int modifiers,
+        @Nullable ParameterGroup parameters,
+        boolean setAccessible,
+        int maxCount,
         Class<? extends Annotation>... annotations)
     {
         final List<Constructor<?>> ret = new ArrayList<>();

@@ -51,8 +51,6 @@ import java.util.function.Function;
 
 /**
  * Represents a specialization of the {@link ToolUser} that is used for creating new {@link AbstractStructure}s.
- *
- * @author Pim
  */
 @ToString(callSuper = true, onlyExplicitlyIncluded = true)
 @Flogger
@@ -248,7 +246,7 @@ public abstract class Creator extends ToolUser
             {
                 final @Nullable Cuboid cuboid0 = getCuboid();
                 return cuboid0 == null ? "[]" :
-                       String.format("[%s; %s]", formatVector(cuboid0.getMin()), formatVector(cuboid0.getMax()));
+                    String.format("[%s; %s]", formatVector(cuboid0.getMin()), formatVector(cuboid0.getMax()));
             })
             .stepExecutor(new AsyncStepExecutor<>(ILocation.class, this::provideSecondPos));
 
@@ -274,8 +272,8 @@ public abstract class Creator extends ToolUser
             .propertyName(localizer.getMessage("creator.base.property.open_status"))
             .propertyValueSupplier(
                 () -> getIsOpen() ?
-                      localizer.getMessage("constants.open_status.open") :
-                      localizer.getMessage("constants.open_status.closed"))
+                    localizer.getMessage("constants.open_status.open") :
+                    localizer.getMessage("constants.open_status.closed"))
             .updatable(true)
             .textSupplier(this::setOpenStatusTextSupplier);
 
@@ -711,7 +709,8 @@ public abstract class Creator extends ToolUser
      */
     protected void insertStructure(AbstractStructure structure)
     {
-        databaseManager.addStructure(structure, getPlayer())
+        databaseManager
+            .addStructure(structure, getPlayer())
             .thenAccept(result ->
             {
                 if (result.cancelled())
@@ -723,8 +722,7 @@ public abstract class Creator extends ToolUser
 
                 if (result.structure().isEmpty())
                 {
-                    getPlayer().sendError(
-                        textFactory, localizer.getMessage("constants.error.generic"));
+                    getPlayer().sendError(textFactory, localizer.getMessage("constants.error.generic"));
                     log.atSevere().log("Failed to insert structure after creation!");
                 }
             }).exceptionally(Util::exceptionally);

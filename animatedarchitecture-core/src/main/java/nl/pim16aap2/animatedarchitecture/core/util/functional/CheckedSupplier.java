@@ -10,7 +10,6 @@ import java.util.function.Supplier;
  *     The type of results supplied by this supplier.
  * @param <E>
  *     The type of the exception thrown by the function.
- * @author Pim
  */
 @FunctionalInterface
 public interface CheckedSupplier<T, E extends Exception>

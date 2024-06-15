@@ -11,8 +11,6 @@ import java.util.Objects;
 
 /**
  * Represents a {@link ReflectionFinder} that can find {@link Constructor}s.
- *
- * @author Pim
  */
 @SuppressWarnings("unused")
 public class ConstructorFinder
@@ -52,12 +50,15 @@ public class ConstructorFinder
         @Override
         public Constructor<?> get()
         {
-            return Objects.requireNonNull(getNullable(), String.format(
-                "Failed to find constructor %s[%s %s(%s)]",
-                ReflectionBackend.formatAnnotations(annotations),
-                ReflectionBackend.optionalModifiersToString(modifiers),
-                source.getName(),
-                ReflectionBackend.formatOptionalValue(parameters)));
+            return Objects.requireNonNull(
+                getNullable(),
+                String.format(
+                    "Failed to find constructor %s[%s %s(%s)]",
+                    ReflectionBackend.formatAnnotations(annotations),
+                    ReflectionBackend.optionalModifiersToString(modifiers),
+                    source.getName(),
+                    ReflectionBackend.formatOptionalValue(parameters))
+            );
         }
 
         /**
@@ -66,15 +67,28 @@ public class ConstructorFinder
         public List<Constructor<?>> getAll()
         {
             return ReflectionBackend.findCTor(
-                source, modifiers, parameters, setAccessible, Integer.MAX_VALUE, annotations);
+                source,
+                modifiers,
+                parameters,
+                setAccessible,
+                Integer.MAX_VALUE,
+                annotations
+            );
         }
 
         @Override
         public @Nullable Constructor<?> getNullable()
         {
             final List<Constructor<?>> ctors =
-                ReflectionBackend.findCTor(source, modifiers, parameters, setAccessible, 1, annotations);
-            return ctors.isEmpty() ? null : ctors.get(0);
+                ReflectionBackend.findCTor(
+                    source,
+                    modifiers,
+                    parameters,
+                    setAccessible,
+                    1,
+                    annotations
+                );
+            return ctors.isEmpty() ? null : ctors.getFirst();
         }
 
         @Override

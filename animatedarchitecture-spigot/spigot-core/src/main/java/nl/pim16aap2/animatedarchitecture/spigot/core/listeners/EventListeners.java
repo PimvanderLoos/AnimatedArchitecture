@@ -32,8 +32,6 @@ import javax.inject.Singleton;
 
 /**
  * Represents a listener that keeps track of various events.
- *
- * @author Pim
  */
 @Singleton
 @Flogger
@@ -44,7 +42,8 @@ public class EventListeners extends AbstractListener
     private final ToolUserManager toolUserManager;
     private final DelayedCommandInputManager delayedCommandInputManager;
 
-    @Inject EventListeners(
+    @Inject
+    EventListeners(
         JavaPlugin javaPlugin,
         AnimatedArchitectureToolUtilSpigot animatedArchitectureToolUtil,
         DatabaseManager databaseManager,
@@ -77,8 +76,9 @@ public class EventListeners extends AbstractListener
         if (!animatedArchitectureToolUtil.isPlayerHoldingTool(SpigotAdapter.wrapPlayer(event.getPlayer())))
             return;
 
-        toolUserManager.getToolUser(event.getPlayer().getUniqueId()).ifPresent(
-            toolUser ->
+        toolUserManager
+            .getToolUser(event.getPlayer().getUniqueId())
+            .ifPresent(toolUser ->
             {
                 event.setCancelled(true);
                 toolUser.handleInput(SpigotAdapter.wrapLocation(event.getClickedBlock().getLocation()));
@@ -96,8 +96,9 @@ public class EventListeners extends AbstractListener
     {
         try
         {
-            databaseManager.updatePlayer(SpigotAdapter.wrapPlayer(event.getPlayer()))
-                           .exceptionally(Util::exceptionally);
+            databaseManager
+                .updatePlayer(SpigotAdapter.wrapPlayer(event.getPlayer()))
+                .exceptionally(Util::exceptionally);
         }
         catch (Exception e)
         {
@@ -218,12 +219,11 @@ public class EventListeners extends AbstractListener
     {
         try
         {
-            event.getNewItems().forEach(
-                (key, value) ->
-                {
-                    if (animatedArchitectureToolUtil.isTool(value))
-                        event.setCancelled(true);
-                });
+            event.getNewItems().forEach((key, value) ->
+            {
+                if (animatedArchitectureToolUtil.isTool(value))
+                    event.setCancelled(true);
+            });
         }
         catch (Exception e)
         {

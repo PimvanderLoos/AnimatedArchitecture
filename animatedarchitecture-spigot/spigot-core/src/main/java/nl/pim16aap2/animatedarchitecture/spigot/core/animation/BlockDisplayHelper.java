@@ -31,7 +31,8 @@ public final class BlockDisplayHelper
     private final Vector3f HALF_VECTOR_NEGATIVE = new Vector3f(-0.5F, -0.5F, -0.5F);
     private final AnimatedBlockHelper animatedBlockHelper;
 
-    @Inject BlockDisplayHelper(AnimatedBlockHelper animatedBlockHelper)
+    @Inject
+    BlockDisplayHelper(AnimatedBlockHelper animatedBlockHelper)
     {
         this.animatedBlockHelper = animatedBlockHelper;
     }

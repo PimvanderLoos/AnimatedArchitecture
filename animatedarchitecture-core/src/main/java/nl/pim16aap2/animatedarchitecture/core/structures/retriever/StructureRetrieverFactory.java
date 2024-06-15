@@ -73,7 +73,8 @@ public final class StructureRetrieverFactory
     private final DatabaseManager databaseManager;
     private final StructureFinderCache structureFinderCache;
 
-    @Inject StructureRetrieverFactory(
+    @Inject
+    StructureRetrieverFactory(
         DelayedStructureSpecificationInputRequest.Factory specificationFactory,
         DatabaseManager databaseManager,
         StructureFinderCache structureFinderCache)
@@ -94,10 +95,8 @@ public final class StructureRetrieverFactory
     {
         final OptionalLong structureUID = Util.parseLong(structureID);
         return structureUID.isPresent() ?
-               new StructureRetriever.StructureUIDRetriever(
-                   databaseManager, structureUID.getAsLong()) :
-               new StructureRetriever.StructureNameRetriever(
-                   databaseManager, specificationFactory, structureID);
+            new StructureRetriever.StructureUIDRetriever(databaseManager, structureUID.getAsLong()) :
+            new StructureRetriever.StructureNameRetriever(databaseManager, specificationFactory, structureID);
     }
 
     /**
@@ -109,8 +108,7 @@ public final class StructureRetrieverFactory
      */
     public StructureRetriever of(long structureUID)
     {
-        return new StructureRetriever.StructureUIDRetriever(
-            databaseManager, structureUID);
+        return new StructureRetriever.StructureUIDRetriever(databaseManager, structureUID);
     }
 
     /**
@@ -156,18 +154,23 @@ public final class StructureRetrieverFactory
      * @return The {@link StructureFinder} instance.
      */
     public StructureFinder search(
-        ICommandSender commandSender, String input, StructureFinderMode mode, PermissionLevel maxPermission)
+        ICommandSender commandSender,
+        String input,
+        StructureFinderMode mode,
+        PermissionLevel maxPermission)
     {
         return mode == StructureFinderMode.USE_CACHE ?
-               structureFinderCache.getStructureFinder(commandSender, input, maxPermission) :
-               new StructureFinder(this, databaseManager, commandSender, input, maxPermission);
+            structureFinderCache.getStructureFinder(commandSender, input, maxPermission) :
+            new StructureFinder(this, databaseManager, commandSender, input, maxPermission);
     }
 
     /**
      * See {@link #search(ICommandSender, String, StructureFinderMode)}.
      */
     public StructureFinder search(
-        ICommandSender commandSender, String input, PermissionLevel maxPermission)
+        ICommandSender commandSender,
+        String input,
+        PermissionLevel maxPermission)
     {
         return search(commandSender, input, StructureFinderMode.USE_CACHE, maxPermission);
     }
@@ -176,7 +179,8 @@ public final class StructureRetrieverFactory
      * See {@link #search(ICommandSender, String, StructureFinderMode)}.
      */
     public StructureFinder search(
-        ICommandSender commandSender, String input)
+        ICommandSender commandSender,
+        String input)
     {
         return search(commandSender, input, StructureFinderMode.USE_CACHE);
     }
@@ -185,7 +189,9 @@ public final class StructureRetrieverFactory
      * See {@link #search(ICommandSender, String, StructureFinderMode, PermissionLevel)}.
      */
     public StructureFinder search(
-        ICommandSender commandSender, String input, StructureFinderMode mode)
+        ICommandSender commandSender,
+        String input,
+        StructureFinderMode mode)
     {
         return search(commandSender, input, mode, PermissionLevel.CREATOR);
     }
@@ -234,8 +240,7 @@ public final class StructureRetrieverFactory
      *     The structures.
      * @return The new {@link StructureRetriever}.
      */
-    public StructureRetriever ofStructures(
-        CompletableFuture<List<AbstractStructure>> structures)
+    public StructureRetriever ofStructures(CompletableFuture<List<AbstractStructure>> structures)
     {
         return new StructureRetriever.FutureStructureListRetriever(specificationFactory, structures);
     }

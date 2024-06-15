@@ -23,8 +23,7 @@ public class StepExecutorVoid extends StepExecutor
     protected boolean protectedAccept(@Nullable Object input)
     {
         if (input != null)
-            log.atFine().withStackTrace(StackSize.FULL)
-               .log("Void input should not have a value. Received %s", input);
+            log.atFine().withStackTrace(StackSize.FULL).log("Void input should not have a value. Received %s", input);
         return fun.getAsBoolean();
     }
 

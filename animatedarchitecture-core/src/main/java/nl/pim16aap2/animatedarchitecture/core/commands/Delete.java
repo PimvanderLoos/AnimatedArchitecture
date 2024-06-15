@@ -17,18 +17,19 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents the command that is used to delete structures.
- *
- * @author Pim
  */
 @ToString
 public class Delete extends StructureTargetCommand
 {
     private final DatabaseManager databaseManager;
 
-    @AssistedInject //
+    @AssistedInject
     Delete(
-        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
-        @Assisted StructureRetriever structureRetriever, DatabaseManager databaseManager)
+        @Assisted ICommandSender commandSender,
+        ILocalizer localizer,
+        ITextFactory textFactory,
+        @Assisted StructureRetriever structureRetriever,
+        DatabaseManager databaseManager)
     {
         super(commandSender, localizer, textFactory, structureRetriever, StructureAttribute.DELETE);
         this.databaseManager = databaseManager;
@@ -51,16 +52,19 @@ public class Delete extends StructureTargetCommand
     {
         final var desc = getRetrievedStructureDescription();
         getCommandSender().sendMessage(textFactory.newText().append(
-            localizer.getMessage("commands.delete.success"), TextType.SUCCESS,
+            localizer.getMessage("commands.delete.success"),
+            TextType.SUCCESS,
             arg -> arg.highlight(desc.localizedTypeName()),
-            arg -> arg.highlight(desc.id())));
+            arg -> arg.highlight(desc.id()))
+        );
     }
 
     @Override
     protected CompletableFuture<?> performAction(AbstractStructure structure)
     {
-        return databaseManager.deleteStructure(structure, getCommandSender().getPlayer().orElse(null))
-                              .thenAccept(this::handleDatabaseActionResult);
+        return databaseManager
+            .deleteStructure(structure, getCommandSender().getPlayer().orElse(null))
+            .thenAccept(this::handleDatabaseActionResult);
     }
 
     @AssistedFactory

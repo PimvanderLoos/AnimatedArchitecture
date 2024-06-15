@@ -19,8 +19,6 @@ import java.util.regex.Pattern;
  * <p>
  * It also allows you to easily create a String containing the full statement with all the variable substituted, which
  * can be useful for debugging purposes.
- *
- * @author Pim
  */
 @SuppressWarnings("unused")
 public class DelayedPreparedStatement
@@ -546,10 +544,11 @@ public class DelayedPreparedStatement
      *
      * @param <T>
      *     The type of the data to set.
-     * @author Pim
      */
-    private record Action<T>(CheckedTriConsumer<PreparedStatement, Integer, @Nullable T, SQLException> fun, int idx,
-                             @Nullable T obj)
+    private record Action<T>(
+        CheckedTriConsumer<PreparedStatement, Integer, @Nullable T, SQLException> fun,
+        int idx,
+        @Nullable T obj)
     {
         /**
          * Applies the {@link #obj} at the given {@link #idx} in the provided {@link PreparedStatement}.

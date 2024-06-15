@@ -15,8 +15,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Represents a manager for outstanding {@link DelayedCommandInputRequest}s for {@link BaseCommand}s.
- *
- * @author Pim
  */
 @Singleton
 public class DelayedCommandInputManager implements IDebuggable
@@ -85,8 +83,9 @@ public class DelayedCommandInputManager implements IDebuggable
      */
     public void deregister(ICommandSender commandSender, DelayedCommandInputRequest<?> delayedCommandInputRequest)
     {
-        requests.computeIfPresent(commandSender,
-                                  (sender, request) -> request == delayedCommandInputRequest ? null : request);
+        requests.computeIfPresent(
+            commandSender,
+            (sender, request) -> request == delayedCommandInputRequest ? null : request);
     }
 
     /**

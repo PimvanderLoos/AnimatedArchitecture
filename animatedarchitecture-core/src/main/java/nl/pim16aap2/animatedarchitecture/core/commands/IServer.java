@@ -7,8 +7,6 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents the server as an {@link ICommandSender}
- *
- * @author Pim
  */
 public interface IServer extends ICommandSender
 {

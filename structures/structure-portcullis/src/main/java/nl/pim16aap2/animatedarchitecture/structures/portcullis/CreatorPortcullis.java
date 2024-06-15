@@ -44,7 +44,9 @@ public class CreatorPortcullis extends Creator
         final Step stepBlocksToMove = stepFactory
             .stepName("SET_BLOCKS_TO_MOVE")
             .textSupplier(text -> text.append(
-                localizer.getMessage("creator.portcullis.set_blocks_to_move"), TextType.INFO, getStructureArg()))
+                localizer.getMessage("creator.portcullis.set_blocks_to_move"),
+                TextType.INFO,
+                getStructureArg()))
             .propertyName(localizer.getMessage("creator.base.property.blocks_to_move"))
             .propertyValueSupplier(this::getBlocksToMove)
             .updatable(true)
@@ -56,11 +58,15 @@ public class CreatorPortcullis extends Creator
             factoryProvideName.construct(),
             factoryProvideFirstPos
                 .textSupplier(text -> text.append(
-                    localizer.getMessage("creator.portcullis.step_1"), TextType.INFO, getStructureArg()))
+                    localizer.getMessage("creator.portcullis.step_1"),
+                    TextType.INFO,
+                    getStructureArg()))
                 .construct(),
             factoryProvideSecondPos
                 .textSupplier(text -> text.append(
-                    localizer.getMessage("creator.portcullis.step_2"), TextType.INFO, getStructureArg()))
+                    localizer.getMessage("creator.portcullis.step_2"),
+                    TextType.INFO,
+                    getStructureArg()))
                 .construct(),
             factoryProvidePowerBlockPos.construct(),
             factoryProvideOpenStatus.construct(),
@@ -76,8 +82,9 @@ public class CreatorPortcullis extends Creator
      */
     protected synchronized void prepareSetBlocksToMove()
     {
-        commandFactory.getSetBlocksToMoveDelayed().runDelayed(getPlayer(), this, blocks ->
-                CompletableFuture.completedFuture(handleInput(blocks)), null)
+        commandFactory
+            .getSetBlocksToMoveDelayed()
+            .runDelayed(getPlayer(), this, blocks -> CompletableFuture.completedFuture(handleInput(blocks)), null)
             .exceptionally(Util::exceptionally);
     }
 
@@ -93,10 +100,12 @@ public class CreatorPortcullis extends Creator
         if (blocksToMoveLimit.isPresent() && blocksToMove > blocksToMoveLimit.getAsInt())
         {
             getPlayer().sendMessage(textFactory.newText().append(
-                localizer.getMessage("creator.base.error.blocks_to_move_too_far"), TextType.ERROR,
+                localizer.getMessage("creator.base.error.blocks_to_move_too_far"),
+                TextType.ERROR,
                 getStructureArg(),
                 arg -> arg.highlight(blocksToMove),
-                arg -> arg.highlight(blocksToMoveLimit.getAsInt())));
+                arg -> arg.highlight(blocksToMoveLimit.getAsInt()))
+            );
             log.atFiner().log(
                 "Blocks to move is too far. Got: %d, Limit: %d", blocksToMove, blocksToMoveLimit.getAsInt());
             return false;

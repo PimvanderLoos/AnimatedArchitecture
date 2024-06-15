@@ -32,8 +32,6 @@ import org.semver4j.Semver;
 
 /**
  * Represents a set of getter methods to get access to the internals of AnimatedArchitecture.
- *
- * @author Pim
  */
 @SuppressWarnings("unused")
 public interface IAnimatedArchitecturePlatform

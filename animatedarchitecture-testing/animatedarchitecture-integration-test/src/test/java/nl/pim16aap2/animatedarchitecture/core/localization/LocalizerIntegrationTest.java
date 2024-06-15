@@ -41,18 +41,28 @@ class LocalizerIntegrationTest
 
         final ZipOutputStream zipOutputStream = new ZipOutputStream(Files.newOutputStream(bundle));
         String baseFileContents = """
-                                  key0=value0
-                                  key1=value1
-                                  key2=value2
-                                  """;
-        LocalizationTestingUtilities.writeEntry(zipOutputStream, BASE_NAME + ".properties",
-                                                baseFileContents.getBytes());
+            key0=value0
+            key1=value1
+            key2=value2
+            """;
+
+        LocalizationTestingUtilities.writeEntry(
+            zipOutputStream,
+            BASE_NAME + ".properties",
+            baseFileContents.getBytes()
+        );
+
         String dutchFileContents = """
-                                   key0=waarde0
-                                   key1={0}
-                                   """;
-        LocalizationTestingUtilities.writeEntry(zipOutputStream, BASE_NAME + "_nl_NL.properties",
-                                                dutchFileContents.getBytes());
+            key0=waarde0
+            key1={0}
+            """;
+
+        LocalizationTestingUtilities.writeEntry(
+            zipOutputStream,
+            BASE_NAME + "_nl_NL.properties",
+            dutchFileContents.getBytes()
+        );
+
         zipOutputStream.close();
     }
 

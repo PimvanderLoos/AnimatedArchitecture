@@ -17,6 +17,9 @@ import org.jetbrains.annotations.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+/**
+ * Implementation of {@link ITextFactory} for the Spigot platform.
+ */
 @Singleton
 public class TextFactorySpigot implements ITextFactory
 {
@@ -49,7 +52,8 @@ public class TextFactorySpigot implements ITextFactory
         return new Text(textComponentFactory);
     }
 
-    @Accessors(chain = true, fluent = true) @Setter
+    @Accessors(chain = true, fluent = true)
+    @Setter
     public static final class StyleBuilder
     {
         private @Nullable ChatColor color;

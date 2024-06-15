@@ -8,15 +8,12 @@ import nl.pim16aap2.animatedarchitecture.core.animation.IAnimator;
 import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
-import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 
 import java.util.function.BiFunction;
 
 /**
  * Represents a {@link Animator} for {@link GarageDoor}s.
- *
- * @author Pim
  */
 @Flogger
 public final class SectionalGarageDoorAnimationComponent extends CounterWeightGarageDoorAnimationComponent
@@ -38,10 +35,9 @@ public final class SectionalGarageDoorAnimationComponent extends CounterWeightGa
             case EAST -> getVectorTmp = this::getVectorDownEast;
             case SOUTH -> getVectorTmp = this::getVectorDownSouth;
             case WEST -> getVectorTmp = this::getVectorDownWest;
-            default -> throw new IllegalStateException(
-                "Failed to open garage door \"" + snapshot.getUid()
-                    + "\". Reason: Invalid movement direction \"" +
-                    movementDirection + "\"");
+            default -> throw new IllegalStateException(String.format(
+                "Failed to open garage door '%s'. Reason: Invalid movement direction '%s'",
+                snapshot.getUid(), movementDirection));
         }
 
         final Vector3Di dims = oldCuboid.getDimensions();
@@ -77,9 +73,9 @@ public final class SectionalGarageDoorAnimationComponent extends CounterWeightGa
             zMod = directionVec.z() * horizontal;
         }
         return new RotatedPosition(
-            new Vector3Dd(animatedBlock.getStartX() + xMod,
-                          animatedBlock.getStartY() + yMod,
-                          animatedBlock.getStartZ() + zMod));
+            animatedBlock.getStartX() + xMod,
+            animatedBlock.getStartY() + yMod,
+            animatedBlock.getStartZ() + zMod);
     }
 
     private RotatedPosition getVectorDownNorth(IAnimatedBlock animatedBlock, double stepSum)
@@ -99,9 +95,9 @@ public final class SectionalGarageDoorAnimationComponent extends CounterWeightGa
         }
 
         return new RotatedPosition(
-            new Vector3Dd(animatedBlock.getStartX() + xMod,
-                          animatedBlock.getStartY() + yMod,
-                          animatedBlock.getStartZ() + zMod));
+            animatedBlock.getStartX() + xMod,
+            animatedBlock.getStartY() + yMod,
+            animatedBlock.getStartZ() + zMod);
     }
 
     private RotatedPosition getVectorDownSouth(IAnimatedBlock animatedBlock, double stepSum)
@@ -120,9 +116,9 @@ public final class SectionalGarageDoorAnimationComponent extends CounterWeightGa
             zMod = Math.min(goalZ - animatedBlock.getStartPosition().position().z() + 0.5, zMod);
         }
         return new RotatedPosition(
-            new Vector3Dd(animatedBlock.getStartX() + xMod,
-                          animatedBlock.getStartY() + yMod,
-                          animatedBlock.getStartZ() + zMod));
+            animatedBlock.getStartX() + xMod,
+            animatedBlock.getStartY() + yMod,
+            animatedBlock.getStartZ() + zMod);
     }
 
     private RotatedPosition getVectorDownEast(IAnimatedBlock animatedBlock, double stepSum)
@@ -141,9 +137,9 @@ public final class SectionalGarageDoorAnimationComponent extends CounterWeightGa
             yMod = -Math.max(0, stepSum - animatedBlock.getRadius() + 0.5);
         }
         return new RotatedPosition(
-            new Vector3Dd(animatedBlock.getStartX() + xMod,
-                          animatedBlock.getStartY() + yMod,
-                          animatedBlock.getStartZ() + zMod));
+            animatedBlock.getStartX() + xMod,
+            animatedBlock.getStartY() + yMod,
+            animatedBlock.getStartZ() + zMod);
     }
 
     private RotatedPosition getVectorDownWest(IAnimatedBlock animatedBlock, double stepSum)
@@ -163,9 +159,9 @@ public final class SectionalGarageDoorAnimationComponent extends CounterWeightGa
         }
 
         return new RotatedPosition(
-            new Vector3Dd(animatedBlock.getStartX() + xMod,
-                          animatedBlock.getStartY() + yMod,
-                          animatedBlock.getStartZ() + zMod));
+            animatedBlock.getStartX() + xMod,
+            animatedBlock.getStartY() + yMod,
+            animatedBlock.getStartZ() + zMod);
     }
 
     @Override

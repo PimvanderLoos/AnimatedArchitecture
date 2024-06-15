@@ -45,8 +45,6 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Manages all interactions with Vault.
- *
- * @author Pim
  */
 @Singleton
 @Flogger
@@ -106,17 +104,28 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         if (withdrawPlayer(spigotPlayer, world.worldName(), price))
         {
             player.sendMessage(textFactory.newText().append(
-                localizer.getMessage("creator.base.money_withdrawn"), TextType.SUCCESS,
-                arg -> arg.highlight(price)));
+                localizer.getMessage("creator.base.money_withdrawn"),
+                TextType.SUCCESS,
+                arg -> arg.highlight(price))
+            );
             return true;
         }
+
         player.sendMessage(textFactory.newText().append(
-            localizer.getMessage("creator.base.error.insufficient_funds"), TextType.ERROR,
+            localizer.getMessage("creator.base.error.insufficient_funds"),
+            TextType.ERROR,
             arg -> arg.highlight(localizer.getMessage(type.getLocalizationKey())),
-            arg -> arg.highlight(price)));
+            arg -> arg.highlight(price))
+        );
+
         log.atFine().log(
             "Player '%s' does not have enough money to buy structure of type '%s' of size %d! Price: %f",
-            player.asString(), type.getSimpleName(), blockCount, price);
+            player.asString(),
+            type.getSimpleName(),
+            blockCount,
+            price
+        );
+
         return false;
     }
 
@@ -147,7 +156,11 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
             throw new RuntimeException(String.format(
                 "Failed to check permission '%s' for player '%s'! " +
                     "Cannot check permissions for offline players on the main thread! Online: %b, Fake: %b",
-                permission, player.getName(), player.isOnline(), player instanceof IFakePlayer));
+                permission,
+                player.getName(),
+                player.isOnline(),
+                player instanceof IFakePlayer)
+            );
         }
 
         final boolean result = perms.playerHas(player.getWorld().getName(), player, permission);
@@ -178,9 +191,11 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e)
-               .log("Failed to determine structure creation price! Please contact pim16aap2! "
-                        + "Include this: '%s' and stacktrace:", formula);
+            log.atSevere().withCause(e).log(
+                "Failed to determine structure creation price! Please contact pim16aap2! "
+                    + "Include this: '%s' and stacktrace:",
+                formula
+            );
             return 0.0d;
         }
     }
@@ -192,8 +207,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
             return OptionalDouble.empty();
 
         // TODO: Store flat prices as OptionalDoubles.
-        final double price = flatPrices
-            .getOrDefault(type, evaluateFormula(config.getPrice(type), blockCount));
+        final double price = flatPrices.getOrDefault(type, evaluateFormula(config.getPrice(type), blockCount));
 
         return price <= 0 ? OptionalDouble.empty() : OptionalDouble.of(price);
     }
@@ -212,8 +226,11 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final boolean defaultValue = true;
         if (economy == null)
         {
-            log.atWarning().log("Economy not enabled! Could not subtract %f from the balance of player: %s!",
-                                amount, player);
+            log.atWarning().log(
+                "Economy not enabled! Could not subtract %f from the balance of player: %s!",
+                amount,
+                player
+            );
             return defaultValue;
         }
 
@@ -223,8 +240,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e)
-               .log("Failed to check balance of player %s! Please contact pim16aap2!", player);
+            log.atSevere().withCause(e).log("Failed to check balance of player %s! Please contact pim16aap2!", player);
         }
         return defaultValue;
     }
@@ -245,23 +261,31 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final boolean defaultValue = true;
         if (economy == null)
         {
-            log.atWarning()
-               .log("Economy not enabled! Could not subtract %f from the balance of player: %s in world: %s!",
-                    amount, player, worldName);
+            log.atWarning().log(
+                "Economy not enabled! Could not subtract %f from the balance of player: %s in world: %s!",
+                amount,
+                player,
+                worldName
+            );
             return defaultValue;
         }
 
         try
         {
             if (has(player, amount))
-                return economy.withdrawPlayer(player, worldName, amount).type
+                return economy
+                    .withdrawPlayer(player, worldName, amount)
+                    .type
                     .equals(EconomyResponse.ResponseType.SUCCESS);
             return false;
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e)
-               .log("Failed to subtract %f money from player %s! Please contact pim16aap2!", amount, player);
+            log.atSevere().withCause(e).log(
+                "Failed to subtract %f money from player %s! Please contact pim16aap2!",
+                amount,
+                player
+            );
         }
         return defaultValue;
     }
@@ -416,8 +440,10 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final @Nullable Player bukkitPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (bukkitPlayer == null)
         {
-            log.atSevere().withStackTrace(StackSize.FULL)
-               .log("Failed to obtain BukkitPlayer for player: '%s'", player.asString());
+            log.atSevere().withStackTrace(StackSize.FULL).log(
+                "Failed to obtain BukkitPlayer for player: '%s'",
+                player.asString()
+            );
             return null;
         }
         return bukkitPlayer;

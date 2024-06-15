@@ -9,8 +9,6 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents a AnimatedArchitecture player.
- *
- * @author Pim
  */
 public interface IPlayer extends IPlayerDataContainer, ICommandSender
 {

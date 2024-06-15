@@ -16,8 +16,6 @@ import java.util.function.DoubleUnaryOperator;
 
 /**
  * Represents an implementation of {@link IAudioPlayer} for the Spigot platform.
- *
- * @author Pim
  */
 @Singleton
 public class AudioPlayerSpigot implements IAudioPlayer
@@ -33,12 +31,24 @@ public class AudioPlayerSpigot implements IAudioPlayer
 
     @Override
     public void playSound(
-        double x, double y, double z, IWorld world, String sound, float volume, float pitch, double range,
+        double x,
+        double y,
+        double z,
+        IWorld world,
+        String sound,
+        float volume,
+        float pitch,
+        double range,
         @Nullable DoubleUnaryOperator attenuationFunction)
     {
         playSound(
             new Location(Bukkit.getWorld(world.worldName()), x, y, z),
-            sound, volume, pitch, range, attenuationFunction);
+            sound,
+            volume,
+            pitch,
+            range,
+            attenuationFunction
+        );
     }
 
     private void playSound(
@@ -57,7 +67,12 @@ public class AudioPlayerSpigot implements IAudioPlayer
     }
 
     private void playSound(
-        Location loc, World world, String sound, float volume, float pitch, double range,
+        Location loc,
+        World world,
+        String sound,
+        float volume,
+        float pitch,
+        double range,
         @Nullable DoubleUnaryOperator attenuationFunction)
     {
         for (final Entity ent : world.getNearbyEntities(loc, range, range, range, e -> e instanceof Player))
@@ -66,7 +81,11 @@ public class AudioPlayerSpigot implements IAudioPlayer
     }
 
     private void playSound(
-        Player player, Location loc, String sound, float volume, float pitch,
+        Player player,
+        Location loc,
+        String sound,
+        float volume,
+        float pitch,
         @Nullable DoubleUnaryOperator attenuationFunction)
     {
         final double distance = player.getLocation().distance(loc);
@@ -75,7 +94,7 @@ public class AudioPlayerSpigot implements IAudioPlayer
 
         float attenuatedVolume = volume;
         if (attenuationFunction != null)
-            attenuatedVolume *= attenuationFunction.applyAsDouble(distance);
+            attenuatedVolume *= (float) attenuationFunction.applyAsDouble(distance);
 
         player.playSound(loc, sound, attenuatedVolume, pitch);
     }

@@ -20,7 +20,7 @@ public class GuiFactory implements IGuiFactory
     private final StructureRetrieverFactory structureRetrieverFactory;
     private final IExecutor executor;
 
-    @Inject //
+    @Inject
     GuiFactory(MainGui.IFactory factory, StructureRetrieverFactory structureRetrieverFactory, IExecutor executor)
     {
         this.factory = factory;

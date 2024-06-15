@@ -93,8 +93,9 @@ class LocalizationGeneratorIntegrationTest
         final LocalizationGenerator localizationGenerator = new LocalizationGenerator(directoryOutput, BASE_NAME);
         localizationGenerator.addResources(directoryA, BASE_NAME_A);
         localizationGenerator.addResources(directoryB, BASE_NAME_B);
-        try (FileSystem outputFileSystem =
-                 LocalizationTestingUtilities.createFileSystem(directoryOutput.resolve(BASE_NAME + ".bundle")))
+        try (
+            FileSystem outputFileSystem =
+                LocalizationTestingUtilities.createFileSystem(directoryOutput.resolve(BASE_NAME + ".bundle")))
         {
             final Path outputFile0 = outputFileSystem.getPath(BASE_NAME + ".properties");
             final Path outputFile1 = outputFileSystem.getPath(BASE_NAME + "_en_US.properties");
@@ -166,8 +167,16 @@ class LocalizationGeneratorIntegrationTest
         final List<String> linesBase =
             LocalizationUtil.readFile(Files.newInputStream(fileSystem.getPath(BASE_NAME + ".properties")));
 
-        Assertions.assertEquals(List.of("a_key0= ", "a_key1=val1", "a_key2=val2",
-                                        "a_key3=val3", "a_key4=val4", "a_key10=a_a_a_a"), linesBase);
+        Assertions.assertEquals(
+            List.of(
+                "a_key0= ",
+                "a_key1=val1",
+                "a_key2=val2",
+                "a_key3=val3",
+                "a_key4=val4",
+                "a_key10=a_a_a_a"),
+            linesBase
+        );
 
         // The en_US file did not exist in the output bundle, so it should contain only the patches.
         final List<String> linesEnUS =
@@ -181,14 +190,18 @@ class LocalizationGeneratorIntegrationTest
     {
         final Path jarFile = Files.createFile(Files.createDirectory(fs.getPath("/input")).resolve("test.jar"));
         final ZipOutputStream outputStream = createJar(jarFile);
-        LocalizationTestingUtilities.writeEntry(outputStream,
-                                                "org/example/project/LocalizationGeneratorDummyClass.class",
-                                                LOCALIZATION_GENERATOR_DUMMY_CLASS_DATA);
+        LocalizationTestingUtilities.writeEntry(
+            outputStream,
+            "org/example/project/LocalizationGeneratorDummyClass.class",
+            LOCALIZATION_GENERATOR_DUMMY_CLASS_DATA
+        );
         outputStream.close();
 
         final Class<?> dummyClass = Class.forName("org.example.project.LocalizationGeneratorDummyClass", true,
-                                                  LocalizationTestingUtilities.loadJar(jarFile,
-                                                                                       getClass().getClassLoader()));
+            LocalizationTestingUtilities.loadJar(
+                jarFile,
+                getClass().getClassLoader())
+        );
         final LocalizationGenerator localizationGenerator = new LocalizationGenerator(directoryOutput, BASE_NAME);
         localizationGenerator.addResourcesFromClass(dummyClass, null);
 
@@ -204,8 +217,9 @@ class LocalizationGeneratorIntegrationTest
     private void verifyJarOutput()
         throws IOException, URISyntaxException
     {
-        try (FileSystem outputFileSystem =
-                 LocalizationTestingUtilities.createFileSystem(directoryOutput.resolve(BASE_NAME + ".bundle")))
+        try (
+            FileSystem outputFileSystem =
+                LocalizationTestingUtilities.createFileSystem(directoryOutput.resolve(BASE_NAME + ".bundle")))
         {
             final Path outputFile0 = outputFileSystem.getPath(BASE_NAME + ".properties");
             final Path outputFile1 = outputFileSystem.getPath(BASE_NAME + "_en_US.properties");

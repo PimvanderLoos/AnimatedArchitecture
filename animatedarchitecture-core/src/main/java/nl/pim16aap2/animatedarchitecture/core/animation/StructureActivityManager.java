@@ -36,8 +36,6 @@ import java.util.stream.Stream;
 
 /**
  * Keeps track of which structures are currently active.
- *
- * @author Pim
  */
 @Singleton
 @Flogger
@@ -130,8 +128,7 @@ public final class StructureActivityManager extends Restartable
         final AtomicReference<@Nullable RegisteredAnimatorEntry> abortEntryRef = new AtomicReference<>(null);
         final AtomicReference<@Nullable RegisteredAnimatorEntry> newEntryRef = new AtomicReference<>(null);
 
-        animators.compute(targetStructure.getUid(), (key, entry)
-            ->
+        animators.compute(targetStructure.getUid(), (key, entry) ->
         {
             if (entry == null)
             {
@@ -144,8 +141,8 @@ public final class StructureActivityManager extends Restartable
             // If the existing entry is requiresWriteAccess, we cannot register a new animator.
             if (entry.requiresWriteAccess())
             {
-                log.atFine().withStackTrace(StackSize.FULL)
-                   .log("Trying to register animator with active requiresWriteAccess entry: %s", entry);
+                log.atFine().withStackTrace(StackSize.FULL).log(
+                    "Trying to register animator with active requiresWriteAccess entry: %s", entry);
                 return entry;
             }
 
@@ -269,9 +266,14 @@ public final class StructureActivityManager extends Restartable
 
         animatedArchitectureEventCaller.callAnimatedArchitectureEvent(
             eventFactory.createToggleEndEvent(
-                animator.getStructure(), animator.getSnapshot(), animator.getCause(),
-                animator.getActionType(), animator.getPlayer(), animator.getTime(),
-                animator.isSkipAnimation()));
+                animator.getStructure(),
+                animator.getSnapshot(),
+                animator.getCause(),
+                animator.getActionType(),
+                animator.getPlayer(),
+                animator.getTime(),
+                animator.isSkipAnimation())
+        );
     }
 
     /**
@@ -288,8 +290,7 @@ public final class StructureActivityManager extends Restartable
      */
     public void addAnimator(long stamp, Animator animator)
     {
-        animators.compute(animator.getStructureUID(), (uid, entry)
-            ->
+        animators.compute(animator.getStructureUID(), (uid, entry) ->
         {
             if (entry == null)
                 throw new IllegalStateException("Trying to add animator to non-existent entry: " + animator);
@@ -305,8 +306,10 @@ public final class StructureActivityManager extends Restartable
      */
     public Stream<Animator> getBlockMovers()
     {
-        return animators.values().stream().map(RegisteredAnimatorEntry::getAnimators)
-                        .flatMap(Collection::stream);
+        return animators.values()
+            .stream()
+            .map(RegisteredAnimatorEntry::getAnimators)
+            .flatMap(Collection::stream);
     }
 
     /**
@@ -319,13 +322,12 @@ public final class StructureActivityManager extends Restartable
     private List<AbstractStructure> abortAnimators()
     {
         final List<AbstractStructure> ret = new ArrayList<>();
-        animators.values().forEach(
-            entry ->
-            {
-                entry.abort();
-                if (entry.requiresWriteAccess())
-                    ret.add(entry.getTargetStructure());
-            });
+        animators.values().forEach(entry ->
+        {
+            entry.abort();
+            if (entry.requiresWriteAccess())
+                ret.add(entry.getTargetStructure());
+        });
         return ret;
     }
 
@@ -351,7 +353,9 @@ public final class StructureActivityManager extends Restartable
     private void delayedRedstoneVerification(List<AbstractStructure> lst)
     {
         executor.runAsyncLater(
-            () -> lst.forEach(AbstractStructure::verifyRedstoneState), DELAYED_REDSTONE_VERIFICATION_TIME);
+            () -> lst.forEach(AbstractStructure::verifyRedstoneState),
+            DELAYED_REDSTONE_VERIFICATION_TIME
+        );
     }
 
     @GuardedBy("this")
@@ -416,8 +420,8 @@ public final class StructureActivityManager extends Restartable
         static RegisteredAnimatorEntry newAnimatorEntry(AbstractStructure targetStructure, boolean isReadWrite)
         {
             return isReadWrite ?
-                   new ReadWriteAnimatorEntry(targetStructure) :
-                   new ReadOnlyAnimatorEntry(targetStructure);
+                new ReadWriteAnimatorEntry(targetStructure) :
+                new ReadOnlyAnimatorEntry(targetStructure);
         }
 
         /**

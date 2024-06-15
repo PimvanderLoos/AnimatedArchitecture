@@ -48,7 +48,9 @@ public class AnimatedPreviewBlockContainer implements IAnimatedBlockContainer
     private volatile @Nullable AnimationRegion animationRegion;
 
     AnimatedPreviewBlockContainer(
-        ILocationFactory locationFactory, HighlightedBlockSpawner glowingBlockSpawner, IPlayer player)
+        ILocationFactory locationFactory,
+        HighlightedBlockSpawner glowingBlockSpawner,
+        IPlayer player)
     {
         this.locationFactory = locationFactory;
         this.glowingBlockSpawner = glowingBlockSpawner;
@@ -84,10 +86,15 @@ public class AnimatedPreviewBlockContainer implements IAnimatedBlockContainer
 
                         final RotatedPosition startPosition = animationComponent.getStartPosition(xAxis, yAxis, zAxis);
 
-                        animatedBlocksTmp.add(
-                            new AnimatedHighlightedBlock(
-                                locationFactory, glowingBlockSpawner, snapshot.getWorld(),
-                                player, startPosition, radius, color));
+                        animatedBlocksTmp.add(new AnimatedHighlightedBlock(
+                            locationFactory,
+                            glowingBlockSpawner,
+                            snapshot.getWorld(),
+                            player,
+                            startPosition,
+                            radius,
+                            color)
+                        );
                     }
         }
         catch (Exception e)
@@ -100,7 +107,10 @@ public class AnimatedPreviewBlockContainer implements IAnimatedBlockContainer
         this.privateAnimatedBlocks.addAll(animatedBlocksTmp);
 
         animationRegion = new AnimationRegion(
-            animatedBlocks, animationComponent::getRadius, animationComponent::getFinalPosition);
+            animatedBlocks,
+            animationComponent::getRadius,
+            animationComponent::getFinalPosition
+        );
 
         return true;
     }

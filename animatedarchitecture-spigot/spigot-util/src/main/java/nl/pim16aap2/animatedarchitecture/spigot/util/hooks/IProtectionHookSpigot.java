@@ -175,8 +175,14 @@ public interface IProtectionHookSpigot
      */
     default LazyArg<String> lazyFormatPlayerName(Player player)
     {
-        return LazyArgs.lazy(
-            () -> String.format("['%s': '%s', fake: %b, online: %b, op: %b]", player.getName(), player.getUniqueId(),
-                player instanceof IFakePlayer, player.isOnline(), player.isOp()));
+        return LazyArgs.lazy(() ->
+            String.format(
+                "['%s': '%s', fake: %b, online: %b, op: %b]",
+                player.getName(),
+                player.getUniqueId(),
+                player instanceof IFakePlayer,
+                player.isOnline(),
+                player.isOp())
+        );
     }
 }

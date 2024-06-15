@@ -22,10 +22,9 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents a manager of player heads with the texture of a certain player.
- *
- * @author Pim
  */
-@Singleton @Flogger
+@Singleton
+@Flogger
 public final class HeadManager extends Restartable
 {
     /**
@@ -36,6 +35,7 @@ public final class HeadManager extends Restartable
      * Value: The player's head as item.
      */
     private @Nullable TimedCache<UUID, Optional<ItemStack>> headMap;
+
     private final ConfigSpigot config;
 
     /**
@@ -74,8 +74,7 @@ public final class HeadManager extends Restartable
         }
 
         return CompletableFuture
-            .supplyAsync(() -> headMap0.computeIfAbsent(playerUUID,
-                                                        (p) -> createItemStack(playerUUID, displayName)))
+            .supplyAsync(() -> headMap0.computeIfAbsent(playerUUID, (p) -> createItemStack(playerUUID, displayName)))
             .exceptionally(Util::exceptionallyOptional);
     }
 
@@ -86,6 +85,7 @@ public final class HeadManager extends Restartable
         final @Nullable SkullMeta sMeta = (SkullMeta) skull.getItemMeta();
         if (sMeta == null)
             return Optional.empty();
+
         sMeta.setOwningPlayer(oPlayer);
         sMeta.setDisplayName(displayName);
         skull.setItemMeta(sMeta);
@@ -96,9 +96,10 @@ public final class HeadManager extends Restartable
     public void initialize()
     {
         headMap = TimedCache.<UUID, Optional<ItemStack>>builder()
-                            .duration(Duration.ofMinutes(config.headCacheTimeout()))
-                            .cleanup(Duration.ofMinutes(Math.max(1, config.headCacheTimeout())))
-                            .softReference(true).build();
+            .timeOut(Duration.ofMinutes(config.headCacheTimeout()))
+            .cleanup(Duration.ofMinutes(Math.max(1, config.headCacheTimeout())))
+            .softReference(true)
+            .build();
     }
 
     @Override

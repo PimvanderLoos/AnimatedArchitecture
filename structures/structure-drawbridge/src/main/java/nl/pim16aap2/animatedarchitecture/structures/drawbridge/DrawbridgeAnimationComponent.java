@@ -21,8 +21,6 @@ import java.util.function.Consumer;
 
 /**
  * Represents a {@link Animator} for {@link Drawbridge}s.
- *
- * @author Pim
  */
 public class DrawbridgeAnimationComponent implements IAnimationComponent
 {
@@ -36,7 +34,10 @@ public class DrawbridgeAnimationComponent implements IAnimationComponent
     private final int quarterCircles;
 
     public DrawbridgeAnimationComponent(
-        AnimationRequestData data, MovementDirection movementDirection, boolean isNorthSouthAligned, int quarterCircles)
+        AnimationRequestData data,
+        MovementDirection movementDirection,
+        boolean isNorthSouthAligned,
+        int quarterCircles)
     {
         this.quarterCircles = quarterCircles;
         this.snapshot = data.getStructureSnapshot();
@@ -66,8 +67,8 @@ public class DrawbridgeAnimationComponent implements IAnimationComponent
                 angle = quarterCircles * -MathUtil.HALF_PI;
                 rotator = Vector3Dd::rotateAroundZAxis;
             }
-            default -> throw new IllegalArgumentException("Movement direction \"" + movementDirection.name() +
-                                                              "\" is not valid for this type!");
+            default -> throw new IllegalArgumentException(
+                "Movement direction \"" + movementDirection.name() + "\" is not valid for this type!");
         }
 
         final int animationDuration =
@@ -104,7 +105,12 @@ public class DrawbridgeAnimationComponent implements IAnimationComponent
     protected RotatedPosition getGoalPos(@Nullable Vector3Dd localRotation, double angle, IAnimatedBlock animatedBlock)
     {
         return getGoalPos(
-            localRotation, angle, animatedBlock.getStartX(), animatedBlock.getStartY(), animatedBlock.getStartZ());
+            localRotation,
+            angle,
+            animatedBlock.getStartX(),
+            animatedBlock.getStartY(),
+            animatedBlock.getStartZ()
+        );
     }
 
     @Override

@@ -8,8 +8,6 @@ import java.lang.annotation.Target;
 /**
  * This annotation is meant to be used on initialization methods to ensure NullAway understands that those methods are
  * used to initialize variables.
- *
- * @author Pim
  */
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.METHOD)

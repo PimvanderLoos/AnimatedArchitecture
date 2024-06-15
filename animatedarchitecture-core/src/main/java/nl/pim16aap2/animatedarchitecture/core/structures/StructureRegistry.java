@@ -17,7 +17,6 @@ import java.util.function.Supplier;
 /**
  * Represents a registry of structures.
  *
- * @author Pim
  * @see <a href="https://en.wikipedia.org/wiki/Multiton_pattern">Wikipedia: Multiton</a>
  */
 @Singleton
@@ -36,7 +35,9 @@ public final class StructureRegistry implements IDebuggable, StructureDeletionMa
     private final Duration cacheExpiry;
 
     private StructureRegistry(
-        DebuggableRegistry debuggableRegistry, Duration cacheExpiry, StructureDeletionManager structureDeletionManager)
+        DebuggableRegistry debuggableRegistry,
+        Duration cacheExpiry,
+        StructureDeletionManager structureDeletionManager)
     {
         this.cacheExpiry = cacheExpiry;
 
@@ -47,7 +48,7 @@ public final class StructureRegistry implements IDebuggable, StructureDeletionMa
                 .cleanup(Duration.ofMinutes(15))
                 .softReference(true)
                 .keepAfterTimeOut(true)
-                .duration(cacheExpiry)
+                .timeOut(cacheExpiry)
                 .build();
 
         debuggableRegistry.registerDebuggable(this);
@@ -57,8 +58,10 @@ public final class StructureRegistry implements IDebuggable, StructureDeletionMa
     /**
      * Constructs a new {@link #StructureRegistry} using the default cache expiry value: {@link #CACHE_EXPIRY}.
      */
-    @Inject StructureRegistry(
-        DebuggableRegistry debuggableRegistry, StructureDeletionManager structureDeletionManager)
+    @Inject
+    StructureRegistry(
+        DebuggableRegistry debuggableRegistry,
+        StructureDeletionManager structureDeletionManager)
     {
         this(debuggableRegistry, CACHE_EXPIRY, structureDeletionManager);
     }
@@ -69,10 +72,14 @@ public final class StructureRegistry implements IDebuggable, StructureDeletionMa
      * @return The new {@link StructureRegistry}.
      */
     public static StructureRegistry unCached(
-        DebuggableRegistry debuggableRegistry, StructureDeletionManager structureDeletionManager)
+        DebuggableRegistry debuggableRegistry,
+        StructureDeletionManager structureDeletionManager)
     {
         final StructureRegistry structureRegistry = new StructureRegistry(
-            debuggableRegistry, Duration.ofMillis(-1), structureDeletionManager);
+            debuggableRegistry,
+            Duration.ofMillis(-1),
+            structureDeletionManager
+        );
 
         structureRegistry.acceptNewEntries = false;
         return structureRegistry;

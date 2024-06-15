@@ -37,11 +37,13 @@ class LocalizationUtilIntegrationTest
     {
         final Path zipFile = fs.getPath("./test.jar");
         final String base = "translation";
-        LocalizationTestingUtilities.addFilesToZip(zipFile,
-                                                   base + ".properties",
-                                                   base + "_en_us.properties",
-                                                   base + "_nl.properties",
-                                                   base + "_nl_NL.properties");
+        LocalizationTestingUtilities.addFilesToZip(
+            zipFile,
+            base + ".properties",
+            base + "_en_us.properties",
+            base + "_nl.properties",
+            base + "_nl_NL.properties"
+        );
 
         final List<Locale> locales = LocalizationUtil.getLocalesInZip(zipFile, base);
         Assertions.assertEquals(4, locales.size());

@@ -12,7 +12,6 @@ import java.util.Set;
  *
  * @param <T>
  *     The type of data stored in this node.
- * @author Pim
  */
 @Getter(AccessLevel.PACKAGE)
 public final class Node<T>

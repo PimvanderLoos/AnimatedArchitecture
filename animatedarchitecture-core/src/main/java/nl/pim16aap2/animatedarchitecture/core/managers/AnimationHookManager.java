@@ -20,8 +20,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Represents a manager for {@link IAnimationHookFactory} instances.
  * <p>
  * Factories that are registered with this manager will be inserted into every animation.
- *
- * @author Pim
  */
 @Singleton
 @Flogger
@@ -29,7 +27,7 @@ public final class AnimationHookManager implements IDebuggable
 {
     private final List<IAnimationHookFactory<? extends IAnimatedBlock>> factories = new CopyOnWriteArrayList<>();
 
-    @Inject//
+    @Inject
     AnimationHookManager(DebuggableRegistry debuggableRegistry)
     {
         debuggableRegistry.registerDebuggable(this);
@@ -58,8 +56,10 @@ public final class AnimationHookManager implements IDebuggable
             }
             catch (Exception e)
             {
-                log.atSevere().withCause(e).log("Failed to create hook with factory '%s'.",
-                                                factory.getClass().getName());
+                log.atSevere().withCause(e).log(
+                    "Failed to create animation hook with factory '%s'.",
+                    factory.getClass().getName()
+                );
             }
         }
 

@@ -13,8 +13,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents the event where an owner is removed from a structure.
- *
- * @author Pim
  */
 @ToString
 public class StructurePrepareRemoveOwnerEvent extends StructureEvent implements IStructurePrepareRemoveOwnerEvent
@@ -34,7 +32,9 @@ public class StructurePrepareRemoveOwnerEvent extends StructureEvent implements 
     private final StructureOwner removedStructureOwner;
 
     public StructurePrepareRemoveOwnerEvent(
-        AbstractStructure structure, @Nullable IPlayer responsible, StructureOwner removedStructureOwner)
+        AbstractStructure structure,
+        @Nullable IPlayer responsible,
+        StructureOwner removedStructureOwner)
     {
         super(structure, responsible);
         this.removedStructureOwner = removedStructureOwner;

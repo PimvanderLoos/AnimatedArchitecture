@@ -9,8 +9,6 @@ import javax.inject.Singleton;
 
 /**
  * Represents the Spigot implementation of {@link IServer}.
- *
- * @author Pim
  */
 @Singleton
 @Flogger

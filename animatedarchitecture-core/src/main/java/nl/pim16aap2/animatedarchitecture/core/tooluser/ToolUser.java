@@ -155,8 +155,8 @@ public abstract class ToolUser
         }
         catch (InstantiationException | IndexOutOfBoundsException e)
         {
-            throw new RuntimeException("Failed to instantiate procedure for ToolUser for player: " +
-                getPlayer().asString(), e);
+            throw new RuntimeException(
+                "Failed to instantiate procedure for ToolUser for player: " + getPlayer().asString(), e);
         }
 
         if (!active)
@@ -503,8 +503,10 @@ public abstract class ToolUser
                     "Blocked access to location %s for player %s! Reason: %s",
                     loc, getPlayer(), result.denyingHookName());
                 getPlayer().sendMessage(
-                    textFactory, TextType.ERROR,
-                    localizer.getMessage("tool_user.base.error.no_permission_for_location"));
+                    textFactory,
+                    TextType.ERROR,
+                    localizer.getMessage("tool_user.base.error.no_permission_for_location")
+                );
                 return false;
             });
     }
@@ -532,10 +534,16 @@ public abstract class ToolUser
 
                 log.atFine().log(
                     "Blocked access to cuboid %s for player %s in world %s! Reason: %s",
-                    cuboid, getPlayer(), world, result.denyingHookName());
+                    cuboid,
+                    getPlayer(),
+                    world,
+                    result.denyingHookName()
+                );
                 getPlayer().sendMessage(
-                    textFactory, TextType.ERROR,
-                    localizer.getMessage("tool_user.base.error.no_permission_for_location"));
+                    textFactory,
+                    TextType.ERROR,
+                    localizer.getMessage("tool_user.base.error.no_permission_for_location")
+                );
                 return Optional.empty();
             });
     }

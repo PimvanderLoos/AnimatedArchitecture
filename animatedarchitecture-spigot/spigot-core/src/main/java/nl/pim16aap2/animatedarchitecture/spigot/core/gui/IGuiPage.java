@@ -8,8 +8,22 @@ import nl.pim16aap2.animatedarchitecture.core.managers.StructureDeletionManager;
  */
 interface IGuiPage
 {
+    /**
+     * Gets the name of the page.
+     * <p>
+     * This is shown in the inventory title.
+     *
+     * @return The name of the page.
+     */
     String getPageName();
 
+    /**
+     * Gets the inventory holder of this page.
+     * <p>
+     * This is the player that is currently viewing the page.
+     *
+     * @return The inventory holder of this page.
+     */
     IPlayer getInventoryHolder();
 
     /**

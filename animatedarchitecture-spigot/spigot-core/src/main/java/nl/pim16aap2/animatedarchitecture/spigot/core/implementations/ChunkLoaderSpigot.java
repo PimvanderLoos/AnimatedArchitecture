@@ -31,8 +31,10 @@ public class ChunkLoaderSpigot implements IChunkLoader
     {
         final Vector3Di min = cuboid.getMin();
         final Vector3Di max = cuboid.getMax();
-        return new Cuboid(new Vector3Di(min.x() >> 4, min.y(), min.z() >> 4),
-                          new Vector3Di(max.x() >> 4, max.y(), max.z() >> 4));
+        return new Cuboid(
+            new Vector3Di(min.x() >> 4, min.y(), min.z() >> 4),
+            new Vector3Di(max.x() >> 4, max.y(), max.z() >> 4)
+        );
     }
 
     @Override

@@ -56,8 +56,6 @@ import nl.pim16aap2.animatedarchitecture.core.managers.AnimationHookManager;
  * <p>
  * You can refer to the animation hook used by the audio system to see a full implementation:
  * {@link AudioAnimationHook}.
- *
- * @author Pim
  */
 public interface IAnimationHook
 {

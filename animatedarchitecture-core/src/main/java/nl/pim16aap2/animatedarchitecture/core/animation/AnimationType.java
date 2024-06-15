@@ -11,23 +11,28 @@ public enum AnimationType
      * Animates the movement of blocks from their starting position to their final position, which may be somewhere
      * else.
      */
-    MOVE_BLOCKS(true, true, Double.MAX_VALUE),
+    MOVE_BLOCKS(false, true, true, Double.MAX_VALUE),
 
     /**
      * Animates a preview of an animation. No blocks are affected in the world.
      * <p>
      * Note that this type requires an online {@link IPlayer} to target.
      */
-    PREVIEW(false, false, 10),
+    PREVIEW(true, false, false, 10),
     ;
 
+    private final boolean requiresPlayer;
     private final boolean requiresWriteAccess;
     private final boolean supportsPerpetualAnimation;
     private final double animationDurationLimit;
 
     AnimationType(
-        boolean requiresWriteAccess, boolean supportsPerpetualAnimation, double animationDurationLimit)
+        boolean requiresPlayer,
+        boolean requiresWriteAccess,
+        boolean supportsPerpetualAnimation,
+        double animationDurationLimit)
     {
+        this.requiresPlayer = requiresPlayer;
         this.requiresWriteAccess = requiresWriteAccess;
         this.supportsPerpetualAnimation = supportsPerpetualAnimation;
         this.animationDurationLimit = animationDurationLimit;
@@ -57,5 +62,21 @@ public enum AnimationType
     public double getAnimationDurationLimit()
     {
         return animationDurationLimit;
+    }
+
+    /**
+     * Checks whether this animation type requires a player.
+     * <p>
+     * Certain types of animation make no sense without a player, such as {@link #PREVIEW}, which is used to preview an
+     * animation for a player. If a preview animation runs without a player, there is no one to show the animation to.
+     * <p>
+     * An animation type like {@link #MOVE_BLOCKS} can run fine without a player, as it has actual effects on the world
+     * and does not require a player to be present.
+     *
+     * @return True if this animation type requires a player.
+     */
+    public boolean requiresPlayer()
+    {
+        return requiresPlayer;
     }
 }

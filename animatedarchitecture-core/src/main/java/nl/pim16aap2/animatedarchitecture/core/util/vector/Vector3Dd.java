@@ -9,8 +9,6 @@ import org.jetbrains.annotations.Contract;
  * Represents a double x/y/z set.
  * <p>
  * This class is thread-safe, as all modifications return a new instance.
- *
- * @author Pim
  */
 @SuppressWarnings("unused")
 public record Vector3Dd(double x, double y, double z) implements IVector3D

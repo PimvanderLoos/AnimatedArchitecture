@@ -27,7 +27,7 @@ import java.util.function.Function;
  * This class should be instantiated using {@link HookCheckStateContainer#of(List)}.
  */
 @Accessors(fluent = true, chain = true)
-@Flogger //
+@Flogger
 final class HookCheckStateContainer
 {
     private final List<HookCheckState> hookCheckStates;
@@ -182,7 +182,8 @@ final class HookCheckStateContainer
                         return HookPreCheckResult.DENY;
                     })
                     .thenAccept(this::processPreCheckResult))
-                .toArray(CompletableFuture[]::new));
+                .toArray(CompletableFuture[]::new)
+        );
     }
 
     /**
@@ -274,7 +275,8 @@ final class HookCheckStateContainer
                 {
                     log.atFiner().log(
                         "Not checking hook %s because it was already denied by hook %s",
-                        hookCheckState.hook().getName(), previousResult.denyingHookName()
+                        hookCheckState.hook().getName(),
+                        previousResult.denyingHookName()
                     );
                     return CompletableFuture.completedFuture(previousResult);
                 }
@@ -282,12 +284,12 @@ final class HookCheckStateContainer
                 return hookCheckState.check(function);
             });
         }
-        return result
-            .exceptionally(e ->
-            {
-                log.atSevere().withCause(e).log("An exception occurred while running main checks.");
-                return HookCheckResult.ERROR;
-            });
+
+        return result.exceptionally(e ->
+        {
+            log.atSevere().withCause(e).log("An exception occurred while running main checks.");
+            return HookCheckResult.ERROR;
+        });
     }
 
     /**
@@ -396,7 +398,8 @@ final class HookCheckStateContainer
             {
                 log.atFiner().log(
                     "Hook '%s' is already in the state '%s'. Skipping check...",
-                    hookName(), result
+                    hookName(),
+                    result
                 );
 
                 return CompletableFuture.completedFuture(HookCheckResult.allowed());
@@ -505,7 +508,9 @@ final class HookCheckStateContainer
             {
                 log.atFiner().log(
                     "Hook '%s' is already in the state '%s'. Skipping sync pre-check...",
-                    hookName(), this.result);
+                    hookName(),
+                    this.result
+                );
 
                 return HookPreCheckResult.ALLOW;
             }
@@ -518,7 +523,9 @@ final class HookCheckStateContainer
             catch (Exception e)
             {
                 log.atSevere().withCause(e).log(
-                    "An exception occurred while running pre-check for hook '%s'.", hookName());
+                    "An exception occurred while running pre-check for hook '%s'.",
+                    hookName()
+                );
                 result = HookPreCheckResult.DENY;
             }
 
@@ -551,7 +558,9 @@ final class HookCheckStateContainer
             {
                 log.atFiner().log(
                     "Hook '%s' is already in the state '%s'. Skipping async pre-check...",
-                    hookName(), this.result);
+                    hookName(),
+                    this.result
+                );
 
                 return CompletableFuture.completedFuture(HookPreCheckResult.ALLOW);
             }

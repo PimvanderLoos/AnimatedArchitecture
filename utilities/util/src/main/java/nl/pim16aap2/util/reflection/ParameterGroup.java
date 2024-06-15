@@ -20,8 +20,6 @@ import java.util.Objects;
  * {@code void fun(int, boolean, float}.
  * <p>
  * Use {@link Builder} to create a new instance.
- *
- * @author Pim
  */
 @SuppressWarnings("unused")
 public class ParameterGroup
@@ -39,7 +37,8 @@ public class ParameterGroup
     public ParameterGroup(ParameterGroup other)
     {
         final List<Parameter> tmpList = new ArrayList<>(other.parameters.size());
-        Objects.requireNonNull(other, "Copy constructor cannot copy from null!").parameters
+        Objects.requireNonNull(other, "Copy constructor cannot copy from null!")
+            .parameters
             .forEach(parameter -> tmpList.add(new Parameter(parameter)));
 
         parameters = Collections.unmodifiableList(tmpList);
@@ -54,7 +53,7 @@ public class ParameterGroup
      *
      * @return The currently-configured list of {@link Parameter}s.
      */
-    public List<Parameter> getParameters()
+    List<Parameter> getParameters()
     {
         return parameters;
     }
@@ -78,12 +77,15 @@ public class ParameterGroup
         for (int idx = startIdx; idx < parameters.size(); ++idx)
         {
             final Parameter parameter = parameters.get(idx);
+
             // If it's a match, return the number of skipped parameters.
             if (target.equals(parameter.type))
                 return skipped;
+
             // If it's not a match and the current one is required, return -1 (i.e. invalid).
             if (parameter.required())
                 return -1;
+
             skipped += 1;
         }
         return -1;
@@ -198,6 +200,14 @@ public class ParameterGroup
         }
     }
 
+    /**
+     * Represents a single parameter in a {@link ParameterGroup}.
+     *
+     * @param type
+     *     The type of the parameter.
+     * @param optional
+     *     Whether the parameter is optional.
+     */
     private record Parameter(Class<?> type, boolean optional)
     {
         // Copy constructor

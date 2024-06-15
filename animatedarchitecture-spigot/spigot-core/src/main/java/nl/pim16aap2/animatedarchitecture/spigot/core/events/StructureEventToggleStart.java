@@ -14,8 +14,6 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * Implementation of {@link IStructureEventToggleStart} for the Spigot platform.
- *
- * @author Pim
  */
 @ToString
 public class StructureEventToggleStart extends StructureToggleEvent implements IStructureEventToggleStart
@@ -50,8 +48,14 @@ public class StructureEventToggleStart extends StructureToggleEvent implements I
      *     The {@link Cuboid} representing the area the structure will take up after the toggle.
      */
     public StructureEventToggleStart(
-        AbstractStructure structure, StructureSnapshot snapshot, StructureActionCause cause,
-        StructureActionType actionType, IPlayer responsible, double time, boolean skipAnimation, Cuboid newCuboid)
+        AbstractStructure structure,
+        StructureSnapshot snapshot,
+        StructureActionCause cause,
+        StructureActionType actionType,
+        IPlayer responsible,
+        double time,
+        boolean skipAnimation,
+        Cuboid newCuboid)
     {
         super(snapshot, cause, actionType, responsible, time, skipAnimation);
         this.newCuboid = newCuboid;

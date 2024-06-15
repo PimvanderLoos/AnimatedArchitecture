@@ -9,8 +9,6 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents a factory for {@link IPlayer} objects.
- *
- * @author Pim
  */
 public interface IPlayerFactory
 {

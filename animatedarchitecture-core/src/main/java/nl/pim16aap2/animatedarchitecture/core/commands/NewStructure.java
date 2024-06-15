@@ -20,8 +20,6 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents the command that is used to create new structures.
- *
- * @author Pim
  */
 @ToString
 public class NewStructure extends BaseCommand
@@ -32,7 +30,7 @@ public class NewStructure extends BaseCommand
     private final ToolUserManager toolUserManager;
     private final Provider<ToolUser.Context> creatorContextProvider;
 
-    @AssistedInject //
+    @AssistedInject
     NewStructure(
         @Assisted ICommandSender commandSender,
         @Assisted StructureType structureType,
@@ -66,9 +64,10 @@ public class NewStructure extends BaseCommand
     @Override
     protected CompletableFuture<?> executeCommand(PermissionsStatus permissions)
     {
-        toolUserManager.startToolUser(structureType.getCreator(creatorContextProvider.get(),
-                                                               (IPlayer) getCommandSender(), structureName),
-                                      Constants.STRUCTURE_CREATOR_TIME_LIMIT);
+        toolUserManager.startToolUser(
+            structureType.getCreator(creatorContextProvider.get(), (IPlayer) getCommandSender(), structureName),
+            Constants.STRUCTURE_CREATOR_TIME_LIMIT
+        );
         return CompletableFuture.completedFuture(null);
     }
 
@@ -85,15 +84,16 @@ public class NewStructure extends BaseCommand
 
         return new PermissionsStatus(
             basePermissions.hasUserPermission() && permissionForType,
-            basePermissions.hasAdminPermission());
+            basePermissions.hasAdminPermission()
+        );
     }
 
     @Override
     protected CompletableFuture<PermissionsStatus> hasPermission()
     {
         return super.hasPermission()
-                    .thenApply(this::hasPermission)
-                    .exceptionally(e -> Util.exceptionally(e, new PermissionsStatus(false, false)));
+            .thenApply(this::hasPermission)
+            .exceptionally(e -> Util.exceptionally(e, new PermissionsStatus(false, false)));
     }
 
     @AssistedFactory
@@ -114,7 +114,10 @@ public class NewStructure extends BaseCommand
          * @return See {@link BaseCommand#run()}.
          */
         NewStructure newNewStructure(
-            ICommandSender commandSender, StructureType structureType, @Nullable String structureName);
+            ICommandSender commandSender,
+            StructureType structureType,
+            @Nullable String structureName
+        );
 
         /**
          * See {@link #newNewStructure(ICommandSender, StructureType, String)}.

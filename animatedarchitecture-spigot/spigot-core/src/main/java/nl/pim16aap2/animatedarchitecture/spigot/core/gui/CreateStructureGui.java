@@ -40,11 +40,13 @@ class CreateStructureGui implements IGuiPage
     private final ILocalizer localizer;
 
     private final CommandFactory commandFactory;
+
     @Getter
     @ToString.Include
     private final PlayerSpigot inventoryHolder;
 
-    @AssistedInject CreateStructureGui(
+    @AssistedInject
+    CreateStructureGui(
         AnimatedArchitecturePlugin animatedArchitecturePlugin,
         StructureTypeManager structureTypeManager,
         IPermissionsManager permissionsManager,
@@ -67,17 +69,19 @@ class CreateStructureGui implements IGuiPage
     private InventoryGui createGui()
     {
         final var types = structureTypeManager
-            .getEnabledStructureTypes().stream()
+            .getEnabledStructureTypes()
+            .stream()
             .filter(type -> permissionsManager.hasPermissionToCreateStructure(inventoryHolder, type))
             .toList();
 
         final String[] guiSetup = GuiUtil.fillLinesWithChar('g', types.size(), "f        ");
 
-        final InventoryGui gui =
-            new InventoryGui(animatedArchitecturePlugin,
-                             inventoryHolder.getBukkitPlayer(),
-                             localizer.getMessage("gui.new_structure_page.title"),
-                             guiSetup);
+        final InventoryGui gui = new InventoryGui(
+            animatedArchitecturePlugin,
+            inventoryHolder.getBukkitPlayer(),
+            localizer.getMessage("gui.new_structure_page.title"),
+            guiSetup
+        );
 
         gui.setFiller(FILLER);
 
@@ -97,8 +101,8 @@ class CreateStructureGui implements IGuiPage
         gui.addElement(new GuiBackElement(
             'f',
             new ItemStack(Material.ARROW),
-            localizer.getMessage("gui.new_structure_page.back_button")
-        ));
+            localizer.getMessage("gui.new_structure_page.back_button"))
+        );
     }
 
     private void addElements(InventoryGui gui, List<StructureType> types)
@@ -116,9 +120,10 @@ class CreateStructureGui implements IGuiPage
                     return true;
                 },
                 ITextFactory.getSimpleTextFactory().newText()
-                            .append(localizer.getMessage("gui.new_structure_page.button.name"),
-                                    new TextArgument(localizer.getStructureType(type)))
-                            .toString()
+                    .append(
+                        localizer.getMessage("gui.new_structure_page.button.name"),
+                        new TextArgument(localizer.getStructureType(type)))
+                    .toString()
             );
             group.addElement(element);
         }

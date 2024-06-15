@@ -14,16 +14,14 @@ import javax.inject.Singleton;
 
 /**
  * Process world (un)load events.
- *
- * @author Pim
  */
 @Singleton
 public final class WorldListener extends AbstractListener
 {
     private final PowerBlockManager powerBlockManager;
 
-    @Inject WorldListener(
-        JavaPlugin javaPlugin, PowerBlockManager powerBlockManager, RestartableHolder restartableHolder)
+    @Inject
+    WorldListener(JavaPlugin javaPlugin, PowerBlockManager powerBlockManager, RestartableHolder restartableHolder)
     {
         super(restartableHolder, javaPlugin);
         this.powerBlockManager = powerBlockManager;

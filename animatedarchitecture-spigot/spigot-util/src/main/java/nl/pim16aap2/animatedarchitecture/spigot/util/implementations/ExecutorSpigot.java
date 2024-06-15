@@ -15,8 +15,6 @@ import java.util.function.Supplier;
 
 /**
  * Implementation of {@link IExecutor} for the Spigot platform.
- *
- * @author Pim
  */
 @Singleton
 @Flogger
@@ -80,7 +78,7 @@ public final class ExecutorSpigot implements IExecutor
         // (one might read it as scheduling "a sync" task).
         //noinspection deprecation
         return Bukkit.getScheduler()
-                     .scheduleAsyncRepeatingTask(plugin, safeTimerTask(timerTask), toTicks(delay), toTicks(period));
+            .scheduleAsyncRepeatingTask(plugin, safeTimerTask(timerTask), toTicks(delay), toTicks(period));
     }
 
     @Override
@@ -90,21 +88,21 @@ public final class ExecutorSpigot implements IExecutor
         // (one might read it as scheduling "a sync" task).
         //noinspection deprecation
         return Bukkit.getScheduler()
-                     .scheduleAsyncRepeatingTask(plugin, safeRunnable(runnable), toTicks(delay), toTicks(period));
+            .scheduleAsyncRepeatingTask(plugin, safeRunnable(runnable), toTicks(delay), toTicks(period));
     }
 
     @Override
     public int runSyncRepeated(TimerTask timerTask, long delay, long period)
     {
         return Bukkit.getScheduler()
-                     .scheduleSyncRepeatingTask(plugin, safeTimerTask(timerTask), toTicks(delay), toTicks(period));
+            .scheduleSyncRepeatingTask(plugin, safeTimerTask(timerTask), toTicks(delay), toTicks(period));
     }
 
     @Override
     public int runSyncRepeated(Runnable runnable, long delay, long period)
     {
         return Bukkit.getScheduler()
-                     .scheduleSyncRepeatingTask(plugin, safeRunnable(runnable), toTicks(delay), toTicks(period));
+            .scheduleSyncRepeatingTask(plugin, safeRunnable(runnable), toTicks(delay), toTicks(period));
     }
 
     @Override
@@ -163,7 +161,8 @@ public final class ExecutorSpigot implements IExecutor
     {
         return new TimerTask()
         {
-            @Override public void run()
+            @Override
+            public void run()
             {
                 try
                 {

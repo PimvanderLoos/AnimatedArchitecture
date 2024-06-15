@@ -5,17 +5,15 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.managers.StructureSpecificationManager;
-import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.managers.StructureSpecificationManager;
+import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 
 import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents the cancel command, which cancels any processes waiting for user input (e.g. structure creation).
- *
- * @author Pim
  */
 @ToString
 public class Cancel extends BaseCommand
@@ -23,10 +21,13 @@ public class Cancel extends BaseCommand
     private final ToolUserManager toolUserManager;
     private final StructureSpecificationManager doorSpecificationManager;
 
-    @AssistedInject //
+    @AssistedInject
     Cancel(
-        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
-        ToolUserManager toolUserManager, StructureSpecificationManager doorSpecificationManager)
+        @Assisted ICommandSender commandSender,
+        ILocalizer localizer,
+        ITextFactory textFactory,
+        ToolUserManager toolUserManager,
+        StructureSpecificationManager doorSpecificationManager)
     {
         super(commandSender, localizer, textFactory);
         this.toolUserManager = toolUserManager;

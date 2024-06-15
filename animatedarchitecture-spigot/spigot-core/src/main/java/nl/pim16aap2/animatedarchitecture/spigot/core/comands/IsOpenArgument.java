@@ -11,17 +11,29 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
 
+/**
+ * Represents an argument that can be used to check if a structure is open.
+ */
 public class IsOpenArgument extends CommandArgument<ICommandSender, Boolean>
 {
     @lombok.Builder
-    public IsOpenArgument(
-        boolean required, String name, @Nullable String defaultValue,
+    IsOpenArgument(
+        boolean required,
+        String name,
+        @Nullable String defaultValue,
         @Nullable BiFunction<CommandContext<ICommandSender>, String, List<String>> suggestionsProvider,
-        @Nullable ArgumentDescription defaultDescription, ILocalizer localizer,
+        @Nullable ArgumentDescription defaultDescription,
+        ILocalizer localizer,
         IsOpenParser parser)
     {
-        super(required, name, parser, Objects.requireNonNullElse(defaultValue, ""),
-              Boolean.class, suggestionsProvider,
-              Objects.requireNonNullElse(defaultDescription, ArgumentDescription.empty()));
+        super(
+            required,
+            name,
+            parser,
+            Objects.requireNonNullElse(defaultValue, ""),
+            Boolean.class,
+            suggestionsProvider,
+            Objects.requireNonNullElse(defaultDescription, ArgumentDescription.empty())
+        );
     }
 }

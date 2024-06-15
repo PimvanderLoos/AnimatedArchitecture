@@ -9,8 +9,6 @@ import java.util.function.Supplier;
 
 /**
  * Represents an interface that allows scheduling (a)sync tasks.
- *
- * @author Pim
  */
 public interface IExecutor
 {
@@ -69,13 +67,12 @@ public interface IExecutor
      */
     default CompletableFuture<Void> runOnMainThreadWithResponse(Runnable runnable)
     {
-        return runOnMainThread(
-            () ->
-            {
-                runnable.run();
-                //noinspection DataFlowIssue
-                return null;
-            });
+        return runOnMainThread(() ->
+        {
+            runnable.run();
+            //noinspection DataFlowIssue
+            return null;
+        });
     }
 
     /**

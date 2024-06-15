@@ -12,7 +12,6 @@ package nl.pim16aap2.animatedarchitecture.core.util.functional;
  *     The type of the third argument to the operation
  * @param <E>
  *     The type of the exception thrown by the function.
- * @author Pim
  */
 @FunctionalInterface
 public interface CheckedTriConsumer<T, U, V, E extends Exception>

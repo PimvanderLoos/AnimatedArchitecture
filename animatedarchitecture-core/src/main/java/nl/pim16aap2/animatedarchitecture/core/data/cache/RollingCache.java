@@ -28,7 +28,6 @@ import java.util.function.Consumer;
  *
  * @param <T>
  *     The type of data to store.
- * @author Pim
  */
 public final class RollingCache<T> extends AbstractCollection<T> implements Iterable<T>
 {

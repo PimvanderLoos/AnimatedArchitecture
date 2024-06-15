@@ -38,8 +38,10 @@ class LogAssertionsUtilTest
         Assertions.assertDoesNotThrow(
             () -> LogAssertionsUtil.assertLogged(logCaptor, 1, "Test message 2"));
 
-        Assertions.assertThrows(AssertionFailedError.class,
-                                () -> LogAssertionsUtil.assertLogged(logCaptor, 1, "Non-existent message"));
+        Assertions.assertThrows(
+            AssertionFailedError.class,
+            () -> LogAssertionsUtil.assertLogged(logCaptor, 1, "Non-existent message")
+        );
     }
 
     @Test
@@ -63,7 +65,8 @@ class LogAssertionsUtilTest
         // Test out of bounds
         Assertions.assertThrows(
             AssertionFailedError.class,
-            () -> LogAssertionsUtil.assertLogged(logCaptor, 3, "Test message 3"));
+            () -> LogAssertionsUtil.assertLogged(logCaptor, 3, "Test message 3")
+        );
     }
 
     @Test
@@ -76,19 +79,21 @@ class LogAssertionsUtilTest
 
         Assertions.assertEquals(
             """
-            Oldest log messages with their index:
-              [0] [INFO] `Test message 0`
-            """,
-            LogAssertionsUtil.formatLogEvents(events, 1));
+                Oldest log messages with their index:
+                  [0] [INFO] `Test message 0`
+                """,
+            LogAssertionsUtil.formatLogEvents(events, 1)
+        );
 
         Assertions.assertEquals(
             """
-            Oldest log messages with their index:
-              [0] [INFO] `Test message 0`
-              [1] [INFO] `Test message 1`
-              [2] [INFO] `Test message 2`
-            """,
-            LogAssertionsUtil.formatLogEvents(events, 5));
+                Oldest log messages with their index:
+                  [0] [INFO] `Test message 0`
+                  [1] [INFO] `Test message 1`
+                  [2] [INFO] `Test message 2`
+                """,
+            LogAssertionsUtil.formatLogEvents(events, 5)
+        );
     }
 
     @Test
@@ -101,19 +106,21 @@ class LogAssertionsUtilTest
 
         Assertions.assertEquals(
             """
-            Most recent log messages with their offset:
-              [-1] [INFO] `Test message 2`
-            """,
-            LogAssertionsUtil.formatLogEvents(events, -1));
+                Most recent log messages with their offset:
+                  [-1] [INFO] `Test message 2`
+                """,
+            LogAssertionsUtil.formatLogEvents(events, -1)
+        );
 
         Assertions.assertEquals(
             """
-            Most recent log messages with their offset:
-              [-1] [INFO] `Test message 2`
-              [-2] [INFO] `Test message 1`
-              [-3] [INFO] `Test message 0`
-            """,
-            LogAssertionsUtil.formatLogEvents(events, -5));
+                Most recent log messages with their offset:
+                  [-1] [INFO] `Test message 2`
+                  [-2] [INFO] `Test message 1`
+                  [-3] [INFO] `Test message 0`
+                """,
+            LogAssertionsUtil.formatLogEvents(events, -5)
+        );
     }
 
     @Test
@@ -145,7 +152,8 @@ class LogAssertionsUtilTest
         // Test out of bounds
         Assertions.assertThrows(
             AssertionFailedError.class,
-            () -> LogAssertionsUtil.assertLogged(logCaptor, -4, "Test message 0"));
+            () -> LogAssertionsUtil.assertLogged(logCaptor, -4, "Test message 0")
+        );
     }
 
     @Test
@@ -170,7 +178,8 @@ class LogAssertionsUtilTest
 
         Assertions.assertThrows(
             AssertionFailedError.class,
-            () -> LogAssertionsUtil.assertLogged(logCaptor, 0, "non-existent message", MessageComparisonMethod.EQUALS));
+            () -> LogAssertionsUtil.assertLogged(logCaptor, 0, "non-existent message", MessageComparisonMethod.EQUALS)
+        );
     }
 
     @Test
@@ -220,20 +229,28 @@ class LogAssertionsUtilTest
         Assertions.assertDoesNotThrow(() -> LogAssertionsUtil.assertThrowableLogged(
             logCaptor, -1, "Exception occurred",
             RuntimeException.class, "Cause",
-            NullPointerException.class, "Root cause"));
+            NullPointerException.class, "Root cause")
+        );
 
         Assertions.assertDoesNotThrow(() -> LogAssertionsUtil.assertThrowableLogged(
             logCaptor, -1, null,
             RuntimeException.class, "Cause",
-            NullPointerException.class, "Root cause"));
+            NullPointerException.class, "Root cause")
+        );
 
         // Incorrect type
-        Assertions.assertThrows(AssertionFailedError.class, () -> LogAssertionsUtil.assertThrowableLogged(
-            logCaptor, -1, "Exception occurred", IOException.class, "Cause"));
+        Assertions.assertThrows(
+            AssertionFailedError.class,
+            () -> LogAssertionsUtil.assertThrowableLogged(
+                logCaptor, -1, "Exception occurred", IOException.class, "Cause")
+        );
 
         // Incorrect message
-        Assertions.assertThrows(AssertionFailedError.class, () -> LogAssertionsUtil.assertThrowableLogged(
-            logCaptor, -1, "Exception occurred", RuntimeException.class, "Wrong message"));
+        Assertions.assertThrows(
+            AssertionFailedError.class,
+            () -> LogAssertionsUtil.assertThrowableLogged(
+                logCaptor, -1, "Exception occurred", RuntimeException.class, "Wrong message")
+        );
     }
 
     @Test

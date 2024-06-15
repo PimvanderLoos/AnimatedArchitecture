@@ -67,7 +67,8 @@ public final class CommandManager
     private final CommandExecutor commandExecutor;
     private final IExecutor executor;
 
-    @Inject CommandManager(
+    @Inject
+    CommandManager(
         JavaPlugin plugin,
         ConfigSpigot config,
         ILocalizer localizer,
@@ -114,14 +115,21 @@ public final class CommandManager
         }
 
         final CommandConfirmationManager<ICommandSender> confirmationManager = new CommandConfirmationManager<>(
-            30L, TimeUnit.SECONDS,
-            context -> context.getCommandContext().getSender().sendMessage(textFactory.newText().append(
-                localizer.getMessage("commands.spigot.confirmation.message"), TextType.INFO,
-                arg -> arg.clickable(localizer.getMessage("commands.spigot.confirmation.message.arg0.message"),
-                                     "/AnimatedArchitecture confirm",
-                                     localizer.getMessage("commands.spigot.confirmation.message.arg0.hint")))),
+            30L,
+            TimeUnit.SECONDS,
+            context -> context
+                .getCommandContext()
+                .getSender()
+                .sendMessage(textFactory.newText().append(
+                    localizer.getMessage("commands.spigot.confirmation.message"),
+                    TextType.INFO,
+                    arg -> arg.clickable(
+                        localizer.getMessage("commands.spigot.confirmation.message.arg0.message"),
+                        "/AnimatedArchitecture confirm",
+                        localizer.getMessage("commands.spigot.confirmation.message.arg0.hint")))),
             sender -> sender.sendError(
-                textFactory, localizer.getMessage("commands.spigot.confirmation.error.no_pending"))
+                textFactory,
+                localizer.getMessage("commands.spigot.confirmation.error.no_pending"))
         );
 
         confirmationManager.registerConfirmationProcessor(this.manager);
@@ -132,13 +140,13 @@ public final class CommandManager
             .withNoPermissionHandler()
             .withArgumentParsingHandler()
             .withCommandExecutionHandler()
-            .withDecorator(
-                component -> text()
-                    .append(text("[", NamedTextColor.DARK_GRAY))
-                    .append(text("AnimatedArchitecture", NamedTextColor.GOLD))
-                    .append(text("] ", NamedTextColor.DARK_GRAY))
-                    .append(component).build()
-            ).apply(manager, sender -> this.bukkitAudiences.sender(SpigotAdapter.unwrapCommandSender(sender)));
+            .withDecorator(component -> text()
+                .append(text("[", NamedTextColor.DARK_GRAY))
+                .append(text("AnimatedArchitecture", NamedTextColor.GOLD))
+                .append(text("] ", NamedTextColor.DARK_GRAY))
+                .append(component)
+                .build())
+            .apply(manager, sender -> this.bukkitAudiences.sender(SpigotAdapter.unwrapCommandSender(sender)));
 
         initCommands(manager);
     }
@@ -185,7 +193,8 @@ public final class CommandManager
     }
 
     private void initCmdHelp(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         final MinecraftHelp<ICommandSender> minecraftHelp = new MinecraftHelp<>(
             "/animatedarchitecture help",
@@ -193,52 +202,58 @@ public final class CommandManager
             manager
         );
 
-        manager.command(
-            builder.literal("help")
-                   .argument(StringArgument.optional("query", StringArgument.StringMode.GREEDY))
-                   .handler(context ->
-                                minecraftHelp.queryCommands(Objects.requireNonNull(context.getOrDefault("query", "")),
-                                                            context.getSender()))
+        manager.command(builder
+            .literal("help")
+            .argument(StringArgument.optional("query", StringArgument.StringMode.GREEDY))
+            .handler(context -> minecraftHelp
+                .queryCommands(Objects.requireNonNull(context.getOrDefault("query", "")), context.getSender()))
         );
     }
 
     private Command.Builder<ICommandSender> baseInit(
-        Command.Builder<ICommandSender> builder, String name, CommandDefinition cmd, String descriptionKey)
+        Command.Builder<ICommandSender> builder,
+        String name,
+        CommandDefinition cmd,
+        String descriptionKey)
     {
         return builder.literal(name.replace("_", "").toLowerCase(Locale.ROOT))
-                      .permission(cmd.getLowestPermission())
-                      .meta(CommandMeta.DESCRIPTION, localizer.getMessage(descriptionKey));
+            .permission(cmd.getLowestPermission())
+            .meta(CommandMeta.DESCRIPTION, localizer.getMessage(descriptionKey));
     }
 
     private Command.Builder<ICommandSender> baseInit(
-        Command.Builder<ICommandSender> builder, CommandDefinition cmd, String descriptionKey)
+        Command.Builder<ICommandSender> builder,
+        CommandDefinition cmd,
+        String descriptionKey)
     {
         return baseInit(builder, cmd.getName(), cmd, descriptionKey);
     }
 
     private void initCmdAddOwner(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.ADD_OWNER, "commands.add_owner.description")
                 .argument(PlayerArgument.of("newOwner"))
                 .argument(PermissionLevelArgument
-                              .builder()
-                              .name("permissionLevel")
-                              .required(true)
-                              .minimumLevel(PermissionLevel.ADMIN)
-                              .maximumLevel(PermissionLevel.USER)
-                              .localizer(localizer)
-                              .defaultDescription(ArgumentDescription.of(
-                                  localizer.getMessage("commands.add_owner.param.permission_level.description")))
-                              .build())
+                    .builder()
+                    .name("permissionLevel")
+                    .required(true)
+                    .minimumLevel(PermissionLevel.ADMIN)
+                    .maximumLevel(PermissionLevel.USER)
+                    .localizer(localizer)
+                    .defaultDescription(ArgumentDescription.of(
+                        localizer.getMessage("commands.add_owner.param.permission_level.description")))
+                    .build())
                 .argument(defaultStructureArgument(false, StructureAttribute.ADD_OWNER).build())
                 .handler(commandExecutor::addOwner)
         );
     }
 
     private void initCmdCancel(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.CANCEL, "commands.cancel.description")
@@ -247,7 +262,8 @@ public final class CommandManager
     }
 
     private void initCmdConfirm(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.CONFIRM, "commands.confirm.description")
@@ -256,7 +272,8 @@ public final class CommandManager
     }
 
     private void initCmdDebug(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.DEBUG, "commands.debug.description")
@@ -265,7 +282,8 @@ public final class CommandManager
     }
 
     private void initCmdDelete(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.DELETE, "commands.delete.description")
@@ -275,7 +293,8 @@ public final class CommandManager
     }
 
     private void initCmdInfo(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.INFO, "commands.info.description")
@@ -285,7 +304,8 @@ public final class CommandManager
     }
 
     private void initCmdInspectPowerBlock(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.INSPECT_POWER_BLOCK, "commands.inspect_power_block.description")
@@ -294,7 +314,8 @@ public final class CommandManager
     }
 
     private void initCmdListStructures(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.LIST_STRUCTURES, "commands.list_structures.description")
@@ -304,7 +325,8 @@ public final class CommandManager
     }
 
     private void initCmdLock(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.LOCK, "commands.lock.description")
@@ -316,7 +338,8 @@ public final class CommandManager
     }
 
     private void initCmdMenu(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.MENU, "commands.menu.description")
@@ -326,7 +349,8 @@ public final class CommandManager
     }
 
     private void initCmdMovePowerBlock(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.MOVE_POWER_BLOCK, "commands.move_power_block.description")
@@ -336,7 +360,8 @@ public final class CommandManager
     }
 
     private void initCmdNewStructure(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.NEW_STRUCTURE, "commands.new_structure.description")
@@ -361,7 +386,8 @@ public final class CommandManager
     }
 
     private void initCmdRemoveOwner(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.REMOVE_OWNER, "commands.remove_owner.description")
@@ -372,7 +398,8 @@ public final class CommandManager
     }
 
     private void initCmdRestart(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.RESTART, "commands.restart.description")
@@ -381,7 +408,8 @@ public final class CommandManager
     }
 
     private void initCmdSetBlocksToMove(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.SET_BLOCKS_TO_MOVE, "commands.set_blocks_to_move.description")
@@ -392,7 +420,8 @@ public final class CommandManager
     }
 
     private void initCmdSetName(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.SET_NAME, "commands.set_name.description")
@@ -402,7 +431,8 @@ public final class CommandManager
     }
 
     private void initCmdSetOpenStatus(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.SET_OPEN_STATUS, "commands.set_open_status.description")
@@ -414,7 +444,8 @@ public final class CommandManager
     }
 
     private void initCmdSetOpenDirection(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.SET_OPEN_DIRECTION, "commands.set_open_direction.description")
@@ -426,7 +457,8 @@ public final class CommandManager
     }
 
     private void initCmdSpecify(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.SPECIFY, "commands.specify.description")
@@ -436,7 +468,8 @@ public final class CommandManager
     }
 
     private void initCmdStopStructures(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.STOP_STRUCTURES, "commands.stop_structures.description")
@@ -445,7 +478,8 @@ public final class CommandManager
     }
 
     private void initCmdToggle(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.TOGGLE, "commands.toggle.description")
@@ -455,7 +489,8 @@ public final class CommandManager
     }
 
     private void initCmdOpen(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, "open", CommandDefinition.TOGGLE, "commands.open.description")
@@ -465,7 +500,8 @@ public final class CommandManager
     }
 
     private void initCmdClose(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, "close", CommandDefinition.TOGGLE, "commands.close.description")
@@ -475,12 +511,14 @@ public final class CommandManager
     }
 
     private void initCmdPreview(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         final CommandDefinition previewDefinition =
-            new CommandDefinition("PREVIEW",
-                                  Constants.PERMISSION_PREFIX_USER + "preview",
-                                  Constants.PERMISSION_PREFIX_ADMIN + "bypass.preview");
+            new CommandDefinition(
+                "PREVIEW",
+                Constants.PERMISSION_PREFIX_USER + "preview",
+                Constants.PERMISSION_PREFIX_ADMIN + "bypass.preview");
 
         manager.command(
             baseInit(builder, previewDefinition, "commands.preview.description")
@@ -490,7 +528,8 @@ public final class CommandManager
     }
 
     private void initCmdVersion(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.VERSION, "commands.version.description")
@@ -499,25 +538,27 @@ public final class CommandManager
     }
 
     private void initCmdUpdateCreator(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             builder.literal(CommandDefinition.UPDATE_CREATOR.getName().replace("_", "").toLowerCase(Locale.ROOT))
-                   .permission(CommandDefinition.UPDATE_CREATOR.getLowestPermission())
-                   .argument(StringArgument.of("stepName"))
-                   .argument(StringArgument.optional("stepValue"))
-                   .hidden()
-                   .handler(commandExecutor::updateCreator)
+                .permission(CommandDefinition.UPDATE_CREATOR.getLowestPermission())
+                .argument(StringArgument.of("stepName"))
+                .argument(StringArgument.optional("stepValue"))
+                .hidden()
+                .handler(commandExecutor::updateCreator)
         );
     }
 
     private StructureArgument.StructureArgumentBuilder defaultStructureArgument(
-        boolean required, StructureAttribute structureAttribute)
+        boolean required,
+        StructureAttribute structureAttribute)
     {
         return StructureArgument.builder().required(required).name("structureRetriever")
-                                .asyncSuggestions(asyncCompletions).executor(executor)
-                                .structureRetrieverFactory(structureRetrieverFactory)
-                                .maxPermission(structureAttribute.getPermissionLevel());
+            .asyncSuggestions(asyncCompletions).executor(executor)
+            .structureRetrieverFactory(structureRetrieverFactory)
+            .maxPermission(structureAttribute.getPermissionLevel());
     }
 
     private IsOpenArgument.IsOpenArgumentBuilder defaultOpenStatusArgument(boolean required)

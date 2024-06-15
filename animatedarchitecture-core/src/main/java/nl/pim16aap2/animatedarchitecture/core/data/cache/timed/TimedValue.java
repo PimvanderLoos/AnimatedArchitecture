@@ -36,7 +36,6 @@ import java.time.Clock;
  *
  * @param <T>
  *     The type of the value to store.
- * @author Pim
  */
 class TimedValue<T> extends AbstractTimedValue<T>
 {

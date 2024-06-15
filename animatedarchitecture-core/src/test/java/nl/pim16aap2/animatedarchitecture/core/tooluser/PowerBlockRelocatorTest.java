@@ -81,8 +81,11 @@ class PowerBlockRelocatorTest
         Mockito.when(context.getStepFactory()).thenReturn(assistedStepFactory);
 
         Mockito.when(factory.create(Mockito.any(IPlayer.class), Mockito.any(AbstractStructure.class)))
-            .thenAnswer(invoc -> new PowerBlockRelocator(context, invoc.getArgument(0, IPlayer.class),
-                invoc.getArgument(1, AbstractStructure.class)));
+            .thenAnswer(invoc -> new PowerBlockRelocator(
+                context,
+                invoc.getArgument(0, IPlayer.class),
+                invoc.getArgument(1, AbstractStructure.class)
+            ));
     }
 
     @Test

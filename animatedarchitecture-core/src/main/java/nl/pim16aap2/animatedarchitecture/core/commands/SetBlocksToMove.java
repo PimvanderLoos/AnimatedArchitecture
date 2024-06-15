@@ -17,8 +17,6 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents the command that is used to change the number of blocks a block will try to move.
- *
- * @author Pim
  */
 @ToString
 public class SetBlocksToMove extends StructureTargetCommand
@@ -27,10 +25,13 @@ public class SetBlocksToMove extends StructureTargetCommand
 
     private final int blocksToMove;
 
-    @AssistedInject //
+    @AssistedInject
     SetBlocksToMove(
-        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
-        @Assisted StructureRetriever structureRetriever, @Assisted int blocksToMove)
+        @Assisted ICommandSender commandSender,
+        ILocalizer localizer,
+        ITextFactory textFactory,
+        @Assisted StructureRetriever structureRetriever,
+        @Assisted int blocksToMove)
     {
         super(commandSender, localizer, textFactory, structureRetriever, StructureAttribute.BLOCKS_TO_MOVE);
         this.blocksToMove = blocksToMove;
@@ -48,9 +49,11 @@ public class SetBlocksToMove extends StructureTargetCommand
         final var desc = getRetrievedStructureDescription();
 
         getCommandSender().sendMessage(textFactory.newText().append(
-            localizer.getMessage("commands.set_blocks_to_move.success"), TextType.SUCCESS,
+            localizer.getMessage("commands.set_blocks_to_move.success"),
+            TextType.SUCCESS,
             arg -> arg.highlight(desc.localizedTypeName()),
-            arg -> arg.highlight(desc.id())));
+            arg -> arg.highlight(desc.id()))
+        );
     }
 
     @Override
@@ -59,9 +62,11 @@ public class SetBlocksToMove extends StructureTargetCommand
         if (!(structure instanceof IDiscreteMovement))
         {
             getCommandSender().sendMessage(textFactory.newText().append(
-                localizer.getMessage("commands.set_blocks_to_move.error.invalid_structure_type"), TextType.ERROR,
+                localizer.getMessage("commands.set_blocks_to_move.error.invalid_structure_type"),
+                TextType.ERROR,
                 arg -> arg.highlight(localizer.getStructureType(structure)),
-                arg -> arg.highlight(structure.getBasicInfo())));
+                arg -> arg.highlight(structure.getBasicInfo()))
+            );
             return CompletableFuture.completedFuture(null);
         }
 
@@ -85,6 +90,9 @@ public class SetBlocksToMove extends StructureTargetCommand
          * @return See {@link BaseCommand#run()}.
          */
         SetBlocksToMove newSetBlocksToMove(
-            ICommandSender commandSender, StructureRetriever structureRetriever, int blocksToMove);
+            ICommandSender commandSender,
+            StructureRetriever structureRetriever,
+            int blocksToMove
+        );
     }
 }

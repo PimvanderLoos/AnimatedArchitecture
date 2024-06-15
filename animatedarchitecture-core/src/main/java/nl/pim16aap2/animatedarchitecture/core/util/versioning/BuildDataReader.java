@@ -26,7 +26,8 @@ public final class BuildDataReader implements IDebuggable
 {
     private final BuildData buildData;
 
-    @Inject BuildDataReader(DebuggableRegistry debuggableRegistry)
+    @Inject
+    BuildDataReader(DebuggableRegistry debuggableRegistry)
     {
         this.buildData = readBuildData();
         debuggableRegistry.registerDebuggable(this);
@@ -46,17 +47,19 @@ public final class BuildDataReader implements IDebuggable
     private BuildData readBuildData0()
         throws Exception
     {
-        try (InputStream inputStream = Objects.requireNonNull(
-            this.getClass().getClassLoader().getResourceAsStream("build_data"));
-             InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
-             BufferedReader bufferedReader = new BufferedReader(inputStreamReader))
+        try (
+            InputStream inputStream = Objects.requireNonNull(
+                this.getClass().getClassLoader().getResourceAsStream("build_data"));
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader))
         {
             final Object[] lines = bufferedReader.lines().toArray();
             if (lines.length != 3)
                 throw new IllegalArgumentException("Failed to parse build data from input: " + Arrays.toString(lines));
-            return new BuildData((String) lines[0],
-                                 parseInt("build number", (String) lines[1]),
-                                 parseInt("build id", (String) lines[2]));
+            return new BuildData(
+                (String) lines[0],
+                parseInt("build number", (String) lines[1]),
+                parseInt("build id", (String) lines[2]));
         }
     }
 
@@ -91,7 +94,7 @@ public final class BuildDataReader implements IDebuggable
     public String toString()
     {
         return String.format("Commit: %s\nBuild number: %d\nBuild id: %d",
-                             buildData.git, buildData.buildNumber, buildData.buildId);
+            buildData.git, buildData.buildNumber, buildData.buildId);
     }
 
     /**

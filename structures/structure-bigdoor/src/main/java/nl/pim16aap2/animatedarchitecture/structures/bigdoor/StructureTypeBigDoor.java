@@ -21,13 +21,20 @@ public final class StructureTypeBigDoor extends StructureType
 
     private static final AudioSet AUDIO_SET = new AudioSet(
         new AudioDescription("bd.dragging2", 0.8f, 0.7f, 750),
-        new AudioDescription("bd.thud", 0.2f, 0.15f, 250));
+        new AudioDescription("bd.thud", 0.2f, 0.15f, 250)
+    );
 
     private StructureTypeBigDoor()
     {
-        super(Constants.PLUGIN_NAME, "BigDoor", TYPE_VERSION,
-              Arrays.asList(MovementDirection.CLOCKWISE, MovementDirection.COUNTERCLOCKWISE),
-              "structure.type.big_door");
+        super(
+            Constants.PLUGIN_NAME,
+            "BigDoor",
+            TYPE_VERSION,
+            Arrays.asList(
+                MovementDirection.CLOCKWISE,
+                MovementDirection.COUNTERCLOCKWISE),
+            "structure.type.big_door"
+        );
     }
 
     /**

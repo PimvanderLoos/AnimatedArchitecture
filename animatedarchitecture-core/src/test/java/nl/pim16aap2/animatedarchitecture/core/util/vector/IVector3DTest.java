@@ -21,7 +21,7 @@ class IVector3DTest
         }
 
         final Vector3Di vec = new Vector3Di(arr[0], arr[1], arr[2]);
-        Assertions.assertTrue(Math.abs(Math.sqrt(sqSum) - vec.magnitude()) < 0.0000001D);
+        Assertions.assertEquals(Math.sqrt(sqSum), vec.magnitude(), 0.0000001D);
     }
 
     @Test
@@ -38,6 +38,6 @@ class IVector3DTest
         }
 
         final Vector3Dd vec = new Vector3Dd(arr[0], arr[1], arr[2]);
-        Assertions.assertTrue(Math.abs(Math.sqrt(sqSum) - vec.magnitude()) < 0.0000001D);
+        Assertions.assertEquals(Math.sqrt(sqSum), vec.magnitude(), 0.0000001D);
     }
 }

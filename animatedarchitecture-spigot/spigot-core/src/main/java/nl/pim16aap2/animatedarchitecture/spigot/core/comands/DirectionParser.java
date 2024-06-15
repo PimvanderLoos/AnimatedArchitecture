@@ -28,8 +28,6 @@ import java.util.stream.Stream;
 
 /**
  * Represents an argument parser that can be used to retrieve and suggest structure types.
- *
- * @author Pim
  */
 public class DirectionParser implements ArgumentParser<ICommandSender, MovementDirection>, IRestartable
 {
@@ -39,7 +37,8 @@ public class DirectionParser implements ArgumentParser<ICommandSender, MovementD
         new LinkedHashMap<>(MathUtil.ceil(1.25 * MovementDirection.values().length));
     private final Map<MovementDirection, String> invertedSuggestions = new EnumMap<>(MovementDirection.class);
 
-    @Inject DirectionParser(RestartableHolder restartableHolder, ToolUserManager toolUserManager, ILocalizer localizer)
+    @Inject
+    DirectionParser(RestartableHolder restartableHolder, ToolUserManager toolUserManager, ILocalizer localizer)
     {
         restartableHolder.registerRestartable(this);
         this.toolUserManager = toolUserManager;
@@ -59,7 +58,8 @@ public class DirectionParser implements ArgumentParser<ICommandSender, MovementD
 
     @Override
     public ArgumentParseResult<MovementDirection> parse(
-        CommandContext<ICommandSender> commandContext, Queue<String> inputQueue)
+        CommandContext<ICommandSender> commandContext,
+        Queue<String> inputQueue)
     {
         final @Nullable String input = inputQueue.peek();
         final @Nullable MovementDirection direction =
@@ -77,8 +77,11 @@ public class DirectionParser implements ArgumentParser<ICommandSender, MovementD
     public List<String> suggestions(CommandContext<ICommandSender> commandContext, String input)
     {
         final Stream<String> suggestionsStream =
-            Objects.requireNonNullElseGet(tryRetrieveGuidedSuggestions(commandContext),
-                                          () -> invertedSuggestions.values().stream());
+            Objects.requireNonNullElseGet(
+                tryRetrieveGuidedSuggestions(commandContext),
+                () -> invertedSuggestions.values().stream()
+            );
+
         return suggestionsStream
             .filter(val -> val.toLowerCase(Locale.ROOT).startsWith(input.toLowerCase(Locale.ROOT)))
             .toList();

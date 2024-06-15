@@ -1,17 +1,21 @@
 package nl.pim16aap2.animatedarchitecture.core.managers;
 
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
-import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.commands.DelayedCommandInputRequest;
+import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.util.Optional;
 
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class DelayedCommandInputManagerTest
 {
     @Mock
@@ -19,12 +23,6 @@ class DelayedCommandInputManagerTest
 
     @Mock
     DebuggableRegistry debuggableRegistry;
-
-    @BeforeEach
-    void init()
-    {
-        MockitoAnnotations.openMocks(this);
-    }
 
     @Test
     void testRegistration()

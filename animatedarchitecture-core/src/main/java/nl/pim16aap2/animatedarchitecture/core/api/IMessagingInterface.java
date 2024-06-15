@@ -5,8 +5,6 @@ import java.util.logging.Level;
 
 /**
  * Interface for messaging players and writing to console.
- *
- * @author Pim
  */
 public interface IMessagingInterface
 {

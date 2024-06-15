@@ -19,10 +19,8 @@ import java.util.Set;
 
 /**
  * Represents a class that can be used to apply user-defined localization patches.
- *
- * @author Pim
  */
-@Flogger //
+@Flogger
 final class LocalizationPatcher
 {
     @Getter
@@ -89,8 +87,8 @@ final class LocalizationPatcher
         try
         {
             Files.writeString(localeFile.path(), sb.toString(),
-                              StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE,
-                              StandardOpenOption.WRITE);
+                StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE,
+                StandardOpenOption.WRITE);
         }
         catch (IOException e)
         {

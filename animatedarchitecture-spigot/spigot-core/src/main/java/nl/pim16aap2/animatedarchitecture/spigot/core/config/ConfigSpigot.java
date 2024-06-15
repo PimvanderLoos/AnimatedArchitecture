@@ -47,9 +47,7 @@ import java.util.Set;
 import java.util.logging.Level;
 
 /**
- * Represents the config loader.
- *
- * @author Pim
+ * Represents the configuration of the plugin for the Spigot platform.
  */
 @ToString
 @Singleton
@@ -57,7 +55,10 @@ import java.util.logging.Level;
 public final class ConfigSpigot implements IConfig, IDebuggable
 {
     private static final List<String> DEFAULT_COMMAND_ALIASES = List.of(
-        "animatedarchitecture", "AnimatedArchitecture", "aa");
+        "animatedarchitecture",
+        "AnimatedArchitecture",
+        "aa"
+    );
 
     @ToString.Exclude
     private final JavaPlugin plugin;
@@ -82,6 +83,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable
     private final Set<IProtectionHookSpigotSpecification> enabledProtectionHooks = new HashSet<>();
     @ToString.Exclude
     private final List<ConfigEntry<?>> configEntries = new ArrayList<>();
+
     private final Map<StructureType, String> structurePrices;
     private final Map<StructureType, Double> structureAnimationTimeMultipliers;
     private final Map<StructureType, Material> structureTypeGuiMaterials;
@@ -134,8 +136,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable
         structureAnimationTimeMultipliers = new HashMap<>();
         structureTypeGuiMaterials = new HashMap<>();
 
-        header =
-            """
+        header = """
             # Config file for AnimatedArchitecture. Don't forget to make a backup before making changes!
             #
             # For most options, you can apply your changes using "/animatedarchitecture restart".
@@ -171,8 +172,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable
         plugin.reloadConfig();
         shutDown();
 
-        final String loadChunksForToggleComment =
-            """
+        final String loadChunksForToggleComment = """
             # Try to load chunks when a structure is toggled. When set to false, structures will not be toggled if more
             # than 1 chunk needs to be loaded.
             # When set to true, the plugin will try to load all chunks the structure will interact with before toggling.
@@ -180,13 +180,11 @@ public final class ConfigSpigot implements IConfig, IDebuggable
             # of entities no one can see anyway.
             """;
 
-        final String enableRedstoneComment =
-            """
+        final String enableRedstoneComment = """
             # Allow structures to be opened using redstone signals.
             """;
 
-        final String powerBlockTypeComment =
-            """
+        final String powerBlockTypeComment = """
             # Choose the type of the power block that is used to open structures using redstone.
             # This is the block that will open the structure attached to it when it receives a redstone signal.
             # Multiple types are allowed.
@@ -194,8 +192,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable
             # A list of options can be found here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html
             """;
 
-        final String blacklistComment =
-            """
+        final String blacklistComment = """
             # List of blacklisted materials. Materials on this list can not be animated.
             #
             # Use the same list of materials as for the power blocks. For example, you would blacklist bedrock like so:
@@ -204,77 +201,80 @@ public final class ConfigSpigot implements IConfig, IDebuggable
 
         final String maxStructureCountComment = String.format(
             """
-            # Global maximum number of structures a player can own. You can set it to -1 to disable it this limit.
-            #
-            # Not even admins and OPs can bypass this limit!
-            #
-            # You can use permissions if you need more finely grained control using this node:
-            # '%s.x', where 'x' can be any positive value.
-            """, Limit.STRUCTURE_COUNT.getUserPermission());
+                # Global maximum number of structures a player can own. You can set it to -1 to disable it this limit.
+                #
+                # Not even admins and OPs can bypass this limit!
+                #
+                # You can use permissions if you need more finely grained control using this node:
+                # '%s.x', where 'x' can be any positive value.
+                """,
+            Limit.STRUCTURE_COUNT.getUserPermission()
+        );
 
         final String maxBlocksToMoveComment = String.format(
             """
-            # Global maximum number of structures a player can own. You can set it to -1 to disable it this limit.
-            #
-            # Not even admins and OPs can bypass this limit!
-            #
-            # You can use permissions if you need more finely grained control using this node:
-            # '%s.x', where 'x' can be any positive value.
-            """, Limit.BLOCKS_TO_MOVE.getUserPermission());
+                # Global maximum number of structures a player can own. You can set it to -1 to disable it this limit.
+                #
+                # Not even admins and OPs can bypass this limit!
+                #
+                # You can use permissions if you need more finely grained control using this node:
+                # '%s.x', where 'x' can be any positive value.
+                """,
+            Limit.BLOCKS_TO_MOVE.getUserPermission()
+        );
 
         final String maxStructureSizeComment = String.format(
             """
-            # Global maximum number of blocks allowed in a structure. You can set it to -1 to disable it this limit.
-            # If this number is exceeded, structures will open instantly and skip the animation.
-            #
-            # Not even admins and OPs can bypass this limit!
-            #
-            # You can use permissions if you need more finely grained control using this node:
-            # '%s.x', where 'x' can be any positive value.
-            """, Limit.STRUCTURE_SIZE.getUserPermission());
+                # Global maximum number of blocks allowed in a structure. You can set it to -1 to disable it this limit.
+                # If this number is exceeded, structures will open instantly and skip the animation.
+                #
+                # Not even admins and OPs can bypass this limit!
+                #
+                # You can use permissions if you need more finely grained control using this node:
+                # '%s.x', where 'x' can be any positive value.
+                """,
+            Limit.STRUCTURE_SIZE.getUserPermission()
+        );
 
         final String maxPowerBlockDistanceComment = String.format(
             """
-            # Global maximum distance between a structure and its powerblock.
-            # The distance is measured from the center of the structure.
-            #
-            # Not even admins and OPs can bypass this limit!
-            #
-            # You can set it to -1 to disable this limit.
-            #
-            # You can use permissions if you need more finely grained control using this node:
-            # '%s.x', where 'x' can be any positive value.
-            """, Limit.POWERBLOCK_DISTANCE.getUserPermission());
+                # Global maximum distance between a structure and its powerblock.
+                # The distance is measured from the center of the structure.
+                #
+                # Not even admins and OPs can bypass this limit!
+                #
+                # You can set it to -1 to disable this limit.
+                #
+                # You can use permissions if you need more finely grained control using this node:
+                # '%s.x', where 'x' can be any positive value.
+                """,
+            Limit.POWERBLOCK_DISTANCE.getUserPermission()
+        );
 
-        final String localeComment =
-            """
+        final String localeComment = """
             # Determines which locale to use. Defaults to root.
             """;
 
-        final String commandAliasesComment =
-            """
+        final String commandAliasesComment = """
             # List of aliases for the /animatedarchitecture command.
             # The first alias will be used as the main command.
             # Aliases are case sensitive, can not contain spaces, and should not have a leading slash.
             # Changing this will require a server restart to take effect.
             """;
 
-        final String resourcePackComment =
-            """
+        final String resourcePackComment = """
             # This plugin uses a support resource pack for things such as sound.
             # Enabling this may cause issues if you server or another plugin also uses a resource pack!
             # When this is the case, it's recommended to disable this option and merge the pack with the other one.
             """;
 
-        final String maxBlockSpeedComment =
-            """
+        final String maxBlockSpeedComment = """
             # Determines the global speed limit of animated blocks measured in blocks/second.
             # Animated objects will slow down when necessary to avoid any of their animated blocks exceeding this limit
             # Higher values may result in choppier and/or glitchier animations.
             """;
 
-        final String animationTimeMultiplierComment =
-            """
+        final String animationTimeMultiplierComment = """
             # Change the animation time of each structure type.
             # The higher the value, the more time an animation will take.
             #
@@ -286,28 +286,24 @@ public final class ConfigSpigot implements IConfig, IDebuggable
             # how fast you can make the structures.
             """;
 
-        final String coolDownComment =
-            """
+        final String coolDownComment = """
             # Cool-down on using structures. Time is measured in seconds.
             """;
 
-        final String cacheTimeoutComment =
-            """
+        final String cacheTimeoutComment = """
             # Amount of time (in minutes) to cache power block positions in a chunk.
             # -1 means no caching (not recommended!), 0 = infinite cache (not recommended either!).
             # It doesn't take up too much RAM, so it's recommended to leave this value high.
             # It'll get updated automatically when needed anyway.
             """;
 
-        final String redstoneThreadPoolSizeComment =
-            """
+        final String redstoneThreadPoolSizeComment = """
             # The size of the thread pool used for redstone events.
             # A bigger pool means more redstone events can be processed at the same time, but increases resource usage.
             # Set to -1 to use the default value.
             """;
 
-        final String flagMovementFormulaComment =
-            """
+        final String flagMovementFormulaComment = """
             # The movement formula of the blocks for flags. THe formula is evaluated for each block
             # for each step in the animation.
             #
@@ -323,8 +319,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable
             # The return value of the formula is the horizontal displacement of a single block in the flag.
             """;
 
-        final String pricesComment =
-            """
+        final String pricesComment = """
             # When Vault is present, you can set the price of creation here for each type of structure.
             # You can use the word "blockCount" (without quotation marks, case sensitive) as a variable that will be
             # replaced by the actual blockCount.
@@ -338,41 +333,35 @@ public final class ConfigSpigot implements IConfig, IDebuggable
             # Also, these settings do nothing if Vault isn't installed!
             """;
 
-        final String headCacheTimeoutComment =
-            """
+        final String headCacheTimeoutComment = """
             # Amount of time (in minutes) to cache player heads.
             #   -1 = no caching (not recommended!)
             #    0 = infinite cache (not recommended either!)
             """;
 
-        final String enabledProtectionHooksComment =
-            """
+        final String enabledProtectionHooksComment = """
             # Enable or disable compatibility hooks for certain plugins.
             # If the plugins aren't installed, these options do nothing.
             # When enabled, structures cannot be toggled or created in areas not owned by the owner of that structure.
             """;
 
-        final String debugComment =
-            """
+        final String debugComment = """
             # Don't use this. Just leave it on false.
             """;
 
-        final String skipAnimationsByDefaultComment =
-            """
+        final String skipAnimationsByDefaultComment = """
             # When enabled, all animations will be skipped by default, causing any toggles to simply teleport the blocks
             # to their destination instantly.
             # Note that this only determines the default value. It can be overridden in some cases.
             """;
 
-        final String consoleLoggingComment =
-            """
+        final String consoleLoggingComment = """
             # Write errors and exceptions to console.
             # If disabled, they will only be written to the AnimatedArchitecture log.
             # If enabled, they will be written to both the console and the AnimatedArchitecture log.
             """;
 
-        final String logLevelComment =
-            """
+        final String logLevelComment = """
             # The log level to use. Note that levels lower than INFO aren't shown in the console by default,
             # regardless of this setting. They are still written to this plugin's log file, though.
             #
@@ -391,10 +380,21 @@ public final class ConfigSpigot implements IConfig, IDebuggable
         // No need to store the result here. It would be a list of Strings anyway, while we want blocks.
         // Because all entries need to be verified as valid blocks anyway, the list of power block types is
         // populated in the verification method.
-        addNewConfigEntry(config, "powerBlockTypes", DEFAULT_POWERBLOCK_TYPE, powerBlockTypeComment,
-                          new MaterialVerifier(powerBlockTypes));
-        addNewConfigEntry(config, "materialBlacklist", DEFAULT_BLACKLIST, blacklistComment,
-                          new MaterialVerifier(materialBlacklist));
+        addNewConfigEntry(
+            config,
+            "powerBlockTypes",
+            DEFAULT_POWERBLOCK_TYPE,
+            powerBlockTypeComment,
+            new MaterialVerifier(powerBlockTypes)
+        );
+
+        addNewConfigEntry(
+            config,
+            "materialBlacklist",
+            DEFAULT_BLACKLIST,
+            blacklistComment,
+            new MaterialVerifier(materialBlacklist)
+        );
 
         final int maxStructureCount = addNewConfigEntry(config, "maxStructureCount", -1, maxStructureCountComment);
         this.maxStructureCount = maxStructureCount > 0 ? OptionalInt.of(maxStructureCount) : OptionalInt.empty();
@@ -405,10 +405,15 @@ public final class ConfigSpigot implements IConfig, IDebuggable
         final int maxStructureSize = addNewConfigEntry(config, "maxStructureSize", 500, maxStructureSizeComment);
         this.maxStructureSize = maxStructureSize > 0 ? OptionalInt.of(maxStructureSize) : OptionalInt.empty();
 
-        final int maxPowerBlockDistance = addNewConfigEntry(config, "maxPowerBlockDistance", -1,
-                                                            maxPowerBlockDistanceComment);
-        this.maxPowerBlockDistance = maxPowerBlockDistance > 0 ?
-                                     OptionalInt.of(maxPowerBlockDistance) : OptionalInt.empty();
+        final int maxPowerBlockDistance = addNewConfigEntry(
+            config,
+            "maxPowerBlockDistance",
+            -1,
+            maxPowerBlockDistanceComment
+        );
+
+        this.maxPowerBlockDistance =
+            maxPowerBlockDistance > 0 ? OptionalInt.of(maxPowerBlockDistance) : OptionalInt.empty();
 
         String localeStr = addNewConfigEntry(config, "locale", "root", localeComment);
         // "root" isn't actually a valid country that can be used by a Locale.
@@ -427,26 +432,45 @@ public final class ConfigSpigot implements IConfig, IDebuggable
         redstoneThreadPoolSize = addNewConfigEntry(config, "redstoneThreadPoolSize", -1, redstoneThreadPoolSizeComment);
 
         flagMovementFormula = addNewConfigEntry(
-            config, "flagMovementFormula",
+            config,
+            "flagMovementFormula",
             "min(0.07 * radius, 3) * sin(radius / 1.7 + height / 12 + counter / 12)",
-            flagMovementFormulaComment);
+            flagMovementFormulaComment
+        );
 
         maxBlockSpeed = addNewConfigEntry(config, "maxBlockSpeed", 5.0D, maxBlockSpeedComment);
 
         final List<StructureType> enabledStructureTypes = structureTypeManager.get().getEnabledStructureTypes();
         parseForEachStructureType(
-            structureAnimationTimeMultipliers, config, enabledStructureTypes, animationTimeMultiplierComment,
-            Collections.emptyMap(), 1.0D, "animation-time-multiplier_");
+            structureAnimationTimeMultipliers,
+            config,
+            enabledStructureTypes,
+            animationTimeMultiplierComment,
+            Collections.emptyMap(),
+            1.0D,
+            "animation-time-multiplier_"
+        );
 
         parseForEachStructureType(
-            structurePrices, config, enabledStructureTypes, pricesComment, Collections.emptyMap(), "0", "price_");
+            structurePrices,
+            config,
+            enabledStructureTypes,
+            pricesComment,
+            Collections.emptyMap(),
+            "0",
+            "price_"
+        );
         parseStructureTypeGuiMaterials(config, enabledStructureTypes);
 
         enabledProtectionHooks.clear();
         enabledProtectionHooks.addAll(parseProtectionHooks(config, enabledProtectionHooksComment));
 
         skipAnimationsByDefault = addNewConfigEntry(
-            config, "skipAnimationsByDefault", false, skipAnimationsByDefaultComment);
+            config,
+            "skipAnimationsByDefault",
+            false,
+            skipAnimationsByDefaultComment
+        );
 
         consoleLogging = addNewConfigEntry(config, "consoleLogging", true, consoleLoggingComment);
         final String logLevelName = addNewConfigEntry(config, "logLevel", "INFO", logLevelComment);
@@ -466,8 +490,13 @@ public final class ConfigSpigot implements IConfig, IDebuggable
     private void readCommandAliases(IConfigReader config, String commandAliasesComment)
     {
         commandAliases.clear();
-        commandAliases.addAll(
-            addNewConfigEntry(config, "commandAliases", DEFAULT_COMMAND_ALIASES, commandAliasesComment));
+        commandAliases.addAll(addNewConfigEntry(
+            config,
+            "commandAliases",
+            DEFAULT_COMMAND_ALIASES,
+            commandAliasesComment)
+        );
+
         if (commandAliases.isEmpty())
         {
             log.atWarning().log(
@@ -494,25 +523,40 @@ public final class ConfigSpigot implements IConfig, IDebuggable
     {
         final String prefix = "gui-material_";
         final Map<String, String> defaults = Map.of(
-            prefix + "bigdoor", Material.OAK_DOOR.name(),
-            prefix + "clock", Material.CLOCK.name(),
-            prefix + "drawbridge", Material.OAK_TRAPDOOR.name(),
-            prefix + "flag", Material.BLUE_BANNER.name(),
-            prefix + "garagedoor", Material.MINECART.name(),
-            prefix + "portcullis", Material.IRON_BARS.name(),
-            prefix + "revolvingdoor", Material.MUSIC_DISC_PIGSTEP.name(),
-            prefix + "slidingdoor", Material.PISTON.name(),
-            prefix + "windmill", Material.SUNFLOWER.name()
+            prefix + "bigdoor",
+            Material.OAK_DOOR.name(),
+            prefix + "clock",
+            Material.CLOCK.name(),
+            prefix + "drawbridge",
+            Material.OAK_TRAPDOOR.name(),
+            prefix + "flag",
+            Material.BLUE_BANNER.name(),
+            prefix + "garagedoor",
+            Material.MINECART.name(),
+            prefix + "portcullis",
+            Material.IRON_BARS.name(),
+            prefix + "revolvingdoor",
+            Material.MUSIC_DISC_PIGSTEP.name(),
+            prefix + "slidingdoor",
+            Material.PISTON.name(),
+            prefix + "windmill",
+            Material.SUNFLOWER.name()
         );
 
-        final String comment =
-            """
+        final String comment = """
             # The materials to use in the GUI when looking at the overview of all structures.
             """;
 
         final Map<StructureType, String> materialNames = new HashMap<>();
-        parseForEachStructureType(materialNames, config, enabledStructureTypes, comment, defaults,
-                                  DEFAULT_MATERIAL.name(), prefix);
+        parseForEachStructureType(
+            materialNames,
+            config,
+            enabledStructureTypes,
+            comment,
+            defaults,
+            DEFAULT_MATERIAL.name(),
+            prefix
+        );
 
         final Map<StructureType, Material> result = new HashMap<>(MathUtil.ceil(1.25 * materialNames.size()));
         for (final var entry : materialNames.entrySet())
@@ -520,8 +564,11 @@ public final class ConfigSpigot implements IConfig, IDebuggable
             @Nullable Material mat = Material.getMaterial(entry.getValue());
             if (mat == null)
             {
-                log.atWarning().log("Could not find material with name '%s'! Defaulting to '%s'!",
-                                    entry.getValue(), DEFAULT_MATERIAL.name());
+                log.atWarning().log(
+                    "Could not find material with name '%s'! Defaulting to '%s'!",
+                    entry.getValue(),
+                    DEFAULT_MATERIAL.name()
+                );
                 mat = DEFAULT_MATERIAL;
             }
             result.put(entry.getKey(), mat);
@@ -604,7 +651,11 @@ public final class ConfigSpigot implements IConfig, IDebuggable
      * @return The value as read from the config file if it exists or the default value.
      */
     private <T> T addNewConfigEntry(
-        IConfigReader config, String optionName, T defaultValue, @Nullable String comment)
+        IConfigReader config,
+        String optionName,
+        T defaultValue,
+        @Nullable
+        String comment)
     {
         final ConfigEntry<T> option = new ConfigEntry<>(config, optionName, defaultValue, comment);
         configEntries.add(option);
@@ -629,7 +680,11 @@ public final class ConfigSpigot implements IConfig, IDebuggable
      * @return The value as read from the config file if it exists or the default value.
      */
     private <T> T addNewConfigEntry(
-        IConfigReader config, String optionName, T defaultValue, @Nullable String comment,
+        IConfigReader config,
+        String optionName,
+        T defaultValue,
+        @Nullable
+        String comment,
         ConfigEntry.ITestValue<T> verifyValue)
     {
         final ConfigEntry<T> option = new ConfigEntry<>(config, optionName, defaultValue, comment, verifyValue);
@@ -668,17 +723,22 @@ public final class ConfigSpigot implements IConfig, IDebuggable
             final StringBuilder sb = new StringBuilder().append(header).append('\n');
 
             for (int idx = 0; idx < configEntries.size(); ++idx)
-                sb.append(configEntries.get(idx).toString()).append('\n')
-                  // Only print an additional newLine if the next config option has a comment.
-                  .append((idx < configEntries.size() - 1 && configEntries.get(idx + 1).getComment() == null ?
-                           "" : '\n'));
+            {
+                final boolean succeededByCommand = idx < (configEntries.size() - 1) &&
+                    configEntries.get(idx + 1).getComment() != null;
+
+                sb.append(configEntries.get(idx).toString())
+                    .append('\n')
+                    // Only print an additional newLine if the next config option has a comment.
+                    .append(succeededByCommand ? "" : '\n');
+            }
 
             Files.writeString(configFile, sb.toString());
         }
         catch (IOException e)
         {
-            log.atSevere().withCause(e)
-               .log("Could not save config.yml! Please contact pim16aap2 and show him the following stacktrace:");
+            log.atSevere().withCause(e).log(
+                "Could not save config.yml! Please contact pim16aap2 and show him the following stacktrace:");
         }
     }
 
@@ -848,8 +908,6 @@ public final class ConfigSpigot implements IConfig, IDebuggable
      * Represents a class that attempts to parse a list of materials represented as Strings into a list of Materials.
      * <p>
      * See {@link #verifyMaterials(Collection, Set)}.
-     *
-     * @author Pim
      */
     private static class MaterialVerifier implements ConfigEntry.ITestValue<Collection<String>>
     {
@@ -908,8 +966,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable
                     }
                     else
                     {
-                        log.atWarning()
-                           .log("Failed to add material: \"%s\". Only solid materials are allowed!", str);
+                        log.atWarning().log("Failed to add material: \"%s\". Only solid materials are allowed!", str);
                         it.remove();
                     }
                 }

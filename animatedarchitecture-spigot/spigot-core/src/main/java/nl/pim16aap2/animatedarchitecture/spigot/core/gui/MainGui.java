@@ -32,6 +32,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * The main GUI menu of the plugin.
+ * <p>
+ * This menu shows a paginated list of all structures that are currently owned by the player.
+ */
 @ToString(onlyExplicitlyIncluded = true)
 @NotThreadSafe
 class MainGui implements IGuiPage.IGuiStructureDeletionListener
@@ -60,7 +65,7 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
 
     private SortingMethod sortingMethod = SortingMethod.BY_NAME;
 
-    @AssistedInject//
+    @AssistedInject
     MainGui(
         AnimatedArchitecturePlugin animatedArchitecturePlugin,
         ILocalizer localizer,
@@ -94,8 +99,9 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
     private static Long2ObjectMap<NamedStructure> getStructuresMap(List<NamedStructure> structures)
     {
         final Long2ObjectMap<NamedStructure> ret = new Long2ObjectLinkedOpenHashMap<>(structures.size());
-        structures.stream().sorted(Comparator.comparing(NamedStructure::name))
-                  .forEach(structure -> ret.put(structure.structure.getUid(), structure));
+        structures.stream()
+            .sorted(Comparator.comparing(NamedStructure::name))
+            .forEach(structure -> ret.put(structure.structure.getUid(), structure));
         return ret;
     }
 
@@ -108,11 +114,12 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
     {
         final String[] guiSetup = GuiUtil.fillLinesWithChar('g', structures.size(), "fps h  nl");
 
-        final InventoryGui gui =
-            new InventoryGui(animatedArchitecturePlugin,
-                             inventoryHolder.getBukkitPlayer(),
-                             localizer.getMessage("gui.main_page.title"),
-                             guiSetup);
+        final InventoryGui gui = new InventoryGui(
+            animatedArchitecturePlugin,
+            inventoryHolder.getBukkitPlayer(),
+            localizer.getMessage("gui.main_page.title"),
+            guiSetup
+        );
         gui.setCloseAction(GuiUtil.getDeletionListenerUnregisterCloseAction(deletionManager, this));
         gui.setFiller(FILLER);
 
@@ -139,16 +146,16 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
                 {
                     selectedStructure = structure.structure();
                     final InfoGui infoGui = infoGuiFactory.newInfoGUI(structure.structure(), inventoryHolder);
-                    infoGui.getInventoryGui().setCloseAction(
-                        close ->
-                        {
-                            infoGui.getStructure().syncDataAsync();
-                            this.selectedStructure = null;
-                            return true;
-                        });
+                    infoGui.getInventoryGui().setCloseAction(close ->
+                    {
+                        infoGui.getStructure().syncDataAsync();
+                        this.selectedStructure = null;
+                        return true;
+                    });
                     return true;
                 },
-                structure.getNameAndUid());
+                structure.getNameAndUid()
+            );
             group.addElement(guiElement);
         }
         group.setFiller(FILLER);
@@ -163,8 +170,10 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
 
         //noinspection SpellCheckingInspection
         gui.addElement(new GuiPageElement(
-            'p', new ItemStack(Material.BIRCH_SIGN), GuiPageElement.PageAction.PREVIOUS,
-            localizer.getMessage("gui.main_page.nav.previous_page", "%prevpage%", "%pages%")));
+            'p',
+            new ItemStack(Material.BIRCH_SIGN), GuiPageElement.PageAction.PREVIOUS,
+            localizer.getMessage("gui.main_page.nav.previous_page", "%prevpage%", "%pages%"))
+        );
 
         gui.addElement(new StaticGuiElement(
             'h',
@@ -174,16 +183,21 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
                 createStructureGuiFactory.newCreateStructureGui(inventoryHolder);
                 return true;
             },
-            localizer.getMessage("gui.new_structure_page.header")));
+            localizer.getMessage("gui.new_structure_page.header"))
+        );
 
         //noinspection SpellCheckingInspection
         gui.addElement(new GuiPageElement(
-            'n', new ItemStack(Material.BIRCH_SIGN), GuiPageElement.PageAction.NEXT,
-            localizer.getMessage("gui.main_page.nav.next_page", "%nextpage%", "%pages%")));
+            'n', new ItemStack(Material.BIRCH_SIGN),
+            GuiPageElement.PageAction.NEXT,
+            localizer.getMessage("gui.main_page.nav.next_page", "%nextpage%", "%pages%"))
+        );
 
         gui.addElement(new GuiPageElement(
-            'l', new ItemStack(Material.ARROW), GuiPageElement.PageAction.LAST,
-            localizer.getMessage("gui.main_page.nav.last_page")));
+            'l', new ItemStack(Material.ARROW),
+            GuiPageElement.PageAction.LAST,
+            localizer.getMessage("gui.main_page.nav.last_page"))
+        );
 
         gui.addElement(new StaticGuiElement(
             's',
@@ -196,13 +210,14 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
                 addElementGroup(click.getGui());
                 ((StaticGuiElement) click.getElement()).setText(
                     localizer.getMessage(sortingMethod.next().getLocalizationKeySort()),
-                    localizer.getMessage(sortingMethod.getLocalizationKeySorted()));
+                    localizer.getMessage(sortingMethod.getLocalizationKeySorted())
+                );
                 click.getGui().draw(click.getWhoClicked(), true, false);
                 return true;
             },
             localizer.getMessage(sortingMethod.next().getLocalizationKeySort()),
-            localizer.getMessage(sortingMethod.getLocalizationKeySorted())
-        ));
+            localizer.getMessage(sortingMethod.getLocalizationKeySorted()))
+        );
     }
 
     /**
@@ -254,10 +269,13 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
         {
             if (selectedStructure == null || selectedStructure.getUid() == structure.getUid())
                 this.redraw();
+
             if (notify)
                 inventoryHolder.sendMessage(textFactory.newText().append(
-                    localizer.getMessage("gui.notification.structure_inaccessible"), TextType.ERROR,
-                    arg -> arg.highlight(structure.getName())));
+                    localizer.getMessage("gui.notification.structure_inaccessible"),
+                    TextType.ERROR,
+                    arg -> arg.highlight(structure.getName()))
+                );
         }
     }
 
@@ -300,17 +318,24 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
 
     private enum SortingMethod
     {
-        BY_NAME("gui.main_page.button.sorted_by_name",
-                "gui.main_page.button.sort_by_name",
-                Comparator.comparing(entry -> entry.getValue().name())),
+        BY_NAME(
+            "gui.main_page.button.sorted_by_name",
+            "gui.main_page.button.sort_by_name",
+            Comparator.comparing(entry -> entry.getValue().name())
+        ),
 
-        BY_TYPE("gui.main_page.button.sorted_by_type",
-                "gui.main_page.button.sort_by_type",
-                Comparator.comparing(entry -> entry.getValue().structure().getType().getSimpleName())),
+        BY_TYPE(
+            "gui.main_page.button.sorted_by_type",
+            "gui.main_page.button.sort_by_type",
+            Comparator.comparing(entry -> entry.getValue().structure().getType().getSimpleName())
+        ),
 
-        BY_UID("gui.main_page.button.sorted_by_uid",
-               "gui.main_page.button.sort_by_uid",
-               Comparator.comparingLong(Long2ObjectMap.Entry::getLongKey));
+        BY_UID(
+            "gui.main_page.button.sorted_by_uid",
+            "gui.main_page.button.sort_by_uid",
+            Comparator.comparingLong(Long2ObjectMap.Entry::getLongKey)
+        ),
+        ;
 
         private static final SortingMethod[] VALUES = SortingMethod.values();
 
@@ -323,7 +348,8 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
         private final Comparator<Long2ObjectMap.Entry<NamedStructure>> comparator;
 
         SortingMethod(
-            String localizationKeySorted, String localizationKeySort,
+            String localizationKeySorted,
+            String localizationKeySort,
             Comparator<Long2ObjectMap.Entry<NamedStructure>> comparator)
         {
             this.localizationKeySorted = localizationKeySorted;
@@ -342,11 +368,16 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
          */
         public Long2ObjectMap<NamedStructure> sort(Long2ObjectMap<NamedStructure> structures)
         {
-            return structures.long2ObjectEntrySet().stream().sorted(comparator).collect(
-                Collectors.toMap(Long2ObjectMap.Entry::getLongKey,
-                                 Long2ObjectMap.Entry::getValue,
-                                 (a, b) -> a,
-                                 Long2ObjectLinkedOpenHashMap::new));
+            return structures
+                .long2ObjectEntrySet()
+                .stream()
+                .sorted(comparator)
+                .collect(Collectors.toMap(
+                    Long2ObjectMap.Entry::getLongKey,
+                    Long2ObjectMap.Entry::getValue,
+                    (a, b) -> a,
+                    Long2ObjectLinkedOpenHashMap::new)
+                );
         }
 
         /**

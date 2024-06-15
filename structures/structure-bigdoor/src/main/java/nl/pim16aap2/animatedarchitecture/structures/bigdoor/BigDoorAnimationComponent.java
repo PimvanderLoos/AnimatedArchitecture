@@ -34,18 +34,20 @@ public class BigDoorAnimationComponent implements IAnimationComponent
         this.movementDirection = movementDirection;
         this.quarterCircles = quarterCircles;
 
-        resultAngle = movementDirection == MovementDirection.CLOCKWISE ? quarterCircles * MathUtil.HALF_PI :
-                      movementDirection == MovementDirection.COUNTERCLOCKWISE ? quarterCircles * -MathUtil.HALF_PI :
-                      0.0D;
+        resultAngle =
+            movementDirection == MovementDirection.CLOCKWISE ? quarterCircles * MathUtil.HALF_PI :
+                movementDirection == MovementDirection.COUNTERCLOCKWISE ? quarterCircles * -MathUtil.HALF_PI :
+                    0.0D;
 
         if (resultAngle == 0.0D)
-            log.atSevere()
-               .log("Invalid open direction '%s' for structure: %d", movementDirection.name(), snapshot.getUid());
+            log.atSevere().log(
+                "Invalid open direction '%s' for structure: %d", movementDirection.name(), snapshot.getUid());
 
         rotationCenter = new Vector3Dd(
             snapshot.getRotationPoint().x(),
             snapshot.getCuboid().getMin().y(),
-            snapshot.getRotationPoint().z());
+            snapshot.getRotationPoint().z()
+        );
 
         final int animationDuration =
             AnimationUtil.getAnimationTicks(data.getAnimationTime(), data.getServerTickTime());
@@ -106,11 +108,21 @@ public class BigDoorAnimationComponent implements IAnimationComponent
     }
 
     private RotatedPosition getGoalPos(
-        IAnimatedBlock animatedBlock, @Nullable Vector3Dd localRotation, double angle, double cos, double sin)
+        IAnimatedBlock animatedBlock,
+        @Nullable Vector3Dd localRotation,
+        double angle,
+        double cos,
+        double sin)
     {
         return getGoalPos(
-            localRotation, angle, cos, sin,
-            animatedBlock.getStartX(), animatedBlock.getStartY(), animatedBlock.getStartZ());
+            localRotation,
+            angle,
+            cos,
+            sin,
+            animatedBlock.getStartX(),
+            animatedBlock.getStartY(),
+            animatedBlock.getStartZ()
+        );
     }
 
     static float getRadius(IVector3D rotationPoint, int xAxis, int zAxis)

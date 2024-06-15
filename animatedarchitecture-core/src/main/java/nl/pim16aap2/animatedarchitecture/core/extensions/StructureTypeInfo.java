@@ -36,7 +36,11 @@ final class StructureTypeInfo
     private final List<Dependency> dependencies;
 
     public StructureTypeInfo(
-        String typeName, int version, String mainClass, Path jarFile, @Nullable String dependencies)
+        String typeName,
+        int version,
+        String mainClass,
+        Path jarFile,
+        @Nullable String dependencies)
     {
         this.typeName = typeName.toLowerCase(Locale.ENGLISH);
         this.version = version;

@@ -41,6 +41,7 @@ public class LogCaptorExtension
 {
     private static final ExtensionContext.Namespace NAMESPACE =
         ExtensionContext.Namespace.create(LogCaptorExtension.class);
+
     private static final String LOG_CAPTOR = "log_captor";
 
     @Override

@@ -41,7 +41,9 @@ public class CreatorSlidingDoor extends Creator
         final Step stepBlocksToMove = stepFactory
             .stepName("SET_BLOCKS_TO_MOVE")
             .textSupplier(text -> text.append(
-                localizer.getMessage("creator.sliding_door.set_blocks_to_move"), TextType.INFO, getStructureArg()))
+                localizer.getMessage("creator.sliding_door.set_blocks_to_move"),
+                TextType.INFO,
+                getStructureArg()))
             .propertyName(localizer.getMessage("creator.base.property.blocks_to_move"))
             .propertyValueSupplier(this::getBlocksToMove)
             .updatable(true)
@@ -53,11 +55,15 @@ public class CreatorSlidingDoor extends Creator
             factoryProvideName.construct(),
             factoryProvideFirstPos
                 .textSupplier(text -> text.append(
-                    localizer.getMessage("creator.sliding_door.step_1"), TextType.INFO, getStructureArg()))
+                    localizer.getMessage("creator.sliding_door.step_1"),
+                    TextType.INFO,
+                    getStructureArg()))
                 .construct(),
             factoryProvideSecondPos
                 .textSupplier(text -> text.append(
-                    localizer.getMessage("creator.sliding_door.step_2"), TextType.INFO, getStructureArg()))
+                    localizer.getMessage("creator.sliding_door.step_2"),
+                    TextType.INFO,
+                    getStructureArg()))
                 .construct(),
             factoryProvidePowerBlockPos.construct(),
             factoryProvideOpenStatus.construct(),
@@ -88,10 +94,12 @@ public class CreatorSlidingDoor extends Creator
         if (blocksToMoveLimit.isPresent() && blocksToMove > blocksToMoveLimit.getAsInt())
         {
             getPlayer().sendMessage(textFactory.newText().append(
-                localizer.getMessage("creator.base.error.blocks_to_move_too_far"), TextType.ERROR,
+                localizer.getMessage("creator.base.error.blocks_to_move_too_far"),
+                TextType.ERROR,
                 getStructureArg(),
                 arg -> arg.highlight(blocksToMove),
-                arg -> arg.highlight(blocksToMoveLimit.getAsInt())));
+                arg -> arg.highlight(blocksToMoveLimit.getAsInt()))
+            );
             return false;
         }
 

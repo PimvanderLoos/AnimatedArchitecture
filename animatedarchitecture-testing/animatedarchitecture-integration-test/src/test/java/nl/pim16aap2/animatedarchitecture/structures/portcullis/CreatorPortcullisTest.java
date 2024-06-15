@@ -46,7 +46,8 @@ class CreatorPortcullisTest extends CreatorTestsUtil
             openDirection,
             blocksToMove,
             true,
-            true);
+            true
+        );
     }
 
     @Test

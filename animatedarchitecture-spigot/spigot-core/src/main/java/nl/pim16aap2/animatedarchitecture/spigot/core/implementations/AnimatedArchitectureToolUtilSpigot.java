@@ -5,6 +5,7 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitectureToolUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
+import nl.pim16aap2.util.reflection.ReflectionBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -21,11 +22,23 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Arrays;
 
+/**
+ * Implementation of {@link IAnimatedArchitectureToolUtil} for Spigot.
+ * <p>
+ * This class is responsible for giving the player the Animated Architecture tool and removing it from the player.
+ */
 @Singleton
 @Flogger
 public class AnimatedArchitectureToolUtilSpigot implements IAnimatedArchitectureToolUtil
 {
     private static final Material TOOL_MATERIAL = Material.STICK;
+
+    private static final Enchantment TOOL_ENCHANTMENT = ReflectionBuilder
+        .findField()
+        .inClass(Enchantment.class)
+        .withName("LUCK", "LUCK_OF_THE_SEA")
+        .ofType(Enchantment.class)
+        .get(null);
 
     private final NamespacedKey animatedArchitectureToolKey;
 
@@ -41,13 +54,12 @@ public class AnimatedArchitectureToolUtilSpigot implements IAnimatedArchitecture
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
         {
-            log.atSevere().withStackTrace(StackSize.FULL)
-               .log("Failed to obtain Spigot player: %s", player.getUUID());
+            log.atSevere().withStackTrace(StackSize.FULL).log("Failed to obtain Spigot player: %s", player.getUUID());
             return;
         }
 
         final ItemStack tool = new ItemStack(TOOL_MATERIAL, 1);
-        tool.addUnsafeEnchantment(Enchantment.LUCK, 1);
+        tool.addUnsafeEnchantment(TOOL_ENCHANTMENT, 1);
 
         final @Nullable ItemMeta itemMeta =
             tool.hasItemMeta() ? tool.getItemMeta() : Bukkit.getItemFactory().getItemMeta(tool.getType());
@@ -76,12 +88,12 @@ public class AnimatedArchitectureToolUtilSpigot implements IAnimatedArchitecture
             log.atSevere().withStackTrace(StackSize.FULL).log("Failed to obtain Spigot player: '%s'", player.getUUID());
             return;
         }
-        spigotPlayer.getInventory().forEach(
-            item ->
-            {
-                if (isTool(item))
-                    item.setAmount(0);
-            });
+
+        spigotPlayer.getInventory().forEach(item ->
+        {
+            if (isTool(item))
+                item.setAmount(0);
+        });
     }
 
     public boolean isTool(@Nullable ItemStack item)

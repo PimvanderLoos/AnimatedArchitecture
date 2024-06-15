@@ -20,8 +20,6 @@ import java.util.function.Predicate;
 
 /**
  * Represents a {@link Animator} for {@link Clock}s.
- *
- * @author Pim
  */
 public final class ClockAnimationComponent extends DrawbridgeAnimationComponent
 {

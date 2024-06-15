@@ -7,8 +7,6 @@ import java.util.Objects;
 
 /**
  * Represents an implementation of {@link ReflectionFinder} for {@link Class} objects.
- *
- * @author Pim
  */
 @SuppressWarnings("unused")
 public class ClassFinder extends ReflectionFinder<Class<?>, ClassFinder>
@@ -35,10 +33,13 @@ public class ClassFinder extends ReflectionFinder<Class<?>, ClassFinder>
     @Override
     public Class<?> get()
     {
-        return Objects.requireNonNull(getNullable(),
-                                      String.format("Failed to find %s %s.",
-                                                    (names.length > 1 ? "any of the classes:" : "the class:"),
-                                                    Arrays.toString(names)));
+        return Objects.requireNonNull(
+            getNullable(),
+            String.format(
+                "Failed to find %s %s.",
+                (names.length > 1 ? "any of the classes:" : "the class:"),
+                Arrays.toString(names))
+        );
     }
 
     @Override

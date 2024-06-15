@@ -9,6 +9,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * A registry for {@link IDebuggable}s.
+ * <p>
+ * All debuggables should be registered here so that they can be accessed by the debug command.
+ */
 @Singleton
 public final class DebuggableRegistry
 {

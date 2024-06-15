@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
-import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
+import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
@@ -10,10 +10,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -23,6 +26,8 @@ import java.util.concurrent.TimeUnit;
 import static nl.pim16aap2.animatedarchitecture.core.commands.CommandTestingUtil.*;
 
 @Timeout(1)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class BaseCommandTest
 {
     @Mock(answer = Answers.CALLS_REAL_METHODS)
@@ -37,8 +42,6 @@ class BaseCommandTest
     @BeforeEach
     void init()
     {
-        MockitoAnnotations.openMocks(this);
-
         initBaseCommand(baseCommand, commandSender, UnitTestUtil.initLocalizer());
 
         Mockito.when(baseCommand.getCommand()).thenReturn(CommandDefinition.ADD_OWNER);
@@ -97,7 +100,7 @@ class BaseCommandTest
     {
         Mockito.when(baseCommand.executeCommand(Mockito.any())).thenReturn(CompletableFuture.completedFuture(null));
         Mockito.when(commandSender.hasPermission(Mockito.any(CommandDefinition.class)))
-               .thenReturn(CompletableFuture.completedFuture(new PermissionsStatus(false, false)));
+            .thenReturn(CompletableFuture.completedFuture(new PermissionsStatus(false, false)));
 
         final CompletableFuture<?> result = baseCommand.run();
         Assertions.assertDoesNotThrow(() -> result.get(1, TimeUnit.SECONDS));
@@ -113,9 +116,10 @@ class BaseCommandTest
 
         Mockito.when(commandSender.hasPermission(Mockito.any(CommandDefinition.class))).thenReturn(exceptional);
 
-        ExecutionException exception =
-            Assertions.assertThrows(ExecutionException.class,
-                                    () -> baseCommand.startExecution().get(1, TimeUnit.SECONDS));
+        ExecutionException exception = Assertions.assertThrows(
+            ExecutionException.class,
+            () -> baseCommand.startExecution().get(1, TimeUnit.SECONDS)
+        );
         Assertions.assertEquals(IllegalStateException.class, exception.getCause().getClass());
     }
 
@@ -125,11 +129,12 @@ class BaseCommandTest
         Mockito.when(baseCommand.executeCommand(Mockito.any())).thenReturn(CompletableFuture.completedFuture(null));
 
         Mockito.when(baseCommand.executeCommand(Mockito.any(PermissionsStatus.class)))
-               .thenReturn(CompletableFuture.failedFuture(new IllegalStateException("Testing exception!")));
+            .thenReturn(CompletableFuture.failedFuture(new IllegalStateException("Testing exception!")));
 
-        ExecutionException exception =
-            Assertions.assertThrows(ExecutionException.class,
-                                    () -> baseCommand.startExecution().get(1, TimeUnit.SECONDS));
+        ExecutionException exception = Assertions.assertThrows(
+            ExecutionException.class,
+            () -> baseCommand.startExecution().get(1, TimeUnit.SECONDS)
+        );
         Assertions.assertEquals(IllegalStateException.class, exception.getCause().getCause().getCause().getClass());
     }
 

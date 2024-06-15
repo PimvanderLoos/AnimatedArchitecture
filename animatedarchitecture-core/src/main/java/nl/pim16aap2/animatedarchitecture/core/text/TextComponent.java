@@ -13,7 +13,6 @@ import java.util.List;
  *     A list of decorators that may be used to add additional decorations to text components. Note that such
  *     decorations are entirely optional. The renderer used for rendering the text is free to determine which decorates
  *     are supported.
- * @author Pim
  */
 public record TextComponent(List<ITextDecorator> decorators)
 {

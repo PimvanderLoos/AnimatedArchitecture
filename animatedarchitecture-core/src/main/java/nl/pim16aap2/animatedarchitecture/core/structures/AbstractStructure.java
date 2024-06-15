@@ -98,9 +98,12 @@ public abstract class AbstractStructure implements IStructureConst
         final double minimum = getMinimumAnimationTime();
         if (target < minimum)
         {
-            log.atFiner()
-               .log("Target animation time of %.4f seconds is less than the minimum of %.4f seconds for structure: %s.",
-                    target, minimum, getBasicInfo());
+            log.atFiner().log(
+                "Target animation time of %.4f seconds is less than the minimum of %.4f seconds for structure: %s.",
+                target,
+                minimum,
+                getBasicInfo()
+            );
             return minimum;
         }
         return target;
@@ -123,8 +126,8 @@ public abstract class AbstractStructure implements IStructureConst
     final double getAnimationTime(@Nullable Double target)
     {
         final double realTarget = target != null ?
-                                  target :
-                                  base.getConfig().getAnimationTimeMultiplier(getType()) * getBaseAnimationTime();
+            target :
+            base.getConfig().getAnimationTimeMultiplier(getType()) * getBaseAnimationTime();
         return calculateAnimationTime(realTarget);
     }
 
@@ -690,7 +693,8 @@ public abstract class AbstractStructure implements IStructureConst
         return base.getPrimeOwner();
     }
 
-    @Locked.Write("lock") final @Nullable StructureOwner removeOwner(UUID ownerUUID)
+    @Locked.Write("lock")
+    final @Nullable StructureOwner removeOwner(UUID ownerUUID)
     {
         final @Nullable StructureOwner removed = base.removeOwner(ownerUUID);
         if (removed != null)
@@ -698,7 +702,8 @@ public abstract class AbstractStructure implements IStructureConst
         return removed;
     }
 
-    @Locked.Write("lock") final boolean addOwner(StructureOwner structureOwner)
+    @Locked.Write("lock")
+    final boolean addOwner(StructureOwner structureOwner)
     {
         final boolean result = base.addOwner(structureOwner);
         if (result)

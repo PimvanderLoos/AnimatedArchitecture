@@ -12,16 +12,21 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Timeout(1)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class ListStructuresTest
 {
     private List<AbstractStructure> structures;
@@ -38,8 +43,6 @@ class ListStructuresTest
     @BeforeEach
     void init()
     {
-        MockitoAnnotations.openMocks(this);
-
         final int size = 3;
         structures = new ArrayList<>(size);
         for (int idx = 0; idx < size; ++idx)
@@ -47,11 +50,15 @@ class ListStructuresTest
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
-        Mockito.when(factory.newListStructures(Mockito.any(ICommandSender.class),
-                                               Mockito.any(StructureRetriever.class)))
-               .thenAnswer(invoc -> new ListStructures(invoc.getArgument(0, ICommandSender.class), localizer,
-                                                       ITextFactory.getSimpleTextFactory(),
-                                                       invoc.getArgument(1, StructureRetriever.class)));
+        Mockito.when(factory.newListStructures(
+                Mockito.any(ICommandSender.class),
+                Mockito.any(StructureRetriever.class)))
+            .thenAnswer(invoc -> new ListStructures(
+                invoc.getArgument(0, ICommandSender.class),
+                localizer,
+                ITextFactory.getSimpleTextFactory(),
+                invoc.getArgument(1, StructureRetriever.class))
+            );
     }
 
     @Test
@@ -64,7 +71,7 @@ class ListStructuresTest
         Assertions.assertDoesNotThrow(
             () -> factory.newListStructures(playerCommandSender, retriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(playerCommandSender)
-               .sendMessage(UnitTestUtil.textArgumentMatcher("commands.list_structures.error.no_structures_found"));
+            .sendMessage(UnitTestUtil.textArgumentMatcher("commands.list_structures.error.no_structures_found"));
 
         // Run it again, but now do so with admin permissions enabled.
         // As a result, we should NOT get the "No structures found!" message again.
@@ -72,12 +79,12 @@ class ListStructuresTest
         Assertions.assertDoesNotThrow(
             () -> factory.newListStructures(playerCommandSender, retriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(playerCommandSender)
-               .sendMessage(UnitTestUtil.textArgumentMatcher("commands.list_structures.error.no_structures_found"));
+            .sendMessage(UnitTestUtil.textArgumentMatcher("commands.list_structures.error.no_structures_found"));
 
 
         Assertions.assertDoesNotThrow(
             () -> factory.newListStructures(serverCommandSender, retriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(serverCommandSender, Mockito.never())
-               .sendMessage(UnitTestUtil.textArgumentMatcher("commands.list_structures.error.no_structures_found"));
+            .sendMessage(UnitTestUtil.textArgumentMatcher("commands.list_structures.error.no_structures_found"));
     }
 }

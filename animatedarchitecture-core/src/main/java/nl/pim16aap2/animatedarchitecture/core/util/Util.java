@@ -46,8 +46,6 @@ import java.util.zip.ZipInputStream;
 
 /**
  * Represents various small and platform-agnostic utility functions.
- *
- * @author Pim
  */
 @SuppressWarnings("unused")
 @UtilityClass
@@ -493,7 +491,9 @@ public final class Util
     }
 
     public static boolean hasPermissionForAction(
-        IPlayer player, IStructureConst structure, StructureAttribute attribute)
+        IPlayer player,
+        IStructureConst structure,
+        StructureAttribute attribute)
     {
         return hasPermissionForAction(player.getUUID(), structure, attribute);
     }
@@ -788,14 +788,14 @@ public final class Util
     {
         final CompletableFuture<Void> result = CompletableFuture.allOf(futures);
         return result.thenApply(ignored ->
-                                {
-                                    final List<T> ret = new ArrayList<>(futures.length);
-                                    for (final CompletableFuture<T> future : futures)
-                                    {
-                                        ret.add(future.join());
-                                    }
-                                    return ret;
-                                }).exceptionally(throwable -> exceptionally(throwable, Collections.emptyList()));
+        {
+            final List<T> ret = new ArrayList<>(futures.length);
+            for (final CompletableFuture<T> future : futures)
+            {
+                ret.add(future.join());
+            }
+            return ret;
+        }).exceptionally(throwable -> exceptionally(throwable, Collections.emptyList()));
     }
 
     /**
@@ -828,12 +828,12 @@ public final class Util
     {
         final CompletableFuture<Void> result = CompletableFuture.allOf(futures);
         return result.thenApply(ignored ->
-                                {
-                                    final List<T> ret = new ArrayList<>();
-                                    for (final CompletableFuture<? extends Collection<T>> future : futures)
-                                        ret.addAll(future.join());
-                                    return ret;
-                                }).exceptionally(throwable -> exceptionally(throwable, Collections.emptyList()));
+        {
+            final List<T> ret = new ArrayList<>();
+            for (final CompletableFuture<? extends Collection<T>> future : futures)
+                ret.addAll(future.join());
+            return ret;
+        }).exceptionally(throwable -> exceptionally(throwable, Collections.emptyList()));
     }
 
     /**
@@ -980,7 +980,7 @@ public final class Util
     @Contract("_ -> param1")
     public static StringBuilder removeTrailingNewLine(StringBuilder sb)
     {
-        if (sb.length() > 0 && sb.charAt(sb.length() - 1) == '\n')
+        if (!sb.isEmpty() && sb.charAt(sb.length() - 1) == '\n')
             sb.deleteCharAt(sb.length() - 1);
         return sb;
     }

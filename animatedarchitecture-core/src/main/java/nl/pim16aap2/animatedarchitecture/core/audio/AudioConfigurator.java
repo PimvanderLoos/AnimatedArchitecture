@@ -21,8 +21,6 @@ import java.util.stream.Collectors;
 
 /**
  * Represents a class used to read and access the audio configuration.
- *
- * @author Pim
  */
 @Flogger
 public final class AudioConfigurator implements IRestartable, IDebuggable
@@ -35,10 +33,12 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
     @Getter(AccessLevel.PACKAGE)
     private Map<StructureType, AudioSet> audioMap = new HashMap<>();
 
-    @Inject//
+    @Inject
     AudioConfigurator(
-        AudioConfigIO audioConfigIO, RestartableHolder restartableHolder,
-        DebuggableRegistry debuggableRegistry, StructureTypeManager structureTypeManager)
+        AudioConfigIO audioConfigIO,
+        RestartableHolder restartableHolder,
+        DebuggableRegistry debuggableRegistry,
+        StructureTypeManager structureTypeManager)
     {
         this.audioConfigIO = audioConfigIO;
         this.structureTypeManager = structureTypeManager;
@@ -114,7 +114,8 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
     }
 
     private Map<StructureType, @Nullable AudioSet> mergeMaps(
-        Map<String, @Nullable AudioSet> parsed, Map<StructureType, @Nullable AudioSet> defaults)
+        Map<String, @Nullable AudioSet> parsed,
+        Map<StructureType, @Nullable AudioSet> defaults)
     {
         final Map<String, StructureType> types = structureTypeManager
             .getEnabledStructureTypes().stream()
@@ -160,7 +161,8 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
         private final @Nullable AudioSet defaultSet;
         private final Map<StructureType, @Nullable AudioSet> sets;
 
-        @Nullable AudioSet defaultSet()
+        @Nullable
+        AudioSet defaultSet()
         {
             return defaultSet;
         }

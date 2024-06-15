@@ -48,10 +48,9 @@ import java.util.logging.Level;
 
 /**
  * Represents a utility singleton that is used to open {@link AbstractStructure}s.
- *
- * @author Pim
  */
-@Flogger final class StructureToggleHelper
+@Flogger
+final class StructureToggleHelper
 {
     private final ILocalizer localizer;
     private final ITextFactory textFactory;
@@ -71,7 +70,7 @@ import java.util.logging.Level;
     private final AnimatedBlockContainerFactory animatedBlockContainerFactory;
     private final AnimationRequestData.IFactory movementRequestDataFactory;
 
-    @Inject //
+    @Inject
     StructureToggleHelper(
         ILocalizer localizer,
         ITextFactory textFactory,
@@ -127,12 +126,19 @@ import java.util.logging.Level;
      * @return The same result that was passed in as argument.
      */
     private CompletableFuture<StructureToggleResult> abort(
-        AbstractStructure structure, StructureToggleResult result, StructureActionCause cause, IPlayer responsible,
-        IMessageable messageReceiver, @Nullable Long stamp)
+        AbstractStructure structure,
+        StructureToggleResult result,
+        StructureActionCause cause,
+        IPlayer responsible,
+        IMessageable messageReceiver,
+        @Nullable Long stamp)
     {
         log.atFine().log(
             "Aborted toggle for structure %d because of %s. Toggle Reason: %s, Responsible: %s",
-            structure.getUid(), result.name(), cause.name(), responsible.asString()
+            structure.getUid(),
+            result.name(),
+            cause.name(),
+            responsible.asString()
         );
 
         // If the reason the toggle attempt was cancelled was because it was busy, it should obviously
@@ -143,9 +149,11 @@ import java.util.logging.Level;
 
         if (messageReceiver instanceof IPlayer)
             messageReceiver.sendMessage(textFactory.newText().append(
-                localizer.getMessage(result.getLocalizationKey()), TextType.ERROR,
+                localizer.getMessage(result.getLocalizationKey()),
+                TextType.ERROR,
                 arg -> arg.highlight(localizer.getStructureType(structure.getType())),
-                arg -> arg.highlight(structure.getName())));
+                arg -> arg.highlight(structure.getName()))
+            );
         else
         {
             final Level level = result == StructureToggleResult.BUSY ? Level.FINE : Level.INFO;
@@ -167,12 +175,23 @@ import java.util.logging.Level;
      * StructureActionType, IPlayer, double, boolean, Cuboid)}.
      */
     private IStructureEventTogglePrepare callTogglePrepareEvent(
-        StructureSnapshot snapshot, StructureActionCause cause, StructureActionType actionType, IPlayer responsible,
-        double time, boolean skipAnimation, Cuboid newCuboid)
+        StructureSnapshot snapshot,
+        StructureActionCause cause,
+        StructureActionType actionType,
+        IPlayer responsible,
+        double time,
+        boolean skipAnimation,
+        Cuboid newCuboid)
     {
-        final IStructureEventTogglePrepare event =
-            animatedArchitectureEventFactory.createTogglePrepareEvent(
-                snapshot, cause, actionType, responsible, time, skipAnimation, newCuboid);
+        final IStructureEventTogglePrepare event = animatedArchitectureEventFactory.createTogglePrepareEvent(
+            snapshot,
+            cause,
+            actionType,
+            responsible,
+            time,
+            skipAnimation,
+            newCuboid
+        );
         callStructureToggleEvent(event);
         return event;
     }
@@ -191,7 +210,8 @@ import java.util.logging.Level;
             data.getResponsible(),
             data.getAnimationTime(),
             data.isAnimationSkipped(),
-            data.getNewCuboid());
+            data.getNewCuboid()
+        );
     }
 
     /**
@@ -200,13 +220,25 @@ import java.util.logging.Level;
      * StructureActionCause, StructureActionType, IPlayer, double, boolean, Cuboid)}.
      */
     private IStructureEventToggleStart callToggleStartEvent(
-        AbstractStructure structure, StructureSnapshot snapshot, StructureActionCause cause,
+        AbstractStructure structure,
+        StructureSnapshot snapshot,
+        StructureActionCause cause,
         StructureActionType actionType,
-        IPlayer responsible, double time, boolean skipAnimation, Cuboid newCuboid)
+        IPlayer responsible,
+        double time,
+        boolean skipAnimation,
+        Cuboid newCuboid)
     {
-        final IStructureEventToggleStart event =
-            animatedArchitectureEventFactory.createToggleStartEvent(
-                structure, snapshot, cause, actionType, responsible, time, skipAnimation, newCuboid);
+        final IStructureEventToggleStart event = animatedArchitectureEventFactory.createToggleStartEvent(
+            structure,
+            snapshot,
+            cause,
+            actionType,
+            responsible,
+            time,
+            skipAnimation,
+            newCuboid
+        );
         callStructureToggleEvent(event);
         return event;
     }
@@ -226,7 +258,8 @@ import java.util.logging.Level;
             data.getResponsible(),
             data.getAnimationTime(),
             data.isAnimationSkipped(),
-            data.getNewCuboid());
+            data.getNewCuboid()
+        );
     }
 
     private void callStructureToggleEvent(IStructureToggleEvent prepareEvent)
@@ -238,9 +271,12 @@ import java.util.logging.Level;
      * Registers a new block mover. Must be called from the main thread.
      */
     private boolean registerBlockMover(
-        AbstractStructure structure, AnimationRequestData data, IAnimationComponent component,
+        AbstractStructure structure,
+        AnimationRequestData data,
+        IAnimationComponent component,
         @Nullable IPlayer player,
-        AnimationType animationType, long stamp)
+        AnimationType animationType,
+        long stamp)
     {
         try
         {
@@ -278,11 +314,18 @@ import java.util.logging.Level;
 
         // Read-only animations are fine for unregistered structures, as they do (should) not have any side effects.
         if (animationType.requiresWriteAccess() && !structureRegistry.isRegistered(targetStructure))
-            return abort(targetStructure, StructureToggleResult.INSTANCE_UNREGISTERED, data.getCause(),
-                data.getResponsible(), messageReceiver, null);
+            return abort(
+                targetStructure,
+                StructureToggleResult.INSTANCE_UNREGISTERED,
+                data.getCause(),
+                data.getResponsible(),
+                messageReceiver,
+                null
+            );
 
         final OptionalLong registrationResult =
             structureActivityManager.registerAnimation(targetStructure, animationType.requiresWriteAccess());
+
         if (registrationResult.isEmpty())
             return CompletableFuture.completedFuture(StructureToggleResult.BUSY);
 
@@ -296,16 +339,28 @@ import java.util.logging.Level;
 
         final IStructureEventTogglePrepare prepareEvent = callTogglePrepareEvent(data);
         if (prepareEvent.isCancelled())
-            return abort(targetStructure, StructureToggleResult.CANCELLED, data.getCause(), data.getResponsible(),
-                messageReceiver, stamp);
+            return abort(
+                targetStructure,
+                StructureToggleResult.CANCELLED,
+                data.getCause(),
+                data.getResponsible(),
+                messageReceiver,
+                stamp
+            );
 
         final @Nullable IPlayer responsiblePlayer =
             data.getCause().equals(StructureActionCause.PLAYER) ? data.getResponsible() : null;
 
         if (animationType.requiresWriteAccess() &&
             !isLocationEmpty(data.getNewCuboid(), snapshot.getCuboid(), responsiblePlayer, snapshot.getWorld()))
-            return abort(targetStructure, StructureToggleResult.OBSTRUCTED, data.getCause(), data.getResponsible(),
-                messageReceiver, stamp);
+            return abort(
+                targetStructure,
+                StructureToggleResult.OBSTRUCTED,
+                data.getCause(),
+                data.getResponsible(),
+                messageReceiver,
+                stamp
+            );
 
         if (!animationType.requiresWriteAccess())
             return toggle(stamp, targetStructure, data, component, player, animationType);
@@ -314,8 +369,14 @@ import java.util.logging.Level;
             .thenCompose(canBreakBlocks ->
             {
                 if (!canBreakBlocks)
-                    return abort(targetStructure, StructureToggleResult.NO_PERMISSION,
-                        data.getCause(), data.getResponsible(), messageReceiver, stamp);
+                    return abort(
+                        targetStructure,
+                        StructureToggleResult.NO_PERMISSION,
+                        data.getCause(),
+                        data.getResponsible(),
+                        messageReceiver,
+                        stamp
+                    );
                 return toggle(stamp, targetStructure, data, component, player, animationType);
             });
 
@@ -340,7 +401,9 @@ import java.util.logging.Level;
     }
 
     CompletableFuture<StructureToggleResult> toggle(
-        AbstractStructure structure, StructureAnimationRequest request, IPlayer responsible)
+        AbstractStructure structure,
+        StructureAnimationRequest request,
+        IPlayer responsible)
     {
         final StructureSnapshot snapshot;
         final AnimationRequestData data;
@@ -351,27 +414,49 @@ import java.util.logging.Level;
         {
             if (request.isSkipAnimation() && !structure.canSkipAnimation())
                 return abort(
-                    structure, StructureToggleResult.ERROR, request.getCause(), responsible,
-                    request.getMessageReceiver(), null);
+                    structure,
+                    StructureToggleResult.ERROR,
+                    request.getCause(),
+                    responsible,
+                    request.getMessageReceiver(),
+                    null
+                );
 
             if (exceedSizeLimit(structure, responsible))
                 return abort(
-                    structure, StructureToggleResult.TOO_BIG, request.getCause(), responsible,
-                    request.getMessageReceiver(), null);
+                    structure,
+                    StructureToggleResult.TOO_BIG,
+                    request.getCause(),
+                    responsible,
+                    request.getMessageReceiver(),
+                    null
+                );
 
             final Optional<Cuboid> newCuboid = structure.getPotentialNewCoordinates();
             if (newCuboid.isEmpty())
                 return abort(
-                    structure, StructureToggleResult.ERROR, request.getCause(), responsible,
-                    request.getMessageReceiver(), null);
+                    structure,
+                    StructureToggleResult.ERROR,
+                    request.getCause(),
+                    responsible,
+                    request.getMessageReceiver(),
+                    null
+                );
 
             final double animationTime = structure.getAnimationTime(request.getTime());
             snapshot = structure.getSnapshot();
 
             data = movementRequestDataFactory.newToggleRequestData(
-                snapshot, request.getCause(), animationTime, request.isSkipAnimation(),
-                request.isPreventPerpetualMovement(), newCuboid.get(), responsible,
-                request.getAnimationType(), request.getActionType());
+                snapshot,
+                request.getCause(),
+                animationTime,
+                request.isSkipAnimation(),
+                request.isPreventPerpetualMovement(),
+                newCuboid.get(),
+                responsible,
+                request.getAnimationType(),
+                request.getActionType()
+            );
             component = structure.constructAnimationComponent(data);
         }
         finally
@@ -379,8 +464,14 @@ import java.util.logging.Level;
             structure.getLock().readLock().unlock();
         }
         return toggle(
-            snapshot, structure, data, component, request.getMessageReceiver(), responsible,
-            request.getAnimationType());
+            snapshot,
+            structure,
+            data,
+            component,
+            request.getMessageReceiver(),
+            responsible,
+            request.getAnimationType()
+        );
     }
 
     /**
@@ -414,7 +505,10 @@ import java.util.logging.Level;
      * @return True if the player is allowed to break the block(s).
      */
     public CompletableFuture<Boolean> canBreakBlocks(
-        IStructureConst structure, Cuboid cuboid0, Cuboid cuboid1, IPlayer responsible)
+        IStructureConst structure,
+        Cuboid cuboid0,
+        Cuboid cuboid1,
+        IPlayer responsible)
     {
         if (protectionHookManager.canSkipCheck())
             return CompletableFuture.completedFuture(true);
@@ -424,13 +518,20 @@ import java.util.logging.Level;
             {
                 log.atSevere().withCause(exception).log(
                     "Failed to check if blocks can be broken in cuboids %s and %s for user: '%s' for structure %s",
-                    cuboid0, cuboid1, responsible, structure);
+                    cuboid0,
+                    cuboid1,
+                    responsible,
+                    structure
+                );
                 return false;
             });
     }
 
     private CompletableFuture<Boolean> canBreakBlocks0(
-        IStructureConst structure, Cuboid cuboid0, Cuboid cuboid1, IPlayer responsible)
+        IStructureConst structure,
+        Cuboid cuboid0,
+        Cuboid cuboid1,
+        IPlayer responsible)
     {
         final CompletableFuture<Boolean> access0 = canBreakBlocks0(structure, cuboid0, responsible);
         if (cuboid0.equals(cuboid1))
@@ -452,7 +553,11 @@ import java.util.logging.Level;
 
                 log.atWarning().log(
                     "Player %s is not allowed to open structure '%s' (%d) here! Reason: %s",
-                    responsible, structure.getName(), structure.getUid(), protectionCheckResult.denyingHookName());
+                    responsible,
+                    structure.getName(),
+                    structure.getUid(),
+                    protectionCheckResult.denyingHookName()
+                );
                 return false;
             });
     }
@@ -501,15 +606,15 @@ import java.util.logging.Level;
                         final int yAxis0 = yAxis;
                         final int zAxis0 = zAxis;
 
-                        executor.runOnMainThread(
-                            () -> highlightedBlockSpawner
-                                .builder()
-                                .forPlayer(player)
-                                .withColor(Color.RED)
-                                .forDuration(Duration.ofSeconds(4))
-                                .atPosition(xAxis0 + 0.5, yAxis0, zAxis0 + 0.5)
-                                .inWorld(world)
-                                .spawn());
+                        executor.runOnMainThread(() -> highlightedBlockSpawner
+                            .builder()
+                            .forPlayer(player)
+                            .withColor(Color.RED)
+                            .forDuration(Duration.ofSeconds(4))
+                            .atPosition(xAxis0 + 0.5, yAxis0, zAxis0 + 0.5)
+                            .inWorld(world)
+                            .spawn()
+                        );
                         isEmpty = false;
                     }
                 }
@@ -542,7 +647,10 @@ import java.util.logging.Level;
      * @return {@link StructureToggleResult#SUCCESS} if it can be toggled
      */
     private StructureToggleResult canBeToggled(
-        IStructureConst structure, StructureType type, Cuboid newCuboid, StructureActionType actionType)
+        IStructureConst structure,
+        StructureType type,
+        Cuboid newCuboid,
+        StructureActionType actionType)
     {
         if (actionType == StructureActionType.OPEN && !structure.isOpenable())
             return StructureToggleResult.ALREADY_OPEN;
@@ -567,7 +675,7 @@ import java.util.logging.Level;
     private boolean chunksLoaded(IStructureConst structure, Cuboid newCuboid)
     {
         final var mode = config.loadChunksForToggle() ?
-                         IChunkLoader.ChunkLoadMode.ATTEMPT_LOAD : IChunkLoader.ChunkLoadMode.VERIFY_LOADED;
+            IChunkLoader.ChunkLoadMode.ATTEMPT_LOAD : IChunkLoader.ChunkLoadMode.VERIFY_LOADED;
 
         final var result = chunkLoader.checkChunks(structure.getWorld(), structure.getCuboid(), mode);
         if (result == IChunkLoader.ChunkLoadResult.FAIL)

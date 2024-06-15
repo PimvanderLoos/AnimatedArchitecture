@@ -30,12 +30,15 @@ class GarageDoorTest
         final Optional<Cuboid> potentialNewCoordinates = garageDoor.getPotentialNewCoordinates();
         Assertions.assertTrue(
             potentialNewCoordinates.isPresent(),
-            "Potential new coordinates should be present for " + openingData);
+            "Potential new coordinates should be present for " + openingData
+        );
 
         final Cuboid expectedCuboid = openingData.endCuboid();
         final Cuboid actualCuboid = potentialNewCoordinates.orElseThrow();
         Assertions.assertEquals(
-            expectedCuboid, actualCuboid,
-            "Expected cuboid:\n  <" + expectedCuboid + ">\nbut got:\n  <" + actualCuboid + ">\nfor " + openingData);
+            expectedCuboid,
+            actualCuboid,
+            "Expected cuboid:\n  <" + expectedCuboid + ">\nbut got:\n  <" + actualCuboid + ">\nfor " + openingData
+        );
     }
 }

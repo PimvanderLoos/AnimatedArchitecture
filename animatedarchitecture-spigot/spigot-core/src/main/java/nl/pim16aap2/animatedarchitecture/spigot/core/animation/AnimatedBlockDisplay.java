@@ -24,6 +24,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.function.Consumer;
 
+/**
+ * Represents an animated block display. These are the blocks that the player sees moving around in the world.
+ */
 @Flogger
 public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
 {
@@ -77,7 +80,12 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
         this.previousTarget = currentTarget;
 
         this.blockData = new SimpleBlockData(
-            this, executor, blockDataRotator, bukkitWorld, this.startPosition.position().floor().toInteger());
+            this,
+            executor,
+            blockDataRotator,
+            bukkitWorld,
+            this.startPosition.position().floor().toInteger()
+        );
 
         this.recoveryData = new IAnimatedBlockRecoveryData.AnimatedBlockRecoveryData(
             bukkitWorld,
@@ -92,7 +100,12 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     private void spawn0()
     {
         this.entity = blockDisplayHelper.spawn(
-            recoveryData, executor, bukkitWorld, currentTarget, blockData.getBlockData());
+            recoveryData,
+            executor,
+            bukkitWorld,
+            currentTarget,
+            blockData.getBlockData()
+        );
 
         this.entity.setViewRange(2.5F);
     }
@@ -223,8 +236,7 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
             }
             catch (Exception e)
             {
-                log.atSevere().withCause(e)
-                   .log("Failed to execute '%s' for hook '%s'!", actionName, hook.getName());
+                log.atSevere().withCause(e).log("Failed to execute '%s' for hook '%s'!", actionName, hook.getName());
             }
         }
     }

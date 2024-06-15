@@ -7,8 +7,6 @@ import javax.inject.Inject;
 
 /**
  * Represents a factory for commands.
- *
- * @author Pim
  */
 public final class CommandFactory
 {
@@ -70,7 +68,7 @@ public final class CommandFactory
     @Getter
     private final SetBlocksToMoveDelayed setBlocksToMoveDelayed;
 
-    @Inject //
+    @Inject
     CommandFactory(
         AddOwner.IFactory addOwnerFactory, AddOwnerDelayed addOwnerDelayed,
         Cancel.IFactory cancelFactory,

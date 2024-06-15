@@ -8,8 +8,6 @@ import org.jetbrains.annotations.Contract;
  * Represents an integer x/y pair.
  * <p>
  * This class is thread-safe, as all modifications return a new instance.
- *
- * @author Pim
  */
 @SuppressWarnings("unused")
 public record Vector2Di(int x, int y)

@@ -22,8 +22,6 @@ import java.util.Map;
 
 /**
  * Handles all I/O for the audio config.
- *
- * @author Pim
  */
 @Flogger
 class AudioConfigIO
@@ -37,7 +35,8 @@ class AudioConfigIO
 
     private final Path file;
 
-    @Inject AudioConfigIO(@Named("pluginBaseDirectory") Path baseDir)
+    @Inject
+    AudioConfigIO(@Named("pluginBaseDirectory") Path baseDir)
     {
         file = baseDir.resolve("audio_config.json");
     }

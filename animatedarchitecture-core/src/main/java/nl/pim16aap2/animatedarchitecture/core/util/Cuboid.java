@@ -15,8 +15,6 @@ import java.util.function.UnaryOperator;
 
 /**
  * Represents a cuboid as described by 2 {@link Vector3Di}s.
- *
- * @author Pim
  */
 @ToString
 @EqualsAndHashCode

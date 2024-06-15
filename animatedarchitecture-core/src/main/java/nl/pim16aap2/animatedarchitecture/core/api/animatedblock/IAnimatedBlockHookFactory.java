@@ -8,8 +8,6 @@ import org.jetbrains.annotations.Nullable;
  * <p>
  * Instances of these class should be registered with {@link AnimatedBlockHookManager} so that they can be used to
  * inject hooks into the animated blocks.
- *
- * @author Pim
  */
 public interface IAnimatedBlockHookFactory<T extends IAnimatedBlock>
 {

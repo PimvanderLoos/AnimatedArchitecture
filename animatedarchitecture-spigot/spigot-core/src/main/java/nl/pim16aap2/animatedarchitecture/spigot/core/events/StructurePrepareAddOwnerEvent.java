@@ -13,8 +13,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents the event where a new owner is added to a structure.
- *
- * @author Pim
  */
 @ToString
 public class StructurePrepareAddOwnerEvent extends StructureEvent implements IStructurePrepareAddOwnerEvent
@@ -29,7 +27,9 @@ public class StructurePrepareAddOwnerEvent extends StructureEvent implements ISt
     private final StructureOwner newStructureOwner;
 
     public StructurePrepareAddOwnerEvent(
-        AbstractStructure structure, @Nullable IPlayer responsible, StructureOwner newStructureOwner)
+        AbstractStructure structure,
+        @Nullable IPlayer responsible,
+        StructureOwner newStructureOwner)
     {
         super(structure, responsible);
         this.newStructureOwner = newStructureOwner;

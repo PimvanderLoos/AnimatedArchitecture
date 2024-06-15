@@ -107,7 +107,7 @@ class CuboidTest
 
         final Vector3Di actualMin = new Vector3Di(10, -10, 9);
 
-        Cuboid cuboid = new Cuboid(val1, val2);
+        final Cuboid cuboid = new Cuboid(val1, val2);
         Assertions.assertEquals(actualMin, cuboid.getMin());
     }
 
@@ -119,7 +119,7 @@ class CuboidTest
 
         final Vector3Di actualMax = new Vector3Di(11, 20, 10);
 
-        Cuboid cuboid = new Cuboid(val1, val2);
+        final Cuboid cuboid = new Cuboid(val1, val2);
         Assertions.assertEquals(actualMax, cuboid.getMax());
     }
 
@@ -166,7 +166,6 @@ class CuboidTest
         final Vector3Di val2 = new Vector3Di(20, 30, 40);
         final Cuboid cuboid = new Cuboid(val1, val2);
 
-        //noinspection ResultOfMethodCallIgnored
         Assertions.assertThrows(IllegalArgumentException.class, () -> cuboid.isInRange(val1, -1));
         Assertions.assertTrue(cuboid.isInRange(cuboid.getCenterBlock(), 0));
         Assertions.assertTrue(cuboid.isInRange(cuboid.getCenterBlock(), 1));
@@ -214,7 +213,8 @@ class CuboidTest
                 new Vector3Di(10, 11, 25), new Vector3Di(10, 11, 30),
                 new Vector3Di(44, 11, 25), new Vector3Di(44, 11, 30),
                 new Vector3Di(10, 99, 25), new Vector3Di(10, 99, 30),
-                new Vector3Di(44, 99, 25), new Vector3Di(44, 99, 30)));
+                new Vector3Di(44, 99, 25), new Vector3Di(44, 99, 30)
+            ));
     }
 
     @Test
@@ -224,8 +224,10 @@ class CuboidTest
         final Vector3Di val2 = new Vector3Di(44, 11, 30);
         final Cuboid cuboid = new Cuboid(val1, val2);
 
-        Assertions.assertEquals(new Rectangle(new Vector2Di(10, 25), new Vector2Di(44, 30)),
-                                cuboid.asFlatRectangle());
+        Assertions.assertEquals(
+            new Rectangle(new Vector2Di(10, 25), new Vector2Di(44, 30)),
+            cuboid.asFlatRectangle()
+        );
     }
 
     @Test

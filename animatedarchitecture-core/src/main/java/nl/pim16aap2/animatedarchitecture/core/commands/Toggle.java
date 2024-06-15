@@ -45,7 +45,7 @@ public class Toggle extends BaseCommand
     private final @Nullable Double time;
     private final boolean preventPerpetualMovement;
 
-    @AssistedInject //
+    @AssistedInject
     Toggle(
         ILocalizer localizer,
         ITextFactory textFactory,
@@ -74,8 +74,11 @@ public class Toggle extends BaseCommand
         if (structureRetrievers.length > 0)
             return true;
 
-        getCommandSender().sendMessage(textFactory, TextType.ERROR,
-                                       localizer.getMessage("commands.toggle.error.not_enough_structures"));
+        getCommandSender().sendMessage(
+            textFactory,
+            TextType.ERROR,
+            localizer.getMessage("commands.toggle.error.not_enough_structures")
+        );
 
         if (animationType == AnimationType.PREVIEW)
             return getCommandSender() instanceof IPlayer player && player.isOnline();
@@ -115,12 +118,13 @@ public class Toggle extends BaseCommand
         if (!hasAccessToAttribute(structure, StructureAttribute.TOGGLE, hasBypassPermission))
         {
             getCommandSender().sendMessage(textFactory.newText().append(
-                localizer.getMessage("commands.toggle.error.no_access"), TextType.ERROR,
+                localizer.getMessage("commands.toggle.error.no_access"),
+                TextType.ERROR,
                 arg -> arg.highlight(localizer.getStructureType(structure)),
-                arg -> arg.highlight(structure.getBasicInfo())));
+                arg -> arg.highlight(structure.getBasicInfo()))
+            );
 
-            log.atFine()
-               .log("%s has no access for command %s for structure %s!", getCommandSender(), this, structure);
+            log.atFine().log("%s has no access for command %s for structure %s!", getCommandSender(), this, structure);
 
             return;
         }
@@ -133,12 +137,18 @@ public class Toggle extends BaseCommand
                 case TOGGLE -> "commands.toggle.error.cannot_toggle";
             };
             getCommandSender().sendMessage(textFactory.newText().append(
-                localizer.getMessage(msg), TextType.ERROR,
+                localizer.getMessage(msg),
+                TextType.ERROR,
                 arg -> arg.highlight(localizer.getStructureType(structure)),
-                arg -> arg.highlight(structure.getBasicInfo())));
+                arg -> arg.highlight(structure.getBasicInfo()))
+            );
 
-            log.atFiner()
-               .log("Blocked action for command %s for structure %s by %s", this, structure, getCommandSender());
+            log.atFiner().log(
+                "Blocked action for command %s for structure %s by %s",
+                this,
+                structure,
+                getCommandSender()
+            );
 
             return;
         }
@@ -160,12 +170,14 @@ public class Toggle extends BaseCommand
     }
 
     private CompletableFuture<Void> handleStructureRequest(
-        StructureRetriever structureRetriever, StructureActionCause cause, boolean hasBypassPermission)
+        StructureRetriever structureRetriever,
+        StructureActionCause cause,
+        boolean hasBypassPermission)
     {
         return getStructure(structureRetriever, StructureAttribute.TOGGLE.getPermissionLevel())
             .thenAccept(structureOpt ->
-                            structureOpt.ifPresent(
-                                structure -> toggleStructure(structure, cause, hasBypassPermission)));
+                structureOpt.ifPresent(
+                    structure -> toggleStructure(structure, cause, hasBypassPermission)));
     }
 
     @Override
@@ -176,8 +188,11 @@ public class Toggle extends BaseCommand
 
         final CompletableFuture<?>[] actions = new CompletableFuture[structureRetrievers.length];
         for (int idx = 0; idx < actions.length; ++idx)
-            actions[idx] = handleStructureRequest(structureRetrievers[idx], actionCause,
-                                                  permissions.hasAdminPermission());
+            actions[idx] = handleStructureRequest(
+                structureRetrievers[idx],
+                actionCause,
+                permissions.hasAdminPermission()
+            );
 
         return CompletableFuture.allOf(actions);
     }
@@ -212,9 +227,13 @@ public class Toggle extends BaseCommand
          */
         @Deprecated
         Toggle newToggle(
-            ICommandSender commandSender, StructureActionType actionType, AnimationType animationType,
-            @Nullable Double speedMultiplier, boolean preventPerpetualMovement,
-            StructureRetriever... structureRetrievers);
+            ICommandSender commandSender,
+            StructureActionType actionType,
+            AnimationType animationType,
+            @Nullable Double speedMultiplier,
+            boolean preventPerpetualMovement,
+            StructureRetriever... structureRetrievers
+        );
 
         /**
          * See
@@ -227,11 +246,19 @@ public class Toggle extends BaseCommand
          */
         @Deprecated
         default Toggle newToggle(
-            ICommandSender commandSender, StructureActionType actionType, AnimationType animationType,
+            ICommandSender commandSender,
+            StructureActionType actionType,
+            AnimationType animationType,
             StructureRetriever... structureRetrievers)
         {
             return newToggle(
-                commandSender, actionType, animationType, null, true, structureRetrievers);
+                commandSender,
+                actionType,
+                animationType,
+                null,
+                true,
+                structureRetrievers
+            );
         }
 
         /**
@@ -242,10 +269,18 @@ public class Toggle extends BaseCommand
          * Defaults to null for the speed multiplier and true for preventPerpetualMovement.
          */
         default Toggle newToggle(
-            ICommandSender commandSender, StructureActionType actionType, StructureRetriever... structureRetrievers)
+            ICommandSender commandSender,
+            StructureActionType actionType,
+            StructureRetriever... structureRetrievers)
         {
             return newToggle(
-                commandSender, actionType, Toggle.DEFAULT_ANIMATION_TYPE, null, true, structureRetrievers);
+                commandSender,
+                actionType,
+                Toggle.DEFAULT_ANIMATION_TYPE,
+                null,
+                true,
+                structureRetrievers
+            );
         }
 
         /**
@@ -263,8 +298,13 @@ public class Toggle extends BaseCommand
         default Toggle newToggle(ICommandSender commandSender, StructureRetriever... structureRetrievers)
         {
             return newToggle(
-                commandSender, Toggle.DEFAULT_STRUCTURE_ACTION_TYPE, Toggle.DEFAULT_ANIMATION_TYPE,
-                null, true, structureRetrievers);
+                commandSender,
+                Toggle.DEFAULT_STRUCTURE_ACTION_TYPE,
+                Toggle.DEFAULT_ANIMATION_TYPE,
+                null,
+                true,
+                structureRetrievers
+            );
         }
     }
 }

@@ -12,10 +12,19 @@ import javax.inject.Inject;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Delayed version of {@link AddOwner}.
+ * <p>
+ * This command is used to add a player as a co-owner to a structure.
+ * <p>
+ * The target player and the permission level of the new owner's ownership can be provided as delayed input.
+ */
 public class AddOwnerDelayed extends DelayedCommand<AddOwnerDelayed.DelayedInput>
 {
-    @Inject AddOwnerDelayed(
-        Context context, DelayedCommandInputRequest.IFactory<DelayedInput> inputRequestFactory)
+    @Inject
+    AddOwnerDelayed(
+        Context context,
+        DelayedCommandInputRequest.IFactory<DelayedInput> inputRequestFactory)
     {
         super(context, inputRequestFactory, DelayedInput.class);
     }
@@ -28,10 +37,17 @@ public class AddOwnerDelayed extends DelayedCommand<AddOwnerDelayed.DelayedInput
 
     @Override
     protected CompletableFuture<?> delayedInputExecutor(
-        ICommandSender commandSender, StructureRetriever structureRetriever, DelayedInput delayedInput)
+        ICommandSender commandSender,
+        StructureRetriever structureRetriever,
+        DelayedInput delayedInput)
     {
-        return commandFactory.get().newAddOwner(commandSender, structureRetriever, delayedInput.targetPlayer,
-                                                delayedInput.targetPermissionLevel).run();
+        return commandFactory.get()
+            .newAddOwner(
+                commandSender,
+                structureRetriever,
+                delayedInput.targetPlayer,
+                delayedInput.targetPermissionLevel)
+            .run();
     }
 
     @Override

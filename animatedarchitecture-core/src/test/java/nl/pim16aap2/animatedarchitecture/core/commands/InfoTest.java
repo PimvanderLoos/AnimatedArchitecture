@@ -17,17 +17,22 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Timeout(1)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class InfoTest
 {
     @Mock
@@ -44,8 +49,6 @@ class InfoTest
     @BeforeEach
     void init()
     {
-        MockitoAnnotations.openMocks(this);
-
         structureRetriever = StructureRetrieverFactory.ofStructure(structure);
         Mockito.when(structure.isOwner(Mockito.any(UUID.class), Mockito.any())).thenReturn(true);
         Mockito.when(structure.isOwner(Mockito.any(IPlayer.class), Mockito.any())).thenReturn(true);
@@ -66,12 +69,16 @@ class InfoTest
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
-        Mockito.when(factory.newInfo(Mockito.any(ICommandSender.class),
-                                     Mockito.any(StructureRetriever.class)))
-               .thenAnswer(invoc -> new Info(invoc.getArgument(0, ICommandSender.class),
-                                             invoc.getArgument(1, StructureRetriever.class),
-                                             localizer, ITextFactory.getSimpleTextFactory(),
-                                             glowingBlockSpawner));
+        Mockito.when(factory.newInfo(
+                Mockito.any(ICommandSender.class),
+                Mockito.any(StructureRetriever.class)))
+            .thenAnswer(invoc -> new Info(
+                invoc.getArgument(0, ICommandSender.class),
+                invoc.getArgument(1, StructureRetriever.class),
+                localizer,
+                ITextFactory.getSimpleTextFactory(),
+                glowingBlockSpawner)
+            );
     }
 
     @Test
@@ -81,7 +88,7 @@ class InfoTest
 
         Assertions.assertDoesNotThrow(() -> factory.newInfo(server, structureRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(glowingBlockSpawner, Mockito.never())
-               .spawnHighlightedBlocks(Mockito.any(), Mockito.any(), Mockito.any());
+            .spawnHighlightedBlocks(Mockito.any(), Mockito.any(), Mockito.any());
     }
 
     @Test
@@ -92,18 +99,18 @@ class InfoTest
         CommandTestingUtil.initCommandSenderPermissions(player, true, false);
         Assertions.assertDoesNotThrow(() -> factory.newInfo(player, structureRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(glowingBlockSpawner, Mockito.never())
-               .spawnHighlightedBlocks(Mockito.any(StructureSnapshot.class), Mockito.any(IPlayer.class), Mockito.any());
+            .spawnHighlightedBlocks(Mockito.any(StructureSnapshot.class), Mockito.any(IPlayer.class), Mockito.any());
 
         CommandTestingUtil.initCommandSenderPermissions(player, true, true);
         Assertions.assertDoesNotThrow(() -> factory.newInfo(player, structureRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(glowingBlockSpawner)
-               .spawnHighlightedBlocks(Mockito.any(StructureSnapshot.class), Mockito.any(IPlayer.class), Mockito.any());
+            .spawnHighlightedBlocks(Mockito.any(StructureSnapshot.class), Mockito.any(IPlayer.class), Mockito.any());
 
         CommandTestingUtil.initCommandSenderPermissions(player, true, false);
         Mockito.when(structure.getOwner(player)).thenReturn(Optional.of(CommandTestingUtil.structureOwnerCreator));
         Assertions.assertDoesNotThrow(() -> factory.newInfo(player, structureRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(glowingBlockSpawner, Mockito.times(2))
-               .spawnHighlightedBlocks(Mockito.any(StructureSnapshot.class), Mockito.any(IPlayer.class), Mockito.any());
+            .spawnHighlightedBlocks(Mockito.any(StructureSnapshot.class), Mockito.any(IPlayer.class), Mockito.any());
     }
 
 }

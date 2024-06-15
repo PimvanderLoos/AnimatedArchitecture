@@ -2,8 +2,6 @@ package nl.pim16aap2.animatedarchitecture.core.api.restartable;
 
 /**
  * Represents an object what can be restarted and shut down.
- *
- * @author Pim
  */
 public interface IRestartable
 {

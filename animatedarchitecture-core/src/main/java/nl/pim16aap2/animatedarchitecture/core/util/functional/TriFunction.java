@@ -3,8 +3,6 @@ package nl.pim16aap2.animatedarchitecture.core.util.functional;
 
 /**
  * Represents a function with 3 input arguments.
- *
- * @author Pim
  */
 @FunctionalInterface
 public interface TriFunction<T, U, V, R>

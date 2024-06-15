@@ -54,11 +54,16 @@ class DelayedCommandInputRequestTest
     void test()
     {
         final DelayedInput delayedInput = new DelayedInput(UUID.randomUUID(), "Some string");
-        final DelayedCommandInputRequest<?> inputRequest =
-            new DelayedCommandInputRequest<>(100, commandSender, commandDefinition,
-                                             input -> verifyInput(delayedInput, input), () -> "", DelayedInput.class,
-                                             localizer, ITextFactory.getSimpleTextFactory(),
-                                             delayedCommandInputManager);
+        final DelayedCommandInputRequest<?> inputRequest = new DelayedCommandInputRequest<>(
+            100,
+            commandSender,
+            commandDefinition,
+            input -> verifyInput(delayedInput, input),
+            () -> "", DelayedInput.class,
+            localizer,
+            ITextFactory.getSimpleTextFactory(),
+            delayedCommandInputManager
+        );
 
         final CompletableFuture<?> first = inputRequest.getCommandOutput();
         final CompletableFuture<?> second = inputRequest.provide(delayedInput);
@@ -71,11 +76,17 @@ class DelayedCommandInputRequestTest
     void testInvalidInput()
     {
         final DelayedInput delayedInput = new DelayedInput(UUID.randomUUID(), "Some string");
-        final DelayedCommandInputRequest<?> inputRequest =
-            new DelayedCommandInputRequest<>(100, commandSender, commandDefinition,
-                                             input -> verifyInput(delayedInput, input), () -> "", DelayedInput.class,
-                                             localizer, ITextFactory.getSimpleTextFactory(),
-                                             delayedCommandInputManager);
+        final DelayedCommandInputRequest<?> inputRequest = new DelayedCommandInputRequest<>(
+            100,
+            commandSender,
+            commandDefinition,
+            input -> verifyInput(delayedInput, input),
+            () -> "",
+            DelayedInput.class,
+            localizer,
+            ITextFactory.getSimpleTextFactory(),
+            delayedCommandInputManager
+        );
 
         final CompletableFuture<?> first = inputRequest.getCommandOutput();
         final CompletableFuture<?> second = inputRequest.provide("Invalid!");
@@ -89,14 +100,20 @@ class DelayedCommandInputRequestTest
         throws ExecutionException, InterruptedException, TimeoutException
     {
         // Ensure that exceptions are properly propagated.
-        final DelayedCommandInputRequest<?> inputRequest =
-            new DelayedCommandInputRequest<>(100, commandSender, commandDefinition,
-                                             input ->
-                                             {
-                                                 throw new IllegalArgumentException(input.toString());
-                                             }, () -> "", DelayedInput.class, localizer,
-                                             ITextFactory.getSimpleTextFactory(),
-                                             delayedCommandInputManager);
+        final DelayedCommandInputRequest<?> inputRequest = new DelayedCommandInputRequest<>(
+            100,
+            commandSender,
+            commandDefinition,
+            input ->
+            {
+                throw new IllegalArgumentException(input.toString());
+            },
+            () -> "",
+            DelayedInput.class,
+            localizer,
+            ITextFactory.getSimpleTextFactory(),
+            delayedCommandInputManager
+        );
 
         final UUID uuid = UUID.randomUUID();
         final String providedInput = UUID.randomUUID().toString();
@@ -108,7 +125,8 @@ class DelayedCommandInputRequestTest
             -1,
             null,
             CompletionException.class, null,
-            IllegalArgumentException.class, String.format("DelayedInput[uuid=%s, string=%s]", uuid, providedInput)
+            IllegalArgumentException.class,
+            String.format("DelayedInput[uuid=%s, string=%s]", uuid, providedInput)
         );
     }
 

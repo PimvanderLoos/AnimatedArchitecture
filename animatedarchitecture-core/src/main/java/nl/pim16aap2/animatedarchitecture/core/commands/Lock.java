@@ -19,8 +19,6 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents the command that is used to change whether a structure is locked.
- *
- * @author Pim
  */
 @ToString
 @Flogger
@@ -30,7 +28,7 @@ public class Lock extends StructureTargetCommand
     private final IAnimatedArchitectureEventCaller animatedArchitectureEventCaller;
     private final IAnimatedArchitectureEventFactory animatedArchitectureEventFactory;
 
-    @AssistedInject //
+    @AssistedInject
     Lock(
         @Assisted ICommandSender commandSender,
         @Assisted StructureRetriever structureRetriever,
@@ -42,8 +40,16 @@ public class Lock extends StructureTargetCommand
         IAnimatedArchitectureEventCaller animatedArchitectureEventCaller,
         IAnimatedArchitectureEventFactory animatedArchitectureEventFactory)
     {
-        super(commandSender, localizer, textFactory, structureRetriever, StructureAttribute.LOCK,
-              sendUpdatedInfo, commandFactory);
+        super(
+            commandSender,
+            localizer,
+            textFactory,
+            structureRetriever,
+            StructureAttribute.LOCK,
+            sendUpdatedInfo,
+            commandFactory
+        );
+
         this.isLocked = isLocked;
         this.animatedArchitectureEventCaller = animatedArchitectureEventCaller;
         this.animatedArchitectureEventFactory = animatedArchitectureEventFactory;
@@ -55,9 +61,11 @@ public class Lock extends StructureTargetCommand
         final String msg = isLocked ? "commands.lock.success.locked" : "commands.lock.success.unlocked";
         final var desc = getRetrievedStructureDescription();
         getCommandSender().sendMessage(textFactory.newText().append(
-            localizer.getMessage(msg), TextType.SUCCESS,
+            localizer.getMessage(msg),
+            TextType.SUCCESS,
             arg -> arg.highlight(desc.localizedTypeName()),
-            arg -> arg.highlight(desc.id())));
+            arg -> arg.highlight(desc.id()))
+        );
     }
 
     @Override
@@ -70,7 +78,10 @@ public class Lock extends StructureTargetCommand
     protected CompletableFuture<?> performAction(AbstractStructure structure)
     {
         final var event = animatedArchitectureEventFactory.createStructurePrepareLockChangeEvent(
-            structure, isLocked, getCommandSender().getPlayer().orElse(null));
+            structure,
+            isLocked,
+            getCommandSender().getPlayer().orElse(null)
+        );
 
         animatedArchitectureEventCaller.callAnimatedArchitectureEvent(event);
 
@@ -81,9 +92,10 @@ public class Lock extends StructureTargetCommand
         }
 
         structure.setLocked(isLocked);
-        return structure.syncData()
-                        .thenAccept(this::handleDatabaseActionResult)
-                        .thenRunAsync(() -> sendUpdatedInfo(structure));
+        return structure
+            .syncData()
+            .thenAccept(this::handleDatabaseActionResult)
+            .thenRunAsync(() -> sendUpdatedInfo(structure));
     }
 
     @AssistedFactory
@@ -107,7 +119,8 @@ public class Lock extends StructureTargetCommand
             ICommandSender commandSender,
             StructureRetriever structureRetriever,
             @Assisted("isLocked") boolean isLocked,
-            @Assisted("sendUpdatedInfo") boolean sendUpdatedInfo);
+            @Assisted("sendUpdatedInfo") boolean sendUpdatedInfo
+        );
 
         /**
          * Creates (but does not execute!) a new {@link Lock} command.

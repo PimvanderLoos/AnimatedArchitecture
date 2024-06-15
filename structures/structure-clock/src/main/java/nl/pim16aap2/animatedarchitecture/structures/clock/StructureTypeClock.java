@@ -19,9 +19,16 @@ public final class StructureTypeClock extends StructureType
 
     private StructureTypeClock()
     {
-        super(Constants.PLUGIN_NAME, "Clock", TYPE_VERSION,
-              Arrays.asList(MovementDirection.NORTH, MovementDirection.EAST,
-                            MovementDirection.SOUTH, MovementDirection.WEST), "structure.type.clock");
+        super(Constants.PLUGIN_NAME,
+            "Clock",
+            TYPE_VERSION,
+            Arrays.asList(
+                MovementDirection.NORTH,
+                MovementDirection.EAST,
+                MovementDirection.SOUTH,
+                MovementDirection.WEST),
+            "structure.type.clock"
+        );
     }
 
     /**

@@ -21,7 +21,8 @@ public final class BlockAnalyzerProvider
     @Getter
     private final IBlockAnalyzerSpigot blockAnalyzer;
 
-    @Inject BlockAnalyzerProvider()
+    @Inject
+    BlockAnalyzerProvider()
     {
         this.blockAnalyzer = instantiateBlockAnalyzer();
     }

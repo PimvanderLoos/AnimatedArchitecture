@@ -7,8 +7,6 @@ import java.util.List;
 
 /**
  * Represents a type that can be used to generate localization files using properties files from various sources.
- *
- * @author Pim
  */
 interface ILocalizationGenerator
 {

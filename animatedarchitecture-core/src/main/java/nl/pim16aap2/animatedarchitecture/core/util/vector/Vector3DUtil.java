@@ -5,8 +5,6 @@ import org.jetbrains.annotations.Contract;
 
 /**
  * Represents a set of common 3d vector methods shared by both the integer and double implementations.
- *
- * @author Pim
  */
 final class Vector3DUtil
 {

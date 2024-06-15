@@ -12,7 +12,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>
  * This class is a thread-safe singleton. To get the singleton instance, use {@link #get()}.
  */
-@ThreadSafe final class ReflectionCache
+@ThreadSafe
+final class ReflectionCache
 {
     private static final ReflectionCache INSTANCE = new ReflectionCache();
 

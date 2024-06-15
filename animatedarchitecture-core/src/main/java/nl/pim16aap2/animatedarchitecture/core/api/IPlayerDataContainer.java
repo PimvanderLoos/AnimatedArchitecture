@@ -10,8 +10,6 @@ import java.util.function.Function;
 
 /**
  * Represents a container for player data.
- *
- * @author Pim
  */
 interface IPlayerDataContainer
 {

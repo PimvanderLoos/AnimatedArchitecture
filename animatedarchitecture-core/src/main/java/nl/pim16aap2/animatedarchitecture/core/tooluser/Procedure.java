@@ -23,8 +23,6 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents a procedure as defined by a series of {@link Step}s.
- *
- * @author Pim
  */
 @Flogger
 @ThreadSafe
@@ -182,8 +180,8 @@ public final class Procedure
         final var currentStep0 = this.getCurrentStep();
         if (currentStep0 == null)
         {
-            log.atSevere().withStackTrace(StackSize.FULL)
-                .log("Cannot apply step executor because there is no active step!");
+            log.atSevere().withStackTrace(StackSize.FULL).log(
+                "Cannot apply step executor because there is no active step!");
             return CompletableFuture.failedFuture(new IllegalStateException("No active step!"));
         }
         return currentStep0
@@ -311,8 +309,8 @@ public final class Procedure
 
         if (currentStep == null)
         {
-            log.atSevere().withStackTrace(StackSize.FULL)
-                .log("Cannot check for implicit next step as there is no current step!");
+            log.atSevere().withStackTrace(StackSize.FULL).log(
+                "Cannot check for implicit next step as there is no current step!");
             return false;
         }
         return currentStep.isImplicitNextStep();

@@ -23,10 +23,8 @@ import java.util.Set;
  * <p>
  * All sources are merged and written to a new set of files in the specified output directory with the specified base
  * name.
- *
- * @author Pim
  */
-@Flogger //
+@Flogger
 final class LocalizationGenerator implements ILocalizationGenerator
 {
     /**
@@ -77,15 +75,16 @@ final class LocalizationGenerator implements ILocalizationGenerator
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to add resources from directory '%s' with base name: '%s",
-                                            directory, baseName);
+            log.atSevere().withCause(e).log(
+                "Failed to add resources from directory '%s' with base name: '%s", directory, baseName);
         }
     }
 
     void addResourcesFromZip(Path jarFile, @Nullable String baseName)
     {
-        try (FileSystem zipFileSystem = LocalizationUtil.createNewFileSystem(jarFile);
-             FileSystem outputFileSystem = getOutputFileFileSystem())
+        try (
+            FileSystem zipFileSystem = LocalizationUtil.createNewFileSystem(jarFile);
+            FileSystem outputFileSystem = getOutputFileFileSystem())
         {
             List<String> fileNames = Util.getLocaleFilesInJar(jarFile);
             if (baseName != null)

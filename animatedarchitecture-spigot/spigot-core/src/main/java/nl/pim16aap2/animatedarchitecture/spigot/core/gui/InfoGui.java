@@ -62,7 +62,7 @@ class InfoGui implements IGuiPage
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private final Map<StructureAttribute, GuiElement> attributeElements;
 
-    @AssistedInject //
+    @AssistedInject
     InfoGui(
         AnimatedArchitecturePlugin animatedArchitecturePlugin,
         ILocalizer localizer,
@@ -96,11 +96,12 @@ class InfoGui implements IGuiPage
     {
         final String[] guiSetup = GuiUtil.fillLinesWithChar('g', allowedAttributes.size(), "f   h    ");
 
-        final InventoryGui gui =
-            new InventoryGui(animatedArchitecturePlugin,
-                             inventoryHolder.getBukkitPlayer(),
-                             localizer.getMessage("gui.info_page.title", structure.getNameAndUid()),
-                             guiSetup);
+        final InventoryGui gui = new InventoryGui(
+            animatedArchitecturePlugin,
+            inventoryHolder.getBukkitPlayer(),
+            localizer.getMessage("gui.info_page.title", structure.getNameAndUid()),
+            guiSetup
+        );
         gui.setFiller(FILLER);
 
         populateGUI(gui);
@@ -119,16 +120,17 @@ class InfoGui implements IGuiPage
         gui.addElement(new StaticGuiElement(
             'h',
             new ItemStack(Material.BOOK),
-            localizer.getMessage("gui.info_page.header",
-                                 localizer.getMessage(structure.getType().getLocalizationKey()),
-                                 structure.getNameAndUid())
-        ));
+            localizer.getMessage(
+                "gui.info_page.header",
+                localizer.getMessage(structure.getType().getLocalizationKey()),
+                structure.getNameAndUid()))
+        );
 
         gui.addElement(new GuiBackElement(
             'f',
             new ItemStack(Material.ARROW),
-            localizer.getMessage("gui.info_page.back_button")
-        ));
+            localizer.getMessage("gui.info_page.back_button"))
+        );
     }
 
     private void addElements(InventoryGui gui)
@@ -136,8 +138,7 @@ class InfoGui implements IGuiPage
         final GuiElementGroup group = new GuiElementGroup('g');
         for (final StructureAttribute attribute : allowedAttributes)
         {
-            final GuiElement element =
-                attributeButtonFactory.of(attribute, structure, inventoryHolder, 'g');
+            final GuiElement element = attributeButtonFactory.of(attribute, structure, inventoryHolder, 'g');
             attributeElements.put(attribute, element);
             group.addElement(element);
         }
@@ -148,22 +149,31 @@ class InfoGui implements IGuiPage
     private StructureOwner getDummyOwner()
     {
         log.atSevere().log("Player '%s' does not have access to structure: '%s'!", inventoryHolder, structure);
-        return new StructureOwner(structure.getUid(), PermissionLevel.NO_PERMISSION,
-                                  inventoryHolder.getPlayerData());
+        return new StructureOwner(
+            structure.getUid(),
+            PermissionLevel.NO_PERMISSION,
+            inventoryHolder.getPlayerData()
+        );
     }
 
     static List<StructureAttribute> analyzeAttributes(
-        StructureOwner structureOwner, PlayerSpigot player, IPermissionsManager permissionsManager)
+        StructureOwner structureOwner,
+        PlayerSpigot player,
+        IPermissionsManager permissionsManager)
     {
         final PermissionLevel perm = structureOwner.permission();
-        return StructureAttribute.getValues().stream()
-                                 .filter(attr -> hasAccessToAttribute(player, attr, perm, permissionsManager))
-                                 .filter(attr -> attr != StructureAttribute.SWITCH)
-                                 .toList();
+        return StructureAttribute
+            .getValues()
+            .stream()
+            .filter(attr -> hasAccessToAttribute(player, attr, perm, permissionsManager))
+            .filter(attr -> attr != StructureAttribute.SWITCH)
+            .toList();
     }
 
     private static boolean hasAccessToAttribute(
-        PlayerSpigot player, StructureAttribute attribute, PermissionLevel permissionLevel,
+        PlayerSpigot player,
+        StructureAttribute attribute,
+        PermissionLevel permissionLevel,
         IPermissionsManager permissionsManager)
     {
         return attribute.canAccessWith(permissionLevel) ||

@@ -24,6 +24,12 @@ import org.bukkit.plugin.RegisteredListener;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+/**
+ * A {@link DebugReporter} implementation for the Spigot platform.
+ * <p>
+ * This class provides additional debug information specific to the Spigot platform such as the server version,
+ * registered addons, and event listeners.
+ */
 @Singleton
 @Flogger
 public class DebugReporterSpigot extends DebugReporter
@@ -48,15 +54,17 @@ public class DebugReporterSpigot extends DebugReporter
             .append('\n')
             .append("Registered addons: ").append(animatedArchitecturePlugin::getRegisteredPlugins)
             .append('\n')
-            .append("EventListeners:\n").append(getListeners(StructurePrepareAddOwnerEvent.class,
-                                                             StructurePrepareCreateEvent.class,
-                                                             StructurePrepareDeleteEvent.class,
-                                                             StructurePrepareLockChangeEvent.class,
-                                                             StructurePrepareRemoveOwnerEvent.class,
-                                                             StructureCreatedEvent.class,
-                                                             StructureEventToggleEnd.class,
-                                                             StructureEventTogglePrepare.class,
-                                                             StructureEventToggleStart.class))
+            .append("EventListeners:\n")
+            .append(getListeners(
+                StructurePrepareAddOwnerEvent.class,
+                StructurePrepareCreateEvent.class,
+                StructurePrepareDeleteEvent.class,
+                StructurePrepareLockChangeEvent.class,
+                StructurePrepareRemoveOwnerEvent.class,
+                StructureCreatedEvent.class,
+                StructureEventToggleEnd.class,
+                StructureEventTogglePrepare.class,
+                StructureEventToggleStart.class))
             .append('\n')
             .toString();
     }
@@ -77,9 +85,10 @@ public class DebugReporterSpigot extends DebugReporter
                 handlerListMethod.setAccessible(true);
                 final var handlers = (HandlerList) handlerListMethod.get(null);
                 sb.append("    ").append(clz::getSimpleName).append(": ")
-                  .append(() -> Util.toString(handlers.getRegisteredListeners(),
-                                              DebugReporterSpigot::formatRegisteredListener))
-                  .append('\n');
+                    .append(() -> Util.toString(
+                        handlers.getRegisteredListeners(),
+                        DebugReporterSpigot::formatRegisteredListener))
+                    .append('\n');
             }
             catch (Exception e)
             {

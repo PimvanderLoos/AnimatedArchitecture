@@ -20,6 +20,9 @@ import java.util.Objects;
 import java.util.Queue;
 import java.util.function.BiFunction;
 
+/**
+ * An argument that parses a {@link PermissionLevel} from a string.
+ */
 public class PermissionLevelArgument extends CommandArgument<ICommandSender, PermissionLevel>
 {
     /**
@@ -32,14 +35,24 @@ public class PermissionLevelArgument extends CommandArgument<ICommandSender, Per
      */
     @lombok.Builder
     public PermissionLevelArgument(
-        boolean required, String name, @Nullable String defaultValue,
+        boolean required,
+        String name,
+        @Nullable String defaultValue,
         @Nullable BiFunction<CommandContext<ICommandSender>, String, List<String>> suggestionsProvider,
-        @Nullable ArgumentDescription defaultDescription, ILocalizer localizer,
-        @Nullable PermissionLevel minimumLevel, @Nullable PermissionLevel maximumLevel)
+        @Nullable ArgumentDescription defaultDescription,
+        ILocalizer localizer,
+        @Nullable PermissionLevel minimumLevel,
+        @Nullable PermissionLevel maximumLevel)
     {
-        super(required, name, new PermissionLevelArgumentParser(localizer, minimumLevel, maximumLevel),
-              Objects.requireNonNullElse(defaultValue, ""), PermissionLevel.class, suggestionsProvider,
-              Objects.requireNonNullElse(defaultDescription, ArgumentDescription.empty()));
+        super(
+            required,
+            name,
+            new PermissionLevelArgumentParser(localizer, minimumLevel, maximumLevel),
+            Objects.requireNonNullElse(defaultValue, ""),
+            PermissionLevel.class,
+            suggestionsProvider,
+            Objects.requireNonNullElse(defaultDescription, ArgumentDescription.empty())
+        );
     }
 
     public static final class PermissionLevelArgumentParser implements ArgumentParser<ICommandSender, PermissionLevel>
@@ -50,7 +63,9 @@ public class PermissionLevelArgument extends CommandArgument<ICommandSender, Per
         private final ILocalizer localizer;
 
         public PermissionLevelArgumentParser(
-            ILocalizer localizer, @Nullable PermissionLevel minimumLevel, @Nullable PermissionLevel maximumLevel)
+            ILocalizer localizer,
+            @Nullable PermissionLevel minimumLevel,
+            @Nullable PermissionLevel maximumLevel)
         {
             this.localizer = localizer;
             fillSuggestions(minimumLevel, maximumLevel);
@@ -74,7 +89,8 @@ public class PermissionLevelArgument extends CommandArgument<ICommandSender, Per
 
         @Override
         public ArgumentParseResult<PermissionLevel> parse(
-            CommandContext<ICommandSender> commandContext, Queue<String> inputQueue)
+            CommandContext<ICommandSender> commandContext,
+            Queue<String> inputQueue)
         {
             final @Nullable String input = inputQueue.peek();
             final @Nullable PermissionLevel level =

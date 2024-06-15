@@ -7,11 +7,18 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Delayed version of {@link RemoveOwner}.
+ * <p>
+ * This command is used to remove a player as a co-owner from a structure.
+ * <p>
+ * The target player can be provided as delayed input.
+ */
 @Singleton
 public class RemoveOwnerDelayed extends DelayedCommand<IPlayer>
 {
-    @Inject RemoveOwnerDelayed(
-        Context context, DelayedCommandInputRequest.IFactory<IPlayer> inputRequestFactory)
+    @Inject
+    RemoveOwnerDelayed(Context context, DelayedCommandInputRequest.IFactory<IPlayer> inputRequestFactory)
     {
         super(context, inputRequestFactory, IPlayer.class);
     }
@@ -24,7 +31,9 @@ public class RemoveOwnerDelayed extends DelayedCommand<IPlayer>
 
     @Override
     protected CompletableFuture<?> delayedInputExecutor(
-        ICommandSender commandSender, StructureRetriever structureRetriever, IPlayer targetPlayer)
+        ICommandSender commandSender,
+        StructureRetriever structureRetriever,
+        IPlayer targetPlayer)
     {
         return commandFactory.get().newRemoveOwner(commandSender, structureRetriever, targetPlayer).run();
     }

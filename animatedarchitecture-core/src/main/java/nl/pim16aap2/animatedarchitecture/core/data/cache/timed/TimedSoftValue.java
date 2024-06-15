@@ -34,7 +34,6 @@ import java.time.Clock;
  *
  * @param <T>
  *     The type of the value to store.
- * @author Pim
  */
 class TimedSoftValue<T> extends AbstractTimedValue<T>
 {
@@ -129,7 +128,8 @@ class TimedSoftValue<T> extends AbstractTimedValue<T>
      * @return The raw hard reference to the value.
      */
     // Useful for testing.
-    @Nullable T getRawHardReference()
+    @Nullable
+    T getRawHardReference()
     {
         return hardReference;
     }

@@ -9,8 +9,6 @@ import java.util.MissingResourceException;
 
 /**
  * Represents a class that can localize strings.
- *
- * @author Pim
  */
 public interface ILocalizer
 {

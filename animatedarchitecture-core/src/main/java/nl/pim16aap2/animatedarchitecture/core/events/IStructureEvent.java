@@ -7,8 +7,6 @@ import java.util.Optional;
 
 /**
  * Represents the event where a structure was created.
- *
- * @author Pim
  */
 public interface IStructureEvent extends IAnimatedArchitectureEvent
 {

@@ -13,8 +13,6 @@ import java.util.function.UnaryOperator;
 
 /**
  * Represents a rectangle as described by 2 {@link Vector2Di}s.
- *
- * @author Pim
  */
 @ToString
 @EqualsAndHashCode

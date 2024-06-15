@@ -14,15 +14,13 @@ import java.util.UUID;
 
 /**
  * Builder for {@link StructureBase} instances implemented as a guided builder.
- *
- * @author Pim
  */
 public final class StructureBaseBuilder
 {
     private final StructureBase.IFactory baseFactory;
 
-    @Inject //
-    public StructureBaseBuilder(StructureBase.IFactory baseFactory)
+    @Inject
+    StructureBaseBuilder(StructureBase.IFactory baseFactory)
     {
         this.baseFactory = baseFactory;
     }
@@ -148,7 +146,7 @@ public final class StructureBaseBuilder
         {
             return new AbstractStructure.BaseHolder(
                 baseFactory.create(structureUID, name, cuboid, rotationPoint, powerBlock, world, isOpen,
-                                   isLocked, openDir, primeOwner, owners));
+                    isLocked, openDir, primeOwner, owners));
         }
     }
 

@@ -55,7 +55,8 @@ public class PlotSquared7ProtectionHook implements IProtectionHookSpigot
         if (!result)
             log.atFine().log(
                 "Player %s is not allowed to break block at %s",
-                lazyFormatPlayerName(player), loc
+                lazyFormatPlayerName(player),
+                loc
             );
         return CompletableFuture.completedFuture(result);
     }
@@ -97,7 +98,10 @@ public class PlotSquared7ProtectionHook implements IProtectionHookSpigot
         if (!result)
             log.atFiner().log(
                 "Player %s is not allowed to break blocks at height %d in plot area '%s' with region '%s'",
-                lazyFormatPlayerName(player), height, area, area.getRegion()
+                lazyFormatPlayerName(player),
+                height,
+                area,
+                area.getRegion()
             );
         return result;
     }
@@ -130,7 +134,9 @@ public class PlotSquared7ProtectionHook implements IProtectionHookSpigot
             if (!result)
                 log.atFiner().log(
                     "Player %s is not allowed to break block in unowned plot '%s' at location '%s'",
-                    lazyFormatPlayerName(player), plot, loc
+                    lazyFormatPlayerName(player),
+                    plot,
+                    loc
                 );
             return result;
         }
@@ -148,7 +154,10 @@ public class PlotSquared7ProtectionHook implements IProtectionHookSpigot
                 log.atFiner().log(
                     "Player %s is not allowed to break block in plot '%s' at location '%s': " +
                         "block type '%s' is not allowed!",
-                    lazyFormatPlayerName(player), plot.toString(), loc, blockType
+                    lazyFormatPlayerName(player),
+                    plot.toString(),
+                    loc,
+                    blockType
                 );
             return result;
         }
@@ -158,7 +167,9 @@ public class PlotSquared7ProtectionHook implements IProtectionHookSpigot
             if (!result)
                 log.atFiner().log(
                     "Player %s is not allowed to break block in plot '%s' at location '%s': plot is marked as done!",
-                    lazyFormatPlayerName(player), plot.toString(), loc
+                    lazyFormatPlayerName(player),
+                    plot.toString(),
+                    loc
                 );
             return result;
         }
@@ -196,7 +207,8 @@ public class PlotSquared7ProtectionHook implements IProtectionHookSpigot
                 {
                     log.atFiner().log(
                         "Player %s is not allowed to break block at %s: Not in a plot area and cannot break roads!",
-                        lazyFormatPlayerName(player), loc
+                        lazyFormatPlayerName(player),
+                        loc
                     );
                     return CompletableFuture.completedFuture(false);
                 }

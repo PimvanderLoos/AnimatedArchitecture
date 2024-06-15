@@ -4,8 +4,6 @@ import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 
 /**
  * Represents a factory for {@link IWorld} objects.
- *
- * @author Pim
  */
 public interface IWorldFactory
 {

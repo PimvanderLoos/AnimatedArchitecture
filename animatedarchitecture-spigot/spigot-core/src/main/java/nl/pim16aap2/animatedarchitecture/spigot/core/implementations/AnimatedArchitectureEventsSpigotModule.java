@@ -14,7 +14,8 @@ public interface AnimatedArchitectureEventsSpigotModule
     @Binds
     @Singleton
     IAnimatedArchitectureEventFactory getAnimatedArchitectureEventFactory(
-        AnimatedArchitectureEventFactorySpigot factory);
+        AnimatedArchitectureEventFactorySpigot factory
+    );
 
     @Binds
     @Singleton

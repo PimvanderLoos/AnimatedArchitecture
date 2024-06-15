@@ -112,14 +112,32 @@ public final class FakePlayerClassGenerator extends ClassGenerator
         var builder = currentBuilder;
 
         builder = interceptMethodWithImplementation(
-            builder, methods, FixedValue.value(new ArrayList<>(0)),
-            findMethod(Metadatable.class).withName("getMetadata").get());
+            builder,
+            methods,
+            FixedValue.value(new ArrayList<>(0)),
+            findMethod(Metadatable.class).withName("getMetadata").get()
+        );
+
         builder = interceptMethodWithImplementation(
-            builder, methods, FixedValue.self(), findMethod(OfflinePlayer.class).withName("getPlayer").get());
+            builder,
+            methods,
+            FixedValue.self(),
+            findMethod(OfflinePlayer.class).withName("getPlayer").get()
+        );
+
         builder = interceptMethodWithImplementation(
-            builder, methods, FixedValue.value(true), findMethod(OfflinePlayer.class).withName("isOnline").get());
+            builder,
+            methods,
+            FixedValue.value(true),
+            findMethod(OfflinePlayer.class).withName("isOnline").get()
+        );
+
         builder = interceptMethodWithImplementation(
-            builder, methods, FixedValue.value(EntityType.PLAYER), findMethod(Entity.class).withName("getType").get());
+            builder,
+            methods,
+            FixedValue.value(EntityType.PLAYER),
+            findMethod(Entity.class).withName("getType").get()
+        );
 
         builder = interceptMethodRedirectToOfflinePlayer(builder, methods, "getDisplayName", "getName");
         builder = interceptMethodRedirectToOfflinePlayer(builder, methods, "getPlayerListName", "getName");
@@ -146,7 +164,8 @@ public final class FakePlayerClassGenerator extends ClassGenerator
      * @return The builder with the added methods.
      */
     private DynamicType.Builder<?> addOfflinePlayerMethods(
-        DynamicType.Builder<?> currentBuilder, Map<String, Method> remainingMethods)
+        DynamicType.Builder<?> currentBuilder,
+        Map<String, Method> remainingMethods)
     {
         var builder = currentBuilder;
         final Map<String, Method> offlinePlayerMethods = getMethods(OfflinePlayer.class);
@@ -239,10 +258,17 @@ public final class FakePlayerClassGenerator extends ClassGenerator
         final Constructor<?> locCtor = findConstructor(Location.class)
             .withParameters(World.class, double.class, double.class, double.class).get();
 
-        final Method method0 =
-            findMethod(Player.class).withName("getLocation").withoutParameters().checkInterfaces().get();
-        final Method method1 =
-            findMethod(Player.class).withName("getLocation").withParameters(Location.class).checkInterfaces().get();
+        final Method method0 = findMethod(Player.class)
+            .withName("getLocation")
+            .withoutParameters()
+            .checkInterfaces()
+            .get();
+
+        final Method method1 = findMethod(Player.class)
+            .withName("getLocation")
+            .withParameters(Location.class)
+            .checkInterfaces()
+            .get();
 
         if (remainingMethods.remove(simpleMethodString(method0)) == null)
             throw new IllegalStateException("Failed to find mapped method: " + method0);
@@ -259,10 +285,10 @@ public final class FakePlayerClassGenerator extends ClassGenerator
         var builder = currentBuilder
             .define(method0)
             .intercept(construct(locCtor)
-                           .withMethodCall(getWorld)
-                           .withMethodCall(getX)
-                           .withMethodCall(getY)
-                           .withMethodCall(getZ));
+                .withMethodCall(getWorld)
+                .withMethodCall(getX)
+                .withMethodCall(getY)
+                .withMethodCall(getZ));
 
         final MethodCall setWorld = invoke(findLocationMethod.withName("setWorld").get()).onArgument(0);
         final MethodCall setX = invoke(findLocationMethod.withName("setX").get()).onArgument(0);
@@ -276,12 +302,13 @@ public final class FakePlayerClassGenerator extends ClassGenerator
             .define(method1)
             .intercept(
                 setWorld.withMethodCall(getWorld)
-                        .andThen(setX.withMethodCall(getX))
-                        .andThen(setY.withMethodCall(getY))
-                        .andThen(setZ.withMethodCall(getZ))
-                        .andThen(setYaw.with(0F))
-                        .andThen(setPitch.with(0F))
-                        .andThen(FixedValue.argument(0)));
+                    .andThen(setX.withMethodCall(getX))
+                    .andThen(setY.withMethodCall(getY))
+                    .andThen(setZ.withMethodCall(getZ))
+                    .andThen(setYaw.with(0F))
+                    .andThen(setPitch.with(0F))
+                    .andThen(FixedValue.argument(0))
+            );
         return builder;
     }
 

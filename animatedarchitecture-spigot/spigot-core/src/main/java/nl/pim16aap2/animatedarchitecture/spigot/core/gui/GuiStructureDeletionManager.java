@@ -34,8 +34,11 @@ class GuiStructureDeletionManager implements StructureDeletionManager.IDeletionL
     private final Deque<IGuiPage.IGuiStructureDeletionListener> listeners = new ArrayDeque<>();
     private final IExecutor executor;
 
-    @Inject GuiStructureDeletionManager(
-        StructureDeletionManager structureDeletionManager, IExecutor executor, DebuggableRegistry debuggableRegistry)
+    @Inject
+    GuiStructureDeletionManager(
+        StructureDeletionManager structureDeletionManager,
+        IExecutor executor,
+        DebuggableRegistry debuggableRegistry)
     {
         this.executor = executor;
 

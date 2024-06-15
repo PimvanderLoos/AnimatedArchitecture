@@ -54,9 +54,13 @@ class LocalizationManagerIntegrationTest
         writeEntry(outputStream, baseName + ".properties", List.of("key0=value0", "key1=value1", "key2=value2"));
         outputStream.close();
 
-        final LocalizationManager localizationManager =
-            new LocalizationManager(Mockito.mock(RestartableHolder.class), directoryOutput,
-                                    baseName, config, false);
+        final LocalizationManager localizationManager = new LocalizationManager(
+            Mockito.mock(RestartableHolder.class),
+            directoryOutput,
+            baseName,
+            config,
+            false
+        );
 
         localizationManager.shutDown();
         localizationManager.initialize();
@@ -74,8 +78,14 @@ class LocalizationManagerIntegrationTest
         final IConfig config = Mockito.mock(IConfig.class);
         Mockito.when(config.locale()).thenReturn(Locale.ROOT);
 
-        final List<String> baseItems = List.of("key0=value0", "key1=value1", "key2=value2",
-                                               "key3=value3", "key4=value4", "key5=value5");
+        final List<String> baseItems = List.of(
+            "key0=value0",
+            "key1=value1",
+            "key2=value2",
+            "key3=value3",
+            "key4=value4",
+            "key5=value5"
+        );
         final List<String> patchItems = List.of("key0=", "key3=remapped", "key6=value6");
 
         final Path outputBundle = directoryOutput.resolve(baseName + ".bundle");
@@ -84,14 +94,20 @@ class LocalizationManagerIntegrationTest
         writeEntry(outputStream, baseName + ".properties", baseItems);
         outputStream.close();
 
-        final LocalizationManager localizationManager =
-            new LocalizationManager(Mockito.mock(RestartableHolder.class), directoryOutput,
-                                    baseName, config, false);
+        final LocalizationManager localizationManager = new LocalizationManager(
+            Mockito.mock(RestartableHolder.class),
+            directoryOutput,
+            baseName,
+            config,
+            false
+        );
 
         Assertions.assertEquals("value0", localizationManager.getLocalizer().getMessage("key0"));
         Assertions.assertEquals("value3", localizationManager.getLocalizer().getMessage("key3"));
-        Assertions.assertEquals(Localizer.KEY_NOT_FOUND_MESSAGE + "key6",
-                                localizationManager.getLocalizer().getMessage("key6"));
+        Assertions.assertEquals(
+            Localizer.KEY_NOT_FOUND_MESSAGE + "key6",
+            localizationManager.getLocalizer().getMessage("key6")
+        );
 
         writeToFile(directoryOutput.resolve(baseName + ".properties"), patchItems);
 

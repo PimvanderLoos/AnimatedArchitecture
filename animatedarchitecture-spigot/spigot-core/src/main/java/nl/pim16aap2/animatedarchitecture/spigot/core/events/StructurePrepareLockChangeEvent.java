@@ -12,8 +12,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents the event where a structure will be (un)locked.
- *
- * @author Pim
  */
 @ToString
 public class StructurePrepareLockChangeEvent extends StructureEvent implements IStructurePrepareLockChangeEvent
@@ -27,7 +25,9 @@ public class StructurePrepareLockChangeEvent extends StructureEvent implements I
     private final boolean newLockStatus;
 
     public StructurePrepareLockChangeEvent(
-        AbstractStructure structure, @Nullable IPlayer responsible, boolean newLockStatus)
+        AbstractStructure structure,
+        @Nullable IPlayer responsible,
+        boolean newLockStatus)
     {
         super(structure, responsible);
         this.newLockStatus = newLockStatus;

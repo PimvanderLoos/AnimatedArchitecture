@@ -18,17 +18,17 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Represents a command to list a number of structures matching a single {@link StructureRetrieverFactory}. This is
  * basically only useful for String-based look-ups (as there aren't duplicate matches otherwise), but I don't judge.
- *
- * @author Pim
  */
 @ToString
 public class ListStructures extends BaseCommand
 {
     private final StructureRetriever structureRetriever;
 
-    @AssistedInject //
+    @AssistedInject
     ListStructures(
-        @Assisted ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory,
+        @Assisted ICommandSender commandSender,
+        ILocalizer localizer,
+        ITextFactory textFactory,
         @Assisted StructureRetriever structureRetriever)
     {
         super(commandSender, localizer, textFactory);
@@ -57,8 +57,11 @@ public class ListStructures extends BaseCommand
     {
         if (structures.isEmpty())
         {
-            getCommandSender().sendMessage(textFactory, TextType.ERROR,
-                                           localizer.getMessage("commands.list_structures.error.no_structures_found"));
+            getCommandSender().sendMessage(
+                textFactory,
+                TextType.ERROR,
+                localizer.getMessage("commands.list_structures.error.no_structures_found")
+            );
             return;
         }
 

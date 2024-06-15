@@ -9,8 +9,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents an implementation of {@link IWorld} for the Spigot platform.
- *
- * @author Pim
  */
 public record WorldSpigot(String worldName, @Nullable World world) implements IWorld
 {

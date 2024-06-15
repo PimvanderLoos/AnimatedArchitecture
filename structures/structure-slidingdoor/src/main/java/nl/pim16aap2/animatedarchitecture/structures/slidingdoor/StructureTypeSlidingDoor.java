@@ -21,13 +21,22 @@ public final class StructureTypeSlidingDoor extends StructureType
 
     private static final AudioSet AUDIO_SET = new AudioSet(
         new AudioDescription("bd.dragging2", 0.8f, 0.7f, 750),
-        new AudioDescription("bd.thud", 0.2f, 0.15f, 250));
+        new AudioDescription("bd.thud", 0.2f, 0.15f, 250)
+    );
 
     private StructureTypeSlidingDoor()
     {
-        super(Constants.PLUGIN_NAME, "SlidingDoor", TYPE_VERSION, Arrays
-            .asList(MovementDirection.NORTH, MovementDirection.EAST,
-                    MovementDirection.SOUTH, MovementDirection.WEST), "structure.type.sliding_door");
+        super(
+            Constants.PLUGIN_NAME,
+            "SlidingDoor",
+            TYPE_VERSION,
+            Arrays.asList(
+                MovementDirection.NORTH,
+                MovementDirection.EAST,
+                MovementDirection.SOUTH,
+                MovementDirection.WEST),
+            "structure.type.sliding_door"
+        );
     }
 
     /**

@@ -106,7 +106,6 @@ import java.util.Set;
  *
  * @param <T>
  *     The type of structure.
- * @author Pim
  */
 @Flogger
 public final class StructureSerializer<T extends AbstractStructure>
@@ -175,7 +174,10 @@ public final class StructureSerializer<T extends AbstractStructure>
                         " in class: " + structureClass);
 
             final DeserializationConstructor ctor = new DeserializationConstructor(
-                version, annotatedCtor, getConstructorParameters(annotatedCtor));
+                version,
+                annotatedCtor,
+                getConstructorParameters(annotatedCtor)
+            );
 
             deserializationCtors.put(version, ctor);
         }
@@ -262,7 +264,7 @@ public final class StructureSerializer<T extends AbstractStructure>
             catch (IllegalAccessException e)
             {
                 throw new Exception(String.format("Failed to get value of field %s (type %s) for structure type %s!",
-                                                  field.name(), field.typeName(), getStructureTypeName()), e);
+                    field.name(), field.typeName(), getStructureTypeName()), e);
             }
         return values;
     }
@@ -344,12 +346,12 @@ public final class StructureSerializer<T extends AbstractStructure>
     {
         if (values.size() != fields.size())
             log.atWarning().log("Expected %d arguments but received %d for type %s",
-                                fields.size(), values.size(), getStructureTypeName());
+                fields.size(), values.size(), getStructureTypeName());
 
         if (version > currentTypeVersion)
             throw new IllegalArgumentException(
                 String.format("Failed to deserialize structure %d! Data version %d is higher than type version %d!",
-                              structureBase.get().getUid(), version, this.currentTypeVersion));
+                    structureBase.get().getUid(), version, this.currentTypeVersion));
 
         final DeserializationConstructor deserializationCtor = getDeserializationConstructor(version);
 
@@ -369,7 +371,8 @@ public final class StructureSerializer<T extends AbstractStructure>
     }
 
     private Object[] deserializeParameters(
-        DeserializationConstructor deserializationCtor, AbstractStructure.BaseHolder base,
+        DeserializationConstructor deserializationCtor,
+        AbstractStructure.BaseHolder base,
         Map<String, Object> values)
     {
         final Map<Class<?>, Object> classes = new HashMap<>(MathUtil.ceil(1.25 * values.size()));
@@ -403,8 +406,8 @@ public final class StructureSerializer<T extends AbstractStructure>
             {
                 throw new IllegalArgumentException(
                     String.format("Could not set index %d in constructor from key %s from values %s.",
-                                  idx, (param.name == null ? param.type : param.name),
-                                  (param.name == null ? classes : values)), e);
+                        idx, (param.name == null ? param.type : param.name),
+                        (param.name == null ? classes : values)), e);
             }
         }
         return ret;
@@ -447,8 +450,8 @@ public final class StructureSerializer<T extends AbstractStructure>
 
         for (final AnnotatedField field : fields)
             sb.append("* Type: ").append(field.typeName())
-              .append(", name: \"").append(field.name)
-              .append("\"\n");
+                .append(", name: \"").append(field.name)
+                .append("\"\n");
         return sb.toString();
     }
 
@@ -468,7 +471,7 @@ public final class StructureSerializer<T extends AbstractStructure>
             if (!field.getType().isPrimitive() && !Serializable.class.isAssignableFrom(field.getType()))
                 throw new UnsupportedOperationException(
                     String.format("Type %s of field %s is not serializable!",
-                                  field.getType().getName(), field.getName()));
+                        field.getType().getName(), field.getName()));
         }
 
         public String typeName()

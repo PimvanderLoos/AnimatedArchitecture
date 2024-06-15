@@ -24,8 +24,6 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents a {@link DelayedInputRequest} to specify which structure was meant out of a list of multiple.
- *
- * @author Pim
  */
 @Flogger
 @ToString(callSuper = true)
@@ -33,11 +31,14 @@ import java.util.concurrent.CompletableFuture;
 public final class DelayedStructureSpecificationInputRequest extends DelayedInputRequest<String>
 {
     private final IPlayer player;
-    @ToString.Exclude @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private final ILocalizer localizer;
-    @ToString.Exclude @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private final ITextFactory textFactory;
-    @ToString.Exclude @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private final StructureSpecificationManager structureSpecificationManager;
 
     private final List<AbstractStructure> options;
@@ -98,8 +99,9 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
 
     private void appendStructureInfo(Text text, AbstractStructure structure, Optional<ILocation> location)
     {
-        final long distance =
-            location.map(loc -> Math.round(structure.getCuboid().getCenter().getDistance(loc))).orElse(-1L);
+        final long distance = location
+            .map(loc -> Math.round(structure.getCuboid().getCenter().getDistance(loc)))
+            .orElse(-1L);
 
         final String cmd = "/animatedarchitecture specify " + structure.getUid();
         final String info = localizer.getMessage("input_request.specify_structure.structure_option.info");
@@ -110,7 +112,8 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
             arg -> arg.clickable(structure.getUid(), TextType.CLICKABLE_CONFIRM, cmd, info),
             arg -> arg.clickable(structure.getType().getSimpleName(), cmd, info),
             arg -> arg.clickable(structure.getName(), TextType.CLICKABLE_CONFIRM, cmd, info),
-            arg -> arg.clickable(distance, TextType.HIGHLIGHT, cmd, info));
+            arg -> arg.clickable(distance, TextType.HIGHLIGHT, cmd, info)
+        );
     }
 
     private void getStructureInfoList(Text text)
@@ -146,16 +149,23 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
          * request will be sent to the user.
          */
         public CompletableFuture<Optional<AbstractStructure>> get(
-            Duration timeout, List<AbstractStructure> options, IPlayer player)
+            Duration timeout,
+            List<AbstractStructure> options,
+            IPlayer player)
         {
             if (options.size() == 1)
-                return CompletableFuture.completedFuture(Optional.of(options.get(0)));
+                return CompletableFuture.completedFuture(Optional.of(options.getFirst()));
             if (options.isEmpty())
                 return CompletableFuture.completedFuture(Optional.empty());
 
             return new DelayedStructureSpecificationInputRequest(
-                timeout, options, player, localizer, textFactory, structureSpecificationManager)
-                .get().exceptionally(Util::exceptionallyOptional);
+                timeout,
+                options,
+                player,
+                localizer,
+                textFactory,
+                structureSpecificationManager
+            ).get().exceptionally(Util::exceptionallyOptional);
         }
 
         /**

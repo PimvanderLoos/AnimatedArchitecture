@@ -11,15 +11,27 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
 
+/**
+ * Represents a type of argument in a command used to specify a direction.
+ */
 public class DirectionArgument extends CommandArgument<ICommandSender, MovementDirection>
 {
     @lombok.Builder
     public DirectionArgument(
-        boolean required, String name, @Nullable String defaultValue,
+        boolean required,
+        String name,
+        @Nullable String defaultValue,
         @Nullable BiFunction<CommandContext<ICommandSender>, String, List<String>> suggestionsProvider,
-        @Nullable ArgumentDescription defaultDescription, DirectionParser parser)
+        @Nullable ArgumentDescription defaultDescription,
+        DirectionParser parser)
     {
-        super(required, name, parser, Objects.requireNonNullElse(defaultValue, ""), MovementDirection.class,
-              suggestionsProvider, Objects.requireNonNullElse(defaultDescription, ArgumentDescription.empty()));
+        super(
+            required,
+            name,
+            parser,
+            Objects.requireNonNullElse(defaultValue, ""),
+            MovementDirection.class,
+            suggestionsProvider,
+            Objects.requireNonNullElse(defaultDescription, ArgumentDescription.empty()));
     }
 }

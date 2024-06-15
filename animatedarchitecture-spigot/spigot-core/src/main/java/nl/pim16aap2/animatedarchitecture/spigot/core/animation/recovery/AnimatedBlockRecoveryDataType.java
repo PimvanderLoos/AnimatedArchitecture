@@ -80,7 +80,7 @@ public final class AnimatedBlockRecoveryDataType implements PersistentDataType<S
 
         try
         {
-            Class<?> clazz = Class.forName(type);
+            final Class<?> clazz = Class.forName(type);
             return (IAnimatedBlockRecoveryData) gson.fromJson(element, clazz);
         }
         catch (ClassNotFoundException e)

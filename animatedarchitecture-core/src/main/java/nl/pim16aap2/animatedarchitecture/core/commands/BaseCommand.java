@@ -21,8 +21,6 @@ import java.util.concurrent.TimeUnit;
  * Represents the base AnimatedArchitecture command.
  * <p>
  * This handles all the basics shared by all commands and contains some utility methods for common actions.
- *
- * @author Pim
  */
 @ToString
 @Flogger
@@ -76,15 +74,17 @@ public abstract class BaseCommand
      * @return True if the command sender has access to the provided attribute for the given structure.
      */
     protected boolean hasAccessToAttribute(
-        AbstractStructure door, StructureAttribute doorAttribute, boolean hasBypassPermission)
+        AbstractStructure door,
+        StructureAttribute doorAttribute,
+        boolean hasBypassPermission)
     {
         if (hasBypassPermission || !commandSender.isPlayer())
             return true;
 
         return commandSender.getPlayer()
-                            .flatMap(door::getOwner)
-                            .map(doorOwner -> doorAttribute.canAccessWith(doorOwner.permission()))
-                            .orElse(false);
+            .flatMap(door::getOwner)
+            .map(doorOwner -> doorAttribute.canAccessWith(doorOwner.permission()))
+            .orElse(false);
     }
 
     /**
@@ -125,27 +125,35 @@ public abstract class BaseCommand
         if (isPlayer && !availableForPlayers())
         {
             log.atFine().log("Command not allowed for players: %s", this);
-            commandSender.sendMessage(textFactory, TextType.ERROR,
-                                      localizer.getMessage("commands.base.error.no_permission_for_command"));
+            commandSender.sendMessage(
+                textFactory,
+                TextType.ERROR,
+                localizer.getMessage("commands.base.error.no_permission_for_command")
+            );
             return CompletableFuture.completedFuture(null);
         }
         if (!isPlayer && !availableForNonPlayers())
         {
             log.atFine().log("Command not allowed for non-players: %s", this);
-            commandSender.sendMessage(textFactory, TextType.ERROR,
-                                      localizer.getMessage("commands.base.error.only_available_for_players"));
+            commandSender.sendMessage(
+                textFactory,
+                TextType.ERROR,
+                localizer.getMessage("commands.base.error.only_available_for_players")
+            );
             return CompletableFuture.completedFuture(null);
         }
 
-        return startExecution().exceptionally(
-            throwable ->
-            {
-                log.atSevere().withCause(throwable).log("Failed to execute command: %s", this);
-                if (commandSender.isPlayer())
-                    commandSender.sendMessage(textFactory, TextType.ERROR,
-                                              localizer.getMessage("commands.base.error.generic"));
-                return null;
-            });
+        return startExecution().exceptionally(throwable ->
+        {
+            log.atSevere().withCause(throwable).log("Failed to execute command: %s", this);
+            if (commandSender.isPlayer())
+                commandSender.sendMessage(
+                    textFactory,
+                    TextType.ERROR,
+                    localizer.getMessage("commands.base.error.generic")
+                );
+            return null;
+        });
     }
 
     /**
@@ -163,8 +171,11 @@ public abstract class BaseCommand
         if (!permissionResult.hasAnyPermission())
         {
             log.atFine().log("Permission for command: %s: %s", this, permissionResult);
-            commandSender.sendMessage(textFactory, TextType.ERROR,
-                                      localizer.getMessage("commands.base.error.no_permission_for_command"));
+            commandSender.sendMessage(
+                textFactory,
+                TextType.ERROR,
+                localizer.getMessage("commands.base.error.no_permission_for_command")
+            );
             return;
         }
         try
@@ -209,19 +220,26 @@ public abstract class BaseCommand
      * @return The {@link AbstractStructure} if one could be retrieved.
      */
     protected CompletableFuture<Optional<AbstractStructure>> getStructure(
-        StructureRetriever doorRetriever, PermissionLevel permissionLevel)
+        StructureRetriever doorRetriever,
+        PermissionLevel permissionLevel)
     {
-        return commandSender.getPlayer().map(player -> doorRetriever.getStructureInteractive(player, permissionLevel))
-                            .orElseGet(doorRetriever::getStructure).thenApplyAsync(
-                structure ->
-                {
-                    log.atFine().log("Retrieved structure %s for command: %s", structure, this);
-                    if (structure.isPresent())
-                        return structure;
-                    commandSender.sendMessage(textFactory, TextType.ERROR,
-                                              localizer.getMessage("commands.base.error.cannot_find_target_structure"));
-                    return Optional.empty();
-                });
+        return commandSender
+            .getPlayer()
+            .map(player -> doorRetriever.getStructureInteractive(player, permissionLevel))
+            .orElseGet(doorRetriever::getStructure)
+            .thenApplyAsync(structure ->
+            {
+                log.atFine().log("Retrieved structure %s for command: %s", structure, this);
+                if (structure.isPresent())
+                    return structure;
+
+                commandSender.sendMessage(
+                    textFactory,
+                    TextType.ERROR,
+                    localizer.getMessage("commands.base.error.cannot_find_target_structure")
+                );
+                return Optional.empty();
+            });
     }
 
     /**

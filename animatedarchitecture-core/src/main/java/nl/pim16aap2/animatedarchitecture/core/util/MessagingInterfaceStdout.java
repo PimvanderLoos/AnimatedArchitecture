@@ -9,7 +9,6 @@ import java.util.logging.Level;
 /**
  * Implementation of {@link IMessagingInterface} for Stdout. Mostly useful for debugging.
  *
- * @author Pim
  * @see IMessagingInterface
  */
 public class MessagingInterfaceStdout implements IMessagingInterface

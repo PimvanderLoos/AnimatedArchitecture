@@ -8,8 +8,6 @@ import java.util.Set;
 
 /**
  * Spigot implementation for {@link IConfigReader}.
- *
- * @author Pim
  */
 public record ConfigReaderSpigot(FileConfiguration config) implements IConfigReader
 {

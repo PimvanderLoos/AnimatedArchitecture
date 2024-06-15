@@ -13,8 +13,6 @@ import javax.inject.Singleton;
 
 /**
  * Represents a listener that keeps track of {@link Player}s logging in to send them the resource pack.
- *
- * @author Pim
  */
 @Singleton
 @Flogger
@@ -23,7 +21,8 @@ public class LoginResourcePackListener extends AbstractListener
     private final ConfigSpigot config;
     private String resourcePackURL;
 
-    @Inject LoginResourcePackListener(RestartableHolder holder, ConfigSpigot config, JavaPlugin plugin)
+    @Inject
+    LoginResourcePackListener(RestartableHolder holder, ConfigSpigot config, JavaPlugin plugin)
     {
         super(holder, plugin, () -> shouldBeEnabled(config));
         this.config = config;

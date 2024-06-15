@@ -22,8 +22,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Represents a Flag structure type.
- *
- * @author Pim
  */
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -70,8 +68,10 @@ public class Flag extends AbstractStructure implements IHorizontalAxisAligned, I
 
         final int maxDim = Math.max(cuboid.getDimensions().x(), cuboid.getDimensions().z());
         // Very, VERY rough estimate. But it's good enough for the time being.
-        return new Cuboid(rotationPoint.add(-maxDim, -halfHeight, -maxDim),
-                          rotationPoint.add(maxDim, halfHeight, maxDim)).asFlatRectangle();
+        return new Cuboid(
+            rotationPoint.add(-maxDim, -halfHeight, -maxDim),
+            rotationPoint.add(maxDim, halfHeight, maxDim)
+        ).asFlatRectangle();
     }
 
     /**

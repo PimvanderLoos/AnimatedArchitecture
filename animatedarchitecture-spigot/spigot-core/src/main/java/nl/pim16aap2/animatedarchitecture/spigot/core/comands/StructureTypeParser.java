@@ -23,8 +23,6 @@ import java.util.Queue;
 
 /**
  * Represents an argument parser that can be used to retrieve and suggest structure types.
- *
- * @author Pim
  */
 public class StructureTypeParser implements ArgumentParser<ICommandSender, StructureType>, IRestartable
 {
@@ -32,8 +30,11 @@ public class StructureTypeParser implements ArgumentParser<ICommandSender, Struc
     private final ILocalizer localizer;
     private Map<String, StructureType> suggestions = Collections.emptyMap();
 
-    @Inject StructureTypeParser(
-        RestartableHolder restartableHolder, StructureTypeManager structureTypeManager, ILocalizer localizer)
+    @Inject
+    StructureTypeParser(
+        RestartableHolder restartableHolder,
+        StructureTypeManager structureTypeManager,
+        ILocalizer localizer)
     {
         restartableHolder.registerRestartable(this);
         this.structureTypeManager = structureTypeManager;
@@ -42,7 +43,8 @@ public class StructureTypeParser implements ArgumentParser<ICommandSender, Struc
 
     @Override
     public ArgumentParseResult<StructureType> parse(
-        CommandContext<ICommandSender> commandContext, Queue<String> inputQueue)
+        CommandContext<ICommandSender> commandContext,
+        Queue<String> inputQueue)
     {
         final @Nullable String input = inputQueue.peek();
         final @Nullable StructureType structureTypeType =
@@ -60,7 +62,8 @@ public class StructureTypeParser implements ArgumentParser<ICommandSender, Struc
     public List<String> suggestions(CommandContext<ICommandSender> commandContext, String input)
     {
         return suggestions
-            .entrySet().stream()
+            .entrySet()
+            .stream()
             .filter(entry -> startsWith(input, entry.getKey()))
             .filter(entry -> commandContext.hasPermission(entry.getValue().getCreationPermission()))
             .map(Map.Entry::getKey)

@@ -28,6 +28,12 @@ import org.jetbrains.annotations.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+/**
+ * Class that contains the executors for all commands.
+ * <p>
+ * This class does not execute the commands themselves, but rather delegates the execution to the
+ * {@link CommandFactory}, which in turn delegates the execution to the appropriate command.
+ */
 @Singleton
 @Flogger
 class CommandExecutor
@@ -38,7 +44,8 @@ class CommandExecutor
     private final ITextFactory textFactory;
     private final ILocalizer localizer;
 
-    @Inject CommandExecutor(
+    @Inject
+    CommandExecutor(
         CommandFactory commandFactory,
         StructureRetrieverFactory structureRetrieverFactory,
         StructureAnimationRequestBuilder structureAnimationRequestBuilder,
@@ -63,14 +70,18 @@ class CommandExecutor
         final ICommandSender commandSender = context.getSender();
         if (structureRetriever != null)
         {
-            commandFactory.newAddOwner(commandSender, structureRetriever, newOwner, permissionLevel).run()
-                          .exceptionally(Util::exceptionally);
+            commandFactory
+                .newAddOwner(commandSender, structureRetriever, newOwner, permissionLevel)
+                .run()
+                .exceptionally(Util::exceptionally);
         }
         else
         {
             final var data = new AddOwnerDelayed.DelayedInput(newOwner, permissionLevel);
-            commandFactory.getAddOwnerDelayed().provideDelayedInput(commandSender, data)
-                          .exceptionally(Util::exceptionally);
+            commandFactory
+                .getAddOwnerDelayed()
+                .provideDelayedInput(commandSender, data)
+                .exceptionally(Util::exceptionally);
         }
     }
 
@@ -124,8 +135,10 @@ class CommandExecutor
         final StructureRetriever structureRetriever = context.get("structureRetriever");
         final boolean lockStatus = context.get("lockStatus");
         final boolean sendUpdatedInfo = context.getOrDefault("sendUpdatedInfo", false);
-        commandFactory.newLock(context.getSender(), structureRetriever, lockStatus, sendUpdatedInfo).run()
-                      .exceptionally(Util::exceptionally);
+        commandFactory
+            .newLock(context.getSender(), structureRetriever, lockStatus, sendUpdatedInfo)
+            .run()
+            .exceptionally(Util::exceptionally);
     }
 
     void menu(CommandContext<ICommandSender> context)
@@ -144,8 +157,10 @@ class CommandExecutor
     void movePowerBlock(CommandContext<ICommandSender> context)
     {
         final StructureRetriever structureRetriever = context.get("structureRetriever");
-        commandFactory.newMovePowerBlock(context.getSender(), structureRetriever).run()
-                      .exceptionally(Util::exceptionally);
+        commandFactory
+            .newMovePowerBlock(context.getSender(), structureRetriever)
+            .run()
+            .exceptionally(Util::exceptionally);
     }
 
     // NullAway doesn't see the @Nullable on structureName.
@@ -154,8 +169,10 @@ class CommandExecutor
     {
         final StructureType structureType = context.get("structureType");
         final @Nullable String structureName = nullable(context, "structureName");
-        commandFactory.newNewStructure(context.getSender(), structureType, structureName).run()
-                      .exceptionally(Util::exceptionally);
+        commandFactory
+            .newNewStructure(context.getSender(), structureType, structureName)
+            .run()
+            .exceptionally(Util::exceptionally);
     }
 
     void removeOwner(CommandContext<ICommandSender> context)
@@ -166,13 +183,17 @@ class CommandExecutor
         final ICommandSender commandSender = context.getSender();
         if (structureRetriever != null)
         {
-            commandFactory.newRemoveOwner(commandSender, structureRetriever, targetPlayer).run()
-                          .exceptionally(Util::exceptionally);
+            commandFactory
+                .newRemoveOwner(commandSender, structureRetriever, targetPlayer)
+                .run()
+                .exceptionally(Util::exceptionally);
         }
         else
         {
-            commandFactory.getRemoveOwnerDelayed().provideDelayedInput(commandSender, targetPlayer)
-                          .exceptionally(Util::exceptionally);
+            commandFactory
+                .getRemoveOwnerDelayed()
+                .provideDelayedInput(commandSender, targetPlayer)
+                .exceptionally(Util::exceptionally);
         }
     }
 
@@ -188,11 +209,15 @@ class CommandExecutor
 
         final ICommandSender commandSender = context.getSender();
         if (structureRetriever != null)
-            commandFactory.newSetBlocksToMove(commandSender, structureRetriever, blocksToMove).run()
-                          .exceptionally(Util::exceptionally);
+            commandFactory
+                .newSetBlocksToMove(commandSender, structureRetriever, blocksToMove)
+                .run()
+                .exceptionally(Util::exceptionally);
         else
-            commandFactory.getSetBlocksToMoveDelayed().provideDelayedInput(commandSender, blocksToMove)
-                          .exceptionally(Util::exceptionally);
+            commandFactory
+                .getSetBlocksToMoveDelayed()
+                .provideDelayedInput(commandSender, blocksToMove)
+                .exceptionally(Util::exceptionally);
     }
 
     void setName(CommandContext<ICommandSender> context)
@@ -208,11 +233,15 @@ class CommandExecutor
         final @Nullable StructureRetriever structureRetriever = nullable(context, "structureRetriever");
 
         if (structureRetriever != null)
-            commandFactory.newSetOpenStatus(commandSender, structureRetriever, isOpen, sendUpdatedInfo).run()
-                          .exceptionally(Util::exceptionally);
+            commandFactory
+                .newSetOpenStatus(commandSender, structureRetriever, isOpen, sendUpdatedInfo)
+                .run()
+                .exceptionally(Util::exceptionally);
         else
-            commandFactory.getSetOpenStatusDelayed().provideDelayedInput(commandSender, isOpen)
-                          .exceptionally(Util::exceptionally);
+            commandFactory
+                .getSetOpenStatusDelayed()
+                .provideDelayedInput(commandSender, isOpen)
+                .exceptionally(Util::exceptionally);
     }
 
     void setOpenDirection(CommandContext<ICommandSender> context)
@@ -223,11 +252,15 @@ class CommandExecutor
         final @Nullable StructureRetriever structureRetriever = nullable(context, "structureRetriever");
 
         if (structureRetriever != null)
-            commandFactory.newSetOpenDirection(commandSender, structureRetriever, direction, sendUpdatedInfo).run()
-                          .exceptionally(Util::exceptionally);
+            commandFactory
+                .newSetOpenDirection(commandSender, structureRetriever, direction, sendUpdatedInfo)
+                .run()
+                .exceptionally(Util::exceptionally);
         else
-            commandFactory.getSetOpenDirectionDelayed().provideDelayedInput(commandSender, direction)
-                          .exceptionally(Util::exceptionally);
+            commandFactory
+                .getSetOpenDirectionDelayed()
+                .provideDelayedInput(commandSender, direction)
+                .exceptionally(Util::exceptionally);
     }
 
     void specify(CommandContext<ICommandSender> context)
@@ -246,7 +279,9 @@ class CommandExecutor
             .builder()
             .structure(context.<StructureRetriever>get("structureRetriever"))
             .structureActionCause(
-                context.getSender().isPlayer() ? StructureActionCause.PLAYER : StructureActionCause.SERVER)
+                context.getSender().isPlayer() ?
+                    StructureActionCause.PLAYER :
+                    StructureActionCause.SERVER)
             .structureActionType(structureActionType)
             .responsible(context.getSender().getPlayer().orElse(null))
             .messageReceiver(context.getSender())
@@ -291,11 +326,10 @@ class CommandExecutor
 
     void updateCreator(CommandContext<ICommandSender> context)
     {
-        commandFactory.newUpdateCreator(
-                          context.getSender(),
-                          context.get("stepName"),
-                          context.getOrDefault("stepValue", null))
-                      .run().exceptionally(Util::exceptionally);
+        commandFactory
+            .newUpdateCreator(context.getSender(), context.get("stepName"), context.getOrDefault("stepValue", null))
+            .run()
+            .exceptionally(Util::exceptionally);
     }
 
     private <T> @Nullable T nullable(CommandContext<ICommandSender> context, String key)
@@ -311,8 +345,10 @@ class CommandExecutor
      */
     private void sendGenericError(CommandContext<ICommandSender> context)
     {
-        context.getSender().sendMessage(
-            textFactory.newText().append(localizer.getMessage("commands.base.error.generic"), TextType.ERROR));
+        context.getSender().sendMessage(textFactory
+            .newText()
+            .append(localizer.getMessage("commands.base.error.generic"), TextType.ERROR)
+        );
     }
 
     /**

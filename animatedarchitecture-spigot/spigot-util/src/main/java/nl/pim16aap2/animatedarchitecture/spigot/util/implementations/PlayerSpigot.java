@@ -19,8 +19,6 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents an implementation of {@link IPlayer} for the Spigot platform.
- *
- * @author Pim
  */
 @Flogger
 public final class PlayerSpigot implements IPlayer
@@ -62,7 +60,8 @@ public final class PlayerSpigot implements IPlayer
     {
         return CompletableFuture.completedFuture(new PermissionsStatus(
             command.getUserPermission().map(spigotPlayer::hasPermission).orElse(false),
-            command.getAdminPermission().map(spigotPlayer::hasPermission).orElse(false)));
+            command.getAdminPermission().map(spigotPlayer::hasPermission).orElse(false))
+        );
     }
 
     @Override

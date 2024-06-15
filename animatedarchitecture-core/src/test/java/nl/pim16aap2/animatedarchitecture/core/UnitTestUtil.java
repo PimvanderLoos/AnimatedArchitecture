@@ -51,14 +51,14 @@ public class UnitTestUtil
     {
         final ILocalizer localizer = Mockito.mock(ILocalizer.class, Mockito.CALLS_REAL_METHODS);
         Mockito.when(localizer.getMessage(Mockito.anyString(), ArgumentMatchers.any(Object[].class)))
-               .thenAnswer(invocation ->
-                           {
-                               String ret = invocation.getArgument(0, String.class);
-                               for (int idx = 1; idx < invocation.getArguments().length; ++idx)
-                                   //noinspection StringConcatenationInLoop
-                                   ret += " " + invocation.getArgument(idx, Object.class);
-                               return ret;
-                           });
+            .thenAnswer(invocation ->
+            {
+                String ret = invocation.getArgument(0, String.class);
+                for (int idx = 1; idx < invocation.getArguments().length; ++idx)
+                    //noinspection StringConcatenationInLoop
+                    ret += " " + invocation.getArgument(idx, Object.class);
+                return ret;
+            });
         return localizer;
     }
 
@@ -112,7 +112,7 @@ public class UnitTestUtil
         Mockito.when(loc.getBlockZ()).thenReturn(MathUtil.floor(z));
 
         Mockito.when(loc.getPosition())
-               .thenReturn(new Vector3Di(MathUtil.floor(x), MathUtil.floor(y), MathUtil.floor(z)));
+            .thenReturn(new Vector3Di(MathUtil.floor(x), MathUtil.floor(y), MathUtil.floor(z)));
 
         Mockito.when(loc.getChunk()).thenReturn(new Vector2Di(MathUtil.floor(x) << 4, MathUtil.floor(z) << 4));
 
@@ -130,6 +130,7 @@ public class UnitTestUtil
     {
         final Class<?> classStructureBase = Class.forName(
             "nl.pim16aap2.animatedarchitecture.core.structures.StructureBase");
+
         final Class<?> classStructureBaseFactory = Class.forName(
             "nl.pim16aap2.animatedarchitecture.core.structures.StructureBase$IFactory");
 
@@ -139,8 +140,11 @@ public class UnitTestUtil
         final Constructor<?> ctorStructureBaseBuilder =
             StructureBaseBuilder.class.getDeclaredConstructor(classStructureBaseFactory);
 
-        final var builder = (StructureBaseBuilder) ctorStructureBaseBuilder.newInstance(
-            assistedFactoryMocker.getFactory());
+        ctorStructureBaseBuilder.setAccessible(true);
+
+        final var builder =
+            (StructureBaseBuilder) ctorStructureBaseBuilder.newInstance(assistedFactoryMocker.getFactory());
+
         return new StructureBaseBuilderResult(builder, assistedFactoryMocker);
     }
 
@@ -165,9 +169,12 @@ public class UnitTestUtil
         final var random = ThreadLocalRandom.current();
 
         final long uid = safeSupplierSimple(random.nextLong(), structure::getUid);
+
         final Vector3Di min = safeSupplier(
             () -> new Vector3Di(random.nextInt(), random.nextInt(), random.nextInt()), structure::getMinimum);
+
         final Vector3Di max = safeSupplier(() -> min.multiply(2).absolute(), structure::getMaximum);
+
         final StructureOwner primeOwner = safeSupplier(
             () ->
             {
@@ -176,7 +183,8 @@ public class UnitTestUtil
                 Mockito.when(playerData.getName()).thenReturn(Util.randomInsecureString(6));
                 return new StructureOwner(uid, PermissionLevel.CREATOR, playerData);
             },
-            structure::getPrimeOwner);
+            structure::getPrimeOwner
+        );
 
         Mockito.when(ret.getUid()).thenReturn(uid);
 
@@ -185,13 +193,13 @@ public class UnitTestUtil
         Mockito.when(ret.getCuboid()).thenReturn(safeSupplier(() -> new Cuboid(min, max), structure::getCuboid));
 
         Mockito.doReturn(safeSupplier(() -> ret.getCuboid().asFlatRectangle(), structure::getAnimationRange))
-               .when(ret).getAnimationRange();
+            .when(ret).getAnimationRange();
 
-        Mockito.when(ret.getRotationPoint()).thenReturn(safeSupplier(
-            () -> new Vector3Di(random.nextInt(), random.nextInt(), random.nextInt()), structure::getRotationPoint));
+        Mockito.when(ret.getRotationPoint()).thenReturn(safeSupplier(() ->
+            new Vector3Di(random.nextInt(), random.nextInt(), random.nextInt()), structure::getRotationPoint));
 
-        Mockito.when(ret.getPowerBlock()).thenReturn(safeSupplier(
-            () -> new Vector3Di(random.nextInt(), random.nextInt(), random.nextInt()), structure::getPowerBlock));
+        Mockito.when(ret.getPowerBlock()).thenReturn(safeSupplier(() ->
+            new Vector3Di(random.nextInt(), random.nextInt(), random.nextInt()), structure::getPowerBlock));
 
         Mockito.when(ret.getName()).thenReturn(safeSupplierSimple("TestStructureSnapshot", structure::getName));
 
@@ -204,20 +212,26 @@ public class UnitTestUtil
         Mockito.when(ret.getPrimeOwner()).thenReturn(primeOwner);
 
         // We only need to mock the 'getOwnersMap' method, as all other owner-related methods call it.
-        Mockito.when(ret.getOwnersMap()).thenReturn(safeSupplier(
-            () -> Map.of(primeOwner.playerData().getUUID(), primeOwner),
-            () -> structure.getOwners().stream().collect(Collectors.toMap(
-                owner -> owner.playerData().getUUID(), owner -> owner))));
+        Mockito.when(ret.getOwnersMap())
+            .thenReturn(safeSupplier(
+                () -> Map.of(primeOwner.playerData().getUUID(), primeOwner),
+                () -> structure
+                    .getOwners()
+                    .stream()
+                    .collect(Collectors.toMap(owner -> owner.playerData().getUUID(), owner -> owner)))
+            );
 
-        Mockito.when(ret.getType()).thenReturn(safeSupplier(
-            () -> Mockito.mock(StructureType.class), structure::getType));
+        Mockito.when(ret.getType())
+            .thenReturn(safeSupplier(() -> Mockito.mock(StructureType.class), structure::getType));
 
         final Map<String, Object> propertyMap = safeSupplierSimple(
-            Collections.emptyMap(), () -> StructureSnapshot.getPropertyMap(structure));
+            Collections.emptyMap(),
+            () -> StructureSnapshot.getPropertyMap(structure)
+        );
 
         //noinspection SuspiciousMethodCalls
         Mockito.doAnswer(invocation -> propertyMap.get(invocation.getArgument(0)))
-               .when(ret).getProperty(Mockito.anyString());
+            .when(ret).getProperty(Mockito.anyString());
 
         return ret;
     }
@@ -333,7 +347,8 @@ public class UnitTestUtil
      *     The type of the throwable wrapped inside the RuntimeException.
      */
     public static <T extends Throwable> void assertWrappedThrows(
-        Class<T> expectedType, Executable executable,
+        Class<T> expectedType,
+        Executable executable,
         boolean deepSearch)
     {
         RuntimeException rte = Assertions.assertThrows(RuntimeException.class, executable);
@@ -393,8 +408,11 @@ public class UnitTestUtil
         {
             final Object obj = args[idx + offset];
             if (!clz.isAssignableFrom(obj.getClass()))
-                throw new IllegalArgumentException("Object " + obj + " of type " + obj.getClass().getName() +
-                                                       " is not of type " + clz.getName() + "!");
+                throw new IllegalArgumentException(
+                    "Object " + obj +
+                        " of type " + obj.getClass().getName() +
+                        " is not of type " + clz.getName() + "!"
+                );
             ret[idx] = (T) obj;
         }
         return ret;
@@ -424,7 +442,8 @@ public class UnitTestUtil
      *     The mocker for the factory. Use {@link AssistedFactoryMocker#setMock(Class, Object)} to set its parameters.
      */
     public record StructureBaseBuilderResult(
-        StructureBaseBuilder structureBaseBuilder, AssistedFactoryMocker<?, ?> assistedFactoryMocker)
+        StructureBaseBuilder structureBaseBuilder,
+        AssistedFactoryMocker<?, ?> assistedFactoryMocker)
     {}
 
     @AllArgsConstructor

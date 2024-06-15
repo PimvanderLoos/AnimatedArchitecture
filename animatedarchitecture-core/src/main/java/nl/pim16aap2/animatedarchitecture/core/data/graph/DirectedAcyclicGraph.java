@@ -26,7 +26,6 @@ import java.util.Set;
  *
  * @param <T>
  *     The type of data to store in the nodes.
- * @author Pim
  */
 public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
 {
@@ -415,8 +414,6 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
 
     /**
      * Simple iterator that iterates over the leaf path of nodes in the graph.
-     *
-     * @author Pim
      */
     public class DAGIterator implements Iterator<Node<T>>
     {

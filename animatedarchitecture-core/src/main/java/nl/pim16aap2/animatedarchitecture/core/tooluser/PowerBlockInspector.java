@@ -18,8 +18,6 @@ import java.util.List;
 
 /**
  * Represents a type of {@link ToolUser} that tries to find powerblocks based on the locations provided by the user.
- *
- * @author Pim
  */
 @ToString(callSuper = true)
 public class PowerBlockInspector extends ToolUser
@@ -45,15 +43,18 @@ public class PowerBlockInspector extends ToolUser
 
         giveTool(
             "tool_user.base.stick_name", "tool_user.powerblock_inspector.stick_lore",
-            textFactory.newText().append(localizer.getMessage("tool_user.powerblock_inspector.init"), TextType.INFO));
+            textFactory.newText()
+                .append(localizer.getMessage("tool_user.powerblock_inspector.init"), TextType.INFO)
+        );
 
         init();
     }
 
     protected boolean inspectLoc(ILocation loc)
     {
-        powerBlockManager.structuresFromPowerBlockLoc(loc.getPosition(), loc.getWorld()).thenAccept(
-            lst ->
+        powerBlockManager
+            .structuresFromPowerBlockLoc(loc.getPosition(), loc.getWorld())
+            .thenAccept(lst ->
             {
                 final List<AbstractStructure> filtered;
                 if (bypassPermission)
@@ -62,7 +63,9 @@ public class PowerBlockInspector extends ToolUser
                     filtered = lst.stream().filter(structure -> structure.isOwner(getPlayer())).toList();
                 if (filtered.isEmpty())
                     getPlayer().sendError(
-                        textFactory, localizer.getMessage("tool_user.power_block_inspected.error.no_structures_found"));
+                        textFactory,
+                        localizer.getMessage("tool_user.power_block_inspected.error.no_structures_found")
+                    );
                 else
                     sendPowerBlockInfo(getPlayer(), filtered);
             }).exceptionally(Util::exceptionally);
@@ -88,7 +91,8 @@ public class PowerBlockInspector extends ToolUser
             .stepName("INSPECT_POWER_BLOCK")
             .messageKey("tool_user.powerblock_inspector.init")
             .stepExecutor(new StepExecutorLocation(this::inspectLoc))
-            .waitForUserInput(true).construct();
+            .waitForUserInput(true)
+            .construct();
         return Collections.singletonList(stepBlocksToMove);
     }
 
