@@ -348,7 +348,8 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
         private final Comparator<Long2ObjectMap.Entry<NamedStructure>> comparator;
 
         SortingMethod(
-            String localizationKeySorted, String localizationKeySort,
+            String localizationKeySorted,
+            String localizationKeySort,
             Comparator<Long2ObjectMap.Entry<NamedStructure>> comparator)
         {
             this.localizationKeySorted = localizationKeySorted;

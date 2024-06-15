@@ -48,7 +48,8 @@ class StructureFinderTest
         Mockito.when(databaseManager.getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any()))
             .thenReturn(databaseResult);
 
-        new StructureFinder(structureRetrieverFactory,
+        new StructureFinder(
+            structureRetrieverFactory,
             databaseManager,
             commandSender,
             "M"
@@ -56,7 +57,8 @@ class StructureFinderTest
         Mockito.verify(databaseManager, Mockito.times(1))
             .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), eq(PermissionLevel.CREATOR));
 
-        new StructureFinder(structureRetrieverFactory,
+        new StructureFinder(
+            structureRetrieverFactory,
             databaseManager,
             commandSender,
             "M",
@@ -65,7 +67,8 @@ class StructureFinderTest
         Mockito.verify(databaseManager, Mockito.times(1))
             .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), eq(PermissionLevel.ADMIN));
 
-        new StructureFinder(structureRetrieverFactory,
+        new StructureFinder(
+            structureRetrieverFactory,
             databaseManager,
             commandSender,
             "M",
@@ -347,7 +350,9 @@ class StructureFinderTest
     }
 
     private List<DatabaseManager.StructureIdentifier> createStructureIdentifiers(
-        List<Long> uids, List<String> names, boolean useNames)
+        List<Long> uids,
+        List<String> names,
+        boolean useNames)
     {
         final List<DatabaseManager.StructureIdentifier> ret = new ArrayList<>(uids.size());
         final List<?> idSource = useNames ? names : uids;

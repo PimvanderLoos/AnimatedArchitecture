@@ -33,7 +33,9 @@ public class SetOpenDirectionDelayed extends DelayedCommand<MovementDirection>
 
     @Override
     protected CompletableFuture<?> delayedInputExecutor(
-        ICommandSender commandSender, StructureRetriever structureRetriever, MovementDirection openDir)
+        ICommandSender commandSender,
+        StructureRetriever structureRetriever,
+        MovementDirection openDir)
     {
         return commandFactory.get().newSetOpenDirection(commandSender, structureRetriever, openDir).run();
     }

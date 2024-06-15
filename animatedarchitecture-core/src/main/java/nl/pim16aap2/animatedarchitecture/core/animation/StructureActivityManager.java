@@ -141,8 +141,8 @@ public final class StructureActivityManager extends Restartable
             // If the existing entry is requiresWriteAccess, we cannot register a new animator.
             if (entry.requiresWriteAccess())
             {
-                log.atFine().withStackTrace(StackSize.FULL)
-                    .log("Trying to register animator with active requiresWriteAccess entry: %s", entry);
+                log.atFine().withStackTrace(StackSize.FULL).log(
+                    "Trying to register animator with active requiresWriteAccess entry: %s", entry);
                 return entry;
             }
 
@@ -420,8 +420,8 @@ public final class StructureActivityManager extends Restartable
         static RegisteredAnimatorEntry newAnimatorEntry(AbstractStructure targetStructure, boolean isReadWrite)
         {
             return isReadWrite ?
-                   new ReadWriteAnimatorEntry(targetStructure) :
-                   new ReadOnlyAnimatorEntry(targetStructure);
+                new ReadWriteAnimatorEntry(targetStructure) :
+                new ReadOnlyAnimatorEntry(targetStructure);
         }
 
         /**

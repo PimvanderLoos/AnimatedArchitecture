@@ -34,7 +34,10 @@ public final class ConfigEntry<V>
      *     Function to use to verify the validity of a value and change it if necessary.
      */
     public ConfigEntry(
-        IConfigReader config, String optionName, V defaultValue, @Nullable String comment,
+        IConfigReader config,
+        String optionName,
+        V defaultValue,
+        @Nullable String comment,
         @Nullable ConfigEntry.ITestValue<V> verifyValue)
     {
         this.config = config;
@@ -75,8 +78,8 @@ public final class ConfigEntry<V>
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e)
-                .log("Failed to read config value of: \"%s\"! Using default value instead!", optionName);
+            log.atSevere().withCause(e).log(
+                "Failed to read config value of: \"%s\"! Using default value instead!", optionName);
             value = defaultValue;
         }
         if (verifyValue != null)

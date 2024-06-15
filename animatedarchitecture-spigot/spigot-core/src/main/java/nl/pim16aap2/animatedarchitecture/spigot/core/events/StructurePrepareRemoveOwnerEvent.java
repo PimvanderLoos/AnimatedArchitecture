@@ -32,7 +32,9 @@ public class StructurePrepareRemoveOwnerEvent extends StructureEvent implements 
     private final StructureOwner removedStructureOwner;
 
     public StructurePrepareRemoveOwnerEvent(
-        AbstractStructure structure, @Nullable IPlayer responsible, StructureOwner removedStructureOwner)
+        AbstractStructure structure,
+        @Nullable IPlayer responsible,
+        StructureOwner removedStructureOwner)
     {
         super(structure, responsible);
         this.removedStructureOwner = removedStructureOwner;

@@ -44,7 +44,7 @@ class TimedSoftValue<T> extends AbstractTimedValue<T>
     // However, its sole purpose is to keep a reference to the value
     // to avoid garbage collection reclaiming it before it has timed out.
     @SuppressWarnings("unused")
-    private volatile @Nullable T hardReference;
+    private @Nullable T hardReference;
 
     /**
      * Constructor of {@link TimedSoftValue}.
@@ -128,7 +128,8 @@ class TimedSoftValue<T> extends AbstractTimedValue<T>
      * @return The raw hard reference to the value.
      */
     // Useful for testing.
-    @Nullable T getRawHardReference()
+    @Nullable
+    T getRawHardReference()
     {
         return hardReference;
     }

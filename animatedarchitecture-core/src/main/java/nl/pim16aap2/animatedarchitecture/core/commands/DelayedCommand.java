@@ -131,7 +131,8 @@ public abstract class DelayedCommand<T>
     }
 
     private Function<T, CompletableFuture<?>> getExecutor(
-        ICommandSender commandSender, StructureRetriever structureRetriever)
+        ICommandSender commandSender,
+        StructureRetriever structureRetriever)
     {
         return delayedInput ->
         {
@@ -153,7 +154,8 @@ public abstract class DelayedCommand<T>
     }
 
     private Function<T, CompletableFuture<?>> wrapExecutor(
-        ICommandSender commandSender, Function<T, CompletableFuture<?>> executor)
+        ICommandSender commandSender,
+        Function<T, CompletableFuture<?>> executor)
     {
         return delayedInput ->
         {

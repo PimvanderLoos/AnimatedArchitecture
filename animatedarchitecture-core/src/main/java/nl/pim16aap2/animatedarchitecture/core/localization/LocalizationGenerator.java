@@ -75,8 +75,8 @@ final class LocalizationGenerator implements ILocalizationGenerator
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to add resources from directory '%s' with base name: '%s",
-                directory, baseName);
+            log.atSevere().withCause(e).log(
+                "Failed to add resources from directory '%s' with base name: '%s", directory, baseName);
         }
     }
 

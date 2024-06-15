@@ -16,8 +16,6 @@ import javax.inject.Singleton;
  * <p>
  * This class is responsible for creating new {@link IAnimatedBlockContainer}s based on the given
  * {@link AnimationType}.
- * <p>
- * F
  */
 @Singleton
 public class AnimatedBlockContainerFactory

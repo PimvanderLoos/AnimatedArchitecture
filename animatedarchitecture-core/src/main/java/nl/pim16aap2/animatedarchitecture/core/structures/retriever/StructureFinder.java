@@ -254,25 +254,28 @@ public final class StructureFinder
     public synchronized CompletableFuture<List<AbstractStructure>> getStructures(boolean fullMatch)
     {
         final String lastInput0 = lastInput;
-        return waitForDescriptions().thenCompose(
-            descriptions ->
-            {
-                final List<MinimalStructureDescription> targetList =
-                    filterIfNeeded(descriptions, lastInput0, fullMatch);
+        return waitForDescriptions().thenCompose(descriptions ->
+        {
+            final List<MinimalStructureDescription> targetList = filterIfNeeded(descriptions, lastInput0, fullMatch);
 
-                @SuppressWarnings("unchecked") final CompletableFuture<Optional<AbstractStructure>>[] retrieved =
-                    (CompletableFuture<Optional<AbstractStructure>>[]) new CompletableFuture[targetList.size()];
+            @SuppressWarnings("unchecked") final CompletableFuture<Optional<AbstractStructure>>[] retrieved =
+                (CompletableFuture<Optional<AbstractStructure>>[]) new CompletableFuture[targetList.size()];
 
-                for (int idx = 0; idx < targetList.size(); ++idx)
-                    retrieved[idx] = structureRetrieverFactory
-                        .of(targetList.get(idx).uid).getStructure(commandSender, maxPermission);
-                return Util.getAllCompletableFutureResults(retrieved)
-                           .thenApply(lst -> lst.stream().flatMap(Optional::stream).toList());
-            });
+            for (int idx = 0; idx < targetList.size(); ++idx)
+                retrieved[idx] = structureRetrieverFactory
+                    .of(targetList.get(idx).uid)
+                    .getStructure(commandSender, maxPermission);
+
+            return Util
+                .getAllCompletableFutureResults(retrieved)
+                .thenApply(lst -> lst.stream().flatMap(Optional::stream).toList());
+        });
     }
 
     private static List<MinimalStructureDescription> filterIfNeeded(
-        List<MinimalStructureDescription> lst, String lastInput, boolean fullMatch)
+        List<MinimalStructureDescription> lst,
+        String lastInput,
+        boolean fullMatch)
     {
         if (fullMatch)
             return lst.stream().filter(desc -> desc.id.equalsIgnoreCase(lastInput)).toList();
@@ -404,8 +407,10 @@ public final class StructureFinder
     private void applyFilter(String input)
     {
         final Map<Boolean, List<MinimalStructureDescription>> filtered =
-            Util.requireNonNull(cache, "Cache").stream()
+            Util.requireNonNull(cache, "Cache")
+                .stream()
                 .collect(Collectors.partitioningBy(desc -> startsWith(input, desc.id)));
+
         history.add(new HistoryItem(input, Objects.requireNonNull(filtered.get(false))));
         cache = Objects.requireNonNull(filtered.get(true));
     }
@@ -454,9 +459,11 @@ public final class StructureFinder
         this.cache = null;
         this.history.clear();
         this.lastInput = input;
+
         this.searcher = getNewStructureIdentifiers(input);
-        this.searcher.thenAccept(lst -> this.setCache(lst, input)).exceptionally(
-            t ->
+        this.searcher
+            .thenAccept(lst -> this.setCache(lst, input))
+            .exceptionally(t ->
             {
                 // It can happen that the searcher was cancelled because it received incompatible
                 // input before finishing. This isn't important.
@@ -476,8 +483,9 @@ public final class StructureFinder
     private CompletableFuture<List<MinimalStructureDescription>> getNewStructureIdentifiers(String input)
     {
         final @Nullable IPlayer player = commandSender.getPlayer().orElse(null);
-        return databaseManager.getIdentifiersFromPartial(input, player, maxPermission).thenApply(
-            ids ->
+        return databaseManager
+            .getIdentifiersFromPartial(input, player, maxPermission)
+            .thenApply(ids ->
             {
                 final List<MinimalStructureDescription> descriptions = new ArrayList<>(ids.size());
                 for (final var id : ids)
@@ -501,11 +509,15 @@ public final class StructureFinder
      * @return The identifiers as extracted from the provided descriptions.
      */
     private static Set<String> getIdentifiers(
-        Collection<MinimalStructureDescription> descriptions, @Nullable String lastInput)
+        Collection<MinimalStructureDescription> descriptions,
+        @Nullable String lastInput)
     {
         if (lastInput != null)
             return new LinkedHashSet<>(getFullMatches(descriptions, lastInput))
-                .stream().map(MinimalStructureDescription::id).collect(Collectors.toSet());
+                .stream()
+                .map(MinimalStructureDescription::id)
+                .collect(Collectors.toSet());
+
         final LinkedHashSet<String> ids = new LinkedHashSet<>(MathUtil.ceil(1.25 * descriptions.size()));
         descriptions.forEach(desc -> ids.add(desc.id));
         return ids;
@@ -525,7 +537,9 @@ public final class StructureFinder
     {
         if (lastInput != null)
             return LongLinkedOpenHashSet.toSet(getFullMatches(descriptions, lastInput)
-                                                   .stream().mapToLong(MinimalStructureDescription::uid));
+                .stream()
+                .mapToLong(MinimalStructureDescription::uid));
+
         final LongSet ids = new LongLinkedOpenHashSet();
         descriptions.forEach(desc -> ids.add(desc.uid));
         return ids;
@@ -539,7 +553,8 @@ public final class StructureFinder
      * @return A list of minimal descriptions whose entries match the target String.
      */
     private static List<MinimalStructureDescription> getFullMatches(
-        Collection<MinimalStructureDescription> descriptions, String matchTo)
+        Collection<MinimalStructureDescription> descriptions,
+        String matchTo)
     {
         return descriptions.stream().filter(desc -> desc.id.equalsIgnoreCase(matchTo)).toList();
     }
@@ -556,40 +571,39 @@ public final class StructureFinder
             return CompletableFuture.completedFuture(cache);
 
         final CompletableFuture<List<MinimalStructureDescription>> result = new CompletableFuture<>();
-        CompletableFuture.runAsync(
-            () ->
+        CompletableFuture.runAsync(() ->
+        {
+            try
             {
-                try
+                synchronized (msg)
                 {
-                    synchronized (msg)
-                    {
-                        final long deadline = System.nanoTime() + Duration.ofSeconds(DEFAULT_TIMEOUT).toNanos();
+                    final long deadline = System.nanoTime() + Duration.ofSeconds(DEFAULT_TIMEOUT).toNanos();
 
-                        while (System.nanoTime() < deadline && !isCacheAvailable())
-                        {
-                            final long waitTime = Duration.ofNanos(deadline - System.nanoTime()).toMillis();
-                            if (waitTime > 0)
-                                msg.wait(waitTime);
-                        }
-                        if (!isCacheAvailable() || System.nanoTime() > deadline)
-                            throw new TimeoutException("Timed out waiting for list of structure descriptions.");
-                    }
-
-                    synchronized (this)
+                    while (System.nanoTime() < deadline && !isCacheAvailable())
                     {
-                        result.complete(Util.requireNonNull(cache, "Cache"));
+                        final long waitTime = Duration.ofNanos(deadline - System.nanoTime()).toMillis();
+                        if (waitTime > 0)
+                            msg.wait(waitTime);
                     }
+                    if (!isCacheAvailable() || System.nanoTime() > deadline)
+                        throw new TimeoutException("Timed out waiting for list of structure descriptions.");
                 }
-                catch (InterruptedException e)
+
+                synchronized (this)
                 {
-                    result.completeExceptionally(e);
-                    Thread.currentThread().interrupt();
+                    result.complete(Util.requireNonNull(cache, "Cache"));
                 }
-                catch (Throwable t)
-                {
-                    result.completeExceptionally(t);
-                }
-            }).exceptionally(Util::exceptionally);
+            }
+            catch (InterruptedException e)
+            {
+                result.completeExceptionally(e);
+                Thread.currentThread().interrupt();
+            }
+            catch (Throwable t)
+            {
+                result.completeExceptionally(t);
+            }
+        }).exceptionally(Util::exceptionally);
         return result.exceptionally(t -> Util.exceptionally(t, Collections.emptyList()));
     }
 

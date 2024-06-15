@@ -160,8 +160,8 @@ public final class StructureTypeManager implements IDebuggable
     @GuardedBy("$lock")
     private void register0(StructureType structureType, boolean isEnabled)
     {
-        log.atInfo()
-            .log("Registering structure type: '%s'. Enabled: %s", structureType.getFullNameWithVersion(), isEnabled);
+        log.atInfo().log(
+            "Registering structure type: '%s'. Enabled: %s", structureType.getFullNameWithVersion(), isEnabled);
 
         final @Nullable Boolean result = registeredStructureTypes0.put(structureType, isEnabled);
         if (result != null && result == isEnabled)

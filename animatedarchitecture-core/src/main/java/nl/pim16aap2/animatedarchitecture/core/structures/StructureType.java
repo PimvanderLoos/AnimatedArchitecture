@@ -103,15 +103,19 @@ public abstract class StructureType
      *     The version of this {@link StructureType}.
      */
     protected StructureType(
-        String pluginName, String simpleName, int version, List<MovementDirection> validMovementDirections,
+        String pluginName,
+        String simpleName,
+        int version,
+        List<MovementDirection> validMovementDirections,
         String localizationKey)
     {
         this.pluginName = pluginName;
         this.simpleName = simpleName.toLowerCase(Locale.ENGLISH);
         this.version = version;
         this.validMovementDirections =
-            validMovementDirections.isEmpty() ? EnumSet.noneOf(MovementDirection.class) :
-            EnumSet.copyOf(validMovementDirections);
+            validMovementDirections.isEmpty() ?
+                EnumSet.noneOf(MovementDirection.class) :
+                EnumSet.copyOf(validMovementDirections);
         this.validOpenDirectionsList = List.copyOf(this.validMovementDirections);
         this.localizationKey = localizationKey;
         this.fullName = formatFullName(getPluginName(), getSimpleName());

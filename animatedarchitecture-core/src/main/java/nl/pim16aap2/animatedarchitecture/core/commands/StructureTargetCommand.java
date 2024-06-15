@@ -133,8 +133,8 @@ public abstract class StructureTargetCommand extends BaseCommand
 
         if (!isAllowed(structure.get(), permissions.hasAdminPermission()))
         {
-            log.atFine()
-                .log("%s does not have access to structure %s for command %s", getCommandSender(), structure, this);
+            log.atFine().log(
+                "%s does not have access to structure %s for command %s", getCommandSender(), structure, this);
 
             getCommandSender().sendMessage(textFactory.newText().append(
                 localizer.getMessage("commands.structure_target_command.base.error.no_permission_for_action"),

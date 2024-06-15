@@ -499,8 +499,8 @@ public final class ConfigSpigot implements IConfig, IDebuggable
 
         if (commandAliases.isEmpty())
         {
-            log.atWarning()
-                .log("No command aliases were found. Using the default aliases: %s", DEFAULT_COMMAND_ALIASES);
+            log.atWarning().log(
+                "No command aliases were found. Using the default aliases: %s", DEFAULT_COMMAND_ALIASES);
             commandAliases.addAll(DEFAULT_COMMAND_ALIASES);
         }
     }

@@ -146,7 +146,9 @@ class NewStructureTest
     }
 
     private static void setCommandSenderCommandPermissions(
-        ICommandSender commandSender, boolean userPermission, boolean adminPermission)
+        ICommandSender commandSender,
+        boolean userPermission,
+        boolean adminPermission)
     {
         Mockito.when(commandSender.hasPermission(Mockito.any(CommandDefinition.class)))
             .thenReturn(CompletableFuture.completedFuture(

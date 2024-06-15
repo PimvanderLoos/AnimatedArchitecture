@@ -31,7 +31,10 @@ public final class AudioAnimationHook implements IAnimationHook
     private volatile int skipped = -1;
 
     private AudioAnimationHook(
-        Animation<IAnimatedBlock> animation, AudioSet audioSet, IAudioPlayer audioPlayer, int serverTickTime)
+        Animation<IAnimatedBlock> animation,
+        AudioSet audioSet,
+        IAudioPlayer audioPlayer,
+        int serverTickTime)
     {
         this.animation = animation;
         this.audioPlayer = audioPlayer;

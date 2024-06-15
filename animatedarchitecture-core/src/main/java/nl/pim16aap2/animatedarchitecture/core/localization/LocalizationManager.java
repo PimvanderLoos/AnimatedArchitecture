@@ -34,8 +34,11 @@ public final class LocalizationManager extends Restartable implements ILocalizat
     private @Nullable LocalizationGenerator patchGenerator;
 
     LocalizationManager(
-        RestartableHolder restartableHolder, Path baseDir,
-        String baseName, IConfig config, boolean deleteBundleOnStart)
+        RestartableHolder restartableHolder,
+        Path baseDir,
+        String baseName,
+        IConfig config,
+        boolean deleteBundleOnStart)
     {
         super(restartableHolder);
         this.baseDir = baseDir;

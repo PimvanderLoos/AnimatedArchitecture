@@ -57,8 +57,9 @@ public final class AnimatedBlockHookManager implements IDebuggable
             catch (Exception e)
             {
                 log.atSevere().withCause(e).log(
-                    "Failed to create hook with factory '%s'.",
-                    factory.getClass().getName());
+                    "Failed to create animated block hook with factory '%s'.",
+                    factory.getClass().getName()
+                );
             }
         }
         instantiated.trimToSize();

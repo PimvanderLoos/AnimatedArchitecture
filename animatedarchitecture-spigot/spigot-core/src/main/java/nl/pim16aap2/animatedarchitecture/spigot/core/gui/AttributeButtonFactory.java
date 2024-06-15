@@ -57,7 +57,10 @@ class AttributeButtonFactory
     }
 
     private void lockButtonExecute(
-        boolean newState, GuiElement.Click change, AbstractStructure structure, PlayerSpigot player)
+        boolean newState,
+        GuiElement.Click change,
+        AbstractStructure structure,
+        PlayerSpigot player)
     {
         commandFactory
             .newLock(player, structureRetrieverFactory.of(structure), newState).run()

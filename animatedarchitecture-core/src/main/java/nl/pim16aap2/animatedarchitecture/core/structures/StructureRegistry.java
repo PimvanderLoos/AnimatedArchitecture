@@ -76,7 +76,10 @@ public final class StructureRegistry implements IDebuggable, StructureDeletionMa
         StructureDeletionManager structureDeletionManager)
     {
         final StructureRegistry structureRegistry = new StructureRegistry(
-            debuggableRegistry, Duration.ofMillis(-1), structureDeletionManager);
+            debuggableRegistry,
+            Duration.ofMillis(-1),
+            structureDeletionManager
+        );
 
         structureRegistry.acceptNewEntries = false;
         return structureRegistry;

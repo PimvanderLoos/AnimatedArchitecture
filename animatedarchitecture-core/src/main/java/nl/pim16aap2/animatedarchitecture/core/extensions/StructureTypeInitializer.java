@@ -40,7 +40,9 @@ final class StructureTypeInitializer
      *     {@link DirectedAcyclicGraph#DirectedAcyclicGraph(boolean)}.
      */
     StructureTypeInitializer(
-        List<StructureTypeInfo> structureTypeInfos, IStructureTypeClassLoader structureTypeClassLoader, boolean debug)
+        List<StructureTypeInfo> structureTypeInfos,
+        IStructureTypeClassLoader structureTypeClassLoader,
+        boolean debug)
     {
         this.structureTypeClassLoader = structureTypeClassLoader;
         this.graph = createGraph(structureTypeInfos, debug);
@@ -61,8 +63,11 @@ final class StructureTypeInitializer
             final Loadable loadable = node.getObj();
             if (loadable.getLoadFailure() != null)
             {
-                log.atWarning().log("Failed to load structure type %s, reason: %s",
-                    loadable.getStructureTypeInfo(), loadable.getLoadFailure());
+                log.atWarning().log(
+                    "Failed to load structure type %s, reason: %s",
+                    loadable.getStructureTypeInfo(),
+                    loadable.getLoadFailure()
+                );
                 continue;
             }
 
@@ -71,7 +76,8 @@ final class StructureTypeInitializer
             {
                 loadable.setLoadFailure(new LoadFailure(
                     LoadFailureType.GENERIC_LOAD_FAILURE,
-                    "'An error occurred while loading this structure type!'"));
+                    "'An error occurred while loading this structure type!'")
+                );
                 cancelAllChildren(node);
             }
             else
@@ -125,12 +131,14 @@ final class StructureTypeInitializer
                 LoadFailureType.DEPENDENCY_UNAVAILABLE,
                 String.format(
                     "'Dependency '%s' could not be loaded!'",
-                    node.getObj().getStructureTypeInfo()));
+                    node.getObj().getStructureTypeInfo())
+            );
         node.getAllChildren().forEach(child -> child.getObj().setLoadFailure(loadResult));
     }
 
     static void addDependenciesToGraph(
-        DirectedAcyclicGraph<Loadable> graph, Map<String, Loadable> loadables,
+        DirectedAcyclicGraph<Loadable> graph,
+        Map<String, Loadable> loadables,
         Loadable loadable)
     {
         final StructureTypeInfo info = loadable.getStructureTypeInfo();
@@ -145,14 +153,21 @@ final class StructureTypeInitializer
                 loadable.setLoadFailure(
                     new LoadFailure(
                         LoadFailureType.DEPENDENCY_UNAVAILABLE,
-                        String.format("'Could not find dependency '%s' for type: '%s''",
-                            dependency.dependencyName(), loadable)));
+                        String.format(
+                            "'Could not find dependency '%s' for type: '%s''",
+                            dependency.dependencyName(),
+                            loadable))
+                );
             else if (!dependency.satisfiedBy(parent.getStructureTypeInfo()))
                 loadable.setLoadFailure(
                     new LoadFailure(
                         LoadFailureType.DEPENDENCY_UNSUPPORTED_VERSION,
-                        String.format("'Version %d does not satisfy dependency %s for type: '%s''",
-                            parent.getStructureTypeInfo().getVersion(), dependency, loadable)));
+                        String.format(
+                            "'Version %d does not satisfy dependency %s for type: '%s''",
+                            parent.getStructureTypeInfo().getVersion(),
+                            dependency,
+                            loadable))
+                );
             else
                 graph.addConnection(loadable, parent);
         }
@@ -170,8 +185,11 @@ final class StructureTypeInitializer
     {
         if (!structureTypeClassLoader.loadJar(structureTypeInfo.getJarFile()))
         {
-            log.atSevere().log("Failed to load file: '%s'! This type ('%s') will not be loaded!",
-                structureTypeInfo.getJarFile(), structureTypeInfo.getTypeName());
+            log.atSevere().log(
+                "Failed to load file: '%s'! This type ('%s') will not be loaded!",
+                structureTypeInfo.getJarFile(),
+                structureTypeInfo.getTypeName()
+            );
             return null;
         }
 
@@ -193,10 +211,10 @@ final class StructureTypeInitializer
             return null;
         }
 
-        log.atFine()
-            .log(
-                "Loaded AnimatedArchitecture extension: %s",
-                Util.capitalizeFirstLetter(structureType.getSimpleName()));
+        log.atFine().log(
+            "Loaded AnimatedArchitecture extension: %s",
+            Util.capitalizeFirstLetter(structureType.getSimpleName())
+        );
         return structureType;
     }
 

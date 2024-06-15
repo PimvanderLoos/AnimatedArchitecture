@@ -545,7 +545,9 @@ public class DelayedPreparedStatement
      * @param <T>
      *     The type of the data to set.
      */
-    private record Action<T>(CheckedTriConsumer<PreparedStatement, Integer, @Nullable T, SQLException> fun, int idx,
+    private record Action<T>(
+        CheckedTriConsumer<PreparedStatement, Integer, @Nullable T, SQLException> fun,
+        int idx,
         @Nullable T obj)
     {
         /**

@@ -287,7 +287,10 @@ public interface IStorage
      * @return All {@link DatabaseManager.StructureIdentifier}s that start with the provided input.
      */
     List<DatabaseManager.StructureIdentifier> getPartialIdentifiers(
-        String input, @Nullable IPlayer player, PermissionLevel maxPermission);
+        String input,
+        @Nullable IPlayer player,
+        PermissionLevel maxPermission
+    );
 
     /**
      * Deletes a {@link StructureType} and all {@link AbstractStructure}s of this type from the database.

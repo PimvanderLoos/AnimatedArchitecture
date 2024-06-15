@@ -130,6 +130,7 @@ public class UnitTestUtil
     {
         final Class<?> classStructureBase = Class.forName(
             "nl.pim16aap2.animatedarchitecture.core.structures.StructureBase");
+
         final Class<?> classStructureBaseFactory = Class.forName(
             "nl.pim16aap2.animatedarchitecture.core.structures.StructureBase$IFactory");
 
@@ -138,6 +139,8 @@ public class UnitTestUtil
 
         final Constructor<?> ctorStructureBaseBuilder =
             StructureBaseBuilder.class.getDeclaredConstructor(classStructureBaseFactory);
+
+        ctorStructureBaseBuilder.setAccessible(true);
 
         final var builder =
             (StructureBaseBuilder) ctorStructureBaseBuilder.newInstance(assistedFactoryMocker.getFactory());
@@ -169,9 +172,11 @@ public class UnitTestUtil
 
         final Vector3Di min = safeSupplier(
             () -> new Vector3Di(random.nextInt(), random.nextInt(), random.nextInt()), structure::getMinimum);
+
         final Vector3Di max = safeSupplier(() -> min.multiply(2).absolute(), structure::getMaximum);
 
-        final StructureOwner primeOwner = safeSupplier(() ->
+        final StructureOwner primeOwner = safeSupplier(
+            () ->
             {
                 final var playerData = Mockito.mock(PlayerData.class);
                 Mockito.when(playerData.getUUID()).thenReturn(UUID.randomUUID());
@@ -207,16 +212,17 @@ public class UnitTestUtil
         Mockito.when(ret.getPrimeOwner()).thenReturn(primeOwner);
 
         // We only need to mock the 'getOwnersMap' method, as all other owner-related methods call it.
-        Mockito.when(ret.getOwnersMap()).thenReturn(safeSupplier(
-            () -> Map.of(primeOwner.playerData().getUUID(), primeOwner),
-            () -> structure
-                .getOwners()
-                .stream()
-                .collect(Collectors.toMap(owner -> owner.playerData().getUUID(), owner -> owner)))
-        );
+        Mockito.when(ret.getOwnersMap())
+            .thenReturn(safeSupplier(
+                () -> Map.of(primeOwner.playerData().getUUID(), primeOwner),
+                () -> structure
+                    .getOwners()
+                    .stream()
+                    .collect(Collectors.toMap(owner -> owner.playerData().getUUID(), owner -> owner)))
+            );
 
-        Mockito.when(ret.getType()).thenReturn(safeSupplier(
-            () -> Mockito.mock(StructureType.class), structure::getType));
+        Mockito.when(ret.getType())
+            .thenReturn(safeSupplier(() -> Mockito.mock(StructureType.class), structure::getType));
 
         final Map<String, Object> propertyMap = safeSupplierSimple(
             Collections.emptyMap(),
@@ -341,7 +347,8 @@ public class UnitTestUtil
      *     The type of the throwable wrapped inside the RuntimeException.
      */
     public static <T extends Throwable> void assertWrappedThrows(
-        Class<T> expectedType, Executable executable,
+        Class<T> expectedType,
+        Executable executable,
         boolean deepSearch)
     {
         RuntimeException rte = Assertions.assertThrows(RuntimeException.class, executable);
@@ -435,7 +442,8 @@ public class UnitTestUtil
      *     The mocker for the factory. Use {@link AssistedFactoryMocker#setMock(Class, Object)} to set its parameters.
      */
     public record StructureBaseBuilderResult(
-        StructureBaseBuilder structureBaseBuilder, AssistedFactoryMocker<?, ?> assistedFactoryMocker)
+        StructureBaseBuilder structureBaseBuilder,
+        AssistedFactoryMocker<?, ?> assistedFactoryMocker)
     {}
 
     @AllArgsConstructor

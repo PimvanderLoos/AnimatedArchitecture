@@ -174,7 +174,10 @@ public final class StructureSerializer<T extends AbstractStructure>
                         " in class: " + structureClass);
 
             final DeserializationConstructor ctor = new DeserializationConstructor(
-                version, annotatedCtor, getConstructorParameters(annotatedCtor));
+                version,
+                annotatedCtor,
+                getConstructorParameters(annotatedCtor)
+            );
 
             deserializationCtors.put(version, ctor);
         }
@@ -368,7 +371,8 @@ public final class StructureSerializer<T extends AbstractStructure>
     }
 
     private Object[] deserializeParameters(
-        DeserializationConstructor deserializationCtor, AbstractStructure.BaseHolder base,
+        DeserializationConstructor deserializationCtor,
+        AbstractStructure.BaseHolder base,
         Map<String, Object> values)
     {
         final Map<Class<?>, Object> classes = new HashMap<>(MathUtil.ceil(1.25 * values.size()));

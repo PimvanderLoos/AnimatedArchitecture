@@ -239,7 +239,9 @@ public class Text implements CharSequence
     @Contract("_, _, _ -> this")
     @SafeVarargs
     public final Text append(
-        String text, @Nullable TextType type, Function<TextArgumentFactory, TextArgument>... argumentRetrievers)
+        String text,
+        @Nullable TextType type,
+        Function<TextArgumentFactory, TextArgument>... argumentRetrievers)
     {
         return append(text, type, retrieveArguments(argumentRetrievers));
     }
@@ -329,7 +331,8 @@ public class Text implements CharSequence
      * @return The new text component if one was created or null if no specific decoration should be applied to the
      * text.
      */
-    @Nullable TextComponent newTextComponent(@Nullable TextType type)
+    @Nullable
+    TextComponent newTextComponent(@Nullable TextType type)
     {
         return textComponentFactory.newComponent(type);
     }
@@ -366,7 +369,8 @@ public class Text implements CharSequence
      * @return The new text component if one was created or null if no specific decoration should be applied to the
      * text.
      */
-    @Nullable TextComponent newClickableTextComponent(
+    @Nullable
+    TextComponent newClickableTextComponent(
         @Nullable TextType type, String command, @Nullable String info)
     {
         return textComponentFactory.newClickableTextComponent(type, command, info);
@@ -391,7 +395,10 @@ public class Text implements CharSequence
      * text.
      */
     public TextArgument newClickableTextArgument(
-        Object argument, @Nullable TextType type, String command, @Nullable String info)
+        Object argument,
+        @Nullable TextType type,
+        String command,
+        @Nullable String info)
     {
         return new TextArgument(argument, newClickableTextComponent(type, command, info));
     }
@@ -433,9 +440,12 @@ public class Text implements CharSequence
     @Contract("_ -> this")
     public Text prepend(Text other)
     {
-        styledSections = appendSections(other.getLength(), other.styledSections, styledSections,
-            (section, offset) -> new StyledSection(section.startIndex + offset,
-                section.length, section.component));
+        styledSections = appendSections(
+            other.getLength(),
+            other.styledSections,
+            styledSections,
+            (section, offset) -> new StyledSection(section.startIndex + offset, section.length, section.component)
+        );
         stringBuilder.insert(0, other.stringBuilder);
         return this;
     }
@@ -480,12 +490,15 @@ public class Text implements CharSequence
     @Contract("_ -> this")
     public Text append(Text other)
     {
-        if (other.stringBuilder.length() == 0)
+        if (other.stringBuilder.isEmpty())
             return this;
 
-        styledSections = appendSections(getLength(), styledSections, other.styledSections,
-            (section, offset) -> new StyledSection(section.startIndex + offset,
-                section.length, section.component));
+        styledSections = appendSections(
+            getLength(),
+            styledSections,
+            other.styledSections,
+            (section, offset) -> new StyledSection(section.startIndex + offset, section.length, section.component)
+        );
         stringBuilder.append(other.stringBuilder);
         return this;
     }
@@ -542,7 +555,7 @@ public class Text implements CharSequence
     @Override
     public String toString()
     {
-        if (stringBuilder.length() == 0)
+        if (stringBuilder.isEmpty())
             return "";
 
         return render(new ITextRenderer.StringRenderer(this.getLength()));

@@ -210,10 +210,11 @@ final class StructureBase
     {
         if (structureOwner.permission() == PermissionLevel.CREATOR)
         {
-            log.atSevere().withStackTrace(StackSize.FULL)
-                .log(
-                    "Failed to add Owner '%s' as owner to structure: %d because a permission level of 0 is not allowed!",
-                    structureOwner.playerData(), this.getUid());
+            log.atSevere().withStackTrace(StackSize.FULL).log(
+                "Failed to add Owner '%s' as owner to structure: %d because a permission level of 0 is not allowed!",
+                structureOwner.playerData(),
+                this.getUid()
+            );
             return false;
         }
         owners.put(structureOwner.playerData().getUUID(), structureOwner);
@@ -226,10 +227,12 @@ final class StructureBase
     {
         if (primeOwner.playerData().getUUID().equals(uuid))
         {
-            log.atSevere().withStackTrace(StackSize.FULL)
-                .log("Failed to remove owner: '%s' as owner from structure: '%d'" +
-                        " because removing an owner with a permission level of 0 is not allowed!",
-                    primeOwner.playerData(), this.getUid());
+            log.atSevere().withStackTrace(StackSize.FULL).log(
+                "Failed to remove owner: '%s' as owner from structure: '%d'" +
+                    " because removing an owner with a permission level of 0 is not allowed!",
+                primeOwner.playerData(),
+                this.getUid()
+            );
             return null;
         }
         return owners.remove(uuid);
@@ -397,12 +400,20 @@ final class StructureBase
     }
 
     @AssistedFactory
-    public interface IFactory
+    interface IFactory
     {
         StructureBase create(
-            long structureUID, String name, Cuboid cuboid, @Assisted("rotationPoint") Vector3Di rotationPoint,
-            @Assisted("powerBlock") Vector3Di powerBlock, @Assisted IWorld world,
-            @Assisted("isOpen") boolean isOpen, @Assisted("isLocked") boolean isLocked,
-            MovementDirection openDir, StructureOwner primeOwner, @Nullable Map<UUID, StructureOwner> structureOwners);
+            long structureUID,
+            String name,
+            Cuboid cuboid,
+            @Assisted("rotationPoint") Vector3Di rotationPoint,
+            @Assisted("powerBlock") Vector3Di powerBlock,
+            @Assisted IWorld world,
+            @Assisted("isOpen") boolean isOpen,
+            @Assisted("isLocked") boolean isLocked,
+            MovementDirection openDir,
+            StructureOwner primeOwner,
+            @Nullable Map<UUID, StructureOwner> structureOwners
+        );
     }
 }

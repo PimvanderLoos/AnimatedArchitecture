@@ -20,7 +20,7 @@ public final class StructureBaseBuilder
     private final StructureBase.IFactory baseFactory;
 
     @Inject
-    public StructureBaseBuilder(StructureBase.IFactory baseFactory)
+    StructureBaseBuilder(StructureBase.IFactory baseFactory)
     {
         this.baseFactory = baseFactory;
     }

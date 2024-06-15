@@ -106,9 +106,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      */
     @Inject
     public SQLiteJDBCDriverConnection(
-        @Named("databaseFile") Path dbFile, StructureBaseBuilder structureBaseBuilder,
+        @Named("databaseFile") Path dbFile,
+        StructureBaseBuilder structureBaseBuilder,
         StructureRegistry structureRegistry,
-        StructureTypeManager structureTypeManager, IWorldFactory worldFactory, DebuggableRegistry debuggableRegistry)
+        StructureTypeManager structureTypeManager,
+        IWorldFactory worldFactory,
+        DebuggableRegistry debuggableRegistry)
     {
         this.dbFile = dbFile;
         this.structureBaseBuilder = structureBaseBuilder;
@@ -167,10 +170,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     {
         if (!databaseState.equals(state))
         {
-            log.atSevere().withStackTrace(StackSize.FULL)
-                .log("Database connection could not be created! " +
-                        "Requested database for state '%s' while it is actually in state '%s'!",
-                    state.name(), databaseState.name());
+            log.atSevere().withStackTrace(StackSize.FULL).log(
+                "Database connection could not be created! " +
+                    "Requested database for state '%s' while it is actually in state '%s'!",
+                state.name(),
+                databaseState.name()
+            );
             return null;
         }
 
@@ -278,17 +283,33 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             }
             else
             {
-                executeUpdate(conn, SQLStatement.CREATE_TABLE_PLAYER.constructDelayedPreparedStatement());
-                executeUpdate(conn, SQLStatement.RESERVE_IDS_PLAYER.constructDelayedPreparedStatement());
-
-                executeUpdate(conn, SQLStatement.CREATE_TABLE_STRUCTURE.constructDelayedPreparedStatement());
+                executeUpdate(
+                    conn,
+                    SQLStatement.CREATE_TABLE_PLAYER
+                        .constructDelayedPreparedStatement()
+                );
+                executeUpdate(
+                    conn,
+                    SQLStatement.RESERVE_IDS_PLAYER
+                        .constructDelayedPreparedStatement()
+                );
 
                 executeUpdate(
                     conn,
-                    SQLStatement.CREATE_TABLE_STRUCTURE_OWNER_PLAYER.constructDelayedPreparedStatement());
+                    SQLStatement.CREATE_TABLE_STRUCTURE
+                        .constructDelayedPreparedStatement()
+                );
+
                 executeUpdate(
                     conn,
-                    SQLStatement.RESERVE_IDS_STRUCTURE_OWNER_PLAYER.constructDelayedPreparedStatement());
+                    SQLStatement.CREATE_TABLE_STRUCTURE_OWNER_PLAYER
+                        .constructDelayedPreparedStatement()
+                );
+                executeUpdate(
+                    conn,
+                    SQLStatement.RESERVE_IDS_STRUCTURE_OWNER_PLAYER
+                        .constructDelayedPreparedStatement()
+                );
 
                 updateDBVersion(conn);
                 databaseState = DatabaseState.OK;
@@ -309,9 +330,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
         if (!structureType.map(structureTypeManager::isRegistered).orElse(false))
         {
-            log.atSevere()
-                .withStackTrace(StackSize.FULL)
-                .log("Type with ID: '%s' has not been registered (yet)!", structureTypeResult);
+            log.atSevere().withStackTrace(StackSize.FULL).log(
+                "Type with ID: '%s' has not been registered (yet)!", structureTypeResult);
             return Optional.empty();
         }
 
@@ -335,19 +355,23 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         final Vector3Di min = new Vector3Di(
             structureBaseRS.getInt("xMin"),
             structureBaseRS.getInt("yMin"),
-            structureBaseRS.getInt("zMin"));
+            structureBaseRS.getInt("zMin")
+        );
         final Vector3Di max = new Vector3Di(
             structureBaseRS.getInt("xMax"),
             structureBaseRS.getInt("yMax"),
-            structureBaseRS.getInt("zMax"));
+            structureBaseRS.getInt("zMax")
+        );
         final Vector3Di rotationPoint = new Vector3Di(
             structureBaseRS.getInt("rotationPointX"),
             structureBaseRS.getInt("rotationPointY"),
-            structureBaseRS.getInt("rotationPointZ"));
+            structureBaseRS.getInt("rotationPointZ")
+        );
         final Vector3Di powerBlock = new Vector3Di(
             structureBaseRS.getInt("powerBlockX"),
             structureBaseRS.getInt("powerBlockY"),
-            structureBaseRS.getInt("powerBlockZ"));
+            structureBaseRS.getInt("powerBlockZ")
+        );
 
         final IWorld world = worldFactory.create(structureBaseRS.getString("world"));
 
@@ -362,11 +386,14 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             structureBaseRS.getString("playerName"),
             structureBaseRS.getInt("sizeLimit"),
             structureBaseRS.getInt("countLimit"),
-            structureBaseRS.getLong("permissions"));
+            structureBaseRS.getLong("permissions")
+        );
 
         final StructureOwner primeOwner = new StructureOwner(
-            structureUID, Objects.requireNonNull(PermissionLevel.fromValue(structureBaseRS.getInt("permission"))),
-            playerData);
+            structureUID,
+            Objects.requireNonNull(PermissionLevel.fromValue(structureBaseRS.getInt("permission"))),
+            playerData
+        );
 
         final Map<UUID, StructureOwner> ownersOfStructure = getOwnersOfStructure(structureUID);
         final AbstractStructure.BaseHolder structureData =
@@ -394,9 +421,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     public boolean deleteStructureType(StructureType structureType)
     {
         final boolean removed = executeTransaction(
-            conn -> executeUpdate(SQLStatement.DELETE_STRUCTURE_TYPE
-                .constructDelayedPreparedStatement()
-                .setNextString(structureType.getFullName())) > 0, false);
+            conn -> executeUpdate(
+                SQLStatement.DELETE_STRUCTURE_TYPE
+                    .constructDelayedPreparedStatement()
+                    .setNextString(structureType.getFullName())) > 0,
+            false
+        );
 
         if (removed)
             structureTypeManager.setEnabledState(structureType, false);
@@ -405,45 +435,58 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
     @Locked.Write
     private Long insert(
-        Connection conn, AbstractStructure structure, StructureType structureType, String typeSpecificData)
+        Connection conn,
+        AbstractStructure structure,
+        StructureType structureType,
+        String typeSpecificData)
     {
         final PlayerData playerData = structure.getPrimeOwner().playerData();
         insertOrIgnorePlayer(conn, playerData);
 
         final String worldName = structure.getWorld().worldName();
-        executeUpdate(conn, SQLStatement.INSERT_STRUCTURE_BASE
-            .constructDelayedPreparedStatement()
-            .setNextString(structure.getName())
-            .setNextString(worldName)
-            .setNextInt(structure.getMinimum().x())
-            .setNextInt(structure.getMinimum().y())
-            .setNextInt(structure.getMinimum().z())
-            .setNextInt(structure.getMaximum().x())
-            .setNextInt(structure.getMaximum().y())
-            .setNextInt(structure.getMaximum().z())
-            .setNextInt(structure.getRotationPoint().x())
-            .setNextInt(structure.getRotationPoint().y())
-            .setNextInt(structure.getRotationPoint().z())
-            .setNextLong(Util.getChunkId(structure.getRotationPoint()))
-            .setNextInt(structure.getPowerBlock().x())
-            .setNextInt(structure.getPowerBlock().y())
-            .setNextInt(structure.getPowerBlock().z())
-            .setNextLong(Util.getChunkId(structure.getPowerBlock()))
-            .setNextInt(MovementDirection.getValue(structure.getOpenDir()))
-            .setNextLong(getFlag(structure))
-            .setNextString(structureType.getFullName())
-            .setNextInt(structureType.getVersion())
-            .setNextString(typeSpecificData));
+        executeUpdate(
+            conn,
+            SQLStatement.INSERT_STRUCTURE_BASE
+                .constructDelayedPreparedStatement()
+                .setNextString(structure.getName())
+                .setNextString(worldName)
+                .setNextInt(structure.getMinimum().x())
+                .setNextInt(structure.getMinimum().y())
+                .setNextInt(structure.getMinimum().z())
+                .setNextInt(structure.getMaximum().x())
+                .setNextInt(structure.getMaximum().y())
+                .setNextInt(structure.getMaximum().z())
+                .setNextInt(structure.getRotationPoint().x())
+                .setNextInt(structure.getRotationPoint().y())
+                .setNextInt(structure.getRotationPoint().z())
+                .setNextLong(Util.getChunkId(structure.getRotationPoint()))
+                .setNextInt(structure.getPowerBlock().x())
+                .setNextInt(structure.getPowerBlock().y())
+                .setNextInt(structure.getPowerBlock().z())
+                .setNextLong(Util.getChunkId(structure.getPowerBlock()))
+                .setNextInt(MovementDirection.getValue(structure.getOpenDir()))
+                .setNextLong(getFlag(structure))
+                .setNextString(structureType.getFullName())
+                .setNextInt(structureType.getVersion())
+                .setNextString(typeSpecificData)
+        );
 
         // TODO: Just use the fact that the last-inserted structure has the current UID (that fact is already used by
         //       getTypeSpecificDataInsertStatement(StructureType)), so it can be done in a single statement.
         final long structureUID = executeQuery(
             conn,
-            SQLStatement.SELECT_MOST_RECENT_STRUCTURE.constructDelayedPreparedStatement(),
-            rs -> rs.next() ? rs.getLong("seq") : -1, -1L);
+            SQLStatement.SELECT_MOST_RECENT_STRUCTURE
+                .constructDelayedPreparedStatement(),
+            rs -> rs.next() ? rs.getLong("seq") : -1,
+            -1L
+        );
 
-        executeUpdate(conn, SQLStatement.INSERT_PRIME_OWNER.constructDelayedPreparedStatement()
-            .setString(1, playerData.getUUID().toString()));
+        executeUpdate(
+            conn,
+            SQLStatement.INSERT_PRIME_OWNER
+                .constructDelayedPreparedStatement()
+                .setString(1, playerData.getUUID().toString())
+        );
 
         return structureUID;
     }
@@ -460,7 +503,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
             final long structureUID = executeTransaction(
                 conn -> insert(conn, structure, structure.getType(), typeData),
-                -1L);
+                -1L
+            );
             if (structureUID > 0)
             {
                 return Optional.of(serializer.deserialize(
@@ -479,7 +523,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                         .primeOwner(remapStructureOwner(structure.getPrimeOwner(), structureUID))
                         .ownersOfStructure(remapStructureOwners(structure.getOwners(), structureUID))
                         .build(),
-                    structure.getType().getVersion(), typeData));
+                    structure.getType().getVersion(),
+                    typeData)
+                );
             }
         }
         catch (Exception t)
@@ -490,12 +536,34 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         return Optional.empty();
     }
 
+    /**
+     * Remaps a collection of {@link StructureOwner}s to a new structure UID.
+     *
+     * @param current
+     *     The current owners.
+     * @param newUid
+     *     The new UID.
+     * @return A map of the new structure owners with their UUID as key.
+     */
     static Map<UUID, StructureOwner> remapStructureOwners(Collection<StructureOwner> current, long newUid)
     {
-        return current.stream().map(owner -> remapStructureOwner(owner, newUid))
+        return current
+            .stream()
+            .map(owner -> remapStructureOwner(owner, newUid))
             .collect(Collectors.toMap(owner1 -> owner1.playerData().getUUID(), Function.identity()));
     }
 
+    /**
+     * Remaps a {@link StructureOwner} to a new structure UID.
+     * <p>
+     * All other data is copied as-is.
+     *
+     * @param current
+     *     The current owner.
+     * @param newUid
+     *     The new UID.
+     * @return The new structure owner with the new UID.
+     */
     static StructureOwner remapStructureOwner(StructureOwner current, long newUid)
     {
         return new StructureOwner(newUid, current.permission(), current.playerData());
@@ -539,7 +607,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     @Override
     @Locked.Read
     public List<DatabaseManager.StructureIdentifier> getPartialIdentifiers(
-        String input, @Nullable IPlayer player, PermissionLevel maxPermission)
+        String input,
+        @Nullable IPlayer player,
+        PermissionLevel maxPermission)
     {
         final DelayedPreparedStatement query;
         if (Util.isNumerical(input))
@@ -574,12 +644,16 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     @Locked.Write
     private void insertOrIgnorePlayer(Connection conn, PlayerData playerData)
     {
-        executeUpdate(conn, SQLStatement.INSERT_OR_IGNORE_PLAYER_DATA.constructDelayedPreparedStatement()
-            .setNextString(playerData.getUUID().toString())
-            .setNextString(playerData.getName())
-            .setNextInt(playerData.getStructureSizeLimit())
-            .setNextInt(playerData.getStructureCountLimit())
-            .setNextLong(playerData.getPermissionsFlag()));
+        executeUpdate(
+            conn,
+            SQLStatement.INSERT_OR_IGNORE_PLAYER_DATA
+                .constructDelayedPreparedStatement()
+                .setNextString(playerData.getUUID().toString())
+                .setNextString(playerData.getName())
+                .setNextInt(playerData.getStructureSizeLimit())
+                .setNextInt(playerData.getStructureCountLimit())
+                .setNextLong(playerData.getPermissionsFlag())
+        );
     }
 
     /**
@@ -596,10 +670,14 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     {
         insertOrIgnorePlayer(conn, structureOwner.playerData());
 
-        return executeQuery(conn, SQLStatement.GET_PLAYER_ID
+        return executeQuery(
+            conn,
+            SQLStatement.GET_PLAYER_ID
                 .constructDelayedPreparedStatement()
                 .setString(1, structureOwner.playerData().getUUID().toString()),
-            rs -> rs.next() ? rs.getLong("id") : -1, -1L);
+            rs -> rs.next() ? rs.getLong("id") : -1,
+            -1L
+        );
     }
 
     /**
@@ -652,26 +730,35 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     @Locked.Read
     public Optional<AbstractStructure> getStructure(long structureUID)
     {
-        return executeQuery(SQLStatement.GET_STRUCTURE_BASE_FROM_ID.constructDelayedPreparedStatement()
+        return executeQuery(
+            SQLStatement.GET_STRUCTURE_BASE_FROM_ID
+                .constructDelayedPreparedStatement()
                 .setLong(1, structureUID),
-            this::getStructure, Optional.empty());
+            this::getStructure,
+            Optional.empty()
+        );
     }
 
     @Override
     @Locked.Read
     public Optional<AbstractStructure> getStructure(UUID playerUUID, long structureUID)
     {
-        return executeQuery(SQLStatement.GET_STRUCTURE_BASE_FROM_ID_FOR_PLAYER.constructDelayedPreparedStatement()
+        return executeQuery(
+            SQLStatement.GET_STRUCTURE_BASE_FROM_ID_FOR_PLAYER
+                .constructDelayedPreparedStatement()
                 .setLong(1, structureUID)
                 .setString(2, playerUUID.toString()),
-            this::getStructure, Optional.empty());
+            this::getStructure,
+            Optional.empty()
+        );
     }
 
     @Override
     @Locked.Write
     public boolean removeStructure(long structureUID)
     {
-        return executeUpdate(SQLStatement.DELETE_STRUCTURE.constructDelayedPreparedStatement()
+        return executeUpdate(SQLStatement.DELETE_STRUCTURE
+            .constructDelayedPreparedStatement()
             .setLong(1, structureUID)) > 0;
     }
 
@@ -679,7 +766,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     @Locked.Write
     public boolean removeStructures(UUID playerUUID, String structureName)
     {
-        return executeUpdate(SQLStatement.DELETE_NAMED_STRUCTURE_OF_PLAYER.constructDelayedPreparedStatement()
+        return executeUpdate(SQLStatement.DELETE_NAMED_STRUCTURE_OF_PLAYER
+            .constructDelayedPreparedStatement()
             .setString(1, playerUUID.toString())
             .setString(2, structureName)) > 0;
     }
@@ -688,57 +776,81 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     @Locked.Read
     public boolean isAnimatedArchitectureWorld(String worldName)
     {
-        return executeQuery(SQLStatement.IS_ANIMATE_ARCHITECTURE_WORLD.constructDelayedPreparedStatement()
+        return executeQuery(
+            SQLStatement.IS_ANIMATE_ARCHITECTURE_WORLD
+                .constructDelayedPreparedStatement()
                 .setString(1, worldName),
-            ResultSet::next, false);
+            ResultSet::next,
+            false
+        );
     }
 
     @Override
     @Locked.Read
     public int getStructureCountForPlayer(UUID playerUUID)
     {
-        return executeQuery(SQLStatement.GET_STRUCTURE_COUNT_FOR_PLAYER.constructDelayedPreparedStatement()
+        return executeQuery(
+            SQLStatement.GET_STRUCTURE_COUNT_FOR_PLAYER
+                .constructDelayedPreparedStatement()
                 .setString(1, playerUUID.toString()),
-            resultSet -> resultSet.next() ? resultSet.getInt("total") : -1, -1);
+            resultSet -> resultSet.next() ? resultSet.getInt("total") : -1,
+            -1
+        );
     }
 
     @Override
     @Locked.Read
     public int getStructureCountForPlayer(UUID playerUUID, String structureName)
     {
-        return executeQuery(SQLStatement.GET_PLAYER_STRUCTURE_COUNT.constructDelayedPreparedStatement()
+        return executeQuery(
+            SQLStatement.GET_PLAYER_STRUCTURE_COUNT
+                .constructDelayedPreparedStatement()
                 .setString(1, playerUUID.toString())
                 .setString(2, structureName),
-            resultSet -> resultSet.next() ? resultSet.getInt("total") : -1, -1);
+            resultSet -> resultSet.next() ? resultSet.getInt("total") : -1,
+            -1
+        );
     }
 
     @Override
     @Locked.Read
     public int getStructureCountByName(String structureName)
     {
-        return executeQuery(SQLStatement.GET_STRUCTURE_COUNT_BY_NAME.constructDelayedPreparedStatement()
+        return executeQuery(
+            SQLStatement.GET_STRUCTURE_COUNT_BY_NAME
+                .constructDelayedPreparedStatement()
                 .setString(1, structureName),
-            resultSet -> resultSet.next() ? resultSet.getInt("total") : -1, -1);
+            resultSet -> resultSet.next() ? resultSet.getInt("total") : -1,
+            -1
+        );
     }
 
     @Override
     @Locked.Read
     public int getOwnerCountOfStructure(long structureUID)
     {
-        return executeQuery(SQLStatement.GET_OWNER_COUNT_OF_STRUCTURE.constructDelayedPreparedStatement()
+        return executeQuery(
+            SQLStatement.GET_OWNER_COUNT_OF_STRUCTURE
+                .constructDelayedPreparedStatement()
                 .setLong(1, structureUID),
-            resultSet -> resultSet.next() ? resultSet.getInt("total") : -1, -1);
+            resultSet -> resultSet.next() ? resultSet.getInt("total") : -1,
+            -1
+        );
     }
 
     @Override
     @Locked.Read
     public List<AbstractStructure> getStructures(UUID playerUUID, String structureName, PermissionLevel maxPermission)
     {
-        return executeQuery(SQLStatement.GET_NAMED_STRUCTURES_OWNED_BY_PLAYER.constructDelayedPreparedStatement()
+        return executeQuery(
+            SQLStatement.GET_NAMED_STRUCTURES_OWNED_BY_PLAYER
+                .constructDelayedPreparedStatement()
                 .setString(1, playerUUID.toString())
                 .setString(2, structureName)
                 .setInt(3, maxPermission.getValue()),
-            this::getStructures, Collections.emptyList());
+            this::getStructures,
+            Collections.emptyList()
+        );
     }
 
     @Override
@@ -752,16 +864,22 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     @Locked.Read
     public List<AbstractStructure> getStructures(String name)
     {
-        return executeQuery(SQLStatement.GET_STRUCTURES_WITH_NAME.constructDelayedPreparedStatement()
+        return executeQuery(
+            SQLStatement.GET_STRUCTURES_WITH_NAME
+                .constructDelayedPreparedStatement()
                 .setString(1, name),
-            this::getStructures, Collections.emptyList());
+            this::getStructures,
+            Collections.emptyList()
+        );
     }
 
     @Override
     @Locked.Read
     public List<AbstractStructure> getStructures(UUID playerUUID, PermissionLevel maxPermission)
     {
-        return executeQuery(SQLStatement.GET_STRUCTURES_OWNED_BY_PLAYER_WITH_LEVEL.constructDelayedPreparedStatement()
+        return executeQuery(
+            SQLStatement.GET_STRUCTURES_OWNED_BY_PLAYER_WITH_LEVEL
+                .constructDelayedPreparedStatement()
                 .setString(1, playerUUID.toString())
                 .setInt(2, maxPermission.getValue()),
             this::getStructures, Collections.emptyList());
@@ -803,7 +921,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     @Locked.Write
     public boolean updatePlayerData(PlayerData playerData)
     {
-        return executeUpdate(SQLStatement.UPDATE_PLAYER_DATA.constructDelayedPreparedStatement()
+        return executeUpdate(SQLStatement.UPDATE_PLAYER_DATA
+            .constructDelayedPreparedStatement()
             .setNextString(playerData.getName())
             .setNextInt(playerData.getStructureSizeLimit())
             .setNextInt(playerData.getStructureCountLimit())
@@ -815,16 +934,19 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     @Locked.Read
     public Optional<PlayerData> getPlayerData(UUID uuid)
     {
-        return executeQuery(SQLStatement.GET_PLAYER_DATA.constructDelayedPreparedStatement()
+        return executeQuery(
+            SQLStatement.GET_PLAYER_DATA
+                .constructDelayedPreparedStatement()
                 .setNextString(uuid.toString()),
-            resultSet ->
-                Optional.of(new PlayerData(
-                    uuid,
-                    resultSet.getString("playerName"),
-                    resultSet.getInt("sizeLimit"),
-                    resultSet.getInt("countLimit"),
-                    resultSet.getLong("permissions")
-                )), Optional.empty());
+            resultSet -> Optional.of(new PlayerData(
+                uuid,
+                resultSet.getString("playerName"),
+                resultSet.getInt("sizeLimit"),
+                resultSet.getInt("countLimit"),
+                resultSet.getLong("permissions")
+            )),
+            Optional.empty()
+        );
     }
 
     @Override
@@ -832,7 +954,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     public List<PlayerData> getPlayerData(String playerName)
     {
 
-        return executeQuery(SQLStatement.GET_PLAYER_DATA_FROM_NAME.constructDelayedPreparedStatement()
+        return executeQuery(
+            SQLStatement.GET_PLAYER_DATA_FROM_NAME
+                .constructDelayedPreparedStatement()
                 .setNextString(playerName),
             (resultSet) ->
             {
@@ -845,47 +969,59 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                         resultSet.getInt("countLimit"),
                         resultSet.getLong("permissions")));
                 return playerData;
-            }, Collections.emptyList());
+            },
+            Collections.emptyList()
+        );
     }
 
     @Override
     @Locked.Read
     public Int2ObjectMap<LongList> getPowerBlockData(long chunkId)
     {
-        return executeQuery(SQLStatement.GET_POWER_BLOCK_DATA_IN_CHUNK.constructDelayedPreparedStatement()
+        return executeQuery(
+            SQLStatement.GET_POWER_BLOCK_DATA_IN_CHUNK
+                .constructDelayedPreparedStatement()
                 .setLong(1, chunkId),
             resultSet ->
             {
                 final Int2ObjectMap<LongList> structures = new Int2ObjectLinkedOpenHashMap<>();
                 while (resultSet.next())
                 {
-                    final int locationHash =
-                        Util.simpleChunkSpaceLocationHash(
-                            resultSet.getInt("powerBlockX"),
-                            resultSet.getInt("powerBlockY"),
-                            resultSet.getInt("powerBlockZ"));
+                    final int locationHash = Util.simpleChunkSpaceLocationHash(
+                        resultSet.getInt("powerBlockX"),
+                        resultSet.getInt("powerBlockY"),
+                        resultSet.getInt("powerBlockZ")
+                    );
+
                     if (!structures.containsKey(locationHash))
                         structures.put(locationHash, new LongArrayList());
                     structures.get(locationHash).add(resultSet.getLong("id"));
                 }
                 return Int2ObjectMaps.unmodifiable(structures);
-            }, Int2ObjectMaps.emptyMap());
+            },
+            Int2ObjectMaps.emptyMap()
+        );
     }
 
     @Override
     @Locked.Read
     public List<AbstractStructure> getStructuresInChunk(long chunkId)
     {
-        return executeQuery(SQLStatement.GET_STRUCTURES_IN_CHUNK.constructDelayedPreparedStatement()
+        return executeQuery(
+            SQLStatement.GET_STRUCTURES_IN_CHUNK
+                .constructDelayedPreparedStatement()
                 .setLong(1, chunkId),
-            this::getStructures, new ArrayList<>(0));
+            this::getStructures,
+            new ArrayList<>(0)
+        );
     }
 
     @Override
     @Locked.Write
     public boolean removeOwner(long structureUID, UUID playerUUID)
     {
-        return executeUpdate(SQLStatement.REMOVE_STRUCTURE_OWNER.constructDelayedPreparedStatement()
+        return executeUpdate(SQLStatement.REMOVE_STRUCTURE_OWNER
+            .constructDelayedPreparedStatement()
             .setString(1, playerUUID.toString())
             .setLong(2, structureUID)) > 0;
     }
@@ -893,7 +1029,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     @Locked.Read
     private Map<UUID, StructureOwner> getOwnersOfStructure(long structureUID)
     {
-        return executeQuery(SQLStatement.GET_STRUCTURE_OWNERS.constructDelayedPreparedStatement()
+        return executeQuery(
+            SQLStatement.GET_STRUCTURE_OWNERS
+                .constructDelayedPreparedStatement()
                 .setLong(1, structureUID),
             resultSet ->
             {
@@ -909,14 +1047,19 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                             resultSet.getInt("countLimit"),
                             resultSet.getLong("permissions"));
 
-                    ret.put(uuid, new StructureOwner(
-                        resultSet.getLong("structureUID"),
-                        Objects.requireNonNull(
-                            PermissionLevel.fromValue(resultSet.getInt("permission"))),
-                        playerData));
+
+                    ret.put(
+                        uuid,
+                        new StructureOwner(
+                            resultSet.getLong("structureUID"),
+                            Objects.requireNonNull(PermissionLevel.fromValue(resultSet.getInt("permission"))),
+                            playerData)
+                    );
                 }
                 return ret;
-            }, new HashMap<>(0));
+            },
+            new HashMap<>(0)
+        );
     }
 
     @Override
@@ -926,8 +1069,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         // permission level 0 is reserved for the creator, and negative values are not allowed.
         if (permission.getValue() < 1 || permission == PermissionLevel.NO_PERMISSION)
         {
-            log.atInfo().withStackTrace(StackSize.FULL)
-                .log("Cannot add co-owner with permission level %d", permission.getValue());
+            log.atInfo().withStackTrace(StackSize.FULL).log(
+                "Cannot add co-owner with permission level %d", permission.getValue());
             return false;
         }
 
@@ -936,8 +1079,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             {
                 final long playerID = getPlayerID(
                     conn,
-                    new StructureOwner(structureUID, permission,
-                        player.getPlayerData()));
+                    new StructureOwner(structureUID, permission, player.getPlayerData())
+                );
 
                 if (playerID == -1)
                     throw new IllegalArgumentException(
@@ -945,7 +1088,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                             ", but that player is not registered in the database! Aborting...");
 
                 return executeQuery(
-                    conn, SQLStatement.GET_STRUCTURE_OWNER_PLAYER.constructDelayedPreparedStatement()
+                    conn,
+                    SQLStatement.GET_STRUCTURE_OWNER_PLAYER
+                        .constructDelayedPreparedStatement()
                         .setLong(1, playerID)
                         .setLong(2, structureUID),
                     rs ->
@@ -955,14 +1100,19 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                                 SQLStatement.UPDATE_STRUCTURE_OWNER_PERMISSION :
                                 SQLStatement.INSERT_STRUCTURE_OWNER;
 
-                        return
-                            executeUpdate(conn, statement
+                        return executeUpdate(
+                            conn,
+                            statement
                                 .constructDelayedPreparedStatement()
                                 .setInt(1, permission.getValue())
                                 .setLong(2, playerID)
                                 .setLong(3, structureUID)) > 0;
-                    }, false);
-            }, false);
+                    },
+                    false
+                );
+            },
+            false
+        );
     }
 
     /**
@@ -978,8 +1128,13 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     @Locked.Read
     private int verifyDatabaseVersion(Connection conn)
     {
-        final int dbVersion = executeQuery(conn, new DelayedPreparedStatement("PRAGMA user_version;"),
-            rs -> rs.getInt(1), -1);
+        final int dbVersion = executeQuery(
+            conn,
+            new DelayedPreparedStatement("PRAGMA user_version;"),
+            rs -> rs.getInt(1),
+            -1
+        );
+
         if (dbVersion == -1)
         {
             log.atSevere().log("Failed to obtain database version!");
@@ -989,16 +1144,20 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
         if (dbVersion > DATABASE_VERSION)
         {
-            log.atSevere()
-                .log("Trying to load database version %s while the maximum allowed version is %s",
-                    dbVersion, DATABASE_VERSION);
+            log.atSevere().log(
+                "Trying to load database version %s while the maximum allowed version is %s",
+                dbVersion,
+                DATABASE_VERSION
+            );
             databaseState = DatabaseState.TOO_NEW;
         }
         else if (dbVersion < MIN_DATABASE_VERSION)
         {
-            log.atSevere()
-                .log("Trying to load database version %s while the minimum allowed version is %s",
-                    dbVersion, MIN_DATABASE_VERSION);
+            log.atSevere().log(
+                "Trying to load database version %s while the minimum allowed version is %s",
+                dbVersion,
+                MIN_DATABASE_VERSION
+            );
             databaseState = DatabaseState.TOO_OLD;
         }
         else if (dbVersion < DATABASE_VERSION)
@@ -1022,8 +1181,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         {
             if (conn == null)
             {
-                log.atSevere().withStackTrace(StackSize.FULL)
-                    .log("Failed to upgrade database: Connection unavailable!");
+                log.atSevere().withStackTrace(StackSize.FULL).log(
+                    "Failed to upgrade database: Connection unavailable!");
                 databaseState = DatabaseState.ERROR;
                 return;
             }
@@ -1064,8 +1223,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         }
         catch (IOException e)
         {
-            log.atSevere().withCause(e)
-                .log("Failed to create backup of the database! Database upgrade aborted and access is disabled!");
+            log.atSevere().withCause(e).log(
+                "Failed to create backup of the database! Database upgrade aborted and access is disabled!");
             return false;
         }
         return true;
@@ -1192,8 +1351,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             }
             catch (SQLException ex)
             {
-                log.atSevere().withCause(ex)
-                    .log("Failed to get generated key for statement: %s", delayedPreparedStatement);
+                log.atSevere().withCause(ex).log(
+                    "Failed to get generated key for statement: %s", delayedPreparedStatement);
             }
         }
         catch (SQLException e)
@@ -1219,7 +1378,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     @Locked.Read
     @Contract(" _, _, !null -> !null;")
     private @Nullable <T> T executeQuery(
-        DelayedPreparedStatement query, CheckedFunction<ResultSet, T, Exception> fun, @Nullable T fallback)
+        DelayedPreparedStatement query,
+        CheckedFunction<ResultSet, T, Exception> fun,
+        @Nullable T fallback)
     {
         try (@Nullable Connection conn = getConnection())
         {
@@ -1255,7 +1416,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     @SuppressWarnings("unused")
     @Contract(" _, _, !null -> !null;")
     private @Nullable <T> T executeBatchQuery(
-        DelayedPreparedStatement query, CheckedFunction<ResultSet, T, Exception> fun, @Nullable T fallback)
+        DelayedPreparedStatement query,
+        CheckedFunction<ResultSet, T, Exception> fun,
+        @Nullable T fallback)
     {
         try (@Nullable Connection conn = getConnection())
         {
@@ -1304,7 +1467,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         logStatement(delayedPreparedStatement);
         try (
             PreparedStatement ps = delayedPreparedStatement.construct(conn);
-            ResultSet rs = ps.executeQuery())
+            ResultSet rs = ps.executeQuery(
+            ))
         {
             return fun.apply(rs);
         }
@@ -1350,7 +1514,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     @Locked.Read
     @Contract(" _, !null, _ -> !null")
     private @Nullable <T> T execute(
-        CheckedFunction<Connection, T, Exception> fun, @Nullable T fallback,
+        CheckedFunction<Connection, T, Exception> fun,
+        @Nullable T fallback,
         FailureAction failureAction)
     {
         try (@Nullable Connection conn = getConnection())
@@ -1359,8 +1524,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             {
                 if (conn == null)
                 {
-                    log.atSevere().withStackTrace(StackSize.FULL)
-                        .log("Failed to execute function: Connection is null!");
+                    log.atSevere().withStackTrace(StackSize.FULL).log(
+                        "Failed to execute function: Connection is null!");
                     return fallback;
                 }
                 return fun.apply(conn);

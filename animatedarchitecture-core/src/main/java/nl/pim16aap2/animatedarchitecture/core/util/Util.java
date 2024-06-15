@@ -491,7 +491,9 @@ public final class Util
     }
 
     public static boolean hasPermissionForAction(
-        IPlayer player, IStructureConst structure, StructureAttribute attribute)
+        IPlayer player,
+        IStructureConst structure,
+        StructureAttribute attribute)
     {
         return hasPermissionForAction(player.getUUID(), structure, attribute);
     }

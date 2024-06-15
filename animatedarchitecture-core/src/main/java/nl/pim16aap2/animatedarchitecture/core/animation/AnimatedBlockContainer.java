@@ -37,7 +37,8 @@ public class AnimatedBlockContainer implements IAnimatedBlockContainer
      * The (unmodifiable) list of animated blocks.
      */
     @Getter
-    @ToString.Include @EqualsAndHashCode.Include
+    @ToString.Include
+    @EqualsAndHashCode.Include
     private final List<IAnimatedBlock> animatedBlocks;
 
     @Getter
@@ -103,9 +104,7 @@ public class AnimatedBlockContainer implements IAnimatedBlockContainer
         catch (Exception e)
         {
             log.atSevere().withCause(e).log(
-                "Failed to create animated blocks at position: [%s, %s, %s]",
-                posX, posY, posZ
-            );
+                "Failed to create animated blocks at position: [%s, %s, %s]", posX, posY, posZ);
             this.privateAnimatedBlocks.addAll(animatedBlocksTmp);
             return false;
         }

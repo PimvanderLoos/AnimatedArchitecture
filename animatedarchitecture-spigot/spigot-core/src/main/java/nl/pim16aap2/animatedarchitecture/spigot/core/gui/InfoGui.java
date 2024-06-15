@@ -138,8 +138,7 @@ class InfoGui implements IGuiPage
         final GuiElementGroup group = new GuiElementGroup('g');
         for (final StructureAttribute attribute : allowedAttributes)
         {
-            final GuiElement element =
-                attributeButtonFactory.of(attribute, structure, inventoryHolder, 'g');
+            final GuiElement element = attributeButtonFactory.of(attribute, structure, inventoryHolder, 'g');
             attributeElements.put(attribute, element);
             group.addElement(element);
         }
@@ -158,17 +157,23 @@ class InfoGui implements IGuiPage
     }
 
     static List<StructureAttribute> analyzeAttributes(
-        StructureOwner structureOwner, PlayerSpigot player, IPermissionsManager permissionsManager)
+        StructureOwner structureOwner,
+        PlayerSpigot player,
+        IPermissionsManager permissionsManager)
     {
         final PermissionLevel perm = structureOwner.permission();
-        return StructureAttribute.getValues().stream()
+        return StructureAttribute
+            .getValues()
+            .stream()
             .filter(attr -> hasAccessToAttribute(player, attr, perm, permissionsManager))
             .filter(attr -> attr != StructureAttribute.SWITCH)
             .toList();
     }
 
     private static boolean hasAccessToAttribute(
-        PlayerSpigot player, StructureAttribute attribute, PermissionLevel permissionLevel,
+        PlayerSpigot player,
+        StructureAttribute attribute,
+        PermissionLevel permissionLevel,
         IPermissionsManager permissionsManager)
     {
         return attribute.canAccessWith(permissionLevel) ||

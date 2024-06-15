@@ -110,16 +110,16 @@ public class HighlightedBlockSpawnerSpigot extends HighlightedBlockSpawner imple
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
         {
-            log.atSevere().withStackTrace(StackSize.FULL)
-                .log("Player %s does not appear to be online! They will not receive any GlowingBlock packets!", player);
+            log.atSevere().withStackTrace(StackSize.FULL).log(
+                "Player %s does not appear to be online! They will not receive any GlowingBlock packets!", player);
             return Optional.empty();
         }
 
         final @Nullable World spigotWorld = SpigotAdapter.getBukkitWorld(world);
         if (spigotWorld == null)
         {
-            log.atSevere().withStackTrace(StackSize.FULL)
-                .log("World %s does not appear to be online! No Glowing Blocks can be spawned here!", world);
+            log.atSevere().withStackTrace(StackSize.FULL).log(
+                "World %s does not appear to be online! No Glowing Blocks can be spawned here!", world);
             return Optional.empty();
         }
 

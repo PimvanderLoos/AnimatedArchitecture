@@ -170,7 +170,9 @@ public class Toggle extends BaseCommand
     }
 
     private CompletableFuture<Void> handleStructureRequest(
-        StructureRetriever structureRetriever, StructureActionCause cause, boolean hasBypassPermission)
+        StructureRetriever structureRetriever,
+        StructureActionCause cause,
+        boolean hasBypassPermission)
     {
         return getStructure(structureRetriever, StructureAttribute.TOGGLE.getPermissionLevel())
             .thenAccept(structureOpt ->

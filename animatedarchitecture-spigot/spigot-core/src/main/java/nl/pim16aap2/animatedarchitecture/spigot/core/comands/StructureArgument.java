@@ -118,7 +118,9 @@ public class StructureArgument extends CommandArgument<ICommandSender, Structure
          * @return The suggestions.
          */
         private List<String> getAsyncSuggestions(
-            CommandContext<ICommandSender> commandContext, String input, StructureFinder search)
+            CommandContext<ICommandSender> commandContext,
+            String input,
+            StructureFinder search)
         {
             executor.assertNotMainThread("Async suggestions cannot be retrieved on the main thread!");
 

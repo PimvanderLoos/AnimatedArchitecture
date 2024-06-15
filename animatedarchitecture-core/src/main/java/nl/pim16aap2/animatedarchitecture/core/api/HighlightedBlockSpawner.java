@@ -34,11 +34,22 @@ public abstract class HighlightedBlockSpawner
         Color color)
     {
         return spawnHighlightedBlock(
-            player, world, duration, new RotatedPosition(position, new Vector3Dd(0, 0, 0)), color);
+            player,
+            world,
+            duration,
+            new RotatedPosition(position, new Vector3Dd(0, 0, 0)),
+            color
+        );
     }
 
     private Optional<IHighlightedBlock> spawnHighlightedBlock(
-        IPlayer player, IWorld world, @Nullable Duration duration, double x, double y, double z, Color color)
+        IPlayer player,
+        IWorld world,
+        @Nullable Duration duration,
+        double x,
+        double y,
+        double z,
+        Color color)
     {
         return spawnHighlightedBlock(player, world, duration, new Vector3Dd(x, y, z), color);
     }

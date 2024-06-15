@@ -43,7 +43,8 @@ public class StructureTypeParser implements ArgumentParser<ICommandSender, Struc
 
     @Override
     public ArgumentParseResult<StructureType> parse(
-        CommandContext<ICommandSender> commandContext, Queue<String> inputQueue)
+        CommandContext<ICommandSender> commandContext,
+        Queue<String> inputQueue)
     {
         final @Nullable String input = inputQueue.peek();
         final @Nullable StructureType structureTypeType =

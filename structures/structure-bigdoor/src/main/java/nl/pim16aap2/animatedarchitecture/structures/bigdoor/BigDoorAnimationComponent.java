@@ -36,8 +36,8 @@ public class BigDoorAnimationComponent implements IAnimationComponent
 
         resultAngle =
             movementDirection == MovementDirection.CLOCKWISE ? quarterCircles * MathUtil.HALF_PI :
-            movementDirection == MovementDirection.COUNTERCLOCKWISE ? quarterCircles * -MathUtil.HALF_PI :
-            0.0D;
+                movementDirection == MovementDirection.COUNTERCLOCKWISE ? quarterCircles * -MathUtil.HALF_PI :
+                    0.0D;
 
         if (resultAngle == 0.0D)
             log.atSevere().log(
@@ -108,7 +108,11 @@ public class BigDoorAnimationComponent implements IAnimationComponent
     }
 
     private RotatedPosition getGoalPos(
-        IAnimatedBlock animatedBlock, @Nullable Vector3Dd localRotation, double angle, double cos, double sin)
+        IAnimatedBlock animatedBlock,
+        @Nullable Vector3Dd localRotation,
+        double angle,
+        double cos,
+        double sin)
     {
         return getGoalPos(
             localRotation,

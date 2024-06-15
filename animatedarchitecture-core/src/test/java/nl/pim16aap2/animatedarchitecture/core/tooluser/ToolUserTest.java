@@ -140,17 +140,20 @@ public class ToolUserTest
 
         final var steps = List.of(
             createStep(
-                stepFactory, "step_1",
+                stepFactory,
+                "step_1",
                 new AsyncStepExecutor<>(Integer.class, ignored ->
                 {
                     sleep(500);
                     return toolUser.appendValueAsync(1);
                 })),
             createStep(
-                stepFactory, "step_2",
+                stepFactory,
+                "step_2",
                 new AsyncStepExecutor<>(Integer.class, ignored -> toolUser.appendValueAsync(2))),
             createStep(
-                stepFactory, "step_3",
+                stepFactory,
+                "step_3",
                 new AsyncStepExecutor<>(Integer.class, ignored -> toolUser.appendValueAsync(3)))
         );
 

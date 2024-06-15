@@ -193,7 +193,8 @@ public final class CommandManager
     }
 
     private void initCmdHelp(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         final MinecraftHelp<ICommandSender> minecraftHelp = new MinecraftHelp<>(
             "/animatedarchitecture help",
@@ -210,7 +211,10 @@ public final class CommandManager
     }
 
     private Command.Builder<ICommandSender> baseInit(
-        Command.Builder<ICommandSender> builder, String name, CommandDefinition cmd, String descriptionKey)
+        Command.Builder<ICommandSender> builder,
+        String name,
+        CommandDefinition cmd,
+        String descriptionKey)
     {
         return builder.literal(name.replace("_", "").toLowerCase(Locale.ROOT))
             .permission(cmd.getLowestPermission())
@@ -218,13 +222,16 @@ public final class CommandManager
     }
 
     private Command.Builder<ICommandSender> baseInit(
-        Command.Builder<ICommandSender> builder, CommandDefinition cmd, String descriptionKey)
+        Command.Builder<ICommandSender> builder,
+        CommandDefinition cmd,
+        String descriptionKey)
     {
         return baseInit(builder, cmd.getName(), cmd, descriptionKey);
     }
 
     private void initCmdAddOwner(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.ADD_OWNER, "commands.add_owner.description")
@@ -245,7 +252,8 @@ public final class CommandManager
     }
 
     private void initCmdCancel(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.CANCEL, "commands.cancel.description")
@@ -254,7 +262,8 @@ public final class CommandManager
     }
 
     private void initCmdConfirm(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.CONFIRM, "commands.confirm.description")
@@ -263,7 +272,8 @@ public final class CommandManager
     }
 
     private void initCmdDebug(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.DEBUG, "commands.debug.description")
@@ -272,7 +282,8 @@ public final class CommandManager
     }
 
     private void initCmdDelete(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.DELETE, "commands.delete.description")
@@ -282,7 +293,8 @@ public final class CommandManager
     }
 
     private void initCmdInfo(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.INFO, "commands.info.description")
@@ -292,7 +304,8 @@ public final class CommandManager
     }
 
     private void initCmdInspectPowerBlock(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.INSPECT_POWER_BLOCK, "commands.inspect_power_block.description")
@@ -301,7 +314,8 @@ public final class CommandManager
     }
 
     private void initCmdListStructures(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.LIST_STRUCTURES, "commands.list_structures.description")
@@ -311,7 +325,8 @@ public final class CommandManager
     }
 
     private void initCmdLock(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.LOCK, "commands.lock.description")
@@ -323,7 +338,8 @@ public final class CommandManager
     }
 
     private void initCmdMenu(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.MENU, "commands.menu.description")
@@ -333,7 +349,8 @@ public final class CommandManager
     }
 
     private void initCmdMovePowerBlock(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.MOVE_POWER_BLOCK, "commands.move_power_block.description")
@@ -343,7 +360,8 @@ public final class CommandManager
     }
 
     private void initCmdNewStructure(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.NEW_STRUCTURE, "commands.new_structure.description")
@@ -368,7 +386,8 @@ public final class CommandManager
     }
 
     private void initCmdRemoveOwner(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.REMOVE_OWNER, "commands.remove_owner.description")
@@ -379,7 +398,8 @@ public final class CommandManager
     }
 
     private void initCmdRestart(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.RESTART, "commands.restart.description")
@@ -388,7 +408,8 @@ public final class CommandManager
     }
 
     private void initCmdSetBlocksToMove(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.SET_BLOCKS_TO_MOVE, "commands.set_blocks_to_move.description")
@@ -399,7 +420,8 @@ public final class CommandManager
     }
 
     private void initCmdSetName(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.SET_NAME, "commands.set_name.description")
@@ -409,7 +431,8 @@ public final class CommandManager
     }
 
     private void initCmdSetOpenStatus(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.SET_OPEN_STATUS, "commands.set_open_status.description")
@@ -421,7 +444,8 @@ public final class CommandManager
     }
 
     private void initCmdSetOpenDirection(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.SET_OPEN_DIRECTION, "commands.set_open_direction.description")
@@ -433,7 +457,8 @@ public final class CommandManager
     }
 
     private void initCmdSpecify(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.SPECIFY, "commands.specify.description")
@@ -443,7 +468,8 @@ public final class CommandManager
     }
 
     private void initCmdStopStructures(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.STOP_STRUCTURES, "commands.stop_structures.description")
@@ -452,7 +478,8 @@ public final class CommandManager
     }
 
     private void initCmdToggle(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.TOGGLE, "commands.toggle.description")
@@ -462,7 +489,8 @@ public final class CommandManager
     }
 
     private void initCmdOpen(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, "open", CommandDefinition.TOGGLE, "commands.open.description")
@@ -472,7 +500,8 @@ public final class CommandManager
     }
 
     private void initCmdClose(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, "close", CommandDefinition.TOGGLE, "commands.close.description")
@@ -482,7 +511,8 @@ public final class CommandManager
     }
 
     private void initCmdPreview(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         final CommandDefinition previewDefinition =
             new CommandDefinition(
@@ -498,7 +528,8 @@ public final class CommandManager
     }
 
     private void initCmdVersion(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             baseInit(builder, CommandDefinition.VERSION, "commands.version.description")
@@ -507,7 +538,8 @@ public final class CommandManager
     }
 
     private void initCmdUpdateCreator(
-        BukkitCommandManager<ICommandSender> manager, Command.Builder<ICommandSender> builder)
+        BukkitCommandManager<ICommandSender> manager,
+        Command.Builder<ICommandSender> builder)
     {
         manager.command(
             builder.literal(CommandDefinition.UPDATE_CREATOR.getName().replace("_", "").toLowerCase(Locale.ROOT))
@@ -520,7 +552,8 @@ public final class CommandManager
     }
 
     private StructureArgument.StructureArgumentBuilder defaultStructureArgument(
-        boolean required, StructureAttribute structureAttribute)
+        boolean required,
+        StructureAttribute structureAttribute)
     {
         return StructureArgument.builder().required(required).name("structureRetriever")
             .asyncSuggestions(asyncCompletions).executor(executor)

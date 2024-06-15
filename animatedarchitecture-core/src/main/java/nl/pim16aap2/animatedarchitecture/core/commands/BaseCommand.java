@@ -74,7 +74,9 @@ public abstract class BaseCommand
      * @return True if the command sender has access to the provided attribute for the given structure.
      */
     protected boolean hasAccessToAttribute(
-        AbstractStructure door, StructureAttribute doorAttribute, boolean hasBypassPermission)
+        AbstractStructure door,
+        StructureAttribute doorAttribute,
+        boolean hasBypassPermission)
     {
         if (hasBypassPermission || !commandSender.isPlayer())
             return true;
@@ -218,9 +220,11 @@ public abstract class BaseCommand
      * @return The {@link AbstractStructure} if one could be retrieved.
      */
     protected CompletableFuture<Optional<AbstractStructure>> getStructure(
-        StructureRetriever doorRetriever, PermissionLevel permissionLevel)
+        StructureRetriever doorRetriever,
+        PermissionLevel permissionLevel)
     {
-        return commandSender.getPlayer()
+        return commandSender
+            .getPlayer()
             .map(player -> doorRetriever.getStructureInteractive(player, permissionLevel))
             .orElseGet(doorRetriever::getStructure)
             .thenApplyAsync(structure ->

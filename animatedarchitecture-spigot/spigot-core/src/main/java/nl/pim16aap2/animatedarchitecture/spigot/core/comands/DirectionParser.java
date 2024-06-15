@@ -58,7 +58,8 @@ public class DirectionParser implements ArgumentParser<ICommandSender, MovementD
 
     @Override
     public ArgumentParseResult<MovementDirection> parse(
-        CommandContext<ICommandSender> commandContext, Queue<String> inputQueue)
+        CommandContext<ICommandSender> commandContext,
+        Queue<String> inputQueue)
     {
         final @Nullable String input = inputQueue.peek();
         final @Nullable MovementDirection direction =
