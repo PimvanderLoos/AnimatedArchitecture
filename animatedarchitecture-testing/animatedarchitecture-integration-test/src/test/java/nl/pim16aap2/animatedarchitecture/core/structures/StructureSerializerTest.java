@@ -201,8 +201,8 @@ class StructureSerializerTest
                 1,
                 Map.of(
                     "testName", "testName",
-                    "isCoolType", false)
-            ));
+                    "isCoolType", false))
+        );
     }
 
     @Test

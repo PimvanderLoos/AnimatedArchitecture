@@ -54,7 +54,8 @@ public class LimitsManager
         final OptionalInt playerLimit = filterNegative(
             player.isOnline() ?
                 permissionsManager.getMaxPermissionSuffix(player, limit.getUserPermission()) :
-                player.getLimit(limit));
+                player.getLimit(limit)
+        );
 
         if (globalLimit.isPresent() && playerLimit.isPresent())
             return OptionalInt.of(Math.min(globalLimit.getAsInt(), playerLimit.getAsInt()));

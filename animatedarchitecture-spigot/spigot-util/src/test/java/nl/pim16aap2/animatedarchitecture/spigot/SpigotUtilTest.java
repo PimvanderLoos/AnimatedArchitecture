@@ -30,31 +30,55 @@ class SpigotUtilTest
     @Test
     void getPermissionSuffixValue()
     {
-        Assertions.assertEquals(OptionalInt.of(1), SpigotUtil.getPermissionSuffixValue(
-            "animatedarchitecture.test.1",
-            "animatedarchitecture.test."));
-        Assertions.assertEquals(OptionalInt.of(10), SpigotUtil.getPermissionSuffixValue(
-            "animatedarchitecture.test.10",
-            "animatedarchitecture.test."));
-        Assertions.assertEquals(OptionalInt.of(10), SpigotUtil.getPermissionSuffixValue(
-            "animatedarchitecture.test.10",
-            "animatedarchitecture.test"));
-        Assertions.assertEquals(OptionalInt.of(-1), SpigotUtil.getPermissionSuffixValue(
-            "animatedarchitecture.test.-1",
-            "animatedarchitecture.test"));
+        Assertions.assertEquals(
+            OptionalInt.of(1),
+            SpigotUtil.getPermissionSuffixValue(
+                "animatedarchitecture.test.1",
+                "animatedarchitecture.test.")
+        );
+        Assertions.assertEquals(
+            OptionalInt.of(10),
+            SpigotUtil.getPermissionSuffixValue(
+                "animatedarchitecture.test.10",
+                "animatedarchitecture.test.")
+        );
+        Assertions.assertEquals(
+            OptionalInt.of(10),
+            SpigotUtil.getPermissionSuffixValue(
+                "animatedarchitecture.test.10",
+                "animatedarchitecture.test")
+        );
+        Assertions.assertEquals(
+            OptionalInt.of(-1),
+            SpigotUtil.getPermissionSuffixValue(
+                "animatedarchitecture.test.-1",
+                "animatedarchitecture.test")
+        );
 
-        Assertions.assertEquals(OptionalInt.empty(), SpigotUtil.getPermissionSuffixValue(
-            "animatedarchitecture.not.1",
-            "animatedarchitecture.test."));
-        Assertions.assertEquals(OptionalInt.empty(), SpigotUtil.getPermissionSuffixValue(
-            "animatedarchitecture.not.1",
-            "animatedarchitecture.test."));
-        Assertions.assertEquals(OptionalInt.empty(), SpigotUtil.getPermissionSuffixValue(
-            "animatedarchitecture.test.",
-            "animatedarchitecture.test."));
-        Assertions.assertEquals(OptionalInt.empty(), SpigotUtil.getPermissionSuffixValue(
-            "animatedarchitecture.test.abc",
-            "animatedarchitecture.test."));
+        Assertions.assertEquals(
+            OptionalInt.empty(),
+            SpigotUtil.getPermissionSuffixValue(
+                "animatedarchitecture.not.1",
+                "animatedarchitecture.test.")
+        );
+        Assertions.assertEquals(
+            OptionalInt.empty(),
+            SpigotUtil.getPermissionSuffixValue(
+                "animatedarchitecture.not.1",
+                "animatedarchitecture.test.")
+        );
+        Assertions.assertEquals(
+            OptionalInt.empty(),
+            SpigotUtil.getPermissionSuffixValue(
+                "animatedarchitecture.test.",
+                "animatedarchitecture.test.")
+        );
+        Assertions.assertEquals(
+            OptionalInt.empty(),
+            SpigotUtil.getPermissionSuffixValue(
+                "animatedarchitecture.test.abc",
+                "animatedarchitecture.test.")
+        );
     }
 
     @Test
@@ -65,10 +89,13 @@ class SpigotUtilTest
             "animatedarchitecture.test.10",
             "animatedarchitecture.test.5",
             "animatedarchitecture.test.abc",
-            "animatedarchitecture.not_a_test.999");
+            "animatedarchitecture.not_a_test.999"
+        );
 
-        Assertions.assertEquals(OptionalInt.of(10),
-            SpigotUtil.getHighestPermissionSuffix(player, "animatedarchitecture.test."));
+        Assertions.assertEquals(
+            OptionalInt.of(10),
+            SpigotUtil.getHighestPermissionSuffix(player, "animatedarchitecture.test.")
+        );
     }
 
     private static Player initPermissions(String... nodes)

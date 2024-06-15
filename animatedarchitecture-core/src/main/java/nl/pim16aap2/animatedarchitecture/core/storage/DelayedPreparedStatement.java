@@ -182,9 +182,11 @@ public class DelayedPreparedStatement
      * <p>
      * The index used is simply the one following from the previous set action.
      *
+     * @param obj
+     *     The boolean to set.
      * @return This {@link DelayedPreparedStatement}.
      */
-    public DelayedPreparedStatement setNextBoolean(Boolean obj)
+    public DelayedPreparedStatement setNextBoolean(boolean obj)
     {
         return setBoolean(currentIDX, obj);
     }
@@ -192,9 +194,13 @@ public class DelayedPreparedStatement
     /**
      * See {@link PreparedStatement#setBoolean(int, boolean)}.
      *
+     * @param idx
+     *     The parameter index. The first parameter is 1, the second is 2, ...
+     * @param obj
+     *     The boolean to set.
      * @return This {@link DelayedPreparedStatement}.
      */
-    public DelayedPreparedStatement setBoolean(int idx, Boolean obj)
+    public DelayedPreparedStatement setBoolean(int idx, boolean obj)
     {
         currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action<>(PreparedStatement::setBoolean, idx - skipCount, obj);
@@ -206,9 +212,11 @@ public class DelayedPreparedStatement
      * <p>
      * The index used is simply the one following from the previous set action.
      *
+     * @param obj
+     *     The byte to set.
      * @return This {@link DelayedPreparedStatement}.
      */
-    public DelayedPreparedStatement setNextByte(Byte obj)
+    public DelayedPreparedStatement setNextByte(byte obj)
     {
         return setByte(currentIDX, obj);
     }
@@ -218,7 +226,7 @@ public class DelayedPreparedStatement
      *
      * @return This {@link DelayedPreparedStatement}.
      */
-    public DelayedPreparedStatement setByte(int idx, Byte obj)
+    public DelayedPreparedStatement setByte(int idx, byte obj)
     {
         currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action<>(PreparedStatement::setByte, idx - skipCount, obj);
@@ -230,9 +238,11 @@ public class DelayedPreparedStatement
      * <p>
      * The index used is simply the one following from the previous set action.
      *
+     * @param obj
+     *     The short to set.
      * @return This {@link DelayedPreparedStatement}.
      */
-    public DelayedPreparedStatement setNextShort(Short obj)
+    public DelayedPreparedStatement setNextShort(short obj)
     {
         return setShort(currentIDX, obj);
     }
@@ -240,9 +250,13 @@ public class DelayedPreparedStatement
     /**
      * See {@link PreparedStatement#setShort(int, short)}.
      *
+     * @param idx
+     *     The parameter index. The first parameter is 1, the second is 2, ...
+     * @param obj
+     *     The short to set.
      * @return This {@link DelayedPreparedStatement}.
      */
-    public DelayedPreparedStatement setShort(int idx, Short obj)
+    public DelayedPreparedStatement setShort(int idx, short obj)
     {
         currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action<>(PreparedStatement::setShort, idx - skipCount, obj);
@@ -254,6 +268,8 @@ public class DelayedPreparedStatement
      * <p>
      * The index used is simply the one following from the previous set action.
      *
+     * @param obj
+     *     The int to set.
      * @return This {@link DelayedPreparedStatement}.
      */
     public DelayedPreparedStatement setNextInt(int obj)
@@ -264,6 +280,10 @@ public class DelayedPreparedStatement
     /**
      * See {@link PreparedStatement#setInt(int, int)}.
      *
+     * @param idx
+     *     The parameter index. The first parameter is 1, the second is 2, ...
+     * @param obj
+     *     The int to set.
      * @return This {@link DelayedPreparedStatement}.
      */
     public DelayedPreparedStatement setInt(int idx, int obj)
@@ -278,9 +298,11 @@ public class DelayedPreparedStatement
      * <p>
      * The index used is simply the one following from the previous set action.
      *
+     * @param obj
+     *     The long to set.
      * @return This {@link DelayedPreparedStatement}.
      */
-    public DelayedPreparedStatement setNextLong(Long obj)
+    public DelayedPreparedStatement setNextLong(long obj)
     {
         return setLong(currentIDX, obj);
     }
@@ -288,9 +310,13 @@ public class DelayedPreparedStatement
     /**
      * See {@link PreparedStatement#setLong(int, long)}.
      *
+     * @param idx
+     *     The parameter index. The first parameter is 1, the second is 2, ...
+     * @param obj
+     *     The long to set.
      * @return This {@link DelayedPreparedStatement}.
      */
-    public DelayedPreparedStatement setLong(int idx, Long obj)
+    public DelayedPreparedStatement setLong(int idx, long obj)
     {
         currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action<>(PreparedStatement::setLong, idx - skipCount, obj);
@@ -302,9 +328,11 @@ public class DelayedPreparedStatement
      * <p>
      * The index used is simply the one following from the previous set action.
      *
+     * @param obj
+     *     The float to set.
      * @return This {@link DelayedPreparedStatement}.
      */
-    public DelayedPreparedStatement setNextFloat(Float obj)
+    public DelayedPreparedStatement setNextFloat(float obj)
     {
         return setFloat(currentIDX, obj);
     }
@@ -312,9 +340,13 @@ public class DelayedPreparedStatement
     /**
      * See {@link PreparedStatement#setFloat(int, float)}.
      *
+     * @param idx
+     *     The parameter index. The first parameter is 1, the second is 2, ...
+     * @param obj
+     *     The float to set.
      * @return This {@link DelayedPreparedStatement}.
      */
-    public DelayedPreparedStatement setFloat(int idx, Float obj)
+    public DelayedPreparedStatement setFloat(int idx, float obj)
     {
         currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action<>(PreparedStatement::setFloat, idx - skipCount, obj);
@@ -326,9 +358,11 @@ public class DelayedPreparedStatement
      * <p>
      * The index used is simply the one following from the previous set action.
      *
+     * @param obj
+     *     The double to set.
      * @return This {@link DelayedPreparedStatement}.
      */
-    public DelayedPreparedStatement setNextDouble(Double obj)
+    public DelayedPreparedStatement setNextDouble(double obj)
     {
         return setDouble(currentIDX, obj);
     }
@@ -336,9 +370,13 @@ public class DelayedPreparedStatement
     /**
      * See {@link PreparedStatement#setDouble(int, double)}.
      *
+     * @param idx
+     *     The parameter index. The first parameter is 1, the second is 2, ...
+     * @param obj
+     *     The double to set.
      * @return This {@link DelayedPreparedStatement}.
      */
-    public DelayedPreparedStatement setDouble(int idx, Double obj)
+    public DelayedPreparedStatement setDouble(int idx, double obj)
     {
         currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action<>(PreparedStatement::setDouble, idx - skipCount, obj);
@@ -350,9 +388,11 @@ public class DelayedPreparedStatement
      * <p>
      * The index used is simply the one following from the previous set action.
      *
+     * @param obj
+     *     The BigDecimal to set.
      * @return This {@link DelayedPreparedStatement}.
      */
-    public DelayedPreparedStatement setNextBigDecimal(BigDecimal obj)
+    public DelayedPreparedStatement setNextBigDecimal(@Nullable BigDecimal obj)
     {
         return setBigDecimal(currentIDX, obj);
     }
@@ -360,9 +400,13 @@ public class DelayedPreparedStatement
     /**
      * See {@link PreparedStatement#setBigDecimal(int, BigDecimal)}.
      *
+     * @param idx
+     *     The parameter index. The first parameter is 1, the second is 2, ...
+     * @param obj
+     *     The BigDecimal to set.
      * @return This {@link DelayedPreparedStatement}.
      */
-    public DelayedPreparedStatement setBigDecimal(int idx, BigDecimal obj)
+    public DelayedPreparedStatement setBigDecimal(int idx, @Nullable BigDecimal obj)
     {
         currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action<>(PreparedStatement::setBigDecimal, idx - skipCount, obj);
@@ -374,6 +418,8 @@ public class DelayedPreparedStatement
      * <p>
      * The index used is simply the one following from the previous set action.
      *
+     * @param obj
+     *     The string to set.
      * @return This {@link DelayedPreparedStatement}.
      */
     public DelayedPreparedStatement setNextString(@Nullable String obj)
@@ -384,6 +430,10 @@ public class DelayedPreparedStatement
     /**
      * See {@link PreparedStatement#setString(int, String)}.
      *
+     * @param idx
+     *     The parameter index. The first parameter is 1, the second is 2, ...
+     * @param obj
+     *     The string to set.
      * @return This {@link DelayedPreparedStatement}.
      */
     public DelayedPreparedStatement setString(int idx, @Nullable String obj)
@@ -398,6 +448,8 @@ public class DelayedPreparedStatement
      * <p>
      * The index used is simply the one following from the previous set action.
      *
+     * @param obj
+     *     The bytes to set.
      * @return This {@link DelayedPreparedStatement}.
      */
     public DelayedPreparedStatement setNextBytes(byte[] obj)
@@ -408,6 +460,10 @@ public class DelayedPreparedStatement
     /**
      * See {@link PreparedStatement#setBytes(int, byte[])}.
      *
+     * @param idx
+     *     The parameter index. The first parameter is 1, the second is 2, ...
+     * @param obj
+     *     The bytes to set.
      * @return This {@link DelayedPreparedStatement}.
      */
     public DelayedPreparedStatement setBytes(int idx, byte[] obj)
@@ -422,6 +478,8 @@ public class DelayedPreparedStatement
      * <p>
      * The index used is simply the one following from the previous set action.
      *
+     * @param obj
+     *     The date to set.
      * @return This {@link DelayedPreparedStatement}.
      */
     public DelayedPreparedStatement setNextDate(@Nullable Date obj)
@@ -432,6 +490,10 @@ public class DelayedPreparedStatement
     /**
      * See {@link PreparedStatement#setDate(int, Date)}.
      *
+     * @param idx
+     *     The parameter index. The first parameter is 1, the second is 2, ...
+     * @param obj
+     *     The date to set.
      * @return This {@link DelayedPreparedStatement}.
      */
     public DelayedPreparedStatement setDate(int idx, @Nullable Date obj)
@@ -446,6 +508,8 @@ public class DelayedPreparedStatement
      * <p>
      * The index used is simply the one following from the previous set action.
      *
+     * @param obj
+     *     The time to set.
      * @return This {@link DelayedPreparedStatement}.
      */
     public DelayedPreparedStatement setNextTime(@Nullable Time obj)
@@ -456,6 +520,10 @@ public class DelayedPreparedStatement
     /**
      * See {@link PreparedStatement#setTime(int, Time)}.
      *
+     * @param idx
+     *     The parameter index. The first parameter is 1, the second is 2, ...
+     * @param obj
+     *     The time to set.
      * @return This {@link DelayedPreparedStatement}.
      */
     public DelayedPreparedStatement setTime(int idx, @Nullable Time obj)
@@ -470,6 +538,8 @@ public class DelayedPreparedStatement
      * <p>
      * The index used is simply the one following from the previous set action.
      *
+     * @param obj
+     *     The timestamp to set.
      * @return This {@link DelayedPreparedStatement}.
      */
     public DelayedPreparedStatement setNextTimestamp(@Nullable Timestamp obj)
@@ -480,6 +550,10 @@ public class DelayedPreparedStatement
     /**
      * See {@link PreparedStatement#setTimestamp(int, Timestamp)}.
      *
+     * @param idx
+     *     The parameter index. The first parameter is 1, the second is 2, ...
+     * @param obj
+     *     The timestamp to set.
      * @return This {@link DelayedPreparedStatement}.
      */
     public DelayedPreparedStatement setTimestamp(int idx, @Nullable Timestamp obj)
@@ -494,6 +568,8 @@ public class DelayedPreparedStatement
      * <p>
      * The index used is simply the one following from the previous set action.
      *
+     * @param obj
+     *     The object to set.
      * @param targetSqlType
      *     The SQL type to send to the database as defined in {@link java.sql.Types}.
      * @return This {@link DelayedPreparedStatement}.
@@ -506,12 +582,17 @@ public class DelayedPreparedStatement
     /**
      * See {@link PreparedStatement#setObject(int, Object, int)}.
      *
+     * @param idx
+     *     The parameter index. The first parameter is 1, the second is 2, ...
+     * @param obj
+     *     The object to set.
      * @param targetSqlType
      *     The SQL type to send to the database as defined in {@link java.sql.Types}.
      * @return This {@link DelayedPreparedStatement}.
      */
     public DelayedPreparedStatement setObject(int idx, @Nullable Object obj, int targetSqlType)
     {
+        PreparedStatement x;
         currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action<>(
             (stmt, actionIdx, val) -> stmt.setObject(actionIdx, val, targetSqlType),
@@ -526,6 +607,8 @@ public class DelayedPreparedStatement
      * <p>
      * The index used is simply the one following from the previous set action.
      *
+     * @param sqlType
+     *     The SQL type to send to the database as defined in {@link java.sql.Types}.
      * @return This {@link DelayedPreparedStatement}.
      */
     public DelayedPreparedStatement setNextNull(int sqlType)
@@ -534,8 +617,12 @@ public class DelayedPreparedStatement
     }
 
     /**
-     * See {@link PreparedStatement#setNull(int, int)}
+     * See {@link PreparedStatement#setNull(int, int)}.
      *
+     * @param idx
+     *     The parameter index. The first parameter is 1, the second is 2, ...
+     * @param sqlType
+     *     The SQL type to send to the database as defined in {@link java.sql.Types}.
      * @return This {@link DelayedPreparedStatement}.
      */
     public DelayedPreparedStatement setNull(int idx, int sqlType)
@@ -552,6 +639,12 @@ public class DelayedPreparedStatement
      *
      * @param <T>
      *     The type of the data to set.
+     *     <p>
+     *     This can be any type that can be set in a {@link PreparedStatement} using the appropriate method.
+     * @param fun
+     *     The function that will set the value in the {@link PreparedStatement}.
+     * @param idx
+     *     The index at which the value should be set.
      */
     private record Action<T>(
         CheckedTriConsumer<PreparedStatement, Integer, @Nullable T, SQLException> fun,
