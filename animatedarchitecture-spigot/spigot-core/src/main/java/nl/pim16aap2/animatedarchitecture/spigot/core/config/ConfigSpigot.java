@@ -239,9 +239,12 @@ public final class ConfigSpigot implements IConfig, IDebuggable
         final String maxPowerBlockDistanceComment = String.format(
             """
                 # Global maximum distance between a structure and its powerblock.
-                # The distance is measured from the center of the structure.
                 #
                 # Not even admins and OPs can bypass this limit!
+                #
+                # The distance is measured from the edge of the structure to the power block.
+                # As such, the distance may exceed this limit if the structure moves away
+                # from the power block after creation.
                 #
                 # You can set it to -1 to disable this limit.
                 #

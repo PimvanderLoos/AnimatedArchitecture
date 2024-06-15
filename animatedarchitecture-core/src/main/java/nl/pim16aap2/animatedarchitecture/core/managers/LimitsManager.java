@@ -9,10 +9,14 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.OptionalInt;
 
+/**
+ * Manages the limits of players.
+ * <p>
+ * It checks the global limit, any admin bypass permission, and the player's personal limit.
+ */
 @Singleton
 public class LimitsManager
 {
-
     private final IPermissionsManager permissionsManager;
     private final IConfig config;
 
@@ -50,7 +54,8 @@ public class LimitsManager
         final OptionalInt playerLimit = filterNegative(
             player.isOnline() ?
                 permissionsManager.getMaxPermissionSuffix(player, limit.getUserPermission()) :
-                OptionalInt.of(player.getLimit(limit)));
+                player.getLimit(limit)
+        );
 
         if (globalLimit.isPresent() && playerLimit.isPresent())
             return OptionalInt.of(Math.min(globalLimit.getAsInt(), playerLimit.getAsInt()));
@@ -60,6 +65,14 @@ public class LimitsManager
                 OptionalInt.empty();
     }
 
+    /**
+     * Filters out negative values from the given {@link OptionalInt}.
+     *
+     * @param optionalInt
+     *     The {@link OptionalInt} to filter.
+     * @return The filtered {@link OptionalInt}. If the value was negative, this will return an empty
+     * {@link OptionalInt}. If the value was positive or zero, this will return the original {@link OptionalInt}.
+     */
     private static OptionalInt filterNegative(OptionalInt optionalInt)
     {
         return optionalInt.isPresent() && optionalInt.getAsInt() < 0 ? OptionalInt.empty() : optionalInt;

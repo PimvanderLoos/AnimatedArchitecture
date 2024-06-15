@@ -526,11 +526,11 @@ public class CreatorTest
         allowedByProtectionHooks();
         final var creator = newPowerBlockCreator();
 
-        final ILocation location = UnitTestUtil.getLocation(DEFAULT_MAX.add(10), creator.getWorld());
-        final double distance = DEFAULT_CUBOID.getCenter().getDistance(location.getPosition());
-        final int lowLimit = (int) (distance - 1);
+        final int distance = 10;
+        final ILocation location = UnitTestUtil.getLocation(DEFAULT_MAX.add(distance), creator.getWorld());
+
+        final int lowLimit = distance - 1;
         Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any())).thenReturn(OptionalInt.of(lowLimit));
-        allowedByProtectionHooks();
 
         Assertions.assertFalse(creator.handleInput(location).join());
 
@@ -547,12 +547,11 @@ public class CreatorTest
         allowedByProtectionHooks();
         final var creator = newPowerBlockCreator();
 
-        final Vector3Di position = DEFAULT_MAX.add(10);
-
+        final int distance = 10;
+        final Vector3Di position = DEFAULT_MAX.add(distance);
         final ILocation location = UnitTestUtil.getLocation(position, creator.getWorld());
-        final double distance = DEFAULT_CUBOID.getCenter().getDistance(location.getPosition());
-        final int lowLimit = (int) (distance + 1);
-        Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any())).thenReturn(OptionalInt.of(lowLimit));
+
+        Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any())).thenReturn(OptionalInt.of(distance));
 
         Assertions.assertTrue(creator.handleInput(location).join());
 

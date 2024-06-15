@@ -11,6 +11,7 @@ import lombok.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
+import nl.pim16aap2.animatedarchitecture.core.api.LimitContainer;
 import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
@@ -30,6 +31,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureSerializer;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.IBitFlag;
+import nl.pim16aap2.animatedarchitecture.core.util.Limit;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.functional.CheckedFunction;
@@ -50,6 +52,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -58,6 +61,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -70,7 +74,7 @@ import java.util.stream.Collectors;
 public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 {
     private static final String DRIVER = "org.sqlite.JDBC";
-    private static final int DATABASE_VERSION = 100;
+    private static final int DATABASE_VERSION = 101;
     private static final int MIN_DATABASE_VERSION = 100;
 
     /**
@@ -129,7 +133,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             }
             init();
             log.atFine().log("Database initialized! Current state: %s", databaseState);
-            if (databaseState == DatabaseState.OUT_OF_DATE)
+            if (databaseState == DatabaseState.UPGRADE_REQUIRED)
                 upgrade();
         }
         catch (Exception e)
@@ -278,7 +282,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             // as well and don't set it up.
             if (conn.getMetaData().getTables(null, null, "Structure", new String[]{"TABLE"}).next())
             {
-                databaseState = DatabaseState.OUT_OF_DATE;
+                databaseState = DatabaseState.UPGRADE_REQUIRED;
                 verifyDatabaseVersion(conn);
             }
             else
@@ -384,8 +388,11 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         final PlayerData playerData = new PlayerData(
             UUID.fromString(structureBaseRS.getString("playerUUID")),
             structureBaseRS.getString("playerName"),
-            structureBaseRS.getInt("sizeLimit"),
-            structureBaseRS.getInt("countLimit"),
+            new LimitContainer(
+                getOptionalInt(structureBaseRS, "limitStructureSize"),
+                getOptionalInt(structureBaseRS, "limitStructureCount"),
+                getOptionalInt(structureBaseRS, "limitPowerBlockDistance"),
+                getOptionalInt(structureBaseRS, "limitBlocksToMove")),
             structureBaseRS.getLong("permissions")
         );
 
@@ -397,7 +404,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
         final Map<UUID, StructureOwner> ownersOfStructure = getOwnersOfStructure(structureUID);
         final AbstractStructure.BaseHolder structureData =
-            structureBaseBuilder.builder()
+            structureBaseBuilder
+                .builder()
                 .uid(structureUID)
                 .name(name)
                 .cuboid(new Cuboid(min, max))
@@ -505,6 +513,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 conn -> insert(conn, structure, structure.getType(), typeData),
                 -1L
             );
+
             if (structureUID > 0)
             {
                 return Optional.of(serializer.deserialize(
@@ -638,6 +647,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
         while (resultSet.next())
             ret.add(new DatabaseManager.StructureIdentifier(resultSet.getLong("id"), resultSet.getString("name")));
+
         return ret;
     }
 
@@ -650,8 +660,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 .constructDelayedPreparedStatement()
                 .setNextString(playerData.getUUID().toString())
                 .setNextString(playerData.getName())
-                .setNextInt(playerData.getStructureSizeLimit())
-                .setNextInt(playerData.getStructureCountLimit())
+                .setNextObject(optionalIntToObject(playerData.getLimit(Limit.STRUCTURE_SIZE)), Types.INTEGER)
+                .setNextObject(optionalIntToObject(playerData.getLimit(Limit.STRUCTURE_COUNT)), Types.INTEGER)
+                .setNextObject(optionalIntToObject(playerData.getLimit(Limit.POWERBLOCK_DISTANCE)), Types.INTEGER)
+                .setNextObject(optionalIntToObject(playerData.getLimit(Limit.BLOCKS_TO_MOVE)), Types.INTEGER)
                 .setNextLong(playerData.getPermissionsFlag())
         );
     }
@@ -723,6 +735,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
         while (structureBaseRS.next())
             constructStructure(structureBaseRS).ifPresent(structures::add);
+
         return structures;
     }
 
@@ -882,7 +895,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 .constructDelayedPreparedStatement()
                 .setString(1, playerUUID.toString())
                 .setInt(2, maxPermission.getValue()),
-            this::getStructures, Collections.emptyList());
+            this::getStructures,
+            Collections.emptyList()
+        );
     }
 
     @Override
@@ -901,7 +916,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 .constructDelayedPreparedStatement()
                 .setNextString(typeName),
             this::getStructures,
-            Collections.emptyList());
+            Collections.emptyList()
+        );
     }
 
     @Override
@@ -914,7 +930,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 .setNextInt(version)
                 .setNextString(typeName),
             this::getStructures,
-            Collections.emptyList());
+            Collections.emptyList()
+        );
     }
 
     @Override
@@ -922,12 +939,14 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     public boolean updatePlayerData(PlayerData playerData)
     {
         return executeUpdate(SQLStatement.UPDATE_PLAYER_DATA
-            .constructDelayedPreparedStatement()
-            .setNextString(playerData.getName())
-            .setNextInt(playerData.getStructureSizeLimit())
-            .setNextInt(playerData.getStructureCountLimit())
-            .setNextLong(playerData.getPermissionsFlag())
-            .setNextString(playerData.getUUID().toString())) > 0;
+                .constructDelayedPreparedStatement()
+                .setNextString(playerData.getName())
+                .setNextObject(optionalIntToObject(playerData.getLimit(Limit.STRUCTURE_SIZE)), Types.INTEGER)
+                .setNextObject(optionalIntToObject(playerData.getLimit(Limit.STRUCTURE_COUNT)), Types.INTEGER)
+                .setNextObject(optionalIntToObject(playerData.getLimit(Limit.POWERBLOCK_DISTANCE)), Types.INTEGER)
+                .setNextObject(optionalIntToObject(playerData.getLimit(Limit.BLOCKS_TO_MOVE)), Types.INTEGER)
+                .setNextLong(playerData.getPermissionsFlag())
+                .setNextString(playerData.getUUID().toString())) > 0;
     }
 
     @Override
@@ -941,10 +960,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             resultSet -> Optional.of(new PlayerData(
                 uuid,
                 resultSet.getString("playerName"),
-                resultSet.getInt("sizeLimit"),
-                resultSet.getInt("countLimit"),
-                resultSet.getLong("permissions")
-            )),
+                new LimitContainer(
+                    getOptionalInt(resultSet, "limitStructureSize"),
+                    getOptionalInt(resultSet, "limitStructureCount"),
+                    getOptionalInt(resultSet, "limitPowerBlockDistance"),
+                    getOptionalInt(resultSet, "limitBlocksToMove")),
+                resultSet.getLong("permissions"))),
             Optional.empty()
         );
     }
@@ -965,9 +986,13 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                     playerData.add(new PlayerData(
                         UUID.fromString(resultSet.getString("playerUUID")),
                         playerName,
-                        resultSet.getInt("sizeLimit"),
-                        resultSet.getInt("countLimit"),
-                        resultSet.getLong("permissions")));
+                        new LimitContainer(
+                            getOptionalInt(resultSet, "limitStructureSize"),
+                            getOptionalInt(resultSet, "limitStructureCount"),
+                            getOptionalInt(resultSet, "limitPowerBlockDistance"),
+                            getOptionalInt(resultSet, "limitBlocksToMove")),
+                        resultSet.getLong("permissions"))
+                    );
                 return playerData;
             },
             Collections.emptyList()
@@ -1039,13 +1064,16 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 while (resultSet.next())
                 {
                     final UUID uuid = UUID.fromString(resultSet.getString("playerUUID"));
-                    final PlayerData playerData =
-                        new PlayerData(
-                            uuid,
-                            resultSet.getString("playerName"),
-                            resultSet.getInt("sizeLimit"),
-                            resultSet.getInt("countLimit"),
-                            resultSet.getLong("permissions"));
+                    final PlayerData playerData = new PlayerData(
+                        uuid,
+                        resultSet.getString("playerName"),
+                        new LimitContainer(
+                            getOptionalInt(resultSet, "limitStructureSize"),
+                            getOptionalInt(resultSet, "limitStructureCount"),
+                            getOptionalInt(resultSet, "limitPowerBlockDistance"),
+                            getOptionalInt(resultSet, "limitBlocksToMove")),
+                        resultSet.getLong("permissions")
+                    );
 
 
                     ret.put(
@@ -1079,7 +1107,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             {
                 final long playerID = getPlayerID(
                     conn,
-                    new StructureOwner(structureUID, permission, player.getPlayerData())
+                    new StructureOwner(structureUID, permission, player)
                 );
 
                 if (playerID == -1)
@@ -1158,11 +1186,11 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 dbVersion,
                 MIN_DATABASE_VERSION
             );
-            databaseState = DatabaseState.TOO_OLD;
+            databaseState = DatabaseState.UPGRADE_IMPOSSIBLE;
         }
         else if (dbVersion < DATABASE_VERSION)
         {
-            databaseState = DatabaseState.OUT_OF_DATE;
+            databaseState = DatabaseState.UPGRADE_REQUIRED;
         }
         else
         {
@@ -1177,7 +1205,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     @Locked.Write
     private void upgrade()
     {
-        try (@Nullable Connection conn = getConnection(DatabaseState.OUT_OF_DATE))
+        final int dbVersion;
+        try (@Nullable Connection conn = getConnection(DatabaseState.UPGRADE_REQUIRED))
         {
             if (conn == null)
             {
@@ -1187,21 +1216,156 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 return;
             }
 
-            final int dbVersion = verifyDatabaseVersion(conn);
+            dbVersion = verifyDatabaseVersion(conn);
             log.atFine().log("Upgrading database from version %d to version %d.", dbVersion, DATABASE_VERSION);
 
             if (!makeBackup())
                 return;
+        }
+        catch (Exception e)
+        {
+            log.atSevere().withCause(e).log("Failed to upgrade database!");
+            databaseState = DatabaseState.ERROR;
+            return;
+        }
 
-            if (dbVersion < 11)
-                throw new IllegalStateException("Database version " + dbVersion + " is not supported!");
+        try
+        {
+            if (dbVersion < 101)
+            {
+                log.atInfo().log("Upgrading database to version 101...");
+                upgradeToVersion101();
+            }
+        }
+        catch (SQLException e)
+        {
+            log.atSevere().withCause(e).log(
+                "Failed to upgrade database from version %d to version %d!",
+                dbVersion,
+                DATABASE_VERSION
+            );
+            databaseState = DatabaseState.ERROR;
+            return;
+        }
 
+        try (Connection conn = Objects.requireNonNull(getConnection(DatabaseState.UPGRADE_REQUIRED)))
+        {
             updateDBVersion(conn);
             databaseState = DatabaseState.OK;
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to upgrade database!");
+            log.atSevere().withCause(e).log("Failed to update database version!");
+            databaseState = DatabaseState.ERROR;
+        }
+    }
+
+    /**
+     * Upgrades the database to version 101.
+     *
+     * <p>
+     * Changes:
+     * <ul>
+     *     <li>Added columns:
+     *         <ul>
+     *             <li>limitStructureSize</li>
+     *             <li>limitStructureCount</li>
+     *             <li>limitPowerBlockDistance</li>
+     *             <li>limitBlocksToMove</li>
+     *         </ul>
+     *     </li>
+     *     <li>Removed columns:
+     *         <ul>
+     *             <li>sizeLimit</li>
+     *             <li>countLimit</li>
+     *         </ul>
+     *     </li>
+     * </ul>
+     * <p>
+     * The {@code limitStructureSize} and {@code limitStructureCount} columns are populated with the values from the
+     * {@code sizeLimit} and {@code countLimit} columns, respectively. If the value in the old column is {@code -1}, the
+     * new column is set to {@code null}.
+     *
+     * @throws SQLException
+     *     If an error occurs during the upgrade.
+     */
+    private void upgradeToVersion101()
+        throws SQLException
+    {
+        try (Connection conn = Objects.requireNonNull(getConnection(DatabaseState.UPGRADE_REQUIRED)))
+        {
+            // First add the new columns to the player table:
+            // - `limitStructureSize`
+            // - `limitStructureCount`
+            // - `limitPowerBlockDistance`
+            // - `limitBlocksToMove`
+            executeUpdate(
+                conn,
+                new DelayedPreparedStatement(
+                    "ALTER TABLE players ADD COLUMN limitStructureSize INTEGER DEFAULT NULL;"
+                )
+            );
+            executeUpdate(
+                conn,
+                new DelayedPreparedStatement(
+                    "ALTER TABLE players ADD COLUMN limitStructureCount INTEGER DEFAULT NULL;"
+                )
+            );
+            executeUpdate(
+                conn,
+                new DelayedPreparedStatement(
+                    "ALTER TABLE players ADD COLUMN limitPowerBlockDistance INTEGER DEFAULT NULL;"
+                )
+            );
+            executeUpdate(
+                conn,
+                new DelayedPreparedStatement(
+                    "ALTER TABLE players ADD COLUMN limitBlocksToMove INTEGER DEFAULT NULL;"
+                )
+            );
+
+            // Copy the values from the old columns to the new columns.
+            // `sizeLimit` -> `limitStructureSize`
+            // `countLimit` -> `limitStructureCount`
+            // If the old value is -1, set the new value to null.
+            executeUpdate(
+                conn,
+                new DelayedPreparedStatement("""
+                    UPDATE players
+                    SET limitStructureSize =
+                        CASE WHEN sizeLimit = -1
+                            THEN NULL
+                            ELSE sizeLimit
+                        END;
+                    """
+                )
+            );
+            executeUpdate(
+                conn,
+                new DelayedPreparedStatement("""
+                    UPDATE players
+                    SET limitStructureCount =
+                        CASE WHEN countLimit = -1
+                            THEN NULL
+                            ELSE countLimit
+                        END;
+                    """
+                )
+            );
+
+            // Then drop the old `sizeLimit` and `countLimit` columns.
+            executeUpdate(
+                conn,
+                new DelayedPreparedStatement("ALTER TABLE players DROP COLUMN sizeLimit;")
+            );
+            executeUpdate(
+                conn,
+                new DelayedPreparedStatement("ALTER TABLE players DROP COLUMN countLimit;")
+            );
+        }
+        catch (Exception e)
+        {
+            log.atSevere().withCause(e).log("Failed to upgrade database to version 101!");
             databaseState = DatabaseState.ERROR;
         }
     }
@@ -1467,8 +1631,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         logStatement(delayedPreparedStatement);
         try (
             PreparedStatement ps = delayedPreparedStatement.construct(conn);
-            ResultSet rs = ps.executeQuery(
-            ))
+            ResultSet rs = ps.executeQuery())
         {
             return fun.apply(rs);
         }
@@ -1532,14 +1695,18 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             }
             catch (Exception e)
             {
+                log.atSevere().withCause(e).log(
+                    "Failed to execute function! Using failure action: '%s'",
+                    failureAction
+                );
+
                 if (conn != null && failureAction == FailureAction.ROLLBACK)
                     conn.rollback();
-                log.atSevere().withCause(e).log();
             }
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log();
+            log.atSevere().withCause(e).log("Failed to execute function!");
         }
         return fallback;
     }
@@ -1567,7 +1734,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 final T result = fun.apply(conn);
                 conn.commit();
                 return result;
-            }, fallback, FailureAction.ROLLBACK);
+            },
+            fallback,
+            FailureAction.ROLLBACK
+        );
     }
 
     /**
@@ -1587,6 +1757,38 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         return "Database state: " + databaseState.name() +
             "\nDatabase version: " + DATABASE_VERSION +
             "\nDatabase file: " + dbFile;
+    }
+
+    /**
+     * Converts a {@link OptionalInt} to an {@link Integer} if it is present, otherwise to {@code null}.
+     *
+     * @param optionalInt
+     *     The {@link OptionalInt} to convert.
+     * @return The {@link Integer} if the {@link OptionalInt} is present, otherwise {@code null}.
+     */
+    private static @Nullable Integer optionalIntToObject(OptionalInt optionalInt)
+    {
+        return optionalInt.isPresent() ? optionalInt.getAsInt() : null;
+    }
+
+    /**
+     * Returns an {@link OptionalInt} from the {@link ResultSet} for the given column. If the value is {@code null}, the
+     * {@link OptionalInt} will be empty.
+     *
+     * @param resultSet
+     *     The {@link ResultSet} to get the value from.
+     * @param column
+     *     The name of the column to get the value from.
+     * @return An {@link OptionalInt} with the value from the {@link ResultSet} or empty if the value was {@code null}.
+     *
+     * @throws SQLException
+     *     If an error occurs while retrieving the value from the {@link ResultSet}.
+     */
+    private OptionalInt getOptionalInt(ResultSet resultSet, String column)
+        throws SQLException
+    {
+        final int value = resultSet.getInt(column);
+        return resultSet.wasNull() ? OptionalInt.empty() : OptionalInt.of(value);
     }
 
     /**

@@ -7,6 +7,7 @@ import nl.altindag.log.LogCaptor;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
+import nl.pim16aap2.animatedarchitecture.core.api.LimitContainer;
 import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IWorldFactory;
@@ -79,14 +80,29 @@ public class SQLiteJDBCDriverConnectionTest
 
     private static final String PLAYER_2_NAME_ALT = "TestMan";
 
-    private static final PlayerData PLAYER_DATA_1 =
-        new PlayerData(UUID.fromString("27e6c556-4f30-32bf-a005-c80a46ddd935"), "pim16aap2", 10, 11, true, true);
+    private static final PlayerData PLAYER_DATA_1 = new PlayerData(
+        UUID.fromString("27e6c556-4f30-32bf-a005-c80a46ddd935"),
+        "pim16aap2",
+        new LimitContainer(10, 11, 12, 13),
+        true,
+        true
+    );
 
-    private static final PlayerData PLAYER_DATA_2 =
-        new PlayerData(UUID.fromString("af5c6f36-445d-3786-803d-c2e3ba0dc3ed"), "TestBoiii", 20, 22, true, false);
+    private static final PlayerData PLAYER_DATA_2 = new PlayerData(
+        UUID.fromString("af5c6f36-445d-3786-803d-c2e3ba0dc3ed"),
+        "TestBoiii",
+        new LimitContainer(20, 22, 24, null),
+        true,
+        false
+    );
 
-    private static final PlayerData PLAYER_DATA_3 =
-        new PlayerData(UUID.fromString("b50ad385-829d-3141-a216-7e7d7539ba7f"), "thirdWheel", 30, 33, false, true);
+    private static final PlayerData PLAYER_DATA_3 = new PlayerData(
+        UUID.fromString("b50ad385-829d-3141-a216-7e7d7539ba7f"),
+        "thirdWheel",
+        new LimitContainer(30, 33, 36, 39),
+        false,
+        true
+    );
 
     private static final IWorld WORLD = new TestWorld(WORLD_NAME);
 
@@ -279,21 +295,30 @@ public class SQLiteJDBCDriverConnectionTest
         Assertions.assertNotNull(structure.getPrimeOwner().toString());
         Assertions.assertNotNull(structure.getName());
 
-        List<AbstractStructure> test = storage.getStructures(
-            structure.getPrimeOwner().playerData().getUUID(),
-            structure.getName()
+        final UUID ownerUUID = structure.getPrimeOwner().playerData().getUUID();
+
+        final Optional<PlayerData> playerData = storage.getPlayerData(ownerUUID);
+        Assertions.assertTrue(playerData.isPresent());
+        Assertions.assertEquals(structure.getPrimeOwner().playerData(), playerData.get());
+
+        final List<AbstractStructure> test = storage.getStructures(ownerUUID, structure.getName());
+
+        Assertions.assertEquals(
+            1,
+            test.size(),
+            "Failed to find structure for prime owner with UUID = " + structure.getPrimeOwner().playerData().getUUID() +
+                ", and structure name = '" + structure.getName() + "'! Found " + test.size() + " structures!"
         );
-        Assertions.assertEquals(1, test.size());
 
         Assertions.assertEquals(structure.getPrimeOwner(), test.getFirst().getPrimeOwner());
 
         if (!structure.equals(test.getFirst()))
             Assertions.fail(
-                "Data of retrieved structure is not the same! ID = " + structure.getUid() +
+                "Data of retrieved structure is not the same!" +
+                    " ID = " + structure.getUid() +
                     ", name = " + structure.getName() +
                     ", found ID = " + test.getFirst().getUid() +
-                    ", found name = " + test.getFirst().getName()
-            );
+                    ", found name = " + test.getFirst().getName());
     }
 
     /**
@@ -349,9 +374,11 @@ public class SQLiteJDBCDriverConnectionTest
     {
         // Check simple methods.
         Assertions.assertEquals(1, storage.getStructuresOfType(StructureTypeBigDoor.get().getFullName()).size());
-        Assertions.assertEquals(1, storage.getStructuresOfType(
-            StructureTypePortcullis.get().getFullName(),
-            StructureTypePortcullis.get().getVersion()).size()
+        Assertions.assertEquals(
+            1,
+            storage.getStructuresOfType(
+                StructureTypePortcullis.get().getFullName(),
+                StructureTypePortcullis.get().getVersion()).size()
         );
         Assertions.assertEquals(1, storage.getStructureCountForPlayer(PLAYER_DATA_1.getUUID(), STRUCTURE_1_NAME));
         Assertions.assertEquals(2, storage.getStructureCountForPlayer(PLAYER_DATA_1.getUUID()));
@@ -392,7 +419,8 @@ public class SQLiteJDBCDriverConnectionTest
 
         // Verify the permission level of player 2 over structure 2.
         UnitTestUtil.optionalEquals(
-            PermissionLevel.ADMIN, storage.getStructure(2L),
+            PermissionLevel.ADMIN,
+            storage.getStructure(2L),
             (structure) -> structure
                 .getOwner(PLAYER_DATA_2.getUUID())
                 .map(StructureOwner::permission)
@@ -405,7 +433,8 @@ public class SQLiteJDBCDriverConnectionTest
         // Verify that player 2 is the creator of exactly 1 structure.
         Assertions.assertEquals(1, storage.getStructures(PLAYER_DATA_2.getUUID(), PermissionLevel.CREATOR).size());
 
-        // Verify that player 2 is owner with permission level <= 1 of exactly 2 structures (structure 3 (0) and structure 2 (1)).
+        // Verify that player 2 is owner with permission level <= 1 of exactly 2 structures
+        // (structure 3 (0) and structure 2 (1)).
         Assertions.assertEquals(2, storage.getStructures(PLAYER_DATA_2.getUUID(), PermissionLevel.ADMIN).size());
 
         // Verify that player 2 is owner with permission level <= 1 of exactly 2 structures,
@@ -424,8 +453,10 @@ public class SQLiteJDBCDriverConnectionTest
 
         // Verify that adding an existing owner overrides the permission level.
         Assertions.assertTrue(storage.addOwner(2L, PLAYER_DATA_2, PermissionLevel.USER));
+
         UnitTestUtil.optionalEquals(
-            PermissionLevel.USER, storage.getStructure(2L),
+            PermissionLevel.USER,
+            storage.getStructure(2L),
             (structure) -> structure
                 .getOwner(PLAYER_DATA_2.getUUID())
                 .map(StructureOwner::permission)
@@ -496,22 +527,29 @@ public class SQLiteJDBCDriverConnectionTest
         Assertions.assertTrue(storage.getPlayerData(PLAYER_DATA_2.getUUID()).isPresent());
         Assertions.assertEquals(PLAYER_DATA_2, storage.getPlayerData(PLAYER_DATA_2.getUUID()).get());
         Assertions.assertEquals(1, storage.getPlayerData(PLAYER_DATA_2.getName()).size());
-        Assertions.assertEquals(PLAYER_DATA_2, storage.getPlayerData(PLAYER_DATA_2.getName()).get(0));
+        Assertions.assertEquals(PLAYER_DATA_2, storage.getPlayerData(PLAYER_DATA_2.getName()).getFirst());
         Assertions.assertEquals(0, storage.getPlayerData(PLAYER_2_NAME_ALT).size());
         Assertions.assertEquals(PLAYER_DATA_2, storage.getPlayerData(PLAYER_DATA_2.getUUID()).get());
 
         // Update player 2's name to their alt name and make sure the old name is gone and the new one is reachable.
         final PlayerData playerData2ALT = new PlayerData(
-            UUID.fromString("af5c6f36-445d-3786-803d-c2e3ba0dc3ed"),
+            PLAYER_DATA_2.getUUID(),
             PLAYER_2_NAME_ALT,
-            20,
-            22,
-            true,
-            false
+            new LimitContainer(
+                null,
+                22,
+                null,
+                24
+            ),
+            PLAYER_DATA_2.isOp(),
+            PLAYER_DATA_2.hasProtectionBypassPermission()
         );
 
         Assertions.assertTrue(storage.updatePlayerData(playerData2ALT));
-        UnitTestUtil.optionalEquals(playerData2ALT, storage.getPlayerData(PLAYER_DATA_2.getUUID()));
+
+        final Optional<PlayerData> retrieved = storage.getPlayerData(PLAYER_DATA_2.getUUID());
+        UnitTestUtil.optionalEquals(playerData2ALT, retrieved);
+
         Assertions.assertEquals(0, storage.getPlayerData(PLAYER_DATA_2.getName()).size());
         Assertions.assertEquals(1, storage.getPlayerData(playerData2ALT.getName()).size());
 
@@ -562,7 +600,8 @@ public class SQLiteJDBCDriverConnectionTest
             final Vector3Di newPowerBlock = new Vector3Di(
                 oldPowerBlock.x(),
                 (oldPowerBlock.x() + 30) % 256,
-                oldPowerBlock.z());
+                oldPowerBlock.z()
+            );
 
             final Vector3Di oldMin = structure3.getMinimum();
             final Vector3Di oldMax = structure3.getMaximum();
@@ -645,10 +684,13 @@ public class SQLiteJDBCDriverConnectionTest
         );
 
         LogAssertionsUtil.assertThrowableLogged(
-            logCaptor, 1, "Failed to execute query: Connection is null!", LogSiteStackTrace.class);
+            logCaptor,
+            1,
+            "Failed to execute query: Connection is null!",
+            LogSiteStackTrace.class
+        );
 
-        LogAssertionsUtil.assertLogged(
-            logCaptor, 2, "Executed statement: ", MessageComparisonMethod.STARTS_WITH);
+        LogAssertionsUtil.assertLogged(logCaptor, 2, "Executed statement: ", MessageComparisonMethod.STARTS_WITH);
 
 
         // Set the database state to enabled again and verify that it's now possible to retrieve structures again.
@@ -661,9 +703,14 @@ public class SQLiteJDBCDriverConnectionTest
      */
     private void initStorage()
     {
-        storage = new SQLiteJDBCDriverConnection(DB_FILE, structureBaseBuilder, structureRegistry, structureTypeManager,
+        storage = new SQLiteJDBCDriverConnection(
+            DB_FILE,
+            structureBaseBuilder,
+            structureRegistry,
+            structureTypeManager,
             worldFactory,
-            debuggableRegistry);
+            debuggableRegistry
+        );
     }
 
     private void initStructures()

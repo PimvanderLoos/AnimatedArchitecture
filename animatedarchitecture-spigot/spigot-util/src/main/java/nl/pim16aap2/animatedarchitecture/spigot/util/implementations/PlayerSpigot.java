@@ -7,6 +7,7 @@ import nl.pim16aap2.animatedarchitecture.core.commands.CommandDefinition;
 import nl.pim16aap2.animatedarchitecture.core.commands.PermissionsStatus;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
+import nl.pim16aap2.animatedarchitecture.core.util.Limit;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotUtil;
 import nl.pim16aap2.animatedarchitecture.spigot.util.text.TextRendererSpigot;
@@ -14,6 +15,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -70,20 +72,17 @@ public final class PlayerSpigot implements IPlayer
         return true;
     }
 
-    @Override
-    public int getStructureSizeLimit()
+    private OptionalInt getLimit(String permissionSuffix)
     {
         if (spigotPlayer.isOp())
-            return Integer.MAX_VALUE;
-        return SpigotUtil.getHighestPermissionSuffix(spigotPlayer, "animatedarchitecture.door_size_limit.");
+            return OptionalInt.empty();
+        return SpigotUtil.getHighestPermissionSuffix(spigotPlayer, permissionSuffix);
     }
 
     @Override
-    public int getStructureCountLimit()
+    public OptionalInt getLimit(Limit limit)
     {
-        if (spigotPlayer.isOp())
-            return Integer.MAX_VALUE;
-        return SpigotUtil.getHighestPermissionSuffix(spigotPlayer, "animatedarchitecture.doors_owned_limit.");
+        return getLimit(limit.getUserPermission());
     }
 
     @Override

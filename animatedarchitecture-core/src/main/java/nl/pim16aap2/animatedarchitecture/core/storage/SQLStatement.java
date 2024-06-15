@@ -90,8 +90,14 @@ public enum SQLStatement
 
     INSERT_OR_IGNORE_PLAYER_DATA("""
         INSERT OR IGNORE INTO Player
-        (playerUUID, playerName, sizeLimit, countLimit, permissions)
-        VALUES(?, ?, ?, ?, ?);
+        (playerUUID,
+         playerName,
+         limitStructureSize,
+         limitStructureCount,
+         limitPowerBlockDistance,
+         limitBlocksToMove,
+         permissions)
+        VALUES(?, ?, ?, ?, ?, ?, ?);
         """
     ),
 
@@ -117,11 +123,13 @@ public enum SQLStatement
 
     UPDATE_PLAYER_DATA("""
         UPDATE Player SET
-        playerName       = ?,
-        sizeLimit        = ?,
-        countLimit       = ?,
-        permissions      = ?
-        WHERE playerUUID = ?;
+        playerName              = ?,
+        limitStructureSize      = ?,
+        limitStructureCount     = ?,
+        limitPowerBlockDistance = ?,
+        limitBlocksToMove       = ?,
+        permissions             = ?
+        WHERE playerUUID        = ?;
         """
     ),
 
@@ -318,12 +326,14 @@ public enum SQLStatement
 
     CREATE_TABLE_PLAYER("""
         CREATE TABLE IF NOT EXISTS Player
-        (id            INTEGER    PRIMARY KEY AUTOINCREMENT,
-        playerUUID     TEXT       NOT NULL,
-        playerName     TEXT       NOT NULL,
-        sizeLimit      INTEGER    NOT NULL,
-        countLimit     INTEGER    NOT NULL,
-        permissions    INTEGER    NOT NULL,
+        (id                     INTEGER    PRIMARY KEY AUTOINCREMENT,
+        playerUUID              TEXT       NOT NULL,
+        playerName              TEXT       NOT NULL,
+        limitStructureSize      INTEGER,
+        limitStructureCount     INTEGER,
+        limitPowerBlockDistance INTEGER,
+        limitBlocksToMove       INTEGER,
+        permissions             INTEGER    NOT NULL,
         unique(playerUUID));
         """
     ),

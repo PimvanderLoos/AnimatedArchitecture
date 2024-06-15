@@ -9,6 +9,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPermissionsManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IProtectionHookManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
+import nl.pim16aap2.animatedarchitecture.core.api.LimitContainer;
 import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ILocationFactory;
@@ -36,6 +37,7 @@ import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
+import nl.pim16aap2.animatedarchitecture.core.util.Limit;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.testimplementations.TestLocationFactory;
@@ -66,7 +68,7 @@ public class CreatorTestsUtil
     protected final Vector3Di min = new Vector3Di(10, 15, 20);
     protected final Vector3Di max = new Vector3Di(20, 25, 30);
     protected final Cuboid cuboid = new Cuboid(min, max);
-    protected final Vector3Di powerblock = new Vector3Di(40, 40, 40);
+    protected final Vector3Di powerblock = max.add(1, 2, 3);
     protected final String structureName = "testDoor123";
     protected final IWorld world = getWorld();
     protected Vector3Di rotationPoint = new Vector3Di(20, 15, 25);
@@ -125,20 +127,26 @@ public class CreatorTestsUtil
     {
         final var uuid = UUID.fromString("f373bb8d-dd2d-496e-a9c5-f9a0c45b2db5");
         final var name = "user";
-        var structureSizeLimit = 8;
-        var structureCountLimit = 9;
 
-        playerData = new PlayerData(uuid, name, structureSizeLimit, structureCountLimit, true, true);
+        final var limits = new LimitContainer(
+            OptionalInt.of(8),
+            OptionalInt.of(9),
+            OptionalInt.of(10),
+            OptionalInt.of(11)
+        );
+
+        playerData = new PlayerData(uuid, name, limits, true, true);
 
         structureOwner = new StructureOwner(-1, PermissionLevel.CREATOR, playerData);
 
         Mockito.when(player.getUUID()).thenReturn(uuid);
         Mockito.when(player.getName()).thenReturn(name);
-        Mockito.when(player.getStructureCountLimit()).thenReturn(structureCountLimit);
-        Mockito.when(player.getStructureSizeLimit()).thenReturn(structureSizeLimit);
+
+        Mockito.when(player.getLimit(ArgumentMatchers.any(Limit.class)))
+            .thenAnswer(invocation -> limits.getLimit(invocation.getArgument(0, Limit.class)));
+
         Mockito.when(player.isOp()).thenReturn(true);
         Mockito.when(player.hasProtectionBypassPermission()).thenReturn(true);
-        Mockito.when(player.getStructureSizeLimit()).thenReturn(structureSizeLimit);
         Mockito.when(player.getLocation()).thenReturn(Optional.empty());
 
         Mockito.when(player.getPlayerData()).thenReturn(playerData);
@@ -212,8 +220,7 @@ public class CreatorTestsUtil
 
         Mockito.when(permissionsManager.hasPermission(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(true);
 
-        Mockito.when(player.getStructureSizeLimit()).thenReturn(cuboid.getVolume());
-        Mockito.when(player.getStructureCountLimit()).thenReturn(cuboid.getVolume());
+        Mockito.when(player.getLimit(Mockito.eq(Limit.STRUCTURE_SIZE))).thenReturn(OptionalInt.of(cuboid.getVolume()));
 
         Mockito.when(config.maxStructureSize()).thenReturn(OptionalInt.empty());
         Mockito.when(config.maxStructureCount()).thenReturn(OptionalInt.empty());

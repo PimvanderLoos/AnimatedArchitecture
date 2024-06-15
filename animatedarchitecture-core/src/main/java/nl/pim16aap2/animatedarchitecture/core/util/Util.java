@@ -6,6 +6,7 @@ import lombok.val;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
+import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector2Di;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
@@ -122,6 +123,18 @@ public final class Util
         }
     }
 
+    /**
+     * Gets the names of all locale files in a jar.
+     * <p>
+     * The name of each locale file is the name of the file itself, with optional relative path.
+     *
+     * @param jarFile
+     *     The jar file to search in.
+     * @return The names of all locale files in the jar.
+     *
+     * @throws IOException
+     *     If an I/O error occurs.
+     */
     public List<String> getLocaleFilesInJar(Path jarFile)
         throws IOException
     {
@@ -167,6 +180,13 @@ public final class Util
         return Objects.requireNonNull(obj, name + " must not be null!");
     }
 
+    /**
+     * Parses a string to an integer.
+     *
+     * @param str
+     *     The string to parse.
+     * @return The parsed integer, or an empty {@link OptionalInt} if the string was null or could not be parsed.
+     */
     public static OptionalInt parseInt(@Nullable String str)
     {
         if (str == null)
@@ -182,11 +202,26 @@ public final class Util
         }
     }
 
+    /**
+     * Parses an optional string to an integer.
+     *
+     * @param str
+     *     The string to parse.
+     * @return The parsed integer, or an empty {@link OptionalInt} if the optional was empty or the string could not be
+     * parsed.
+     */
     public static OptionalInt parseInt(Optional<String> str)
     {
         return str.map(Util::parseInt).orElse(OptionalInt.empty());
     }
 
+    /**
+     * Parses a string to a double.
+     *
+     * @param str
+     *     The string to parse.
+     * @return The parsed double, or an empty {@link OptionalDouble} if the string was null or could not be parsed.
+     */
     public static OptionalDouble parseDouble(@Nullable String str)
     {
         if (str == null)
@@ -202,11 +237,26 @@ public final class Util
         }
     }
 
+    /**
+     * Parses an optional string to a double.
+     *
+     * @param str
+     *     The string to parse.
+     * @return The parsed double, or an empty {@link OptionalDouble} if the optional was empty or the string could not
+     * be parsed.
+     */
     public static OptionalDouble parseDouble(Optional<String> str)
     {
         return str.map(Util::parseDouble).orElse(OptionalDouble.empty());
     }
 
+    /**
+     * Parses a string to a long.
+     *
+     * @param str
+     *     The string to parse.
+     * @return The parsed long, or an empty {@link OptionalLong} if the string was null or could not be parsed.
+     */
     public static OptionalLong parseLong(@Nullable String str)
     {
         if (str == null)
@@ -222,22 +272,52 @@ public final class Util
         }
     }
 
+    /**
+     * Parses an optional string to a long.
+     *
+     * @param str
+     *     The string to parse.
+     * @return The parsed long, or an empty {@link OptionalLong} if the optional was empty or the string could not be
+     * parsed.
+     */
     public static OptionalLong parseLong(Optional<String> str)
     {
         return str.map(Util::parseLong).orElse(OptionalLong.empty());
     }
 
+    /**
+     * Checks if a string is numerical integer with radix 10.
+     * <p>
+     * Any string for which this method returns false will always throw a {@link NumberFormatException} when parsed by
+     * {@link Integer#parseInt(String)}.
+     * <p>
+     * Conversely, any string for which this method returns true may still throw a {@link NumberFormatException} when
+     * parsed by {@link Integer#parseInt(String)} if the number is too large.
+     *
+     * @param str
+     *     The string to check.
+     * @return True if the string is numerical.
+     */
     public static boolean isNumerical(@Nullable String str)
     {
         if (str == null || str.isEmpty())
             return false;
 
-        for (int idx = 0; idx < str.length(); ++idx)
+        int idx = 0;
+        char ch = str.charAt(idx);
+
+        // If the first character is a minus sign, swap the sign of the limit and move to the next character.
+        // If the string is only a minus sign, it is not numerical.
+        if (ch == '-')
         {
-            final char ch = str.charAt(idx);
-            if (idx == 0 && str.length() > 1 && ch == '-')
-                continue;
-            if (ch < '0' || ch > '9')
+            if (str.length() == 1)
+                return false;
+            ++idx;
+        }
+        for (; idx < str.length(); ++idx)
+        {
+            final int digit = Character.digit(str.charAt(idx), 10);
+            if (digit < 0)
                 return false;
         }
         return true;
@@ -387,11 +467,12 @@ public final class Util
     /**
      * Concatenate two arrays.
      *
-     * @param <T>
      * @param first
      *     First array.
      * @param second
      *     Second array.
+     * @param <T>
+     *     The type of the arrays.
      * @return A single concatenated array.
      */
     @SuppressWarnings("PMD.UseVarargs")
@@ -405,9 +486,10 @@ public final class Util
     /**
      * Double the size of a provided array
      *
-     * @param <T>
      * @param arr
      *     Array to be doubled in size
+     * @param <T>
+     *     The type of the array.
      * @return A copy of the array but with doubled size.
      */
     @SuppressWarnings("PMD.UseVarargs")
@@ -419,11 +501,12 @@ public final class Util
     /**
      * Truncate an array after a provided new length.
      *
-     * @param <T>
      * @param arr
      *     The array to truncate
      * @param newLength
      *     The new length of the array.
+     * @param <T>
+     *     The type of the array.
      * @return A truncated array
      */
     public static <T> T[] truncateArray(T[] arr, int newLength)
@@ -433,12 +516,12 @@ public final class Util
 
     /**
      * Check if a given string is a valid structure name. The following input is not allowed:
-     * <p>
-     * - Numerical names (numerical values are reserved for UIDs).
-     * <p>
-     * - Empty input.
-     * <p>
-     * - Input containing spaces.
+     *
+     * <ul>
+     *     <li>Numerical names (numerical values are reserved for UIDs).</li>
+     *     <li>Empty input.</li>
+     *     <li>Input containing spaces.</li>
+     * </ul>
      *
      * @param name
      *     The name to test for validity,
@@ -454,6 +537,8 @@ public final class Util
 
     /**
      * Generate an insecure random alphanumeric string of a given length.
+     * <p>
+     * If you need a secure random string, use {@link #secureRandomString(int)} instead.
      *
      * @param length
      *     Length of the resulting string
@@ -469,6 +554,8 @@ public final class Util
 
     /**
      * Generate a secure random alphanumeric string of a given length.
+     * <p>
+     * If security is not a concern, use {@link #randomInsecureString(int)} instead for better performance.
      *
      * @param length
      *     Length of the resulting string
@@ -482,6 +569,23 @@ public final class Util
         return sb.toString();
     }
 
+    /**
+     * Check if a player has permission to perform an action on a structure.
+     * <p>
+     * A player has permission to perform an action on a structure if they are an owner of the structure and their
+     * permission level is lower than or equal to the permission level of the attribute. See
+     * {@link PermissionLevel#isLowerThanOrEquals(PermissionLevel)}.
+     * <p>
+     * If the provided player is not an owner of the structure, they do not have permission to perform the action.
+     *
+     * @param uuid
+     *     The UUID of the player to check.
+     * @param structure
+     *     The structure to check.
+     * @param attribute
+     *     The attribute to check.
+     * @return True if the player has permission to perform the action on the structure.
+     */
     public static boolean hasPermissionForAction(UUID uuid, IStructureConst structure, StructureAttribute attribute)
     {
         return structure
@@ -490,6 +594,19 @@ public final class Util
             .orElse(false);
     }
 
+    /**
+     * Check if a player has permission to perform an action on a structure.
+     * <p>
+     * See {@link #hasPermissionForAction(UUID, IStructureConst, StructureAttribute)}.
+     *
+     * @param player
+     *     The player to check.
+     * @param structure
+     *     The structure to check.
+     * @param attribute
+     *     The attribute to check.
+     * @return True if the player has permission to perform the action on the structure.
+     */
     public static boolean hasPermissionForAction(
         IPlayer player,
         IStructureConst structure,
@@ -743,6 +860,22 @@ public final class Util
     }
 
     /**
+     * Check if a given value is between two other values. Matches inclusively.
+     *
+     * @param test
+     *     Value to be compared.
+     * @param low
+     *     Minimum value.
+     * @param high
+     *     Maximum value.
+     * @return True if the value is in the provided range or if it equals the low and/or the high value.
+     */
+    public static boolean between(double test, double low, double high)
+    {
+        return test <= high && test >= low;
+    }
+
+    /**
      * Flattens a list of lists into a single list.
      *
      * @param lists
@@ -934,31 +1067,38 @@ public final class Util
     {
         if (logLevelName == null)
             return null;
+
         final String preparedLogLevelName = logLevelName.toUpperCase(Locale.ENGLISH).strip();
         if (preparedLogLevelName.isBlank())
             return null;
 
-        if ("OFF".equals(preparedLogLevelName))
-            return Level.OFF;
-        if ("SEVERE".equals(preparedLogLevelName))
-            return Level.SEVERE;
-        if ("WARNING".equals(preparedLogLevelName))
-            return Level.WARNING;
-        if ("INFO".equals(preparedLogLevelName))
-            return Level.INFO;
-        if ("CONFIG".equals(preparedLogLevelName))
-            return Level.CONFIG;
-        if ("FINE".equals(preparedLogLevelName))
-            return Level.FINE;
-        if ("FINER".equals(preparedLogLevelName))
-            return Level.FINER;
-        if ("FINEST".equals(preparedLogLevelName))
-            return Level.FINEST;
-        if ("ALL".equals(preparedLogLevelName))
-            return Level.ALL;
-        return null;
+        return switch (preparedLogLevelName)
+        {
+            case "OFF" -> Level.OFF;
+            case "SEVERE" -> Level.SEVERE;
+            case "WARNING" -> Level.WARNING;
+            case "INFO" -> Level.INFO;
+            case "CONFIG" -> Level.CONFIG;
+            case "FINE" -> Level.FINE;
+            case "FINER" -> Level.FINER;
+            case "FINEST" -> Level.FINEST;
+            case "ALL" -> Level.ALL;
+            default -> null;
+        };
     }
 
+    /**
+     * Sorts a list of objects alphabetically based on a provided mapper.
+     * <p>
+     * The list is sorted in place.
+     *
+     * @param list
+     *     The list to sort.
+     * @param mapper
+     *     The mapper to use for each entry in the list to obtain the string to sort the list on.
+     * @param <T>
+     *     The type of the objects in the list.
+     */
     public static <T> void sortAlphabetically(List<T> list, Function<T, String> mapper)
     {
         if (list.isEmpty())

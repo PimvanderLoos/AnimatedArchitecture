@@ -295,7 +295,7 @@ public class UnitTestUtil
      *     The object to compare the optional to.
      * @param opt
      *     The Optional to compare against the object.
-     * @param map
+     * @param mapper
      *     The mapping function to apply to the value inside the optional (if that exists).
      * @param <T>
      *     The type of the Object and the result of the mapping functions.
@@ -304,7 +304,7 @@ public class UnitTestUtil
      * @return The object inside the Optional (so without the mapping function applied!).
      */
     @SuppressWarnings("UnusedReturnValue")
-    public static @Nullable <T, U> U optionalEquals(@Nullable T obj, Optional<U> opt, Function<U, T> map)
+    public static @Nullable <T, U> U optionalEquals(@Nullable T obj, Optional<U> opt, Function<U, T> mapper)
     {
         if (obj == null)
         {
@@ -313,7 +313,7 @@ public class UnitTestUtil
         }
         Assertions.assertTrue(opt.isPresent());
 
-        Assertions.assertEquals(obj, map.apply(opt.get()));
+        Assertions.assertEquals(obj, mapper.apply(opt.get()));
         return opt.get();
     }
 
