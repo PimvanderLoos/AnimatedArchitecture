@@ -275,8 +275,6 @@ public enum SQLStatement
 
     /**
      * Inserts a new structure creator. This is a structure owner with permission level 0.
-     * <p>
-     * This statement is intended to be used in the same transaction that inserted the Structures.
      */
     INSERT_PRIME_OWNER("""
         INSERT INTO StructureOwnerPlayer (permission, playerID, structureUID)
@@ -284,9 +282,7 @@ public enum SQLStatement
             (SELECT id
             FROM Player
             WHERE Player.playerUUID = ?),
-            (SELECT seq
-            FROM sqlite_sequence
-            WHERE sqlite_sequence.name = "Structure"));
+            ?);
         """
     ),
 

@@ -499,6 +499,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             SQLStatement.INSERT_PRIME_OWNER
                 .constructDelayedPreparedStatement()
                 .setString(1, playerData.getUUID().toString())
+                .setLong(2, structureUID)
         );
 
         return structureUID;
