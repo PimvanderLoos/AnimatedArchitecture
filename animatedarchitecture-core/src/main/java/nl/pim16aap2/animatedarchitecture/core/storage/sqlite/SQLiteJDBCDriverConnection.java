@@ -452,7 +452,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         insertOrIgnorePlayer(conn, playerData);
 
         final String worldName = structure.getWorld().worldName();
-        executeUpdate(
+
+        final long structureUID = executeQuery(
             conn,
             SQLStatement.INSERT_STRUCTURE_BASE
                 .constructDelayedPreparedStatement()
@@ -476,24 +477,29 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 .setNextLong(getFlag(structure))
                 .setNextString(structureType.getFullName())
                 .setNextInt(structureType.getVersion())
-                .setNextString(typeSpecificData)
-        );
-
-        // TODO: Just use the fact that the last-inserted structure has the current UID (that fact is already used by
-        //       getTypeSpecificDataInsertStatement(StructureType)), so it can be done in a single statement.
-        final long structureUID = executeQuery(
-            conn,
-            SQLStatement.SELECT_MOST_RECENT_STRUCTURE
-                .constructDelayedPreparedStatement(),
-            rs -> rs.next() ? rs.getLong("seq") : -1,
+                .setNextString(typeSpecificData),
+            resultSet ->
+            {
+                if (resultSet.next())
+                    return resultSet.getLong(1);
+                log.atSevere().log("Failed to retrieve structure ID while inserting structure: %s", structure);
+                return -1L;
+            },
             -1L
         );
+
+        if (structureUID < 0)
+        {
+            log.atSevere().log("Failed to insert structure: %s", structure);
+            return -1L;
+        }
 
         executeUpdate(
             conn,
             SQLStatement.INSERT_PRIME_OWNER
                 .constructDelayedPreparedStatement()
                 .setString(1, playerData.getUUID().toString())
+                .setLong(2, structureUID)
         );
 
         return structureUID;
@@ -939,14 +945,14 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     public boolean updatePlayerData(PlayerData playerData)
     {
         return executeUpdate(SQLStatement.UPDATE_PLAYER_DATA
-                .constructDelayedPreparedStatement()
-                .setNextString(playerData.getName())
-                .setNextObject(optionalIntToObject(playerData.getLimit(Limit.STRUCTURE_SIZE)), Types.INTEGER)
-                .setNextObject(optionalIntToObject(playerData.getLimit(Limit.STRUCTURE_COUNT)), Types.INTEGER)
-                .setNextObject(optionalIntToObject(playerData.getLimit(Limit.POWERBLOCK_DISTANCE)), Types.INTEGER)
-                .setNextObject(optionalIntToObject(playerData.getLimit(Limit.BLOCKS_TO_MOVE)), Types.INTEGER)
-                .setNextLong(playerData.getPermissionsFlag())
-                .setNextString(playerData.getUUID().toString())) > 0;
+            .constructDelayedPreparedStatement()
+            .setNextString(playerData.getName())
+            .setNextObject(optionalIntToObject(playerData.getLimit(Limit.STRUCTURE_SIZE)), Types.INTEGER)
+            .setNextObject(optionalIntToObject(playerData.getLimit(Limit.STRUCTURE_COUNT)), Types.INTEGER)
+            .setNextObject(optionalIntToObject(playerData.getLimit(Limit.POWERBLOCK_DISTANCE)), Types.INTEGER)
+            .setNextObject(optionalIntToObject(playerData.getLimit(Limit.BLOCKS_TO_MOVE)), Types.INTEGER)
+            .setNextLong(playerData.getPermissionsFlag())
+            .setNextString(playerData.getUUID().toString())) > 0;
     }
 
     @Override
@@ -1456,68 +1462,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         try (PreparedStatement ps = delayedPreparedStatement.construct(conn))
         {
             return ps.executeUpdate();
-        }
-        catch (SQLException e)
-        {
-            log.atSevere().withCause(e).log("Failed to execute update: %s", delayedPreparedStatement);
-        }
-        return -1;
-    }
-
-    /**
-     * Executes an update defined by a {@link DelayedPreparedStatement} and returns the generated key index. See
-     * {@link Statement#RETURN_GENERATED_KEYS}.
-     *
-     * @param delayedPreparedStatement
-     *     The {@link DelayedPreparedStatement}.
-     * @return The generated key index if possible, otherwise -1.
-     */
-    @SuppressWarnings("unused")
-    @Locked.Write
-    private int executeUpdateReturnGeneratedKeys(DelayedPreparedStatement delayedPreparedStatement)
-    {
-        try (@Nullable Connection conn = getConnection())
-        {
-            if (conn == null)
-            {
-                logStatement(delayedPreparedStatement);
-                return -1;
-            }
-            return executeUpdateReturnGeneratedKeys(conn, delayedPreparedStatement);
-        }
-        catch (Exception e)
-        {
-            log.atSevere().withCause(e).log("Failed to execute update: %s", delayedPreparedStatement);
-        }
-        return -1;
-    }
-
-    /**
-     * Executes an update defined by a {@link DelayedPreparedStatement} and returns the generated key index. See
-     * {@link Statement#RETURN_GENERATED_KEYS}.
-     *
-     * @param conn
-     *     A connection to the database.
-     * @param delayedPreparedStatement
-     *     The {@link DelayedPreparedStatement}.
-     * @return The generated key index if possible, otherwise -1.
-     */
-    @Locked.Write
-    private int executeUpdateReturnGeneratedKeys(Connection conn, DelayedPreparedStatement delayedPreparedStatement)
-    {
-        logStatement(delayedPreparedStatement);
-        try (PreparedStatement ps = delayedPreparedStatement.construct(conn, Statement.RETURN_GENERATED_KEYS))
-        {
-            ps.executeUpdate();
-            try (ResultSet resultSet = ps.getGeneratedKeys())
-            {
-                return resultSet.getInt(1);
-            }
-            catch (SQLException ex)
-            {
-                log.atSevere().withCause(ex).log(
-                    "Failed to get generated key for statement: %s", delayedPreparedStatement);
-            }
         }
         catch (SQLException e)
         {

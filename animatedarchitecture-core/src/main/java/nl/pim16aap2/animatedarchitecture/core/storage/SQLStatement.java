@@ -56,10 +56,6 @@ public enum SQLStatement
         "DELETE FROM Structure WHERE Structure.type = ?;"
     ),
 
-    GET_LATEST_ROW_ADDITION(
-        "SELECT last_insert_rowid() AS lastId;"
-    ),
-
     INSERT_STRUCTURE_OWNER(
         "INSERT INTO StructureOwnerPlayer (permission, playerID, structureUID) VALUES (?,?,?);"
     ),
@@ -79,13 +75,6 @@ public enum SQLStatement
         FROM Structure
         WHERE powerBlockChunkId = ?;
         """
-    ),
-
-    /**
-     * Gets all the structures that have their <b>rotationPoint</b> in the chunk with the given chunk hash.
-     */
-    GET_STRUCTURE_IN_CHUNK(
-        "SELECT * FROM Structure WHERE rotationPointChunkId = ?;"
     ),
 
     INSERT_OR_IGNORE_PLAYER_DATA("""
@@ -268,14 +257,13 @@ public enum SQLStatement
         (name, world, xMin, yMin, zMin, xMax, yMax, zMax, rotationPointX, rotationPointY, rotationPointZ,
          rotationPointChunkId, powerBlockX, powerBlockY, powerBlockZ, powerBlockChunkId, openDirection,
          bitflag, type, typeVersion, typeData)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        RETURNING id;
         """
     ),
 
     /**
      * Inserts a new structure creator. This is a structure owner with permission level 0.
-     * <p>
-     * This statement is intended to be used in the same transaction that inserted the Structures.
      */
     INSERT_PRIME_OWNER("""
         INSERT INTO StructureOwnerPlayer (permission, playerID, structureUID)
@@ -283,16 +271,7 @@ public enum SQLStatement
             (SELECT id
             FROM Player
             WHERE Player.playerUUID = ?),
-            (SELECT seq
-            FROM sqlite_sequence
-            WHERE sqlite_sequence.name = "Structure"));
-        """
-    ),
-
-    SELECT_MOST_RECENT_STRUCTURE("""
-        SELECT seq
-        FROM sqlite_sequence
-        WHERE sqlite_sequence.name = "Structure";
+            ?);
         """
     ),
 
@@ -310,10 +289,6 @@ public enum SQLStatement
 
     FOREIGN_KEYS_OFF(
         "PRAGMA foreign_keys = OFF;"
-    ),
-
-    INSERT_SQLITE_SEQ(
-        "INSERT OR IGNORE INTO SQLITE_SEQUENCE (name, seq) VALUES (?, ?);"
     ),
 
     RESERVE_IDS_PLAYER(
