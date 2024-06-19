@@ -56,10 +56,6 @@ public enum SQLStatement
         "DELETE FROM Structure WHERE Structure.type = ?;"
     ),
 
-    GET_LATEST_ROW_ADDITION(
-        "SELECT last_insert_rowid() AS lastId;"
-    ),
-
     INSERT_STRUCTURE_OWNER(
         "INSERT INTO StructureOwnerPlayer (permission, playerID, structureUID) VALUES (?,?,?);"
     ),
@@ -79,13 +75,6 @@ public enum SQLStatement
         FROM Structure
         WHERE powerBlockChunkId = ?;
         """
-    ),
-
-    /**
-     * Gets all the structures that have their <b>rotationPoint</b> in the chunk with the given chunk hash.
-     */
-    GET_STRUCTURE_IN_CHUNK(
-        "SELECT * FROM Structure WHERE rotationPointChunkId = ?;"
     ),
 
     INSERT_OR_IGNORE_PLAYER_DATA("""
@@ -300,10 +289,6 @@ public enum SQLStatement
 
     FOREIGN_KEYS_OFF(
         "PRAGMA foreign_keys = OFF;"
-    ),
-
-    INSERT_SQLITE_SEQ(
-        "INSERT OR IGNORE INTO SQLITE_SEQUENCE (name, seq) VALUES (?, ?);"
     ),
 
     RESERVE_IDS_PLAYER(
