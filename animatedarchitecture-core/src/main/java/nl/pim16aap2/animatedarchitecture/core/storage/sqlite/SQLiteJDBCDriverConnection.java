@@ -452,7 +452,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         insertOrIgnorePlayer(conn, playerData);
 
         final String worldName = structure.getWorld().worldName();
-        executeUpdate(
+
+        final long structureUID = executeQuery(
             conn,
             SQLStatement.INSERT_STRUCTURE_BASE
                 .constructDelayedPreparedStatement()
@@ -476,16 +477,22 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 .setNextLong(getFlag(structure))
                 .setNextString(structureType.getFullName())
                 .setNextInt(structureType.getVersion())
-                .setNextString(typeSpecificData)
-        );
-
-        final long structureUID = executeQuery(
-            conn,
-            SQLStatement.SELECT_MOST_RECENT_STRUCTURE
-                .constructDelayedPreparedStatement(),
-            rs -> rs.next() ? rs.getLong("seq") : -1,
+                .setNextString(typeSpecificData),
+            resultSet ->
+            {
+                if (resultSet.next())
+                    return resultSet.getLong(1);
+                log.atSevere().log("Failed to retrieve structure ID while inserting structure: %s", structure);
+                return -1L;
+            },
             -1L
         );
+
+        if (structureUID < 0)
+        {
+            log.atSevere().log("Failed to insert structure: %s", structure);
+            return -1L;
+        }
 
         executeUpdate(
             conn,

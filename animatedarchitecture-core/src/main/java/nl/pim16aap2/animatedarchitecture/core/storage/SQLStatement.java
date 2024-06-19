@@ -268,7 +268,8 @@ public enum SQLStatement
         (name, world, xMin, yMin, zMin, xMax, yMax, zMax, rotationPointX, rotationPointY, rotationPointZ,
          rotationPointChunkId, powerBlockX, powerBlockY, powerBlockZ, powerBlockChunkId, openDirection,
          bitflag, type, typeVersion, typeData)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        RETURNING id;
         """
     ),
 
@@ -286,13 +287,6 @@ public enum SQLStatement
             (SELECT seq
             FROM sqlite_sequence
             WHERE sqlite_sequence.name = "Structure"));
-        """
-    ),
-
-    SELECT_MOST_RECENT_STRUCTURE("""
-        SELECT seq
-        FROM sqlite_sequence
-        WHERE sqlite_sequence.name = "Structure";
         """
     ),
 
