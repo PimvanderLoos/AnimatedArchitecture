@@ -22,6 +22,7 @@
 hs_err_pid*
 /target/
 **/target/*
+.attach_pid*
 
 # MacOS Files #
 *.DS_Store
