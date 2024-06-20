@@ -139,39 +139,14 @@ final class ReflectionBackend
         boolean checkSuperClasses,
         Class<? extends Annotation>... annotations)
     {
-        final var fields = getFields(source, checkSuperClasses);
-        final StringBuilder sb = new StringBuilder("Fields in ").append(source.getName()).append(": \n");
-        for (final var field : fields)
-            sb
-                .append("  [")
-                .append(String.format("%30s", field.getName()))
-                .append("] ")
-                .append(field.toGenericString())
-                .append('\n');
-        System.out.println(sb.toString());
-
-        System.out.println("Looking for fields with names: " + names);
-
-        for (final Field field : fields)
-//        for (final Field field : getFields(source, checkSuperClasses))
+        for (final Field field : getFields(source, checkSuperClasses))
         {
-            System.out.println(
-                "\n\nChecking field: " + field.getName() + ", type? " + (type == null ? "null" : type.getName()));
-
             if (type != null && !field.getType().equals(type))
-            {
-                System.out.println(
-                    "Type mismatch! Expected: " + type.getName() + ", got: " + field.getType().getName());
                 continue;
-            }
+
             if (modifiers != 0 && field.getModifiers() != modifiers)
-            {
-                System.out.println(
-                    "Modifier mismatch! Expected: " + Modifier.toString(modifiers) + ", got: "
-                        + Modifier.toString(field.getModifiers()));
                 continue;
-            }
-            System.out.println("Checking if name '" + field.getName() + "' is in " + names);
+
             if (!names.contains(field.getName()))
                 continue;
             if (!containsAnnotations(field, annotations))
