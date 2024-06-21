@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.storage;
 
+import lombok.Getter;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
 
 import javax.sql.DataSource;
@@ -30,16 +31,17 @@ public interface IDataSourceInfo
      *
      * @return The location of the migration files for the DataSource.
      */
-    String getMigrationFilesLocation();
+    default String getMigrationFilesLocation()
+    {
+        return String.format(DB_MIGRATION_LOCATION, getType().getTypeName());
+    }
 
     /**
      * Gets the type of the DataSource.
-     * <p>
-     * E.g. "sqlite", "mysql", etc.
      *
      * @return The type of the DataSource.
      */
-    String getType();
+    Type getType();
 
     /**
      * Backs up the database.
@@ -65,5 +67,27 @@ public interface IDataSourceInfo
         config
             .dataSource(getDataSource())
             .locations(getMigrationFilesLocation());
+    }
+
+    /**
+     * The type of the DataSource.
+     */
+    enum Type
+    {
+        SQLITE("sqlite"),
+        ;
+
+        /**
+         * The name of the type.
+         * <p>
+         * This is the name that should be used in the migration files location.
+         */
+        @Getter
+        private final String typeName;
+
+        Type(String typeName)
+        {
+            this.typeName = typeName;
+        }
     }
 }

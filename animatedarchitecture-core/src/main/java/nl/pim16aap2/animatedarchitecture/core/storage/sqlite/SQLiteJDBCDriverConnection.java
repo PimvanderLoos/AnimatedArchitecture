@@ -20,6 +20,7 @@ import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.storage.DelayedPreparedStatement;
 import nl.pim16aap2.animatedarchitecture.core.storage.FlywayManager;
+import nl.pim16aap2.animatedarchitecture.core.storage.IDataSourceInfo;
 import nl.pim16aap2.animatedarchitecture.core.storage.IStorage;
 import nl.pim16aap2.animatedarchitecture.core.storage.SQLStatement;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
@@ -40,12 +41,9 @@ import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.sqlite.JDBC;
-import org.sqlite.SQLiteConfig;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Singleton;
-import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -80,7 +78,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     /**
      * The database file.
      */
-    private final Path dbFile;
+    private final IDataSourceInfo dataSourceInfo;
 
     /**
      * The {@link DatabaseState} the database is in.
@@ -96,15 +94,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
     private final IWorldFactory worldFactory;
 
-    /**
-     * Constructor of the SQLite driver connection.
-     *
-     * @param dbFile
-     *     The file to store the database in.
-     */
     @Inject
     public SQLiteJDBCDriverConnection(
-        @Named("databaseFile") Path dbFile,
+        DataSourceInfoSQLite dataSourceInfo,
         StructureBaseBuilder structureBaseBuilder,
         StructureRegistry structureRegistry,
         StructureTypeManager structureTypeManager,
@@ -112,7 +104,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         DebuggableRegistry debuggableRegistry,
         FlywayManager flyway)
     {
-        this.dbFile = dbFile;
+        this.dataSourceInfo = dataSourceInfo;
         this.structureBaseBuilder = structureBaseBuilder;
         this.structureRegistry = structureRegistry;
         this.structureTypeManager = structureTypeManager;
@@ -174,9 +166,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      * <p>
      * The connection is opened with foreign keys enabled.
      *
-     * @param dbFile
-     *     The path to the SQLite database file.
-     * @return The connection to the SQLite database or null if an error occurred.
+     * @return The connection to the SQLite database.
      *
      * @throws SQLException
      *     If an error occurs while opening the connection.
@@ -185,20 +175,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      * @throws NullPointerException
      *     If the connection could not be opened and somehow ended up being null.
      */
-    private Connection openConnection(Path dbFile)
+    private Connection openConnection()
         throws SQLException
     {
-        final SQLiteConfig config = new SQLiteConfig();
-        config.enforceForeignKeys(true);
-
-        final String url = "jdbc:sqlite:" + dbFile;
-
-        if (!JDBC.isValidURL(url))
-            throw new IllegalArgumentException("Invalid URL: '" + url + "'");
-
         return Objects.requireNonNull(
-            config.createConnection(url),
-            "Failed to open connection to SQLite database with URL: '" + url + "'"
+            dataSourceInfo.getDataSource().getConnection(),
+            "Failed to open connection to SQLite database with data source: '" + dataSourceInfo + "'"
         );
     }
 
@@ -271,12 +253,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     {
         SQLStatement.FOREIGN_KEYS_ON.constructDelayedPreparedStatement().construct(conn).execute();
         SQLStatement.LEGACY_ALTER_TABLE_OFF.constructDelayedPreparedStatement().construct(conn).execute();
-    }
-
-    private Connection openConnection()
-        throws SQLException
-    {
-        return openConnection(dbFile);
     }
 
     private Optional<AbstractStructure> constructStructure(ResultSet structureBaseRS)
@@ -1382,7 +1358,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     public String getDebugInformation()
     {
         return "Database state: " + databaseState.name() +
-            "\nDatabase file: " + dbFile;
+            "\nDatabase file: " + dataSourceInfo;
     }
 
     /**

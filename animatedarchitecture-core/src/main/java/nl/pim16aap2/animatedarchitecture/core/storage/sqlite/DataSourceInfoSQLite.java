@@ -7,6 +7,8 @@ import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.sqlite.JDBC;
 import org.sqlite.SQLiteDataSource;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,8 +21,7 @@ import java.util.OptionalInt;
 @Flogger
 public class DataSourceInfoSQLite implements IDataSourceInfo
 {
-    private static final String TYPE = "sqlite";
-    private static final String MIGRATION_FILES_LOCATION = String.format(DB_MIGRATION_LOCATION, TYPE);
+    private static final Type type = Type.SQLITE;
 
     @Getter
     private final SQLiteDataSource dataSource;
@@ -30,7 +31,8 @@ public class DataSourceInfoSQLite implements IDataSourceInfo
     @Getter
     private final String url;
 
-    public DataSourceInfoSQLite(Path databasePath)
+    @Inject
+    public DataSourceInfoSQLite(@Named("databaseFile") Path databasePath)
     {
         this.databasePath = databasePath;
         this.url = JDBC.PREFIX + databasePath;
@@ -75,15 +77,9 @@ public class DataSourceInfoSQLite implements IDataSourceInfo
     }
 
     @Override
-    public String getMigrationFilesLocation()
+    public Type getType()
     {
-        return MIGRATION_FILES_LOCATION;
-    }
-
-    @Override
-    public String getType()
-    {
-        return TYPE;
+        return type;
     }
 
     /**
@@ -131,5 +127,13 @@ public class DataSourceInfoSQLite implements IDataSourceInfo
         {
             log.atSevere().withCause(e).log("Failed to create backup of the database!");
         }
+    }
+
+    @Override
+    public String toString()
+    {
+        return "DataSourceInfoSQLite{" +
+            "url='" + url + '\'' +
+            '}';
     }
 }
