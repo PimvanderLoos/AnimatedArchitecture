@@ -291,65 +291,6 @@ public enum SQLStatement
         "PRAGMA foreign_keys = OFF;"
     ),
 
-    RESERVE_IDS_PLAYER(
-        "INSERT OR IGNORE INTO SQLITE_SEQUENCE (name, seq) VALUES ('Player', 10);"
-    ),
-
-    RESERVE_IDS_STRUCTURE_OWNER_PLAYER(
-        "INSERT OR IGNORE INTO SQLITE_SEQUENCE (name, seq) VALUES ('StructureOwnerPlayer', 10);"
-    ),
-
-    CREATE_TABLE_PLAYER("""
-        CREATE TABLE IF NOT EXISTS Player
-        (id                     INTEGER    PRIMARY KEY AUTOINCREMENT,
-        playerUUID              TEXT       NOT NULL,
-        playerName              TEXT       NOT NULL,
-        limitStructureSize      INTEGER,
-        limitStructureCount     INTEGER,
-        limitPowerBlockDistance INTEGER,
-        limitBlocksToMove       INTEGER,
-        permissions             INTEGER    NOT NULL,
-        unique(playerUUID));
-        """
-    ),
-
-    CREATE_TABLE_STRUCTURE("""
-        CREATE TABLE IF NOT EXISTS Structure
-        (id                   INTEGER    PRIMARY KEY AUTOINCREMENT,
-        name                  TEXT       NOT NULL,
-        world                 TEXT       NOT NULL,
-        xMin                  INTEGER    NOT NULL,
-        yMin                  INTEGER    NOT NULL,
-        zMin                  INTEGER    NOT NULL,
-        xMax                  INTEGER    NOT NULL,
-        yMax                  INTEGER    NOT NULL,
-        zMax                  INTEGER    NOT NULL,
-        rotationPointX        INTEGER    NOT NULL,
-        rotationPointY        INTEGER    NOT NULL,
-        rotationPointZ        INTEGER    NOT NULL,
-        rotationPointChunkId  INTEGER    NOT NULL,
-        powerBlockX           INTEGER    NOT NULL,
-        powerBlockY           INTEGER    NOT NULL,
-        powerBlockZ           INTEGER    NOT NULL,
-        powerBlockChunkId     INTEGER    NOT NULL,
-        openDirection         INTEGER    NOT NULL,
-        type                  TEXT       NOT NULL,
-        typeVersion           INTEGER    NOT NULL,
-        typeData              TEXT       NOT NULL,
-        bitflag               INTEGER    NOT NULL);
-        """
-    ),
-
-    CREATE_TABLE_STRUCTURE_OWNER_PLAYER("""
-        CREATE TABLE IF NOT EXISTS StructureOwnerPlayer
-        (id          INTEGER    PRIMARY KEY AUTOINCREMENT,
-        permission   INTEGER    NOT NULL,
-        playerID     REFERENCES Player(id)    ON UPDATE CASCADE ON DELETE CASCADE,
-        structureUID REFERENCES Structure(id) ON UPDATE CASCADE ON DELETE CASCADE,
-        unique (playerID, structureUID));
-        """
-    ),
-
     ;
 
     private final String statement;

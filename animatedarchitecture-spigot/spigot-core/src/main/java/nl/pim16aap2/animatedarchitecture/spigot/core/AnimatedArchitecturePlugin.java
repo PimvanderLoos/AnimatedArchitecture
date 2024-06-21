@@ -158,7 +158,14 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
         {
             firstInit = true;
             initStats();
-            animatedArchitectureSpigotPlatform = initPlatform();
+            try
+            {
+                animatedArchitectureSpigotPlatform = initPlatform();
+            }
+            catch (Exception e)
+            {
+                log.atSevere().withCause(e).log("Failed to initialize AnimatedArchitecture's Spigot platform!");
+            }
         }
         initialized = true;
 

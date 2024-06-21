@@ -9,3 +9,4 @@ libraries:
   - it.unimi.dsi:fastutil:${dependency.fastutil.version}
   - com.alibaba:fastjson:${dependency.fastjson.version}
   - net.bytebuddy:byte-buddy:${dependency.bytebuddy.version}
+  - org.flywaydb:flyway-core:${dependency.flyway.version}

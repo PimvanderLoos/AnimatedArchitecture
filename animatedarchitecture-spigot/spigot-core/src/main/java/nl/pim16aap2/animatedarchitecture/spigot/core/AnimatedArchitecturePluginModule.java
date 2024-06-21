@@ -42,6 +42,14 @@ public abstract class AnimatedArchitecturePluginModule
 
     @Provides
     @Singleton
+    @Named("pluginClassLoader")
+    static ClassLoader provideClassLoader(AnimatedArchitecturePlugin plugin)
+    {
+        return plugin.getPluginClassLoader();
+    }
+
+    @Provides
+    @Singleton
     @Named("databaseFile")
     static Path provideDatabaseFile(@Named("pluginBaseDirectory") Path pluginBaseDirectory)
     {

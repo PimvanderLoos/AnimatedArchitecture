@@ -27,6 +27,7 @@
         <dependency.fastjson.version>2.0.51</dependency.fastjson.version>
         <dependency.fastutil.version>8.5.13</dependency.fastutil.version>
         <dependency.flogger.version>0.8</dependency.flogger.version>
+        <dependency.flyway.version>10.15.0</dependency.flyway.version>
         <dependency.git-commit-id.version>9.0.0</dependency.git-commit-id.version>
         <dependency.gson.version>2.11.0</dependency.gson.version>
         <dependency.jacoco.version>0.8.12</dependency.jacoco.version>
@@ -126,6 +127,13 @@
         </dependency>
 
         <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>${dependency.jdbc-sqlite.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.eclipse.jdt</groupId>
             <artifactId>org.eclipse.jdt.annotation</artifactId>
             <version>${dependency.eclipse-annotations.version}</version>
@@ -158,6 +166,13 @@
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>${dependency.gson.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>${dependency.flyway.version}</version>
             <scope>provided</scope>
         </dependency>
 

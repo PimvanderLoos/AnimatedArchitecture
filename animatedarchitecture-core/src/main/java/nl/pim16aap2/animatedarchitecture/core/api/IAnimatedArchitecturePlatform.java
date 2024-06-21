@@ -47,6 +47,13 @@ public interface IAnimatedArchitecturePlatform
     void shutDownPlugin();
 
     /**
+     * Getter for the class loader of this project.
+     *
+     * @return The class loader of this project.
+     */
+    ClassLoader getClassLoader();
+
+    /**
      * Getter for the version of this project that is currently being used.
      *
      * @return The current version of this project.

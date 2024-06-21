@@ -19,6 +19,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.factories.IWorldFactory;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.storage.DelayedPreparedStatement;
+import nl.pim16aap2.animatedarchitecture.core.storage.FlywayManager;
 import nl.pim16aap2.animatedarchitecture.core.storage.IStorage;
 import nl.pim16aap2.animatedarchitecture.core.storage.SQLStatement;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
@@ -38,20 +39,17 @@ import nl.pim16aap2.animatedarchitecture.core.util.functional.CheckedFunction;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
+import org.sqlite.JDBC;
 import org.sqlite.SQLiteConfig;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -73,10 +71,6 @@ import java.util.stream.Collectors;
 @Flogger
 public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 {
-    private static final String DRIVER = "org.sqlite.JDBC";
-    private static final int DATABASE_VERSION = 101;
-    private static final int MIN_DATABASE_VERSION = 100;
-
     /**
      * A fake UUID that cannot exist normally. To be used for storing transient data across server restarts.
      */
@@ -92,7 +86,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      * The {@link DatabaseState} the database is in.
      */
     @Getter
-    private volatile DatabaseState databaseState = DatabaseState.UNINITIALIZED;
+    private volatile DatabaseState databaseState;
 
     private final StructureBaseBuilder structureBaseBuilder;
 
@@ -115,7 +109,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         StructureRegistry structureRegistry,
         StructureTypeManager structureTypeManager,
         IWorldFactory worldFactory,
-        DebuggableRegistry debuggableRegistry)
+        DebuggableRegistry debuggableRegistry,
+        FlywayManager flyway)
     {
         this.dbFile = dbFile;
         this.structureBaseBuilder = structureBaseBuilder;
@@ -131,10 +126,20 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 databaseState = DatabaseState.NO_DRIVER;
                 return;
             }
-            init();
+
+            try
+            {
+                flyway.migrate();
+
+                databaseState = DatabaseState.OK;
+            }
+            catch (Exception e)
+            {
+                log.atSevere().withCause(e).log("Failed to initialize database!");
+                databaseState = DatabaseState.ERROR;
+            }
+
             log.atFine().log("Database initialized! Current state: %s", databaseState);
-            if (databaseState == DatabaseState.UPGRADE_REQUIRED)
-                upgrade();
         }
         catch (Exception e)
         {
@@ -151,16 +156,50 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      */
     private boolean loadDriver()
     {
+        final String driver = "org.sqlite.JDBC";
         try
         {
-            Class.forName(DRIVER);
+            Class.forName(driver);
             return true;
         }
         catch (ClassNotFoundException e)
         {
-            log.atSevere().withCause(e).log("Failed to load database driver: %s!", DRIVER);
+            log.atSevere().withCause(e).log("Failed to load database driver: %s!", driver);
         }
         return false;
+    }
+
+    /**
+     * Opens a connection to the SQLite database.
+     * <p>
+     * The connection is opened with foreign keys enabled.
+     *
+     * @param dbFile
+     *     The path to the SQLite database file.
+     * @return The connection to the SQLite database or null if an error occurred.
+     *
+     * @throws SQLException
+     *     If an error occurs while opening the connection.
+     * @throws IllegalArgumentException
+     *     If the path does not result in a valid URL. See {@link JDBC#isValidURL(String)}.
+     * @throws NullPointerException
+     *     If the connection could not be opened and somehow ended up being null.
+     */
+    private Connection openConnection(Path dbFile)
+        throws SQLException
+    {
+        final SQLiteConfig config = new SQLiteConfig();
+        config.enforceForeignKeys(true);
+
+        final String url = "jdbc:sqlite:" + dbFile;
+
+        if (!JDBC.isValidURL(url))
+            throw new IllegalArgumentException("Invalid URL: '" + url + "'");
+
+        return Objects.requireNonNull(
+            config.createConnection(url),
+            "Failed to open connection to SQLite database with URL: '" + url + "'"
+        );
     }
 
     /**
@@ -234,96 +273,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         SQLStatement.LEGACY_ALTER_TABLE_OFF.constructDelayedPreparedStatement().construct(conn).execute();
     }
 
-    private @Nullable Connection openConnection()
+    private Connection openConnection()
         throws SQLException
     {
-        final SQLiteConfig configRW = new SQLiteConfig();
-        configRW.enforceForeignKeys(true);
-
-        final String url = "jdbc:sqlite:" + dbFile;
-        return configRW.createConnection(url);
-    }
-
-    /**
-     * Initializes the database. I.e. create all the required files/tables.
-     */
-    @Locked.Write
-    private void init()
-    {
-        try
-        {
-            if (!Files.isRegularFile(dbFile))
-            {
-                final var parent = Objects.requireNonNull(dbFile.getParent());
-                if (!Files.isDirectory(parent))
-                    Files.createDirectories(parent);
-                Files.createFile(dbFile);
-                log.atInfo().log("New file created at: %s", dbFile);
-            }
-        }
-        catch (IOException e)
-        {
-            log.atSevere().withCause(e).log("File write error: %s", dbFile);
-            databaseState = DatabaseState.ERROR;
-            return;
-        }
-
-        // Table creation
-        try (@Nullable Connection conn = getConnection(DatabaseState.UNINITIALIZED))
-        {
-            if (conn == null)
-            {
-                log.atSevere().log("Failed to initialize database: Connection is null.");
-                databaseState = DatabaseState.ERROR;
-                return;
-            }
-
-            // Check if the "structures" table already exists. If it does, assume the rest exists
-            // as well and don't set it up.
-            if (conn.getMetaData().getTables(null, null, "Structure", new String[]{"TABLE"}).next())
-            {
-                databaseState = DatabaseState.UPGRADE_REQUIRED;
-                verifyDatabaseVersion(conn);
-            }
-            else
-            {
-                executeUpdate(
-                    conn,
-                    SQLStatement.CREATE_TABLE_PLAYER
-                        .constructDelayedPreparedStatement()
-                );
-                executeUpdate(
-                    conn,
-                    SQLStatement.RESERVE_IDS_PLAYER
-                        .constructDelayedPreparedStatement()
-                );
-
-                executeUpdate(
-                    conn,
-                    SQLStatement.CREATE_TABLE_STRUCTURE
-                        .constructDelayedPreparedStatement()
-                );
-
-                executeUpdate(
-                    conn,
-                    SQLStatement.CREATE_TABLE_STRUCTURE_OWNER_PLAYER
-                        .constructDelayedPreparedStatement()
-                );
-                executeUpdate(
-                    conn,
-                    SQLStatement.RESERVE_IDS_STRUCTURE_OWNER_PLAYER
-                        .constructDelayedPreparedStatement()
-                );
-
-                updateDBVersion(conn);
-                databaseState = DatabaseState.OK;
-            }
-        }
-        catch (SQLException | NullPointerException e)
-        {
-            log.atSevere().withCause(e).log();
-            databaseState = DatabaseState.ERROR;
-        }
+        return openConnection(dbFile);
     }
 
     private Optional<AbstractStructure> constructStructure(ResultSet structureBaseRS)
@@ -1150,276 +1103,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     /**
-     * Obtains and checks the version of the database.
-     * <p>
-     * If the database version is invalid for this version of the database class, an error will be printed and the
-     * appropriate {@link #databaseState} will be set.
-     *
-     * @param conn
-     *     A connection to the database.
-     * @return The version of the database, or -1 if something went wrong.
-     */
-    @Locked.Read
-    private int verifyDatabaseVersion(Connection conn)
-    {
-        final int dbVersion = executeQuery(
-            conn,
-            new DelayedPreparedStatement("PRAGMA user_version;"),
-            rs -> rs.getInt(1),
-            -1
-        );
-
-        if (dbVersion == -1)
-        {
-            log.atSevere().log("Failed to obtain database version!");
-            databaseState = DatabaseState.ERROR;
-            return dbVersion;
-        }
-
-        if (dbVersion > DATABASE_VERSION)
-        {
-            log.atSevere().log(
-                "Trying to load database version %s while the maximum allowed version is %s",
-                dbVersion,
-                DATABASE_VERSION
-            );
-            databaseState = DatabaseState.TOO_NEW;
-        }
-        else if (dbVersion < MIN_DATABASE_VERSION)
-        {
-            log.atSevere().log(
-                "Trying to load database version %s while the minimum allowed version is %s",
-                dbVersion,
-                MIN_DATABASE_VERSION
-            );
-            databaseState = DatabaseState.UPGRADE_IMPOSSIBLE;
-        }
-        else if (dbVersion < DATABASE_VERSION)
-        {
-            databaseState = DatabaseState.UPGRADE_REQUIRED;
-        }
-        else
-        {
-            databaseState = DatabaseState.OK;
-        }
-        return dbVersion;
-    }
-
-    /**
-     * Upgrades the database to the latest version if needed.
-     */
-    @Locked.Write
-    private void upgrade()
-    {
-        final int dbVersion;
-        try (@Nullable Connection conn = getConnection(DatabaseState.UPGRADE_REQUIRED))
-        {
-            if (conn == null)
-            {
-                log.atSevere().withStackTrace(StackSize.FULL).log(
-                    "Failed to upgrade database: Connection unavailable!");
-                databaseState = DatabaseState.ERROR;
-                return;
-            }
-
-            dbVersion = verifyDatabaseVersion(conn);
-            log.atFine().log("Upgrading database from version %d to version %d.", dbVersion, DATABASE_VERSION);
-
-            if (!makeBackup())
-                return;
-        }
-        catch (Exception e)
-        {
-            log.atSevere().withCause(e).log("Failed to upgrade database!");
-            databaseState = DatabaseState.ERROR;
-            return;
-        }
-
-        try
-        {
-            if (dbVersion < 101)
-            {
-                log.atInfo().log("Upgrading database to version 101...");
-                upgradeToVersion101();
-            }
-        }
-        catch (SQLException e)
-        {
-            log.atSevere().withCause(e).log(
-                "Failed to upgrade database from version %d to version %d!",
-                dbVersion,
-                DATABASE_VERSION
-            );
-            databaseState = DatabaseState.ERROR;
-            return;
-        }
-
-        try (Connection conn = Objects.requireNonNull(getConnection(DatabaseState.UPGRADE_REQUIRED)))
-        {
-            updateDBVersion(conn);
-            databaseState = DatabaseState.OK;
-        }
-        catch (Exception e)
-        {
-            log.atSevere().withCause(e).log("Failed to update database version!");
-            databaseState = DatabaseState.ERROR;
-        }
-    }
-
-    /**
-     * Upgrades the database to version 101.
-     *
-     * <p>
-     * Changes:
-     * <ul>
-     *     <li>Added columns:
-     *         <ul>
-     *             <li>limitStructureSize</li>
-     *             <li>limitStructureCount</li>
-     *             <li>limitPowerBlockDistance</li>
-     *             <li>limitBlocksToMove</li>
-     *         </ul>
-     *     </li>
-     *     <li>Removed columns:
-     *         <ul>
-     *             <li>sizeLimit</li>
-     *             <li>countLimit</li>
-     *         </ul>
-     *     </li>
-     * </ul>
-     * <p>
-     * The {@code limitStructureSize} and {@code limitStructureCount} columns are populated with the values from the
-     * {@code sizeLimit} and {@code countLimit} columns, respectively. If the value in the old column is {@code -1}, the
-     * new column is set to {@code null}.
-     *
-     * @throws SQLException
-     *     If an error occurs during the upgrade.
-     */
-    private void upgradeToVersion101()
-        throws SQLException
-    {
-        try (Connection conn = Objects.requireNonNull(getConnection(DatabaseState.UPGRADE_REQUIRED)))
-        {
-            // First add the new columns to the player table:
-            // - `limitStructureSize`
-            // - `limitStructureCount`
-            // - `limitPowerBlockDistance`
-            // - `limitBlocksToMove`
-            executeUpdate(
-                conn,
-                new DelayedPreparedStatement(
-                    "ALTER TABLE players ADD COLUMN limitStructureSize INTEGER DEFAULT NULL;"
-                )
-            );
-            executeUpdate(
-                conn,
-                new DelayedPreparedStatement(
-                    "ALTER TABLE players ADD COLUMN limitStructureCount INTEGER DEFAULT NULL;"
-                )
-            );
-            executeUpdate(
-                conn,
-                new DelayedPreparedStatement(
-                    "ALTER TABLE players ADD COLUMN limitPowerBlockDistance INTEGER DEFAULT NULL;"
-                )
-            );
-            executeUpdate(
-                conn,
-                new DelayedPreparedStatement(
-                    "ALTER TABLE players ADD COLUMN limitBlocksToMove INTEGER DEFAULT NULL;"
-                )
-            );
-
-            // Copy the values from the old columns to the new columns.
-            // `sizeLimit` -> `limitStructureSize`
-            // `countLimit` -> `limitStructureCount`
-            // If the old value is -1, set the new value to null.
-            executeUpdate(
-                conn,
-                new DelayedPreparedStatement("""
-                    UPDATE players
-                    SET limitStructureSize =
-                        CASE WHEN sizeLimit = -1
-                            THEN NULL
-                            ELSE sizeLimit
-                        END;
-                    """
-                )
-            );
-            executeUpdate(
-                conn,
-                new DelayedPreparedStatement("""
-                    UPDATE players
-                    SET limitStructureCount =
-                        CASE WHEN countLimit = -1
-                            THEN NULL
-                            ELSE countLimit
-                        END;
-                    """
-                )
-            );
-
-            // Then drop the old `sizeLimit` and `countLimit` columns.
-            executeUpdate(
-                conn,
-                new DelayedPreparedStatement("ALTER TABLE players DROP COLUMN sizeLimit;")
-            );
-            executeUpdate(
-                conn,
-                new DelayedPreparedStatement("ALTER TABLE players DROP COLUMN countLimit;")
-            );
-        }
-        catch (Exception e)
-        {
-            log.atSevere().withCause(e).log("Failed to upgrade database to version 101!");
-            databaseState = DatabaseState.ERROR;
-        }
-    }
-
-    /**
-     * Makes a backup of the database file. Stored in a database with the same name, but with ".BACKUP" appended to it.
-     *
-     * @return True if backup creation was successful.
-     */
-    @Locked.Write
-    private boolean makeBackup()
-    {
-        final Path dbFileBackup = dbFile.resolveSibling(dbFile.getFileName() + ".BACKUP");
-
-        try
-        {
-            // Only the most recent backup is kept, so replace any existing backups.
-            Files.copy(dbFile, dbFileBackup, StandardCopyOption.REPLACE_EXISTING);
-        }
-        catch (IOException e)
-        {
-            log.atSevere().withCause(e).log(
-                "Failed to create backup of the database! Database upgrade aborted and access is disabled!");
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Updates the version of the database and sets it to {@link #DATABASE_VERSION}.
-     *
-     * @param conn
-     *     An active connection to the database.
-     */
-    @Locked.Write
-    private void updateDBVersion(Connection conn)
-    {
-        try (Statement statement = conn.createStatement())
-        {
-            statement.execute("PRAGMA user_version = " + DATABASE_VERSION + ";");
-        }
-        catch (SQLException | NullPointerException e)
-        {
-            log.atSevere().withCause(e).log();
-        }
-    }
-
-    /**
      * Executes an update defined by a {@link DelayedPreparedStatement}.
      *
      * @param delayedPreparedStatement
@@ -1456,7 +1139,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      * @return Either the number of rows modified by the update, or -1 if an error occurred.
      */
     @Locked.Write
-    private int executeUpdate(Connection conn, DelayedPreparedStatement delayedPreparedStatement)
+    private static int executeUpdate(Connection conn, DelayedPreparedStatement delayedPreparedStatement)
     {
         logStatement(delayedPreparedStatement);
         try (PreparedStatement ps = delayedPreparedStatement.construct(conn))
@@ -1690,7 +1373,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      * @param delayedPreparedStatement
      *     The {@link DelayedPreparedStatement} to log.
      */
-    private void logStatement(DelayedPreparedStatement delayedPreparedStatement)
+    private static void logStatement(DelayedPreparedStatement delayedPreparedStatement)
     {
         log.atFinest().log("Executed statement: %s", delayedPreparedStatement);
     }
@@ -1699,7 +1382,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     public String getDebugInformation()
     {
         return "Database state: " + databaseState.name() +
-            "\nDatabase version: " + DATABASE_VERSION +
             "\nDatabase file: " + dbFile;
     }
 
