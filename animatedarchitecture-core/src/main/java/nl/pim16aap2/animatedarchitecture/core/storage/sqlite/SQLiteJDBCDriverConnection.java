@@ -97,12 +97,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     @Inject
     public SQLiteJDBCDriverConnection(
         DataSourceInfoSQLite dataSourceInfo,
+        FlywayManager flywayManager,
         StructureBaseBuilder structureBaseBuilder,
         StructureRegistry structureRegistry,
         StructureTypeManager structureTypeManager,
         IWorldFactory worldFactory,
-        DebuggableRegistry debuggableRegistry,
-        FlywayManager flywayManager)
+        DebuggableRegistry debuggableRegistry)
     {
         this.dataSourceInfo = dataSourceInfo;
         this.structureBaseBuilder = structureBaseBuilder;

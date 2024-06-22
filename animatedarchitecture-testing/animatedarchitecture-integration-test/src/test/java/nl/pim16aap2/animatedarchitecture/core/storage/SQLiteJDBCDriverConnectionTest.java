@@ -5,7 +5,6 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.longs.LongList;
 import nl.altindag.log.LogCaptor;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
-import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.LimitContainer;
@@ -145,13 +144,10 @@ public class SQLiteJDBCDriverConnectionTest
     void beforeEach()
         throws Exception
     {
-        final IConfig config = Mockito.mock(IConfig.class);
-        Mockito.when(config.getDataSourceInfo()).thenReturn(DATA_SOURCE_INFO);
-
         flywayManager = new FlywayManager(
-            config,
             DB_FILE.getParent(),
             getClass().getClassLoader(),
+            DATA_SOURCE_INFO,
             debuggableRegistry
         );
 
@@ -734,12 +730,12 @@ public class SQLiteJDBCDriverConnectionTest
     {
         storage = new SQLiteJDBCDriverConnection(
             DATA_SOURCE_INFO,
+            flywayManager,
             structureBaseBuilder,
             structureRegistry,
             structureTypeManager,
             worldFactory,
-            debuggableRegistry,
-            flywayManager
+            debuggableRegistry
         );
     }
 

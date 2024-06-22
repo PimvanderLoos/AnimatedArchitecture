@@ -1,7 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.storage;
 
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import org.flywaydb.core.Flyway;
@@ -31,14 +30,14 @@ public final class FlywayManager implements IDebuggable
 
     @Inject
     FlywayManager(
-        IConfig config,
         @Named("pluginBaseDirectory") Path baseDirectory,
         @Named("pluginClassLoader") ClassLoader classLoader,
+        IDataSourceInfo dataSourceInfo,
         DebuggableRegistry debuggableRegistry
     )
     {
         this.classLoader = classLoader;
-        this.dataSourceInfo = config.getDataSourceInfo();
+        this.dataSourceInfo = dataSourceInfo;
 
         this.flyway = configureFlyway();
 

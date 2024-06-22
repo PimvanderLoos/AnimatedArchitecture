@@ -1,7 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.api;
 
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.IRestartable;
-import nl.pim16aap2.animatedarchitecture.core.storage.IDataSourceInfo;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 
 import java.util.Locale;
@@ -137,13 +136,4 @@ public interface IConfig extends IRestartable
      * @return True if errors should be logged to the console.
      */
     boolean consoleLogging();
-
-    /**
-     * Gets the data source info.
-     * <p>
-     * The data source is used to connect to the database.
-     *
-     * @return The data source info.
-     */
-    IDataSourceInfo getDataSourceInfo();
 }

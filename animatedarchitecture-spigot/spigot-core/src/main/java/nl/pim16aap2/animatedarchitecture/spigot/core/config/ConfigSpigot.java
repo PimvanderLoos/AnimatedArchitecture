@@ -11,8 +11,6 @@ import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.localization.LocalizationUtil;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
-import nl.pim16aap2.animatedarchitecture.core.storage.IDataSourceInfo;
-import nl.pim16aap2.animatedarchitecture.core.storage.sqlite.DataSourceInfoSQLite;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.ConfigEntry;
 import nl.pim16aap2.animatedarchitecture.core.util.Limit;
@@ -881,12 +879,6 @@ public final class ConfigSpigot implements IConfig, IDebuggable
     public boolean consoleLogging()
     {
         return consoleLogging;
-    }
-
-    @Override
-    public IDataSourceInfo getDataSourceInfo()
-    {
-        return new DataSourceInfoSQLite(baseDir.resolve("structures.db"));
     }
 
     @Override
