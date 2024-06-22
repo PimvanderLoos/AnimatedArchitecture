@@ -10,7 +10,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
 
-@Flogger//
+@Flogger
 final class StructureTypeClassLoader extends URLClassLoader implements IStructureTypeClassLoader
 {
     public StructureTypeClassLoader(ClassLoader parent)

@@ -216,6 +216,8 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
     @Getter
     private final Semver projectVersion;
 
+    private final AnimatedArchitecturePlugin plugin;
+
     AnimatedArchitectureSpigotPlatform(AnimatedArchitectureSpigotComponent animatedArchitectureSpigotComponent)
         throws InitializationException
     {
@@ -282,6 +284,8 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
         commandListener = safeGetter(AnimatedArchitectureSpigotComponent::getCommandListener);
         buildData = safeGetter(AnimatedArchitectureSpigotComponent::getBuildDataReader).getBuildData();
 
+        plugin = safeGetter(AnimatedArchitectureSpigotComponent::getAnimatedArchitectureJavaPlugin);
+
         initPlatform();
     }
 
@@ -322,6 +326,12 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
     public StructureAnimationRequestBuilder.IBuilderStructure getStructureAnimationRequestBuilder()
     {
         return structureAnimationRequestBuilder.builder();
+    }
+
+    @Override
+    public ClassLoader getClassLoader()
+    {
+        return plugin.getPluginClassLoader();
     }
 
     @Override

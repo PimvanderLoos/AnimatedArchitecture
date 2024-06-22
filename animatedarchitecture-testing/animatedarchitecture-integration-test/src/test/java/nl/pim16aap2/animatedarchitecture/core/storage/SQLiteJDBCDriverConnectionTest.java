@@ -15,6 +15,7 @@ import nl.pim16aap2.animatedarchitecture.core.localization.LocalizationManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureDeletionManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
+import nl.pim16aap2.animatedarchitecture.core.storage.sqlite.DataSourceInfoSQLite;
 import nl.pim16aap2.animatedarchitecture.core.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
@@ -108,6 +109,7 @@ public class SQLiteJDBCDriverConnectionTest
 
     private static final Path DB_FILE;
     private static final Path DB_FILE_BACKUP;
+    private static final DataSourceInfoSQLite DATA_SOURCE_INFO;
 
     private SQLiteJDBCDriverConnection storage;
 
@@ -119,6 +121,7 @@ public class SQLiteJDBCDriverConnectionTest
     {
         DB_FILE = Path.of(".", "tests", "test.db");
         DB_FILE_BACKUP = DB_FILE.resolveSibling(DB_FILE.getFileName() + ".BACKUP");
+        DATA_SOURCE_INFO = new DataSourceInfoSQLite(DB_FILE);
     }
 
     private IWorldFactory worldFactory;
@@ -135,10 +138,19 @@ public class SQLiteJDBCDriverConnectionTest
     @Mock
     private LocalizationManager localizationManager;
 
+    private FlywayManager flywayManager;
+
     @BeforeEach
     void beforeEach()
         throws Exception
     {
+        flywayManager = new FlywayManager(
+            DB_FILE.getParent(),
+            getClass().getClassLoader(),
+            DATA_SOURCE_INFO,
+            debuggableRegistry
+        );
+
         worldFactory = new TestWorldFactory();
         structureRegistry =
             StructureRegistry.unCached(debuggableRegistry, Mockito.mock(StructureDeletionManager.class));
@@ -162,6 +174,7 @@ public class SQLiteJDBCDriverConnectionTest
     {
         try
         {
+            Files.createDirectories(DB_FILE.getParent());
             Files.deleteIfExists(DB_FILE);
             Files.deleteIfExists(DB_FILE_BACKUP);
         }
@@ -222,7 +235,8 @@ public class SQLiteJDBCDriverConnectionTest
     private void resetLogCaptor(LogCaptor logCaptor)
     {
         logCaptor.clearLogs();
-        logCaptor.setLogLevelToTrace();
+        logCaptor.setLogLevelToInfo();
+        logCaptor.enableConsoleOutput();
     }
 
     /**
@@ -237,6 +251,9 @@ public class SQLiteJDBCDriverConnectionTest
 
         registerStructureTypes();
         resetLogCaptor(logCaptor);
+
+        logCaptor.setLogLevelToTrace();
+        logCaptor.enableConsoleOutput();
 
         insertStructures();
         resetLogCaptor(logCaptor);
@@ -668,6 +685,10 @@ public class SQLiteJDBCDriverConnectionTest
     public void failures(LogCaptor logCaptor)
         throws NoSuchFieldException, IllegalAccessException
     {
+        logCaptor.clearLogs();
+        logCaptor.setLogLevelToTrace();
+        logCaptor.disableConsoleOutput();
+
         // Set the enabled status of the database to false.
         final Field databaseLock = SQLiteJDBCDriverConnection.class.getDeclaredField("databaseState");
         databaseLock.setAccessible(true);
@@ -690,8 +711,12 @@ public class SQLiteJDBCDriverConnectionTest
             LogSiteStackTrace.class
         );
 
-        LogAssertionsUtil.assertLogged(logCaptor, 2, "Executed statement: ", MessageComparisonMethod.STARTS_WITH);
-
+        LogAssertionsUtil.assertLogged(
+            logCaptor,
+            2,
+            "Executed statement: ",
+            MessageComparisonMethod.STARTS_WITH
+        );
 
         // Set the database state to enabled again and verify that it's now possible to retrieve structures again.
         databaseLock.set(storage, IStorage.DatabaseState.OK);
@@ -704,7 +729,8 @@ public class SQLiteJDBCDriverConnectionTest
     private void initStorage()
     {
         storage = new SQLiteJDBCDriverConnection(
-            DB_FILE,
+            DATA_SOURCE_INFO,
+            flywayManager,
             structureBaseBuilder,
             structureRegistry,
             structureTypeManager,

@@ -77,7 +77,6 @@ import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.ExecutorMod
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.MessagingInterfaceSpigotModule;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.SpigotServerModule;
 import nl.pim16aap2.animatedarchitecture.spigot.util.text.TextComponentFactorySpigotModule;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.semver4j.Semver;
 
 import javax.inject.Named;
@@ -85,33 +84,35 @@ import javax.inject.Singleton;
 
 @SuppressWarnings("unused")
 @Singleton
-@Component(modules = {
-    AnimatedArchitecturePluginModule.class,
-    ProtectionHookManagerModule.class,
-    ConfigSpigotModule.class,
-    LocalizationModule.class,
-    ExecutorModule.class,
-    HighlightedBlockSpawnerModule.class,
-    SpigotServerModule.class,
-    WorldFactorySpigotModule.class,
-    LocationFactorySpigotModule.class,
-    AnimatedArchitectureEventsSpigotModule.class,
-    PlayerFactorySpigotModule.class,
-    MessagingInterfaceSpigotModule.class,
-    AudioPlayerSpigotModule.class,
-    PowerBlockRedstoneManagerSpigotModule.class,
-    AnimatedBlockDisplayModule.class,
-    HighlightedBlockSpawnerModule.class,
-    SQLiteStorageModule.class,
-    DebugReporterSpigotModule.class,
-    VaultManagerModule.class,
-    AnimatedArchitectureToolUtilSpigotModule.class,
-    TextFactorySpigotModule.class,
-    ChunkLoaderSpigotModule.class,
-    GuiFactorySpigotModule.class,
-    TextComponentFactorySpigotModule.class,
-    BlockAnalyzerModule.class,
-})
+@Component(
+    modules = {
+        AnimatedArchitecturePluginModule.class,
+        ProtectionHookManagerModule.class,
+        ConfigSpigotModule.class,
+        LocalizationModule.class,
+        ExecutorModule.class,
+        HighlightedBlockSpawnerModule.class,
+        SpigotServerModule.class,
+        WorldFactorySpigotModule.class,
+        LocationFactorySpigotModule.class,
+        AnimatedArchitectureEventsSpigotModule.class,
+        PlayerFactorySpigotModule.class,
+        MessagingInterfaceSpigotModule.class,
+        AudioPlayerSpigotModule.class,
+        PowerBlockRedstoneManagerSpigotModule.class,
+        AnimatedBlockDisplayModule.class,
+        HighlightedBlockSpawnerModule.class,
+        SQLiteStorageModule.class,
+        DebugReporterSpigotModule.class,
+        VaultManagerModule.class,
+        AnimatedArchitectureToolUtilSpigotModule.class,
+        TextFactorySpigotModule.class,
+        ChunkLoaderSpigotModule.class,
+        GuiFactorySpigotModule.class,
+        TextComponentFactorySpigotModule.class,
+        BlockAnalyzerModule.class,
+    }
+)
 interface AnimatedArchitectureSpigotComponent
 {
     @Component.Builder
@@ -132,7 +133,7 @@ interface AnimatedArchitectureSpigotComponent
         AnimatedArchitectureSpigotComponent build();
     }
 
-    JavaPlugin getAnimatedArchitectureJavaPlugin();
+    AnimatedArchitecturePlugin getAnimatedArchitectureJavaPlugin();
 
     CommandManager getCommandListener();
 

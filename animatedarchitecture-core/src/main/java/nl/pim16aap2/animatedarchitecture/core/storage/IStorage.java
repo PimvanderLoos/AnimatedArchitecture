@@ -385,11 +385,6 @@ public interface IStorage
         ERROR,
 
         /**
-         * The database is out of date and needs to be upgraded before it can work.
-         */
-        UPGRADE_REQUIRED,
-
-        /**
          * The database version is newer than the maximum allowed version.
          */
         TOO_NEW,
