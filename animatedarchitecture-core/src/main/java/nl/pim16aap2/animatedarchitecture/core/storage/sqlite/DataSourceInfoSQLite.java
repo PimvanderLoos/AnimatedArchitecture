@@ -23,6 +23,11 @@ public class DataSourceInfoSQLite implements IDataSourceInfo
 {
     private static final Type type = Type.SQLITE;
 
+    /**
+     * Magic version number to indicate that the database is managed by Flyway.
+     */
+    private static final int FLYWAY_MANAGED_DATABASE_VERSION = 1000;
+
     @Getter
     private final SQLiteDataSource dataSource;
 
@@ -57,6 +62,9 @@ public class DataSourceInfoSQLite implements IDataSourceInfo
             return;
 
         final int version = currentVersion.getAsInt();
+        if (version == FLYWAY_MANAGED_DATABASE_VERSION)
+            return;
+
         if (version != 100 && version != 101)
         {
             log.atWarning().log("Unknown database version: %d. Skipping migration.", version);
@@ -68,6 +76,9 @@ public class DataSourceInfoSQLite implements IDataSourceInfo
         // Make a special pre-flyway migration backup to prevent
         // the backup being overridden by future migration backups.
         backupDatabase(databasePath.resolveSibling(databasePath.getFileName() + ".v" + version + ".backup"));
+
+        // Set the current version to the Flyway-managed version to prevent future backups.
+        setCurrentDatabaseVersion(FLYWAY_MANAGED_DATABASE_VERSION);
 
         // Because the SQLite database already existed before Flyway was introduced,
         // we use a baseline version to get it under Flyway's control.
@@ -101,9 +112,23 @@ public class DataSourceInfoSQLite implements IDataSourceInfo
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to get the current database version!");
+            throw new RuntimeException("Failed to get the current database version!", e);
         }
         return OptionalInt.empty();
+    }
+
+    private void setCurrentDatabaseVersion(int version)
+    {
+        try (
+            var connection = dataSource.getConnection();
+            var statement = connection.createStatement())
+        {
+            statement.execute("PRAGMA user_version = " + version + ";");
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException("Failed to set the current database version!", e);
+        }
     }
 
     @Override
