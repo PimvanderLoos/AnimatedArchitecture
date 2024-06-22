@@ -102,7 +102,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         StructureTypeManager structureTypeManager,
         IWorldFactory worldFactory,
         DebuggableRegistry debuggableRegistry,
-        FlywayManager flyway)
+        FlywayManager flywayManager)
     {
         this.dataSourceInfo = dataSourceInfo;
         this.structureBaseBuilder = structureBaseBuilder;
@@ -121,8 +121,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
             try
             {
-                flyway.migrate();
-
+                flywayManager.migrate();
                 databaseState = DatabaseState.OK;
             }
             catch (Exception e)
