@@ -53,7 +53,7 @@ public abstract class AnimatedArchitecturePluginModule
     @Named("databaseFile")
     static Path provideDatabaseFile(@Named("pluginBaseDirectory") Path pluginBaseDirectory)
     {
-        return pluginBaseDirectory.resolve("structures.db");
+        return pluginBaseDirectory.resolve("structures.sqlite");
     }
 
     @Provides
