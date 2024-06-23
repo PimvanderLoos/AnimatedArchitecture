@@ -95,7 +95,7 @@ public final class SafeStringBuilder implements CharSequence, Appendable, Serial
 
     public SafeStringBuilder appendIndented(int indent, Supplier<@Nullable Object> fun)
     {
-        @Nullable Object obj;
+        @Nullable Object obj; //NOPMD - False positive: https://github.com/pmd/pmd/issues/5046
         try
         {
             obj = fun.get();
