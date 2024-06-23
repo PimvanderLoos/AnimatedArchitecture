@@ -122,8 +122,6 @@
     <rule ref="category/java/design.xml/MutableStaticState"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_design.html#simplifybooleanexpressions -->
     <rule ref="category/java/design.xml/SimplifyBooleanExpressions"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_design.html#simplifybooleanreturns -->
-    <rule ref="category/java/design.xml/SimplifyBooleanReturns"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_design.html#simplifyconditional -->
     <rule ref="category/java/design.xml/SimplifyConditional"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_design.html#singularfield -->
