@@ -60,7 +60,7 @@ public final class AnimatedBlockRecoveryDataType implements PersistentDataType<S
     {
         try
         {
-            JsonObject jsonObject = new JsonObject();
+            final JsonObject jsonObject = new JsonObject();
             jsonObject.addProperty("type", complex.getClass().getName());
             jsonObject.add("data", gson.toJsonTree(complex));
             return gson.toJson(jsonObject);
@@ -85,11 +85,11 @@ public final class AnimatedBlockRecoveryDataType implements PersistentDataType<S
         }
         catch (ClassNotFoundException e)
         {
-            throw new IllegalArgumentException("Unknown RecoveryData subclass: " + type);
+            throw new IllegalArgumentException("Unknown RecoveryData subclass: " + type, e);
         }
     }
 
-    private static class BlockDataAdapter implements JsonSerializer<BlockData>, JsonDeserializer<BlockData>
+    private static final class BlockDataAdapter implements JsonSerializer<BlockData>, JsonDeserializer<BlockData>
     {
         @Override
         public JsonElement serialize(BlockData src, Type typeOfSrc, JsonSerializationContext context)
@@ -105,7 +105,7 @@ public final class AnimatedBlockRecoveryDataType implements PersistentDataType<S
         }
     }
 
-    private static class WorldAdapter implements JsonSerializer<World>, JsonDeserializer<World>
+    private static final class WorldAdapter implements JsonSerializer<World>, JsonDeserializer<World>
     {
         @Override
         public JsonElement serialize(World src, Type typeOfSrc, JsonSerializationContext context)

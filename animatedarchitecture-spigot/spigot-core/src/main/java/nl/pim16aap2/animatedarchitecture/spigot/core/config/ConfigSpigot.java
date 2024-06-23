@@ -912,7 +912,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable
      * <p>
      * See {@link #verifyMaterials(Collection, Set)}.
      */
-    private static class MaterialVerifier implements ConfigEntry.ITestValue<Collection<String>>
+    private static final class MaterialVerifier implements ConfigEntry.ITestValue<Collection<String>>
     {
         private final Set<Material> output;
 

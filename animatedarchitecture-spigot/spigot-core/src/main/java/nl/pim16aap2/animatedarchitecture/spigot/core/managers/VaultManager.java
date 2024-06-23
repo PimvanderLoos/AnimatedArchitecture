@@ -57,9 +57,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     private final IConfig config;
     private final StructureTypeManager structureTypeManager;
     private final IExecutor executor;
-
-    private boolean economyEnabled = false;
-    private @Nullable Economy economy = null;
+    private final @Nullable Economy economy;
 
     @Inject
     public VaultManager(
@@ -77,7 +75,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         this.executor = executor;
 
         flatPrices = new HashMap<>();
-        economyEnabled = setupEconomy();
+        economy = setupEconomy();
         perms = setupPermissions();
 
         debuggableRegistry.registerDebuggable(this);
@@ -86,7 +84,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     @Override
     public boolean buyStructure(IPlayer player, IWorld world, StructureType type, int blockCount)
     {
-        if (!economyEnabled)
+        if (!isEconomyEnabled())
             return true;
 
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
@@ -132,7 +130,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     @Override
     public boolean isEconomyEnabled()
     {
-        return economyEnabled;
+        return economy != null;
     }
 
     /**
@@ -203,7 +201,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     @Override
     public OptionalDouble getPrice(StructureType type, int blockCount)
     {
-        if (!economyEnabled)
+        if (!isEconomyEnabled())
             return OptionalDouble.empty();
 
         // TODO: Store flat prices as OptionalDoubles.
@@ -311,7 +309,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
      *
      * @return True if the initialization process was successful.
      */
-    private boolean setupEconomy()
+    private @Nullable Economy setupEconomy()
     {
         try
         {
@@ -319,15 +317,14 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
                 Bukkit.getServer().getServicesManager().getRegistration(Economy.class);
 
             if (economyProvider == null)
-                return false;
+                return null;
 
-            economy = economyProvider.getProvider();
-            return true;
+            return economyProvider.getProvider();
         }
         catch (Exception e)
         {
             log.atSevere().withCause(e).log();
-            return false;
+            return null;
         }
     }
 
@@ -452,7 +449,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     @Override
     public String getDebugInformation()
     {
-        return "Economy Enabled: " + economyEnabled + "\n"
+        return "Economy: " + economy + "\n"
             + "Flat prices map: " + flatPrices;
     }
 }
