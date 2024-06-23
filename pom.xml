@@ -526,11 +526,9 @@
                         <showPmdLog>true</showPmdLog>
                         <detail>true</detail>
                         <printFailingErrors>true</printFailingErrors>
-                        <excludes>
-                            <!-- Exclude files created by Dagger -->
-                            <exclude>**\/Dagger*.java</exclude>
-                            <exclude>**\/*_Factory.java</exclude>
-                        </excludes>
+                        <excludeRoots>
+                            <excludeRoot>target/generated-sources</excludeRoot>
+                        </excludeRoots>
                     </configuration>
                     <executions>
                         <execution>
