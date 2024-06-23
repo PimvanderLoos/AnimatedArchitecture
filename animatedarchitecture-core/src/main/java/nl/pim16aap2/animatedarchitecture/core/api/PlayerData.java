@@ -64,6 +64,7 @@ public record PlayerData(
      *     The {@link Limit} to get the limit for.
      * @return The value of the specified {@link Limit} for this player.
      */
+    @Override
     public OptionalInt getLimit(Limit limit)
     {
         return limits.getLimit(limit);

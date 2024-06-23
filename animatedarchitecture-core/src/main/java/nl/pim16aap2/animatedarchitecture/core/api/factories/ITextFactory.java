@@ -33,7 +33,7 @@ public interface ITextFactory
     /**
      * Represents a very simply {@link ITextFactory} that only creates unstyled texts.
      */
-    class SimpleTextFactory implements ITextFactory
+    final class SimpleTextFactory implements ITextFactory
     {
         private static final ITextFactory INSTANCE = new SimpleTextFactory();
 

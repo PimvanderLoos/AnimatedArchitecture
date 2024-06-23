@@ -90,7 +90,7 @@ public final class Util
     {
         for (final var blockFace : BlockFace.values())
         {
-            MovementDirection mappedMoveDir;
+            MovementDirection mappedMoveDir; //NOPMD - False positive: https://github.com/pmd/pmd/issues/5046
             try
             {
                 mappedMoveDir = MovementDirection.valueOf(blockFace.toString());
@@ -304,11 +304,10 @@ public final class Util
             return false;
 
         int idx = 0;
-        char ch = str.charAt(idx);
 
         // If the first character is a minus sign, swap the sign of the limit and move to the next character.
         // If the string is only a minus sign, it is not numerical.
-        if (ch == '-')
+        if (str.charAt(idx) == '-')
         {
             if (str.length() == 1)
                 return false;

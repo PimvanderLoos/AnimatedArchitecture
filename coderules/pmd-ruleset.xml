@@ -114,8 +114,6 @@
     <rule ref="category/java/design.xml/ClassWithOnlyPrivateConstructorsShouldBeFinal"/>
     <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_design.html#donotextendjavalangerror -->
     <rule ref="category/java/design.xml/DoNotExtendJavaLangError"/>
-    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_design.html#exceptionasflowcontrol -->
-    <rule ref="category/java/design.xml/ExceptionAsFlowControl"/>
     <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_design.html#immutablefield -->
     <rule ref="category/java/design.xml/ImmutableField"/>
     <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_design.html#logicinversion -->
