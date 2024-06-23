@@ -16,6 +16,7 @@
         <mainClass>nl.pim16aap2.animatedarchitecture.structures.clock.StructureTypeClock</mainClass>
         <typeName>Clock</typeName>
         <version>1</version>
+        <supportedApiVersions>1.*</supportedApiVersions>
         <TypeDependencies>windmill(1;1)</TypeDependencies>
         <project.root-dir>${project.basedir}/../..</project.root-dir>
     </properties>

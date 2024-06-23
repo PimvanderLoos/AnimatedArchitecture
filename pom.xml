@@ -523,7 +523,6 @@
                         </rulesets>
                         <linkXRef>true</linkXRef>
                         <failOnViolation>true</failOnViolation>
-                        <showPmdLog>true</showPmdLog>
                         <detail>true</detail>
                         <printFailingErrors>true</printFailingErrors>
                         <excludeRoots>

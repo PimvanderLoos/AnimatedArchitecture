@@ -223,37 +223,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         return getConnection(DatabaseState.OK);
     }
 
-    /**
-     * Because SQLite is a PoS and decided to remove the admittedly odd behavior that just disabling foreign keys
-     * suddenly ignored all the triggers etc. attached to it without actually providing a proper alternative (perhaps
-     * implement ALTER TABLE properly??), this method needs to be called now in order to safely modify stuff without
-     * having the foreign keys getting fucked up.
-     *
-     * @param conn
-     *     The connection.
-     */
-    @SuppressWarnings("unused")
-    private void disableForeignKeys(Connection conn)
-        throws Exception
-    {
-        SQLStatement.FOREIGN_KEYS_OFF.constructDelayedPreparedStatement().construct(conn).execute();
-        SQLStatement.LEGACY_ALTER_TABLE_ON.constructDelayedPreparedStatement().construct(conn).execute();
-    }
-
-    /**
-     * The anti method of {@link #disableForeignKeys(Connection)}. Only needs to be called if that was called first.
-     *
-     * @param conn
-     *     The connection.
-     */
-    @SuppressWarnings("unused")
-    private void reEnableForeignKeys(Connection conn)
-        throws Exception
-    {
-        SQLStatement.FOREIGN_KEYS_ON.constructDelayedPreparedStatement().construct(conn).execute();
-        SQLStatement.LEGACY_ALTER_TABLE_OFF.constructDelayedPreparedStatement().construct(conn).execute();
-    }
-
     private Optional<AbstractStructure> constructStructure(ResultSet structureBaseRS)
         throws Exception
     {

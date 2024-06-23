@@ -275,22 +275,6 @@ public enum SQLStatement
         """
     ),
 
-    LEGACY_ALTER_TABLE_ON(
-        "PRAGMA legacy_alter_table = ON;"
-    ),
-
-    LEGACY_ALTER_TABLE_OFF(
-        "PRAGMA legacy_alter_table = OFF;"
-    ),
-
-    FOREIGN_KEYS_ON(
-        "PRAGMA foreign_keys = ON;"
-    ),
-
-    FOREIGN_KEYS_OFF(
-        "PRAGMA foreign_keys = OFF;"
-    ),
-
     ;
 
     private final String statement;
