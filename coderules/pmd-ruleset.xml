@@ -42,6 +42,8 @@
     <rule ref="category/java/bestpractices.xml/ReplaceHashtableWithMap"/>
     <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_bestpractices.html#simplifiabletestassertion -->
     <rule ref="category/java/bestpractices.xml/SimplifiableTestAssertion"/>
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_bestpractices.html#unnecessaryvarargsarraycreation -->
+    <rule ref="category/java/bestpractices.xml/UnnecessaryVarargsArrayCreation"/>
     <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_bestpractices.html#unusedlocalvariable -->
     <rule ref="category/java/bestpractices.xml/UnusedLocalVariable"/>
     <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_bestpractices.html#unusedprivatefield -->
@@ -158,8 +160,10 @@
     <rule ref="category/java/errorprone.xml/CloneMethodMustImplementCloneable"/>
     <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#clonemethodreturntypemustmatchclassname -->
     <rule ref="category/java/errorprone.xml/CloneMethodReturnTypeMustMatchClassName"/>
-    <!-- https://pmd.github.io/pmd-6.36.0/pmd_rules_java_errorprone.html#comparisonwithnan -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#comparisonwithnan -->
     <rule ref="category/java/errorprone.xml/ComparisonWithNaN"/>
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#confusingargumenttovarargsmethod-->
+    <rule ref="category/java/errorprone.xml/ConfusingArgumentToVarargsMethod"/>
     <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#donotcallgarbagecollectionexplicitly -->
     <rule ref="category/java/errorprone.xml/DoNotCallGarbageCollectionExplicitly"/>
     <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#donotextendjavalangthrowable -->

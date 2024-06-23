@@ -48,6 +48,7 @@
         <dependency.maven-jar.version>3.4.2</dependency.maven-jar.version>
         <dependency.maven-javadoc.version>3.7.0</dependency.maven-javadoc.version>
         <dependency.maven-jxr.version>3.4.0</dependency.maven-jxr.version>
+        <dependency.maven-pmd.version>3.23.0</dependency.maven-pmd.version>
         <dependency.maven-project-reports.version>3.6.0</dependency.maven-project-reports.version>
         <dependency.maven-resources.version>3.3.1</dependency.maven-resources.version>
         <dependency.maven-shade.version>3.6.0</dependency.maven-shade.version>
@@ -55,7 +56,7 @@
         <dependency.maven-source.version>3.3.1</dependency.maven-source.version>
         <dependency.mockito.version>5.12.0</dependency.mockito.version>
         <dependency.nullaway.version>0.11.0</dependency.nullaway.version>
-        <dependency.pmd.version>3.23.0</dependency.pmd.version>
+        <dependency.pmd.version>7.2.0</dependency.pmd.version>
         <dependency.semver4j.version>5.3.0</dependency.semver4j.version>
         <dependency.slf4j.version>2.0.13</dependency.slf4j.version>
         <dependency.surefire.version>3.3.0</dependency.surefire.version>
@@ -503,7 +504,19 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-pmd-plugin</artifactId>
-                    <version>${dependency.pmd.version}</version>
+                    <version>${dependency.maven-pmd.version}</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>net.sourceforge.pmd</groupId>
+                            <artifactId>pmd-core</artifactId>
+                            <version>${dependency.pmd.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>net.sourceforge.pmd</groupId>
+                            <artifactId>pmd-java</artifactId>
+                            <version>${dependency.pmd.version}</version>
+                        </dependency>
+                    </dependencies>
                     <configuration>
                         <rulesets>
                             <ruleset>${user.dir}/coderules/pmd-ruleset.xml</ruleset>
