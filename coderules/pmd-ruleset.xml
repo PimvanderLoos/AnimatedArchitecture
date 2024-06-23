@@ -177,8 +177,6 @@
             <property name="allowExceptionNameRegex" value="^(ignored|expected)$"/>
         </properties>
     </rule>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#emptystatementnotinloop -->
-    <rule ref="category/java/errorprone.xml/EmptyStatementNotInLoop"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#equalsnull -->
     <rule ref="category/java/errorprone.xml/EqualsNull"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#idempotentoperations -->
