@@ -49,7 +49,7 @@ public final class ColorScheme<T>
 
     @SuppressWarnings("unused")
     @ToString
-    public static class ColorSchemeBuilder<T>
+    public static final class ColorSchemeBuilder<T>
     {
         private final Map<TextType, T> styleMap = new HashMap<>();
 

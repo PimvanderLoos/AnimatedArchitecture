@@ -2,287 +2,285 @@
 <ruleset name="Custom Rules" xmlns="https://pmd.sourceforge.io/ruleset/2.0.0">
     <description>PMD Ruleset</description>
 
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#abstractclasswithoutabstractmethod -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_bestpractices.html#abstractclasswithoutabstractmethod -->
     <rule ref="category/java/bestpractices.xml/AbstractClassWithoutAbstractMethod"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#avoidmessagedigestfield -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_bestpractices.html#avoidmessagedigestfield -->
     <rule ref="category/java/bestpractices.xml/AvoidMessageDigestField"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#avoidreassigningcatchvariables -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_bestpractices.html#avoidreassigningcatchvariables -->
     <rule ref="category/java/bestpractices.xml/AvoidReassigningCatchVariables"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#avoidreassigningparameters -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_bestpractices.html#avoidreassigningparameters -->
     <rule ref="category/java/bestpractices.xml/AvoidReassigningParameters"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#checkresultset -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_bestpractices.html#checkresultset -->
     <rule ref="category/java/bestpractices.xml/CheckResultSet"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#constantsininterface -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_bestpractices.html#constantsininterface -->
     <rule ref="category/java/bestpractices.xml/ConstantsInInterface"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#defaultlabelnotlastinswitchstmt -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_bestpractices.html#defaultlabelnotlastinswitchstmt -->
     <rule ref="category/java/bestpractices.xml/DefaultLabelNotLastInSwitchStmt"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#doublebraceinitialization -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_bestpractices.html#doublebraceinitialization -->
     <rule ref="category/java/bestpractices.xml/DoubleBraceInitialization"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#forloopvariablecount -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_bestpractices.html#forloopvariablecount -->
     <rule ref="category/java/bestpractices.xml/ForLoopVariableCount"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#junit5testshouldbepackageprivate -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_bestpractices.html#junit5testshouldbepackageprivate -->
     <rule ref="category/java/bestpractices.xml/JUnit5TestShouldBePackagePrivate"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#junittestsshouldincludeassert -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_bestpractices.html#junittestsshouldincludeassert -->
     <rule ref="category/java/bestpractices.xml/JUnitTestsShouldIncludeAssert"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#methodreturnsinternalarray -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_bestpractices.html#methodreturnsinternalarray -->
     <rule ref="category/java/bestpractices.xml/MethodReturnsInternalArray"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#missingoverride -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_bestpractices.html#missingoverride -->
     <rule ref="category/java/bestpractices.xml/MissingOverride"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#onedeclarationperline -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_bestpractices.html#onedeclarationperline -->
     <rule ref="category/java/bestpractices.xml/OneDeclarationPerLine">
         <properties>
             <property name="strictMode" value="false"/>
         </properties>
     </rule>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#primitivewrapperinstantiation -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_bestpractices.html#primitivewrapperinstantiation -->
     <rule ref="category/java/bestpractices.xml/PrimitiveWrapperInstantiation"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#preservestacktrace -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_bestpractices.html#preservestacktrace -->
     <rule ref="category/java/bestpractices.xml/PreserveStackTrace"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#replacehashtablewithmap -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_bestpractices.html#replacehashtablewithmap -->
     <rule ref="category/java/bestpractices.xml/ReplaceHashtableWithMap"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#simplifiabletestassertion -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_bestpractices.html#simplifiabletestassertion -->
     <rule ref="category/java/bestpractices.xml/SimplifiableTestAssertion"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#unusedlocalvariable -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_bestpractices.html#unnecessaryvarargsarraycreation -->
+    <rule ref="category/java/bestpractices.xml/UnnecessaryVarargsArrayCreation"/>
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_bestpractices.html#unusedlocalvariable -->
     <rule ref="category/java/bestpractices.xml/UnusedLocalVariable"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#unusedprivatefield -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_bestpractices.html#unusedprivatefield -->
     <rule ref="category/java/bestpractices.xml/UnusedPrivateField"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#usecollectionisempty -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_bestpractices.html#usecollectionisempty -->
     <rule ref="category/java/bestpractices.xml/UseCollectionIsEmpty"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#usestandardcharsets -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_bestpractices.html#usestandardcharsets -->
     <rule ref="category/java/bestpractices.xml/UseStandardCharsets"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#usetrywithresources -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_bestpractices.html#usetrywithresources -->
     <rule ref="category/java/bestpractices.xml/UseTryWithResources"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#usevarargs -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_bestpractices.html#usevarargs -->
     <rule ref="category/java/bestpractices.xml/UseVarargs"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#whileloopwithliteralboolean -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_bestpractices.html#whileloopwithliteralboolean -->
     <rule ref="category/java/bestpractices.xml/WhileLoopWithLiteralBoolean"/>
 
 
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_codestyle.html#avoiddollarsigns -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_codestyle.html#avoiddollarsigns -->
     <rule ref="category/java/codestyle.xml/AvoidDollarSigns"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_codestyle.html#avoidprotectedfieldinfinalclass -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_codestyle.html#avoidprotectedfieldinfinalclass -->
     <rule ref="category/java/codestyle.xml/AvoidProtectedFieldInFinalClass"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_codestyle.html#avoidprotectedmethodinfinalclassnotextending -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_codestyle.html#avoidprotectedmethodinfinalclassnotextending -->
     <rule ref="category/java/codestyle.xml/AvoidProtectedMethodInFinalClassNotExtending"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_codestyle.html#avoidusingnativecode -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_codestyle.html#avoidusingnativecode -->
     <rule ref="category/java/codestyle.xml/AvoidUsingNativeCode"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_codestyle.html#extendsobject -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_codestyle.html#extendsobject -->
     <rule ref="category/java/codestyle.xml/ExtendsObject"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_codestyle.html#fielddeclarationsshouldbeatstartofclass -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_codestyle.html#fielddeclarationsshouldbeatstartofclass -->
     <rule ref="category/java/codestyle.xml/FieldDeclarationsShouldBeAtStartOfClass"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_codestyle.html#fieldnamingconventions -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_codestyle.html#fieldnamingconventions -->
     <rule ref="category/java/codestyle.xml/FieldNamingConventions"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_codestyle.html#forloopshouldbewhileloop -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_codestyle.html#forloopshouldbewhileloop -->
     <rule ref="category/java/codestyle.xml/ForLoopShouldBeWhileLoop"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_codestyle.html#genericsnaming -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_codestyle.html#genericsnaming -->
     <rule ref="category/java/codestyle.xml/GenericsNaming"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_codestyle.html#identicalcatchbranches -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_codestyle.html#identicalcatchbranches -->
     <rule ref="category/java/codestyle.xml/IdenticalCatchBranches"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_codestyle.html#localvariablecouldbefinal -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_codestyle.html#localvariablecouldbefinal -->
     <rule ref="category/java/codestyle.xml/LocalVariableCouldBeFinal"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_codestyle.html#nopackage -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_codestyle.html#nopackage -->
     <rule ref="category/java/codestyle.xml/NoPackage"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_codestyle.html#unnecessarycast -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_codestyle.html#unnecessarycast -->
     <rule ref="category/java/codestyle.xml/UnnecessaryCast"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_codestyle.html#unnecessaryconstructor -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_codestyle.html#unnecessaryconstructor -->
     <rule ref="category/java/codestyle.xml/UnnecessaryConstructor"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_codestyle.html#unnecessaryimport -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_codestyle.html#unnecessaryimport -->
     <rule ref="category/java/codestyle.xml/UnnecessaryImport"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_codestyle.html#unnecessarylocalbeforereturn -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_codestyle.html#unnecessarylocalbeforereturn -->
     <rule ref="category/java/codestyle.xml/UnnecessaryLocalBeforeReturn"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_codestyle.html#unnecessarymodifier -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_codestyle.html#unnecessarymodifier -->
     <rule ref="category/java/codestyle.xml/UnnecessaryModifier"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_codestyle.html#unnecessaryreturn -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_codestyle.html#unnecessaryreturn -->
     <rule ref="category/java/codestyle.xml/UnnecessaryReturn"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_codestyle.html#usediamondoperator -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_codestyle.html#usediamondoperator -->
     <rule ref="category/java/codestyle.xml/UseDiamondOperator"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_codestyle.html#useunderscoresinnumericliterals -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_codestyle.html#useunderscoresinnumericliterals -->
     <rule ref="category/java/codestyle.xml/UseUnderscoresInNumericLiterals"/>
 
 
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_design.html#abstractclasswithoutanymethod -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_design.html#abstractclasswithoutanymethod -->
     <rule ref="category/java/design.xml/AbstractClassWithoutAnyMethod"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_design.html#avoiddeeplynestedifstmts -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_design.html#avoiddeeplynestedifstmts -->
     <rule ref="category/java/design.xml/AvoidDeeplyNestedIfStmts"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_design.html#avoidrethrowingexception -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_design.html#avoidrethrowingexception -->
     <rule ref="category/java/design.xml/AvoidRethrowingException"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_design.html#avoidthrowingnullpointerexception -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_design.html#avoidthrowingnullpointerexception -->
     <rule ref="category/java/design.xml/AvoidThrowingNullPointerException"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_design.html#classwithonlyprivateconstructorsshouldbefinal -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_design.html#classwithonlyprivateconstructorsshouldbefinal -->
     <rule ref="category/java/design.xml/ClassWithOnlyPrivateConstructorsShouldBeFinal"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_design.html#donotextendjavalangerror -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_design.html#donotextendjavalangerror -->
     <rule ref="category/java/design.xml/DoNotExtendJavaLangError"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_design.html#exceptionasflowcontrol -->
-    <rule ref="category/java/design.xml/ExceptionAsFlowControl"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_design.html#immutablefield -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_design.html#immutablefield -->
     <rule ref="category/java/design.xml/ImmutableField"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_design.html#logicinversion -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_design.html#logicinversion -->
     <rule ref="category/java/design.xml/LogicInversion"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_design.html#mutablestaticstate -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_design.html#mutablestaticstate -->
     <rule ref="category/java/design.xml/MutableStaticState"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_design.html#simplifybooleanexpressions -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_design.html#simplifybooleanexpressions -->
     <rule ref="category/java/design.xml/SimplifyBooleanExpressions"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_design.html#simplifybooleanreturns -->
-    <rule ref="category/java/design.xml/SimplifyBooleanReturns"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_design.html#simplifyconditional -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_design.html#simplifyconditional -->
     <rule ref="category/java/design.xml/SimplifyConditional"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_design.html#singularfield -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_design.html#singularfield -->
     <rule ref="category/java/design.xml/SingularField"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_design.html#switchdensity -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_design.html#switchdensity -->
     <rule ref="category/java/design.xml/SwitchDensity"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_design.html#uselessoverridingmethod -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_design.html#uselessoverridingmethod -->
     <rule ref="category/java/design.xml/UselessOverridingMethod"/>
 
 
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#avoidcallingfinalize -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#avoidcallingfinalize -->
     <rule ref="category/java/errorprone.xml/AvoidCallingFinalize"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#avoiddecimalliteralsinbigdecimalconstructor -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#avoiddecimalliteralsinbigdecimalconstructor -->
     <rule ref="category/java/errorprone.xml/AvoidDecimalLiteralsInBigDecimalConstructor"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#avoidfieldnamematchingtypename -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#avoidfieldnamematchingtypename -->
     <rule ref="category/java/errorprone.xml/AvoidFieldNameMatchingTypeName"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#avoidinstanceofchecksincatchclause -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#avoidinstanceofchecksincatchclause -->
     <rule ref="category/java/errorprone.xml/AvoidInstanceofChecksInCatchClause"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#avoidlosingexceptioninformation -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#avoidlosingexceptioninformation -->
     <rule ref="category/java/errorprone.xml/AvoidLosingExceptionInformation"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#avoidmultipleunaryoperators -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#avoidmultipleunaryoperators -->
     <rule ref="category/java/errorprone.xml/AvoidMultipleUnaryOperators"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#avoidusingoctalvalues -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#avoidusingoctalvalues -->
     <rule ref="category/java/errorprone.xml/AvoidUsingOctalValues"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#brokennullcheck -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#brokennullcheck -->
     <rule ref="category/java/errorprone.xml/BrokenNullCheck"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#checkskipresult -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#checkskipresult -->
     <rule ref="category/java/errorprone.xml/CheckSkipResult"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#classcastexceptionwithtoarray -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#classcastexceptionwithtoarray -->
     <rule ref="category/java/errorprone.xml/ClassCastExceptionWithToArray"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#clonemethodmustbepublic -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#clonemethodmustbepublic -->
     <rule ref="category/java/errorprone.xml/CloneMethodMustBePublic"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#clonemethodmustimplementcloneable -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#clonemethodmustimplementcloneable -->
     <rule ref="category/java/errorprone.xml/CloneMethodMustImplementCloneable"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#clonemethodreturntypemustmatchclassname -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#clonemethodreturntypemustmatchclassname -->
     <rule ref="category/java/errorprone.xml/CloneMethodReturnTypeMustMatchClassName"/>
-    <!-- https://pmd.github.io/pmd-6.36.0/pmd_rules_java_errorprone.html#comparisonwithnan -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#comparisonwithnan -->
     <rule ref="category/java/errorprone.xml/ComparisonWithNaN"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#donotcallgarbagecollectionexplicitly -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#confusingargumenttovarargsmethod-->
+    <rule ref="category/java/errorprone.xml/ConfusingArgumentToVarargsMethod"/>
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#donotcallgarbagecollectionexplicitly -->
     <rule ref="category/java/errorprone.xml/DoNotCallGarbageCollectionExplicitly"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#donotextendjavalangthrowable -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#donotextendjavalangthrowable -->
     <rule ref="category/java/errorprone.xml/DoNotExtendJavaLangThrowable"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#donotthrowexceptioninfinally -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#donotthrowexceptioninfinally -->
     <rule ref="category/java/errorprone.xml/DoNotThrowExceptionInFinally"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#dontusefloattypeforloopindices -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#dontusefloattypeforloopindices -->
     <rule ref="category/java/errorprone.xml/DontUseFloatTypeForLoopIndices"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#emptycatchblock -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#emptycatchblock -->
     <rule ref="category/java/errorprone.xml/EmptyCatchBlock">
         <properties>
             <property name="allowCommentedBlocks" value="true"/>
             <property name="allowExceptionNameRegex" value="^(ignored|expected)$"/>
         </properties>
     </rule>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#emptystatementnotinloop -->
-    <rule ref="category/java/errorprone.xml/EmptyStatementNotInLoop"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#equalsnull -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#equalsnull -->
     <rule ref="category/java/errorprone.xml/EqualsNull"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#idempotentoperations -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#idempotentoperations -->
     <rule ref="category/java/errorprone.xml/IdempotentOperations"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#instantiationtogetclass -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#instantiationtogetclass -->
     <rule ref="category/java/errorprone.xml/InstantiationToGetClass"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#invalidlogmessageformat -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#invalidlogmessageformat -->
     <rule ref="category/java/errorprone.xml/InvalidLogMessageFormat"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#jumbledincrementer -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#jumbledincrementer -->
     <rule ref="category/java/errorprone.xml/JumbledIncrementer"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#methodwithsamenameasenclosingclass -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#methodwithsamenameasenclosingclass -->
     <rule ref="category/java/errorprone.xml/MethodWithSameNameAsEnclosingClass"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#misplacednullcheck -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#misplacednullcheck -->
     <rule ref="category/java/errorprone.xml/MisplacedNullCheck"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#morethanonelogger -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#morethanonelogger -->
     <rule ref="category/java/errorprone.xml/MoreThanOneLogger"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#noncaselabelinswitchstatement -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#noncaselabelinswitchstatement -->
     <rule ref="category/java/errorprone.xml/NonCaseLabelInSwitchStatement"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#nonstaticinitializer -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#nonstaticinitializer -->
     <rule ref="category/java/errorprone.xml/NonStaticInitializer"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#overridebothequalsandhashcode -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#overridebothequalsandhashcode -->
     <rule ref="category/java/errorprone.xml/OverrideBothEqualsAndHashcode"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#propercloneimplementation -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#propercloneimplementation -->
     <rule ref="category/java/errorprone.xml/ProperCloneImplementation"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#properlogger -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#properlogger -->
     <rule ref="category/java/errorprone.xml/ProperLogger"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#returnemptycollectionratherthannull -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#returnemptycollectionratherthannull -->
     <rule ref="category/java/errorprone.xml/ReturnEmptyCollectionRatherThanNull"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#returnfromfinallyblock -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#returnfromfinallyblock -->
     <rule ref="category/java/errorprone.xml/ReturnFromFinallyBlock"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#simpledateformatneedslocale -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#simpledateformatneedslocale -->
     <rule ref="category/java/errorprone.xml/SimpleDateFormatNeedsLocale"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#stringbufferinstantiationwithchar -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#stringbufferinstantiationwithchar -->
     <rule ref="category/java/errorprone.xml/StringBufferInstantiationWithChar"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#suspiciousequalsmethodname -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#suspiciousequalsmethodname -->
     <rule ref="category/java/errorprone.xml/SuspiciousEqualsMethodName"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#suspicioushashcodemethodname -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#suspicioushashcodemethodname -->
     <rule ref="category/java/errorprone.xml/SuspiciousHashcodeMethodName"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#suspiciousoctalescape -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#suspiciousoctalescape -->
     <rule ref="category/java/errorprone.xml/SuspiciousOctalEscape"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#testclasswithouttestcases -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#testclasswithouttestcases -->
     <rule ref="category/java/errorprone.xml/TestClassWithoutTestCases"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#unnecessarybooleanassertion -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#unnecessarybooleanassertion -->
     <rule ref="category/java/errorprone.xml/UnnecessaryBooleanAssertion"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#unnecessarycasechange -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#unnecessarycasechange -->
     <rule ref="category/java/errorprone.xml/UnnecessaryCaseChange"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#unnecessaryconversiontemporary -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#unnecessaryconversiontemporary -->
     <rule ref="category/java/errorprone.xml/UnnecessaryConversionTemporary"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#unusednullcheckinequals -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#unusednullcheckinequals -->
     <rule ref="category/java/errorprone.xml/UnusedNullCheckInEquals"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#usecorrectexceptionlogging -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#usecorrectexceptionlogging -->
     <rule ref="category/java/errorprone.xml/UseCorrectExceptionLogging"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#useequalstocomparestrings -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#useequalstocomparestrings -->
     <rule ref="category/java/errorprone.xml/UseEqualsToCompareStrings"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#uselessoperationonimmutable -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#uselessoperationonimmutable -->
     <rule ref="category/java/errorprone.xml/UselessOperationOnImmutable"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#uselocalewithcaseconversions -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_errorprone.html#uselocalewithcaseconversions -->
     <rule ref="category/java/errorprone.xml/UseLocaleWithCaseConversions"/>
 
 
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_multithreading.html#avoidthreadgroup -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_multithreading.html#avoidthreadgroup -->
     <rule ref="category/java/multithreading.xml/AvoidThreadGroup"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_multithreading.html#dontcallthreadrun -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_multithreading.html#dontcallthreadrun -->
     <rule ref="category/java/multithreading.xml/DontCallThreadRun"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_multithreading.html#doublecheckedlocking -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_multithreading.html#doublecheckedlocking -->
     <rule ref="category/java/multithreading.xml/DoubleCheckedLocking"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_multithreading.html#nonthreadsafesingleton -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_multithreading.html#nonthreadsafesingleton -->
     <rule ref="category/java/multithreading.xml/NonThreadSafeSingleton"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_multithreading.html#unsynchronizedstaticformatter -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_multithreading.html#unsynchronizedstaticformatter -->
     <rule ref="category/java/multithreading.xml/UnsynchronizedStaticFormatter"/>
 
 
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_performance.html#addemptystring -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_performance.html#addemptystring -->
     <rule ref="category/java/performance.xml/AddEmptyString"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_performance.html#appendcharacterwithchar -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_performance.html#appendcharacterwithchar -->
     <rule ref="category/java/performance.xml/AppendCharacterWithChar"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_performance.html#avoidarrayloops -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_performance.html#avoidarrayloops -->
     <rule ref="category/java/performance.xml/AvoidArrayLoops"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_performance.html#avoidcalendardatecreation -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_performance.html#avoidcalendardatecreation -->
     <rule ref="category/java/performance.xml/AvoidCalendarDateCreation"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_performance.html#avoidfilestream -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_performance.html#avoidfilestream -->
     <rule ref="category/java/performance.xml/AvoidFileStream"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_performance.html#bigintegerinstantiation -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_performance.html#bigintegerinstantiation -->
     <rule ref="category/java/performance.xml/BigIntegerInstantiation"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_performance.html#consecutiveappendsshouldreuse -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_performance.html#consecutiveappendsshouldreuse -->
     <rule ref="category/java/performance.xml/ConsecutiveAppendsShouldReuse"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_performance.html#inefficientemptystringcheck -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_performance.html#inefficientemptystringcheck -->
     <rule ref="category/java/performance.xml/InefficientEmptyStringCheck"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_performance.html#inefficientstringbuffering -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_performance.html#inefficientstringbuffering -->
     <rule ref="category/java/performance.xml/InefficientStringBuffering"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_performance.html#optimizabletoarraycall -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_performance.html#optimizabletoarraycall -->
     <rule ref="category/java/performance.xml/OptimizableToArrayCall"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_performance.html#stringinstantiation -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_performance.html#stringinstantiation -->
     <rule ref="category/java/performance.xml/StringInstantiation"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_performance.html#stringtostring -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_performance.html#stringtostring -->
     <rule ref="category/java/performance.xml/StringToString"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_performance.html#toofewbranchesforaswitchstatement -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_performance.html#toofewbranchesforaswitchstatement -->
     <rule ref="category/java/performance.xml/TooFewBranchesForASwitchStatement"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_performance.html#usearraylistinsteadofvector -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_performance.html#usearraylistinsteadofvector -->
     <rule ref="category/java/performance.xml/UseArrayListInsteadOfVector"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_performance.html#useindexofchar -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_performance.html#useindexofchar -->
     <rule ref="category/java/performance.xml/UseIndexOfChar"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_performance.html#uselessstringvalueof -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_performance.html#uselessstringvalueof -->
     <rule ref="category/java/performance.xml/UselessStringValueOf"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_performance.html#usestringbufferlength -->
+    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_performance.html#usestringbufferlength -->
     <rule ref="category/java/performance.xml/UseStringBufferLength"/>
 </ruleset>

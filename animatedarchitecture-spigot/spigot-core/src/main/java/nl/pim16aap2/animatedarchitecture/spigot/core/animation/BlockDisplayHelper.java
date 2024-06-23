@@ -26,9 +26,10 @@ import javax.inject.Singleton;
 @Singleton
 public final class BlockDisplayHelper
 {
-    private final Vector3f ONE_VECTOR = new Vector3f(1F, 1F, 1F);
-    private final Vector3f HALF_VECTOR_POSITIVE = new Vector3f(0.5F, 0.5F, 0.5F);
-    private final Vector3f HALF_VECTOR_NEGATIVE = new Vector3f(-0.5F, -0.5F, -0.5F);
+    private static final Vector3f ONE_VECTOR = new Vector3f(1F, 1F, 1F);
+    private static final Vector3f HALF_VECTOR_POSITIVE = new Vector3f(0.5F, 0.5F, 0.5F);
+    private static final Vector3f HALF_VECTOR_NEGATIVE = new Vector3f(-0.5F, -0.5F, -0.5F);
+
     private final AnimatedBlockHelper animatedBlockHelper;
 
     @Inject

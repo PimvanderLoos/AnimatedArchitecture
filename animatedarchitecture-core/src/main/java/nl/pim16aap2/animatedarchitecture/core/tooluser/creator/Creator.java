@@ -312,6 +312,7 @@ public abstract class Creator extends ToolUser
             .waitForUserInput(false);
     }
 
+    @Override
     protected synchronized void init()
     {
         super.init();

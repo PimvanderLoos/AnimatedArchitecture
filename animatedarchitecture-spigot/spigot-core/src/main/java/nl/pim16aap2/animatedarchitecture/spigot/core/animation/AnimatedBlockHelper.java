@@ -25,12 +25,12 @@ public final class AnimatedBlockHelper
     /**
      * The key used to store the recovery data in the entity's persistent data container.
      */
-    private final NamespacedKey RECOVERY_KEY;
+    private final NamespacedKey recoveryKey;
 
     @Inject
     AnimatedBlockHelper(JavaPlugin plugin)
     {
-        RECOVERY_KEY = new NamespacedKey(plugin, Constants.ANIMATED_ARCHITECTURE_ENTITY_RECOVERY_KEY);
+        recoveryKey = new NamespacedKey(plugin, Constants.ANIMATED_ARCHITECTURE_ENTITY_RECOVERY_KEY);
     }
 
     /**
@@ -50,7 +50,7 @@ public final class AnimatedBlockHelper
             return;
 
         final IAnimatedBlockRecoveryData recoveryData = entity.getPersistentDataContainer().get(
-            RECOVERY_KEY,
+            recoveryKey,
             AnimatedBlockRecoveryDataType.INSTANCE);
 
         if (recoveryData == null)
@@ -59,7 +59,7 @@ public final class AnimatedBlockHelper
         log.atFinest().log(
             "Attempting to recover animated block with recovery data '%s'",
             LazyArgs.lazy(
-                () -> entity.getPersistentDataContainer().get(RECOVERY_KEY, AnimatedBlockRecoveryDataType.STRING))
+                () -> entity.getPersistentDataContainer().get(recoveryKey, AnimatedBlockRecoveryDataType.STRING))
         );
 
         try
@@ -96,7 +96,7 @@ public final class AnimatedBlockHelper
     public void setRecoveryData(BlockDisplay entity, @Nullable IAnimatedBlockRecoveryData recoveryData)
     {
         entity.getPersistentDataContainer().set(
-            RECOVERY_KEY,
+            recoveryKey,
             AnimatedBlockRecoveryDataType.INSTANCE,
             Objects.requireNonNullElse(recoveryData, IAnimatedBlockRecoveryData.EMPTY)
         );

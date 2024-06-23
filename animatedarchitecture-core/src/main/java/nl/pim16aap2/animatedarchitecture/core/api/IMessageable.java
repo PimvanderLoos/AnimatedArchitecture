@@ -81,7 +81,7 @@ public interface IMessageable
      * Implementation of {@link IMessageable} that does not send messages anywhere.
      */
     @Flogger
-    class BlackHoleMessageable implements IMessageable
+    final class BlackHoleMessageable implements IMessageable
     {
         private BlackHoleMessageable()
         {

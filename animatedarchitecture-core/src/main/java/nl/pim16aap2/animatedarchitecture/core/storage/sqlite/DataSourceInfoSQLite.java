@@ -22,7 +22,7 @@ import java.util.OptionalInt;
 @Flogger
 public class DataSourceInfoSQLite implements IDataSourceInfo
 {
-    private static final Type type = Type.SQLITE;
+    private static final Type TYPE = Type.SQLITE;
 
     /**
      * Magic version number to indicate that the database is managed by Flyway.
@@ -132,7 +132,7 @@ public class DataSourceInfoSQLite implements IDataSourceInfo
     @Override
     public Type getType()
     {
-        return type;
+        return TYPE;
     }
 
     /**

@@ -175,7 +175,7 @@ public abstract class HighlightedBlockSpawner
      */
     @SuppressWarnings("unused")
     @Flogger
-    public static class Builder
+    public static final class Builder
     {
         private final HighlightedBlockSpawner highlightedBlockSpawner;
 

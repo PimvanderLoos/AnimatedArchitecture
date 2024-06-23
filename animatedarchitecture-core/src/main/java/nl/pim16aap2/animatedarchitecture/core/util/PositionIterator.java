@@ -109,7 +109,7 @@ public class PositionIterator implements Iterable<Vector3Di>
     /**
      * Iterator that iterates over all values between 2 {@link Vector3Di}s.
      */
-    private class CustomIterator implements Iterator<Vector3Di>
+    private final class CustomIterator implements Iterator<Vector3Di>
     {
         private int x;
         private int y;

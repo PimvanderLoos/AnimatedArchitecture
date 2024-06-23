@@ -135,7 +135,7 @@ final class HookCheckStateContainer
             return;
         }
 
-        for (HookCheckState hookCheckState : hookCheckStates)
+        for (final HookCheckState hookCheckState : hookCheckStates)
         {
             if (hookCheckState.isBypassed())
                 continue;
@@ -256,7 +256,7 @@ final class HookCheckStateContainer
 
         var result = CompletableFuture.completedFuture(HookCheckResult.allowed());
 
-        for (HookCheckState hookCheckState : hookCheckStates)
+        for (final HookCheckState hookCheckState : hookCheckStates)
         {
             if (hookCheckState.isBypassed())
             {
@@ -379,7 +379,7 @@ final class HookCheckStateContainer
      * Represents the state of a hook check.
      */
     @Flogger
-    @Accessors(fluent = true) //
+    @Accessors(fluent = true)
     private static final class HookCheckState
     {
         @Getter
@@ -515,7 +515,7 @@ final class HookCheckStateContainer
                 return HookPreCheckResult.ALLOW;
             }
 
-            HookPreCheckResult result;
+            HookPreCheckResult result; //NOPMD - False positive: https://github.com/pmd/pmd/issues/5046
             try
             {
                 result = hook.preCheck(player, world);
