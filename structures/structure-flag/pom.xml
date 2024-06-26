@@ -10,6 +10,7 @@
         <mainClass>nl.pim16aap2.animatedarchitecture.structures.flag.StructureTypeFlag</mainClass>
         <typeName>Flag</typeName>
         <version>1</version>
+        <supportedApiVersions>1.*</supportedApiVersions>
         <project.root-dir>${project.basedir}/../..</project.root-dir>
     </properties>
 

@@ -49,9 +49,51 @@
 
     <properties>
         <project.root-dir>${project.basedir}/..</project.root-dir>
+
+        <!--
+        The path to the main class, e.g. com.example.project.Main
+        The main class is supposed to be the class that extends StructureType
+        -->
         <mainClass>UNDEFINED</mainClass>
+
+        <!--
+        The name of the type, e.g. BigDoor
+        This is used for the name of the jar file
+
+        The name can contain letters, numbers, dashes, and underscores.
+        -->
         <typeName>UNDEFINED</typeName>
+
+        <!--
+        The (non-negative) version of the type, e.g. 1
+        -->
         <version>UNDEFINED</version>
+
+        <!--
+        The supported API version(s) of the structure type.
+
+        This refers to the API version of the extension system that the structure type is compatible with.
+
+        A structure can specify this in 2 ways:
+        1) A single version:
+           - `1.0.0`
+           - `>=1.0.0`
+           - `1.x` / `1.*`
+        2) A range of versions: `1.0.0 - 1.1.0`
+
+        If the structure type is incompatible with the API version at runtime, the structure type will not be loaded.
+        -->
+        <supportedApiVersions>UNDEFINED</supportedApiVersions>
+
+        <!--
+        The dependencies of the structure type.
+        This is a string that contains a space-separated list of dependencies in the format
+        `<typeName>(minVersion;maxVersion)`. For example: `portcullis(1;5) door(1;1)`. (Without the backticks.)
+
+        Both the minimum and the maximum versions of the dependency are inclusive.
+
+        Any dependencies listed here will be required at runtime for this structure type to be loaded.
+        -->
         <TypeDependencies/>
     </properties>
 
@@ -71,20 +113,11 @@
                             </manifest>
                             <manifestSections>
                                 <manifestSection>
-                                    <name>TypeName</name>
+                                    <name>StructureTypeMetadata</name>
                                     <manifestEntries>
                                         <TypeName>${typeName}</TypeName>
-                                    </manifestEntries>
-                                </manifestSection>
-                                <manifestSection>
-                                    <name>Version</name>
-                                    <manifestEntries>
                                         <Version>${version}</Version>
-                                    </manifestEntries>
-                                </manifestSection>
-                                <manifestSection>
-                                    <name>TypeDependencies</name>
-                                    <manifestEntries>
+                                        <SupportedApiVersions>${supportedApiVersions}</SupportedApiVersions>
                                         <TypeDependencies>${TypeDependencies}</TypeDependencies>
                                     </manifestEntries>
                                 </manifestSection>
@@ -97,8 +130,10 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-shade-plugin</artifactId>
                     <configuration>
-                        <!-- We do not want to shade anything into the resulting jars
-                        This is explicitly required here because we're exporting to separate jars -->
+                        <!--
+                        We do not want to shade anything into the resulting jars
+                        This is explicitly required here because we're exporting to separate jars
+                        -->
                         <artifactSet>
                             <includes>
                                 <include>nl.pim16aap2.animatedarchitecture.structures:*</include>

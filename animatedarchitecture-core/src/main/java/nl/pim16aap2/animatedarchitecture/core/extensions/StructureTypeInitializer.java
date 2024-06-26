@@ -202,7 +202,7 @@ final class StructureTypeInitializer
         }
         catch (NoSuchMethodException e)
         {
-            log.atSevere().log("Failed to load invalid extension: %s", structureTypeInfo);
+            log.atSevere().withCause(e).log("Failed to load invalid extension: %s", structureTypeInfo);
             return null;
         }
         catch (Exception | Error e)

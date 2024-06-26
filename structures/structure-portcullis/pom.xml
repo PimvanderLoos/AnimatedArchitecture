@@ -16,6 +16,7 @@
         <mainClass>nl.pim16aap2.animatedarchitecture.structures.portcullis.StructureTypePortcullis</mainClass>
         <typeName>Portcullis</typeName>
         <version>1</version>
+        <supportedApiVersions>1.*</supportedApiVersions>
         <project.root-dir>${project.basedir}/../..</project.root-dir>
     </properties>
 
