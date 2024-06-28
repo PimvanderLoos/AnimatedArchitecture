@@ -25,6 +25,7 @@
         "org.jacoco:jacoco-maven-plugin",
         "org.jetbrains:annotations",
         "org.junit.jupiter:junit-jupiter-api",
+        "org.junit.jupiter:junit-jupiter-engine",
         "org.mockito:mockito-core",
         "org.mockito:mockito-junit-jupiter",
         "org.projectlombok:lombok",
