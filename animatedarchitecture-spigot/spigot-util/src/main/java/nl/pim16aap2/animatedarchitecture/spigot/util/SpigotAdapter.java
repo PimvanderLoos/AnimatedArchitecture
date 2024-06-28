@@ -8,6 +8,7 @@ import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.LocationSpigot;
+import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.OfflinePlayerSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.PlayerSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.SpigotServer;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.WorldSpigot;
@@ -50,6 +51,7 @@ public final class SpigotAdapter
     {
         if (world instanceof WorldSpigot worldSpigot)
             return worldSpigot.getBukkitWorld();
+
         return Bukkit.getWorld(world.worldName());
     }
 
@@ -67,7 +69,13 @@ public final class SpigotAdapter
     {
         if (location instanceof LocationSpigot)
             return ((LocationSpigot) location).getBukkitLocation();
-        return new Location(getBukkitWorld(location.getWorld()), location.getX(), location.getY(), location.getZ());
+
+        return new Location(
+            getBukkitWorld(location.getWorld()),
+            location.getX(),
+            location.getY(),
+            location.getZ()
+        );
     }
 
     /**
@@ -91,6 +99,9 @@ public final class SpigotAdapter
      */
     public static @Nullable Player getBukkitPlayer(IPlayer player)
     {
+        if (player instanceof PlayerSpigot playerSpigot)
+            return playerSpigot.getBukkitPlayer();
+
         return Bukkit.getPlayer(player.getUUID());
     }
 
@@ -105,9 +116,11 @@ public final class SpigotAdapter
     {
         if (player instanceof PlayerSpigot playerSpigot)
             return playerSpigot;
-        final @Nullable Player bukkitPlayer = getBukkitPlayer(player);
+
+        final @Nullable Player bukkitPlayer = Bukkit.getPlayer(player.getUUID());
         if (bukkitPlayer == null)
             return null;
+
         return new PlayerSpigot(bukkitPlayer);
     }
 
@@ -120,6 +133,12 @@ public final class SpigotAdapter
      */
     public static OfflinePlayer getOfflineBukkitPlayer(IPlayer player)
     {
+        if (player instanceof PlayerSpigot playerSpigot)
+            return playerSpigot.getBukkitPlayer();
+
+        if (player instanceof OfflinePlayerSpigot offlinePlayerSpigot)
+            return offlinePlayerSpigot.getBukkitPlayer();
+
         return Bukkit.getOfflinePlayer(player.getUUID());
     }
 
@@ -144,11 +163,13 @@ public final class SpigotAdapter
      */
     public static ICommandSender wrapCommandSender(CommandSender commandSender)
     {
-        return commandSender instanceof Player player ? new PlayerSpigot(player) : new SpigotServer();
+        return commandSender instanceof Player bukkitPlayer ?
+            new PlayerSpigot(bukkitPlayer) :
+            new SpigotServer();
     }
 
     /**
-     * Unwraps a {@link ICommandSender} into an Bukkit {@link CommandSender}.
+     * Unwraps a {@link ICommandSender} into a Bukkit {@link CommandSender}.
      *
      * @param commandSender
      *     The command sender.
@@ -158,10 +179,12 @@ public final class SpigotAdapter
     {
         if (commandSender instanceof PlayerSpigot playerSpigot)
             return playerSpigot.getBukkitPlayer();
+
         if (commandSender instanceof SpigotServer)
             return Bukkit.getServer().getConsoleSender();
-        throw new IllegalArgumentException("Trying to unwrap command sender of illegal type: " +
-            commandSender.getClass().getName());
+
+        throw new IllegalArgumentException(
+            "Trying to unwrap command sender of illegal type: " + commandSender.getClass().getName());
     }
 
     /**
