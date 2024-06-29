@@ -7,6 +7,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandDefinition;
 import nl.pim16aap2.animatedarchitecture.core.commands.PermissionsStatus;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
+import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.Nullable;
@@ -21,12 +22,12 @@ public final class OfflinePlayerSpigot implements IPlayer
 {
     @Delegate
     private final PlayerData playerData;
-    private final @Nullable OfflinePlayer spigotPlayer;
+    private final OfflinePlayer spigotPlayer;
 
-    public OfflinePlayerSpigot(PlayerData playerData, @Nullable OfflinePlayer spigotPlayer)
+    public OfflinePlayerSpigot(PlayerData playerData, OfflinePlayer spigotPlayer)
     {
-        this.playerData = playerData;
-        this.spigotPlayer = spigotPlayer;
+        this.playerData = Util.requireNonNull(playerData, "playerData");
+        this.spigotPlayer = Util.requireNonNull(spigotPlayer, "spigotPlayer");
     }
 
     public OfflinePlayerSpigot(PlayerData playerData)
@@ -66,7 +67,7 @@ public final class OfflinePlayerSpigot implements IPlayer
      *
      * @return The Bukkit player.
      */
-    public @Nullable OfflinePlayer getBukkitPlayer()
+    public OfflinePlayer getBukkitPlayer()
     {
         return spigotPlayer;
     }
