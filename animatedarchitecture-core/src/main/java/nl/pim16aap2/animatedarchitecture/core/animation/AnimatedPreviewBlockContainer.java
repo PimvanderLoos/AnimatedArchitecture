@@ -41,7 +41,8 @@ public class AnimatedPreviewBlockContainer implements IAnimatedBlockContainer
      * The (unmodifiable) list of animated blocks.
      */
     @Getter
-    @ToString.Include @EqualsAndHashCode.Include
+    @ToString.Include
+    @EqualsAndHashCode.Include
     private final List<IAnimatedBlock> animatedBlocks;
 
     @Getter
@@ -122,6 +123,18 @@ public class AnimatedPreviewBlockContainer implements IAnimatedBlockContainer
         if (position.equals(cuboid.getMax()))
             return Color.GREEN;
         return Color.BLUE;
+    }
+
+    @Override
+    public void removeOriginalBlocks()
+    {
+        // Not needed for this implementation.
+    }
+
+    @Override
+    public void spawnAnimatedBlocks()
+    {
+        privateAnimatedBlocks.forEach(IAnimatedBlock::spawn);
     }
 
     @Override

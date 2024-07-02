@@ -98,8 +98,6 @@ public class AnimatedBlockContainer implements IAnimatedBlockContainer
                                 blockDataRotator)
                             .ifPresent(animatedBlocksTmp::add);
                     }
-
-            tryRemoveOriginalBlocks(animatedBlocksTmp);
         }
         catch (Exception e)
         {
@@ -120,14 +118,56 @@ public class AnimatedBlockContainer implements IAnimatedBlockContainer
         return true;
     }
 
+    @Override
+    public void spawnAnimatedBlocks()
+    {
+        executor.assertMainThread("Blocks must be spawned on the main thread!");
+        try
+        {
+            animatedBlocks.forEach(this::spawnAnimatedBlock);
+            animatedBlocks.forEach(animatedBlock -> animatedBlock.getAnimatedBlockData().postProcessStructureRemoval());
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException("Failed to spawn animated blocks!", e);
+        }
+    }
+
     /**
-     * Tries to remove the original blocks of a list of animated blocks.
+     * Tries to remove the original blocks of the animated blocks.
      *
-     * @param animatedBlocks
-     *     The animated blocks to process.
      * @return True if the original blocks could be spawned. If something went wrong and the process had to be aborted,
      * false is returned instead.
+     *
+     * @throws RuntimeException
+     *     If the blocks could not be removed or spawned for some reason.
      */
+    private void spawnAnimatedBlock(IAnimatedBlock animatedBlock)
+    {
+        try
+        {
+            animatedBlock.getAnimatedBlockData().deleteOriginalBlock();
+            animatedBlock.spawn();
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException("Failed to spawn animated block: " + animatedBlock, e);
+        }
+    }
+
+    @Override
+    public void removeOriginalBlocks()
+    {
+        try
+        {
+            tryRemoveOriginalBlocks(animatedBlocks);
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException("Failed to remove original blocks!", e);
+        }
+    }
+
     private void tryRemoveOriginalBlocks(List<IAnimatedBlock> animatedBlocks)
     {
         executor.assertMainThread("Blocks must be removed on the main thread!");
