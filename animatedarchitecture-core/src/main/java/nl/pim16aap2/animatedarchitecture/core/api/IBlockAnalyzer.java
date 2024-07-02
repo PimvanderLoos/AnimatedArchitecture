@@ -55,12 +55,7 @@ public interface IBlockAnalyzer<T>
         /**
          * This material is allowed.
          */
-        WHITELISTED,
-
-        /**
-         * The material type was not mapped.
-         */
-        UNMAPPED
+        WHITELISTED
     }
 }
 
