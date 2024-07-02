@@ -142,20 +142,20 @@ public class AnimatedBlockContainer implements IAnimatedBlockContainer
         {
             try
             {
-                animatedBlock.kill();
-            }
-            catch (Exception e)
-            {
-                log.atSevere().withCause(e).log("Failed to kill animated block: %s", animatedBlock);
-            }
-            try
-            {
                 final IVector3D goalPos = mapper.apply(animatedBlock).toInteger();
                 animatedBlock.getAnimatedBlockData().putBlock(goalPos);
             }
             catch (Exception e)
             {
                 log.atSevere().withCause(e).log("Failed to place block: %s", animatedBlock);
+            }
+            try
+            {
+                animatedBlock.kill();
+            }
+            catch (Exception e)
+            {
+                log.atSevere().withCause(e).log("Failed to kill animated block: %s", animatedBlock);
             }
         }
         privateAnimatedBlocks.clear();
