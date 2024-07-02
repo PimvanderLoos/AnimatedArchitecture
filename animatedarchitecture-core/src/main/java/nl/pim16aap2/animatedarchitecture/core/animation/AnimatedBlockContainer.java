@@ -178,27 +178,34 @@ public class AnimatedBlockContainer implements IAnimatedBlockContainer
     private void putBlocks(Function<IAnimatedBlock, IVector3D> mapper)
     {
         executor.assertMainThread("Blocks cannot be placed asynchronously!");
-        for (final IAnimatedBlock animatedBlock : getAnimatedBlocks())
-        {
-            try
-            {
-                final IVector3D goalPos = mapper.apply(animatedBlock).toInteger();
-                animatedBlock.getAnimatedBlockData().putBlock(goalPos);
-            }
-            catch (Exception e)
-            {
-                log.atSevere().withCause(e).log("Failed to place block: %s", animatedBlock);
-            }
-            try
-            {
-                animatedBlock.kill();
-            }
-            catch (Exception e)
-            {
-                log.atSevere().withCause(e).log("Failed to kill animated block: %s", animatedBlock);
-            }
-        }
+
+        // The blocks are created from top to bottom, so the list is reversed to place
+        // the blocks from bottom to top (to prevent blocks from falling down).
+        getAnimatedBlocks()
+            .reversed()
+            .forEach(animatedBlock -> putBlock(mapper, animatedBlock));
         privateAnimatedBlocks.clear();
+    }
+
+    private void putBlock(Function<IAnimatedBlock, IVector3D> mapper, IAnimatedBlock animatedBlock)
+    {
+        try
+        {
+            final IVector3D goalPos = mapper.apply(animatedBlock).toInteger();
+            animatedBlock.getAnimatedBlockData().putBlock(goalPos);
+        }
+        catch (Exception e)
+        {
+            log.atSevere().withCause(e).log("Failed to place block: %s", animatedBlock);
+        }
+        try
+        {
+            animatedBlock.kill();
+        }
+        catch (Exception e)
+        {
+            log.atSevere().withCause(e).log("Failed to kill animated block: %s", animatedBlock);
+        }
     }
 
     @Override
