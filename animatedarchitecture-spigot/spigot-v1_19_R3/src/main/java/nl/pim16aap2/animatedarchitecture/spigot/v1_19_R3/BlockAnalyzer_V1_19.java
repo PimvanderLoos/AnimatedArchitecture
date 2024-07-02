@@ -14,7 +14,7 @@ import java.util.Set;
  * <p>
  * See {@link IBlockAnalyzerSpigot} for more information.
  */
-public final class BlockAnalyzer implements IBlockAnalyzerSpigot
+public final class BlockAnalyzer_V1_19 implements IBlockAnalyzerSpigot
 {
     private static final Set<Material> WHITELIST = EnumSet.noneOf(Material.class);
 
