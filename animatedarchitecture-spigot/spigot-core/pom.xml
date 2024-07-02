@@ -36,6 +36,11 @@
             <artifactId>spigot-v1_19_R3</artifactId>
             <version>0.6.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+            <artifactId>spigot-v1_21</artifactId>
+            <version>0.6.0-SNAPSHOT</version>
+        </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>

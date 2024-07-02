@@ -21,6 +21,7 @@
 
     <modules>
         <module>spigot-v1_19_R3</module>
+        <module>spigot-v1_21</module>
         <module>spigot-core</module>
         <module>spigot-util</module>
         <module>protection-hooks</module>
