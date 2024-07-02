@@ -33,6 +33,17 @@ public enum StructureToggleResult
     ERROR("constants.structure_toggle_result.generic_toggle_failure"),
 
     /**
+     * The {@link StructureBase} could not be toggled because it could not find the target coordinates to move to.
+     */
+    CANNOT_FIND_COORDINATES(ERROR.localizationKey),
+
+    /**
+     * The {@link StructureBase} could not be toggled because it was requested to skip an animation that cannot be
+     * skipped.
+     */
+    CANNOT_SKIP_UNSKIPPABLE(ERROR.localizationKey),
+
+    /**
      * Called when trying to skip an animation for a type of structure that does not support skipping animations.
      */
     CANNOT_SKIP("constants.structure_toggle_result.cannot_skip"),
