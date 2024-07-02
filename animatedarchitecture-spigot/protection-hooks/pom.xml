@@ -17,7 +17,7 @@
         <project.root-dir>${project.basedir}/../..</project.root-dir>
 
         <dependency.spigot.version>1.19.4-R0.1-SNAPSHOT</dependency.spigot.version>
-        <dependency.worldedit.version>7.3.2</dependency.worldedit.version>
+        <dependency.worldedit.version>7.3.3</dependency.worldedit.version>
     </properties>
 
     <repositories>
