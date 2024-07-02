@@ -31,7 +31,8 @@ import java.util.stream.Stream;
 @Flogger
 public class Drawbridge extends AbstractStructure implements IHorizontalAxisAligned
 {
-    @EqualsAndHashCode.Exclude @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
 
@@ -57,6 +58,12 @@ public class Drawbridge extends AbstractStructure implements IHorizontalAxisAlig
     public Drawbridge(BaseHolder base)
     {
         this(base, 1);
+    }
+
+    @Override
+    public boolean canSkipAnimation()
+    {
+        return true;
     }
 
     @Override
