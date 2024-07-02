@@ -27,7 +27,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 @EqualsAndHashCode(callSuper = true)
 public class Portcullis extends AbstractStructure implements IDiscreteMovement
 {
-    @EqualsAndHashCode.Exclude @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
 
@@ -50,6 +51,12 @@ public class Portcullis extends AbstractStructure implements IDiscreteMovement
     public Portcullis(BaseHolder base, @PersistentVariable(value = "blocksToMove") int blocksToMove)
     {
         this(base, StructureTypePortcullis.get(), blocksToMove);
+    }
+
+    @Override
+    public boolean canSkipAnimation()
+    {
+        return true;
     }
 
     @Override

@@ -30,7 +30,8 @@ public class GarageDoor extends AbstractStructure implements IHorizontalAxisAlig
 {
     private static final boolean USE_COUNTER_WEIGHT = true;
 
-    @EqualsAndHashCode.Exclude @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
 
@@ -44,6 +45,12 @@ public class GarageDoor extends AbstractStructure implements IHorizontalAxisAlig
         super(base, StructureTypeGarageDoor.get());
         this.lock = getLock();
         this.northSouthAnimated = northSouthAnimated;
+    }
+
+    @Override
+    public boolean canSkipAnimation()
+    {
+        return true;
     }
 
     /**
@@ -135,7 +142,7 @@ public class GarageDoor extends AbstractStructure implements IHorizontalAxisAlig
     protected IAnimationComponent constructAnimationComponent(AnimationRequestData data)
     {
         return USE_COUNTER_WEIGHT ?
-               new CounterWeightGarageDoorAnimationComponent(data, getCurrentToggleDir()) :
-               new SectionalGarageDoorAnimationComponent(data, getCurrentToggleDir());
+            new CounterWeightGarageDoorAnimationComponent(data, getCurrentToggleDir()) :
+            new SectionalGarageDoorAnimationComponent(data, getCurrentToggleDir());
     }
 }

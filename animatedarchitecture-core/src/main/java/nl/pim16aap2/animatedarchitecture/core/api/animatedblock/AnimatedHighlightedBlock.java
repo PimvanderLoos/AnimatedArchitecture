@@ -118,8 +118,10 @@ public class AnimatedHighlightedBlock implements IAnimatedBlock
     }
 
     @Override
-    public void spawn()
+    public synchronized void spawn()
     {
+        kill();
+
         this.highlightedBlock = highlightedBlockSpawner
             .builder()
             .forPlayer(player)
@@ -131,13 +133,13 @@ public class AnimatedHighlightedBlock implements IAnimatedBlock
     }
 
     @Override
-    public void kill()
+    public synchronized void kill()
     {
         final @Nullable IHighlightedBlock currentBlock = this.highlightedBlock;
         if (currentBlock != null)
         {
-            currentBlock.kill();
             highlightedBlock = null;
+            currentBlock.kill();
         }
     }
 

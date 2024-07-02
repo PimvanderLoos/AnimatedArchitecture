@@ -38,7 +38,30 @@ public interface IAnimatedBlockContainer
      *
      * @return The animation region.
      */
-    @Nullable AnimationRegion getAnimationRegion();
+    @Nullable
+    AnimationRegion getAnimationRegion();
+
+    /**
+     * Tries to replace the original blocks with the animated blocks in the world.
+     * <p>
+     * This method also handles the removal of the original blocks.
+     *
+     * @throws Exception
+     *     If something went wrong and the process had to be aborted.
+     */
+    void spawnAnimatedBlocks()
+        throws Exception;
+
+    /**
+     * Removes the original blocks from the world.
+     * <p>
+     * This method does not have to be called when spawning the animated blocks using {@link #spawnAnimatedBlocks()}.
+     *
+     * @throws Exception
+     *     If something went wrong while removing the original blocks.
+     */
+    void removeOriginalBlocks()
+        throws Exception;
 
     /**
      * Restores all spawned animated blocks to their original positions.

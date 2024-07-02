@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.animation;
 
+import com.google.common.flogger.StackSize;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.Getter;
 import lombok.extern.flogger.Flogger;
@@ -99,6 +100,12 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     @GuardedBy("this")
     private void spawn0()
     {
+        if (entity != null)
+        {
+            log.atFine().withStackTrace(StackSize.FULL).log("Entity is already spawned, killing it first!");
+            kill0();
+        }
+
         this.entity = blockDisplayHelper.spawn(
             recoveryData,
             executor,

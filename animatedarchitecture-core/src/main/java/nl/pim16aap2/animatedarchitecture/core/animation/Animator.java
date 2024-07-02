@@ -300,7 +300,8 @@ public final class Animator implements IAnimator
             snapshot,
             structure.getType(),
             animationType,
-            player);
+            player
+        );
 
         this.animationData = animation;
 
@@ -315,7 +316,7 @@ public final class Animator implements IAnimator
         this.hooks = animationHookManager.instantiateHooks(animation);
 
         if (animationSkipped)
-            finishAnimation();
+            skipAnimation(animatedBlockContainer);
         else
             animateEntities(animation);
     }
@@ -418,12 +419,22 @@ public final class Animator implements IAnimator
      * This method is called right before the animation is started and spawns the animated blocks.
      * <p>
      * Overriding methods should not forget to either call this method or spawn the animated blocks themselves.
+     *
+     * @throws RuntimeException
+     *     If something went wrong during the preparation of the animation.
      */
     private void prepareAnimation()
     {
-        executor.assertMainThread("Animated blocks must be spawned on the main thread!");
-        getAnimatedBlocks().forEach(IAnimatedBlock::spawn);
-        animationComponent.prepareAnimation(this);
+        try
+        {
+            executor.assertMainThread("Animated blocks must be spawned on the main thread!");
+            animatedBlockContainer.spawnAnimatedBlocks();
+            animationComponent.prepareAnimation(this);
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException("Failed to prepare animation!", e);
+        }
     }
 
     /**
@@ -441,6 +452,23 @@ public final class Animator implements IAnimator
 
         final int finishDurationTicks = Math.round((float) FINISH_DURATION / serverTickTime);
         return animationDuration + Math.max(0, finishDurationTicks);
+    }
+
+    /**
+     * Moves all the real blocks from the original position to the new position without animating them.
+     */
+    private void skipAnimation(IAnimatedBlockContainer animatedBlockContainer)
+    {
+        try
+        {
+            animatedBlockContainer.removeOriginalBlocks();
+            finishAnimation();
+        }
+        catch (Exception e)
+        {
+            log.atSevere().withCause(e).log("Failed to remove original blocks!");
+            handleInitFailure();
+        }
     }
 
     /**
@@ -512,8 +540,8 @@ public final class Animator implements IAnimator
         final boolean isAborted = isAborted();
         final Runnable handler =
             isAborted ?
-            animatedBlockContainer::restoreBlocksOnFailure :
-            animatedBlockContainer::handleAnimationCompletion;
+                animatedBlockContainer::restoreBlocksOnFailure :
+                animatedBlockContainer::handleAnimationCompletion;
 
         // Only the handleAnimationCompletion method needs to be called on the main thread, as it interacts with the
         // world to place the blocks in their final position.

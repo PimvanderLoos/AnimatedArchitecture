@@ -109,6 +109,7 @@ final class StructureToggleHelper
         this.movementRequestDataFactory = movementRequestDataFactory;
     }
 
+
     /**
      * Aborts an attempt to toggle a {@link AbstractStructure} and cleans up leftover data from this attempt.
      *
@@ -120,6 +121,8 @@ final class StructureToggleHelper
      *     What caused the toggle in the first place.
      * @param responsible
      *     Who is responsible for the action.
+     * @param messageReceiver
+     *     The receiver of the message.
      * @param stamp
      *     The stamp of the animation. When this is not null, this stamp will be used to unregister the animation. This
      *     will 'release the lock' for the UID.
@@ -291,7 +294,7 @@ final class StructureToggleHelper
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log();
+            log.atSevere().withCause(e).log("Failed to register block mover for structure %d", structure.getUid());
             return false;
         }
         return true;
@@ -393,7 +396,10 @@ final class StructureToggleHelper
     {
         final boolean scheduled = registerBlockMover(targetStructure, data, component, player, animationType, stamp);
         if (!scheduled)
+        {
+            log.atSevere().log("Failed to schedule block mover for structure %d", targetStructure.getUid());
             return CompletableFuture.completedFuture(StructureToggleResult.ERROR);
+        }
 
         executor.runAsync(() -> callToggleStartEvent(targetStructure, data));
 
@@ -415,7 +421,7 @@ final class StructureToggleHelper
             if (request.isSkipAnimation() && !structure.canSkipAnimation())
                 return abort(
                     structure,
-                    StructureToggleResult.ERROR,
+                    StructureToggleResult.CANNOT_SKIP_UNSKIPPABLE,
                     request.getCause(),
                     responsible,
                     request.getMessageReceiver(),
@@ -436,7 +442,7 @@ final class StructureToggleHelper
             if (newCuboid.isEmpty())
                 return abort(
                     structure,
-                    StructureToggleResult.ERROR,
+                    StructureToggleResult.CANNOT_FIND_COORDINATES,
                     request.getCause(),
                     responsible,
                     request.getMessageReceiver(),

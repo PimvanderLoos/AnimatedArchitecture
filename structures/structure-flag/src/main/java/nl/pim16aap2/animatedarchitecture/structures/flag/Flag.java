@@ -27,7 +27,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 @EqualsAndHashCode(callSuper = true)
 public class Flag extends AbstractStructure implements IHorizontalAxisAligned, IPerpetualMover
 {
-    @EqualsAndHashCode.Exclude @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
 
@@ -92,12 +93,6 @@ public class Flag extends AbstractStructure implements IHorizontalAxisAligned, I
     protected IAnimationComponent constructAnimationComponent(AnimationRequestData data)
     {
         return new FlagAnimationComponent(data, isNorthSouthAnimated());
-    }
-
-    @Override
-    public boolean canSkipAnimation()
-    {
-        return false;
     }
 
     @Override
