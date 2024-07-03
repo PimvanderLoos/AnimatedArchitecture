@@ -72,7 +72,7 @@ import nl.pim16aap2.animatedarchitecture.spigot.core.managers.PowerBlockRedstone
 import nl.pim16aap2.animatedarchitecture.spigot.core.managers.VaultManager;
 import nl.pim16aap2.animatedarchitecture.spigot.core.managers.VaultManagerModule;
 import nl.pim16aap2.animatedarchitecture.spigot.core.util.BlockAnalyzerModule;
-import nl.pim16aap2.animatedarchitecture.spigot.core.util.BlockAnalyzerProvider;
+import nl.pim16aap2.animatedarchitecture.spigot.core.util.SpigotSubPlatformProvider;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.ExecutorModule;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.MessagingInterfaceSpigotModule;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.SpigotServerModule;
@@ -235,7 +235,7 @@ interface AnimatedArchitectureSpigotComponent
 
     StructureTypeLoader getDoorTypeLoader();
 
-    BlockAnalyzerProvider getBlockAnalyzerProvider();
+    SpigotSubPlatformProvider getSpigotSubPlatformProvider();
 
     CommandFactory getCommandFactory();
 

@@ -277,12 +277,14 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
         animatedArchitectureToolUtil = safeGetter(
             AnimatedArchitectureSpigotComponent::getAnimatedArchitectureToolUtilSpigot);
         localizer = safeGetter(AnimatedArchitectureSpigotComponent::getILocalizer);
-        blockAnalyzer = safeGetter(AnimatedArchitectureSpigotComponent::getBlockAnalyzerProvider).getBlockAnalyzer();
         doorTypeLoader = safeGetter(AnimatedArchitectureSpigotComponent::getDoorTypeLoader);
         restartableHolder = safeGetter(AnimatedArchitectureSpigotComponent::getRestartableHolder);
         projectVersion = safeGetter(AnimatedArchitectureSpigotComponent::getProjectVersion);
         commandListener = safeGetter(AnimatedArchitectureSpigotComponent::getCommandListener);
         buildData = safeGetter(AnimatedArchitectureSpigotComponent::getBuildDataReader).getBuildData();
+
+        final var subPlatform = safeGetter(AnimatedArchitectureSpigotComponent::getSpigotSubPlatformProvider);
+        blockAnalyzer = subPlatform.getSubPlatform().getBlockAnalyzer();
 
         plugin = safeGetter(AnimatedArchitectureSpigotComponent::getAnimatedArchitectureJavaPlugin);
 

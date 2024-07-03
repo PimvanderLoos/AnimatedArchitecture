@@ -20,7 +20,7 @@ import java.util.Set;
  * See {@link IBlockAnalyzerSpigot} for more information.
  */
 @Flogger
-public final class BlockAnalyzer_V1_21 implements IBlockAnalyzerSpigot
+final class BlockAnalyzer_V1_21 implements IBlockAnalyzerSpigot
 {
     private static final List<Tag<Material>> BLOCKED_TAGS = List.of(
         Tag.AIR,

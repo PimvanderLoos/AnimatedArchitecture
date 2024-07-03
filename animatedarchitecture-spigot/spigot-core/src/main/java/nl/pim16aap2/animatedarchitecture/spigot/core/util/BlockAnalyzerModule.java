@@ -13,15 +13,15 @@ public abstract class BlockAnalyzerModule
 {
     @Provides
     @Singleton
-    static IBlockAnalyzerSpigot getBlockAnalyzerSpigot(BlockAnalyzerProvider provider)
+    static IBlockAnalyzerSpigot getBlockAnalyzerSpigot(SpigotSubPlatformProvider provider)
     {
-        return provider.getBlockAnalyzer();
+        return provider.getSubPlatform().getBlockAnalyzer();
     }
 
     @Provides
     @Singleton
-    static IBlockAnalyzer<?> getBlockAnalyzer(BlockAnalyzerProvider provider)
+    static IBlockAnalyzer<?> getBlockAnalyzer(SpigotSubPlatformProvider provider)
     {
-        return provider.getBlockAnalyzer();
+        return provider.getSubPlatform().getBlockAnalyzer();
     }
 }
