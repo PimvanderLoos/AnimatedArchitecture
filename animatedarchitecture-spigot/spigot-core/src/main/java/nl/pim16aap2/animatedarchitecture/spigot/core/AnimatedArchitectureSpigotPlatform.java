@@ -283,8 +283,8 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
         commandListener = safeGetter(AnimatedArchitectureSpigotComponent::getCommandListener);
         buildData = safeGetter(AnimatedArchitectureSpigotComponent::getBuildDataReader).getBuildData();
 
-        final var subPlatform = safeGetter(AnimatedArchitectureSpigotComponent::getSpigotSubPlatformProvider);
-        blockAnalyzer = subPlatform.getSubPlatform().getBlockAnalyzer();
+        final var subPlatform = safeGetter(AnimatedArchitectureSpigotComponent::getSubPlatform);
+        blockAnalyzer = subPlatform.getBlockAnalyzer();
 
         plugin = safeGetter(AnimatedArchitectureSpigotComponent::getAnimatedArchitectureJavaPlugin);
 

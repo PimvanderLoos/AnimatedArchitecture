@@ -10,6 +10,8 @@ import org.bukkit.block.data.Levelled;
 import org.bukkit.block.data.type.CommandBlock;
 import org.bukkit.inventory.BlockInventoryHolder;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -20,6 +22,7 @@ import java.util.Set;
  * See {@link IBlockAnalyzerSpigot} for more information.
  */
 @Flogger
+@Singleton
 final class BlockAnalyzer_V1_21 implements IBlockAnalyzerSpigot
 {
     private static final List<Tag<Material>> BLOCKED_TAGS = List.of(
@@ -41,6 +44,11 @@ final class BlockAnalyzer_V1_21 implements IBlockAnalyzerSpigot
             if (result == MaterialStatus.WHITELISTED)
                 WHITELIST.add(mat);
         }
+    }
+
+    @Inject
+    BlockAnalyzer_V1_21()
+    {
     }
 
     @Override
