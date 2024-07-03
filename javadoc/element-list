@@ -41,7 +41,6 @@ nl.pim16aap2.animatedarchitecture.spigot.core.hooks
 nl.pim16aap2.animatedarchitecture.spigot.core.implementations
 nl.pim16aap2.animatedarchitecture.spigot.core.listeners
 nl.pim16aap2.animatedarchitecture.spigot.core.managers
-nl.pim16aap2.animatedarchitecture.spigot.core.util
 nl.pim16aap2.animatedarchitecture.spigot.hooks.bundle
 nl.pim16aap2.animatedarchitecture.spigot.hooks.griefdefender2
 nl.pim16aap2.animatedarchitecture.spigot.hooks.griefprevention
