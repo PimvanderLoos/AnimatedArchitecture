@@ -71,8 +71,7 @@ import nl.pim16aap2.animatedarchitecture.spigot.core.managers.HeadManager;
 import nl.pim16aap2.animatedarchitecture.spigot.core.managers.PowerBlockRedstoneManagerSpigotModule;
 import nl.pim16aap2.animatedarchitecture.spigot.core.managers.VaultManager;
 import nl.pim16aap2.animatedarchitecture.spigot.core.managers.VaultManagerModule;
-import nl.pim16aap2.animatedarchitecture.spigot.core.util.BlockAnalyzerModule;
-import nl.pim16aap2.animatedarchitecture.spigot.core.util.BlockAnalyzerProvider;
+import nl.pim16aap2.animatedarchitecture.spigot.util.api.ISpigotSubPlatform;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.ExecutorModule;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.MessagingInterfaceSpigotModule;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.SpigotServerModule;
@@ -110,7 +109,7 @@ import javax.inject.Singleton;
         ChunkLoaderSpigotModule.class,
         GuiFactorySpigotModule.class,
         TextComponentFactorySpigotModule.class,
-        BlockAnalyzerModule.class,
+        SpigotSubPlatformModule.class,
     }
 )
 interface AnimatedArchitectureSpigotComponent
@@ -235,7 +234,7 @@ interface AnimatedArchitectureSpigotComponent
 
     StructureTypeLoader getDoorTypeLoader();
 
-    BlockAnalyzerProvider getBlockAnalyzerProvider();
+    ISpigotSubPlatform getSubPlatform();
 
     CommandFactory getCommandFactory();
 

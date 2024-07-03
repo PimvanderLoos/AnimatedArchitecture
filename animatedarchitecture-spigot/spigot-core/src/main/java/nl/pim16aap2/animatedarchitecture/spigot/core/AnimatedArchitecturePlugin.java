@@ -266,7 +266,7 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
         restartableHolder.shutDown();
         new BackupCommandListener(this, initErrorMessage);
         registerFailureLoginListener();
-        log.atWarning().log("%s", new DebugReporterSpigot(this, this, new DebuggableRegistry()));
+        log.atWarning().log("%s", new DebugReporterSpigot(this, this, null, new DebuggableRegistry()));
         successfulInit = false;
         restartableHolder.shutDown();
     }
