@@ -5,6 +5,7 @@ import dagger.Provides;
 import nl.pim16aap2.animatedarchitecture.core.api.IBlockAnalyzer;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.BlockAnalyzerSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.ISpigotSubPlatform;
+import nl.pim16aap2.animatedarchitecture.spigot.util.blockstate.BlockStateManipulator;
 import nl.pim16aap2.animatedarchitecture.spigot.v1_20.SubPlatform_V1_20;
 import nl.pim16aap2.animatedarchitecture.spigot.v1_21.SubPlatform_V1_21;
 import org.bukkit.Bukkit;
@@ -68,5 +69,12 @@ public abstract class SpigotSubPlatformModule
     static IBlockAnalyzer<?> getBlockAnalyzer(ISpigotSubPlatform provider)
     {
         return provider.getBlockAnalyzer();
+    }
+
+    @Provides
+    @Singleton
+    static BlockStateManipulator getBlockStateManipulator(ISpigotSubPlatform provider)
+    {
+        return provider.getBlockStateManipulator();
     }
 }

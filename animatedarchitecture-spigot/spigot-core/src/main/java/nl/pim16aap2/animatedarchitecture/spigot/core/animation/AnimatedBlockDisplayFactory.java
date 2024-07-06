@@ -11,6 +11,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.BlockAnalyzerSpigot;
+import nl.pim16aap2.animatedarchitecture.spigot.util.blockstate.BlockStateManipulator;
 import org.bukkit.Material;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,6 +26,7 @@ import java.util.function.Consumer;
 @Singleton
 public class AnimatedBlockDisplayFactory implements IAnimatedBlockFactory
 {
+    private final BlockStateManipulator blockStateManipulator;
     private final IExecutor executor;
     private final AnimatedBlockHookManager animatedBlockHookManager;
     private final BlockAnalyzerSpigot blockAnalyzer;
@@ -32,11 +34,13 @@ public class AnimatedBlockDisplayFactory implements IAnimatedBlockFactory
 
     @Inject
     AnimatedBlockDisplayFactory(
+        BlockStateManipulator blockStateManipulator,
         IExecutor executor,
         AnimatedBlockHookManager animatedBlockHookManager,
         BlockAnalyzerSpigot blockAnalyzer,
         BlockDisplayHelper blockDisplayHelper)
     {
+        this.blockStateManipulator = blockStateManipulator;
         this.executor = executor;
         this.animatedBlockHookManager = animatedBlockHookManager;
         this.blockAnalyzer = blockAnalyzer;
@@ -60,6 +64,7 @@ public class AnimatedBlockDisplayFactory implements IAnimatedBlockFactory
             return Optional.empty();
 
         return Optional.of(new AnimatedBlockDisplay(
+            blockStateManipulator,
             blockDisplayHelper,
             executor,
             animatedBlockHookManager,

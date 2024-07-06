@@ -11,10 +11,12 @@ import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotUtil;
+import nl.pim16aap2.animatedarchitecture.spigot.util.blockstate.BlockStateManipulator;
 import org.bukkit.Axis;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.MultipleFacing;
@@ -35,27 +37,35 @@ import java.util.function.Consumer;
 @Flogger
 public class SimpleBlockData implements IAnimatedBlockData
 {
+    private final BlockStateManipulator blockStateManipulator;
     private final IExecutor executor;
     @Getter
     private final BlockData blockData;
+    private final BlockState blockState;
+
     private final AnimatedBlockDisplay animatedBlock;
     private final @Nullable Consumer<IAnimatedBlockData> blockDataRotator;
     private final Vector3Di originalPosition;
     private final World bukkitWorld;
 
     SimpleBlockData(
+        BlockStateManipulator blockStateManipulator,
         AnimatedBlockDisplay animatedBlock,
         IExecutor executor,
         @Nullable Consumer<IAnimatedBlockData> blockDataRotator,
         World bukkitWorld,
         Vector3Di position)
     {
+        this.blockStateManipulator = blockStateManipulator;
         this.executor = executor;
         this.animatedBlock = animatedBlock;
         this.blockDataRotator = blockDataRotator;
         this.originalPosition = position;
         this.bukkitWorld = bukkitWorld;
-        this.blockData = bukkitWorld.getBlockAt(position.x(), position.y(), position.z()).getBlockData();
+
+        final var block = bukkitWorld.getBlockAt(position.x(), position.y(), position.z());
+        this.blockData = block.getBlockData();
+        this.blockState = block.getState();
     }
 
     @Override
@@ -72,7 +82,11 @@ public class SimpleBlockData implements IAnimatedBlockData
         // When rotating stairs vertically, they need to be rotated twice, as they cannot point up/down.
         switch (blockData)
         {
-            case Stairs stairs when MovementDirection.isCardinalDirection(movementDirection) ->
+            case Stairs stairs when
+                (movementDirection.equals(MovementDirection.NORTH) ||
+                    movementDirection.equals(MovementDirection.EAST) ||
+                    movementDirection.equals(MovementDirection.SOUTH) ||
+                    movementDirection.equals(MovementDirection.WEST)) ->
                 rotateDirectional(stairs, movementDirection, 2 * times);
             case Orientable orientable -> rotateOrientable(orientable, movementDirection, times);
             case Directional directional -> rotateDirectional(directional, movementDirection, times);
@@ -208,6 +222,10 @@ public class SimpleBlockData implements IAnimatedBlockData
             waterlogged.setWaterlogged(block.isLiquid());
 
         block.setBlockData(blockData);
+
+        blockStateManipulator.applyBlockState(blockState, block);
+
+        block.getState().update(true, false);
     }
 
     @Override

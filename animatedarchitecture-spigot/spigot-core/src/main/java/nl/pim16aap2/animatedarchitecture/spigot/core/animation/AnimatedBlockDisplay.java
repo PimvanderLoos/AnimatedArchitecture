@@ -15,6 +15,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import nl.pim16aap2.animatedarchitecture.spigot.core.animation.recovery.IAnimatedBlockRecoveryData;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
+import nl.pim16aap2.animatedarchitecture.spigot.util.blockstate.BlockStateManipulator;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.LocationSpigot;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -59,6 +60,7 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     private RotatedPosition currentTarget;
 
     public AnimatedBlockDisplay(
+        BlockStateManipulator blockStateManipulator,
         BlockDisplayHelper blockDisplayHelper,
         IExecutor executor,
         AnimatedBlockHookManager animatedBlockHookManager,
@@ -81,6 +83,7 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
         this.previousTarget = currentTarget;
 
         this.blockData = new SimpleBlockData(
+            blockStateManipulator,
             this,
             executor,
             blockDataRotator,

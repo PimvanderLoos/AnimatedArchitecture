@@ -7,12 +7,8 @@ import nl.pim16aap2.animatedarchitecture.spigot.util.api.BlockAnalyzerSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.IBlockAnalyzerConfig;
 import org.bukkit.Material;
 import org.bukkit.Tag;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.block.data.type.CommandBlock;
-import org.bukkit.inventory.BlockInventoryHolder;
-import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -29,8 +25,6 @@ final class BlockAnalyzer_V1_21 extends BlockAnalyzerSpigot implements IRestarta
 {
     private static final List<Tag<Material>> BLOCKED_TAGS = List.of(
         Tag.AIR,
-        Tag.ALL_SIGNS,
-        Tag.BANNERS,
         Tag.BEDS,
         Tag.BEEHIVES,
         Tag.SHULKER_BOXES
@@ -61,13 +55,24 @@ final class BlockAnalyzer_V1_21 extends BlockAnalyzerSpigot implements IRestarta
             if (tag.isTagged(mat))
                 return MaterialStatus.BLACKLISTED;
 
-        final @Nullable var blockData = safeCreateBlockData(mat);
-        if (blockData instanceof Levelled || blockData instanceof CommandBlock)
-            return MaterialStatus.BLACKLISTED;
-
-        final @Nullable var blockState = safeCreateBlockState(blockData);
-        if (blockState instanceof BlockInventoryHolder)
-            return MaterialStatus.BLACKLISTED;
+        if (mat.isBlock())
+        {
+            try
+            {
+                final var blockData = mat.createBlockData();
+                if (blockData instanceof Levelled || blockData instanceof CommandBlock)
+                    return MaterialStatus.BLACKLISTED;
+            }
+            catch (Exception e)
+            {
+                log.atInfo().log(
+                    "Encountered error parsing material '%s': %s - %s",
+                    mat.name(),
+                    e.getClass().getSimpleName(),
+                    e.getMessage()
+                );
+            }
+        }
 
         return switch (mat)
         {
@@ -75,34 +80,11 @@ final class BlockAnalyzer_V1_21 extends BlockAnalyzerSpigot implements IRestarta
                  FROGSPAWN,
                  PISTON_HEAD,
                  REDSTONE,
-                 SPAWNER,
                  STRUCTURE_BLOCK,
                  STRUCTURE_VOID,
                  TRIAL_SPAWNER,
                  VAULT -> MaterialStatus.BLACKLISTED;
             default -> MaterialStatus.WHITELISTED;
         };
-    }
-
-    @SuppressWarnings("UnstableApiUsage")
-    private @Nullable BlockState safeCreateBlockState(@Nullable BlockData blockData)
-    {
-        if (blockData == null)
-            return null;
-
-        try
-        {
-            return blockData.createBlockState();
-        }
-        catch (Exception e)
-        {
-            log.atInfo().log(
-                "Encountered error creating block state from block data '%s': %s - %s",
-                blockData,
-                e.getClass().getSimpleName(),
-                e.getMessage()
-            );
-            return null;
-        }
     }
 }
