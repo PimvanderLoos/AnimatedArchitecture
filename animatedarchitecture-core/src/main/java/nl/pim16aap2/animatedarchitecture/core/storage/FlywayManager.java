@@ -76,20 +76,19 @@ public final class FlywayManager implements IDebuggable
     @Override
     public String getDebugInformation()
     {
-        return String.format("""
+        return String.format(
+            """
                 - Migration performed: %s
                 - Migrations Applied (%d): %s
                 - Migrations Pending (%d): %s
                 - Current Migration: %s
-                - Baseline version: %s, Successfully Baselined: %s
                 """,
             isMigrationPerformed.get() ? "Yes" : "No",
             flyway.info().applied().length,
             formatMigrations(flyway.info().applied()),
             flyway.info().pending().length,
             formatMigrations(flyway.info().pending()),
-            formatMigrations(flyway.info().current()),
-            flyway.baseline().baselineVersion, flyway.baseline().successfullyBaselined
+            formatMigrations(flyway.info().current())
         );
     }
 
