@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.animation;
 
 import com.google.common.flogger.StackSize;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
@@ -41,6 +42,7 @@ public class SimpleBlockData implements IAnimatedBlockData
     private final IExecutor executor;
     @Getter
     private final BlockData blockData;
+    @Getter(AccessLevel.PACKAGE)
     private final BlockState blockState;
 
     private final AnimatedBlockDisplay animatedBlock;

@@ -1,8 +1,10 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.animation.recovery;
 
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
+import nl.pim16aap2.animatedarchitecture.spigot.util.blockstate.BlockStateManipulator;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 
 import javax.annotation.CheckReturnValue;
@@ -27,13 +29,15 @@ public sealed interface IAnimatedBlockRecoveryData
      * No guarantees are made about the exact behavior of this method, but as long as any kind of recovery action is
      * performed, this method should return true. Only when this method is a no-op should it return false.
      *
+     * @param blockStateManipulator
+     *     The block state manipulator to use for the recovery action.
      * @return True if a recovery action was performed, false otherwise.
      *
      * @throws RecoveryFailureException
      *     If something prevented the recovery action from being successful.
      */
     @CheckReturnValue
-    boolean recover()
+    boolean recover(BlockStateManipulator blockStateManipulator)
         throws RecoveryFailureException;
 
     /**
@@ -53,7 +57,8 @@ public sealed interface IAnimatedBlockRecoveryData
     record AnimatedBlockRecoveryData(
         World world,
         Vector3Di position,
-        BlockData data
+        BlockData data,
+        BlockState blockState
     ) implements IAnimatedBlockRecoveryData
     {
         public AnimatedBlockRecoveryData
@@ -64,9 +69,10 @@ public sealed interface IAnimatedBlockRecoveryData
         }
 
         @Override
-        public boolean recover()
+        public boolean recover(BlockStateManipulator blockStateManipulator)
         {
             world.setBlockData(position.x(), position.y(), position.z(), data);
+            blockState.update(true, false);
             return true;
         }
     }
@@ -74,7 +80,7 @@ public sealed interface IAnimatedBlockRecoveryData
     /**
      * Represents an empty recovery data object.
      * <p>
-     * This object does nothing when {@link #recover()} is called.
+     * This object does nothing when {@link #recover(BlockStateManipulator)} is called.
      * <p>
      * This is useful in situations where no recovery action is needed (e.g. when the block is a preview block and does
      * not alter the world).
@@ -84,7 +90,7 @@ public sealed interface IAnimatedBlockRecoveryData
     record EmptyRecoveryData() implements IAnimatedBlockRecoveryData
     {
         @Override
-        public boolean recover()
+        public boolean recover(BlockStateManipulator blockStateManipulator)
         {
             return false;
         }

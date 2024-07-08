@@ -94,7 +94,8 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
         this.recoveryData = new IAnimatedBlockRecoveryData.AnimatedBlockRecoveryData(
             bukkitWorld,
             this.startPosition.position().floor().toInteger(),
-            this.blockData.getBlockData()
+            this.blockData.getBlockData(),
+            this.blockData.getBlockState()
         );
 
         this.hooks = animatedBlockHookManager.instantiateHooks(this);

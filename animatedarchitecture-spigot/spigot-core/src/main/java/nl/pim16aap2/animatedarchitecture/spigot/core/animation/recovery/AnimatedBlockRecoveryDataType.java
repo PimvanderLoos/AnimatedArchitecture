@@ -12,6 +12,7 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.persistence.PersistentDataType;
@@ -37,6 +38,7 @@ public final class AnimatedBlockRecoveryDataType implements PersistentDataType<S
     private final Gson gson = new GsonBuilder()
         .registerTypeHierarchyAdapter(BlockData.class, new BlockDataAdapter())
         .registerTypeHierarchyAdapter(World.class, new WorldAdapter())
+        .registerTypeHierarchyAdapter(BlockState.class, new BlockStateAdapter())
         .create();
 
     private AnimatedBlockRecoveryDataType()
