@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.spigot.v1_21;
 
-import nl.pim16aap2.animatedarchitecture.spigot.util.api.IBlockAnalyzerSpigot;
+import nl.pim16aap2.animatedarchitecture.spigot.util.api.BlockAnalyzerSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.ISpigotSubPlatform;
 
 import javax.inject.Inject;
@@ -21,7 +21,7 @@ public final class SubPlatform_V1_21 implements ISpigotSubPlatform
     }
 
     @Override
-    public IBlockAnalyzerSpigot getBlockAnalyzer()
+    public BlockAnalyzerSpigot getBlockAnalyzer()
     {
         return blockAnalyzer;
     }

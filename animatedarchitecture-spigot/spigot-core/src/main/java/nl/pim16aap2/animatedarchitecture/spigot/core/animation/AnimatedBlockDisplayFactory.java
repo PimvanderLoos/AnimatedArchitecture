@@ -10,7 +10,7 @@ import nl.pim16aap2.animatedarchitecture.core.managers.AnimatedBlockHookManager;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
-import nl.pim16aap2.animatedarchitecture.spigot.util.api.IBlockAnalyzerSpigot;
+import nl.pim16aap2.animatedarchitecture.spigot.util.api.BlockAnalyzerSpigot;
 import org.bukkit.Material;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,14 +27,14 @@ public class AnimatedBlockDisplayFactory implements IAnimatedBlockFactory
 {
     private final IExecutor executor;
     private final AnimatedBlockHookManager animatedBlockHookManager;
-    private final IBlockAnalyzerSpigot blockAnalyzer;
+    private final BlockAnalyzerSpigot blockAnalyzer;
     private final BlockDisplayHelper blockDisplayHelper;
 
     @Inject
     AnimatedBlockDisplayFactory(
         IExecutor executor,
         AnimatedBlockHookManager animatedBlockHookManager,
-        IBlockAnalyzerSpigot blockAnalyzer,
+        BlockAnalyzerSpigot blockAnalyzer,
         BlockDisplayHelper blockDisplayHelper)
     {
         this.executor = executor;

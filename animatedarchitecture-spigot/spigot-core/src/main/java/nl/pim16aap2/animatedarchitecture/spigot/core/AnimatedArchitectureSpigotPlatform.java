@@ -51,7 +51,7 @@ import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.LoginResourcePack
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.RedstoneListener;
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.WorldListener;
 import nl.pim16aap2.animatedarchitecture.spigot.core.managers.HeadManager;
-import nl.pim16aap2.animatedarchitecture.spigot.util.api.IBlockAnalyzerSpigot;
+import nl.pim16aap2.animatedarchitecture.spigot.util.api.BlockAnalyzerSpigot;
 import org.jetbrains.annotations.Nullable;
 import org.semver4j.Semver;
 
@@ -106,7 +106,7 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
     private final IAudioPlayer audioPlayer;
 
     @Getter
-    private final IBlockAnalyzerSpigot blockAnalyzer;
+    private final BlockAnalyzerSpigot blockAnalyzer;
 
     @Getter
     private final IExecutor executor;

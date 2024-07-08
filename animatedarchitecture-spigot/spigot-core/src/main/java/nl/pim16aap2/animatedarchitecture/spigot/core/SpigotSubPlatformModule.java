@@ -3,7 +3,7 @@ package nl.pim16aap2.animatedarchitecture.spigot.core;
 import dagger.Module;
 import dagger.Provides;
 import nl.pim16aap2.animatedarchitecture.core.api.IBlockAnalyzer;
-import nl.pim16aap2.animatedarchitecture.spigot.util.api.IBlockAnalyzerSpigot;
+import nl.pim16aap2.animatedarchitecture.spigot.util.api.BlockAnalyzerSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.ISpigotSubPlatform;
 import nl.pim16aap2.animatedarchitecture.spigot.v1_19_R3.SubPlatform_V1_19;
 import nl.pim16aap2.animatedarchitecture.spigot.v1_21.SubPlatform_V1_21;
@@ -55,7 +55,7 @@ public abstract class SpigotSubPlatformModule
 
     @Provides
     @Singleton
-    static IBlockAnalyzerSpigot getBlockAnalyzerSpigot(ISpigotSubPlatform provider)
+    static BlockAnalyzerSpigot getBlockAnalyzerSpigot(ISpigotSubPlatform provider)
     {
         return provider.getBlockAnalyzer();
     }
