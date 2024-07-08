@@ -1,28 +1,27 @@
 package nl.pim16aap2.animatedarchitecture.spigot.v1_19_R3;
 
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
-import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
-import nl.pim16aap2.animatedarchitecture.spigot.util.api.IBlockAnalyzerSpigot;
+import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
+import nl.pim16aap2.animatedarchitecture.spigot.util.api.BlockAnalyzerSpigot;
+import nl.pim16aap2.animatedarchitecture.spigot.util.api.IBlockAnalyzerConfig;
 import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.block.data.type.CommandBlock;
+import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Represents a class that can perform analysis on blocks on the Spigot 1.19 platform.
  * <p>
- * See {@link IBlockAnalyzerSpigot} for more information.
+ * See {@link BlockAnalyzerSpigot} for more information.
  */
 @Flogger
 @Singleton
-final class BlockAnalyzer_V1_19 implements IBlockAnalyzerSpigot
+final class BlockAnalyzer_V1_19 extends BlockAnalyzerSpigot
 {
     private static final List<Tag<Material>> BLOCKED_TAGS = List.of(
         Tag.ALL_SIGNS,
@@ -32,55 +31,27 @@ final class BlockAnalyzer_V1_19 implements IBlockAnalyzerSpigot
         Tag.SHULKER_BOXES
     );
 
-    private static final Set<Material> WHITELIST = EnumSet.noneOf(Material.class);
-
-    static
-    {
-        for (final Material mat : Material.values())
-        {
-            final MaterialStatus result = getMaterialStatus(mat);
-            if (result == MaterialStatus.WHITELISTED)
-                WHITELIST.add(mat);
-        }
-    }
-
     @Inject
-    BlockAnalyzer_V1_19()
+    BlockAnalyzer_V1_19(
+        IBlockAnalyzerConfig config,
+        RestartableHolder restartableHolder)
     {
-    }
-
-    @Override
-    public boolean isAirOrLiquid(Material material)
-    {
-        return material.isAir() || material.equals(Material.WATER) || material.equals(Material.LAVA);
-    }
-
-    @Override
-    public boolean isAirOrLiquid(ILocation location)
-    {
-        return isAirOrLiquid(materialAtLocation(location));
-    }
-
-    @Override
-    public boolean isAllowed(Material material)
-    {
-        return WHITELIST.contains(material);
-    }
-
-    private static Material materialAtLocation(ILocation location)
-    {
-        return SpigotAdapter.getBukkitLocation(location).getBlock().getType();
+        super(config, restartableHolder);
     }
 
     /**
-     * Checks if a material is white-, grey-, or blacklisted.
+     * Checks if a material is blacklisted.
      *
      * @param mat
      *     The material.
      * @return The listing status of the material.
      */
-    private static MaterialStatus getMaterialStatus(Material mat)
+    @Override
+    protected MaterialStatus getDefaultMaterialStatus(Material mat)
     {
+        if (!mat.isBlock())
+            return MaterialStatus.BLACKLISTED;
+
         for (final Tag<Material> tag : BLOCKED_TAGS)
             if (tag.isTagged(mat))
                 return MaterialStatus.BLACKLISTED;
@@ -88,24 +59,9 @@ final class BlockAnalyzer_V1_19 implements IBlockAnalyzerSpigot
         if (mat.isAir())
             return MaterialStatus.BLACKLISTED;
 
-        if (mat.isBlock())
-        {
-            try
-            {
-                final var blockData = mat.createBlockData();
-                if (blockData instanceof Levelled || blockData instanceof CommandBlock)
-                    return MaterialStatus.BLACKLISTED;
-            }
-            catch (Exception e)
-            {
-                log.atInfo().log(
-                    "Encountered error parsing material '%s': %s - %s",
-                    mat.name(),
-                    e.getClass().getSimpleName(),
-                    e.getMessage()
-                );
-            }
-        }
+        final @Nullable var blockData = safeCreateBlockData(mat);
+        if (blockData instanceof Levelled || blockData instanceof CommandBlock)
+            return MaterialStatus.BLACKLISTED;
 
         return switch (mat)
         {

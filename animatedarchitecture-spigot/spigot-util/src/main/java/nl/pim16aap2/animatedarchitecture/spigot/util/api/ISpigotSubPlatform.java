@@ -12,5 +12,5 @@ public interface ISpigotSubPlatform
      *
      * @return The block analyzer for this sub-platform.
      */
-    IBlockAnalyzerSpigot getBlockAnalyzer();
+    BlockAnalyzerSpigot getBlockAnalyzer();
 }

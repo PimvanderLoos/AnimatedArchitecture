@@ -18,6 +18,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.spigot.core.hooks.ProtectionHookManagerSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotUtil;
+import nl.pim16aap2.animatedarchitecture.spigot.util.api.IBlockAnalyzerConfig;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.IProtectionHookSpigotSpecification;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.ConfigReaderSpigot;
 import org.bukkit.Material;
@@ -52,7 +53,7 @@ import java.util.logging.Level;
 @ToString
 @Singleton
 @Flogger
-public final class ConfigSpigot implements IConfig, IDebuggable
+public final class ConfigSpigot implements IConfig, IDebuggable, IBlockAnalyzerConfig
 {
     private static final List<String> DEFAULT_COMMAND_ALIASES = List.of(
         "animatedarchitecture",
@@ -840,6 +841,12 @@ public final class ConfigSpigot implements IConfig, IDebuggable
     public int headCacheTimeout()
     {
         return headCacheTimeout;
+    }
+
+    @Override
+    public Set<Material> getMaterialBlacklist()
+    {
+        return Collections.unmodifiableSet(materialBlacklist);
     }
 
     @Override
