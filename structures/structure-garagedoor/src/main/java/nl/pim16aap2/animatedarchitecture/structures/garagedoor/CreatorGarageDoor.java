@@ -22,6 +22,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * The creator for the garage door structure.
+ */
 @ToString(callSuper = true)
 public class CreatorGarageDoor extends Creator
 {
@@ -40,7 +43,7 @@ public class CreatorGarageDoor extends Creator
         EnumSet.of(MovementDirection.EAST, MovementDirection.WEST);
 
     @GuardedBy("this")
-    private boolean northSouthAnimated;
+    private @Nullable Boolean northSouthAnimated;
 
     public CreatorGarageDoor(ToolUser.Context context, IPlayer player, @Nullable String name)
     {
@@ -86,7 +89,10 @@ public class CreatorGarageDoor extends Creator
         // Check if there's exactly 1 dimension that is 1 block deep.
         if ((cuboidDims.x() == 1) ^ (cuboidDims.y() == 1) ^ (cuboidDims.z() == 1))
         {
-            northSouthAnimated = cuboidDims.z() == 1;
+            if (cuboidDims.y() == 1)
+                northSouthAnimated = null; // The garage door is flat, so the alignment is not yet known.
+            else
+                northSouthAnimated = cuboidDims.z() == 1;
             setOpen(cuboidDims.y() == 1);
             return super.provideSecondPos(loc);
         }
@@ -100,6 +106,10 @@ public class CreatorGarageDoor extends Creator
     {
         if (isOpen())
             return getStructureType().getValidMovementDirections();
+
+        if (northSouthAnimated == null)
+            return getStructureType().getValidMovementDirections();
+
         // When the garage structure is not open (i.e. vertical), it can only be opened along one axis.
         return northSouthAnimated ? NORTH_SOUTH_AXIS_OPEN_DIRS : EAST_WEST_AXIS_OPEN_DIRS;
     }
@@ -118,7 +128,7 @@ public class CreatorGarageDoor extends Creator
             final MovementDirection movementDirection =
                 Util.requireNonNull(getMovementDirection(), "movementDirection");
 
-            if (movementDirection == MovementDirection.NORTH || movementDirection == MovementDirection.SOUTH)
+            if (NORTH_SOUTH_AXIS_OPEN_DIRS.contains(movementDirection))
                 northSouthAnimated = true;
             return true;
         }
@@ -162,7 +172,11 @@ public class CreatorGarageDoor extends Creator
     protected synchronized AbstractStructure constructStructure()
     {
         updateRotationPoint();
-        return new GarageDoor(constructStructureData(), northSouthAnimated);
+
+        return new GarageDoor(
+            constructStructureData(),
+            Util.requireNonNull(northSouthAnimated, "northSouthAnimated")
+        );
     }
 
     @Override
@@ -172,7 +186,7 @@ public class CreatorGarageDoor extends Creator
     }
 
     @SuppressWarnings("unused") // It is used by the generated toString method.
-    protected final synchronized boolean isNorthSouthAnimated()
+    protected final synchronized @Nullable Boolean isNorthSouthAnimated()
     {
         return northSouthAnimated;
     }
