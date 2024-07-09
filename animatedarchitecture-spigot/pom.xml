@@ -16,11 +16,11 @@
         <project.root-dir>${project.basedir}/..</project.root-dir>
 
         <dependency.paperlib.version>1.0.8</dependency.paperlib.version>
-        <dependency.spigot-base.version>1.19.4-R0.1-SNAPSHOT</dependency.spigot-base.version>
+        <dependency.spigot-base.version>1.20-R0.1-SNAPSHOT</dependency.spigot-base.version>
     </properties>
 
     <modules>
-        <module>spigot-v1_19_R3</module>
+        <module>spigot-v1_20</module>
         <module>spigot-v1_21</module>
         <module>spigot-core</module>
         <module>spigot-util</module>
@@ -35,6 +35,13 @@
     </repositories>
 
     <dependencies>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>${dependency.spigot-base.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
         <dependency>
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>animatedarchitecture-core</artifactId>

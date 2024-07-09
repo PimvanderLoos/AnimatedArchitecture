@@ -16,7 +16,6 @@
     <properties>
         <project.root-dir>${project.basedir}/../..</project.root-dir>
 
-        <dependency.spigot.version>1.19.4-R0.1-SNAPSHOT</dependency.spigot.version>
         <dependency.worldedit.version>7.3.3</dependency.worldedit.version>
     </properties>
 
@@ -47,13 +46,6 @@
     </modules>
 
     <dependencies>
-        <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
-            <version>${dependency.spigot.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
         <dependency>
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>spigot-util</artifactId>
