@@ -4,9 +4,11 @@ import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Represents all possible movement directions of a Structure.
@@ -42,6 +44,12 @@ public enum MovementDirection
         ID_MAP = Collections.unmodifiableMap(idMapTmp);
         NAME_MAP = Collections.unmodifiableMap(nameMapTmp);
     }
+
+    /**
+     * Unmodifiable set of the four cardinal directions; north, east, south, and west.
+     */
+    public static final Set<MovementDirection> CARDINAL_DIRECTIONS =
+        Collections.unmodifiableSet(EnumSet.of(NORTH, EAST, SOUTH, WEST));
 
     private final int val;
 
@@ -85,6 +93,13 @@ public enum MovementDirection
         }
     }
 
+    /**
+     * Gets the {@link MovementDirection} from a name.
+     *
+     * @param name
+     *     The name of the {@link MovementDirection}.
+     * @return The {@link MovementDirection} associated with this name.
+     */
     public static Optional<MovementDirection> getMovementDirection(String name)
     {
         return Optional.ofNullable(NAME_MAP.get(name));
@@ -112,5 +127,17 @@ public enum MovementDirection
             case COUNTERCLOCKWISE -> MovementDirection.CLOCKWISE;
             default -> MovementDirection.NONE;
         };
+    }
+
+    /**
+     * Check if the provided {@link MovementDirection} is a cardinal direction.
+     *
+     * @param direction
+     *     The {@link MovementDirection} to check.
+     * @return True if the provided {@link MovementDirection} is a cardinal direction, false otherwise.
+     */
+    public static boolean isCardinalDirection(@Nullable MovementDirection direction)
+    {
+        return direction != null && CARDINAL_DIRECTIONS.contains(direction);
     }
 }
