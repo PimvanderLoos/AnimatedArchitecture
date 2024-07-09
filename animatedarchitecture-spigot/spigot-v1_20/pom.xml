@@ -2,9 +2,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>spigot-v1_19_R3</artifactId>
+    <artifactId>spigot-v1_20</artifactId>
     <packaging>jar</packaging>
-    <description>AnimatedArchitecture implementation for Spigot 1.19.4</description>
+    <description>AnimatedArchitecture implementation for Spigot 1.20</description>
 
     <parent>
         <artifactId>animatedarchitecture-spigot</artifactId>
@@ -14,8 +14,6 @@
 
     <properties>
         <project.root-dir>${project.basedir}/../..</project.root-dir>
-
-        <dependency.spigot.version>1.19.4-R0.1-SNAPSHOT</dependency.spigot.version>
     </properties>
 
     <dependencies>
@@ -23,13 +21,6 @@
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>spigot-util</artifactId>
             <version>0.6.0-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
-            <version>${dependency.spigot.version}</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

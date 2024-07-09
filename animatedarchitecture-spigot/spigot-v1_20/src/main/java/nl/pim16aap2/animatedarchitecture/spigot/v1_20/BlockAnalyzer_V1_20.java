@@ -1,4 +1,4 @@
-package nl.pim16aap2.animatedarchitecture.spigot.v1_19_R3;
+package nl.pim16aap2.animatedarchitecture.spigot.v1_20;
 
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
@@ -15,13 +15,13 @@ import javax.inject.Singleton;
 import java.util.List;
 
 /**
- * Represents a class that can perform analysis on blocks on the Spigot 1.19 platform.
+ * Represents a class that can perform analysis on blocks on the Spigot 1.20 platform.
  * <p>
  * See {@link BlockAnalyzerSpigot} for more information.
  */
 @Flogger
 @Singleton
-final class BlockAnalyzer_V1_19 extends BlockAnalyzerSpigot
+final class BlockAnalyzer_V1_20 extends BlockAnalyzerSpigot
 {
     private static final List<Tag<Material>> BLOCKED_TAGS = List.of(
         Tag.ALL_SIGNS,
@@ -32,7 +32,7 @@ final class BlockAnalyzer_V1_19 extends BlockAnalyzerSpigot
     );
 
     @Inject
-    BlockAnalyzer_V1_19(
+    BlockAnalyzer_V1_20(
         IBlockAnalyzerConfig config,
         RestartableHolder restartableHolder)
     {

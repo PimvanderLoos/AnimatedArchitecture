@@ -30,7 +30,7 @@ The following structure types are currently supported:
 ### Requirements:
 
 * Java 21+
-* A Spigot server (or a fork of Spigot) for Minecraft 1.19.4+
+* A Spigot server (or a fork of Spigot) for Minecraft 1.20+
 * Vault
 
 ### Installation:

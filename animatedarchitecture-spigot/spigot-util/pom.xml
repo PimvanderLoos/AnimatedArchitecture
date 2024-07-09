@@ -16,15 +16,6 @@
         <project.root-dir>${project.basedir}/../..</project.root-dir>
     </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
-            <version>${dependency.spigot-base.version}</version>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
-
     <build>
         <plugins>
             <plugin>

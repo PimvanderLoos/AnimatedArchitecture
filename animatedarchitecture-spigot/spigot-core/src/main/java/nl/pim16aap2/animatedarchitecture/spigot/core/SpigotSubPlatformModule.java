@@ -5,12 +5,12 @@ import dagger.Provides;
 import nl.pim16aap2.animatedarchitecture.core.api.IBlockAnalyzer;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.BlockAnalyzerSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.ISpigotSubPlatform;
-import nl.pim16aap2.animatedarchitecture.spigot.v1_19_R3.SubPlatform_V1_19;
+import nl.pim16aap2.animatedarchitecture.spigot.v1_20.SubPlatform_V1_20;
 import nl.pim16aap2.animatedarchitecture.spigot.v1_21.SubPlatform_V1_21;
 import org.bukkit.Bukkit;
+import org.jetbrains.annotations.Nullable;
 import org.semver4j.Semver;
 
-import javax.annotation.Nullable;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
@@ -23,28 +23,31 @@ import javax.inject.Singleton;
 @SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod")
 public abstract class SpigotSubPlatformModule
 {
+    private static final Semver MINIMUM_SUPPORTED_VERSION = Semver.of(1, 20, 0);
+
     @Provides
     @Singleton
     static ISpigotSubPlatform getSubPlatform(
-        Provider<SubPlatform_V1_19> subPlatform_v1_19,
+        Provider<SubPlatform_V1_20> subPlatform_v1_20,
         Provider<SubPlatform_V1_21> subPlatform_v1_21)
     {
-        final @Nullable Semver serverVersion = Semver.coerce(Bukkit.getServer().getBukkitVersion());
 
+        @Nullable Semver serverVersion = Semver.coerce(Bukkit.getServer().getBukkitVersion());
         if (serverVersion == null)
             throw new IllegalStateException(
                 "Failed to coerce server version from '" + Bukkit.getServer().getBukkitVersion() + "'.");
 
-        if (serverVersion.isLowerThan(Semver.of(1, 19, 4)))
+        // E.g. 1.20.6-R0.1-SNAPSHOT -> 1.20.6
+        serverVersion = serverVersion.withClearedPreReleaseAndBuild();
+
+        if (serverVersion.isLowerThan(MINIMUM_SUPPORTED_VERSION))
             throw new IllegalStateException(
-                "This plugin requires at least version 1.19.4. Version '" + serverVersion + "' is not supported.");
+                "This plugin requires at least version " + MINIMUM_SUPPORTED_VERSION +
+                    "! Version " + serverVersion + " is not supported.");
 
         return switch (serverVersion.getMinor())
         {
-            // 1.20 did not introduce any new blocks that were not in 1.19 as experimental entries,
-            // so we can use the 1.19 analyzer.
-            case 19, 20 -> subPlatform_v1_19.get();
-
+            case 20 -> subPlatform_v1_20.get();
             case 21 -> subPlatform_v1_21.get();
 
             // The default case should always point to platform for the latest supported version as this version
