@@ -240,7 +240,7 @@ public enum BlockFace
      *     The {@link MovementDirection} to rotate in.
      * @return The appropriate function for rotating the {@link BlockFace} in the given direction.
      */
-    public static @Nullable UnaryOperator<BlockFace> getDirFun(MovementDirection movementDirection)
+    public static @Nullable UnaryOperator<BlockFace> getRotationFunction(MovementDirection movementDirection)
     {
         return switch (movementDirection)
         {
@@ -261,16 +261,17 @@ public enum BlockFace
      *     The {@link BlockFace} that will be rotated.
      * @param steps
      *     The number of times to apply the rotation.
-     * @param dir
+     * @param rotationFunction
      *     The function the applies the rotation.
      * @return The rotated {@link BlockFace}.
      *
-     * @see BlockFace#getDirFun
+     * @see BlockFace#getRotationFunction
      */
-    public static BlockFace rotate(BlockFace blockFace, int steps, UnaryOperator<BlockFace> dir)
+    public static BlockFace rotate(BlockFace blockFace, int steps, @Nullable UnaryOperator<BlockFace> rotationFunction)
     {
-        if (blockFace.equals(BlockFace.NONE))
+        if (rotationFunction == null || blockFace.equals(BlockFace.NONE))
             return blockFace;
+
         // Every 4 steps results in the same outcome.
         int realSteps = steps % 4;
         if (realSteps == 0)
@@ -278,7 +279,23 @@ public enum BlockFace
 
         BlockFace newFace = blockFace;
         while (realSteps-- > 0)
-            newFace = dir.apply(blockFace);
+            newFace = rotationFunction.apply(newFace);
         return newFace;
+    }
+
+    /**
+     * Rotate a block face in a given direction for a number of steps.
+     *
+     * @param blockFace
+     *     The {@link BlockFace} that will be rotated.
+     * @param steps
+     *     The number of times to apply the rotation.
+     * @param direction
+     *     The direction to rotate in.
+     * @return The rotated {@link BlockFace}.
+     */
+    public static BlockFace rotate(BlockFace blockFace, int steps, MovementDirection direction)
+    {
+        return rotate(blockFace, steps, getRotationFunction(direction));
     }
 }

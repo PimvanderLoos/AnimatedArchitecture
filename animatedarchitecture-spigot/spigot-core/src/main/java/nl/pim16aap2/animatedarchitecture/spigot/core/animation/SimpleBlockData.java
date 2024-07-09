@@ -70,20 +70,18 @@ public class SimpleBlockData implements IAnimatedBlockData
     public synchronized boolean rotateBlock(MovementDirection movementDirection, int times)
     {
         // When rotating stairs vertically, they need to be rotated twice, as they cannot point up/down.
-        if (blockData instanceof Stairs stairs &&
-            (movementDirection.equals(MovementDirection.NORTH) ||
-                movementDirection.equals(MovementDirection.EAST) ||
-                movementDirection.equals(MovementDirection.SOUTH) ||
-                movementDirection.equals(MovementDirection.WEST)))
-            rotateDirectional(stairs, movementDirection, 2 * times);
-        else if (blockData instanceof Orientable orientable)
-            rotateOrientable(orientable, movementDirection, times);
-        else if (blockData instanceof Directional directional)
-            rotateDirectional(directional, movementDirection, times);
-        else if (blockData instanceof MultipleFacing multipleFacing)
-            rotateMultipleFacing(multipleFacing, movementDirection, times);
-        else
-            return false;
+        switch (blockData)
+        {
+            case Stairs stairs when MovementDirection.isCardinalDirection(movementDirection) ->
+                rotateDirectional(stairs, movementDirection, 2 * times);
+            case Orientable orientable -> rotateOrientable(orientable, movementDirection, times);
+            case Directional directional -> rotateDirectional(directional, movementDirection, times);
+            case MultipleFacing multipleFacing -> rotateMultipleFacing(multipleFacing, movementDirection, times);
+            default ->
+            {
+                return false;
+            }
+        }
         return true;
     }
 
@@ -146,8 +144,8 @@ public class SimpleBlockData implements IAnimatedBlockData
      */
     private synchronized void rotateDirectional(Directional bd, MovementDirection dir, int steps)
     {
-        final @Nullable var mappedDir = BlockFace.getDirFun(dir);
-        if (mappedDir == null)
+        final @Nullable var rotationFunction = BlockFace.getRotationFunction(dir);
+        if (rotationFunction == null)
         {
             log.atSevere().withStackTrace(StackSize.FULL).log(
                 "Failed to get face from vector '%s'. Rotations will not work as expected!",
@@ -157,7 +155,7 @@ public class SimpleBlockData implements IAnimatedBlockData
         }
 
         final org.bukkit.block.BlockFace newFace = SpigotUtil.getBukkitFace(
-            BlockFace.rotate(SpigotUtil.getBlockFace(bd.getFacing()), steps, mappedDir));
+            BlockFace.rotate(SpigotUtil.getBlockFace(bd.getFacing()), steps, rotationFunction));
         if (bd.getFaces().contains(newFace))
             bd.setFacing(newFace);
     }
@@ -174,8 +172,8 @@ public class SimpleBlockData implements IAnimatedBlockData
      */
     private synchronized void rotateMultipleFacing(MultipleFacing bd, MovementDirection dir, int steps)
     {
-        final @Nullable var mappedDir = BlockFace.getDirFun(dir);
-        if (mappedDir == null)
+        final @Nullable var rotationFunction = BlockFace.getRotationFunction(dir);
+        if (rotationFunction == null)
         {
             log.atSevere().withStackTrace(StackSize.FULL).log(
                 "Failed to get face from vector '%s'. Rotations will not work as expected!",
@@ -190,7 +188,7 @@ public class SimpleBlockData implements IAnimatedBlockData
         currentFaces.forEach((blockFace) ->
         {
             final org.bukkit.block.BlockFace newFace =
-                SpigotUtil.getBukkitFace(BlockFace.rotate(SpigotUtil.getBlockFace(blockFace), steps, mappedDir));
+                SpigotUtil.getBukkitFace(BlockFace.rotate(SpigotUtil.getBlockFace(blockFace), steps, rotationFunction));
 
             if (allowedFaces.contains(newFace))
                 bd.setFace(newFace, true);
