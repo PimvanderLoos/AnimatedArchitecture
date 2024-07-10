@@ -1,6 +1,9 @@
-# Explicitly specify jdk version to use, as Jitpack (at the time of writing) uses an EA build of jdk 19.
+# Explicitly specify the JDK version to use + use the latest version of Maven
 before_install:
+  - sdk update
   - sdk install java 21-tem
   - sdk default java 21-tem
+  - sdk install maven
 install:
-  - JAVA_HOME=~/.sdkman/candidates/java/current/ mvn --batch-mode -P=docs -Dmaven.test.skip -DskipTests antrun:run lombok:delombok source:jar-no-fork javadoc:javadoc javadoc:jar install
+  - JAVA_HOME=~/.sdkman/candidates/java/current/ ~/.sdkman/candidates/maven/current/bin/mvn -v
+  - JAVA_HOME=~/.sdkman/candidates/java/current/ ~/.sdkman/candidates/maven/current/bin/mvn --batch-mode -P=docs -DskipTests antrun:run lombok:delombok source:jar-no-fork javadoc:javadoc javadoc:jar install
