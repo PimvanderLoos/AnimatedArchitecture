@@ -55,4 +55,4 @@ jobs:
           branch: gh-pages
           folder: target/site/apidocs
           target-folder: javadoc
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/release'
