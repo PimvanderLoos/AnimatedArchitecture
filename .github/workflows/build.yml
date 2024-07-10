@@ -2,9 +2,13 @@ name: Test, build, and upload ArchitectureAnimator
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - master
+      - release
   pull_request:
-    branches: [ master ]
+    branches:
+      - master
+      - release
 
   workflow_dispatch:
 
