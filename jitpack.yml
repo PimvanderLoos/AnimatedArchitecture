@@ -1,6 +1,6 @@
 # Explicitly specify jdk version to use, as Jitpack (at the time of writing) uses an EA build of jdk 19.
 before_install:
-  - sdk install java 19.0.2-open
-  - sdk default java 19.0.2-open
+  - sdk install java 21-tem
+  - sdk default java 21-tem
 install:
   - JAVA_HOME=~/.sdkman/candidates/java/current/ mvn --batch-mode -P=docs -Dmaven.test.skip -DskipTests antrun:run lombok:delombok source:jar-no-fork javadoc:javadoc javadoc:jar install
