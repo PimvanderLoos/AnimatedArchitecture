@@ -10,7 +10,7 @@
     <parent>
         <groupId>nl.pim16aap2.animatedarchitecture</groupId>
         <artifactId>protection-hooks</artifactId>
-        <version>0.6.0</version>
+        <version>0.7.0-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -21,55 +21,55 @@
         <dependency>
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>hook-plotsquared-6</artifactId>
-            <version>0.6.0</version>
+            <version>0.7.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>hook-plotsquared-7</artifactId>
-            <version>0.6.0</version>
+            <version>0.7.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>hook-griefprevention</artifactId>
-            <version>0.6.0</version>
+            <version>0.7.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>hook-griefdefender-2</artifactId>
-            <version>0.6.0</version>
+            <version>0.7.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>hook-towny</artifactId>
-            <version>0.6.0</version>
+            <version>0.7.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>hook-world-guard-7</artifactId>
-            <version>0.6.0</version>
+            <version>0.7.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>hook-redprotect</artifactId>
-            <version>0.6.0</version>
+            <version>0.7.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>hook-lands</artifactId>
-            <version>0.6.0</version>
+            <version>0.7.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
