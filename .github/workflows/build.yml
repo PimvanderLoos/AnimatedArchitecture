@@ -34,7 +34,7 @@ jobs:
 
       - name: Build the javadocs
         run: mvn --batch-mode -P=docs -Dmaven.test.skip -DskipTests install antrun:run lombok:delombok javadoc:javadoc javadoc:aggregate
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/release'
 
       - name: Upload structure types
         uses: actions/upload-artifact@v4
@@ -55,4 +55,4 @@ jobs:
           branch: gh-pages
           folder: target/site/apidocs
           target-folder: javadoc
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/release'
