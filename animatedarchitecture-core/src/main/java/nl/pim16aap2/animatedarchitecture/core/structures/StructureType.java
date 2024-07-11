@@ -7,8 +7,8 @@ import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
-import nl.pim16aap2.animatedarchitecture.core.util.LazyValue;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
+import nl.pim16aap2.util.LazyValue;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumSet;

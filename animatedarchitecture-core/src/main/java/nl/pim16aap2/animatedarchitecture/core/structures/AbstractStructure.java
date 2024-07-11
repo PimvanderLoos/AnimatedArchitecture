@@ -13,11 +13,11 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
-import nl.pim16aap2.animatedarchitecture.core.util.LazyValue;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Rectangle;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
+import nl.pim16aap2.util.LazyValue;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -181,8 +181,8 @@ public abstract class AbstractStructure implements IStructureConst
      */
     protected final void invalidateAnimationData()
     {
-        lazyAnimationRange.invalidate();
-        lazyAnimationCycleDistance.invalidate();
+        lazyAnimationRange.reset();
+        lazyAnimationCycleDistance.reset();
         invalidateBasicData();
     }
 
@@ -197,7 +197,7 @@ public abstract class AbstractStructure implements IStructureConst
      */
     private void invalidateBasicData()
     {
-        lazyStructureSnapshot.invalidate();
+        lazyStructureSnapshot.reset();
     }
 
     /**
