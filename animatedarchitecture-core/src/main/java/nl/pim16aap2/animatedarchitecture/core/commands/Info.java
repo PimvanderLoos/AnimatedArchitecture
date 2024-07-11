@@ -16,11 +16,14 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
+import nl.pim16aap2.animatedarchitecture.core.text.TextArgument;
+import nl.pim16aap2.animatedarchitecture.core.text.TextArgumentFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 
 /**
  * Represents the information command that provides the issuer with more information about the structure.
@@ -80,6 +83,65 @@ public class Info extends StructureTargetCommand
                 arg -> arg.highlight(localizer.getStructureType(structure)),
                 arg -> arg.highlight(structure.getNameAndUid()))
             .append('\n');
+    }
+
+    private void decoratePrimeOwner(StructureSnapshot structure, Text text)
+    {
+        final boolean hasCreatorAccess = hasCreatorAccess(structure, getCommandSender());
+        final String primeOwner = structure.getPrimeOwner().playerData().getName();
+
+        final Function<TextArgumentFactory, TextArgument> argumentFunction =
+            hasCreatorAccess ?
+                arg -> arg.highlight(primeOwner) :
+                arg -> arg.info(primeOwner);
+
+        text.append(
+                localizer.getMessage("commands.info.output.prime_owner"),
+                TextType.INFO,
+                argumentFunction.apply(text.getTextArgumentFactory()))
+            .append('\n');
+    }
+
+    private void decorateCurrentPlayerAccess(StructureSnapshot structure, Text text)
+    {
+        final boolean hasCreatorAccess = hasCreatorAccess(structure, getCommandSender());
+        if (hasCreatorAccess)
+            return;
+
+        final var player = getCommandSender().getPlayer().orElseThrow();
+        final var currentOwner = structure.getOwner(player).orElseThrow();
+        final var accessLevel = currentOwner.permission();
+
+        text.append(
+                localizer.getMessage("commands.info.output.your_access_level"),
+                TextType.INFO,
+                arg -> arg.highlight(localizer.getMessage(accessLevel.getTranslationKey())))
+            .append('\n');
+    }
+
+    /**
+     * Decorates the owner of the structure.
+     * <p>
+     * There are several cases to consider:
+     * <ul>
+     *     <li>The command sender is the owner of the structure.</li>
+     *     <li>The command sender is a co-owner of the structure.</li>
+     *     <li>The command sender is not the owner of the structure.</li>
+     *     <li>The command sender is not a player</li>
+     * </ul>
+     *
+     * @param structure
+     *     The structure to decorate the owner for.
+     * @param text
+     *     The {@link Text} object to append the owner information to.
+     */
+    private void decorateOwner(StructureSnapshot structure, Text text)
+    {
+        // If the command sender is either not a player or the original creator,
+        // we only print the line `Creator: <creator>`
+        // Otherwise, we print the creator line and the line `Your Access: <access>`
+        decoratePrimeOwner(structure, text);
+        decorateCurrentPlayerAccess(structure, text);
     }
 
     private void decorateLocation(StructureSnapshot structure, Text text)
@@ -168,6 +230,7 @@ public class Info extends StructureTargetCommand
         final Text output = textFactory.newText();
 
         decorateHeader(structure, output);
+        decorateOwner(structure, output);
         decorateLocation(structure, output);
         decorateOpenStatus(structure, output);
         decorateOpenDirection(structure, output);
@@ -186,6 +249,29 @@ public class Info extends StructureTargetCommand
             return;
         }
         glowingBlockSpawner.spawnHighlightedBlocks(structure, player, Duration.ofSeconds(3));
+    }
+
+    /**
+     * Checks if the command sender has creator access to the structure.
+     * <p>
+     * A command sender has creator access if:
+     * <ul>
+     *     <li>The command sender is a player and the prime creator of the structure.</li>
+     *     <li>The command sender is not a player (i.e. the server/command block.)</li>
+     * <ul>
+     *
+     * @param structure
+     *     The structure to check against.
+     * @param commandSender
+     *     The command sender to check against.
+     * @return {@code true} if the command sender has creator access to the structure.
+     */
+    private static boolean hasCreatorAccess(StructureSnapshot structure, ICommandSender commandSender)
+    {
+        return commandSender
+            .getPlayer()
+            .map(player -> structure.getPrimeOwner().matches(player))
+            .orElse(true);
     }
 
     @AssistedFactory
