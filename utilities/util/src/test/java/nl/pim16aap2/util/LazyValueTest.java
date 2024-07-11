@@ -1,4 +1,4 @@
-package nl.pim16aap2.animatedarchitecture.core.util;
+package nl.pim16aap2.util;
 
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
@@ -31,11 +31,11 @@ class LazyValueTest
         final Supplier<Integer> supplier = getIntegerSupplier(42);
         final LazyValue<Integer> lazyValue = new LazyValue<>(supplier);
 
-        Assertions.assertNull(lazyValue.invalidate());
+        Assertions.assertNull(lazyValue.reset());
         Mockito.verify(supplier, Mockito.never()).get();
 
         Assertions.assertEquals(42, lazyValue.get());
-        Assertions.assertEquals(42, lazyValue.invalidate());
+        Assertions.assertEquals(42, lazyValue.reset());
         Mockito.verify(supplier, Mockito.times(1)).get();
 
         Mockito.when(supplier.get()).thenReturn(16);

@@ -8,10 +8,10 @@ import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
-import nl.pim16aap2.animatedarchitecture.core.util.LazyValue;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.testing.reflection.ReflectionUtil;
+import nl.pim16aap2.util.LazyValue;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 

@@ -1,4 +1,4 @@
-package nl.pim16aap2.animatedarchitecture.core.util;
+package nl.pim16aap2.util;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -7,10 +7,12 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
- * Represents a wrapper class for lazily retrieved values.
+ * Represents a lazily initialized object.
+ * <p>
+ * Initialization is thread-safe.
  *
  * @param <T>
- *     The type of the data to store.
+ *     The type of the object to initialize lazily.
  */
 @ThreadSafe
 public final class LazyValue<T>
@@ -20,7 +22,9 @@ public final class LazyValue<T>
 
     /**
      * @param supplier
-     *     The supplier used to set the value. Note that the return value may not be null!
+     *     The supplier to use to create the instance of the object when needed.
+     *     <p>
+     *     Note that the return value may not be null!
      */
     public LazyValue(Supplier<T> supplier)
     {
@@ -28,33 +32,46 @@ public final class LazyValue<T>
     }
 
     /**
-     * Gets the lazily initialized value.
-     * <p>
-     * If the value has not been initialized yet, it will be initialized using {@link #supplier}.
+     * Gets the lazily initialized object. If it does not exist yet, a new instance will be created using
+     * {@link #supplier}.
      *
-     * @return The lazily initialized value.
-     *
-     * @throws NullPointerException
-     *     If the value returned by the {@link #supplier} is null.
+     * @return The lazily initialized object.
      */
     public T get()
     {
+        @Nullable T tmp = value;
+        if (tmp != null)
+            return tmp;
+
+        synchronized (this)
+        {
+            tmp = value;
+            if (tmp == null)
+                tmp = value = supplier.get();
+            return Objects.requireNonNull(tmp, "Instance obtained from supplier must not be null!");
+        }
+    }
+
+    /**
+     * Resets the lazily initialized value (if it has been initialized yet).
+     *
+     * @return The previously-initialized value or null if it was not initialized yet.
+     */
+    public @Nullable T reset()
+    {
         @Nullable T tmp = this.value;
-        if (tmp == null)
+        if (tmp != null)
         {
             synchronized (this)
             {
                 tmp = this.value;
-                if (tmp == null)
-                    this.value = tmp = Util.requireNonNull(supplier.get(), "Lazily supplied value");
+                this.value = null;
             }
         }
         return tmp;
     }
 
     /**
-     * {@inheritDoc}
-     * <p>
      * Note that calling this method will result in {@link #get()} being called for both objects if the other object is
      * also a {@link LazyValue}.
      */
@@ -69,8 +86,6 @@ public final class LazyValue<T>
     }
 
     /**
-     * {@inheritDoc}
-     * <p>
      * Note that calling this method will result in {@link #get()} being called.
      */
     @Override
@@ -79,28 +94,9 @@ public final class LazyValue<T>
         return Objects.hash(get(), this.supplier);
     }
 
-    /**
-     * Invalidates the lazily initialized value (if it has been initialized yet).
-     *
-     * @return The previously-initialized value.
-     */
-    public @Nullable T invalidate()
-    {
-        @Nullable T tmp = this.value;
-        if (tmp != null)
-        {
-            synchronized (this)
-            {
-                tmp = this.value;
-                this.value = null;
-            }
-        }
-        return tmp;
-    }
-
     @Override
     public String toString()
     {
-        return "LazyValue(value=" + this.value + ")";
+        return "LazyInit(obj=" + value + ")";
     }
 }
