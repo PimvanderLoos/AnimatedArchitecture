@@ -126,7 +126,7 @@ class CommandExecutor
                 query,
                 StructureRetrieverFactory.StructureFinderMode.NEW_INSTANCE,
                 PermissionLevel.USER)
-            .asRetriever(false);
+            .asRetriever();
         commandFactory.newListStructures(context.getSender(), retriever).run().exceptionally(Util::exceptionally);
     }
 

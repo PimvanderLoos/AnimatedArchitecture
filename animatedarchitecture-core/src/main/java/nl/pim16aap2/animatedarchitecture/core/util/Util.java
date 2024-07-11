@@ -891,6 +891,25 @@ public final class Util
     }
 
     /**
+     * Concatenates two lists into a single list.
+     *
+     * @param list0
+     *     The first list.
+     * @param list1
+     *     The second list.
+     * @param <T>
+     *     The type of data in the lists.
+     * @return A single list containing all elements from both input lists.
+     */
+    public static <T> List<T> concat(List<T> list0, List<T> list1)
+    {
+        final List<T> ret = new ArrayList<>(list0.size() + list1.size());
+        ret.addAll(list0);
+        ret.addAll(list1);
+        return ret;
+    }
+
+    /**
      * See {@link #getAllCompletableFutureResults(CompletableFuture[])}.
      */
     public static <T> CompletableFuture<List<T>> getAllCompletableFutureResults(

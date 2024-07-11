@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Locked;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
@@ -34,6 +35,7 @@ import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -58,27 +60,105 @@ import java.util.stream.Collectors;
 public final class StructureFinder
 {
     /**
+     * The default value for the full match parameter.
+     * <p>
+     * This is used when retrieving the results of the search. When true, only the entries that have a complete match
+     * are returned. E.g. for an input of "door", "door" would be returned, but "door1" would not.
+     * <p>
+     * When false, all entries that have the input as a prefix are returned. E.g. for an input of "door", both "door"
+     * and "door1" would be returned.
+     */
+    private static final boolean DEFAULT_FULL_MATCH = false;
+
+    /**
      * The default timeout (in seconds) when waiting for the cache to become available.
      * <p>
      * The cache will be unavailable until the database has returned the required values.
      */
     static final long DEFAULT_TIMEOUT = 2;
 
+    /**
+     * The lock used to synchronize access to the cache and other fields.
+     */
+    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+
+    /**
+     * The factory used to create structure retrievers when converting the results of the search to structures.
+     */
     private final StructureRetrieverFactory structureRetrieverFactory;
+
+    /**
+     * The manager used to interact with the database.
+     * <p>
+     * This is used to retrieve the structure identifiers from the database.
+     */
     private final DatabaseManager databaseManager;
+
+    /**
+     * The command sender that is used to determine which structures are visible to the user.
+     * <p>
+     * If the command sender is a player, only structures that are visible to the player are returned. If the command
+     * sender is the console, all structures are returned.
+     */
     private final ICommandSender commandSender;
+
+    /**
+     * The maximum permission level the player can have to see the structures.
+     */
     private final PermissionLevel maxPermission;
+
+    /**
+     * The object used to notify threads waiting for the cache to become available.
+     */
     private final Object msg = new Object();
 
-    @GuardedBy("this")
+    /**
+     * The history of inputs and their associated items.
+     * <p>
+     * It is used to roll back to previous states when the user wants to fix a typo. E.g. if the user searches for
+     * "MyE", a structure named "MyWindmill" will be removed from the cache. If the user then reverts the input to "My",
+     * "MyWindmill" will be added back to the cache.
+     */
+    @GuardedBy("lock")
     private final RollingCache<HistoryItem> history = new RollingCache<>(3);
-    @GuardedBy("this")
+
+    /**
+     * The postponed inputs that have not yet been applied to the cache.
+     * <p>
+     * This is used to store inputs that have been provided before the cache has been seeded. This can happen if the
+     * user provides multiple inputs before the cache has been seeded with results from the database.
+     */
+    @GuardedBy("lock")
     private final Deque<String> postponedInputs = new ArrayDeque<>();
-    @GuardedBy("this")
+
+    /**
+     * The cache of structure descriptions.
+     * <p>
+     * The cache requires an initial set of structure descriptions to be seeded. This is done by querying the database
+     * with the initial input. Once the cache has been seeded, it can be used to filter the results based on new input.
+     * <p>
+     * As such, the cache will not be available immediately after creating an instance of this class. User input will be
+     * appended to {@link #postponedInputs} to be applied once the cache has been seeded.
+     */
+    @GuardedBy("lock")
     private @Nullable List<MinimalStructureDescription> cache;
-    @GuardedBy("this")
+
+    /**
+     * The last input that was used to search for structures.
+     * <p>
+     * This is the input that was used to create the current cache.
+     * <p>
+     * This is used to determine if the new input is a continuation of the last input or if it is a new search query.
+     */
+    @GuardedBy("lock")
     private String lastInput;
-    @GuardedBy("this")
+
+    /**
+     * The future that is used to retrieve the structure identifiers.
+     * <p>
+     * This is used to cancel the search if a new search is started before the current search has finished.
+     */
+    @GuardedBy("lock")
     private @Nullable CompletableFuture<List<MinimalStructureDescription>> searcher = null;
 
     StructureFinder(
@@ -118,7 +198,8 @@ public final class StructureFinder
      *     The input to process.
      * @return The current instance of this class.
      */
-    public synchronized StructureFinder processInput(String input)
+    @Locked.Write("lock")
+    public StructureFinder processInput(String input)
     {
         if (input.length() <= lastInput.length())
         {
@@ -136,15 +217,26 @@ public final class StructureFinder
     }
 
     /**
-     * See {@link #getStructureIdentifiersIfAvailable(boolean)}.
+     * Tries to get all identifiers of structures that have been found, if any.
+     * <p>
+     * This method will return an empty optional if the search is still active on another thread.
+     * <p>
+     * This method uses the default value for fullMatch. See {@link #DEFAULT_FULL_MATCH}.
+     * <p>
+     * This is a shortcut for {@link #getStructureIdentifiersIfAvailable(boolean)}.
+     *
+     * @return A list of all structure identifiers (i.e. names or UIDs) of structures that have been found if the search
+     * has returned any results. If the search is still active on another thread, this will return an empty optional.
      */
     public Optional<Set<String>> getStructureIdentifiersIfAvailable()
     {
-        return getStructureIdentifiersIfAvailable(false);
+        return getStructureIdentifiersIfAvailable(DEFAULT_FULL_MATCH);
     }
 
     /**
      * Tries to get all identifiers of structures that have been found, if any.
+     * <p>
+     * This method will return an empty optional if the search is still active on another thread.
      *
      * @param fullMatch
      *     When true, only the entries that have a complete match are returned. E.g. for an input of "door", "door"
@@ -153,7 +245,8 @@ public final class StructureFinder
      * @return A list of all structure identifiers (i.e. names or UIDs) of structures that have been found if the search
      * has returned any results. If the search is still active on another thread, this will return an empty optional.
      */
-    public synchronized Optional<Set<String>> getStructureIdentifiersIfAvailable(boolean fullMatch)
+    @Locked.Read("lock")
+    public Optional<Set<String>> getStructureIdentifiersIfAvailable(boolean fullMatch)
     {
         if (cache == null)
             return Optional.empty();
@@ -161,11 +254,17 @@ public final class StructureFinder
     }
 
     /**
-     * See {@link #getStructureIdentifiers(boolean)}.
+     * Gets the identifiers of all the structures that have been found using the given search parameters.
+     * <p>
+     * This method uses the default value for fullMatch. See {@link #DEFAULT_FULL_MATCH}.
+     * <p>
+     * This is a shortcut for {@link #getStructureIdentifiers(boolean)}.
+     *
+     * @return A list of all identifiers that match the given search parameters. An identifier here can refer to both
      */
     public CompletableFuture<Set<String>> getStructureIdentifiers()
     {
-        return getStructureIdentifiers(false);
+        return getStructureIdentifiers(DEFAULT_FULL_MATCH);
     }
 
     /**
@@ -178,7 +277,8 @@ public final class StructureFinder
      * @return A list of all identifiers that match the given search parameters. An identifier here can refer to both
      * the UIDs or the names of the structures that match the query.
      */
-    public synchronized CompletableFuture<Set<String>> getStructureIdentifiers(boolean fullMatch)
+    @Locked.Read("lock")
+    public CompletableFuture<Set<String>> getStructureIdentifiers(boolean fullMatch)
     {
         final String lastInput0 = lastInput;
         return waitForDescriptions()
@@ -186,11 +286,17 @@ public final class StructureFinder
     }
 
     /**
-     * See {@link #getStructureUIDs(boolean)}.
+     * Gets the UIDs of all the structures that have been found using the given search parameters.
+     * <p>
+     * This method uses the default value for fullMatch. See {@link #DEFAULT_FULL_MATCH}.
+     * <p>
+     * This is a shortcut for {@link #getStructureUIDs(boolean)}.
+     *
+     * @return All structure UIDs that have been found if any have been found.
      */
     public Optional<LongSet> getStructureUIDs()
     {
-        return getStructureUIDs(false);
+        return getStructureUIDs(DEFAULT_FULL_MATCH);
     }
 
     /**
@@ -202,7 +308,8 @@ public final class StructureFinder
      *     Defaults to false.
      * @return All structure UIDs that have been found if any have been found.
      */
-    public synchronized Optional<LongSet> getStructureUIDs(boolean fullMatch)
+    @Locked.Read("lock")
+    public Optional<LongSet> getStructureUIDs(boolean fullMatch)
     {
         if (cache == null)
             return Optional.empty();
@@ -210,16 +317,21 @@ public final class StructureFinder
     }
 
     /**
-     * See {@link #getStructures(boolean)}, with fullMatch set to false.
+     * Gets all structures that have been found using the given search parameters.
+     * <p>
+     * This method uses the default value for fullMatch. See {@link #DEFAULT_FULL_MATCH}.
+     * <p>
+     * This is a shortcut for {@link #getStructures(boolean)}.
+     *
+     * @return A list of all structures that match the given search parameters.
      */
     public CompletableFuture<List<AbstractStructure>> getStructures()
     {
-        return getStructures(false);
+        return getStructures(DEFAULT_FULL_MATCH);
     }
 
     /**
-     * See {@link #getStructures(boolean)}.
-     * <p>
+     * Gets all structures that have been found using the given search parameters as a {@link StructureRetriever}.
      *
      * @param fullMatch
      *     When true, only the entries that have a complete match are returned. E.g. for an input of "door", "door"
@@ -233,25 +345,31 @@ public final class StructureFinder
     }
 
     /**
-     * See {@link #getStructures()}.
+     * Gets all structures that have been found using the given search parameters as a {@link StructureRetriever}.
      * <p>
+     * This method uses the default value for fullMatch. See {@link #DEFAULT_FULL_MATCH}.
+     * <p>
+     * This is a shortcut for {@link #asRetriever(boolean)}.
      *
      * @return The result as a {@link StructureRetriever}.
      */
-    @SuppressWarnings("unused")
     public StructureRetriever asRetriever()
     {
-        return structureRetrieverFactory.ofStructures(getStructures());
+        return asRetriever(DEFAULT_FULL_MATCH);
     }
 
     /**
+     * Gets all structures that have been found using the given search parameters as a list of
+     * {@link AbstractStructure}s.
+     *
      * @param fullMatch
      *     When true, only the entries that have a complete match are returned. E.g. for an input of "door", "door"
      *     would be returned, but "door1" would not. Gets the UIDs of all the structures that have been found so far.
      *     Defaults to false.
      * @return A list of all structures that match the given search parameters.
      */
-    public synchronized CompletableFuture<List<AbstractStructure>> getStructures(boolean fullMatch)
+    @Locked.Read("lock")
+    public CompletableFuture<List<AbstractStructure>> getStructures(boolean fullMatch)
     {
         final String lastInput0 = lastInput;
         return waitForDescriptions().thenCompose(descriptions ->
@@ -290,7 +408,7 @@ public final class StructureFinder
      * @param input
      *     The input query to look for in the history.
      */
-    @GuardedBy("this")
+    @Locked.Write("lock")
     void rollBack(String input)
     {
         if (cache == null)
@@ -306,12 +424,11 @@ public final class StructureFinder
             return;
         }
 
-        // Remove all items that are newer than the
-        // item from the history.
+        // Remove all items that are newer than the item from the history.
         for (int idx = history.size() - 1; idx >= index; --idx)
         {
             final HistoryItem removed = history.removeLast();
-            cache.addAll(removed.getItems());
+            cache = Collections.unmodifiableList(Util.concat(cache, removed.getItems()));
             lastInput = removed.input;
         }
         updateCache(input);
@@ -326,7 +443,7 @@ public final class StructureFinder
      * @param input
      *     The current input to try to roll back to.
      */
-    @GuardedBy("this")
+    @Locked.Write("lock")
     void rollBackDelayedOperations(String input)
     {
         while (!postponedInputs.isEmpty())
@@ -365,7 +482,7 @@ public final class StructureFinder
      *     The input query to search for in the history.
      * @return The index of the item in the history or -1 if it could not be found.
      */
-    @GuardedBy("this")
+    @Locked.Read("lock")
     private int inputHistoryIndex(String input)
     {
         for (int idx = history.size() - 1; idx >= 0; --idx)
@@ -383,7 +500,7 @@ public final class StructureFinder
      * @param input
      *     The input to use for updating the cache.
      */
-    @GuardedBy("this")
+    @Locked.Write("lock")
     private void updateCache(String input)
     {
         if (cache == null)
@@ -403,13 +520,17 @@ public final class StructureFinder
      * @param input
      *     The new input. All cache entries whose identifiers do not start with this String are removed from the cache.
      */
-    @GuardedBy("this")
+    @Locked.Write("lock")
     private void applyFilter(String input)
     {
         final Map<Boolean, List<MinimalStructureDescription>> filtered =
             Util.requireNonNull(cache, "Cache")
                 .stream()
-                .collect(Collectors.partitioningBy(desc -> startsWith(input, desc.id)));
+                .collect(
+                    Collectors.partitioningBy(
+                        desc -> startsWith(input, desc.id),
+                        Collectors.toUnmodifiableList())
+                );
 
         history.add(new HistoryItem(input, Objects.requireNonNull(filtered.get(false))));
         cache = Objects.requireNonNull(filtered.get(true));
@@ -432,13 +553,19 @@ public final class StructureFinder
     {
         // We do not want to have the lock on this object when notifying the object, as that may result
         // in a deadlock when the notified object tries to obtain the same lock when using #isCacheAvailable().
-        synchronized (this)
+        lock.writeLock().lock();
+        try
         {
             this.cache = lst;
             history.add(new HistoryItem(input, Collections.emptyList()));
             while (!postponedInputs.isEmpty())
                 applyFilter(postponedInputs.removeFirst());
         }
+        finally
+        {
+            lock.writeLock().unlock();
+        }
+
         synchronized (msg)
         {
             msg.notifyAll();
@@ -451,7 +578,8 @@ public final class StructureFinder
      * @param input
      *     The search query.
      */
-    private synchronized void restartSearch(String input)
+    @Locked.Write("lock")
+    private void restartSearch(String input)
     {
         if (searcher != null && !searcher.isDone())
             searcher.cancel(true);
@@ -546,6 +674,11 @@ public final class StructureFinder
     }
 
     /**
+     * Gets the entries that fully match the target String.
+     * <p>
+     * This method uses {@link String#equalsIgnoreCase(String)} to compare the identifiers of the entries to the target
+     * String.
+     *
      * @param descriptions
      *     The descriptions for which to get the entries that fully match the target.
      * @param matchTo
@@ -559,12 +692,23 @@ public final class StructureFinder
         return descriptions.stream().filter(desc -> desc.id.equalsIgnoreCase(matchTo)).toList();
     }
 
-    private synchronized boolean isCacheAvailable()
+    /**
+     * Gets the cache regardless of whether it is available or not.
+     *
+     * @return The cache if it is available, or null if it is not.
+     */
+    @Locked.Read("lock")
+    private @Nullable List<MinimalStructureDescription> getCache()
     {
-        return cache != null;
+        return cache;
     }
 
-    @GuardedBy("this")
+    /**
+     * Waits for the cache to become available.
+     *
+     * @return A completable future that will be completed with the cache
+     */
+    @Locked.Read("lock")
     private CompletableFuture<List<MinimalStructureDescription>> waitForDescriptions()
     {
         if (cache != null)
@@ -575,24 +719,22 @@ public final class StructureFinder
         {
             try
             {
+                @Nullable List<MinimalStructureDescription> newCache = null;
                 synchronized (msg)
                 {
                     final long deadline = System.nanoTime() + Duration.ofSeconds(DEFAULT_TIMEOUT).toNanos();
 
-                    while (System.nanoTime() < deadline && !isCacheAvailable())
+                    while (System.nanoTime() < deadline && (newCache = getCache()) == null)
                     {
                         final long waitTime = Duration.ofNanos(deadline - System.nanoTime()).toMillis();
                         if (waitTime > 0)
                             msg.wait(waitTime);
                     }
-                    if (!isCacheAvailable() || System.nanoTime() > deadline)
+                    if (newCache == null || System.nanoTime() > deadline)
                         throw new TimeoutException("Timed out waiting for list of structure descriptions.");
                 }
 
-                synchronized (this)
-                {
-                    result.complete(Util.requireNonNull(cache, "Cache"));
-                }
+                result.complete(Util.requireNonNull(newCache, "Cache"));
             }
             catch (InterruptedException e)
             {
@@ -607,7 +749,8 @@ public final class StructureFinder
         return result.exceptionally(t -> Util.exceptionally(t, Collections.emptyList()));
     }
 
-    synchronized List<String> getPostponedInputs()
+    @Locked.Read("lock")
+    List<String> getPostponedInputs()
     {
         return new ArrayList<>(postponedInputs);
     }
