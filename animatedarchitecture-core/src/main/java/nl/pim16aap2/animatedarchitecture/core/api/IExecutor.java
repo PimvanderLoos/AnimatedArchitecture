@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.api;
 
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 
 import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
@@ -34,7 +34,7 @@ public interface IExecutor
         if (isMainThread())
             return CompletableFuture.completedFuture(supplier.get());
         else
-            return scheduleOnMainThread(supplier).exceptionally(Util::exceptionally);
+            return scheduleOnMainThread(supplier).exceptionally(FutureUtil::exceptionally);
     }
 
     /**

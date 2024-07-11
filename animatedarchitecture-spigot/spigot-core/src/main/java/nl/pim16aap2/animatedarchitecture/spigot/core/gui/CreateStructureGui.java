@@ -17,7 +17,7 @@ import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.text.TextArgument;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.spigot.core.AnimatedArchitecturePlugin;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.PlayerSpigot;
 import org.bukkit.Material;
@@ -115,7 +115,10 @@ class CreateStructureGui implements IGuiPage
                 new ItemStack(Material.WRITABLE_BOOK),
                 click ->
                 {
-                    commandFactory.newNewStructure(inventoryHolder, type).run().exceptionally(Util::exceptionally);
+                    commandFactory
+                        .newNewStructure(inventoryHolder, type)
+                        .run()
+                        .exceptionally(FutureUtil::exceptionally);
                     GuiUtil.closeAllGuis(inventoryHolder);
                     return true;
                 },

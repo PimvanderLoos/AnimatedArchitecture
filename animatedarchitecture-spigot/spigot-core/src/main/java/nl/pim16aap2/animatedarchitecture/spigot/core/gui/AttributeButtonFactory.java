@@ -15,6 +15,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationReque
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextComponent;
+import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.PlayerSpigot;
@@ -67,7 +68,7 @@ class AttributeButtonFactory
             // Force a draw with dynamic fields update to ensure the correct
             // state is displayed in case the command did not change the status.
             .thenRun(() -> executor.runOnMainThread(() -> change.getGui().draw(player.getBukkitPlayer(), true, false)))
-            .exceptionally(Util::exceptionally);
+            .exceptionally(FutureUtil::exceptionally);
     }
 
     private GuiElement lockButton(AbstractStructure structure, PlayerSpigot player, char slotChar)
@@ -111,7 +112,7 @@ class AttributeButtonFactory
                     .responsible(player)
                     .build()
                     .execute()
-                    .exceptionally(Util::exceptionally);
+                    .exceptionally(FutureUtil::exceptionally);
                 return true;
             },
             localizer.getMessage(
@@ -136,7 +137,7 @@ class AttributeButtonFactory
                     .animationType(AnimationType.PREVIEW)
                     .build()
                     .execute()
-                    .exceptionally(Util::exceptionally);
+                    .exceptionally(FutureUtil::exceptionally);
                 return true;
             },
             localizer.getMessage(
@@ -155,7 +156,7 @@ class AttributeButtonFactory
                 commandFactory
                     .newInfo(player, structureRetrieverFactory.of(structure))
                     .run()
-                    .exceptionally(Util::exceptionally);
+                    .exceptionally(FutureUtil::exceptionally);
                 return true;
             },
             localizer.getMessage(
@@ -191,7 +192,7 @@ class AttributeButtonFactory
                 commandFactory
                     .newMovePowerBlock(player, structureRetrieverFactory.of(structure))
                     .run()
-                    .exceptionally(Util::exceptionally);
+                    .exceptionally(FutureUtil::exceptionally);
                 GuiUtil.closeAllGuis(player);
                 return true;
             },
@@ -210,7 +211,7 @@ class AttributeButtonFactory
             // Force a draw with dynamic fields update to ensure the correct
             // state is displayed in case the command did not change the status.
             .thenRun(() -> executor.runOnMainThread(() -> change.getGui().draw(player.getBukkitPlayer(), true, false)))
-            .exceptionally(Util::exceptionally);
+            .exceptionally(FutureUtil::exceptionally);
     }
 
     private GuiElement openStatusButton(AbstractStructure structure, PlayerSpigot player, char slotChar)
@@ -269,7 +270,7 @@ class AttributeButtonFactory
                 commandFactory
                     .newSetOpenDirection(player, StructureRetrieverFactory.ofStructure(structure), newOpenDir)
                     .run()
-                    .exceptionally(Util::exceptionally);
+                    .exceptionally(FutureUtil::exceptionally);
 
                 setOpenDirectionLore(
                     Util.requireNonNull(staticGuiElementRef.get(), "static GUI element reference"),
@@ -298,7 +299,7 @@ class AttributeButtonFactory
                 commandFactory
                     .getSetBlocksToMoveDelayed()
                     .runDelayed(player, structureRetrieverFactory.of(structure))
-                    .exceptionally(Util::exceptionally);
+                    .exceptionally(FutureUtil::exceptionally);
                 GuiUtil.closeAllGuis(player);
                 return true;
             },
@@ -318,7 +319,7 @@ class AttributeButtonFactory
                 commandFactory
                     .getAddOwnerDelayed()
                     .runDelayed(player, structureRetrieverFactory.of(structure))
-                    .exceptionally(Util::exceptionally);
+                    .exceptionally(FutureUtil::exceptionally);
                 GuiUtil.closeAllGuis(player);
                 return true;
             },
@@ -338,7 +339,7 @@ class AttributeButtonFactory
                 commandFactory
                     .getRemoveOwnerDelayed()
                     .runDelayed(player, structureRetrieverFactory.of(structure))
-                    .exceptionally(Util::exceptionally);
+                    .exceptionally(FutureUtil::exceptionally);
                 GuiUtil.closeAllGuis(player);
                 return true;
             },

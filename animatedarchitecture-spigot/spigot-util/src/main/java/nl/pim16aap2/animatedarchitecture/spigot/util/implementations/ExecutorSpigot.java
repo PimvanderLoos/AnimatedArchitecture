@@ -2,7 +2,7 @@ package nl.pim16aap2.animatedarchitecture.spigot.util.implementations;
 
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -35,7 +35,7 @@ public final class ExecutorSpigot implements IExecutor
     {
         final CompletableFuture<T> result = new CompletableFuture<>();
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> result.complete(supplier.get()));
-        return result.exceptionally(Util::exceptionally);
+        return result.exceptionally(FutureUtil::exceptionally);
     }
 
     @Override

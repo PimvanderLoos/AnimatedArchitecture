@@ -23,8 +23,8 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureRegistry;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSerializer;
+import nl.pim16aap2.animatedarchitecture.core.util.LocationUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.structures.bigdoor.BigDoor;
 import nl.pim16aap2.animatedarchitecture.structures.bigdoor.StructureTypeBigDoor;
@@ -414,7 +414,7 @@ public class SQLiteJDBCDriverConnectionTest
 
         Assertions.assertEquals(1, storage.getOwnerCountOfStructure(1L));
 
-        long chunkId = Util.getChunkId(structure1.getPowerBlock());
+        long chunkId = LocationUtil.getChunkId(structure1.getPowerBlock());
         Assertions.assertEquals(3, storage.getStructuresInChunk(chunkId).size());
 
         // Check if adding owners works correctly.
@@ -573,7 +573,7 @@ public class SQLiteJDBCDriverConnectionTest
         // Revert name change of player 2.
         Assertions.assertTrue(storage.updatePlayerData(PLAYER_DATA_2));
 
-        chunkId = Util.getChunkId(structure1.getPowerBlock());
+        chunkId = LocationUtil.getChunkId(structure1.getPowerBlock());
         final Int2ObjectMap<LongList> powerBlockData = storage.getPowerBlockData(chunkId);
         Assertions.assertNotNull(powerBlockData);
         final List<List<Long>> entries = new ArrayList<>(powerBlockData.values());

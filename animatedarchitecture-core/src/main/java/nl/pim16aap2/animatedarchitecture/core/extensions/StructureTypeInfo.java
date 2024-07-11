@@ -3,7 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.extensions;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
 
@@ -180,11 +180,11 @@ final class StructureTypeInfo
         if (versionSplit.length != 2)
             throw new IllegalArgumentException("Failed to split the version in: '" + dependency + "'");
 
-        final OptionalInt minVersionOpt = Util.parseInt(versionSplit[0]);
+        final OptionalInt minVersionOpt = MathUtil.parseInt(versionSplit[0]);
         if (minVersionOpt.isEmpty())
             throw new IllegalArgumentException("Failed to parse min version from '" + versionSplit[0] + "'");
 
-        final OptionalInt maxVersionOpt = Util.parseInt(versionSplit[1]);
+        final OptionalInt maxVersionOpt = MathUtil.parseInt(versionSplit[1]);
         if (maxVersionOpt.isEmpty())
             throw new IllegalArgumentException("Failed to parse max version from '" + versionSplit[1] + "'");
 
@@ -237,7 +237,7 @@ final class StructureTypeInfo
         boolean satisfiedBy(StructureTypeInfo structureTypeInfo)
         {
             return structureTypeInfo.getTypeName().equals(dependencyName) &&
-                Util.between(structureTypeInfo.getVersion(), minVersion, maxVersion);
+                MathUtil.between(structureTypeInfo.getVersion(), minVersion, maxVersion);
         }
     }
 }

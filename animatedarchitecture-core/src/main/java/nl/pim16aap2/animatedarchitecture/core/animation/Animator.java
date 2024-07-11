@@ -15,7 +15,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes.IPerpetualMover;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -556,7 +556,7 @@ public final class Animator implements IAnimator
             forEachHook("onAnimationCompleted", IAnimationHook::onAnimationCompleted);
 
             structureActivityManager.processFinishedAnimation(this);
-        }).exceptionally(Util::exceptionally);
+        }).exceptionally(FutureUtil::exceptionally);
     }
 
     /**
@@ -567,7 +567,7 @@ public final class Animator implements IAnimator
         structure.setOpen(!snapshot.isOpen());
         if (!newCuboid.equals(snapshot.getCuboid()))
             structure.setCoordinates(newCuboid);
-        structure.syncData().exceptionally(Util::exceptionally);
+        structure.syncData().exceptionally(FutureUtil::exceptionally);
     }
 
     /**

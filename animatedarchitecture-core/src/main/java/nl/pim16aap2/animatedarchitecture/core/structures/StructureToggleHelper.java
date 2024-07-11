@@ -34,8 +34,8 @@ import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.Limit;
+import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
@@ -598,9 +598,9 @@ final class StructureToggleHelper
                 {
                     // Ignore blocks that are currently part of the structure.
                     // It's expected and accepted for them to be in the way.
-                    if (Util.between(xAxis, curMin.x(), curMax.x()) &&
-                        Util.between(yAxis, curMin.y(), curMax.y()) &&
-                        Util.between(zAxis, curMin.z(), curMax.z()))
+                    if (MathUtil.between(xAxis, curMin.x(), curMax.x()) &&
+                        MathUtil.between(yAxis, curMin.y(), curMax.y()) &&
+                        MathUtil.between(zAxis, curMin.z(), curMax.z()))
                         continue;
 
                     if (!blockAnalyzer.isAirOrLiquid(locationFactory.create(world, xAxis, yAxis, zAxis)))

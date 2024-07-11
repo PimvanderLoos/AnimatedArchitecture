@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.storage;
 
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 
 /**
  * Represents an SQL statement.
@@ -283,7 +283,7 @@ public enum SQLStatement
     SQLStatement(String statement)
     {
         this.statement = statement;
-        variableCount = Util.countPatternOccurrences(DelayedPreparedStatement.QUESTION_MARK, statement);
+        variableCount = StringUtil.countPatternOccurrences(DelayedPreparedStatement.QUESTION_MARK, statement);
     }
 
     /**

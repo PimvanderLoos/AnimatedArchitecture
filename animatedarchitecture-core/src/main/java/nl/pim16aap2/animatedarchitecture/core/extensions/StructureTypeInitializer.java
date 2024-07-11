@@ -7,7 +7,7 @@ import nl.pim16aap2.animatedarchitecture.core.data.graph.DirectedAcyclicGraph;
 import nl.pim16aap2.animatedarchitecture.core.data.graph.Node;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -213,7 +213,7 @@ final class StructureTypeInitializer
 
         log.atFine().log(
             "Loaded AnimatedArchitecture extension: %s",
-            Util.capitalizeFirstLetter(structureType.getSimpleName())
+            StringUtil.capitalizeFirstLetter(structureType.getSimpleName())
         );
         return structureType;
     }

@@ -5,7 +5,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IGuiFactory;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -37,6 +37,6 @@ public class GuiFactory implements IGuiFactory
             .getStructures()
             .thenApply(structures -> structures.parallelStream().map(MainGui.NamedStructure::new).toList())
             .thenCompose(structures -> executor.runOnMainThread(() -> factory.newGUI(inventoryHolder, structures)))
-            .exceptionally(Util::exceptionally);
+            .exceptionally(FutureUtil::exceptionally);
     }
 }

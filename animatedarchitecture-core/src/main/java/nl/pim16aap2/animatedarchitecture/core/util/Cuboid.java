@@ -67,7 +67,8 @@ public final class Cuboid
      *     The rounding mode to use when rounding doubles into integer values.
      * @return The new cuboid.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public static Cuboid of(Vector3Dd a, Vector3Dd b, RoundingMode roundingMode)
     {
         final double xMin = Math.min(a.x(), b.x());
@@ -124,7 +125,8 @@ public final class Cuboid
      *     The position to check.
      * @return True if the position lies inside this cuboid (including the edges).
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public boolean isPosInsideCuboid(Vector3Di pos)
     {
         return pos.x() >= min.x() && pos.x() <= max.x() &&
@@ -148,10 +150,11 @@ public final class Cuboid
      * @return The distance between the test value and the provided range, or -1 if the test value lies on the provided
      * range.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     private static int getOuterDistance(int test, int min, int max)
     {
-        if (Util.between(test, min, max))
+        if (MathUtil.between(test, min, max))
             return -1;
         if (test <= min)
             return min - test;
@@ -180,7 +183,8 @@ public final class Cuboid
      * @throws IllegalArgumentException
      *     If the range is smaller than 0.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public boolean isInRange(int x, int y, int z, int range)
     {
         if (range < 0)
@@ -194,7 +198,8 @@ public final class Cuboid
     /**
      * See {@link #isInRange(int, int, int, int)}
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public boolean isInRange(Vector3Di pos, int range)
     {
         return isInRange(pos.x(), pos.y(), pos.z(), range);
@@ -203,7 +208,8 @@ public final class Cuboid
     /**
      * See {@link #isInRange(int, int, int, int)}
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public boolean isInRange(ILocation loc, int range)
     {
         return isInRange(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), range);
@@ -222,7 +228,8 @@ public final class Cuboid
      *     The position to check.
      * @return The distance of the position to the cuboid or -1 if the position is inside the cuboid.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public int getDistanceToPoint(Vector3Di pos)
     {
         return Math.max(
@@ -238,7 +245,8 @@ public final class Cuboid
      *
      * @return The center point of the cuboid.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Dd getCenter()
     {
         final double cX = (max.x() + min.x()) / 2.0f;
@@ -252,7 +260,8 @@ public final class Cuboid
      *
      * @return The center block of the cuboid.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Di getCenterBlock()
     {
         final int cX = Math.floorDiv(max.x() + min.x(), 2);
@@ -268,7 +277,8 @@ public final class Cuboid
      *     The update function used to update both {@link Vector3Di}s.
      * @return A new Cuboid.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Cuboid updatePositions(UnaryOperator<Vector3Di> updateFunction)
     {
         final Vector3Di newMin = updateFunction.apply(min);
@@ -287,7 +297,8 @@ public final class Cuboid
      *     The number of blocks to move in the z-axis.
      * @return A new {@link Cuboid}.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Cuboid move(int x, int y, int z)
     {
         return new Cuboid(min.add(x, y, z), max.add(x, y, z));
@@ -307,7 +318,8 @@ public final class Cuboid
      *     The number of blocks to change in the z-axis.
      * @return A new {@link Cuboid}.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Cuboid grow(int x, int y, int z)
     {
         return new Cuboid(min.subtract(x, y, z), max.add(x, y, z));
@@ -327,7 +339,8 @@ public final class Cuboid
      *     The number of blocks to add in the z-axis.
      * @return The new Cuboid.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Cuboid add(int x, int y, int z)
     {
         return new Cuboid(
@@ -335,7 +348,8 @@ public final class Cuboid
             max.add(Math.max(0, x), Math.max(0, y), Math.max(0, z)));
     }
 
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     private static Vector3Di[] getSortedCoordinates(Vector3Di a, Vector3Di b)
     {
         final int minX = Math.min(a.x(), b.x());
@@ -351,7 +365,8 @@ public final class Cuboid
         return new Vector3Di[]{min, max};
     }
 
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     private int calculateVolume()
     {
         final int x = max.x() - min.x() + 1;
@@ -360,7 +375,8 @@ public final class Cuboid
         return x * y * z;
     }
 
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     private Vector3Di calculateDimensions()
     {
         final int x = max.x() - min.x() + 1;
@@ -372,7 +388,8 @@ public final class Cuboid
     /**
      * @return All 8 corners of this cuboid.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Di[] getCorners()
     {
         return new Vector3Di[]{
@@ -380,7 +397,8 @@ public final class Cuboid
             new Vector3Di(max.x(), min.y(), min.z()), new Vector3Di(max.x(), min.y(), max.z()),
 
             new Vector3Di(min.x(), max.y(), min.z()), new Vector3Di(min.x(), max.y(), max.z()),
-            new Vector3Di(max.x(), max.y(), min.z()), max};
+            new Vector3Di(max.x(), max.y(), min.z()), max
+        };
     }
 
     /**

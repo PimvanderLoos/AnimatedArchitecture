@@ -3,9 +3,9 @@ package nl.pim16aap2.animatedarchitecture.core.structures;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
+import nl.pim16aap2.animatedarchitecture.core.util.LocationUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Rectangle;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 
 import java.util.Collection;
@@ -297,7 +297,7 @@ public interface IStructureConst
      */
     default long getChunkId()
     {
-        return Util.getChunkId(getPowerBlock());
+        return LocationUtil.getChunkId(getPowerBlock());
     }
 
     /**

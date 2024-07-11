@@ -9,7 +9,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetr
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.delayedinput.DelayedInputRequest;
 import org.jetbrains.annotations.Nullable;
 
@@ -127,7 +127,7 @@ public abstract class DelayedCommand<T>
                 () -> inputRequestMessage(commandSender, structureRetriever),
                 delayedInputClz)
             .getCommandOutput()
-            .exceptionally(Util::exceptionally);
+            .exceptionally(FutureUtil::exceptionally);
     }
 
     private Function<T, CompletableFuture<?>> getExecutor(
@@ -161,7 +161,7 @@ public abstract class DelayedCommand<T>
         {
             try
             {
-                return executor.apply(delayedInput).exceptionally(Util::exceptionally);
+                return executor.apply(delayedInput).exceptionally(FutureUtil::exceptionally);
             }
             catch (Exception e)
             {

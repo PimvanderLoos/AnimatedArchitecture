@@ -9,8 +9,8 @@ import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.PowerBlockManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.Rectangle;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector2Di;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.spigot.core.animation.AnimatedBlockHelper;
@@ -76,9 +76,9 @@ public class ChunkListener extends AbstractListener
             world.getName()
         );
 
-        Util.getAllCompletableFutureResultsFlatMap(rotationPoints, powerBlocks)
+        FutureUtil.getAllCompletableFutureResultsFlatMap(rotationPoints, powerBlocks)
             .thenAccept(lst -> lst.forEach(AbstractStructure::onChunkLoad))
-            .exceptionally(Util::exceptionally);
+            .exceptionally(FutureUtil::exceptionally);
     }
 
     /**

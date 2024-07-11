@@ -18,7 +18,7 @@ import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -103,7 +103,7 @@ public class StructureAnimationRequest
         return structureRetriever
             .getStructure()
             .thenCompose(this::execute)
-            .exceptionally(throwable -> Util.exceptionally(throwable, StructureToggleResult.ERROR));
+            .exceptionally(throwable -> FutureUtil.exceptionally(throwable, StructureToggleResult.ERROR));
     }
 
     private CompletableFuture<StructureToggleResult> execute(Optional<AbstractStructure> structureOpt)

@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.storage;
 
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.functional.CheckedTriConsumer;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,7 +46,7 @@ public class DelayedPreparedStatement
      */
     public DelayedPreparedStatement(String statement)
     {
-        actions = new Action[Util.countPatternOccurrences(DelayedPreparedStatement.QUESTION_MARK, statement)];
+        actions = new Action[StringUtil.countPatternOccurrences(DelayedPreparedStatement.QUESTION_MARK, statement)];
         this.statement = statement;
     }
 

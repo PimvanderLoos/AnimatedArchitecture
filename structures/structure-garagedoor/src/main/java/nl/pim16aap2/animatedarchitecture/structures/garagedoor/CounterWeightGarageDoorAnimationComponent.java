@@ -13,7 +13,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.BlockFace;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.functional.TriFunction;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
@@ -117,7 +116,7 @@ public class CounterWeightGarageDoorAnimationComponent implements IAnimationComp
     @Override
     public void executeAnimationStep(IAnimator animator, Iterable<IAnimatedBlock> animatedBlocks, int ticks)
     {
-        final double stepSum = Util.clampAngleRad(step * ticks);
+        final double stepSum = MathUtil.clampAngleRad(step * ticks);
 
         for (final IAnimatedBlock animatedBlock : animatedBlocks)
             animator.applyMovement(animatedBlock, getGoalPos(stepSum, animatedBlock));

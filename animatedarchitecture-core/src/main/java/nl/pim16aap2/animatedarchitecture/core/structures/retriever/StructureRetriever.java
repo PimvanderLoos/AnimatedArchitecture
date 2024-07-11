@@ -10,7 +10,7 @@ import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.delayedinput.DelayedStructureSpecificationInputRequest;
 import org.jetbrains.annotations.Nullable;
 
@@ -256,7 +256,7 @@ public sealed abstract class StructureRetriever
     private static CompletableFuture<Optional<AbstractStructure>> listToOptional(
         CompletableFuture<List<AbstractStructure>> list)
     {
-        return list.thenApply(StructureRetriever::listToOptional).exceptionally(Util::exceptionallyOptional);
+        return list.thenApply(StructureRetriever::listToOptional).exceptionally(FutureUtil::exceptionallyOptional);
     }
 
     /**
@@ -336,7 +336,7 @@ public sealed abstract class StructureRetriever
         {
             return databaseManager
                 .getStructures(name)
-                .exceptionally(Util::exceptionallyList);
+                .exceptionally(FutureUtil::exceptionallyList);
         }
 
         @Override
@@ -344,7 +344,7 @@ public sealed abstract class StructureRetriever
         {
             return databaseManager
                 .getStructures(player, name, permissionLevel)
-                .exceptionally(Util::exceptionallyList);
+                .exceptionally(FutureUtil::exceptionallyList);
         }
 
         @Override
@@ -375,7 +375,7 @@ public sealed abstract class StructureRetriever
         @Override
         public CompletableFuture<Optional<AbstractStructure>> getStructure()
         {
-            return databaseManager.getStructure(uid).exceptionally(Util::exceptionallyOptional);
+            return databaseManager.getStructure(uid).exceptionally(FutureUtil::exceptionallyOptional);
         }
 
         @Override
@@ -386,7 +386,7 @@ public sealed abstract class StructureRetriever
             return databaseManager
                 .getStructure(player, uid)
                 .thenApply(retrieved -> StructureRetriever.filter(retrieved, player, permissionLevel))
-                .exceptionally(Util::exceptionallyOptional);
+                .exceptionally(FutureUtil::exceptionallyOptional);
         }
     }
 
@@ -491,7 +491,7 @@ public sealed abstract class StructureRetriever
             CompletableFuture<List<AbstractStructure>> structures)
         {
             this.specificationFactory = specificationFactory;
-            this.structures = structures.exceptionally(t -> Util.exceptionally(t, Collections.emptyList()));
+            this.structures = structures.exceptionally(t -> FutureUtil.exceptionally(t, Collections.emptyList()));
         }
 
         @Override
@@ -499,7 +499,7 @@ public sealed abstract class StructureRetriever
         {
             return structures
                 .thenApply(StructureRetriever::listToOptional)
-                .exceptionally(Util::exceptionallyOptional);
+                .exceptionally(FutureUtil::exceptionallyOptional);
         }
 
         @Override
@@ -514,7 +514,7 @@ public sealed abstract class StructureRetriever
         {
             return structures
                 .thenApply(retrieved -> StructureRetriever.filter(retrieved, player, permissionLevel))
-                .exceptionally(Util::exceptionallyList);
+                .exceptionally(FutureUtil::exceptionallyList);
         }
 
         @Override
@@ -530,7 +530,7 @@ public sealed abstract class StructureRetriever
         {
             return getStructures0(player, permissionLevel)
                 .thenApply(StructureRetriever::listToOptional)
-                .exceptionally(Util::exceptionallyOptional);
+                .exceptionally(FutureUtil::exceptionallyOptional);
         }
 
         @Override
@@ -567,7 +567,7 @@ public sealed abstract class StructureRetriever
         {
             return futureStructure
                 .thenApply(retrieved -> StructureRetriever.filter(retrieved, player, permissionLevel))
-                .exceptionally(Util::exceptionallyOptional);
+                .exceptionally(FutureUtil::exceptionallyOptional);
         }
     }
 }

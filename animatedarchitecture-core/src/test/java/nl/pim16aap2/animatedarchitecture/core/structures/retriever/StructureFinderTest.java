@@ -4,7 +4,7 @@ import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
@@ -368,7 +368,7 @@ class StructureFinderTest
             .thenAnswer(invocation ->
             {
                 final String input = invocation.getArgument(0, String.class);
-                final boolean useNames = Util.parseLong(invocation.getArgument(0, String.class)).isEmpty();
+                final boolean useNames = MathUtil.parseLong(invocation.getArgument(0, String.class)).isEmpty();
                 final ArrayList<DatabaseManager.StructureIdentifier> identifiers = new ArrayList<>(uids.size());
                 final List<?> idSource = useNames ? names : uids;
                 for (int idx = 0; idx < uids.size(); ++idx)

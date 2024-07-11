@@ -4,7 +4,7 @@ import lombok.EqualsAndHashCode;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -65,7 +65,7 @@ public final class BuildDataReader implements IDebuggable
 
     private int parseInt(String name, String str)
     {
-        final OptionalInt ret = Util.parseInt(str);
+        final OptionalInt ret = MathUtil.parseInt(str);
         if (ret.isEmpty())
             log.atSevere().log("Failed to parse %s from input: '%s'", name, str);
         return ret.orElse(-1);

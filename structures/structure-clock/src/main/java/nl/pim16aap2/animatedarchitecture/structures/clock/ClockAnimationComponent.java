@@ -9,7 +9,6 @@ import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockDa
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.WorldTime;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import nl.pim16aap2.animatedarchitecture.structures.drawbridge.DrawbridgeAnimationComponent;
@@ -128,7 +127,7 @@ public final class ClockAnimationComponent extends DrawbridgeAnimationComponent
      */
     private static double minutesToAngle(int minutes)
     {
-        return Util.clampAngleRad(minutes * MINUTE_STEP);
+        return MathUtil.clampAngleRad(minutes * MINUTE_STEP);
     }
 
     /**
@@ -143,7 +142,7 @@ public final class ClockAnimationComponent extends DrawbridgeAnimationComponent
      */
     private static double hoursToAngle(int hours, int minutes)
     {
-        return Util.clampAngleRad(hours * HOUR_STEP + minutes * HOUR_SUB_STEP);
+        return MathUtil.clampAngleRad(hours * HOUR_STEP + minutes * HOUR_SUB_STEP);
     }
 
     @Override

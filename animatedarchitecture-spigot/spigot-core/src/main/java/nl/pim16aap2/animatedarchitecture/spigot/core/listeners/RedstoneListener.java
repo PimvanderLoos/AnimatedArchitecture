@@ -5,7 +5,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.managers.PowerBlockManager;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.LocationSpigot;
 import org.bukkit.Location;
@@ -81,7 +81,7 @@ public class RedstoneListener extends AbstractListener implements IDebuggable
         powerBlockManager
             .structuresFromPowerBlockLoc(loc)
             .thenAccept(structures -> structures.forEach(structure -> structure.onRedstoneChange(isPowered)))
-            .exceptionally(Util::exceptionally);
+            .exceptionally(FutureUtil::exceptionally);
     }
 
     /**
@@ -177,7 +177,7 @@ public class RedstoneListener extends AbstractListener implements IDebuggable
                 }
                 else
                 {
-                    Util.exceptionally(exception);
+                    FutureUtil.exceptionally(exception);
                 }
                 return null;
             });

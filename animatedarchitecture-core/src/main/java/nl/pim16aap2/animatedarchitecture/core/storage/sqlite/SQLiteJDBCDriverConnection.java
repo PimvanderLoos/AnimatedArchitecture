@@ -34,8 +34,9 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.IBitFlag;
 import nl.pim16aap2.animatedarchitecture.core.util.Limit;
+import nl.pim16aap2.animatedarchitecture.core.util.LocationUtil;
+import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.functional.CheckedFunction;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Contract;
@@ -365,11 +366,11 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 .setNextInt(structure.getRotationPoint().x())
                 .setNextInt(structure.getRotationPoint().y())
                 .setNextInt(structure.getRotationPoint().z())
-                .setNextLong(Util.getChunkId(structure.getRotationPoint()))
+                .setNextLong(LocationUtil.getChunkId(structure.getRotationPoint()))
                 .setNextInt(structure.getPowerBlock().x())
                 .setNextInt(structure.getPowerBlock().y())
                 .setNextInt(structure.getPowerBlock().z())
-                .setNextLong(Util.getChunkId(structure.getPowerBlock()))
+                .setNextLong(LocationUtil.getChunkId(structure.getPowerBlock()))
                 .setNextInt(MovementDirection.getValue(structure.getOpenDir()))
                 .setNextLong(getFlag(structure))
                 .setNextString(structureType.getFullName())
@@ -501,12 +502,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             .setNextInt(structure.getRotationPoint().x())
             .setNextInt(structure.getRotationPoint().y())
             .setNextInt(structure.getRotationPoint().z())
-            .setNextLong(Util.getChunkId(structure.getRotationPoint()))
+            .setNextLong(LocationUtil.getChunkId(structure.getRotationPoint()))
 
             .setNextInt(structure.getPowerBlock().x())
             .setNextInt(structure.getPowerBlock().y())
             .setNextInt(structure.getPowerBlock().z())
-            .setNextLong(Util.getChunkId(structure.getPowerBlock()))
+            .setNextLong(LocationUtil.getChunkId(structure.getPowerBlock()))
 
             .setNextInt(MovementDirection.getValue(structure.getOpenDir()))
             .setNextLong(getFlag(structure.isOpen(), structure.isLocked()))
@@ -524,7 +525,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         PermissionLevel maxPermission)
     {
         final DelayedPreparedStatement query;
-        if (Util.isNumerical(input))
+        if (MathUtil.isNumerical(input))
             query = SQLStatement.GET_IDENTIFIERS_FROM_PARTIAL_UID_MATCH_WITH_OWNER
                 .constructDelayedPreparedStatement()
                 .setNextLong(Long.parseLong(input));
@@ -915,7 +916,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 final Int2ObjectMap<LongList> structures = new Int2ObjectLinkedOpenHashMap<>();
                 while (resultSet.next())
                 {
-                    final int locationHash = Util.simpleChunkSpaceLocationHash(
+                    final int locationHash = LocationUtil.simpleChunkSpaceLocationHash(
                         resultSet.getInt("powerBlockX"),
                         resultSet.getInt("powerBlockY"),
                         resultSet.getInt("powerBlockZ")

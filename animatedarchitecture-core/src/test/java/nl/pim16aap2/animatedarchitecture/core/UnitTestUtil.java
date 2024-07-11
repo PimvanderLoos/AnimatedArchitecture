@@ -15,7 +15,7 @@ import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.functional.CheckedSupplier;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector2Di;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
@@ -180,7 +180,7 @@ public class UnitTestUtil
             {
                 final var playerData = Mockito.mock(PlayerData.class);
                 Mockito.when(playerData.getUUID()).thenReturn(UUID.randomUUID());
-                Mockito.when(playerData.getName()).thenReturn(Util.randomInsecureString(6));
+                Mockito.when(playerData.getName()).thenReturn(StringUtil.randomString(6));
                 return new StructureOwner(uid, PermissionLevel.CREATOR, playerData);
             },
             structure::getPrimeOwner

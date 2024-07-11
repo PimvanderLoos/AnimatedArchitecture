@@ -13,7 +13,9 @@ import nl.pim16aap2.animatedarchitecture.core.managers.StructureSpecificationMan
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.CollectionsUtil;
+import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
+import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 
 import javax.inject.Inject;
 import java.time.Duration;
@@ -73,12 +75,12 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
 
     private Optional<AbstractStructure> parseInput(Optional<String> input)
     {
-        final OptionalLong uidOpt = Util.parseLong(input);
+        final OptionalLong uidOpt = MathUtil.parseLong(input);
         if (uidOpt.isEmpty())
             return Optional.empty();
 
         final long uid = uidOpt.getAsLong();
-        return Util.searchIterable(options, structure -> structure.getUid() == uid);
+        return CollectionsUtil.searchIterable(options, structure -> structure.getUid() == uid);
     }
 
     /**
@@ -165,7 +167,7 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
                 localizer,
                 textFactory,
                 structureSpecificationManager
-            ).get().exceptionally(Util::exceptionallyOptional);
+            ).get().exceptionally(FutureUtil::exceptionallyOptional);
         }
 
         /**

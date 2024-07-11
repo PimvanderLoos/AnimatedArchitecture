@@ -8,6 +8,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
+import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
@@ -380,7 +381,7 @@ public final class StructureTypeLoader extends Restartable
 
         return Optional.of(new StructureTypeInfo(
             Util.requireNonNull(attributes.getValue("TypeName"), "TypeName"),
-            Util.parseInt(attributes.getValue("Version"))
+            MathUtil.parseInt(attributes.getValue("Version"))
                 .orElseThrow(() -> new NoSuchElementException("Version not found")),
             className,
             file,

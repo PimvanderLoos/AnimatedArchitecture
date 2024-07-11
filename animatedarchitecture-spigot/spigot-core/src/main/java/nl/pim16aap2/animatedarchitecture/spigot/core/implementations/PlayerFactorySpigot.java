@@ -4,7 +4,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IPlayerFactory;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.OfflinePlayerSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.PlayerSpigot;
 import org.bukkit.Bukkit;
@@ -50,6 +50,6 @@ public class PlayerFactorySpigot implements IPlayerFactory
         return databaseManager
             .getPlayerData(uuid)
             .thenApply(playerData -> playerData.<IPlayer>map(OfflinePlayerSpigot::new))
-            .exceptionally(Util::exceptionallyOptional);
+            .exceptionally(FutureUtil::exceptionallyOptional);
     }
 }

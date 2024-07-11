@@ -15,7 +15,7 @@ import nl.pim16aap2.animatedarchitecture.core.events.IAnimatedArchitectureEventC
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureDeletionManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -380,7 +380,7 @@ public final class StructureActivityManager extends Restartable
         final StringBuilder sb = new StringBuilder();
         sb.append("Registered animators:\n");
         animators.values().forEach(entry -> sb.append(" * ").append(entry).append('\n'));
-        return Util.removeTrailingNewLine(sb).toString();
+        return StringUtil.removeTrailingNewLine(sb).toString();
     }
 
     /**
