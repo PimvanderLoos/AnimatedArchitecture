@@ -24,8 +24,9 @@ import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes.IPerpetualMover;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
+import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
+import nl.pim16aap2.animatedarchitecture.core.util.LocationUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
@@ -327,7 +328,7 @@ final class StructureBase
             .responsible(playerFactory.create(getPrimeOwner().playerData()))
             .build()
             .execute()
-            .exceptionally(Util::exceptionally);
+            .exceptionally(FutureUtil::exceptionally);
     }
 
     @Locked.Read("lock")
@@ -374,7 +375,7 @@ final class StructureBase
             + formatLine("Cuboid", getCuboid())
             + formatLine("Rotation Point", this.getRotationPoint())
             + formatLine("PowerBlock Position: ", getPowerBlock())
-            + formatLine("PowerBlock Hash: ", Util.getChunkId(getPowerBlock()))
+            + formatLine("PowerBlock Hash: ", LocationUtil.getChunkId(getPowerBlock()))
             + formatLine("World", getWorld())
             + formatLine("This structure is ", (isLocked ? "locked" : "unlocked"))
             + formatLine("This structure is ", (isOpen ? "open" : "closed"))

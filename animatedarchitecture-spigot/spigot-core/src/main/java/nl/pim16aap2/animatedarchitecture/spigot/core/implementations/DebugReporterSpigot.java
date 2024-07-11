@@ -4,7 +4,7 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatformProvider;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebugReporter;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import nl.pim16aap2.animatedarchitecture.spigot.core.AnimatedArchitecturePlugin;
 import nl.pim16aap2.animatedarchitecture.spigot.core.events.AnimatedArchitectureSpigotEvent;
 import nl.pim16aap2.animatedarchitecture.spigot.core.events.StructureCreatedEvent;
@@ -25,6 +25,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.stream.Stream;
 
 /**
  * A {@link DebugReporter} implementation for the Spigot platform.
@@ -65,7 +66,7 @@ public class DebugReporterSpigot extends DebugReporter
             .append(animatedArchitecturePlugin::getRegisteredPlugins)
             .append('\n')
             .append("EventListeners:\n")
-            .append(getListeners(
+            .append(formatListeners(
                 StructurePrepareAddOwnerEvent.class,
                 StructurePrepareCreateEvent.class,
                 StructurePrepareDeleteEvent.class,
@@ -79,14 +80,14 @@ public class DebugReporterSpigot extends DebugReporter
             .toString();
     }
 
-    private String getListeners(Class<?>... classes)
+    private String formatListeners(Class<?>... classes)
     {
-        final SafeStringBuilder sb = new SafeStringBuilder();
+        final SafeStringBuilder stringBuilder = new SafeStringBuilder();
         for (final Class<?> clz : classes)
         {
             if (!AnimatedArchitectureSpigotEvent.class.isAssignableFrom(clz))
             {
-                sb.append("ERROR: ").append(clz::getName).append('\n');
+                stringBuilder.append("ERROR: ").append(clz::getName).append('\n');
                 continue;
             }
             try
@@ -94,24 +95,25 @@ public class DebugReporterSpigot extends DebugReporter
                 final var handlerListMethod = clz.getDeclaredField("HANDLERS_LIST");
                 handlerListMethod.setAccessible(true);
                 final var handlers = (HandlerList) handlerListMethod.get(null);
-                sb.append("    ").append(clz::getSimpleName).append(": ")
-                    .append(() -> Util.toString(
-                        handlers.getRegisteredListeners(),
-                        DebugReporterSpigot::formatRegisteredListener))
-                    .append('\n');
+                stringBuilder.append("  ").append(clz::getSimpleName)
+                    .append(Stream
+                        .of(handlers.getRegisteredListeners())
+                        .map(DebugReporterSpigot::formatRegisteredListener)
+                        .collect(StringUtil.stringCollector("\n    - ", "[]"))
+                    );
             }
             catch (Exception e)
             {
                 log.atSevere().withCause(e).log("Failed to find MethodHandle for handlers!");
-                sb.append("ERROR: ").append(clz::getName).append('\n');
+                stringBuilder.append("ERROR: ").append(clz::getName).append('\n');
             }
         }
 
-        return sb.toString();
+        return stringBuilder.toString();
     }
 
     private static String formatRegisteredListener(RegisteredListener listener)
     {
-        return String.format("{%s: %s (%s)}", listener.getPlugin(), listener.getListener(), listener.getPriority());
+        return String.format("%s: %s (%s)", listener.getPlugin(), listener.getListener(), listener.getPriority());
     }
 }

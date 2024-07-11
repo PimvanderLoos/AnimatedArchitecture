@@ -4,7 +4,7 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.Restartable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.data.cache.timed.TimedCache;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigot;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -75,7 +75,7 @@ public final class HeadManager extends Restartable
 
         return CompletableFuture
             .supplyAsync(() -> headMap0.computeIfAbsent(playerUUID, (p) -> createItemStack(playerUUID, displayName)))
-            .exceptionally(Util::exceptionallyOptional);
+            .exceptionally(FutureUtil::exceptionallyOptional);
     }
 
     private Optional<ItemStack> createItemStack(UUID playerUUID, String displayName)

@@ -12,7 +12,7 @@ import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Provider;
@@ -93,7 +93,7 @@ public class NewStructure extends BaseCommand
     {
         return super.hasPermission()
             .thenApply(this::hasPermission)
-            .exceptionally(e -> Util.exceptionally(e, new PermissionsStatus(false, false)));
+            .exceptionally(e -> FutureUtil.exceptionally(e, new PermissionsStatus(false, false)));
     }
 
     @AssistedFactory

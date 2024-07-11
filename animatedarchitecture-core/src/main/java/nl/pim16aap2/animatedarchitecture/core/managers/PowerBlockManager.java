@@ -14,7 +14,8 @@ import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.data.cache.timed.TimedCache;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
+import nl.pim16aap2.animatedarchitecture.core.util.LocationUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector2Di;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 
@@ -157,9 +158,9 @@ public final class PowerBlockManager extends Restartable implements StructureDel
     {
         return uids
             .thenApplyAsync(lst -> lst.longStream().mapToObj(databaseManager::getStructure).toList())
-            .thenCompose(Util::getAllCompletableFutureResults)
+            .thenCompose(FutureUtil::getAllCompletableFutureResults)
             .thenApply(lst -> lst.stream().filter(Optional::isPresent).map(Optional::get).toList())
-            .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
+            .exceptionally(ex -> FutureUtil.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
@@ -195,7 +196,7 @@ public final class PowerBlockManager extends Restartable implements StructureDel
     public void updatePowerBlockLoc(AbstractStructure structure, Vector3Di oldPos, Vector3Di newPos)
     {
         structure.setPowerBlock(newPos);
-        structure.syncData().exceptionally(Util::exceptionally);
+        structure.syncData().exceptionally(FutureUtil::exceptionally);
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(structure.getWorld().worldName());
         if (powerBlockWorld == null)
         {
@@ -271,7 +272,7 @@ public final class PowerBlockManager extends Restartable implements StructureDel
         /**
          * TimedCache of all {@link PowerBlockChunk}s in this world.
          * <p>
-         * Key: chunkId: {@link Util#getChunkId(Vector3Di)}.
+         * Key: chunkId: {@link LocationUtil#getChunkId(Vector3Di)}.
          * <p>
          * Value: The {@link PowerBlockChunk}s.
          */
@@ -305,7 +306,7 @@ public final class PowerBlockManager extends Restartable implements StructureDel
                 return CompletableFuture.failedFuture(
                     new IllegalStateException("Cannot create PowerBlockChunks in non-AnimatedArchitecture worlds!"));
 
-            final long chunkId = Util.getChunkId(loc);
+            final long chunkId = LocationUtil.getChunkId(loc);
 
             return powerBlockChunks.computeIfAbsent(
                 chunkId,
@@ -350,7 +351,7 @@ public final class PowerBlockManager extends Restartable implements StructureDel
          */
         private void invalidatePosition(Vector3Di pos)
         {
-            powerBlockChunks.remove(Util.getChunkId(pos));
+            powerBlockChunks.remove(LocationUtil.getChunkId(pos));
         }
 
         /**
@@ -363,7 +364,7 @@ public final class PowerBlockManager extends Restartable implements StructureDel
             databaseManager
                 .isAnimatedArchitectureWorld(worldName)
                 .thenAccept(result -> isAnimatedArchitectureWorld = result)
-                .exceptionally(Util::exceptionally);
+                .exceptionally(FutureUtil::exceptionally);
         }
 
         void clear()
@@ -381,7 +382,7 @@ public final class PowerBlockManager extends Restartable implements StructureDel
          * Map that contains all power blocks in this chunk mapped to the hash for their location in the chunk.
          * <p>
          * Key: Hashed locations (in chunk-space coordinates),
-         * {@link Util#simpleChunkSpaceLocationHash(int, int, int)}.
+         * {@link LocationUtil#simpleChunkSpaceLocationHash(int, int, int)}.
          * <p>
          * Value: List of UIDs of all structures whose power block occupy this space.
          */
@@ -413,7 +414,7 @@ public final class PowerBlockManager extends Restartable implements StructureDel
                 return LongLists.emptyList();
 
             return powerBlocksMap.getOrDefault(
-                Util.simpleChunkSpaceLocationHash(loc.x(), loc.y(), loc.z()),
+                LocationUtil.simpleChunkSpaceLocationHash(loc.x(), loc.y(), loc.z()),
                 LongLists.emptyList()
             );
         }

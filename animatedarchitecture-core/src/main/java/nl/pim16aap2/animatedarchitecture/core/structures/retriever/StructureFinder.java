@@ -14,6 +14,8 @@ import nl.pim16aap2.animatedarchitecture.core.data.cache.RollingCache;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
+import nl.pim16aap2.animatedarchitecture.core.util.CollectionsUtil;
+import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 
@@ -384,7 +386,7 @@ public final class StructureFinder
                     .of(targetList.get(idx).uid)
                     .getStructure(commandSender, maxPermission);
 
-            return Util
+            return FutureUtil
                 .getAllCompletableFutureResults(retrieved)
                 .thenApply(lst -> lst.stream().flatMap(Optional::stream).toList());
         });
@@ -428,7 +430,7 @@ public final class StructureFinder
         for (int idx = history.size() - 1; idx >= index; --idx)
         {
             final HistoryItem removed = history.removeLast();
-            cache = Collections.unmodifiableList(Util.concat(cache, removed.getItems()));
+            cache = Collections.unmodifiableList(CollectionsUtil.concat(cache, removed.getItems()));
             lastInput = removed.input;
         }
         updateCache(input);
@@ -618,7 +620,7 @@ public final class StructureFinder
                 final List<MinimalStructureDescription> descriptions = new ArrayList<>(ids.size());
                 for (final var id : ids)
                 {
-                    final String targetId = Util.isNumerical(input) ? String.valueOf(id.uid()) : id.name();
+                    final String targetId = MathUtil.isNumerical(input) ? String.valueOf(id.uid()) : id.name();
                     descriptions.add(new MinimalStructureDescription(id.uid(), targetId));
                 }
                 return descriptions;
@@ -745,8 +747,8 @@ public final class StructureFinder
             {
                 result.completeExceptionally(t);
             }
-        }).exceptionally(Util::exceptionally);
-        return result.exceptionally(t -> Util.exceptionally(t, Collections.emptyList()));
+        }).exceptionally(FutureUtil::exceptionally);
+        return result.exceptionally(t -> FutureUtil.exceptionally(t, Collections.emptyList()));
     }
 
     @Locked.Read("lock")

@@ -13,9 +13,9 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
+import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Rectangle;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.util.LazyValue;
 import org.jetbrains.annotations.Nullable;
@@ -343,7 +343,7 @@ public abstract class AbstractStructure implements IStructureConst
         return CompletableFuture
             .supplyAsync(this::syncData)
             .thenCompose(Function.identity())
-            .exceptionally(ex -> Util.exceptionally(ex, DatabaseManager.ActionResult.FAIL));
+            .exceptionally(ex -> FutureUtil.exceptionally(ex, DatabaseManager.ActionResult.FAIL));
     }
 
     /**
@@ -360,7 +360,7 @@ public abstract class AbstractStructure implements IStructureConst
             return base
                 .getDatabaseManager()
                 .syncStructureData(getSnapshot(), serializer.serialize(this))
-                .exceptionally(ex -> Util.exceptionally(ex, DatabaseManager.ActionResult.FAIL));
+                .exceptionally(ex -> FutureUtil.exceptionally(ex, DatabaseManager.ActionResult.FAIL));
         }
         catch (Exception e)
         {

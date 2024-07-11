@@ -32,7 +32,7 @@ import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutor
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorString;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.functional.CheckedFunction;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.testing.reflection.ReflectionUtil;
@@ -131,7 +131,7 @@ public class CreatorTest
 
         final String invalidName = "123";
         // Verify the name is indeed invalid according to the latest implementation.
-        Assertions.assertFalse(Util.isValidStructureName(invalidName));
+        Assertions.assertFalse(StringUtil.isValidStructureName(invalidName));
 
         Assertions.assertFalse(creator.handleInput(invalidName).join());
 
@@ -156,7 +156,7 @@ public class CreatorTest
 
         final String validName = "ValidName";
         // Verify the name is indeed valid according to the latest implementation.
-        Assertions.assertTrue(Util.isValidStructureName(validName));
+        Assertions.assertTrue(StringUtil.isValidStructureName(validName));
 
         Assertions.assertTrue(creator.handleInput(validName).join());
 

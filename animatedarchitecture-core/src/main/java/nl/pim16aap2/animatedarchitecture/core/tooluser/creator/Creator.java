@@ -34,8 +34,10 @@ import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutor
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorString;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorVoid;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
+import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.Limit;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
+import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
@@ -373,7 +375,7 @@ public abstract class Creator extends ToolUser
         commandFactory
             .getSetOpenStatusDelayed()
             .runDelayed(getPlayer(), this, status -> CompletableFuture.completedFuture(handleInput(status)), null)
-            .exceptionally(Util::exceptionally);
+            .exceptionally(FutureUtil::exceptionally);
     }
 
     /**
@@ -384,7 +386,7 @@ public abstract class Creator extends ToolUser
         commandFactory
             .getSetOpenDirectionDelayed()
             .runDelayed(getPlayer(), this, this::handleInput, null)
-            .exceptionally(Util::exceptionally);
+            .exceptionally(FutureUtil::exceptionally);
     }
 
     /**
@@ -425,7 +427,7 @@ public abstract class Creator extends ToolUser
             .responsible(getPlayer())
             .build()
             .execute()
-            .exceptionally(Util::exceptionally);
+            .exceptionally(FutureUtil::exceptionally);
     }
 
     protected synchronized void prepareReviewResult()
@@ -492,7 +494,8 @@ public abstract class Creator extends ToolUser
      * Completes the naming step for this {@link Creator}. This means that it'll set the name, go to the next step, and
      * give the user the creator tool.
      * <p>
-     * Note that there are some requirements that the name must meet. See {@link Util#isValidStructureName(String)}.
+     * Note that there are some requirements that the name must meet. See
+     * {@link StringUtil#isValidStructureName(String)}.
      *
      * @param str
      *     The desired name of the structure.
@@ -500,7 +503,7 @@ public abstract class Creator extends ToolUser
      */
     protected synchronized boolean completeNamingStep(String str)
     {
-        if (!Util.isValidStructureName(str))
+        if (!StringUtil.isValidStructureName(str))
         {
             log.atFine().log("Invalid name '%s' for selected Creator: %s", str, this);
             getPlayer().sendMessage(textFactory.newText().append(
@@ -734,7 +737,7 @@ public abstract class Creator extends ToolUser
                     getPlayer().sendError(textFactory, localizer.getMessage("constants.error.generic"));
                     log.atSevere().log("Failed to insert structure after creation!");
                 }
-            }).exceptionally(Util::exceptionally);
+            }).exceptionally(FutureUtil::exceptionally);
     }
 
     /**

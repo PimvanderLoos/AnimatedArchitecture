@@ -11,7 +11,6 @@ import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockDa
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.functional.TriFunction;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
@@ -116,13 +115,13 @@ public class DrawbridgeAnimationComponent implements IAnimationComponent
     @Override
     public RotatedPosition getFinalPosition(int xAxis, int yAxis, int zAxis)
     {
-        return getGoalPos(null, Util.clampAngleRad(angle), xAxis, yAxis, zAxis);
+        return getGoalPos(null, MathUtil.clampAngleRad(angle), xAxis, yAxis, zAxis);
     }
 
     @Override
     public void executeAnimationStep(IAnimator animator, Iterable<IAnimatedBlock> animatedBlocks, int ticks)
     {
-        final double angle = Util.clampAngleRad(step * ticks);
+        final double angle = MathUtil.clampAngleRad(step * ticks);
         final Vector3Dd localRotation = getGoalRotation(angle);
 
         for (final IAnimatedBlock animatedBlock : animatedBlocks)

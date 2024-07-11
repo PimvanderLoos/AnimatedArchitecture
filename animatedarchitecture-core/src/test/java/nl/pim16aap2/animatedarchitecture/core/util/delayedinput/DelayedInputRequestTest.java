@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.util.delayedinput;
 
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -32,8 +32,8 @@ class DelayedInputRequestTest
     void testDoubleInput()
         throws Exception
     {
-        final String firstInput = Util.randomInsecureString(10);
-        final String secondInput = Util.randomInsecureString(10);
+        final String firstInput = StringUtil.randomString(10);
+        final String secondInput = StringUtil.randomString(10);
 
         final DelayedInputRequestImpl request = new DelayedInputRequestImpl(5, TimeUnit.SECONDS);
         final CompletableFuture<Optional<String>> output = request.getInputResult();
@@ -56,7 +56,7 @@ class DelayedInputRequestTest
     void testInput()
         throws Exception
     {
-        final String inputString = Util.randomInsecureString(10);
+        final String inputString = StringUtil.randomString(10);
 
         final DelayedInputRequestImpl request = new DelayedInputRequestImpl(5, TimeUnit.SECONDS);
         final CompletableFuture<Optional<String>> output = request.getInputResult();

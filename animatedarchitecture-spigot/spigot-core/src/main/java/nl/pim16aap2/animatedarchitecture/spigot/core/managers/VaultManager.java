@@ -20,7 +20,7 @@ import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.IPermissionsManagerSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.IFakePlayer;
@@ -142,7 +142,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
      */
     private void getFlatPrice(StructureType type)
     {
-        Util.parseDouble(config.getPrice(type)).ifPresent(price -> flatPrices.put(type, price));
+        MathUtil.parseDouble(config.getPrice(type)).ifPresent(price -> flatPrices.put(type, price));
     }
 
     @Override
@@ -370,7 +370,9 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         for (final PermissionAttachmentInfo permission : playerPermissions)
             if (permission.getPermission().startsWith(permissionBase))
             {
-                final OptionalInt suffix = Util.parseInt(permission.getPermission().substring(permissionBaseLength));
+                final OptionalInt suffix = MathUtil.parseInt(permission
+                    .getPermission()
+                    .substring(permissionBaseLength));
                 if (suffix.isPresent())
                     ret = Math.max(ret, suffix.getAsInt());
             }

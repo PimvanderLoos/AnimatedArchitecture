@@ -11,7 +11,7 @@ import nl.pim16aap2.animatedarchitecture.core.commands.CommandFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.spigot.core.AnimatedArchitecturePlugin;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.PlayerSpigot;
 import org.bukkit.Material;
@@ -109,7 +109,7 @@ class DeleteGui implements IGuiPage
                 commandFactory
                     .newDelete(inventoryHolder, structureRetrieverFactory.of(structure))
                     .run()
-                    .exceptionally(Util::exceptionally);
+                    .exceptionally(FutureUtil::exceptionally);
                 GuiUtil.closeGuiPage(gui, inventoryHolder);
                 return true;
             },

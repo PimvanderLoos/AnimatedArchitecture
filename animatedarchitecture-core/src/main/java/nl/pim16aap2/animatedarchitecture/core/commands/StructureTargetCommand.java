@@ -14,6 +14,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
+import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
@@ -92,7 +93,7 @@ public abstract class StructureTargetCommand extends BaseCommand
                 return structure;
             })
             .thenAcceptAsync(structure -> processStructureResult(structure, permissions))
-            .exceptionally(Util::exceptionally);
+            .exceptionally(FutureUtil::exceptionally);
     }
 
     /**

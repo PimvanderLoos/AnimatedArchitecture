@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.text;
 
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.CollectionsUtil;
 
 import java.util.Collections;
 import java.util.List;
@@ -61,7 +61,7 @@ public record TextComponent(List<ITextDecorator> decorators)
         // Now we only have 1 List.of call, meaning it won't create
         // another copy in the ctor.
         final ITextDecorator[] base = this.decorators.toArray(ITextDecorator[]::new);
-        final ITextDecorator[] merged = Util.concatArrays(base, append);
+        final ITextDecorator[] merged = CollectionsUtil.concat(base, append);
         return new TextComponent(List.of(merged));
     }
 

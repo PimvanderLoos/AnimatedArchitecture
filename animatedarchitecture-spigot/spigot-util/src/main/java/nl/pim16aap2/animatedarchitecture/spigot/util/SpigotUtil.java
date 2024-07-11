@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import nl.pim16aap2.animatedarchitecture.core.api.Color;
 import nl.pim16aap2.animatedarchitecture.core.util.BlockFace;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -176,7 +176,7 @@ public final class SpigotUtil
             if (suffix.length() > 2 && suffix.charAt(0) == '.')
                 suffix = suffix.substring(1);
 
-            return Util.parseInt(suffix);
+            return MathUtil.parseInt(suffix);
         }
         return OptionalInt.empty();
     }

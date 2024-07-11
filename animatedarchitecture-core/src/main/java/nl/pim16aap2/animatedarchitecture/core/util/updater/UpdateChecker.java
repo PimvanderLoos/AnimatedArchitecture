@@ -6,7 +6,7 @@ import com.google.gson.JsonParser;
 import lombok.Getter;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import org.jetbrains.annotations.Nullable;
 import org.semver4j.Semver;
 
@@ -57,7 +57,7 @@ public final class UpdateChecker implements IDebuggable
      */
     public CompletableFuture<@Nullable UpdateInformation> checkForUpdates()
     {
-        return CompletableFuture.supplyAsync(this::checkForUpdates0).exceptionally(Util::exceptionally);
+        return CompletableFuture.supplyAsync(this::checkForUpdates0).exceptionally(FutureUtil::exceptionally);
     }
 
     /**
@@ -94,7 +94,7 @@ public final class UpdateChecker implements IDebuggable
 
         if (status == UpdateCheckResult.UPDATE_AVAILABLE)
             log.atInfo().log("A new version is available: '%s'! Get it here: %s",
-                             newInformation.updateName(), newInformation.updateUrl());
+                newInformation.updateName(), newInformation.updateUrl());
 
         this.updateInformation = newInformation;
         return newInformation;
@@ -138,8 +138,8 @@ public final class UpdateChecker implements IDebuggable
             return UpdateCheckResult.UP_TO_DATE;
 
         return newVersion.isGreaterThan(this.currentVersion) ?
-               UpdateCheckResult.UPDATE_AVAILABLE :
-               UpdateCheckResult.UP_TO_DATE;
+            UpdateCheckResult.UPDATE_AVAILABLE :
+            UpdateCheckResult.UP_TO_DATE;
     }
 
     /**

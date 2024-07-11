@@ -4,7 +4,7 @@ import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.delayedinput.DelayedStructureSpecificationInputRequest;
 import org.jetbrains.annotations.Nullable;
 
@@ -93,7 +93,7 @@ public final class StructureRetrieverFactory
      */
     public StructureRetriever of(String structureID)
     {
-        final OptionalLong structureUID = Util.parseLong(structureID);
+        final OptionalLong structureUID = MathUtil.parseLong(structureID);
         return structureUID.isPresent() ?
             new StructureRetriever.StructureUIDRetriever(databaseManager, structureUID.getAsLong()) :
             new StructureRetriever.StructureNameRetriever(databaseManager, specificationFactory, structureID);

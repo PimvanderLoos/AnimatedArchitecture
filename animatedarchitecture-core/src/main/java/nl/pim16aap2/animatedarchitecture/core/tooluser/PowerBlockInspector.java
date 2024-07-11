@@ -11,7 +11,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorLocation;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 
 import java.util.Collections;
 import java.util.List;
@@ -68,7 +68,7 @@ public class PowerBlockInspector extends ToolUser
                     );
                 else
                     sendPowerBlockInfo(getPlayer(), filtered);
-            }).exceptionally(Util::exceptionally);
+            }).exceptionally(FutureUtil::exceptionally);
         return true;
     }
 
