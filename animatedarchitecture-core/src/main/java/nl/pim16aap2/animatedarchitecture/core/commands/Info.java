@@ -245,7 +245,7 @@ public class Info extends StructureTargetCommand
     {
         if (!(getCommandSender() instanceof IPlayer player))
         {
-            log.atSevere().withStackTrace(StackSize.FULL).log("Non-player command sender tried to highlight blocks!");
+            log.atFinest().withStackTrace(StackSize.FULL).log("Not highlighting blocks for non-player command sender.");
             return;
         }
         glowingBlockSpawner.spawnHighlightedBlocks(structure, player, Duration.ofSeconds(3));
