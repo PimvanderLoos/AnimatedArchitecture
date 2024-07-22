@@ -18,12 +18,12 @@ public enum Limit
     /**
      * The maximum size a structure can have in number of blocks.
      */
-    STRUCTURE_SIZE("door_size", IConfig::maxStructureSize),
+    STRUCTURE_SIZE("structure_size", IConfig::maxStructureSize),
 
     /**
      * The maximum number of structures a player can own.
      */
-    STRUCTURE_COUNT("door_count", IConfig::maxStructureCount),
+    STRUCTURE_COUNT("structure_count", IConfig::maxStructureCount),
 
     /**
      * The maximum distance a power block can be from a structure.
