@@ -80,6 +80,7 @@ final class BlockAnalyzer_V1_21 extends BlockAnalyzerSpigot implements IRestarta
                  FROGSPAWN,
                  PISTON_HEAD,
                  REDSTONE,
+                 SPAWNER,
                  STRUCTURE_BLOCK,
                  STRUCTURE_VOID,
                  TRIAL_SPAWNER,

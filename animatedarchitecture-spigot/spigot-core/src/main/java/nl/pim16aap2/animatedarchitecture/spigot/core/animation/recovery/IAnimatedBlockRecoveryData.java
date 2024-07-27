@@ -30,13 +30,13 @@ public sealed interface IAnimatedBlockRecoveryData
      * No guarantees are made about the exact behavior of this method, but as long as any kind of recovery action is
      * performed, this method should return true. Only when this method is a no-op should it return false.
      *
-     * @param animatedBlockRecoveryDataType@return
+     * @param animatedBlockRecoveryDataSerializer@return
      *     True if a recovery action was performed, false otherwise.
      * @throws RecoveryFailureException
      *     If something prevented the recovery action from being successful.
      */
     @CheckReturnValue
-    boolean recover(AnimatedBlockRecoveryDataType animatedBlockRecoveryDataType)
+    boolean recover(AnimatedBlockRecoveryDataSerializer animatedBlockRecoveryDataSerializer)
         throws RecoveryFailureException;
 
     /**
@@ -92,7 +92,7 @@ public sealed interface IAnimatedBlockRecoveryData
         }
 
         @Override
-        public boolean recover(AnimatedBlockRecoveryDataType animatedBlockRecoveryDataType)
+        public boolean recover(AnimatedBlockRecoveryDataSerializer animatedBlockRecoveryDataSerializer)
         {
             world.setBlockData(position.x(), position.y(), position.z(), blockData);
             return true;
@@ -119,16 +119,23 @@ public sealed interface IAnimatedBlockRecoveryData
     {
 
         @Override
-        public boolean recover(AnimatedBlockRecoveryDataType animatedBlockRecoveryDataType)
+        public boolean recover(AnimatedBlockRecoveryDataSerializer animatedBlockRecoveryDataSerializer)
         {
-            if (!baseData.recover(animatedBlockRecoveryDataType))
+            if (!baseData.recover(animatedBlockRecoveryDataSerializer))
                 return false;
 
-            animatedBlockRecoveryDataType.applySerializedBlockState(
+            System.out.println(
+                "Applied blockdata! Location: " + baseData.position +
+                    ", type: " + baseData.blockData.getMaterial() +
+                    ", block at: " +
+                    baseData.world.getBlockAt(baseData.position.x(), baseData.position.y(), baseData.position.z()));
+
+            animatedBlockRecoveryDataSerializer.applySerializedBlockState(
                 baseData.world,
                 baseData.position,
                 serializedBlockState
             );
+            System.out.println("Applied blockstate!\n\n");
             return true;
         }
     }
@@ -152,7 +159,7 @@ public sealed interface IAnimatedBlockRecoveryData
     ) implements IAnimatedBlockRecoveryData
     {
         @Override
-        public boolean recover(AnimatedBlockRecoveryDataType animatedBlockRecoveryDataType)
+        public boolean recover(AnimatedBlockRecoveryDataSerializer animatedBlockRecoveryDataSerializer)
             throws RecoveryFailureException
         {
             throw new RecoveryFailureException("Recovery action cannot be performed with raw block state!");
@@ -162,7 +169,7 @@ public sealed interface IAnimatedBlockRecoveryData
     /**
      * Represents an empty recovery data object.
      * <p>
-     * This object does nothing when {@link #recover(AnimatedBlockRecoveryDataType)} is called.
+     * This object does nothing when {@link #recover(AnimatedBlockRecoveryDataSerializer)} is called.
      * <p>
      * This is useful in situations where no recovery action is needed (e.g. when the block is a preview block and does
      * not alter the world).
@@ -172,7 +179,7 @@ public sealed interface IAnimatedBlockRecoveryData
     record EmptyRecoveryData() implements IAnimatedBlockRecoveryData
     {
         @Override
-        public boolean recover(AnimatedBlockRecoveryDataType animatedBlockRecoveryDataType)
+        public boolean recover(AnimatedBlockRecoveryDataSerializer animatedBlockRecoveryDataSerializer)
         {
             return false;
         }

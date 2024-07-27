@@ -37,6 +37,7 @@ final class BlockStateHandlerBanner extends BlockStateHandler<Banner>
     @Override
     protected void applyBlockState(Banner source, Banner target, Block block)
     {
+        DyeColor x;
         applyData(target, source.getBaseColor(), source.getPatterns());
     }
 

@@ -21,8 +21,6 @@ public final class BlockStateManipulator_V1_21 extends BlockStateManipulator
         super(
             debuggableRegistry,
             defaultBlockStateHandlers,
-            // Add this one manually instead of using Dagger because Dagger gets confused about the BaseSpawner class.
-            new BlockStateHandlerBaseSpawner_V1_21(),
             blockStateHandlerSign,
             blockStateHandlerTileState
         );

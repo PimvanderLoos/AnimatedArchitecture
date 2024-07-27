@@ -24,7 +24,8 @@ public final class DefaultBlockStateHandlers
         BlockStateHandlerColorable blockStateHandlerColorable,
         BlockStateHandlerContainer blockStateHandlerContainer,
         BlockStateHandlerLockable blockStateHandlerLockable,
-        BlockStateHandlerNameable blockStateHandlerNameable
+        BlockStateHandlerNameable blockStateHandlerNameable,
+        BlockStateHandlerSkull blockStateHandlerSkull
     )
     {
         defaultBlockStateTypeHandlers = Set.of(
@@ -32,7 +33,8 @@ public final class DefaultBlockStateHandlers
             blockStateHandlerColorable,
             blockStateHandlerContainer,
             blockStateHandlerLockable,
-            blockStateHandlerNameable
+            blockStateHandlerNameable,
+            blockStateHandlerSkull
         );
     }
 }

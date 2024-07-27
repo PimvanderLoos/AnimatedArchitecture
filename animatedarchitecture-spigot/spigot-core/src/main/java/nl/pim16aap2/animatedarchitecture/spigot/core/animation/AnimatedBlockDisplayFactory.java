@@ -9,6 +9,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockFa
 import nl.pim16aap2.animatedarchitecture.core.managers.AnimatedBlockHookManager;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
+import nl.pim16aap2.animatedarchitecture.spigot.core.animation.recovery.AnimatedBlockRecoveryDataSerializer;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.BlockAnalyzerSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.blockstate.BlockStateManipulator;
@@ -26,6 +27,7 @@ import java.util.function.Consumer;
 @Singleton
 public class AnimatedBlockDisplayFactory implements IAnimatedBlockFactory
 {
+    private final AnimatedBlockRecoveryDataSerializer animatedBlockRecoveryDataSerializer;
     private final BlockStateManipulator blockStateManipulator;
     private final IExecutor executor;
     private final AnimatedBlockHookManager animatedBlockHookManager;
@@ -34,12 +36,14 @@ public class AnimatedBlockDisplayFactory implements IAnimatedBlockFactory
 
     @Inject
     AnimatedBlockDisplayFactory(
+        AnimatedBlockRecoveryDataSerializer animatedBlockRecoveryDataSerializer,
         BlockStateManipulator blockStateManipulator,
         IExecutor executor,
         AnimatedBlockHookManager animatedBlockHookManager,
         BlockAnalyzerSpigot blockAnalyzer,
         BlockDisplayHelper blockDisplayHelper)
     {
+        this.animatedBlockRecoveryDataSerializer = animatedBlockRecoveryDataSerializer;
         this.blockStateManipulator = blockStateManipulator;
         this.executor = executor;
         this.animatedBlockHookManager = animatedBlockHookManager;
@@ -64,6 +68,7 @@ public class AnimatedBlockDisplayFactory implements IAnimatedBlockFactory
             return Optional.empty();
 
         return Optional.of(new AnimatedBlockDisplay(
+            animatedBlockRecoveryDataSerializer,
             blockStateManipulator,
             blockDisplayHelper,
             executor,

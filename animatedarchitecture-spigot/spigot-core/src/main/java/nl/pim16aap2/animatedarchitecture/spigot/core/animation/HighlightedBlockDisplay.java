@@ -7,7 +7,6 @@ import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IHighlightedBlock;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
-import nl.pim16aap2.animatedarchitecture.spigot.core.animation.recovery.IAnimatedBlockRecoveryData;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -72,11 +71,11 @@ public final class HighlightedBlockDisplay implements IHighlightedBlock
             kill();
 
         this.entity = blockDisplayHelper.spawn(
-            IAnimatedBlockRecoveryData.EMPTY,
             executor,
             bukkitWorld,
             startPosition,
-            blockData
+            blockData,
+            null
         );
 
         this.entity.setViewRange(1F);

@@ -1,19 +1,18 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.animation;
 
-import com.google.common.flogger.LazyArgs;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
-import nl.pim16aap2.animatedarchitecture.spigot.core.animation.recovery.AnimatedBlockRecoveryDataType;
+import nl.pim16aap2.animatedarchitecture.spigot.core.animation.recovery.AnimatedBlockRecoveryDataSerializer;
 import nl.pim16aap2.animatedarchitecture.spigot.core.animation.recovery.IAnimatedBlockRecoveryData;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Entity;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.Objects;
 
 /**
  * Helper class for animated blocks.
@@ -27,15 +26,15 @@ public final class AnimatedBlockHelper
      */
     private final NamespacedKey recoveryKey;
 
-    private final AnimatedBlockRecoveryDataType animatedBlockRecoveryDataType;
+    private final AnimatedBlockRecoveryDataSerializer animatedBlockRecoveryDataSerializer;
 
     @Inject
     AnimatedBlockHelper(
         JavaPlugin plugin,
-        AnimatedBlockRecoveryDataType animatedBlockRecoveryDataType)
+        AnimatedBlockRecoveryDataSerializer animatedBlockRecoveryDataSerializer)
     {
         this.recoveryKey = new NamespacedKey(plugin, Constants.ANIMATED_ARCHITECTURE_ENTITY_RECOVERY_KEY);
-        this.animatedBlockRecoveryDataType = animatedBlockRecoveryDataType;
+        this.animatedBlockRecoveryDataSerializer = animatedBlockRecoveryDataSerializer;
     }
 
     /**
@@ -44,8 +43,8 @@ public final class AnimatedBlockHelper
      * If the entity is not an animated block (or null), this method does nothing.
      * <p>
      * If the entity is an animated block, this method will attempt to perform a recovery action by calling
-     * {@link IAnimatedBlockRecoveryData#recover(AnimatedBlockRecoveryDataType)}. If the recovery action is successful,
-     * the entity will be removed.
+     * {@link IAnimatedBlockRecoveryData#recover(AnimatedBlockRecoveryDataSerializer)}. If the recovery action is
+     * successful, the entity will be removed.
      *
      * @param entity
      *     The entity for which to attempt recovery.
@@ -55,23 +54,22 @@ public final class AnimatedBlockHelper
         if (entity == null)
             return;
 
-        final IAnimatedBlockRecoveryData recoveryData = entity.getPersistentDataContainer().get(
+        final @Nullable String recoveryDataString = entity.getPersistentDataContainer().get(
             recoveryKey,
-            animatedBlockRecoveryDataType
+            PersistentDataType.STRING
         );
 
-        if (recoveryData == null)
+        if (recoveryDataString == null)
             return;
 
-        log.atFinest().log(
-            "Attempting to recover animated block with recovery data '%s'",
-            LazyArgs.lazy(
-                () -> entity.getPersistentDataContainer().get(recoveryKey, AnimatedBlockRecoveryDataType.STRING))
-        );
+        log.atFinest().log("Attempting to recover animated block with recovery data '%s'", recoveryDataString);
 
+        @Nullable IAnimatedBlockRecoveryData recoveryData = null;
         try
         {
-            if (recoveryData.recover(animatedBlockRecoveryDataType))
+            recoveryData = animatedBlockRecoveryDataSerializer.fromJson(recoveryDataString);
+
+            if (recoveryData.recover(animatedBlockRecoveryDataSerializer))
                 log.atWarning().log(
                     "Recovered animated block with recovery data '%s'! " +
                         "This is not intended behavior, please contact the author(s) of this plugin!",
@@ -100,14 +98,17 @@ public final class AnimatedBlockHelper
      * @param recoveryData
      *     The recovery data to set for the entity.
      */
-    public void setRecoveryData(BlockDisplay entity, @Nullable IAnimatedBlockRecoveryData recoveryData)
+    public void setRecoveryData(BlockDisplay entity, @Nullable String recoveryData)
     {
+        if (recoveryData == null)
+            return;
+
         try
         {
             entity.getPersistentDataContainer().set(
                 recoveryKey,
-                animatedBlockRecoveryDataType,
-                Objects.requireNonNullElse(recoveryData, IAnimatedBlockRecoveryData.EMPTY)
+                PersistentDataType.STRING,
+                recoveryData
             );
         }
         catch (Exception e)

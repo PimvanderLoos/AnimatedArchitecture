@@ -31,19 +31,19 @@ final class BlockStateHandlerContainer extends BlockStateHandler<Container>
     @Override
     protected void appendSerializedData(Gson gson, Container source, JsonObject jsonObject)
     {
-        final JsonObject inventoryJson = new JsonObject();
+        final JsonObject jsonInventory = new JsonObject();
 
-        inventoryJson.add("contents", gson.toJsonTree(source.getSnapshotInventory().getContents()));
+        jsonInventory.add("contents", gson.toJsonTree(source.getSnapshotInventory().getContents()));
 
-        jsonObject.add("Container", inventoryJson);
+        jsonObject.add("container", jsonInventory);
     }
 
     @Override
     protected void applySerializedBlockState(Gson gson, Container target, JsonObject serializedBlockState)
     {
-        final JsonObject inventory = serializedBlockState.getAsJsonObject("Container");
+        final JsonObject jsonInventory = serializedBlockState.getAsJsonObject("container");
 
         final Inventory targetInventory = target.getInventory();
-        targetInventory.setContents(gson.fromJson(inventory.get("contents"), ItemStack[].class));
+        targetInventory.setContents(gson.fromJson(jsonInventory.get("contents"), ItemStack[].class));
     }
 }

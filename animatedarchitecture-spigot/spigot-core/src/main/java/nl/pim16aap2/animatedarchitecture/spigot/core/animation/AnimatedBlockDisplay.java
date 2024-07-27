@@ -13,6 +13,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockHo
 import nl.pim16aap2.animatedarchitecture.core.managers.AnimatedBlockHookManager;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
+import nl.pim16aap2.animatedarchitecture.spigot.core.animation.recovery.AnimatedBlockRecoveryDataSerializer;
 import nl.pim16aap2.animatedarchitecture.spigot.core.animation.recovery.IAnimatedBlockRecoveryData;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import nl.pim16aap2.animatedarchitecture.spigot.util.blockstate.BlockStateManipulator;
@@ -35,7 +36,8 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     private final BlockDisplayHelper blockDisplayHelper;
 
     private final SimpleBlockData blockData;
-    private final IAnimatedBlockRecoveryData recoveryData;
+
+    private final String recoveryDataString;
 
     @Getter
     private final RotatedPosition finalPosition;
@@ -60,6 +62,7 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     private RotatedPosition currentTarget;
 
     public AnimatedBlockDisplay(
+        AnimatedBlockRecoveryDataSerializer animatedBlockRecoveryDataSerializer,
         BlockStateManipulator blockStateManipulator,
         BlockDisplayHelper blockDisplayHelper,
         IExecutor executor,
@@ -91,12 +94,14 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
             this.startPosition.position().floor().toInteger()
         );
 
-        this.recoveryData = IAnimatedBlockRecoveryData.of(
+        final var recoveryData = IAnimatedBlockRecoveryData.of(
             bukkitWorld,
             this.startPosition.position().floor().toInteger(),
             this.blockData.getBlockData(),
             this.blockData.getBlockState()
         );
+
+        recoveryDataString = animatedBlockRecoveryDataSerializer.toJson(recoveryData);
 
         this.hooks = animatedBlockHookManager.instantiateHooks(this);
     }
@@ -111,11 +116,11 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
         }
 
         this.entity = blockDisplayHelper.spawn(
-            recoveryData,
             executor,
             bukkitWorld,
             currentTarget,
-            blockData.getBlockData()
+            blockData.getBlockData(),
+            recoveryDataString
         );
 
         this.entity.setViewRange(2.5F);

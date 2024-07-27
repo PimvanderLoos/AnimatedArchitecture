@@ -5,7 +5,6 @@ import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
-import nl.pim16aap2.animatedarchitecture.spigot.core.animation.recovery.IAnimatedBlockRecoveryData;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
@@ -49,14 +48,16 @@ public final class BlockDisplayHelper
      *     The pose to use for the entity.
      * @param blockData
      *     The block data of the entity to spawn.
+     * @param recoveryData
+     *     The recovery data to set on the entity. Can be {@code null} to not set any recovery data.
      * @return The spawned entity.
      */
     BlockDisplay spawn(
-        IAnimatedBlockRecoveryData recoveryData,
         IExecutor executor,
         World bukkitWorld,
         RotatedPosition spawnPose,
-        BlockData blockData)
+        BlockData blockData,
+        @Nullable String recoveryData)
     {
         executor.assertMainThread("Animated blocks must be spawned on the main thread!");
 
