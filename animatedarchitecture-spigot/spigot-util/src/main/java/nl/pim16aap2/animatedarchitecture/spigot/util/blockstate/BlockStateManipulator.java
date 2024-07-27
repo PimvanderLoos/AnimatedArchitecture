@@ -1,8 +1,12 @@
 package nl.pim16aap2.animatedarchitecture.spigot.util.blockstate;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
+import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 
@@ -23,7 +27,7 @@ import java.util.stream.Stream;
 @Singleton
 @Flogger
 // TODO: Write tests for this class. Use MockBukkit to create a fake server to test manipulating block states.
-public abstract class BlockStateManipulator implements IDebuggable
+public class BlockStateManipulator implements IDebuggable
 {
     private final Set<BlockStateHandler<?>> blockStateHandlers;
 
@@ -236,5 +240,69 @@ public abstract class BlockStateManipulator implements IDebuggable
                 .stream()
                 .map(handler -> handler.getClass().getSimpleName())
                 .collect(Collectors.joining("\n- ", "- ", ""));
+    }
+
+    /**
+     * Serializes the block state to a JSON object.
+     *
+     * @param gson
+     * @param src
+     *     The block state to serialize.
+     * @return The serialized block state or {@code null} if the block state could not be serialized.
+     */
+    public JsonObject serialize(Gson gson, BlockState src)
+    {
+        final JsonObject jsonObject = new JsonObject();
+
+        getBlockStateHandlers(src.getClass())
+            .map(handler -> (BlockStateHandler<?>) handler)
+            .forEach(handler -> handler.appendSerializedData(gson, src, jsonObject));
+
+        return jsonObject;
+    }
+
+    private void applySerializedBlockState(
+        Gson gson,
+        BlockStateHandler<?> handler,
+        JsonObject serializedBlockState,
+        BlockState target)
+    {
+        try
+        {
+            handler.applySerializedData(gson, target, serializedBlockState);
+        }
+        catch (Exception e)
+        {
+            log.atSevere().withCause(e).log(
+                "Failed to apply serialized block state %s to target block state %s.",
+                serializedBlockState,
+                target
+            );
+        }
+    }
+
+    /**
+     * Applies the serialized block state to the block.
+     * <p>
+     * The serialized block state should be a JSON object that contains the serialized data of the block state.
+     *
+     * @param gson
+     *     The {@link Gson} instance to use for deserialization.
+     * @param world
+     *     The world the block is in.
+     * @param position
+     *     The position of the block.
+     * @param serializedBlockState
+     *     The serialized block state to apply.
+     */
+    public void applySerializedBlockState(Gson gson, World world, Vector3Di position, JsonObject serializedBlockState)
+    {
+        if (serializedBlockState.isEmpty())
+            return;
+
+        final Block block = world.getBlockAt(position.x(), position.y(), position.z());
+        final BlockState target = block.getState();
+
+        blockStateHandlers.forEach(handler -> applySerializedBlockState(gson, handler, serializedBlockState, target));
     }
 }

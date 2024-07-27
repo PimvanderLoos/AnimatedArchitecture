@@ -16,6 +16,8 @@
         <project.root-dir>${project.basedir}/../..</project.root-dir>
 
         <dependency.spigot.version>1.21-R0.1-SNAPSHOT</dependency.spigot.version>
+
+        <dependency.persistent-data-serializer.version>1.0</dependency.persistent-data-serializer.version>
     </properties>
 
     <dependencies>
@@ -30,6 +32,12 @@
             <artifactId>spigot-api</artifactId>
             <version>${dependency.spigot.version}</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jeff-media</groupId>
+            <artifactId>persistent-data-serializer</artifactId>
+            <version>${dependency.persistent-data-serializer.version}</version>
         </dependency>
     </dependencies>
 </project>

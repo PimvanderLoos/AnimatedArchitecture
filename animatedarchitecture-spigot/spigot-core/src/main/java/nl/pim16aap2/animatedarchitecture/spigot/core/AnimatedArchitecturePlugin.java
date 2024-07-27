@@ -1,6 +1,9 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core;
 
 import com.google.common.flogger.FluentLogger;
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import lombok.AccessLevel;
 import lombok.Getter;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatform;
@@ -23,6 +26,7 @@ import org.jetbrains.annotations.Nullable;
 import org.semver4j.Semver;
 
 import javax.inject.Singleton;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Optional;
@@ -76,8 +80,43 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
 
     private final UpdateChecker updateChecker;
 
+    private void test0()
+    {
+        final String[] arr = new String[]{"a", "b", "c", "d", "e"};
+        final Gson gson = new Gson();
+
+        final String json0 = gson.toJson(arr);
+        System.out.println("JSON0: " + json0);
+
+        final JsonElement element1 = gson.toJsonTree(arr, new TypeToken<String[]>() {}.getType());
+        final String json1 = element1.toString();
+
+        System.out.println("JSON1: " + json1);
+
+        // Now deserialize json0 and json1 to arr0 and arr1 respectively.
+        final String[] arr0 = gson.fromJson(json0, String[].class);
+        final String[] arr1 = gson.fromJson(json1, new TypeToken<String[]>() {}.getType());
+
+        System.out.println("ARR0: " + Arrays.toString(arr0));
+        System.out.println("ARR1: " + Arrays.toString(arr1));
+    }
+
+    private void test()
+    {
+        try
+        {
+            test0();
+        }
+        catch (Throwable t)
+        {
+            t.printStackTrace();
+        }
+        Runtime.getRuntime().halt(0);
+    }
+
     public AnimatedArchitecturePlugin()
     {
+//        test();
         Log4J2Configurator.getInstance().setLogPath(getDataFolder().toPath());
 
         mainThreadId = Thread.currentThread().threadId();
@@ -252,7 +291,7 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
             optionalPlatform = Optional.of(platform);
             return platform;
         }
-        catch (Exception e)
+        catch (Exception | ExceptionInInitializerError e)
         {
             log.atSevere().withCause(e).log("Failed to initialize AnimatedArchitecture's Spigot platform!");
             initErrorMessage = e.getMessage();

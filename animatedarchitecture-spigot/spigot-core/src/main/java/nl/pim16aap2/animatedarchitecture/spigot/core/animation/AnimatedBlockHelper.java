@@ -5,7 +5,6 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.spigot.core.animation.recovery.AnimatedBlockRecoveryDataType;
 import nl.pim16aap2.animatedarchitecture.spigot.core.animation.recovery.IAnimatedBlockRecoveryData;
-import nl.pim16aap2.animatedarchitecture.spigot.util.blockstate.BlockStateManipulator;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Entity;
@@ -28,16 +27,15 @@ public final class AnimatedBlockHelper
      */
     private final NamespacedKey recoveryKey;
 
-    /**
-     * The block state manipulator to use for the block-state part of the recovery action.
-     */
-    private final BlockStateManipulator blockStateManipulator;
+    private final AnimatedBlockRecoveryDataType animatedBlockRecoveryDataType;
 
     @Inject
-    AnimatedBlockHelper(JavaPlugin plugin, BlockStateManipulator blockStateManipulator)
+    AnimatedBlockHelper(
+        JavaPlugin plugin,
+        AnimatedBlockRecoveryDataType animatedBlockRecoveryDataType)
     {
-        recoveryKey = new NamespacedKey(plugin, Constants.ANIMATED_ARCHITECTURE_ENTITY_RECOVERY_KEY);
-        this.blockStateManipulator = blockStateManipulator;
+        this.recoveryKey = new NamespacedKey(plugin, Constants.ANIMATED_ARCHITECTURE_ENTITY_RECOVERY_KEY);
+        this.animatedBlockRecoveryDataType = animatedBlockRecoveryDataType;
     }
 
     /**
@@ -46,8 +44,8 @@ public final class AnimatedBlockHelper
      * If the entity is not an animated block (or null), this method does nothing.
      * <p>
      * If the entity is an animated block, this method will attempt to perform a recovery action by calling
-     * {@link IAnimatedBlockRecoveryData#recover(BlockStateManipulator)}. If the recovery action is successful, the
-     * entity will be removed.
+     * {@link IAnimatedBlockRecoveryData#recover(AnimatedBlockRecoveryDataType)}. If the recovery action is successful,
+     * the entity will be removed.
      *
      * @param entity
      *     The entity for which to attempt recovery.
@@ -59,7 +57,8 @@ public final class AnimatedBlockHelper
 
         final IAnimatedBlockRecoveryData recoveryData = entity.getPersistentDataContainer().get(
             recoveryKey,
-            AnimatedBlockRecoveryDataType.INSTANCE);
+            animatedBlockRecoveryDataType
+        );
 
         if (recoveryData == null)
             return;
@@ -72,7 +71,7 @@ public final class AnimatedBlockHelper
 
         try
         {
-            if (recoveryData.recover(blockStateManipulator))
+            if (recoveryData.recover(animatedBlockRecoveryDataType))
                 log.atWarning().log(
                     "Recovered animated block with recovery data '%s'! " +
                         "This is not intended behavior, please contact the author(s) of this plugin!",
@@ -103,10 +102,17 @@ public final class AnimatedBlockHelper
      */
     public void setRecoveryData(BlockDisplay entity, @Nullable IAnimatedBlockRecoveryData recoveryData)
     {
-        entity.getPersistentDataContainer().set(
-            recoveryKey,
-            AnimatedBlockRecoveryDataType.INSTANCE,
-            Objects.requireNonNullElse(recoveryData, IAnimatedBlockRecoveryData.EMPTY)
-        );
+        try
+        {
+            entity.getPersistentDataContainer().set(
+                recoveryKey,
+                animatedBlockRecoveryDataType,
+                Objects.requireNonNullElse(recoveryData, IAnimatedBlockRecoveryData.EMPTY)
+            );
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException("Failed to set recovery data for entity: " + entity, e);
+        }
     }
 }

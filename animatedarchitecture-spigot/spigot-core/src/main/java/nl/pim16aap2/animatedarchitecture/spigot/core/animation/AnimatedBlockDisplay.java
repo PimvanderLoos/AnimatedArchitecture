@@ -91,7 +91,7 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
             this.startPosition.position().floor().toInteger()
         );
 
-        this.recoveryData = new IAnimatedBlockRecoveryData.AnimatedBlockRecoveryData(
+        this.recoveryData = IAnimatedBlockRecoveryData.of(
             bukkitWorld,
             this.startPosition.position().floor().toInteger(),
             this.blockData.getBlockData(),

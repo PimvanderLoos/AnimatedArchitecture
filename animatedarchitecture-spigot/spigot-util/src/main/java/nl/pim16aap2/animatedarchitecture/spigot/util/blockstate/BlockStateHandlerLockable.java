@@ -1,5 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.spigot.util.blockstate;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import org.bukkit.block.Block;
 import org.bukkit.block.Lockable;
 
@@ -22,5 +24,18 @@ final class BlockStateHandlerLockable extends BlockStateHandler<Lockable>
     protected void applyBlockState(Lockable source, Lockable target, Block block)
     {
         target.setLock(source.getLock());
+    }
+
+    @Override
+    protected void appendSerializedData(Gson gson, Lockable source, JsonObject jsonObject)
+    {
+        jsonObject.addProperty("lockable", source.getLock());
+    }
+
+    @Override
+    protected void applySerializedBlockState(Gson gson, Lockable target, JsonObject serializedBlockState)
+    {
+        final String lock = serializedBlockState.get("lockable").getAsString();
+        target.setLock(lock);
     }
 }

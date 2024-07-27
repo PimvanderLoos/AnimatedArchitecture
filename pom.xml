@@ -462,6 +462,10 @@
                                 <pattern>javax.inject</pattern>
                                 <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.javax.inject</shadedPattern>
                             </relocation>
+                            <relocation>
+                                <pattern>com.jeff_media</pattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.jeff_media</shadedPattern>
+                            </relocation>
                         </relocations>
                     </configuration>
                     <executions>

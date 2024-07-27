@@ -1,7 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.spigot.v1_21.blockstate;
 
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
-import nl.pim16aap2.animatedarchitecture.spigot.util.blockstate.BlockStateHandlerSign_V1_21;
 import nl.pim16aap2.animatedarchitecture.spigot.util.blockstate.BlockStateManipulator;
 import nl.pim16aap2.animatedarchitecture.spigot.util.blockstate.DefaultBlockStateHandlers;
 
