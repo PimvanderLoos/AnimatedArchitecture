@@ -13,6 +13,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyManagerConst;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyValue;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyManagerSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
@@ -740,7 +741,7 @@ public abstract class AbstractStructure implements IStructureConst
     }
 
     @Locked.Read("lock")
-    public <T> T getPropertyValue(Property<T> property)
+    public <T> IPropertyValue<T> getPropertyValue(Property<T> property)
     {
         return base.getPropertyValue(property);
     }
