@@ -1,17 +1,18 @@
 package nl.pim16aap2.animatedarchitecture.structures.garagedoor;
 
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
+import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.audio.AudioDescription;
 import nl.pim16aap2.animatedarchitecture.core.audio.AudioSet;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
-import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
+import java.util.List;
 
 public final class StructureTypeGarageDoor extends StructureType
 {
@@ -26,14 +27,17 @@ public final class StructureTypeGarageDoor extends StructureType
 
     private StructureTypeGarageDoor()
     {
-        super(Constants.PLUGIN_NAME,
-            "GarageDoor",
+        super(
+            NamespacedKey.of("GarageDoor"),
             TYPE_VERSION,
-            Arrays.asList(
+            List.of(
                 MovementDirection.NORTH,
                 MovementDirection.EAST,
                 MovementDirection.SOUTH,
                 MovementDirection.WEST),
+            List.of(
+                Property.OPEN_STATUS
+            ),
             "structure.type.garage_door"
         );
     }

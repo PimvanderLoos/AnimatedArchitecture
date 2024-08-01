@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.api;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -8,17 +9,33 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class NamespacedKeyTest
 {
     @Test
+    public void testStaticOfWithNamespace()
+    {
+        final NamespacedKey key = NamespacedKey.of("owner:Name");
+        assertEquals("owner:name", key.getFullKey());
+    }
+
+    @Test
+    public void testStaticOfWithoutNamespace()
+    {
+        final NamespacedKey key = NamespacedKey.of("name");
+        assertEquals("animatedarchitecture:name", key.getFullKey());
+    }
+
+    @Test
     public void testValidNamespaceAndName()
     {
         final NamespacedKey key = new NamespacedKey("owner", "name");
-        assertEquals("owner:name", key.getKey());
+        assertEquals("owner:name", key.getFullKey());
     }
 
     @Test
     public void testUpperCaseNamespaceAndName()
     {
         final NamespacedKey key = new NamespacedKey("Owner", "Name");
-        assertEquals("owner:name", key.getKey());
+        assertEquals("owner:name", key.getFullKey());
+        Assertions.assertEquals("owner", key.getNamespace());
+        Assertions.assertEquals("name", key.getKey());
     }
 
     @Test
@@ -74,6 +91,6 @@ class NamespacedKeyTest
     public void testToString()
     {
         NamespacedKey key = new NamespacedKey("owner", "name");
-        assertEquals("NamespacedKey(key=owner:name)", key.toString());
+        assertEquals("NamespacedKey(fullKey=owner:name)", key.toString());
     }
 }

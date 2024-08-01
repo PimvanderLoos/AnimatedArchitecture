@@ -1,17 +1,17 @@
 package nl.pim16aap2.animatedarchitecture.structures.revolvingdoor;
 
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
+import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.audio.AudioDescription;
 import nl.pim16aap2.animatedarchitecture.core.audio.AudioSet;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
-import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
+import java.util.List;
 
 public final class StructureTypeRevolvingDoor extends StructureType
 {
@@ -27,12 +27,12 @@ public final class StructureTypeRevolvingDoor extends StructureType
     private StructureTypeRevolvingDoor()
     {
         super(
-            Constants.PLUGIN_NAME,
-            "RevolvingDoor",
+            NamespacedKey.of("RevolvingDoor"),
             TYPE_VERSION,
-            Arrays.asList(
+            List.of(
                 MovementDirection.CLOCKWISE,
                 MovementDirection.COUNTERCLOCKWISE),
+            List.of(),
             "structure.type.revolving_door"
         );
     }

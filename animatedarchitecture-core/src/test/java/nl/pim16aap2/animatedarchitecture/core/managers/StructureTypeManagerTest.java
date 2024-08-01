@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.managers;
 
+import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -59,23 +60,25 @@ class StructureTypeManagerTest
 
     private static StructureType newMockedStructureType(String simpleName)
     {
-        final String simpleName0 = simpleName.toLowerCase(Locale.ENGLISH);
-        final String pluginName = "AnimatedArchitecture";
-        final String fullName = String.format("%s:%s", pluginName, simpleName0).toLowerCase(Locale.ENGLISH);
         final int version = 1;
+        final String simpleName0 = simpleName.toLowerCase(Locale.ENGLISH);
+        final String pluginName = "animatedarchitecture";
+        final NamespacedKey key = new NamespacedKey(pluginName, simpleName0);
+        final String fullNameWithVersion = key.getFullKey() + ":" + version;
+
 
         final var structureType = Mockito.mock(StructureType.class);
 
-        Mockito.when(structureType.getPluginName()).thenReturn(pluginName);
         Mockito.when(structureType.getSimpleName()).thenReturn(simpleName0);
         Mockito.when(structureType.getVersion()).thenReturn(version);
         Mockito.when(structureType.getLocalizationKey()).thenReturn("localization.key." + simpleName0);
-        Mockito.when(structureType.getFullName()).thenReturn(fullName);
-        Mockito.when(structureType.getFullNameWithVersion()).thenReturn(fullName + ":" + version);
+        Mockito.when(structureType.getNamespacedKey()).thenReturn(key);
+        Mockito.when(structureType.getFullKey()).thenReturn(key.getFullKey());
+        Mockito.when(structureType.getFullNameWithVersion()).thenReturn(key.getFullKey() + ":" + version);
         Mockito.when(structureType.getValidMovementDirections()).thenReturn(Collections.emptySet());
 
         Mockito.when(structureType.toString()).thenReturn(
-            "MockedStructureType[@" + Integer.toHexString(structureType.hashCode()) + "] " + fullName + ":" + version);
+            "MockedStructureType[@" + Integer.toHexString(structureType.hashCode()) + "] " + fullNameWithVersion);
 
         return structureType;
     }

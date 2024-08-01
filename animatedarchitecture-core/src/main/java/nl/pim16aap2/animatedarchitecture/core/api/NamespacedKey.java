@@ -3,9 +3,11 @@ package nl.pim16aap2.animatedarchitecture.core.api;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 
 import javax.annotation.Nullable;
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 /**
  * Represents a key that exists in a namespace.
@@ -15,18 +17,38 @@ import java.util.Locale;
 @EqualsAndHashCode
 public final class NamespacedKey
 {
-    // Regex rule for the owner and name.
-    // Each String can only contain lowercase letters, numbers, and underscores.
-    private static final String REGEX = "^[a-z0-9_]+$";
+    /**
+     * The regex rule that the namespace and key must match.
+     */
+//    public static final String REGEX = "^[a-z0-9_-]+$";
+    public static final Pattern PATTERN = Pattern.compile("^[a-z0-9_-]+$");
+
+    /**
+     * The namespace of this {@link NamespacedKey}.
+     *
+     * @return The namespace of this {@link NamespacedKey}.
+     */
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private final String namespace;
 
     /**
      * The key of this {@link NamespacedKey}.
-     * <p>
-     * This key is formatted as follows: "owner:name".
      *
      * @return The key of this {@link NamespacedKey}.
      */
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private final String key;
+
+    /**
+     * The fully qualified name of this {@link NamespacedKey}.
+     * <p>
+     * This is formatted as {@code namespace:key}.
+     *
+     * @return The fully qualified name of this {@link NamespacedKey}.
+     */
+    private final String fullKey;
 
     /**
      * Creates a new {@link NamespacedKey} with the given namespace and name.
@@ -43,7 +65,28 @@ public final class NamespacedKey
         final String verifiedNamespace = verify("Namespace", namespace);
         final String verifiedName = verify("Name", name);
 
-        this.key = verifiedNamespace + ":" + verifiedName;
+        this.namespace = verifiedNamespace;
+        this.key = verifiedName;
+        this.fullKey = verifiedNamespace + ":" + verifiedName;
+    }
+
+    /**
+     * Creates a new {@link NamespacedKey} from the provided input.
+     * <p>
+     * If the input is of the form {@code namespace:key}, the namespace and key are extracted.
+     * <p>
+     * If the input is of the form {@code key}, the namespace is set to {@link Constants#PLUGIN_NAME}.
+     *
+     * @param input
+     *     The input to create the {@link NamespacedKey} from.
+     * @return The created {@link NamespacedKey}.
+     */
+    public static NamespacedKey of(String input)
+    {
+        final String[] split = input.split(":", 2);
+        if (split.length == 1)
+            return new NamespacedKey(Constants.PLUGIN_NAME, split[0]);
+        return new NamespacedKey(split[0], split[1]);
     }
 
     /**
@@ -67,8 +110,8 @@ public final class NamespacedKey
             throw new IllegalArgumentException(title + " cannot be null.");
 
         final String testLower = test.toLowerCase(Locale.ROOT);
-        if (!testLower.matches(REGEX))
-            throw new IllegalArgumentException(title + " must match the regex rule: " + REGEX + ". Found: " + test);
+        if (!PATTERN.matcher(testLower).matches())
+            throw new IllegalArgumentException(title + " must match the regex rule: " + PATTERN + ". Found: " + test);
         return testLower;
     }
 }

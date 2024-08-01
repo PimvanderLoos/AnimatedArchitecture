@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.extensions;
 
+import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -71,8 +72,7 @@ class StructureTypeLoaderTest
         final var alreadyLoadedTypes = new HashSet<String>();
 
         final var typeInfo = new StructureTypeInfo(
-            namespace,
-            alreadyLoadedTypeName,
+            new NamespacedKey(namespace, alreadyLoadedTypeName),
             1,
             "com.example.MainClass",
             jarFile,
@@ -80,7 +80,7 @@ class StructureTypeLoaderTest
             null
         );
 
-        alreadyLoadedTypes.add(typeInfo.getFullName());
+        alreadyLoadedTypes.add(typeInfo.getFullKey());
 
         Assertions.assertEquals(
             StructureTypeLoader.PreloadCheckResult.ALREADY_LOADED,
@@ -88,8 +88,7 @@ class StructureTypeLoaderTest
         );
 
         final var typeInfo2 = new StructureTypeInfo(
-            namespace,
-            unloadedTypeName,
+            new NamespacedKey(namespace, unloadedTypeName),
             1,
             "com.example.MainClass",
             jarFile,
@@ -103,8 +102,7 @@ class StructureTypeLoaderTest
         );
 
         final var typeInfo3 = new StructureTypeInfo(
-            namespace,
-            unloadedTypeName,
+            new NamespacedKey(namespace, unloadedTypeName),
             1,
             "com.example.MainClass",
             jarFile,
@@ -121,10 +119,14 @@ class StructureTypeLoaderTest
     @Test
     void testGetStructureTypeInfo()
     {
+        final String namespace = Constants.PLUGIN_NAME;
+        final String name = "TypeName";
+        final var key = new NamespacedKey(namespace, name);
+
         final var manifest = new Manifest();
         final var attributes = new Attributes();
-        attributes.putValue("Namespace", Constants.PLUGIN_NAME);
-        attributes.putValue("TypeName", "TypeName");
+        attributes.putValue("Namespace", namespace);
+        attributes.putValue("TypeName", name);
         attributes.putValue("Version", "1");
         attributes.putValue("SupportedApiVersions", "1.2.3");
         attributes.putValue("TypeDependencies", "door(1;2)");
@@ -138,7 +140,7 @@ class StructureTypeLoaderTest
 
         final var structureTypeInfo = structureTypeInfoOpt.get();
 
-        Assertions.assertEquals("typename", structureTypeInfo.getTypeName());
+        Assertions.assertEquals(key, structureTypeInfo.getNamespacedKey());
         Assertions.assertEquals(1, structureTypeInfo.getVersion());
         Assertions.assertEquals("MainClass", structureTypeInfo.getMainClass());
         Assertions.assertEquals(file, structureTypeInfo.getJarFile());

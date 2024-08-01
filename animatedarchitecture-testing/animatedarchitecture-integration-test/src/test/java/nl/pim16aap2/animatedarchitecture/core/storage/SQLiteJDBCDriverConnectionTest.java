@@ -391,11 +391,11 @@ public class SQLiteJDBCDriverConnectionTest
     public void auxiliaryMethods()
     {
         // Check simple methods.
-        Assertions.assertEquals(1, storage.getStructuresOfType(StructureTypeBigDoor.get().getFullName()).size());
+        Assertions.assertEquals(1, storage.getStructuresOfType(StructureTypeBigDoor.get().getFullKey()).size());
         Assertions.assertEquals(
             1,
             storage.getStructuresOfType(
-                StructureTypePortcullis.get().getFullName(),
+                StructureTypePortcullis.get().getFullKey(),
                 StructureTypePortcullis.get().getVersion()).size()
         );
         Assertions.assertEquals(1, storage.getStructureCountForPlayer(PLAYER_DATA_1.getUUID(), STRUCTURE_1_NAME));

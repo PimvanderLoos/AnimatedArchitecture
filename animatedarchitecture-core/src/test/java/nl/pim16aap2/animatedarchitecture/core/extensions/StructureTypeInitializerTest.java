@@ -1,8 +1,10 @@
 package nl.pim16aap2.animatedarchitecture.core.extensions;
 
+import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.data.graph.DirectedAcyclicGraph;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSerializer;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -10,10 +12,13 @@ import org.mockito.Mockito;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 class StructureTypeInitializerTest
 {
+    private static final String NAMESPACE = Constants.PLUGIN_NAME.toLowerCase(Locale.ROOT);
+
     @Test
     void testPropagateLoadFailures()
     {
@@ -63,7 +68,8 @@ class StructureTypeInitializerTest
         StructureTypeInitializer.addDependenciesToGraph(graph, Map.of("l1", l1), l1);
         Mockito.verify(graph, Mockito.never())
             .addConnection(Mockito.any(), (StructureTypeInitializer.Loadable) Mockito.any());
-        Assertions.assertEquals(StructureTypeInitializer.LoadFailureType.DEPENDENCY_UNAVAILABLE,
+        Assertions.assertEquals(
+            StructureTypeInitializer.LoadFailureType.DEPENDENCY_UNAVAILABLE,
             l1.getLoadFailure().loadFailuretype());
 
         // Ensure dependencies with versions outside the specified range result int DEPENDENCY_UNSUPPORTED_VERSION.
@@ -71,7 +77,8 @@ class StructureTypeInitializerTest
         StructureTypeInitializer.addDependenciesToGraph(graph, Map.of("l0", l0, "l1", l1), l1);
         Mockito.verify(graph, Mockito.never())
             .addConnection(Mockito.any(), (StructureTypeInitializer.Loadable) Mockito.any());
-        Assertions.assertEquals(StructureTypeInitializer.LoadFailureType.DEPENDENCY_UNSUPPORTED_VERSION,
+        Assertions.assertEquals(
+            StructureTypeInitializer.LoadFailureType.DEPENDENCY_UNSUPPORTED_VERSION,
             l1.getLoadFailure().loadFailuretype());
 
         // Ensure that a valid dependency setup results in a dependency being added to the graph.
@@ -194,15 +201,14 @@ class StructureTypeInitializerTest
         Assertions.assertEquals(List.of(dt0, dt1, dt3), structureTypeInitializer.loadStructureTypes());
     }
 
-    @SuppressWarnings("unchecked")//
     private static DirectedAcyclicGraph<StructureTypeInitializer.Loadable> newGraph()
     {
-        return Mockito.mock(DirectedAcyclicGraph.class);
+        return Mockito.mock();
     }
 
     private static StructureType newStructureType()
     {
-        final StructureType structureType = Mockito.mock(StructureType.class);
+        final StructureType structureType = Mockito.mock();
         Mockito.when(structureType.getSimpleName()).thenReturn("");
         return structureType;
     }
@@ -214,8 +220,11 @@ class StructureTypeInitializerTest
 
     private static StructureTypeInfo newStructureTypeInfo(String name)
     {
-        final StructureTypeInfo info = Mockito.mock(StructureTypeInfo.class);
-        Mockito.when(info.getTypeName()).thenReturn(name);
+        final var key = new NamespacedKey(NAMESPACE, name);
+
+        final StructureTypeInfo info = Mockito.mock();
+        Mockito.when(info.getNamespacedKey()).thenReturn(key);
+        Mockito.when(info.getFullKey()).thenReturn(key.getFullKey());
         Mockito.when(info.getMainClass()).thenReturn(name);
         Mockito.when(info.getDependencies()).thenReturn(Collections.emptyList());
         Mockito.when(info.getVersion()).thenReturn(0);

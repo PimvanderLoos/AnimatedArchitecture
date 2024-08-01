@@ -1,15 +1,15 @@
 package nl.pim16aap2.animatedarchitecture.structures.clock;
 
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
+import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
-import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
+import java.util.List;
 
 public final class StructureTypeClock extends StructureType
 {
@@ -19,14 +19,15 @@ public final class StructureTypeClock extends StructureType
 
     private StructureTypeClock()
     {
-        super(Constants.PLUGIN_NAME,
-            "Clock",
+        super(
+            NamespacedKey.of("Clock"),
             TYPE_VERSION,
-            Arrays.asList(
+            List.of(
                 MovementDirection.NORTH,
                 MovementDirection.EAST,
                 MovementDirection.SOUTH,
                 MovementDirection.WEST),
+            List.of(),
             "structure.type.clock"
         );
     }
