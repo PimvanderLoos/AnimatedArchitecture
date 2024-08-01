@@ -36,7 +36,9 @@ public final class StructureTypeSlidingDoor extends StructureType
                 MovementDirection.SOUTH,
                 MovementDirection.WEST),
             List.of(
-                Property.OPEN_STATUS
+                Property.ANIMATION_SPEED_MULTIPLIER,
+                Property.OPEN_STATUS,
+                Property.REDSTONE_MODE
             ),
             "structure.type.sliding_door"
         );

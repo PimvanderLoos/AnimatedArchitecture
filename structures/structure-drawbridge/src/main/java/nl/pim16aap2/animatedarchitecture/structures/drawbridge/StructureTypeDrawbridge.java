@@ -35,7 +35,10 @@ public final class StructureTypeDrawbridge extends StructureType
                 MovementDirection.SOUTH,
                 MovementDirection.WEST),
             List.of(
-                Property.OPEN_STATUS
+                Property.ANIMATION_SPEED_MULTIPLIER,
+                Property.OPEN_STATUS,
+                Property.REDSTONE_MODE,
+                Property.ROTATION_POINT
             ),
             "structure.type.drawbridge"
         );

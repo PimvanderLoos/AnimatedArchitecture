@@ -4,6 +4,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import org.jetbrains.annotations.Nullable;
@@ -22,7 +23,9 @@ public final class StructureTypeFlag extends StructureType
             NamespacedKey.of("Flag"),
             TYPE_VERSION,
             List.of(),
-            List.of(),
+            List.of(
+                Property.ROTATION_POINT
+            ),
             "structure.type.flag"
         );
     }

@@ -34,7 +34,9 @@ public final class StructureTypePortcullis extends StructureType
                 MovementDirection.UP,
                 MovementDirection.DOWN),
             List.of(
-                Property.OPEN_STATUS
+                Property.ANIMATION_SPEED_MULTIPLIER,
+                Property.OPEN_STATUS,
+                Property.REDSTONE_MODE
             ),
             "structure.type.portcullis"
         );

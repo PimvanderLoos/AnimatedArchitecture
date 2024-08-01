@@ -37,7 +37,10 @@ public final class StructureTypeBigDoor extends StructureType
                 MovementDirection.CLOCKWISE,
                 MovementDirection.COUNTERCLOCKWISE),
             List.of(
-                Property.OPEN_STATUS
+                Property.ANIMATION_SPEED_MULTIPLIER,
+                Property.OPEN_STATUS,
+                Property.REDSTONE_MODE,
+                Property.ROTATION_POINT
             ),
             "structure.type.big_door"
         );
