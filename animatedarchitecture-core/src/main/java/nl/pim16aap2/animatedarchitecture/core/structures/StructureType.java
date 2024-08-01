@@ -4,6 +4,7 @@ import lombok.Getter;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.audio.AudioSet;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
@@ -89,6 +90,14 @@ public abstract class StructureType
     @Getter
     private final List<MovementDirection> validOpenDirectionsList;
 
+    /**
+     * The properties applicable to this type.
+     *
+     * @return The properties applicable to this type.
+     */
+    @Getter
+    private final List<Property<?>> properties;
+
     private final LazyValue<StructureSerializer<?>> lazyStructureSerializer;
 
     /**
@@ -107,6 +116,7 @@ public abstract class StructureType
         String simpleName,
         int version,
         List<MovementDirection> validMovementDirections,
+        List<Property<?>> supportedProperties,
         String localizationKey)
     {
         this.pluginName = pluginName.toLowerCase(Locale.ENGLISH);
@@ -117,11 +127,22 @@ public abstract class StructureType
                 EnumSet.noneOf(MovementDirection.class) :
                 EnumSet.copyOf(validMovementDirections);
         this.validOpenDirectionsList = List.copyOf(this.validMovementDirections);
+        this.properties = List.copyOf(supportedProperties);
         this.localizationKey = localizationKey;
         this.fullName = formatFullName(getPluginName(), getSimpleName());
         this.fullNameWithVersion = fullName + ":" + version;
 
         lazyStructureSerializer = new LazyValue<>(() -> new StructureSerializer<>(this));
+    }
+
+    protected StructureType(
+        String pluginName,
+        String simpleName,
+        int version,
+        List<MovementDirection> validMovementDirections,
+        String localizationKey)
+    {
+        this(pluginName, simpleName, version, validMovementDirections, List.of(Property.OPEN_STATUS), localizationKey);
     }
 
     /**
@@ -180,6 +201,11 @@ public abstract class StructureType
      */
     public abstract Creator getCreator(ToolUser.Context context, IPlayer player, @Nullable String name);
 
+    /**
+     * Gets the {@link AudioSet} for this type.
+     *
+     * @return The {@link AudioSet} for this type.
+     */
     public @Nullable AudioSet getAudioSet()
     {
         return null;

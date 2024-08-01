@@ -2,6 +2,7 @@ package nl.pim16aap2.animatedarchitecture.structures.portcullis;
 
 import nl.altindag.log.LogCaptor;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.creator.CreatorTestsUtil;
@@ -19,6 +20,8 @@ import java.util.OptionalInt;
 class CreatorPortcullisTest extends CreatorTestsUtil
 {
     private static final int blocksToMove = 11;
+
+    private final StructureType type = StructureTypePortcullis.get();
 
     @BeforeEach
     public void setup()
@@ -40,7 +43,7 @@ class CreatorPortcullisTest extends CreatorTestsUtil
 
         final CreatorPortcullis creator = new CreatorPortcullis(context, player, null);
         final Portcullis actualStructure =
-            new Portcullis(constructStructureBase(getTemporaryUid(creator)), blocksToMove);
+            new Portcullis(constructStructureBase(type, getTemporaryUid(creator)), blocksToMove);
 
         testCreation(creator, actualStructure,
             structureName,

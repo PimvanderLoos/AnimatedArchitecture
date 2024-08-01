@@ -12,6 +12,9 @@ import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyManagerConst;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyManagerSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
@@ -59,17 +62,19 @@ public abstract class AbstractStructure implements IStructureConst
     private final LazyValue<Rectangle> lazyAnimationRange;
     private final LazyValue<Double> lazyAnimationCycleDistance;
     private final LazyValue<StructureSnapshot> lazyStructureSnapshot;
+    private final LazyValue<PropertyManagerSnapshot> lazyPropertyManagerSnapshot;
 
     private AbstractStructure(StructureBase base, StructureType type)
     {
         this.type = type;
-        serializer = getType().getStructureSerializer();
+        this.serializer = getType().getStructureSerializer();
         this.lock = base.getLock();
         this.base = Objects.requireNonNull(base);
 
         lazyAnimationRange = new LazyValue<>(this::calculateAnimationRange);
         lazyAnimationCycleDistance = new LazyValue<>(this::calculateAnimationCycleDistance);
         lazyStructureSnapshot = new LazyValue<>(this::createNewSnapshot);
+        lazyPropertyManagerSnapshot = new LazyValue<>(this.base::newPropertyManagerSnapshot);
     }
 
     protected AbstractStructure(BaseHolder holder, StructureType type)
@@ -359,7 +364,7 @@ public abstract class AbstractStructure implements IStructureConst
         {
             return base
                 .getDatabaseManager()
-                .syncStructureData(getSnapshot(), serializer.serialize(this))
+                .syncStructureData(getSnapshot(), serializer.serializeTypeData(this))
                 .exceptionally(ex -> FutureUtil.exceptionally(ex, DatabaseManager.ActionResult.FAIL));
         }
         catch (Exception e)
@@ -485,7 +490,7 @@ public abstract class AbstractStructure implements IStructureConst
 
         try
         {
-            ret += serializer.serialize(this);
+            ret += serializer.serializeTypeData(this);
         }
         catch (Exception e)
         {
@@ -724,15 +729,46 @@ public abstract class AbstractStructure implements IStructureConst
         setCoordinates(new Cuboid(posA, posB));
     }
 
+    /**
+     * Gets the {@link PropertyManagerSnapshot} of this structure.
+     *
+     * @return The {@link PropertyManagerSnapshot} of this structure.
+     */
+    public IPropertyManagerConst getPropertyManagerSnapshot()
+    {
+        return lazyPropertyManagerSnapshot.get();
+    }
+
+    @Locked.Read("lock")
+    public <T> T getPropertyValue(Property<T> property)
+    {
+        return base.getPropertyValue(property);
+    }
+
+    @Locked.Write("lock")
+    public <T> void setPropertyValue(Property<T> property, T value)
+    {
+        base.setPropertyValue(property, value);
+
+        // Both the property manager snapshot and the basic data (which includes the full snapshot) are invalidated.
+        lazyPropertyManagerSnapshot.reset();
+        invalidateBasicData();
+    }
+
     @AllArgsConstructor(access = AccessLevel.PACKAGE)
     @EqualsAndHashCode
     public static final class BaseHolder
     {
         private final StructureBase base;
 
-        StructureBase get()
+        /**
+         * Gets the UID of the structure this holder is for.
+         *
+         * @return The UID of the structure.
+         */
+        public long getUid()
         {
-            return base;
+            return base.getUid();
         }
 
         @Override

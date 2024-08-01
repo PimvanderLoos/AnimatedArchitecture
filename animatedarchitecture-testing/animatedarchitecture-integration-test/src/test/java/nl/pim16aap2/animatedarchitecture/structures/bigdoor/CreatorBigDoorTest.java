@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.structures.bigdoor;
 
 import nl.altindag.log.LogCaptor;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.creator.CreatorTestsUtil;
 import nl.pim16aap2.testing.logging.WithLogCapture;
@@ -13,6 +14,8 @@ import org.junit.jupiter.api.Timeout;
 @Timeout(1)
 class CreatorBigDoorTest extends CreatorTestsUtil
 {
+    private final StructureType type = StructureTypeBigDoor.get();
+
     @BeforeEach
     void setup()
     {
@@ -29,7 +32,7 @@ class CreatorBigDoorTest extends CreatorTestsUtil
         Assertions.assertNotNull(StructureTypeBigDoor.get());
 
         final CreatorBigDoor creator = new CreatorBigDoor(context, player, null);
-        final BigDoor actualStructure = new BigDoor(constructStructureBase(getTemporaryUid(creator)));
+        final BigDoor actualStructure = new BigDoor(constructStructureBase(type, getTemporaryUid(creator)));
         testCreation(creator, actualStructure,
             structureName,
             min.toLocation(locationFactory, world),

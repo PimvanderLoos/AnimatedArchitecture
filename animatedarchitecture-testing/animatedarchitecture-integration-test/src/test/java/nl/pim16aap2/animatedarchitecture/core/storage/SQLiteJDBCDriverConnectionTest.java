@@ -23,6 +23,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureRegistry;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSerializer;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyManager;
 import nl.pim16aap2.animatedarchitecture.core.util.LocationUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
@@ -595,12 +596,12 @@ public class SQLiteJDBCDriverConnectionTest
         {
             structure3.setLocked(true);
             Assertions.assertTrue(
-                storage.syncStructureData(structure3.getSnapshot(), serializer.serialize(structure3)));
+                storage.syncStructureData(structure3.getSnapshot(), serializer.serializeTypeData(structure3)));
             UnitTestUtil.optionalEquals(true, storage.getStructure(3L), AbstractStructure::isLocked);
 
             structure3.setLocked(false);
             Assertions.assertTrue(
-                storage.syncStructureData(structure3.getSnapshot(), serializer.serialize(structure3)));
+                storage.syncStructureData(structure3.getSnapshot(), serializer.serializeTypeData(structure3)));
             UnitTestUtil.optionalEquals(false, storage.getStructure(3L), AbstractStructure::isLocked);
         }
 
@@ -646,7 +647,7 @@ public class SQLiteJDBCDriverConnectionTest
             pc.setBlocksToMove(newBlocksToMove);
 
             Assertions.assertTrue(
-                storage.syncStructureData(structure3.getSnapshot(), serializer.serialize(structure3)));
+                storage.syncStructureData(structure3.getSnapshot(), serializer.serializeTypeData(structure3)));
 
             Optional<AbstractStructure> retrievedOpt = storage.getStructure(3L);
             Assertions.assertTrue(retrievedOpt.isPresent());
@@ -675,7 +676,7 @@ public class SQLiteJDBCDriverConnectionTest
             pc.setBlocksToMove(blocksToMove);
 
             Assertions.assertTrue(
-                storage.syncStructureData(structure3.getSnapshot(), serializer.serialize(structure3)));
+                storage.syncStructureData(structure3.getSnapshot(), serializer.serializeTypeData(structure3)));
         }
     }
 
@@ -758,6 +759,8 @@ public class SQLiteJDBCDriverConnectionTest
                 .isLocked(false)
                 .openDir(MovementDirection.EAST)
                 .primeOwner(new StructureOwner(1L, PermissionLevel.CREATOR, PLAYER_DATA_1))
+                .ownersOfStructure(null)
+                .propertiesOfStructure(PropertyManager.forType(StructureTypeBigDoor.get()))
                 .build()
         );
 
@@ -779,6 +782,8 @@ public class SQLiteJDBCDriverConnectionTest
                 .isLocked(false)
                 .openDir(MovementDirection.NONE)
                 .primeOwner(new StructureOwner(2L, PermissionLevel.CREATOR, PLAYER_DATA_1))
+                .ownersOfStructure(null)
+                .propertiesOfStructure(PropertyManager.forType(StructureTypeDrawbridge.get()))
                 .build()
         );
 
@@ -800,6 +805,8 @@ public class SQLiteJDBCDriverConnectionTest
                 .isLocked(false)
                 .openDir(MovementDirection.UP)
                 .primeOwner(new StructureOwner(3L, PermissionLevel.CREATOR, PLAYER_DATA_2))
+                .ownersOfStructure(null)
+                .propertiesOfStructure(PropertyManager.forType(StructureTypePortcullis.get()))
                 .build(),
             blocksToMove
         );

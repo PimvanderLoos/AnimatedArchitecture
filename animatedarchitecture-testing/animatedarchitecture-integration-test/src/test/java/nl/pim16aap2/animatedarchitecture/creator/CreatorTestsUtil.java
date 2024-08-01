@@ -33,6 +33,8 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationReque
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureRegistry;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyManager;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
@@ -310,7 +312,7 @@ public class CreatorTestsUtil
         }
     }
 
-    protected AbstractStructure.BaseHolder constructStructureBase(long uid)
+    protected AbstractStructure.BaseHolder constructStructureBase(StructureType type, long uid)
     {
         return structureBaseBuilder
             .builder()
@@ -324,6 +326,8 @@ public class CreatorTestsUtil
             .isLocked(false)
             .openDir(openDirection)
             .primeOwner(structureOwner)
+            .ownersOfStructure(null)
+            .propertiesOfStructure(PropertyManager.forType(type))
             .build();
     }
 

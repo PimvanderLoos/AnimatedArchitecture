@@ -3,6 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.structures;
 import lombok.RequiredArgsConstructor;
 import nl.pim16aap2.animatedarchitecture.core.annotations.Initializer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyManager;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
@@ -38,7 +39,8 @@ public final class StructureBaseBuilder
     @RequiredArgsConstructor
     private static final class Builder
         implements IBuilderUID, IBuilderName, IBuilderCuboid, IBuilderRotationPoint, IBuilderPowerBlock, IBuilderWorld,
-        IBuilderIsOpen, IBuilderIsLocked, IBuilderOpenDir, IBuilderPrimeOwner, IBuilderOwners, IBuilder
+        IBuilderIsOpen, IBuilderIsLocked, IBuilderOpenDir, IBuilderPrimeOwner, IBuilderOwners, IBuilderProperties,
+        IBuilder
     {
         private final StructureBase.IFactory baseFactory;
 
@@ -53,6 +55,13 @@ public final class StructureBaseBuilder
         private MovementDirection openDir;
         private StructureOwner primeOwner;
         private @Nullable Map<UUID, StructureOwner> owners;
+        private PropertyManager propertyManager;
+
+        @Override
+        public long getUID()
+        {
+            return structureUID;
+        }
 
         @Override
         @Initializer
@@ -135,9 +144,18 @@ public final class StructureBaseBuilder
         }
 
         @Override
-        public IBuilder ownersOfStructure(@Nullable Map<UUID, StructureOwner> owners)
+        @Initializer
+        public IBuilderProperties ownersOfStructure(@Nullable Map<UUID, StructureOwner> owners)
         {
             this.owners = owners;
+            return this;
+        }
+
+        @Override
+        @Initializer
+        public IBuilder propertiesOfStructure(PropertyManager propertyManager)
+        {
+            this.propertyManager = propertyManager;
             return this;
         }
 
@@ -145,9 +163,31 @@ public final class StructureBaseBuilder
         public AbstractStructure.BaseHolder build()
         {
             return new AbstractStructure.BaseHolder(
-                baseFactory.create(structureUID, name, cuboid, rotationPoint, powerBlock, world, isOpen,
-                    isLocked, openDir, primeOwner, owners));
+                baseFactory.create(
+                    structureUID,
+                    name,
+                    cuboid,
+                    rotationPoint,
+                    powerBlock,
+                    world,
+                    isOpen,
+                    isLocked,
+                    openDir,
+                    primeOwner,
+                    owners,
+                    propertyManager
+                ));
         }
+    }
+
+    public interface IUIDProvider
+    {
+        /**
+         * Gets the UID of the structure to create.
+         *
+         * @return The UID.
+         */
+        long getUID();
     }
 
     public interface IBuilderUID
@@ -163,7 +203,7 @@ public final class StructureBaseBuilder
         IBuilderName uid(long structureUID);
     }
 
-    public interface IBuilderName
+    public interface IBuilderName extends IUIDProvider
     {
         /**
          * Sets the name of the structure.
@@ -175,7 +215,7 @@ public final class StructureBaseBuilder
         IBuilderCuboid name(String name);
     }
 
-    public interface IBuilderCuboid
+    public interface IBuilderCuboid extends IUIDProvider
     {
         /**
          * Sets the cuboid of the structure. The cuboid refers to the 3d area defined by the min/max coordinate
@@ -202,7 +242,7 @@ public final class StructureBaseBuilder
         }
     }
 
-    public interface IBuilderRotationPoint
+    public interface IBuilderRotationPoint extends IUIDProvider
     {
         /**
          * Sets the point around which the structure will rotate.
@@ -214,7 +254,7 @@ public final class StructureBaseBuilder
         IBuilderPowerBlock rotationPoint(Vector3Di rotationPoint);
     }
 
-    public interface IBuilderPowerBlock
+    public interface IBuilderPowerBlock extends IUIDProvider
     {
         /**
          * Sets the location of the power block of the structure.
@@ -226,7 +266,7 @@ public final class StructureBaseBuilder
         IBuilderWorld powerBlock(Vector3Di powerBlock);
     }
 
-    public interface IBuilderWorld
+    public interface IBuilderWorld extends IUIDProvider
     {
         /**
          * Sets the world the structure exists in.
@@ -238,7 +278,7 @@ public final class StructureBaseBuilder
         IBuilderIsOpen world(IWorld world);
     }
 
-    public interface IBuilderIsOpen
+    public interface IBuilderIsOpen extends IUIDProvider
     {
         /**
          * Sets the open-status of the structure.
@@ -250,7 +290,7 @@ public final class StructureBaseBuilder
         IBuilderIsLocked isOpen(boolean isOpen);
     }
 
-    public interface IBuilderIsLocked
+    public interface IBuilderIsLocked extends IUIDProvider
     {
         /**
          * Sets the locked-status of the structure.
@@ -262,7 +302,7 @@ public final class StructureBaseBuilder
         IBuilderOpenDir isLocked(boolean isLocked);
     }
 
-    public interface IBuilderOpenDir
+    public interface IBuilderOpenDir extends IUIDProvider
     {
         /**
          * Sets the open direction of the structure.
@@ -274,7 +314,7 @@ public final class StructureBaseBuilder
         IBuilderPrimeOwner openDir(MovementDirection openDir);
     }
 
-    public interface IBuilderPrimeOwner
+    public interface IBuilderPrimeOwner extends IUIDProvider
     {
         /**
          * Sets the prime owner of the structure. This is the player who initially created the structure. This is the
@@ -287,7 +327,7 @@ public final class StructureBaseBuilder
         IBuilderOwners primeOwner(StructureOwner primeOwner);
     }
 
-    public interface IBuilderOwners extends IBuilder
+    public interface IBuilderOwners extends IUIDProvider
     {
         /**
          * Sets the (co-)owner(s) of the structure (including the prime owner).
@@ -296,10 +336,22 @@ public final class StructureBaseBuilder
          *     The (co-)owner(s) of the structure.
          * @return The next step of the guided builder process.
          */
-        IBuilder ownersOfStructure(@Nullable Map<UUID, StructureOwner> owners);
+        IBuilderProperties ownersOfStructure(@Nullable Map<UUID, StructureOwner> owners);
     }
 
-    public interface IBuilder
+    public interface IBuilderProperties extends IUIDProvider
+    {
+        /**
+         * Sets the properties of the structure.
+         *
+         * @param propertyManager
+         *     The properties of the structure.
+         * @return The next step of the guided builder process.
+         */
+        IBuilder propertiesOfStructure(PropertyManager propertyManager);
+    }
+
+    public interface IBuilder extends IUIDProvider
     {
         /**
          * Builds the {@link StructureBase} based on the provided input.
