@@ -3,6 +3,8 @@ package nl.pim16aap2.animatedarchitecture.core.extensions;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.core.api.IKeyed;
+import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.data.graph.DirectedAcyclicGraph;
 import nl.pim16aap2.animatedarchitecture.core.data.graph.Node;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
@@ -47,7 +49,7 @@ final class StructureTypeInitializer
         this.structureTypeClassLoader = structureTypeClassLoader;
         this.graph = createGraph(structureTypeInfos, debug);
 
-        log.atFiner().log("Dependency order: %s", graph.getLeafPath().stream().map(Loadable::getTypeName).toList());
+        log.atFiner().log("Dependency order: %s", graph.getLeafPath().stream().map(Loadable::getFullKey).toList());
     }
 
     /**
@@ -90,7 +92,7 @@ final class StructureTypeInitializer
     DirectedAcyclicGraph<Loadable> createGraph(List<StructureTypeInfo> structureTypeInfos, boolean debug)
     {
         final Map<String, Loadable> loadables = new HashMap<>(MathUtil.ceil(1.25 * structureTypeInfos.size()));
-        structureTypeInfos.forEach(info -> loadables.put(info.getTypeName(), new Loadable(info)));
+        structureTypeInfos.forEach(info -> loadables.put(info.getFullKey(), new Loadable(info)));
 
         final DirectedAcyclicGraph<Loadable> graph = new DirectedAcyclicGraph<>(debug);
         loadables.values().forEach(graph::addNode);
@@ -188,7 +190,7 @@ final class StructureTypeInitializer
             log.atSevere().log(
                 "Failed to load file: '%s'! This type ('%s') will not be loaded!",
                 structureTypeInfo.getJarFile(),
-                structureTypeInfo.getTypeName()
+                structureTypeInfo.getFullKey()
             );
             return null;
         }
@@ -232,10 +234,10 @@ final class StructureTypeInitializer
 
     /**
      * Wrapper class for {@link StructureTypeInfo} with a hashCode and equals method that only uses
-     * {@link StructureTypeInfo#getTypeName()}.
+     * {@link StructureTypeInfo#getFullKey()}.
      */
     @ToString
-    static class Loadable
+    static class Loadable implements IKeyed
     {
         @Getter
         private final StructureTypeInfo structureTypeInfo;
@@ -248,9 +250,10 @@ final class StructureTypeInitializer
             this.structureTypeInfo = structureTypeInfo;
         }
 
-        public String getTypeName()
+        @Override
+        public NamespacedKey getNamespacedKey()
         {
-            return structureTypeInfo.getTypeName();
+            return structureTypeInfo.getNamespacedKey();
         }
 
         public void setLoadFailure(LoadFailure loadFailure)
@@ -262,13 +265,13 @@ final class StructureTypeInitializer
         @Override
         public int hashCode()
         {
-            return getTypeName().hashCode();
+            return getFullKey().hashCode();
         }
 
         @Override
         public boolean equals(Object obj)
         {
-            return obj instanceof Loadable other && getTypeName().equals(other.getTypeName());
+            return obj instanceof Loadable other && getFullKey().equals(other.getFullKey());
         }
     }
 }

@@ -1,7 +1,9 @@
 package nl.pim16aap2.animatedarchitecture.core.structures;
 
 import lombok.Getter;
+import nl.pim16aap2.animatedarchitecture.core.api.IKeyed;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
+import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.audio.AudioSet;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
@@ -14,32 +16,23 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 
 /**
  * This class represents a type of Structure.
  */
-public abstract class StructureType
+public abstract class StructureType implements IKeyed
 {
     /**
-     * Gets the name of the plugin that owns this {@link StructureType}.
-     *
-     * @return The name of the plugin that owns this {@link StructureType}.
-     */
-    @Getter
-    protected final String pluginName;
-
-    /**
-     * Gets the simple name of this {@link StructureType}. Note that this is always in lower case!
+     * The key that represents the name of this {@link StructureType} in its namespace.
      * <p>
-     * The simple name is the name of the {@link StructureType} without the plugin name. For example, "windmill",
-     * "bigdoor", "flag", etc.
+     * The namespace is the name of the plugin that owns this {@link StructureType} and the key is the simple name of
+     * the {@link StructureType}.
      *
-     * @return The name of this {@link StructureType}.
+     * @return The key that represents the name of this {@link StructureType} in its namespace.
      */
     @Getter
-    protected final String simpleName;
+    protected final NamespacedKey namespacedKey;
 
     /**
      * Gets the version of this {@link StructureType}. Note that changing the version creates a whole new
@@ -59,13 +52,7 @@ public abstract class StructureType
     protected final String localizationKey;
 
     /**
-     * The fully-qualified name of this {@link StructureType} formatted as "pluginName:simpleName".
-     */
-    @Getter
-    private final String fullName;
-
-    /**
-     * The {@link #fullName} and the version as a single String.
+     * The full name and the version as a single String.
      */
     @Getter
     private final String fullNameWithVersion;
@@ -104,12 +91,79 @@ public abstract class StructureType
      * Constructs a new {@link StructureType}. Don't forget to also register it using
      * {@link StructureTypeManager#register(StructureType)}.
      *
-     * @param pluginName
-     *     The name of the plugin that owns this {@link StructureType}.
-     * @param simpleName
-     *     The 'simple' name of this {@link StructureType}. E.g. "Flag", or "Windmill".
+     * @param namespacedKey
+     *     The key that represents the name of this {@link StructureType} in its namespace.
+     *     <p>
+     *     The namespace is the name of the plugin that owns this {@link StructureType} and the key is the simple name
+     *     of the {@link StructureType}.
+     *     <p>
+     *     E.g.: "animatedarchitecture:windmill" or "animatedarchitecture:bigdoor".
      * @param version
      *     The version of this {@link StructureType}.
+     *     <p>
+     *     This is used for serialization purposes. If you change the structure in a way that makes it incompatible with
+     *     the previous version, you should increase this number. This will allow you to handle the transition between
+     *     the old and new version. See {@link StructureSerializer} for more information.
+     * @param validMovementDirections
+     *     The valid movement directions for this structure.
+     * @param supportedProperties
+     *     The properties that are supported by this type.
+     * @param localizationKey
+     *     The key that is used to localize the name of this {@link StructureType}. For example,
+     *     "structure.type.revolving_door".
+     */
+    protected StructureType(
+        NamespacedKey namespacedKey,
+        int version,
+        List<MovementDirection> validMovementDirections,
+        List<Property<?>> supportedProperties,
+        String localizationKey)
+    {
+        this.namespacedKey = namespacedKey;
+
+        this.version = version;
+        this.validMovementDirections =
+            validMovementDirections.isEmpty() ?
+                EnumSet.noneOf(MovementDirection.class) :
+                EnumSet.copyOf(validMovementDirections);
+        this.validOpenDirectionsList = List.copyOf(this.validMovementDirections);
+        this.properties = List.copyOf(supportedProperties);
+        this.localizationKey = localizationKey;
+        this.fullNameWithVersion = this.getFullKey() + ":" + version;
+
+        lazyStructureSerializer = new LazyValue<>(() -> new StructureSerializer<>(this));
+    }
+
+    /**
+     * Constructs a new {@link StructureType}. Don't forget to also register it using
+     * {@link StructureTypeManager#register(StructureType)}.
+     *
+     * @param pluginName
+     *     The name of the plugin that owns this {@link StructureType}.
+     *     <p>
+     *     The name can only contain (lowercase) letters, numbers, and underscores. Upper case letters will be converted
+     *     to lowercase.
+     * @param simpleName
+     *     The simple name of this {@link StructureType}.
+     *     <p>
+     *     The name can only contain (lowercase) letters, numbers, and underscores. Upper case letters will be converted
+     *     to lowercase.
+     *     <p>
+     *     The simple name is the name of the {@link StructureType} without the plugin name. For example, "windmill",
+     *     "bigdoor", "flag", etc.
+     * @param version
+     *     The version of this {@link StructureType}.
+     *     <p>
+     *     This is used for serialization purposes. If you change the structure in a way that makes it incompatible with
+     *     the previous version, you should increase this number. This will allow you to handle the transition between
+     *     the old and new version. See {@link StructureSerializer} for more information.
+     * @param validMovementDirections
+     *     The valid movement directions for this structure.
+     * @param supportedProperties
+     *     The properties that are supported by this type.
+     * @param localizationKey
+     *     The key that is used to localize the name of this {@link StructureType}. For example,
+     *     "structure.type.revolving_door".
      */
     protected StructureType(
         String pluginName,
@@ -119,30 +173,42 @@ public abstract class StructureType
         List<Property<?>> supportedProperties,
         String localizationKey)
     {
-        this.pluginName = pluginName.toLowerCase(Locale.ENGLISH);
-        this.simpleName = simpleName.toLowerCase(Locale.ENGLISH);
-        this.version = version;
-        this.validMovementDirections =
-            validMovementDirections.isEmpty() ?
-                EnumSet.noneOf(MovementDirection.class) :
-                EnumSet.copyOf(validMovementDirections);
-        this.validOpenDirectionsList = List.copyOf(this.validMovementDirections);
-        this.properties = List.copyOf(supportedProperties);
-        this.localizationKey = localizationKey;
-        this.fullName = formatFullName(getPluginName(), getSimpleName());
-        this.fullNameWithVersion = fullName + ":" + version;
-
-        lazyStructureSerializer = new LazyValue<>(() -> new StructureSerializer<>(this));
+        this(
+            new NamespacedKey(pluginName, simpleName),
+            version,
+            validMovementDirections,
+            supportedProperties,
+            localizationKey
+        );
     }
 
-    protected StructureType(
-        String pluginName,
-        String simpleName,
-        int version,
-        List<MovementDirection> validMovementDirections,
-        String localizationKey)
+    /**
+     * Gets the simple name of the {@link StructureType}.
+     * <p>
+     * The simple name is the name of the {@link StructureType} without the plugin name. For example, "windmill",
+     * "bigdoor", "flag", etc.
+     *
+     * @return The simple name of the {@link StructureType}.
+     */
+    public final String getSimpleName()
     {
-        this(pluginName, simpleName, version, validMovementDirections, List.of(Property.OPEN_STATUS), localizationKey);
+        return getNamespacedKey().getKey();
+    }
+
+    /**
+     * Gets the full name of the {@link StructureType}.
+     * <p>
+     * This is the fully qualified name of the {@link StructureType} and includes the plugin name. For example,
+     * "animatedarchitecture:windmill", "animatedarchitecture:bigdoor", "animatedarchitecture:flag", etc.
+     * <p>
+     * This is a shortcut for {@code getNamespacedKey().getFullKey()}.
+     *
+     * @return The full name of the {@link StructureType}.
+     */
+    @Override
+    public final String getFullKey()
+    {
+        return getNamespacedKey().getFullKey();
     }
 
     /**
@@ -211,25 +277,10 @@ public abstract class StructureType
         return null;
     }
 
-    /**
-     * Formats the given pluginName and simpleName into a fully-qualified name.
-     *
-     * @param pluginName
-     *     The name of the plugin that owns this {@link StructureType}.
-     * @param simpleName
-     *     The 'simple' name of this {@link StructureType}. E.g. "Flag", or "Windmill".
-     * @return The fully-qualified name of this {@link StructureType} formatted as
-     */
-    public static String formatFullName(String pluginName, String simpleName)
-    {
-        return String.format("%s:%s", pluginName, simpleName).toLowerCase(Locale.ENGLISH);
-    }
-
     @Override
     public final String toString()
     {
-        return "StructureType[@" + Integer.toHexString(hashCode()) + "] " +
-            getPluginName() + ":" + getSimpleName() + ":" + getVersion();
+        return "StructureType[@" + Integer.toHexString(hashCode()) + "] " + getFullNameWithVersion();
     }
 
     @Override

@@ -3,6 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import nl.pim16aap2.animatedarchitecture.core.api.IKeyed;
 import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import org.jetbrains.annotations.Contract;
@@ -23,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Getter
 @ToString
 @EqualsAndHashCode
-public final class Property<T>
+public final class Property<T> implements IKeyed
 {
     /**
      * A set of all registered property names.
@@ -37,7 +38,7 @@ public final class Property<T>
      *
      * @return The name of the property.
      */
-    private final NamespacedKey serializationName;
+    private final NamespacedKey namespacedKey;
 
     /**
      * The type of the property.
@@ -58,14 +59,14 @@ public final class Property<T>
      */
     public static final Property<Boolean> OPEN_STATUS = new Property<>("OPEN_STATUS", Boolean.class, false);
 
-    private Property(NamespacedKey serializationName, Class<T> type, @Nullable T defaultValue)
+    private Property(NamespacedKey namespacedKey, Class<T> type, @Nullable T defaultValue)
     {
-        this.serializationName = serializationName;
+        this.namespacedKey = namespacedKey;
         this.type = type;
         this.defaultValue = defaultValue;
 
-        if (!REGISTERED_NAMES.add(serializationName.getKey()))
-            throw new IllegalArgumentException("Property with name " + serializationName.getKey() + " already exists.");
+        if (!REGISTERED_NAMES.add(namespacedKey.getKey()))
+            throw new IllegalArgumentException("Property with name " + namespacedKey.getKey() + " already exists.");
     }
 
     /**

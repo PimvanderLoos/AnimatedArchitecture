@@ -340,7 +340,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             conn -> executeUpdate(
                 SQLStatement.DELETE_STRUCTURE_TYPE
                     .constructDelayedPreparedStatement()
-                    .setNextString(structureType.getFullName())) > 0,
+                    .setNextString(structureType.getFullKey())) > 0,
             false
         );
 
@@ -385,7 +385,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 .setNextLong(LocationUtil.getChunkId(structure.getPowerBlock()))
                 .setNextInt(MovementDirection.getValue(structure.getOpenDir()))
                 .setNextLong(getFlag(structure))
-                .setNextString(structureType.getFullName())
+                .setNextString(structureType.getFullKey())
                 .setNextInt(structureType.getVersion())
                 .setNextString(typeSpecificData),
             resultSet ->

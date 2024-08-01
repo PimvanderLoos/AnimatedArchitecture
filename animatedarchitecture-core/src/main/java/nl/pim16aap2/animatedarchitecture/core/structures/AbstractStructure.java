@@ -476,7 +476,7 @@ public abstract class AbstractStructure implements IStructureConst
     @Locked.Read("lock")
     public String getBasicInfo()
     {
-        return getUid() + " (" + getPrimeOwner() + ") - " + getType().getSimpleName() + ": " + getName();
+        return getUid() + " (" + getPrimeOwner() + ") - " + getType().getFullKey() + ": " + getName();
     }
 
     @Override

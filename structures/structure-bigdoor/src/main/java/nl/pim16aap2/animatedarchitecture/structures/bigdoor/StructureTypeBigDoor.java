@@ -1,18 +1,22 @@
 package nl.pim16aap2.animatedarchitecture.structures.bigdoor;
 
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
+import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.audio.AudioDescription;
 import nl.pim16aap2.animatedarchitecture.core.audio.AudioSet;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
-import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
+import java.util.List;
 
+/**
+ * The type for the BigDoor structure.
+ */
 public final class StructureTypeBigDoor extends StructureType
 {
     private static final int TYPE_VERSION = 1;
@@ -27,12 +31,14 @@ public final class StructureTypeBigDoor extends StructureType
     private StructureTypeBigDoor()
     {
         super(
-            Constants.PLUGIN_NAME,
-            "BigDoor",
+            NamespacedKey.of("BigDoor"),
             TYPE_VERSION,
-            Arrays.asList(
+            List.of(
                 MovementDirection.CLOCKWISE,
                 MovementDirection.COUNTERCLOCKWISE),
+            List.of(
+                Property.OPEN_STATUS
+            ),
             "structure.type.big_door"
         );
     }

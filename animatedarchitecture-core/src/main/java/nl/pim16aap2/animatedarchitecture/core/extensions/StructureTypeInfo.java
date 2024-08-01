@@ -3,6 +3,8 @@ package nl.pim16aap2.animatedarchitecture.core.extensions;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.core.api.IKeyed;
+import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import org.jetbrains.annotations.Nullable;
@@ -25,15 +27,15 @@ import java.util.regex.Pattern;
  */
 @Flogger
 @ToString
-final class StructureTypeInfo
+final class StructureTypeInfo implements IKeyed
 {
     /**
-     * Matches the name of a dependency in the format "{@code string(int;int)}".
+     * Matches the name of a dependency in the format "{@code string:string(int;int)}".
      * <p>
      * The name is expected to be a sequence of lower case characters followed by the version range in parentheses at
      * the end of the string.
      */
-    private static final Pattern NAME_MATCH = Pattern.compile("^[a-z0-9_-]+(?=\\([0-9]+;[0-9]+\\)$)");
+    private static final Pattern NAME_MATCH = getNameMatchPattern();
 
     /**
      * Matches the version range of a dependency in the format "{@code string(int;int)}".
@@ -44,24 +46,10 @@ final class StructureTypeInfo
     private static final Pattern VERSION_MATCH = Pattern.compile("(?<=\\()[0-9]+;[0-9]+(?=\\)$)");
 
     /**
-     * The namespace of the structure type.
+     * The key of the structure type in its namespace.
      */
     @Getter
-    private final String namespace;
-
-    /**
-     * The name of the structure type.
-     */
-    @Getter
-    private final String typeName;
-
-    /**
-     * The name of the structure type in the namespace.
-     * <p>
-     * This is a combination of {@link #namespace} and {@link #typeName}.
-     */
-    @Getter
-    private final String fullName;
+    private final NamespacedKey namespacedKey;
 
     /**
      * The version of the structure type.
@@ -101,8 +89,8 @@ final class StructureTypeInfo
     /**
      * Creates a new instance of {@link StructureTypeInfo}.
      *
-     * @param typeName
-     *     The name of the structure type.
+     * @param namespacedKey
+     *     The namespaced key of the structure type.
      * @param version
      *     The version of the structure type.
      * @param mainClass
@@ -116,23 +104,20 @@ final class StructureTypeInfo
      *     Both the minimum and the maximum versions of the dependency are inclusive.
      */
     public StructureTypeInfo(
-        String namespace,
-        String typeName,
+        NamespacedKey namespacedKey,
         int version,
         String mainClass,
         Path jarFile,
         String supportedApiVersions,
         @Nullable String dependencies)
     {
-        this.namespace = namespace.toLowerCase(Locale.ENGLISH);
-        this.typeName = typeName.toLowerCase(Locale.ENGLISH);
-        this.fullName = this.namespace + ":" + this.typeName;
+        this.namespacedKey = namespacedKey;
 
         this.version = version;
         this.mainClass = mainClass;
         this.jarFile = jarFile;
         this.supportedApiVersions = supportedApiVersions;
-        this.dependencies = parseDependencies(dependencies, typeName);
+        this.dependencies = parseDependencies(dependencies, namespacedKey.getFullKey());
     }
 
     /**
@@ -145,22 +130,15 @@ final class StructureTypeInfo
      */
     public void verifyLoadedType(StructureType structureType)
     {
-        if (!structureType.getSimpleName().equals(typeName))
+        if (!structureType.getNamespacedKey().equals(namespacedKey))
             throw new IllegalArgumentException(
-                "Expected structure type to have name '" + typeName +
-                    "' but was '" + structureType.getSimpleName() + "'."
-            );
-
-        if (!structureType.getPluginName().equals(namespace))
-            throw new IllegalArgumentException(
-                "Expected structure type '" + typeName +
-                    "' to have namespace '" + namespace +
-                    "' but was '" + structureType.getPluginName() + "'."
+                "Expected structure type to have key '" + namespacedKey +
+                    "' but was '" + structureType.getFullKey() + "'."
             );
 
         if (structureType.getVersion() != version)
             throw new IllegalArgumentException(
-                "Expected structure type '" + typeName +
+                "Expected structure type '" + namespacedKey +
                     "' to have version '" + version +
                     "' but was '" + structureType.getVersion() + "'."
             );
@@ -174,12 +152,14 @@ final class StructureTypeInfo
      *
      * @param dependencies
      *     The String
-     * @param typeName
-     *     The name of the structure type. This is used for logging purposes.
+     * @param fullKey
+     *     The full key of the structure type. This is used for logging purposes.
+     *     <p>
+     *     This is the result of calling {@link NamespacedKey#getFullKey()} on the {@link #namespacedKey}.
      * @return The list of dependencies parsed from the provided string.
      */
     @VisibleForTesting
-    static List<Dependency> parseDependencies(@Nullable String dependencies, String typeName)
+    static List<Dependency> parseDependencies(@Nullable String dependencies, String fullKey)
     {
         if (dependencies == null || dependencies.isEmpty() || "null".equals(dependencies))
             return Collections.emptyList();
@@ -201,7 +181,7 @@ final class StructureTypeInfo
                     "Failed to parse dependency '" + depStr +
                         "' at index " + idx +
                         " from dependency string '" + dependencies +
-                        "' for structure type '" + typeName + "'.",
+                        "' for structure type '" + fullKey + "'.",
                     exception
                 );
             }
@@ -210,25 +190,25 @@ final class StructureTypeInfo
     }
 
     @VisibleForTesting
-    static Dependency parseDependency(@Nullable String dependency)
+    static Dependency parseDependency(@Nullable String fullKey)
     {
-        if (dependency == null || dependency.isBlank())
+        if (fullKey == null || fullKey.isBlank())
             throw new IllegalArgumentException("Dependency must not be null or blank.");
 
         // Get all the alphanumeric characters at the start of the string.
-        final Matcher nameMatcher = NAME_MATCH.matcher(dependency);
+        final Matcher nameMatcher = NAME_MATCH.matcher(fullKey);
         if (!nameMatcher.find())
-            throw new IllegalArgumentException("Failed to find the dependency name in: '" + dependency + "'");
+            throw new IllegalArgumentException("Failed to find the dependency name in: '" + fullKey + "'");
 
         final String dependencyName = nameMatcher.group();
 
-        final Matcher versionMatcher = VERSION_MATCH.matcher(dependency);
+        final Matcher versionMatcher = VERSION_MATCH.matcher(fullKey);
         if (!versionMatcher.find())
-            throw new IllegalArgumentException("Failed to find the version in: '" + dependency + "'");
+            throw new IllegalArgumentException("Failed to find the version in: '" + fullKey + "'");
 
         final String[] versionSplit = versionMatcher.group().split(";");
         if (versionSplit.length != 2)
-            throw new IllegalArgumentException("Failed to split the version in: '" + dependency + "'");
+            throw new IllegalArgumentException("Failed to split the version in: '" + fullKey + "'");
 
         final OptionalInt minVersionOpt = MathUtil.parseInt(versionSplit[0]);
         if (minVersionOpt.isEmpty())
@@ -239,6 +219,19 @@ final class StructureTypeInfo
             throw new IllegalArgumentException("Failed to parse max version from '" + versionSplit[1] + "'");
 
         return new Dependency(dependencyName, minVersionOpt.getAsInt(), maxVersionOpt.getAsInt());
+    }
+
+    /**
+     * Matches the name of a structure type in the format "{@code namespace:name(int;int)}".
+     * <p>
+     * Both the namespace and the name are expected to adhere to the pattern defined by {@link NamespacedKey#PATTERN}.
+     *
+     * @return The compiled pattern.
+     */
+    private static Pattern getNameMatchPattern()
+    {
+        final String base = NamespacedKey.PATTERN.pattern();
+        return Pattern.compile(base + ":" + base + "(?=\\([0-9]+;[0-9]+\\)$)");
     }
 
     /**
@@ -286,7 +279,7 @@ final class StructureTypeInfo
          */
         boolean satisfiedBy(StructureTypeInfo structureTypeInfo)
         {
-            return structureTypeInfo.getTypeName().equals(dependencyName) &&
+            return structureTypeInfo.getFullKey().equals(dependencyName) &&
                 MathUtil.between(structureTypeInfo.getVersion(), minVersion, maxVersion);
         }
     }
