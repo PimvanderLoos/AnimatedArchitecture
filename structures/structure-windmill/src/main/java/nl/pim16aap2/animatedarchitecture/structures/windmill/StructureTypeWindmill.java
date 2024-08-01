@@ -4,6 +4,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
@@ -27,7 +28,10 @@ public final class StructureTypeWindmill extends StructureType
                 MovementDirection.EAST,
                 MovementDirection.SOUTH,
                 MovementDirection.WEST),
-            List.of(),
+            List.of(
+                Property.ANIMATION_SPEED_MULTIPLIER,
+                Property.ROTATION_POINT
+            ),
             "structure.type.windmill"
         );
     }

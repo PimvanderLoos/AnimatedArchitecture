@@ -5,7 +5,9 @@ import lombok.Getter;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IKeyed;
 import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
+import nl.pim16aap2.animatedarchitecture.core.structures.RedstoneMode;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
+import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Contract;
 
 import javax.annotation.Nullable;
@@ -55,15 +57,49 @@ public final class Property<T> implements IKeyed
     private final @Nullable T defaultValue;
 
     /**
+     * A property for structures whose animation speed is variable.
+     */
+    public static final Property<Double> ANIMATION_SPEED_MULTIPLIER = new Property<>(
+        "ANIMATION_SPEED_MULTIPLIER",
+        Double.class,
+        null
+    );
+
+    /**
      * A property for structures that have a defined open and closed state.
      */
-    public static final Property<Boolean> OPEN_STATUS = new Property<>("OPEN_STATUS", Boolean.class, false);
+    public static final Property<Boolean> OPEN_STATUS = new Property<>(
+        "OPEN_STATUS",
+        Boolean.class,
+        false
+    );
+
+    /**
+     * A property for structures that can have different redstone modes.
+     */
+    public static final Property<RedstoneMode> REDSTONE_MODE = new Property<>(
+        "REDSTONE_MODE",
+        RedstoneMode.class,
+        RedstoneMode.DEFAULT
+    );
+
+    /**
+     * A property for structures that have a defined rotation point.
+     */
+    public static final Property<Vector3Di> ROTATION_POINT = new Property<>(
+        "ROTATION_POINT",
+        Vector3Di.class,
+        null
+    );
 
     private Property(NamespacedKey namespacedKey, Class<T> type, @Nullable T defaultValue)
     {
         this.namespacedKey = namespacedKey;
         this.type = type;
         this.defaultValue = defaultValue;
+
+        if (defaultValue != null && !type.isInstance(defaultValue))
+            throw new IllegalArgumentException("Default value " + defaultValue + " is not of type " + type.getName());
 
         if (!REGISTERED_NAMES.add(namespacedKey.getKey()))
             throw new IllegalArgumentException("Property with name " + namespacedKey.getKey() + " already exists.");

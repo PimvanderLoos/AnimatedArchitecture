@@ -6,6 +6,7 @@ import nl.pim16aap2.animatedarchitecture.core.audio.AudioDescription;
 import nl.pim16aap2.animatedarchitecture.core.audio.AudioSet;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
@@ -32,7 +33,10 @@ public final class StructureTypeRevolvingDoor extends StructureType
             List.of(
                 MovementDirection.CLOCKWISE,
                 MovementDirection.COUNTERCLOCKWISE),
-            List.of(),
+            List.of(
+                Property.ANIMATION_SPEED_MULTIPLIER,
+                Property.ROTATION_POINT
+            ),
             "structure.type.revolving_door"
         );
     }
