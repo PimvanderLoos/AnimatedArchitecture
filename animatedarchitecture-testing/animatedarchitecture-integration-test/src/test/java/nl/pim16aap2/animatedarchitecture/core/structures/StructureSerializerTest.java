@@ -6,8 +6,14 @@ import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.annotations.Deserialization;
 import nl.pim16aap2.animatedarchitecture.core.annotations.PersistentVariable;
+import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.LimitContainer;
 import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyManager;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyManagerSerializer;
+import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
+import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Rectangle;
@@ -21,6 +27,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -30,6 +37,13 @@ import java.util.function.Supplier;
 
 class StructureSerializerTest
 {
+    private static final List<Property<?>> PROPERTIES = List.of(
+        Property.OPEN_STATUS
+    );
+
+    private StructureBaseBuilder.IBuilderProperties structureBaseBuilder;
+    private PropertyManager propertyManager;
+    private String serializedProperties;
     private AbstractStructure.BaseHolder structureBase;
 
     @BeforeEach
@@ -59,7 +73,7 @@ class StructureSerializerTest
         final PlayerData playerData = new PlayerData(UUID.randomUUID(), "player", limits, true, true);
         final StructureOwner structureOwner = new StructureOwner(1, PermissionLevel.CREATOR, playerData);
 
-        structureBase = factory
+        structureBaseBuilder = factory
             .builder()
             .uid(1)
             .name(structureName)
@@ -71,17 +85,22 @@ class StructureSerializerTest
             .isLocked(false)
             .openDir(MovementDirection.DOWN)
             .primeOwner(structureOwner)
-            .build();
+            .ownersOfStructure(null);
+
+        propertyManager = PropertyManager.forType(TestStructureType0.INSTANCE);
+        serializedProperties = PropertyManagerSerializer.serialize(propertyManager);
+
+        structureBase = structureBaseBuilder.propertiesOfStructure(propertyManager).build();
     }
 
     @Test
     void instantiate()
     {
-        final var instantiator =
-            Assertions.assertDoesNotThrow(() -> new StructureSerializer<>(TestStructureType.class, 1));
-        final TestStructureType base = new TestStructureType(structureBase, "test", true, 42);
+        final StructureSerializer<TestStructureImpl> instantiator =
+            Assertions.assertDoesNotThrow(() -> new StructureSerializer<>(TestStructureType0.INSTANCE));
+        final TestStructureImpl base = new TestStructureImpl(structureBase, "test", true, 42);
 
-        TestStructureType test = Assertions.assertDoesNotThrow(() ->
+        TestStructureImpl test = Assertions.assertDoesNotThrow(() ->
             instantiator.instantiate(
                 structureBase,
                 1,
@@ -108,29 +127,50 @@ class StructureSerializerTest
     @Test
     void serialize()
     {
-        final StructureSerializer<TestStructureType> instantiator =
-            Assertions.assertDoesNotThrow(() -> new StructureSerializer<>(TestStructureType.class, 1));
-        final TestStructureType testStructureType = new TestStructureType(structureBase, "test", true, 42);
+        final StructureSerializer<TestStructureImpl> instantiator =
+            Assertions.assertDoesNotThrow(() -> new StructureSerializer<>(TestStructureType0.INSTANCE));
+        final TestStructureImpl testStructureType = new TestStructureImpl(structureBase, "test", true, 42);
 
-        final String serialized = Assertions.assertDoesNotThrow(() -> instantiator.serialize(testStructureType));
+        final var serialized = Assertions.assertDoesNotThrow(() -> instantiator.serializeTypeData(testStructureType));
         Assertions.assertEquals(
             testStructureType,
-            Assertions.assertDoesNotThrow(() -> instantiator.deserialize(structureBase, 1, serialized))
+            Assertions.assertDoesNotThrow(() -> instantiator.deserialize(
+                structureBaseBuilder,
+                1,
+                serialized,
+                serializedProperties))
+        );
+    }
+
+    @Test
+    void serialize0()
+    {
+        final var instantiator = newSerializer(TestStructureImpl.class, 1);
+
+        final var testStructure = new TestStructureImpl(structureBase, "test", true, 42);
+
+        final String serialized = Assertions.assertDoesNotThrow(() -> instantiator.serializeTypeData(testStructure));
+        Assertions.assertEquals(
+            testStructure,
+            Assertions.assertDoesNotThrow(() -> instantiator.deserialize(
+                structureBaseBuilder,
+                1,
+                serialized,
+                serializedProperties))
         );
     }
 
     @Test
     void subclass()
     {
-        final var instantiator = Assertions.assertDoesNotThrow(
-            () -> new StructureSerializer<>(TestStructureSubType.class, 1));
+        final var instantiator = newSerializer(TestStructureSubType.class, 1);
 
         final TestStructureSubType realObj =
             new TestStructureSubType(structureBase, "testSubClass", 6, true, 42);
 
-        final String serialized = Assertions.assertDoesNotThrow(() -> instantiator.serialize(realObj));
+        final String serialized = Assertions.assertDoesNotThrow(() -> instantiator.serializeTypeData(realObj));
         final var deserialized = Assertions.assertDoesNotThrow(
-            () -> instantiator.deserialize(structureBase, 1, serialized));
+            () -> instantiator.deserialize(structureBaseBuilder, 1, serialized, serializedProperties));
 
         Assertions.assertEquals(realObj, deserialized);
     }
@@ -138,8 +178,7 @@ class StructureSerializerTest
     @Test
     void testEnumSerialization()
     {
-        final var instantiator = Assertions.assertDoesNotThrow(
-            () -> new StructureSerializer<>(TestStructureSubTypeEnum.class, 2));
+        final var instantiator = newSerializer(TestStructureSubTypeEnum.class, 2);
 
         final TestStructureSubTypeEnum realObj = new TestStructureSubTypeEnum(
             structureBase,
@@ -147,9 +186,9 @@ class StructureSerializerTest
             TestStructureSubTypeEnum.ArbitraryEnum.ENTRY_2
         );
 
-        final String serialized = Assertions.assertDoesNotThrow(() -> instantiator.serialize(realObj));
+        final String serialized = Assertions.assertDoesNotThrow(() -> instantiator.serializeTypeData(realObj));
         final var deserialized = Assertions.assertDoesNotThrow(
-            () -> instantiator.deserialize(structureBase, 1, serialized));
+            () -> instantiator.deserialize(structureBaseBuilder, 1, serialized, serializedProperties));
 
         Assertions.assertEquals(realObj, deserialized);
     }
@@ -157,13 +196,16 @@ class StructureSerializerTest
     @Test
     void testAmbiguityParams()
     {
+        final var type = mockStructureType(TestStructureSubTypeAmbiguousParameterTypes.class);
+
         Assertions.assertThrows(
             IllegalArgumentException.class,
-            () -> new StructureSerializer<>(TestStructureSubTypeAmbiguousParameterTypes.class, 1)
+            () -> new StructureSerializer<>(type, TestStructureSubTypeAmbiguousParameterTypes.class, 1)
         );
+
         Assertions.assertThrows(
             IllegalArgumentException.class,
-            () -> new StructureSerializer<>(TestStructureSubTypeAmbiguousParameterNames.class, 1)
+            () -> new StructureSerializer<>(type, TestStructureSubTypeAmbiguousParameterNames.class, 1)
         );
     }
 
@@ -172,10 +214,10 @@ class StructureSerializerTest
         throws Exception
     {
         final var instantiator = Assertions.assertDoesNotThrow(
-            () -> new StructureSerializer<>(TestStructureType.class, 1));
-        final TestStructureType realObj = new TestStructureType(structureBase, null, true, 42);
+            () -> new StructureSerializer<>(TestStructureType0.INSTANCE));
 
-        final TestStructureType deserialized = instantiator.instantiate(
+        final var realObj = new TestStructureImpl(structureBase, null, true, 42);
+        final var deserialized = instantiator.instantiate(
             structureBase,
             1,
             Map.of(
@@ -190,7 +232,7 @@ class StructureSerializerTest
     void testInvalidMissingData()
     {
         final var instantiator = Assertions.assertDoesNotThrow(
-            () -> new StructureSerializer<>(TestStructureType.class, 1));
+            () -> new StructureSerializer<>(TestStructureType0.INSTANCE));
 
         // The mapping for 'int blockTestCount' is missing, in which case we throw an exception.
         // Only objects can be missing.
@@ -208,41 +250,82 @@ class StructureSerializerTest
     @Test
     void testAmbiguousNames()
     {
+        final var type = mockStructureType(TestStructureSubTypeAmbiguousFieldNames.class);
         Assertions.assertThrows(
             Exception.class,
-            () -> new StructureSerializer<>(TestStructureSubTypeAmbiguousFieldNames.class, 1)
+            () -> new StructureSerializer<>(type, TestStructureSubTypeAmbiguousFieldNames.class, 1)
         );
     }
 
     @Test
     void testVersioning()
     {
-        final var instantiator = Assertions.assertDoesNotThrow(
-            () -> new StructureSerializer<>(TestStructureSubTypeConstructorVersions.class, 2));
+        final var instantiator = newSerializer(TestStructureSubTypeConstructorVersions.class, 2);
 
-        Assertions.assertEquals(1, instantiator.deserialize(structureBase, 1, "{}").version);
-        Assertions.assertEquals(2, instantiator.deserialize(structureBase, 2, "{}").version);
-        Assertions.assertThrows(RuntimeException.class, () -> instantiator.deserialize(structureBase, 4, "{}"));
+        Assertions.assertEquals(1, instantiator.deserialize(structureBaseBuilder, 1, "{}", "{}").version);
+        Assertions.assertEquals(2, instantiator.deserialize(structureBaseBuilder, 2, "{}", "{}").version);
+        Assertions.assertThrows(
+            RuntimeException.class,
+            () -> instantiator.deserialize(structureBaseBuilder, 4, "{}", "{}")
+        );
     }
 
     @Test
     void testVersioningWithoutFallback()
     {
-        final var instantiator = Assertions.assertDoesNotThrow(
-            () -> new StructureSerializer<>(TestStructureSubTypeConstructorVersionsNoFallback.class, 2));
+        final var instantiator = newSerializer(TestStructureSubTypeConstructorVersionsNoFallback.class, 2);
 
-        Assertions.assertThrows(RuntimeException.class, () -> instantiator.deserialize(structureBase, 999, "{}"));
-        Assertions.assertEquals(1, instantiator.deserialize(structureBase, 1, "{}").version);
-        Assertions.assertEquals(2, instantiator.deserialize(structureBase, 2, "{}").version);
+        Assertions.assertThrows(
+            RuntimeException.class,
+            () -> instantiator.deserialize(structureBaseBuilder, 999, "{}", "{}")
+        );
+
+        Assertions.assertEquals(1, instantiator.deserialize(structureBaseBuilder, 1, "{}", "{}").version);
+        Assertions.assertEquals(2, instantiator.deserialize(structureBaseBuilder, 2, "{}", "{}").version);
     }
 
     @Test
     void testAmbiguousVersions()
     {
+        final var type = mockStructureType(TestStructureSubTypeAmbiguousConstructorVersions.class);
+
         Assertions.assertThrows(
             IllegalArgumentException.class,
-            () -> new StructureSerializer<>(TestStructureSubTypeAmbiguousConstructorVersions.class, 1)
+            () -> new StructureSerializer<>(type, TestStructureSubTypeAmbiguousConstructorVersions.class, 1)
         );
+    }
+
+    private static class TestStructureType0 extends StructureType
+    {
+        private static final TestStructureType0 INSTANCE = new TestStructureType0(
+            "pluginName",
+            "typeName",
+            1,
+            List.of(MovementDirection.DOWN),
+            "localizationKey"
+        );
+
+        private TestStructureType0(
+            String pluginName,
+            String simpleName,
+            int version,
+            List<MovementDirection> validMovementDirections,
+            String localizationKey)
+        {
+            super(pluginName, simpleName, version, validMovementDirections, PROPERTIES, localizationKey);
+        }
+
+        @Override
+        public Class<? extends AbstractStructure> getStructureClass()
+        {
+            return TestStructureImpl.class;
+        }
+
+        @Override
+        public Creator getCreator(ToolUser.Context context, IPlayer player, @Nullable String name)
+        {
+            throw new UnsupportedOperationException("Creator not implemented for test structure type.");
+        }
     }
 
     // This class is a nullability nightmare, but that doesn't matter, because none of the methods are used;
@@ -251,9 +334,9 @@ class StructureSerializerTest
     // Don't call super for equals etc., as we don't care about the equality
     // of the parameters that aren't serialized anyway.
     @EqualsAndHashCode(callSuper = false)
-    private static class TestStructureType extends AbstractStructure
+    private static class TestStructureImpl extends AbstractStructure
     {
-        private static final StructureType STRUCTURE_TYPE = Mockito.mock(StructureType.class);
+        private static final StructureType STRUCTURE_TYPE = TestStructureType0.INSTANCE;
 
         @EqualsAndHashCode.Exclude
         @SuppressWarnings({"unused", "FieldCanBeLocal"})
@@ -271,14 +354,14 @@ class StructureSerializerTest
         @PersistentVariable("blockTestCount")
         private int blockTestCount;
 
-        public TestStructureType(BaseHolder structureBase)
+        public TestStructureImpl(BaseHolder structureBase)
         {
             super(structureBase, STRUCTURE_TYPE);
             this.lock = super.getLock();
         }
 
         @Deserialization
-        public TestStructureType(
+        public TestStructureImpl(
             BaseHolder base,
             @Nullable String testName,
             boolean isCoolType,
@@ -300,12 +383,6 @@ class StructureSerializerTest
         protected Rectangle calculateAnimationRange()
         {
             return new Rectangle(new Vector2Di(0, 0), new Vector2Di(0, 0));
-        }
-
-        @Override
-        public boolean canSkipAnimation()
-        {
-            return false;
         }
 
         @Override
@@ -334,7 +411,7 @@ class StructureSerializerTest
     }
 
     @EqualsAndHashCode(callSuper = true)
-    private static class TestStructureSubType extends TestStructureType
+    private static class TestStructureSubType extends TestStructureImpl
     {
         @EqualsAndHashCode.Exclude
         @SuppressWarnings({"unused", "FieldCanBeLocal"})
@@ -368,7 +445,7 @@ class StructureSerializerTest
     }
 
     @EqualsAndHashCode(callSuper = true)
-    private static class TestStructureSubTypeAmbiguousParameterTypes extends TestStructureType
+    private static class TestStructureSubTypeAmbiguousParameterTypes extends TestStructureImpl
     {
         @PersistentVariable(value = "ambiguousInteger1")
         private final int ambiguousInteger1;
@@ -390,7 +467,7 @@ class StructureSerializerTest
 
     @SuppressWarnings("unused")
     @EqualsAndHashCode(callSuper = true)
-    private static class TestStructureSubTypeAmbiguousParameterNames extends TestStructureType
+    private static class TestStructureSubTypeAmbiguousParameterNames extends TestStructureImpl
     {
         @Deserialization
         public TestStructureSubTypeAmbiguousParameterNames(
@@ -404,7 +481,7 @@ class StructureSerializerTest
 
     @SuppressWarnings("unused")
     @EqualsAndHashCode(callSuper = true)
-    private static class TestStructureSubTypeAmbiguousFieldNames extends TestStructureType
+    private static class TestStructureSubTypeAmbiguousFieldNames extends TestStructureImpl
     {
         @PersistentVariable("ambiguous")
         private int field0;
@@ -421,7 +498,7 @@ class StructureSerializerTest
 
     @SuppressWarnings("unused")
     @EqualsAndHashCode(callSuper = true)
-    private static class TestStructureSubTypeConstructorVersions extends TestStructureType
+    private static class TestStructureSubTypeConstructorVersions extends TestStructureImpl
     {
         @Getter
         private final int version;
@@ -453,7 +530,7 @@ class StructureSerializerTest
 
     @SuppressWarnings("unused")
     @EqualsAndHashCode(callSuper = true)
-    private static class TestStructureSubTypeConstructorVersionsNoFallback extends TestStructureType
+    private static class TestStructureSubTypeConstructorVersionsNoFallback extends TestStructureImpl
     {
         @Getter
         private final int version;
@@ -479,7 +556,7 @@ class StructureSerializerTest
 
     @SuppressWarnings("unused")
     @EqualsAndHashCode(callSuper = true)
-    private static class TestStructureSubTypeAmbiguousConstructorVersions extends TestStructureType
+    private static class TestStructureSubTypeAmbiguousConstructorVersions extends TestStructureImpl
     {
         @Deserialization(version = 1)
         public TestStructureSubTypeAmbiguousConstructorVersions(BaseHolder base)
@@ -494,9 +571,8 @@ class StructureSerializerTest
         }
     }
 
-
     @EqualsAndHashCode(callSuper = true)
-    private static class TestStructureSubTypeEnum extends TestStructureType
+    private static class TestStructureSubTypeEnum extends TestStructureImpl
     {
         @PersistentVariable("val0")
         private final ArbitraryEnum val0;
@@ -520,5 +596,19 @@ class StructureSerializerTest
             ENTRY_1,
             ENTRY_2
         }
+    }
+
+    private static <T extends AbstractStructure> StructureType mockStructureType(Class<T> clz)
+    {
+        final StructureType structureType = Mockito.mock(StructureType.class);
+        Mockito.when(structureType.getProperties()).thenReturn(PROPERTIES);
+        Mockito.doReturn(clz).when(structureType).getStructureClass();
+        return structureType;
+    }
+
+    private <T extends AbstractStructure> StructureSerializer<T> newSerializer(Class<T> clazz, int version)
+    {
+        final var structureType = mockStructureType(clazz);
+        return new StructureSerializer<>(structureType, clazz, version);
     }
 }

@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.tooluser.creator;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
+import lombok.Locked;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationType;
@@ -20,6 +21,8 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationReque
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyManager;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.text.TextArgument;
 import nl.pim16aap2.animatedarchitecture.core.text.TextArgumentFactory;
@@ -48,6 +51,7 @@ import java.util.OptionalInt;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Function;
 
 /**
@@ -74,6 +78,17 @@ public abstract class Creator extends ToolUser
     private final StructureActivityManager structureActivityManager;
 
     protected final long structureUidPlaceholder = STRUCTURE_UID_PLACEHOLDER_COUNTER.getAndDecrement();
+
+    /**
+     * The lock that is used to synchronize access to the {@link #propertyManager}.
+     */
+    private final ReentrantReadWriteLock propertyManagerLock = new ReentrantReadWriteLock();
+
+    /**
+     * The {@link PropertyManager} that is used to manage the properties of the structure.
+     */
+    @GuardedBy("propertyManagerLock")
+    private final PropertyManager propertyManager;
 
     /**
      * The name of the structure that is to be created.
@@ -212,6 +227,8 @@ public abstract class Creator extends ToolUser
     {
         super(context, player);
 
+        this.propertyManager = PropertyManager.forType(getStructureType());
+
         this.structureAnimationRequestBuilder = context.getStructureAnimationRequestBuilder();
         this.structureActivityManager = context.getStructureActivityManager();
         this.limitsManager = context.getLimitsManager();
@@ -324,6 +341,24 @@ public abstract class Creator extends ToolUser
     }
 
     /**
+     * Sets a property of the structure.
+     *
+     * @param property
+     *     The property to set.
+     * @param value
+     *     The value to set the property to.
+     * @param <T>
+     *     The type of the property.
+     * @throws IllegalArgumentException
+     *     If the property is not valid for the structure type this property manager was created for.
+     */
+    @Locked.Write("propertyManagerLock")
+    protected final <T> void setProperty(Property<T> property, T value)
+    {
+        propertyManager.setProperty(property, value);
+    }
+
+    /**
      * Shortcut method for creating a new highlighted argument of the structure type.
      * <p>
      * Can be used for Text object.
@@ -412,6 +447,8 @@ public abstract class Creator extends ToolUser
             .isLocked(isLocked)
             .openDir(Util.requireNonNull(movementDirection, "openDir"))
             .primeOwner(owner)
+            .ownersOfStructure(null)
+            .propertiesOfStructure(propertyManager)
             .build();
     }
 
@@ -742,6 +779,9 @@ public abstract class Creator extends ToolUser
 
     /**
      * Obtains the type of structure this creator will create.
+     * <p>
+     * Note that this getter is used in the constructor of this class, so it should return a value that is already
+     * initialized before the subclass calls the super constructor.
      *
      * @return The type of structure that will be created.
      */

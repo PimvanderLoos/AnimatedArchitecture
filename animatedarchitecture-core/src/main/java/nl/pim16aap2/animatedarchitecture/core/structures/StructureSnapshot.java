@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyManagerConst;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Rectangle;
@@ -43,9 +44,11 @@ public final class StructureSnapshot implements IStructureConst
     private final StructureOwner primeOwner;
     private final Map<UUID, StructureOwner> ownersMap;
     private final StructureType type;
+    private final IPropertyManagerConst propertyManager;
 
     @Getter(AccessLevel.NONE)
-    private final Map<String, Object> propertyMap;
+    private final Map<String, Object> persistentVariableMap;
+
 
     StructureSnapshot(AbstractStructure structure)
     {
@@ -63,7 +66,8 @@ public final class StructureSnapshot implements IStructureConst
             structure.getPrimeOwner(),
             Map.copyOf(structure.getOwnersView()),
             structure.getType(),
-            getPropertyMap(structure)
+            structure.getPropertyManagerSnapshot(),
+            getPersistentVariableMap(structure)
         );
     }
 
@@ -109,7 +113,7 @@ public final class StructureSnapshot implements IStructureConst
      */
     public Optional<Object> getProperty(String key)
     {
-        return Optional.ofNullable(propertyMap.get(key));
+        return Optional.ofNullable(persistentVariableMap.get(key));
     }
 
     /**
@@ -120,11 +124,11 @@ public final class StructureSnapshot implements IStructureConst
      * @return The property map of the structure.
      */
     @VisibleForTesting
-    public static Map<String, Object> getPropertyMap(AbstractStructure structure)
+    public static Map<String, Object> getPersistentVariableMap(AbstractStructure structure)
     {
         try
         {
-            return structure.getType().getStructureSerializer().getPropertyMap(structure);
+            return structure.getType().getStructureSerializer().getPersistentVariableMap(structure);
         }
         catch (Exception e)
         {

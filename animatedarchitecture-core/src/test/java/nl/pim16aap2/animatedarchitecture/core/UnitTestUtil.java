@@ -226,7 +226,7 @@ public class UnitTestUtil
 
         final Map<String, Object> propertyMap = safeSupplierSimple(
             Collections.emptyMap(),
-            () -> StructureSnapshot.getPropertyMap(structure)
+            () -> StructureSnapshot.getPersistentVariableMap(structure)
         );
 
         //noinspection SuspiciousMethodCalls

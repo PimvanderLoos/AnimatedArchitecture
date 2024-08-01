@@ -31,6 +31,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureRegistry;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSerializer;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyManagerSerializer;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.IBitFlag;
 import nl.pim16aap2.animatedarchitecture.core.util.Limit;
@@ -301,7 +302,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         );
 
         final Map<UUID, StructureOwner> ownersOfStructure = getOwnersOfStructure(structureUID);
-        final AbstractStructure.BaseHolder structureData =
+        final var structureData =
             structureBaseBuilder
                 .builder()
                 .uid(structureUID)
@@ -314,12 +315,21 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 .isLocked(isLocked)
                 .openDir(openDirection.get())
                 .primeOwner(primeOwner)
-                .ownersOfStructure(ownersOfStructure)
-                .build();
+                .ownersOfStructure(ownersOfStructure);
 
         final String rawTypeData = structureBaseRS.getString("typeData");
         final int typeVersion = structureBaseRS.getInt("typeVersion");
-        return Optional.of(serializer.deserialize(structureRegistry, structureData, typeVersion, rawTypeData));
+
+        if (1 == 1)
+            throw new UnsupportedOperationException("PropertyManager serialization not implemented yet!");
+        return Optional.of(
+            serializer.deserialize(
+                structureRegistry,
+                structureData,
+                typeVersion,
+                rawTypeData,
+                "" // FIXME: PropertyManager serialization
+            ));
     }
 
     @Override
@@ -344,7 +354,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         Connection conn,
         AbstractStructure structure,
         StructureType structureType,
-        String typeSpecificData)
+        String typeSpecificData,
+        String propertiesData)
     {
         final PlayerData playerData = structure.getPrimeOwner().playerData();
         insertOrIgnorePlayer(conn, playerData);
@@ -353,6 +364,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
         final long structureUID = executeQuery(
             conn,
+            // FIXME: Add propertiesData
             SQLStatement.INSERT_STRUCTURE_BASE
                 .constructDelayedPreparedStatement()
                 .setNextString(structure.getName())
@@ -411,15 +423,18 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
         try
         {
-            final String typeData = serializer.serialize(structure);
+            final String typeData = serializer.serializeTypeData(structure);
+            final String properties = PropertyManagerSerializer.serialize(structure);
 
             final long structureUID = executeTransaction(
-                conn -> insert(conn, structure, structure.getType(), typeData),
+                conn -> insert(conn, structure, structure.getType(), typeData, properties),
                 -1L
             );
 
             if (structureUID > 0)
             {
+                if (1 == 1)
+                    throw new UnsupportedOperationException("PropertyManager serialization not implemented yet!");
                 return Optional.of(serializer.deserialize(
                     structureRegistry,
                     structureBaseBuilder
@@ -434,10 +449,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                         .isLocked(structure.isLocked())
                         .openDir(structure.getOpenDir())
                         .primeOwner(remapStructureOwner(structure.getPrimeOwner(), structureUID))
-                        .ownersOfStructure(remapStructureOwners(structure.getOwners(), structureUID))
-                        .build(),
+                        .ownersOfStructure(remapStructureOwners(structure.getOwners(), structureUID)),
                     structure.getType().getVersion(),
-                    typeData)
+                    typeData,
+                    "") // FIXME: PropertyManager serialization
                 );
             }
         }
