@@ -3,7 +3,6 @@ package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Map;
 
@@ -19,15 +18,15 @@ import java.util.Map;
 @ThreadSafe
 public final class PropertyManagerSnapshot implements IPropertyManagerConst
 {
-    private final Map<String, Object> propertyMap;
+    private final Map<String, IPropertyValue<?>> propertyMap;
 
-    PropertyManagerSnapshot(Map<String, Object> propertyMap)
+    PropertyManagerSnapshot(Map<String, IPropertyValue<?>> propertyMap)
     {
         this.propertyMap = Map.copyOf(propertyMap);
     }
 
     @Override
-    public <T> @Nullable T getPropertyValue(Property<T> property)
+    public <T> IPropertyValue<T> getPropertyValue(Property<T> property)
     {
         return PropertyManager.getValue(propertyMap, property);
     }
@@ -43,7 +42,7 @@ public final class PropertyManagerSnapshot implements IPropertyManagerConst
      *
      * @return An unmodifiable map of properties.
      */
-    public Map<String, Object> getMap()
+    public Map<String, IPropertyValue<?>> getMap()
     {
         return propertyMap;
     }

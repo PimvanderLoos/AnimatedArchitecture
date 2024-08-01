@@ -21,7 +21,7 @@ public final class PropertyManagerSerializer
      */
     public static String serialize(IPropertyManagerConst propertyManagerConst)
     {
-        final Map<String, Object> map = switch (propertyManagerConst)
+        final Map<String, IPropertyValue<?>> map = switch (propertyManagerConst)
         {
             case PropertyManager propertyManager -> propertyManager.getMap();
             case PropertyManagerSnapshot propertyManagerSnapshot -> propertyManagerSnapshot.getMap();
@@ -56,7 +56,10 @@ public final class PropertyManagerSerializer
         try
         {
             //noinspection unchecked
-            return PropertyManager.forType(structureType, (Map<String, Object>) JSON.parseObject(json, HashMap.class));
+            return PropertyManager.forType(
+                structureType,
+                (Map<String, IPropertyValue<?>>) JSON.parseObject(json, HashMap.class)
+            );
         }
         catch (Exception e)
         {

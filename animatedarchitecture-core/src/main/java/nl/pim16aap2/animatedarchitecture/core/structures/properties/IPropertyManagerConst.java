@@ -1,7 +1,5 @@
 package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 
-import javax.annotation.Nullable;
-
 /**
  * Represents a read-only property manager.
  * <p>
@@ -16,12 +14,9 @@ public sealed interface IPropertyManagerConst permits PropertyManager, PropertyM
      *     The property to get the value of.
      * @param <T>
      *     The type of the property.
-     * @return The value of the property. May be {@code null} if the property is nullable.
-     *
-     * @throws IllegalArgumentException
-     *     If the property is not set.
+     * @return The value of the property.
      */
-    <T> @Nullable T getPropertyValue(Property<T> property);
+    <T> IPropertyValue<T> getPropertyValue(Property<T> property);
 
     /**
      * Checks if the given property has a value set.

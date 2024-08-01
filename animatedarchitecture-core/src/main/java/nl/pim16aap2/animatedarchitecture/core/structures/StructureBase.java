@@ -22,6 +22,7 @@ import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyValue;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyManagerSnapshot;
@@ -379,7 +380,7 @@ final class StructureBase
     }
 
     @Locked.Read("lock")
-    public <T> T getPropertyValue(Property<T> property)
+    public <T> IPropertyValue<T> getPropertyValue(Property<T> property)
     {
         return propertyManager.getPropertyValue(property);
     }

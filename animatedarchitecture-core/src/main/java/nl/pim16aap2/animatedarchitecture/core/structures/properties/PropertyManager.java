@@ -5,11 +5,9 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
-import org.jetbrains.annotations.VisibleForTesting;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
-import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,29 +38,22 @@ public final class PropertyManager implements IPropertyManagerConst
      * The key is the name of the structure type. The value is a map containing the properties and their default
      * values.
      */
-    private static final Map<StructureType, Map<String, Object>> DEFAULT_PROPERTY_MAPS = new ConcurrentHashMap<>();
-
-    /**
-     * The value that is used to represent a {@code null} value.
-     * <p>
-     * This is used to differentiate between a {@code null} value and a value that is not set.
-     */
-    @VisibleForTesting
-    static final NullObject NULL_VALUE = NullObject.INSTANCE;
+    private static final Map<StructureType, Map<String, IPropertyValue<?>>> DEFAULT_PROPERTY_MAPS =
+        new ConcurrentHashMap<>();
 
     /**
      * The map that contains the properties and their values.
      * <p>
      * The key is defined by {@link #mapKey(Property)}. The value is the value of the property.
      */
-    private final Map<String, Object> propertyMap;
+    private final Map<String, IPropertyValue<?>> propertyMap;
 
     /**
      * An unmodifiable view of {@link #propertyMap}.
      */
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private final Map<String, Object> unmodifiablePropertyMap;
+    private final Map<String, IPropertyValue<?>> unmodifiablePropertyMap;
 
     /**
      * Creates a new property manager with the given properties.
@@ -70,7 +61,7 @@ public final class PropertyManager implements IPropertyManagerConst
      * @param propertyMap
      *     The properties to set.
      */
-    private PropertyManager(Map<String, Object> propertyMap)
+    private PropertyManager(Map<String, IPropertyValue<?>> propertyMap)
     {
         this.propertyMap = propertyMap;
         this.unmodifiablePropertyMap = Collections.unmodifiableMap(propertyMap);
@@ -98,7 +89,7 @@ public final class PropertyManager implements IPropertyManagerConst
     }
 
     @Override
-    public <T> @Nullable T getPropertyValue(Property<T> property)
+    public <T> IPropertyValue<T> getPropertyValue(Property<T> property)
     {
         return getValue(propertyMap, property);
     }
@@ -149,7 +140,7 @@ public final class PropertyManager implements IPropertyManagerConst
      * @return A new property manager with all properties defined in the structure type and the values from the provided
      * map if available.
      */
-    public static PropertyManager forType(StructureType structureType, Map<String, Object> valueMap)
+    public static PropertyManager forType(StructureType structureType, Map<String, IPropertyValue<?>> valueMap)
     {
         return new PropertyManager(getPropertiesMap(structureType, valueMap));
     }
@@ -163,7 +154,7 @@ public final class PropertyManager implements IPropertyManagerConst
      *     The structure type to get the default property map for.
      * @return The default (unmodifiable) property map for the given structure type.
      */
-    static Map<String, Object> getDefaultPropertyMap(StructureType structureType)
+    static Map<String, IPropertyValue<?>> getDefaultPropertyMap(StructureType structureType)
     {
         return DEFAULT_PROPERTY_MAPS.computeIfAbsent(
             Util.requireNonNull(structureType, "StructureType"),
@@ -180,11 +171,11 @@ public final class PropertyManager implements IPropertyManagerConst
      *     The structure type to get the default properties for.
      * @return A new (unmodifiable) property map with the default properties for the given structure type.
      */
-    static Map<String, Object> newDefaultPropertyMap(StructureType structureType)
+    static Map<String, IPropertyValue<?>> newDefaultPropertyMap(StructureType structureType)
     {
         final var typeProperties = structureType.getProperties();
 
-        final Map<String, Object> defaultProperties = HashMap.newHashMap(typeProperties.size());
+        final Map<String, IPropertyValue<?>> defaultProperties = HashMap.newHashMap(typeProperties.size());
         structureType
             .getProperties()
             .forEach(property ->
@@ -217,9 +208,11 @@ public final class PropertyManager implements IPropertyManagerConst
      * @return A property map with all properties defined in the structure type and the values from the provided map if
      * available.
      */
-    static Map<String, Object> getPropertiesMap(StructureType structureType, Map<String, Object> providedValues)
+    static Map<String, IPropertyValue<?>> getPropertiesMap(
+        StructureType structureType,
+        Map<String, IPropertyValue<?>> providedValues)
     {
-        final Map<String, Object> defaultProperties = getDefaultPropertyMap(structureType);
+        final Map<String, IPropertyValue<?>> defaultProperties = getDefaultPropertyMap(structureType);
         if (defaultProperties.keySet().equals(providedValues.keySet()))
             return providedValues;
 
@@ -233,7 +226,7 @@ public final class PropertyManager implements IPropertyManagerConst
                 structureType
             ));
 
-        final Map<String, Object> mergedProperties = new HashMap<>(defaultProperties);
+        final Map<String, IPropertyValue<?>> mergedProperties = new HashMap<>(defaultProperties);
 
         for (final var entry : providedValues.entrySet())
         {
@@ -264,18 +257,14 @@ public final class PropertyManager implements IPropertyManagerConst
      *     The property to get the value of.
      * @param <T>
      *     The type of the property.
-     * @return The value of the property. May be {@code null} if the property is nullable.
+     * @return The value of the property.
      */
-    static <T> @Nullable T getValue(Map<String, Object> propertyMap, Property<T> property)
+    static <T> IPropertyValue<T> getValue(Map<String, IPropertyValue<?>> propertyMap, Property<T> property)
     {
-        final @Nullable Object rawValue = getRawValue(propertyMap, property);
-        if (rawValue == null)
-            throw new IllegalArgumentException("Requesting value for unset property: " + mapKey(property));
+        final @Nullable IPropertyValue<?> rawValue = getRawValue(propertyMap, property);
+        //noinspection unchecked
+        return (IPropertyValue<T>) Objects.requireNonNullElse(rawValue, UnsetPropertyValue.INSTANCE);
 
-        if (rawValue == NULL_VALUE)
-            return null;
-
-        return property.cast(rawValue);
     }
 
     /**
@@ -285,10 +274,11 @@ public final class PropertyManager implements IPropertyManagerConst
      *     The map containing the properties.
      * @param property
      *     The property to get the raw value of.
-     * @return The raw value of the property or {@code null} if the property is not set. May be {@link #NULL_VALUE} if
-     * the property is nullable and set to {@code null}.
+     * @return The raw value of the property or {@code null} if the property is not set.
      */
-    private static @Nullable Object getRawValue(Map<String, Object> propertyMap, Property<?> property)
+    private static @Nullable IPropertyValue<?> getRawValue(
+        Map<String, IPropertyValue<?>> propertyMap,
+        Property<?> property)
     {
         return propertyMap.get(mapKey(property));
     }
@@ -298,7 +288,7 @@ public final class PropertyManager implements IPropertyManagerConst
      *
      * @return An unmodifiable view of the property map.
      */
-    Map<String, Object> getMap()
+    Map<String, IPropertyValue<?>> getMap()
     {
         return unmodifiablePropertyMap;
     }
@@ -320,47 +310,68 @@ public final class PropertyManager implements IPropertyManagerConst
     /**
      * Gets the map value for the given value.
      * <p>
-     * If the value is {@code null}, this method returns {@link #NULL_VALUE}. Otherwise, it returns the value itself.
+     * If the value is {@code null}, this method returns {@link UnsetPropertyValue#INSTANCE}.
      *
      * @param value
      *     The value to convert.
-     * @return {@link #NULL_VALUE} if the value is {@code null}, otherwise the value itself.
+     * @return {@link UnsetPropertyValue#INSTANCE} if the value is {@code null}, otherwise the value wrapped in a
+     * {@link ProvidedPropertyValue}.
      */
-    private static Object mapValue(@Nullable Object value)
+    private static IPropertyValue<?> mapValue(@Nullable Object value)
     {
-        return Objects.requireNonNullElse(value, NULL_VALUE);
+        return new ProvidedPropertyValue<>(value);
     }
 
     /**
-     * Represents a {@code null} object that can be used to represent a {@code null} value in a map.
-     * <p>
-     * Used to differentiate between a {@code null} value and a value that is not set.
+     * Represents a property value that is set.
+     *
+     * @param <T>
+     *     The type of the property.
      */
-    static final class NullObject implements Serializable
+    private static final class ProvidedPropertyValue<T> implements IPropertyValue<T>
     {
-        public static final NullObject INSTANCE = new NullObject();
+        private final @Nullable T value;
 
-        private NullObject()
+        private ProvidedPropertyValue(@Nullable T value)
+        {
+            this.value = value;
+        }
+
+        @Override
+        public boolean isSet()
+        {
+            return true;
+        }
+
+        @Override
+        public @Nullable T get()
+        {
+            return value;
+        }
+    }
+
+    /**
+     * Represents a property value that is not set.
+     */
+    private static final class UnsetPropertyValue implements IPropertyValue<Object>
+    {
+        private static final UnsetPropertyValue INSTANCE = new UnsetPropertyValue();
+
+        private UnsetPropertyValue()
         {
             // Private constructor to prevent instantiation
         }
 
         @Override
-        public String toString()
+        public boolean isSet()
         {
-            return "NullObject";
+            return false;
         }
 
         @Override
-        public boolean equals(Object obj)
+        public @Nullable Object get()
         {
-            return obj instanceof NullObject;
-        }
-
-        @Override
-        public int hashCode()
-        {
-            return 0;
+            return null;
         }
     }
 }
