@@ -1,7 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 
 import javax.annotation.Nullable;
-import java.io.Serializable;
 
 /**
  * Represents the value of a property.
@@ -9,7 +8,7 @@ import java.io.Serializable;
  * @param <T>
  *     The type of the value.
  */
-public interface IPropertyValue<T> extends Serializable
+public interface IPropertyValue<T>
 {
     /**
      * Checks whether the value is set for this property.
