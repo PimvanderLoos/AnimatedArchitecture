@@ -3,9 +3,9 @@ package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.TypeReference;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +13,7 @@ import java.util.Map;
 /**
  * Serializes and deserializes {@link PropertyManager} instances to and from JSON.
  */
+@Flogger
 public final class PropertyManagerSerializer
 {
     /**
@@ -54,39 +55,139 @@ public final class PropertyManagerSerializer
         return serialize(structure.getPropertyManagerSnapshot());
     }
 
-    private static PropertyManager.ProvidedPropertyValue<?> deserializeMapValue(
-        String propertyKey,
-        JSONObject jsonObject)
+    /**
+     * Deserializes an {@link IPropertyValue} from the given {@link JSONObject}.
+     *
+     * @param jsonObject
+     *     The {@link JSONObject} to deserialize.
+     * @param type
+     *     The type of the value.
+     * @param <T>
+     *     The type of the value.
+     * @return The deserialized {@link IPropertyValue}.
+     */
+    static <T> IPropertyValue<T> deserializePropertyValue(JSONObject jsonObject, Class<T> type)
     {
-        final @Nullable Property<?> property = Property.fromName(propertyKey);
-        if (property == null)
-        {
-            throw new IllegalArgumentException(
-                "Could not deserialize PropertyManager: Unknown property key: '" + propertyKey + "'");
-        }
-
-        final @Nullable Object value = jsonObject.getObject("value", property.getType());
-        return PropertyManager.mapValue(value);
+        return new PropertyManager.ProvidedPropertyValue<>(
+            type,
+            jsonObject.getObject("value", type)
+        );
     }
 
-    private static PropertyManager deserialize(
+    /**
+     * Updates the given {@link Map} with the deserialized value of the given key.
+     *
+     * @param structureType
+     *     The structure type to update the property map for. Used to provide context in log messages.
+     * @param propertyMap
+     *     The property map to update.
+     *     <p>
+     *     This map is updated in-place with the deserialized value of the given key if applicable.
+     * @param key
+     *     The key of the property to update.
+     * @param jsonObject
+     *     The {@link JSONObject} that represents the value of the property. This object should contain a "value" field
+     *     that represents the value of the property.
+     *     <p>
+     *     The object is not deserialized if the key does not exist in the default map.
+     * @return True if the key exists in the default map and the value was deserialized and updated, false otherwise.
+     */
+    static boolean updatePropertyMapEntry(
         StructureType structureType,
-        Map<String, JSONObject> map)
+        Map<String, IPropertyValue<?>> propertyMap,
+        String key,
+        JSONObject jsonObject)
     {
-        final Map<String, PropertyManager.ProvidedPropertyValue<?>> propertyMap = HashMap.newHashMap(map.size());
-
-        for (final var entry : map.entrySet())
+        return propertyMap.compute(key, (k, existingEntry) ->
         {
-            final String propertyKey = entry.getKey();
+            // If the key exists in the default map, deserialize the value and replace the entry.
+            if (existingEntry != null)
+                return deserializePropertyValue(jsonObject, existingEntry.type());
+
+            // If the key does not exist in the default map,
+            // we can conclude that the structure type does not support this property.
+            log.atSevere().log(
+                "Discarding property '%s' with value '%s' for structure type '%s' as it is not supported.",
+                key,
+                jsonObject,
+                structureType
+            );
+            return null;
+        }) != null;
+    }
+
+    /**
+     * Deserializes a map to a {@link PropertyManager}.
+     * <p>
+     * This method will go over the entries in the deserialized map and apply the values to the default property map of
+     * the given structure type (See {@link PropertyManager#getDefaultPropertyMap(StructureType)}).
+     * <p>
+     * If a property in the deserialized map is not supported by the structure type (i.e. the key does not exist in the
+     * default property map), a warning will be logged and the property will be discarded.
+     * <p>
+     * Conversely, if a property in the default property map is not present in the deserialized map, a warning will be
+     * logged and the default value will be used (See {@link Property#getDefaultValue()}).
+     *
+     * @param structureType
+     *     The structure type to deserialize the {@link PropertyManager} for.
+     *     <p>
+     *     The structure type is used to obtain the default property map for the given structure type and to provide
+     *     context in log messages.
+     * @param deserializedMap
+     *     The map to deserialize.
+     *     <p>
+     *     This map should contain the keys of the properties mapped to {@link JSONObject}s that represent the
+     *     serialized values of the properties. Only supported properties will be deserialized.
+     * @return The deserialized {@link PropertyManager}.
+     */
+    static PropertyManager deserialize(
+        StructureType structureType,
+        Map<String, JSONObject> deserializedMap)
+    {
+        final Map<String, IPropertyValue<?>> propertyMap =
+            new HashMap<>(PropertyManager.getDefaultPropertyMap(structureType));
+
+        int supportedProperties = 0;
+        for (final var entry : deserializedMap.entrySet())
+        {
+            final String key = entry.getKey();
             final JSONObject jsonObject = entry.getValue();
 
-            final PropertyManager.ProvidedPropertyValue<?> providedPropertyValue = deserializeMapValue(
-                propertyKey,
-                jsonObject);
-            propertyMap.put(propertyKey, providedPropertyValue);
+            if (updatePropertyMapEntry(structureType, propertyMap, key, jsonObject))
+                supportedProperties++;
         }
 
-        return PropertyManager.forType(structureType, propertyMap);
+        if (supportedProperties != propertyMap.size())
+            logMissingProperties(structureType, propertyMap, deserializedMap);
+
+        return new PropertyManager(propertyMap);
+    }
+
+    /**
+     * Logs a warning for each property in the default property map that is not present in the deserialized map.
+     *
+     * @param structureType
+     *     The structure type whose property manager is being deserialized. Used to provide context in log messages.
+     * @param propertyMap
+     *     The default property map of the structure type.
+     * @param deserializedMap
+     *     The deserialized map.
+     */
+    private static void logMissingProperties(
+        StructureType structureType,
+        Map<String, IPropertyValue<?>> propertyMap,
+        Map<String, JSONObject> deserializedMap)
+    {
+        propertyMap
+            .entrySet()
+            .stream()
+            .filter(entry -> !deserializedMap.containsKey(entry.getKey()))
+            .forEach(entry -> log.atWarning().log(
+                "Property '%s' was not supplied for structure type '%s', using default value '%s'.",
+                entry.getKey(),
+                structureType,
+                entry.getValue().value()
+            ));
     }
 
     /**

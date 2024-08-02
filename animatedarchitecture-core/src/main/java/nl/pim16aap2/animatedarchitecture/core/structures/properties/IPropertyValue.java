@@ -25,5 +25,12 @@ public interface IPropertyValue<T>
      * @return The value of this property.
      */
     @Nullable
-    T get();
+    T value();
+
+    /**
+     * Gets the type of the value.
+     *
+     * @return The type of the value.
+     */
+    Class<T> type();
 }

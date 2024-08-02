@@ -1,17 +1,22 @@
 package nl.pim16aap2.testing.logging;
 
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import nl.altindag.log.LogCaptor;
 import nl.altindag.log.model.LogEvent;
+import nl.pim16aap2.util.logging.floggerbackend.Log4j2LogEventUtil;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.opentest4j.AssertionFailedError;
 
-import javax.annotation.Nullable;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Level;
 
 /**
  * Represents a set of utility methods to assert logs.
@@ -74,6 +79,9 @@ public final class LogAssertionsUtil
      */
     static String formatLogEvents(List<LogEvent> logEvents, int count)
     {
+        if (logEvents.isEmpty())
+            return "No log events were captured!";
+
         final var builder = new StringBuilder();
         final int numEvents = Math.min(Math.abs(count), logEvents.size());
         final boolean isRelative = count < 0;
@@ -105,6 +113,128 @@ public final class LogAssertionsUtil
     }
 
     /**
+     * Creates a new instance of a {@link LogAssertion.LogAssertionBuilder} with the provided log captor.
+     *
+     * @param logCaptor
+     *     The log captor to use.
+     * @return A new instance of a {@link LogAssertion.LogAssertionBuilder}.
+     */
+    public static LogAssertion.LogAssertionBuilder logAssertionBuilder(LogCaptor logCaptor)
+    {
+        return LogAssertion.builder().logCaptor(logCaptor);
+    }
+
+    private static void assertMessageEquality(
+        String title,
+        LogAssertion logAssertion,
+        String expected,
+        String actual,
+        List<LogEvent> logEvents)
+    {
+        if (!logAssertion.comparisonMethod.compare(expected, actual))
+            Assertions.fail(String.format(
+                """
+                    Expected %s: '%s' at position %d
+                    Received %s: '%s'
+                    Comparison method: %s
+                    %s
+                    """,
+                title, expected, logAssertion.position,
+                title, actual,
+                logAssertion.comparisonMethod,
+                formatLogEvents(logEvents, 10))
+            );
+    }
+
+    private static void assertEquality(
+        String title,
+        LogAssertion logAssertion,
+        Object expected,
+        Object actual,
+        List<LogEvent> logEvents)
+    {
+        if (!Objects.equals(expected, actual))
+            Assertions.fail(String.format(
+                """
+                    Expected %s: '%s' at position %d
+                    Received %s: '%s'
+                    %s
+                    """,
+                title, expected, logAssertion.position,
+                title, actual,
+                formatLogEvents(logEvents, 10))
+            );
+    }
+
+    private static void findLogEvent(LogAssertion logAssertion)
+    {
+        final var logEvents = logAssertion.logCaptor.getLogEvents();
+
+        var stream = logAssertion
+            .logCaptor
+            .getLogEvents()
+            .stream();
+
+        if (logAssertion.level != null)
+            stream = stream.filter(logEvent -> logEvent.getLevel().equals(logAssertion.level));
+
+        if (logAssertion.formattedMessage != null)
+            stream = stream.filter(logEvent -> logAssertion.comparisonMethod.compare(
+                logAssertion.formattedMessage,
+                logEvent.getFormattedMessage())
+            );
+
+        if (stream.findAny().isEmpty())
+            Assertions.fail(String.format(
+                """
+                    Could not find log event: %s
+                    %s
+                    """,
+                logAssertion,
+                formatLogEvents(logEvents, logEvents.size()))
+            );
+    }
+
+    /**
+     * Asserts that a log event was logged.
+     * <p>
+     * Creates a new instance of a {@link LogAssertion.LogAssertionBuilder} using
+     * {@link LogAssertionsUtil#logAssertionBuilder(LogCaptor)}.
+     *
+     * @param logAssertion
+     *     The log assertion to check.
+     */
+    public static void assertLogged(LogAssertion logAssertion)
+    {
+        if (logAssertion.position == null)
+        {
+            findLogEvent(logAssertion);
+            return;
+        }
+
+        final var logEvents = logAssertion.logCaptor.getLogEvents();
+        final var logEvent = getLogEvent(logEvents, logAssertion.position);
+
+        if (logAssertion.formattedMessage != null)
+            assertMessageEquality(
+                "Formatted Message",
+                logAssertion,
+                logAssertion.formattedMessage,
+                logEvent.getFormattedMessage(),
+                logEvents
+            );
+
+        if (logAssertion.level != null)
+            assertEquality(
+                "Log Level",
+                logAssertion,
+                logAssertion.level,
+                logEvent.getLevel(),
+                logEvents
+            );
+    }
+
+    /**
      * Ensures that a message was logged. The assertion will fail if the message was not logged.
      *
      * @param logCaptor
@@ -125,27 +255,19 @@ public final class LogAssertionsUtil
         String message,
         MessageComparisonMethod comparisonMethod)
     {
-        final var logEvents = logCaptor.getLogEvents();
-        final var logEvent = getLogEvent(logEvents, position);
-
-        if (!comparisonMethod.compare(message, logEvent.getMessage()))
-            Assertions.fail(String.format(
-                """
-                    Expected Message: '%s' at position %d
-                    Received Message: '%s'
-                    Comparison method: %s
-                    %s
-                    """,
-                message,
-                position,
-                logEvent.getMessage(),
-                comparisonMethod,
-                formatLogEvents(logEvents, position < 0 ? -10 : 10))
-            );
+        // TODO: Delete this method and replace all calls with the builder method.
+        assertLogged(
+            LogAssertion.builder()
+                .logCaptor(logCaptor)
+                .position(position)
+                .formattedMessage(message)
+                .comparisonMethod(comparisonMethod)
+                .build()
+        );
     }
 
     /**
-     * Ensures that a throwable was logged. The assertion will fail if the throwable was not logged.
+     * Ensures that a message was logged. The assertion will fail if the throwable was not logged.
      * <p>
      * Shortcut for {@link #assertLogged(LogCaptor, int, String, MessageComparisonMethod)} with a position of -1 and
      * using {@link MessageComparisonMethod#EQUALS} for the comparison method.
@@ -668,6 +790,116 @@ public final class LogAssertionsUtil
             return Arrays.stream(classes)
                 .map(ThrowableSpec::new)
                 .toArray(ThrowableSpec[]::new);
+        }
+    }
+
+    /**
+     * Represents a specification of an assertion for a log event.
+     * <p>
+     * New instances of this class can be created using the {@link LogAssertionsUtil#logAssertionBuilder} method.
+     */
+    @Builder
+    @ToString
+    @EqualsAndHashCode
+    public static final class LogAssertion
+    {
+        /**
+         * The log captor to get the log event from.
+         * <p>
+         * This field is required.
+         */
+        private LogCaptor logCaptor;
+
+        /**
+         * The position of the log event to check. 0 means the first (oldest) log event, 1 means the second, etc.
+         * <p>
+         * If the position is negative, the position will be relative to the end of the log events. For example, -1 will
+         * get the last log event, -2 will get the second to last, etc.
+         * <p>
+         * <p>
+         * When {@code null}, all log events will be checked until the first one that matches the conditions.
+         * <p>
+         * Default: {@code null}
+         */
+        @Builder.Default
+        private @Nullable Integer position = null;
+
+        /**
+         * The fully formatted message that was logged, with all arguments substituted.
+         * <p>
+         * When {@code null}, the message will not be checked.
+         * <p>
+         * Default: {@code null}
+         */
+        @Builder.Default
+        private @Nullable String formattedMessage = null;
+
+        /**
+         * The level of the log event.
+         * <p>
+         * When {@code null}, the level will not be checked.
+         * <p>
+         * Default: {@code null}
+         */
+        @Builder.Default
+        private @Nullable String level = null;
+
+        /**
+         * The method to use when comparing the expected and actual messages.
+         * <p>
+         * Default: {@link MessageComparisonMethod#EQUALS}
+         */
+        @Builder.Default
+        private MessageComparisonMethod comparisonMethod = MessageComparisonMethod.EQUALS;
+
+        private static LogAssertionBuilder builder()
+        {
+            return new LogAssertionBuilder();
+        }
+
+        /**
+         * Builder class for {@link LogAssertion}.
+         */
+        public static class LogAssertionBuilder
+        {
+            /**
+             * Sets both the raw message and the arguments.
+             * <p>
+             * Note that this method will not set the formatted message.
+             *
+             * @param message
+             *     The message to set. E.g. "Hello, %s!"
+             * @param arguments
+             *     The arguments to set.
+             * @return This builder.
+             */
+            public LogAssertionBuilder message(String message, @Nullable Object... arguments)
+            {
+                this.formattedMessage(String.format(message, arguments));
+                return this;
+            }
+
+            /**
+             * Sets the expected log level of the log event.
+             *
+             * @param level
+             *     The log level to set.
+             * @return This builder.
+             */
+            public LogAssertionBuilder level(Level level)
+            {
+                this.level$value = Log4j2LogEventUtil.toLog4jLevel(level).name();
+                this.level$set = true;
+                return this;
+            }
+
+            /**
+             * Runs the assertions on the log event as specified by this builder.
+             */
+            public void assertLogged()
+            {
+                LogAssertionsUtil.assertLogged(this.build());
+            }
         }
     }
 
