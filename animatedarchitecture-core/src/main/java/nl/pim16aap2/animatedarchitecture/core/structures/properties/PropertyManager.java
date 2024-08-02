@@ -6,11 +6,9 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
-import org.jetbrains.annotations.VisibleForTesting;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
-import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,8 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Manages the properties of a structure.
  * <p>
- * New instances of this class can be created using {@link #forType(StructureType)} and
- * {@link #forType(StructureType, Map)}.
+ * New instances of this class can be created using {@link #forType(StructureType)}.
  * <p>
  * A property manager is created for a specific structure type. It contains all properties that are defined for that
  * type as defined by {@link StructureType#getProperties()}.
@@ -64,7 +61,6 @@ public final class PropertyManager implements IPropertyManagerConst
      * @param propertyMap
      *     The properties to set.
      */
-    @VisibleForTesting
     PropertyManager(Map<String, IPropertyValue<?>> propertyMap)
     {
         this.propertyMap = propertyMap;
@@ -89,7 +85,7 @@ public final class PropertyManager implements IPropertyManagerConst
         if (!propertyMap.containsKey(key))
             throw new IllegalArgumentException("Property " + key + " is not valid for this structure type.");
 
-        propertyMap.put(key, mapValue(value));
+        propertyMap.put(key, mapValue(property, value));
     }
 
     @Override
@@ -124,29 +120,6 @@ public final class PropertyManager implements IPropertyManagerConst
     public static PropertyManager forType(StructureType structureType)
     {
         return new PropertyManager(new HashMap<>(getDefaultPropertyMap(structureType)));
-    }
-
-    /**
-     * Creates a new property manager with the given properties.
-     * <p>
-     * The returned property manager will contain all properties that are defined in the given structure type.
-     * <p>
-     * If the provided map does not contain a value for a property, the default value of the property will be used and a
-     * warning will be logged.
-     * <p>
-     * If the provided map contains a value for a property that is not defined in the structure type, a warning will be
-     * logged and the property will be ignored.
-     *
-     * @param structureType
-     *     The structure type to get the properties for.
-     * @param valueMap
-     *     The map containing the values for the properties.
-     * @return A new property manager with all properties defined in the structure type and the values from the provided
-     * map if available.
-     */
-    static PropertyManager forType(StructureType structureType, Map<String, ProvidedPropertyValue<?>> valueMap)
-    {
-        return new PropertyManager(getPropertiesMap(structureType, valueMap));
     }
 
     /**
@@ -192,67 +165,6 @@ public final class PropertyManager implements IPropertyManagerConst
     }
 
     /**
-     * Creates a new property map with the given properties.
-     * <p>
-     * The returned map will contain all properties that are defined in the given structure type.
-     * <p>
-     * If the provided map does not contain a value for a property, the default value of the property will be used and a
-     * warning will be logged.
-     * <p>
-     * If the provided map contains a value for a property that is not defined in the structure type, a warning will be
-     * logged and the property will be ignored.
-     * <p>
-     * If the provided values map contains all properties defined in the structure type, the provided map will be
-     * returned as-is.
-     *
-     * @param structureType
-     *     The structure type to get the properties for.
-     * @param providedValues
-     *     The map containing the values for the properties.
-     * @return A property map with all properties defined in the structure type and the values from the provided map if
-     * available.
-     */
-    static Map<String, IPropertyValue<?>> getPropertiesMap(
-        StructureType structureType,
-        Map<String, ProvidedPropertyValue<?>> providedValues)
-    {
-        final Map<String, IPropertyValue<?>> defaultProperties = getDefaultPropertyMap(structureType);
-        if (defaultProperties.keySet().equals(providedValues.keySet()))
-            return new HashMap<>(providedValues);
-
-        defaultProperties
-            .keySet()
-            .stream()
-            .filter(key -> !providedValues.containsKey(key))
-            .forEach(key -> log.atWarning().log(
-                "Property %s was not supplied for structure type %s, using default value.",
-                key,
-                structureType
-            ));
-
-        final Map<String, IPropertyValue<?>> mergedProperties = new HashMap<>(defaultProperties);
-
-        for (final var entry : providedValues.entrySet())
-        {
-            final var key = entry.getKey();
-            final var value = entry.getValue();
-
-            if (defaultProperties.containsKey(key))
-                mergedProperties.put(key, value);
-            else
-            {
-                log.atWarning().log(
-                    "Property %s is not supported by structure type %s, ignoring it.",
-                    key,
-                    structureType
-                );
-            }
-        }
-
-        return mergedProperties;
-    }
-
-    /**
      * Gets the value of the given property.
      *
      * @param propertyMap
@@ -268,7 +180,6 @@ public final class PropertyManager implements IPropertyManagerConst
         final @Nullable IPropertyValue<?> rawValue = getRawValue(propertyMap, property);
         //noinspection unchecked
         return (IPropertyValue<T>) Objects.requireNonNullElse(rawValue, UnsetPropertyValue.INSTANCE);
-
     }
 
     /**
@@ -322,7 +233,7 @@ public final class PropertyManager implements IPropertyManagerConst
      */
     static <T> ProvidedPropertyValue<T> defaultMapValue(Property<T> property)
     {
-        return mapValue(property.getDefaultValue());
+        return mapValue(property, property.getDefaultValue());
     }
 
     /**
@@ -335,9 +246,29 @@ public final class PropertyManager implements IPropertyManagerConst
      * @return {@link UnsetPropertyValue#INSTANCE} if the value is {@code null}, otherwise the value wrapped in a
      * {@link ProvidedPropertyValue}.
      */
-    static <T> ProvidedPropertyValue<T> mapValue(@Nullable T value)
+    static <T> ProvidedPropertyValue<T> mapValue(Property<T> property, @Nullable T value)
     {
-        return new ProvidedPropertyValue<>(value);
+        return new ProvidedPropertyValue<>(property.getType(), value);
+    }
+
+    /**
+     * Gets the map value for the given untyped value.
+     * <p>
+     * If the value is {@code null}, this method returns {@link UnsetPropertyValue#INSTANCE}.
+     * <p>
+     * If possible, consider using {@link #mapValue(Property, Object)} instead for better type safety.
+     *
+     * @param property
+     *     The property to get the value for.
+     * @param value
+     *     The value to convert.
+     * @param <T>
+     *     The type of the property.
+     * @return The value wrapped in a {@link ProvidedPropertyValue}.
+     */
+    static <T> ProvidedPropertyValue<T> mapUntypedValue(Property<T> property, @Nullable Object value)
+    {
+        return mapValue(property, property.cast(value));
     }
 
     /**
@@ -348,19 +279,16 @@ public final class PropertyManager implements IPropertyManagerConst
      * @param <T>
      *     The type of the property.
      */
-    record ProvidedPropertyValue<T>(@Nullable T value) implements IPropertyValue<T>, Serializable
+    record ProvidedPropertyValue<T>(
+        @JSONField(serialize = false) Class<T> type,
+        @Nullable T value)
+        implements IPropertyValue<T>
     {
         @JSONField(serialize = false)
         @Override
         public boolean isSet()
         {
             return true;
-        }
-
-        @Override
-        public @Nullable T get()
-        {
-            return value;
         }
     }
 
@@ -378,9 +306,15 @@ public final class PropertyManager implements IPropertyManagerConst
         }
 
         @Override
-        public @Nullable Object get()
+        public @Nullable Object value()
         {
             return null;
+        }
+
+        @Override
+        public Class<Object> type()
+        {
+            return Object.class;
         }
     }
 }

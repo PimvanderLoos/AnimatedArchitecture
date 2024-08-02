@@ -20,7 +20,6 @@ public final class NamespacedKey
     /**
      * The regex rule that the namespace and key must match.
      */
-//    public static final String REGEX = "^[a-z0-9_-]+$";
     public static final Pattern PATTERN = Pattern.compile("^[a-z0-9_-]+$");
 
     /**

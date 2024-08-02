@@ -230,6 +230,8 @@ public final class Property<T> implements IKeyed
 
     /**
      * Casts the given value to the type of the property.
+     * <p>
+     * This method is a wrapper around {@link Class#cast(Object)} for {@link #getType()}.
      *
      * @param value
      *     The value to cast.
@@ -241,10 +243,6 @@ public final class Property<T> implements IKeyed
     @Contract("null -> null; !null -> !null")
     public T cast(@Nullable Object value)
     {
-        if (value == null)
-            return null;
-        if (type.isInstance(value))
-            return type.cast(value);
-        throw new ClassCastException("Cannot cast " + value + " to " + type.getName());
+        return type.cast(value);
     }
 }

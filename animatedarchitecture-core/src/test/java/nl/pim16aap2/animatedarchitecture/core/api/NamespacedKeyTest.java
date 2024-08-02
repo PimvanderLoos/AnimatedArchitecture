@@ -65,7 +65,7 @@ class NamespacedKeyTest
             IllegalArgumentException.class,
             () -> new NamespacedKey("Owner!", "name")
         );
-        assertEquals("Namespace must match the regex rule: ^[a-z0-9_]+$. Found: Owner!", exception.getMessage());
+        assertEquals("Namespace must match the regex rule: ^[a-z0-9_-]+$. Found: Owner!", exception.getMessage());
     }
 
     @Test
@@ -75,7 +75,7 @@ class NamespacedKeyTest
             IllegalArgumentException.class,
             () -> new NamespacedKey("owner", "Name!")
         );
-        assertEquals("Name must match the regex rule: ^[a-z0-9_]+$. Found: Name!", exception.getMessage());
+        assertEquals("Name must match the regex rule: ^[a-z0-9_-]+$. Found: Name!", exception.getMessage());
     }
 
     @Test
