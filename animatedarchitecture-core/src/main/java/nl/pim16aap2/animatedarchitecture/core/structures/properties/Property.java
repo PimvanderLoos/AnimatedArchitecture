@@ -3,6 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IKeyed;
 import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.structures.RedstoneMode;
@@ -11,7 +12,8 @@ import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Contract;
 
 import javax.annotation.Nullable;
-import java.util.Set;
+import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -23,23 +25,30 @@ import java.util.concurrent.ConcurrentHashMap;
  * @param <T>
  *     The type of the property.
  */
-@Getter
 @ToString
 @EqualsAndHashCode
+@Flogger
 public final class Property<T> implements IKeyed
 {
     /**
      * A set of all registered property names.
      */
-    private static final Set<String> REGISTERED_NAMES = ConcurrentHashMap.newKeySet();
+    private static final Map<String, Property<?>> REGISTERED_PROPERTIES = new ConcurrentHashMap<>(10);
 
     /**
-     * The name of the property that is used for serialization.
+     * An unmodifiable view of the registered properties.
+     */
+    private static final Map<String, Property<?>> UNMODIFIABLE_REGISTERED_PROPERTIES =
+        Collections.unmodifiableMap(REGISTERED_PROPERTIES);
+
+    /**
+     * The namespace and key of the property.
      * <p>
      * Note that this name should be unique for each property.
      *
      * @return The name of the property.
      */
+    @Getter
     private final NamespacedKey namespacedKey;
 
     /**
@@ -47,6 +56,7 @@ public final class Property<T> implements IKeyed
      *
      * @return The type of the property.
      */
+    @Getter
     private final Class<T> type;
 
     /**
@@ -54,6 +64,7 @@ public final class Property<T> implements IKeyed
      *
      * @return The default value of the property.
      */
+    @Getter
     private final @Nullable T defaultValue;
 
     /**
@@ -101,8 +112,7 @@ public final class Property<T> implements IKeyed
         if (defaultValue != null && !type.isInstance(defaultValue))
             throw new IllegalArgumentException("Default value " + defaultValue + " is not of type " + type.getName());
 
-        if (!REGISTERED_NAMES.add(namespacedKey.getKey()))
-            throw new IllegalArgumentException("Property with name " + namespacedKey.getKey() + " already exists.");
+        registerProperty(this);
     }
 
     /**
@@ -141,6 +151,61 @@ public final class Property<T> implements IKeyed
     public Property(String owner, String name, Class<T> type, @Nullable T defaultValue)
     {
         this(serializationName(owner, name), type, defaultValue);
+    }
+
+    /**
+     * Registers the given property.
+     * <p>
+     * If a property with the same name already exists, a warning will be logged and the old property will be replaced.
+     * <p>
+     * This method is thread-safe and handles the REGISTERED_PROPERTIES map atomically.
+     *
+     * @param property
+     *     The property to register.
+     */
+    private static void registerProperty(Property<?> property)
+    {
+        REGISTERED_PROPERTIES.compute(property.getFullKey(), (key, value) ->
+        {
+            if (value != null)
+                log.atSevere().log(
+                    "Property with name '%s' has already been registered with value '%s'!" +
+                        " It will be replaced by property '%s'!",
+                    key,
+                    value,
+                    property
+                );
+            return property;
+        });
+    }
+
+    /**
+     * Gets a map of all registered properties.
+     * <p>
+     * The keys are the full keys of the properties.
+     * <p>
+     * The values are the properties themselves.
+     * <p>
+     * Note that the map returns an unmodifiable view of the registered properties. However, the underlying map may
+     * still be modified when new properties are registered.
+     *
+     * @return An unmodifiable map of all registered properties.
+     */
+    public static Map<String, Property<?>> getRegisteredProperties()
+    {
+        return UNMODIFIABLE_REGISTERED_PROPERTIES;
+    }
+
+    /**
+     * Gets the property with the given serialization name.
+     *
+     * @param propertyKey
+     *     The serialization name of the property.
+     * @return The property with the given serialization name, or null if no property with that name exists.
+     */
+    public static @Nullable Property<?> fromName(String propertyKey)
+    {
+        return REGISTERED_PROPERTIES.get(propertyKey);
     }
 
     /**

@@ -1,13 +1,16 @@
 package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 
+import com.alibaba.fastjson2.annotation.JSONField;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import org.jetbrains.annotations.VisibleForTesting;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,13 +49,13 @@ public final class PropertyManager implements IPropertyManagerConst
      * <p>
      * The key is defined by {@link #mapKey(Property)}. The value is the value of the property.
      */
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private final Map<String, IPropertyValue<?>> propertyMap;
 
     /**
      * An unmodifiable view of {@link #propertyMap}.
      */
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
     private final Map<String, IPropertyValue<?>> unmodifiablePropertyMap;
 
     /**
@@ -61,7 +64,8 @@ public final class PropertyManager implements IPropertyManagerConst
      * @param propertyMap
      *     The properties to set.
      */
-    private PropertyManager(Map<String, IPropertyValue<?>> propertyMap)
+    @VisibleForTesting
+    PropertyManager(Map<String, IPropertyValue<?>> propertyMap)
     {
         this.propertyMap = propertyMap;
         this.unmodifiablePropertyMap = Collections.unmodifiableMap(propertyMap);
@@ -107,7 +111,7 @@ public final class PropertyManager implements IPropertyManagerConst
      */
     public PropertyManagerSnapshot snapshot()
     {
-        return new PropertyManagerSnapshot(propertyMap);
+        return new PropertyManagerSnapshot(unmodifiablePropertyMap);
     }
 
     /**
@@ -140,7 +144,7 @@ public final class PropertyManager implements IPropertyManagerConst
      * @return A new property manager with all properties defined in the structure type and the values from the provided
      * map if available.
      */
-    public static PropertyManager forType(StructureType structureType, Map<String, IPropertyValue<?>> valueMap)
+    static PropertyManager forType(StructureType structureType, Map<String, ProvidedPropertyValue<?>> valueMap)
     {
         return new PropertyManager(getPropertiesMap(structureType, valueMap));
     }
@@ -181,7 +185,7 @@ public final class PropertyManager implements IPropertyManagerConst
             .forEach(property ->
                 defaultProperties.put(
                     mapKey(property),
-                    mapValue(property.getDefaultValue())
+                    defaultMapValue(property)
                 ));
 
         return Collections.unmodifiableMap(defaultProperties);
@@ -210,11 +214,11 @@ public final class PropertyManager implements IPropertyManagerConst
      */
     static Map<String, IPropertyValue<?>> getPropertiesMap(
         StructureType structureType,
-        Map<String, IPropertyValue<?>> providedValues)
+        Map<String, ProvidedPropertyValue<?>> providedValues)
     {
         final Map<String, IPropertyValue<?>> defaultProperties = getDefaultPropertyMap(structureType);
         if (defaultProperties.keySet().equals(providedValues.keySet()))
-            return providedValues;
+            return new HashMap<>(providedValues);
 
         defaultProperties
             .keySet()
@@ -304,7 +308,21 @@ public final class PropertyManager implements IPropertyManagerConst
      */
     static String mapKey(Property<?> property)
     {
-        return property.getType().getName();
+        return property.getFullKey();
+    }
+
+    /**
+     * Gets the default value for the given property.
+     *
+     * @param property
+     *     The property to get the default value for.
+     * @param <T>
+     *     The type of the property.
+     * @return The default value for the property.
+     */
+    static <T> ProvidedPropertyValue<T> defaultMapValue(Property<T> property)
+    {
+        return mapValue(property.getDefaultValue());
     }
 
     /**
@@ -317,7 +335,7 @@ public final class PropertyManager implements IPropertyManagerConst
      * @return {@link UnsetPropertyValue#INSTANCE} if the value is {@code null}, otherwise the value wrapped in a
      * {@link ProvidedPropertyValue}.
      */
-    private static IPropertyValue<?> mapValue(@Nullable Object value)
+    static <T> ProvidedPropertyValue<T> mapValue(@Nullable T value)
     {
         return new ProvidedPropertyValue<>(value);
     }
@@ -325,18 +343,14 @@ public final class PropertyManager implements IPropertyManagerConst
     /**
      * Represents a property value that is set.
      *
+     * @param value
+     *     The value of the property.
      * @param <T>
      *     The type of the property.
      */
-    private static final class ProvidedPropertyValue<T> implements IPropertyValue<T>
+    record ProvidedPropertyValue<T>(@Nullable T value) implements IPropertyValue<T>, Serializable
     {
-        private final @Nullable T value;
-
-        private ProvidedPropertyValue(@Nullable T value)
-        {
-            this.value = value;
-        }
-
+        @JSONField(serialize = false)
         @Override
         public boolean isSet()
         {
@@ -353,14 +367,9 @@ public final class PropertyManager implements IPropertyManagerConst
     /**
      * Represents a property value that is not set.
      */
-    private static final class UnsetPropertyValue implements IPropertyValue<Object>
+    record UnsetPropertyValue() implements IPropertyValue<Object>
     {
         private static final UnsetPropertyValue INSTANCE = new UnsetPropertyValue();
-
-        private UnsetPropertyValue()
-        {
-            // Private constructor to prevent instantiation
-        }
 
         @Override
         public boolean isSet()
