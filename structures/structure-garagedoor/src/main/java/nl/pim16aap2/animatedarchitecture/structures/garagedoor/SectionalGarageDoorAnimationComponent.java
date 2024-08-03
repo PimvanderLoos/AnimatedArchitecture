@@ -7,6 +7,7 @@ import nl.pim16aap2.animatedarchitecture.core.animation.Animator;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimator;
 import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 
@@ -19,12 +20,15 @@ import java.util.function.BiFunction;
 public final class SectionalGarageDoorAnimationComponent extends CounterWeightGarageDoorAnimationComponent
 {
     private final double resultHeight;
+    private final Vector3Di rotationPoint;
     private final BiFunction<IAnimatedBlock, Double, RotatedPosition> getVector;
     private final double step;
 
     public SectionalGarageDoorAnimationComponent(AnimationRequestData data, MovementDirection movementDirection)
     {
         super(data, movementDirection);
+
+        this.rotationPoint = data.getStructureSnapshot().getRequiredPropertyValue(Property.ROTATION_POINT);
 
         resultHeight = oldCuboid.getMax().y() + 1.0;
 
@@ -80,7 +84,7 @@ public final class SectionalGarageDoorAnimationComponent extends CounterWeightGa
 
     private RotatedPosition getVectorDownNorth(IAnimatedBlock animatedBlock, double stepSum)
     {
-        final double goalZ = snapshot.getRotationPoint().z();
+        final double goalZ = rotationPoint.z();
         final double pivotZ = goalZ + 1.5;
         final double currentZ = Math.max(goalZ, animatedBlock.getStartZ() - stepSum);
 
@@ -102,7 +106,7 @@ public final class SectionalGarageDoorAnimationComponent extends CounterWeightGa
 
     private RotatedPosition getVectorDownSouth(IAnimatedBlock animatedBlock, double stepSum)
     {
-        final double goalZ = snapshot.getRotationPoint().z();
+        final double goalZ = rotationPoint.z();
         final double pivotZ = goalZ - 1.5;
         final double currentZ = Math.min(goalZ, animatedBlock.getStartZ() + stepSum);
 
@@ -123,7 +127,7 @@ public final class SectionalGarageDoorAnimationComponent extends CounterWeightGa
 
     private RotatedPosition getVectorDownEast(IAnimatedBlock animatedBlock, double stepSum)
     {
-        final double goalX = snapshot.getRotationPoint().x();
+        final double goalX = rotationPoint.x();
         final double pivotX = goalX - 1.5;
         final double currentX = Math.min(goalX, animatedBlock.getStartX() + stepSum);
 
@@ -144,7 +148,7 @@ public final class SectionalGarageDoorAnimationComponent extends CounterWeightGa
 
     private RotatedPosition getVectorDownWest(IAnimatedBlock animatedBlock, double stepSum)
     {
-        final double goalX = snapshot.getRotationPoint().x();
+        final double goalX = rotationPoint.x();
         final double pivotX = goalX + 1.5;
         final double currentX = Math.max(goalX, animatedBlock.getStartX() - stepSum);
 

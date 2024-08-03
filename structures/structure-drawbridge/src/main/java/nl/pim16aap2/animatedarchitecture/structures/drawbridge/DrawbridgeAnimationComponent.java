@@ -9,11 +9,13 @@ import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockData;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.functional.TriFunction;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
+import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
@@ -24,6 +26,7 @@ import java.util.function.Consumer;
 public class DrawbridgeAnimationComponent implements IAnimationComponent
 {
     private final Vector3Dd rotationCenter;
+    private final Vector3Di rotationPoint;
     private final boolean northSouth;
     private final TriFunction<Vector3Dd, Vector3Dd, Double, Vector3Dd> rotator;
     private final StructureSnapshot snapshot;
@@ -41,7 +44,8 @@ public class DrawbridgeAnimationComponent implements IAnimationComponent
         this.quarterCircles = quarterCircles;
         this.snapshot = data.getStructureSnapshot();
         this.northSouth = isNorthSouthAligned;
-        this.rotationCenter = snapshot.getRotationPoint().toDouble();
+        this.rotationPoint = this.snapshot.getRequiredPropertyValue(Property.ROTATION_POINT);
+        this.rotationCenter = rotationPoint.toDouble();
         this.movementDirection = movementDirection;
 
         switch (movementDirection)
@@ -140,7 +144,7 @@ public class DrawbridgeAnimationComponent implements IAnimationComponent
     @Override
     public float getRadius(int xAxis, int yAxis, int zAxis)
     {
-        return getRadius(northSouth, snapshot.getRotationPoint(), xAxis, yAxis, zAxis);
+        return getRadius(northSouth, rotationPoint, xAxis, yAxis, zAxis);
     }
 
     @Override

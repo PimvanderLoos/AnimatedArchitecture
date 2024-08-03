@@ -9,10 +9,12 @@ import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockData;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
+import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
@@ -21,7 +23,7 @@ import java.util.function.Consumer;
 public class BigDoorAnimationComponent implements IAnimationComponent
 {
     private final MovementDirection movementDirection;
-    private final StructureSnapshot snapshot;
+    private final Vector3Di rotationPoint;
     private final Vector3Dd rotationCenter;
     private final double resultAngle;
     private final double step;
@@ -29,9 +31,11 @@ public class BigDoorAnimationComponent implements IAnimationComponent
 
     public BigDoorAnimationComponent(AnimationRequestData data, MovementDirection movementDirection, int quarterCircles)
     {
-        this.snapshot = data.getStructureSnapshot();
+        final StructureSnapshot snapshot = data.getStructureSnapshot();
+
         this.movementDirection = movementDirection;
         this.quarterCircles = quarterCircles;
+        this.rotationPoint = snapshot.getRequiredPropertyValue(Property.ROTATION_POINT);
 
         resultAngle =
             movementDirection == MovementDirection.CLOCKWISE ? quarterCircles * MathUtil.HALF_PI :
@@ -42,10 +46,12 @@ public class BigDoorAnimationComponent implements IAnimationComponent
             log.atSevere().log(
                 "Invalid open direction '%s' for structure: %d", movementDirection.name(), snapshot.getUid());
 
+        final Vector3Di rotationPoint = snapshot.getRequiredPropertyValue(Property.ROTATION_POINT);
+
         rotationCenter = new Vector3Dd(
-            snapshot.getRotationPoint().x(),
+            rotationPoint.x(),
             snapshot.getCuboid().getMin().y(),
-            snapshot.getRotationPoint().z()
+            rotationPoint.z()
         );
 
         final int animationDuration =
@@ -134,7 +140,7 @@ public class BigDoorAnimationComponent implements IAnimationComponent
     @Override
     public float getRadius(int xAxis, int yAxis, int zAxis)
     {
-        return getRadius(snapshot.getRotationPoint(), xAxis, zAxis);
+        return getRadius(rotationPoint, xAxis, zAxis);
     }
 
     @Override

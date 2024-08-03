@@ -13,6 +13,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetr
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 
+import javax.annotation.Nullable;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -80,31 +81,31 @@ public class SetOpenStatus extends StructureTargetCommand
             return CompletableFuture.completedFuture(null);
         }
 
-        // TODO: Handle this atomically (e.g. add a boolean as return to the setPropertyValue method to indicate if the
-        //  value was actually changed, or return the old value).
-        if (withOpenStatus.isOpen() == isOpen)
+        final @Nullable Boolean oldStatus = withOpenStatus.setOpenStatus(isOpen).value();
+        if (oldStatus == null || oldStatus != isOpen)
         {
-            final String localizedIsOpen =
-                isOpen ?
-                    localizer.getMessage("constants.open_status.open") :
-                    localizer.getMessage("constants.open_status.closed");
-
-            getCommandSender().sendMessage(textFactory.newText().append(
-                localizer.getMessage("commands.set_open_status.error.status_not_changed"),
-                TextType.ERROR,
-                arg -> arg.highlight(localizer.getStructureType(structure)),
-                arg -> arg.highlight(structure.getNameAndUid()),
-                arg -> arg.highlight(localizedIsOpen))
-            );
-
-            return CompletableFuture.completedFuture(null);
+            // The open status has changed, so we need to update the database and inform the user.
+            return structure
+                .syncData()
+                .thenAccept(this::handleDatabaseActionResult)
+                .thenRunAsync(() -> sendUpdatedInfo(structure));
         }
 
-        withOpenStatus.setOpen(isOpen);
-        return structure
-            .syncData()
-            .thenAccept(this::handleDatabaseActionResult)
-            .thenRunAsync(() -> sendUpdatedInfo(structure));
+        // The open status has not changed, so we inform the user.
+        final String localizedIsOpen =
+            isOpen ?
+                localizer.getMessage("constants.open_status.open") :
+                localizer.getMessage("constants.open_status.closed");
+
+        getCommandSender().sendMessage(textFactory.newText().append(
+            localizer.getMessage("commands.set_open_status.error.status_not_changed"),
+            TextType.ERROR,
+            arg -> arg.highlight(localizer.getStructureType(structure)),
+            arg -> arg.highlight(structure.getNameAndUid()),
+            arg -> arg.highlight(localizedIsOpen))
+        );
+
+        return CompletableFuture.completedFuture(null);
     }
 
     @AssistedFactory

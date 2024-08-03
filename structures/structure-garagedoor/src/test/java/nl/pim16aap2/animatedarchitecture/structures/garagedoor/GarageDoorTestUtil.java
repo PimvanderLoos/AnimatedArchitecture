@@ -5,18 +5,15 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
+import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
-import nl.pim16aap2.testing.reflection.ReflectionUtil;
 import nl.pim16aap2.util.LazyValue;
-import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
 
 import java.util.List;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 class GarageDoorTestUtil
 {
@@ -90,6 +87,8 @@ class GarageDoorTestUtil
     @EqualsAndHashCode
     public static final class OpeningData
     {
+        private final IWorld world = UnitTestUtil.getWorld();
+
         private final String name;
 
         @Getter(AccessLevel.NONE)
@@ -183,23 +182,30 @@ class GarageDoorTestUtil
          *
          * @return The new GarageDoor instance.
          */
-        public GarageDoor createGarageDoor()
+        public GarageDoor createGarageDoor(StructureBaseBuilder structureBaseBuilder)
         {
-            final GarageDoor garageDoor = Mockito.mock(GarageDoor.class, InvocationOnMock::callRealMethod);
+            final var base = structureBaseBuilder
+                .builder()
+                .uid(1)
+                .name("Garage Door")
+                .cuboid(startCuboid)
+                .powerBlock(new Vector3Di(0, 0, 0))
+                .world(world)
+                .isLocked(false)
+                .openDir(currentToggleDir)
+                .primeOwner(UnitTestUtil.createStructureOwner(1))
+                .ownersOfStructure(null)
+                .propertiesOfStructure(
+                    StructureTypeGarageDoor.get(),
+                    Property.OPEN_STATUS, false,
+                    Property.ROTATION_POINT, rotationPoint
+                )
+                .build();
 
-            final var lock = new ReentrantReadWriteLock();
-            ReflectionUtil.setField(GarageDoor.class, garageDoor, "lock", lock);
-            ReflectionUtil.setField(AbstractStructure.class, garageDoor, "lock", lock);
+            final boolean isNorthSouthAnimated =
+                currentToggleDir == MovementDirection.NORTH || currentToggleDir == MovementDirection.SOUTH;
 
-            Mockito.doReturn(startCuboid).when(garageDoor).getCuboid();
-            Mockito.doReturn(currentToggleDir).when(garageDoor).getCurrentToggleDir();
-            Mockito.doReturn(rotationPoint).when(garageDoor).getRotationPoint();
-
-            final LazyValue<StructureSnapshot> snapshot = new LazyValue<>(
-                () -> UnitTestUtil.createStructureSnapshotForStructure(garageDoor));
-            Mockito.doAnswer(invocation -> snapshot.get()).when(garageDoor).getSnapshot();
-
-            return garageDoor;
+            return new GarageDoor(base, isNorthSouthAnimated);
         }
 
         /**

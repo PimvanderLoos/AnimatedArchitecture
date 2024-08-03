@@ -21,6 +21,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Procedure;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
@@ -56,6 +57,7 @@ import java.util.Objects;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.function.Function;
 
 @ExtendWith(MockitoExtension.class)
@@ -63,9 +65,11 @@ import java.util.function.Function;
 @Timeout(1)
 public class CreatorTest
 {
-    public static Vector3Di DEFAULT_MIN = new Vector3Di(10, 20, 30);
-    public static Vector3Di DEFAULT_MAX = new Vector3Di(40, 50, 60);
-    public static Cuboid DEFAULT_CUBOID = new Cuboid(DEFAULT_MIN, DEFAULT_MAX);
+    public static final Vector3Di DEFAULT_MIN = new Vector3Di(10, 20, 30);
+    public static final Vector3Di DEFAULT_MAX = new Vector3Di(40, 50, 60);
+    public static final Cuboid DEFAULT_CUBOID = new Cuboid(DEFAULT_MIN, DEFAULT_MAX);
+
+    private static final List<Property<?>> PROPERTIES = List.of(Property.OPEN_STATUS, Property.ROTATION_POINT);
 
     private ToolUser.Context context;
 
@@ -91,6 +95,7 @@ public class CreatorTest
     void init()
     {
         Mockito.when(structureType.getLocalizationKey()).thenReturn("StructureType");
+        Mockito.when(structureType.getProperties()).thenReturn(PROPERTIES);
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
         final var assistedStepFactory = Mockito.mock(Step.Factory.IFactory.class);
@@ -588,7 +593,7 @@ public class CreatorTest
 
         Assertions.assertEquals(0, creator.getStepsCompleted());
         Assertions.assertTrue(creator.isActive());
-        Assertions.assertNull(creator.getRotationPoint());
+        Assertions.assertNull(creator.getProperty(Property.ROTATION_POINT));
     }
 
     @Test
@@ -604,7 +609,7 @@ public class CreatorTest
 
         Assertions.assertEquals(0, creator.getStepsCompleted());
         Assertions.assertTrue(creator.isActive());
-        Assertions.assertNull(creator.getRotationPoint());
+        Assertions.assertNull(creator.getProperty(Property.ROTATION_POINT));
     }
 
     @Test
@@ -617,7 +622,7 @@ public class CreatorTest
 
         Assertions.assertEquals(1, creator.getStepsCompleted());
         Assertions.assertTrue(creator.isActive());
-        Assertions.assertEquals(DEFAULT_MAX, creator.getRotationPoint());
+        Assertions.assertEquals(DEFAULT_MAX, creator.getProperty(Property.ROTATION_POINT));
     }
 
     @Test
@@ -634,7 +639,10 @@ public class CreatorTest
         Assertions.assertTrue(creator.isProcessIsUpdatable());
 
         // Make sure that we cannot update the step after it has been completed regardless of the updatable flag.
-        Assertions.assertFalse(creator.handleInput(MovementDirection.WEST).join());
+        Assertions.assertThrows(
+            CompletionException.class,
+            () -> creator.handleInput(MovementDirection.WEST).join()
+        );
 
         Assertions.assertEquals(1, creator.getStepsCompleted());
         Assertions.assertTrue(creator.isActive());
@@ -1003,8 +1011,6 @@ public class CreatorTest
 
     private static final class CreatorImpl extends Creator
     {
-        private final StructureType structureType;
-
         private List<Step> steps;
         private Procedure procedure;
 
@@ -1014,8 +1020,7 @@ public class CreatorTest
             StructureType structureType,
             @Nullable String name)
         {
-            super(context, player, name);
-            this.structureType = structureType;
+            super(context, structureType, player, name);
         }
 
         @Override
@@ -1036,12 +1041,6 @@ public class CreatorTest
         protected AbstractStructure constructStructure()
         {
             throw new UnsupportedOperationException("No implemented!");
-        }
-
-        @Override
-        protected StructureType getStructureType()
-        {
-            return structureType;
         }
 
         @Override

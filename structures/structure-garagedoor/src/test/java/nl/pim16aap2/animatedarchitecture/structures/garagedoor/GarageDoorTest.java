@@ -1,13 +1,25 @@
 package nl.pim16aap2.animatedarchitecture.structures.garagedoor;
 
+import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
 class GarageDoorTest
 {
+    private StructureBaseBuilder structureBaseBuilder;
+
+    @BeforeEach
+    public void beforeEach()
+        throws Exception
+    {
+        structureBaseBuilder = UnitTestUtil.newStructureBaseBuilder().structureBaseBuilder();
+    }
+
     @Test
     void getPotentialNewCoordinates()
     {
@@ -23,9 +35,9 @@ class GarageDoorTest
      * <p>
      * The reverse is also verified, to ensure that the coordinates are correct for the other direction.
      */
-    private static void verifyPotentialNewCoordinates(GarageDoorTestUtil.OpeningData openingData)
+    private void verifyPotentialNewCoordinates(GarageDoorTestUtil.OpeningData openingData)
     {
-        final GarageDoor garageDoor = openingData.createGarageDoor();
+        final GarageDoor garageDoor = openingData.createGarageDoor(structureBaseBuilder);
 
         final Optional<Cuboid> potentialNewCoordinates = garageDoor.getPotentialNewCoordinates();
         Assertions.assertTrue(

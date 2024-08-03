@@ -605,7 +605,7 @@ public final class Animator implements IAnimator
     private void updateCoords()
     {
         if (structure instanceof IStructureWithOpenStatus withOpenStatus)
-            withOpenStatus.setOpen(!withOpenStatus.isOpen());
+            withOpenStatus.setOpenStatus(!withOpenStatus.isOpen());
 
         if (!newCuboid.equals(snapshot.getCuboid()))
             structure.setCoordinates(newCuboid);

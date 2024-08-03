@@ -17,7 +17,7 @@ public interface IStructureWithRotationPoint extends IPropertyHolder
      */
     default Vector3Di getRotationPoint()
     {
-        return getRawPropertyValue(Property.ROTATION_POINT);
+        return getRequiredPropertyValue(Property.ROTATION_POINT);
     }
 
     /**
@@ -25,9 +25,10 @@ public interface IStructureWithRotationPoint extends IPropertyHolder
      *
      * @param rotationPoint
      *     The new rotation point of the structure.
+     * @return The previous property value of the rotation point.
      */
-    default void setRotationPoint(Vector3Di rotationPoint)
+    default IPropertyValue<Vector3Di> setRotationPoint(Vector3Di rotationPoint)
     {
-        setPropertyValue(Property.ROTATION_POINT, rotationPoint);
+        return setPropertyValue(Property.ROTATION_POINT, rotationPoint);
     }
 }

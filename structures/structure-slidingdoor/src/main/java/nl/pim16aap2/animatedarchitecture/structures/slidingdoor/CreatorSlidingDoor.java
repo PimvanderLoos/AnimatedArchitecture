@@ -10,10 +10,8 @@ import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorInteger;
-import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.Limit;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -29,10 +27,19 @@ public class CreatorSlidingDoor extends Creator
     @GuardedBy("this")
     private int blocksToMove;
 
+    protected CreatorSlidingDoor(
+        ToolUser.Context context,
+        StructureType structureType,
+        IPlayer player,
+        @Nullable String name)
+    {
+        super(context, structureType, player, name);
+        init();
+    }
+
     public CreatorSlidingDoor(ToolUser.Context context, IPlayer player, @Nullable String name)
     {
-        super(context, player, name);
-        init();
+        this(context, STRUCTURE_TYPE, player, name);
     }
 
     @Override
@@ -117,15 +124,7 @@ public class CreatorSlidingDoor extends Creator
     @Override
     protected synchronized AbstractStructure constructStructure()
     {
-        final Cuboid cuboid = Util.requireNonNull(getCuboid(), "cuboid");
-        setRotationPoint(cuboid.getCenterBlock());
         return new SlidingDoor(constructStructureData(), blocksToMove);
-    }
-
-    @Override
-    protected StructureType getStructureType()
-    {
-        return STRUCTURE_TYPE;
     }
 
     protected final synchronized int getBlocksToMove()

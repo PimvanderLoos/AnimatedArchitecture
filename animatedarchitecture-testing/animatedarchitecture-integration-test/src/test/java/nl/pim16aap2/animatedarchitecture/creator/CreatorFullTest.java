@@ -1,19 +1,19 @@
 package nl.pim16aap2.animatedarchitecture.creator;
 
-import nl.altindag.log.LogCaptor;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.CreatorTest;
-import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
-import nl.pim16aap2.testing.logging.WithLogCapture;
+import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.mockito.Mockito;
@@ -27,32 +27,50 @@ import java.util.List;
  * <p>
  * The specific methods are test in {@link CreatorTest}.
  */
-@WithLogCapture
 @Timeout(1)
 class CreatorFullTest extends CreatorTestsUtil
 {
-    private static StructureType structureType;
+    private final List<Property<?>> properties = List.of(Property.OPEN_STATUS, Property.ROTATION_POINT);
 
-    @Test
-    void runThroughProcess(LogCaptor logCaptor)
+    private AbstractStructure structure;
+
+    @Override
+    @BeforeEach
+    public void beforeEach()
     {
-        logCaptor.setLogLevelToInfo();
+        super.beforeEach();
 
-        rotationPoint = cuboid.getCenterBlock();
-        openDirection = MovementDirection.NORTH;
-
-        structureType = Mockito.mock(StructureType.class);
-        Mockito.when(structureType.getValidMovementDirections())
+        final var structureType = Mockito.mock(StructureType.class);
+        Mockito
+            .when(structureType.getValidMovementDirections())
             .thenReturn(EnumSet.of(MovementDirection.NORTH, MovementDirection.SOUTH));
 
-        final var structure = Mockito.mock(AbstractStructure.class);
-        Mockito.when(structure.getType()).thenReturn(structureType);
+        Mockito
+            .when(structureType.getProperties())
+            .thenReturn(properties);
+
+        structure = Mockito.mock(AbstractStructure.class);
+
+        Mockito
+            .when(structure.getType())
+            .thenReturn(structureType);
+
+        UnitTestUtil.setPropertyManagerInMockedStructure(structure, properties);
+    }
+
+    @Test
+    void runThroughProcess()
+    {
+        openDirection = MovementDirection.NORTH;
 
         final var creator = new CreatorTestImpl(context, player, structure);
 
         setEconomyEnabled(true);
         setEconomyPrice(12.34);
         setBuyStructure(true);
+
+        final Vector3Di rotationPoint = cuboid.getCenterBlock();
+        final boolean isOpen = false;
 
         testCreation(
             creator,
@@ -62,7 +80,7 @@ class CreatorFullTest extends CreatorTestsUtil
             UnitTestUtil.getLocation(max, world),
             UnitTestUtil.getLocation(rotationPoint, world),
             UnitTestUtil.getLocation(powerblock, world),
-            false,
+            isOpen,
             openDirection,
             true
         );
@@ -70,19 +88,9 @@ class CreatorFullTest extends CreatorTestsUtil
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     @Test
-    void delayedOpenDirectionInput(LogCaptor logCaptor)
+    void delayedOpenDirectionInput()
     {
-        logCaptor.setLogLevelToInfo();
-
-        rotationPoint = new Cuboid(min, max).getCenterBlock();
         openDirection = MovementDirection.NORTH;
-
-        structureType = Mockito.mock(StructureType.class);
-        Mockito.when(structureType.getValidMovementDirections())
-            .thenReturn(EnumSet.of(MovementDirection.NORTH, MovementDirection.SOUTH));
-
-        final var structure = Mockito.mock(AbstractStructure.class);
-        Mockito.when(structure.getType()).thenReturn(structureType);
 
         final var creator = new CreatorTestImpl(context, player, structure);
 
@@ -95,7 +103,7 @@ class CreatorFullTest extends CreatorTestsUtil
             structureName,
             UnitTestUtil.getLocation(min, world),
             UnitTestUtil.getLocation(max, world),
-            UnitTestUtil.getLocation(rotationPoint, world),
+            UnitTestUtil.getLocation(cuboid.getCenterBlock(), world),
             UnitTestUtil.getLocation(powerblock, world)
         );
 
@@ -117,7 +125,7 @@ class CreatorFullTest extends CreatorTestsUtil
 
         protected CreatorTestImpl(ToolUser.Context context, IPlayer player, AbstractStructure structure)
         {
-            super(context, player, null);
+            super(context, structure.getType(), player, null);
             this.structure = structure;
             init();
         }
@@ -147,12 +155,6 @@ class CreatorFullTest extends CreatorTestsUtil
         protected @NotNull AbstractStructure constructStructure()
         {
             return structure;
-        }
-
-        @Override
-        protected @NotNull StructureType getStructureType()
-        {
-            return structureType;
         }
     }
 }

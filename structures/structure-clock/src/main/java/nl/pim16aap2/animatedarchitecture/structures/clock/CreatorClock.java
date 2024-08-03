@@ -7,6 +7,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
@@ -52,10 +53,19 @@ public class CreatorClock extends Creator
     @GuardedBy("this")
     private boolean northSouthAligned;
 
+    protected CreatorClock(
+        ToolUser.Context context,
+        StructureType structureType,
+        IPlayer player,
+        @Nullable String name)
+    {
+        super(context, structureType, player, name);
+        init();
+    }
+
     public CreatorClock(ToolUser.Context context, IPlayer player, @Nullable String name)
     {
-        super(context, player, name);
-        init();
+        this(context, STRUCTURE_TYPE, player, name);
     }
 
     @Override
@@ -108,18 +118,18 @@ public class CreatorClock extends Creator
         if (northSouthAligned)
             hourArmSide =
                 loc.getBlockX() == cuboid.getMin().x() ? BlockFace.WEST :
-                loc.getBlockX() == cuboid.getMax().x() ? BlockFace.EAST :
-                null;
+                    loc.getBlockX() == cuboid.getMax().x() ? BlockFace.EAST :
+                        null;
         else
             hourArmSide =
                 loc.getBlockZ() == cuboid.getMin().z() ? BlockFace.NORTH :
-                loc.getBlockZ() == cuboid.getMax().z() ? BlockFace.SOUTH :
-                null;
+                    loc.getBlockZ() == cuboid.getMax().z() ? BlockFace.SOUTH :
+                        null;
 
         if (hourArmSide == null)
             getPlayer().sendError(textFactory, localizer.getMessage("creator.clock.error.invalid_hour_arm_side"));
         else
-            setRotationPoint(calculateRotationPoint(northSouthAligned, hourArmSide, cuboid));
+            setProperty(Property.ROTATION_POINT, calculateRotationPoint(northSouthAligned, hourArmSide, cuboid));
 
         return hourArmSide != null;
     }
@@ -245,12 +255,6 @@ public class CreatorClock extends Creator
         updateOpenDirection();
         Util.requireNonNull(hourArmSide, "hourArmSide");
         return new Clock(constructStructureData(), northSouthAligned, hourArmSide);
-    }
-
-    @Override
-    protected StructureType getStructureType()
-    {
-        return STRUCTURE_TYPE;
     }
 
     @SuppressWarnings("unused") // It is used by the generated toString method.

@@ -3,9 +3,11 @@ package nl.pim16aap2.animatedarchitecture.core.structures;
 import lombok.RequiredArgsConstructor;
 import nl.pim16aap2.animatedarchitecture.core.annotations.Initializer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyManager;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
+import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
@@ -298,13 +300,130 @@ public final class StructureBaseBuilder
     public interface IBuilderProperties extends IUIDProvider
     {
         /**
-         * Sets the properties of the structure.
+         * Sets the properties of the structure to the default values.
          *
          * @param propertyManager
          *     The properties of the structure.
          * @return The next step of the guided builder process.
          */
         IBuilder propertiesOfStructure(PropertyManager propertyManager);
+
+        /**
+         * Sets the properties of the structure to the default values.
+         *
+         * @param structureType
+         *     The type of structure to set the properties for.
+         * @return The next step of the guided builder process.
+         */
+        default IBuilder propertiesOfStructure(StructureType structureType)
+        {
+            return propertiesOfStructure(PropertyManager.forType(structureType));
+        }
+
+        /**
+         * Sets the properties of the structure to the provided values.
+         * <p>
+         * Any properties not provided will be set to their default values.
+         * <p>
+         * Only properties that are supported by the structure type will be set. See
+         * {@link StructureType#getProperties()}. Trying to set an unsupported property will result in an exception.
+         *
+         * @param structureType
+         *     The type of structure to set the properties for.
+         * @param properties
+         *     The properties to set. These should be provided in pairs of 2. The first element of the pair should be
+         *     the property, the second element should be the value to set. If the property is nullable, the value may
+         *     be {@code null}.
+         * @return The next step of the guided builder process.
+         *
+         * @throws IllegalArgumentException
+         *     If the properties are not provided in pairs of 2.
+         *     <p>
+         *     If the property is not valid for the structure type this property manager was created for.
+         */
+        default IBuilder propertiesOfStructure(StructureType structureType, @Nullable Object... properties)
+        {
+            if (properties.length % 2 != 0)
+                throw new IllegalArgumentException("Properties must be provided in pairs of 2.");
+
+            final var propertyManager = PropertyManager.forType(structureType);
+            for (int idx = 0; idx < properties.length; idx += 2)
+            {
+                final Property<?> property = (Property<?>) Util.requireNonNull(
+                    properties[idx],
+                    "Property at index " + idx
+                );
+
+                final @Nullable Object value = properties[idx + 1];
+                propertyManager.setUntypedPropertyValue(property, value);
+            }
+
+            return propertiesOfStructure(propertyManager);
+        }
+
+        /**
+         * Type-safe version of {@link #propertiesOfStructure(StructureType, Object...)} for 1 property.
+         */
+        default <T> IBuilder propertiesOfStructure(
+            StructureType structureType,
+            Property<T> property0, @Nullable T value0)
+        {
+            return propertiesOfStructure(
+                structureType,
+                property0, (Object) value0
+            );
+        }
+
+        /**
+         * Type-safe version of {@link #propertiesOfStructure(StructureType, Object...)} for 2 properties.
+         */
+        default <T, U> IBuilder propertiesOfStructure(
+            StructureType structureType,
+            Property<T> property0, @Nullable T value0,
+            Property<U> property1, @Nullable U value1)
+        {
+            return propertiesOfStructure(
+                structureType,
+                property0, value0,
+                property1, (Object) value1
+            );
+        }
+
+        /**
+         * Type-safe version of {@link #propertiesOfStructure(StructureType, Object...)} for 3 properties.
+         */
+        default <T, U, V> IBuilder propertiesOfStructure(
+            StructureType structureType,
+            Property<T> property0, @Nullable T value0,
+            Property<U> property1, @Nullable U value1,
+            Property<V> property2, @Nullable V value2)
+        {
+            return propertiesOfStructure(
+                structureType,
+                property0, value0,
+                property1, value1,
+                property2, (Object) value2
+            );
+        }
+
+        /**
+         * Type-safe version of {@link #propertiesOfStructure(StructureType, Object...)} for 4 properties.
+         */
+        default <T, U, V, W> IBuilder propertiesOfStructure(
+            StructureType structureType,
+            Property<T> property0, @Nullable T value0,
+            Property<U> property1, @Nullable U value1,
+            Property<V> property2, @Nullable V value2,
+            Property<W> property3, @Nullable W value3)
+        {
+            return propertiesOfStructure(
+                structureType,
+                property0, value0,
+                property1, value1,
+                property2, value2,
+                property3, (Object) value3
+            );
+        }
     }
 
     public interface IBuilder extends IUIDProvider

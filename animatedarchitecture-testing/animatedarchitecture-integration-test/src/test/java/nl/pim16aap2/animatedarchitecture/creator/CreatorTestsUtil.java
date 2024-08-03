@@ -34,7 +34,6 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureRegistry;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyManager;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
@@ -73,7 +72,6 @@ public class CreatorTestsUtil
     protected final Vector3Di powerblock = max.add(1, 2, 3);
     protected final String structureName = "testDoor123";
     protected final IWorld world = getWorld();
-    protected Vector3Di rotationPoint = new Vector3Di(20, 15, 25);
     protected MovementDirection openDirection = MovementDirection.COUNTERCLOCKWISE;
 
     protected StructureOwner structureOwner;
@@ -203,15 +201,19 @@ public class CreatorTestsUtil
         initPlayer();
 
         final IPlayerFactory playerFactory = Mockito.mock(IPlayerFactory.class);
-        Mockito.when(playerFactory.create(playerData.getUUID()))
+        Mockito
+            .when(playerFactory.create(playerData.getUUID()))
             .thenReturn(CompletableFuture.completedFuture(Optional.of(player)));
 
         // Immediately return whatever structure was being added to the database as if it was successful.
-        Mockito.when(databaseManager.addStructure(ArgumentMatchers.any())).thenAnswer(
-            (Answer<CompletableFuture<Optional<AbstractStructure>>>) invocation ->
-                CompletableFuture.completedFuture(Optional.of((AbstractStructure) invocation.getArguments()[0])));
+        Mockito
+            .when(databaseManager.addStructure(ArgumentMatchers.any()))
+            .thenAnswer((Answer<CompletableFuture<Optional<AbstractStructure>>>) invocation ->
+                CompletableFuture.completedFuture(Optional.of((AbstractStructure) invocation.getArguments()[0]))
+            );
 
-        Mockito.when(databaseManager.addStructure(
+        Mockito
+            .when(databaseManager.addStructure(
                 ArgumentMatchers.any(AbstractStructure.class),
                 Mockito.any(IPlayer.class)))
             .thenAnswer((Answer<CompletableFuture<DatabaseManager.StructureInsertResult>>) invocation ->
@@ -312,22 +314,20 @@ public class CreatorTestsUtil
         }
     }
 
-    protected AbstractStructure.BaseHolder constructStructureBase(StructureType type, long uid)
+    protected AbstractStructure.BaseHolder constructStructureBase(StructureType type, long uid, Object... properties)
     {
         return structureBaseBuilder
             .builder()
             .uid(uid)
             .name(structureName)
             .cuboid(cuboid)
-            .rotationPoint(rotationPoint)
             .powerBlock(powerblock)
             .world(world)
-            .isOpen(false)
             .isLocked(false)
             .openDir(openDirection)
             .primeOwner(structureOwner)
             .ownersOfStructure(null)
-            .propertiesOfStructure(PropertyManager.forType(type))
+            .propertiesOfStructure(type, properties)
             .build();
     }
 

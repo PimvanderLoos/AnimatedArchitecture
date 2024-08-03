@@ -4,6 +4,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import javax.annotation.concurrent.ThreadSafe;
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -35,6 +36,12 @@ public final class PropertyManagerSnapshot implements IPropertyHolderConst, IPro
     public boolean hasProperty(Property<?> property)
     {
         return propertyMap.containsKey(PropertyManager.mapKey(property));
+    }
+
+    @Override
+    public boolean hasProperties(Collection<Property<?>> properties)
+    {
+        return PropertyManager.hasProperties(propertyMap, properties);
     }
 
     /**

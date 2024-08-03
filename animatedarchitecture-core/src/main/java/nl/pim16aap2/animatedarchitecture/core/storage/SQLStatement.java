@@ -26,7 +26,8 @@ public enum SQLStatement
         openDirection  = ?,
         bitflag        = ?,
         typeVersion    = ?,
-        typeData       = ?
+        typeData       = ?,
+        properties     = ?
         WHERE id       = ?;
         """
     ),
@@ -253,8 +254,8 @@ public enum SQLStatement
         INSERT INTO Structure
         (name, world, xMin, yMin, zMin, xMax, yMax, zMax, centerPointChunkId,
          powerBlockX, powerBlockY, powerBlockZ, powerBlockChunkId, openDirection,
-         bitflag, type, typeVersion, typeData)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         bitflag, type, typeVersion, typeData, properties)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         RETURNING id;
         """
     ),

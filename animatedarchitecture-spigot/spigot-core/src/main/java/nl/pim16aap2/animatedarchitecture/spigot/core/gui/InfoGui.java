@@ -24,6 +24,7 @@ import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.PlayerSpigo
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -138,7 +139,9 @@ class InfoGui implements IGuiPage
         final GuiElementGroup group = new GuiElementGroup('g');
         for (final StructureAttribute attribute : allowedAttributes)
         {
-            final GuiElement element = attributeButtonFactory.of(attribute, structure, inventoryHolder, 'g');
+            final @Nullable GuiElement element = attributeButtonFactory.of(attribute, structure, inventoryHolder, 'g');
+            if (element == null)
+                continue;
             attributeElements.put(attribute, element);
             group.addElement(element);
         }
