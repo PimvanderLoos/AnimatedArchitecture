@@ -15,6 +15,7 @@ import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithOpenStatus;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
@@ -108,8 +109,8 @@ public class Toggle extends BaseCommand
         return switch (structureActionType)
         {
             case TOGGLE -> true;
-            case CLOSE -> structure.isCloseable();
-            case OPEN -> structure.isOpenable();
+            case CLOSE -> structure instanceof IStructureWithOpenStatus withOpenStatus && withOpenStatus.isCloseable();
+            case OPEN -> structure instanceof IStructureWithOpenStatus withOpenStatus && withOpenStatus.isOpenable();
         };
     }
 

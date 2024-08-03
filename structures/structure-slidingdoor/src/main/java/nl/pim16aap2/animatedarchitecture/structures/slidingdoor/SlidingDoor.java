@@ -10,6 +10,7 @@ import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.annotations.Deserialization;
 import nl.pim16aap2.animatedarchitecture.core.annotations.PersistentVariable;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithOpenStatus;
 import nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes.IDiscreteMovement;
 import nl.pim16aap2.animatedarchitecture.core.util.BlockFace;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
@@ -26,7 +27,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class SlidingDoor extends AbstractStructure implements IDiscreteMovement
+public class SlidingDoor
+    extends AbstractStructure
+    implements IDiscreteMovement, IStructureWithOpenStatus
 {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude

@@ -25,9 +25,12 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class Clock extends AbstractStructure implements IHorizontalAxisAligned, IPerpetualMover
+public class Clock
+    extends AbstractStructure
+    implements IHorizontalAxisAligned, IPerpetualMover
 {
-    @EqualsAndHashCode.Exclude @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
 
@@ -112,18 +115,6 @@ public class Clock extends AbstractStructure implements IHorizontalAxisAligned, 
     public Optional<Cuboid> getPotentialNewCoordinates()
     {
         return Optional.of(getCuboid());
-    }
-
-    @Override
-    public boolean isOpenable()
-    {
-        return true;
-    }
-
-    @Override
-    public boolean isCloseable()
-    {
-        return true;
     }
 
     /**

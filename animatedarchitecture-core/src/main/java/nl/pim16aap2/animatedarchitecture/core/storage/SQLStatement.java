@@ -18,10 +18,7 @@ public enum SQLStatement
         xMax           = ?,
         yMax           = ?,
         zMax           = ?,
-        rotationPointX = ?,
-        rotationPointY = ?,
-        rotationPointZ = ?,
-        rotationPointChunkId = ?,
+        centerPointChunkId = ?,
         powerBlockX    = ?,
         powerBlockY    = ?,
         powerBlockZ    = ?,
@@ -180,14 +177,14 @@ public enum SQLStatement
     ),
 
     /**
-     * Obtains the structures whose rotationPoint's chunk hash value has a certain value.
+     * Obtains the structures whose center point's chunk hash value has a certain value.
      */
     GET_STRUCTURES_IN_CHUNK("""
         SELECT Structure.*, Player.*, StructureOwnerPlayer.permission
         FROM Structure
         INNER JOIN StructureOwnerPlayer ON Structure.id = StructureOwnerPlayer.structureUID
         INNER JOIN Player ON StructureOwnerPlayer.playerID = Player.id
-        WHERE Structure.rotationPointChunkId = ?;
+        WHERE Structure.centerPointChunkId = ?;
         """
     ),
 
@@ -254,8 +251,8 @@ public enum SQLStatement
 
     INSERT_STRUCTURE_BASE("""
         INSERT INTO Structure
-        (name, world, xMin, yMin, zMin, xMax, yMax, zMax, rotationPointX, rotationPointY, rotationPointZ,
-         rotationPointChunkId, powerBlockX, powerBlockY, powerBlockZ, powerBlockChunkId, openDirection,
+        (name, world, xMin, yMin, zMin, xMax, yMax, zMax, centerPointChunkId,
+         powerBlockX, powerBlockY, powerBlockZ, powerBlockChunkId, openDirection,
          bitflag, type, typeVersion, typeData)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         RETURNING id;

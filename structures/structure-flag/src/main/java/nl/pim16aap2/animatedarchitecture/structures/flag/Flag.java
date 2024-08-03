@@ -9,6 +9,7 @@ import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.annotations.Deserialization;
 import nl.pim16aap2.animatedarchitecture.core.annotations.PersistentVariable;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithRotationPoint;
 import nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes.IPerpetualMover;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
@@ -25,7 +26,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class Flag extends AbstractStructure implements IHorizontalAxisAligned, IPerpetualMover
+public class Flag
+    extends AbstractStructure
+    implements IHorizontalAxisAligned, IPerpetualMover, IStructureWithRotationPoint
 {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
@@ -105,17 +108,5 @@ public class Flag extends AbstractStructure implements IHorizontalAxisAligned, I
     public MovementDirection getCurrentToggleDir()
     {
         return getOpenDir();
-    }
-
-    @Override
-    public boolean isOpenable()
-    {
-        return true;
-    }
-
-    @Override
-    public boolean isCloseable()
-    {
-        return true;
     }
 }

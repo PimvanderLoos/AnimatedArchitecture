@@ -8,6 +8,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithOpenStatus;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
@@ -67,7 +68,21 @@ public class SetOpenStatus extends StructureTargetCommand
     @Override
     protected CompletableFuture<?> performAction(AbstractStructure structure)
     {
-        if (structure.isOpen() == isOpen)
+        if (!(structure instanceof IStructureWithOpenStatus withOpenStatus))
+        {
+            getCommandSender().sendMessage(textFactory.newText().append(
+                localizer.getMessage("commands.set_open_status.error.missing_property"),
+                TextType.ERROR,
+                arg -> arg.highlight(localizer.getStructureType(structure)),
+                arg -> arg.highlight(structure.getNameAndUid()))
+            );
+
+            return CompletableFuture.completedFuture(null);
+        }
+
+        // TODO: Handle this atomically (e.g. add a boolean as return to the setPropertyValue method to indicate if the
+        //  value was actually changed, or return the old value).
+        if (withOpenStatus.isOpen() == isOpen)
         {
             final String localizedIsOpen =
                 isOpen ?
@@ -85,7 +100,7 @@ public class SetOpenStatus extends StructureTargetCommand
             return CompletableFuture.completedFuture(null);
         }
 
-        structure.setOpen(isOpen);
+        withOpenStatus.setOpen(isOpen);
         return structure
             .syncData()
             .thenAccept(this::handleDatabaseActionResult)

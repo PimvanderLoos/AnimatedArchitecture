@@ -13,6 +13,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyHolder;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyManagerConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyValue;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
@@ -49,7 +50,7 @@ import java.util.function.Supplier;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Flogger
 @ThreadSafe
-public abstract class AbstractStructure implements IStructureConst
+public abstract class AbstractStructure implements IStructureConst, IPropertyHolder
 {
     /**
      * The lock as used by both the {@link StructureBase} and this class.
@@ -564,19 +565,6 @@ public abstract class AbstractStructure implements IStructureConst
     }
 
     /**
-     * Updates the position of the rotation point.
-     *
-     * @param pos
-     *     The new position.
-     */
-    public void setRotationPoint(Vector3Di pos)
-    {
-        assertWriteLockable();
-        invalidateAnimationData();
-        base.setRotationPoint(pos);
-    }
-
-    /**
      * Updates the position of the powerblock.
      *
      * @param pos
@@ -601,20 +589,6 @@ public abstract class AbstractStructure implements IStructureConst
         assertWriteLockable();
         invalidateBasicData();
         base.setName(name);
-    }
-
-    /**
-     * Changes the open-status of this structure. True if open, False if closed.
-     *
-     * @param open
-     *     The new open-status of the structure.
-     */
-    public void setOpen(boolean open)
-    {
-        assertWriteLockable();
-        invalidateAnimationData();
-        base.setOpen(open);
-        verifyRedstoneState();
     }
 
     /**
@@ -660,12 +634,6 @@ public abstract class AbstractStructure implements IStructureConst
     }
 
     @Override
-    public Vector3Di getRotationPoint()
-    {
-        return base.getRotationPoint();
-    }
-
-    @Override
     public Vector3Di getPowerBlock()
     {
         return base.getPowerBlock();
@@ -675,12 +643,6 @@ public abstract class AbstractStructure implements IStructureConst
     public String getName()
     {
         return base.getName();
-    }
-
-    @Override
-    public boolean isOpen()
-    {
-        return base.isOpen();
     }
 
     @Override
@@ -742,22 +704,22 @@ public abstract class AbstractStructure implements IStructureConst
         return lazyPropertyManagerSnapshot.get();
     }
 
+    @Override
     @Locked.Read("lock")
     public <T> IPropertyValue<T> getPropertyValue(Property<T> property)
     {
         return base.getPropertyValue(property);
     }
 
-    /**
-     * Sets the value of a property.
-     *
-     * @param property
-     *     The property to set the value of.
-     * @param value
-     *     The value to set the property to.
-     * @param <T>
-     *     The type of the property.
-     */
+    @Override
+    @Locked.Read("lock")
+    public boolean hasProperty(Property<?> property)
+    {
+        return base.hasProperty(property);
+    }
+
+    @Override
+    @Locked.Write("lock")
     public <T> void setPropertyValue(Property<T> property, T value)
     {
         assertWriteLockable();
@@ -769,22 +731,6 @@ public abstract class AbstractStructure implements IStructureConst
     {
         base.setPropertyValue(property, value);
         handlePropertyChange(property);
-    }
-
-    /**
-     * Handles a change in a property scope.
-     *
-     * @param scope
-     *     The scope that changed.
-     */
-    private void handlePropertyScopeChange(PropertyScope scope)
-    {
-        switch (scope)
-        {
-            case REDSTONE -> verifyRedstoneState();
-            case ANIMATION -> invalidateAnimationData();
-            default -> throw new IllegalArgumentException("Unknown property scope: '" + scope + "'!");
-        }
     }
 
     /**
@@ -801,6 +747,23 @@ public abstract class AbstractStructure implements IStructureConst
         lazyPropertyManagerSnapshot.reset();
         property.getPropertyScopes().forEach(this::handlePropertyScopeChange);
         invalidateBasicData();
+    }
+
+    /**
+     * Handles a change in a property scope.
+     *
+     * @param scope
+     *     The scope that changed.
+     */
+    @GuardedBy("lock")
+    private void handlePropertyScopeChange(PropertyScope scope)
+    {
+        switch (scope)
+        {
+            case REDSTONE -> verifyRedstoneState();
+            case ANIMATION -> invalidateAnimationData();
+            default -> throw new IllegalArgumentException("Unknown property scope: '" + scope + "'!");
+        }
     }
 
     @AllArgsConstructor(access = AccessLevel.PACKAGE)

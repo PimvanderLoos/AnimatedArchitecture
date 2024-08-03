@@ -16,7 +16,7 @@ import java.util.Map;
 @ToString
 @EqualsAndHashCode
 @ThreadSafe
-public final class PropertyManagerSnapshot implements IPropertyManagerConst
+public final class PropertyManagerSnapshot implements IPropertyHolderConst, IPropertyManagerConst
 {
     private final Map<String, IPropertyValue<?>> propertyMap;
 

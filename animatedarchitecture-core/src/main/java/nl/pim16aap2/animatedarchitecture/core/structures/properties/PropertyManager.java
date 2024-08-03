@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @ToString
 @Flogger
 @EqualsAndHashCode
-public final class PropertyManager implements IPropertyManagerConst
+public final class PropertyManager implements IPropertyHolder, IPropertyManagerConst
 {
     /**
      * The default property maps for each structure type.
@@ -79,7 +79,8 @@ public final class PropertyManager implements IPropertyManagerConst
      * @throws IllegalArgumentException
      *     If the property is not valid for the structure type this property manager was created for.
      */
-    public <T> void setProperty(Property<T> property, @Nullable T value)
+    @Override
+    public <T> void setPropertyValue(Property<T> property, @Nullable T value)
     {
         final String key = mapKey(property);
         if (!propertyMap.containsKey(key))

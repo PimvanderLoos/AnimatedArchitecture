@@ -3,6 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.structures;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.experimental.Delegate;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyManagerConst;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
@@ -34,16 +35,15 @@ public final class StructureSnapshot implements IStructureConst
     private final long uid;
     private final IWorld world;
     private final Rectangle animationRange;
-    private Vector3Di rotationPoint;
     private Vector3Di powerBlock;
     private String name;
     private Cuboid cuboid;
-    private boolean isOpen;
     private MovementDirection openDir;
     private boolean isLocked;
     private final StructureOwner primeOwner;
     private final Map<UUID, StructureOwner> ownersMap;
     private final StructureType type;
+    @Delegate
     private final IPropertyManagerConst propertyManager;
 
     @Getter(AccessLevel.NONE)
@@ -56,11 +56,9 @@ public final class StructureSnapshot implements IStructureConst
             structure.getUid(),
             structure.getWorld(),
             structure.getAnimationRange(),
-            structure.getRotationPoint(),
             structure.getPowerBlock(),
             structure.getName(),
             structure.getCuboid(),
-            structure.isOpen(),
             structure.getOpenDir(),
             structure.isLocked(),
             structure.getPrimeOwner(),

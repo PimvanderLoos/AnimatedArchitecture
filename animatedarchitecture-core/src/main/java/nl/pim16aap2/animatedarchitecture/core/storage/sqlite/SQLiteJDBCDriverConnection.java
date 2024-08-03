@@ -265,11 +265,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             structureBaseRS.getInt("yMax"),
             structureBaseRS.getInt("zMax")
         );
-        final Vector3Di rotationPoint = new Vector3Di(
-            structureBaseRS.getInt("rotationPointX"),
-            structureBaseRS.getInt("rotationPointY"),
-            structureBaseRS.getInt("rotationPointZ")
-        );
         final Vector3Di powerBlock = new Vector3Di(
             structureBaseRS.getInt("powerBlockX"),
             structureBaseRS.getInt("powerBlockY"),
@@ -279,7 +274,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         final IWorld world = worldFactory.create(structureBaseRS.getString("world"));
 
         final long bitflag = structureBaseRS.getLong("bitflag");
-        final boolean isOpen = IBitFlag.hasFlag(StructureFlag.getFlagValue(StructureFlag.IS_OPEN), bitflag);
         final boolean isLocked = IBitFlag.hasFlag(StructureFlag.getFlagValue(StructureFlag.IS_LOCKED), bitflag);
 
         final String name = structureBaseRS.getString("name");
@@ -308,10 +302,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 .uid(structureUID)
                 .name(name)
                 .cuboid(new Cuboid(min, max))
-                .rotationPoint(rotationPoint)
                 .powerBlock(powerBlock)
                 .world(world)
-                .isOpen(isOpen)
                 .isLocked(isLocked)
                 .openDir(openDirection.get())
                 .primeOwner(primeOwner)
@@ -375,10 +367,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 .setNextInt(structure.getMaximum().x())
                 .setNextInt(structure.getMaximum().y())
                 .setNextInt(structure.getMaximum().z())
-                .setNextInt(structure.getRotationPoint().x())
-                .setNextInt(structure.getRotationPoint().y())
-                .setNextInt(structure.getRotationPoint().z())
-                .setNextLong(LocationUtil.getChunkId(structure.getRotationPoint()))
+
+                .setNextLong(LocationUtil.getChunkId(structure.getCuboid().getCenterBlock()))
+
                 .setNextInt(structure.getPowerBlock().x())
                 .setNextInt(structure.getPowerBlock().y())
                 .setNextInt(structure.getPowerBlock().z())
@@ -442,10 +433,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                         .uid(structureUID)
                         .name(structure.getName())
                         .cuboid(structure.getCuboid())
-                        .rotationPoint(structure.getRotationPoint())
                         .powerBlock(structure.getPowerBlock())
                         .world(structure.getWorld())
-                        .isOpen(structure.isOpen())
                         .isLocked(structure.isLocked())
                         .openDir(structure.getOpenDir())
                         .primeOwner(remapStructureOwner(structure.getPrimeOwner(), structureUID))
@@ -514,10 +503,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             .setNextInt(structure.getCuboid().getMax().y())
             .setNextInt(structure.getCuboid().getMax().z())
 
-            .setNextInt(structure.getRotationPoint().x())
-            .setNextInt(structure.getRotationPoint().y())
-            .setNextInt(structure.getRotationPoint().z())
-            .setNextLong(LocationUtil.getChunkId(structure.getRotationPoint()))
+            .setNextLong(LocationUtil.getChunkId(structure.getCuboid().getCenterBlock()))
 
             .setNextInt(structure.getPowerBlock().x())
             .setNextInt(structure.getPowerBlock().y())
@@ -525,7 +511,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             .setNextLong(LocationUtil.getChunkId(structure.getPowerBlock()))
 
             .setNextInt(MovementDirection.getValue(structure.getOpenDir()))
-            .setNextLong(getFlag(structure.isOpen(), structure.isLocked()))
+            .setNextLong(getFlag(structure))
             .setNextInt(structure.getType().getVersion())
             .setNextString(typeData)
 

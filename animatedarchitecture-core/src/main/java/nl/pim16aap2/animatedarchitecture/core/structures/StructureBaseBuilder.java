@@ -38,8 +38,8 @@ public final class StructureBaseBuilder
 
     @RequiredArgsConstructor
     private static final class Builder
-        implements IBuilderUID, IBuilderName, IBuilderCuboid, IBuilderRotationPoint, IBuilderPowerBlock, IBuilderWorld,
-        IBuilderIsOpen, IBuilderIsLocked, IBuilderOpenDir, IBuilderPrimeOwner, IBuilderOwners, IBuilderProperties,
+        implements IBuilderUID, IBuilderName, IBuilderCuboid, IBuilderPowerBlock, IBuilderWorld,
+        IBuilderIsLocked, IBuilderOpenDir, IBuilderPrimeOwner, IBuilderOwners, IBuilderProperties,
         IBuilder
     {
         private final StructureBase.IFactory baseFactory;
@@ -47,10 +47,8 @@ public final class StructureBaseBuilder
         private long structureUID;
         private String name;
         private Cuboid cuboid;
-        private Vector3Di rotationPoint;
         private Vector3Di powerBlock;
         private IWorld world;
-        private boolean isOpen;
         private boolean isLocked;
         private MovementDirection openDir;
         private StructureOwner primeOwner;
@@ -81,17 +79,9 @@ public final class StructureBaseBuilder
 
         @Override
         @Initializer
-        public IBuilderRotationPoint cuboid(Cuboid cuboid)
+        public IBuilderPowerBlock cuboid(Cuboid cuboid)
         {
             this.cuboid = cuboid;
-            return this;
-        }
-
-        @Override
-        @Initializer
-        public IBuilderPowerBlock rotationPoint(Vector3Di rotationPoint)
-        {
-            this.rotationPoint = rotationPoint;
             return this;
         }
 
@@ -105,17 +95,9 @@ public final class StructureBaseBuilder
 
         @Override
         @Initializer
-        public IBuilderIsOpen world(IWorld world)
+        public IBuilderIsLocked world(IWorld world)
         {
             this.world = world;
-            return this;
-        }
-
-        @Override
-        @Initializer
-        public IBuilderIsLocked isOpen(boolean isOpen)
-        {
-            this.isOpen = isOpen;
             return this;
         }
 
@@ -167,10 +149,8 @@ public final class StructureBaseBuilder
                     structureUID,
                     name,
                     cuboid,
-                    rotationPoint,
                     powerBlock,
                     world,
-                    isOpen,
                     isLocked,
                     openDir,
                     primeOwner,
@@ -225,7 +205,7 @@ public final class StructureBaseBuilder
          *     The cuboid.
          * @return The next step of the guided builder process.
          */
-        IBuilderRotationPoint cuboid(Cuboid cuboid);
+        IBuilderPowerBlock cuboid(Cuboid cuboid);
 
         /**
          * Sets the min/max coordinate-pair of the structure.
@@ -236,22 +216,10 @@ public final class StructureBaseBuilder
          *     The maximum x/y/z coordinates of the structure.
          * @return The next step of the guided builder process.
          */
-        default IBuilderRotationPoint cuboid(Vector3Di min, Vector3Di max)
+        default IBuilderPowerBlock cuboid(Vector3Di min, Vector3Di max)
         {
             return cuboid(new Cuboid(min, max));
         }
-    }
-
-    public interface IBuilderRotationPoint extends IUIDProvider
-    {
-        /**
-         * Sets the point around which the structure will rotate.
-         *
-         * @param rotationPoint
-         *     The x/y/z coordinates of the rotation point of the structure.
-         * @return The next step of the guided builder process.
-         */
-        IBuilderPowerBlock rotationPoint(Vector3Di rotationPoint);
     }
 
     public interface IBuilderPowerBlock extends IUIDProvider
@@ -275,19 +243,7 @@ public final class StructureBaseBuilder
          *     The world.
          * @return The next step of the guided builder process.
          */
-        IBuilderIsOpen world(IWorld world);
-    }
-
-    public interface IBuilderIsOpen extends IUIDProvider
-    {
-        /**
-         * Sets the open-status of the structure.
-         *
-         * @param isOpen
-         *     True to set the new status as open.
-         * @return The next step of the guided builder process.
-         */
-        IBuilderIsLocked isOpen(boolean isOpen);
+        IBuilderIsLocked world(IWorld world);
     }
 
     public interface IBuilderIsLocked extends IUIDProvider
