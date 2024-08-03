@@ -13,6 +13,7 @@ import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
@@ -20,6 +21,7 @@ import nl.pim16aap2.animatedarchitecture.core.text.TextArgument;
 import nl.pim16aap2.animatedarchitecture.core.text.TextArgumentFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
@@ -158,10 +160,14 @@ public class Info extends StructureTargetCommand
 
     private void decorateOpenStatus(StructureSnapshot structure, Text text)
     {
+        final @Nullable Boolean isOpen = structure.getPropertyValue(Property.OPEN_STATUS).value();
+        if (isOpen == null)
+            return;
+
         final String localizedOpenStatus =
-            localizer.getMessage(structure.isOpen() ? "constants.open_status.open" : "constants.open_status.closed");
+            localizer.getMessage(isOpen ? "constants.open_status.open" : "constants.open_status.closed");
         final String oppositeLocalizedOpenStatus =
-            localizer.getMessage(structure.isOpen() ? "constants.open_status.closed" : "constants.open_status.open");
+            localizer.getMessage(isOpen ? "constants.open_status.closed" : "constants.open_status.open");
 
         final var openStatusArgument = text.getTextArgumentFactory().clickable(
             localizedOpenStatus,

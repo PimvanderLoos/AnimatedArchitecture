@@ -147,7 +147,7 @@ public abstract class StructureTargetCommand extends BaseCommand
 
         try
         {
-            performAction(structure.get()).get(30, TimeUnit.MINUTES);
+            performAction(structure.get()).get(5, TimeUnit.MINUTES);
         }
         catch (Exception e)
         {

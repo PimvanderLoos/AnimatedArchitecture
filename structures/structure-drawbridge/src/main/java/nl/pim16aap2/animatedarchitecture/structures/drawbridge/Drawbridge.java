@@ -12,6 +12,8 @@ import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.annotations.Deserialization;
 import nl.pim16aap2.animatedarchitecture.core.annotations.PersistentVariable;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithOpenStatus;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithRotationPoint;
 import nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
@@ -29,7 +31,9 @@ import java.util.stream.Stream;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @Flogger
-public class Drawbridge extends AbstractStructure implements IHorizontalAxisAligned
+public class Drawbridge
+    extends AbstractStructure
+    implements IHorizontalAxisAligned, IStructureWithOpenStatus, IStructureWithRotationPoint
 {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude

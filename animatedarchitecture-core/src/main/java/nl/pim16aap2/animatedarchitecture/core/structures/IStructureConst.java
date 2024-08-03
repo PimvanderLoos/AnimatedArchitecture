@@ -2,6 +2,7 @@ package nl.pim16aap2.animatedarchitecture.core.structures;
 
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyHolderConst;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.LocationUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
@@ -20,7 +21,7 @@ import java.util.UUID;
  * the structure system.
  */
 @SuppressWarnings("unused")
-public interface IStructureConst
+public interface IStructureConst extends IPropertyHolderConst
 {
     /**
      * @return A {@link StructureSnapshot} of this {@link StructureBase}.
@@ -31,26 +32,6 @@ public interface IStructureConst
      * @return The {@link StructureType} of this structure.
      */
     StructureType getType();
-
-    /**
-     * Checks if this structure can be opened right now.
-     *
-     * @return True if this structure can be opened right now.
-     */
-    default boolean isOpenable()
-    {
-        return !isOpen();
-    }
-
-    /**
-     * Checks if this structure can be closed right now.
-     *
-     * @return True if this structure can be closed right now.
-     */
-    default boolean isCloseable()
-    {
-        return isOpen();
-    }
 
     /**
      * Gets the {@link Cuboid} representing the area taken up by this structure.
@@ -118,13 +99,6 @@ public interface IStructureConst
      * @return True if the {@link AbstractStructure} is locked
      */
     boolean isLocked();
-
-    /**
-     * Check if the {@link AbstractStructure} is currently open.
-     *
-     * @return True if the {@link AbstractStructure} is open
-     */
-    boolean isOpen();
 
     /**
      * Gets the prime owner (permission = 0) of this structure. In most cases, this will be the original creator of the
@@ -238,13 +212,6 @@ public interface IStructureConst
      * @return The position of the power block of this structure.
      */
     Vector3Di getPowerBlock();
-
-    /**
-     * Gets the position of the rotation point of this structure.
-     *
-     * @return The position of the rotation point block of this structure.
-     */
-    Vector3Di getRotationPoint();
 
     /**
      * Gets the minimum position of this structure.

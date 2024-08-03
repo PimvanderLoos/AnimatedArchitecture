@@ -337,28 +337,10 @@ public interface IStorage
      *     The {@link AbstractStructure}.
      * @return The flag value of a {@link AbstractStructure}.
      */
-    default long getFlag(AbstractStructure structure)
+    default long getFlag(IStructureConst structure)
     {
         long flag = 0;
-        flag = IBitFlag.changeFlag(StructureFlag.getFlagValue(StructureFlag.IS_OPEN), structure.isOpen(), flag);
         flag = IBitFlag.changeFlag(StructureFlag.getFlagValue(StructureFlag.IS_LOCKED), structure.isLocked(), flag);
-        return flag;
-    }
-
-    /**
-     * Gets the flag value of various boolean properties of a {@link AbstractStructure}.
-     *
-     * @param isOpen
-     *     Whether the structure is currently open.
-     * @param isLocked
-     *     Whether the structure is currently locked.
-     * @return The flag value of a {@link AbstractStructure}.
-     */
-    default long getFlag(boolean isOpen, boolean isLocked)
-    {
-        long flag = 0;
-        flag = IBitFlag.changeFlag(StructureFlag.getFlagValue(StructureFlag.IS_OPEN), isOpen, flag);
-        flag = IBitFlag.changeFlag(StructureFlag.getFlagValue(StructureFlag.IS_LOCKED), isLocked, flag);
         return flag;
     }
 
@@ -410,11 +392,6 @@ public interface IStorage
      */
     enum StructureFlag implements IBitFlag
     {
-        /**
-         * Consider a structure to be opened if this flag is enabled.
-         */
-        IS_OPEN(0b00000001),
-
         /**
          * Consider a structure to be locked if this flag is enabled.
          */

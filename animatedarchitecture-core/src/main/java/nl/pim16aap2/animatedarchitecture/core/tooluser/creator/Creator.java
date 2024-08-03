@@ -1,7 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.tooluser.creator;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
-import lombok.Locked;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationType;
@@ -45,13 +44,13 @@ import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Function;
 
 /**
@@ -80,14 +79,9 @@ public abstract class Creator extends ToolUser
     protected final long structureUidPlaceholder = STRUCTURE_UID_PLACEHOLDER_COUNTER.getAndDecrement();
 
     /**
-     * The lock that is used to synchronize access to the {@link #propertyManager}.
-     */
-    private final ReentrantReadWriteLock propertyManagerLock = new ReentrantReadWriteLock();
-
-    /**
      * The {@link PropertyManager} that is used to manage the properties of the structure.
      */
-    @GuardedBy("propertyManagerLock")
+    @GuardedBy("this")
     private final PropertyManager propertyManager;
 
     /**
@@ -116,13 +110,6 @@ public abstract class Creator extends ToolUser
     private @Nullable Vector3Di firstPos;
 
     /**
-     * The position of the rotation point selected by the user.
-     */
-    @ToString.Include
-    @GuardedBy("this")
-    private @Nullable Vector3Di rotationPoint;
-
-    /**
      * The powerblock selected by the user.
      */
     @ToString.Include
@@ -142,13 +129,6 @@ public abstract class Creator extends ToolUser
     @ToString.Include
     @GuardedBy("this")
     private @Nullable IWorld world;
-
-    /**
-     * Whether the structure is created in the open (true) or closed (false) position.
-     */
-    @ToString.Include
-    @GuardedBy("this")
-    private boolean isOpen = false;
 
     /**
      * Whether the structure is created in the locked (true) or unlocked (false) state.
@@ -291,7 +271,7 @@ public abstract class Creator extends ToolUser
             .stepPreparation(this::prepareSetOpenStatus)
             .propertyName(localizer.getMessage("creator.base.property.open_status"))
             .propertyValueSupplier(
-                () -> getIsOpen() ?
+                () -> isOpen() ?
                     localizer.getMessage("constants.open_status.open") :
                     localizer.getMessage("constants.open_status.closed"))
             .updatable(true)
@@ -352,10 +332,23 @@ public abstract class Creator extends ToolUser
      * @throws IllegalArgumentException
      *     If the property is not valid for the structure type this property manager was created for.
      */
-    @Locked.Write("propertyManagerLock")
-    protected final <T> void setProperty(Property<T> property, T value)
+    protected synchronized final <T> void setProperty(Property<T> property, T value)
     {
-        propertyManager.setProperty(property, value);
+        propertyManager.setPropertyValue(property, value);
+    }
+
+    /**
+     * Gets a property of the structure.
+     *
+     * @param property
+     *     The property to get.
+     * @param <T>
+     *     The type of the property.
+     * @return The value of the property.
+     */
+    protected synchronized final <T> @Nullable T getProperty(Property<T> property)
+    {
+        return propertyManager.getPropertyValue(property).value();
     }
 
     /**
@@ -440,10 +433,8 @@ public abstract class Creator extends ToolUser
             .uid(structureUidPlaceholder)
             .name(Util.requireNonNull(name, "Name"))
             .cuboid(Util.requireNonNull(cuboid, "cuboid"))
-            .rotationPoint(Util.requireNonNull(rotationPoint, "rotationPoint"))
             .powerBlock(Util.requireNonNull(powerblock, "powerblock"))
             .world(Util.requireNonNull(world, "world"))
-            .isOpen(isOpen)
             .isLocked(isLocked)
             .openDir(Util.requireNonNull(movementDirection, "openDir"))
             .primeOwner(owner)
@@ -695,7 +686,7 @@ public abstract class Creator extends ToolUser
      */
     protected synchronized boolean completeSetOpenStatusStep(boolean isOpen)
     {
-        this.isOpen = isOpen;
+        setOpen(isOpen);
         return true;
     }
 
@@ -933,7 +924,7 @@ public abstract class Creator extends ToolUser
             return false;
         }
 
-        rotationPoint = loc.getPosition();
+        setRotationPoint(loc.getPosition());
         return true;
     }
 
@@ -1057,18 +1048,6 @@ public abstract class Creator extends ToolUser
     }
 
     /**
-     * Returns the open status of the structure that is to be created.
-     * <p>
-     * This may not have been set yet, in which case it defaults to false.
-     *
-     * @return The open status of the structure that is to be created.
-     */
-    protected final synchronized boolean getIsOpen()
-    {
-        return isOpen;
-    }
-
-    /**
      * Returns the movement direction of the structure that is to be created.
      *
      * @return The movement direction of the structure that is to be created or null if it has not been set yet.
@@ -1085,7 +1064,7 @@ public abstract class Creator extends ToolUser
      */
     protected final synchronized @Nullable Vector3Di getRotationPoint()
     {
-        return rotationPoint;
+        return Util.requireNonNull(getProperty(Property.ROTATION_POINT), "Rotation Point");
     }
 
     /**
@@ -1142,7 +1121,7 @@ public abstract class Creator extends ToolUser
      */
     protected final synchronized boolean isOpen()
     {
-        return this.isOpen;
+        return Objects.requireNonNullElse(getProperty(Property.OPEN_STATUS), false);
     }
 
     /**
@@ -1196,7 +1175,7 @@ public abstract class Creator extends ToolUser
     @SuppressWarnings("unused")
     protected final synchronized void setRotationPoint(Vector3Di rotationPoint)
     {
-        this.rotationPoint = rotationPoint;
+        setProperty(Property.ROTATION_POINT, rotationPoint);
     }
 
     /**
@@ -1270,7 +1249,7 @@ public abstract class Creator extends ToolUser
     @SuppressWarnings("unused")
     protected final synchronized void setOpen(boolean open)
     {
-        isOpen = open;
+        setProperty(Property.OPEN_STATUS, open);
     }
 
     /**
