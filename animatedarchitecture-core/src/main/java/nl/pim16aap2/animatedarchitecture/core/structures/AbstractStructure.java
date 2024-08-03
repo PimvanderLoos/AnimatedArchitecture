@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.structures;
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -16,6 +17,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyMan
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyValue;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyManagerSnapshot;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyScope;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
@@ -746,13 +748,58 @@ public abstract class AbstractStructure implements IStructureConst
         return base.getPropertyValue(property);
     }
 
-    @Locked.Write("lock")
+    /**
+     * Sets the value of a property.
+     *
+     * @param property
+     *     The property to set the value of.
+     * @param value
+     *     The value to set the property to.
+     * @param <T>
+     *     The type of the property.
+     */
     public <T> void setPropertyValue(Property<T> property, T value)
     {
-        base.setPropertyValue(property, value);
+        assertWriteLockable();
+        setPropertyValue0(property, value);
+    }
 
-        // Both the property manager snapshot and the basic data (which includes the full snapshot) are invalidated.
+    @Locked.Write("lock")
+    private <T> void setPropertyValue0(Property<T> property, T value)
+    {
+        base.setPropertyValue(property, value);
+        handlePropertyChange(property);
+    }
+
+    /**
+     * Handles a change in a property scope.
+     *
+     * @param scope
+     *     The scope that changed.
+     */
+    private void handlePropertyScopeChange(PropertyScope scope)
+    {
+        switch (scope)
+        {
+            case REDSTONE -> verifyRedstoneState();
+            case ANIMATION -> invalidateAnimationData();
+            default -> throw new IllegalArgumentException("Unknown property scope: '" + scope + "'!");
+        }
+    }
+
+    /**
+     * Handles a change in a property.
+     * <p>
+     * This will invalidate any cached data in the scope of the property.
+     *
+     * @param property
+     *     The property that changed.
+     */
+    @GuardedBy("lock")
+    private void handlePropertyChange(Property<?> property)
+    {
         lazyPropertyManagerSnapshot.reset();
+        property.getPropertyScopes().forEach(this::handlePropertyScopeChange);
         invalidateBasicData();
     }
 
