@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Contract;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -68,6 +69,12 @@ public final class Property<T> implements IKeyed
     private final @Nullable T defaultValue;
 
     /**
+     * The scopes in which this property is used.
+     */
+    @Getter
+    private final List<PropertyScope> propertyScopes;
+
+    /**
      * A property for structures whose animation speed is variable.
      */
     public static final Property<Double> ANIMATION_SPEED_MULTIPLIER = new Property<>(
@@ -77,12 +84,27 @@ public final class Property<T> implements IKeyed
     );
 
     /**
+     * A property for structures that move a certain amount of blocks when activated.
+     */
+    public static final Property<Integer> BLOCKS_TO_MOVE = new Property<>(
+        "BLOCKS_TO_MOVE",
+        Integer.class,
+        null,
+        // Changing the blocks to move may affect things like animation range.
+        PropertyScope.ANIMATION
+    );
+
+    /**
      * A property for structures that have a defined open and closed state.
      */
     public static final Property<Boolean> OPEN_STATUS = new Property<>(
         "OPEN_STATUS",
         Boolean.class,
-        false
+        false,
+        // The open status affects things like animation direction.
+        PropertyScope.ANIMATION,
+        // Changing the open status may affect the current redstone action.
+        PropertyScope.REDSTONE
     );
 
     /**
@@ -91,7 +113,9 @@ public final class Property<T> implements IKeyed
     public static final Property<RedstoneMode> REDSTONE_MODE = new Property<>(
         "REDSTONE_MODE",
         RedstoneMode.class,
-        RedstoneMode.DEFAULT
+        RedstoneMode.DEFAULT,
+        // Changing the redstone mode may affect the current redstone action.
+        PropertyScope.REDSTONE
     );
 
     /**
@@ -100,14 +124,17 @@ public final class Property<T> implements IKeyed
     public static final Property<Vector3Di> ROTATION_POINT = new Property<>(
         "ROTATION_POINT",
         Vector3Di.class,
-        null
+        null,
+        // Changing the rotation point may affect things like animation range.
+        PropertyScope.ANIMATION
     );
 
-    private Property(NamespacedKey namespacedKey, Class<T> type, @Nullable T defaultValue)
+    private Property(NamespacedKey namespacedKey, Class<T> type, @Nullable T defaultValue, PropertyScope... scopes)
     {
         this.namespacedKey = namespacedKey;
         this.type = type;
         this.defaultValue = defaultValue;
+        this.propertyScopes = List.of(scopes);
 
         if (defaultValue != null && !type.isInstance(defaultValue))
             throw new IllegalArgumentException("Default value " + defaultValue + " is not of type " + type.getName());
@@ -125,9 +152,9 @@ public final class Property<T> implements IKeyed
      * @param defaultValue
      *     The default value of the property.
      */
-    private Property(String name, Class<T> type, @Nullable T defaultValue)
+    private Property(String name, Class<T> type, @Nullable T defaultValue, PropertyScope... scopes)
     {
-        this(new NamespacedKey(Constants.PLUGIN_NAME, name), type, defaultValue);
+        this(new NamespacedKey(Constants.PLUGIN_NAME, name), type, defaultValue, scopes);
     }
 
     /**
@@ -148,9 +175,9 @@ public final class Property<T> implements IKeyed
      *     <p>
      *     This is to prevent conflicts between properties between different plugins.
      */
-    public Property(String owner, String name, Class<T> type, @Nullable T defaultValue)
+    public Property(String owner, String name, Class<T> type, @Nullable T defaultValue, PropertyScope... scopes)
     {
-        this(serializationName(owner, name), type, defaultValue);
+        this(serializationName(owner, name), type, defaultValue, scopes);
     }
 
     /**
