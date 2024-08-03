@@ -11,6 +11,8 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyManager;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
@@ -33,8 +35,11 @@ import org.mockito.invocation.InvocationOnMock;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
@@ -120,13 +125,31 @@ public class UnitTestUtil
     }
 
     /**
+     * Creates a new {@link StructureOwner} with random player data.
+     *
+     * @param structureUid
+     *     The UID of the structure.
+     * @return The created structure owner.
+     */
+    public static StructureOwner createStructureOwner(long structureUid)
+    {
+        final PlayerData playerData = Mockito.mock(PlayerData.class);
+        Mockito.when(playerData.getUUID()).thenReturn(UUID.randomUUID());
+        Mockito.when(playerData.getName()).thenReturn(StringUtil.randomString(6));
+        return new StructureOwner(structureUid, PermissionLevel.CREATOR, playerData);
+    }
+
+    /**
      * Creates a new {@link StructureBaseBuilder} and accompanying StructureBase factory.
      *
      * @return The result of the creation.
      */
     public static StructureBaseBuilderResult newStructureBaseBuilder()
-        throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException,
-               IllegalAccessException
+        throws ClassNotFoundException,
+               IllegalAccessException,
+               InstantiationException,
+               InvocationTargetException,
+               NoSuchMethodException
     {
         final Class<?> classStructureBase = Class.forName(
             "nl.pim16aap2.animatedarchitecture.core.structures.StructureBase");
@@ -146,6 +169,61 @@ public class UnitTestUtil
             (StructureBaseBuilder) ctorStructureBaseBuilder.newInstance(assistedFactoryMocker.getFactory());
 
         return new StructureBaseBuilderResult(builder, assistedFactoryMocker);
+    }
+
+    /**
+     * Sets the property manager in a mocked structure.
+     * <p>
+     * If the provided properties are null, it will use the properties from the structure type. See
+     * {@link StructureType#getProperties()}.
+     * <p>
+     * All property-related methods will be mocked to use the property manager.
+     *
+     * @param structure
+     *     The structure to set the property manager in.
+     * @param providedProperties
+     *     The properties to use. If null, the properties from the structure type will be used.
+     */
+    public static void setPropertyManagerInMockedStructure(
+        AbstractStructure structure,
+        @Nullable List<Property<?>> providedProperties)
+    {
+        final List<Property<?>> properties = providedProperties == null
+            ? Objects.requireNonNull(structure.getType().getProperties())
+            : providedProperties;
+
+        final PropertyManager propertyManager = PropertyManager.forProperties(properties);
+
+        Mockito.doAnswer(invocation ->
+        {
+            final PropertyManager current = invocation.getArgument(0);
+            return current.snapshot();
+        }).when(structure).getPropertyManagerSnapshot();
+
+        Mockito.doAnswer(invocation ->
+        {
+            final Property<?> property = invocation.getArgument(0);
+            final Object value = invocation.getArgument(1);
+            return propertyManager.setUntypedPropertyValue(property, value);
+        }).when(structure).setPropertyValue(Mockito.any(), Mockito.any());
+
+        Mockito.doAnswer(invocation ->
+        {
+            final Property<?> property = invocation.getArgument(0);
+            return propertyManager.getPropertyValue(property);
+        }).when(structure).getPropertyValue(Mockito.any());
+
+        Mockito.doAnswer(invocation ->
+        {
+            final Property<?> property = invocation.getArgument(0);
+            return propertyManager.hasProperty(property);
+        }).when(structure).hasProperty(Mockito.any());
+
+        Mockito.doAnswer(invocation ->
+        {
+            final Collection<Property<?>> propertiesToCheck = invocation.getArgument(0);
+            return propertyManager.hasProperties(propertiesToCheck);
+        }).when(structure).hasProperties(Mockito.anyCollection());
     }
 
     /**
@@ -195,15 +273,19 @@ public class UnitTestUtil
         Mockito.doReturn(safeSupplier(() -> ret.getCuboid().asFlatRectangle(), structure::getAnimationRange))
             .when(ret).getAnimationRange();
 
-        Mockito.when(ret.getRotationPoint()).thenReturn(safeSupplier(() ->
-            new Vector3Di(random.nextInt(), random.nextInt(), random.nextInt()), structure::getRotationPoint));
-
-        Mockito.when(ret.getPowerBlock()).thenReturn(safeSupplier(() ->
-            new Vector3Di(random.nextInt(), random.nextInt(), random.nextInt()), structure::getPowerBlock));
+        Mockito.when(ret.getPowerBlock()).thenReturn(safeSupplier(
+            () -> new Vector3Di(random.nextInt(), random.nextInt(), random.nextInt()),
+            structure::getPowerBlock)
+        );
 
         Mockito.when(ret.getName()).thenReturn(safeSupplierSimple("TestStructureSnapshot", structure::getName));
 
-        Mockito.when(ret.isOpen()).thenReturn(safeSupplierSimple(true, structure::isOpen));
+        Mockito.when(ret.getType())
+            .thenReturn(safeSupplier(() -> Mockito.mock(StructureType.class), structure::getType));
+
+        Mockito.when(ret.getPropertyManager()).thenReturn(safeSupplier(
+            () -> PropertyManager.forType(Objects.requireNonNull(structure.getType())),
+            structure::getPropertyManagerSnapshot));
 
         Mockito.when(ret.getOpenDir()).thenReturn(safeSupplierSimple(MovementDirection.NONE, structure::getOpenDir));
 
@@ -221,9 +303,6 @@ public class UnitTestUtil
                     .collect(Collectors.toMap(owner -> owner.playerData().getUUID(), owner -> owner)))
             );
 
-        Mockito.when(ret.getType())
-            .thenReturn(safeSupplier(() -> Mockito.mock(StructureType.class), structure::getType));
-
         final Map<String, Object> propertyMap = safeSupplierSimple(
             Collections.emptyMap(),
             () -> StructureSnapshot.getPersistentVariableMap(structure)
@@ -231,11 +310,23 @@ public class UnitTestUtil
 
         //noinspection SuspiciousMethodCalls
         Mockito.doAnswer(invocation -> propertyMap.get(invocation.getArgument(0)))
-            .when(ret).getProperty(Mockito.anyString());
+            .when(ret).getPersistentVariable(Mockito.anyString());
 
         return ret;
     }
 
+    /**
+     * Attempts to get a value from a supplier, but returns a fallback value if the supplier throws an exception or
+     * returns null.
+     *
+     * @param fallback
+     *     The fallback value to return if the supplier fails.
+     * @param supplier
+     *     The supplier to get the value from.
+     * @param <T>
+     *     The type of the value.
+     * @return The value from the supplier, or the fallback value if the supplier fails.
+     */
     private static <T> T safeSupplierSimple(T fallback, CheckedSupplier<T, ?> supplier)
     {
         try
@@ -250,6 +341,20 @@ public class UnitTestUtil
         return fallback;
     }
 
+    /**
+     * Attempts to get a value from a supplier, but returns a fallback value if the supplier throws an exception or
+     * returns null.
+     * <p>
+     * Note that exceptions thrown by the fallback supplier will not be caught.
+     *
+     * @param fallbackSupplier
+     *     The fallback supplier to get the value from if the main supplier fails.
+     * @param supplier
+     *     The supplier to get the value from.
+     * @param <T>
+     *     The type of the value.
+     * @return The value from the supplier, or the fallback value if the supplier fails.
+     */
     private static <T> T safeSupplier(Supplier<T> fallbackSupplier, CheckedSupplier<T, ?> supplier)
     {
         try

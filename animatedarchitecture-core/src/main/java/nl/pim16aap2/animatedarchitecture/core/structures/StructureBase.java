@@ -389,10 +389,16 @@ final class StructureBase
         return propertyManager.hasProperty(property);
     }
 
-    @Locked.Write("lock")
-    public <T> void setPropertyValue(Property<T> property, T value)
+    @Locked.Read("lock")
+    public boolean hasProperties(Collection<Property<?>> properties)
     {
-        propertyManager.setPropertyValue(property, value);
+        return propertyManager.hasProperties(properties);
+    }
+
+    @Locked.Write("lock")
+    public <T> IPropertyValue<T> setPropertyValue(Property<T> property, T value)
+    {
+        return propertyManager.setPropertyValue(property, value);
     }
 
     /**

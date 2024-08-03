@@ -6,14 +6,18 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import org.jetbrains.annotations.VisibleForTesting;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * Manages the properties of a structure.
@@ -80,13 +84,35 @@ public final class PropertyManager implements IPropertyHolder, IPropertyManagerC
      *     If the property is not valid for the structure type this property manager was created for.
      */
     @Override
-    public <T> void setPropertyValue(Property<T> property, @Nullable T value)
+    public <T> IPropertyValue<T> setPropertyValue(Property<T> property, @Nullable T value)
     {
         final String key = mapKey(property);
         if (!propertyMap.containsKey(key))
             throw new IllegalArgumentException("Property " + key + " is not valid for this structure type.");
 
-        propertyMap.put(key, mapValue(property, value));
+        //noinspection unchecked
+        return (IPropertyValue<T>) Objects.requireNonNull(propertyMap.put(key, mapValue(property, value)));
+    }
+
+    /**
+     * Sets the value of the given property without type checking.
+     * <p>
+     * If possible, consider using {@link #setUntypedPropertyValue(Property, Object)} instead for better type safety.
+     *
+     * @param property
+     *     The property to set the value for.
+     * @param value
+     *     The value to set. May be {@code null} if the property is nullable.
+     * @throws ClassCastException
+     *     If the value cannot be cast to the type of the property.
+     */
+    public IPropertyValue<?> setUntypedPropertyValue(Property<?> property, @Nullable Object value)
+    {
+        final String key = mapKey(property);
+        if (!propertyMap.containsKey(key))
+            throw new IllegalArgumentException("Property " + key + " is not valid for this structure type.");
+
+        return Objects.requireNonNull(propertyMap.put(key, mapUntypedValue(property, value)));
     }
 
     @Override
@@ -99,6 +125,30 @@ public final class PropertyManager implements IPropertyHolder, IPropertyManagerC
     public boolean hasProperty(Property<?> property)
     {
         return propertyMap.containsKey(mapKey(property));
+    }
+
+    @Override
+    public boolean hasProperties(Collection<Property<?>> properties)
+    {
+        return propertyMap
+            .keySet()
+            .containsAll(properties.stream().map(PropertyManager::mapKey).collect(Collectors.toSet()));
+    }
+
+    /**
+     * Checks if the given property map has all the given properties.
+     *
+     * @param propertyMap
+     *     The map to check.
+     * @param properties
+     *     The properties to check.
+     * @return {@code true} if the property map has all the given properties, {@code false} otherwise.
+     */
+    static boolean hasProperties(Map<String, IPropertyValue<?>> propertyMap, Collection<Property<?>> properties)
+    {
+        return propertyMap
+            .keySet()
+            .containsAll(properties.stream().map(PropertyManager::mapKey).collect(Collectors.toSet()));
     }
 
     /**
@@ -121,6 +171,23 @@ public final class PropertyManager implements IPropertyHolder, IPropertyManagerC
     public static PropertyManager forType(StructureType structureType)
     {
         return new PropertyManager(new HashMap<>(getDefaultPropertyMap(structureType)));
+    }
+
+    /**
+     * Creates a new property manager for the given properties.
+     * <p>
+     * This method is intended for testing purposes only.
+     * <p>
+     * For production code, use {@link #forType(StructureType)} instead.
+     *
+     * @param properties
+     *     The properties to create the property manager for.
+     * @return A new property manager for the given properties.
+     */
+    @VisibleForTesting
+    public static PropertyManager forProperties(List<Property<?>> properties)
+    {
+        return new PropertyManager(toPropertyMap(properties));
     }
 
     /**
@@ -151,18 +218,28 @@ public final class PropertyManager implements IPropertyHolder, IPropertyManagerC
      */
     static Map<String, IPropertyValue<?>> newDefaultPropertyMap(StructureType structureType)
     {
-        final var typeProperties = structureType.getProperties();
+        return Collections.unmodifiableMap(toPropertyMap(structureType.getProperties()));
+    }
 
-        final Map<String, IPropertyValue<?>> defaultProperties = HashMap.newHashMap(typeProperties.size());
-        structureType
-            .getProperties()
-            .forEach(property ->
-                defaultProperties.put(
-                    mapKey(property),
-                    defaultMapValue(property)
-                ));
-
-        return Collections.unmodifiableMap(defaultProperties);
+    /**
+     * Creates a property map from the given list of properties.
+     * <p>
+     * Each property is set to its default value. See {@link Property#getDefaultValue()}.
+     *
+     * @param properties
+     *     The properties to create the map from.
+     * @return A new property map with the default properties for the given structure type.
+     */
+    static Map<String, IPropertyValue<?>> toPropertyMap(List<Property<?>> properties)
+    {
+        return properties
+            .stream()
+            .collect(Collectors.toMap(
+                PropertyManager::mapKey,
+                PropertyManager::defaultMapValue,
+                (prev, next) -> next,
+                HashMap::new)
+            );
     }
 
     /**
@@ -178,25 +255,9 @@ public final class PropertyManager implements IPropertyHolder, IPropertyManagerC
      */
     static <T> IPropertyValue<T> getValue(Map<String, IPropertyValue<?>> propertyMap, Property<T> property)
     {
-        final @Nullable IPropertyValue<?> rawValue = getRawValue(propertyMap, property);
+        final IPropertyValue<?> rawValue = propertyMap.getOrDefault(mapKey(property), UnsetPropertyValue.INSTANCE);
         //noinspection unchecked
-        return (IPropertyValue<T>) Objects.requireNonNullElse(rawValue, UnsetPropertyValue.INSTANCE);
-    }
-
-    /**
-     * Gets the raw value of the given property.
-     *
-     * @param propertyMap
-     *     The map containing the properties.
-     * @param property
-     *     The property to get the raw value of.
-     * @return The raw value of the property or {@code null} if the property is not set.
-     */
-    private static @Nullable IPropertyValue<?> getRawValue(
-        Map<String, IPropertyValue<?>> propertyMap,
-        Property<?> property)
-    {
-        return propertyMap.get(mapKey(property));
+        return (IPropertyValue<T>) Objects.requireNonNull(rawValue);
     }
 
     /**
@@ -266,6 +327,9 @@ public final class PropertyManager implements IPropertyHolder, IPropertyManagerC
      * @param <T>
      *     The type of the property.
      * @return The value wrapped in a {@link ProvidedPropertyValue}.
+     *
+     * @throws ClassCastException
+     *     If the value cannot be cast to the type of the property.
      */
     static <T> ProvidedPropertyValue<T> mapUntypedValue(Property<T> property, @Nullable Object value)
     {

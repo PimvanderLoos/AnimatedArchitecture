@@ -37,7 +37,7 @@ public interface IStructureWithOpenStatus extends IPropertyHolder
      */
     default boolean isOpen()
     {
-        return getRawPropertyValue(Property.OPEN_STATUS);
+        return getRequiredPropertyValue(Property.OPEN_STATUS);
     }
 
     /**
@@ -45,9 +45,30 @@ public interface IStructureWithOpenStatus extends IPropertyHolder
      *
      * @param open
      *     The new open status of the structure. True if the structure is open, false if it is closed.
+     * @return The previous property value of the open status property.
      */
-    default void setOpen(boolean open)
+    default IPropertyValue<Boolean> setOpenStatus(boolean open)
     {
-        setPropertyValue(Property.OPEN_STATUS, open);
+        return setPropertyValue(Property.OPEN_STATUS, open);
+    }
+
+    /**
+     * Sets the structure to be open.
+     *
+     * @return The previous property value of the open status property.
+     */
+    default IPropertyValue<Boolean> setOpen()
+    {
+        return setOpenStatus(true);
+    }
+
+    /**
+     * Sets the structure to be closed.
+     *
+     * @return The previous property value of the open status property.
+     */
+    default IPropertyValue<Boolean> setClosed()
+    {
+        return setOpenStatus(false);
     }
 }

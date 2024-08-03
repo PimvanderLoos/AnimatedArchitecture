@@ -94,14 +94,14 @@ public class PropertyManagerSerializerTest
             PropertyManagerSerializer.updatePropertyMapEntry(
                 structureType,
                 entries,
-                Property.ANIMATION_SPEED_MULTIPLIER.name(),
+                Property.ANIMATION_SPEED_MULTIPLIER.getFullKey(),
                 JSON.parseObject("{\"value\": 2.5}")
             )
         );
 
         Assertions.assertEquals(
             2.5D,
-            (double) entries.get(Property.ANIMATION_SPEED_MULTIPLIER.name()).value(),
+            (double) entries.get(Property.ANIMATION_SPEED_MULTIPLIER.getFullKey()).value(),
             0.0001D
         );
 
@@ -111,11 +111,11 @@ public class PropertyManagerSerializerTest
             PropertyManagerSerializer.updatePropertyMapEntry(
                 structureType,
                 entries,
-                Property.OPEN_STATUS.name(),
+                Property.OPEN_STATUS.getFullKey(),
                 JSON.parseObject("{\"value\": 2.5}")
             )
         );
-        Assertions.assertFalse(entries.containsKey(Property.OPEN_STATUS.name()));
+        Assertions.assertFalse(entries.containsKey(Property.OPEN_STATUS.getFullKey()));
 
         Assertions.assertEquals(1, entries.size());
     }

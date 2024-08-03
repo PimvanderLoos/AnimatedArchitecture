@@ -42,7 +42,6 @@ class StructureSerializerTest
     );
 
     private StructureBaseBuilder.IBuilderProperties structureBaseBuilder;
-    private PropertyManager propertyManager;
     private String serializedProperties;
     private AbstractStructure.BaseHolder structureBase;
 
@@ -78,16 +77,15 @@ class StructureSerializerTest
             .uid(1)
             .name(structureName)
             .cuboid(new Cuboid(zeroPos, zeroPos))
-            .rotationPoint(zeroPos)
             .powerBlock(zeroPos)
             .world(new TestWorld("worldName"))
-            .isOpen(false)
             .isLocked(false)
             .openDir(MovementDirection.DOWN)
             .primeOwner(structureOwner)
             .ownersOfStructure(null);
 
-        propertyManager = PropertyManager.forType(TestStructureType0.INSTANCE);
+
+        final PropertyManager propertyManager = PropertyManager.forType(TestStructureType0.INSTANCE);
         serializedProperties = PropertyManagerSerializer.serialize(propertyManager);
 
         structureBase = structureBaseBuilder.propertiesOfStructure(propertyManager).build();

@@ -49,7 +49,6 @@ public final class StructureSnapshot implements IStructureConst
     @Getter(AccessLevel.NONE)
     private final Map<String, Object> persistentVariableMap;
 
-
     StructureSnapshot(AbstractStructure structure)
     {
         this(
@@ -109,7 +108,7 @@ public final class StructureSnapshot implements IStructureConst
      *     The key of the property.
      * @return The value of the property, or {@link Optional#empty()} if the property does not exist.
      */
-    public Optional<Object> getProperty(String key)
+    public Optional<Object> getPersistentVariable(String key)
     {
         return Optional.ofNullable(persistentVariableMap.get(key));
     }

@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.tooluser.creator;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
+import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationType;
@@ -44,7 +45,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
@@ -203,11 +203,20 @@ public abstract class Creator extends ToolUser
      */
     protected final Step.Factory factoryCompleteProcess;
 
-    protected Creator(ToolUser.Context context, IPlayer player, @Nullable String name)
+    /**
+     * The type of structure this creator will create.
+     *
+     * @return The type of structure that will be created.
+     */
+    @Getter
+    protected final StructureType structureType;
+
+    protected Creator(ToolUser.Context context, StructureType structureType, IPlayer player, @Nullable String name)
     {
         super(context, player);
 
-        this.propertyManager = PropertyManager.forType(getStructureType());
+        this.structureType = structureType;
+        this.propertyManager = PropertyManager.forType(structureType);
 
         this.structureAnimationRequestBuilder = context.getStructureAnimationRequestBuilder();
         this.structureActivityManager = context.getStructureActivityManager();
@@ -253,7 +262,7 @@ public abstract class Creator extends ToolUser
         factoryProvideRotationPointPos = stepFactory
             .stepName("SET_ROTATION_POINT")
             .propertyName(localizer.getMessage("creator.base.property.rotation_point"))
-            .propertyValueSupplier(() -> formatVector(getRotationPoint()))
+            .propertyValueSupplier(() -> formatVector(getRequiredProperty(Property.ROTATION_POINT)))
             .updatable(true)
             .stepExecutor(new StepExecutorLocation(this::completeSetRotationPointStep));
 
@@ -271,7 +280,7 @@ public abstract class Creator extends ToolUser
             .stepPreparation(this::prepareSetOpenStatus)
             .propertyName(localizer.getMessage("creator.base.property.open_status"))
             .propertyValueSupplier(
-                () -> isOpen() ?
+                () -> getRequiredProperty(Property.OPEN_STATUS) ?
                     localizer.getMessage("constants.open_status.open") :
                     localizer.getMessage("constants.open_status.closed"))
             .updatable(true)
@@ -349,6 +358,23 @@ public abstract class Creator extends ToolUser
     protected synchronized final <T> @Nullable T getProperty(Property<T> property)
     {
         return propertyManager.getPropertyValue(property).value();
+    }
+
+    /**
+     * Gets a required property of the structure.
+     *
+     * @param property
+     *     The property to get.
+     * @param <T>
+     *     The type of the property.
+     * @return The value of the property.
+     *
+     * @throws NullPointerException
+     *     If the property is not set.
+     */
+    protected synchronized final <T> T getRequiredProperty(Property<T> property)
+    {
+        return Util.requireNonNull(getProperty(property), property.getFullKey());
     }
 
     /**
@@ -678,15 +704,15 @@ public abstract class Creator extends ToolUser
     }
 
     /**
-     * Attempts to complete the step that provides the {@link #isOpen}.
+     * Attempts to complete the step that provides the value of the {@link Property#OPEN_STATUS}.
      *
      * @param isOpen
      *     True if the current status of the structure is open.
-     * @return True if the {@link #isOpen} was set successfully.
+     * @return True if the open status was set successfully.
      */
     protected synchronized boolean completeSetOpenStatusStep(boolean isOpen)
     {
-        setOpen(isOpen);
+        setProperty(Property.OPEN_STATUS, isOpen);
         return true;
     }
 
@@ -767,16 +793,6 @@ public abstract class Creator extends ToolUser
                 }
             }).exceptionally(FutureUtil::exceptionally);
     }
-
-    /**
-     * Obtains the type of structure this creator will create.
-     * <p>
-     * Note that this getter is used in the constructor of this class, so it should return a value that is already
-     * initialized before the subclass calls the super constructor.
-     *
-     * @return The type of structure that will be created.
-     */
-    protected abstract StructureType getStructureType();
 
     /**
      * Attempts to buy the structure for the current player.
@@ -919,12 +935,13 @@ public abstract class Creator extends ToolUser
 
         if (!Util.requireNonNull(cuboid, "cuboid").isInRange(loc, 1))
         {
+            log.atFinest().log("Rotation point not in range of cuboid for player: %s", getPlayer());
             getPlayer().sendError(
                 textFactory, localizer.getMessage("creator.base.error.invalid_rotation_point"));
             return false;
         }
 
-        setRotationPoint(loc.getPosition());
+        setProperty(Property.ROTATION_POINT, loc.getPosition());
         return true;
     }
 
@@ -1058,16 +1075,6 @@ public abstract class Creator extends ToolUser
     }
 
     /**
-     * Returns the rotation point of the structure that is to be created.
-     *
-     * @return The rotation point of the structure that is to be created or null if it has not been set yet.
-     */
-    protected final synchronized @Nullable Vector3Di getRotationPoint()
-    {
-        return Util.requireNonNull(getProperty(Property.ROTATION_POINT), "Rotation Point");
-    }
-
-    /**
      * Returns the location of the power block of the structure that is to be created.
      *
      * @return The power block of the structure that is to be created or null if it has not been set yet.
@@ -1113,18 +1120,6 @@ public abstract class Creator extends ToolUser
     }
 
     /**
-     * Whether the structure that is being created is open.
-     *
-     * @return True if the structure that is being created is open, false otherwise.
-     * <p>
-     * This may not have been set yet, in which case it defaults to false.
-     */
-    protected final synchronized boolean isOpen()
-    {
-        return Objects.requireNonNullElse(getProperty(Property.OPEN_STATUS), false);
-    }
-
-    /**
      * Whether the structure that is being created is locked.
      *
      * @return True if the structure that is being created is locked, false otherwise.
@@ -1161,21 +1156,6 @@ public abstract class Creator extends ToolUser
     protected final synchronized void setCuboid(Cuboid cuboid)
     {
         this.cuboid = cuboid;
-    }
-
-    /**
-     * Sets the rotation point of the structure that is to be created.
-     * <p>
-     * Note that this method sets it directly without any processing or validation. Use
-     * {@link #completeSetRotationPointStep(ILocation)} to set it properly.
-     *
-     * @param rotationPoint
-     *     The rotation point of the structure that is to be created.
-     */
-    @SuppressWarnings("unused")
-    protected final synchronized void setRotationPoint(Vector3Di rotationPoint)
-    {
-        setProperty(Property.ROTATION_POINT, rotationPoint);
     }
 
     /**
@@ -1235,21 +1215,6 @@ public abstract class Creator extends ToolUser
     protected final synchronized void setFirstPos(Vector3Di firstPos)
     {
         this.firstPos = firstPos;
-    }
-
-    /**
-     * Sets the name of the structure that is to be created.
-     * <p>
-     * Note that this method sets it directly without any processing or validation. Use
-     * {@link #completeNamingStep(String)} to set it properly.
-     *
-     * @param open
-     *     True if the structure that is to be created is open, false otherwise.
-     */
-    @SuppressWarnings("unused")
-    protected final synchronized void setOpen(boolean open)
-    {
-        setProperty(Property.OPEN_STATUS, open);
     }
 
     /**

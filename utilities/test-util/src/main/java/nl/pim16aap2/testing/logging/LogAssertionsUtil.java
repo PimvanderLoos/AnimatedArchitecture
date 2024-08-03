@@ -16,6 +16,7 @@ import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 
 /**
@@ -107,7 +108,16 @@ public final class LogAssertionsUtil
                 .append(String.format(format, position))
                 .append(" [").append(logEvent.getLevel()).append("] `")
                 .append(logEvent.getMessage())
-                .append("`\n");
+                .append("` from Logger ")
+                .append(logEvent.getLoggerName());
+
+            logEvent.getThrowable().ifPresent(throwable ->
+                builder.append(" With throwable: `")
+                    .append(throwable.getClass().getName())
+                    .append("`: `")
+                    .append(throwable.getMessage()).append("`"));
+
+            builder.append("\n");
         }
         return builder.toString();
     }
@@ -129,11 +139,12 @@ public final class LogAssertionsUtil
         LogAssertion logAssertion,
         String expected,
         String actual,
-        List<LogEvent> logEvents)
+        Supplier<String> logEventsContextSupplier)
     {
         if (!logAssertion.comparisonMethod.compare(expected, actual))
             Assertions.fail(String.format(
                 """
+
                     Expected %s: '%s' at position %d
                     Received %s: '%s'
                     Comparison method: %s
@@ -142,7 +153,7 @@ public final class LogAssertionsUtil
                 title, expected, logAssertion.position,
                 title, actual,
                 logAssertion.comparisonMethod,
-                formatLogEvents(logEvents, 10))
+                logEventsContextSupplier.get())
             );
     }
 
@@ -151,18 +162,19 @@ public final class LogAssertionsUtil
         LogAssertion logAssertion,
         Object expected,
         Object actual,
-        List<LogEvent> logEvents)
+        Supplier<String> logEventsContextSupplier)
     {
         if (!Objects.equals(expected, actual))
             Assertions.fail(String.format(
                 """
+
                     Expected %s: '%s' at position %d
                     Received %s: '%s'
                     %s
                     """,
                 title, expected, logAssertion.position,
                 title, actual,
-                formatLogEvents(logEvents, 10))
+                logEventsContextSupplier.get())
             );
     }
 
@@ -187,6 +199,7 @@ public final class LogAssertionsUtil
         if (stream.findAny().isEmpty())
             Assertions.fail(String.format(
                 """
+
                     Could not find log event: %s
                     %s
                     """,
@@ -215,13 +228,16 @@ public final class LogAssertionsUtil
         final var logEvents = logAssertion.logCaptor.getLogEvents();
         final var logEvent = getLogEvent(logEvents, logAssertion.position);
 
+        final Supplier<String> logEventsContextSupplier =
+            () -> formatLogEvents(logEvents, logAssertion.position >= 0 ? 10 : -10);
+
         if (logAssertion.formattedMessage != null)
             assertMessageEquality(
                 "Formatted Message",
                 logAssertion,
                 logAssertion.formattedMessage,
-                logEvent.getFormattedMessage(),
-                logEvents
+                logEvent.getMessage(),
+                logEventsContextSupplier
             );
 
         if (logAssertion.level != null)
@@ -230,7 +246,7 @@ public final class LogAssertionsUtil
                 logAssertion,
                 logAssertion.level,
                 logEvent.getLevel(),
-                logEvents
+                logEventsContextSupplier
             );
     }
 
@@ -349,18 +365,19 @@ public final class LogAssertionsUtil
      */
     public static void assertThrowingCount(LogCaptor logCaptor, int count)
     {
-        final int throwingCount = getThrowingCount(logCaptor);
-        if (throwingCount == count)
+        final List<LogEvent> throwingLogEvents = getThrowingLogEvents(logCaptor);
+        if (throwingLogEvents.size() == count)
             return;
 
         Assertions.fail(String.format(
             """
                 Expected %d throwables to be logged, but instead got %d!
+                Got the following throwing log events:
                 %s
                 """,
             count,
-            throwingCount,
-            formatLogEvents(logCaptor.getLogEvents(), count))
+            throwingLogEvents.size(),
+            formatLogEvents(throwingLogEvents, throwingLogEvents.size()))
         );
     }
 
@@ -695,9 +712,9 @@ public final class LogAssertionsUtil
      *     The log captor to check.
      * @return The number of log events that were logged with a throwable.
      */
-    public static int getThrowingCount(LogCaptor logCaptor)
+    public static List<LogEvent> getThrowingLogEvents(LogCaptor logCaptor)
     {
-        return (int) logCaptor.getLogEvents().stream().filter(event -> event.getThrowable().isPresent()).count();
+        return logCaptor.getLogEvents().stream().filter(event -> event.getThrowable().isPresent()).toList();
     }
 
     /**

@@ -9,6 +9,7 @@ import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
@@ -26,6 +27,7 @@ public final class FlagAnimationComponent implements IAnimationComponent
     private final IConfig config;
     private final BiFunction<IAnimatedBlock, Integer, RotatedPosition> getGoalPos;
     private final StructureSnapshot snapshot;
+    private final Vector3Di rotationPoint;
     private final boolean isNorthSouthAligned;
     private final int length;
     private final int minY;
@@ -34,6 +36,7 @@ public final class FlagAnimationComponent implements IAnimationComponent
     public FlagAnimationComponent(AnimationRequestData data, boolean isNorthSouthAligned)
     {
         this.snapshot = data.getStructureSnapshot();
+        this.rotationPoint = this.snapshot.getRequiredPropertyValue(Property.ROTATION_POINT);
         this.oldCuboid = snapshot.getCuboid();
         this.config = data.getConfig();
 
@@ -117,7 +120,7 @@ public final class FlagAnimationComponent implements IAnimationComponent
     public float getRadius(int xAxis, int yAxis, int zAxis)
     {
         if (isNorthSouthAligned)
-            return Math.abs((float) zAxis - snapshot.getRotationPoint().z());
-        return Math.abs((float) xAxis - snapshot.getRotationPoint().x());
+            return Math.abs((float) zAxis - rotationPoint.z());
+        return Math.abs((float) xAxis - rotationPoint.x());
     }
 }

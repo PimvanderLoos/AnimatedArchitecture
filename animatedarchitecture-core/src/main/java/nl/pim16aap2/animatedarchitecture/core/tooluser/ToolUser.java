@@ -311,6 +311,7 @@ public abstract class ToolUser
      */
     @CheckReturnValue
     private CompletableFuture<Boolean> applyInput(@Nullable Object obj)
+        throws IllegalStateException
     {
         assertInitialized();
         assertLockHeld();
@@ -321,10 +322,14 @@ public abstract class ToolUser
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to apply input %s to ToolUser %s", obj, this);
             getPlayer().sendMessage(textFactory, TextType.ERROR, localizer.getMessage("constants.error.generic"));
-            abort();
-            return CompletableFuture.completedFuture(false);
+
+            // An illegal argument exception does not necessarily mean that this ToolUser is FUBAR, so no need to abort.
+            if (!(e instanceof IllegalArgumentException))
+                abort();
+
+            return CompletableFuture.failedFuture(new RuntimeException(
+                "Failed to apply input '" + obj + "' to ToolUser '" + this + "'!", e));
         }
     }
 
@@ -356,10 +361,8 @@ public abstract class ToolUser
             procedure.getCurrentStepName(), this);
 
         if (!isActive())
-        {
-            log.atInfo().log("Cannot handle input '%s' for ToolUser '%s' because it is not active!", obj, this);
-            return CompletableFuture.completedFuture(false);
-        }
+            return CompletableFuture.failedFuture(new IllegalStateException(
+                "Cannot handle input '" + obj + "' for ToolUser '" + this + "' because it is not active!"));
 
         final boolean isLastStep = !procedure.hasNextStep();
 
@@ -402,17 +405,14 @@ public abstract class ToolUser
             return runWithLock(() -> handleInputWithLock(obj))
                 .exceptionally(ex ->
                 {
-                    log.atSevere().withCause(ex).log(
-                        "An error occurred handling input '%s' for ToolUser '%s'!",
-                        obj, this
-                    );
-                    return false;
+                    throw new RuntimeException(
+                        "An error occurred handling input '" + obj + "' for ToolUser '" + toMinimalString() + "'!", ex);
                 });
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to handle input '%s' for ToolUser '%s'!", obj, this);
-            return CompletableFuture.completedFuture(false);
+            return CompletableFuture.failedFuture(new RuntimeException(
+                "Failed to handle input '" + obj + "' for ToolUser '" + toMinimalString() + "'!", e));
         }
     }
 
@@ -694,6 +694,21 @@ public abstract class ToolUser
     {
         if (!isInitialized)
             throw new IllegalStateException("ToolUser has not been initialized yet!");
+    }
+
+    /**
+     * Returns a minimal string representation of this object.
+     * <p>
+     * This method is intended for logging purposes, as the full string representation may be too verbose.
+     *
+     * @return A minimal string representation of this object.
+     */
+    public synchronized String toMinimalString()
+    {
+        return "ToolUser [" + getClass().getSimpleName() + "] {" +
+            "player=" + player +
+            ", currentStep=" + procedure.getCurrentStep() +
+            '}';
     }
 
     @Override

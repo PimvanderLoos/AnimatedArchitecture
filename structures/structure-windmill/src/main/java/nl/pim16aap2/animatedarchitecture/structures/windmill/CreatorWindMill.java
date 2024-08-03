@@ -18,10 +18,19 @@ public class CreatorWindMill extends Creator
 {
     private static final StructureType STRUCTURE_TYPE = StructureTypeWindmill.get();
 
+    protected CreatorWindMill(
+        ToolUser.Context context,
+        StructureType structureType,
+        IPlayer player,
+        @Nullable String name)
+    {
+        super(context, structureType, player, name);
+        init();
+    }
+
     public CreatorWindMill(ToolUser.Context context, IPlayer player, @Nullable String name)
     {
-        super(context, player, name);
-        init();
+        this(context, STRUCTURE_TYPE, player, name);
     }
 
     @Override
@@ -65,11 +74,5 @@ public class CreatorWindMill extends Creator
     protected synchronized AbstractStructure constructStructure()
     {
         return new Windmill(constructStructureData());
-    }
-
-    @Override
-    protected StructureType getStructureType()
-    {
-        return STRUCTURE_TYPE;
     }
 }
