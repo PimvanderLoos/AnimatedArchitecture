@@ -10,7 +10,6 @@ import org.jetbrains.annotations.Contract;
  * <p>
  * This class is thread-safe, as all modifications return a new instance.
  */
-@SuppressWarnings("unused")
 public record Vector3Dd(double x, double y, double z) implements IVector3D
 {
     public Vector3Dd(IVector3D other)
@@ -30,20 +29,23 @@ public record Vector3Dd(double x, double y, double z) implements IVector3D
     }
 
     @Override
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Di toInteger()
     {
         return Vector3Di.fromDouble(this);
     }
 
     @Override
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Dd toDouble()
     {
         return this;
     }
 
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     static Vector3Dd fromInteger(Vector3Di intVec)
     {
         return new Vector3Dd(intVec.x(), intVec.y(), intVec.z());
@@ -60,7 +62,8 @@ public record Vector3Dd(double x, double y, double z) implements IVector3D
      *     The z value to add to the current z value.
      * @return A new {@link Vector3Dd} with the added values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Dd add(double x, double y, double z)
     {
         return new Vector3Dd(this.x + x, this.y + y, this.z + z);
@@ -73,7 +76,8 @@ public record Vector3Dd(double x, double y, double z) implements IVector3D
      *     The other 3D vector to add to the current one.
      * @return A new {@link Vector3Dd} with the added values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Dd add(IVector3D other)
     {
         return add(other.xD(), other.yD(), other.zD());
@@ -86,7 +90,8 @@ public record Vector3Dd(double x, double y, double z) implements IVector3D
      *     The value to add to the x, y, and z values.
      * @return A new {@link Vector3Dd} with the value added to the values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Dd add(double val)
     {
         return add(val, val, val);
@@ -104,7 +109,8 @@ public record Vector3Dd(double x, double y, double z) implements IVector3D
      *     The z value to subtract from the current z value.
      * @return A new {@link Vector3Dd} with the subtracted values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Dd subtract(double x, double y, double z)
     {
         return add(-x, -y, -z);
@@ -117,7 +123,8 @@ public record Vector3Dd(double x, double y, double z) implements IVector3D
      *     The other 3D vector to subtract from the x, y, and z values.
      * @return The new {@link Vector3Dd} with the value subtracted from the values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Dd subtract(IVector3D other)
     {
         return subtract(other.xD(), other.yD(), other.zD());
@@ -130,7 +137,8 @@ public record Vector3Dd(double x, double y, double z) implements IVector3D
      *     The value to subtract from both the x, y, and z values.
      * @return A new {@link Vector3Dd} with the value subtracted from the values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Dd subtract(double val)
     {
         return subtract(val, val, val);
@@ -148,7 +156,8 @@ public record Vector3Dd(double x, double y, double z) implements IVector3D
      *     The z value to multiply with the current z value.
      * @return A new {@link Vector3Dd} with the multiplied values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Dd multiply(double x, double y, double z)
     {
         return new Vector3Dd(this.x * x, this.y * y, this.z * z);
@@ -161,7 +170,8 @@ public record Vector3Dd(double x, double y, double z) implements IVector3D
      *     The other 3D vector.
      * @return The new {@link Vector3Dd} with the value multiplied with the values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Dd multiply(IVector3D other)
     {
         return multiply(other.xD(), other.yD(), other.zD());
@@ -174,7 +184,8 @@ public record Vector3Dd(double x, double y, double z) implements IVector3D
      *     The value to multiply from both the x, y, and z values.
      * @return A new {@link Vector3Dd} with the value multiplied with the values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Dd multiply(double val)
     {
         return multiply(val, val, val);
@@ -192,7 +203,8 @@ public record Vector3Dd(double x, double y, double z) implements IVector3D
      *     The z value to use as divisor for the current z value.
      * @return A new {@link Vector3Dd} with the divided values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Dd divide(double x, double y, double z)
     {
         return new Vector3Dd(this.x / x, this.y / y, this.z / z);
@@ -206,7 +218,8 @@ public record Vector3Dd(double x, double y, double z) implements IVector3D
      *     The other 3D vector to use as divisor for the current x, y, and z values.
      * @return A new {@link Vector3Dd} with the divided values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Dd divide(IVector3D other)
     {
         return divide(other.xD(), other.yD(), other.zD());
@@ -219,7 +232,8 @@ public record Vector3Dd(double x, double y, double z) implements IVector3D
      *     The value to use as divisor for both the x, y, and z values.
      * @return A new {@link Vector3Dd} with the divided values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Dd divide(double val)
     {
         return divide(val, val, val);
@@ -231,7 +245,8 @@ public record Vector3Dd(double x, double y, double z) implements IVector3D
      *
      * @return A new {@link Vector3Dd} with normalized
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Dd normalized()
     {
         final double length = Math.sqrt(x * x + y * y + z * z);
@@ -251,7 +266,8 @@ public record Vector3Dd(double x, double y, double z) implements IVector3D
      *     The number of decimals to print for each value.
      * @return A String representation of this vector.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public String toString(int decimals)
     {
         final String placeholder = "%." + decimals + "f";
@@ -267,7 +283,8 @@ public record Vector3Dd(double x, double y, double z) implements IVector3D
      *     How far to rotate this point (in radians).
      * @return A new {@link Vector3Dd} rotated around the pivot point.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Dd rotateAroundXAxis(IVector3D pivotPoint, double radians)
     {
         return Vector3DUtil.rotateAroundXAxis(this, pivotPoint, radians);
@@ -282,7 +299,8 @@ public record Vector3Dd(double x, double y, double z) implements IVector3D
      *     How far to rotate this point (in radians).
      * @return A new {@link Vector3Dd} rotated around the pivot point.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Dd rotateAroundYAxis(IVector3D pivotPoint, double radians)
     {
         return Vector3DUtil.rotateAroundYAxis(this, pivotPoint, radians);
@@ -297,7 +315,8 @@ public record Vector3Dd(double x, double y, double z) implements IVector3D
      *     How far to rotate this point (in radians).
      * @return A new {@link Vector3Dd} rotated around the pivot point.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Dd rotateAroundZAxis(IVector3D pivotPoint, double radians)
     {
         return Vector3DUtil.rotateAroundZAxis(this, pivotPoint, radians);
@@ -306,8 +325,9 @@ public record Vector3Dd(double x, double y, double z) implements IVector3D
     /**
      * @return The highest value in this vector.
      */
-    @CheckReturnValue @Contract(pure = true)
-    public double getMax()
+    @CheckReturnValue
+    @Contract(pure = true)
+    public double max()
     {
         return Math.max(x, Math.max(y, z));
     }
@@ -315,8 +335,9 @@ public record Vector3Dd(double x, double y, double z) implements IVector3D
     /**
      * @return The lowest value in this vector.
      */
-    @CheckReturnValue @Contract(pure = true)
-    public double getMin()
+    @CheckReturnValue
+    @Contract(pure = true)
+    public double min()
     {
         return Math.min(x, Math.min(y, z));
     }

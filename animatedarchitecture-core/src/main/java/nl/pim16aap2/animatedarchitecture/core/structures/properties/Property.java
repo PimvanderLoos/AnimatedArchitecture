@@ -270,6 +270,14 @@ public final class Property<T> implements IKeyed
     @Contract("null -> null; !null -> !null")
     public T cast(@Nullable Object value)
     {
-        return type.cast(value);
+        try
+        {
+            return type.cast(value);
+        }
+        catch (ClassCastException e)
+        {
+            throw new ClassCastException(
+                "Cannot cast value '" + value + "' to type '" + type.getName() + "' for property '" + this + "'!");
+        }
     }
 }
