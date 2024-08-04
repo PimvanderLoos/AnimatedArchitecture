@@ -415,8 +415,8 @@ public class SQLiteJDBCDriverConnectionTest
 
         Assertions.assertEquals(1, storage.getOwnerCountOfStructure(1L));
 
-        long chunkId = LocationUtil.getChunkId(structure1.getPowerBlock());
-        Assertions.assertEquals(3, storage.getStructuresInChunk(chunkId).size());
+        long chunkId = LocationUtil.getChunkId(structure1.getCuboid().getCenterBlock());
+        Assertions.assertEquals(2, storage.getStructuresInChunk(chunkId).size());
 
         // Check if adding owners works correctly.
         UnitTestUtil.optionalEquals(1, storage.getStructure(1L), (structure) -> structure.getOwners().size());
@@ -596,12 +596,16 @@ public class SQLiteJDBCDriverConnectionTest
         {
             structure3.setLocked(true);
             Assertions.assertTrue(
-                storage.syncStructureData(structure3.getSnapshot(), serializer.serializeTypeData(structure3)));
+                storage.syncStructureData(
+                    structure3.getSnapshot(),
+                    serializer.serializeTypeData(structure3)));
             UnitTestUtil.optionalEquals(true, storage.getStructure(3L), AbstractStructure::isLocked);
 
             structure3.setLocked(false);
             Assertions.assertTrue(
-                storage.syncStructureData(structure3.getSnapshot(), serializer.serializeTypeData(structure3)));
+                storage.syncStructureData(
+                    structure3.getSnapshot(),
+                    serializer.serializeTypeData(structure3)));
             UnitTestUtil.optionalEquals(false, storage.getStructure(3L), AbstractStructure::isLocked);
         }
 
@@ -645,7 +649,9 @@ public class SQLiteJDBCDriverConnectionTest
             structure3.setBlocksToMove(newBlocksToMove);
 
             Assertions.assertTrue(
-                storage.syncStructureData(structure3.getSnapshot(), serializer.serializeTypeData(structure3)));
+                storage.syncStructureData(
+                    structure3.getSnapshot(),
+                    serializer.serializeTypeData(structure3)));
 
             Optional<AbstractStructure> retrievedOpt = storage.getStructure(3L);
             Assertions.assertTrue(retrievedOpt.isPresent());
@@ -674,7 +680,9 @@ public class SQLiteJDBCDriverConnectionTest
             structure3.setBlocksToMove(blocksToMove);
 
             Assertions.assertTrue(
-                storage.syncStructureData(structure3.getSnapshot(), serializer.serializeTypeData(structure3)));
+                storage.syncStructureData(
+                    structure3.getSnapshot(),
+                    serializer.serializeTypeData(structure3)));
         }
     }
 

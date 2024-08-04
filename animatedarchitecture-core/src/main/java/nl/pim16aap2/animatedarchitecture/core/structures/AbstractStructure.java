@@ -694,11 +694,7 @@ public abstract class AbstractStructure implements IStructureConst, IPropertyHol
         setCoordinates(new Cuboid(posA, posB));
     }
 
-    /**
-     * Gets the {@link PropertyManagerSnapshot} of this structure.
-     *
-     * @return The {@link PropertyManagerSnapshot} of this structure.
-     */
+    @Override
     public IPropertyManagerConst getPropertyManagerSnapshot()
     {
         return lazyPropertyManagerSnapshot.get();

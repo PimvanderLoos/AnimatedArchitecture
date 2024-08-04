@@ -283,7 +283,7 @@ public class UnitTestUtil
         Mockito.when(ret.getType())
             .thenReturn(safeSupplier(() -> Mockito.mock(StructureType.class), structure::getType));
 
-        Mockito.when(ret.getPropertyManager()).thenReturn(safeSupplier(
+        Mockito.when(ret.getPropertyManagerSnapshot()).thenReturn(safeSupplier(
             () -> PropertyManager.forType(Objects.requireNonNull(structure.getType())),
             structure::getPropertyManagerSnapshot));
 

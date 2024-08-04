@@ -5,6 +5,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.TypeReference;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 
 import java.util.HashMap;
@@ -50,7 +51,7 @@ public final class PropertyManagerSerializer
      *     The structure whose {@link PropertyManager} to serialize.
      * @return The JSON string representing the {@link PropertyManager}.
      */
-    public static String serialize(AbstractStructure structure)
+    public static String serialize(IStructureConst structure)
     {
         return serialize(structure.getPropertyManagerSnapshot());
     }

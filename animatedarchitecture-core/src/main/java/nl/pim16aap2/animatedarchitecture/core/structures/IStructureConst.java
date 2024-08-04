@@ -3,6 +3,8 @@ package nl.pim16aap2.animatedarchitecture.core.structures;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyHolderConst;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyManagerConst;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyManagerSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.LocationUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
@@ -290,4 +292,11 @@ public interface IStructureConst extends IPropertyHolderConst
 
     @Override
     boolean equals(Object o);
+
+    /**
+     * Gets the {@link PropertyManagerSnapshot} of this structure.
+     *
+     * @return The {@link PropertyManagerSnapshot} of this structure.
+     */
+    IPropertyManagerConst getPropertyManagerSnapshot();
 }
