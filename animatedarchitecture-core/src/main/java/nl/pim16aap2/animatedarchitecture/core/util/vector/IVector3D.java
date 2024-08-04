@@ -6,6 +6,9 @@ import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ILocationFactory;
 import org.jetbrains.annotations.Contract;
 
+/**
+ * A 3d vector backed either by doubles or integers.
+ */
 public sealed interface IVector3D permits Vector3Dd, Vector3Di
 {
     /**
@@ -72,7 +75,8 @@ public sealed interface IVector3D permits Vector3Dd, Vector3Di
      *     The world in which the {@link ILocation} will exist.
      * @return A new {@link ILocation}.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     default ILocation toLocation(ILocationFactory locationFactory, IWorld world)
     {
         return locationFactory.create(world, xD(), yD(), zD());
@@ -81,7 +85,8 @@ public sealed interface IVector3D permits Vector3Dd, Vector3Di
     /**
      * @return The magnitude of this vector.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     default double magnitude()
     {
         return Math.sqrt(Math.pow(xD(), 2) + Math.pow(yD(), 2) + Math.pow(zD(), 2));
@@ -133,7 +138,8 @@ public sealed interface IVector3D permits Vector3Dd, Vector3Di
      *
      * @return A new integer-based vector.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     Vector3Di toInteger();
 
     /**
@@ -141,6 +147,7 @@ public sealed interface IVector3D permits Vector3Dd, Vector3Di
      *
      * @return A new double-based vector.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     Vector3Dd toDouble();
 }

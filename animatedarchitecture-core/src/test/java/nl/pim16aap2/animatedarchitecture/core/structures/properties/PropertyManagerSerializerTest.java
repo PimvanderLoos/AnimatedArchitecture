@@ -58,7 +58,6 @@ public class PropertyManagerSerializerTest
     void testSerializationCycle()
     {
         final String serialized = PropertyManagerSerializer.serialize(propertyManager);
-        System.out.println(serialized);
 
         Assertions.assertEquals(
             propertyManager,
@@ -284,6 +283,6 @@ public class PropertyManagerSerializerTest
      */
     private static PropertyManager propertyManagerFromMap(Map<Property<?>, @Nullable Object> map)
     {
-        return new PropertyManager(new HashMap<>(createPropertyMap(map)));
+        return new PropertyManager(new LinkedHashMap<>(createPropertyMap(map)));
     }
 }
