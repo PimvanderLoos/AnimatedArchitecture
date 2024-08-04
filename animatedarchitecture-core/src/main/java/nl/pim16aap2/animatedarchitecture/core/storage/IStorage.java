@@ -267,7 +267,7 @@ public interface IStorage
      * @param structure
      *     The {@link IStructureConst} that describes the data of structure.
      * @param typeData
-     *     The type-specific data of this structure.
+     *     The serialized type data of the structure.
      * @return True if the update was successful.
      */
     boolean syncStructureData(IStructureConst structure, String typeData);
@@ -396,11 +396,6 @@ public interface IStorage
          * Consider a structure to be locked if this flag is enabled.
          */
         IS_LOCKED(0b00000010),
-
-        /**
-         * Consider a structure switched on if this flag is enabled. Used in cases of perpetual movement.
-         */
-        IS_SWITCHED_ON(0b00000100),
         ;
 
         /**

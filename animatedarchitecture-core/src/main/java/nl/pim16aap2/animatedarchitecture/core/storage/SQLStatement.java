@@ -10,25 +10,25 @@ public enum SQLStatement
 {
     UPDATE_STRUCTURE_BASE("""
         UPDATE Structure SET
-        name           = ?,
-        world          = ?,
-        xMin           = ?,
-        yMin           = ?,
-        zMin           = ?,
-        xMax           = ?,
-        yMax           = ?,
-        zMax           = ?,
-        centerPointChunkId = ?,
-        powerBlockX    = ?,
-        powerBlockY    = ?,
-        powerBlockZ    = ?,
-        powerBlockChunkId = ?,
-        openDirection  = ?,
-        bitflag        = ?,
-        typeVersion    = ?,
-        typeData       = ?,
-        properties     = ?
-        WHERE id       = ?;
+        name                 = ?,
+        world                = ?,
+        xMin                 = ?,
+        yMin                 = ?,
+        zMin                 = ?,
+        xMax                 = ?,
+        yMax                 = ?,
+        zMax                 = ?,
+        centerPointChunkId   = ?,
+        powerBlockX          = ?,
+        powerBlockY          = ?,
+        powerBlockZ          = ?,
+        powerBlockChunkId    = ?,
+        animationDirection   = ?,
+        bitflag              = ?,
+        typeVersion          = ?,
+        typeData             = ?,
+        properties           = ?
+        WHERE id             = ?;
         """
     ),
 
@@ -253,9 +253,9 @@ public enum SQLStatement
     INSERT_STRUCTURE_BASE("""
         INSERT INTO Structure
         (name, world, xMin, yMin, zMin, xMax, yMax, zMax, centerPointChunkId,
-         powerBlockX, powerBlockY, powerBlockZ, powerBlockChunkId, openDirection,
+         powerBlockX, powerBlockY, powerBlockZ, powerBlockChunkId, animationDirection,
          bitflag, type, typeVersion, typeData, properties)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         RETURNING id;
         """
     ),

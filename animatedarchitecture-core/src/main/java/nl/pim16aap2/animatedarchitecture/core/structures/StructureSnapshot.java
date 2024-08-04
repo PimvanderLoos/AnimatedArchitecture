@@ -44,7 +44,8 @@ public final class StructureSnapshot implements IStructureConst
     private final Map<UUID, StructureOwner> ownersMap;
     private final StructureType type;
     @Delegate
-    private final IPropertyManagerConst propertyManager;
+    @Getter
+    private final IPropertyManagerConst propertyManagerSnapshot;
 
     @Getter(AccessLevel.NONE)
     private final Map<String, Object> persistentVariableMap;

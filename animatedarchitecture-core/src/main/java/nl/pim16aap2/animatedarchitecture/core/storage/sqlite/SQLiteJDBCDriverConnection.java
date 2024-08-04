@@ -249,10 +249,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         if (registeredStructure.isPresent())
             return registeredStructure;
 
-        final Optional<MovementDirection> openDirection =
-            Optional.ofNullable(MovementDirection.valueOf(structureBaseRS.getInt("openDirection")));
+        final Optional<MovementDirection> animationDirection =
+            Optional.ofNullable(MovementDirection.valueOf(structureBaseRS.getInt("animationDirection")));
 
-        if (openDirection.isEmpty())
+        if (animationDirection.isEmpty())
             return Optional.empty();
 
         final Vector3Di min = new Vector3Di(
@@ -305,22 +305,21 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 .powerBlock(powerBlock)
                 .world(world)
                 .isLocked(isLocked)
-                .openDir(openDirection.get())
+                .openDir(animationDirection.get())
                 .primeOwner(primeOwner)
                 .ownersOfStructure(ownersOfStructure);
 
         final String rawTypeData = structureBaseRS.getString("typeData");
+        final String rawProperties = structureBaseRS.getString("properties");
         final int typeVersion = structureBaseRS.getInt("typeVersion");
 
-        if (1 == 1)
-            throw new UnsupportedOperationException("PropertyManager serialization not implemented yet!");
         return Optional.of(
             serializer.deserialize(
                 structureRegistry,
                 structureData,
                 typeVersion,
                 rawTypeData,
-                "" // FIXME: PropertyManager serialization
+                rawProperties
             ));
     }
 
@@ -356,7 +355,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
         final long structureUID = executeQuery(
             conn,
-            // FIXME: Add propertiesData
             SQLStatement.INSERT_STRUCTURE_BASE
                 .constructDelayedPreparedStatement()
                 .setNextString(structure.getName())
@@ -367,9 +365,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 .setNextInt(structure.getMaximum().x())
                 .setNextInt(structure.getMaximum().y())
                 .setNextInt(structure.getMaximum().z())
-
                 .setNextLong(LocationUtil.getChunkId(structure.getCuboid().getCenterBlock()))
-
                 .setNextInt(structure.getPowerBlock().x())
                 .setNextInt(structure.getPowerBlock().y())
                 .setNextInt(structure.getPowerBlock().z())
@@ -378,7 +374,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 .setNextLong(getFlag(structure))
                 .setNextString(structureType.getFullKey())
                 .setNextInt(structureType.getVersion())
-                .setNextString(typeSpecificData),
+                .setNextString(typeSpecificData)
+                .setNextString(propertiesData),
             resultSet ->
             {
                 if (resultSet.next())
@@ -424,8 +421,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
             if (structureUID > 0)
             {
-                if (1 == 1)
-                    throw new UnsupportedOperationException("PropertyManager serialization not implemented yet!");
                 return Optional.of(serializer.deserialize(
                     structureRegistry,
                     structureBaseBuilder
@@ -441,7 +436,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                         .ownersOfStructure(remapStructureOwners(structure.getOwners(), structureUID)),
                     structure.getType().getVersion(),
                     typeData,
-                    "") // FIXME: PropertyManager serialization
+                    properties)
                 );
             }
         }
@@ -490,6 +485,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     @Locked.Write
     public boolean syncStructureData(IStructureConst structure, String typeData)
     {
+        final String serializedProperties = PropertyManagerSerializer.serialize(structure);
+
         return executeUpdate(SQLStatement.UPDATE_STRUCTURE_BASE
             .constructDelayedPreparedStatement()
             .setNextString(structure.getName())
@@ -514,6 +511,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             .setNextLong(getFlag(structure))
             .setNextInt(structure.getType().getVersion())
             .setNextString(typeData)
+            .setNextString(serializedProperties)
 
             .setNextLong(structure.getUid())) > 0;
     }
