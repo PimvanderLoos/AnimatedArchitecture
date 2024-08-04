@@ -341,8 +341,11 @@ public final class StructureBaseBuilder
          *     <p>
          *     If the property is not valid for the structure type this property manager was created for.
          */
-        default IBuilder propertiesOfStructure(StructureType structureType, @Nullable Object... properties)
+        default IBuilder propertiesOfStructure(StructureType structureType, @Nullable Object @Nullable ... properties)
         {
+            if (properties == null)
+                return propertiesOfStructure(structureType);
+
             if (properties.length % 2 != 0)
                 throw new IllegalArgumentException("Properties must be provided in pairs of 2.");
 

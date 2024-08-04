@@ -2,6 +2,7 @@ package nl.pim16aap2.testing.logging;
 
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
+import lombok.Generated;
 import lombok.ToString;
 import nl.altindag.log.LogCaptor;
 import nl.altindag.log.model.LogEvent;
@@ -115,9 +116,9 @@ public final class LogAssertionsUtil
                 builder.append(" With throwable: `")
                     .append(throwable.getClass().getName())
                     .append("`: `")
-                    .append(throwable.getMessage()).append("`"));
+                    .append(throwable.getMessage()).append('`'));
 
-            builder.append("\n");
+            builder.append('\n');
         }
         return builder.toString();
     }
@@ -180,7 +181,7 @@ public final class LogAssertionsUtil
 
     private static void findLogEvent(LogAssertion logAssertion)
     {
-        final var logEvents = logAssertion.logCaptor.getLogEvents();
+        final var logEvents = Objects.requireNonNull(logAssertion.logCaptor).getLogEvents();
 
         var stream = logAssertion
             .logCaptor
@@ -219,17 +220,20 @@ public final class LogAssertionsUtil
      */
     public static void assertLogged(LogAssertion logAssertion)
     {
+        final var logCaptor = Objects.requireNonNull(logAssertion.logCaptor, "LogCaptor must be provided!");
+
         if (logAssertion.position == null)
         {
             findLogEvent(logAssertion);
             return;
         }
+        final int position = logAssertion.position;
 
-        final var logEvents = logAssertion.logCaptor.getLogEvents();
-        final var logEvent = getLogEvent(logEvents, logAssertion.position);
+        final var logEvents = logCaptor.getLogEvents();
+        final var logEvent = getLogEvent(logEvents, position);
 
         final Supplier<String> logEventsContextSupplier =
-            () -> formatLogEvents(logEvents, logAssertion.position >= 0 ? 10 : -10);
+            () -> formatLogEvents(logEvents, position >= 0 ? 10 : -10);
 
         if (logAssertion.formattedMessage != null)
             assertMessageEquality(
@@ -825,7 +829,7 @@ public final class LogAssertionsUtil
          * <p>
          * This field is required.
          */
-        private LogCaptor logCaptor;
+        private @Nullable LogCaptor logCaptor;
 
         /**
          * The position of the log event to check. 0 means the first (oldest) log event, 1 means the second, etc.
@@ -877,6 +881,7 @@ public final class LogAssertionsUtil
         /**
          * Builder class for {@link LogAssertion}.
          */
+        @Generated // It'll contain mostly generated code, which can flag false positives for some analysis tools.
         public static class LogAssertionBuilder
         {
             /**

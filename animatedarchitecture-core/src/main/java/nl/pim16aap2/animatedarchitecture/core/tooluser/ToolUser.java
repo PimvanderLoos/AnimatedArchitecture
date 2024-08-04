@@ -320,16 +320,18 @@ public abstract class ToolUser
         {
             return procedure.applyStepExecutor(obj);
         }
+        catch (IllegalArgumentException e)
+        {
+            getPlayer().sendMessage(textFactory, TextType.ERROR, localizer.getMessage("constants.error.generic"));
+            return CompletableFuture.failedFuture(new RuntimeException(
+                "Provided incompatible input '" + obj + "' for ToolUser '" + toMinimalString() + "'!", e));
+        }
         catch (Exception e)
         {
             getPlayer().sendMessage(textFactory, TextType.ERROR, localizer.getMessage("constants.error.generic"));
-
-            // An illegal argument exception does not necessarily mean that this ToolUser is FUBAR, so no need to abort.
-            if (!(e instanceof IllegalArgumentException))
-                abort();
-
+            abort();
             return CompletableFuture.failedFuture(new RuntimeException(
-                "Failed to apply input '" + obj + "' to ToolUser '" + this + "'!", e));
+                "Failed to apply input '" + obj + "' to ToolUser '" + toMinimalString() + "'!", e));
         }
     }
 

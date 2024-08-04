@@ -6,8 +6,9 @@ package nl.pim16aap2.animatedarchitecture.core.structures;
  * The redstone mode determines how the structure reacts to redstone signals. There are three different modes:
  * <ul>
  *     <li>{@link #IGNORE}: The structure ignores redstone signals.</li>
- *     <li>not-yet-named: The structure behaves in a way where powered = open; unpowered = closed.</li>
- *     <li>not-yet-named: The structure behaves in a way where it toggles between open and closed when the redstone signal changes.</li>
+ *     <li>{@link #POWERED_OPEN}: The structure behaves in a way where powered = open; unpowered = closed.</li>
+ *     <li>{@link #TOGGLE}: The structure behaves in a way where it toggles between open and closed when
+ *     the redstone signal changes.</li>
  *     </ul>
  */
 public enum RedstoneMode
