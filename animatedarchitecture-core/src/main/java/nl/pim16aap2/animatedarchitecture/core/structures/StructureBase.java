@@ -396,7 +396,7 @@ final class StructureBase
     }
 
     @Locked.Write("lock")
-    public <T> IPropertyValue<T> setPropertyValue(Property<T> property, T value)
+    public <T> IPropertyValue<T> setPropertyValue(Property<T> property, @Nullable T value)
     {
         return propertyManager.setPropertyValue(property, value);
     }

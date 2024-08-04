@@ -722,14 +722,14 @@ public abstract class AbstractStructure implements IStructureConst, IPropertyHol
     }
 
     @Override
-    public <T> IPropertyValue<T> setPropertyValue(Property<T> property, T value)
+    public <T> IPropertyValue<T> setPropertyValue(Property<T> property, @Nullable T value)
     {
         assertWriteLockable();
         return setPropertyValue0(property, value);
     }
 
     @Locked.Write("lock")
-    private <T> IPropertyValue<T> setPropertyValue0(Property<T> property, T value)
+    private <T> IPropertyValue<T> setPropertyValue0(Property<T> property, @Nullable T value)
     {
         final var ret = base.setPropertyValue(property, value);
         handlePropertyChange(property);

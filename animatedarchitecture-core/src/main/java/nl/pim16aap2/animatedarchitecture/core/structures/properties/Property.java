@@ -9,9 +9,8 @@ import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.structures.RedstoneMode;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
-import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -267,17 +266,17 @@ public final class Property<T> implements IKeyed
      * @throws ClassCastException
      *     If the value cannot be cast to the type of the property.
      */
-    @Contract("null -> null; !null -> !null")
-    public T cast(@Nullable Object value)
+    public @Nullable T cast(@Nullable Object value)
     {
         try
         {
+            if (value == null)
+                return null;
             return type.cast(value);
         }
         catch (ClassCastException e)
         {
-            throw new ClassCastException(
-                "Cannot cast value '" + value + "' to type '" + type.getName() + "' for property '" + this + "'!");
+            throw new IllegalArgumentException("Provided incompatible value for property " + this, e);
         }
     }
 }
