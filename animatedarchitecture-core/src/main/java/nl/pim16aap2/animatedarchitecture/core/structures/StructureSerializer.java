@@ -383,10 +383,6 @@ public final class StructureSerializer<T extends AbstractStructure>
         Map<String, Object> typeDataMap)
         throws Exception
     {
-        if (typeDataMap.size() != fields.size())
-            log.atWarning().log("Expected %d arguments but received %d for type %s",
-                fields.size(), typeDataMap.size(), getStructureTypeName());
-
         if (version > currentTypeVersion)
             throw new IllegalArgumentException(
                 String.format(
@@ -401,6 +397,16 @@ public final class StructureSerializer<T extends AbstractStructure>
         @Nullable Object @Nullable [] deserializedParameters = null;
         try
         {
+            final int expectedPersistentVariables = deserializationCtor.parameters.size() - 1; // -1 for the base holder
+            if (typeDataMap.size() != expectedPersistentVariables)
+                log.atWarning().log(
+                    "Expected %d arguments but received %d for type %s (version %d).",
+                    expectedPersistentVariables,
+                    typeDataMap.size(),
+                    getStructureTypeName(),
+                    version
+                );
+
             deserializedParameters = deserializeParameters(deserializationCtor, structureBase, typeDataMap);
             //noinspection unchecked
             return (T) deserializationCtor.ctor.newInstance(deserializedParameters);

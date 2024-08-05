@@ -7,9 +7,9 @@ import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithBlocksToMove;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
-import nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes.IDiscreteMovement;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,7 +48,7 @@ class SetBlocksToMoveTest
     {
         structure = Mockito.mock(
             AbstractStructure.class,
-            Mockito.withSettings().extraInterfaces(IDiscreteMovement.class)
+            Mockito.withSettings().extraInterfaces(IStructureWithBlocksToMove.class)
         );
 
         Mockito.when(structure.syncData())
@@ -88,7 +88,7 @@ class SetBlocksToMoveTest
         Mockito.verify(altStructure, Mockito.never()).syncData();
 
         Assertions.assertDoesNotThrow(() -> command.performAction(structure).get(1, TimeUnit.SECONDS));
-        Mockito.verify((IDiscreteMovement) structure).setBlocksToMove(blocksToMove);
+        Mockito.verify((IStructureWithBlocksToMove) structure).setBlocksToMove(blocksToMove);
         Mockito.verify(structure).syncData();
     }
 }
