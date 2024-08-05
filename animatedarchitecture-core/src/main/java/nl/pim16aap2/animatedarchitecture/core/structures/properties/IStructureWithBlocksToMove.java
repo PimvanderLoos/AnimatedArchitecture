@@ -31,6 +31,7 @@ public interface IStructureWithBlocksToMove extends IPropertyHolder
      *
      * @param blocksToMove
      *     The number of blocks the structure will try to move.
+     * @return The previous property value of the open status property.
      */
     default IPropertyValue<Integer> setBlocksToMove(int blocksToMove)
     {

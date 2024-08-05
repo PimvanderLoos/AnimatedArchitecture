@@ -19,6 +19,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 
+/**
+ * Represents a {@link IAnimationComponent} for {@link BigDoor}s.
+ */
 @Flogger
 public class BigDoorAnimationComponent implements IAnimationComponent
 {
@@ -27,37 +30,37 @@ public class BigDoorAnimationComponent implements IAnimationComponent
     private final Vector3Dd rotationCenter;
     private final double resultAngle;
     private final double step;
-    private final int quarterCircles;
+    private final int effectiveQuarterCircles;
 
     public BigDoorAnimationComponent(AnimationRequestData data, MovementDirection movementDirection, int quarterCircles)
     {
         final StructureSnapshot snapshot = data.getStructureSnapshot();
 
         this.movementDirection = movementDirection;
-        this.quarterCircles = quarterCircles;
         this.rotationPoint = snapshot.getRequiredPropertyValue(Property.ROTATION_POINT);
+        this.effectiveQuarterCircles = quarterCircles % 4;
 
-        resultAngle =
-            movementDirection == MovementDirection.CLOCKWISE ? quarterCircles * MathUtil.HALF_PI :
-                movementDirection == MovementDirection.COUNTERCLOCKWISE ? quarterCircles * -MathUtil.HALF_PI :
-                    0.0D;
+        final double quarterCircleAngle = switch (movementDirection)
+        {
+            case CLOCKWISE -> MathUtil.HALF_PI;
+            case COUNTERCLOCKWISE -> -MathUtil.HALF_PI;
+            default -> throw new IllegalArgumentException(
+                "Movement direction '" + movementDirection.name() + "' is not valid for this type!");
+        };
 
-        if (resultAngle == 0.0D)
-            log.atSevere().log(
-                "Invalid open direction '%s' for structure: %d", movementDirection.name(), snapshot.getUid());
+        resultAngle = effectiveQuarterCircles * quarterCircleAngle;
 
         final Vector3Di rotationPoint = snapshot.getRequiredPropertyValue(Property.ROTATION_POINT);
-
         rotationCenter = new Vector3Dd(
             rotationPoint.x(),
             snapshot.getCuboid().getMin().y(),
             rotationPoint.z()
         );
 
-        final int animationDuration =
+        final int animationStepCount =
             AnimationUtil.getAnimationTicks(data.getAnimationTime(), data.getServerTickTime());
 
-        this.step = this.resultAngle / animationDuration;
+        this.step = quarterCircles * quarterCircleAngle / animationStepCount;
     }
 
     @Override
@@ -146,6 +149,8 @@ public class BigDoorAnimationComponent implements IAnimationComponent
     @Override
     public @Nullable Consumer<IAnimatedBlockData> getBlockDataRotator()
     {
-        return blockData -> blockData.rotateBlock(movementDirection, quarterCircles);
+        if (effectiveQuarterCircles == 0)
+            return null;
+        return blockData -> blockData.rotateBlock(movementDirection, effectiveQuarterCircles);
     }
 }

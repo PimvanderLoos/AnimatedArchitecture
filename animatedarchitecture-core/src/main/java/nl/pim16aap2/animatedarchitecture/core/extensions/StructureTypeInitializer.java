@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Represents an initializer for a group of {@link StructureType}s.
@@ -199,9 +200,7 @@ final class StructureTypeInitializer
         try
         {
             structureType = structureTypeClassLoader.loadStructureTypeClass(structureTypeInfo.getMainClass());
-            // Retrieve the serializer to ensure that it could be initialized successfully.
-            structureType.getStructureSerializer();
-            structureTypeInfo.verifyLoadedType(structureType);
+            postLoadValidation(structureTypeInfo, structureType);
         }
         catch (NoSuchMethodException e)
         {
@@ -219,6 +218,24 @@ final class StructureTypeInitializer
             StringUtil.capitalizeFirstLetter(structureType.getSimpleName())
         );
         return structureType;
+    }
+
+    /**
+     * Performs post-load validation on a {@link StructureType}.
+     *
+     * @param structureTypeInfo
+     *     The {@link StructureTypeInfo} to use for validation.
+     * @param structureType
+     *     The {@link StructureType} to validate.
+     * @throws Exception
+     *     If the validation fails.
+     */
+    static void postLoadValidation(StructureTypeInfo structureTypeInfo, StructureType structureType)
+        throws Exception
+    {
+        structureTypeInfo.verifyLoadedType(structureType);
+        // Get the serializer to ensure it is loaded.
+        Objects.requireNonNull(structureType.getStructureSerializer());
     }
 
     record LoadFailure(LoadFailureType loadFailuretype, String message)

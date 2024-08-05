@@ -107,6 +107,17 @@ public final class Property<T> implements IKeyed
     );
 
     /**
+     * A property for structures that can rotate multiples of 90 degrees.
+     */
+    public static final Property<Integer> QUARTER_CIRCLES = new Property<>(
+        "QUARTER_CIRCLES",
+        Integer.class,
+        1,
+        // Changing how many quarter circles the structure rotates affects things like animation range.
+        PropertyScope.ANIMATION
+    );
+
+    /**
      * A property for structures that can have different redstone modes.
      */
     public static final Property<RedstoneMode> REDSTONE_MODE = new Property<>(

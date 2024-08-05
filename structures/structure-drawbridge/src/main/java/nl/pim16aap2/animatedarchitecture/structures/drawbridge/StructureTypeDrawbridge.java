@@ -16,7 +16,7 @@ import java.util.List;
 
 public final class StructureTypeDrawbridge extends StructureType
 {
-    private static final int TYPE_VERSION = 1;
+    private static final int TYPE_VERSION = 2;
 
     private static final StructureTypeDrawbridge INSTANCE = new StructureTypeDrawbridge();
 
@@ -37,6 +37,7 @@ public final class StructureTypeDrawbridge extends StructureType
             List.of(
                 Property.ANIMATION_SPEED_MULTIPLIER,
                 Property.OPEN_STATUS,
+                Property.QUARTER_CIRCLES,
                 Property.REDSTONE_MODE,
                 Property.ROTATION_POINT
             ),

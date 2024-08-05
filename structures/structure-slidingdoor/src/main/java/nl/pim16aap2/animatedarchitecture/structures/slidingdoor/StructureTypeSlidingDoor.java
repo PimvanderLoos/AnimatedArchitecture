@@ -16,7 +16,7 @@ import java.util.List;
 
 public final class StructureTypeSlidingDoor extends StructureType
 {
-    private static final int TYPE_VERSION = 1;
+    private static final int TYPE_VERSION = 2;
 
     private static final StructureTypeSlidingDoor INSTANCE = new StructureTypeSlidingDoor();
 

@@ -49,11 +49,6 @@ public class Portcullis
 
     /**
      * Deprecated constructor for deserialization of version 1 where {@code blocksToMove} was a persistent variable.
-     *
-     * @param base
-     *     The base holder.
-     * @param blocksToMove
-     *     The number of blocks to move.
      */
     @Deprecated
     @Deserialization(version = 1)
