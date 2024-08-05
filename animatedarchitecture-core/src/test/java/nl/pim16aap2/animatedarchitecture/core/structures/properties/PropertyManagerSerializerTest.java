@@ -195,7 +195,7 @@ public class PropertyManagerSerializerTest
                 structureType,
                 Property.REDSTONE_MODE.getDefaultValue()
             )
-            .level(Level.WARNING)
+            .level(Level.FINER)
             .assertLogged();
 
         LogAssertionsUtil
@@ -206,7 +206,7 @@ public class PropertyManagerSerializerTest
                 structureType,
                 Property.ROTATION_POINT.getDefaultValue()
             )
-            .level(Level.WARNING)
+            .level(Level.FINER)
             .assertLogged();
     }
 
