@@ -21,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Objects;
 import java.util.TimerTask;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -233,17 +234,36 @@ public final class Animator implements IAnimator
         this.stopAnimation(animationData);
     }
 
-    /**
-     * Aborts the animation.
-     */
-    public void abort()
+    private void abort(boolean blocking)
     {
         aborted = true;
         final @Nullable TimerTask moverTask0 = moverTask;
         if (moverTask0 != null)
             executor.cancel(moverTask0, Objects.requireNonNull(moverTaskID));
-        finishAnimation();
+        finishAnimation(blocking);
         forEachHook("onAnimationAborted", IAnimationHook::onAnimationAborted);
+    }
+
+    /**
+     * Aborts the animation.
+     * <p>
+     * Unlike {@link #blockingAbort()}, this method does not block until the animation has finished.
+     */
+    public void abort()
+    {
+        abort(false);
+    }
+
+    /**
+     * Aborts the animation and blocks until the animation has finished.
+     * <p>
+     * Note that this excludes database operations, which are always asynchronous.
+     * <p>
+     * If it is undesirable to block the main thread, use {@link #abort()} instead.
+     */
+    public void blockingAbort()
+    {
+        abort(true);
     }
 
     @Override
@@ -396,7 +416,7 @@ public final class Animator implements IAnimator
 
         forEachHook("onAnimationEnding", IAnimationHook::onAnimationEnding);
 
-        finishAnimation();
+        finishAnimation(false);
 
         final @Nullable TimerTask moverTask0 = moverTask;
         if (moverTask0 == null)
@@ -462,7 +482,7 @@ public final class Animator implements IAnimator
         try
         {
             animatedBlockContainer.removeOriginalBlocks();
-            finishAnimation();
+            finishAnimation(false);
         }
         catch (Exception e)
         {
@@ -529,8 +549,13 @@ public final class Animator implements IAnimator
     /**
      * Finishes the animation by placing the blocks in their final position, updating the structure's coordinates, and
      * by informing the activity manager that the animation has finished.
+     *
+     * @param blocking
+     *     Whether the method should block until the animation has finished.
+     *     <p>
+     *     Note that this excludes database operations, which are always asynchronous.
      */
-    private void finishAnimation()
+    private void finishAnimation(boolean blocking)
     {
         // Only allow this method to be run once! If it can be run multiple times, it'll cause structure corruption
         // because while the blocks have already been placed, the coordinates can still be toggled!
@@ -547,7 +572,9 @@ public final class Animator implements IAnimator
         // world to place the blocks in their final position.
         // However, updating the coordinates of the structure is best left to another thread, as it may block the
         // calling thread while it waits to acquire the write lock.
-        executor.runOnMainThreadWithResponse(handler).thenRunAsync(() ->
+        final CompletableFuture<Void> restoreBlocks = executor.runOnMainThreadWithResponse(handler);
+
+        final Runnable updateStructure = () ->
         {
             if (!isAborted && animationType.requiresWriteAccess())
                 // Tell the structure object it has been opened and what its new coordinates are.
@@ -556,7 +583,19 @@ public final class Animator implements IAnimator
             forEachHook("onAnimationCompleted", IAnimationHook::onAnimationCompleted);
 
             structureActivityManager.processFinishedAnimation(this);
-        }).exceptionally(FutureUtil::exceptionally);
+        };
+
+        if (blocking)
+        {
+            restoreBlocks.join();
+            updateStructure.run();
+        }
+        else
+        {
+            restoreBlocks
+                .thenRun(updateStructure)
+                .exceptionally(FutureUtil::exceptionally);
+        }
     }
 
     /**
