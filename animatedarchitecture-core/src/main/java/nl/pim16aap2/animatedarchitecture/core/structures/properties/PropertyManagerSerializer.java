@@ -183,7 +183,7 @@ public final class PropertyManagerSerializer
             .entrySet()
             .stream()
             .filter(entry -> !deserializedMap.containsKey(entry.getKey()))
-            .forEach(entry -> log.atWarning().log(
+            .forEach(entry -> log.atFiner().log(
                 "Property '%s' was not supplied for structure type '%s', using default value '%s'.",
                 entry.getKey(),
                 structureType,
