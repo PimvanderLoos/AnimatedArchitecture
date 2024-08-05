@@ -19,7 +19,7 @@ import java.util.List;
  */
 public final class StructureTypeBigDoor extends StructureType
 {
-    private static final int TYPE_VERSION = 1;
+    private static final int TYPE_VERSION = 2;
 
     private static final StructureTypeBigDoor INSTANCE = new StructureTypeBigDoor();
 
@@ -39,6 +39,7 @@ public final class StructureTypeBigDoor extends StructureType
             List.of(
                 Property.ANIMATION_SPEED_MULTIPLIER,
                 Property.OPEN_STATUS,
+                Property.QUARTER_CIRCLES,
                 Property.REDSTONE_MODE,
                 Property.ROTATION_POINT
             ),

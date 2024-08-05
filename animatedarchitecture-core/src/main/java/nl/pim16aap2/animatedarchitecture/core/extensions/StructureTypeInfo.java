@@ -132,15 +132,21 @@ final class StructureTypeInfo implements IKeyed
     {
         if (!structureType.getNamespacedKey().equals(namespacedKey))
             throw new IllegalArgumentException(
-                "Expected structure type to have key '" + namespacedKey +
-                    "' but was '" + structureType.getFullKey() + "'."
+                String.format(
+                    "Key mismatch for loaded structure type! Expected '%s', got '%s'.",
+                    getFullKey(),
+                    structureType.getFullKey()
+                )
             );
 
         if (structureType.getVersion() != version)
             throw new IllegalArgumentException(
-                "Expected structure type '" + namespacedKey +
-                    "' to have version '" + version +
-                    "' but was '" + structureType.getVersion() + "'."
+                String.format(
+                    "Version mismatch for structure type '%s'! Expected %d, got %d",
+                    getFullKey(),
+                    getVersion(),
+                    structureType.getVersion()
+                )
             );
     }
 

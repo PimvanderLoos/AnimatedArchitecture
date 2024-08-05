@@ -70,7 +70,8 @@ class StructureTypeInitializerTest
             .addConnection(Mockito.any(), (StructureTypeInitializer.Loadable) Mockito.any());
         Assertions.assertEquals(
             StructureTypeInitializer.LoadFailureType.DEPENDENCY_UNAVAILABLE,
-            l1.getLoadFailure().loadFailuretype());
+            l1.getLoadFailure().loadFailuretype()
+        );
 
         // Ensure dependencies with versions outside the specified range result int DEPENDENCY_UNSUPPORTED_VERSION.
         Mockito.when(l0.getStructureTypeInfo().getVersion()).thenReturn(4);
@@ -79,7 +80,8 @@ class StructureTypeInitializerTest
             .addConnection(Mockito.any(), (StructureTypeInitializer.Loadable) Mockito.any());
         Assertions.assertEquals(
             StructureTypeInitializer.LoadFailureType.DEPENDENCY_UNSUPPORTED_VERSION,
-            l1.getLoadFailure().loadFailuretype());
+            l1.getLoadFailure().loadFailuretype()
+        );
 
         // Ensure that a valid dependency setup results in a dependency being added to the graph.
         Mockito.when(l0.getStructureTypeInfo().getVersion()).thenReturn(2);
@@ -210,6 +212,8 @@ class StructureTypeInitializerTest
     {
         final StructureType structureType = Mockito.mock();
         Mockito.when(structureType.getSimpleName()).thenReturn("");
+        //noinspection unchecked
+        Mockito.when(structureType.getStructureSerializer()).thenReturn(Mockito.mock(StructureSerializer.class));
         return structureType;
     }
 
@@ -228,6 +232,7 @@ class StructureTypeInitializerTest
         Mockito.when(info.getMainClass()).thenReturn(name);
         Mockito.when(info.getDependencies()).thenReturn(Collections.emptyList());
         Mockito.when(info.getVersion()).thenReturn(0);
+        Mockito.when(info.toString()).thenReturn("StructureTypeInfo{" + name + "}");
         return info;
     }
 }

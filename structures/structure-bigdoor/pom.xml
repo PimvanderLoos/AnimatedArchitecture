@@ -15,7 +15,7 @@
     <properties>
         <mainClass>nl.pim16aap2.animatedarchitecture.structures.bigdoor.StructureTypeBigDoor</mainClass>
         <typeName>BigDoor</typeName>
-        <version>1</version>
+        <version>2</version>
         <supportedApiVersions>1.*</supportedApiVersions>
         <project.root-dir>${project.basedir}/../..</project.root-dir>
     </properties>
