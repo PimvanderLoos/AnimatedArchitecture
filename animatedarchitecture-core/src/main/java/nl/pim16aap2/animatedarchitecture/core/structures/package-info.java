@@ -66,11 +66,7 @@
  * <p>
  * <h1 id="sect-toggle">Toggling a Structure</h1>
  * <p>
- * When attempting to toggle a structure on behalf of a player, the preferred method is to use the
- * {@link nl.pim16aap2.animatedarchitecture.core.commands.Toggle} command. More information about the usage of commands
- * can be found in the {@link nl.pim16aap2.animatedarchitecture.core.commands} package documentation.
- * <p>
- * The preferred method to manually toggle structures is by using
+ * The preferred method to toggle structures is by using
  * {@link nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder}.
  */
 @NonNullByDefault

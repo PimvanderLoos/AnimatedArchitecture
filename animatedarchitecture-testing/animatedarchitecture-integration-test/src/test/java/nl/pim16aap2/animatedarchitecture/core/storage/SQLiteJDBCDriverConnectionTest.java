@@ -815,10 +815,10 @@ public class SQLiteJDBCDriverConnectionTest
                 .ownersOfStructure(null)
                 .propertiesOfStructure(
                     StructureTypePortcullis.get(),
-                    Property.OPEN_STATUS, false
+                    Property.OPEN_STATUS, false,
+                    Property.BLOCKS_TO_MOVE, blocksToMove
                 )
-                .build(),
-            blocksToMove
+                .build()
         );
     }
 

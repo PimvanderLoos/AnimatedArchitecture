@@ -1,8 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.structures.slidingdoor;
 
-import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.Locked;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
@@ -10,8 +8,8 @@ import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.annotations.Deserialization;
 import nl.pim16aap2.animatedarchitecture.core.annotations.PersistentVariable;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithBlocksToMove;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithOpenStatus;
-import nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes.IDiscreteMovement;
 import nl.pim16aap2.animatedarchitecture.core.util.BlockFace;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
@@ -29,31 +27,40 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 @EqualsAndHashCode(callSuper = true)
 public class SlidingDoor
     extends AbstractStructure
-    implements IDiscreteMovement, IStructureWithOpenStatus
+    implements IStructureWithBlocksToMove, IStructureWithOpenStatus
 {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
 
-    @PersistentVariable(value = "blocksToMove")
-    @GuardedBy("lock")
-    @Getter(onMethod_ = @Locked.Read("lock"))
-    protected int blocksToMove;
-
     @Deserialization
-    public SlidingDoor(BaseHolder base, @PersistentVariable(value = "blocksToMove") int blocksToMove)
+    public SlidingDoor(BaseHolder base)
     {
         super(base, StructureTypeSlidingDoor.get());
         this.lock = getLock();
-        this.blocksToMove = blocksToMove;
+    }
+
+    /**
+     * Deprecated constructor for deserialization of version 1 where {@code blocksToMove} was a persistent variable.
+     *
+     * @param base
+     *     The base holder.
+     * @param blocksToMove
+     *     The number of blocks to move.
+     */
+    @Deprecated
+    @Deserialization(version = 1)
+    public SlidingDoor(AbstractStructure.BaseHolder base, @PersistentVariable(value = "blocksToMove") int blocksToMove)
+    {
+        this(base);
+        setBlocksToMove(blocksToMove);
     }
 
     @Override
-    @Locked.Read("lock")
     protected double calculateAnimationCycleDistance()
     {
-        return blocksToMove;
+        return getBlocksToMove();
     }
 
     @Override
@@ -64,6 +71,7 @@ public class SlidingDoor
         final Vector3Di min = cuboid.getMin();
         final Vector3Di max = cuboid.getMax();
 
+        final int blocksToMove = getBlocksToMove();
         final Cuboid cuboidRange = switch (getCurrentToggleDir())
         {
             case NORTH -> new Cuboid(min.add(0, 0, -blocksToMove), max.add(0, 0, 0)); // -z
@@ -111,13 +119,5 @@ public class SlidingDoor
     protected IAnimationComponent constructAnimationComponent(AnimationRequestData data)
     {
         return new SlidingDoorAnimationComponent(data, getCurrentToggleDir(), getBlocksToMove());
-    }
-
-    @Override
-    @Locked.Write("lock")
-    public void setBlocksToMove(int blocksToMove)
-    {
-        this.blocksToMove = blocksToMove;
-        super.invalidateAnimationData();
     }
 }

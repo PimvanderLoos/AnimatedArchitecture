@@ -41,9 +41,9 @@ class CreatorPortcullisTest extends CreatorTestsUtil
             constructStructureBase(
                 type,
                 getTemporaryUid(creator),
-                Property.OPEN_STATUS, isOpen),
-            blocksToMove
-        );
+                Property.OPEN_STATUS, isOpen,
+                Property.BLOCKS_TO_MOVE, blocksToMove
+            ));
 
         testCreation(creator, actualStructure,
             structureName,
