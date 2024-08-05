@@ -196,7 +196,7 @@ public class AnimatedBlockContainer implements IAnimatedBlockContainer
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to place block: %s", animatedBlock);
+            throw new RuntimeException("Failed to place block: " + animatedBlock, e);
         }
         try
         {
