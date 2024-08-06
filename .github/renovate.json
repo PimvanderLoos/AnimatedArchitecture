@@ -6,9 +6,11 @@
     {
       "packageNames": [
         "actions/checkout",
+        "actions/setup-java",
         "com.alibaba:fastjson",
         "com.google.code.gson:gson",
         "com.google.dagger:dagger",
+        "com.google.dagger:dagger-compiler",
         "com.google.errorprone:error_prone_annotations",
         "com.google.errorprone:error_prone_core",
         "com.google.jimfs:jimfs",
@@ -52,40 +54,18 @@
       "requiredStatusChecks": [
         "build"
       ]
+    },
+    {
+      "matchPackagePatterns": [
+        "^nl\\.pim16aap2\\.animatedarchitecture:"
+      ],
+      "enabled": false
     }
   ],
   "ignoreDeps": [
     "nl.pim16aap2:test-util",
     "nl.pim16aap2:util",
     "nl.pim16aap2:utilities",
-    "nl.pim16aap2.animatedarchitecture:animatedarchitecture-core",
-    "nl.pim16aap2.animatedarchitecture:animatedarchitecture-integration-test-lib",
-    "nl.pim16aap2.animatedarchitecture:animatedarchitecture-parent",
-    "nl.pim16aap2.animatedarchitecture:animatedarchitecture-spigot",
-    "nl.pim16aap2.animatedarchitecture:animatedarchitecture-testing",
-    "nl.pim16aap2.animatedarchitecture:hook-griefdefender-2",
-    "nl.pim16aap2.animatedarchitecture:hook-griefprevention",
-    "nl.pim16aap2.animatedarchitecture:hook-lands",
-    "nl.pim16aap2.animatedarchitecture:hook-plotsquared-6",
-    "nl.pim16aap2.animatedarchitecture:hook-plotsquared-7",
-    "nl.pim16aap2.animatedarchitecture:hook-redprotect",
-    "nl.pim16aap2.animatedarchitecture:hook-towny",
-    "nl.pim16aap2.animatedarchitecture:hook-world-guard-7",
-    "nl.pim16aap2.animatedarchitecture:hooks-bundle",
-    "nl.pim16aap2.animatedarchitecture:protection-hooks",
-    "nl.pim16aap2.animatedarchitecture:spigot-core",
-    "nl.pim16aap2.animatedarchitecture:spigot-util",
-    "nl.pim16aap2.animatedarchitecture:spigot-v1_19_R3",
-    "nl.pim16aap2.animatedarchitecture:structure-bigdoor",
-    "nl.pim16aap2.animatedarchitecture:structure-clock",
-    "nl.pim16aap2.animatedarchitecture:structure-drawbridge",
-    "nl.pim16aap2.animatedarchitecture:structure-flag",
-    "nl.pim16aap2.animatedarchitecture:structure-garagedoor",
-    "nl.pim16aap2.animatedarchitecture:structure-portcullis",
-    "nl.pim16aap2.animatedarchitecture:structure-revolvingdoor",
-    "nl.pim16aap2.animatedarchitecture:structure-slidingdoor",
-    "nl.pim16aap2.animatedarchitecture:structure-windmill",
-    "nl.pim16aap2.animatedarchitecture:structures",
     "com.plotsquared:PlotSquared-Bukkit",
     "com.plotsquared:PlotSquared-Core"
   ]
