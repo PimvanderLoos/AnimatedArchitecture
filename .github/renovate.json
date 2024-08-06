@@ -6,6 +6,7 @@
     {
       "packageNames": [
         "actions/checkout",
+        "actions/setup-java",
         "com.alibaba:fastjson",
         "com.google.code.gson:gson",
         "com.google.dagger:dagger",
