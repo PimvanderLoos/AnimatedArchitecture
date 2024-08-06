@@ -9,6 +9,7 @@
         "com.alibaba:fastjson",
         "com.google.code.gson:gson",
         "com.google.dagger:dagger",
+        "com.google.dagger:dagger-compiler",
         "com.google.errorprone:error_prone_annotations",
         "com.google.errorprone:error_prone_core",
         "com.google.jimfs:jimfs",
