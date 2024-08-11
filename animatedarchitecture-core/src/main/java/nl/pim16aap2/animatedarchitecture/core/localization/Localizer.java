@@ -3,6 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.localization;
 import lombok.Setter;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.annotations.Initializer;
+import nl.pim16aap2.animatedarchitecture.core.util.FileUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -58,7 +59,7 @@ final class Localizer implements ILocalizer
         this.defaultLocale = defaultLocale;
         bundleName = baseName + ".bundle";
         if (deleteBundleOnStart)
-            LocalizationUtil.deleteFile(directory.resolve(bundleName));
+            FileUtil.deleteFile(directory.resolve(bundleName));
         init();
     }
 
@@ -135,10 +136,10 @@ final class Localizer implements ILocalizer
         if (classLoader != null)
             throw new IllegalStateException("ClassLoader is already initialized!");
 
-        LocalizationUtil.ensureDirectoryExists(directory);
+        FileUtil.ensureDirectoryExists(directory);
 
         final Path bundlePath = directory.resolve(bundleName);
-        LocalizationUtil.ensureZipFileExists(bundlePath);
+        FileUtil.ensureZipFileExists(bundlePath);
         try
         {
             classLoader = getNewURLClassLoader(bundlePath, baseName);

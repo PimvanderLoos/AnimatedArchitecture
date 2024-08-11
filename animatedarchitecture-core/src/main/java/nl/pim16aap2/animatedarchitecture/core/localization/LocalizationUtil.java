@@ -1,6 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.core.localization;
 
 import lombok.extern.flogger.Flogger;
+import lombok.val;
+import nl.pim16aap2.animatedarchitecture.core.util.FileUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import org.jetbrains.annotations.Nullable;
 
@@ -8,17 +10,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystemAlreadyExistsException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.ProviderNotFoundException;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -29,8 +25,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
-import java.util.zip.ZipOutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * Represents a utility class with methods that can be used for the localization system.
@@ -45,60 +43,44 @@ public final class LocalizationUtil
      */
     private static final List<Locale> AVAILABLE_LOCALES = List.of(Locale.getAvailableLocales());
 
+    /**
+     * Looks for top-level .properties files.
+     */
+    private static final Pattern LOCALE_FILE_PATTERN = Pattern.compile("^[\\w-]+\\.properties");
+
     private LocalizationUtil()
     {
         // utility class
     }
 
     /**
-     * Ensures that a file exists.
+     * Gets the names of all locale files in a jar.
      * <p>
-     * If the file does not already exist, it will be created.
+     * The name of each locale file is the name of the file itself, with optional relative path.
      *
-     * @param file
-     *     The file whose existence to ensure.
-     * @return The path to the file.
+     * @param jarFile
+     *     The jar file to search in.
+     * @return The names of all locale files in the jar.
      *
      * @throws IOException
-     *     When the file could not be created.
+     *     If an I/O error occurs.
      */
-    static Path ensureFileExists(Path file)
+    public static List<String> getLocaleFilesInJar(Path jarFile)
         throws IOException
     {
-        if (Files.isRegularFile(file))
-            return file;
+        final List<String> ret = new ArrayList<>();
 
-        final Path parent = file.getParent();
-        if (parent != null && !Files.isDirectory(parent))
-            Files.createDirectories(parent);
-        return Files.createFile(file);
-    }
-
-    /**
-     * Appends a list of strings to a file.
-     * <p>
-     * Every entry in the list will be printed on its own line.
-     *
-     * @param path
-     *     The path of the file.
-     * @param append
-     *     The list of Strings (lines) to append to the file.
-     */
-    static void appendToFile(Path path, List<String> append)
-    {
-        if (append.isEmpty())
-            return;
-
-        final StringBuilder sb = new StringBuilder();
-        append.forEach(line -> sb.append(line).append('\n'));
-        try
+        try (val zipInputStream = new ZipInputStream(Files.newInputStream(jarFile)))
         {
-            Files.writeString(path, sb.toString(), StandardOpenOption.APPEND);
+            @Nullable ZipEntry entry;
+            while ((entry = zipInputStream.getNextEntry()) != null)
+            {
+                final var name = entry.getName();
+                if (LOCALE_FILE_PATTERN.matcher(name).matches())
+                    ret.add(name);
+            }
         }
-        catch (IOException e)
-        {
-            throw new RuntimeException("Failed to write localization file: " + path, e);
-        }
+        return ret;
     }
 
     /**
@@ -262,8 +244,9 @@ public final class LocalizationUtil
      */
     static void readFile(InputStream inputStream, Consumer<String> fun)
     {
-        try (BufferedReader bufferedReader =
-                 new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8)))
+        try (
+            BufferedReader bufferedReader =
+                new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8)))
         {
             for (String line; (line = bufferedReader.readLine()) != null; )
             {
@@ -447,34 +430,6 @@ public final class LocalizationUtil
     }
 
     /**
-     * Creates a new {@link FileSystem} for a zip file.
-     * <p>
-     * Don't forget to close it when you're done!
-     *
-     * @param zipFile
-     *     The zip file for which to create a new FileSystem.
-     * @return The newly created FileSystem.
-     *
-     * @throws IOException
-     *     If an I/O error occurs creating the file system.
-     * @throws FileSystemAlreadyExistsException
-     *     When a FileSystem already exists for the provided file.
-     */
-    static FileSystem createNewFileSystem(Path zipFile)
-        throws IOException, URISyntaxException, ProviderNotFoundException
-    {
-        final URI uri = new URI("jar:" + zipFile.toUri());
-        try
-        {
-            return FileSystems.newFileSystem(uri, Map.of());
-        }
-        catch (FileSystemAlreadyExistsException e)
-        {
-            throw new RuntimeException("Failed to create new filesystem: '" + uri + "'", e);
-        }
-    }
-
-    /**
      * Retrieves the filename of the output locale file for a specific locale.
      *
      * @param locale
@@ -484,73 +439,6 @@ public final class LocalizationUtil
     static String getOutputLocaleFileName(String outputBaseName, String locale)
     {
         return String.format("%s%s.properties", outputBaseName, locale.length() == 0 ? "" : ("_" + locale));
-    }
-
-    static void deleteFile(Path file)
-    {
-        try
-        {
-            Files.deleteIfExists(file);
-        }
-        catch (IOException e)
-        {
-            log.atSevere().withCause(e).log("Failed to delete file: '%s'", file);
-        }
-    }
-
-    /**
-     * Ensures a directory exists.
-     */
-    static void ensureDirectoryExists(Path dir)
-    {
-        if (Files.exists(dir))
-            return;
-
-        try
-        {
-            Files.createDirectories(dir);
-        }
-        catch (IOException e)
-        {
-            log.atSevere().withCause(e).log("Failed to create directories: %s", dir);
-        }
-    }
-
-    /**
-     * Ensures a given zip file exists.
-     */
-    static void ensureZipFileExists(Path zipFile)
-    {
-        if (Files.exists(zipFile))
-            return;
-
-        final Path parent = zipFile.getParent();
-        if (parent != null)
-        {
-            try
-            {
-                if (!Files.isDirectory(parent))
-                    Files.createDirectories(parent);
-            }
-            catch (IOException e)
-            {
-                log.atSevere().withCause(e).log("Failed to create directories: %s", parent);
-                return;
-            }
-        }
-
-        // Just opening the ZipOutputStream and then letting it close
-        // on its own is enough to create a new zip file.
-        //noinspection EmptyTryBlock
-        try (OutputStream outputStream = Files.newOutputStream(zipFile);
-             ZipOutputStream ignored = new ZipOutputStream(outputStream))
-        {
-            // ignored
-        }
-        catch (IOException e)
-        {
-            log.atSevere().withCause(e).log("Failed to create file: %s", zipFile);
-        }
     }
 
     /**
@@ -563,7 +451,7 @@ public final class LocalizationUtil
      */
     static List<Locale> getLocalesInZip(Path zipFile, String baseName)
     {
-        try (FileSystem fs = createNewFileSystem(zipFile))
+        try (FileSystem fs = FileUtil.createNewFileSystem(zipFile))
         {
             return LocalizationUtil
                 .getLocaleFilesInDirectory(fs.getPath("."), baseName)

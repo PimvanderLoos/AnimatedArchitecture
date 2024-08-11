@@ -2,8 +2,8 @@ package nl.pim16aap2.animatedarchitecture.core.localization;
 
 import lombok.Getter;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.core.util.FileUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -47,7 +47,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
         this.outputBaseName = outputBaseName;
         this.rootKeys = new HashSet<>();
         outputFile = outputDirectory.resolve(this.outputBaseName + ".bundle");
-        LocalizationUtil.ensureZipFileExists(outputFile);
+        FileUtil.ensureZipFileExists(outputFile);
     }
 
     @Override
@@ -83,10 +83,10 @@ final class LocalizationGenerator implements ILocalizationGenerator
     void addResourcesFromZip(Path jarFile, @Nullable String baseName)
     {
         try (
-            FileSystem zipFileSystem = LocalizationUtil.createNewFileSystem(jarFile);
+            FileSystem zipFileSystem = FileUtil.createNewFileSystem(jarFile);
             FileSystem outputFileSystem = getOutputFileFileSystem())
         {
-            List<String> fileNames = Util.getLocaleFilesInJar(jarFile);
+            List<String> fileNames = LocalizationUtil.getLocaleFilesInJar(jarFile);
             if (baseName != null)
                 fileNames = fileNames.stream().filter(file -> file.startsWith(baseName)).toList();
 
@@ -111,7 +111,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
     @Override
     public void addResourcesFromClass(Class<?> clz, @Nullable String baseName)
     {
-        addResourcesFromZip(Util.getJarFile(clz), baseName);
+        addResourcesFromZip(FileUtil.getJarFile(clz), baseName);
     }
 
     /**
@@ -142,7 +142,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
         {
             final Path existingLocaleFile =
                 outputFileSystem.getPath(LocalizationUtil.getOutputLocaleFileName(outputBaseName, localeSuffix));
-            LocalizationUtil.ensureFileExists(existingLocaleFile);
+            FileUtil.ensureFileExists(existingLocaleFile);
 
             final StringBuilder sb = new StringBuilder();
             try (InputStream inputStream = Files.newInputStream(existingLocaleFile))
@@ -201,13 +201,13 @@ final class LocalizationGenerator implements ILocalizationGenerator
     /**
      * Creates a new {@link FileSystem} for {@link #outputFile}.
      * <p>
-     * See {@link LocalizationUtil#createNewFileSystem(Path)}.
+     * See {@link FileUtil#createNewFileSystem(Path)}.
      */
     private FileSystem getOutputFileFileSystem()
         throws IOException, URISyntaxException, ProviderNotFoundException
     {
-        LocalizationUtil.ensureZipFileExists(outputFile);
-        return LocalizationUtil.createNewFileSystem(outputFile);
+        FileUtil.ensureZipFileExists(outputFile);
+        return FileUtil.createNewFileSystem(outputFile);
     }
 
     /**
@@ -232,14 +232,14 @@ final class LocalizationGenerator implements ILocalizationGenerator
     {
         final Path existingLocaleFile =
             outputFileSystem.getPath(LocalizationUtil.getOutputLocaleFileName(outputBaseName, locale));
-        LocalizationUtil.ensureFileExists(existingLocaleFile);
-        LocalizationUtil.ensureFileExists(outputFile);
+        FileUtil.ensureFileExists(existingLocaleFile);
+        FileUtil.ensureFileExists(outputFile);
         final List<String> existing = LocalizationUtil.readFile(Files.newInputStream(existingLocaleFile));
         final List<String> newlines = LocalizationUtil.readFile(inputStream);
         final List<String> appendable = LocalizationUtil.getAppendable(existing, newlines);
         registerRootKeys(existing);
         registerRootKeys(appendable);
-        LocalizationUtil.appendToFile(existingLocaleFile, appendable);
+        FileUtil.appendToFile(existingLocaleFile, appendable);
     }
 
     private void registerRootKeys(List<String> lines)

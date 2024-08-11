@@ -23,6 +23,7 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -269,6 +270,8 @@ public final class StructureTypeLoader extends Restartable
             preloadCheckListMap = files
                 .filter(Files::isRegularFile)
                 .filter(pathMatcher::matches)
+                // Sort inverted to get e.g. my-structure-v2 before my-structure-v1
+                .sorted(Comparator.reverseOrder())
                 .map(this::getStructureTypeInfo)
                 .filter(Optional::isPresent)
                 .map(Optional::get)

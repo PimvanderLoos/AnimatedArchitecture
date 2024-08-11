@@ -1,8 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.util;
 
-import lombok.experimental.UtilityClass;
 import lombok.extern.flogger.Flogger;
-import lombok.val;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
@@ -11,27 +9,17 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.logging.Level;
-import java.util.regex.Pattern;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 /**
  * Represents various small and platform-agnostic utility functions.
  */
-@UtilityClass
 @Flogger
 public final class Util
 {
@@ -40,11 +28,6 @@ public final class Util
 
     private static final Map<MovementDirection, BlockFace> TO_BLOCK_FACE =
         new EnumMap<>(MovementDirection.class);
-
-    /**
-     * Looks for top-level .properties files.
-     */
-    private static final Pattern LOCALE_FILE_PATTERN = Pattern.compile("^[\\w-]+\\.properties");
 
     static
     {
@@ -64,53 +47,8 @@ public final class Util
         }
     }
 
-    /**
-     * Gets the file of the jar that contained a specific class.
-     *
-     * @param clz
-     *     The class for which to find the jar file.
-     * @return The location of the jar file.
-     */
-    public Path getJarFile(Class<?> clz)
+    private Util()
     {
-        try
-        {
-            return Path.of(clz.getProtectionDomain().getCodeSource().getLocation().toURI());
-        }
-        catch (IllegalArgumentException | URISyntaxException e)
-        {
-            throw new RuntimeException("Failed to find jar file for class: " + clz, e);
-        }
-    }
-
-    /**
-     * Gets the names of all locale files in a jar.
-     * <p>
-     * The name of each locale file is the name of the file itself, with optional relative path.
-     *
-     * @param jarFile
-     *     The jar file to search in.
-     * @return The names of all locale files in the jar.
-     *
-     * @throws IOException
-     *     If an I/O error occurs.
-     */
-    public List<String> getLocaleFilesInJar(Path jarFile)
-        throws IOException
-    {
-        final List<String> ret = new ArrayList<>();
-
-        try (val zipInputStream = new ZipInputStream(Files.newInputStream(jarFile)))
-        {
-            @Nullable ZipEntry entry;
-            while ((entry = zipInputStream.getNextEntry()) != null)
-            {
-                final var name = entry.getName();
-                if (LOCALE_FILE_PATTERN.matcher(name).matches())
-                    ret.add(name);
-            }
-        }
-        return ret;
     }
 
     /**
@@ -133,7 +71,7 @@ public final class Util
      *     If the input object to check is null.
      */
     @Contract("null, _ -> fail")
-    public <T> T requireNonNull(@Nullable T obj, String name)
+    public static <T> T requireNonNull(@Nullable T obj, String name)
         throws NullPointerException
     {
         //noinspection ConstantConditions
@@ -151,7 +89,7 @@ public final class Util
      *     The type of the value.
      * @return The value if it is not null, otherwise the fallback.
      */
-    public <T> T valOrDefault(@Nullable T value, Supplier<T> fallback)
+    public static <T> T valOrDefault(@Nullable T value, Supplier<T> fallback)
     {
         return value == null ? fallback.get() : value;
     }
