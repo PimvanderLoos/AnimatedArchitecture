@@ -173,7 +173,6 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
-        <finalName>AnimatedArchitecture-Spigot</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

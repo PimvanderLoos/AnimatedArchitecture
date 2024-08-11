@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>spigot-packager</artifactId>
+    <packaging>jar</packaging>
+
+    <parent>
+        <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+        <artifactId>animatedarchitecture-spigot</artifactId>
+        <version>0.7.0-SNAPSHOT</version>
+    </parent>
+
+    <properties>
+        <project.root-dir>${project.basedir}/../..</project.root-dir>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+            <artifactId>spigot-core</artifactId>
+            <version>0.7.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+            <artifactId>structure-bigdoor</artifactId>
+            <version>1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+            <artifactId>structure-clock</artifactId>
+            <version>1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+            <artifactId>structure-drawbridge</artifactId>
+            <version>1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+            <artifactId>structure-flag</artifactId>
+            <version>1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+            <artifactId>structure-garagedoor</artifactId>
+            <version>1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+            <artifactId>structure-portcullis</artifactId>
+            <version>1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+            <artifactId>structure-revolvingdoor</artifactId>
+            <version>1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+            <artifactId>structure-slidingdoor</artifactId>
+            <version>1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+            <artifactId>structure-windmill</artifactId>
+            <version>1</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>AnimatedArchitecture-Spigot</finalName>
+
+        <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <descriptors>
+                        <descriptor>src/assembly/packaging.xml</descriptor>
+                    </descriptors>
+                    <finalName>spigot-core-with-extensions</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
