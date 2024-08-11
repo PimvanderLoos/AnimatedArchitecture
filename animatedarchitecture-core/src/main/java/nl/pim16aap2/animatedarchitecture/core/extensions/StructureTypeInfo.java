@@ -43,10 +43,24 @@ final class StructureTypeInfo
     private static final Pattern VERSION_MATCH = Pattern.compile("(?<=\\()[0-9]+;[0-9]+(?=\\)$)");
 
     /**
+     * The namespace of the structure type.
+     */
+    @Getter
+    private final String namespace;
+
+    /**
      * The name of the structure type.
      */
     @Getter
     private final String typeName;
+
+    /**
+     * The name of the structure type in the namespace.
+     * <p>
+     * This is a combination of {@link #namespace} and {@link #typeName}.
+     */
+    @Getter
+    private final String fullName;
 
     /**
      * The version of the structure type.
@@ -101,6 +115,7 @@ final class StructureTypeInfo
      *     Both the minimum and the maximum versions of the dependency are inclusive.
      */
     public StructureTypeInfo(
+        String namespace,
         String typeName,
         int version,
         String mainClass,
@@ -108,7 +123,10 @@ final class StructureTypeInfo
         String supportedApiVersions,
         @Nullable String dependencies)
     {
+        this.namespace = namespace.toLowerCase(Locale.ENGLISH);
         this.typeName = typeName.toLowerCase(Locale.ENGLISH);
+        this.fullName = this.namespace + ":" + this.typeName;
+
         this.version = version;
         this.mainClass = mainClass;
         this.jarFile = jarFile;

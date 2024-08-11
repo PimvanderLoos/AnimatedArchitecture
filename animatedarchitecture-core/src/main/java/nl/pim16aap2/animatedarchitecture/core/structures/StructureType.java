@@ -58,7 +58,7 @@ public abstract class StructureType
     protected final String localizationKey;
 
     /**
-     * The fully-qualified name of this {@link StructureType} formatted as "pluginName_simpleName".
+     * The fully-qualified name of this {@link StructureType} formatted as "pluginName:simpleName".
      */
     @Getter
     private final String fullName;

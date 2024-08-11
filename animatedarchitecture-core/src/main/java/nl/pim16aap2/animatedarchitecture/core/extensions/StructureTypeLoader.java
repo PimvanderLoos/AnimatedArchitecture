@@ -146,9 +146,9 @@ public final class StructureTypeLoader extends Restartable
     private Set<String> getAlreadyLoadedTypes()
     {
         return structureTypeManager
-            .getRegisteredStructureTypes().stream()
-            .map(StructureType::getClass)
-            .map(Class::getName)
+            .getRegisteredStructureTypes()
+            .stream()
+            .map(StructureType::getFullName)
             .collect(Collectors.toSet());
     }
 
@@ -182,7 +182,7 @@ public final class StructureTypeLoader extends Restartable
         Set<String> alreadyLoadedTypes,
         StructureTypeInfo typeInfo)
     {
-        if (alreadyLoadedTypes.contains(typeInfo.getTypeName()))
+        if (alreadyLoadedTypes.contains(typeInfo.getFullName()))
             return PreloadCheckResult.ALREADY_LOADED;
 
         if (!isSupported(currentApiVersion, typeInfo.getSupportedApiVersions()))
@@ -383,6 +383,7 @@ public final class StructureTypeLoader extends Restartable
             Util.requireNonNull(manifest.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS), "Main-Class");
 
         return Optional.of(new StructureTypeInfo(
+            Util.requireNonNull(attributes.getValue("Namespace"), "Namespace"),
             Util.requireNonNull(attributes.getValue("TypeName"), "TypeName"),
             MathUtil.parseInt(attributes.getValue("Version"))
                 .orElseThrow(() -> new NoSuchElementException("Version not found")),
