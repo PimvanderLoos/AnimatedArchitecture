@@ -36,12 +36,11 @@ The following structure types are currently supported:
 ### Installation:
 
 * Grab the files of the latest [release](https://github.com/PimvanderLoos/AnimatedArchitecture/releases). You will need
-  both the `AnimatedArchitecture-Spigot.jar` file and the `Structures.zip` file.
+  to grab the `AnimatedArchitecture-Spigot.jar` file.
 * Place the `AnimatedArchitecture-Spigot.jar` in the plugins directory of your server.
-* Create the following folder (or start the server to generate it automatically): `plugins/AnimatedArchitecture/extensions`.
-* Move all the jars from the `Structures.zip` file to the new `extensions` directory.<br>
-  Don't forget to update these when installing new updates!
 * (Re)start your server.
+* Optionally, configure the plugin to your liking by editing the config files in the newly generated
+  `AnimatedArchitecture` folder.
 
 ### Importing BigDoors' Database
 

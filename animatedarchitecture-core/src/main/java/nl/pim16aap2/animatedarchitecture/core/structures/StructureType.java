@@ -58,7 +58,7 @@ public abstract class StructureType
     protected final String localizationKey;
 
     /**
-     * The fully-qualified name of this {@link StructureType} formatted as "pluginName_simpleName".
+     * The fully-qualified name of this {@link StructureType} formatted as "pluginName:simpleName".
      */
     @Getter
     private final String fullName;
@@ -109,7 +109,7 @@ public abstract class StructureType
         List<MovementDirection> validMovementDirections,
         String localizationKey)
     {
-        this.pluginName = pluginName;
+        this.pluginName = pluginName.toLowerCase(Locale.ENGLISH);
         this.simpleName = simpleName.toLowerCase(Locale.ENGLISH);
         this.version = version;
         this.validMovementDirections =

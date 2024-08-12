@@ -2,6 +2,7 @@ package nl.pim16aap2.animatedarchitecture.core.localization;
 
 import lombok.Getter;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.core.util.FileUtil;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,7 +31,7 @@ final class LocalizationPatcher
         throws IOException
     {
         // Ensure the base patch file exists.
-        LocalizationUtil.ensureFileExists(directory.resolve(baseName + ".properties"));
+        FileUtil.ensureFileExists(directory.resolve(baseName + ".properties"));
         patchFiles = LocalizationUtil.getLocaleFilesInDirectory(directory, baseName);
     }
 

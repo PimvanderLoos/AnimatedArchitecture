@@ -8,6 +8,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
+import nl.pim16aap2.animatedarchitecture.core.util.FileUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import org.jetbrains.annotations.Nullable;
@@ -19,10 +20,13 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.nio.file.FileSystem;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -31,6 +35,7 @@ import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -52,6 +57,13 @@ public final class StructureTypeLoader extends Restartable
      * The title of the section in the manifest that contains the structure type metadata.
      */
     public static final String STRUCTURE_TYPE_METADATA_MANIFEST_SECTION_TITLE = "StructureTypeMetadata";
+
+    /**
+     * The pattern used for matching embedded extension jars.
+     * <p>
+     * Each extension jar is expected to be in the form of: /extensions/*.jar.
+     */
+    private static final Pattern EMBEDDED_JAR_PATTERN = Pattern.compile("^extensions/[\\w-]+\\.jar$");
 
     private final StructureTypeClassLoader structureTypeClassLoader =
         new StructureTypeClassLoader(getClass().getClassLoader());
@@ -145,9 +157,9 @@ public final class StructureTypeLoader extends Restartable
     private Set<String> getAlreadyLoadedTypes()
     {
         return structureTypeManager
-            .getRegisteredStructureTypes().stream()
-            .map(StructureType::getClass)
-            .map(Class::getName)
+            .getRegisteredStructureTypes()
+            .stream()
+            .map(StructureType::getFullName)
             .collect(Collectors.toSet());
     }
 
@@ -181,7 +193,7 @@ public final class StructureTypeLoader extends Restartable
         Set<String> alreadyLoadedTypes,
         StructureTypeInfo typeInfo)
     {
-        if (alreadyLoadedTypes.contains(typeInfo.getTypeName()))
+        if (alreadyLoadedTypes.contains(typeInfo.getFullName()))
             return PreloadCheckResult.ALREADY_LOADED;
 
         if (!isSupported(currentApiVersion, typeInfo.getSupportedApiVersions()))
@@ -250,6 +262,87 @@ public final class StructureTypeLoader extends Restartable
     }
 
     /**
+     * Extracts the structure types from the embedded jars in a given jar file.
+     *
+     * @param jarFile
+     *     The jar file to extract the embedded structure types from.
+     */
+    public void extractEmbeddedStructureTypes(Path jarFile)
+    {
+        try
+        {
+            final List<String> extensionJars = FileUtil.getFilesInJar(jarFile, EMBEDDED_JAR_PATTERN);
+            extractEmbeddedStructureTypes(jarFile, extensionJars);
+        }
+        catch (IOException e)
+        {
+            log.atSevere().withCause(e).log("Failed to read resource from file: %s", jarFile);
+        }
+    }
+
+    /**
+     * Extracts the structure types from the embedded jars in a given jar file.
+     *
+     * @param jarFile
+     *     The jar file to extract the embedded structure types from.
+     * @param extensions
+     *     The list of extensions to extract. Each entry is the path to the extension in the jar file.
+     */
+    void extractEmbeddedStructureTypes(Path jarFile, List<String> extensions)
+    {
+        try (FileSystem zipFileSystem = FileUtil.createNewFileSystem(jarFile))
+        {
+            extensions
+                .stream()
+                .map(zipFileSystem::getPath)
+                .map(this::getStructureTypeInfo)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .forEach(info -> extractEmbeddedStructureType(info, zipFileSystem, jarFile));
+        }
+        catch (IOException | URISyntaxException e)
+        {
+            log.atSevere().withCause(e).log("Failed to read resource from file: %s", jarFile);
+        }
+    }
+
+    /**
+     * Extracts an embedded structure type.
+     *
+     * @param structureTypeInfo
+     *     The structure type info to extract.
+     * @param zipFileSystem
+     *     The file system of the jar file.
+     * @param jarFile
+     *     The jar file that contains the embedded structure type.
+     */
+    private void extractEmbeddedStructureType(
+        StructureTypeInfo structureTypeInfo,
+        FileSystem zipFileSystem,
+        Path jarFile
+    )
+    {
+        final Path structureTypePath =
+            zipFileSystem.getPath(structureTypeInfo.getJarFile().toAbsolutePath().toString());
+
+        final Path targetPath = extensionsDirectory.resolve(structureTypeInfo.getTypeName() + ".jar");
+
+        try (InputStream is = Files.newInputStream(structureTypePath))
+        {
+            Files.copy(is, targetPath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+        }
+        catch (IOException e)
+        {
+            log.atSevere().withCause(e).log(
+                "Failed to extract embedded structure type '%s' from jar: '%s' to: '%s'",
+                structureTypeInfo.getTypeName(),
+                jarFile,
+                targetPath
+            );
+        }
+    }
+
+    /**
      * Attempts to load and register all jars in a given directory.
      *
      * @param directory
@@ -269,6 +362,8 @@ public final class StructureTypeLoader extends Restartable
             preloadCheckListMap = files
                 .filter(Files::isRegularFile)
                 .filter(pathMatcher::matches)
+                // Sort inverted to get e.g. my-structure-v2 before my-structure-v1
+                .sorted(Comparator.reverseOrder())
                 .map(this::getStructureTypeInfo)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
@@ -276,12 +371,12 @@ public final class StructureTypeLoader extends Restartable
                     performPreloadCheck(CURRENT_EXTENSION_API_VERSION, alreadyLoadedTypes, info))
                 );
         }
+
         catch (IOException e)
         {
-            log.atSevere().withCause(e).log();
+            log.atSevere().withCause(e).log("Failed to load structure types from directory: %s", directory);
             return List.of();
         }
-
         logPreloadCheckResults(preloadCheckListMap);
 
         final List<StructureTypeInfo> acceptedTypes = preloadCheckListMap.get(PreloadCheckResult.PASS);
@@ -380,6 +475,7 @@ public final class StructureTypeLoader extends Restartable
             Util.requireNonNull(manifest.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS), "Main-Class");
 
         return Optional.of(new StructureTypeInfo(
+            Util.requireNonNull(attributes.getValue("Namespace"), "Namespace"),
             Util.requireNonNull(attributes.getValue("TypeName"), "TypeName"),
             MathUtil.parseInt(attributes.getValue("Version"))
                 .orElseThrow(() -> new NoSuchElementException("Version not found")),
@@ -396,6 +492,7 @@ public final class StructureTypeLoader extends Restartable
         if (!successfulInit && !(successfulInit = ensureDirectoryExists()))
             return;
 
+        extractEmbeddedStructureTypes(FileUtil.getJarFile(this.getClass()).toAbsolutePath());
         loadStructureTypesFromDirectory();
     }
 

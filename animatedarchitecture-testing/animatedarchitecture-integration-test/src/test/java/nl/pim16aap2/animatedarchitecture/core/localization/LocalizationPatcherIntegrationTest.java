@@ -2,6 +2,7 @@ package nl.pim16aap2.animatedarchitecture.core.localization;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import nl.pim16aap2.animatedarchitecture.core.util.FileUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,11 +39,11 @@ class LocalizationPatcherIntegrationTest
     void testUpdateRootKeys()
         throws IOException
     {
-        final Path file0 = LocalizationUtil.ensureFileExists(directoryOutput.resolve("patch.properties"));
-        LocalizationUtil.appendToFile(file0, List.of("key0=aaa", "key3=baa", "key1=aba", "key2=aab"));
+        final Path file0 = FileUtil.ensureFileExists(directoryOutput.resolve("patch.properties"));
+        FileUtil.appendToFile(file0, List.of("key0=aaa", "key3=baa", "key1=aba", "key2=aab"));
 
-        final Path file1 = LocalizationUtil.ensureFileExists(directoryOutput.resolve("patch_en_US.properties"));
-        LocalizationUtil.appendToFile(file1, List.of("key10=aaa", "key13=baa", "key12=aab", "key11=aba"));
+        final Path file1 = FileUtil.ensureFileExists(directoryOutput.resolve("patch_en_US.properties"));
+        FileUtil.appendToFile(file1, List.of("key10=aaa", "key13=baa", "key12=aab", "key11=aba"));
 
         final LocalizationPatcher patcher = new LocalizationPatcher(directoryOutput, "patch");
         patcher.updatePatchKeys(List.of("key1", "key5", "key4"));
@@ -62,8 +63,8 @@ class LocalizationPatcherIntegrationTest
     void testGetPatches()
         throws IOException
     {
-        final Path file = LocalizationUtil.ensureFileExists(directoryOutput.resolve("patch.properties"));
-        LocalizationUtil.appendToFile(file, List.of("key0=", "key1= ", "key2=aab", "key3=baa"));
+        final Path file = FileUtil.ensureFileExists(directoryOutput.resolve("patch.properties"));
+        FileUtil.appendToFile(file, List.of("key0=", "key1= ", "key2=aab", "key3=baa"));
 
         final LocalizationPatcher patcher = new LocalizationPatcher(directoryOutput, "patch");
         final Map<String, String> patches = patcher.getPatches(new LocaleFile(file, ""));

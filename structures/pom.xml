@@ -57,6 +57,15 @@
         <mainClass>UNDEFINED</mainClass>
 
         <!--
+        The namespace of the type, e.g. animatedarchitecture
+
+        This is used to avoid conflicts between different types with the same name.
+
+        The namespace can contain letters, numbers, dashes, and underscores.
+        -->
+        <namespace>animatedarchitecture</namespace>
+
+        <!--
         The name of the type, e.g. BigDoor
         This is used for the name of the jar file
 
@@ -115,6 +124,7 @@
                                 <manifestSection>
                                     <name>StructureTypeMetadata</name>
                                     <manifestEntries>
+                                        <Namespace>${namespace}</Namespace>
                                         <TypeName>${typeName}</TypeName>
                                         <Version>${version}</Version>
                                         <SupportedApiVersions>${supportedApiVersions}</SupportedApiVersions>

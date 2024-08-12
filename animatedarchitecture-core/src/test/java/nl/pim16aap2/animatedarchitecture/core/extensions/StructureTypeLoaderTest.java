@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.extensions;
 
+import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.semver4j.Semver;
@@ -59,6 +60,7 @@ class StructureTypeLoaderTest
     @Test
     void testPerformPreloadCheck()
     {
+        final String namespace = Constants.PLUGIN_NAME;
         final Path jarFile = Paths.get("/does/not/exist.jar");
 
         final String alreadyLoadedTypeName = "already-loaded-type";
@@ -67,9 +69,9 @@ class StructureTypeLoaderTest
         final Semver apiVersion = Semver.of(1, 0, 0);
 
         final var alreadyLoadedTypes = new HashSet<String>();
-        alreadyLoadedTypes.add(alreadyLoadedTypeName);
 
         final var typeInfo = new StructureTypeInfo(
+            namespace,
             alreadyLoadedTypeName,
             1,
             "com.example.MainClass",
@@ -78,12 +80,15 @@ class StructureTypeLoaderTest
             null
         );
 
+        alreadyLoadedTypes.add(typeInfo.getFullName());
+
         Assertions.assertEquals(
             StructureTypeLoader.PreloadCheckResult.ALREADY_LOADED,
             StructureTypeLoader.performPreloadCheck(apiVersion, alreadyLoadedTypes, typeInfo)
         );
 
         final var typeInfo2 = new StructureTypeInfo(
+            namespace,
             unloadedTypeName,
             1,
             "com.example.MainClass",
@@ -98,6 +103,7 @@ class StructureTypeLoaderTest
         );
 
         final var typeInfo3 = new StructureTypeInfo(
+            namespace,
             unloadedTypeName,
             1,
             "com.example.MainClass",
@@ -117,6 +123,7 @@ class StructureTypeLoaderTest
     {
         final var manifest = new Manifest();
         final var attributes = new Attributes();
+        attributes.putValue("Namespace", Constants.PLUGIN_NAME);
         attributes.putValue("TypeName", "TypeName");
         attributes.putValue("Version", "1");
         attributes.putValue("SupportedApiVersions", "1.2.3");

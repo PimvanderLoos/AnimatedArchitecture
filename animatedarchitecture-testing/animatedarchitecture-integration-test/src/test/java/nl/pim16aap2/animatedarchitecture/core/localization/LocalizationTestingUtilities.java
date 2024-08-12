@@ -1,5 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.localization;
 
+import nl.pim16aap2.animatedarchitecture.core.util.FileUtil;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -72,8 +74,8 @@ class LocalizationTestingUtilities
     static void writeToFile(Path file, List<String> lines)
         throws IOException
     {
-        LocalizationUtil.ensureFileExists(file);
-        LocalizationUtil.appendToFile(file, lines);
+        FileUtil.ensureFileExists(file);
+        FileUtil.appendToFile(file, lines);
     }
 
     /**

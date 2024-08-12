@@ -1,6 +1,5 @@
 package nl.pim16aap2.animatedarchitecture.core.util;
 
-import lombok.experimental.UtilityClass;
 import lombok.extern.flogger.Flogger;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
@@ -15,7 +14,6 @@ import java.util.stream.Collector;
  * Utility class for strings.
  */
 @Flogger
-@UtilityClass
 public final class StringUtil
 {
     /**
@@ -35,6 +33,9 @@ public final class StringUtil
      */
     private static final Pattern VALID_STRUCTURE_NAME = Pattern.compile("^\\w*[a-zA-Z_-]+\\w*$");
 
+    private StringUtil()
+    {
+    }
 
     /**
      * Generate an (insecure) random alphanumeric string of a given length.

@@ -25,6 +25,7 @@
         <module>spigot-core</module>
         <module>spigot-util</module>
         <module>protection-hooks</module>
+        <module>spigot-packager</module>
     </modules>
 
     <repositories>
