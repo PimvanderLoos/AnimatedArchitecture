@@ -129,7 +129,7 @@ class StructureTypeLoaderTest
         attributes.putValue("TypeName", name);
         attributes.putValue("Version", "1");
         attributes.putValue("SupportedApiVersions", "1.2.3");
-        attributes.putValue("TypeDependencies", "door(1;2)");
+        attributes.putValue("TypeDependencies", namespace + ":door(1;2)");
         manifest.getEntries().put("EntryTitle", attributes);
         manifest.getMainAttributes().putValue(Attributes.Name.MAIN_CLASS.toString(), "MainClass");
 

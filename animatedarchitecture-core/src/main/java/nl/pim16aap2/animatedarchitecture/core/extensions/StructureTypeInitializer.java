@@ -139,6 +139,20 @@ final class StructureTypeInitializer
         node.getAllChildren().forEach(child -> child.getObj().setLoadFailure(loadResult));
     }
 
+    /**
+     * Adds the dependencies of a loadable to the graph.
+     *
+     * @param graph
+     *     The graph to add the dependencies to.
+     * @param loadables
+     *     The loadables to use for finding the dependencies.
+     *     <p>
+     *     Every dependency of {@code loadable} needs to be present in {@code loadables}. If at least one dependency is
+     *     not present, {@code loadable} will be marked as failed to load with a
+     *     {@link LoadFailureType#DEPENDENCY_UNAVAILABLE} failure.
+     * @param loadable
+     *     The loadable whose dependencies to add.
+     */
     static void addDependenciesToGraph(
         DirectedAcyclicGraph<Loadable> graph,
         Map<String, Loadable> loadables,
@@ -146,19 +160,20 @@ final class StructureTypeInitializer
     {
         final StructureTypeInfo info = loadable.getStructureTypeInfo();
         final List<StructureTypeInfo.Dependency> dependencies = info.getDependencies();
+
         if (dependencies.isEmpty())
             return;
 
         for (final StructureTypeInfo.Dependency dependency : dependencies)
         {
-            final @Nullable Loadable parent = loadables.get(dependency.dependencyName());
+            final @Nullable Loadable parent = loadables.get(dependency.getFullKey());
             if (parent == null)
                 loadable.setLoadFailure(
                     new LoadFailure(
                         LoadFailureType.DEPENDENCY_UNAVAILABLE,
                         String.format(
                             "'Could not find dependency '%s' for type: '%s''",
-                            dependency.dependencyName(),
+                            dependency.getFullKey(),
                             loadable))
                 );
             else if (!dependency.satisfiedBy(parent.getStructureTypeInfo()))
