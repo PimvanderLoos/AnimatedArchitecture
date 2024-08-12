@@ -80,8 +80,6 @@
     </dependencies>
 
     <build>
-        <finalName>AnimatedArchitecture-Spigot</finalName>
-
         <plugins>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -90,7 +88,7 @@
                     <descriptors>
                         <descriptor>src/assembly/packaging.xml</descriptor>
                     </descriptors>
-                    <finalName>spigot-core-with-extensions</finalName>
+                    <finalName>AnimatedArchitecture-Spigot</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
                 <executions>

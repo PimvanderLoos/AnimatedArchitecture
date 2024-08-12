@@ -36,17 +36,13 @@ jobs:
         run: mvn --batch-mode -P=docs -Dmaven.test.skip -DskipTests install antrun:run lombok:delombok javadoc:javadoc javadoc:aggregate
         if: github.event_name == 'push' && github.ref == 'refs/heads/release'
 
-      - name: Upload structure types
-        uses: actions/upload-artifact@v4
-        with:
-          name: Structures
-          path: structures/StructuresOutput/*.jar
-
       - name: Upload AnimatedArchitecture-Spigot
         uses: actions/upload-artifact@v4
         with:
           name: AnimatedArchitecture-Spigot
-          path: animatedarchitecture-spigot/spigot-core/target/AnimatedArchitecture-Spigot.jar
+          path: animatedarchitecture-spigot/spigot-packager/target/AnimatedArchitecture-Spigot.jar
+          if-no-files-found: error
+          compression-level: 0
 
       # Publish java doc page when a commit/PR is pushed/merged to master
       - name: Deploy Javadoc
