@@ -207,6 +207,7 @@ final class StructureTypeInfo implements IKeyed
             throw new IllegalArgumentException("Failed to find the dependency name in: '" + fullKey + "'");
 
         final String dependencyName = nameMatcher.group();
+        final var dependencyKey = NamespacedKey.of(dependencyName);
 
         final Matcher versionMatcher = VERSION_MATCH.matcher(fullKey);
         if (!versionMatcher.find())
@@ -224,7 +225,7 @@ final class StructureTypeInfo implements IKeyed
         if (maxVersionOpt.isEmpty())
             throw new IllegalArgumentException("Failed to parse max version from '" + versionSplit[1] + "'");
 
-        return new Dependency(dependencyName, minVersionOpt.getAsInt(), maxVersionOpt.getAsInt());
+        return new Dependency(dependencyKey, minVersionOpt.getAsInt(), maxVersionOpt.getAsInt());
     }
 
     /**
@@ -236,8 +237,8 @@ final class StructureTypeInfo implements IKeyed
      */
     private static Pattern getNameMatchPattern()
     {
-        final String base = NamespacedKey.PATTERN.pattern();
-        return Pattern.compile(base + ":" + base + "(?=\\([0-9]+;[0-9]+\\)$)");
+        final String base = NamespacedKey.PATTERN.pattern().replace("^", "").replace("$", "");
+        return Pattern.compile("^" + base + ":" + base + "(?=\\([0-9]+;[0-9]+\\)$)");
     }
 
     /**
@@ -246,8 +247,8 @@ final class StructureTypeInfo implements IKeyed
      * A dependency is defined by a name, a minimum version, and a maximum version. The version of a structure type must
      * be between the minimum and maximum version of the dependency for the dependency to be satisfied.
      *
-     * @param dependencyName
-     *     The name of the dependency. This is the name of the structure type that this dependency represents.
+     * @param namespacedKey
+     *     The key of the dependency. This is the namespaced key of the structure type that this dependency refers to.
      * @param minVersion
      *     The minimum version of the dependency. Inclusive.
      *     <p>
@@ -257,22 +258,39 @@ final class StructureTypeInfo implements IKeyed
      *     <p>
      *     Must be larger than {@code minVersion}.
      */
-    record Dependency(String dependencyName, int minVersion, int maxVersion)
+    record Dependency(NamespacedKey namespacedKey, int minVersion, int maxVersion) implements IKeyed
     {
         // Ensure that the minVersion is smaller than the maxVersion.
         Dependency
         {
             if (minVersion > maxVersion)
                 throw new IllegalArgumentException("minVersion must be smaller than maxVersion.");
+        }
 
-            if (dependencyName.isBlank())
-                throw new IllegalArgumentException("dependencyName must not be blank.");
+        /**
+         * Creates a new instance of {@link Dependency}.
+         *
+         * @param key
+         *     The key of the dependency. This will be parsed into a {@link NamespacedKey}. See
+         *     {@link NamespacedKey#of(String)}. The key is expected to be in the format "{@code namespace:name}".
+         * @param minVersion
+         *     The minimum version of the dependency. Inclusive.
+         *     <p>
+         *     Must be smaller than {@code maxVersion}.
+         * @param maxVersion
+         *     The maximum version of the dependency. Inclusive.
+         *     <p>
+         *     Must be larger than {@code minVersion}.
+         */
+        Dependency(String key, int minVersion, int maxVersion)
+        {
+            this(NamespacedKey.of(key), minVersion, maxVersion);
         }
 
         @Override
         public String toString()
         {
-            return dependencyName + "(" + minVersion + ";" + maxVersion + ")";
+            return namespacedKey.getFullKey() + "(" + minVersion + ";" + maxVersion + ")";
         }
 
         /**
@@ -285,8 +303,14 @@ final class StructureTypeInfo implements IKeyed
          */
         boolean satisfiedBy(StructureTypeInfo structureTypeInfo)
         {
-            return structureTypeInfo.getFullKey().equals(dependencyName) &&
+            return structureTypeInfo.getNamespacedKey().equals(namespacedKey) &&
                 MathUtil.between(structureTypeInfo.getVersion(), minVersion, maxVersion);
+        }
+
+        @Override
+        public NamespacedKey getNamespacedKey()
+        {
+            return namespacedKey;
         }
     }
 }

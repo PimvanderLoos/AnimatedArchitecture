@@ -10,24 +10,21 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 class StructureTypeInitializerTest
 {
-    private static final String NAMESPACE = Constants.PLUGIN_NAME.toLowerCase(Locale.ROOT);
-
     @Test
     void testPropagateLoadFailures()
     {
         final DirectedAcyclicGraph<StructureTypeInitializer.Loadable> graph = new DirectedAcyclicGraph<>();
-        final StructureTypeInitializer.Loadable l0 = newLoadable("l0");
-        final StructureTypeInitializer.Loadable l1 = newLoadable("l1");
-        final StructureTypeInitializer.Loadable l2 = newLoadable("l2");
-        final StructureTypeInitializer.Loadable l3 = newLoadable("l3");
-        final StructureTypeInitializer.Loadable l4 = newLoadable("l4");
+        final StructureTypeInitializer.Loadable l0 = newLoadable(NamespacedKey.of("l0"));
+        final StructureTypeInitializer.Loadable l1 = newLoadable(NamespacedKey.of("l1"));
+        final StructureTypeInitializer.Loadable l2 = newLoadable(NamespacedKey.of("l2"));
+        final StructureTypeInitializer.Loadable l3 = newLoadable(NamespacedKey.of("l3"));
+        final StructureTypeInitializer.Loadable l4 = newLoadable(NamespacedKey.of("l4"));
 
         graph.addConnectedNodes(l1, l0);
         graph.addConnectedNodes(l2, l1);
@@ -36,8 +33,8 @@ class StructureTypeInitializerTest
 
         l1.setLoadFailure(new StructureTypeInitializer.LoadFailure(
             StructureTypeInitializer.LoadFailureType.GENERIC_LOAD_FAILURE,
-            "TestFailure!")
-        );
+            "TestFailure!"
+        ));
         StructureTypeInitializer.propagateLoadFailures(graph, List.of(l0, l1, l2, l3, l4));
         Assertions.assertNull(l0.getLoadFailure());
         Assertions.assertNotNull(l1.getLoadFailure());
@@ -49,23 +46,38 @@ class StructureTypeInitializerTest
     @Test
     void testAddDependenciesToGraph()
     {
+        final String namespace = Constants.PLUGIN_NAME.toLowerCase(Locale.ROOT);
+
         final DirectedAcyclicGraph<StructureTypeInitializer.Loadable> graph = newGraph();
-        final StructureTypeInitializer.Loadable l0 = newLoadable("l0");
-        final StructureTypeInitializer.Loadable l1 = newLoadable("l1");
+        final StructureTypeInitializer.Loadable l0 = newLoadable(NamespacedKey.of("l0"));
+        final StructureTypeInitializer.Loadable l1 = newLoadable(NamespacedKey.of("l1"));
 
         // Base case. No dependencies, so nothing happens.
-        StructureTypeInitializer.addDependenciesToGraph(graph, Map.of("l0", l0, "l1", l1), l1);
-        Mockito.verify(graph, Mockito.never())
+        StructureTypeInitializer.addDependenciesToGraph(
+            graph,
+            Map.of(
+                namespace + ":l0", l0,
+                namespace + ":l1", l1),
+            l1
+        );
+        Mockito
+            .verify(graph, Mockito.never())
             .addConnection(Mockito.any(), (StructureTypeInitializer.Loadable) Mockito.any());
         Assertions.assertNull(l0.getLoadFailure());
         Assertions.assertNull(l1.getLoadFailure());
 
         // Add dependency for l1 on l0.
-        Mockito.when(l1.getStructureTypeInfo().getDependencies())
-            .thenReturn(List.of(new StructureTypeInfo.Dependency("l0", 0, 2)));
+        Mockito
+            .when(l1.getStructureTypeInfo().getDependencies())
+            .thenReturn(List.of(new StructureTypeInfo.Dependency(NamespacedKey.of("l0"), 0, 2)));
 
         // Ensure dependencies not being in the map result in DEPENDENCY_UNAVAILABLE.
-        StructureTypeInitializer.addDependenciesToGraph(graph, Map.of("l1", l1), l1);
+        StructureTypeInitializer.addDependenciesToGraph(
+            graph,
+            Map.of(
+                namespace + ":l1", l1),
+            l1
+        );
         Mockito.verify(graph, Mockito.never())
             .addConnection(Mockito.any(), (StructureTypeInitializer.Loadable) Mockito.any());
         Assertions.assertEquals(
@@ -75,9 +87,17 @@ class StructureTypeInitializerTest
 
         // Ensure dependencies with versions outside the specified range result int DEPENDENCY_UNSUPPORTED_VERSION.
         Mockito.when(l0.getStructureTypeInfo().getVersion()).thenReturn(4);
-        StructureTypeInitializer.addDependenciesToGraph(graph, Map.of("l0", l0, "l1", l1), l1);
+
+        StructureTypeInitializer.addDependenciesToGraph(
+            graph,
+            Map.of(
+                namespace + ":l0", l0,
+                namespace + ":l1", l1),
+            l1
+        );
         Mockito.verify(graph, Mockito.never())
             .addConnection(Mockito.any(), (StructureTypeInitializer.Loadable) Mockito.any());
+
         Assertions.assertEquals(
             StructureTypeInitializer.LoadFailureType.DEPENDENCY_UNSUPPORTED_VERSION,
             l1.getLoadFailure().loadFailuretype()
@@ -85,8 +105,15 @@ class StructureTypeInitializerTest
 
         // Ensure that a valid dependency setup results in a dependency being added to the graph.
         Mockito.when(l0.getStructureTypeInfo().getVersion()).thenReturn(2);
-        StructureTypeInitializer.addDependenciesToGraph(graph, Map.of("l0", l0, "l1", l1), l1);
-        Mockito.verify(graph, Mockito.times(1))
+        StructureTypeInitializer.addDependenciesToGraph(
+            graph,
+            Map.of(
+                namespace + ":l0", l0,
+                namespace + ":l1", l1),
+            l1
+        );
+        Mockito
+            .verify(graph, Mockito.times(1))
             .addConnection(Mockito.any(), (StructureTypeInitializer.Loadable) Mockito.any());
     }
 
@@ -147,52 +174,62 @@ class StructureTypeInitializerTest
         final IStructureTypeClassLoader structureTypeClassLoader = Mockito.mock(IStructureTypeClassLoader.class);
         Mockito.when(structureTypeClassLoader.loadJar(Mockito.any())).thenReturn(true);
 
-        final StructureType dt0 = newStructureType();
-        final StructureType dt1 = newStructureType();
-        final StructureType dt2 = newStructureType();
-        final StructureType dt3 = newStructureType();
-        final StructureType dt4 = newStructureType();
-        final StructureType dt5 = newStructureType();
+        final StructureType dt0 = newStructureType(NamespacedKey.of("i0"));
+        final StructureType dt1 = newStructureType(NamespacedKey.of("i1"));
+        final StructureType dt2 = newStructureType(NamespacedKey.of("i2"));
+        final StructureType dt3 = newStructureType(NamespacedKey.of("i3"));
+        final StructureType dt4 = newStructureType(NamespacedKey.of("i4"));
+        final StructureType dt5 = newStructureType(NamespacedKey.of("i5"));
 
         Mockito.when(structureTypeClassLoader.loadStructureTypeClass(Mockito.anyString()))
             .thenAnswer(invocation ->
                 switch (invocation.getArgument(0, String.class))
                 {
-                    case "i0" -> dt0;
-                    case "i1" -> dt1;
-                    case "i2" -> dt2;
-                    case "i3" -> dt3;
-                    case "i4" -> dt4;
-                    case "i5" -> dt5;
-                    case "i6" -> throw new NoSuchMethodException();
+                    case "com.example.MainClass_i0" -> dt0;
+                    case "com.example.MainClass_i1" -> dt1;
+                    case "com.example.MainClass_i2" -> dt2;
+                    case "com.example.MainClass_i3" -> dt3;
+                    case "com.example.MainClass_i4" -> dt4;
+                    case "com.example.MainClass_i5" -> dt5;
+                    case "com.example.MainClass_i6" -> throw new NoSuchMethodException();
                     default -> throw new IllegalArgumentException(invocation.getArgument(0, String.class));
                 });
 
         // Loads fine
-        final StructureTypeInfo i0 = newStructureTypeInfo("i0");
+        final StructureTypeInfo i0 = newStructureTypeInfo(NamespacedKey.of("i0"));
 
         // Loads fine
-        final StructureTypeInfo i1 = newStructureTypeInfo("i1");
-        Mockito.when(i1.getDependencies()).thenReturn(List.of(new StructureTypeInfo.Dependency("i0", 0, 0)));
+        final StructureTypeInfo i1 = newStructureTypeInfo(NamespacedKey.of("i1"));
+        Mockito
+            .when(i1.getDependencies())
+            .thenReturn(List.of(new StructureTypeInfo.Dependency(NamespacedKey.of("i0"), 0, 0)));
 
         // Won't load, as it depends on i1[10,20], while i1 has version = 0.
-        final StructureTypeInfo i2 = newStructureTypeInfo("i2");
-        Mockito.when(i2.getDependencies()).thenReturn(List.of(new StructureTypeInfo.Dependency("i1", 10, 20)));
+        final StructureTypeInfo i2 = newStructureTypeInfo(NamespacedKey.of("i2"));
+        Mockito
+            .when(i2.getDependencies())
+            .thenReturn(List.of(new StructureTypeInfo.Dependency(NamespacedKey.of("i1"), 10, 20)));
 
         // Loads fine
-        final StructureTypeInfo i3 = newStructureTypeInfo("i3");
-        Mockito.when(i3.getDependencies()).thenReturn(List.of(new StructureTypeInfo.Dependency("i1", 0, 0)));
+        final StructureTypeInfo i3 = newStructureTypeInfo(NamespacedKey.of("i3"));
+        Mockito
+            .when(i3.getDependencies())
+            .thenReturn(List.of(new StructureTypeInfo.Dependency(NamespacedKey.of("i1"), 0, 0)));
 
         // Won't load, as it depends on i2, which didn't load
-        final StructureTypeInfo i4 = newStructureTypeInfo("i4");
-        Mockito.when(i4.getDependencies()).thenReturn(List.of(new StructureTypeInfo.Dependency("i2", 0, 0)));
+        final StructureTypeInfo i4 = newStructureTypeInfo(NamespacedKey.of("i4"));
+        Mockito
+            .when(i4.getDependencies())
+            .thenReturn(List.of(new StructureTypeInfo.Dependency(NamespacedKey.of("i2"), 0, 0)));
 
         // Won't load, as it's dependency does not exist.
-        final StructureTypeInfo i5 = newStructureTypeInfo("i5");
-        Mockito.when(i5.getDependencies()).thenReturn(List.of(new StructureTypeInfo.Dependency("DoesNotExist", 0, 0)));
+        final StructureTypeInfo i5 = newStructureTypeInfo(NamespacedKey.of("i5"));
+        Mockito
+            .when(i5.getDependencies())
+            .thenReturn(List.of(new StructureTypeInfo.Dependency(NamespacedKey.of("DoesNotExist"), 0, 0)));
 
         // Won't load, as the StructureTypeClassLoader will throw a NoSuchMethodException.
-        final StructureTypeInfo i6 = newStructureTypeInfo("i6");
+        final StructureTypeInfo i6 = newStructureTypeInfo(NamespacedKey.of("i6"));
 
         final StructureTypeInitializer structureTypeInitializer = new StructureTypeInitializer(
             List.of(i0, i1, i2, i3, i4, i5, i6),
@@ -208,31 +245,31 @@ class StructureTypeInitializerTest
         return Mockito.mock();
     }
 
-    private static StructureType newStructureType()
+    private static StructureType newStructureType(NamespacedKey structureKey)
     {
         final StructureType structureType = Mockito.mock();
-        Mockito.when(structureType.getSimpleName()).thenReturn("");
+        Mockito.when(structureType.getNamespacedKey()).thenReturn(structureKey);
+        Mockito.when(structureType.getFullKey()).thenReturn(structureKey.getFullKey());
+        Mockito.when(structureType.getSimpleName()).thenReturn(structureKey.getKey());
         //noinspection unchecked
         Mockito.when(structureType.getStructureSerializer()).thenReturn(Mockito.mock(StructureSerializer.class));
         return structureType;
     }
 
-    private static StructureTypeInitializer.Loadable newLoadable(String name)
+    private static StructureTypeInitializer.Loadable newLoadable(NamespacedKey key)
     {
-        return new StructureTypeInitializer.Loadable(newStructureTypeInfo(name));
+        return new StructureTypeInitializer.Loadable(newStructureTypeInfo(key));
     }
 
-    private static StructureTypeInfo newStructureTypeInfo(String name)
+    private static StructureTypeInfo newStructureTypeInfo(NamespacedKey key)
     {
-        final var key = new NamespacedKey(NAMESPACE, name);
-
-        final StructureTypeInfo info = Mockito.mock();
-        Mockito.when(info.getNamespacedKey()).thenReturn(key);
-        Mockito.when(info.getFullKey()).thenReturn(key.getFullKey());
-        Mockito.when(info.getMainClass()).thenReturn(name);
-        Mockito.when(info.getDependencies()).thenReturn(Collections.emptyList());
-        Mockito.when(info.getVersion()).thenReturn(0);
-        Mockito.when(info.toString()).thenReturn("StructureTypeInfo{" + name + "}");
-        return info;
+        return Mockito.spy(new StructureTypeInfo(
+            key,
+            0,
+            "com.example.MainClass_" + key.getKey(),
+            Path.of("does/not/exist.jar"),
+            "1.2.3",
+            ""
+        ));
     }
 }

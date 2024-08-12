@@ -29,22 +29,22 @@ class StructureTypeInfoTest
         final Path jarFile = Path.of("/does/not/exist.jar");
 
         Assertions.assertDoesNotThrow(() ->
-            new StructureTypeInfo(newKey(typeName), version, mainClass, jarFile, "1.0.0", ""));
+            new StructureTypeInfo(NamespacedKey.of(typeName), version, mainClass, jarFile, "1.0.0", ""));
 
         Assertions.assertDoesNotThrow(() ->
-            new StructureTypeInfo(newKey(typeName), version, mainClass, jarFile, "1.0.0", null));
+            new StructureTypeInfo(NamespacedKey.of(typeName), version, mainClass, jarFile, "1.0.0", null));
 
         Assertions.assertDoesNotThrow(() ->
-            new StructureTypeInfo(newKey(typeName), version, mainClass, jarFile, "1.0.0", "null"));
+            new StructureTypeInfo(NamespacedKey.of(typeName), version, mainClass, jarFile, "1.0.0", "null"));
 
         Assertions.assertThrows(
             IllegalArgumentException.class,
-            () -> new StructureTypeInfo(newKey(typeName), version, mainClass, jarFile, "1.0.0", "garbage"));
+            () -> new StructureTypeInfo(NamespacedKey.of(typeName), version, mainClass, jarFile, "1.0.0", "garbage"));
 
         // The name of the structure type should be lower-case.
         Assertions.assertEquals(
             "animatedarchitecture:typename",
-            new StructureTypeInfo(newKey(typeName), version, mainClass, jarFile, "1.0.0", "").getFullKey()
+            new StructureTypeInfo(NamespacedKey.of(typeName), version, mainClass, jarFile, "1.0.0", "").getFullKey()
         );
     }
 
@@ -61,17 +61,17 @@ class StructureTypeInfoTest
         assertEquals(3, dependencies.size());
 
         var dep = dependencies.getFirst();
-        assertEquals("animatedarchitecture:portcullis", dep.dependencyName());
+        assertEquals("animatedarchitecture:portcullis", dep.getFullKey());
         assertEquals(1, dep.minVersion());
         assertEquals(5, dep.maxVersion());
 
         dep = dependencies.get(1);
-        assertEquals("animatedarchitecture:door", dep.dependencyName());
+        assertEquals("animatedarchitecture:door", dep.getFullKey());
         assertEquals(2, dep.minVersion());
         assertEquals(3, dep.maxVersion());
 
         dep = dependencies.get(2);
-        assertEquals("animatedarchitecture:my-super_special-dependency", dep.dependencyName());
+        assertEquals("animatedarchitecture:my-super_special-dependency", dep.getFullKey());
         assertEquals(1, dep.minVersion());
         assertEquals(1, dep.maxVersion());
     }
@@ -81,7 +81,7 @@ class StructureTypeInfoTest
     {
         var dependency = parseDependency("animatedarchitecture:portcullis(1;5)");
 
-        assertEquals("animatedarchitecture:portcullis", dependency.dependencyName());
+        assertEquals("animatedarchitecture:portcullis", dependency.getFullKey());
         assertEquals(1, dependency.minVersion());
         assertEquals(5, dependency.maxVersion());
     }
@@ -202,7 +202,9 @@ class StructureTypeInfoTest
     void testDependencySatisfiedBy()
     {
         final String dependencyName = "structure-type";
-        final Dependency dependency = new Dependency(dependencyName, 1, 2);
+        final var key = NamespacedKey.of(dependencyName);
+
+        final Dependency dependency = new Dependency(key.getFullKey(), 1, 2);
 
         Assertions.assertTrue(dependency.satisfiedBy(structureTypeInfo(1, dependencyName)));
         Assertions.assertTrue(dependency.satisfiedBy(structureTypeInfo(2, dependencyName)));
@@ -220,7 +222,7 @@ class StructureTypeInfoTest
         final int version = 1;
 
         final StructureTypeInfo structureTypeInfo = new StructureTypeInfo(
-            newKey(typeName),
+            NamespacedKey.of(typeName),
             version,
             "com.example.Main",
             Path.of("/does/not/exist.jar"),
@@ -278,18 +280,6 @@ class StructureTypeInfoTest
         Mockito.when(structureType.getFullKey()).thenReturn(key.getFullKey());
         Mockito.when(structureType.getFullNameWithVersion()).thenReturn(key.getFullKey() + ":" + version);
         return structureType;
-    }
-
-    /**
-     * Creates a new {@link NamespacedKey} with the given name in the {@link #NAMESPACE} namespace.
-     *
-     * @param name
-     *     The name of the key.
-     * @return The created {@link NamespacedKey}.
-     */
-    private static NamespacedKey newKey(String name)
-    {
-        return new NamespacedKey(NAMESPACE, name);
     }
 
     /**
