@@ -1,11 +1,15 @@
 package nl.pim16aap2.animatedarchitecture.core.extensions;
 
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Locale;
 
 import static nl.pim16aap2.animatedarchitecture.core.extensions.StructureTypeInfo.Dependency;
 import static nl.pim16aap2.animatedarchitecture.core.extensions.StructureTypeInfo.parseDependency;
@@ -16,28 +20,29 @@ class StructureTypeInfoTest
     @Test
     void testConstructor()
     {
+        final String namespace = Constants.PLUGIN_NAME;
         final String typeName = "typeName";
         final int version = 1;
         final String mainClass = "com.example.Main";
         final Path jarFile = Path.of("/does/not/exist.jar");
 
         Assertions.assertDoesNotThrow(() ->
-            new StructureTypeInfo(typeName, version, mainClass, jarFile, "1.0.0", ""));
+            new StructureTypeInfo(namespace, typeName, version, mainClass, jarFile, "1.0.0", ""));
 
         Assertions.assertDoesNotThrow(() ->
-            new StructureTypeInfo(typeName, version, mainClass, jarFile, "1.0.0", null));
+            new StructureTypeInfo(namespace, typeName, version, mainClass, jarFile, "1.0.0", null));
 
         Assertions.assertDoesNotThrow(() ->
-            new StructureTypeInfo(typeName, version, mainClass, jarFile, "1.0.0", "null"));
+            new StructureTypeInfo(namespace, typeName, version, mainClass, jarFile, "1.0.0", "null"));
 
         Assertions.assertThrows(
             IllegalArgumentException.class,
-            () -> new StructureTypeInfo(typeName, version, mainClass, jarFile, "1.0.0", "garbage"));
+            () -> new StructureTypeInfo(namespace, typeName, version, mainClass, jarFile, "1.0.0", "garbage"));
 
         // The name of the structure type should be lower-case.
         Assertions.assertEquals(
             "typename",
-            new StructureTypeInfo(typeName, version, mainClass, jarFile, "1.0.0", "").getTypeName()
+            new StructureTypeInfo(namespace, typeName, version, mainClass, jarFile, "1.0.0", "").getTypeName()
         );
     }
 
@@ -162,6 +167,68 @@ class StructureTypeInfoTest
         Assertions.assertFalse(dependency.satisfiedBy(structureTypeInfo(2, "another-" + dependencyName)));
     }
 
+    @Test
+    void verifyLoadedType()
+    {
+        final String namespace = Constants.PLUGIN_NAME.toLowerCase(Locale.ROOT);
+        final String typeName = "typename";
+        final int version = 1;
+
+        final StructureTypeInfo structureTypeInfo = new StructureTypeInfo(
+            namespace,
+            typeName,
+            version,
+            "com.example.Main",
+            Path.of("/does/not/exist.jar"),
+            "1.0.0",
+            null
+        );
+
+        Assertions.assertDoesNotThrow(() ->
+            structureTypeInfo.verifyLoadedType(mockStructureType(namespace, typeName, version)));
+
+        Assertions.assertThrows(
+            IllegalArgumentException.class,
+            () -> structureTypeInfo.verifyLoadedType(mockStructureType(namespace + "_fail", typeName, version))
+        );
+
+        Assertions.assertThrows(
+            IllegalArgumentException.class,
+            () -> structureTypeInfo.verifyLoadedType(mockStructureType(namespace, typeName + "_fail", version))
+        );
+
+        Assertions.assertThrows(
+            IllegalArgumentException.class,
+            () -> structureTypeInfo.verifyLoadedType(mockStructureType(namespace, typeName, version + 1))
+        );
+    }
+
+    /**
+     * Mocks a {@link StructureType} with the given namespace, type name, and version.
+     *
+     * @param namespace
+     *     The namespace of the structure type.
+     * @param typeName
+     *     The name of the structure type.
+     * @param version
+     *     The version of the structure type.
+     * @return The mocked {@link StructureType}.
+     */
+    private StructureType mockStructureType(
+        String namespace,
+        String typeName,
+        int version)
+    {
+        final StructureType structureType = Mockito.mock();
+        Mockito.when(structureType.getStructureSerializer()).thenReturn(Mockito.mock());
+        Mockito.when(structureType.getPluginName()).thenReturn(namespace);
+        Mockito.when(structureType.getSimpleName()).thenReturn(typeName);
+        Mockito.when(structureType.getVersion()).thenReturn(version);
+        Mockito.when(structureType.getFullName()).thenReturn(namespace + ":" + typeName);
+        Mockito.when(structureType.getFullNameWithVersion()).thenReturn(namespace + ":" + typeName + ":" + version);
+        return structureType;
+    }
+
     /**
      * Shortcut method for {@link StructureTypeInfo#parseDependencies(String, String)}. The name of the structure type
      * is set to "TestType" (which is only used for logging).
@@ -189,6 +256,7 @@ class StructureTypeInfoTest
     private StructureTypeInfo structureTypeInfo(int version, String name)
     {
         return new StructureTypeInfo(
+            Constants.PLUGIN_NAME,
             name,
             version,
             "com.example.Main",

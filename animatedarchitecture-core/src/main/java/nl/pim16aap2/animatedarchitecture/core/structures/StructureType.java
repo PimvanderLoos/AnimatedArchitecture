@@ -109,7 +109,7 @@ public abstract class StructureType
         List<MovementDirection> validMovementDirections,
         String localizationKey)
     {
-        this.pluginName = pluginName;
+        this.pluginName = pluginName.toLowerCase(Locale.ENGLISH);
         this.simpleName = simpleName.toLowerCase(Locale.ENGLISH);
         this.version = version;
         this.validMovementDirections =

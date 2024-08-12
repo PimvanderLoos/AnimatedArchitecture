@@ -3,6 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.extensions;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
@@ -132,6 +133,37 @@ final class StructureTypeInfo
         this.jarFile = jarFile;
         this.supportedApiVersions = supportedApiVersions;
         this.dependencies = parseDependencies(dependencies, typeName);
+    }
+
+    /**
+     * Verifies that the loaded structure type is the same as the one described by this {@link StructureTypeInfo}.
+     *
+     * @param structureType
+     *     The loaded structure type.
+     * @throws IllegalArgumentException
+     *     If the loaded structure type does not match the structure type described by this {@link StructureTypeInfo}.
+     */
+    public void verifyLoadedType(StructureType structureType)
+    {
+        if (!structureType.getSimpleName().equals(typeName))
+            throw new IllegalArgumentException(
+                "Expected structure type to have name '" + typeName +
+                    "' but was '" + structureType.getSimpleName() + "'."
+            );
+
+        if (!structureType.getPluginName().equals(namespace))
+            throw new IllegalArgumentException(
+                "Expected structure type '" + typeName +
+                    "' to have namespace '" + namespace +
+                    "' but was '" + structureType.getPluginName() + "'."
+            );
+
+        if (structureType.getVersion() != version)
+            throw new IllegalArgumentException(
+                "Expected structure type '" + typeName +
+                    "' to have version '" + version +
+                    "' but was '" + structureType.getVersion() + "'."
+            );
     }
 
     /**

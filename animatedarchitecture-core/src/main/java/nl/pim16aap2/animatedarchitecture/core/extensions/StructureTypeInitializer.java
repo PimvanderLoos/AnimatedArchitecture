@@ -199,6 +199,7 @@ final class StructureTypeInitializer
             structureType = structureTypeClassLoader.loadStructureTypeClass(structureTypeInfo.getMainClass());
             // Retrieve the serializer to ensure that it could be initialized successfully.
             structureType.getStructureSerializer();
+            structureTypeInfo.verifyLoadedType(structureType);
         }
         catch (NoSuchMethodException e)
         {
