@@ -1,6 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.core.util;
 
 import lombok.extern.flogger.Flogger;
+import lombok.val;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -13,8 +15,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.ProviderNotFoundException;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 /**
@@ -170,7 +176,7 @@ public final class FileUtil
         {
             return Path.of(clz.getProtectionDomain().getCodeSource().getLocation().toURI());
         }
-        catch (IllegalArgumentException | URISyntaxException e)
+        catch (Exception e)
         {
             throw new RuntimeException("Failed to find jar file for class: " + clz, e);
         }
@@ -202,5 +208,35 @@ public final class FileUtil
         {
             throw new RuntimeException("Failed to create new filesystem: '" + uri + "'", e);
         }
+    }
+
+    /**
+     * Gets the names of all files inside a jar that match a certain pattern.
+     *
+     * @param jarFile
+     *     The jar file to search in.
+     * @param pattern
+     *     The pattern to match the file names against.
+     * @return The names of all files in the jar that match the pattern.
+     *
+     * @throws IOException
+     *     If an I/O error occurs.
+     */
+    public static List<String> getFilesInJar(Path jarFile, Pattern pattern)
+        throws IOException
+    {
+        final List<String> ret = new ArrayList<>();
+
+        try (val zipInputStream = new ZipInputStream(Files.newInputStream(jarFile)))
+        {
+            @Nullable ZipEntry entry;
+            while ((entry = zipInputStream.getNextEntry()) != null)
+            {
+                final var name = entry.getName();
+                if (pattern.matcher(name).matches())
+                    ret.add(name);
+            }
+        }
+        return ret;
     }
 }

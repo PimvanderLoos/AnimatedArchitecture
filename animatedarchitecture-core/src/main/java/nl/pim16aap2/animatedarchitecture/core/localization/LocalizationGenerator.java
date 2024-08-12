@@ -125,7 +125,16 @@ final class LocalizationGenerator implements ILocalizationGenerator
     public void addResourcesFromClass(List<Class<?>> classes)
     {
         for (final Class<?> clz : classes)
-            addResourcesFromClass(clz, null);
+        {
+            try
+            {
+                addResourcesFromClass(clz, null);
+            }
+            catch (Throwable t)
+            {
+                log.atSevere().withCause(t).log("Failed to load resources from class: %s", clz);
+            }
+        }
     }
 
     /**

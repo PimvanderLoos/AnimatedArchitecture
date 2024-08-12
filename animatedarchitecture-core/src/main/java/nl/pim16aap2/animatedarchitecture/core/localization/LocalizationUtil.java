@@ -1,7 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.localization;
 
 import lombok.extern.flogger.Flogger;
-import lombok.val;
 import nl.pim16aap2.animatedarchitecture.core.util.FileUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import org.jetbrains.annotations.Nullable;
@@ -27,8 +26,6 @@ import java.util.TreeMap;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 /**
  * Represents a utility class with methods that can be used for the localization system.
@@ -68,19 +65,7 @@ public final class LocalizationUtil
     public static List<String> getLocaleFilesInJar(Path jarFile)
         throws IOException
     {
-        final List<String> ret = new ArrayList<>();
-
-        try (val zipInputStream = new ZipInputStream(Files.newInputStream(jarFile)))
-        {
-            @Nullable ZipEntry entry;
-            while ((entry = zipInputStream.getNextEntry()) != null)
-            {
-                final var name = entry.getName();
-                if (LOCALE_FILE_PATTERN.matcher(name).matches())
-                    ret.add(name);
-            }
-        }
-        return ret;
+        return FileUtil.getFilesInJar(jarFile, LOCALE_FILE_PATTERN);
     }
 
     /**
