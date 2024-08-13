@@ -139,7 +139,25 @@ public final class Property<T> implements IKeyed
         PropertyScope.ANIMATION
     );
 
-    private Property(NamespacedKey namespacedKey, Class<T> type, @Nullable T defaultValue, PropertyScope... scopes)
+    /**
+     * Creates a new property.
+     *
+     * @param namespacedKey
+     *     The namespace and key of the property.
+     * @param type
+     *     The type of the property.
+     * @param defaultValue
+     *     The default value of the property.
+     *     <p>
+     *     This is the value that will be used if a structure whose type has this property does not have a value set for
+     *     this property.
+     * @param scopes
+     *     The scopes in which this property is used.
+     *     <p>
+     *     This is used to prevent side effects of changing the property value. For example, clearing cached values
+     *     related to the property, such as the animation range when changing the blocks to move.
+     */
+    public Property(NamespacedKey namespacedKey, Class<T> type, @Nullable T defaultValue, PropertyScope... scopes)
     {
         this.namespacedKey = namespacedKey;
         this.type = type;
@@ -153,7 +171,7 @@ public final class Property<T> implements IKeyed
     }
 
     /**
-     * Creates a new property in the default namespace with the given name, type, and default value.
+     * Creates a new property.
      *
      * @param name
      *     The name of the property.
@@ -168,26 +186,33 @@ public final class Property<T> implements IKeyed
     }
 
     /**
-     * Creates a new property with the given owner, name, type, and default value.
+     * Creates a new property.
      *
      * @param owner
      *     The name of the plugin that owns this property. This is used to prevent conflicts between properties between
      *     different plugins.
      *     <p>
      *     All properties supplied by this plugin are set to {@link Constants#PLUGIN_NAME}.
+     *     <p>
+     *     Properties from other plugins should use the name of the plugin that owns the property.
      * @param name
      *     The name of the property that is used for serialization.
      * @param type
      *     The type of the property.
      * @param defaultValue
-     *     The default value of the property. If the property owner is the same as the plugin name. See
-     *     {@link Constants#PLUGIN_NAME}.
+     *     The default value of the property.
      *     <p>
-     *     This is to prevent conflicts between properties between different plugins.
+     *     This is the value that will be used if a structure whose type has this property does not have a value set for
+     *     this property.
+     * @param scopes
+     *     The scopes in which this property is used.
+     *     <p>
+     *     This is used to prevent side effects of changing the property value. For example, clearing cached values
+     *     related to the property, such as the animation range when changing the blocks to move.
      */
     public Property(String owner, String name, Class<T> type, @Nullable T defaultValue, PropertyScope... scopes)
     {
-        this(serializationName(owner, name), type, defaultValue, scopes);
+        this(new NamespacedKey(owner, name), type, defaultValue, scopes);
     }
 
     /**
@@ -243,26 +268,6 @@ public final class Property<T> implements IKeyed
     public static @Nullable Property<?> fromName(String propertyKey)
     {
         return REGISTERED_PROPERTIES.get(propertyKey);
-    }
-
-    /**
-     * Creates a new {@link NamespacedKey} with the given owner and name.
-     *
-     * @param owner
-     *     The name of the plugin that owns this property. This is used to prevent conflicts between properties between
-     *     different plugins.
-     *     <p>
-     *     All properties supplied by this plugin are set to {@link Constants#PLUGIN_NAME}.
-     * @param name
-     *     The name of the property that is used for serialization.
-     * @throws IllegalArgumentException
-     *     If the owner is the same as the plugin name.
-     */
-    private static NamespacedKey serializationName(String owner, String name)
-    {
-        if (Constants.PLUGIN_NAME.equals(owner))
-            throw new IllegalArgumentException("Owner cannot be the same as the plugin name.");
-        return new NamespacedKey(owner, name);
     }
 
     /**
