@@ -136,7 +136,7 @@ public class ChunkListener extends AbstractListener
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log();
+            log.atSevere().withCause(e).log("Failed to abort BlockMovers in chunk %s", chunkCoords);
         }
     }
 

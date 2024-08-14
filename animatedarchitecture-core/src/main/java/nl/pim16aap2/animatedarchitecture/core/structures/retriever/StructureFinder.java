@@ -596,9 +596,9 @@ public final class StructureFinder
             .exceptionally(t ->
             {
                 // It can happen that the searcher was cancelled because it received incompatible
-                // input before finishing. This isn't important.
+                // input before finishing. That isn't important.
                 final Level lvl = t.getCause() instanceof CancellationException ? Level.FINEST : Level.SEVERE;
-                log.at(lvl).withCause(t).log();
+                log.at(lvl).withCause(t).log("Failed to update search cache for input '%s'", input);
                 return null;
             });
     }

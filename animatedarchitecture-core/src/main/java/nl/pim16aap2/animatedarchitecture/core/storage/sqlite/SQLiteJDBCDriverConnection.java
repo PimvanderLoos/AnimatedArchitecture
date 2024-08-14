@@ -443,7 +443,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         }
         catch (Exception t)
         {
-            log.atSevere().withCause(t).log();
+            log.atSevere().withCause(t).log("Failed to insert structure: %s", structure);
         }
         log.atSevere().withStackTrace(StackSize.FULL).log("Failed to insert structure: %s", structure);
         return Optional.empty();
