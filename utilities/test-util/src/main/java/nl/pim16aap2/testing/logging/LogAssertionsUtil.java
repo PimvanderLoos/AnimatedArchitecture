@@ -140,7 +140,7 @@ public final class LogAssertionsUtil
                 position,
                 logEvent.getMessage(),
                 comparisonMethod,
-                formatLogEvents(logEvents, 10))
+                formatLogEvents(logEvents, position < 0 ? -10 : 10))
             );
     }
 

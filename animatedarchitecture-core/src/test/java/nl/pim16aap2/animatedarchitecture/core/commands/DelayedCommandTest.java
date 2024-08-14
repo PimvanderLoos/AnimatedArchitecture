@@ -129,7 +129,7 @@ class DelayedCommandTest
         LogAssertionsUtil.assertLogged(
             logCaptor,
             -1,
-            "Failed to executed delayed command ",
+            "Failed to execute delayed command ",
             LogAssertionsUtil.MessageComparisonMethod.STARTS_WITH
         );
     }
