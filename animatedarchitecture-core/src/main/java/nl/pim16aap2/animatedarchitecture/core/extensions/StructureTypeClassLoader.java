@@ -28,7 +28,7 @@ final class StructureTypeClassLoader extends URLClassLoader implements IStructur
         }
         catch (Exception e)
         {
-            log.atWarning().withCause(e).log();
+            log.atWarning().withCause(e).log("Failed to load jar '%s' into StructureTypeClassLoader.", file);
             return false;
         }
         return true;

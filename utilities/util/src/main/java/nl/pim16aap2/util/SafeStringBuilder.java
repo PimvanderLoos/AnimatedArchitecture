@@ -52,7 +52,7 @@ public final class SafeStringBuilder implements CharSequence, Appendable, Serial
         }
         catch (Throwable t)
         {
-            log.atSevere().withCause(t).log();
+            log.atSevere().withCause(t).log("Failed to append supplied object to SafeStringBuilder.");
             sb.append("ERROR!");
             return this;
         }
@@ -74,7 +74,7 @@ public final class SafeStringBuilder implements CharSequence, Appendable, Serial
         }
         catch (Throwable t)
         {
-            log.atSevere().withCause(t).log();
+            log.atSevere().withCause(t).log("Failed to append supplied char sequence to SafeStringBuilder.");
             sb.append("ERROR!");
             return this;
         }
@@ -102,7 +102,7 @@ public final class SafeStringBuilder implements CharSequence, Appendable, Serial
         }
         catch (Throwable t)
         {
-            log.atSevere().withCause(t).log();
+            log.atSevere().withCause(t).log("Failed to append supplied object to SafeStringBuilder.");
             obj = "ERROR";
         }
         return appendIndented(indent, obj);
@@ -120,7 +120,7 @@ public final class SafeStringBuilder implements CharSequence, Appendable, Serial
         }
         catch (Throwable t)
         {
-            log.atSevere().withCause(t).log();
+            log.atSevere().withCause(t).log("Failed to append indented object to SafeStringBuilder.");
         }
         return this;
     }

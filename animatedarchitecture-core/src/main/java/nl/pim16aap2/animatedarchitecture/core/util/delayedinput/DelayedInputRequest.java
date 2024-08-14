@@ -26,9 +26,11 @@ import java.util.concurrent.locks.ReentrantLock;
 @EqualsAndHashCode
 public class DelayedInputRequest<T>
 {
-    @ToString.Exclude @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private final Lock lock = new ReentrantLock();
-    @ToString.Exclude @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private final Condition inputCondition = lock.newCondition();
 
     /**
@@ -128,7 +130,7 @@ public class DelayedInputRequest<T>
             .exceptionally(
                 ex ->
                 {
-                    log.atSevere().withCause(ex).log();
+                    log.atSevere().withCause(ex).log("Exception occurred while waiting for input.");
                     exceptionally = true;
                     return Optional.empty();
                 });

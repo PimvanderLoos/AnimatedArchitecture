@@ -114,7 +114,7 @@ public final class FutureUtil
     @Contract("_, !null -> !null")
     public @Nullable <T> T exceptionally(Throwable throwable, @Nullable T fallback)
     {
-        log.atSevere().withCause(throwable).log();
+        log.atSevere().withCause(throwable).log("Exception occurred in CompletableFuture");
         return fallback;
     }
 

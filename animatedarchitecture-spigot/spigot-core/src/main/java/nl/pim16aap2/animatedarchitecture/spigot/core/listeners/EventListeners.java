@@ -102,7 +102,7 @@ public class EventListeners extends AbstractListener
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log();
+            log.atSevere().withCause(e).log("Failed to update player %s", event.getPlayer().getName());
         }
     }
 
@@ -118,13 +118,17 @@ public class EventListeners extends AbstractListener
         try
         {
             final Player player = event.getPlayer();
-            delayedCommandInputManager.cancelAll(SpigotAdapter.wrapPlayer(player));
+            final var wrappedPlayer = SpigotAdapter.wrapPlayer(player);
+            delayedCommandInputManager.cancelAll(wrappedPlayer);
             toolUserManager.abortToolUser(player.getUniqueId());
-            databaseManager.updatePlayer(SpigotAdapter.wrapPlayer(player)).exceptionally(FutureUtil::exceptionally);
+            databaseManager.updatePlayer(wrappedPlayer).exceptionally(FutureUtil::exceptionally);
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log();
+            log.atSevere().withCause(e).log(
+                "Encountered an error while cleaning up after player %s",
+                event.getPlayer().getName()
+            );
         }
     }
 
@@ -164,7 +168,7 @@ public class EventListeners extends AbstractListener
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log();
+            log.atSevere().withCause(e).log("Encountered an error while handling a PlayerDropItemEvent");
         }
     }
 
@@ -203,7 +207,7 @@ public class EventListeners extends AbstractListener
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log();
+            log.atSevere().withCause(e).log("Encountered an error while handling an InventoryClickEvent");
         }
     }
 
@@ -227,7 +231,7 @@ public class EventListeners extends AbstractListener
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log();
+            log.atSevere().withCause(e).log("Encountered an error while handling an InventoryDragEvent");
         }
     }
 
@@ -258,7 +262,7 @@ public class EventListeners extends AbstractListener
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log();
+            log.atSevere().withCause(e).log("Encountered an error while handling an InventoryMoveItemEvent");
         }
     }
 }

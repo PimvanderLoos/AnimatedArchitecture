@@ -152,7 +152,7 @@ public final class ExecutorSpigot implements IExecutor
             }
             catch (Exception e)
             {
-                log.atSevere().withCause(e).log();
+                log.atSevere().withCause(e).log("Encountered an exception while executing a runnable.");
             }
         };
     }
@@ -170,7 +170,7 @@ public final class ExecutorSpigot implements IExecutor
                 }
                 catch (Exception e)
                 {
-                    log.atSevere().withCause(e).log();
+                    log.atSevere().withCause(e).log("Encountered an exception while executing a timer task.");
                 }
             }
         };
@@ -186,7 +186,7 @@ public final class ExecutorSpigot implements IExecutor
             }
             catch (Exception e)
             {
-                log.atSevere().withCause(e).log();
+                log.atSevere().withCause(e).log("Encountered an exception while executing a supplier.");
                 throw new RuntimeException(e);
             }
         };

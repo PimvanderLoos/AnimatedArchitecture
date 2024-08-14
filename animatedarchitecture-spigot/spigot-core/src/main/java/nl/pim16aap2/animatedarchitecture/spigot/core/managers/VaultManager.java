@@ -323,7 +323,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log();
+            log.atSevere().withCause(e).log("Failed to initialize economy!");
             return null;
         }
     }

@@ -100,7 +100,7 @@ public class AnimatedPreviewBlockContainer implements IAnimatedBlockContainer
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log();
+            log.atSevere().withCause(e).log("Failed to create animated blocks.");
             this.privateAnimatedBlocks.addAll(animatedBlocksTmp);
             return false;
         }

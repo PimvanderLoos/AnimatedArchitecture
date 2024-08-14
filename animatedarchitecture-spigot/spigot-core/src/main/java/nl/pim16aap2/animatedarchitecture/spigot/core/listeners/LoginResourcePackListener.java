@@ -58,7 +58,7 @@ public class LoginResourcePackListener extends AbstractListener
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log();
+            log.atSevere().withCause(e).log("Failed to send resource pack to player %s", event.getPlayer().getName());
         }
     }
 
