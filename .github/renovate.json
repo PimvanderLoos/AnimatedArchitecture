@@ -20,18 +20,22 @@
         "it.unimi.dsi:fastutil",
         "net.bytebuddy:byte-buddy",
         "net.kyori:adventure-api",
+        "net.kyori:adventure-platform-bukkit",
         "net.sourceforge.pmd:pmd-core",
         "net.sourceforge.pmd:pmd-java",
         "org.apache.logging.log4j:log4j-core",
         "org.eclipse.jdt:org.eclipse.jdt.annotation",
+        "org.flywaydb:flyway-core",
         "org.jacoco:jacoco-maven-plugin",
         "org.jetbrains:annotations",
         "org.junit.jupiter:junit-jupiter-api",
         "org.junit.jupiter:junit-jupiter-engine",
+        "org.junit.jupiter:junit-jupiter-params",
         "org.mockito:mockito-core",
         "org.mockito:mockito-junit-jupiter",
         "org.projectlombok:lombok",
-        "org.slf4j:slf4j-api"
+        "org.slf4j:slf4j-api",
+        "org.xerial:sqlite-jdbc"
       ],
       "packagePatterns": [
         "^org\\.apache\\.maven\\.plugins:.*"
