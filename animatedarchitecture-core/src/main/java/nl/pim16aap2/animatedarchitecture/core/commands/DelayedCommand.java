@@ -143,7 +143,7 @@ public abstract class DelayedCommand<T>
             catch (Exception e)
             {
                 log.atSevere().withCause(e).log(
-                    "Failed to executed delayed command '%s' for command sender '%s' with input '%s'",
+                    "Failed to execute delayed command '%s' for command sender '%s' with input '%s'",
                     this,
                     commandSender,
                     delayedInput

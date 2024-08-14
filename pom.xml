@@ -362,6 +362,7 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${dependency.surefire.version}</version>
                     <configuration>
+                        <forkCount>1</forkCount>
                         <trimStackTrace>false</trimStackTrace>
                         <useFile>false</useFile>
                         <systemPropertyVariables>
