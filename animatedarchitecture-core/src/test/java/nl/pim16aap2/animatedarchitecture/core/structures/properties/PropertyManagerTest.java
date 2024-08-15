@@ -157,6 +157,32 @@ class PropertyManagerTest
     }
 
     @Test
+    void testSetValidUntypedPropertyValue()
+    {
+        Assertions.assertDoesNotThrow(
+            () -> propertyManager.setUntypedPropertyValue(PROPERTY_STRING, "value")
+        );
+    }
+
+    @Test
+    void testSetInvalidUntypedPropertyValue()
+    {
+        Assertions.assertThrows(
+            IllegalArgumentException.class,
+            () -> propertyManager.setUntypedPropertyValue(PROPERTY_STRING, new Object())
+        );
+    }
+
+    @Test
+    void testSetMissingUntypedPropertyValue()
+    {
+        Assertions.assertThrows(
+            IllegalArgumentException.class,
+            () -> propertyManager.setUntypedPropertyValue(PROPERTY_UNSET, new Object())
+        );
+    }
+
+    @Test
     void testValidMapUntypedValue()
     {
         Assertions.assertDoesNotThrow(

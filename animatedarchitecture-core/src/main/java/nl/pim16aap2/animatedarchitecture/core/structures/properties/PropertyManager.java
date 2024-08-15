@@ -97,7 +97,7 @@ public final class PropertyManager implements IPropertyHolder, IPropertyManagerC
     /**
      * Sets the value of the given property without type checking.
      * <p>
-     * If possible, consider using {@link #setUntypedPropertyValue(Property, Object)} instead for better type safety.
+     * If possible, consider using {@link #setPropertyValue(Property, Object)} instead for better type safety.
      *
      * @param property
      *     The property to set the value for.
