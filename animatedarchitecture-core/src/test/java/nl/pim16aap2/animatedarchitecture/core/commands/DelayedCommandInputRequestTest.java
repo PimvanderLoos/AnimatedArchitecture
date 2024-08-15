@@ -48,6 +48,7 @@ class DelayedCommandInputRequestTest
     {
         localizer = UnitTestUtil.initLocalizer();
         delayedCommandInputManager = new DelayedCommandInputManager(Mockito.mock(DebuggableRegistry.class));
+        Mockito.when(commandDefinition.getName()).thenReturn("MockedCommand");
     }
 
     @Test
@@ -124,7 +125,8 @@ class DelayedCommandInputRequestTest
             logCaptor,
             -1,
             null,
-            CompletionException.class, null,
+            CompletionException.class,
+            null,
             IllegalArgumentException.class,
             String.format("DelayedInput[uuid=%s, string=%s]", uuid, providedInput)
         );
