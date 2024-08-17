@@ -32,6 +32,13 @@ import java.util.stream.Collectors;
 @WithLogCapture
 public class PropertyManagerSerializerTest
 {
+    private static final Property<Integer> PROPERTY_UNSET = new Property<>(
+        "external",
+        "unset_property",
+        Integer.class,
+        5
+    );
+
     @Mock
     private StructureType structureType;
     private PropertyManager propertyManager;
@@ -57,6 +64,19 @@ public class PropertyManagerSerializerTest
     @Test
     void testSerializationCycle()
     {
+        final String serialized = PropertyManagerSerializer.serialize(propertyManager);
+
+        Assertions.assertEquals(
+            propertyManager,
+            PropertyManagerSerializer.deserialize(structureType, serialized)
+        );
+    }
+
+    @Test
+    void testSerializationCycleWithNonTypeDefinedProperties()
+    {
+        propertyManager.setPropertyValue(PROPERTY_UNSET, 7);
+
         final String serialized = PropertyManagerSerializer.serialize(propertyManager);
 
         Assertions.assertEquals(
@@ -119,16 +139,11 @@ public class PropertyManagerSerializerTest
         Assertions.assertEquals(1, entries.size());
     }
 
-    // Test that for unsupported properties in the JSON String the following happens:
-    // 1) A 'severe' log message is logged about the value being discarded.
-    // 2) The property is not added to the property map.
     @Test
-    void testUnsupportedProperties(LogCaptor logCaptor)
+    void testNonDefaultProperties()
     {
-        final Property<Integer> unsupportedProperty = new Property<>("test", "UNSUPPORTED_PROPERTY", Integer.class, 0);
-
         final var mapWithUnsupportedProperty = new HashMap<>(intermediateMap);
-        mapWithUnsupportedProperty.put(unsupportedProperty, 5);
+        mapWithUnsupportedProperty.put(PROPERTY_UNSET, 7);
 
         final PropertyManager propertyManagerWithUnsupportedProperty =
             propertyManagerFromMap(mapWithUnsupportedProperty);
@@ -136,16 +151,29 @@ public class PropertyManagerSerializerTest
         final String serialized = PropertyManagerSerializer.serialize(propertyManagerWithUnsupportedProperty);
         final PropertyManager deserialized = PropertyManagerSerializer.deserialize(structureType, serialized);
 
-        Assertions.assertFalse(deserialized.hasProperty(unsupportedProperty));
-        // After deserialization, the PropertyManager should be the same as the 'normal' PropertyManager
-        // and not the one with the unsupported property.
+        Assertions.assertTrue(deserialized.hasProperty(PROPERTY_UNSET));
+    }
+
+    @Test
+    void testNonExistingProperties(LogCaptor logCaptor)
+    {
+        final String nonExistingProperty = "animatedarchitecture:non_existing_property";
+
+        final String serialized =
+            new StringBuilder(PropertyManagerSerializer.serialize(propertyManager))
+                .insert(1, "\"" + nonExistingProperty + "\":{\"value\":5},")
+                .toString();
+
+        final PropertyManager deserialized = PropertyManagerSerializer.deserialize(structureType, serialized);
+
+        // After deserialization, the PropertyManager should not contain the non-existing property.
         Assertions.assertEquals(propertyManager, deserialized);
 
         LogAssertionsUtil
             .logAssertionBuilder(logCaptor)
             .message(
                 "Discarding property '%s' with value '%s' for structure type '%s' as it is not supported.",
-                PropertyManager.mapKey(unsupportedProperty),
+                nonExistingProperty,
                 "{\"value\":5}",
                 structureType)
             .level(Level.SEVERE)

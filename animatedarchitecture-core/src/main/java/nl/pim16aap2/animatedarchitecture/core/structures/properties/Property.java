@@ -267,7 +267,7 @@ public final class Property<T> implements IKeyed
      */
     public static @Nullable Property<?> fromName(String propertyKey)
     {
-        return REGISTERED_PROPERTIES.get(propertyKey);
+        return getRegisteredProperties().get(propertyKey);
     }
 
     /**

@@ -8,6 +8,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -118,6 +119,44 @@ public final class PropertyManagerSerializer
     }
 
     /**
+     * Adds a non-default property to the given {@link Map}.
+     *
+     * @param structureType
+     *     The structure type to add the property for. Used to provide context in log messages.
+     * @param propertyMap
+     *     The property map to add the property to. This map is updated in-place with the deserialized
+     * @param key
+     *     The key of the property to add.
+     *     <p>
+     *     This is used
+     * @param jsonObject
+     *     The {@link JSONObject} that represents the value of the property. This object should contain a "value" field
+     *     that represents the value of the property.
+     * @return True if the property was added, false otherwise.
+     */
+    private static boolean addNonDefaultProperty(
+        StructureType structureType,
+        Map<String, IPropertyValue<?>> propertyMap,
+        String key,
+        JSONObject jsonObject)
+    {
+        final @Nullable Property<?> property = Property.fromName(key);
+        if (property == null)
+        {
+            log.atSevere().log(
+                "Discarding property '%s' with value '%s' for structure type '%s' as it is not supported.",
+                key,
+                jsonObject,
+                structureType
+            );
+            return false;
+        }
+
+        propertyMap.put(key, deserializePropertyValue(jsonObject, property.getType()));
+        return true;
+    }
+
+    /**
      * Deserializes a map to a {@link PropertyManager}.
      * <p>
      * This method will go over the entries in the deserialized map and apply the values to the default property map of
@@ -154,7 +193,8 @@ public final class PropertyManagerSerializer
             final String key = entry.getKey();
             final JSONObject jsonObject = entry.getValue();
 
-            if (updatePropertyMapEntry(structureType, propertyMap, key, jsonObject))
+            if (updatePropertyMapEntry(structureType, propertyMap, key, jsonObject) ||
+                addNonDefaultProperty(structureType, propertyMap, key, jsonObject))
                 supportedProperties++;
         }
 
