@@ -29,6 +29,8 @@ public interface IPropertyValue<T>
 
     /**
      * Gets the type of the value.
+     * <p>
+     * If the value is not set (see {@link #isSet()}), the type defaults to {@link Object}.
      *
      * @return The type of the value.
      */

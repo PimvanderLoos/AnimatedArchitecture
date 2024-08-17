@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Timeout(1)
@@ -20,24 +21,24 @@ import java.util.UUID;
 @MockitoSettings(strictness = Strictness.LENIENT)
 class PropertyManagerTest
 {
-    private static final Property<Object> PROPERTY_UNSET = new Property<>(
+    private static final Property<Integer> PROPERTY_UNSET = new Property<>(
         "external",
-        "unset",
-        Object.class,
-        null
+        "unset_property",
+        Integer.class,
+        5
     );
 
     private static final String PROPERTY_STRING_DEFAULT = "default";
     private static final Property<String> PROPERTY_STRING = new Property<>(
         Constants.PLUGIN_NAME,
-        "string",
+        "string_property",
         String.class,
         PROPERTY_STRING_DEFAULT
     );
 
     private static final Property<Object> PROPERTY_NULLABLE = new Property<>(
         Constants.PLUGIN_NAME,
-        "nullable",
+        "nullable_property",
         Object.class,
         null
     );
@@ -112,10 +113,13 @@ class PropertyManagerTest
     @Test
     void testSetMissingProperty()
     {
-        Assertions.assertThrows(
-            IllegalArgumentException.class,
-            () -> propertyManager.setPropertyValue(PROPERTY_UNSET, "value")
-        );
+        Assertions.assertFalse(propertyManager.getPropertyValue(PROPERTY_UNSET).isSet());
+
+        final int newValue = Objects.requireNonNullElse(PROPERTY_UNSET.getDefaultValue(), 7) + 11;
+
+        propertyManager.setPropertyValue(PROPERTY_UNSET, newValue);
+        Assertions.assertEquals(newValue, propertyManager.getPropertyValue(PROPERTY_UNSET).value());
+        Assertions.assertTrue(propertyManager.hasProperty(PROPERTY_UNSET));
     }
 
     @Test
