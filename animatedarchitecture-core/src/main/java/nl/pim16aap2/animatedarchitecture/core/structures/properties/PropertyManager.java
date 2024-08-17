@@ -76,6 +76,25 @@ public final class PropertyManager implements IPropertyHolder, IPropertyManagerC
      *
      * @param property
      *     The property to set the value for.
+     * @param providedPropertyValue
+     *     The value to set. May be {@code null} if the property is nullable.
+     * @param <T>
+     *     The type of the property.
+     * @return The previous value of the property, or {@link UnsetPropertyValue#INSTANCE} if the property was not set.
+     */
+    private <T> IPropertyValue<?> setPropertyValue0(
+        Property<T> property,
+        ProvidedPropertyValue<T> providedPropertyValue)
+    {
+        final @Nullable IPropertyValue<?> prev = propertyMap.put(mapKey(property), providedPropertyValue);
+        return prev == null ? UnsetPropertyValue.INSTANCE : prev;
+    }
+
+    /**
+     * Sets the value of the given property.
+     *
+     * @param property
+     *     The property to set the value for.
      * @param value
      *     The value to set. May be {@code null} if the property is nullable.
      * @param <T>
@@ -86,12 +105,8 @@ public final class PropertyManager implements IPropertyHolder, IPropertyManagerC
     @Override
     public <T> IPropertyValue<T> setPropertyValue(Property<T> property, @Nullable T value)
     {
-        final String key = mapKey(property);
-        if (!propertyMap.containsKey(key))
-            throw new IllegalArgumentException("Property " + key + " is not valid for this structure type.");
-
         //noinspection unchecked
-        return (IPropertyValue<T>) Objects.requireNonNull(propertyMap.put(key, mapValue(property, value)));
+        return (IPropertyValue<T>) setPropertyValue0(property, mapValue(property, value));
     }
 
     /**
@@ -106,13 +121,9 @@ public final class PropertyManager implements IPropertyHolder, IPropertyManagerC
      * @throws ClassCastException
      *     If the value cannot be cast to the type of the property.
      */
-    public IPropertyValue<?> setUntypedPropertyValue(Property<?> property, @Nullable Object value)
+    public <T> IPropertyValue<?> setUntypedPropertyValue(Property<T> property, @Nullable Object value)
     {
-        final String key = mapKey(property);
-        if (!propertyMap.containsKey(key))
-            throw new IllegalArgumentException("Property " + key + " is not valid for this structure type.");
-
-        return Objects.requireNonNull(propertyMap.put(key, mapUntypedValue(property, value)));
+        return setPropertyValue0(property, mapUntypedValue(property, value));
     }
 
     @Override
