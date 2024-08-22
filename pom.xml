@@ -27,7 +27,7 @@
         <dependency.fastjson.version>2.0.52</dependency.fastjson.version>
         <dependency.fastutil.version>8.5.14</dependency.fastutil.version>
         <dependency.flogger.version>0.8</dependency.flogger.version>
-        <dependency.flyway.version>10.17.1</dependency.flyway.version>
+        <dependency.flyway.version>10.17.2</dependency.flyway.version>
         <dependency.git-commit-id.version>9.0.1</dependency.git-commit-id.version>
         <dependency.gson.version>2.11.0</dependency.gson.version>
         <dependency.jacoco.version>0.8.12</dependency.jacoco.version>
