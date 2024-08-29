@@ -49,7 +49,7 @@
         <dependency.maven-javadoc.version>3.10.0</dependency.maven-javadoc.version>
         <dependency.maven-jxr.version>3.5.0</dependency.maven-jxr.version>
         <dependency.maven-pmd.version>3.25.0</dependency.maven-pmd.version>
-        <dependency.maven-project-reports.version>3.6.2</dependency.maven-project-reports.version>
+        <dependency.maven-project-reports.version>3.7.0</dependency.maven-project-reports.version>
         <dependency.maven-resources.version>3.3.1</dependency.maven-resources.version>
         <dependency.maven-shade.version>3.6.0</dependency.maven-shade.version>
         <dependency.maven-site.version>3.20.0</dependency.maven-site.version>
