@@ -87,6 +87,15 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
         ProvidedPropertyValue<T> providedPropertyValue)
     {
         final @Nullable IPropertyValue<?> prev = propertyMap.put(mapKey(property), providedPropertyValue);
+        if (prev instanceof PropertyContainerSerializer.UndefinedPropertyValue undefinedPropertyValue)
+        {
+            log.atWarning().log(
+                "Property '%s' was previously undefined. Overwriting with new value '%s'.",
+                property.getFullKey(),
+                providedPropertyValue.value()
+            );
+            return undefinedPropertyValue.deserializeValue(property);
+        }
         return prev == null ? UnsetPropertyValue.INSTANCE : prev;
     }
 
@@ -105,8 +114,23 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
     @Override
     public <T> IPropertyValue<T> setPropertyValue(Property<T> property, @Nullable T value)
     {
-        //noinspection unchecked
-        return (IPropertyValue<T>) setPropertyValue0(property, mapValue(property, value));
+        final IPropertyValue<?> prev = setPropertyValue0(property, mapValue(property, value));
+        try
+        {
+            return cast(property, prev);
+        }
+        catch (IllegalArgumentException exception)
+        {
+            throw new IllegalArgumentException(
+                String.format(
+                    "Old value '%s' for property '%s' is not of the correct type! It has now been replaced by '%s'.",
+                    prev,
+                    property.getFullKey(),
+                    value
+                ),
+                exception
+            );
+        }
     }
 
     /**
@@ -129,7 +153,7 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
     @Override
     public <T> IPropertyValue<T> getPropertyValue(Property<T> property)
     {
-        return getValue(propertyMap, property);
+        return getValue(property);
     }
 
     @Override
@@ -141,9 +165,7 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
     @Override
     public boolean hasProperties(Collection<Property<?>> properties)
     {
-        return propertyMap
-            .keySet()
-            .containsAll(properties.stream().map(PropertyContainer::mapKey).collect(Collectors.toSet()));
+        return hasProperties(propertyMap, properties);
     }
 
     /**
@@ -254,21 +276,86 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
     }
 
     /**
-     * Gets the value of the given property.
+     * Casts the given value to the type of the property.
      *
-     * @param propertyMap
-     *     The map containing the properties.
+     * @param property
+     *     The property to cast the value for.
+     * @param value
+     *     The value to cast.
+     * @param <T>
+     *     The type of the property value.
+     * @return The value cast to the type of the property.
+     *
+     * @throws IllegalArgumentException
+     *     If the provided value is not of the correct type for the property.
+     */
+    static <T> IPropertyValue<T> cast(Property<T> property, IPropertyValue<?> value)
+    {
+        if (value instanceof PropertyContainerSerializer.UndefinedPropertyValue undefinedPropertyValue)
+            return undefinedPropertyValue.deserializeValue(property);
+
+        if (value instanceof UnsetPropertyValue)
+            // Safe to case because it always returns null.
+            //noinspection unchecked
+            return (IPropertyValue<T>) UnsetPropertyValue.INSTANCE;
+
+        if (value.type() != property.getType())
+        {
+            throw new IllegalArgumentException(String.format(
+                "Property '%s' is of type '%s', but the value is of type '%s'.",
+                property.getFullKey(),
+                property.getType().getSimpleName(),
+                value.type().getSimpleName()
+            ));
+        }
+        // Safe to case because the type is checked above.
+        //noinspection unchecked
+        return (IPropertyValue<T>) value;
+    }
+
+    /**
+     * Gets the value of the given property.
+     * <p>
+     * If the property is not set, this method returns {@link UnsetPropertyValue#INSTANCE}.
+     * <p>
+     * If the key maps to an {@link PropertyContainerSerializer.UndefinedPropertyValue}, this method will deserialize
+     * the value and replace the value in the map.
+     *
      * @param property
      *     The property to get the value of.
      * @param <T>
      *     The type of the property.
      * @return The value of the property.
      */
-    static <T> IPropertyValue<T> getValue(Map<String, IPropertyValue<?>> propertyMap, Property<T> property)
+    <T> IPropertyValue<T> getValue(Property<T> property)
     {
-        final IPropertyValue<?> rawValue = propertyMap.getOrDefault(mapKey(property), UnsetPropertyValue.INSTANCE);
-        //noinspection unchecked
-        return (IPropertyValue<T>) Objects.requireNonNull(rawValue);
+        final String key = mapKey(property);
+        final IPropertyValue<?> rawValue = propertyMap.getOrDefault(key, UnsetPropertyValue.INSTANCE);
+
+        if (rawValue instanceof PropertyContainerSerializer.UndefinedPropertyValue undefinedPropertyValue)
+        {
+            final var newValue = undefinedPropertyValue.deserializeValue(property);
+            propertyMap.put(key, newValue);
+            return newValue;
+        }
+
+        return cast(property, Objects.requireNonNull(rawValue));
+    }
+
+    /**
+     * Gets the raw value mapped to the given key.
+     * <p>
+     * This method is intended for testing purposes only. Use {@link #getValue(Property)} instead.
+     *
+     * @param key
+     *     The key to get the value for.
+     * @return The raw value mapped to the given key, or {@code null} if no value is mapped to the key.
+     */
+    @VisibleForTesting
+    @Nullable
+    IPropertyValue<?> getRawValue(String key)
+    {
+        return propertyMap.get(key);
     }
 
     /**
@@ -373,7 +460,7 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
      */
     record UnsetPropertyValue() implements IPropertyValue<Object>
     {
-        private static final UnsetPropertyValue INSTANCE = new UnsetPropertyValue();
+        static final UnsetPropertyValue INSTANCE = new UnsetPropertyValue();
 
         @Override
         public boolean isSet()
