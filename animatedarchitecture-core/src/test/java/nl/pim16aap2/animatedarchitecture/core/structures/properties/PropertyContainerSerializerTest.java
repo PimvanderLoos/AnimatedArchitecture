@@ -220,12 +220,10 @@ public class PropertyContainerSerializerTest
         final String serialized = "{\"" + propertyKey + "\":{\"value\":5}}";
 
         // Use a mocked+random property key to ensure Property.fromName does not return a property.
-        final Property<Integer> mockedProperty = Mockito.mock();
-        Mockito.when(mockedProperty.getFullKey()).thenReturn(propertyKey);
-        Mockito.when(mockedProperty.getType()).thenReturn(Integer.class);
+        final var property = mockProperty(propertyKey, Integer.class, 5);
 
         final var deserialized = PropertyContainerSerializer.deserialize(structureType, serialized);
-        Assertions.assertTrue(deserialized.hasProperty(mockedProperty));
+        Assertions.assertTrue(deserialized.hasProperty(property));
 
         final IPropertyValue<?> value0 = deserialized.getRawValue(propertyKey);
         Assertions.assertNotNull(value0);
@@ -235,13 +233,65 @@ public class PropertyContainerSerializerTest
         // Use the real 'getPropertyValue' method to ensure that the
         // 'UndefinedPropertyValue' is converted to a 'ProvidedPropertyValue',
         // now that the property is known.
-        final var value1 = deserialized.getPropertyValue(mockedProperty);
+        final var value1 = deserialized.getPropertyValue(property);
         Assertions.assertNotNull(value1);
         Assertions.assertEquals(5, value1.value());
         Assertions.assertInstanceOf(PropertyContainer.ProvidedPropertyValue.class, value1);
 
         // Ensure that the raw value has been updated.
         Assertions.assertEquals(value1, deserialized.getRawValue(propertyKey));
+    }
+
+    @Test
+    void testDoubleSerialization()
+    {
+        Mockito.when(structureType.getProperties()).thenReturn(List.of());
+
+        final String propertyKey = "animatedarchitecture:" + UUID.randomUUID();
+        final String serialized = "{\"" + propertyKey + "\":{\"value\":11}}";
+        final var property = mockProperty(propertyKey, Integer.class, 13);
+
+        var deserialized = PropertyContainerSerializer.deserialize(structureType, serialized);
+        for (int i = 0; i < 10; i++)
+        {
+            final String reserialized = PropertyContainerSerializer.serialize(deserialized);
+            deserialized = PropertyContainerSerializer.deserialize(structureType, reserialized);
+        }
+
+        // The property was mocked and as such undefined.
+        // Therefore, the raw value should be an 'UndefinedPropertyValue'.
+        Assertions.assertInstanceOf(
+            PropertyContainerSerializer.UndefinedPropertyValue.class,
+            deserialized.getRawValue(propertyKey)
+        );
+
+        // When providing the property object, the value should be deserialized.
+        final var value = deserialized.getPropertyValue(property);
+        Assertions.assertInstanceOf(PropertyContainer.ProvidedPropertyValue.class, value);
+        Assertions.assertEquals(11, value.value());
+    }
+
+    /**
+     * Creates a new mocked property.
+     *
+     * @param key
+     *     The key of the property.
+     * @param type
+     *     The type of the property.
+     * @param defaultValue
+     *     The default value of the property.
+     * @param <T>
+     *     The type of the property.
+     * @return The mocked property.
+     */
+    private static <T> Property<T> mockProperty(String key, Class<T> type, T defaultValue)
+    {
+        final Property<T> property = Mockito.mock();
+        Mockito.doReturn(key).when(property).getFullKey();
+        Mockito.doReturn(type).when(property).getType();
+        Mockito.doReturn(defaultValue).when(property).getDefaultValue();
+        Mockito.doCallRealMethod().when(property).cast(Mockito.any());
+        return property;
     }
 
     /**

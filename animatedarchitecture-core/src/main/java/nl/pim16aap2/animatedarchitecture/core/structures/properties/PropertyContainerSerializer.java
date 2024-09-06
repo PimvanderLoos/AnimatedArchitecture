@@ -2,14 +2,17 @@ package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.JSONWriter;
 import com.alibaba.fastjson2.TypeReference;
 import com.alibaba.fastjson2.annotation.JSONField;
+import com.alibaba.fastjson2.writer.ObjectWriter;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 
 import javax.annotation.Nullable;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,6 +22,11 @@ import java.util.Map;
 @Flogger
 public final class PropertyContainerSerializer
 {
+    static
+    {
+        JSON.register(UndefinedPropertyValue.class, new UndefinedPropertyValueSerializer());
+    }
+
     /**
      * The type reference for the intermediate map used during deserialization.
      * <p>
@@ -167,6 +175,7 @@ public final class PropertyContainerSerializer
             key,
             structureType
         );
+
         propertyMap.put(key, new UndefinedPropertyValue(key, jsonObject));
     }
 
@@ -280,10 +289,15 @@ public final class PropertyContainerSerializer
      * This class stores the raw JSONObject value of the property.
      * <p>
      * For deserialization, the value uses the raw JSONObject value.
+     *
+     * @param propertyKey
+     *     The key of the property.
+     * @param serializedValue
+     *     The serialized value of the property.
      */
     record UndefinedPropertyValue(
         @JSONField(serialize = false) String propertyKey,
-        JSONObject serializedValue)
+        @JSONField(serialize = false) JSONObject serializedValue)
         implements IPropertyValue<Object>
     {
         @JSONField(serialize = false)
@@ -333,6 +347,22 @@ public final class PropertyContainerSerializer
                 ));
 
             return deserializePropertyValue(serializedValue, property.getType());
+        }
+    }
+
+    /**
+     * 'Serializes' an {@link UndefinedPropertyValue} for JSON serialization.
+     * <p>
+     * This class simply writes {@link UndefinedPropertyValue#serializedValue} to the JSON writer.
+     */
+    public static class UndefinedPropertyValueSerializer implements ObjectWriter<UndefinedPropertyValue>
+    {
+        @Override
+        public void write(JSONWriter jsonWriter, Object object, Object fieldName, Type fieldType, long features)
+        {
+            if (!(object instanceof UndefinedPropertyValue undefinedPropertyValue))
+                throw new IllegalArgumentException("Object is not an instance of UndefinedPropertyValue");
+            jsonWriter.write(undefinedPropertyValue.serializedValue);
         }
     }
 }

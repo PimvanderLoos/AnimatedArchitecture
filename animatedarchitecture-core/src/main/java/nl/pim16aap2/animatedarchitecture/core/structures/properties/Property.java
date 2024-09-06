@@ -288,7 +288,7 @@ public final class Property<T> implements IKeyed
         {
             if (value == null)
                 return null;
-            return type.cast(value);
+            return getType().cast(value);
         }
         catch (ClassCastException e)
         {
