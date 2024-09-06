@@ -3,6 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.TypeReference;
+import com.alibaba.fastjson2.annotation.JSONField;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
@@ -121,10 +122,10 @@ public final class PropertyContainerSerializer
     /**
      * Adds a non-default property to the given {@link Map}.
      *
-     * @param structureType
-     *     The structure type to add the property for. Used to provide context in log messages.
      * @param propertyMap
      *     The property map to add the property to. This map is updated in-place with the deserialized
+     * @param property
+     *     The property to add to the map.
      * @param key
      *     The key of the property to add.
      *     <p>
@@ -132,28 +133,41 @@ public final class PropertyContainerSerializer
      * @param jsonObject
      *     The {@link JSONObject} that represents the value of the property. This object should contain a "value" field
      *     that represents the value of the property.
-     * @return True if the property was added, false otherwise.
      */
-    private static boolean addNonDefaultProperty(
+    private static void addNonDefaultProperty(
+        Map<String, IPropertyValue<?>> propertyMap,
+        Property<?> property,
+        String key,
+        JSONObject jsonObject)
+    {
+        propertyMap.put(key, deserializePropertyValue(jsonObject, property.getType()));
+    }
+
+    /**
+     * Adds an undefined property to the given {@link Map}.
+     *
+     * @param structureType
+     *     The structure type to add the property for. Used to provide context in log messages.
+     * @param propertyMap
+     *     The property map to add the property to. This map is updated in-place with the value for the given key.
+     * @param key
+     *     The key of the property to add.
+     * @param jsonObject
+     *     The {@link JSONObject} that represents the value of the property. This object should contain a "value" field
+     *     that represents the value of the property.
+     */
+    private static void addUndefinedProperty(
         StructureType structureType,
         Map<String, IPropertyValue<?>> propertyMap,
         String key,
         JSONObject jsonObject)
     {
-        final @Nullable Property<?> property = Property.fromName(key);
-        if (property == null)
-        {
-            log.atSevere().log(
-                "Discarding property '%s' with value '%s' for structure type '%s' as it is not supported.",
-                key,
-                jsonObject,
-                structureType
-            );
-            return false;
-        }
-
-        propertyMap.put(key, deserializePropertyValue(jsonObject, property.getType()));
-        return true;
+        log.atInfo().log(
+            "Property '%s' is not defined for structure type '%s'.",
+            key,
+            structureType
+        );
+        propertyMap.put(key, new UndefinedPropertyValue(key, jsonObject));
     }
 
     /**
@@ -187,18 +201,26 @@ public final class PropertyContainerSerializer
         final Map<String, IPropertyValue<?>> propertyMap =
             new HashMap<>(PropertyContainer.getDefaultPropertyMap(structureType));
 
-        int supportedProperties = 0;
+        int updatedProperties = 0;
         for (final var entry : deserializedMap.entrySet())
         {
             final String key = entry.getKey();
             final JSONObject jsonObject = entry.getValue();
 
-            if (updatePropertyMapEntry(structureType, propertyMap, key, jsonObject) ||
-                addNonDefaultProperty(structureType, propertyMap, key, jsonObject))
-                supportedProperties++;
+            if (updatePropertyMapEntry(structureType, propertyMap, key, jsonObject))
+            {
+                updatedProperties++;
+                continue;
+            }
+
+            final @Nullable Property<?> property = Property.fromName(key);
+            if (property != null)
+                addNonDefaultProperty(propertyMap, property, key, jsonObject);
+            else
+                addUndefinedProperty(structureType, propertyMap, key, jsonObject);
         }
 
-        if (supportedProperties != propertyMap.size())
+        if (updatedProperties != propertyMap.size())
             logMissingProperties(structureType, propertyMap, deserializedMap);
 
         return new PropertyContainer(propertyMap);
@@ -249,6 +271,68 @@ public final class PropertyContainerSerializer
         catch (Exception e)
         {
             throw new IllegalArgumentException("Could not deserialize PropertyContainer from JSON: " + json, e);
+        }
+    }
+
+    /**
+     * Represents a property value for an undefined property.
+     * <p>
+     * This class stores the raw JSONObject value of the property.
+     * <p>
+     * For deserialization, the value uses the raw JSONObject value.
+     */
+    record UndefinedPropertyValue(
+        @JSONField(serialize = false) String propertyKey,
+        JSONObject serializedValue)
+        implements IPropertyValue<Object>
+    {
+        @JSONField(serialize = false)
+        @Override
+        public boolean isSet()
+        {
+            return false;
+        }
+
+        @JSONField(serialize = false)
+        @Override
+        public @Nullable Object value()
+        {
+            return null;
+        }
+
+        @JSONField(serialize = false)
+        @Override
+        public Class<Object> type()
+        {
+            return Object.class;
+        }
+
+        /**
+         * Deserializes the value of the property.
+         * <p>
+         * At the time this object was created, the property did not exist yet.
+         * <p>
+         * However, the property object is required to call this method. Therefore, we know that the value can finally
+         * be deserialized.
+         *
+         * @param property
+         *     The property to deserialize the value for.
+         * @param <T>
+         *     The type of the property.
+         * @return The deserialized value of the property.
+         */
+        public <T> IPropertyValue<T> deserializeValue(Property<T> property)
+        {
+            final String mappedKey = PropertyContainer.mapKey(property);
+
+            if (!mappedKey.equals(propertyKey))
+                throw new IllegalArgumentException(String.format(
+                    "Property key mismatch: Expected '%s', got '%s'",
+                    mappedKey,
+                    propertyKey
+                ));
+
+            return deserializePropertyValue(serializedValue, property.getType());
         }
     }
 }

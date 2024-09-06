@@ -29,7 +29,9 @@ public final class PropertyContainerSnapshot implements IPropertyHolderConst, IP
     @Override
     public <T> IPropertyValue<T> getPropertyValue(Property<T> property)
     {
-        return PropertyContainer.getValue(propertyMap, property);
+        final String key = PropertyContainer.mapKey(property);
+        final var rawValue = propertyMap.getOrDefault(key, PropertyContainer.UnsetPropertyValue.INSTANCE);
+        return PropertyContainer.cast(property, rawValue);
     }
 
     @Override

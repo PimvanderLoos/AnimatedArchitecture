@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -154,32 +155,6 @@ public class PropertyContainerSerializerTest
         Assertions.assertTrue(deserialized.hasProperty(PROPERTY_UNSET));
     }
 
-    @Test
-    void testNonExistingProperties(LogCaptor logCaptor)
-    {
-        final String nonExistingProperty = "animatedarchitecture:non_existing_property";
-
-        final String serialized =
-            new StringBuilder(PropertyContainerSerializer.serialize(propertyContainer))
-                .insert(1, "\"" + nonExistingProperty + "\":{\"value\":5},")
-                .toString();
-
-        final PropertyContainer deserialized = PropertyContainerSerializer.deserialize(structureType, serialized);
-
-        // After deserialization, the PropertyContainer should not contain the non-existing property.
-        Assertions.assertEquals(propertyContainer, deserialized);
-
-        LogAssertionsUtil
-            .logAssertionBuilder(logCaptor)
-            .message(
-                "Discarding property '%s' with value '%s' for structure type '%s' as it is not supported.",
-                nonExistingProperty,
-                "{\"value\":5}",
-                structureType)
-            .level(Level.SEVERE)
-            .assertLogged();
-    }
-
     // Test that for missing properties in the JSON String the following happens:
     // 1) A 'warning' log message is logged about the default value being used.
     // 2) The property is added to the property map with the default value.
@@ -236,6 +211,37 @@ public class PropertyContainerSerializerTest
             )
             .level(Level.FINER)
             .assertLogged();
+    }
+
+    @Test
+    void testUndefinedProperty()
+    {
+        final String propertyKey = "animatedarchitecture:" + UUID.randomUUID();
+        final String serialized = "{\"" + propertyKey + "\":{\"value\":5}}";
+
+        // Use a mocked+random property key to ensure Property.fromName does not return a property.
+        final Property<Integer> mockedProperty = Mockito.mock();
+        Mockito.when(mockedProperty.getFullKey()).thenReturn(propertyKey);
+        Mockito.when(mockedProperty.getType()).thenReturn(Integer.class);
+
+        final var deserialized = PropertyContainerSerializer.deserialize(structureType, serialized);
+        Assertions.assertTrue(deserialized.hasProperty(mockedProperty));
+
+        final IPropertyValue<?> value0 = deserialized.getRawValue(propertyKey);
+        Assertions.assertNotNull(value0);
+        Assertions.assertInstanceOf(PropertyContainerSerializer.UndefinedPropertyValue.class, value0);
+        Assertions.assertNull(value0.value());
+
+        // Use the real 'getPropertyValue' method to ensure that the
+        // 'UndefinedPropertyValue' is converted to a 'ProvidedPropertyValue',
+        // now that the property is known.
+        final var value1 = deserialized.getPropertyValue(mockedProperty);
+        Assertions.assertNotNull(value1);
+        Assertions.assertEquals(5, value1.value());
+        Assertions.assertInstanceOf(PropertyContainer.ProvidedPropertyValue.class, value1);
+
+        // Ensure that the raw value has been updated.
+        Assertions.assertEquals(value1, deserialized.getRawValue(propertyKey));
     }
 
     /**
