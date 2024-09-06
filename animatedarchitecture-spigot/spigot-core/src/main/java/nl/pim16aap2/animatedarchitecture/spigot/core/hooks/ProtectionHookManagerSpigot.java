@@ -88,7 +88,8 @@ public final class ProtectionHookManagerSpigot
             AbstractProtectionHookSpecification
                 .DEFAULT_HOOK_DEFINITIONS
                 .stream()
-                .collect(Collectors.toMap(IProtectionHookSpigotSpecification::getName, c -> c)));
+                .collect(Collectors.toMap(IProtectionHookSpigotSpecification::getName, c -> c))
+        );
 
         holder.registerRestartable(this);
         debuggableRegistry.registerDebuggable(this);
@@ -104,6 +105,33 @@ public final class ProtectionHookManagerSpigot
     public Map<String, IProtectionHookSpigotSpecification> getRegisteredHookDefinitions()
     {
         return new LinkedHashMap<>(registeredDefinitions);
+    }
+
+    /**
+     * Unload a hook.
+     *
+     * @param hook
+     *     The hook to unload.
+     * @return True if a hook was unloaded, false otherwise.
+     */
+    @SuppressWarnings("unused")
+    public boolean unloadHook(IProtectionHookSpigot hook)
+    {
+        return this.protectionHooks.remove(hook);
+    }
+
+    /**
+     * Unload a hook with a given name.
+     *
+     * @param pluginName
+     *     The name of the plugin to unload the hook for.
+     * @return True if a hook was unloaded, false otherwise.
+     */
+    public boolean unloadHook(String pluginName)
+    {
+        if (!isActive)
+            throw new IllegalStateException("Cannot unload hooks when the manager is not active!");
+        return this.protectionHooks.removeIf(hook -> hook.getName().equals(pluginName));
     }
 
     /**
@@ -178,7 +206,8 @@ public final class ProtectionHookManagerSpigot
             this.protectionHooks.add(hookClass.getConstructor(ProtectionHookContext.class).newInstance(context));
             log.atInfo().log(
                 "Successfully loaded protection hook for plugin '%s' (version '%s')!",
-                pluginName, version
+                pluginName,
+                version
             );
         }
         catch (NoClassDefFoundError | ExceptionInInitializerError | Exception e)
@@ -198,6 +227,18 @@ public final class ProtectionHookManagerSpigot
     void onPluginEnable(PluginEnableEvent event)
     {
         loadFromPluginName(event.getPlugin().getName());
+    }
+
+    /**
+     * Unload a protection hook for the plugin being disabled in the event if needed.
+     *
+     * @param event
+     *     The event of the plugin that is disabled.
+     */
+    @EventHandler
+    void onPluginDisable(PluginEnableEvent event)
+    {
+        unloadHook(event.getPlugin().getName());
     }
 
     /**

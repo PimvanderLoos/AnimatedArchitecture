@@ -77,10 +77,4 @@ public class RedProtectProtectionHook implements IProtectionHookSpigot
                         return CompletableFuture.completedFuture(false);
         return CompletableFuture.completedFuture(true);
     }
-
-    @Override
-    public String getName()
-    {
-        return context.getSpecification().getName();
-    }
 }

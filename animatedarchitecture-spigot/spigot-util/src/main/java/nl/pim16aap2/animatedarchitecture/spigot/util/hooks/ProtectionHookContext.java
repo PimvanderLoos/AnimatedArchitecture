@@ -11,18 +11,18 @@ import org.bukkit.plugin.java.JavaPlugin;
 @Getter
 public final class ProtectionHookContext
 {
-    private final JavaPlugin plugin;
+    private final JavaPlugin animatedArchitecturePlugin;
     private final IProtectionHookSpigotSpecification specification;
     private final IPermissionsManagerSpigot permissionsManager;
     private final IExecutor executor;
 
     public ProtectionHookContext(
-        JavaPlugin plugin,
+        JavaPlugin animatedArchitecturePlugin,
         IProtectionHookSpigotSpecification specification,
         IPermissionsManagerSpigot permissionsManager,
         IExecutor executor)
     {
-        this.plugin = plugin;
+        this.animatedArchitecturePlugin = animatedArchitecturePlugin;
         this.specification = specification;
         this.permissionsManager = permissionsManager;
         this.executor = executor;

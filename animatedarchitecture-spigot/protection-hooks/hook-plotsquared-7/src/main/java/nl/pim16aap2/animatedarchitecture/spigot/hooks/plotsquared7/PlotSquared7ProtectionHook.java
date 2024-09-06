@@ -220,10 +220,4 @@ public class PlotSquared7ProtectionHook implements IProtectionHookSpigot
         }
         return CompletableFuture.completedFuture(true);
     }
-
-    @Override
-    public String getName()
-    {
-        return plotSquaredPlugin.getName();
-    }
 }

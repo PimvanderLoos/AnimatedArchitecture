@@ -79,10 +79,4 @@ public class GriefPreventionProtectionHook implements IProtectionHookSpigot
                         return CompletableFuture.completedFuture(false);
         return CompletableFuture.completedFuture(true);
     }
-
-    @Override
-    public String getName()
-    {
-        return "GriefPrevention";
-    }
 }
