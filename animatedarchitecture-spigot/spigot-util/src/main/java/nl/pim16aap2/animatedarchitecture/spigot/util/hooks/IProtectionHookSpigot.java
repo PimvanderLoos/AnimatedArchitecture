@@ -120,7 +120,10 @@ public interface IProtectionHookSpigot
      *
      * @return The name of the {@link JavaPlugin} that is being hooked into.
      */
-    String getName();
+    default String getName()
+    {
+        return getContext().getSpecification().getName();
+    }
 
     /**
      * Get the {@link ProtectionHookContext} that is being used.

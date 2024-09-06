@@ -162,12 +162,6 @@ public class WorldGuard7ProtectionHook implements IProtectionHookSpigot
             return new BukkitPlayer(worldGuardPlugin, player);
     }
 
-    @Override
-    public String getName()
-    {
-        return worldGuardPlugin.getName();
-    }
-
     private RegionQuery query()
     {
         return worldGuard.getPlatform().getRegionContainer().createQuery();

@@ -32,7 +32,7 @@ public class LandsProtectionHook implements IProtectionHookSpigot
     public LandsProtectionHook(ProtectionHookContext context)
     {
         this.context = context;
-        landsAddon = LandsIntegration.of(context.getPlugin());
+        landsAddon = LandsIntegration.of(context.getAnimatedArchitecturePlugin());
     }
 
     private boolean canBreakBlock(@Nullable Area area, Player player, Location loc)
@@ -88,11 +88,5 @@ public class LandsProtectionHook implements IProtectionHookSpigot
             }
         }
         return CompletableFuture.completedFuture(true);
-    }
-
-    @Override
-    public String getName()
-    {
-        return context.getSpecification().getName();
     }
 }
