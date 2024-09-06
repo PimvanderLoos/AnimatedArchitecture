@@ -1,6 +1,9 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.animation;
 
 import com.google.common.flogger.StackSize;
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import lombok.Getter;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
@@ -43,12 +46,13 @@ public class SimpleBlockData implements IAnimatedBlockData
     private final Vector3Di originalPosition;
     private final World bukkitWorld;
 
-    SimpleBlockData(
-        AnimatedBlockDisplay animatedBlock,
-        IExecutor executor,
-        @Nullable Consumer<IAnimatedBlockData> blockDataRotator,
-        World bukkitWorld,
-        Vector3Di position)
+    @AssistedInject
+    private SimpleBlockData(
+        @Assisted AnimatedBlockDisplay animatedBlock,
+        @Assisted @Nullable Consumer<IAnimatedBlockData> blockDataRotator,
+        @Assisted World bukkitWorld,
+        @Assisted Vector3Di position,
+        IExecutor executor)
     {
         this.executor = executor;
         this.animatedBlock = animatedBlock;
@@ -263,5 +267,32 @@ public class SimpleBlockData implements IAnimatedBlockData
     {
         if (this.animatedBlock.isOnEdge())
             deleteOriginalBlock(true);
+    }
+
+    /**
+     * Factory for creating {@link SimpleBlockData} instances.
+     */
+    @AssistedFactory
+    public interface IFactory
+    {
+        /**
+         * Creates a new {@link SimpleBlockData} instance.
+         *
+         * @param animatedBlock
+         *     The {@link AnimatedBlockDisplay} that this block data belongs to.
+         * @param blockDataRotator
+         *     The block data rotator. This is used to rotate the block data.
+         * @param bukkitWorld
+         *     The world the block is in.
+         * @param position
+         *     The start position of the block.
+         * @return The created {@link SimpleBlockData} instance.
+         */
+        SimpleBlockData create(
+            AnimatedBlockDisplay animatedBlock,
+            @Nullable Consumer<IAnimatedBlockData> blockDataRotator,
+            World bukkitWorld,
+            Vector3Di position
+        );
     }
 }

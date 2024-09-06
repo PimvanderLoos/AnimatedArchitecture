@@ -25,6 +25,7 @@ import java.util.function.Consumer;
 @Singleton
 public class AnimatedBlockDisplayFactory implements IAnimatedBlockFactory
 {
+    private final SimpleBlockData.IFactory blockDataFactory;
     private final IExecutor executor;
     private final AnimatedBlockHookManager animatedBlockHookManager;
     private final BlockAnalyzerSpigot blockAnalyzer;
@@ -32,11 +33,13 @@ public class AnimatedBlockDisplayFactory implements IAnimatedBlockFactory
 
     @Inject
     AnimatedBlockDisplayFactory(
+        SimpleBlockData.IFactory blockDataFactory,
         IExecutor executor,
         AnimatedBlockHookManager animatedBlockHookManager,
         BlockAnalyzerSpigot blockAnalyzer,
         BlockDisplayHelper blockDisplayHelper)
     {
+        this.blockDataFactory = blockDataFactory;
         this.executor = executor;
         this.animatedBlockHookManager = animatedBlockHookManager;
         this.blockAnalyzer = blockAnalyzer;
@@ -60,6 +63,7 @@ public class AnimatedBlockDisplayFactory implements IAnimatedBlockFactory
             return Optional.empty();
 
         return Optional.of(new AnimatedBlockDisplay(
+            blockDataFactory,
             blockDisplayHelper,
             executor,
             animatedBlockHookManager,

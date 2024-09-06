@@ -59,6 +59,7 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     private RotatedPosition currentTarget;
 
     public AnimatedBlockDisplay(
+        SimpleBlockData.IFactory blockDataFactory,
         BlockDisplayHelper blockDisplayHelper,
         IExecutor executor,
         AnimatedBlockHookManager animatedBlockHookManager,
@@ -80,9 +81,8 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
         this.currentTarget = this.startPosition;
         this.previousTarget = currentTarget;
 
-        this.blockData = new SimpleBlockData(
+        this.blockData = blockDataFactory.create(
             this,
-            executor,
             blockDataRotator,
             bukkitWorld,
             this.startPosition.position().floor().toInteger()
