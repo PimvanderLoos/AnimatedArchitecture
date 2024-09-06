@@ -2,6 +2,9 @@ package nl.pim16aap2.animatedarchitecture.spigot.core.animation;
 
 import com.google.common.flogger.StackSize;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import lombok.Getter;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
@@ -58,17 +61,18 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     @GuardedBy("this")
     private RotatedPosition currentTarget;
 
-    public AnimatedBlockDisplay(
+    @AssistedInject
+    AnimatedBlockDisplay(
+        @Assisted @Nullable Consumer<IAnimatedBlockData> blockDataRotator,
+        @Assisted("startPosition") RotatedPosition startPosition,
+        @Assisted("finalPosition") RotatedPosition finalPosition,
+        @Assisted IWorld world,
+        @Assisted boolean onEdge,
+        @Assisted float radius,
         SimpleBlockData.IFactory blockDataFactory,
         BlockDisplayHelper blockDisplayHelper,
         IExecutor executor,
-        AnimatedBlockHookManager animatedBlockHookManager,
-        @Nullable Consumer<IAnimatedBlockData> blockDataRotator,
-        RotatedPosition startPosition,
-        IWorld world,
-        RotatedPosition finalPosition,
-        boolean onEdge,
-        float radius)
+        AnimatedBlockHookManager animatedBlockHookManager)
     {
         this.blockDisplayHelper = blockDisplayHelper;
         this.executor = executor;
@@ -246,5 +250,38 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
                 log.atSevere().withCause(e).log("Failed to execute '%s' for hook '%s'!", actionName, hook.getName());
             }
         }
+    }
+
+    /**
+     * Factory for creating {@link AnimatedBlockDisplay} instances.
+     */
+    @AssistedFactory
+    interface IFactory
+    {
+        /**
+         * Creates a new {@link AnimatedBlockDisplay} instance.
+         *
+         * @param blockDataRotator
+         *     The block data rotator.
+         * @param startPosition
+         *     The start position of the block.
+         * @param world
+         *     The world the block is in.
+         * @param finalPosition
+         *     The final position of the block when the animation is done.
+         * @param onEdge
+         *     Whether the block is on an edge of the structure.
+         * @param radius
+         *     The radius of the block in regard to the rotation point of the animation.
+         * @return The created {@link AnimatedBlockDisplay} instance.
+         */
+        AnimatedBlockDisplay create(
+            @Nullable Consumer<IAnimatedBlockData> blockDataRotator,
+            @Assisted("startPosition") RotatedPosition startPosition,
+            @Assisted("finalPosition") RotatedPosition finalPosition,
+            IWorld world,
+            boolean onEdge,
+            float radius
+        );
     }
 }

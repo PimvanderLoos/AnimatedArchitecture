@@ -47,7 +47,7 @@ public class SimpleBlockData implements IAnimatedBlockData
     private final World bukkitWorld;
 
     @AssistedInject
-    private SimpleBlockData(
+    SimpleBlockData(
         @Assisted AnimatedBlockDisplay animatedBlock,
         @Assisted @Nullable Consumer<IAnimatedBlockData> blockDataRotator,
         @Assisted World bukkitWorld,
