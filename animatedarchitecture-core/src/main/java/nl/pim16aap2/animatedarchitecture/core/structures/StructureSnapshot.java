@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.Delegate;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyManagerConst;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyContainerConst;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Rectangle;
@@ -45,7 +45,7 @@ public final class StructureSnapshot implements IStructureConst
     private final StructureType type;
     @Delegate
     @Getter
-    private final IPropertyManagerConst propertyManagerSnapshot;
+    private final IPropertyContainerConst propertyContainerSnapshot;
 
     @Getter(AccessLevel.NONE)
     private final Map<String, Object> persistentVariableMap;
@@ -64,7 +64,7 @@ public final class StructureSnapshot implements IStructureConst
             structure.getPrimeOwner(),
             Map.copyOf(structure.getOwnersView()),
             structure.getType(),
-            structure.getPropertyManagerSnapshot(),
+            structure.getPropertyContainerSnapshot(),
             getPersistentVariableMap(structure)
         );
     }

@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import nl.pim16aap2.animatedarchitecture.core.annotations.Initializer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyManager;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainer;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
@@ -55,7 +55,7 @@ public final class StructureBaseBuilder
         private MovementDirection openDir;
         private StructureOwner primeOwner;
         private @Nullable Map<UUID, StructureOwner> owners;
-        private PropertyManager propertyManager;
+        private PropertyContainer propertyContainer;
 
         @Override
         public long getUID()
@@ -137,9 +137,9 @@ public final class StructureBaseBuilder
 
         @Override
         @Initializer
-        public IBuilder propertiesOfStructure(PropertyManager propertyManager)
+        public IBuilder propertiesOfStructure(PropertyContainer propertyContainer)
         {
-            this.propertyManager = propertyManager;
+            this.propertyContainer = propertyContainer;
             return this;
         }
 
@@ -157,7 +157,7 @@ public final class StructureBaseBuilder
                     openDir,
                     primeOwner,
                     owners,
-                    propertyManager
+                    propertyContainer
                 ));
         }
     }
@@ -302,11 +302,11 @@ public final class StructureBaseBuilder
         /**
          * Sets the properties of the structure to the default values.
          *
-         * @param propertyManager
+         * @param propertyContainer
          *     The properties of the structure.
          * @return The next step of the guided builder process.
          */
-        IBuilder propertiesOfStructure(PropertyManager propertyManager);
+        IBuilder propertiesOfStructure(PropertyContainer propertyContainer);
 
         /**
          * Sets the properties of the structure to the default values.
@@ -317,7 +317,7 @@ public final class StructureBaseBuilder
          */
         default IBuilder propertiesOfStructure(StructureType structureType)
         {
-            return propertiesOfStructure(PropertyManager.forType(structureType));
+            return propertiesOfStructure(PropertyContainer.forType(structureType));
         }
 
         /**
@@ -339,7 +339,7 @@ public final class StructureBaseBuilder
          * @throws IllegalArgumentException
          *     If the properties are not provided in pairs of 2.
          *     <p>
-         *     If the property is not valid for the structure type this property manager was created for.
+         *     If the property is not valid for the structure type this property container was created for.
          */
         default IBuilder propertiesOfStructure(StructureType structureType, @Nullable Object @Nullable ... properties)
         {
@@ -349,7 +349,7 @@ public final class StructureBaseBuilder
             if (properties.length % 2 != 0)
                 throw new IllegalArgumentException("Properties must be provided in pairs of 2.");
 
-            final var propertyManager = PropertyManager.forType(structureType);
+            final var propertyContainer = PropertyContainer.forType(structureType);
             for (int idx = 0; idx < properties.length; idx += 2)
             {
                 final Property<?> property = (Property<?>) Util.requireNonNull(
@@ -358,10 +358,10 @@ public final class StructureBaseBuilder
                 );
 
                 final @Nullable Object value = properties[idx + 1];
-                propertyManager.setUntypedPropertyValue(property, value);
+                propertyContainer.setUntypedPropertyValue(property, value);
             }
 
-            return propertiesOfStructure(propertyManager);
+            return propertiesOfStructure(propertyContainer);
         }
 
         /**

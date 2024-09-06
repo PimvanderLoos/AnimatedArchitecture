@@ -19,7 +19,7 @@ import java.util.UUID;
 @Timeout(1)
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-class PropertyManagerTest
+class PropertyContainerTest
 {
     private static final Property<Integer> PROPERTY_UNSET = new Property<>(
         "external",
@@ -48,18 +48,18 @@ class PropertyManagerTest
         PROPERTY_NULLABLE
     );
 
-    private PropertyManager propertyManager;
+    private PropertyContainer propertyContainer;
 
     @BeforeEach
     void beforeEach()
     {
-        propertyManager = PropertyManager.forProperties(PROPERTIES);
+        propertyContainer = PropertyContainer.forProperties(PROPERTIES);
     }
 
     @Test
     void testGetNullablePropertyValue()
     {
-        final var value = propertyManager.getPropertyValue(PROPERTY_NULLABLE);
+        final var value = propertyContainer.getPropertyValue(PROPERTY_NULLABLE);
 
         Assertions.assertNotNull(value);
         Assertions.assertTrue(value.isSet());
@@ -69,7 +69,7 @@ class PropertyManagerTest
     @Test
     void testGetNonnullPropertyValue()
     {
-        final var value = propertyManager.getPropertyValue(PROPERTY_STRING);
+        final var value = propertyContainer.getPropertyValue(PROPERTY_STRING);
 
         Assertions.assertNotNull(value);
         Assertions.assertTrue(value.isSet());
@@ -79,7 +79,7 @@ class PropertyManagerTest
     @Test
     void testGetUnsetProperty()
     {
-        final var value = propertyManager.getPropertyValue(PROPERTY_UNSET);
+        final var value = propertyContainer.getPropertyValue(PROPERTY_UNSET);
 
         Assertions.assertNotNull(value);
         Assertions.assertFalse(value.isSet());
@@ -94,51 +94,51 @@ class PropertyManagerTest
         // Verify that the property has the default value (false).
         Assertions.assertEquals(
             PROPERTY_STRING_DEFAULT,
-            propertyManager.getPropertyValue(PROPERTY_STRING).value()
+            propertyContainer.getPropertyValue(PROPERTY_STRING).value()
         );
 
         // Verify that the property provides the old value (false) when setting a new value (true).
         Assertions.assertEquals(
             PROPERTY_STRING_DEFAULT,
-            propertyManager.setPropertyValue(PROPERTY_STRING, newValue).value()
+            propertyContainer.setPropertyValue(PROPERTY_STRING, newValue).value()
         );
 
         // Verify that the property has been set to the new value (true).
         Assertions.assertEquals(
             newValue,
-            propertyManager.getPropertyValue(PROPERTY_STRING).value()
+            propertyContainer.getPropertyValue(PROPERTY_STRING).value()
         );
     }
 
     @Test
     void testSetMissingProperty()
     {
-        Assertions.assertFalse(propertyManager.getPropertyValue(PROPERTY_UNSET).isSet());
+        Assertions.assertFalse(propertyContainer.getPropertyValue(PROPERTY_UNSET).isSet());
 
         final int newValue = Objects.requireNonNullElse(PROPERTY_UNSET.getDefaultValue(), 7) + 11;
 
-        propertyManager.setPropertyValue(PROPERTY_UNSET, newValue);
-        Assertions.assertEquals(newValue, propertyManager.getPropertyValue(PROPERTY_UNSET).value());
-        Assertions.assertTrue(propertyManager.hasProperty(PROPERTY_UNSET));
+        propertyContainer.setPropertyValue(PROPERTY_UNSET, newValue);
+        Assertions.assertEquals(newValue, propertyContainer.getPropertyValue(PROPERTY_UNSET).value());
+        Assertions.assertTrue(propertyContainer.hasProperty(PROPERTY_UNSET));
     }
 
     @Test
     void testHasProperty()
     {
-        Assertions.assertTrue(propertyManager.hasProperty(PROPERTY_STRING));
+        Assertions.assertTrue(propertyContainer.hasProperty(PROPERTY_STRING));
 
-        Assertions.assertFalse(propertyManager.hasProperty(PROPERTY_UNSET));
+        Assertions.assertFalse(propertyContainer.hasProperty(PROPERTY_UNSET));
     }
 
     @Test
     void testHasProperties()
     {
-        Assertions.assertTrue(propertyManager.hasProperties(
+        Assertions.assertTrue(propertyContainer.hasProperties(
             PROPERTIES.get(0),
             PROPERTIES.get(1)
         ));
 
-        Assertions.assertFalse(propertyManager.hasProperties(
+        Assertions.assertFalse(propertyContainer.hasProperties(
             PROPERTIES.get(0),
             PROPERTY_UNSET
         ));
@@ -147,7 +147,7 @@ class PropertyManagerTest
     @Test
     void testGetRequiredPropertyValue()
     {
-        final var quarterCircles = propertyManager.getRequiredPropertyValue(PROPERTY_STRING);
+        final var quarterCircles = propertyContainer.getRequiredPropertyValue(PROPERTY_STRING);
         Assertions.assertEquals(PROPERTY_STRING_DEFAULT, quarterCircles);
     }
 
@@ -156,7 +156,7 @@ class PropertyManagerTest
     {
         Assertions.assertThrows(
             NullPointerException.class,
-            () -> propertyManager.getRequiredPropertyValue(PROPERTY_UNSET)
+            () -> propertyContainer.getRequiredPropertyValue(PROPERTY_UNSET)
         );
     }
 
@@ -164,7 +164,7 @@ class PropertyManagerTest
     void testSetValidUntypedPropertyValue()
     {
         Assertions.assertDoesNotThrow(
-            () -> propertyManager.setUntypedPropertyValue(PROPERTY_STRING, "value")
+            () -> propertyContainer.setUntypedPropertyValue(PROPERTY_STRING, "value")
         );
     }
 
@@ -173,7 +173,7 @@ class PropertyManagerTest
     {
         Assertions.assertThrows(
             IllegalArgumentException.class,
-            () -> propertyManager.setUntypedPropertyValue(PROPERTY_STRING, new Object())
+            () -> propertyContainer.setUntypedPropertyValue(PROPERTY_STRING, new Object())
         );
     }
 
@@ -182,7 +182,7 @@ class PropertyManagerTest
     {
         Assertions.assertThrows(
             IllegalArgumentException.class,
-            () -> propertyManager.setUntypedPropertyValue(PROPERTY_UNSET, new Object())
+            () -> propertyContainer.setUntypedPropertyValue(PROPERTY_UNSET, new Object())
         );
     }
 
@@ -190,7 +190,7 @@ class PropertyManagerTest
     void testValidMapUntypedValue()
     {
         Assertions.assertDoesNotThrow(
-            () -> PropertyManager.mapUntypedValue(PROPERTY_STRING, "value")
+            () -> PropertyContainer.mapUntypedValue(PROPERTY_STRING, "value")
         );
     }
 
@@ -199,7 +199,7 @@ class PropertyManagerTest
     {
         Assertions.assertThrows(
             IllegalArgumentException.class,
-            () -> PropertyManager.mapUntypedValue(PROPERTY_STRING, new Object())
+            () -> PropertyContainer.mapUntypedValue(PROPERTY_STRING, new Object())
         );
     }
 
@@ -209,15 +209,15 @@ class PropertyManagerTest
         final String stringValue = UUID.randomUUID().toString();
         final Object objectValue = new Object();
 
-        propertyManager.setPropertyValue(PROPERTY_STRING, stringValue);
-        propertyManager.setPropertyValue(PROPERTY_NULLABLE, objectValue);
+        propertyContainer.setPropertyValue(PROPERTY_STRING, stringValue);
+        propertyContainer.setPropertyValue(PROPERTY_NULLABLE, objectValue);
 
-        final var snapshot = propertyManager.snapshot();
+        final var snapshot = propertyContainer.snapshot();
 
         Assertions.assertEquals(stringValue, snapshot.getPropertyValue(PROPERTY_STRING).value());
         Assertions.assertEquals(objectValue, snapshot.getPropertyValue(PROPERTY_NULLABLE).value());
 
-        propertyManager.setPropertyValue(PROPERTY_STRING, UUID.randomUUID().toString());
+        propertyContainer.setPropertyValue(PROPERTY_STRING, UUID.randomUUID().toString());
         Assertions.assertEquals(stringValue, snapshot.getPropertyValue(PROPERTY_STRING).value());
     }
 
@@ -227,21 +227,21 @@ class PropertyManagerTest
         final StructureType mockStructureType = Mockito.mock();
         Mockito.when(mockStructureType.getProperties()).thenReturn(PROPERTIES);
 
-        final var manager = PropertyManager.forType(mockStructureType);
-        Assertions.assertEquals(propertyManager, manager);
+        final var container = PropertyContainer.forType(mockStructureType);
+        Assertions.assertEquals(propertyContainer, container);
     }
 
     @Test
     void testEqualsAndHashCode()
     {
-        final var otherManager = PropertyManager.forProperties(PROPERTIES);
+        final var otherContainer = PropertyContainer.forProperties(PROPERTIES);
 
-        Assertions.assertEquals(propertyManager, otherManager);
-        Assertions.assertEquals(propertyManager.hashCode(), otherManager.hashCode());
+        Assertions.assertEquals(propertyContainer, otherContainer);
+        Assertions.assertEquals(propertyContainer.hashCode(), otherContainer.hashCode());
 
-        otherManager.setPropertyValue(PROPERTY_STRING, UUID.randomUUID().toString());
+        otherContainer.setPropertyValue(PROPERTY_STRING, UUID.randomUUID().toString());
 
-        Assertions.assertNotEquals(propertyManager, otherManager);
-        Assertions.assertNotEquals(propertyManager.hashCode(), otherManager.hashCode());
+        Assertions.assertNotEquals(propertyContainer, otherContainer);
+        Assertions.assertNotEquals(propertyContainer.hashCode(), otherContainer.hashCode());
     }
 }

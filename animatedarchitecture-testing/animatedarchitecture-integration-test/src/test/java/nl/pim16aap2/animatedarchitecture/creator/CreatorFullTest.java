@@ -55,7 +55,7 @@ class CreatorFullTest extends CreatorTestsUtil
             .when(structure.getType())
             .thenReturn(structureType);
 
-        UnitTestUtil.setPropertyManagerInMockedStructure(structure, properties);
+        UnitTestUtil.setPropertyContainerInMockedStructure(structure, properties);
     }
 
     @Test

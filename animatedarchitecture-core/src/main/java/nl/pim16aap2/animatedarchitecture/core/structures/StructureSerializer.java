@@ -8,8 +8,8 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.annotations.Deserialization;
 import nl.pim16aap2.animatedarchitecture.core.annotations.PersistentVariable;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyManagerSerializer;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainer;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainerSerializer;
 import nl.pim16aap2.util.SafeStringBuilder;
 import nl.pim16aap2.util.reflection.ReflectionBuilder;
 import org.jetbrains.annotations.Nullable;
@@ -314,7 +314,7 @@ public final class StructureSerializer<T extends AbstractStructure>
      * @param persistentVariablesJson
      *     The serialized type-specific data represented as a json string.
      * @param propertiesJson
-     *     The serialized {@link PropertyManager} of the structure.
+     *     The serialized {@link PropertyContainer} of the structure.
      * @return The newly created instance.
      */
     public T deserialize(
@@ -340,8 +340,8 @@ public final class StructureSerializer<T extends AbstractStructure>
         final AbstractStructure.BaseHolder structureBase;
         try
         {
-            final var propertyManager = PropertyManagerSerializer.deserialize(structureType, propertiesJson);
-            structureBase = structureBuilder.propertiesOfStructure(propertyManager).build();
+            final var propertyContainer = PropertyContainerSerializer.deserialize(structureType, propertiesJson);
+            structureBase = structureBuilder.propertiesOfStructure(propertyContainer).build();
         }
         catch (Exception e)
         {

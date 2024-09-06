@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
-class PropertyManagerSnapshotTest
+class PropertyContainerSnapshotTest
 {
     private static final Property<Object> PROPERTY_UNSET = new Property<>(
         "external",
@@ -37,7 +37,7 @@ class PropertyManagerSnapshotTest
     );
 
     Map<String, IPropertyValue<?>> propertyMap;
-    PropertyManagerSnapshot propertyManagerSnapshot;
+    PropertyContainerSnapshot propertyContainerSnapshot;
 
     @BeforeEach
     void beforeEach()
@@ -46,7 +46,7 @@ class PropertyManagerSnapshotTest
             PROPERTY_STRING.getFullKey(), providedPropertyValue(PROPERTY_STRING),
             PROPERTY_NULLABLE.getFullKey(), providedPropertyValue(PROPERTY_NULLABLE)
         );
-        propertyManagerSnapshot = new PropertyManagerSnapshot(propertyMap);
+        propertyContainerSnapshot = new PropertyContainerSnapshot(propertyMap);
     }
 
     @Test
@@ -68,6 +68,6 @@ class PropertyManagerSnapshotTest
      */
     private static <T> IPropertyValue<T> providedPropertyValue(Property<T> property)
     {
-        return new PropertyManager.ProvidedPropertyValue<>(property.getType(), property.getDefaultValue());
+        return new PropertyContainer.ProvidedPropertyValue<>(property.getType(), property.getDefaultValue());
     }
 }
