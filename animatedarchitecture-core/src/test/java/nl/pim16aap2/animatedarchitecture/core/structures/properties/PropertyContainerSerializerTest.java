@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 @WithLogCapture
-public class PropertyManagerSerializerTest
+public class PropertyContainerSerializerTest
 {
     private static final Property<Integer> PROPERTY_UNSET = new Property<>(
         "external",
@@ -41,7 +41,7 @@ public class PropertyManagerSerializerTest
 
     @Mock
     private StructureType structureType;
-    private PropertyManager propertyManager;
+    private PropertyContainer propertyContainer;
 
     private Map<Property<?>, @Nullable Object> intermediateMap;
 
@@ -55,7 +55,7 @@ public class PropertyManagerSerializerTest
             Property.REDSTONE_MODE, null
         );
 
-        propertyManager = propertyManagerFromMap(intermediateMap);
+        propertyContainer = propertyContainerFromMap(intermediateMap);
 
         Mockito.when(structureType.getProperties()).thenReturn(List.copyOf(intermediateMap.keySet()));
         Mockito.when(structureType.getFullNameWithVersion()).thenReturn("test:structure:1");
@@ -64,24 +64,24 @@ public class PropertyManagerSerializerTest
     @Test
     void testSerializationCycle()
     {
-        final String serialized = PropertyManagerSerializer.serialize(propertyManager);
+        final String serialized = PropertyContainerSerializer.serialize(propertyContainer);
 
         Assertions.assertEquals(
-            propertyManager,
-            PropertyManagerSerializer.deserialize(structureType, serialized)
+            propertyContainer,
+            PropertyContainerSerializer.deserialize(structureType, serialized)
         );
     }
 
     @Test
     void testSerializationCycleWithNonTypeDefinedProperties()
     {
-        propertyManager.setPropertyValue(PROPERTY_UNSET, 7);
+        propertyContainer.setPropertyValue(PROPERTY_UNSET, 7);
 
-        final String serialized = PropertyManagerSerializer.serialize(propertyManager);
+        final String serialized = PropertyContainerSerializer.serialize(propertyContainer);
 
         Assertions.assertEquals(
-            propertyManager,
-            PropertyManagerSerializer.deserialize(structureType, serialized)
+            propertyContainer,
+            PropertyContainerSerializer.deserialize(structureType, serialized)
         );
     }
 
@@ -91,13 +91,13 @@ public class PropertyManagerSerializerTest
         final AbstractStructure structure = Mockito.mock(AbstractStructure.class);
         Mockito.when(structure.getType()).thenReturn(structureType);
 
-        final IPropertyManagerConst snapshot = propertyManager.snapshot();
-        Mockito.when(structure.getPropertyManagerSnapshot()).thenReturn(snapshot);
+        final IPropertyContainerConst snapshot = propertyContainer.snapshot();
+        Mockito.when(structure.getPropertyContainerSnapshot()).thenReturn(snapshot);
 
-        final String serialized = PropertyManagerSerializer.serialize(structure);
+        final String serialized = PropertyContainerSerializer.serialize(structure);
         Assertions.assertEquals(
-            propertyManager,
-            PropertyManagerSerializer.deserialize(structureType, serialized)
+            propertyContainer,
+            PropertyContainerSerializer.deserialize(structureType, serialized)
         );
     }
 
@@ -110,7 +110,7 @@ public class PropertyManagerSerializerTest
 
         // "ANIMATION_SPEED_MULTIPLIER" exists, so it should be updated.
         Assertions.assertTrue(
-            PropertyManagerSerializer.updatePropertyMapEntry(
+            PropertyContainerSerializer.updatePropertyMapEntry(
                 structureType,
                 entries,
                 Property.ANIMATION_SPEED_MULTIPLIER.getFullKey(),
@@ -127,7 +127,7 @@ public class PropertyManagerSerializerTest
 
         // "OPEN_STATUS" does not exist, so it should not be updated.
         Assertions.assertFalse(
-            PropertyManagerSerializer.updatePropertyMapEntry(
+            PropertyContainerSerializer.updatePropertyMapEntry(
                 structureType,
                 entries,
                 Property.OPEN_STATUS.getFullKey(),
@@ -145,11 +145,11 @@ public class PropertyManagerSerializerTest
         final var mapWithUnsupportedProperty = new HashMap<>(intermediateMap);
         mapWithUnsupportedProperty.put(PROPERTY_UNSET, 7);
 
-        final PropertyManager propertyManagerWithUnsupportedProperty =
-            propertyManagerFromMap(mapWithUnsupportedProperty);
+        final PropertyContainer propertyContainerWithUnsupportedProperty =
+            propertyContainerFromMap(mapWithUnsupportedProperty);
 
-        final String serialized = PropertyManagerSerializer.serialize(propertyManagerWithUnsupportedProperty);
-        final PropertyManager deserialized = PropertyManagerSerializer.deserialize(structureType, serialized);
+        final String serialized = PropertyContainerSerializer.serialize(propertyContainerWithUnsupportedProperty);
+        final PropertyContainer deserialized = PropertyContainerSerializer.deserialize(structureType, serialized);
 
         Assertions.assertTrue(deserialized.hasProperty(PROPERTY_UNSET));
     }
@@ -160,14 +160,14 @@ public class PropertyManagerSerializerTest
         final String nonExistingProperty = "animatedarchitecture:non_existing_property";
 
         final String serialized =
-            new StringBuilder(PropertyManagerSerializer.serialize(propertyManager))
+            new StringBuilder(PropertyContainerSerializer.serialize(propertyContainer))
                 .insert(1, "\"" + nonExistingProperty + "\":{\"value\":5},")
                 .toString();
 
-        final PropertyManager deserialized = PropertyManagerSerializer.deserialize(structureType, serialized);
+        final PropertyContainer deserialized = PropertyContainerSerializer.deserialize(structureType, serialized);
 
-        // After deserialization, the PropertyManager should not contain the non-existing property.
-        Assertions.assertEquals(propertyManager, deserialized);
+        // After deserialization, the PropertyContainer should not contain the non-existing property.
+        Assertions.assertEquals(propertyContainer, deserialized);
 
         LogAssertionsUtil
             .logAssertionBuilder(logCaptor)
@@ -186,16 +186,16 @@ public class PropertyManagerSerializerTest
     @Test
     void testMissingProperties(LogCaptor logCaptor)
     {
-        final PropertyManager propertyManagerWithMissingProperties = propertyManagerFromMap(
+        final PropertyContainer propertyContainerWithMissingProperties = propertyContainerFromMap(
             createIntermediateMap(
                 Property.ANIMATION_SPEED_MULTIPLIER, -1.5D,
                 Property.OPEN_STATUS, true
             )
         );
 
-        final String serialized = PropertyManagerSerializer.serialize(propertyManagerWithMissingProperties);
+        final String serialized = PropertyContainerSerializer.serialize(propertyContainerWithMissingProperties);
 
-        final PropertyManager deserialized = PropertyManagerSerializer.deserialize(structureType, serialized);
+        final PropertyContainer deserialized = PropertyContainerSerializer.deserialize(structureType, serialized);
 
         //noinspection DataFlowIssue
         Assertions.assertEquals(
@@ -219,7 +219,7 @@ public class PropertyManagerSerializerTest
             .logAssertionBuilder(logCaptor)
             .message(
                 logMessage,
-                PropertyManager.mapKey(Property.REDSTONE_MODE),
+                PropertyContainer.mapKey(Property.REDSTONE_MODE),
                 structureType,
                 Property.REDSTONE_MODE.getDefaultValue()
             )
@@ -230,7 +230,7 @@ public class PropertyManagerSerializerTest
             .logAssertionBuilder(logCaptor)
             .message(
                 logMessage,
-                PropertyManager.mapKey(Property.ROTATION_POINT),
+                PropertyContainer.mapKey(Property.ROTATION_POINT),
                 structureType,
                 Property.ROTATION_POINT.getDefaultValue()
             )
@@ -241,8 +241,8 @@ public class PropertyManagerSerializerTest
     /**
      * Creates a new 'intermediate' map of properties and their values.
      * <p>
-     * This map cannot be used directly to create a {@link PropertyManager} but can be used by
-     * {@link #createPropertyMap(Map)} to create a map that can be used to create a {@link PropertyManager}.
+     * This map cannot be used directly to create a {@link PropertyContainer} but can be used by
+     * {@link #createPropertyMap(Map)} to create a map that can be used to create a {@link PropertyContainer}.
      *
      * @param input
      *     The properties and their values. The properties and their values are expected to be interleaved.
@@ -297,20 +297,20 @@ public class PropertyManagerSerializerTest
             .entrySet()
             .stream()
             .collect(Collectors.toUnmodifiableMap(
-                entry -> PropertyManager.mapKey(entry.getKey()),
-                entry -> PropertyManager.mapUntypedValue(entry.getKey(), entry.getValue())
+                entry -> PropertyContainer.mapKey(entry.getKey()),
+                entry -> PropertyContainer.mapUntypedValue(entry.getKey(), entry.getValue())
             ));
     }
 
     /**
-     * Creates a new {@link PropertyManager} from a map of properties and their values.
+     * Creates a new {@link PropertyContainer} from a map of properties and their values.
      *
      * @param map
      *     The map of properties and their values.
-     * @return The new {@link PropertyManager}.
+     * @return The new {@link PropertyContainer}.
      */
-    private static PropertyManager propertyManagerFromMap(Map<Property<?>, @Nullable Object> map)
+    private static PropertyContainer propertyContainerFromMap(Map<Property<?>, @Nullable Object> map)
     {
-        return new PropertyManager(new LinkedHashMap<>(createPropertyMap(map)));
+        return new PropertyContainer(new LinkedHashMap<>(createPropertyMap(map)));
     }
 }

@@ -26,8 +26,8 @@ import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyVal
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithOpenStatus;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithRotationPoint;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyManagerSnapshot;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainer;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainerSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes.IPerpetualMover;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
@@ -68,7 +68,7 @@ final class StructureBase
     private final IWorld world;
 
     @GuardedBy("lock")
-    private final PropertyManager propertyManager;
+    private final PropertyContainer propertyContainer;
 
     @EqualsAndHashCode.Exclude
     private final StructureAnimationRequestBuilder structureToggleRequestBuilder;
@@ -160,7 +160,7 @@ final class StructureBase
         @Assisted MovementDirection openDir,
         @Assisted StructureOwner primeOwner,
         @Assisted @Nullable Map<UUID, StructureOwner> owners,
-        @Assisted PropertyManager propertyManager,
+        @Assisted PropertyContainer propertyContainer,
         ILocalizer localizer,
         DatabaseManager databaseManager,
         StructureRegistry structureRegistry,
@@ -181,7 +181,7 @@ final class StructureBase
         this.isLocked = isLocked;
         this.openDir = openDir;
         this.primeOwner = primeOwner;
-        this.propertyManager = propertyManager;
+        this.propertyContainer = propertyContainer;
         this.redstoneManager = redstoneManager;
         this.structureActivityManager = structureActivityManager;
         this.chunkLoader = chunkLoader;
@@ -372,33 +372,33 @@ final class StructureBase
     }
 
     @Locked.Read("lock")
-    public PropertyManagerSnapshot newPropertyManagerSnapshot()
+    public PropertyContainerSnapshot newPropertyContainerSnapshot()
     {
-        return propertyManager.snapshot();
+        return propertyContainer.snapshot();
     }
 
     @Locked.Read("lock")
     public <T> IPropertyValue<T> getPropertyValue(Property<T> property)
     {
-        return propertyManager.getPropertyValue(property);
+        return propertyContainer.getPropertyValue(property);
     }
 
     @Locked.Read("lock")
     public boolean hasProperty(Property<?> property)
     {
-        return propertyManager.hasProperty(property);
+        return propertyContainer.hasProperty(property);
     }
 
     @Locked.Read("lock")
     public boolean hasProperties(Collection<Property<?>> properties)
     {
-        return propertyManager.hasProperties(properties);
+        return propertyContainer.hasProperties(properties);
     }
 
     @Locked.Write("lock")
     public <T> IPropertyValue<T> setPropertyValue(Property<T> property, @Nullable T value)
     {
-        return propertyManager.setPropertyValue(property, value);
+        return propertyContainer.setPropertyValue(property, value);
     }
 
     /**
@@ -415,7 +415,7 @@ final class StructureBase
             + formatLine("World", getWorld())
             + formatLine("This structure is ", (isLocked ? "locked" : "unlocked"))
             + formatLine("OpenDir", openDir.name()
-            + formatLine("Properties", propertyManager)
+            + formatLine("Properties", propertyContainer)
         );
     }
 
@@ -450,7 +450,7 @@ final class StructureBase
             MovementDirection openDir,
             StructureOwner primeOwner,
             @Nullable Map<UUID, StructureOwner> structureOwners,
-            PropertyManager propertyManager
+            PropertyContainer propertyContainer
         );
     }
 }

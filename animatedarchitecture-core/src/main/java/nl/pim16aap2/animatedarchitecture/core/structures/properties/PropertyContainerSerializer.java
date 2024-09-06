@@ -13,48 +13,48 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Serializes and deserializes {@link PropertyManager} instances to and from JSON.
+ * Serializes and deserializes {@link PropertyContainer} instances to and from JSON.
  */
 @Flogger
-public final class PropertyManagerSerializer
+public final class PropertyContainerSerializer
 {
     /**
      * The type reference for the intermediate map used during deserialization.
      * <p>
      * This map is used to deserialize the JSON string to a map of {@link String} to {@link JSONObject}.
      * <p>
-     * The {@link JSONObject}s are then deserialized to {@link PropertyManager.ProvidedPropertyValue}s.
+     * The {@link JSONObject}s are then deserialized to {@link PropertyContainer.ProvidedPropertyValue}s.
      */
     private static final TypeReference<Map<String, JSONObject>> INTERMEDIATE_MAP_TYPE_REFERENCE =
         new TypeReference<>() {};
 
     /**
-     * Serializes the given {@link IPropertyManagerConst} to a JSON string.
+     * Serializes the given {@link IPropertyContainerConst} to a JSON string.
      *
-     * @param propertyManagerConst
-     *     The {@link IPropertyManagerConst} to serialize.
-     * @return The JSON string representing the {@link IPropertyManagerConst}.
+     * @param propertyContainerConst
+     *     The {@link IPropertyContainerConst} to serialize.
+     * @return The JSON string representing the {@link IPropertyContainerConst}.
      */
-    public static String serialize(IPropertyManagerConst propertyManagerConst)
+    public static String serialize(IPropertyContainerConst propertyContainerConst)
     {
-        final Map<String, IPropertyValue<?>> map = switch (propertyManagerConst)
+        final Map<String, IPropertyValue<?>> map = switch (propertyContainerConst)
         {
-            case PropertyManager propertyManager -> propertyManager.getMap();
-            case PropertyManagerSnapshot propertyManagerSnapshot -> propertyManagerSnapshot.getMap();
+            case PropertyContainer propertyContainer -> propertyContainer.getMap();
+            case PropertyContainerSnapshot propertyContainerSnapshot -> propertyContainerSnapshot.getMap();
         };
         return JSON.toJSONString(map);
     }
 
     /**
-     * Serializes the {@link PropertyManager} of the given {@link AbstractStructure} to a JSON string.
+     * Serializes the {@link PropertyContainer} of the given {@link AbstractStructure} to a JSON string.
      *
      * @param structure
-     *     The structure whose {@link PropertyManager} to serialize.
-     * @return The JSON string representing the {@link PropertyManager}.
+     *     The structure whose {@link PropertyContainer} to serialize.
+     * @return The JSON string representing the {@link PropertyContainer}.
      */
     public static String serialize(IStructureConst structure)
     {
-        return serialize(structure.getPropertyManagerSnapshot());
+        return serialize(structure.getPropertyContainerSnapshot());
     }
 
     /**
@@ -70,7 +70,7 @@ public final class PropertyManagerSerializer
      */
     static <T> IPropertyValue<T> deserializePropertyValue(JSONObject jsonObject, Class<T> type)
     {
-        return new PropertyManager.ProvidedPropertyValue<>(
+        return new PropertyContainer.ProvidedPropertyValue<>(
             type,
             jsonObject.getObject("value", type)
         );
@@ -157,10 +157,10 @@ public final class PropertyManagerSerializer
     }
 
     /**
-     * Deserializes a map to a {@link PropertyManager}.
+     * Deserializes a map to a {@link PropertyContainer}.
      * <p>
      * This method will go over the entries in the deserialized map and apply the values to the default property map of
-     * the given structure type (See {@link PropertyManager#getDefaultPropertyMap(StructureType)}).
+     * the given structure type (See {@link PropertyContainer#getDefaultPropertyMap(StructureType)}).
      * <p>
      * If a property in the deserialized map is not supported by the structure type (i.e. the key does not exist in the
      * default property map), a warning will be logged and the property will be discarded.
@@ -169,7 +169,7 @@ public final class PropertyManagerSerializer
      * logged and the default value will be used (See {@link Property#getDefaultValue()}).
      *
      * @param structureType
-     *     The structure type to deserialize the {@link PropertyManager} for.
+     *     The structure type to deserialize the {@link PropertyContainer} for.
      *     <p>
      *     The structure type is used to obtain the default property map for the given structure type and to provide
      *     context in log messages.
@@ -178,14 +178,14 @@ public final class PropertyManagerSerializer
      *     <p>
      *     This map should contain the keys of the properties mapped to {@link JSONObject}s that represent the
      *     serialized values of the properties. Only supported properties will be deserialized.
-     * @return The deserialized {@link PropertyManager}.
+     * @return The deserialized {@link PropertyContainer}.
      */
-    static PropertyManager deserialize(
+    static PropertyContainer deserialize(
         StructureType structureType,
         Map<String, JSONObject> deserializedMap)
     {
         final Map<String, IPropertyValue<?>> propertyMap =
-            new HashMap<>(PropertyManager.getDefaultPropertyMap(structureType));
+            new HashMap<>(PropertyContainer.getDefaultPropertyMap(structureType));
 
         int supportedProperties = 0;
         for (final var entry : deserializedMap.entrySet())
@@ -201,14 +201,14 @@ public final class PropertyManagerSerializer
         if (supportedProperties != propertyMap.size())
             logMissingProperties(structureType, propertyMap, deserializedMap);
 
-        return new PropertyManager(propertyMap);
+        return new PropertyContainer(propertyMap);
     }
 
     /**
      * Logs a warning for each property in the default property map that is not present in the deserialized map.
      *
      * @param structureType
-     *     The structure type whose property manager is being deserialized. Used to provide context in log messages.
+     *     The structure type whose property container is being deserialized. Used to provide context in log messages.
      * @param propertyMap
      *     The default property map of the structure type.
      * @param deserializedMap
@@ -232,15 +232,15 @@ public final class PropertyManagerSerializer
     }
 
     /**
-     * Deserializes a {@link PropertyManager} from a JSON string.
+     * Deserializes a {@link PropertyContainer} from a JSON string.
      *
      * @param structureType
-     *     The structure type to deserialize the {@link PropertyManager} for.
+     *     The structure type to deserialize the {@link PropertyContainer} for.
      * @param json
      *     The JSON string to deserialize.
-     * @return The deserialized {@link PropertyManager}.
+     * @return The deserialized {@link PropertyContainer}.
      */
-    public static PropertyManager deserialize(StructureType structureType, String json)
+    public static PropertyContainer deserialize(StructureType structureType, String json)
     {
         try
         {
@@ -248,7 +248,7 @@ public final class PropertyManagerSerializer
         }
         catch (Exception e)
         {
-            throw new IllegalArgumentException("Could not deserialize PropertyManager from JSON: " + json, e);
+            throw new IllegalArgumentException("Could not deserialize PropertyContainer from JSON: " + json, e);
         }
     }
 }

@@ -22,7 +22,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyManager;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainer;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.text.TextArgument;
 import nl.pim16aap2.animatedarchitecture.core.text.TextArgumentFactory;
@@ -79,10 +79,10 @@ public abstract class Creator extends ToolUser
     protected final long structureUidPlaceholder = STRUCTURE_UID_PLACEHOLDER_COUNTER.getAndDecrement();
 
     /**
-     * The {@link PropertyManager} that is used to manage the properties of the structure.
+     * The {@link PropertyContainer} that is used to manage the properties of the structure.
      */
     @GuardedBy("this")
-    private final PropertyManager propertyManager;
+    private final PropertyContainer propertyContainer;
 
     /**
      * The name of the structure that is to be created.
@@ -216,7 +216,7 @@ public abstract class Creator extends ToolUser
         super(context, player);
 
         this.structureType = structureType;
-        this.propertyManager = PropertyManager.forType(structureType);
+        this.propertyContainer = PropertyContainer.forType(structureType);
 
         this.structureAnimationRequestBuilder = context.getStructureAnimationRequestBuilder();
         this.structureActivityManager = context.getStructureActivityManager();
@@ -339,11 +339,11 @@ public abstract class Creator extends ToolUser
      * @param <T>
      *     The type of the property.
      * @throws IllegalArgumentException
-     *     If the property is not valid for the structure type this property manager was created for.
+     *     If the property is not valid for the structure type this property container was created for.
      */
     protected synchronized final <T> void setProperty(Property<T> property, T value)
     {
-        propertyManager.setPropertyValue(property, value);
+        propertyContainer.setPropertyValue(property, value);
     }
 
     /**
@@ -357,7 +357,7 @@ public abstract class Creator extends ToolUser
      */
     protected synchronized final <T> @Nullable T getProperty(Property<T> property)
     {
-        return propertyManager.getPropertyValue(property).value();
+        return propertyContainer.getPropertyValue(property).value();
     }
 
     /**
@@ -465,7 +465,7 @@ public abstract class Creator extends ToolUser
             .openDir(Util.requireNonNull(movementDirection, "openDir"))
             .primeOwner(owner)
             .ownersOfStructure(null)
-            .propertiesOfStructure(propertyManager)
+            .propertiesOfStructure(propertyContainer)
             .build();
     }
 

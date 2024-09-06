@@ -10,8 +10,8 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.LimitContainer;
 import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyManagerSerializer;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainer;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainerSerializer;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
@@ -85,8 +85,8 @@ class StructureSerializerTest
             .ownersOfStructure(null);
 
 
-        final PropertyManager propertyManager = PropertyManager.forType(TestStructureType0.INSTANCE);
-        serializedProperties = PropertyManagerSerializer.serialize(propertyManager);
+        final PropertyContainer propertyManager = PropertyContainer.forType(TestStructureType0.INSTANCE);
+        serializedProperties = PropertyContainerSerializer.serialize(propertyManager);
 
         structureBase = structureBaseBuilder.propertiesOfStructure(propertyManager).build();
     }

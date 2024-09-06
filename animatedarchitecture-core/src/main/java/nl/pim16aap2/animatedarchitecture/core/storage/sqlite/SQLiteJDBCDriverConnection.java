@@ -31,7 +31,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureRegistry;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSerializer;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyManagerSerializer;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainerSerializer;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.IBitFlag;
 import nl.pim16aap2.animatedarchitecture.core.util.Limit;
@@ -412,7 +412,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         try
         {
             final String typeData = serializer.serializeTypeData(structure);
-            final String properties = PropertyManagerSerializer.serialize(structure);
+            final String properties = PropertyContainerSerializer.serialize(structure);
 
             final long structureUID = executeTransaction(
                 conn -> insert(conn, structure, structure.getType(), typeData, properties),
@@ -485,7 +485,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     @Locked.Write
     public boolean syncStructureData(IStructureConst structure, String typeData)
     {
-        final String serializedProperties = PropertyManagerSerializer.serialize(structure);
+        final String serializedProperties = PropertyContainerSerializer.serialize(structure);
 
         return executeUpdate(SQLStatement.UPDATE_STRUCTURE_BASE
             .constructDelayedPreparedStatement()

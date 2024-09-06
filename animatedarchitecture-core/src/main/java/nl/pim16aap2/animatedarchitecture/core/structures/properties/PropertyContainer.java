@@ -24,17 +24,17 @@ import java.util.stream.Collectors;
  * <p>
  * New instances of this class can be created using {@link #forType(StructureType)}.
  * <p>
- * A property manager is created for a specific structure type. It contains all properties that are defined for that
+ * A property container is created for a specific structure type. It contains all properties that are defined for that
  * type as defined by {@link StructureType#getProperties()}.
  * <p>
- * It is not possible to set a property that is not defined for the structure type this property manager was created
+ * It is not possible to set a property that is not defined for the structure type this property container was created
  * for. Attempting to do so will result in an {@link IllegalArgumentException}.
  */
 @NotThreadSafe
 @ToString
 @Flogger
 @EqualsAndHashCode
-public final class PropertyManager implements IPropertyHolder, IPropertyManagerConst
+public final class PropertyContainer implements IPropertyHolder, IPropertyContainerConst
 {
     /**
      * The default property maps for each structure type.
@@ -60,12 +60,12 @@ public final class PropertyManager implements IPropertyHolder, IPropertyManagerC
     private final Map<String, IPropertyValue<?>> unmodifiablePropertyMap;
 
     /**
-     * Creates a new property manager with the given properties.
+     * Creates a new property container with the given properties.
      *
      * @param propertyMap
      *     The properties to set.
      */
-    PropertyManager(Map<String, IPropertyValue<?>> propertyMap)
+    PropertyContainer(Map<String, IPropertyValue<?>> propertyMap)
     {
         this.propertyMap = propertyMap;
         this.unmodifiablePropertyMap = Collections.unmodifiableMap(propertyMap);
@@ -100,7 +100,7 @@ public final class PropertyManager implements IPropertyHolder, IPropertyManagerC
      * @param <T>
      *     The type of the property.
      * @throws IllegalArgumentException
-     *     If the property is not valid for the structure type this property manager was created for.
+     *     If the property is not valid for the structure type this property container was created for.
      */
     @Override
     public <T> IPropertyValue<T> setPropertyValue(Property<T> property, @Nullable T value)
@@ -143,7 +143,7 @@ public final class PropertyManager implements IPropertyHolder, IPropertyManagerC
     {
         return propertyMap
             .keySet()
-            .containsAll(properties.stream().map(PropertyManager::mapKey).collect(Collectors.toSet()));
+            .containsAll(properties.stream().map(PropertyContainer::mapKey).collect(Collectors.toSet()));
     }
 
     /**
@@ -159,46 +159,46 @@ public final class PropertyManager implements IPropertyHolder, IPropertyManagerC
     {
         return propertyMap
             .keySet()
-            .containsAll(properties.stream().map(PropertyManager::mapKey).collect(Collectors.toSet()));
+            .containsAll(properties.stream().map(PropertyContainer::mapKey).collect(Collectors.toSet()));
     }
 
     /**
-     * Creates a new snapshot of this property manager.
+     * Creates a new snapshot of this property container.
      *
-     * @return A new snapshot of this property manager.
+     * @return A new snapshot of this property container.
      */
-    public PropertyManagerSnapshot snapshot()
+    public PropertyContainerSnapshot snapshot()
     {
-        return new PropertyManagerSnapshot(unmodifiablePropertyMap);
+        return new PropertyContainerSnapshot(unmodifiablePropertyMap);
     }
 
     /**
-     * Creates a new property manager for the given structure type.
+     * Creates a new property container for the given structure type.
      *
      * @param structureType
-     *     The structure type to create the property manager for.
-     * @return A new property manager for the given structure type.
+     *     The structure type to create the property container for.
+     * @return A new property container for the given structure type.
      */
-    public static PropertyManager forType(StructureType structureType)
+    public static PropertyContainer forType(StructureType structureType)
     {
-        return new PropertyManager(new HashMap<>(getDefaultPropertyMap(structureType)));
+        return new PropertyContainer(new HashMap<>(getDefaultPropertyMap(structureType)));
     }
 
     /**
-     * Creates a new property manager for the given properties.
+     * Creates a new property container for the given properties.
      * <p>
      * This method is intended for testing purposes only.
      * <p>
      * For production code, use {@link #forType(StructureType)} instead.
      *
      * @param properties
-     *     The properties to create the property manager for.
-     * @return A new property manager for the given properties.
+     *     The properties to create the property container for.
+     * @return A new property container for the given properties.
      */
     @VisibleForTesting
-    public static PropertyManager forProperties(List<Property<?>> properties)
+    public static PropertyContainer forProperties(List<Property<?>> properties)
     {
-        return new PropertyManager(toPropertyMap(properties));
+        return new PropertyContainer(toPropertyMap(properties));
     }
 
     /**
@@ -214,7 +214,7 @@ public final class PropertyManager implements IPropertyHolder, IPropertyManagerC
     {
         return DEFAULT_PROPERTY_MAPS.computeIfAbsent(
             Util.requireNonNull(structureType, "StructureType"),
-            PropertyManager::newDefaultPropertyMap
+            PropertyContainer::newDefaultPropertyMap
         );
     }
 
@@ -246,8 +246,8 @@ public final class PropertyManager implements IPropertyHolder, IPropertyManagerC
         return properties
             .stream()
             .collect(Collectors.toMap(
-                PropertyManager::mapKey,
-                PropertyManager::defaultMapValue,
+                PropertyContainer::mapKey,
+                PropertyContainer::defaultMapValue,
                 (prev, next) -> next,
                 HashMap::new)
             );

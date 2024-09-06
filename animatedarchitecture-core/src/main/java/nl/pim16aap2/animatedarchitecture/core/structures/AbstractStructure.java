@@ -13,11 +13,11 @@ import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyContainerConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyHolder;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyManagerConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyValue;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyManagerSnapshot;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainerSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyScope;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
@@ -66,7 +66,7 @@ public abstract class AbstractStructure implements IStructureConst, IPropertyHol
     private final LazyValue<Rectangle> lazyAnimationRange;
     private final LazyValue<Double> lazyAnimationCycleDistance;
     private final LazyValue<StructureSnapshot> lazyStructureSnapshot;
-    private final LazyValue<PropertyManagerSnapshot> lazyPropertyManagerSnapshot;
+    private final LazyValue<PropertyContainerSnapshot> lazyPropertyContainerSnapshot;
 
     private AbstractStructure(StructureBase base, StructureType type)
     {
@@ -78,7 +78,7 @@ public abstract class AbstractStructure implements IStructureConst, IPropertyHol
         lazyAnimationRange = new LazyValue<>(this::calculateAnimationRange);
         lazyAnimationCycleDistance = new LazyValue<>(this::calculateAnimationCycleDistance);
         lazyStructureSnapshot = new LazyValue<>(this::createNewSnapshot);
-        lazyPropertyManagerSnapshot = new LazyValue<>(this.base::newPropertyManagerSnapshot);
+        lazyPropertyContainerSnapshot = new LazyValue<>(this.base::newPropertyContainerSnapshot);
     }
 
     protected AbstractStructure(BaseHolder holder, StructureType type)
@@ -695,9 +695,9 @@ public abstract class AbstractStructure implements IStructureConst, IPropertyHol
     }
 
     @Override
-    public IPropertyManagerConst getPropertyManagerSnapshot()
+    public IPropertyContainerConst getPropertyContainerSnapshot()
     {
-        return lazyPropertyManagerSnapshot.get();
+        return lazyPropertyContainerSnapshot.get();
     }
 
     @Override
@@ -747,7 +747,7 @@ public abstract class AbstractStructure implements IStructureConst, IPropertyHol
     @GuardedBy("lock")
     private void handlePropertyChange(Property<?> property)
     {
-        lazyPropertyManagerSnapshot.reset();
+        lazyPropertyContainerSnapshot.reset();
         property.getPropertyScopes().forEach(this::handlePropertyScopeChange);
         invalidateBasicData();
     }

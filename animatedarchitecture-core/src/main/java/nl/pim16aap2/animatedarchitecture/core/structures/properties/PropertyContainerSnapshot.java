@@ -8,20 +8,20 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * Represents a read-only snapshot of a property manager.
+ * Represents a read-only snapshot of a property container.
  * <p>
  * Instances of this class are immutable.
  * <p>
- * New instances can be created using {@link PropertyManager#snapshot()}.
+ * New instances can be created using {@link PropertyContainer#snapshot()}.
  */
 @ToString
 @EqualsAndHashCode
 @ThreadSafe
-public final class PropertyManagerSnapshot implements IPropertyHolderConst, IPropertyManagerConst
+public final class PropertyContainerSnapshot implements IPropertyHolderConst, IPropertyContainerConst
 {
     private final Map<String, IPropertyValue<?>> propertyMap;
 
-    PropertyManagerSnapshot(Map<String, IPropertyValue<?>> propertyMap)
+    PropertyContainerSnapshot(Map<String, IPropertyValue<?>> propertyMap)
     {
         this.propertyMap = Map.copyOf(propertyMap);
     }
@@ -29,19 +29,19 @@ public final class PropertyManagerSnapshot implements IPropertyHolderConst, IPro
     @Override
     public <T> IPropertyValue<T> getPropertyValue(Property<T> property)
     {
-        return PropertyManager.getValue(propertyMap, property);
+        return PropertyContainer.getValue(propertyMap, property);
     }
 
     @Override
     public boolean hasProperty(Property<?> property)
     {
-        return propertyMap.containsKey(PropertyManager.mapKey(property));
+        return propertyMap.containsKey(PropertyContainer.mapKey(property));
     }
 
     @Override
     public boolean hasProperties(Collection<Property<?>> properties)
     {
-        return PropertyManager.hasProperties(propertyMap, properties);
+        return PropertyContainer.hasProperties(propertyMap, properties);
     }
 
     /**

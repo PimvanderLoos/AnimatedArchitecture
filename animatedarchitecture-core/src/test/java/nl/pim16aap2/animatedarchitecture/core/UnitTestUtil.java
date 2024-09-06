@@ -12,7 +12,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyManager;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainer;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
@@ -172,19 +172,19 @@ public class UnitTestUtil
     }
 
     /**
-     * Sets the property manager in a mocked structure.
+     * Sets the property container in a mocked structure.
      * <p>
      * If the provided properties are null, it will use the properties from the structure type. See
      * {@link StructureType#getProperties()}.
      * <p>
-     * All property-related methods will be mocked to use the property manager.
+     * All property-related methods will be mocked to use the property container.
      *
      * @param structure
-     *     The structure to set the property manager in.
+     *     The structure to set the property container in.
      * @param providedProperties
      *     The properties to use. If null, the properties from the structure type will be used.
      */
-    public static void setPropertyManagerInMockedStructure(
+    public static void setPropertyContainerInMockedStructure(
         AbstractStructure structure,
         @Nullable List<Property<?>> providedProperties)
     {
@@ -192,37 +192,37 @@ public class UnitTestUtil
             ? Objects.requireNonNull(structure.getType().getProperties())
             : providedProperties;
 
-        final PropertyManager propertyManager = PropertyManager.forProperties(properties);
+        final PropertyContainer propertyContainer = PropertyContainer.forProperties(properties);
 
         Mockito.doAnswer(invocation ->
         {
-            final PropertyManager current = invocation.getArgument(0);
+            final PropertyContainer current = invocation.getArgument(0);
             return current.snapshot();
-        }).when(structure).getPropertyManagerSnapshot();
+        }).when(structure).getPropertyContainerSnapshot();
 
         Mockito.doAnswer(invocation ->
         {
             final Property<?> property = invocation.getArgument(0);
             final Object value = invocation.getArgument(1);
-            return propertyManager.setUntypedPropertyValue(property, value);
+            return propertyContainer.setUntypedPropertyValue(property, value);
         }).when(structure).setPropertyValue(Mockito.any(), Mockito.any());
 
         Mockito.doAnswer(invocation ->
         {
             final Property<?> property = invocation.getArgument(0);
-            return propertyManager.getPropertyValue(property);
+            return propertyContainer.getPropertyValue(property);
         }).when(structure).getPropertyValue(Mockito.any());
 
         Mockito.doAnswer(invocation ->
         {
             final Property<?> property = invocation.getArgument(0);
-            return propertyManager.hasProperty(property);
+            return propertyContainer.hasProperty(property);
         }).when(structure).hasProperty(Mockito.any());
 
         Mockito.doAnswer(invocation ->
         {
             final Collection<Property<?>> propertiesToCheck = invocation.getArgument(0);
-            return propertyManager.hasProperties(propertiesToCheck);
+            return propertyContainer.hasProperties(propertiesToCheck);
         }).when(structure).hasProperties(Mockito.anyCollection());
     }
 
@@ -283,9 +283,9 @@ public class UnitTestUtil
         Mockito.when(ret.getType())
             .thenReturn(safeSupplier(() -> Mockito.mock(StructureType.class), structure::getType));
 
-        Mockito.when(ret.getPropertyManagerSnapshot()).thenReturn(safeSupplier(
-            () -> PropertyManager.forType(Objects.requireNonNull(structure.getType())),
-            structure::getPropertyManagerSnapshot));
+        Mockito.when(ret.getPropertyContainerSnapshot()).thenReturn(safeSupplier(
+            () -> PropertyContainer.forType(Objects.requireNonNull(structure.getType())),
+            structure::getPropertyContainerSnapshot));
 
         Mockito.when(ret.getOpenDir()).thenReturn(safeSupplierSimple(MovementDirection.NONE, structure::getOpenDir));
 

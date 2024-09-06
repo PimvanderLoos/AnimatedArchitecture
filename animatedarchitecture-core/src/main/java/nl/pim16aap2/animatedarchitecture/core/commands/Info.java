@@ -212,7 +212,7 @@ public class Info extends StructureTargetCommand
 
     private void decorateBlocksToMove(StructureSnapshot structure, Text text)
     {
-        // TODO: Use the property manager to get the blocks to move.
+        // TODO: Use the property container to get the blocks to move.
         structure.getPersistentVariable("blocksToMove")
             .ifPresent(blocksToMove -> text.append(
                     localizer.getMessage("commands.info.output.blocks_to_move"),

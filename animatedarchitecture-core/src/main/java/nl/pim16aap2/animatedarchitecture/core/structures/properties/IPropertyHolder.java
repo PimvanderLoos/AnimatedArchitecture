@@ -16,7 +16,7 @@ public interface IPropertyHolder extends IPropertyHolderConst
      * @return The previous value of the property, or {@code null} if the property had no value set.
      *
      * @throws IllegalArgumentException
-     *     If the property is not valid for the structure type this property manager was created for.
+     *     If the property is not valid for the structure type this property container was created for.
      */
     <T> IPropertyValue<T> setPropertyValue(Property<T> property, @Nullable T value);
 }
