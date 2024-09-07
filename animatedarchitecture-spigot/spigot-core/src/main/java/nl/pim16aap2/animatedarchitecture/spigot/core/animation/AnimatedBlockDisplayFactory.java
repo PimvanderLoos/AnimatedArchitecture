@@ -1,12 +1,10 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.animation;
 
 import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
-import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockData;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockFactory;
-import nl.pim16aap2.animatedarchitecture.core.managers.AnimatedBlockHookManager;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
@@ -25,22 +23,16 @@ import java.util.function.Consumer;
 @Singleton
 public class AnimatedBlockDisplayFactory implements IAnimatedBlockFactory
 {
-    private final IExecutor executor;
-    private final AnimatedBlockHookManager animatedBlockHookManager;
+    private final AnimatedBlockDisplay.IFactory assistedFactory;
     private final BlockAnalyzerSpigot blockAnalyzer;
-    private final BlockDisplayHelper blockDisplayHelper;
 
     @Inject
     AnimatedBlockDisplayFactory(
-        IExecutor executor,
-        AnimatedBlockHookManager animatedBlockHookManager,
-        BlockAnalyzerSpigot blockAnalyzer,
-        BlockDisplayHelper blockDisplayHelper)
+        AnimatedBlockDisplay.IFactory assistedFactory,
+        BlockAnalyzerSpigot blockAnalyzer)
     {
-        this.executor = executor;
-        this.animatedBlockHookManager = animatedBlockHookManager;
+        this.assistedFactory = assistedFactory;
         this.blockAnalyzer = blockAnalyzer;
-        this.blockDisplayHelper = blockDisplayHelper;
     }
 
     @Override
@@ -59,16 +51,13 @@ public class AnimatedBlockDisplayFactory implements IAnimatedBlockFactory
         if (!blockAnalyzer.isAllowed(mat))
             return Optional.empty();
 
-        return Optional.of(new AnimatedBlockDisplay(
-            blockDisplayHelper,
-            executor,
-            animatedBlockHookManager,
+        return Optional.of(assistedFactory.create(
             blockDataRotator,
             startPosition,
-            world,
             finalPosition,
+            world,
             onEdge,
-            radius)
-        );
+            radius
+        ));
     }
 }
