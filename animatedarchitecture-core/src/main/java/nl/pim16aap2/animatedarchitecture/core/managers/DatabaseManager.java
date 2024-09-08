@@ -880,12 +880,14 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     /**
      * Represents the identifier of a structure. This is a combination of the UID and the name of the structure.
      *
+     * @param type
+     *     The type of the structure.
      * @param uid
      *     The UID of the structure.
      * @param name
      *     The name of the structure.
      */
-    public record StructureIdentifier(long uid, String name)
+    public record StructureIdentifier(StructureType type, long uid, String name)
     {
     }
 }

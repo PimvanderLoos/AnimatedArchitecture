@@ -253,9 +253,6 @@ public class SQLiteJDBCDriverConnectionTest
         registerStructureTypes();
         resetLogCaptor(logCaptor);
 
-        logCaptor.setLogLevelToTrace();
-        logCaptor.enableConsoleOutput();
-
         insertStructures();
         resetLogCaptor(logCaptor);
 
@@ -353,14 +350,14 @@ public class SQLiteJDBCDriverConnectionTest
     {
         Assertions.assertEquals(
             List.of(
-                new DatabaseManager.StructureIdentifier(2L, "popular_door_name"),
-                new DatabaseManager.StructureIdentifier(3L, "popular_door_name")),
+                new DatabaseManager.StructureIdentifier(StructureTypeDrawbridge.get(), 2L, "popular_door_name"),
+                new DatabaseManager.StructureIdentifier(StructureTypePortcullis.get(), 3L, "popular_door_name")),
             storage.getPartialIdentifiers("popular_", null, PermissionLevel.NO_PERMISSION)
         );
 
         final IPlayer player1 = createPlayer(PLAYER_DATA_1);
         Assertions.assertEquals(
-            List.of(new DatabaseManager.StructureIdentifier(2L, "popular_door_name")),
+            List.of(new DatabaseManager.StructureIdentifier(StructureTypeDrawbridge.get(), 2L, "popular_door_name")),
             storage.getPartialIdentifiers("popular_", player1, PermissionLevel.NO_PERMISSION)
         );
     }
@@ -369,18 +366,18 @@ public class SQLiteJDBCDriverConnectionTest
     {
         Assertions.assertEquals(
             List.of(
-                new DatabaseManager.StructureIdentifier(1L, "random_door_name"),
-                new DatabaseManager.StructureIdentifier(15L, "popular_door_name"),
-                new DatabaseManager.StructureIdentifier(16L, "popular_door_name"),
-                new DatabaseManager.StructureIdentifier(17L, "popular_door_name"),
-                new DatabaseManager.StructureIdentifier(18L, "popular_door_name"),
-                new DatabaseManager.StructureIdentifier(19L, "popular_door_name")),
+                new DatabaseManager.StructureIdentifier(StructureTypeBigDoor.get(), 1L, "random_door_name"),
+                new DatabaseManager.StructureIdentifier(StructureTypePortcullis.get(), 15L, "popular_door_name"),
+                new DatabaseManager.StructureIdentifier(StructureTypePortcullis.get(), 16L, "popular_door_name"),
+                new DatabaseManager.StructureIdentifier(StructureTypePortcullis.get(), 17L, "popular_door_name"),
+                new DatabaseManager.StructureIdentifier(StructureTypePortcullis.get(), 18L, "popular_door_name"),
+                new DatabaseManager.StructureIdentifier(StructureTypePortcullis.get(), 19L, "popular_door_name")),
             storage.getPartialIdentifiers("1", null, PermissionLevel.NO_PERMISSION)
         );
 
         final IPlayer player1 = createPlayer(PLAYER_DATA_1);
         Assertions.assertEquals(
-            List.of(new DatabaseManager.StructureIdentifier(1L, "random_door_name")),
+            List.of(new DatabaseManager.StructureIdentifier(StructureTypeBigDoor.get(), 1L, "random_door_name")),
             storage.getPartialIdentifiers("1", player1, PermissionLevel.NO_PERMISSION)
         );
     }

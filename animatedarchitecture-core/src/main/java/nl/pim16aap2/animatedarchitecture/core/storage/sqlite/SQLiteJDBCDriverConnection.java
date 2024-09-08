@@ -542,6 +542,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         return executeQuery(query, this::collectIdentifiers, Collections.emptyList());
     }
 
+
     @Locked.Read
     private List<DatabaseManager.StructureIdentifier> collectIdentifiers(ResultSet resultSet)
         throws SQLException
@@ -549,7 +550,23 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         final List<DatabaseManager.StructureIdentifier> ret = new ArrayList<>();
 
         while (resultSet.next())
-            ret.add(new DatabaseManager.StructureIdentifier(resultSet.getLong("id"), resultSet.getString("name")));
+        {
+            final @Nullable String structureTypeResult = resultSet.getString("type");
+            final Optional<StructureType> structureType = structureTypeManager.getFromFullName(structureTypeResult);
+
+            if (!structureType.map(structureTypeManager::isRegistered).orElse(false))
+            {
+                log.atSevere().withStackTrace(StackSize.FULL).log(
+                    "Type with ID: '%s' has not been registered (yet)!", structureTypeResult);
+                continue;
+            }
+
+            ret.add(new DatabaseManager.StructureIdentifier(
+                structureType.get(),
+                resultSet.getLong("id"),
+                resultSet.getString("name")
+            ));
+        }
 
         return ret;
     }

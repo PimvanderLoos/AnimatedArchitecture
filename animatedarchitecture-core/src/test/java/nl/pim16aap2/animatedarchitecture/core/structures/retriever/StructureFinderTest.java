@@ -93,7 +93,7 @@ class StructureFinderTest
         final CompletableFuture<Set<String>> returned = structureFinder.getStructureIdentifiers();
         Assertions.assertFalse(returned.isDone());
 
-        databaseResult.complete(List.of(new DatabaseManager.StructureIdentifier(0, "MyDoor")));
+        databaseResult.complete(List.of(new DatabaseManager.StructureIdentifier(Mockito.mock(), 0, "MyDoor")));
         Thread.sleep(100); // Give it a slight delay to allow the notification to propagate.
         Assertions.assertTrue(returned.isDone());
 
@@ -357,7 +357,11 @@ class StructureFinderTest
         final List<DatabaseManager.StructureIdentifier> ret = new ArrayList<>(uids.size());
         final List<?> idSource = useNames ? names : uids;
         for (int idx = 0; idx < uids.size(); ++idx)
-            ret.add(new DatabaseManager.StructureIdentifier(uids.get(idx), String.valueOf(idSource.get(idx))));
+            ret.add(new DatabaseManager.StructureIdentifier(
+                Mockito.mock(),
+                uids.get(idx),
+                String.valueOf(idSource.get(idx))
+            ));
         return ret;
     }
 
@@ -375,7 +379,11 @@ class StructureFinderTest
                 {
                     final String identifier = String.valueOf(idSource.get(idx));
                     if (StructureFinder.startsWith(input, identifier))
-                        identifiers.add(new DatabaseManager.StructureIdentifier(uids.get(idx), identifier));
+                        identifiers.add(new DatabaseManager.StructureIdentifier(
+                            Mockito.mock(),
+                            uids.get(idx),
+                            identifier
+                        ));
                 }
                 identifiers.trimToSize();
                 return CompletableFuture.completedFuture(identifiers);
