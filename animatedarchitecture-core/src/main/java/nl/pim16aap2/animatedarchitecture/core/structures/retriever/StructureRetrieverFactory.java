@@ -4,14 +4,17 @@ import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.delayedinput.DelayedStructureSpecificationInputRequest;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -69,6 +72,16 @@ import java.util.concurrent.CompletableFuture;
  */
 public final class StructureRetrieverFactory
 {
+    /**
+     * The default permission level to use when searching for structures when not specified.
+     */
+    public static final PermissionLevel DEFAULT_PERMISSION_LEVEL = PermissionLevel.CREATOR;
+
+    /**
+     * The default mode to use when searching for structures when not specified.
+     */
+    public static final StructureFinderMode DEFAULT_MODE = StructureFinderMode.USE_CACHE;
+
     private final DelayedStructureSpecificationInputRequest.Factory specificationFactory;
     private final DatabaseManager databaseManager;
     private final StructureFinderCache structureFinderCache;
@@ -151,49 +164,77 @@ public final class StructureRetrieverFactory
      * @param maxPermission
      *     The maximum permission (inclusive) of the structure owner of the structures to find. Does not apply if the
      *     command sender is not a player. Defaults to {@link PermissionLevel#CREATOR}.
+     * @param properties
+     *     The properties that the structures must have. When specified, only structures that have all of these
+     *     properties will be found. When not specified, the properties of the structures are not checked.
      * @return The {@link StructureFinder} instance.
      */
     public StructureFinder search(
         ICommandSender commandSender,
         String input,
         StructureFinderMode mode,
-        PermissionLevel maxPermission)
+        PermissionLevel maxPermission,
+        Collection<Property<?>> properties)
     {
         return mode == StructureFinderMode.USE_CACHE ?
-            structureFinderCache.getStructureFinder(commandSender, input, maxPermission) :
-            new StructureFinder(this, databaseManager, commandSender, input, maxPermission);
+            structureFinderCache.getStructureFinder(commandSender, input, maxPermission, properties) :
+            new StructureFinder(this, databaseManager, commandSender, input, maxPermission, properties);
     }
 
     /**
-     * See {@link #search(ICommandSender, String, StructureFinderMode)}.
+     * See {@link #search(ICommandSender, String, StructureFinderMode, PermissionLevel, Collection)}.
      */
     public StructureFinder search(
         ICommandSender commandSender,
         String input,
-        PermissionLevel maxPermission)
+        StructureFinderMode mode,
+        PermissionLevel maxPermission,
+        Property<?>... properties)
     {
-        return search(commandSender, input, StructureFinderMode.USE_CACHE, maxPermission);
+        return search(commandSender, input, mode, maxPermission, Set.of(properties));
     }
 
     /**
-     * See {@link #search(ICommandSender, String, StructureFinderMode)}.
-     */
-    public StructureFinder search(
-        ICommandSender commandSender,
-        String input)
-    {
-        return search(commandSender, input, StructureFinderMode.USE_CACHE);
-    }
-
-    /**
-     * See {@link #search(ICommandSender, String, StructureFinderMode, PermissionLevel)}.
+     * See {@link #search(ICommandSender, String, StructureFinderMode, PermissionLevel, Collection)}.
+     * <p>
+     * Uses {@link #DEFAULT_MODE} as the default caching mode.
      */
     public StructureFinder search(
         ICommandSender commandSender,
         String input,
-        StructureFinderMode mode)
+        PermissionLevel maxPermission,
+        Property<?>... properties)
     {
-        return search(commandSender, input, mode, PermissionLevel.CREATOR);
+        return search(commandSender, input, StructureFinderMode.USE_CACHE, maxPermission, properties);
+    }
+
+    /**
+     * See {@link #search(ICommandSender, String, StructureFinderMode, PermissionLevel, Collection)}.
+     * <p>
+     * Uses {@link #DEFAULT_PERMISSION_LEVEL} as the default permission level.
+     * <p>
+     * Uses {@link #DEFAULT_MODE} as the default caching mode.
+     */
+    public StructureFinder search(
+        ICommandSender commandSender,
+        String input,
+        Property<?>... properties)
+    {
+        return search(commandSender, input, DEFAULT_MODE, DEFAULT_PERMISSION_LEVEL, properties);
+    }
+
+    /**
+     * See {@link #search(ICommandSender, String, StructureFinderMode, PermissionLevel, Collection)}.
+     * <p>
+     * Uses {@link PermissionLevel#CREATOR} as the default permission level.
+     */
+    public StructureFinder search(
+        ICommandSender commandSender,
+        String input,
+        StructureFinderMode mode,
+        Property<?>... properties)
+    {
+        return search(commandSender, input, mode, DEFAULT_PERMISSION_LEVEL, properties);
     }
 
     /**
