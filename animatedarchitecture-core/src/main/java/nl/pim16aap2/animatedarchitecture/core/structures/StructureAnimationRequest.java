@@ -14,10 +14,13 @@ import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IMessageable;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IPlayerFactory;
+import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithOpenStatus;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
+import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import org.jetbrains.annotations.Nullable;
 
@@ -57,6 +60,7 @@ public class StructureAnimationRequest
     private final AnimationType animationType;
 
     private final ILocalizer localizer;
+    private final ITextFactory textFactory;
     private final StructureActivityManager structureActivityManager;
     private final IPlayerFactory playerFactory;
     private final IExecutor executor;
@@ -73,6 +77,7 @@ public class StructureAnimationRequest
         @Assisted StructureActionType actionType,
         @Assisted AnimationType animationType,
         ILocalizer localizer,
+        ITextFactory textFactory,
         StructureActivityManager structureActivityManager,
         IPlayerFactory playerFactory,
         IExecutor executor)
@@ -87,6 +92,7 @@ public class StructureAnimationRequest
         this.actionType = actionType;
         this.animationType = animationType;
         this.localizer = localizer;
+        this.textFactory = textFactory;
         this.structureActivityManager = structureActivityManager;
         this.playerFactory = playerFactory;
         this.executor = executor;
@@ -117,7 +123,43 @@ public class StructureAnimationRequest
         final IPlayer actualResponsible = getActualResponsible(structure);
         verifyValidity(actualResponsible);
 
+        if (!isValidActionType(structure))
+            return CompletableFuture.completedFuture(StructureToggleResult.MISSING_REQUIRED_PROPERTY_OPEN_STATUS);
+
         return structure.toggle(this, actualResponsible);
+    }
+
+    /**
+     * Verifies that the selected action type is valid for the provided structure.
+     * <p>
+     * If the action type is invalid, an error message will be sent to the message receiver.
+     * <p>
+     * The action is invalid if the structure does not have an open status, but the action type is open or close.
+     *
+     * @param structure
+     *     The structure for which to verify the action type.
+     * @return True if the action type is valid, false otherwise.
+     */
+    boolean isValidActionType(AbstractStructure structure)
+    {
+        if (actionType == StructureActionType.TOGGLE)
+            return true;
+
+        if (structure instanceof IStructureWithOpenStatus)
+            return true;
+
+        final String errorKey = actionType == StructureActionType.OPEN
+            ? "structure_action.open.error.type_has_no_open_status"
+            : "structure_action.close.error.type_has_no_open_status";
+
+        messageReceiver.sendMessage(textFactory.newText().append(
+            localizer.getMessage(errorKey),
+            TextType.ERROR,
+            arg -> arg.highlight(localizer.getStructureType(structure.getType())),
+            arg -> arg.highlight(structure.getName())
+        ));
+
+        return false;
     }
 
     private void verifyValidity(IPlayer actualResponsible)

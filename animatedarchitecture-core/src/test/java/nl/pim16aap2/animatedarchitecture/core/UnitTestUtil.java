@@ -2,8 +2,13 @@ package nl.pim16aap2.animatedarchitecture.core;
 
 import lombok.AllArgsConstructor;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
+import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
+import nl.pim16aap2.animatedarchitecture.core.api.LimitContainer;
 import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
+import nl.pim16aap2.animatedarchitecture.core.api.factories.IPlayerFactory;
+import nl.pim16aap2.animatedarchitecture.core.commands.CommandDefinition;
+import nl.pim16aap2.animatedarchitecture.core.commands.PermissionsStatus;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
@@ -42,6 +47,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -51,6 +57,10 @@ public class UnitTestUtil
 {
     @SuppressWarnings("unused")
     public static final double EPSILON = 1E-6;
+
+    private UnitTestUtil()
+    {
+    }
 
     public static ILocalizer initLocalizer()
     {
@@ -313,6 +323,112 @@ public class UnitTestUtil
             .when(ret).getPersistentVariable(Mockito.anyString());
 
         return ret;
+    }
+
+    /**
+     * Creates a new instance of a mocked {@link IPlayerFactory}.
+     * <p>
+     * All methods will return mocked {@link IPlayer} instances using as much of the provided data as possible.
+     *
+     * @return The mocked player factory instance.
+     */
+    public static IPlayerFactory createPlayerFactory()
+    {
+        final IPlayerFactory playerFactory = Mockito.mock(IPlayerFactory.class);
+        Mockito.
+            when(playerFactory.create(Mockito.any(UUID.class)))
+            .thenAnswer(invocation -> createPlayer(invocation.getArgument(0, UUID.class)));
+        Mockito
+            .when(playerFactory.create(Mockito.any(PlayerData.class)))
+            .thenAnswer(invocation -> createPlayer(invocation.getArgument(0, PlayerData.class)));
+        return playerFactory;
+    }
+
+    /**
+     * Creates a new instance of a mocked {@link IPlayer} with the provided data.
+     *
+     * @param data
+     *     The data to use for the player.
+     * @return The mocked player instance.
+     */
+    public static IPlayer createPlayer(PlayerData data)
+    {
+        return createPlayer(
+            data.getUUID(),
+            data.getName(),
+            LimitContainer.of(data),
+            null,
+            data.isOp(),
+            data.hasProtectionBypassPermission()
+        );
+    }
+
+    /**
+     * Creates a new instance of a mocked {@link IPlayer} with mostly random data.
+     *
+     * @param uuid
+     *     The UUID of the player.
+     * @return The mocked player instance.
+     */
+    public static IPlayer createPlayer(UUID uuid)
+    {
+        return createPlayer(uuid, null, null, null, false, false);
+    }
+
+    /**
+     * Creates a new instance of a mocked {@link IPlayer} with the provided data.
+     *
+     * @param uuid
+     *     The UUID of the player. If null, a random UUID will be generated.
+     * @param name
+     *     The name of the player. If null, the UUID will be used as the name.
+     * @param limits
+     *     The limits of the player. If null, the limits will be set to the maximum value.
+     * @param location
+     *     The location of the player. If null, getting the location will return an empty optional.
+     * @param isOp
+     *     Whether the player is an OP or not.
+     * @param hasProtectionBypassPermission
+     *     Whether the player has a protection bypass permission or not.
+     * @return The mocked player instance.
+     */
+    public static IPlayer createPlayer(
+        @Nullable UUID uuid,
+        @Nullable String name,
+        @Nullable LimitContainer limits,
+        @Nullable ILocation location,
+        boolean isOp,
+        boolean hasProtectionBypassPermission
+    )
+    {
+        final UUID uuid1 = Objects.requireNonNullElseGet(uuid, UUID::randomUUID);
+        final String name1 = Objects.requireNonNullElseGet(name, uuid1::toString);
+        final LimitContainer limits1 =
+            Objects.requireNonNullElseGet(
+                limits,
+                () -> new LimitContainer(
+                    Integer.MAX_VALUE,
+                    Integer.MAX_VALUE,
+                    Integer.MAX_VALUE,
+                    Integer.MAX_VALUE
+                ));
+
+        final IPlayer player = Mockito.mock();
+        Mockito.when(player.getUUID()).thenReturn(uuid1);
+        Mockito.when(player.getName()).thenReturn(name1);
+        Mockito
+            .when(player.getLimit(Mockito.any()))
+            .thenAnswer(invocation -> limits1.getLimit(invocation.getArgument(0)));
+        Mockito.when(player.isOp()).thenReturn(isOp);
+        Mockito.when(player.hasProtectionBypassPermission()).thenReturn(hasProtectionBypassPermission);
+        Mockito
+            .when(player.hasPermission(Mockito.any(String.class)))
+            .thenReturn(CompletableFuture.completedFuture(true));
+        Mockito
+            .when(player.hasPermission(Mockito.any(CommandDefinition.class)))
+            .thenReturn(CompletableFuture.completedFuture(new PermissionsStatus(true, true)));
+        Mockito.when(player.getLocation()).thenReturn(Optional.ofNullable(location));
+        return player;
     }
 
     /**
