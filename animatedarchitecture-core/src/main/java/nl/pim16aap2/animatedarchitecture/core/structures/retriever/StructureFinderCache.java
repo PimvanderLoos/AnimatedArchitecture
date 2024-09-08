@@ -6,11 +6,13 @@ import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.data.cache.timed.TimedCache;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 import java.time.Duration;
+import java.util.Collection;
 
 /**
  * Represents a cache of {@link StructureFinder}s.
@@ -50,27 +52,41 @@ final class StructureFinderCache implements IRestartable
      * @param maxPermission
      *     The maximum permission (inclusive) of the structure owner of the structures to find. Does not apply if the
      *     command sender is not a player.
+     * @param properties
+     *     The properties that the structures must have. When specified, only structures that have all of these
+     *     properties will be found. When not specified, the properties of the structures are not checked.
      * @return The {@link StructureFinder} mapped for the provided {@link ICommandSender}.
      */
-    StructureFinder getStructureFinder(ICommandSender commandSender, String input, PermissionLevel maxPermission)
+    StructureFinder getStructureFinder(
+        ICommandSender commandSender,
+        String input,
+        PermissionLevel maxPermission,
+        Collection<Property<?>> properties
+    )
     {
         return cache.compute(
             commandSender,
             (sender, finder) ->
                 finder == null ?
-                    newInstance(sender, input, maxPermission) :
-                    finder.processInput(input)
+                    newInstance(sender, input, maxPermission, properties) :
+                    finder.processInput(input, properties)
         );
     }
 
-    private StructureFinder newInstance(ICommandSender commandSender, String input, PermissionLevel maxPermission)
+    private StructureFinder newInstance(
+        ICommandSender commandSender,
+        String input,
+        PermissionLevel maxPermission,
+        Collection<Property<?>> properties
+    )
     {
         return new StructureFinder(
             structureRetrieverFactoryProvider.get(),
             databaseManager,
             commandSender,
             input,
-            maxPermission
+            maxPermission,
+            properties
         );
     }
 

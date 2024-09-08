@@ -62,7 +62,8 @@ class StructureFinderTest
             databaseManager,
             commandSender,
             "M",
-            PermissionLevel.ADMIN
+            PermissionLevel.ADMIN,
+            Set.of()
         );
         Mockito.verify(databaseManager, Mockito.times(1))
             .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), eq(PermissionLevel.ADMIN));
@@ -72,7 +73,8 @@ class StructureFinderTest
             databaseManager,
             commandSender,
             "M",
-            PermissionLevel.USER
+            PermissionLevel.USER,
+            Set.of()
         );
         Mockito.verify(databaseManager, Mockito.times(1))
             .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), eq(PermissionLevel.USER));
@@ -99,7 +101,7 @@ class StructureFinderTest
 
         final List<String> names = new ArrayList<>(returned.get(10, TimeUnit.SECONDS));
         Assertions.assertEquals(1, names.size());
-        Assertions.assertEquals("MyDoor", names.get(0));
+        Assertions.assertEquals("MyDoor", names.getFirst());
 
         // Ensure that trying to retrieve it again will just give us the result immediately.
         final CompletableFuture<Set<String>> again = structureFinder.getStructureIdentifiers();
@@ -107,7 +109,7 @@ class StructureFinderTest
 
         final List<String> namesAgain = new ArrayList<>(again.get(10, TimeUnit.SECONDS));
         Assertions.assertEquals(1, namesAgain.size());
-        Assertions.assertEquals("MyDoor", namesAgain.get(0));
+        Assertions.assertEquals("MyDoor", namesAgain.getFirst());
     }
 
     @Test
@@ -137,8 +139,8 @@ class StructureFinderTest
         Assertions.assertTrue(structureFinder.getStructureUIDs().isPresent());
         Assertions.assertEquals(names, new ArrayList<>(structureFinder.getStructureIdentifiersIfAvailable().get()));
 
-        structureFinder.processInput("Myd"); // case-insensitive
-        structureFinder.processInput("Myd"); // Repeating shouldn't change anything
+        structureFinder.processInput("Myd", List.of()); // case-insensitive
+        structureFinder.processInput("Myd", List.of()); // Repeating shouldn't change anything
         Assertions.assertEquals(
             Set.of("MyDoor", "MyDrawbridge"),
             structureFinder.getStructureIdentifiersIfAvailable().get()
@@ -165,10 +167,10 @@ class StructureFinderTest
         final StructureFinder structureFinder =
             new StructureFinder(structureRetrieverFactory, databaseManager, commandSender, "M");
 
-        structureFinder.processInput("My");
-        structureFinder.processInput("MyD");
-        structureFinder.processInput("MyDr");
-        structureFinder.processInput("MyD");
+        structureFinder.processInput("My", List.of());
+        structureFinder.processInput("MyD", List.of());
+        structureFinder.processInput("MyDr", List.of());
+        structureFinder.processInput("MyD", List.of());
 
         Assertions.assertTrue(structureFinder.getStructureUIDs().isEmpty());
         output.complete(identifiers);
@@ -195,14 +197,14 @@ class StructureFinderTest
         final StructureFinder structureFinder =
             new StructureFinder(structureRetrieverFactory, databaseManager, commandSender, "M");
 
-        structureFinder.processInput("My");
-        structureFinder.processInput("MyD");
-        structureFinder.processInput("MyDr");
+        structureFinder.processInput("My", List.of());
+        structureFinder.processInput("MyD", List.of());
+        structureFinder.processInput("MyDr", List.of());
         Assertions.assertEquals(List.of("My", "MyD", "MyDr"), new ArrayList<>(structureFinder.getPostponedInputs()));
-        structureFinder.processInput("MyPo");
+        structureFinder.processInput("MyPo", List.of());
         Assertions.assertEquals(List.of("My", "MyPo"), new ArrayList<>(structureFinder.getPostponedInputs()));
-        structureFinder.processInput("T");
-        structureFinder.processInput("Th");
+        structureFinder.processInput("T", List.of());
+        structureFinder.processInput("Th", List.of());
         Assertions.assertEquals(List.of("Th"), new ArrayList<>(structureFinder.getPostponedInputs()));
 
         Assertions.assertTrue(structureFinder.getStructureUIDs().isEmpty());
@@ -232,7 +234,7 @@ class StructureFinderTest
             structureFinder.getStructureIdentifiersIfAvailable().get()
         );
 
-        structureFinder.processInput("MyD");
+        structureFinder.processInput("MyD", List.of());
         Mockito.verify(databaseManager, Mockito.times(1))
             .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any());
         Assertions.assertEquals(
@@ -240,7 +242,7 @@ class StructureFinderTest
             structureFinder.getStructureIdentifiersIfAvailable().get()
         );
 
-        structureFinder.processInput("M");
+        structureFinder.processInput("M", List.of());
         Mockito.verify(databaseManager, Mockito.times(1))
             .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any());
         Assertions.assertEquals(
@@ -248,7 +250,7 @@ class StructureFinderTest
             structureFinder.getStructureIdentifiersIfAvailable().get()
         );
 
-        structureFinder.processInput("T");
+        structureFinder.processInput("T", List.of());
         Mockito.verify(databaseManager, Mockito.times(2))
             .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any());
         Assertions.assertEquals(
@@ -268,7 +270,7 @@ class StructureFinderTest
             new StructureFinder(structureRetrieverFactory,
                 databaseManager, commandSender, "1");
 
-        structureFinder.processInput("10");
+        structureFinder.processInput("10", List.of());
         Assertions.assertTrue(structureFinder.getStructureIdentifiersIfAvailable().isPresent());
         Assertions.assertEquals(
             Set.of("100", "101"),
@@ -293,7 +295,7 @@ class StructureFinderTest
         Assertions.assertTrue(structureFinder.getStructureUIDs(true).get().isEmpty());
         Assertions.assertTrue(structureFinder.getStructureIdentifiers(true).get(10, TimeUnit.SECONDS).isEmpty());
 
-        structureFinder.processInput("MyDoor");
+        structureFinder.processInput("MyDoor", List.of());
         Assertions.assertTrue(structureFinder.getStructureIdentifiersIfAvailable(true).isPresent());
         Assertions.assertEquals(
             Set.of("MyDoor"),
@@ -342,7 +344,7 @@ class StructureFinderTest
         Assertions.assertEquals(structures.subList(0, 3), structureFinder.getStructures().get(1, TimeUnit.SECONDS));
 
         Assertions.assertTrue(structureFinder.getStructures(true).get(1, TimeUnit.SECONDS).isEmpty());
-        structureFinder.processInput("MyDrawbridge");
+        structureFinder.processInput("MyDrawbridge", List.of());
         Assertions.assertEquals(
             List.of(structures.get(2)),
             structureFinder.getStructures(true).get(1, TimeUnit.SECONDS)
