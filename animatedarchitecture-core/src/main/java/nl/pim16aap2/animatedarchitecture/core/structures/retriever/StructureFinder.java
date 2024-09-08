@@ -14,6 +14,7 @@ import nl.pim16aap2.animatedarchitecture.core.data.cache.RollingCache;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.CollectionsUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
@@ -621,7 +622,7 @@ public final class StructureFinder
                 for (final var id : ids)
                 {
                     final String targetId = MathUtil.isNumerical(input) ? String.valueOf(id.uid()) : id.name();
-                    descriptions.add(new MinimalStructureDescription(id.uid(), targetId));
+                    descriptions.add(new MinimalStructureDescription(id.type(), id.uid(), targetId));
                 }
                 return descriptions;
             });
@@ -767,10 +768,14 @@ public final class StructureFinder
     }
 
     /**
+     * Represents a minimal description of a structure.
+     *
+     * @param type
+     *     The type of the structure.
      * @param uid
      *     The UID of the structure.
      * @param id
      *     The target identifier of the structure that we're looking for. This may either be its UID or its name.
      */
-    public record MinimalStructureDescription(long uid, String id) {}
+    public record MinimalStructureDescription(StructureType type, long uid, String id) {}
 }

@@ -89,7 +89,7 @@ public enum SQLStatement
     ),
 
     GET_IDENTIFIERS_FROM_PARTIAL_NAME_MATCH_WITH_OWNER("""
-        SELECT S.id, S.name
+        SELECT S.type, S.id, S.name
         FROM Structure AS S
         INNER JOIN StructureOwnerPlayer AS O ON S.id = O.structureUID
         INNER JOIN Player AS P ON O.playerID = P.id
@@ -99,7 +99,7 @@ public enum SQLStatement
     ),
 
     GET_IDENTIFIERS_FROM_PARTIAL_UID_MATCH_WITH_OWNER("""
-        SELECT S.id, S.name
+        SELECT S.type, S.id, S.name
         FROM Structure AS S
         INNER JOIN StructureOwnerPlayer AS O ON S.id = O.structureUID
         INNER JOIN Player AS P ON O.playerID = P.id
