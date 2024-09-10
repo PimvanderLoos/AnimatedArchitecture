@@ -203,7 +203,7 @@ public final class StructureRetrieverFactory
         ICommandSender commandSender,
         String input,
         PermissionLevel maxPermission,
-        Property<?>... properties)
+        Collection<Property<?>> properties)
     {
         return search(commandSender, input, StructureFinderMode.USE_CACHE, maxPermission, properties);
     }
@@ -218,7 +218,7 @@ public final class StructureRetrieverFactory
     public StructureFinder search(
         ICommandSender commandSender,
         String input,
-        Property<?>... properties)
+        Collection<Property<?>> properties)
     {
         return search(commandSender, input, DEFAULT_MODE, DEFAULT_PERMISSION_LEVEL, properties);
     }
@@ -232,7 +232,7 @@ public final class StructureRetrieverFactory
         ICommandSender commandSender,
         String input,
         StructureFinderMode mode,
-        Property<?>... properties)
+        Collection<Property<?>> properties)
     {
         return search(commandSender, input, mode, DEFAULT_PERMISSION_LEVEL, properties);
     }
