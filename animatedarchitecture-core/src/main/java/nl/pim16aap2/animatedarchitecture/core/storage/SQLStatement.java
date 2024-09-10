@@ -1,11 +1,14 @@
 package nl.pim16aap2.animatedarchitecture.core.storage;
 
+import it.unimi.dsi.fastutil.ints.IntImmutableList;
+import lombok.Getter;
 import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 
 /**
  * Represents an SQL statement.
  */
 @SuppressWarnings("unused")
+@Getter
 public enum SQLStatement
 {
     UPDATE_STRUCTURE_BASE("""
@@ -275,13 +278,26 @@ public enum SQLStatement
 
     ;
 
+    /**
+     * The statement this {@link SQLStatement} represents.
+     */
     private final String statement;
+
+    /**
+     * The indices of the variables in the statement.
+     */
+    private final IntImmutableList variableIndices;
+
+    /**
+     * The number of variables in the statement.
+     */
     private final int variableCount;
 
     SQLStatement(String statement)
     {
         this.statement = statement;
-        variableCount = StringUtil.countPatternOccurrences(DelayedPreparedStatement.QUESTION_MARK, statement);
+        this.variableIndices = StringUtil.getVariableIndices(statement, '?');
+        this.variableCount = this.variableIndices.size();
     }
 
     /**
@@ -327,6 +343,6 @@ public enum SQLStatement
      */
     public DelayedPreparedStatement constructDelayedPreparedStatement()
     {
-        return new DelayedPreparedStatement(variableCount, statement);
+        return new DelayedPreparedStatement(this);
     }
 }
