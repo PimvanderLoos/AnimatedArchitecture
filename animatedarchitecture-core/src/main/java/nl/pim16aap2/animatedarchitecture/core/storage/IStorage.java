@@ -10,9 +10,11 @@ import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.IBitFlag;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -284,12 +286,16 @@ public interface IStorage
      *     The player that should own the structures. May be null to disregard ownership.
      * @param maxPermission
      *     The maximum level of ownership (inclusive) this player has over the structures.
+     * @param properties
+     *     The properties that the structures must have. When specified, only structures that have all of these
+     *     properties will be returned.
      * @return All {@link DatabaseManager.StructureIdentifier}s that start with the provided input.
      */
     List<DatabaseManager.StructureIdentifier> getPartialIdentifiers(
         String input,
         @Nullable IPlayer player,
-        PermissionLevel maxPermission
+        PermissionLevel maxPermission,
+        Collection<Property<?>> properties
     );
 
     /**

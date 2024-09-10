@@ -657,7 +657,7 @@ public final class StructureFinder
     {
         final @Nullable IPlayer player = commandSender.getPlayer().orElse(null);
         return databaseManager
-            .getIdentifiersFromPartial(input, player, maxPermission)
+            .getIdentifiersFromPartial(input, player, maxPermission, properties)
             .thenApply(ids ->
             {
                 final List<MinimalStructureDescription> descriptions = new ArrayList<>(ids.size());

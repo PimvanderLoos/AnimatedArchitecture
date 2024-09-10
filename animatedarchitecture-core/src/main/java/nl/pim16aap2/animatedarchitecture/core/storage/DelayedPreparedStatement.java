@@ -60,7 +60,7 @@ public class DelayedPreparedStatement
         String result = statement;
         for (int idx = 0; idx < (actions.length - skipCount); ++idx)
         {
-            final Action<?> action = actions[idx];
+            final @Nullable Action<?> action = actions[idx];
             if (action == null || action.obj == null)
                 result = result.replaceFirst("[?]", "NULL");
             else if (action.obj instanceof Number)
@@ -124,6 +124,22 @@ public class DelayedPreparedStatement
         return idx - 1 - skipCount;
     }
 
+
+    /**
+     * Shortcut for {@link #setRawString(int, String)} with the current index.
+     * <p>
+     * Read the documentation of {@link #setRawString(int, String)} to understand the implications of using this
+     * method.
+     *
+     * @param obj
+     *     The name of the table.
+     * @return This {@link DelayedPreparedStatement}.
+     */
+    public DelayedPreparedStatement setNextRawString(String obj)
+    {
+        return setRawString(currentIDX, obj);
+    }
+
     /**
      * Replaces a '?' at the given index with a raw String. Unlike all other types, this is executed before constructing
      * the actual {@link PreparedStatement} and modifies {@link #statement}.
@@ -147,7 +163,8 @@ public class DelayedPreparedStatement
         if (indices == null)
             indices = StringUtil.getVariableIndices(statement, '?');
 
-        if (idx >= indices.size())
+        final int realIdx = getRealIndex(idx);
+        if (realIdx >= indices.size())
             throw new IllegalArgumentException(String.format(
                 """
                     Trying to set raw String at index %d, but there are only %d variables in the statement.
@@ -155,13 +172,13 @@ public class DelayedPreparedStatement
                     Current:   '%s'
                     Object:    '%s'
                     """,
-                idx,
+                realIdx,
                 indices.size(),
                 sqlStatement,
                 statement,
                 obj
             ));
-        final int questionMarkPos = indices.getInt(idx);
+        final int questionMarkPos = indices.getInt(realIdx);
 
         this.statement = statement.substring(0, questionMarkPos) + obj + statement.substring(questionMarkPos + 1);
 
