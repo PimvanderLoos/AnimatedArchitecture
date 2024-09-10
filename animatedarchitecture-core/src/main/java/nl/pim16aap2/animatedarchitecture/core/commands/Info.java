@@ -212,14 +212,16 @@ public class Info extends StructureTargetCommand
 
     private void decorateBlocksToMove(StructureSnapshot structure, Text text)
     {
-        // TODO: Use the property container to get the blocks to move.
-        structure.getPersistentVariable("blocksToMove")
-            .ifPresent(blocksToMove -> text.append(
-                    localizer.getMessage("commands.info.output.blocks_to_move"),
-                    TextType.INFO,
-                    arg -> arg.highlight(blocksToMove))
-                .append('\n')
-            );
+        final var value = structure.getPropertyValue(Property.BLOCKS_TO_MOVE);
+        final @Nullable Integer blocksToMove = value.value();
+        if (blocksToMove == null)
+            return;
+
+        text.append(
+                localizer.getMessage("commands.info.output.blocks_to_move"),
+                TextType.INFO,
+                arg -> arg.highlight(blocksToMove))
+            .append('\n');
     }
 
     private void decoratePowerBlock(StructureSnapshot structure, Text text)
