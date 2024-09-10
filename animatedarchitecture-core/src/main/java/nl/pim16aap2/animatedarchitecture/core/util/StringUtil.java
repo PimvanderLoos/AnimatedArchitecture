@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.util;
 
+import it.unimi.dsi.fastutil.ints.IntImmutableList;
 import lombok.extern.flogger.Flogger;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
@@ -11,6 +12,7 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collector;
+import java.util.stream.IntStream;
 
 /**
  * Utility class for strings.
@@ -303,5 +305,22 @@ public final class StringUtil
     public static Collector<String, ?, String> stringCollector()
     {
         return stringCollector("\n- ", "{}");
+    }
+
+    /**
+     * Gets all indices of a given character in a string.
+     * <p>
+     * For example, given the string "Hello, World!" and the character 'o', this method would return the list [4, 8].
+     *
+     * @param string
+     *     The string to search in.
+     * @return A list of all indices of the given character in the string.
+     */
+    public static IntImmutableList getVariableIndices(String string, char variable)
+    {
+        return IntImmutableList.toList(IntStream.iterate(
+            string.indexOf(variable),
+            index -> index >= 0,
+            index -> string.indexOf(variable, index + 1)));
     }
 }
