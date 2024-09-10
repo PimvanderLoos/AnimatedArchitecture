@@ -25,6 +25,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureModifier;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.LocationUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
@@ -33,6 +34,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -787,15 +789,20 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      *     The partial identifier to look for.
      * @param player
      *     The player that should own the structures. May be null to disregard ownership.
+     * @param properties
+     *     The properties that the structures must have. When specified, only structures that have all of these
+     *     properties will be returned.
      * @return All {@link StructureIdentifier}s that start with the provided input.
      */
     public CompletableFuture<List<StructureIdentifier>> getIdentifiersFromPartial(
         String input,
         @Nullable IPlayer player,
-        PermissionLevel maxPermission)
+        PermissionLevel maxPermission,
+        Collection<Property<?>> properties
+    )
     {
         return CompletableFuture
-            .supplyAsync(() -> db.getPartialIdentifiers(input, player, maxPermission), threadPool)
+            .supplyAsync(() -> db.getPartialIdentifiers(input, player, maxPermission, properties), threadPool)
             .exceptionally(t -> FutureUtil.exceptionally(t, Collections.emptyList()));
     }
 

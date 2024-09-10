@@ -97,6 +97,7 @@ public enum SQLStatement
         INNER JOIN StructureOwnerPlayer AS O ON S.id = O.structureUID
         INNER JOIN Player AS P ON O.playerID = P.id
         WHERE S.name like ? || '%' AND O.permission <= ? AND (? IS NULL OR P.playerUUID IS ?)
+        ?
         GROUP BY S.id;
         """
     ),
@@ -107,6 +108,7 @@ public enum SQLStatement
         INNER JOIN StructureOwnerPlayer AS O ON S.id = O.structureUID
         INNER JOIN Player AS P ON O.playerID = P.id
         WHERE S.id like ? || '%' AND O.permission <= ? AND (? IS NULL OR P.playerUUID IS ?)
+        ?
         GROUP BY S.id;
         """
     ),

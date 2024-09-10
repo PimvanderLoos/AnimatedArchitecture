@@ -31,6 +31,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureRegistry;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSerializer;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainerSerializer;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.IBitFlag;
@@ -521,7 +522,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     public List<DatabaseManager.StructureIdentifier> getPartialIdentifiers(
         String input,
         @Nullable IPlayer player,
-        PermissionLevel maxPermission)
+        PermissionLevel maxPermission,
+        Collection<Property<?>> properties
+    )
     {
         final DelayedPreparedStatement query;
         if (MathUtil.isNumerical(input))
@@ -539,9 +542,17 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         query.setNextString(uuid);
         query.setNextString(uuid);
 
+        final var stringBuilder = new StringBuilder();
+        for (final var property : properties)
+            stringBuilder
+                .append(" AND json_extract(properties, '$.")
+                .append(property.getNamespacedKey().getFullKey())
+                .append("') IS NOT NULL");
+
+        query.setNextRawString(stringBuilder.toString());
+
         return executeQuery(query, this::collectIdentifiers, Collections.emptyList());
     }
-
 
     @Locked.Read
     private List<DatabaseManager.StructureIdentifier> collectIdentifiers(ResultSet resultSet)

@@ -262,6 +262,9 @@ public class SQLiteJDBCDriverConnectionTest
         partialIdentifiersFromName();
         resetLogCaptor(logCaptor);
 
+        partialIdentifiersFromNameWithProperty();
+        resetLogCaptor(logCaptor);
+
         auxiliaryMethods();
         resetLogCaptor(logCaptor);
 
@@ -278,6 +281,9 @@ public class SQLiteJDBCDriverConnectionTest
         resetLogCaptor(logCaptor);
 
         partialIdentifiersFromId();
+        resetLogCaptor(logCaptor);
+
+        partialIdentifiersFromIdWithProperty();
         resetLogCaptor(logCaptor);
     }
 
@@ -346,19 +352,80 @@ public class SQLiteJDBCDriverConnectionTest
         testRetrieval(structure3);
     }
 
+    public void partialIdentifiersFromNameWithProperty()
+    {
+        // The portcullis type (structure 3) has the 'BLOCKS_TO_MOVE' property, whereas
+        // the big door type (structure 1) and drawbridge type (structure 2) do not.
+        Assertions.assertEquals(
+            List.of(new DatabaseManager.StructureIdentifier(StructureTypePortcullis.get(), 3L, "popular_door_name")),
+            storage.getPartialIdentifiers(
+                "popular_",
+                null,
+                PermissionLevel.NO_PERMISSION,
+                List.of(Property.BLOCKS_TO_MOVE))
+        );
+
+        // The drawbridge type (structure 2) has the 'QUARTER_CIRCLES' property, whereas
+        // the portcullis type (structure 3) does not. The big door entry with UID 1 has a name that does not match, so
+        // it should not be included.
+        Assertions.assertEquals(
+            List.of(new DatabaseManager.StructureIdentifier(StructureTypeDrawbridge.get(), 2L, "popular_door_name")),
+            storage.getPartialIdentifiers(
+                "popular_",
+                null,
+                PermissionLevel.NO_PERMISSION,
+                List.of(Property.QUARTER_CIRCLES))
+        );
+
+        // Including the owner should not change the result.
+        final IPlayer player1 = createPlayer(PLAYER_DATA_1);
+        Assertions.assertEquals(
+            List.of(new DatabaseManager.StructureIdentifier(StructureTypeDrawbridge.get(), 2L, "popular_door_name")),
+            storage.getPartialIdentifiers(
+                "popular_",
+                player1,
+                PermissionLevel.NO_PERMISSION,
+                List.of(Property.QUARTER_CIRCLES))
+        );
+    }
+
     public void partialIdentifiersFromName()
     {
         Assertions.assertEquals(
             List.of(
                 new DatabaseManager.StructureIdentifier(StructureTypeDrawbridge.get(), 2L, "popular_door_name"),
                 new DatabaseManager.StructureIdentifier(StructureTypePortcullis.get(), 3L, "popular_door_name")),
-            storage.getPartialIdentifiers("popular_", null, PermissionLevel.NO_PERMISSION)
+            storage.getPartialIdentifiers("popular_", null, PermissionLevel.NO_PERMISSION, List.of())
         );
 
         final IPlayer player1 = createPlayer(PLAYER_DATA_1);
         Assertions.assertEquals(
             List.of(new DatabaseManager.StructureIdentifier(StructureTypeDrawbridge.get(), 2L, "popular_door_name")),
-            storage.getPartialIdentifiers("popular_", player1, PermissionLevel.NO_PERMISSION)
+            storage.getPartialIdentifiers("popular_", player1, PermissionLevel.NO_PERMISSION, List.of())
+        );
+    }
+
+    public void partialIdentifiersFromIdWithProperty()
+    {
+        // The BigDoor type (structure 1) has the 'QUARTER_CIRCLES' property, so it should be included.
+        final IPlayer player1 = createPlayer(PLAYER_DATA_1);
+        Assertions.assertEquals(
+            List.of(new DatabaseManager.StructureIdentifier(StructureTypeBigDoor.get(), 1L, "random_door_name")),
+            storage.getPartialIdentifiers(
+                "1",
+                player1,
+                PermissionLevel.NO_PERMISSION,
+                List.of(Property.QUARTER_CIRCLES))
+        );
+
+        // The BigDoor type (structure 1) does not have the 'BLOCKS_TO_MOVE' property, so it should not be included.
+        Assertions.assertEquals(
+            List.of(),
+            storage.getPartialIdentifiers(
+                "1",
+                player1,
+                PermissionLevel.NO_PERMISSION,
+                List.of(Property.BLOCKS_TO_MOVE))
         );
     }
 
@@ -372,13 +439,13 @@ public class SQLiteJDBCDriverConnectionTest
                 new DatabaseManager.StructureIdentifier(StructureTypePortcullis.get(), 17L, "popular_door_name"),
                 new DatabaseManager.StructureIdentifier(StructureTypePortcullis.get(), 18L, "popular_door_name"),
                 new DatabaseManager.StructureIdentifier(StructureTypePortcullis.get(), 19L, "popular_door_name")),
-            storage.getPartialIdentifiers("1", null, PermissionLevel.NO_PERMISSION)
+            storage.getPartialIdentifiers("1", null, PermissionLevel.NO_PERMISSION, List.of())
         );
 
         final IPlayer player1 = createPlayer(PLAYER_DATA_1);
         Assertions.assertEquals(
             List.of(new DatabaseManager.StructureIdentifier(StructureTypeBigDoor.get(), 1L, "random_door_name")),
-            storage.getPartialIdentifiers("1", player1, PermissionLevel.NO_PERMISSION)
+            storage.getPartialIdentifiers("1", player1, PermissionLevel.NO_PERMISSION, List.of())
         );
     }
 
