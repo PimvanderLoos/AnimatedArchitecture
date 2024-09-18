@@ -55,7 +55,7 @@
         <dependency.maven-site.version>3.20.0</dependency.maven-site.version>
         <dependency.maven-source.version>3.3.1</dependency.maven-source.version>
         <dependency.mockito.version>5.13.0</dependency.mockito.version>
-        <dependency.nullaway.version>0.11.2</dependency.nullaway.version>
+        <dependency.nullaway.version>0.11.3</dependency.nullaway.version>
         <dependency.pmd.version>7.5.0</dependency.pmd.version>
         <dependency.semver4j.version>5.3.0</dependency.semver4j.version>
         <dependency.slf4j.version>2.0.16</dependency.slf4j.version>
