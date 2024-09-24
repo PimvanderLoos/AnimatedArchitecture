@@ -14,8 +14,15 @@
 
     <properties>
         <project.root-dir>${project.basedir}/..</project.root-dir>
+
         <actions.run.id>-1</actions.run.id>
         <actions.run.number>-1</actions.run.number>
+
+        <!-- Default build data values. These will be overwritten by git-commit-id-maven-plugin -->
+        <git.branch>unknown</git.branch>
+        <git.commit.id>unknown</git.commit.id>
+        <git.dirty>unknown</git.dirty>
+        <git.commit.time>unknown</git.commit.time>
     </properties>
 
     <dependencies>
@@ -72,6 +79,8 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <failOnNoGitDirectory>false</failOnNoGitDirectory>
+                    <failOnUnableToExtractRepoInfo>false</failOnUnableToExtractRepoInfo>
                     <dotGitDirectory>${project.root-dir}/.git</dotGitDirectory>
                 </configuration>
             </plugin>
