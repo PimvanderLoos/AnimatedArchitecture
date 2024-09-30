@@ -54,7 +54,7 @@
         <dependency.maven-shade.version>3.6.0</dependency.maven-shade.version>
         <dependency.maven-site.version>3.20.0</dependency.maven-site.version>
         <dependency.maven-source.version>3.3.1</dependency.maven-source.version>
-        <dependency.mockito.version>5.13.0</dependency.mockito.version>
+        <dependency.mockito.version>5.14.0</dependency.mockito.version>
         <dependency.nullaway.version>0.11.3</dependency.nullaway.version>
         <dependency.pmd.version>7.6.0</dependency.pmd.version>
         <dependency.semver4j.version>5.3.0</dependency.semver4j.version>
@@ -280,6 +280,19 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>${dependency.maven-dependency.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>properties</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>${dependency.maven-clean.version}</version>
                 <configuration>
@@ -347,12 +360,6 @@
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-dependency-plugin</artifactId>
-                    <version>${dependency.maven-dependency.version}</version>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
                     <version>${dependency.maven-resources.version}</version>
                 </plugin>
@@ -362,6 +369,7 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${dependency.surefire.version}</version>
                     <configuration>
+                        <argLine>@{argLine} -javaagent:${org.mockito:mockito-core:jar}</argLine>
                         <forkCount>1</forkCount>
                         <trimStackTrace>false</trimStackTrace>
                         <useFile>false</useFile>
