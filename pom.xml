@@ -280,6 +280,19 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>${dependency.maven-dependency.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>properties</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>${dependency.maven-clean.version}</version>
                 <configuration>
@@ -347,12 +360,6 @@
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-dependency-plugin</artifactId>
-                    <version>${dependency.maven-dependency.version}</version>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
                     <version>${dependency.maven-resources.version}</version>
                 </plugin>
@@ -362,6 +369,7 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${dependency.surefire.version}</version>
                     <configuration>
+                        <argLine>@{argLine} -javaagent:${org.mockito:mockito-core:jar}</argLine>
                         <forkCount>1</forkCount>
                         <trimStackTrace>false</trimStackTrace>
                         <useFile>false</useFile>
