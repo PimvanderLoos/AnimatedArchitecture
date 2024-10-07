@@ -16,7 +16,7 @@
 
         <dependency.adventure-api.version>4.17.0</dependency.adventure-api.version>
         <dependency.adventure-bukkit.version>4.3.4</dependency.adventure-bukkit.version>
-        <dependency.bstats.version>3.0.3</dependency.bstats.version>
+        <dependency.bstats.version>3.1.0</dependency.bstats.version>
         <dependency.commodore.version>2.2</dependency.commodore.version>
         <dependency.cloud.version>1.8.4</dependency.cloud.version>
         <dependency.inventory-gui.version>1.6-SNAPSHOT</dependency.inventory-gui.version>
