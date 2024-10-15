@@ -1,6 +1,5 @@
 package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 
-import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,16 +10,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.UUID;
 
+import static nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyTestUtil.PROPERTY_STRING;
+
 @ExtendWith(MockitoExtension.class)
 class IPropertyHolderConstTest
 {
-    private static final Property<String> PROPERTY_STRING = new Property<>(
-        Constants.PLUGIN_NAME,
-        "string",
-        String.class,
-        "default"
-    );
-
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     IPropertyHolderConst mock;
 
