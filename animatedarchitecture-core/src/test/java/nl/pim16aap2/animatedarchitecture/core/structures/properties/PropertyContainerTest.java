@@ -232,6 +232,32 @@ class PropertyContainerTest
     }
 
     @Test
+    void testIterator()
+    {
+        final var iterator = propertyContainer.iterator();
+
+        Assertions.assertTrue(iterator.hasNext());
+        var entry = iterator.next();
+        Assertions.assertEquals(PROPERTY_STRING.getFullKey(), entry.getKey());
+        Assertions.assertEquals(PROPERTY_STRING_DEFAULT, entry.getValue().value());
+
+        Assertions.assertTrue(iterator.hasNext());
+        entry = iterator.next();
+        Assertions.assertEquals(PROPERTY_NULLABLE.getFullKey(), entry.getKey());
+        Assertions.assertNull(entry.getValue().value());
+
+        Assertions.assertFalse(iterator.hasNext());
+    }
+
+    @Test
+    void testIteratorReadOnly()
+    {
+        final var iterator = propertyContainer.iterator();
+        iterator.next();
+        Assertions.assertThrows(UnsupportedOperationException.class, iterator::remove);
+    }
+
+    @Test
     void testEqualsAndHashCode()
     {
         final var otherContainer = PropertyContainer.forProperties(PROPERTIES);

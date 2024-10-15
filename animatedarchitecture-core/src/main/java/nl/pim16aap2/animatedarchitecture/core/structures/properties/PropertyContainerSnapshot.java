@@ -2,9 +2,11 @@ package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -54,5 +56,11 @@ public final class PropertyContainerSnapshot implements IPropertyHolderConst, IP
     public Map<String, IPropertyValue<?>> getMap()
     {
         return propertyMap;
+    }
+
+    @Override
+    public @NotNull Iterator<Map.Entry<String, IPropertyValue<?>>> iterator()
+    {
+        return propertyMap.entrySet().iterator();
     }
 }

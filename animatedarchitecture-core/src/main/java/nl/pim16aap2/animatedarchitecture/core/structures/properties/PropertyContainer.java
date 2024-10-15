@@ -6,6 +6,7 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.VisibleForTesting;
 
 import javax.annotation.Nullable;
@@ -13,6 +14,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -434,6 +436,12 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
         return mapValue(property, property.cast(value));
     }
 
+    @Override
+    public @NotNull Iterator<Map.Entry<String, IPropertyValue<?>>> iterator()
+    {
+        return unmodifiablePropertyMap.entrySet().iterator();
+    }
+
     /**
      * Represents a property value that is set.
      *
@@ -443,6 +451,8 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
      *     The type of the property.
      */
     record ProvidedPropertyValue<T>(
+        // We do not serialize the type because doing so is annoying and unnecessary, as the type
+        // is provided by the property, which we can get from the key.
         @JSONField(serialize = false) Class<T> type,
         @Nullable T value)
         implements IPropertyValue<T>
