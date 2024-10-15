@@ -8,7 +8,11 @@ import javax.annotation.Nullable;
  * @param <T>
  *     The type of the value.
  */
-public interface IPropertyValue<T>
+public sealed interface IPropertyValue<T>
+    permits
+    PropertyContainer.ProvidedPropertyValue,
+    PropertyContainer.UnsetPropertyValue,
+    PropertyContainerSerializer.UndefinedPropertyValue
 {
     /**
      * Checks whether the value is set for this property.

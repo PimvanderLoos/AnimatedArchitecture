@@ -2,7 +2,6 @@ package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
@@ -47,12 +46,6 @@ class PropertyContainerSnapshotTest
             PROPERTY_NULLABLE.getFullKey(), providedPropertyValue(PROPERTY_NULLABLE)
         );
         propertyContainerSnapshot = new PropertyContainerSnapshot(propertyMap);
-    }
-
-    @Test
-    void testGetValidPropertyValue()
-    {
-
     }
 
     /**
