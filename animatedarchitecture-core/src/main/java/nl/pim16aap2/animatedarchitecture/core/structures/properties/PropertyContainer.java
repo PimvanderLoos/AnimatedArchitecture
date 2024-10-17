@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -440,6 +441,12 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
     public @NotNull Iterator<Map.Entry<String, IPropertyValue<?>>> iterator()
     {
         return unmodifiablePropertyMap.entrySet().iterator();
+    }
+
+    @Override
+    public Spliterator<Map.Entry<String, IPropertyValue<?>>> spliterator()
+    {
+        return unmodifiablePropertyMap.entrySet().spliterator();
     }
 
     /**

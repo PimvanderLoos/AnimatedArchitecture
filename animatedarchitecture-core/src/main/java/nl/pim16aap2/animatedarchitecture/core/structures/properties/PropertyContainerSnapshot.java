@@ -8,6 +8,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Spliterator;
 
 /**
  * Represents a read-only snapshot of a property container.
@@ -62,5 +63,11 @@ public final class PropertyContainerSnapshot implements IPropertyHolderConst, IP
     public @NotNull Iterator<Map.Entry<String, IPropertyValue<?>>> iterator()
     {
         return propertyMap.entrySet().iterator();
+    }
+
+    @Override
+    public Spliterator<Map.Entry<String, IPropertyValue<?>>> spliterator()
+    {
+        return propertyMap.entrySet().spliterator();
     }
 }

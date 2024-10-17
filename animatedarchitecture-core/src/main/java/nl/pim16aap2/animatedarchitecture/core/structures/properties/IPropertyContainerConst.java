@@ -1,7 +1,11 @@
 package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Spliterator;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Represents a read-only property container.
@@ -25,4 +29,19 @@ public sealed interface IPropertyContainerConst
      */
     @Override
     Iterator<Map.Entry<String, IPropertyValue<?>>> iterator();
+
+    @Override
+    Spliterator<Map.Entry<String, IPropertyValue<?>>> spliterator();
+
+    /**
+     * Returns a {@link Stream} of the properties in this container.
+     * <p>
+     * This works the same as {@link Collection#stream()}.
+     *
+     * @return A {@link Stream} of the properties in this container.
+     */
+    default Stream<Map.Entry<String, IPropertyValue<?>>> stream()
+    {
+        return StreamSupport.stream(spliterator(), false);
+    }
 }
