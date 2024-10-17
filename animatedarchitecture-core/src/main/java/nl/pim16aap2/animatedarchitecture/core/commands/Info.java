@@ -13,6 +13,7 @@ import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyValue;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
@@ -24,6 +25,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
@@ -234,6 +236,50 @@ public class Info extends StructureTargetCommand
             .append('\n');
     }
 
+    /**
+     * Decorates a property of the structure.
+     *
+     * @param text
+     *     The {@link Text} object to append the property to.
+     * @param propertyKey
+     *     The key of the property.
+     * @param value
+     *     The value of the property.
+     */
+    // TODO: Remove this placeholder method and implement a decorator pattern for properties.
+    private void decorateProperty(Text text, String propertyKey, IPropertyValue<?> value)
+    {
+        // These properties are handled separately.
+        if (propertyKey.equals(Property.OPEN_STATUS.getFullKey()) ||
+            propertyKey.equals(Property.BLOCKS_TO_MOVE.getFullKey()))
+            return;
+
+        text.append(
+                propertyKey + ": {0}",
+                TextType.INFO,
+                arg -> arg.highlight(Objects.toString(value.value())))
+            .append('\n');
+    }
+
+    /**
+     * Decorates the properties of the structure.
+     * <p>
+     * The properties that are handled separately are ignored (i.e. {@link Property#OPEN_STATUS} and
+     * {@link Property#BLOCKS_TO_MOVE}).
+     *
+     * @param structure
+     *     The structure to decorate the properties for.
+     * @param text
+     *     The {@link Text} object to append the properties to.
+     */
+    private void decorateProperties(StructureSnapshot structure, Text text)
+    {
+        structure
+            .getPropertyContainerSnapshot()
+            .forEach(entry -> decorateProperty(text, entry.getKey(), entry.getValue()));
+    }
+
+    // TODO: Implement a decorator pattern properties.
     protected void sendInfoMessage(StructureSnapshot structure)
     {
         final Text output = textFactory.newText();
@@ -247,6 +293,8 @@ public class Info extends StructureTargetCommand
         decorateBlocksToMove(structure, output);
         decoratePowerBlock(structure, output);
 
+        decorateProperties(structure, output);
+
         getCommandSender().sendMessage(output);
     }
 
@@ -254,7 +302,11 @@ public class Info extends StructureTargetCommand
     {
         if (!(getCommandSender() instanceof IPlayer player))
         {
-            log.atFinest().withStackTrace(StackSize.FULL).log("Not highlighting blocks for non-player command sender.");
+            // Most parts of the command can be handled for any type of command sender, so this is not an error.
+            log.atFinest().withStackTrace(StackSize.FULL).log(
+                "Not highlighting blocks for non-player command sender '%s'.",
+                getCommandSender()
+            );
             return;
         }
         glowingBlockSpawner.spawnHighlightedBlocks(structure, player, Duration.ofSeconds(3));
