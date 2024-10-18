@@ -57,6 +57,14 @@ public final class Property<T> implements IKeyed
      * @return The type of the property.
      */
     @Getter
+    private final PropertyAccessLevel propertyAccessLevel;
+
+    /**
+     * The type of the property.
+     *
+     * @return The type of the property.
+     */
+    @Getter
     private final Class<T> type;
 
     /**
@@ -79,7 +87,8 @@ public final class Property<T> implements IKeyed
     public static final Property<Double> ANIMATION_SPEED_MULTIPLIER = new Property<>(
         "ANIMATION_SPEED_MULTIPLIER",
         Double.class,
-        null
+        null,
+        PropertyAccessLevel.HIDDEN // I am not sure if the animator currently uses this property.
     );
 
     /**
@@ -89,6 +98,7 @@ public final class Property<T> implements IKeyed
         "BLOCKS_TO_MOVE",
         Integer.class,
         null,
+        PropertyAccessLevel.USER_EDITABLE,
         // Changing the blocks to move may affect things like animation range.
         PropertyScope.ANIMATION
     );
@@ -100,6 +110,7 @@ public final class Property<T> implements IKeyed
         "OPEN_STATUS",
         Boolean.class,
         false,
+        PropertyAccessLevel.USER_EDITABLE,
         // The open status affects things like animation direction.
         PropertyScope.ANIMATION,
         // Changing the open status may affect the current redstone action.
@@ -113,6 +124,7 @@ public final class Property<T> implements IKeyed
         "QUARTER_CIRCLES",
         Integer.class,
         1,
+        PropertyAccessLevel.HIDDEN, // Quarter circles are not yet fully supported.
         // Changing how many quarter circles the structure rotates affects things like animation range.
         PropertyScope.ANIMATION
     );
@@ -124,6 +136,7 @@ public final class Property<T> implements IKeyed
         "REDSTONE_MODE",
         RedstoneMode.class,
         RedstoneMode.DEFAULT,
+        PropertyAccessLevel.HIDDEN, // There are currently no implementations for the alternative redstone modes.
         // Changing the redstone mode may affect the current redstone action.
         PropertyScope.REDSTONE
     );
@@ -135,6 +148,7 @@ public final class Property<T> implements IKeyed
         "ROTATION_POINT",
         Vector3Di.class,
         null,
+        PropertyAccessLevel.USER_EDITABLE,
         // Changing the rotation point may affect things like animation range.
         PropertyScope.ANIMATION
     );
@@ -151,16 +165,24 @@ public final class Property<T> implements IKeyed
      *     <p>
      *     This is the value that will be used if a structure whose type has this property does not have a value set for
      *     this property.
+     * @param propertyAccessLevel
+     *     The level of access users have to this property.
      * @param scopes
      *     The scopes in which this property is used.
      *     <p>
      *     This is used to prevent side effects of changing the property value. For example, clearing cached values
      *     related to the property, such as the animation range when changing the blocks to move.
      */
-    public Property(NamespacedKey namespacedKey, Class<T> type, @Nullable T defaultValue, PropertyScope... scopes)
+    public Property(
+        NamespacedKey namespacedKey,
+        Class<T> type,
+        @Nullable T defaultValue,
+        PropertyAccessLevel propertyAccessLevel,
+        PropertyScope... scopes)
     {
         this.namespacedKey = namespacedKey;
         this.type = type;
+        this.propertyAccessLevel = propertyAccessLevel;
         this.defaultValue = defaultValue;
         this.propertyScopes = List.of(scopes);
 
@@ -179,10 +201,22 @@ public final class Property<T> implements IKeyed
      *     The type of the property.
      * @param defaultValue
      *     The default value of the property.
+     * @param propertyAccessLevel
+     *     The level of access users have to this property.
+     * @param scopes
+     *     The scopes in which this property is used.
+     *     <p>
+     *     This is used to prevent side effects of changing the property value. For example, clearing cached values
+     *     related to the property, such as the animation range when changing the blocks to move.
      */
-    private Property(String name, Class<T> type, @Nullable T defaultValue, PropertyScope... scopes)
+    private Property(
+        String name,
+        Class<T> type,
+        @Nullable T defaultValue,
+        PropertyAccessLevel propertyAccessLevel,
+        PropertyScope... scopes)
     {
-        this(new NamespacedKey(Constants.PLUGIN_NAME, name), type, defaultValue, scopes);
+        this(new NamespacedKey(Constants.PLUGIN_NAME, name), type, defaultValue, propertyAccessLevel, scopes);
     }
 
     /**
@@ -204,15 +238,23 @@ public final class Property<T> implements IKeyed
      *     <p>
      *     This is the value that will be used if a structure whose type has this property does not have a value set for
      *     this property.
+     * @param propertyAccessLevel
+     *     The level of access users have to this property.
      * @param scopes
      *     The scopes in which this property is used.
      *     <p>
      *     This is used to prevent side effects of changing the property value. For example, clearing cached values
      *     related to the property, such as the animation range when changing the blocks to move.
      */
-    public Property(String owner, String name, Class<T> type, @Nullable T defaultValue, PropertyScope... scopes)
+    public Property(
+        String owner,
+        String name,
+        Class<T> type,
+        @Nullable T defaultValue,
+        PropertyAccessLevel propertyAccessLevel,
+        PropertyScope... scopes)
     {
-        this(new NamespacedKey(owner, name), type, defaultValue, scopes);
+        this(new NamespacedKey(owner, name), type, defaultValue, propertyAccessLevel, scopes);
     }
 
     /**

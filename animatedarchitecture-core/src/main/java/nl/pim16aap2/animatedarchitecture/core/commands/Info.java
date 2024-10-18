@@ -14,6 +14,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyAccessLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyValuePair;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
@@ -274,6 +275,8 @@ public class Info extends StructureTargetCommand
     {
         structure
             .getPropertyContainerSnapshot()
+            .stream()
+            .filter(entry -> entry.property().getPropertyAccessLevel() != PropertyAccessLevel.HIDDEN)
             .forEach(entry -> decorateProperty(text, entry));
     }
 

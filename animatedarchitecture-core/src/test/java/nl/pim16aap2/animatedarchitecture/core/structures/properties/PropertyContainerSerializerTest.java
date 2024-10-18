@@ -37,7 +37,8 @@ public class PropertyContainerSerializerTest
         "external",
         "unset_property",
         Integer.class,
-        5
+        5,
+        PropertyAccessLevel.USER_EDITABLE
     );
 
     @Mock
