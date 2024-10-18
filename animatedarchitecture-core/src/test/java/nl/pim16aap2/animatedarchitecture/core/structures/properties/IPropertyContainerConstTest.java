@@ -20,7 +20,7 @@ class IPropertyContainerConstTest
         final var iterator = propertyContainer.iterator();
 
         final Map<String, @Nullable Object> results = HashMap.newHashMap(2);
-        iterator.forEachRemaining(entry -> results.put(entry.getKey(), entry.getValue().value()));
+        iterator.forEachRemaining(entry -> results.put(entry.property().getFullKey(), entry.propertyValue()));
 
         Assertions.assertEquals(2, results.size());
         Assertions.assertEquals(PROPERTY_STRING_DEFAULT, results.get(PROPERTY_STRING.getFullKey()));

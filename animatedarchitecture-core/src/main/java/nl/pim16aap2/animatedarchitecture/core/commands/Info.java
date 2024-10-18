@@ -13,8 +13,8 @@ import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyValue;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyValuePair;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
@@ -241,23 +241,21 @@ public class Info extends StructureTargetCommand
      *
      * @param text
      *     The {@link Text} object to append the property to.
-     * @param propertyKey
-     *     The key of the property.
-     * @param value
-     *     The value of the property.
+     * @param propertyValuePair
+     *     The property-value pair to decorate.
      */
     // TODO: Remove this placeholder method and implement a decorator pattern for properties.
-    private void decorateProperty(Text text, String propertyKey, IPropertyValue<?> value)
+    private void decorateProperty(Text text, PropertyValuePair<?> propertyValuePair)
     {
         // These properties are handled separately.
-        if (propertyKey.equals(Property.OPEN_STATUS.getFullKey()) ||
-            propertyKey.equals(Property.BLOCKS_TO_MOVE.getFullKey()))
+        if (propertyValuePair.property().equals(Property.OPEN_STATUS) ||
+            propertyValuePair.property().equals(Property.BLOCKS_TO_MOVE))
             return;
 
         text.append(
-                propertyKey + ": {0}",
+                propertyValuePair.property().getFullKey() + ": {0}",
                 TextType.INFO,
-                arg -> arg.highlight(Objects.toString(value.value())))
+                arg -> arg.highlight(Objects.toString(propertyValuePair.propertyValue())))
             .append('\n');
     }
 
@@ -276,7 +274,7 @@ public class Info extends StructureTargetCommand
     {
         structure
             .getPropertyContainerSnapshot()
-            .forEach(entry -> decorateProperty(text, entry.getKey(), entry.getValue()));
+            .forEach(entry -> decorateProperty(text, entry));
     }
 
     // TODO: Implement a decorator pattern properties.

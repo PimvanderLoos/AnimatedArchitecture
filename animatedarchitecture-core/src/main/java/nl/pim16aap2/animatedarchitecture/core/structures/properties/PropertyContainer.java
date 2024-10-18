@@ -6,6 +6,7 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.util.LazyValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.VisibleForTesting;
 
@@ -18,6 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -49,10 +51,20 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
         new ConcurrentHashMap<>();
 
     /**
+     * A representation of all properties in this container with their values for all valid properties.
+     * <p>
+     * This is a lazily initialized cache that is reset whenever the property map is modified.
+     */
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private final LazyValue<Set<PropertyValuePair<?>>> propertySet;
+
+    /**
      * The map that contains the properties and their values.
      * <p>
      * The key is defined by {@link #mapKey(Property)}. The value is the value of the property.
      */
+    // Exclude this map from equals and toString because we already use the unmodifiable map for those instead.
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private final Map<String, IPropertyValue<?>> propertyMap;
@@ -72,6 +84,7 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
     {
         this.propertyMap = propertyMap;
         this.unmodifiablePropertyMap = Collections.unmodifiableMap(propertyMap);
+        this.propertySet = new LazyValue<>(() -> getNewPropertySet(this.unmodifiablePropertyMap));
     }
 
     /**
@@ -90,6 +103,8 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
         ProvidedPropertyValue<T> providedPropertyValue)
     {
         final @Nullable IPropertyValue<?> prev = propertyMap.put(mapKey(property), providedPropertyValue);
+        propertySet.reset();
+
         if (prev instanceof PropertyContainerSerializer.UndefinedPropertyValue undefinedPropertyValue)
         {
             log.atWarning().log(
@@ -339,6 +354,7 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
         {
             final var newValue = undefinedPropertyValue.deserializeValue(property);
             propertyMap.put(key, newValue);
+            propertySet.reset();
             return newValue;
         }
 
@@ -438,15 +454,38 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
     }
 
     @Override
-    public @NotNull Iterator<Map.Entry<String, IPropertyValue<?>>> iterator()
+    public @NotNull Iterator<PropertyValuePair<?>> iterator()
     {
-        return unmodifiablePropertyMap.entrySet().iterator();
+        return propertySet.get().iterator();
     }
 
     @Override
-    public Spliterator<Map.Entry<String, IPropertyValue<?>>> spliterator()
+    public Spliterator<PropertyValuePair<?>> spliterator()
     {
-        return unmodifiablePropertyMap.entrySet().spliterator();
+        return propertySet.get().spliterator();
+    }
+
+    /**
+     * Creates a new set of {@link PropertyValuePair}s from the provided property map.
+     * <p>
+     * Use {@link #propertySet} to get the cached value.
+     *
+     * @param propertyMap
+     *     The property map to create the set from.
+     * @return A new set of {@link PropertyValuePair}s.
+     */
+    static Set<PropertyValuePair<?>> getNewPropertySet(Map<String, IPropertyValue<?>> propertyMap)
+    {
+        return propertyMap
+            .entrySet()
+            .stream()
+            .map(entry ->
+            {
+                final @Nullable Property<?> property = Property.fromName(entry.getKey());
+                return property == null ? null : PropertyValuePair.of(property, entry.getValue());
+            })
+            .filter(Objects::nonNull)
+            .collect(Collectors.toUnmodifiableSet());
     }
 
     /**

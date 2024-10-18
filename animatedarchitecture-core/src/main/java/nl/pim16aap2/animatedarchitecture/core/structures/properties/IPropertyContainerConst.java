@@ -2,7 +2,6 @@ package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Spliterator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -15,32 +14,39 @@ import java.util.stream.StreamSupport;
  * This is a specialization of {@link IPropertyHolderConst} that is used specifically for property containers.
  */
 public sealed interface IPropertyContainerConst
-    extends IPropertyHolderConst, Iterable<Map.Entry<String, IPropertyValue<?>>>
+    extends IPropertyHolderConst, Iterable<PropertyValuePair<?>>
     permits PropertyContainer, PropertyContainerSnapshot
 {
     /**
      * Returns a read-only iterator over the properties in this container.
      * <p>
-     * The iterator contains the properties as key-value pairs.
-     * <p>
-     * Each key is the fully qualified key of the property. See {@link Property#getFullKey()}.
+     * Any properties that are either unmapped or of the wrong type are excluded.
      *
      * @return A read-only iterator over the properties in this container.
      */
     @Override
-    Iterator<Map.Entry<String, IPropertyValue<?>>> iterator();
+    Iterator<PropertyValuePair<?>> iterator();
 
+    /**
+     * Returns a read-only spliterator over the properties in this container.
+     * <p>
+     * Any properties that are either unmapped or of the wrong type are excluded.
+     *
+     * @return A read-only spliterator over the properties in this container.
+     */
     @Override
-    Spliterator<Map.Entry<String, IPropertyValue<?>>> spliterator();
+    Spliterator<PropertyValuePair<?>> spliterator();
 
     /**
      * Returns a {@link Stream} of the properties in this container.
      * <p>
      * This works the same as {@link Collection#stream()}.
+     * <p>
+     * Any properties that are either unmapped or of the wrong type are excluded.
      *
      * @return A {@link Stream} of the properties in this container.
      */
-    default Stream<Map.Entry<String, IPropertyValue<?>>> stream()
+    default Stream<PropertyValuePair<?>> stream()
     {
         return StreamSupport.stream(spliterator(), false);
     }

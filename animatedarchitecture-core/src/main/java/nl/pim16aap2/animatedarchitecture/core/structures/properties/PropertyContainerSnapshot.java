@@ -8,6 +8,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.Spliterator;
 
 /**
@@ -23,10 +24,12 @@ import java.util.Spliterator;
 public final class PropertyContainerSnapshot implements IPropertyHolderConst, IPropertyContainerConst
 {
     private final Map<String, IPropertyValue<?>> propertyMap;
+    private final Set<PropertyValuePair<?>> propertySet;
 
     PropertyContainerSnapshot(Map<String, IPropertyValue<?>> propertyMap)
     {
         this.propertyMap = Map.copyOf(propertyMap);
+        this.propertySet = PropertyContainer.getNewPropertySet(propertyMap);
     }
 
     @Override
@@ -60,14 +63,14 @@ public final class PropertyContainerSnapshot implements IPropertyHolderConst, IP
     }
 
     @Override
-    public @NotNull Iterator<Map.Entry<String, IPropertyValue<?>>> iterator()
+    public @NotNull Iterator<PropertyValuePair<?>> iterator()
     {
-        return propertyMap.entrySet().iterator();
+        return propertySet.iterator();
     }
 
     @Override
-    public Spliterator<Map.Entry<String, IPropertyValue<?>>> spliterator()
+    public Spliterator<PropertyValuePair<?>> spliterator()
     {
-        return propertyMap.entrySet().spliterator();
+        return propertySet.spliterator();
     }
 }
