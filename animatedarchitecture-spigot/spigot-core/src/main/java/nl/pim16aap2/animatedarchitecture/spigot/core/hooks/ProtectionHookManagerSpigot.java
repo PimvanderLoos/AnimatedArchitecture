@@ -12,6 +12,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.IRestartable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
+import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigot;
@@ -379,12 +380,13 @@ public final class ProtectionHookManagerSpigot
     @Override
     public String getDebugInformation()
     {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("Can create fake players: ").append(fakePlayerCreator.canCreatePlayers()).append('\n')
-            .append("Protection hooks: \n");
-        for (final IProtectionHookSpigot protectionHook : protectionHooks)
-            sb.append("  ").append(protectionHook.getName()).append('\n');
-
-        return sb.toString();
+        return String.format(
+            """
+                Can create fake players: %s
+                Protection hooks: %s
+                """,
+            fakePlayerCreator.canCreatePlayers(),
+            StringUtil.formatCollection(protectionHooks, IProtectionHookSpigot::getName)
+        );
     }
 }

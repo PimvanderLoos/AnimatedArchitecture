@@ -3,6 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.storage;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
+import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.MigrationInfo;
 
@@ -78,10 +79,10 @@ public final class FlywayManager implements IDebuggable
     {
         return String.format(
             """
-                - Migration performed: %s
-                - Migrations Applied (%d): %s
-                - Migrations Pending (%d): %s
-                - Current Migration: %s
+                Migration performed: %s
+                Migrations Applied (%d): %s
+                Migrations Pending (%d): %s
+                Current Migration: %s
                 """,
             isMigrationPerformed.get() ? "Yes" : "No",
             flyway.info().applied().length,
@@ -94,14 +95,8 @@ public final class FlywayManager implements IDebuggable
 
     private String formatMigrations(MigrationInfo... all)
     {
-        if (all.length == 0)
-            return "";
-        final var sb = new StringBuilder("\n");
-        Arrays.stream(all)
-            .map(migration -> String.format("  - %s: %s\n", migration.getVersion(), migration.getDescription()))
-            .forEach(sb::append);
-
-        // Return the string without the trailing newline.
-        return sb.substring(0, sb.length() - 1);
+        return Arrays.stream(all)
+            .map(migration -> String.format("%s: %s", migration.getVersion(), migration.getDescription()))
+            .collect(StringUtil.stringCollector());
     }
 }

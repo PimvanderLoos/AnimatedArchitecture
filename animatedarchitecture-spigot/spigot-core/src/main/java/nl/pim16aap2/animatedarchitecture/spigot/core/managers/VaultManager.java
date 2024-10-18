@@ -21,6 +21,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
+import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.IPermissionsManagerSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.IFakePlayer;
@@ -452,6 +453,10 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     public String getDebugInformation()
     {
         return "Economy: " + economy + "\n"
-            + "Flat prices map: " + flatPrices;
+            + "Flat prices map: " +
+            StringUtil.formatCollection(
+                flatPrices.entrySet(),
+                entry -> String.format("%s: %f", entry.getKey(), entry.getValue())
+            );
     }
 }

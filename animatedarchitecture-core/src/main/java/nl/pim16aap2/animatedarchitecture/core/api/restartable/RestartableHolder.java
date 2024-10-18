@@ -3,6 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.api.restartable;
 
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
+import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashSet;
@@ -115,13 +116,15 @@ public final class RestartableHolder implements IDebuggable
     @Override
     public String getDebugInformation()
     {
-        final var sb = new StringBuilder()
-            .append("Number of Registered Restartables: ").append(restartables.size()).append('\n')
-            .append("ShutDownCount: ").append(shutdownCount).append('\n')
-            .append("InitCount: ").append(initCount).append('\n')
-            .append("Registered Restartables:\n");
-
-        restartables.forEach(restartable -> sb.append("  - ").append(restartable.getClass().getName()).append('\n'));
-        return sb.toString();
+        return String.format(
+            """
+                ShutDownCount: %d
+                InitCount:     %d
+                Registered Restartables: %s
+                """,
+            shutdownCount,
+            initCount,
+            StringUtil.formatCollection(restartables, restartable -> restartable.getClass().getName())
+        );
     }
 }

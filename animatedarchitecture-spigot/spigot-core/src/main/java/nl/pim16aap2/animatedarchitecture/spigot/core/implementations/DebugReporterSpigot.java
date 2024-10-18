@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.stream.Stream;
+import java.util.List;
 
 /**
  * A {@link DebugReporter} implementation for the Spigot platform.
@@ -63,7 +63,7 @@ public class DebugReporterSpigot extends DebugReporter
             .append(() -> subPlatform == null ? "null" : subPlatform.getClass().getSimpleName())
             .append('\n')
             .append("Registered addons: ")
-            .append(animatedArchitecturePlugin::getRegisteredPlugins)
+            .append(() -> StringUtil.formatCollection(animatedArchitecturePlugin.getRegisteredPlugins()))
             .append('\n')
             .append("EventListeners:\n")
             .append(formatListeners(
@@ -76,7 +76,6 @@ public class DebugReporterSpigot extends DebugReporter
                 StructureEventToggleEnd.class,
                 StructureEventTogglePrepare.class,
                 StructureEventToggleStart.class))
-            .append('\n')
             .toString();
     }
 
@@ -95,12 +94,15 @@ public class DebugReporterSpigot extends DebugReporter
                 final var handlerListMethod = clz.getDeclaredField("HANDLERS_LIST");
                 handlerListMethod.setAccessible(true);
                 final var handlers = (HandlerList) handlerListMethod.get(null);
-                stringBuilder.append("  ").append(clz::getSimpleName)
-                    .append(Stream
-                        .of(handlers.getRegisteredListeners())
-                        .map(DebugReporterSpigot::formatRegisteredListener)
-                        .collect(StringUtil.stringCollector("\n    - ", "[]"))
-                    );
+                stringBuilder
+                    .append("  ")
+                    .append(clz::getSimpleName)
+                    .append(": ")
+                    .append(StringUtil.formatCollection(
+                        List.of(handlers.getRegisteredListeners()),
+                        DebugReporterSpigot::formatRegisteredListener,
+                        2))
+                    .append('\n');
             }
             catch (Exception e)
             {
@@ -108,8 +110,7 @@ public class DebugReporterSpigot extends DebugReporter
                 stringBuilder.append("ERROR: ").append(clz::getName).append('\n');
             }
         }
-
-        return stringBuilder.toString();
+        return StringUtil.removeTrailingNewLines(stringBuilder);
     }
 
     private static String formatRegisteredListener(RegisteredListener listener)
