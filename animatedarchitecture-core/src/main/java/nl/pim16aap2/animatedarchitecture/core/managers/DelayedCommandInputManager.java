@@ -5,6 +5,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.commands.BaseCommand;
 import nl.pim16aap2.animatedarchitecture.core.commands.DelayedCommandInputRequest;
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
+import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -103,13 +104,6 @@ public class DelayedCommandInputManager implements IDebuggable
     @Override
     public @Nullable String getDebugInformation()
     {
-        final StringBuilder sb = new StringBuilder(
-            String.format("There are currently %d delayed command input requests active:", requests.size()))
-            .append('\n');
-
-        for (final DelayedCommandInputRequest<?> inputRequest : requests.values())
-            sb.append("    - ").append(inputRequest).append('\n');
-
-        return sb.toString();
+        return "Currently active delayed command input requests: " + StringUtil.formatCollection(requests.values());
     }
 }

@@ -377,10 +377,8 @@ public final class StructureActivityManager extends Restartable
     @Override
     public String getDebugInformation()
     {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("Registered animators:\n");
-        animators.values().forEach(entry -> sb.append(" * ").append(entry).append('\n'));
-        return StringUtil.removeTrailingNewLine(sb).toString();
+        return "Registered animators: " +
+            StringUtil.formatCollection(animators.entrySet(), entry -> entry.getValue().toString());
     }
 
     /**

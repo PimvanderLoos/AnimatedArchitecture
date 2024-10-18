@@ -93,8 +93,16 @@ public final class BuildDataReader implements IDebuggable
     @Override
     public String toString()
     {
-        return String.format("Commit: %s\nBuild number: %d\nBuild id: %d",
-            buildData.git, buildData.buildNumber, buildData.buildId);
+        return String.format(
+            """
+                Commit:       %s
+                Build number: %d
+                Build id:     %d
+                """,
+            buildData.git,
+            buildData.buildNumber,
+            buildData.buildId
+        );
     }
 
     /**

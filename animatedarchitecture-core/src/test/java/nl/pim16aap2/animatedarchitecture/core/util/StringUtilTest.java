@@ -21,19 +21,41 @@ public class StringUtilTest
     }
 
     @Test
-    void testRemoveTrailingNewLine()
+    void testHasTrailingNewLine()
+    {
+        assertTrue(StringUtil.hasTrailingNewLine("Hello\n"));
+        assertTrue(StringUtil.hasTrailingNewLine("\n"));
+        assertFalse(StringUtil.hasTrailingNewLine("Hello"));
+        assertFalse(StringUtil.hasTrailingNewLine(""));
+    }
+
+    @Test
+    void testRemoveTrailingNewLinesStringBuilder()
     {
         StringBuilder sb = new StringBuilder("Hello\n");
-        assertEquals("Hello", StringUtil.removeTrailingNewLine(sb).toString());
+        assertEquals("Hello", StringUtil.removeTrailingNewLines(sb).toString());
 
         sb = new StringBuilder("Hello\nHello\n");
-        assertEquals("Hello\nHello", StringUtil.removeTrailingNewLine(sb).toString());
+        assertEquals("Hello\nHello", StringUtil.removeTrailingNewLines(sb).toString());
+
+        sb = new StringBuilder("\nHello\nHello\n\n\n");
+        assertEquals("\nHello\nHello", StringUtil.removeTrailingNewLines(sb).toString());
 
         sb = new StringBuilder("Hello");
-        assertEquals("Hello", StringUtil.removeTrailingNewLine(sb).toString());
+        assertEquals("Hello", StringUtil.removeTrailingNewLines(sb).toString());
 
         sb = new StringBuilder();
-        assertEquals("", StringUtil.removeTrailingNewLine(sb).toString());
+        assertEquals("", StringUtil.removeTrailingNewLines(sb).toString());
+    }
+
+    @Test
+    void testRemoveTrailingNewLinesString()
+    {
+        assertEquals("Hello", StringUtil.removeTrailingNewLines("Hello\n"));
+        assertEquals("Hello\nHello", StringUtil.removeTrailingNewLines("Hello\nHello\n"));
+        assertEquals("\nHello\nHello", StringUtil.removeTrailingNewLines("\nHello\nHello\n\n\n"));
+        assertEquals("Hello", StringUtil.removeTrailingNewLines("Hello"));
+        assertEquals("", StringUtil.removeTrailingNewLines(""));
     }
 
     @ParameterizedTest
@@ -80,7 +102,7 @@ public class StringUtilTest
     @Test
     void testStringCollector()
     {
-        final var collector = StringUtil.stringCollector("\n  - ", "[]");
+        final var collector = StringUtil.stringCollector("\n  - ", "{}");
 
         List<String> items = Arrays.asList("1", "2", "3");
         String result = items.stream().collect(collector);
@@ -89,6 +111,6 @@ public class StringUtilTest
         items = List.of();
         //noinspection RedundantOperationOnEmptyContainer
         result = items.stream().collect(collector);
-        assertEquals("[]", result);
+        assertEquals("{}", result);
     }
 }

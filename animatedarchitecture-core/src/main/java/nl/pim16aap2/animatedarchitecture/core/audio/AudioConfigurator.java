@@ -10,6 +10,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.restartable.IRestartable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -149,10 +150,11 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
     @Override
     public String getDebugInformation()
     {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("AudioSets:\n");
-        audioMap.forEach((key, val) -> sb.append("  Type: ").append(key).append(", Audio: ").append(val).append('\n'));
-        return sb.toString();
+        return "AudioSets: " +
+            StringUtil.formatCollection(
+                audioMap.entrySet(),
+                entry -> "Type:  " + entry.getKey() + "\n  Audio: " + entry.getValue()
+            );
     }
 
     @AllArgsConstructor

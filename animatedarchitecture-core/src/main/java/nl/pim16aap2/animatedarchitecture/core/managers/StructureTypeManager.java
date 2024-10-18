@@ -8,7 +8,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.localization.LocalizationManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
-import nl.pim16aap2.util.SafeStringBuilder;
+import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -259,16 +259,13 @@ public final class StructureTypeManager implements IDebuggable
     @Locked.Read
     public String getDebugInformation()
     {
-        final SafeStringBuilder sb = new SafeStringBuilder("Registered structure types:\n");
-
-        sb.append("* Enabled:\n");
-        for (final StructureType structureType : enabledStructureTypes)
-            sb.append("  - ").append(structureType).append('\n');
-
-        sb.append("* Disabled:\n");
-        for (final StructureType structureType : disabledStructureTypes)
-            sb.append("  - ").append(structureType).append('\n');
-
-        return sb.toString();
+        return String.format(
+            """
+                Enabled structure types: %s
+                Disabled structure types: %s
+                """,
+            StringUtil.formatCollection(enabledStructureTypes),
+            StringUtil.formatCollection(disabledStructureTypes)
+        );
     }
 }

@@ -4,8 +4,10 @@ import lombok.extern.flogger.Flogger;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.Locale;
 import java.util.Random;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collector;
@@ -53,10 +55,22 @@ public final class StringUtil
     }
 
     /**
-     * Removes the trailing new line from a {@link StringBuilder}.
+     * Checks if a {@link CharSequence} has a trailing new line.
+     *
+     * @param charSequence
+     *     The {@link CharSequence} to check.
+     * @return True if the {@link CharSequence} has a trailing new line.
+     */
+    static boolean hasTrailingNewLine(CharSequence charSequence)
+    {
+        return !charSequence.isEmpty() && charSequence.charAt(charSequence.length() - 1) == '\n';
+    }
+
+    /**
+     * Removes all trailing new lines from a {@link StringBuilder}.
      *
      * @param sb
-     *     The {@link StringBuilder} to remove the trailing new line from.
+     *     The {@link StringBuilder} to remove the trailing new lines from.
      *     <p>
      *     This object is modified in place.
      *     <p>
@@ -64,11 +78,28 @@ public final class StringUtil
      * @return The {@link StringBuilder} for chaining.
      */
     @Contract("_ -> param1")
-    public static StringBuilder removeTrailingNewLine(StringBuilder sb)
+    public static StringBuilder removeTrailingNewLines(StringBuilder sb)
     {
-        if (!sb.isEmpty() && sb.charAt(sb.length() - 1) == '\n')
+        while (hasTrailingNewLine(sb))
             sb.deleteCharAt(sb.length() - 1);
         return sb;
+    }
+
+    /**
+     * Removes all trailing new lines from a {@link String}.
+     *
+     * @param string
+     *     The {@link String} to remove the trailing new lines from.
+     *     <p>
+     *     If the {@link String} is empty or does not end with a new line, the same object is returned.
+     * @return The {@link String} without trailing new lines.
+     */
+    public static String removeTrailingNewLines(CharSequence string)
+    {
+        String ret = string.toString();
+        while (hasTrailingNewLine(ret))
+            ret = ret.substring(0, ret.length() - 1);
+        return ret;
     }
 
     /**
@@ -121,10 +152,94 @@ public final class StringUtil
     }
 
     /**
+     * Formats a collection of objects into a string.
+     * <p>
+     * The objects are formatted using the provided mapper function. The resulting strings are joined with a delimiter
+     * and indented by the provided amount.
+     * <p>
+     * For example, given a collection of Strings ["A", "B", "C"], a mapper that returns the input string, and an indent
+     * of 0, the resulting string would be:
+     * <pre>{@code
+     * - A
+     * - B
+     * - C
+     * }</pre>
+     * <p>
+     * Note that there is no trailing delimiter or new line.
+     *
+     * @param collection
+     *     The collection of objects to format.
+     * @param mapper
+     *     The function to map the objects to strings.
+     * @param indent
+     *     The amount of spaces to indent the lines. This is the number of spaces before each '-'.
+     * @param <T>
+     *     The type of the objects in the collection.
+     * @return A formatted string.
+     */
+    public static <T> String formatCollection(
+        Collection<T> collection,
+        Function<T, String> mapper,
+        int indent)
+    {
+        final String delimiter = "\n" + " ".repeat(indent) + "- ";
+        final String prefix = collection.isEmpty() ? "" : "(" + collection.size() + ")";
+        return prefix + collection.stream().map(mapper).collect(stringCollector(delimiter));
+    }
+
+    /**
+     * Formats a collection of objects into a string.
+     * <p>
+     * This method is a shortcut for {@link #formatCollection(Collection, Function, int)} with an indent of 0.
+     *
+     * @param collection
+     *     The collection of objects to format.
+     * @param mapper
+     *     The function to map the objects to strings.
+     * @param <T>
+     *     The type of the objects in the collection.
+     * @return A formatted string.
+     */
+    public static <T> String formatCollection(Collection<T> collection, Function<T, String> mapper)
+    {
+        return formatCollection(collection, mapper, 0);
+    }
+
+    /**
+     * Formats a collection of objects into a string.
+     * <p>
+     * This method is a shortcut for {@link #formatCollection(Collection, Function, int)} with a mapper that calls
+     * {@link Object#toString()}.
+     *
+     * @param collection
+     *     The collection of objects to format.
+     * @return A formatted string.
+     */
+    public static String formatCollection(Collection<?> collection, int indent)
+    {
+        return formatCollection(collection, Object::toString, indent);
+    }
+
+    /**
+     * Formats a collection of objects into a string.
+     * <p>
+     * This method is a shortcut for {@link #formatCollection(Collection, Function, int)} with an indent of 0 and the
+     * mapper that calls {@link Object#toString()}.
+     *
+     * @param collection
+     *     The collection of objects to format.
+     * @return A formatted string.
+     */
+    public static String formatCollection(Collection<?> collection)
+    {
+        return formatCollection(collection, Object::toString, 0);
+    }
+
+    /**
      * Creates a collector that collects a stream of strings into a formatted string.
      * <p>
-     * For example, given a delimiter of "\n  - " and an empty String of "[]", and a stream "A" with values "1", "2",
-     * and "3", the resulting string would be:
+     * For example, given a delimiter of "\n  - " and an empty String of "{}", and a stream with values "1", "2", and
+     * "3", the resulting string would be:
      * <pre>{@code
      * - 1
      * - 2
@@ -132,9 +247,15 @@ public final class StringUtil
      * }</pre>
      * <p>
      * Given the same delimiter and empty string, but an empty stream, the resulting string would be:
-     * <pre>{@code []}</pre>
+     * <pre>{@code {}}</pre>
      * <p>
      * Note that there is no trailing delimiter or new line.
+     * <p>
+     * Example usage:
+     * <pre>{@code
+     * List<String> list = List.of("1", "2", "3");
+     * String formatted = list.stream().collect(StringUtil.stringCollector("\n  - ", "{}"));
+     * }</pre>
      *
      * @param delimiter
      *     The delimiter to prepend to each string in the stream.
@@ -155,5 +276,32 @@ public final class StringUtil
             },
             sb -> sb.isEmpty() ? emptyString : sb.toString()
         );
+    }
+
+    /**
+     * Creates a collector that collects a stream of strings into a formatted string.
+     * <p>
+     * This method is a shortcut for {@link #stringCollector(String, String)} with the empty string "{}".
+     *
+     * @param delimiter
+     *     The delimiter to prepend to each string in the stream.
+     * @return A collector that collects the stream into a formatted string.
+     */
+    public static Collector<String, ?, String> stringCollector(String delimiter)
+    {
+        return stringCollector(delimiter, "{}");
+    }
+
+    /**
+     * Creates a collector that collects a stream of strings into a formatted string.
+     * <p>
+     * This method is a shortcut for {@link #stringCollector(String, String)} with the empty string "{}" and the
+     * delimiter "\n- ".
+     *
+     * @return A collector that collects the stream into a formatted string.
+     */
+    public static Collector<String, ?, String> stringCollector()
+    {
+        return stringCollector("\n- ", "{}");
     }
 }
