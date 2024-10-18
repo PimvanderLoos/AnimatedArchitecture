@@ -6,12 +6,13 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IKeyed;
 import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
+import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.structures.RedstoneMode;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
+import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,15 +32,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class Property<T> implements IKeyed
 {
     /**
-     * A set of all registered property names.
+     * The registry of all registered properties.
      */
-    private static final Map<String, Property<?>> REGISTERED_PROPERTIES = new ConcurrentHashMap<>(10);
-
-    /**
-     * An unmodifiable view of the registered properties.
-     */
-    private static final Map<String, Property<?>> UNMODIFIABLE_REGISTERED_PROPERTIES =
-        Collections.unmodifiableMap(REGISTERED_PROPERTIES);
+    public static final Registry REGISTRY = new Registry();
 
     /**
      * The namespace and key of the property.
@@ -189,7 +184,7 @@ public final class Property<T> implements IKeyed
         if (defaultValue != null && !type.isInstance(defaultValue))
             throw new IllegalArgumentException("Default value " + defaultValue + " is not of type " + type.getName());
 
-        registerProperty(this);
+        REGISTRY.register(this);
     }
 
     /**
@@ -258,50 +253,9 @@ public final class Property<T> implements IKeyed
     }
 
     /**
-     * Registers the given property.
-     * <p>
-     * If a property with the same name already exists, a warning will be logged and the old property will be replaced.
-     * <p>
-     * This method is thread-safe and handles the REGISTERED_PROPERTIES map atomically.
-     *
-     * @param property
-     *     The property to register.
-     */
-    private static void registerProperty(Property<?> property)
-    {
-        REGISTERED_PROPERTIES.compute(property.getFullKey(), (key, value) ->
-        {
-            if (value != null)
-                log.atSevere().log(
-                    "Property with name '%s' has already been registered with value '%s'!" +
-                        " It will be replaced by property '%s'!",
-                    key,
-                    value,
-                    property
-                );
-            return property;
-        });
-    }
-
-    /**
-     * Gets a map of all registered properties.
-     * <p>
-     * The keys are the full keys of the properties.
-     * <p>
-     * The values are the properties themselves.
-     * <p>
-     * Note that the map returns an unmodifiable view of the registered properties. However, the underlying map may
-     * still be modified when new properties are registered.
-     *
-     * @return An unmodifiable map of all registered properties.
-     */
-    public static Map<String, Property<?>> getRegisteredProperties()
-    {
-        return UNMODIFIABLE_REGISTERED_PROPERTIES;
-    }
-
-    /**
      * Gets the property with the given serialization name.
+     * <p>
+     * Shortcut for {@link Registry#fromName(String)} with {@link #REGISTRY}.
      *
      * @param propertyKey
      *     The serialization name of the property.
@@ -309,7 +263,7 @@ public final class Property<T> implements IKeyed
      */
     public static @Nullable Property<?> fromName(String propertyKey)
     {
-        return getRegisteredProperties().get(propertyKey);
+        return REGISTRY.fromName(propertyKey);
     }
 
     /**
@@ -335,6 +289,64 @@ public final class Property<T> implements IKeyed
         catch (ClassCastException e)
         {
             throw new IllegalArgumentException("Provided incompatible value for property " + this, e);
+        }
+    }
+
+    /**
+     * The registry of all registered properties.
+     * <p>
+     * All instances of the {@link Property} class are registered in this class.
+     */
+    public static final class Registry implements IDebuggable
+    {
+        /**
+         * The map of all registered properties mapped by their {@link Property#getFullKey()} to the property instance.
+         */
+        private final Map<String, Property<?>> registeredProperties = new ConcurrentHashMap<>(10);
+
+        /**
+         * Gets the property with the given serialization name.
+         *
+         * @param propertyKey
+         *     The serialization name of the property.
+         * @return The property with the given serialization name, or null if no property with that name exists.
+         */
+        public @Nullable Property<?> fromName(String propertyKey)
+        {
+            return registeredProperties.get(propertyKey);
+        }
+
+        /**
+         * Registers the given property.
+         * <p>
+         * If a property with the same name already exists, a warning will be logged and the old property will be
+         * replaced.
+         * <p>
+         * This method is thread-safe and handles the REGISTERED_PROPERTIES map atomically.
+         *
+         * @param property
+         *     The property to register.
+         */
+        private void register(Property<?> property)
+        {
+            registeredProperties.compute(property.getFullKey(), (key, value) ->
+            {
+                if (value != null)
+                    log.atSevere().log(
+                        "Property with name '%s' has already been registered with value '%s'!" +
+                            " It will be replaced by property '%s'!",
+                        key,
+                        value,
+                        property
+                    );
+                return property;
+            });
+        }
+
+        @Override
+        public String getDebugInformation()
+        {
+            return "Registered properties: " + StringUtil.formatCollection(registeredProperties.keySet());
         }
     }
 }
