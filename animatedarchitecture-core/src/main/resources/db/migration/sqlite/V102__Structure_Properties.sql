@@ -24,6 +24,29 @@ WHERE type NOT IN ('animatedarchitecture:windmill', 'animatedarchitecture:flag',
 UPDATE Structure
 SET bitflag = bitflag & ~1;
 
+
+-- Convert the 'quarterCircles` entries in the 'typeData' column to Property.QUARTER_CIRCLES in
+-- the 'properties' column for the types that support this property.
+UPDATE Structure
+SET properties = json_set(
+    properties,
+    '$.animatedarchitecture:quarter_circles', json_object('value', json_extract(typeData, '$.quarterCircles'))
+)
+WHERE json_extract(typeData, '$.quarterCircles') IS NOT NULL;
+
+-- Same as above, but for the 'blocksToMove' entry in the 'typeData' column.
+UPDATE Structure
+SET properties = json_set(
+    properties,
+    '$.animatedarchitecture:blocks_to_move', json_object('value', json_extract(typeData, '$.blocksToMove'))
+)
+WHERE json_extract(typeData, '$.blocksToMove') IS NOT NULL;
+
+-- Remove the 'quarterCircles' and 'blocksToMove' entries from the 'typeData' column.
+UPDATE Structure
+SET typeData = json_remove(typeData, '$.blocksToMove', '$.quarterCircles')
+WHERE json_extract(typeData, '$.blocksToMove') IS NOT NULL OR json_extract(typeData, '$.quarterCircles') IS NOT NULL;
+
 -- Rename the 'openDirection' column to 'animationDirection', since some types no longer have an 'open' state.
 ALTER TABLE Structure RENAME COLUMN openDirection TO animationDirection;
 
